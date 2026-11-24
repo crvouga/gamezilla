@@ -72,7 +72,7 @@ export type QuintWorld<W> = {
     matches: () => Promise<boolean>,
     opts: { readonly stepMs?: number }
   ) => Promise<void>;
-  /** Run one trace step as a labelled step of the world's report. */
+  /** Wrap each trace step: observe or capture evidence around it. */
   readonly record?: <T>(
     world: W,
     meta: TraceStepMeta,

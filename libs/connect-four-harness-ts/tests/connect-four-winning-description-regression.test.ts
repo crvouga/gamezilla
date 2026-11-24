@@ -7,7 +7,7 @@ import { openHarness } from './open-connect-four-harness';
 
 // regression: connect-four-winning-description
 test('the completed board describes all four winning discs accessibly', async () => {
-  await using s = await openHarness('connect-four-winning-description');
+  await using s = await openHarness();
   await s.apply(establishConnectFour, { moves: [0, 6, 1, 6, 2, 6, 3] });
   const board = (await s.read(connectFourBoardDescription, 'alice')) ?? '';
   expect(board.match(/winning disc/g) ?? []).toHaveLength(4);

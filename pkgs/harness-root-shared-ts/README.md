@@ -3,7 +3,7 @@
 Deterministic simulation testing for TypeScript. Same seed + args + action
 choices ⇒ the same timeline. Packages declare a **System** that boots a typed
 surface `S` behind a **Runtime**; the framework drives **Actions**, checks
-**Properties**, captures **Snapshots**, and records a **Recording** for replay.
+**Properties**, and records a **Recording** for replay.
 The algebra does not know about clients, browsers, SQL, rooms, or networks — a
 Runtime supplies those. Root policy: [`README.md`](../../README.md#correctness-machinery).
 
@@ -15,24 +15,18 @@ Runtime supplies those. Root policy: [`README.md`](../../README.md#correctness-m
 | --- | --- |
 | **Runtime** | Fidelity factory (`virtualTimeRuntime` / `realTimeRuntime`) or a catalog entry from `defineRuntime`. Passed into `defineSystem` via `runtimes`; opens a Session. |
 | **Session** | Kernel + ports for one node (`clock`, `timers`, `createId`, `random`, `network`, `fork`, `waitForIdle`, `advanceTime`). Harness-only. |
-| **System** | `defineSystem({ name, create, runtimes, actions?, properties?, snapshots?, args?, sample? })` — recipe → `S` with catalogs declared upfront. |
+| **System** | `defineSystem({ name, create, runtimes, actions?, properties?, args?, sample? })` — recipe → `S` with catalogs declared upfront. |
 | **harness `S`** | Typed surface returned by `create(session, args)`. Data only — no wait/drain methods. |
 | **Action** | Named stimulus `{ enabled, weight, args?, sample?, pool?, act, is }` from `defineAction`, listed in `defineSystem({ actions })`. `action.is(checkpoint)` narrows the applied stimulus inside a property. |
 | **Property** | Model-based checkpoint check `{ setup?, check(s, model, action) }` from `defineProperty`, listed in `defineSystem({ properties })`. Assert with the pre-update model; optionally return the next model. `action` is null on boot / `s.assert` / dispose. |
-| **Snapshot** | Named capture `{ media?, capture }` from `defineSnapshot`, listed in `defineSystem({ snapshots })`. Value may be any type; `media` (`json` / `html` / `png` / `text` / `bytes`) controls encoding and UI. |
-| **Run** | Opened by `system.run({ seed, runtime?, args?, report? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions` / `record` / `snapshot`. |
-| **RunReport** | Timeline of report steps + frames for one test. Built when `report` is enabled; optionally persisted to an ObjectStore (`runs/<runId>/tests/<testId>/report.json` + `frames/`). `report: { frames: false }` keeps the timeline (every step, outcome and error) without capturing snapshots — cheap enough to leave on for every run. |
-| **record** | `s.record({ kind, title, selector?, actorId? }, fn)` — one labeled report step. Steps nest: `record` / `apply` inside an open step become its children. `advanceTime` never opens a step. |
-| **describe** | Optional `defineAction({ describe: (...args) => string })` — report title for `s.apply`; default `name(arg, …)`. `report: false` hides a harness-only action from the timeline. |
-| **fail** | `s.fail(err)` — mark the run failed for an error raised outside any step (test-body assertion). |
-| **Report viewer** | `@crvouga/atlas/reports` — CI publishes each run's buckets to a shared object store keyed by commit (`@crvouga/atlas/reports/publish`), a reports API streams them out, and the standalone Atlas visualizer renders them as they arrive. UI suites (`html` / `png`) get phone panels + press overlays; a frame with no UI snapshot, including a Quint step, is painted as HTML from the step's recorded state. `parseJunit` / `applyJunitOutcomes` live in `@crvouga/atlas/reports/junit`. |
+| **Run** | Opened by `system.run({ seed, runtime?, args? })`. Drive with `apply` / `read` / `assert` / `advanceTime` / `until` / `never` / `randomActions`. |
 | **randomActions** | Weighted random walk over the action pool (`s.randomActions`). Returns a `RandomActionsReport`. |
 | **explore** | `system.explore` — search (episodes × randomActions + shrink). Throws `ExploreFailedError`. |
-| **replay** | `system.replay(recording)` — re-apply a Recording / report path. |
+| **replay** | `system.replay(recording)` — re-apply a Recording. |
 | **Recording** | `{ version, seed, args, steps, meta }` — shrinkable repro artifact (action log, not UI frames). |
 | **sample** | How explore / randomActions draws system args (`sample: () => Gen<Args>`) or action args (`sample: (s) => Gen<A>`). |
 | **waitForIdle** | `session.waitForIdle()` — drain the scheduler to quiescence (also runs after each checkpoint). |
-| **advanceTime** | `s.advanceTime(ms)` — virtual (or wall) clock tick as a checkpoint. Does **not** open a report step. |
+| **advanceTime** | `s.advanceTime(ms)` — virtual (or wall) clock tick as a checkpoint. |
 | **read** | Plain `(s: S, ...args) => T`. Observed via `s.read(fn, …args)`. |
 
 ---
@@ -41,13 +35,13 @@ Runtime supplies those. Root policy: [`README.md`](../../README.md#correctness-m
 
 | Import | Contents |
 | --- | --- |
-| `@pkgs/harness-root-shared-ts` | `defineSystem` / `defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + reporting (`RunReport`, `RunReportOptions`, `parseJunit`, …) + types (`Run`, `System`, `Action`, …) |
+| `@pkgs/harness-root-shared-ts` | `defineSystem` / `defineAction` / `defineProperty` / `defineRuntime` / `virtualTimeRuntime` / `realTimeRuntime` / Recording helpers + types (`Run`, `System`, `Action`, …) |
 | `@pkgs/harness-root-shared-ts/internals` | Clock / scheduler / rng / network factories. **Runtime authors only.** |
 | `@pkgs/harness-root-shared-ts/fast-check` | `gen(arbitrary)`, `arbitrary(gen)`, `randomGeneratorOver` (`assertProperty` and JSON arbs live in the leaf `@pkgs/property-shared-ts`) |
 
 Free `explore` / `replay` / `run` are **not** exported from the root — use
 `system.explore` / `system.replay` / `system.run`. Catalog nouns use
-`defineAction` / `defineProperty` / `defineSnapshot` / `defineRuntime` and are
+`defineAction` / `defineProperty` / `defineRuntime` and are
 passed into `defineSystem` upfront.
 
 ---
@@ -59,7 +53,6 @@ import {
   defineAction,
   defineProperty,
   defineRuntime,
-  defineSnapshot,
   defineSystem,
   virtualTimeRuntime,
 } from '@pkgs/harness-root-shared-ts';
@@ -111,18 +104,12 @@ export const kv = defineSystem({
       },
     }),
   ],
-  snapshots: [
-    defineSnapshot({
-      name: 'store',
-      capture: (s) => s.server.dump(),
-    }),
-  ],
 });
 
 export const get = (s: KvHarness, client: string, key: string) =>
   s.clients.find((c) => c.id === client)!.get(key);
 
-await using s = await kv.run({ seed: 7, report: true });
+await using s = await kv.run({ seed: 7 });
 await s.apply(put);
 await s.apply(put, 'client:1', 'b', '2');
 expect(await s.read(get, 'client:0', 'a')).toBe('1');
@@ -141,8 +128,6 @@ Omit `sample` on the system when every episode should use `args`.
 src/index.ts       public algebra
 src       virtualTimeRuntime / realTimeRuntime / createRuntime (internal) / Session
 src        defineSystem / defineAction / defineProperty / defineRuntime / recording
-src/report/        Snapshot / RunReport / RunReporter / ObjectStore persist
-src   in-memory report tests (frames inline) + JUnit overlay
 src           run / randomActions / explore / checkpoint (internal)
 src/internals/     clocks, schedulers, rng, fingerprint, json, timers
 src/models/        in-process network
@@ -151,32 +136,9 @@ src    gen / arbitrary adapters
 
 ---
 
-## Reporting
-
-```ts
-await using s = await kv.run({
-  seed: 7,
-  report: { store, runId: 'latest', testId: 'kv-put', title: 'puts a value' },
-});
-await s.apply(put, 'client:0', 'a', '1'); // step "put(\"client:0\", \"a\", \"1\")" + frame
-await s.record({ kind: 'ui', title: 'tap', selector: 'testId("ok")' }, tapOk);
-```
-
-CI publishes the bucket to the shared reports store keyed by commit
-(`@crvouga/atlas/reports/publish`); Atlas reads it.
-
-Frames come only from `defineSystem({ snapshots })`. Media is suite-agnostic:
-`json` / `text` / `bytes` for headless state (sync-engine, matchmaking, …),
-`html` / `png` for UI. Multi-actor captures may return a `Record<nodeId, …>`
-for `html` / `png` / `text` / `json` (json values must be objects/arrays). UI
-harnesses wrap drivers with `@pkgs/ui-testing-root-shared-ts` `recordingDriver` so every op is
-a titled step with an optional `hit` (path + rect + tap point); UI steps
-snapshot *before* the gesture so the viewer can overlay the pressed
-element.
-
 ## Do / don't
 
-- **Do** pass actions, properties, snapshots, and runtimes into `defineSystem` upfront.
+- **Do** pass actions, properties, and runtimes into `defineSystem` upfront.
 - **Do** keep `S` as data. Reads = functions; stimuli = actions.
 - **Do** put defaults on `args` and samplers on `sample`.
 - **Do** wait with `s.until` / `s.never`; advance with `s.advanceTime`.

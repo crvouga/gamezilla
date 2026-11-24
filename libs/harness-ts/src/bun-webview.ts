@@ -114,7 +114,6 @@ async function openStackExtra(
     ui: {
       kind: 'bun-webview' as const,
       webOrigin: addresses.webOrigin,
-      captureScreenshots: process.env['JOURNEY_CAPTURE_STEPS'] === '1',
     },
     http: {
       kind: 'stack' as const,
@@ -159,7 +158,6 @@ export function bunWebviewRuntime(
       ui: {
         kind: 'bun-webview' as const,
         webOrigin,
-        captureScreenshots: process.env['JOURNEY_CAPTURE_STEPS'] === '1',
       },
       http: { kind: 'localhost' as const, origin: apiOrigin },
       drainServerHttp: { current: () => Promise.resolve() },

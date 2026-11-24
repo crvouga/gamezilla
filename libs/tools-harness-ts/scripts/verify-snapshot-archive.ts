@@ -20,7 +20,6 @@ export async function archiveVerifySnapshot(root: string): Promise<string> {
       '--exclude=node_modules',
       '--exclude=.git',
       '--exclude=.turbo/cache',
-      '--exclude=.cache/ui-quality-model',
       '--exclude=.cache/secrets',
       '-C',
       basename(root),

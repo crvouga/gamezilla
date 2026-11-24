@@ -15,8 +15,7 @@ import { useProductHarnessSession } from './use-product-harness-session';
  * panel per node of the running system.
  *
  * `nav` (window layout and each node's view) is controlled by the host so
- * it can sync to browser history. Test reports live in the standalone Atlas
- * explorer, not a screen here.
+ * it can sync to browser history.
  */
 export function HarnessConsoleApp(props: {
   readonly shell: Component<PreviewShellProps>;

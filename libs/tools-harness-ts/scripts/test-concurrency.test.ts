@@ -8,7 +8,7 @@ import fc from 'fast-check';
 import { localVerifyEnv } from './local-verify-queue';
 
 // regression: local-verify-product-contract-concurrency
-test('product model and rendering contracts respect local test concurrency', async () => {
+test('product model contracts respect local test concurrency', async () => {
   const manifest = JSON.parse(
     readFileSync(
       join(import.meta.dirname, '../../../apps/product-ts/package.json'),
@@ -21,16 +21,8 @@ test('product model and rendering contracts respect local test concurrency', asy
     /^test:contract:\d+$/.test(name)
   );
   expect(parts.length).toBeGreaterThan(0);
-  const commands = [
-    ...parts.map(([, script]) => script),
-    manifest.scripts['test:contract:render']!,
-  ];
-  for (const [, script] of parts) {
-    expect(script).toContain('tests/quint/model-checks.test.ts');
-    expect(script).not.toContain('ui-quality-render');
-  }
-  expect(commands.at(-1)).toContain('tests/ui-quality-render.contract.test.ts');
-  for (const command of commands) {
+  for (const [, command] of parts) {
+    expect(command).toContain('tests/quint/model-checks.test.ts');
     expect(command).toContain(
       '--max-concurrency=$(bun ../../pkgs/os-server-ts/src/test-concurrency.ts 2)'
     );

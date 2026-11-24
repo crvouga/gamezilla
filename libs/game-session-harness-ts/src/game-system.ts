@@ -158,8 +158,7 @@ export function gameSystem(
 /** Open a world of `system`, ending any search a scenario left waiting. */
 export async function openGameHarness(
   system: ReturnType<typeof gameSystem>,
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return withOpponentSearchCleanup(await openHarness(system, testId, options));
+  return withOpponentSearchCleanup(await openHarness(system, options));
 }

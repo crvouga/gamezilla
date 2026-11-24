@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
-import { mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 
 // regression: empty-spec-part-passes
-test('an empty configured part fails instead of publishing a passing report', async () => {
+test('an empty configured part fails instead of passing', async () => {
   const root = mkdtempSync(join(tmpdir(), 'empty-spec-part-'));
   try {
     writeFileSync(join(root, 'package.json'), '{"specDomains":[]}');
@@ -24,7 +24,6 @@ test('an empty configured part fails instead of publishing a passing report', as
           ...process.env,
           npm_package_name: '@libs/empty',
           HARNESS_MODE: 'mem',
-          ATLAS_REPORT_ATTEMPT_ID: 'empty-part-attempt',
         },
       }
     );
@@ -34,26 +33,6 @@ test('an empty configured part fails instead of publishing a passing report', as
     ]);
     expect(status).toBe(1);
     expect(error).toContain('remove the empty part or fix its spec scope');
-    expect(
-      (
-        JSON.parse(
-          readFileSync(
-            join(root, '.cache/harness-report/part-0/complete.json'),
-            'utf8'
-          )
-        ) as { status: number }
-      ).status
-    ).toBe(1);
-    expect(
-      (
-        JSON.parse(
-          readFileSync(
-            join(root, '.cache/harness-report/part-0/complete.json'),
-            'utf8'
-          )
-        ) as { attemptId: string }
-      ).attemptId
-    ).toBe('empty-part-attempt');
   } finally {
     removeTree(root, { whenLocked: 'leave' });
   }

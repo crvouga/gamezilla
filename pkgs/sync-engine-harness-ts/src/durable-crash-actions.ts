@@ -41,7 +41,6 @@ function outcomes(s: SyncHarness): Map<string, DurableWriteOutcome> {
 /** Number this client's durable boundaries from its next open. */
 export const trackDurableBoundaries = defineAction({
   name: 'trackDurableBoundaries',
-  report: false,
   act: (s: SyncHarness, clientId: string) => {
     s.runtime.kernel.durableCrashPoints.track(clientId);
   },

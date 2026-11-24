@@ -37,7 +37,7 @@ const goBack = scenarioAction({
 // regression: puzzle-import-derived-snapshot-loop
 // regression: puzzle-import-blocks-request
 test('chess developer loader accepts a two-part CSV and leaves its worker available to stop', async () => {
-  await using s = await openHarness('puzzle-loader-navigation');
+  await using s = await openHarness();
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(joinPuzzleTeam, 'alice');
   await s.apply(createSpace, 'alice');
@@ -73,7 +73,7 @@ test('chess developer loader accepts a two-part CSV and leaves its worker availa
 }, 30000);
 
 test('chess developer settings hides puzzle loading when the permission is denied', async () => {
-  await using s = await openHarness('puzzle-loader-navigation-denied');
+  await using s = await openHarness();
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(createSpace, 'alice');
   await s.apply(openChessPuzzleDeveloperSettings, 'alice');

@@ -1,15 +1,14 @@
 import { describe, expect, test } from 'bun:test';
-import type { RecordStepMeta } from '@crvouga/atlas/reports/report-types';
 import type {
   Driver,
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { recordingDriver } from '@pkgs/ui-testing-root-shared-ts/recording-driver';
-import type { StepRecorder } from '@pkgs/ui-testing-root-shared-ts/step-recorder';
-import {
-  describeUiOp,
-  performUiOp,
-} from '@pkgs/ui-testing-root-shared-ts/ui-op';
+import type {
+  StepMeta,
+  StepRecorder,
+} from '@pkgs/ui-testing-root-shared-ts/step-recorder';
+import { performUiOp } from '@pkgs/ui-testing-root-shared-ts/ui-op';
 
 function fakeNode(log: string[], path: string[]): DriverNode {
   const node: DriverNode = {
@@ -72,8 +71,8 @@ function fakeDriver(log: string[]): Driver & { inventory: () => Promise<{}> } {
   };
 }
 
-function recorder(): StepRecorder & { readonly metas: RecordStepMeta[] } {
-  const metas: RecordStepMeta[] = [];
+function recorder(): StepRecorder & { readonly metas: StepMeta[] } {
+  const metas: StepMeta[] = [];
   return {
     metas,
     record: async (meta, fn) => {
@@ -84,13 +83,10 @@ function recorder(): StepRecorder & { readonly metas: RecordStepMeta[] } {
 }
 
 describe('recordingDriver', () => {
-  test('records ops with selector and actor; reads pass through', async () => {
+  test('records ops with their selector; reads pass through', async () => {
     const log: string[] = [];
     const rec = recorder();
-    const driver = recordingDriver(fakeDriver(log), {
-      recorder: rec,
-      actorId: 'alice',
-    });
+    const driver = recordingDriver(fakeDriver(log), { recorder: rec });
     await driver.get('modal').get('ok').tap();
     await driver.get('email').input('a@b.c');
     await driver.get('home').expect.visible();
@@ -110,11 +106,6 @@ describe('recordingDriver', () => {
       ['expect', 'expect visible', 'testId("home")'],
       ['ui', 'key escape', 'testId(<empty>)'],
     ]);
-    expect(rec.metas.every((m) => m.actorId === 'alice')).toBe(true);
-    expect(rec.metas[0]!.hit).toEqual({ path: ['modal', 'ok'] });
-    expect(rec.metas[0]!.snapshotBefore).toBe(true);
-    expect(rec.metas[2]!.hit).toBeUndefined();
-    expect(rec.metas[3]!.hit).toBeUndefined();
   });
 
   test('forwards explore inventory when present', async () => {
@@ -124,7 +115,7 @@ describe('recordingDriver', () => {
 });
 
 describe('UiOp', () => {
-  test('performUiOp interprets ops; describeUiOp titles them', async () => {
+  test('performUiOp interprets ops', async () => {
     const log: string[] = [];
     const driver = fakeDriver(log);
     await performUiOp(driver, {
@@ -146,24 +137,5 @@ describe('UiOp', () => {
       extra: { key: 'enter' },
     });
     expect(log).toEqual(['tap x.y', 'input hey', 'root key enter']);
-    expect(
-      describeUiOp({ actorId: 'a', op: 'tap', path: ['x', 'y'], extra: {} })
-    ).toBe('tap testId("x") >> testId("y")');
-    expect(
-      describeUiOp({
-        actorId: 'a',
-        op: 'input',
-        path: ['f'],
-        extra: { text: 'hey' },
-      })
-    ).toBe('input "hey" testId("f")');
-    expect(
-      describeUiOp({
-        actorId: 'a',
-        op: 'key',
-        path: [],
-        extra: { key: 'escape' },
-      })
-    ).toBe('key escape');
   });
 });

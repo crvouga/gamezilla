@@ -58,7 +58,7 @@ test("a matched game's abort window counts two accepted moves as both people hav
 const SYSTEM = gameSystem('double-turn', [assertHarnessGame(DOUBLE_TURN_GAME)]);
 
 test('the custom-game engine itself seats each move by the turn the rules give', async () => {
-  await using s = await openGameHarness(SYSTEM, 'double-turn-probe');
+  await using s = await openGameHarness(SYSTEM);
   // Alice (first side) moves twice in a row; the lineup plays each move
   // by whoever the game says has the turn.
   await s.apply(establishCustomGame, 'double-turn', { moves: ['one', 'one'] });

@@ -24,7 +24,7 @@ const SYSTEM = gameSystem('solo-navigation', [SOLO_COUNT_GAME], {
 
 // regression: solver-only-line-selection-negative-ply
 test('selecting zero on the shared solo line reaches the supplied position', async () => {
-  await using s = await openGameHarness(SYSTEM, 'solo-select-zero');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   await s.apply(writeKnownPuzzlePool, id, [{ id: 'solo-count/two-twos' }]);
   await s.apply(createSpace, 'alice');
@@ -40,7 +40,7 @@ test('selecting zero on the shared solo line reaches the supplied position', asy
 
 // regression: puzzle-only-menu-requires-custom-game
 test('the shared space view recognizes puzzle-only choices and returns to the game list', async () => {
-  await using s = await openGameHarness(SYSTEM, 'solo-space-view');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   await s.apply(createSpace, 'alice');
   await s.apply(openGamePuzzles, 'alice', id);

@@ -25,7 +25,7 @@ const SYSTEM = gameSystem('solo-personal-stats', [SOLO_COUNT_GAME], {
 // regression: solo-personal-review-opens-at-zero
 test('personal stats and review are inherited without a game-owned settings wrapper', async () => {
   expect(SOLO_COUNT_GAME.slice).toBeUndefined();
-  await using s = await openGameHarness(SYSTEM, 'solo-personal-stats');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   const puzzle = 'solo-count/two-twos';
   await s.apply(signInWithGoogle, 'alice');

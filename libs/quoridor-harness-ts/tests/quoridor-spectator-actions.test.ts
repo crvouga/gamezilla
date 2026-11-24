@@ -9,7 +9,7 @@ import { openHarness } from './open-quoridor-harness';
 
 // regression: quoridor-spectator-missing-tools
 test('seed 1 sends spectator pawn and wall attempts through the product refusal', async () => {
-  await using s = await openHarness('quoridor-spectator-actions', { seed: 1 });
+  await using s = await openHarness({ seed: 1 });
   await s.apply(establishQuoridor, { watchers: ['eve'] });
   const before = await s.read(quoridorView);
   await s.apply(moveQuoridorPawn, 'eve', 'e2');

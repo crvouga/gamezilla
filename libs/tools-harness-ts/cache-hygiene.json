@@ -240,14 +240,6 @@
     }
   },
   "broadInputs": {
-    "@apps/product-ts#prepare:ui-quality": {
-      "patterns": 1,
-      "reason": "renders the CSS modules of every package"
-    },
-    "@apps/product-ts#test:contract:render": {
-      "patterns": 1,
-      "reason": "renders the CSS modules of every package"
-    },
     "@libs/tools-harness-ts#ci:cache-hygiene": {
       "patterns": 4,
       "reason": "repository gate: reads every package's manifest, turbo.json, Biome slice and sources"
@@ -267,10 +259,6 @@
     "@libs/tools-harness-ts#ci:specs": {
       "patterns": 30,
       "reason": "repository gate: finds the step definitions, models and features of every package"
-    },
-    "@libs/tools-harness-ts#ci:statecharts": {
-      "patterns": 1,
-      "reason": "reads the sub-client entry of every client package"
     },
     "@libs/tools-harness-ts#ci:syncpack": {
       "patterns": 3,

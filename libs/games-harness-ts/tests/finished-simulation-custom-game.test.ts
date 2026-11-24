@@ -13,9 +13,7 @@ import { openConformanceHarness } from './conformance-world';
 test.each([PONG_HARNESS_GAME, LIGHT_CYCLES_DUEL_HARNESS_GAME])(
   '$label reaches a finished custom game from its own terminal example',
   async (game) => {
-    await using s = await openConformanceHarness(
-      `finished-simulation-${game.shared.id}`
-    );
+    await using s = await openConformanceHarness();
     await s.apply(establishCustomGame, game.shared.id, {});
     await s.apply(
       restoreSharedSimulationAt,

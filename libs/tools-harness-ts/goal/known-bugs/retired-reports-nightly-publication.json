@@ -1,4 +1,0 @@
-{
-  "summary": "Nightly publication still required the deliberately retired optional reports store in CI and attempted output preparation when its credentials were entirely absent.",
-  "regressionTest": "libs/tools-harness-ts/scripts/report-optional-publication.test.ts"
-}

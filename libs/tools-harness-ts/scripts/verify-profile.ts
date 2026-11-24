@@ -100,9 +100,8 @@ export const NIGHTLY_SUITES = {
     deadlineSeconds: 18_000,
   },
   visual: {
-    summary: 'UI quality of every recorded product state',
+    summary: 'Every Storybook story rendered and tested in a real browser',
     tasks: [
-      '@apps/product-ts#verify:ui-quality',
       '@pkgs/ui-root-harness-ts#storybook:test',
       '@pkgs/ui-root-harness-ts#storybook:mcp:test',
     ],

@@ -55,7 +55,7 @@ test('a board is given the position, never a viewer; rules decide with no actor'
 const SYSTEM = gameSystem('misere-tally-private', [MISERE_TALLY_GAME]);
 
 test('both sides and a watcher are shown the one position', async () => {
-  await using s = await openGameHarness(SYSTEM, 'private-state-probe');
+  await using s = await openGameHarness(SYSTEM);
   await s.apply(establishCustomGame, 'misere-tally', {
     watchers: ['carol'],
     moves: ['two'],

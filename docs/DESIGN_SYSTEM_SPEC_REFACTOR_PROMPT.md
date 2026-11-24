@@ -34,7 +34,7 @@ Nothing about the shipped product may change: the app must look and behave ident
 ## Visualizer
 
 - Build a spec-driven explorer in @pkgs/ui-root-client-ts (or a sibling, per package-boundaries rules) that renders tokens, type scale, spacing, and each component's contract (anatomy, props table, states grid, a11y map) from the YAML/JSON directly, with both themes side by side. It must not import @pkgs/ui components to render spec pages; it may embed the generated Solid implementation in a separate "live" tab for comparison.
-- `bun ds:viz` opens it; `bun ds:build` validates and builds it. Follow the existing Atlas/explorer conventions where they exist.
+- `bun ds:viz` opens it; `bun ds:build` validates and builds it.
 
 ## Codegen
 
@@ -50,7 +50,7 @@ Nothing about the shipped product may change: the app must look and behave ident
 - Contracts: TypeScript — generated `.d.ts` compared with the real exports (type-level test); Swift — compile-time conformance to the generated protocols.
 - Behavior: every `.feature` runs in the Solid harness (@libs/harness-ts via @pkgs/gherkin) and in an XCTest target that parses the same files with the same step vocabulary. An unbound step reports UNKNOWN and fails.
 - Accessibility: axe on every component state in Solid; XCTest performAccessibilityAudit in Swift; the contrast matrix check on tokens in CI.
-- Visual: screenshots per component state per theme per breakpoint; the Solid build is the reference; Swift compares within a stated tolerance; results publish to the reports bucket like other spec kinds.
+- Visual: screenshots per component state per theme per breakpoint; the Solid build is the reference; Swift compares within a stated tolerance.
 - Vocabulary lint over catalogs, prop names, component names, test ids.
 
 ## Repo rules you must keep

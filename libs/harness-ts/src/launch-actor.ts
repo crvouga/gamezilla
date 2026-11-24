@@ -17,8 +17,6 @@ import {
   type SqlStatement,
 } from '@pkgs/sql-client-root-shared-ts/statements';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { recordingDriver } from '@pkgs/ui-testing-root-shared-ts/recording-driver';
-import type { StepRecorder } from '@pkgs/ui-testing-root-shared-ts/step-recorder';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client-ts/multi-app-solid-dom-session';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { type MemoryHistoryAdapter, memoryHistory } from '@solidjs/router';
@@ -108,24 +106,12 @@ function reactiveViewport(runFor: (ms: number) => Promise<void>) {
   return { viewport, changeViewport };
 }
 
-function recorded(
-  raw: Driver,
-  id: string,
-  recorder: StepRecorder | undefined
-): Driver {
-  return recorder === undefined
-    ? raw
-    : recordingDriver(raw, { recorder, actorId: id });
-}
-
 type LaunchActorArgs = {
   readonly ui: ProductUi;
   readonly harness: Harness;
   readonly id: string;
   readonly snapshot?: HarnessSystemSnapshot;
   readonly browserStorage?: ActorBrowserStorage;
-  /** When set, every driver op becomes a report step for this actor. */
-  readonly recorder?: StepRecorder;
 };
 
 async function launchWebview(
@@ -182,7 +168,6 @@ async function launchWebview(
       clock: wallClock,
       timers: wallTimers,
     }),
-    screenshot: () => view.screenshot({ encoding: 'buffer' }),
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),
     mutations: webviewMutations(view),
@@ -273,7 +258,7 @@ export async function launchActor(args: LaunchActorArgs): Promise<ActorEntry> {
     closeResources,
     handle: {
       id: args.id,
-      ui: recorded(raw, args.id, args.recorder),
+      ui: raw,
       ...device,
     },
   };

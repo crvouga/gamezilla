@@ -152,7 +152,6 @@ const VERIFY_LEAVES = [
   '@libs/tools-harness-ts#ci:package-names',
   '@libs/tools-harness-ts#ci:goals',
   '@libs/tools-harness-ts#ci:specs',
-  '@libs/tools-harness-ts#ci:statecharts',
   '@libs/tools-harness-ts#ci:conformance',
   '@libs/tools-harness-ts#ci:spec-ownership',
   '@pkgs/ui-root-harness-ts#ci:storybook:0',

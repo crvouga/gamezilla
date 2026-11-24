@@ -104,7 +104,7 @@ Remaining risks:
   carry it.
 - While a deal awaits passes the framework still names South as the side to
   move (`PlayedPosition.turn` must name a side); nothing shows or times it.
-- [Stand-ins and a participant without a connection](statecharts/SPEC_CONFLICTS.md)
+- Stand-ins and a participant without a connection (`docs/statecharts/SPEC_CONFLICTS.md`)
   is unresolved between two specs.
 
 ## Checklist

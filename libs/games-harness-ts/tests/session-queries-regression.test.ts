@@ -4,7 +4,7 @@ import { openConformanceHarness as openHarness } from './conformance-world';
 
 // regression: game-history-inline-query-limit
 test('the composed session queries remain available to a second signed-in player', async () => {
-  await using s = await openHarness('game-session-queries');
+  await using s = await openHarness();
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(signInWithGoogle, 'bob');
   const replies = await s.read(async (world) => {

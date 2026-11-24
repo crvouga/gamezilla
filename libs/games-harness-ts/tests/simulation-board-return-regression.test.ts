@@ -15,9 +15,7 @@ import { openConformanceHarness } from './conformance-world';
 test.each([PONG_HARNESS_GAME, LIGHT_CYCLES_DUEL_HARNESS_GAME])(
   'returning to the custom games with $label under way shows the game still running',
   async (game) => {
-    await using s = await openConformanceHarness(
-      `simulation-board-return-${game.shared.id}`
-    );
+    await using s = await openConformanceHarness();
     await s.apply(establishCustomGame, game.shared.id, {});
     const link = await s.read(readSpaceLink, 'alice');
     // Alice steps out of the space and comes back to its custom games: the

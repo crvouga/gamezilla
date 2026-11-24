@@ -1,8 +1,7 @@
 /**
  * The world a product Quint model's traces run in: one harness per trace, opened
  * before `init` and disposed after the last step, like a Gherkin scenario's
- * (`../spec/world.ts`). Each trace step is one labelled report step holding
- * the harness calls it made, and the model's state is read back on the harness's
+ * (`../spec/world.ts`). The model's state is read back on the harness's
  * virtual clock, so a product that converges asynchronously (a push landing
  * on another device) is given the time a person would give it.
  *
@@ -19,7 +18,7 @@ import { setQuintWorld } from '@pkgs/quint-shared-ts/registry';
 
 import type { OpenHarness } from './open-harness';
 import type { OpenPackageHarness } from './spec-world';
-import { recordingRun, recordStep } from './spec-world';
+import { recordingRun } from './spec-world';
 
 export type QuintHarnessWorld = {
   /** The run. A binding's actions call `s.apply` / `s.read` on it. */
@@ -44,9 +43,7 @@ export function useQuintHarness(openHarness: OpenPackageHarness): void {
   setQuintWorld<QuintHarnessWorld>({
     create: async (ctx) => {
       const calls: string[] = [];
-      const opened = await openHarness(ctx.testId, {
-        report: { title: ctx.title, sourceFile: ctx.specUri },
-      });
+      const opened = await openHarness();
       return {
         s: recordingRun(opened, calls),
         quiet: opened,
@@ -57,12 +54,6 @@ export function useQuintHarness(openHarness: OpenPackageHarness): void {
     },
     dispose: (w) => w.quiet[Symbol.asyncDispose](),
     calls: (w) => w.calls,
-    record: (w, meta, fn) =>
-      recordStep(
-        w.s,
-        { kind: 'quint', title: meta.title, detail: meta.detail },
-        fn
-      ),
     isHostLimit,
     settle: async (w, matches, opts) => {
       try {

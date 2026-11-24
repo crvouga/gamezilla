@@ -19,9 +19,7 @@ forEveryTurnGame(
   import.meta.path,
   (game) => {
     test("each person's device holds their own setup and never the opponent's", async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-matched-private-setup`
-      );
+      await using s = await openConformanceHarness();
       const setups = game.fixtures.setups;
       if (setups === undefined)
         throw new Error(`${game.label} names no setups`);

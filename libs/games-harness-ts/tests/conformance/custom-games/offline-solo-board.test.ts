@@ -33,9 +33,7 @@ forEveryTurnGame(
     // regression: game-session-offline-host-board-disabled
     // regression: solo-custom-setup-self-invitation
     test("an offline solo host plays the game's opening on the board and receives the local bot reply", async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-offline-solo-board`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         first: 'alice',
         second: 'bot',

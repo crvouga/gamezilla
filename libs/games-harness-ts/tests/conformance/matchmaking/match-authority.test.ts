@@ -26,9 +26,7 @@ forEveryTurnGame(import.meta.path, (game) => {
   const opening = victory[0]!;
 
   test('the authority refuses the wrong, repeated, stale and late moves, and a rematch keeps the result', async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-match-authority`
-    );
+    await using s = await openConformanceHarness();
     const roster = await matched(s, game);
     const people = roster.people;
     let match = roster.match;
@@ -85,9 +83,7 @@ forEveryTurnGame(import.meta.path, (game) => {
   }, 180_000);
 
   test("a refused action changes no participant's game", async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-match-refused`
-    );
+    await using s = await openConformanceHarness();
     const { match, people } = await matched(s, game);
     for (const [index, refused] of game.fixtures.refusedOpenings.entries())
       expect(
@@ -104,9 +100,7 @@ forEveryTurnGame(import.meta.path, (game) => {
   }, 180_000);
 
   test('a reconnecting participant receives every preceding turn and can play their own', async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-match-reconnect`
-    );
+    await using s = await openConformanceHarness();
     const { match, people } = await matched(s, game);
     const returning = people[people.length - 1]!;
     await s.apply(setMultiplayerConnection, returning, false);
@@ -143,9 +137,7 @@ forEveryTurnGame(import.meta.path, (game) => {
   }, 180_000);
 
   test('concurrent requests consume a single turn', async () => {
-    await using s = await openConformanceHarness(
-      `${game.shared.id}-concurrent-turn`
-    );
+    await using s = await openConformanceHarness();
     const { match, people } = await matched(s, game);
     // Two different moves when the game offers them, else one sent twice.
     const choices = [

@@ -23,7 +23,6 @@ export type ScenarioFailure = {
   /** World calls made while the failing step ran, oldest first. */
   readonly calls: readonly string[];
   readonly cause: unknown;
-  readonly reportHint: string;
 };
 
 function causeText(cause: unknown): string {
@@ -66,7 +65,6 @@ export function formatScenarioFailure(f: ScenarioFailure): string {
     `  cause: ${causeText(f.cause)}`,
     '  steps:',
     steps,
-    `  ${f.reportHint}`,
   ].join('\n');
 }
 

@@ -37,7 +37,6 @@
     "IOT_*",
     "S3_*",
     "SHARED_DATA_*",
-    "REPORTS_*",
     "ELEVEN_LABS_*",
     "PS_*",
     "SECRETS_*",
@@ -355,7 +354,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-0.json"
       ],
       "env": [
@@ -376,7 +374,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-1.json"
       ],
       "env": [
@@ -397,7 +394,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-2.json"
       ],
       "env": [
@@ -418,7 +414,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-3.json"
       ],
       "env": [
@@ -439,7 +434,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-4.json"
       ],
       "env": [
@@ -460,7 +454,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-5.json"
       ],
       "env": [
@@ -1218,7 +1211,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-16.json"
       ],
       "env": [
@@ -1239,7 +1231,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-17.json"
       ],
       "env": [
@@ -1260,7 +1251,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-18.json"
       ],
       "env": [
@@ -1281,7 +1271,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-19.json"
       ],
       "env": [
@@ -1302,7 +1291,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-20.json"
       ],
       "env": [
@@ -1323,7 +1311,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-21.json"
       ],
       "env": [
@@ -1344,7 +1331,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-22.json"
       ],
       "env": [
@@ -1365,7 +1351,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-23.json"
       ],
       "env": [
@@ -1386,7 +1371,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-24.json"
       ],
       "env": [
@@ -1407,7 +1391,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-25.json"
       ],
       "env": [
@@ -1428,7 +1411,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-26.json"
       ],
       "env": [
@@ -1449,7 +1431,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-27.json"
       ],
       "env": [
@@ -1470,7 +1451,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-28.json"
       ],
       "env": [
@@ -1491,7 +1471,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-29.json"
       ],
       "env": [
@@ -1512,7 +1491,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-30.json"
       ],
       "env": [
@@ -1533,7 +1511,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-31.json"
       ],
       "env": [
@@ -1554,7 +1531,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-32.json"
       ],
       "env": [
@@ -1575,7 +1551,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-33.json"
       ],
       "env": [
@@ -1596,7 +1571,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-34.json"
       ],
       "env": [
@@ -1617,7 +1591,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-35.json"
       ],
       "env": [
@@ -1638,7 +1611,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-36.json"
       ],
       "env": [
@@ -1659,7 +1631,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-37.json"
       ],
       "env": [
@@ -1680,7 +1651,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-38.json"
       ],
       "env": [
@@ -1701,7 +1671,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-39.json"
       ],
       "env": [
@@ -1722,7 +1691,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-40.json"
       ],
       "env": [
@@ -1743,7 +1711,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-41.json"
       ],
       "env": [
@@ -1764,7 +1731,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-42.json"
       ],
       "env": [
@@ -1785,7 +1751,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-43.json"
       ],
       "env": [
@@ -1806,7 +1771,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-44.json"
       ],
       "env": [
@@ -1827,7 +1791,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-45.json"
       ],
       "env": [
@@ -1848,7 +1811,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-46.json"
       ],
       "env": [
@@ -1869,7 +1831,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-47.json"
       ],
       "env": [
@@ -1890,7 +1851,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-48.json"
       ],
       "env": [
@@ -1911,7 +1871,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-49.json"
       ],
       "env": [
@@ -1932,7 +1891,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-50.json"
       ],
       "env": [
@@ -1953,7 +1911,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-51.json"
       ],
       "env": [
@@ -1974,7 +1931,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-52.json"
       ],
       "env": [
@@ -1995,7 +1951,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-53.json"
       ],
       "env": [
@@ -2016,7 +1971,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-54.json"
       ],
       "env": [
@@ -2037,7 +1991,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-55.json"
       ],
       "env": [
@@ -2058,7 +2011,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-56.json"
       ],
       "env": [
@@ -2079,7 +2031,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-57.json"
       ],
       "env": [
@@ -2100,7 +2051,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-58.json"
       ],
       "env": [
@@ -2121,7 +2071,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-59.json"
       ],
       "env": [
@@ -2142,7 +2091,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-60.json"
       ],
       "env": [
@@ -2163,7 +2111,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-61.json"
       ],
       "env": [
@@ -2184,7 +2131,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-62.json"
       ],
       "env": [
@@ -2205,7 +2151,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-63.json"
       ],
       "env": [
@@ -2232,18 +2177,6 @@
       "outputLogs": "errors-only"
     },
     "//#task:agents:sync": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:atlas:build": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:atlas:export": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:atlas:run": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
@@ -2315,18 +2248,6 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "//#task:reports:collect": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:reports:part": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
-    "//#task:reports:performance": {
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
     "//#task:secrets:pull": {
       "cache": false,
       "passThroughEnv": ["*"]
@@ -2363,17 +2284,12 @@
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "//#task:atlas:viz": {
-      "persistent": true,
-      "cache": false,
-      "passThroughEnv": ["*"]
-    },
     "//#task:verify:coverage": {
       "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
       "cache": false,
       "passThroughEnv": ["*"]
     },
-    "//#task:reports:cleanup": {
+    "//#task:branches:cleanup": {
       "cache": false,
       "passThroughEnv": ["*"]
     },
@@ -2568,7 +2484,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-64.json"
       ],
       "env": [
@@ -2589,7 +2504,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-65.json"
       ],
       "env": [
@@ -2610,7 +2524,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-66.json"
       ],
       "env": [
@@ -2631,7 +2544,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-67.json"
       ],
       "env": [
@@ -2652,7 +2564,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-68.json"
       ],
       "env": [
@@ -2673,7 +2584,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-69.json"
       ],
       "env": [
@@ -2694,7 +2604,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-70.json"
       ],
       "env": [
@@ -2715,7 +2624,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-71.json"
       ],
       "env": [
@@ -2904,7 +2812,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-72.json"
       ],
       "env": [
@@ -2925,7 +2832,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-73.json"
       ],
       "env": [
@@ -2946,7 +2852,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-74.json"
       ],
       "env": [
@@ -2967,7 +2872,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-75.json"
       ],
       "env": [
@@ -2988,7 +2892,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-76.json"
       ],
       "env": [
@@ -3009,7 +2912,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-77.json"
       ],
       "env": [
@@ -3030,7 +2932,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-84.json"
       ],
       "env": [
@@ -3051,7 +2952,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-85.json"
       ],
       "env": [
@@ -3072,7 +2972,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-86.json"
       ],
       "env": [
@@ -3093,7 +2992,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-87.json"
       ],
       "env": [
@@ -3114,7 +3012,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-88.json"
       ],
       "env": [
@@ -3135,7 +3032,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-89.json"
       ],
       "env": [
@@ -3156,7 +3052,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-90.json"
       ],
       "env": [
@@ -3177,7 +3072,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-91.json"
       ],
       "env": [
@@ -3198,7 +3092,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-92.json"
       ],
       "env": [
@@ -3219,7 +3112,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-93.json"
       ],
       "env": [
@@ -3240,7 +3132,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-94.json"
       ],
       "env": [
@@ -3261,7 +3152,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-78.json"
       ],
       "env": [
@@ -3282,7 +3172,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-79.json"
       ],
       "env": [
@@ -3303,7 +3192,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-80.json"
       ],
       "env": [
@@ -3324,7 +3212,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-81.json"
       ],
       "env": [
@@ -3345,7 +3232,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-82.json"
       ],
       "env": [
@@ -3366,7 +3252,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-83.json"
       ],
       "env": [
@@ -4053,7 +3938,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-95.json"
       ],
       "env": [
@@ -4074,7 +3958,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-96.json"
       ],
       "env": [
@@ -4095,7 +3978,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-97.json"
       ],
       "env": [
@@ -4116,7 +3998,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-98.json"
       ],
       "env": [
@@ -4137,7 +4018,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-99.json"
       ],
       "env": [
@@ -4158,7 +4038,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-100.json"
       ],
       "env": [
@@ -4179,7 +4058,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-101.json"
       ],
       "env": [
@@ -4200,7 +4078,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-102.json"
       ],
       "env": [
@@ -4221,7 +4098,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-103.json"
       ],
       "env": [
@@ -4242,7 +4118,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-104.json"
       ],
       "env": [
@@ -4263,7 +4138,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-105.json"
       ],
       "env": [
@@ -4284,7 +4158,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-106.json"
       ],
       "env": [
@@ -4305,7 +4178,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-107.json"
       ],
       "env": [
@@ -4326,7 +4198,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-108.json"
       ],
       "env": [
@@ -4347,7 +4218,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-109.json"
       ],
       "env": [
@@ -4368,7 +4238,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-110.json"
       ],
       "env": [
@@ -4389,7 +4258,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-111.json"
       ],
       "env": [
@@ -4410,7 +4278,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-112.json"
       ],
       "env": [
@@ -4431,7 +4298,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-113.json"
       ],
       "env": [
@@ -4452,7 +4318,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-114.json"
       ],
       "env": [
@@ -4473,7 +4338,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-115.json"
       ],
       "env": [
@@ -4494,7 +4358,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-116.json"
       ],
       "env": [
@@ -4515,7 +4378,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-117.json"
       ],
       "env": [
@@ -4536,7 +4398,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-118.json"
       ],
       "env": [
@@ -4557,7 +4418,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-119.json"
       ],
       "env": [
@@ -4578,7 +4438,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-120.json"
       ],
       "env": [
@@ -4599,7 +4458,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-121.json"
       ],
       "env": [
@@ -4620,7 +4478,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-122.json"
       ],
       "env": [
@@ -4641,7 +4498,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-123.json"
       ],
       "env": [
@@ -4662,7 +4518,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-124.json"
       ],
       "env": [
@@ -4683,7 +4538,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-125.json"
       ],
       "env": [
@@ -4704,7 +4558,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-126.json"
       ],
       "env": [
@@ -4725,7 +4578,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-127.json"
       ],
       "env": [
@@ -4746,7 +4598,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-128.json"
       ],
       "env": [
@@ -4767,7 +4618,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-129.json"
       ],
       "env": [
@@ -4788,7 +4638,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-130.json"
       ],
       "env": [
@@ -4809,7 +4658,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-131.json"
       ],
       "env": [
@@ -4830,7 +4678,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-132.json"
       ],
       "env": [
@@ -4851,7 +4698,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-133.json"
       ],
       "env": [
@@ -4872,7 +4718,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-134.json"
       ],
       "env": [
@@ -4893,7 +4738,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-135.json"
       ],
       "env": [
@@ -4914,7 +4758,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-136.json"
       ],
       "env": [
@@ -4935,7 +4778,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-137.json"
       ],
       "env": [
@@ -4956,7 +4798,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-138.json"
       ],
       "env": [
@@ -4977,7 +4818,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-139.json"
       ],
       "env": [
@@ -4998,7 +4838,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-140.json"
       ],
       "env": [
@@ -5019,7 +4858,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-141.json"
       ],
       "env": [
@@ -5040,7 +4878,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-142.json"
       ],
       "env": [
@@ -5061,7 +4898,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-143.json"
       ],
       "env": [
@@ -5082,7 +4918,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-144.json"
       ],
       "env": [
@@ -5103,7 +4938,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-145.json"
       ],
       "env": [
@@ -5124,7 +4958,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-146.json"
       ],
       "env": [
@@ -5145,7 +4978,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-147.json"
       ],
       "env": [
@@ -5166,7 +4998,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-148.json"
       ],
       "env": [
@@ -5187,7 +5018,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-149.json"
       ],
       "env": [
@@ -5208,7 +5038,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-150.json"
       ],
       "env": [
@@ -5229,7 +5058,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-151.json"
       ],
       "env": [
@@ -5250,7 +5078,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-152.json"
       ],
       "env": [
@@ -5271,7 +5098,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-153.json"
       ],
       "env": [
@@ -5292,7 +5118,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-154.json"
       ],
       "env": [
@@ -5313,7 +5138,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-155.json"
       ],
       "env": [
@@ -5334,7 +5158,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-156.json"
       ],
       "env": [
@@ -5355,7 +5178,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-157.json"
       ],
       "env": [
@@ -5376,7 +5198,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-158.json"
       ],
       "env": [
@@ -5397,7 +5218,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-159.json"
       ],
       "env": [
@@ -5418,7 +5238,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-160.json"
       ],
       "env": [
@@ -5439,7 +5258,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-161.json"
       ],
       "env": [
@@ -5460,7 +5278,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-162.json"
       ],
       "env": [
@@ -5481,7 +5298,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-163.json"
       ],
       "env": [
@@ -5502,7 +5318,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-164.json"
       ],
       "env": [
@@ -5523,7 +5338,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-165.json"
       ],
       "env": [
@@ -5544,7 +5358,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-166.json"
       ],
       "env": [
@@ -5565,7 +5378,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-167.json"
       ],
       "env": [
@@ -5586,7 +5398,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-168.json"
       ],
       "env": [
@@ -5607,7 +5418,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-169.json"
       ],
       "env": [
@@ -5628,7 +5438,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-170.json"
       ],
       "env": [
@@ -5649,7 +5458,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-171.json"
       ],
       "env": [
@@ -5670,7 +5478,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-172.json"
       ],
       "env": [
@@ -5691,7 +5498,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-173.json"
       ],
       "env": [
@@ -5712,7 +5518,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-174.json"
       ],
       "env": [
@@ -5733,7 +5538,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-175.json"
       ],
       "env": [
@@ -5754,7 +5558,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-176.json"
       ],
       "env": [
@@ -5775,7 +5578,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-177.json"
       ],
       "env": [
@@ -5796,7 +5598,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-178.json"
       ],
       "env": [
@@ -5817,7 +5618,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-179.json"
       ],
       "env": [
@@ -5838,7 +5638,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-180.json"
       ],
       "env": [
@@ -5863,7 +5662,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-181.json"
       ],
       "env": [
@@ -5884,7 +5682,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-182.json"
       ],
       "env": [
@@ -5905,7 +5702,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-183.json"
       ],
       "env": [
@@ -5926,7 +5722,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-184.json"
       ],
       "env": [
@@ -5947,7 +5742,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-185.json"
       ],
       "env": [
@@ -5968,7 +5762,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-186.json"
       ],
       "env": [
@@ -5989,7 +5782,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-187.json"
       ],
       "env": [
@@ -6010,7 +5802,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-188.json"
       ],
       "env": [
@@ -6031,7 +5822,6 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/libs/harness-ts/scripts/**",
-        "$TURBO_ROOT$/libs/harness-ts/src/report-ready.ts",
         ".cache/spec-inputs/part-189.json"
       ],
       "env": [

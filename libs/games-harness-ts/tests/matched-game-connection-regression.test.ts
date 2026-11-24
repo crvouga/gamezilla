@@ -59,7 +59,7 @@ describe.each(
   test('cutting a connection does not silently spend one second of an agreed game', async () => {
     // regression: cutting-connection-spends-game-time
     const id = 'cutting-connection-spends-game-time';
-    await using s = await openConformanceHarness(`${id}-${game.shared.id}`);
+    await using s = await openConformanceHarness();
     const w = runFor(s, game, id);
     await prepareSharedClockGame(w, 'blitz');
     const played = await spacesMatch(w);
@@ -82,7 +82,7 @@ describe.each(
     // regression: chess-offline-connection-state
     // regression: github-chess-harness-default-timeout
     const id = 'offline-first-side-opening';
-    await using s = await openConformanceHarness(`${id}-${game.shared.id}`);
+    await using s = await openConformanceHarness();
     await prepareMatchedSpaces(runFor(s, game, id), '5+0');
     const played = (await s.read(multiplayerView, 'alice')).game;
     if (played === null) throw new Error('The agreed game is missing');
@@ -107,7 +107,7 @@ describe.each(
   test('cutting the connection refuses an offered draw without waiting for a server answer', async () => {
     // regression: offline-connection-keeps-sync-online
     const id = 'offline-connection-keeps-sync-online';
-    await using s = await openConformanceHarness(`${id}-${game.shared.id}`);
+    await using s = await openConformanceHarness();
     await prepareMatchedSpaces(runFor(s, game, id), '5+0');
     const played = (await s.read(multiplayerView, 'alice')).game;
     if (played === null) throw new Error('The agreed game is missing');

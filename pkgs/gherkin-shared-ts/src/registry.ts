@@ -81,7 +81,7 @@ export type WorldLifecycle<W> = {
    * {@link dispose} cleans up. Its own failure never hides the step's.
    */
   readonly failed?: (world: W, cause: unknown) => Promise<void>;
-  /** Run one scenario step as a labelled step of the world's report. */
+  /** Wrap each scenario step: note its kind, or capture evidence around it. */
   readonly record?: <T>(
     world: W,
     step: { readonly keyword: string; readonly text: string },

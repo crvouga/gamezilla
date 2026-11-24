@@ -1,14 +1,14 @@
-import type { RecordStepMeta } from '@crvouga/atlas/reports/report-types';
-
-/**
- * Where UI steps land. `Run.record` from `@pkgs/harness-root-shared-ts` satisfies this; a
- * harness passes the run's recorder into {@link recordingDriver}.
- */
-export type StepRecorder = {
-  record<T>(meta: RecordStepMeta, fn: () => Promise<T>): Promise<T>;
+/** One user-intent driver op, as a recorder sees it. */
+export type StepMeta = {
+  readonly kind: 'ui' | 'expect';
+  /** What the op does: `tap`, `input "a@b.c"`, `expect visible`, …. */
+  readonly title: string;
+  /** The op's target, as a test-id path (`testId("modal") >> testId("ok")`). */
+  readonly selector: string;
+  readonly detail?: string;
 };
 
-/** Recorder that runs `fn` without recording (reporting disabled). */
-export const NO_RECORDER: StepRecorder = {
-  record: (_meta, fn) => fn(),
+/** Receives every op of a {@link recordingDriver} and runs it. */
+export type StepRecorder = {
+  record<T>(meta: StepMeta, fn: () => Promise<T>): Promise<T>;
 };

@@ -1,10 +1,9 @@
 /**
  * Default {@link ProductRuntime}: launch / reset / dispose actors on the
- * host UI. `openHarness` may replace this with a recording-aware wrapper.
+ * host UI. `openHarness` replaces it to add snapshot restore and teardown.
  */
 
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared-ts/system-snapshot';
-import type { StepRecorder } from '@pkgs/ui-testing-root-shared-ts/step-recorder';
 import {
   type ActorBrowserStorage,
   createActorBrowserStorage,
@@ -19,7 +18,6 @@ import { ensureStackIdpAccounts } from './stack-idp-accounts';
 
 export type WireProductRuntimeOptions = {
   readonly snapshot?: HarnessSystemSnapshot;
-  readonly recorder?: StepRecorder | null;
   readonly onDispose?: () => Promise<void>;
 };
 
@@ -57,7 +55,6 @@ export function wireProductRuntime(
         ...(options?.snapshot !== undefined
           ? { snapshot: options.snapshot }
           : {}),
-        ...(options?.recorder != null ? { recorder: options.recorder } : {}),
       });
       entries.set(id, entry);
       return entry.handle;

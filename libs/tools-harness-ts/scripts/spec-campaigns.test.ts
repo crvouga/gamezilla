@@ -109,10 +109,5 @@ describe('Quint spec campaigns', () => {
       expect(TASK_BUDGET_SECONDS[`@apps/product-ts#${name}`]).toBe(420);
     }
     expect(manifest.scripts['test:contract']).toBeUndefined();
-    const turbo = JSON.parse(
-      readFileSync(join(REPO_ROOT, 'apps/product-ts/turbo.json'), 'utf8')
-    ) as { tasks: Record<string, { dependsOn?: readonly string[] }> };
-    const render = turbo.tasks['test:contract:render']?.dependsOn ?? [];
-    expect(render.some((dep) => dep.startsWith('test:contract'))).toBe(false);
   });
 });

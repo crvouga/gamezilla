@@ -12,9 +12,7 @@ import { projectCustomGames } from './custom-games-projection';
 
 /** The stored worlds one game's custom games pass through, each labelled for it. */
 async function customGameWorlds(game: HarnessGame): Promise<Snapshot[]> {
-  await using s = await openConformanceHarness(
-    `alloy-custom-games-${game.shared.id}`
-  );
+  await using s = await openConformanceHarness();
   const snapshots: Snapshot[] = [];
   const choose = (actor: string, input: CustomGameInput) =>
     s.apply(configureCustomGameChoice, actor, input);

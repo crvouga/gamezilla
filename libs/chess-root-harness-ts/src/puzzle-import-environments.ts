@@ -28,8 +28,7 @@ export const prepareOtherPuzzleEnvironment = scenarioAction({
     const run = await openHarness(
       defineProductSystem(s.harness.composition, {
         sharedDataStore: s.harness.server.blob.withPrefix('shared/'),
-      }),
-      'other-puzzle-environment'
+      })
     );
     s.session.onDispose(() => run[Symbol.asyncDispose]());
     environments.set(s, {

@@ -17,9 +17,7 @@ forEveryTurnGame(
   import.meta.path,
   (game) => {
     test('a finished game of more than two people counts its result once for each of them', async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-multi-seat-history`
-      );
+      await using s = await openConformanceHarness();
       // An earlier history through the room boundary: a game of many moves
       // (a whole Hearts game) finishes in seconds.
       await s.apply(establishCustomGame, game.shared.id, {

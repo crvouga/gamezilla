@@ -22,7 +22,8 @@ never a suite rewrite.
 | `node.tap` / `input` / `clear` / `key` / `tapAt` / `drag` / `scroll` | Actions; `tap` and `input` auto-wait for visibility (`timeoutMs`) |
 | `node.expect.visible` / `hidden` / `text` | Assertions (thin wrappers over `wait`) |
 | `RenderedApp` / `HostNode` | The mounted-tree port drivers talk through |
-| `recordingDriver`, `UiOp`, `performUiOp`, `describeUiOp` | Reporting (below) |
+| `recordingDriver`, `StepRecorder` | Recording (below) |
+| `UiOp`, `performUiOp` | Driver calls as replayable data |
 | `waitUntil`, `TimeoutError`, `UiTestError`, … | Wait primitive and plain `Error` subclasses |
 
 Every target is a `data-testid`. There is no `by.text` / `by.role` /
@@ -33,24 +34,12 @@ implementations come in through DI at the harness.
 injected `pump` (the harness's virtual clock), Bun.WebView polls `evaluate`.
 Options are only `timeoutMs` / `description`.
 
-## Reporting
+## Recording
 
-A harness wraps each actor's driver so every op becomes a `@pkgs/harness-root-shared-ts`
-report step with its selector and press `hit` (testId path, layout rect, tap
-point). UI steps snapshot before the gesture so the report viewer can overlay
-the pressed element.
-
-```ts
-import { recordingDriver, type StepRecorder } from '@pkgs/ui-testing-root-shared-ts';
-
-const recorder: StepRecorder = { record: (meta, fn) => run.record(meta, fn) };
-const ui = recordingDriver(rawDriver, { recorder, actorId: 'alice' });
-await ui.get('modal').get('ok').tap(); // step: ui "tap" testId("modal") >> testId("ok")
-```
-
-Reads (`isVisible`, `text`, `layout`, `snapshotHtml`) pass through
-unrecorded. `Driver.snapshotHtml()` feeds `defineSnapshot({ media: 'html' })`;
-`@pkgs/harness-report` renders the frames.
+`recordingDriver(driver, { recorder })` hands every op to a `StepRecorder`
+with its title and selector, so a host can log or time what a driver was
+asked to do. Reads (`isVisible`, `text`, `layout`, `snapshotHtml`) pass
+through unrecorded.
 
 ## Layout
 
@@ -62,7 +51,7 @@ src/
   assertions/  shared expect* helpers for DriverNode implementations
   bootstrap/   RenderedApp port
   explore/     exploration helpers
-  report/      recordingDriver, UiOp
+  record/      recordingDriver, UiOp
 ```
 
 A new driver is a sibling package implementing `Driver`; assertions and page

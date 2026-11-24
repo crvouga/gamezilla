@@ -1,6 +1,5 @@
 #!/usr/bin/env bun
-// @io-wall-ok — maintenance entry: injected reports store and GitHub CLI.
-import { cleanupReportObjects } from '@libs/harness-ts/report-retention';
+// @io-wall-ok — maintenance entry: GitHub CLI.
 import { capture } from '@pkgs/os-server-ts/command';
 import type {
   BranchCleanupPort,
@@ -9,7 +8,6 @@ import type {
 } from './branch-cleanup';
 import { ARCHIVE_BRANCH, cleanupBranches } from './branch-cleanup';
 import { branchComparison } from './branch-comparison';
-import { reportsStore } from './report-store';
 
 type GithubBranch = {
   name: string;
@@ -154,31 +152,12 @@ function githubPort(repo: string): BranchCleanupPort {
 
 async function main(): Promise<void> {
   const apply = process.argv.includes('--apply');
-  if (process.argv.includes('--branches')) {
-    const repo =
-      process.env['GITHUB_REPOSITORY'] ??
-      gh<{ nameWithOwner: string }>(['repo', 'view', '--json', 'nameWithOwner'])
-        .nameWithOwner;
-    console.log(
-      `Branches ${apply ? 'deleted' : 'eligible'}: ${JSON.stringify(await cleanupBranches(githubPort(repo), apply))}`
-    );
-  }
-  const plan = await cleanupReportObjects(process.env, apply, reportsStore);
-  if (plan === null) {
-    console.log(
-      'Reports store is not configured; no report objects to maintain.'
-    );
-    return;
-  }
+  const repo =
+    process.env['GITHUB_REPOSITORY'] ??
+    gh<{ nameWithOwner: string }>(['repo', 'view', '--json', 'nameWithOwner'])
+      .nameWithOwner;
   console.log(
-    JSON.stringify({
-      apply,
-      retained: plan.retained.map((report) => ({
-        branch: report.branch,
-        sha: report.sha,
-      })),
-      removedObjects: plan.deleteKeys.length,
-    })
+    `Branches ${apply ? 'deleted' : 'eligible'}: ${JSON.stringify(await cleanupBranches(githubPort(repo), apply))}`
   );
 }
 

@@ -33,9 +33,7 @@ async function nextPuzzleReadyTimes(
   game: TurnHarnessGame,
   endMs: number
 ): Promise<readonly Sample[]> {
-  await using s = await openConformanceHarness(
-    `puzzle-ready-objective-${game.shared.id}`
-  );
+  await using s = await openConformanceHarness();
   await s.apply(signInWithGoogle, SOLVER);
   await s.apply(createSpace, SOLVER);
   await s.apply(openGamePuzzles, SOLVER, game.shared.id);

@@ -391,7 +391,7 @@ function freshDirs(dirs: RunDirs): void {
 export function writeFeatureStubs(
   env: Environment,
   features: readonly string[],
-  dirs: RunDirs & { readonly timelineReports?: boolean },
+  dirs: RunDirs,
   stepsEntry = STEPS_ENTRY
 ): readonly string[] {
   const { stubDir, reportDir } = dirs;
@@ -414,14 +414,6 @@ export function writeFeatureStubs(
         bridge,
         skip: skips.scenarios,
         reportDir,
-        ...(dirs.timelineReports === true
-          ? {
-              reportBridge: Bun.resolveSync(
-                '@pkgs/gherkin-server-ts/wall-reports-env',
-                import.meta.dir
-              ),
-            }
-          : {}),
         layer: 'release',
       })
     );

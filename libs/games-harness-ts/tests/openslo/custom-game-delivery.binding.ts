@@ -23,9 +23,7 @@ async function gameArrivals(
   choices: number,
   endMs: number
 ): Promise<readonly Sample[]> {
-  await using s = await openConformanceHarness(
-    `custom-game-choice-arrivals-${game.shared.id}`
-  );
+  await using s = await openConformanceHarness();
   await s.apply(establishCustomGame, game.shared.id, {
     host: 'alice',
     first: 'alice',

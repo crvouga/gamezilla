@@ -23,7 +23,6 @@ export type ProductUi =
   | {
       readonly kind: 'bun-webview';
       readonly webOrigin: string;
-      readonly captureScreenshots: boolean;
     };
 
 export type ProductHttp =

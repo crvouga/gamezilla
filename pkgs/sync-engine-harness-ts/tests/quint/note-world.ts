@@ -38,8 +38,6 @@ export function useNoteWorld(): void {
       recovery: { offline: new Set(), accepted: new Set() },
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),
-    record: (w, meta, fn) =>
-      w.s.record({ kind: 'quint', title: meta.title, detail: meta.detail }, fn),
     settle: async (w, matches) => {
       try {
         await w.s.until(() => matches(), {

@@ -22,7 +22,7 @@ import { SOLO_COUNT_GAME } from './solo-count-game';
 
 // regression: themed-pool-already-current-puzzle
 test('the shared themed-pool precondition completes an already served solo puzzle', async () => {
-  await using s = await openConformanceHarness('solo-themed-current');
+  await using s = await openConformanceHarness();
   const id = SOLO_COUNT_GAME.shared.id;
   const puzzle = 'solo-count/two-twos';
   await s.apply(signInWithGoogle, 'alice');

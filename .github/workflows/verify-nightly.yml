@@ -24,8 +24,8 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 #                              fuzz and the scripted mutants.
 #   verify-nightly:browser      every spec suite in real browsers against a
 #                              booted localhost stack.
-#   verify-nightly:visual       UI quality of every recorded product state,
-#                              judged on the corpus the gate job produced.
+#   verify-nightly:visual       Every Storybook story rendered and tested in a
+#                              real browser.
 #   verify-nightly:coverage     coverage of the unit suites.
 #   verify-nightly:performance  hot-path benchmarks.
 #   verify-nightly:end          one verdict over every group. A red group never
@@ -87,7 +87,7 @@ defaults:
 jobs:
   verify-nightly-gate:
     name: verify-nightly:gate
-    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'gate' || inputs.group == 'visual' }}
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'gate' }}
     permissions:
       contents: read # check out the code
       actions: write # delegated verify:end reads run state and deletes this run's transfer artifacts
@@ -225,12 +225,9 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
 
-  # Judges the snapshots the gate job's spec parts recorded, restored from
-  # the remote cache, so it waits for that job and runs whatever its result.
   verify-nightly-visual:
     name: verify-nightly:visual
-    needs: [verify-nightly-gate]
-    if: ${{ always() && !cancelled() && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
+    if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 180
     permissions:
@@ -238,36 +235,17 @@ jobs:
       id-token: write # mint the OIDC token Infisical and AWS trust
     steps:
       - *checkout
-      # Judging every recorded state replays every spec part's cached
-      # report (frames and page snapshots) next to the visual model; once
-      # every part passed, that filled the runner's disk (ENOSPC, Verify
-      # Nightly run 43088243094). The runner's preinstalled toolchains this
-      # job never uses make room first.
-      - name: Free runner disk for the recorded states
-        run: |
-          set -euo pipefail
-          df -h /
-          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup /opt/hostedtoolcache/CodeQL
-          df -h /
       - *setup
       - *renderer
-      # The pinned model is larger than the remote cache's artifact limit.
-      - name: Prepare the visual model
-        timeout-minutes: 20
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts @apps/product-ts#prepare:ui-quality-model
       - name: verify-nightly:visual
         timeout-minutes: 150
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:visual
-      # Scores, failing screenshots and context clips.
-      - name: Retain the visual report
+      - name: Retain the run summaries
         if: always() && !cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-nightly-visual-${{ github.run_id }}
-          path: |
-            .turbo/runs/*.json
-            apps/product-ts/.cache/ui-quality
-            apps/product-ts/.cache/harness-report/ui-quality
+          path: .turbo/runs/*.json
           retention-days: 3
           overwrite: true
           include-hidden-files: true

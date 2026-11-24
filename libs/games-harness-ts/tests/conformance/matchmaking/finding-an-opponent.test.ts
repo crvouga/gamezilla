@@ -61,7 +61,7 @@ forEveryTurnGame(
 
     // regression: game-session-ui-rules-port-missing
     test('the fresh Find control commits its namespaced search through the injected UI rules port', async () => {
-      await using s = await openConformanceHarness(`${id}-find-ui-rules-port`);
+      await using s = await openConformanceHarness();
       await s.apply(seekGameOpponent, 'alice', id);
       const view = await s.until(
         (world) => opponentSearchView(world, 'alice'),
@@ -75,7 +75,7 @@ forEveryTurnGame(
 
     // regression: chess-search-keyword-namespace
     test('a literal accepted opponent request reaches its owner through ordinary sync', async () => {
-      await using s = await openConformanceHarness(`${id}-accepted-request`);
+      await using s = await openConformanceHarness();
       await s.apply(signInWithGoogle, 'alice');
       await s.apply(givenGameSpace, 'alice');
       await s.apply(givenOpponentSearch, 'alice', at('5+0'), 'request-1');
@@ -94,7 +94,7 @@ forEveryTurnGame(
     // regression: shared-formation-retry-chess-pool-only
     // regression: formation-retry-observation-consumes-time
     test('a waiting opponent receives the shared expanding-range retry', async () => {
-      await using s = await openConformanceHarness(`${id}-formation-retry`);
+      await using s = await openConformanceHarness();
       await s.apply(seekGameOpponent, 'alice', id);
       await s.apply(retryWaitingOpponents);
       const deadline = await s.read(async (state) => {
@@ -112,7 +112,7 @@ forEveryTurnGame(
 
     // regression: game-ui-matchmaking-fields
     test('a 40-second search and a 3+2 lineup expose all their visible details', async () => {
-      await using s = await openConformanceHarness(`${id}-match-details`);
+      await using s = await openConformanceHarness();
       await s.apply(signInWithGoogle, 'alice');
       await s.apply(givenGameSpace, 'alice');
       await s.apply(givenOpponentSearch, 'alice', at('5+0'));
@@ -147,7 +147,7 @@ forEveryTurnGame(
 
     // regression: shared-clock-spoken-chess-colours
     test("the clocks are announced by the game's own side names", async () => {
-      await using s = await openConformanceHarness(`${id}-spoken-clocks`);
+      await using s = await openConformanceHarness();
       await s.apply(seekGameOpponent, 'alice', id);
       await s.apply(seekGameOpponent, 'bob', id);
       await s.apply(pairGameOpponents, 'alice', true);

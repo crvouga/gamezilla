@@ -905,7 +905,7 @@ behaviour for exactly what it offers:
   record reads it back in its own format (`readRecord`), never through the
   game's code. Each game's run is its own test,
   `<scenario> [<game>]`, recording its own evidence obligation
-  (`scenario:<scenario> [<game id>]`), so the job log and Atlas name the game.
+  (`scenario:<scenario> [<game id>]`), so the job log names the game.
   The `specs/games/*.qnt` models are listed the same way and replay once per
   such game (`defineTraceVariants`; `<trace> [<game>]`, `trace:<n> [<game
   id>]`); the custom-game and matched-game models follow each game's known

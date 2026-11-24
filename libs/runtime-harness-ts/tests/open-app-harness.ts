@@ -9,8 +9,7 @@ import { APP_SYSTEM } from '@libs/runtime-harness-ts/app-composition';
  * whole-app suite runs this — it reruns for every sub change, by design.
  */
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(APP_SYSTEM, testId, options);
+  return openSystemHarness(APP_SYSTEM, options);
 }

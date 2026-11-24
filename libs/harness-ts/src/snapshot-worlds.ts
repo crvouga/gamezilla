@@ -54,7 +54,7 @@ export type StoredWorlds = {
   readonly device: readonly Snapshot[];
 };
 
-type OpenPackageHarness = (testId: string) => Promise<OpenHarness>;
+type OpenPackageHarness = () => Promise<OpenHarness>;
 
 async function deviceIdOf(
   h: ProductHarness,
@@ -151,9 +151,8 @@ export async function captureWorlds(
 ): Promise<StoredWorlds> {
   const server: Snapshot[] = [];
   const device: Snapshot[] = [];
-  for (const [index, scenario] of scenarios.entries()) {
-    const slug = scenario.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-    await using s = await open(`alloy-${String(index)}-${slug}`);
+  for (const scenario of scenarios) {
+    await using s = await open();
     const table = new Map<string, string>();
     const read = async (label: string) => {
       const stored = await s.read((h) => readStores(h, label, project, table));
