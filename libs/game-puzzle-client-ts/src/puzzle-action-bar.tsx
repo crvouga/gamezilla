@@ -33,29 +33,47 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
       (slot): slot is Extract<PuzzleActionBarSlot, { id: 'skip' }> =>
         slot.id === 'skip'
     );
-  // After a wrong move Retry is the one thing to do: it leads, on a row of
-  // its own, and revealing or skipping follow as the quieter pair.
+  // After a wrong move Retry is the one thing to do: it leads, and
+  // revealing and skipping follow under it, each the column's full width,
+  // in the same order on a phone and beside a wide board.
   const lead = (): ActionSlot | undefined =>
     actions().find((slot) => slot.id === 'retry' && slot.type === 'button');
-  const rest = (): ActionSlot[] => actions().filter((slot) => slot !== lead());
   return (
-    <StackVertical gap="sm">
-      <Show when={lead()} keyed>
-        {(slot) => <PuzzleActionButton slot={slot} model={props} fullWidth />}
-      </Show>
-      <StackHorizontal gap="sm" align="center" wrap>
-        <For each={rest()}>
-          {(slot) => <PuzzleActionButton slot={slot} model={props} />}
+    <Show
+      when={lead() !== undefined}
+      fallback={
+        <StackHorizontal gap="sm" align="center" wrap>
+          <For each={actions()}>
+            {(slot) => <PuzzleActionButton slot={slot} model={props} />}
+          </For>
+          <Show when={skip()}>
+            {(slot) => (
+              <PuzzleSkipButton
+                disabled={slot().disabled}
+                onSkip={props.onSkip}
+              />
+            )}
+          </Show>
+        </StackHorizontal>
+      }
+    >
+      <StackVertical gap="sm">
+        <Show when={lead()} keyed>
+          {(slot) => <PuzzleActionButton slot={slot} model={props} fullWidth />}
+        </Show>
+        <For each={actions().filter((slot) => slot !== lead())}>
+          {(slot) => <PuzzleActionButton slot={slot} model={props} fullWidth />}
         </For>
         <Show when={skip()}>
           {(slot) => (
             <PuzzleSkipButton
               disabled={slot().disabled}
               onSkip={props.onSkip}
+              fullWidth
             />
           )}
         </Show>
-      </StackHorizontal>
-    </StackVertical>
+      </StackVertical>
+    </Show>
   );
 }

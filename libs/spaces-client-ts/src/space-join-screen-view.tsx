@@ -231,9 +231,8 @@ function SpaceJoinInvitation(props: {
             size="lg"
           />
           <StackVertical grow shrink gap="xs">
-            <H2 size="subtitle" lines={2}>
-              {props.space.title}
-            </H2>
+            {/* In full: the guest confirms which space they are joining. */}
+            <H2 size="subtitle">{props.space.title}</H2>
             <StackHorizontal align="center" gap="xs">
               <Show when={props.space.host} keyed>
                 {(host) => <SpacePersonAvatar person={host} size={20} />}

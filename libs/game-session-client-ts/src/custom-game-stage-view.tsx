@@ -424,7 +424,17 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
               align="center"
               testId="custom-game-watching"
             >
-              <Trans>You're watching. Moves appear as they're played.</Trans>
+              {/* Whose move it is, as the matchmaking band says it. */}
+              <Show
+                when={props.status?.plainTurn ? props.status : null}
+                fallback={
+                  <Trans>
+                    You're watching. Moves appear as they're played.
+                  </Trans>
+                }
+              >
+                {(line) => <Trans>You're watching. {line().description}</Trans>}
+              </Show>
             </P>
           </Show>
         }

@@ -166,7 +166,8 @@ export function FrameStartView(
                 tone="secondary"
                 testId="custom-game-startable"
               >
-                <Trans>You're watching.</Trans>{' '}
+                {/* The page already says they watch; this says where the
+                    game stands. */}
                 {startLine(props.start, props.invitedTo)}
               </P>
             </>

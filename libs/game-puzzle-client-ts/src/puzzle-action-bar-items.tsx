@@ -102,6 +102,7 @@ export function PuzzleActionButton(props: {
             intent="neutral"
             variant="outline"
             icon={LightbulbIcon}
+            fullWidth={props.fullWidth}
             disabled={slot.type === 'action' && slot.disabled}
             onClick={() => props.model.onSolution()}
             dataSet={{ testid: 'chess-puzzle-action-solution' }}
@@ -134,12 +135,14 @@ export function PuzzleActionButton(props: {
 export function PuzzleSkipButton(props: {
   disabled: boolean;
   onSkip: () => void;
+  fullWidth?: boolean | undefined;
 }): JSX.Element {
   return (
     <Button
       title={<Trans>Skip puzzle</Trans>}
       intent="neutral"
       variant="ghost"
+      fullWidth={props.fullWidth}
       disabled={props.disabled}
       onClick={() => props.onSkip()}
       dataSet={{ testid: 'chess-puzzle-action-skip' }}

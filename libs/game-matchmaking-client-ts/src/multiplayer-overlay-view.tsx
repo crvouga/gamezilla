@@ -137,7 +137,9 @@ export function MultiplayerResultCard(props: {
         <GameResultCard
           live
           tone={result().tone}
-          eyebrow={headline(result())}
+          // A draw's headline already says it ("The game is drawn."): its
+          // word is not said again above it.
+          eyebrow={result().tone === 'drawn' ? undefined : headline(result())}
           title={result().title}
           caption={result().caption}
           dataSet={{ testid: 'multiplayer-announcement' }}

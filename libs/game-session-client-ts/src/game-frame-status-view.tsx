@@ -277,7 +277,7 @@ export function FrameDrawOfferLine(props: {
       >
         <Show
           when={props.play.drawOfferer}
-          fallback={<Trans>You are offered a draw.</Trans>}
+          fallback={<Trans>You were offered a draw.</Trans>}
         >
           {(offerer) => (
             <>
@@ -286,7 +286,7 @@ export function FrameDrawOfferLine(props: {
                 plainName={offerer().plainName}
                 people={props.people}
               />{' '}
-              <Trans>offers a draw.</Trans>
+              <Trans>offered you a draw.</Trans>
             </>
           )}
         </Show>
