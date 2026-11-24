@@ -103,7 +103,9 @@ describe('ResponsiveSurface', () => {
     expect(
       document.querySelector('[data-component="ModalContent"]')
     ).toBeNull();
-    expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    // Focus opens on the surface's content, never on its close control.
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveFocus();
+    expect(dialog.contains(document.activeElement)).toBe(true);
 
     fireEvent.click(mustQuery('[data-component="BottomSheetScrim"]'));
     expect(onClose).toHaveBeenCalledTimes(1);
@@ -269,7 +271,7 @@ describe('ResponsiveSurface', () => {
     const opener = screen.getByRole('button', { name: 'Open filters' });
     await user.click(opener);
     expect(mustQuery('[data-surface="sheet"]')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Close' })).toHaveFocus();
+    expect(screen.getByRole('button', { name: 'Close' })).not.toHaveFocus();
     await user.tab();
     expect(
       mustQuery('[data-surface="sheet"]').contains(document.activeElement)

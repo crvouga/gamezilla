@@ -84,7 +84,11 @@ describe('MutationModal', () => {
     r.clock.advance(1);
     const success = await screen.findByTestId('success');
     expect(success).toHaveAttribute('role', 'status');
-    expect(success).toHaveTextContent('Space ended');
+    // Done, the surface is titled with the outcome, not the question.
+    expect(
+      screen.getByRole('dialog', { name: 'Space ended' })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'End space?' })).toBeNull();
     expect(success).toHaveTextContent('Everyone is out.');
     expect(phaseBand).toHaveAttribute('data-phase', 'success');
 
