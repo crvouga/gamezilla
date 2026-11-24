@@ -102,8 +102,12 @@ export function MultiplayerSeat(props: {
   const profileId = () => multiplayerOwner(props.game, props.side);
   return (
     <GamePlayerBar
+      // Offline, the person's own turn waits: no call to act, and an
+      // amber tag says why, matching the status line.
       active={
-        props.game.outcome === 'ongoing' && props.game.turn === profileId()
+        props.game.outcome === 'ongoing' &&
+        props.game.turn === profileId() &&
+        !(props.connected === false && profileId() === props.viewer.myId)
       }
       avatar={
         <UserProfileAvatar
@@ -137,6 +141,13 @@ export function MultiplayerSeat(props: {
             own={props.own}
             viewer={props.viewer}
           />
+          <Show
+            when={
+              props.connected === false && profileId() === props.viewer.myId
+            }
+          >
+            <Badge intent="warning" label={<Trans>Offline</Trans>} />
+          </Show>
           <For each={frame().seats.facts(props.position, props.side, [])}>
             {(fact) => <Badge intent="neutral" label={fact} />}
           </For>
@@ -147,12 +158,7 @@ export function MultiplayerSeat(props: {
           when={profileId() === props.viewer.myId}
           fallback={<Trans>To move</Trans>}
         >
-          <Show
-            when={props.connected !== false}
-            fallback={<Trans>Offline</Trans>}
-          >
-            <Trans>Your move</Trans>
-          </Show>
+          <Trans>Your move</Trans>
         </Show>
       }
       trailing={

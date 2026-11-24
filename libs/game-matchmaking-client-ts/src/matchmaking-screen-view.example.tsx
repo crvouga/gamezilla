@@ -208,20 +208,19 @@ function StoryStage(props: {
           swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
           tags={
-            <Badge
-              intent="neutral"
-              label={props.watching === true ? 'Plays Red' : 'You play Red'}
-            />
+            <>
+              <Show when={props.offline === true}>
+                <Badge intent="warning" label="Offline" />
+              </Show>
+              <Badge
+                intent="neutral"
+                label={props.watching === true ? 'Plays Red' : 'You play Red'}
+              />
+            </>
           }
           tagsPlacement="inline"
-          active={props.active}
-          turnLabel={
-            props.watching === true
-              ? 'To move'
-              : props.offline === true
-                ? 'Offline'
-                : 'Your move'
-          }
+          active={props.active && props.offline !== true}
+          turnLabel={props.watching === true ? 'To move' : 'Your move'}
           trailing={
             <GameClock label="Red" value="3:47" active={props.active} />
           }

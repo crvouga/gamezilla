@@ -38,6 +38,9 @@ export function MultiplayerNotices(props: {
                 ? { ...denied(), action: undefined }
                 : denied()
             }
+            // Compact on the home, so the match and its rows fit above the
+            // dock that holds the way forward.
+            variant={props.docked === true ? 'compact' : 'fill'}
           />
         )}
       </Show>
