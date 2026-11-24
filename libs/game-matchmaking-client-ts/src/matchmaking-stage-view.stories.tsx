@@ -79,7 +79,7 @@ export const DrawOffered: Story = {
   render: (args) =>
     renderStory({
       // One sentence, the one thing to answer, as the app says it.
-      announcement: { title: 'Bob offered you a draw.' },
+      announcement: { title: 'Bob offered you a draw.', answer: true },
     })(args),
   args: { game: { ...STORY_GAME, draw: 'answer' } },
 };

@@ -183,6 +183,8 @@ function StoryStage(props: {
   /** The viewer only watches: neither seat is theirs, no move is theirs. */
   readonly watching?: boolean | undefined;
   readonly offline?: boolean | undefined;
+  /** A draw offered to the person waits for their answer first. */
+  readonly answering?: boolean | undefined;
   readonly overlay?: JSX.Element | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
@@ -219,7 +221,11 @@ function StoryStage(props: {
             </>
           }
           tagsPlacement="inline"
-          active={props.active && props.offline !== true}
+          // As the app's seat: an offer waiting for an answer takes the
+          // call to act from the turn.
+          active={
+            props.active && props.offline !== true && props.answering !== true
+          }
           turnLabel={props.watching === true ? 'To move' : 'Your move'}
           trailing={
             <GameClock
@@ -245,11 +251,13 @@ function StoryStage(props: {
 function StoryAnnouncement(props: {
   readonly title: string;
   readonly detail?: string | undefined;
+  /** An offer waiting for the person's answer: the filled pill, as the app's. */
+  readonly answer?: boolean | undefined;
 }): JSX.Element {
   return (
     <GameTurnPill
       live
-      look="plain"
+      look={props.answer === true ? 'pill' : 'plain'}
       emphasis="yours"
       title={props.title}
       detail={props.detail}
@@ -400,7 +408,11 @@ export type StorySlots = {
   /** No connection: the board takes no move until it returns. */
   readonly offline?: boolean;
   /** The line under the board. */
-  readonly announcement?: { readonly title: string; readonly detail?: string };
+  readonly announcement?: {
+    readonly title: string;
+    readonly detail?: string;
+    readonly answer?: boolean;
+  };
   /** How the game ended, on the result card. */
   readonly result?: MultiplayerResultShown;
   /** The private setup panel. */
@@ -421,6 +433,7 @@ export function renderStory(slots: StorySlots = {}) {
           ownName={slots.ownName}
           watching={slots.watching}
           offline={slots.offline}
+          answering={slots.announcement?.answer === true}
           active={slots.announcement !== undefined}
           overlay={overlay}
         />

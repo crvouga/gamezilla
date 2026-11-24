@@ -305,8 +305,9 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
-/* A quiet turn line sits centred on the status band, like every other line. */
-.status [data-component="GameTurnPill"][data-look="plain"] {
+/* A turn line sits centred on the status band, like every other line, a
+   quiet one or a filled one (an offer waiting for an answer). */
+.status [data-component="GameTurnPill"] {
   justify-content: center;
   text-align: center;
 }

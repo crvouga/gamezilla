@@ -55,7 +55,7 @@ function SpaceAdditionState(props: {
   // the people with access never move down to make room for it. The
   // added person's row in that list is the lasting record.
   return (
-    <ToastStack>
+    <ToastStack placement="top">
       <Show when={success()}>
         {(added) => (
           <SuccessState
