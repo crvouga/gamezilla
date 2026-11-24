@@ -53,6 +53,8 @@ export function GameResultDialog(props: {
   readonly state: GameResultDialogState;
   /** The outcome card (`GameResultCard`). */
   readonly outcome: JSX.Element;
+  /** The session's alerts (a refused rematch), said over the commands. */
+  readonly alerts?: JSX.Element | undefined;
   /** The next actions, moved here from the bar while the dialog is open. */
   readonly actions: JSX.Element;
 }): JSX.Element {
@@ -68,6 +70,7 @@ export function GameResultDialog(props: {
     >
       <div class={styles['body']}>
         {props.outcome}
+        {props.alerts}
         <div class={styles['actions']}>{props.actions}</div>
       </div>
     </ResponsiveSurface>

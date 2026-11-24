@@ -20,12 +20,12 @@ import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOverlay } from './game-frame-overlay-view';
 import {
-  FrameConnectionView,
   FrameDrawOfferLine,
   FrameErrorView,
   FrameFactsView,
-  FramePlayNoticesView,
+  FrameStageConditionLine,
   FrameStatusView,
+  frameStageHeldUp,
   frameWatchersLabel,
 } from './game-frame-status-view';
 import {
@@ -368,23 +368,9 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
         // What comes and goes (the connection, a refused choice, a draw
         // offered) lies over the stage's top, never in its flow, so the
         // board does not move when it appears or clears.
-        notices={
-          <>
-            <FrameConnectionView connection={props.connection} />
-            <FrameErrorView text={props.error} />
-            {/* The engine stopped: said in the alerts, its way on (Reopen
-                game) in the command bar where the play commands were. */}
-            <FrameErrorView
-              title={t`Game stopped`}
-              text={
-                props.stopped
-                  ? t`Your last saved score is kept. Reopen the game to play on.`
-                  : ''
-              }
-            />
-            <FramePlayNoticesView play={props.play} people={props.people} />
-          </>
-        }
+        // A refused choice is an event: it floats in the alerts. What holds
+        // the game up stays on the status line below.
+        notices={<FrameErrorView text={props.error} />}
         boardFocus
         actionsBeside
         fixedStage={props.boardWorkspace !== true}
@@ -395,10 +381,15 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
             when={props.phase === 'active' && props.viewerSide === null}
             fallback={
               <Show
-                when={props.play.drawOffered}
-                fallback={<PlayLine {...props} />}
+                when={!frameStageHeldUp(props)}
+                fallback={<FrameStageConditionLine {...props} />}
               >
-                <FrameDrawOfferLine play={props.play} people={props.people} />
+                <Show
+                  when={props.play.drawOffered}
+                  fallback={<PlayLine {...props} />}
+                >
+                  <FrameDrawOfferLine play={props.play} people={props.people} />
+                </Show>
               </Show>
             }
           >

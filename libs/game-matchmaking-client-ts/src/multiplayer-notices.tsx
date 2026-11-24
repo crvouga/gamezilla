@@ -4,7 +4,7 @@ import { Trans } from '@lingui/solid/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { type JSX, Show } from 'solid-js';
 
@@ -18,6 +18,8 @@ export function MultiplayerNotices(props: {
   readonly online: boolean;
   /** A search is running: a refusal then is about stopping it. */
   readonly searching?: boolean | undefined;
+  /** A game in play: no connection is said on its status line instead. */
+  readonly playing?: boolean | undefined;
 }): JSX.Element {
   return (
     <>
@@ -54,7 +56,7 @@ export function MultiplayerNotices(props: {
             </Show>
           )}
         </Show>
-        <Show when={!props.online}>
+        <Show when={!props.online && props.playing !== true}>
           <Notice
             tone="warning"
             icon={WifiOffIcon}
@@ -70,5 +72,21 @@ export function MultiplayerNotices(props: {
         </Show>
       </ToastStack>
     </>
+  );
+}
+
+/** No connection, on a matched game's status line beside its commands. */
+export function MultiplayerOfflineLine(): JSX.Element {
+  return (
+    <P
+      variant="caption"
+      tone="warning"
+      align="center"
+      role="status"
+      lines={2}
+      testId="multiplayer-offline"
+    >
+      <Trans>You're offline. Moves wait for the connection.</Trans>
+    </P>
   );
 }

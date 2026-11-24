@@ -218,7 +218,7 @@ export function FrameLobbyPage(
         <FrameNoticesView
           connection={props.connection}
           error={props.error}
-          beforeGame={props.phase === 'none'}
+          beforeGame={props.phase === 'none' || props.phase === 'configuring'}
         />
         {props.children}
         <Show when={props.back}>

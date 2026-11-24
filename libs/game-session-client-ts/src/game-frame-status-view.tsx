@@ -6,7 +6,6 @@ import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -187,13 +186,9 @@ export function FrameConnectionView(props: {
                 </Trans>
               }
             >
-              <Match
-                when={
-                  props.beforeGame === true && props.connection === 'needed'
-                }
-              >
+              <Match when={props.beforeGame === true}>
                 <Trans>
-                  You are offline. A game you start now begins when the
+                  You're offline. A game you start now begins when the
                   connection returns.
                 </Trans>
               </Match>
@@ -271,41 +266,79 @@ export function FrameDrawOfferLine(props: {
   );
 }
 
-/** What a participant is told during play that comes and goes: an absent opponent. */
-export function FramePlayNoticesView(props: {
+/**
+ * What holds a game up, said on the command bar's status line, where it
+ * stays in view until it ends and never covers the board or a seat: the
+ * engine stopped, no connection, an opponent away. Nothing while none does.
+ */
+export function FrameStageConditionLine(props: {
+  readonly stopped: boolean;
+  readonly connection: FrameConnection;
   readonly play: FramePlay;
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
   return (
-    <>
-      <Show when={props.play.away}>
+    <Switch>
+      <Match when={props.stopped}>
+        <P
+          variant="caption"
+          tone="destructive"
+          align="center"
+          role="status"
+          lines={2}
+        >
+          <Trans>Game stopped. Your last saved score is kept.</Trans>
+        </P>
+      </Match>
+      <Match when={props.connection !== 'online'}>
+        <P
+          variant="caption"
+          tone="warning"
+          align="center"
+          role="status"
+          lines={2}
+          testId="custom-game-connection-needed"
+        >
+          <Trans>You're offline. Moves wait for the connection.</Trans>
+        </P>
+      </Match>
+      <Match when={props.play.away}>
         {(away) => (
-          <StackVertical gap="md" testId="custom-game-away">
-            <Notice>
-              <Text variant="inherit" role="status">
-                <FramePersonName
-                  person={away().person}
-                  plainName={away().plainName}
-                  people={props.people}
-                />{' '}
-                <Show
-                  when={away().twoSided}
-                  fallback={
-                    <Trans>
-                      is away. Their turn stays reserved until they return.
-                    </Trans>
-                  }
-                >
-                  <Trans>
-                    is away. After a minute away you may claim the win.
-                  </Trans>
-                </Show>
-              </Text>
-            </Notice>
-          </StackVertical>
+          <P
+            variant="caption"
+            align="center"
+            role="status"
+            lines={2}
+            testId="custom-game-away"
+          >
+            <FramePersonName
+              person={away().person}
+              plainName={away().plainName}
+              people={props.people}
+            />{' '}
+            <Show
+              when={away().twoSided}
+              fallback={
+                <Trans>is away. Their turn waits until they return.</Trans>
+              }
+            >
+              <Trans>is away. After a minute you may claim the win.</Trans>
+            </Show>
+          </P>
         )}
-      </Show>
-    </>
+      </Match>
+    </Switch>
+  );
+}
+
+/** Whether something holds the game up (see `FrameStageConditionLine`). */
+export function frameStageHeldUp(props: {
+  readonly stopped: boolean;
+  readonly connection: FrameConnection;
+  readonly play: FramePlay;
+}): boolean {
+  return (
+    props.stopped || props.connection !== 'online' || props.play.away !== null
   );
 }
 

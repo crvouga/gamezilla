@@ -104,6 +104,12 @@ function SessionControls(props: GameSessionLayoutProps): JSX.Element {
   const dialog = createGameResultDialog(() => outcome.present());
   // One set of commands, in the dialog while it is open, else in the bar.
   const actions = children(() => props.actions);
+  // A game in play (a fixed stage): what comes and goes floats in the
+  // alerts, never in the page's flow, so the board never moves; while the
+  // ending's dialog is open, it is said in the dialog, over its commands.
+  const alerts = children(() =>
+    props.fixedStage === true ? props.notices : undefined
+  );
   const barActions = (): JSX.Element => (
     <Show
       when={!dialog.open()}
@@ -128,12 +134,21 @@ function SessionControls(props: GameSessionLayoutProps): JSX.Element {
         <GameResultDialog
           state={dialog}
           outcome={outcome.content()}
+          alerts={<Show when={dialog.open()}>{alerts()}</Show>}
           actions={
             <Show when={dialog.open()}>
               <GameActions>{actions()}</GameActions>
             </Show>
           }
         />
+      </Show>
+      <Show when={!dialog.open()}>
+        <ToastStack
+          placement="above-commands"
+          dataSet={{ component: 'GameSessionNotices' }}
+        >
+          {alerts()}
+        </ToastStack>
       </Show>
       <Show
         when={props.fixedStage === true}
@@ -240,19 +255,9 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
           {pinned.content()}
         </div>
       </Show>
-      {/* A game in play (a fixed stage): what comes and goes (the
-          connection, a refused choice, a draw offered, an opponent away)
-          floats over the screen, never in the page's flow, so the board
-          never moves. Elsewhere (a puzzle's standing rule) the notices are
-          the page's own rows, centred with a centred stage. */}
-      <Show when={props.fixedStage === true}>
-        <ToastStack
-          placement="above-commands"
-          dataSet={{ component: 'GameSessionNotices' }}
-        >
-          {props.notices}
-        </ToastStack>
-      </Show>
+      {/* A game in play (a fixed stage) floats its notices with its
+          commands (`SessionControls`). Elsewhere (a puzzle's standing rule)
+          they are the page's own rows, centred with a centred stage. */}
       <Show
         when={props.stageAlign === 'center' && notices.present()}
         fallback={props.fixedStage === true ? undefined : props.notices}

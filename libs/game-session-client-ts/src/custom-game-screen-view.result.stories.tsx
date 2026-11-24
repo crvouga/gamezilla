@@ -172,6 +172,15 @@ export const RematchRefused: Story = {
     error:
       "The rematch didn't reach the space. Check your connection and try again.",
   },
+  // J12 recovery: the refusal is said in the Game over dialog, over its
+  // commands, and Rematch there tries again.
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole('dialog', { name: 'Game over' });
+    await expect(within(dialog).getByTestId('custom-game-error')).toBeVisible();
+    await userEvent.click(within(dialog).getByTestId('custom-game-rematch'));
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+  },
 };
 
 /** Review moves opens the moves place at the start of the game. */

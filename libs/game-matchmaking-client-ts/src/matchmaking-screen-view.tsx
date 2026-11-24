@@ -21,7 +21,10 @@ import type {
 } from './multiplayer-game-view';
 import { MultiplayerGuideView } from './multiplayer-guide-view';
 import { MultiplayerMovesView } from './multiplayer-moves-view';
-import { MultiplayerNotices } from './multiplayer-notices';
+import {
+  MultiplayerNotices,
+  MultiplayerOfflineLine,
+} from './multiplayer-notices';
 import {
   MultiplayerOverlayView,
   type MultiplayerResultShown,
@@ -167,6 +170,7 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
           error={props.error}
           online={props.online}
           searching={props.stage === 'searching'}
+          playing={props.stage === 'playing' && props.place.screen === 'stage'}
         />
       );
     },
@@ -271,7 +275,13 @@ function PlayPlace(props: Props): JSX.Element {
               result={undefined}
             />
           )}
-          status={props.status}
+          // No connection holds the game up: said on the status line, where
+          // it stays in view and covers no seat.
+          status={
+            <Show when={props.online} fallback={<MultiplayerOfflineLine />}>
+              {props.status}
+            </Show>
+          }
           game={game()}
           commands={props.commands}
           onOpen={props.onOpen}
