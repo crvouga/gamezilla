@@ -46,7 +46,9 @@ function RouteBody(props: {
       }
     >
       <Match when={props.route.spaceBody === 'shell'}>
-        <StorySpaceFrame>{props.children}</StorySpaceFrame>
+        <StorySpaceFrame title={props.route.spaceTitle}>
+          {props.children}
+        </StorySpaceFrame>
       </Match>
       {/* Already under its own frame, with the shell it claimed: bare. */}
       <Match when={props.route.spaceBody === 'story'}>{props.children}</Match>

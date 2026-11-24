@@ -8,7 +8,21 @@ export type StoryRoute = {
    * space. A screen is under exactly one frame, as in the product.
    */
   readonly spaceBody: false | 'shell' | 'story';
+  /**
+   * What the space's top bar is titled with inside the space, as the
+   * product titles it: the game the screen belongs to.
+   */
+  readonly spaceTitle?: string | undefined;
 };
+
+/** The game each framed screen belongs to, by its story family. */
+function storySpaceTitle(family: string): string {
+  if (family.startsWith('screens-puzzles') || family.includes('chess'))
+    return 'Chess';
+  if (family.includes('light-cycles')) return 'Light Cycles';
+  if (family.includes('battleship')) return 'Battleship';
+  return 'Connect Four';
+}
 
 const TAB_ROUTES: Readonly<Record<string, string>> = {
   'screens-spaces-home': '/',
@@ -155,7 +169,12 @@ export function storyRoute(id: string, override?: StoryRoute): StoryRoute {
   if (SELF_FRAMED_SPACE_BODIES.has(family))
     return { pathname: '/space/story-room', tab: false, spaceBody: 'story' };
   if (SPACE_BODIES.has(family))
-    return { pathname: '/space/story-room', tab: false, spaceBody: 'shell' };
+    return {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: storySpaceTitle(family),
+    };
   // Isolated overlays and templates have no current product destination.
   return {
     pathname: STACK_ROUTES[family] ?? '/not-found',

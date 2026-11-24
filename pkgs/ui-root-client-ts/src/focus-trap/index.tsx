@@ -38,6 +38,9 @@ const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
  * close button (`data-initial-focus="skip"`), else the dialog itself, so a
  * confirm opens on its content and never on its X.
  */
+const INITIAL_FOCUS_CONTROLS =
+  'button, input, select, textarea, a[href], [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="combobox"]';
+
 function focusInto(host: HTMLElement): void {
   if (host.contains(document.activeElement) && document.activeElement !== host)
     return;
@@ -47,8 +50,11 @@ function focusInto(host: HTMLElement): void {
     return;
   }
   const tabbable = collectTabbable(host);
+  // A control, never a scroll region that is tabbable only so it can scroll.
   const first = tabbable.find(
-    (el) => el.closest('[data-initial-focus="skip"]') === null
+    (el) =>
+      el.matches(INITIAL_FOCUS_CONTROLS) &&
+      el.closest('[data-initial-focus="skip"]') === null
   );
   if (first !== undefined) first.focus();
   else host.focus();
