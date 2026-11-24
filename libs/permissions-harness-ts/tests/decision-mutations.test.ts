@@ -6,17 +6,17 @@
  * shipped system, compared the same way, reports none.
  */
 import { describe, expect, test } from 'bun:test';
-import { clientGatingLayer } from '@libs/permissions-harness-ts/client';
-import {
-  accessClientLayer,
-  dailyPuzzleLimitClientLayer,
-} from '@libs/permissions-harness-ts/client-layers';
 import {
   accessApplicationLayer,
   dailyPuzzleLimitApplicationLayer,
   hostingLimitApplicationLayer,
   spaceRolesApplicationLayer,
-} from '@libs/permissions-shared-ts/application';
+} from '@libs/permissions-harness-ts/application';
+import { clientGatingLayer } from '@libs/permissions-harness-ts/client';
+import {
+  accessClientLayer,
+  dailyPuzzleLimitClientLayer,
+} from '@libs/permissions-harness-ts/client-layers';
 import { authorizeAppMutation } from '@libs/permissions-shared-ts/authorize-app-mutation';
 import {
   PERMISSION,

@@ -21,7 +21,8 @@
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { opponentSearchGuard } from '@libs/game-session-server-ts/opponent-search-guard';
-import { dailyMatchedGameLimitApplicationLayer } from '@libs/permissions-shared-ts/application';
+import { dailyMatchedGameLimitApplicationLayer } from '@libs/permissions-harness-ts/application';
+import { startedMatchedGameTimes } from '@libs/permissions-harness-ts/started-matched-games';
 import { authorizeAppMutation } from '@libs/permissions-shared-ts/authorize-app-mutation';
 import { DAILY_MATCHED_GAME_LIMIT_REASONS } from '@libs/permissions-shared-ts/reasons';
 import {
@@ -29,7 +30,6 @@ import {
   type ServerCase,
   serverEnforcementLayer,
 } from '@libs/permissions-shared-ts/server';
-import { startedMatchedGameTimes } from '@libs/permissions-shared-ts/started-matched-games';
 import type { DecisionLayer } from '@pkgs/dmn-shared-ts/registry';
 import { bindDecisions } from '@pkgs/dmn-shared-ts/registry';
 import sql from '@pkgs/sql-root-shared-ts/sql';

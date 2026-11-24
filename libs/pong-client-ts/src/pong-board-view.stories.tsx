@@ -155,7 +155,14 @@ export const PaddleMovement: Story = {
   render: (args, context) => {
     const config = pongConfig();
     const step = createPongStep(config);
-    const [state, setState] = createSignal(initialPongState(config, () => 0));
+    // The court releases its controls as it closes, which steps this
+    // stand-in simulation from inside the closing owner.
+    const [state, setState] = createSignal(
+      initialPongState(config, () => 0),
+      {
+        ownedWrite: true,
+      }
+    );
     let tick = 0;
     const simulation = playing(args.simulation?.sides ?? ['white'], {
       onInput: (side, value) => {

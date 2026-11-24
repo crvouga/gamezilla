@@ -1,6 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import type { ExampleConfig } from './example-config';
 import {
   createBoardInputs,
@@ -99,10 +99,13 @@ export function createExampleApp(
     }),
     configure(patch: Partial<ExampleConfig>): void {
       setConfig((prev) => ({ ...prev, ...patch }));
+      // A direct write: the board is current before the next input or read.
+      flush();
     },
     reset(next: ExampleConfig) {
       evidence.clearMoves();
       setConfig({ fen: INITIAL, size: 320, ...next });
+      flush();
     },
   };
 }

@@ -95,7 +95,9 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
   // Another file is another attempt: the button forgets the last outcome.
   createEffect(
     () => props.source.chosen,
-    () => save.reset(),
+    () => {
+      save.reset();
+    },
     { defer: true }
   );
   return (

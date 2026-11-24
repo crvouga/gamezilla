@@ -28,7 +28,13 @@ function SpaceOpenRoomSlot(props: { readonly spaceId: string }): null {
       // A null room keeps any buffered commands: it may still be hydrating.
       setEntry(
         now.spaceId,
-        now.room === null ? null : { room: now.room, clientId: now.clientId }
+        now.room === null
+          ? null
+          : {
+              room: now.room,
+              clientId: now.clientId,
+              isCurrent: state.roomIsCurrent,
+            }
       );
       return () => setEntry(now.spaceId, null);
     }

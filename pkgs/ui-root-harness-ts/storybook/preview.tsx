@@ -14,12 +14,14 @@ import { createEffect, onCleanup, Show } from 'solid-js';
 import { addons } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
+import { applyDecorators as applySolidDecorators } from 'storybook-solidjs-vite/renderer/solid-next';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
 import { backgrounds, viewports } from './preview-options';
 import { loadStoryFonts } from './story-fonts';
 import { storyReducedMotion } from './story-motion';
 import { trackStoryReadiness } from './story-readiness';
+import { untrackedStory } from './untracked-story';
 
 // Stories render source English from macro descriptors, without the product
 // catalog. Production builds drop Lingui's runtime compiler, so supply it or
@@ -119,6 +121,8 @@ const withProviders = createJSXDecorator((Story, context) => {
 
 export default {
   decorators: [withProviders],
+  applyDecorators: (story, decorators) =>
+    untrackedStory(applySolidDecorators(story, decorators)),
   loaders: [
     async () => {
       await loadStoryFonts(document.fonts);

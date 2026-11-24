@@ -20,6 +20,7 @@
         "@pkgs/clock-shared-ts#src",
         "@pkgs/db-schema-root-shared-ts#src",
         "@pkgs/dmn-shared-ts#src",
+        "@pkgs/permissions-shared-ts#src",
         "@pkgs/secure-storage-root-client-ts#src",
         "@pkgs/secure-storage-root-shared-ts#src",
         "@pkgs/sql-root-shared-ts#src",

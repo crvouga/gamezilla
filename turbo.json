@@ -5835,6 +5835,46 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-189/**"]
+    },
+    "test:spec:190": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        ".cache/spec-inputs/part-190.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-190/**"]
+    },
+    "test:spec:191": {
+      "dependsOn": ["^src", "prepare:spec"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/libs/harness-ts/scripts/**",
+        ".cache/spec-inputs/part-191.json"
+      ],
+      "env": [
+        "HARNESS_MODE",
+        "HARNESS_WITH_DOM",
+        "HARNESS_FIDELITY",
+        "PBT_NUM_RUNS",
+        "PBT_RANDOM",
+        "FC_SEED",
+        "QUINT_REPLAY_TRACES"
+      ],
+      "outputLogs": "errors-only",
+      "outputs": [".cache/harness-report/part-191/**"]
     }
   }
 }

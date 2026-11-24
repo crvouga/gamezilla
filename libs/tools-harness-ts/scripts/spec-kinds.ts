@@ -23,7 +23,6 @@ export const SPECS_ROOT_FILES: readonly string[] = [
   'conformance.yaml',
   'product.machine.json',
   'journeys.yaml',
-  'atlas.yaml',
   'README.md',
 ];
 

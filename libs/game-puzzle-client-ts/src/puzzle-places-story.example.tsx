@@ -82,7 +82,9 @@ export function useStoryPuzzlePlaces(args: {
   readonly home: () => void;
 } {
   const nav = useScreenPlace(PUZZLE_PLAY_PLACES, args.stage);
-  createEffect(args.place, (place) => untrack(() => nav.open(place)));
+  createEffect(args.place, (place) => {
+    untrack(() => nav.open(place));
+  });
   return {
     place: nav.place,
     onOpen: (place) => {

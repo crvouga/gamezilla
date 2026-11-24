@@ -21,6 +21,12 @@ type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 export type SpaceOpenRoomEntry = {
   readonly room: SpaceRoom;
   readonly clientId: string;
+  /**
+   * Whether this room is still the one its space should have. False from the
+   * moment the space's identity changes (a guest becoming its host, …) until
+   * the replacement opens: commands issued then wait for the replacement.
+   */
+  readonly isCurrent: () => boolean;
 };
 
 type SpaceOpenRoomsApi = {
@@ -108,7 +114,7 @@ export function SpaceOpenRoomsStoreProvider(props: {
       committed = next;
       setEntries(next);
     }
-    if (entry !== null) {
+    if (entry?.isCurrent() === true) {
       pendingRef.current.flush(spaceId, (payload) => {
         entry.room.dispatch(payload);
       });
@@ -136,11 +142,13 @@ export function SpaceOpenRoomsStoreProvider(props: {
     getEntry: (spaceId) => committed.get(spaceId) ?? null,
     dispatch: (spaceId, payload) => {
       const entry = committed.get(spaceId);
-      if (entry !== undefined) {
+      // regression: space-command-lost-to-replaced-room
+      if (entry?.isCurrent() === true) {
         entry.room.dispatch(payload);
         return;
       }
-      // Local Room still opening — queue until registry commit.
+      // Local Room still opening or being replaced: queue until the
+      // registry commits the room that stays.
       pendingRef.current.enqueue(spaceId, payload);
     },
   };

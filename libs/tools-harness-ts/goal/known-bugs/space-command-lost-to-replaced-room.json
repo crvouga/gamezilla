@@ -1,0 +1,4 @@
+{
+  "summary": "A command issued in the step between a space's identity changing (a guest becoming its host) and its room being reopened went to the room about to be closed and was lost, so a game opened from a link never started.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-open-rooms-entries-notify.test.tsx"
+}

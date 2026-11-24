@@ -242,6 +242,8 @@ async function waitForSpaceAdmission(
 export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   room: Accessor<SpaceRoom | null>;
   transport: Accessor<ClientTransport | null>;
+  /** Whether the open room was opened for the present bootstrap. */
+  roomIsCurrent: () => boolean;
 } {
   const { bootstrap, configService, kv, sessionToken, getFreshToken } = args;
   const [room, setRoom] = createSignal<SpaceRoom | null>(null);
@@ -324,5 +326,11 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
     });
   });
 
-  return { room, transport };
+  // The identity is known a step before the effect above replaces the room:
+  // a command issued in between must not go to the room being closed.
+  const roomIsCurrent = (): boolean =>
+    connectedKeyRef.current !== null &&
+    connectedKeyRef.current === untrack(bootstrapKey);
+
+  return { room, transport, roomIsCurrent };
 }

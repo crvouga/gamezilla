@@ -9,35 +9,42 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { createSignal } from 'solid-js';
 
 /** Virtual simulation time; the production step owns every transition. */
-export function createLightCyclesJourney(count: 2 | 3 | 4) {
+export function createLightCyclesJourney(
+  count: 2 | 3 | 4,
+  initially: { readonly stale: boolean } = { stale: false }
+) {
   const config = lightCyclesConfig();
   const step = createLightCyclesStep(config);
-  const [state, setState] = createSignal(
-    initialLightCyclesState(config, LIGHT_CYCLES_SEATS[count])
-  );
-  const [stale, setStale] = createSignal(false);
+  // The simulation itself is plain data, stepped as it is asked to; the
+  // signal only shows where it stands, so it can be stepped while a story
+  // is being built as well as from an input.
+  let current = initialLightCyclesState(config, LIGHT_CYCLES_SEATS[count]);
   let tick = 0;
-  function advance(ticks: number, playerId?: GameSide, value?: unknown) {
+  function stepBy(ticks: number, playerId?: GameSide, value?: unknown): void {
     const input = parseLightCyclesInput(value);
     for (let frame = 0; frame < ticks; frame++) {
       tick++;
-      setState((current) =>
-        step(
-          current,
-          frame === 0 && playerId && input
-            ? [{ playerId, value: input, sequence: tick, tick }]
-            : [],
-          {
-            tick,
-            deltaMs: 1000 / config.tickRate,
-            elapsedMs: (tick * 1000) / config.tickRate,
-            random: () => 0,
-          }
-        )
+      current = step(
+        current,
+        frame === 0 && playerId && input
+          ? [{ playerId, value: input, sequence: tick, tick }]
+          : [],
+        {
+          tick,
+          deltaMs: 1000 / config.tickRate,
+          elapsedMs: (tick * 1000) / config.tickRate,
+          random: () => 0,
+        }
       );
     }
   }
-  advance(120);
+  stepBy(120);
+  const [state, setState] = createSignal(current);
+  const [stale, setStale] = createSignal(initially.stale);
+  function advance(ticks: number, playerId?: GameSide, value?: unknown): void {
+    stepBy(ticks, playerId, value);
+    setState(() => current);
+  }
   return {
     state,
     stale,

@@ -9,6 +9,35 @@
  * For tests and spec bindings only (a `root/` export).
  */
 
+import { grantKeyOf } from '@libs/permissions-shared-ts/capabilities';
+import { unitsSince } from '@libs/permissions-shared-ts/ledger-time';
+import { decideMatchedGameAllowance } from '@libs/permissions-shared-ts/matched-game-allowance';
+import type { CaseInput } from '@libs/permissions-shared-ts/people';
+import {
+  CASE_NOW_MS,
+  capabilityOf,
+  countInput,
+  DMN_INPUT,
+  factsOf,
+  spacePresenceOf,
+} from '@libs/permissions-shared-ts/people';
+import type {
+  AppLimit,
+  AppPolicyKey,
+} from '@libs/permissions-shared-ts/permission-catalog';
+import { ACTION, LIMIT } from '@libs/permissions-shared-ts/permission-catalog';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared-ts/permission-policy';
+import { startedEntries } from '@libs/permissions-shared-ts/puzzle-ledger';
+import {
+  ACCESS_REASONS,
+  answerOnly,
+  DAILY_MATCHED_GAME_LIMIT_REASONS,
+  DAILY_PUZZLE_LIMIT_REASONS,
+  HOSTING_LIMIT_REASONS,
+  tableAnswer,
+} from '@libs/permissions-shared-ts/reasons';
+import { resolveSpaceRoles } from '@libs/permissions-shared-ts/space-roles';
+import type { AppPolicy } from '@libs/permissions-shared-ts/world';
 import type { DecisionLayer } from '@pkgs/dmn-shared-ts/registry';
 import {
   decide,
@@ -20,33 +49,7 @@ import type { PolicyVersion } from '@pkgs/permissions-shared-ts/policy';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 import type { Subject } from '@pkgs/permissions-shared-ts/subject';
-import { grantKeyOf } from './capabilities';
-import { unitsSince } from './ledger-time';
-import { decideMatchedGameAllowance } from './matched-game-allowance';
-import type { CaseInput } from './people';
-import {
-  CASE_NOW_MS,
-  capabilityOf,
-  countInput,
-  DMN_INPUT,
-  factsOf,
-  spacePresenceOf,
-} from './people';
-import type { AppLimit, AppPolicyKey } from './permission-catalog';
-import { ACTION, LIMIT } from './permission-catalog';
-import { DEFAULT_PERMISSION_POLICY } from './permission-policy';
-import { startedEntries } from './puzzle-ledger';
-import {
-  ACCESS_REASONS,
-  answerOnly,
-  DAILY_MATCHED_GAME_LIMIT_REASONS,
-  DAILY_PUZZLE_LIMIT_REASONS,
-  HOSTING_LIMIT_REASONS,
-  tableAnswer,
-} from './reasons';
-import { resolveSpaceRoles } from './space-roles';
 import { startedMatchedGameTimes } from './started-matched-games';
-import type { AppPolicy } from './world';
 
 type Active = PolicyVersion<AppPolicyKey, AppLimit>;
 

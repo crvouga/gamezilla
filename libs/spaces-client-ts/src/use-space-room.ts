@@ -39,6 +39,8 @@ export type SpaceRoomUiState = {
   readonly roomActive: boolean;
   /** Stable per open-session client id for the live roster. */
   readonly clientId: string;
+  /** Whether `room` was opened for the space's present identity. */
+  readonly roomIsCurrent: () => boolean;
 };
 
 function resolveId(spaceId: string | Accessor<string>): string {
@@ -95,7 +97,7 @@ export function useSpaceRoom(
     };
   });
 
-  const { room, transport } = useSpaceRoomConnection({
+  const { room, transport, roomIsCurrent } = useSpaceRoomConnection({
     bootstrap,
     configService,
     kv,
@@ -122,5 +124,6 @@ export function useSpaceRoom(
     get clientId() {
       return clientId();
     },
+    roomIsCurrent,
   };
 }

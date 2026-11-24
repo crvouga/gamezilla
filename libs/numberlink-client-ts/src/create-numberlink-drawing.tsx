@@ -129,7 +129,9 @@ function createDrawingFeedback(
 function cancelOnNewInput(ports: DrawingPorts, cancel: () => void): void {
   createEffect(
     () => [ports.definition(), ports.state(), ports.disabled()] as const,
-    () => cancel()
+    () => {
+      cancel();
+    }
   );
 }
 

@@ -51,7 +51,9 @@ export function useScreenPlace<Stage extends string, Place extends ScreenPlace>(
   const standing = () => untrack(() => ({ stage: current(), place: place() }));
   return {
     place,
-    open: (next) => setOpened({ stage: standing().stage, place: next }),
+    open: (next) => {
+      setOpened({ stage: standing().stage, place: next });
+    },
     back: () => {
       const { stage: from, place: shown } = standing();
       const behind = placeBehind(places, from, shown);
@@ -59,6 +61,8 @@ export function useScreenPlace<Stage extends string, Place extends ScreenPlace>(
       setOpened({ stage: from, place: behind });
       return true;
     },
-    home: () => setOpened(null),
+    home: () => {
+      setOpened(null);
+    },
   };
 }

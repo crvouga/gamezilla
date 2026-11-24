@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-shared-ts/application';
+import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-harness-ts/application';
 
 test('the rated puzzle quota reads starts at the daily boundary', async () => {
   // regression: puzzle-quota-start-count-binding

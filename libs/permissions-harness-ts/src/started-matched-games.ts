@@ -7,9 +7,9 @@
  * For tests and spec bindings only (a `root/` export).
  */
 
-import type { CaseInput } from './people';
-import { countInput, DMN_INPUT } from './people';
-import { utcMidnightOf } from './puzzle-ledger';
+import type { CaseInput } from '@libs/permissions-shared-ts/people';
+import { countInput, DMN_INPUT } from '@libs/permissions-shared-ts/people';
+import { utcMidnightOf } from '@libs/permissions-shared-ts/puzzle-ledger';
 
 /** When each of the case's matched games started, as stored (ISO). */
 export function startedMatchedGameTimes(

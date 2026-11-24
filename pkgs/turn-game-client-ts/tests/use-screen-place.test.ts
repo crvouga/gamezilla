@@ -62,3 +62,14 @@ test('the data behind the stage changing leaves the opened place when the stage 
   expect(navigation.place()).toEqual({ screen: 'result' });
   dispose();
 });
+
+// regression: screen-place-move-returned-as-effect-cleanup
+test('a move made from an effect leaves the effect nothing to clean up with', () => {
+  const [stage] = createSignal<Stage>('play');
+  const { navigation, dispose } = mounted(stage);
+  // An effect that opens a place returns what the move returns: anything but
+  // undefined would be taken for its cleanup.
+  expect(navigation.open({ screen: 'menu' }) as unknown).toBeUndefined();
+  expect(navigation.home() as unknown).toBeUndefined();
+  dispose();
+});
