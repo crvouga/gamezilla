@@ -292,18 +292,20 @@ function SpaceJoinInvitation(props: {
           <StackVertical grow shrink gap="xs">
             {/* In full: the guest confirms which space they are joining. */}
             <H2 size="subtitle">{props.space.title}</H2>
-            <StackHorizontal align="center" gap="xs">
-              <Show when={props.space.host} keyed>
-                {(host) => <SpacePersonAvatar person={host} size={20} />}
-              </Show>
-              <StackVertical shrink>
-                <P variant="caption" lines={3}>
-                  <SpaceHostPhrase space={props.space} />
-                </P>
-              </StackVertical>
-            </StackHorizontal>
           </StackVertical>
           <SpaceJoinStatusTag space={props.space} host={props.host} />
+        </StackHorizontal>
+        {/* Who hosts, on a row of the card's full width: a long name wraps
+            to its last character, so the guest confirms whose space it is. */}
+        <StackHorizontal align="start" gap="xs">
+          <Show when={props.space.host} keyed>
+            {(host) => <SpacePersonAvatar person={host} size={20} />}
+          </Show>
+          <StackVertical grow shrink>
+            <P variant="caption" lines={6}>
+              <SpaceHostPhrase space={props.space} />
+            </P>
+          </StackVertical>
         </StackHorizontal>
         <Divider />
         {/* Before joining, who is here means the others: the viewer is

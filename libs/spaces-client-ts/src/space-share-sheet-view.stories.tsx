@@ -88,6 +88,24 @@ export const Guest: Story = {
   render: (args) => withSlots(args, {}),
 };
 
+/** J5 as a guest: Copy link copies the space's link and says it did. */
+export const GuestCopiesLink: Story = {
+  args: { canManage: false, viewerId: JORDAN.id },
+  parameters: { spaceBehind: 'guest' },
+  render: (args) => withSlots(args, {}),
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const sheet = await body.findByRole('dialog', { name: 'Share space' });
+    await userEvent.click(
+      within(sheet).getByRole('button', { name: 'Copy link' })
+    );
+    await expect(args.onCopyLink).toHaveBeenCalledTimes(1);
+    await expect(
+      await within(sheet).findByRole('button', { name: /Copied/ })
+    ).toBeVisible();
+  },
+};
+
 /** People with access are still being read. */
 export const Loading: Story = {
   args: { peopleStatus: 'loading', people: [] },
