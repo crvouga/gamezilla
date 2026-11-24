@@ -180,6 +180,8 @@ function StoryStage(props: {
   readonly active: boolean;
   /** The person's own name; a long one must stay one cut-short line. */
   readonly ownName?: string | undefined;
+  /** The viewer only watches: neither seat is theirs, no move is theirs. */
+  readonly watching?: boolean | undefined;
   readonly overlay?: JSX.Element | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
@@ -204,17 +206,24 @@ function StoryStage(props: {
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
-          tags={<Badge intent="neutral" label="You play Red" />}
+          tags={
+            props.watching === true ? undefined : (
+              <Badge intent="neutral" label="You play Red" />
+            )
+          }
           tagsPlacement="inline"
           active={props.active}
-          turnLabel="Your move"
+          turnLabel={props.watching === true ? 'To move' : 'Your move'}
           trailing={
             <GameClock label="Red" value="3:47" active={props.active} />
           }
         />
       }
     >
-      <ConnectFourStoryBoard moves={drops()} interactive={props.active} />
+      <ConnectFourStoryBoard
+        moves={drops()}
+        interactive={props.active && props.watching !== true}
+      />
     </GameBoardStage>
   );
 }
@@ -373,6 +382,8 @@ export type StorySlots = {
   readonly shown?: number;
   /** The person's own name, when the story is about a long one. */
   readonly ownName?: string;
+  /** The viewer watches the game: no seat and no move are theirs. */
+  readonly watching?: boolean;
   /** The line under the board. */
   readonly announcement?: { readonly title: string; readonly detail?: string };
   /** How the game ended, on the result card. */
@@ -393,6 +404,7 @@ export function renderStory(slots: StorySlots = {}) {
         <StoryStage
           shown={slots.shown}
           ownName={slots.ownName}
+          watching={slots.watching}
           active={slots.announcement !== undefined}
           overlay={overlay}
         />

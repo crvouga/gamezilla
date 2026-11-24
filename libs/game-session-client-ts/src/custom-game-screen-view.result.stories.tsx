@@ -47,6 +47,27 @@ type Story = StoryObj<typeof meta>;
 /** The viewer won: the headline is theirs, Rematch is the one filled command, then the final board and the standings. */
 export const YouWin: Story = {};
 
+/**
+ * J12: the ending is a dialog; Rematch in it starts the next game, and
+ * closing it gives back the whole final board with the commands in the bar.
+ */
+export const RematchFromDialog: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole('dialog', { name: 'Game over' });
+    await userEvent.click(
+      await within(dialog).findByTestId('custom-game-rematch')
+    );
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+    await userEvent.click(canvas.getByTestId('game-result-close'));
+    await expect(
+      canvas.queryByRole('dialog', { name: 'Game over' })
+    ).toBeNull();
+    await expect(canvas.getByTestId('custom-game-rematch')).toBeVisible();
+    await expect(canvas.getByTestId('game-show-result')).toBeVisible();
+  },
+};
+
 /** The viewer lost at a scored table: their place, everyone's points, and that the host starts the rematch. */
 export const YouPlacedSecond: Story = {
   args: {

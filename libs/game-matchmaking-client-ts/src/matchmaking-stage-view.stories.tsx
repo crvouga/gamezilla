@@ -102,7 +102,8 @@ export const WithoutTurns: Story = {
 export const Watching: Story = {
   render: (args) =>
     renderStory({
-      announcement: { title: 'Watching multiplayer Connect Four.' },
+      watching: true,
+      announcement: { title: "You're watching. alice to move." },
     })(args),
   args: { game: { ...STORY_GAME, leave: null, draw: 'none' } },
 };

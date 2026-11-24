@@ -78,7 +78,7 @@ export function SpacePersonName(props: {
             <>
               <Text variant={props.variant ?? 'body'} testId={props.testId}>
                 {shown(person.name)}
-              </Text>
+              </Text>{' '}
               <BotLabel person={person} />
             </>
           }

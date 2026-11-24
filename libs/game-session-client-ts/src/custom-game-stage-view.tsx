@@ -215,7 +215,45 @@ function counting(props: Props): boolean {
  * game is waiting for (a draw offered, a win to claim), and the one way to
  * everything else, the game's commands.
  */
+/**
+ * A stopped game's bar: the one way on, Reopen game, filled; offer and
+ * resign wait until it runs again (the menu stays for the rest).
+ */
+function StoppedActions(props: Props): JSX.Element {
+  return (
+    <GameActionBar items={[]} aria-label={t`Game actions`} width="content">
+      <Button
+        title={<Trans>Reopen game</Trans>}
+        variant="solid"
+        onClick={() => props.onReopen?.()}
+        dataSet={{ testid: 'custom-game-reopen' }}
+      />
+      <Show when={commandsOffered(props)}>
+        <Button
+          title={<Trans>Game menu</Trans>}
+          variant="outline"
+          intent="neutral"
+          icon={EllipsisIcon}
+          onClick={() => props.onOpen({ screen: 'commands' })}
+          dataSet={{ testid: 'custom-game-commands' }}
+        />
+      </Show>
+    </GameActionBar>
+  );
+}
+
 function PlayActions(props: Props): JSX.Element {
+  return (
+    <Show
+      when={!(props.stopped && props.onReopen !== undefined)}
+      fallback={<StoppedActions {...props} />}
+    >
+      <LiveActions {...props} />
+    </Show>
+  );
+}
+
+function LiveActions(props: Props): JSX.Element {
   return (
     <GameActionBar
       aria-label={t`Game actions`}
@@ -333,18 +371,14 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           <>
             <FrameConnectionView connection={props.connection} />
             <FrameErrorView text={props.error} />
-            {/* The engine stopped: said over the stage with the way back
-                in, never in the board's flow (the board never moves). */}
+            {/* The engine stopped: said in the alerts, its way on (Reopen
+                game) in the command bar where the play commands were. */}
             <FrameErrorView
+              title={t`Game stopped`}
               text={
                 props.stopped
-                  ? t`The game stopped. Your last saved score is kept.`
+                  ? t`Your last saved score is kept. Reopen the game to play on.`
                   : ''
-              }
-              retry={
-                props.onReopen === undefined
-                  ? undefined
-                  : { label: t`Reopen game`, onPress: () => props.onReopen?.() }
               }
             />
             <FramePlayNoticesView play={props.play} people={props.people} />
