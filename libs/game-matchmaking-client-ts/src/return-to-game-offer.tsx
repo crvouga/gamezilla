@@ -92,17 +92,24 @@ export function ReturnOffer(props: OfferProps): JSX.Element {
   );
 }
 
-/** Go to the unfinished game's board, the refusal heard on the way. */
+/**
+ * Go to the unfinished game's board, the refusal heard on the way. From the
+ * tabs the board opens over them; from inside a space it takes that space's
+ * place, so minimizing once still leads back to the tabs instead of to the
+ * space the person returned from.
+ */
 function useReturn(
   game: Accessor<UnfinishedGame | null>,
-  hear: () => void
+  hear: () => void,
+  from: 'tabs' | 'space'
 ): () => void {
   const router = useRouter();
   return () => {
     const target = game();
     if (target === null) return;
     hear();
-    router.push(target.href);
+    if (from === 'space') router.replace(target.href);
+    else router.push(target.href);
   };
 }
 
@@ -113,7 +120,7 @@ function useReturn(
 export function ReturnToGameDock(): JSX.Element {
   const game = useUnfinishedGame();
   const seek = useRefusedSeek();
-  const onReturn = useReturn(game, seek.hear);
+  const onReturn = useReturn(game, seek.hear, 'tabs');
   return (
     <Show when={game()} keyed>
       {(waiting) => (
@@ -139,7 +146,7 @@ export function ReturnToGameDock(): JSX.Element {
 export function ReturnToGameInSpace(): JSX.Element {
   const game = useUnfinishedGame();
   const seek = useRefusedSeek();
-  const onReturn = useReturn(game, seek.hear);
+  const onReturn = useReturn(game, seek.hear, 'space');
   const spaceId = useSpaceRoomSessionId();
   const screen = useGameScreen().screen;
   const onItsBoard = (waiting: UnfinishedGame): boolean =>
@@ -181,5 +188,5 @@ export function useReturnInsteadOfSeeking(
   game: Accessor<UnfinishedGame | null>
 ): () => void {
   const seek = useRefusedSeek();
-  return useReturn(game, seek.hear);
+  return useReturn(game, seek.hear, 'space');
 }

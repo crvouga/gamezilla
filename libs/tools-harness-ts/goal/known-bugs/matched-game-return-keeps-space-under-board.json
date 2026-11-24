@@ -1,0 +1,4 @@
+{
+  "summary": "Returning to an unfinished matched game from inside a space opened the space a second time over itself. Minimizing it once then showed the same space again instead of the lobby, and the Back presses a person made to get out took the whole space, on every device in it, off the game's board. Returning from inside a space now takes that space's place, so one press leads to the lobby and the space stays on the board.",
+  "regressionTest": "libs/games-harness-ts/tests/quint/unfinished-game-return.binding.ts"
+}

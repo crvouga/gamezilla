@@ -233,7 +233,7 @@
     "traces": 32,
     "cover": [3, 26],
     "replayed": [3, 26],
-    "regressions": 0,
+    "regressions": 2,
     "determinism": false,
     "variants": 6
   }
