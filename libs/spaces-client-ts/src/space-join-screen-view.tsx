@@ -109,19 +109,34 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
       <Show
         when={props.connection === 'host-offline'}
         fallback={
-          <>
-            {/* A failed or unconfirmed join keeps a way back beside it. */}
-            <Show when={props.needsConnection || props.joinPending}>
-              <Button
-                title={<Trans>Back to Spaces</Trans>}
-                intent={props.needsConnection ? 'primary' : 'neutral'}
-                variant={props.needsConnection ? 'solid' : 'outline'}
-                flex={1}
-                onClick={() => props.onBackToSpaces()}
-              />
-            </Show>
+          // The filled command always sits on the right, as in every Join
+          // state: needing the connection, Back to Spaces is it and trying
+          // again waits on the left; otherwise Join is it.
+          <Show
+            when={props.needsConnection}
+            fallback={
+              <>
+                {/* An unconfirmed join keeps a way back beside it. */}
+                <Show when={props.joinPending}>
+                  <Button
+                    title={<Trans>Back to Spaces</Trans>}
+                    intent="neutral"
+                    variant="outline"
+                    flex={1}
+                    onClick={() => props.onBackToSpaces()}
+                  />
+                </Show>
+                <SpaceJoinButton {...props} />
+              </>
+            }
+          >
             <SpaceJoinButton {...props} />
-          </>
+            <Button
+              title={<Trans>Back to Spaces</Trans>}
+              flex={1}
+              onClick={() => props.onBackToSpaces()}
+            />
+          </Show>
         }
       >
         <Show when={props.canLeave}>
