@@ -109,9 +109,8 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
       <Show
         when={props.connection === 'host-offline'}
         fallback={
-          // The filled command always sits on the right, as in every Join
-          // state: needing the connection, Back to Spaces is it and trying
-          // again waits on the left; otherwise Join is it.
+          // Back to Spaces on the left, joining on the right, in every
+          // state; needing the connection, the way back is the filled one.
           <Show
             when={props.needsConnection}
             fallback={
@@ -130,12 +129,15 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
               </>
             }
           >
-            <SpaceJoinButton {...props} />
+            {/* The way back always on the left and trying again on the
+                right, as on every recovery pair; the fill says which fits
+                now. */}
             <Button
               title={<Trans>Back to Spaces</Trans>}
               flex={1}
               onClick={() => props.onBackToSpaces()}
             />
+            <SpaceJoinButton {...props} />
           </Show>
         }
       >
@@ -394,7 +396,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <EmptyState
           icon={Gamepad2Icon}
           title={t`You can't join this space`}
-          body={t`Ask the host to send you the space's link or to add you, then try again.`}
+          body={t`Ask the host to add you or to send you the space's link, then open it.`}
         />
       </Match>
       <Match when={props.status === 'missing'}>

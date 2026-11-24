@@ -11,7 +11,13 @@ const meta = {
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
   parameters: { appRouter: true, controls: { exclude: ['members'] } },
-  args: { visible: true, onClose: fn(), onShare: fn(), members: MEMBERS },
+  args: {
+    visible: true,
+    onClose: fn(),
+    onShare: fn(),
+    onRemove: fn(),
+    members: MEMBERS,
+  },
 } satisfies Meta<typeof SpaceMembersSheetView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -48,5 +54,18 @@ export const LongContent: Story = {
         isHost: false,
       })),
     ],
+  },
+};
+
+/** J8 from People: the host's Remove on a guest's row starts removing them. */
+export const RemoveFromPeople: Story = {
+  play: async ({ args, canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const sheet = await body.findByRole('dialog', {
+      name: 'People in this space',
+    });
+    const [remove] = within(sheet).getAllByRole('button', { name: 'Remove' });
+    await userEvent.click(remove as HTMLElement);
+    await expect(args.onRemove).toHaveBeenCalledTimes(1);
   },
 };

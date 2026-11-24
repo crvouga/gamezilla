@@ -5,6 +5,7 @@ import type { PresenceRosterRow } from '@pkgs/collab-ui-client-ts/presence-roste
 import { PresenceRosterList } from '@pkgs/collab-ui-client-ts/presence-roster-list';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
@@ -34,11 +35,21 @@ export type SpaceMembersSheetViewProps = {
   readonly members: readonly SpaceMemberRow[];
   /** Opens Share, right under the empty list's invitation. */
   readonly onShare?: (() => void) | undefined;
+  /**
+   * The host removes a guest from here as from Share: given, each guest's
+   * row (never the host's or the viewer's own) offers Remove.
+   */
+  readonly onRemove?: ((person: SpacePerson) => void) | undefined;
 };
 
 function SpaceMemberBadges(props: {
   readonly member: SpaceMemberRow;
+  readonly onRemove?: ((person: SpacePerson) => void) | undefined;
 }): JSX.Element {
+  const removable = (): SpacePerson | null =>
+    props.onRemove !== undefined && !props.member.isHost && !props.member.isYou
+      ? props.member.person
+      : null;
   return (
     <StackHorizontal align="center" gap="xs">
       <Show when={props.member.idle}>
@@ -61,6 +72,18 @@ function SpaceMemberBadges(props: {
           size="sm"
         />
       </Show>
+      <Show when={removable()} keyed>
+        {(person) => (
+          <Button
+            title={<Trans>Remove</Trans>}
+            size="sm"
+            intent="neutral"
+            variant="outline"
+            onClick={() => props.onRemove?.(person)}
+            dataSet={{ testid: `space-member-remove-${person.id}` }}
+          />
+        )}
+      </Show>
     </StackHorizontal>
   );
 }
@@ -68,7 +91,8 @@ function SpaceMemberBadges(props: {
 function rosterRow(
   member: SpaceMemberRow,
   you: string,
-  unnamed: string
+  unnamed: string,
+  onRemove?: ((person: SpacePerson) => void) | undefined
 ): PresenceRosterRow {
   const id = member.actor.id;
   return {
@@ -88,7 +112,7 @@ function rosterRow(
     isYou: member.isYou,
     isThisTab: member.isThisTab,
     idle: member.idle,
-    badges: <SpaceMemberBadges member={member} />,
+    badges: <SpaceMemberBadges member={member} onRemove={onRemove} />,
     dataSet: { testid: Handles.spaceMemberRow(id) },
   };
 }
@@ -102,7 +126,9 @@ export function SpaceMembersSheetView(
 ): JSX.Element {
   const { t } = useLingui();
   const rows = createMemo(() =>
-    props.members.map((member) => rosterRow(member, t`You`, t`Guest`))
+    props.members.map((member) =>
+      rosterRow(member, t`You`, t`Guest`, props.onRemove)
+    )
   );
   const find = (id: string): SpaceMemberRow | undefined =>
     props.members.find((member) => member.actor.id === id);
