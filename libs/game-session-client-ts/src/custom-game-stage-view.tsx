@@ -11,7 +11,6 @@ import {
 } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -283,13 +282,15 @@ function PlayActions(props: Props): JSX.Element {
       </Show>
       <HeldActions {...props} />
       <Show when={commandsOffered(props)}>
-        <IconButton
-          label={<Trans>Game menu</Trans>}
+        <Button
+          // Named in words: the bar's ••• is the space's menu, this is the game's.
+          title={<Trans>Game menu</Trans>}
+          variant="outline"
+          intent="neutral"
+          icon={EllipsisIcon}
           onClick={() => props.onOpen({ screen: 'commands' })}
           dataSet={{ testid: 'custom-game-commands' }}
-        >
-          <EllipsisIcon size={20} />
-        </IconButton>
+        />
       </Show>
     </GameActionBar>
   );

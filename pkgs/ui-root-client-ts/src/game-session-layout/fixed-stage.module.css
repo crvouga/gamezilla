@@ -66,6 +66,13 @@
     padding: var(--ui-space-2) var(--ui-space-3) 0;
     overflow: hidden;
   }
+  /* A screen's own intro (a replay's who and when, with its way back) is
+     as tall as its words and controls: nothing in it is cut. */
+  [data-component="GameColumn"]:has(> .fixed) > [data-component="ScreenIntro"] {
+    height: auto;
+    padding-bottom: var(--ui-space-2);
+    overflow: visible;
+  }
   [data-component="GameColumn"]:has(> .fixed) > [data-component="GameHeading"] {
     flex-wrap: nowrap;
     justify-content: center;
@@ -157,30 +164,25 @@
     width: 100%;
     max-width: none;
   }
-  /* A finished game's outcome lies over the stage's foot, right above the
-     commands, so the final board keeps the live board's place. */
+  /* A finished game's outcome heads the commands, in the bar's own flow:
+     the stage above gives up the room, so the final board and every
+     player's row stay whole and nothing lies over them. */
   .fixed [data-game-slot="controls"] > .sheet {
     width: auto;
   }
   .sheet {
-    position: absolute;
-    inset-inline: var(--ui-space-3);
-    bottom: calc(100% + var(--ui-space-2));
-    z-index: 2;
-    max-height: 60dvh;
+    max-height: 40dvh;
     overflow: hidden auto;
-    border-radius: var(--ui-radius-card);
-    box-shadow: var(--ui-shadow-float);
   }
-  /* A status line only spoken (a finished game's) shows nothing: the
-     outcome may lie over its band, so a caption of two lines never covers
-     the final board's last row. */
+  /* A finished game's status line is only spoken: it keeps no visible
+     band (still read to a listener). */
   .fixed
     [data-game-slot="controls"]:has(
       > .status > [data-spoken-only="true"]:only-child
     )
-    > .sheet {
-    bottom: calc(100% - 44px);
+    > .status {
+    height: 0;
+    margin-top: calc(var(--ui-space-2) * -1);
   }
   /* The line about the game: one band of two lines, empty or full. */
   .status {
@@ -189,6 +191,13 @@
     justify-content: center;
     height: 44px;
     overflow: hidden;
+  }
+  /* A band that holds controls (a replay's steps) is as tall as they are:
+     it never changes while the page is open, and a control is never cut. */
+  .status:has(button) {
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
   }
   /* Every command on one row, the same size, so an answer the game waits
      for (accept, decline) takes the row in place of offer and resign and
@@ -200,10 +209,11 @@
     width: 100%;
     overflow-x: auto;
   }
+  /* Each command at least as wide as its words: a label is never cut. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
-    flex: 1 1 0;
+    flex: 1 0 auto;
     min-width: 72px;
-    padding-inline: var(--ui-space-2);
+    padding-inline: var(--ui-space-3);
   }
   /* The game's menu is an icon at the row's end. */
   .fixed

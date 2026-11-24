@@ -76,7 +76,8 @@ describe('ModalRoot', () => {
     fireEvent.click(trigger);
     const dialog = screen.getByRole('dialog', { name: 'Settings' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    expect(screen.getByRole('button', { name: 'OK Settings' })).toHaveFocus();
+    // Focus opens on the dialog, which a listener hears by its name.
+    expect(dialog).toHaveFocus();
     expect(
       dialog.closest('[data-component="SurfaceStackHost"]')
     ).not.toBeNull();
@@ -131,7 +132,7 @@ describe('ModalRoot', () => {
       </SurfaceStackProvider>
     ));
     expect(screen.getAllByRole('dialog')).toHaveLength(2);
-    expect(screen.getByRole('button', { name: 'OK Second' })).toHaveFocus();
+    expect(screen.getByRole('dialog', { name: 'Second' })).toHaveFocus();
     await user.keyboard('{Escape}');
     expect(closeSecond).toHaveBeenCalledTimes(1);
     expect(closeFirst).not.toHaveBeenCalled();

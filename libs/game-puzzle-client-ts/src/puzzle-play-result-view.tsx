@@ -151,7 +151,7 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
         <Show when={props.share} keyed>
           {(share) => (
             <Button
-              title={<PuzzleShareLabel state={share.state} />}
+              title={<PuzzleShareLabel state={share.state} short />}
               intent="neutral"
               variant="outline"
               icon={ShareIcon}

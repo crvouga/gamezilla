@@ -1,6 +1,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Card } from '@pkgs/ui-root-client-ts/card';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
@@ -10,6 +11,7 @@ import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Gamepad2Icon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
@@ -71,9 +73,7 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
     operation: () => props.onJoin(),
     labels: {
       get idle() {
-        return props.joinPending
-          ? t`Not confirmed. Check again`
-          : t`Join space`;
+        return props.joinPending ? t`Check again` : t`Join space`;
       },
       loading: t`Joining…`,
       success: t`Joined`,
@@ -102,7 +102,20 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
     <StackHorizontal gap="sm">
       <Show
         when={props.connection === 'host-offline'}
-        fallback={<SpaceJoinButton {...props} />}
+        fallback={
+          <>
+            <Show when={props.needsConnection}>
+              <Button
+                title={<Trans>Back to Spaces</Trans>}
+                intent="neutral"
+                variant="outline"
+                flex={1}
+                onClick={() => props.onBackToSpaces()}
+              />
+            </Show>
+            <SpaceJoinButton {...props} />
+          </>
+        }
       >
         <Show when={props.canLeave}>
           <Button
@@ -130,10 +143,14 @@ const JOIN_FACES_SHOWN = 6;
 /** Who is in the space now: their faces, then who they are in words. */
 function SpaceJoinWhoIsHere(props: {
   readonly guests: readonly SpacePerson[];
+  /** The host is away: who was here is the last word, not live. */
+  readonly lastKnown: boolean;
 }): JSX.Element {
   const { t } = useLingui();
   const count = (): string => {
     const n = props.guests.length;
+    if (props.lastKnown)
+      return n === 1 ? t`1 person was here` : t`${n} people were here`;
     return n === 1 ? t`1 person here` : t`${n} people here`;
   };
   return (
@@ -174,8 +191,34 @@ function SpaceJoinWhoIsHere(props: {
  * The invitation: the space's mark, name and host with its Live tag, then
  * who is in it, in one card, so a person sees what they are joining.
  */
+/** How the host's side stands, as the invitation tags it. */
+type SpaceJoinHost = 'ready' | 'checking' | 'offline';
+
+/** The invitation's tag: Live once the host is reachable, else why not. */
+function SpaceJoinStatusTag(props: {
+  readonly space: SpaceCardData;
+  readonly host: SpaceJoinHost;
+}): JSX.Element {
+  return (
+    <Switch>
+      <Match when={props.host === 'ready'}>
+        <SpaceBadgeView badge={props.space.badge} />
+      </Match>
+      <Match when={props.host === 'offline'}>
+        <Badge
+          label={<Trans>Host offline</Trans>}
+          intent="neutral"
+          size="sm"
+          dataSet={{ testid: Handles.spaceJoinHostOfflineTag }}
+        />
+      </Match>
+    </Switch>
+  );
+}
+
 function SpaceJoinInvitation(props: {
   readonly space: SpaceCardData;
+  readonly host: SpaceJoinHost;
 }): JSX.Element {
   return (
     <Card>
@@ -201,10 +244,13 @@ function SpaceJoinInvitation(props: {
               </StackVertical>
             </StackHorizontal>
           </StackVertical>
-          <SpaceBadgeView badge={props.space.badge} />
+          <SpaceJoinStatusTag space={props.space} host={props.host} />
         </StackHorizontal>
         <Divider />
-        <SpaceJoinWhoIsHere guests={props.space.guests} />
+        <SpaceJoinWhoIsHere
+          guests={props.space.guests}
+          lastKnown={props.host === 'offline'}
+        />
       </StackVertical>
     </Card>
   );
@@ -218,7 +264,12 @@ function SpaceJoinLiveBody(props: {
   return (
     <StackVertical gap="lg">
       <Show when={props.space}>
-        {(space) => <SpaceJoinInvitation space={space()} />}
+        {(space) => (
+          <SpaceJoinInvitation
+            space={space()}
+            host={props.checkingHost ? 'checking' : 'ready'}
+          />
+        )}
       </Show>
       <Show
         when={props.checkingHost}
@@ -313,6 +364,17 @@ export function SpaceJoinScreenView(
         <Show when={props.needsConnection && props.status !== 'offline'}>
           <SpacesNeedConnectionNotice />
         </Show>
+        <Show when={props.joinPending && props.status === 'live'}>
+          <Notice
+            tone="warning"
+            dataSet={{ testid: Handles.spaceJoinNotConfirmed }}
+          >
+            <Trans>
+              Your join wasn't confirmed yet. Check again to see whether you're
+              in.
+            </Trans>
+          </Notice>
+        </Show>
         <Show
           when={props.status === 'live' && props.connection === 'host-offline'}
           fallback={<JoinPromptBody {...props} />}
@@ -320,7 +382,9 @@ export function SpaceJoinScreenView(
           <StackVertical gap="lg">
             <SpaceHostOfflineNotice />
             <Show when={props.space}>
-              {(space) => <SpaceJoinInvitation space={space()} />}
+              {(space) => (
+                <SpaceJoinInvitation space={space()} host="offline" />
+              )}
             </Show>
           </StackVertical>
         </Show>

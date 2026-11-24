@@ -54,7 +54,7 @@ function SpaceShareLinkSection(props: {
         <Trans>Invite with a link</Trans>
       </H3>
       <P variant="caption">
-        <Trans>Anyone with the link can join while you're both online.</Trans>
+        <Trans>Anyone with the link can join while the host is online.</Trans>
       </P>
       <Button {...copyButton.buttonProps} />
     </StackVertical>
@@ -124,9 +124,19 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
         <Trans>People with access</Trans>
       </H3>
       <P variant="caption">
-        <Trans>
-          People you add find this space in Spaces, under Shared with you.
-        </Trans>
+        <Show
+          when={props.canManage}
+          fallback={
+            <Trans>
+              People the host adds find this space in Spaces, under Shared with
+              you.
+            </Trans>
+          }
+        >
+          <Trans>
+            People you add find this space in Spaces, under Shared with you.
+          </Trans>
+        </Show>
       </P>
       <Show when={props.peopleStatus === 'loading'}>
         <LoadingState variant="compact" size="sm" />

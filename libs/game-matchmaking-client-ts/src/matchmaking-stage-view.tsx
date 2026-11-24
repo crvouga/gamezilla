@@ -5,7 +5,6 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
@@ -55,13 +54,15 @@ export function MultiplayerCommandsControl(props: {
 }): JSX.Element {
   return (
     <Show when={multiplayerHasCommands(props.game, props.stage)}>
-      <IconButton
-        label={<Trans>Game menu</Trans>}
+      <Button
+        // Named in words: the bar's ••• is the space's menu, this is the game's.
+        title={<Trans>Game menu</Trans>}
+        variant="outline"
+        intent="neutral"
+        icon={EllipsisIcon}
         onClick={() => props.onOpen({ screen: 'commands' })}
         dataSet={{ testid: 'multiplayer-open-commands' }}
-      >
-        <EllipsisIcon size={20} />
-      </IconButton>
+      />
     </Show>
   );
 }

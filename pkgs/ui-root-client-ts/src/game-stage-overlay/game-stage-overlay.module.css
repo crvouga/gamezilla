@@ -318,8 +318,7 @@
 }
 .eyebrow {
   color: var(--ui-color-text-secondary);
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-weight: 600;
 }
 .card[data-tone="won"] .eyebrow {
   color: var(--ui-color-success);

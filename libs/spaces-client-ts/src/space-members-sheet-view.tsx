@@ -51,14 +51,6 @@ function SpaceMemberBadges(props: {
       <Show when={props.member.isHost}>
         <HostBadge size="sm" />
       </Show>
-      <Show when={props.member.isYou}>
-        <Badge
-          label={<Trans>You</Trans>}
-          intent="info"
-          tone="subtle"
-          size="sm"
-        />
-      </Show>
       <Show when={props.member.isThisTab}>
         <Badge
           label={<Trans>This tab</Trans>}
@@ -71,13 +63,20 @@ function SpaceMemberBadges(props: {
   );
 }
 
-function rosterRow(member: SpaceMemberRow, you: string): PresenceRosterRow {
+function rosterRow(
+  member: SpaceMemberRow,
+  you: string,
+  unnamed: string
+): PresenceRosterRow {
   const id = member.actor.id;
   return {
     client: member.actor,
     // A person reads names: "You" for themself, everyone else's username.
+    // A person whose profile has not arrived yet still has a name to read.
     title: member.isYou ? (
       you
+    ) : member.person === null ? (
+      unnamed
     ) : (
       <SpacePersonName
         person={member.person}
@@ -100,7 +99,7 @@ export function SpaceMembersSheetView(
 ): JSX.Element {
   const { t } = useLingui();
   const rows = createMemo(() =>
-    props.members.map((member) => rosterRow(member, t`You`))
+    props.members.map((member) => rosterRow(member, t`You`, t`Guest`))
   );
   const find = (id: string): SpaceMemberRow | undefined =>
     props.members.find((member) => member.actor.id === id);

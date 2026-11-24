@@ -38,25 +38,18 @@ const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
  * close button (`data-initial-focus="skip"`), else the dialog itself, so a
  * confirm opens on its content and never on its X.
  */
-const INITIAL_FOCUS_CONTROLS =
-  'button, input, select, textarea, a[href], [role="button"], [role="tab"], [role="menuitem"], [role="option"], [role="combobox"]';
-
+/**
+ * Where focus lands on activate: what asked for it (`autofocus`, a name
+ * field), else the dialog itself, which reads its name to a listener and
+ * draws no ring. Tab then reaches the first control, so nothing (the X, a
+ * destructive confirm, Copy link) wears a focus ring before anyone has
+ * pressed a key. Focus a child already moved in on mount is kept.
+ */
 function focusInto(host: HTMLElement): void {
   if (host.contains(document.activeElement) && document.activeElement !== host)
     return;
   const asked = host.querySelector('[autofocus]');
-  if (asked instanceof HTMLElement) {
-    asked.focus();
-    return;
-  }
-  const tabbable = collectTabbable(host);
-  // A control, never a scroll region that is tabbable only so it can scroll.
-  const first = tabbable.find(
-    (el) =>
-      el.matches(INITIAL_FOCUS_CONTROLS) &&
-      el.closest('[data-initial-focus="skip"]') === null
-  );
-  if (first !== undefined) first.focus();
+  if (asked instanceof HTMLElement) asked.focus();
   else host.focus();
 }
 
@@ -118,7 +111,7 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
     <div
-      class={`box ${layoutClass()}`}
+      class={`box outline-none ${layoutClass()}`}
       data-component="FocusTrap"
       ref={(el) => {
         hostEl = el;

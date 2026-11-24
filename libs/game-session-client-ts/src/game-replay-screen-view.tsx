@@ -189,6 +189,8 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
     },
   });
   const keyboard = useHoverCapable();
+  // Key hints are for a keyboard beside a wide window, never a phone's bar.
+  const phone = createMediaQuery(PHONE_QUERY);
   return (
     <Show when={last() > 0} fallback={<ShownPosition {...props} />}>
       <StackVertical gap="xs" align="stretch">
@@ -248,7 +250,7 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
             </IconButton>
           </StackHorizontal>
         </StackHorizontal>
-        <Show when={keyboard()}>
+        <Show when={keyboard() && !phone()}>
           <KeyHints
             hints={[
               { keys: ['←', '→'], label: t`step` },

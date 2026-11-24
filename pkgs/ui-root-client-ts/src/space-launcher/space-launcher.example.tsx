@@ -108,7 +108,6 @@ export default function SpaceLauncherExample(
       <SpaceStageTemplate
         {...spaceExampleChrome(props, true)}
         role={props.role}
-        title="Choose game"
       >
         <SpaceLauncher
           role={props.role}

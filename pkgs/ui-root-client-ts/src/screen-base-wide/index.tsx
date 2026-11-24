@@ -51,10 +51,19 @@ function WidePageHeader(
       data-component="ScreenBaseHeader"
     >
       {props.leading}
-      <Show when={!props.shellNavigation && props.titlePlacement !== 'content'}>
+      {/* The trail takes the row's room up to the actions, so a long title
+          uses the width before it ends in an ellipsis; without a trail a
+          spacer keeps the actions at the end. */}
+      <Show
+        when={
+          !props.shellNavigation &&
+          props.titlePlacement !== 'content' &&
+          props.breadcrumbs.length > 0
+        }
+        fallback={<div class="box flex-1" aria-hidden="true" />}
+      >
         <ScreenBreadcrumbTrail breadcrumbs={props.breadcrumbs} />
       </Show>
-      <div class="box flex-1" aria-hidden="true" />
       {/* Bottom-aligned with the title, so actions sit on its line. */}
       <div
         class="box flex-row items-center gap-3 self-end"

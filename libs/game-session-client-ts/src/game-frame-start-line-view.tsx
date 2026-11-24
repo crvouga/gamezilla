@@ -153,7 +153,13 @@ export function FrameStartView(
               tone="secondary"
               testId="custom-game-host-starts"
             >
-              <Trans>Waiting for the host to start.</Trans>
+              {/* Until the viewer is ready, the host waits on them. */}
+              <Show
+                when={mustGetReady(props.start)}
+                fallback={<Trans>Waiting for the host to start.</Trans>}
+              >
+                <Trans>The host starts the game once you're ready.</Trans>
+              </Show>
             </P>
           </Show>
         </>

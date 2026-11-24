@@ -194,12 +194,7 @@ export function MutationIdle(props: {
           variant={props.destructive ? 'destructive' : 'default'}
           disabled={props.submitDisabled}
           onClick={() => props.onRun()}
-          // A destructive confirm opens on Cancel, never on the act itself.
-          dataSet={{
-            action: 'submit',
-            ...(props.destructive ? { 'initial-focus': 'skip' } : {}),
-            ...props.ids.submitDataSet,
-          }}
+          dataSet={{ action: 'submit', ...props.ids.submitDataSet }}
         />
         <ModalButton
           label={props.labels.cancelLabel ?? t`Cancel`}
