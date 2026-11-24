@@ -15,6 +15,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
@@ -136,6 +137,8 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   );
   const offers = (id: 'next' | 'retry'): boolean =>
     slots().some((slot) => slot.id === id);
+  const failedAttempt = (): boolean =>
+    props.status === 'solved' && props.result.completion?.outcome === 'failed';
   return (
     <StackVertical gap="md">
       <Show when={offers('next')}>
@@ -143,6 +146,10 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
           title={<Trans>Next puzzle</Trans>}
           size="lg"
           fullWidth
+          // After a failed attempt the coach says retry: Retry leads and
+          // Next puzzle waits beside it, quieter.
+          variant={failedAttempt() ? 'outline' : 'solid'}
+          intent={failedAttempt() ? 'neutral' : 'primary'}
           endIcon={<ChevronRightIcon />}
           onClick={() => props.onNext()}
           dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
@@ -152,8 +159,8 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
         <Show when={offers('retry')}>
           <Button
             title={<Trans>Retry</Trans>}
-            intent="neutral"
-            variant="outline"
+            intent={failedAttempt() ? 'primary' : 'neutral'}
+            variant={failedAttempt() ? 'solid' : 'outline'}
             icon={RotateCcwIcon}
             onClick={() => props.onRetry()}
             dataSet={{ testid: Handles.chessPuzzleActionRetry }}
@@ -192,14 +199,16 @@ export function PuzzleResultSummary(
       gap="lg"
       dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
     >
-      <StackVertical gap="xs" align="center">
-        <H2 size="heading" align="center">
+      {/* The status line and the coach already say how it went: the
+          result says only what it means for the attempt, once. */}
+      <VisuallyHidden>
+        <H2 size="heading">
           <ResultTitle {...props} />
         </H2>
-        <P variant="caption" tone="secondary" align="center">
-          <ResultCaption {...props} />
-        </P>
-      </StackVertical>
+      </VisuallyHidden>
+      <P variant="caption" tone="secondary" align="center">
+        <ResultCaption {...props} />
+      </P>
       {/* What next comes straight after how it went, so on a phone Next
           puzzle is in view without scrolling; the numbers follow. */}
       <ResultCommands {...props} />
