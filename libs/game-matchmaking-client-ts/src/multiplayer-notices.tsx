@@ -42,8 +42,8 @@ export function MultiplayerNotices(props: {
           >
             <Text variant="inherit" role="status">
               <Trans>
-                Multiplayer commands need a connection. Your accepted game stays
-                here.
+                Matchmaking needs a connection. Your game and your search pick
+                up where they were when it returns.
               </Trans>
             </Text>
           </Notice>

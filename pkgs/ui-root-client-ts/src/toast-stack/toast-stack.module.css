@@ -48,12 +48,15 @@
   pointer-events: auto;
 }
 /* The alert's own tinted card is the toast: it fills it to the corners,
-   with room for the close button over its end. */
-.item > :not(.close) {
+   whatever wraps it, with room for the close button over its end. */
+.item > :not(.close),
+.item > :not(.close) > * {
   width: 100%;
   margin: 0;
-  border-radius: inherit;
-  padding-inline-end: var(--ui-space-10);
+}
+.item :is([data-component="Notice"], [data-component="ErrorState"]) {
+  border-radius: 0;
+  padding-inline-end: var(--ui-space-12);
 }
 .close {
   position: absolute;
