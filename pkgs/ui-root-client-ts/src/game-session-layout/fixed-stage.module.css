@@ -160,12 +160,12 @@
     display: flex;
     flex-wrap: nowrap;
     gap: var(--ui-space-2);
-    width: 100%;
     overflow-x: auto;
-    /* Room for a focused command's ring inside the scrolling row, given
-       back outside so the bar keeps its height. */
-    padding-block: var(--ui-space-1);
-    margin-block: calc(var(--ui-space-1) * -1);
+    /* Room for a focused command's ring inside the scrolling row on every
+       side, given back outside so the bar keeps its size. */
+    padding: var(--ui-space-1);
+    margin: calc(var(--ui-space-1) * -1);
+    width: calc(100% + 2 * var(--ui-space-1));
   }
   /* Each command at least as wide as its words: a label is never cut. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {

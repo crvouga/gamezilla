@@ -283,7 +283,8 @@ function SpaceCardMetaLine(props: {
   return (
     <StackHorizontal align="center" justify="between" gap="sm">
       <StackVertical shrink>
-        <P variant="caption" lines={1}>
+        {/* Up to two lines: a long host name stays readable on a phone. */}
+        <P variant="caption" lines={2}>
           <SpaceHostPhrase space={props.space} />
         </P>
       </StackVertical>

@@ -57,8 +57,8 @@ export function useFitWords(): (
     if (guest === true || present === undefined)
       return t`${fit.target} players`;
     return fit.bots === 1
-      ? t`${present} people + 1 bot`
-      : t`${present} people + ${fit.bots} bots`;
+      ? t`${present} players + 1 bot`
+      : t`${present} players + ${fit.bots} bots`;
   };
 }
 

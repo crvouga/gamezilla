@@ -94,7 +94,7 @@ function rosterRow(
     // right edge keeps only the role and the host's Remove, so every row's
     // controls line up.
     title: (
-      <StackHorizontal align="center" gap="xs" wrap>
+      <StackHorizontal align="baseline" gap="xs" wrap>
         {member.isYou ? (
           you
         ) : member.person === null ? (

@@ -57,7 +57,7 @@ export const Screen: Story = {
       await expect(
         canvas.getByRole('heading', { name: 'Pick a game for 2 players' })
       ).toBeVisible();
-      await expect(canvas.getByText('2 people + 2 bots')).toBeVisible();
+      await expect(canvas.getByText('2 players + 2 bots')).toBeVisible();
       await userEvent.click(
         canvas.getByRole('button', { name: /Light Cycles/ })
       );

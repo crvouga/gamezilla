@@ -268,7 +268,6 @@ function SpaceJoinStatusTag(props: {
         <Badge
           label={<Trans>Host offline</Trans>}
           intent="neutral"
-          size="sm"
           dataSet={{ testid: Handles.spaceJoinHostOfflineTag }}
         />
       </Match>
