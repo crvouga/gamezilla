@@ -76,6 +76,10 @@
 .dock[data-inset="true"] {
   padding-inline: var(--ui-space-4);
 }
+/* On desktop the dock's column starts where the lobby's does. */
+.dock[data-inset="false"] {
+  justify-content: flex-start;
+}
 .dockColumn {
   display: flex;
   flex: 1;

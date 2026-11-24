@@ -174,7 +174,9 @@ export function GameLobbyScreen(props: GameLobbyScreenProps): JSX.Element {
         paddingBottom="xl"
         gap="lg"
         measure="menu"
-        measureAlign="center"
+        // On desktop the lobby starts on the frame column's edge, where
+        // every screen's content starts; a phone or tablet centres it.
+        measureAlign={mode() === 'wide' ? 'start' : 'center'}
       >
         {props.children}
       </ScrollView>
