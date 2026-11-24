@@ -34,6 +34,7 @@ import {
   FrameOthersView,
   tableShowsTurn,
 } from './game-frame-table-view';
+import type { FramePlaySeat, FrameTable } from './game-frame-view-types';
 
 type Props = FramePlaceProps;
 
@@ -54,6 +55,22 @@ export function FrameFacts(props: Props): JSX.Element {
 }
 
 /**
+ * The seats as the stage shows them: a stopped game has no one to move, so
+ * no seat says "Your move" while Reopen game is the way on.
+ */
+function stageTable(props: Props): FrameTable {
+  const table = props.table;
+  if (!props.stopped) return table;
+  const still = (seat: FramePlaySeat): FramePlaySeat =>
+    seat.deciding ? { ...seat, deciding: false } : seat;
+  return {
+    ...table,
+    near: table.near === null ? null : still(table.near),
+    others: table.others.map(still),
+  };
+}
+
+/**
  * The board as the game draws it. A board that seats every player itself
  * (`table.shape === 'board'`) is lent each of them.
  */
@@ -63,14 +80,15 @@ export function FrameBoard(props: Props): JSX.Element {
       <GameTableSeats
         seat={(side) => ({
           get name() {
-            const seat = [props.table.near, ...props.table.others].find(
+            const table = stageTable(props);
+            const seat = [table.near, ...table.others].find(
               (player) => player?.side === side
             );
             return seat?.plainName ?? null;
           },
           content: (
             <FrameBoardSeatView
-              table={props.table}
+              table={stageTable(props)}
               people={props.people}
               viewerSide={props.viewerSide}
               side={side}
@@ -142,7 +160,7 @@ export function FrameStage(props: Props): JSX.Element {
       others={
         <>
           <FrameOthersView
-            table={props.table}
+            table={stageTable(props)}
             people={props.people}
             onChoose={props.onChoose}
             viewerSide={props.viewerSide}
@@ -153,7 +171,7 @@ export function FrameStage(props: Props): JSX.Element {
       }
       own={
         <FrameNearSeatView
-          table={props.table}
+          table={stageTable(props)}
           people={props.people}
           onChoose={props.onChoose}
           viewerSide={props.viewerSide}

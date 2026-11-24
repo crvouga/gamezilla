@@ -14,6 +14,8 @@ export type SpaceMembersListModalProps = {
   spaceId: string;
   visible: boolean;
   onClose: () => void;
+  /** Opens Share, from the empty list's invitation. */
+  onShare?: (() => void) | undefined;
 };
 
 /**
@@ -57,6 +59,7 @@ export function SpaceMembersListModal(
     <SpaceMembersSheetView
       visible={props.visible}
       onClose={props.onClose}
+      onShare={props.onShare}
       members={members().map((member) => member())}
     />
   );

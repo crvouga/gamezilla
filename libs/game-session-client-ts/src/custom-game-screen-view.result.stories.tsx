@@ -161,10 +161,25 @@ export const Cancelled: Story = {
   },
 };
 
-/** Offline once the game is over: a rematch needs the connection, and the notice says so. */
+/** Offline once the game is over: the dialog says Rematch is sent when the connection returns, right above it. */
 export const ConnectionNeeded: Story = { args: { connection: 'needed' } };
 
-/** A refused rematch says why, with every way forward still there. */
+/** J12 offline: the notice sits in the Game over dialog, and Rematch under it still asks. */
+export const RematchOffline: Story = {
+  args: { connection: 'needed' },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole('dialog', { name: 'Game over' });
+    await expect(
+      within(dialog).getByTestId('custom-game-connection-needed')
+    ).toBeVisible();
+    const rematch = within(dialog).getByTestId('custom-game-rematch');
+    await expect(rematch).toBeVisible();
+    await userEvent.click(rematch);
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+  },
+};
+
 /** The host's rematch, refused on the way. */
 const REMATCH_REFUSAL =
   "The rematch didn't reach the space. Check your connection and try again.";

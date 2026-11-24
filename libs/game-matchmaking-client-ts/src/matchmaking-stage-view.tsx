@@ -28,6 +28,11 @@ type PlayProps = MultiplayerPlaceFrame & {
   readonly game: MultiplayerGameView;
   readonly commands: MultiplayerGameCommands;
   readonly onOpen: (place: MultiplayerPlace) => void;
+  /**
+   * No connection: offering a draw and resigning stay in their places, held
+   * back, as the custom-game stage holds them, under the line that says why.
+   */
+  readonly offline?: boolean | undefined;
 };
 
 /**
@@ -114,6 +119,7 @@ function QuickCommands(props: PlayProps): JSX.Element {
             </Trans>
           }
           successLabel={<Trans>Multiplayer draw offered</Trans>}
+          disabled={props.offline === true}
           dataSet={{ testid: 'multiplayer-offer-draw-now' }}
         />
       </Show>
@@ -136,7 +142,8 @@ function QuickCommands(props: PlayProps): JSX.Element {
               </Show>
             }
             variant="outline"
-            intent="danger"
+            intent={props.offline === true ? 'neutral' : 'danger'}
+            disabled={props.offline === true}
             onClick={() => props.commands.ask(leave())}
             dataSet={{ testid: 'multiplayer-leave-now', leave: leave() }}
           />

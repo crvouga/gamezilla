@@ -10,8 +10,11 @@ import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameFacts, FrameStage } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-overlay-view';
-import { FrameNoticesView } from './game-frame-shell';
-import { FrameStatusView } from './game-frame-status-view';
+import {
+  FrameConnectionNotice,
+  FrameErrorView,
+  FrameStatusView,
+} from './game-frame-status-view';
 
 type Props = FramePlaceProps;
 
@@ -113,7 +116,12 @@ export function FrameResultPlace(props: Props): JSX.Element {
           place: props.place.screen,
         }}
         notices={
-          <FrameNoticesView connection={props.connection} error={props.error} />
+          // Said in the Game over dialog above Rematch while it is open, and
+          // over the commands once it is closed: never a card of its own.
+          <>
+            <FrameConnectionNotice connection={props.connection} afterGame />
+            <FrameErrorView text={props.error} />
+          </>
         }
         boardFocus
         actionsBeside

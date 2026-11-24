@@ -285,6 +285,7 @@ function PlayPlace(props: Props): JSX.Element {
           game={game()}
           commands={props.commands}
           onOpen={props.onOpen}
+          offline={!props.online}
         />
       )}
     </Show>

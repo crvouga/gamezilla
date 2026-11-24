@@ -32,6 +32,8 @@ export type SpaceMembersSheetViewProps = {
   readonly onClose: () => void;
   /** Connected people, in roster order. */
   readonly members: readonly SpaceMemberRow[];
+  /** Opens Share, right under the empty list's invitation. */
+  readonly onShare?: (() => void) | undefined;
 };
 
 function SpaceMemberBadges(props: {
@@ -122,6 +124,11 @@ export function SpaceMembersSheetView(
               variant="compact"
               title={<Trans>No one connected yet</Trans>}
               body={<Trans>Share the space link to invite people.</Trans>}
+              action={
+                props.onShare === undefined
+                  ? undefined
+                  : { label: <Trans>Share</Trans>, onClick: props.onShare }
+              }
             />
           }
         >
