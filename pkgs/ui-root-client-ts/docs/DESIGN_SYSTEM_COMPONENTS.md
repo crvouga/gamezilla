@@ -151,7 +151,7 @@ under every component. They live in
 | PaginationControls | ✅ | |
 | FilterBar | ✅ | |
 | MetricStrip | ✅ | |
-| Notice (inline, dismissible) | ✅ | The only way to report an outcome — no toast |
+| Notice (dismissible) | ✅ | An alert's card; floated in `ToastStack` when it comes and goes |
 | ActionNotice | 🟡 | |
 | OverflowMenuButton | ✅ | |
 | FloatingMenu | 🟡 | Anchored menu |
@@ -311,7 +311,7 @@ in a screen is a *missing atom*, so these are the likely ones.
 
 | Candidate | Why it might be needed |
 | --- | --- |
-| Toast / Snackbar | **Do not build.** Banned by rule 11; `tests/no-toast.test.ts` enforces it |
+| Toast (`ToastStack`) | ✅ | Rule 11: alerts that come and go float, never in the flow; `tests/toast-stack.test.tsx` |
 | DatePicker / TimePicker | Only if scheduled games or puzzle-of-the-day filters need it |
 | Stepper / Wizard progress | Multi-step game setup or onboarding |
 | Rating / Elo display (`numeral` + delta) | Leaderboards, profile, post-game review |

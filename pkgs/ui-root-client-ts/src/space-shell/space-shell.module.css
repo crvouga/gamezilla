@@ -46,14 +46,6 @@
   gap: var(--ui-space-1);
 }
 
-/* Under row 1: the space's notice, only while there is one. */
-.notice {
-  flex: none;
-}
-.notice:empty {
-  display: none;
-}
-
 /* Row 2: the stage. Scrolls on its own unless its content owns the room. */
 .stage {
   position: relative;

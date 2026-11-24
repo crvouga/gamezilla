@@ -128,9 +128,8 @@ describe('SpaceShell slots', () => {
     expect(
       screen.getAllByRole('menuitem').map((row) => row.textContent)
     ).toEqual(['End space']);
-    expect(
-      document.querySelector('[data-space-row="notice"]')?.childNodes.length
-    ).toBe(0);
+    // No notice: no alert floats over the space.
+    expect(document.querySelector('[data-component="SpaceNotice"]')).toBeNull();
   });
 });
 

@@ -25,6 +25,7 @@ import { CircleStopIcon, EllipsisIcon, LogOutIcon } from '../icons';
 import { spaceDataSet } from '../space-data-set';
 import type { SpacePersonCapability } from '../space-person-actions';
 import type { SpaceMenuItem, SpaceRole } from '../space-types';
+import { ToastStack } from '../toast-stack/index';
 import { useAnchoredMenu } from '../use-anchored-menu';
 import styles from './space-shell.module.css';
 
@@ -375,7 +376,7 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
  *    the space's: of the app's own chrome only its status shows here
  *    (working offline, the connection missing), ahead of the actions and
  *    wherever no sidebar shows it; the account menu stays outside a space.
- *    Under it, only while there is one, the space's `notice`.
+ *    Its `notice` (only while there is one) floats in the `ToastStack`.
  * 2. The stage (`children`), filling the rest and scrolling on its own.
  *
  * Who is in the space is one of the top bar's actions, never a row of its
@@ -398,9 +399,11 @@ export function SpaceShell(props: SpaceShellProps): JSX.Element {
       data-role={props.role}
     >
       <ActionsRow {...props} />
-      <div class={styles['notice']} data-space-row="notice">
+      {/* A notice comes and goes (a refused change, the host away): it
+          floats over the screen, never a row that pushes the stage. */}
+      <ToastStack dataSet={{ component: 'SpaceNotice' }}>
         {props.notice}
-      </div>
+      </ToastStack>
       <main
         class={styles['stage']}
         data-space-row="stage"

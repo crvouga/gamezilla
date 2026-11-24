@@ -1,12 +1,18 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import { children, type JSX, Show } from 'solid-js';
 import { Button } from '../button/index';
 import stageAlign from '../game-screen/game-stage-align.module.css';
 import { GameLayout } from '../game-screen/index';
 import { GameActions } from '../game-section/index';
 import { createScreenSlot } from '../screen-slot';
+import { ToastStack } from '../toast-stack/index';
 import fixed from './fixed-stage.module.css';
+import {
+  createGameResultDialog,
+  GameResultDialog,
+  ShowResultButton,
+} from './game-result-dialog';
 import styles from './game-session-layout.module.css';
 
 export type GameSessionLayoutProps = {
@@ -62,10 +68,10 @@ export type GameSessionLayoutProps = {
    */
   fixedStage?: boolean | undefined;
   /**
-   * What lies over the foot of a fixed stage without moving anything: a
-   * finished game's outcome card. A phone lays it over the stage, right
-   * above the commands; a wide window keeps it heading the rail. Without
-   * `fixedStage` it simply leads the status.
+   * A finished game's outcome card: shown as a dialog over the final board
+   * (`GameResultDialog`) with the `actions` in it, the moment the game
+   * ends. Closed, the commands return to the bar and `Show result` reopens
+   * it. Nothing in the stage moves either way.
    */
   sheet?: JSX.Element | undefined;
   /**
@@ -94,33 +100,59 @@ export type GameSessionAllMoves = {
  * commands one row, so neither moves the board when it changes.
  */
 function SessionControls(props: GameSessionLayoutProps): JSX.Element {
-  return (
+  const outcome = createScreenSlot(() => props.sheet);
+  const dialog = createGameResultDialog(() => outcome.present());
+  // One set of commands, in the dialog while it is open, else in the bar.
+  const actions = children(() => props.actions);
+  const barActions = (): JSX.Element => (
     <Show
-      when={props.fixedStage === true}
-      fallback={
-        <>
-          {props.sheet}
-          {props.status}
-          <GameActions>{props.actions}</GameActions>
-        </>
-      }
+      when={!dialog.open()}
+      // The bar keeps its height while its commands are in the dialog, so
+      // nothing above it (the board) moves when the game ends.
+      fallback={<div class="box min-h-11" aria-hidden="true" />}
     >
-      <Show when={props.sheet}>
-        <div
-          class={fixed['sheet']}
-          {...dataAttrs({ component: 'GameStageSheet' })}
-        >
-          {props.sheet}
-        </div>
-      </Show>
-      <div
-        class={fixed['status']}
-        {...dataAttrs({ component: 'GameStageStatus' })}
-      >
-        {props.status}
-      </div>
-      <GameActions>{props.actions}</GameActions>
+      <GameActions>{actions()}</GameActions>
     </Show>
+  );
+  const status = (): JSX.Element => (
+    <Show when={outcome.present() && !dialog.open()} fallback={props.status}>
+      <>
+        {props.status}
+        <ShowResultButton state={dialog} />
+      </>
+    </Show>
+  );
+  return (
+    <>
+      <Show when={outcome.present()}>
+        <GameResultDialog
+          state={dialog}
+          outcome={outcome.content()}
+          actions={
+            <Show when={dialog.open()}>
+              <GameActions>{actions()}</GameActions>
+            </Show>
+          }
+        />
+      </Show>
+      <Show
+        when={props.fixedStage === true}
+        fallback={
+          <>
+            {status()}
+            {barActions()}
+          </>
+        }
+      >
+        <div
+          class={fixed['status']}
+          {...dataAttrs({ component: 'GameStageStatus' })}
+        >
+          {status()}
+        </div>
+        {barActions()}
+      </Show>
+    </>
   );
 }
 
@@ -147,24 +179,6 @@ function StageStrip(props: GameSessionLayoutProps): JSX.Element {
         )}
       </Show>
     </div>
-  );
-}
-
-/**
- * A fixed stage's notices (the connection, a refused choice, a draw
- * offered): laid over the top of the stage, never a row that pushes it.
- */
-function StageNotices(props: { notices: JSX.Element }): JSX.Element {
-  const notices = createScreenSlot(() => props.notices);
-  return (
-    <Show when={notices.present()}>
-      <div
-        class={fixed['notices']}
-        {...dataAttrs({ component: 'GameStageNotices' })}
-      >
-        {notices.content()}
-      </div>
-    </Show>
   );
 }
 
@@ -226,10 +240,15 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
           {pinned.content()}
         </div>
       </Show>
-      {/* Only a centred stage wraps its notices, to centre them with it;
-          the default layout keeps them as the session's own rows. */}
+      {/* A game in play (a fixed stage): what comes and goes (the
+          connection, a refused choice, a draw offered, an opponent away)
+          floats over the screen, never in the page's flow, so the board
+          never moves. Elsewhere (a puzzle's standing rule) the notices are
+          the page's own rows, centred with a centred stage. */}
       <Show when={props.fixedStage === true}>
-        <StageNotices notices={props.notices} />
+        <ToastStack dataSet={{ component: 'GameSessionNotices' }}>
+          {props.notices}
+        </ToastStack>
       </Show>
       <Show
         when={props.stageAlign === 'center' && notices.present()}

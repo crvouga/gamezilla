@@ -14,6 +14,7 @@ import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-l
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from 'solid-js';
 import { Index, Match, Show, Switch } from 'solid-js';
@@ -383,26 +384,36 @@ export function SpaceJoinScreenView(
       }
     >
       <StackVertical grow gap="md">
-        <Show when={props.needsConnection && props.status !== 'offline'}>
-          <SpacesNeedConnectionNotice />
-        </Show>
-        <Show when={props.joinPending && props.status === 'live'}>
-          <Notice
-            tone="warning"
-            dataSet={{ testid: Handles.spaceJoinNotConfirmed }}
+        {/* What comes and goes (no connection, a join not confirmed, the
+            host away) floats over the screen, never a row in it. */}
+        <ToastStack>
+          <Show when={props.needsConnection && props.status !== 'offline'}>
+            <SpacesNeedConnectionNotice />
+          </Show>
+          <Show when={props.joinPending && props.status === 'live'}>
+            <Notice
+              tone="warning"
+              dataSet={{ testid: Handles.spaceJoinNotConfirmed }}
+            >
+              <Trans>
+                Your join wasn't confirmed yet. Check again to see whether
+                you're in.
+              </Trans>
+            </Notice>
+          </Show>
+          <Show
+            when={
+              props.status === 'live' && props.connection === 'host-offline'
+            }
           >
-            <Trans>
-              Your join wasn't confirmed yet. Check again to see whether you're
-              in.
-            </Trans>
-          </Notice>
-        </Show>
+            <SpaceHostOfflineNotice />
+          </Show>
+        </ToastStack>
         <Show
           when={props.status === 'live' && props.connection === 'host-offline'}
           fallback={<JoinPromptBody {...props} />}
         >
           <StackVertical gap="lg">
-            <SpaceHostOfflineNotice />
             <Show when={props.space}>
               {(space) => (
                 <SpaceJoinInvitation space={space()} host="offline" />

@@ -97,7 +97,6 @@ import type {
   SpaceRole,
   SpacePerson as SpaceShellPerson,
 } from '@pkgs/ui-root-client-ts/space-types';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
   type Accessor,
   createContext,
@@ -462,9 +461,7 @@ export function SpaceScreenNotice(): JSX.Element {
   return (
     <>
       <Show when={chrome.hostOffline && chrome.role === 'guest'}>
-        <StackVertical paddingX="lg" paddingTop="sm">
-          <SpaceHostOfflineNotice />
-        </StackVertical>
+        <SpaceHostOfflineNotice />
       </Show>
       <Show when={live}>
         <SpaceRefusedChangeNotice />

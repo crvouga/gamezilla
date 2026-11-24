@@ -2,6 +2,7 @@
 
 import { describe, expect, test } from 'bun:test';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal, type JSX, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
@@ -15,36 +16,39 @@ function stage(
   overrides: Partial<Parameters<typeof GameSessionLayout>[0]> = {}
 ): () => JSX.Element {
   return () => (
-    <GameSessionLayout
-      fixedStage
-      actionsBeside
-      actions={<button type="button">{'Resign'}</button>}
-      {...overrides}
-    >
-      <div data-testid="board" />
-    </GameSessionLayout>
+    <SurfaceStackProvider>
+      <GameSessionLayout
+        fixedStage
+        actionsBeside
+        actions={<button type="button">{'Resign'}</button>}
+        {...overrides}
+      >
+        <div data-testid="board" />
+      </GameSessionLayout>
+    </SurfaceStackProvider>
   );
 }
 
 const layout = () => mustQuery('[data-component="GameSessionLayout"]');
 
 describe('GameSessionLayout fixed stage', () => {
-  test('notices lie over the stage instead of in its flow', () => {
+  test('notices float in the alerts stack, outside the session entirely', () => {
     renderUi(stage({ notices: <p data-testid="offline">{'Offline'}</p> }));
-    const notices = mustQuery('[data-component="GameStageNotices"]');
+    const notices = mustQuery('[data-component="GameSessionNotices"]');
     expect(notices.contains(screen.getByTestId('offline'))).toBe(true);
-    // The session's own rows are only the layout and the notices layer.
+    expect(layout().contains(notices)).toBe(false);
+    // The session's own rows are only the layout.
     expect(
       [...layout().children].map((child) =>
         child.getAttribute('data-component')
       )
-    ).toEqual(['GameStageNotices', 'GameLayout']);
+    ).toEqual(['GameLayout']);
   });
 
   test('without notices there is no layer, and nothing else moves', () => {
     renderUi(stage());
     expect(
-      document.querySelector('[data-component="GameStageNotices"]')
+      document.querySelector('[data-component="GameSessionNotices"]')
     ).toBeNull();
     expect(
       [...layout().children].map((child) =>
@@ -63,12 +67,26 @@ describe('GameSessionLayout fixed stage', () => {
     ).toBeTruthy();
   });
 
-  test('the outcome sheet sits with the commands, never in the stage', () => {
+  test('the outcome is a dialog with the commands in it, and the bar keeps its height', () => {
     renderUi(stage({ sheet: <p data-testid="outcome">{'You win'}</p> }));
-    const sheet = mustQuery('[data-component="GameStageSheet"]');
-    expect(sheet.contains(screen.getByTestId('outcome'))).toBe(true);
-    expect(sheet.closest('[data-game-slot="controls"]')).not.toBeNull();
-    expect(sheet.closest('[data-game-slot="stage"]')).toBeNull();
+    const dialog = screen.getByRole('dialog', { name: 'Game over' });
+    expect(dialog.contains(screen.getByTestId('outcome'))).toBe(true);
+    expect(
+      dialog.contains(screen.getByRole('button', { name: 'Resign' }))
+    ).toBe(true);
+    expect(dialog.closest('[data-game-slot="stage"]')).toBeNull();
+    // The bar holds a placeholder of its commands' height while they are
+    // in the dialog, so nothing above it moves.
+    const controls = mustQuery('[data-game-slot="controls"]');
+    expect(controls.querySelector('.min-h-11')).not.toBeNull();
+    // Closed, the commands come back to the bar with a way to reopen it.
+    fireEvent.click(screen.getByTestId('game-result-close'));
+    expect(screen.queryByRole('dialog', { name: 'Game over' })).toBeNull();
+    expect(
+      controls.contains(screen.getByRole('button', { name: 'Resign' }))
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId('game-show-result'));
+    expect(screen.getByRole('dialog', { name: 'Game over' })).toBeTruthy();
   });
 
   test('the line of moves leads to all of them', () => {
@@ -106,11 +124,11 @@ describe('GameSessionLayout fixed stage', () => {
     setOffline(true);
     expect(mustQuery('[data-component="GameLayout"]')).toBe(before);
     expect(
-      document.querySelector('[data-component="GameStageNotices"]')
+      document.querySelector('[data-component="GameSessionNotices"]')
     ).not.toBeNull();
     setOffline(false);
     expect(
-      document.querySelector('[data-component="GameStageNotices"]')
+      document.querySelector('[data-component="GameSessionNotices"]')
     ).toBeNull();
   });
 });
