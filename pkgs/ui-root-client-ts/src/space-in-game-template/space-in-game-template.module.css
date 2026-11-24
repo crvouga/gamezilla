@@ -38,6 +38,12 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
+/* A board shorter than its room sits in the middle of it, not under the
+   status line with the room's whole rest empty; a taller one still
+   scrolls from its top (auto margins never push it out of reach). */
+.board > * {
+  margin-block: auto;
+}
 /* The action bar: always there, always this height. */
 .bar {
   display: flex;
