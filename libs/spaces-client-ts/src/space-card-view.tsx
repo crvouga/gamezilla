@@ -28,6 +28,8 @@ export type SpaceCardData = {
   readonly active: boolean;
   /** The viewer hosts this space, so the lobby lists it under their own. */
   readonly hostedByViewer: boolean;
+  /** The viewer's own id: among the guests they read as "You". */
+  readonly viewerId?: string | undefined;
   /** Guests seated in the space's room, host excluded. */
   readonly guests: readonly SpacePerson[];
 };

@@ -50,8 +50,8 @@ export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
         : t`${fit.max} play · ${watch(present - fit.max)}`;
     if (fit.kind === 'needs') return t`Needs ${fit.target}`;
     return fit.bots === 1
-      ? t`${fit.target} · add 1 bot`
-      : t`${fit.target} · add ${fit.bots} bots`;
+      ? t`${fit.target} play · add 1 bot`
+      : t`${fit.target} play · add ${fit.bots} bots`;
   };
 }
 

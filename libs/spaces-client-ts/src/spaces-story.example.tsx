@@ -73,6 +73,8 @@ export const FRIEND_SPACE = space('02', ROBIN);
 /** A live space the viewer was added to, crowded past the avatar stack. */
 export const JOINED_SPACE = space('03', SAM, {
   guests: [AVERY, JORDAN, MORGAN, ROBIN, PLAYBOT, LONG_NAME, UNSYNCED],
+  // The story's viewer is avery: among the guests they read as "You".
+  viewerId: AVERY.id,
 });
 
 /** Long custom title and host name, to stress truncation. */

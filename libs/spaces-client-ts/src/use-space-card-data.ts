@@ -36,6 +36,7 @@ export function useSpaceCardData(
       badge: ended ? 'none' : isOpen() ? 'current' : 'live',
       active: presence().status === 'active',
       hostedByViewer: myId().length > 0 && host()?.profileId === myId(),
+      viewerId: myId().length > 0 ? myId() : undefined,
       guests: guests(),
       ended,
     };

@@ -18,11 +18,7 @@ import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from 'solid-js';
 import { Index, Match, Show, Switch } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
-import {
-  SpaceBadgeView,
-  SpaceGuestsPhrase,
-  SpaceHostPhrase,
-} from './space-card-view';
+import { SpaceBadgeView, SpaceHostPhrase } from './space-card-view';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
@@ -138,12 +134,53 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
   );
 }
 
+/**
+ * Who is here in words, on one line: the first name (the viewer's "You"
+ * first) ends in an ellipsis on its own, so "and 6 others" always shows.
+ */
+function JoinGuestsLine(props: {
+  readonly guests: readonly SpacePerson[];
+  readonly viewerId?: string | undefined;
+}): JSX.Element {
+  const { t } = useLingui();
+  const ordered = (): readonly SpacePerson[] => {
+    const you = props.guests.find((guest) => guest.id === props.viewerId);
+    return you === undefined
+      ? props.guests
+      : [you, ...props.guests.filter((guest) => guest !== you)];
+  };
+  const nameOf = (person: SpacePerson | undefined): string => {
+    if (person === undefined) return '';
+    if (person.id === props.viewerId) return t`You`;
+    return person.name.trim() === '' ? t`Guest` : person.name;
+  };
+  const rest = (): string => {
+    const list = ordered();
+    if (list.length === 2) return t`and 1 other`;
+    if (list.length > 2) return t`and ${list.length - 1} others`;
+    return '';
+  };
+  return (
+    <StackHorizontal align="center" gap="xs" testId="space-join-guests">
+      <StackVertical shrink>
+        <P variant="caption" lines={1}>
+          {nameOf(ordered()[0])}
+        </P>
+      </StackVertical>
+      <Show when={rest() !== ''}>
+        <P variant="caption">{rest()}</P>
+      </Show>
+    </StackHorizontal>
+  );
+}
+
 const JOIN_FACE_SIZE = 32;
 const JOIN_FACES_SHOWN = 6;
 
 /** Who is in the space now: their faces, then who they are in words. */
 function SpaceJoinWhoIsHere(props: {
   readonly guests: readonly SpacePerson[];
+  readonly viewerId?: string | undefined;
   /** The host is away: who was here is the last word, not live. */
   readonly lastKnown: boolean;
 }): JSX.Element {
@@ -178,9 +215,7 @@ function SpaceJoinWhoIsHere(props: {
             </Index>
           </AvatarGroup>
           <StackVertical grow shrink>
-            <P variant="caption" lines={1}>
-              <SpaceGuestsPhrase guests={props.guests} />
-            </P>
+            <JoinGuestsLine guests={props.guests} viewerId={props.viewerId} />
           </StackVertical>
         </StackHorizontal>
       </Show>
@@ -249,6 +284,7 @@ function SpaceJoinInvitation(props: {
         <Divider />
         <SpaceJoinWhoIsHere
           guests={props.space.guests}
+          viewerId={props.space.viewerId}
           lastKnown={props.host === 'offline' || props.host === 'unknown'}
         />
       </StackVertical>
