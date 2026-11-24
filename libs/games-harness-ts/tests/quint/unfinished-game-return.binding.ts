@@ -43,6 +43,8 @@ import {
 import type { Picks } from '@pkgs/quint-shared-ts/registry';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import { conformanceGameOf } from '../conformance-world';
+import returnKeepsSpaceUnderBoard from './fixtures/matched-game-return-keeps-space-under-board.itf.json';
+import returnRepeatsOnReopen from './fixtures/matched-game-return-repeats-on-reopen.itf.json';
 import {
   changeSpacesMatch,
   prepareMatchedSpaces,
@@ -148,6 +150,24 @@ bindQuintModel<QuintHarnessWorld>({
   maxSteps: 10,
   verifySteps: 2,
   timeoutMs: 300_000,
+  regressions: [
+    {
+      // regression: matched-game-return-keeps-space-under-board
+      id: 'matched-game-return-keeps-space-under-board',
+      title:
+        'Going back to the lobby after returning to a matched game leaves the space on its board',
+      seed: '0x67932',
+      itf: returnKeepsSpaceUnderBoard,
+    },
+    {
+      // regression: matched-game-return-repeats-on-reopen
+      id: 'matched-game-return-repeats-on-reopen',
+      title:
+        'Reopening the app after returning to a matched game leaves the space on its choices',
+      seed: '0x67932',
+      itf: returnRepeatsOnReopen,
+    },
+  ],
   actions: {
     init: (w, picks: Picks) => begin(w, String(picks['kind'])),
     backToGameChoice: async (w, picks: Picks) => {

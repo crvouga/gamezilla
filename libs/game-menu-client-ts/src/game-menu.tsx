@@ -4,6 +4,7 @@ import { PuzzleFrame } from '@libs/game-puzzle-client-ts/puzzle-frame';
 import { CustomGameSeatsNote } from '@libs/game-session-client-ts/custom-game-seats-note';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { SpaceOffer } from '@libs/spaces-client-ts/space-offer-context';
+import { spaceDetailHref } from '@libs/spaces-client-ts/space-routes';
 import { useSpaceSessionUi } from '@libs/spaces-client-ts/space-session-ui-context';
 import {
   DefineBackButton,
@@ -15,7 +16,10 @@ import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
 import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { useLingui } from '@lingui/solid/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
+import {
+  useLocalSearchParams,
+  useRouter,
+} from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
@@ -77,12 +81,16 @@ function GameChoices(props: {
 /**
  * A space opened from a game's multiplayer link goes straight to finding an
  * opponent for its host — once, so going back still leads to the choices.
+ * The link is spent as it is followed: the address keeps only the space, so
+ * reopening the app or coming back to the space on this device leaves the
+ * space on whatever it shows by then.
  */
 function useOpenLinkedMultiplayer(
   navigation: GameScreen,
   offered: () => boolean
 ): void {
   const params = useLocalSearchParams<{ multiplayer?: string | undefined }>();
+  const router = useRouter();
   const { spaceId } = useSpaceSessionUi();
   const isHost = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
   let opened = false;
@@ -92,6 +100,7 @@ function useOpenLinkedMultiplayer(
     opened = true;
     if (untrack(navigation.screen) !== SHARED_GAME_SCREEN.matchmakingHome)
       navigation.show(SHARED_GAME_SCREEN.matchmakingHome);
+    router.replace(spaceDetailHref(spaceId));
   });
 }
 

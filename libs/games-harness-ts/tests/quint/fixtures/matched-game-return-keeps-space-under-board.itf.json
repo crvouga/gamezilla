@@ -1,0 +1,717 @@
+{
+  "#meta": {
+    "format": "ITF",
+    "format-description": "https://apalache-mc.org/docs/adr/015adr-trace.html",
+    "source": "unfinished-game-return.qnt",
+    "status": "ok",
+    "description": "Created by Quint on Mon Nov 23 2026 18:28:41 GMT-0700 (Mountain Standard Time)",
+    "timestamp": 1795483721028
+  },
+  "vars": [
+    "_kind",
+    "_game",
+    "_online",
+    "_inside",
+    "_spaceView",
+    "view",
+    "returnOffered",
+    "seekOffered",
+    "mbt::actionTaken",
+    "mbt::nondetPicks"
+  ],
+  "states": [
+    {
+      "#meta": {
+        "index": 0
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "init",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        },
+        "kind": {
+          "tag": "Some",
+          "value": "matched"
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "board"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 1
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "choices"]]
+      },
+      "mbt::actionTaken": "backToGameChoice",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "bob-phone"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "choices"],
+          ["carol-phone", "board"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 2
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "choices"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice-computer"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "choices"],
+          ["carol-phone", "board"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 3
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "returnToGame",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "bob-phone"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "board"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 4
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "goBackToLobby",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "carol-phone"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 5
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "choices"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "backToGameChoice",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice-computer"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "choices"],
+          ["alice-phone", "choices"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 6
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "returnToGame",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice-computer"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 7
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", true]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "carol-phone"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 8
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "loseConnection",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "carol-phone"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "board"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 9
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "goBackToLobby",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice-computer"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "lobby"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    },
+    {
+      "#meta": {
+        "index": 10
+      },
+      "_game": "matched",
+      "_inside": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_kind": "matched",
+      "_online": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", true],
+          ["bob-phone", true],
+          ["carol-phone", false]
+        ]
+      },
+      "_spaceView": {
+        "#map": [["alice", "board"], ["bob", "board"]]
+      },
+      "mbt::actionTaken": "reopenApp",
+      "mbt::nondetPicks": {
+        "device": {
+          "tag": "Some",
+          "value": "alice-phone"
+        },
+        "kind": {
+          "tag": "None",
+          "value": {
+            "#tup": []
+          }
+        }
+      },
+      "returnOffered": {
+        "#map": [
+          ["alice-computer", true],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "seekOffered": {
+        "#map": [
+          ["alice-computer", false],
+          ["alice-phone", false],
+          ["bob-phone", false],
+          ["carol-phone", false]
+        ]
+      },
+      "view": {
+        "#map": [
+          ["alice-computer", "lobby"],
+          ["alice-phone", "board"],
+          ["bob-phone", "board"],
+          ["carol-phone", "lobby"]
+        ]
+      }
+    }
+  ]
+}
