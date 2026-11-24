@@ -73,7 +73,8 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
     operation: () => props.onJoin(),
     labels: {
       get idle() {
-        return props.joinPending ? t`Check again` : t`Join space`;
+        if (props.joinPending) return t`Check again`;
+        return props.needsConnection ? t`Try joining again` : t`Join space`;
       },
       loading: t`Joining…`,
       success: t`Joined`,
@@ -285,10 +286,20 @@ function SpaceJoinLiveBody(props: {
         when={props.checkingHost}
         fallback={
           <P tone="secondary">
-            <Trans>
-              Join to play together. You'll go straight to whatever the space is
-              doing.
-            </Trans>
+            <Show
+              when={props.needsConnection}
+              fallback={
+                <Trans>
+                  Join to play together. You'll go straight to whatever the
+                  space is doing.
+                </Trans>
+              }
+            >
+              <Trans>
+                Once you're back online, try again to join where the space is
+                now.
+              </Trans>
+            </Show>
           </P>
         }
       >

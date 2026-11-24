@@ -147,7 +147,14 @@ export function FrameStartView(
           <P variant="bodyBold" role="status" testId="custom-game-startable">
             {startLine(props.start, props.invitedTo)}
           </P>
-          <Show when={props.start.hostStarts}>
+          {/* Someone with nothing to press here (a seated guest, a watcher
+              with every seat taken) is told who moves the game on. */}
+          <Show
+            when={
+              props.start.hostStarts ||
+              (props.start.readiness === null && !props.start.canStart)
+            }
+          >
             <P
               variant="caption"
               tone="secondary"

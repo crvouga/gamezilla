@@ -181,15 +181,18 @@ export function PuzzleResultSummary(
       gap="lg"
       dataSet={{ testid: Handles.chessPuzzleSummary, outcome: props.status }}
     >
+      <StackVertical gap="xs" align="center">
+        <H2 size="heading" align="center">
+          <ResultTitle {...props} />
+        </H2>
+        <P variant="caption" tone="secondary" align="center">
+          <ResultCaption {...props} />
+        </P>
+      </StackVertical>
+      {/* What next comes straight after how it went, so on a phone Next
+          puzzle is in view without scrolling; the numbers follow. */}
+      <ResultCommands {...props} />
       <StackVertical gap="md" align="center">
-        <StackVertical gap="xs" align="center">
-          <H2 size="heading" align="center">
-            <ResultTitle {...props} />
-          </H2>
-          <P variant="caption" tone="secondary" align="center">
-            <ResultCaption {...props} />
-          </P>
-        </StackVertical>
         <Show when={props.result.completion} keyed>
           {(completion) => (
             <PuzzleSummaryCard
@@ -201,7 +204,6 @@ export function PuzzleResultSummary(
         </Show>
         <ResultFacts {...props} />
       </StackVertical>
-      <ResultCommands {...props} />
     </StackVertical>
   );
 }

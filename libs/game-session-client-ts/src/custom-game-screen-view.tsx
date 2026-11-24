@@ -61,6 +61,8 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly error: string;
   /** The game's own engine stopped; the saved score is kept. */
   readonly stopped: boolean;
+  /** Starts a stopped game again from its saved score. */
+  readonly onReopen?: (() => void) | undefined;
   /** `null` with no game. */
   readonly status: FrameStatus | null;
   /** May create a game (before there is one). */

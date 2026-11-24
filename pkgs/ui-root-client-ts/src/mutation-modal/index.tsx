@@ -233,6 +233,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
               ids={ids}
               labels={labels}
               error={lifecycle.error()}
+              form={props.children}
               onRetry={run}
               onClose={props.onClose}
             />

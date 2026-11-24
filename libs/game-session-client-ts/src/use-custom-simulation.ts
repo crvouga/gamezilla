@@ -37,9 +37,12 @@ export function useCustomSimulation(
   const [error, setError] = createSignal(false);
   const [steering, setSteering] = createSignal<Steering>({});
   const [elsewhere, setElsewhere] = createSignal(false);
+  // Reopening after the engine stopped starts the execution afresh.
+  const [attempt, setAttempt] = createSignal(0);
   let connection: ReturnType<typeof connectCustomSimulation> | null = null;
   const key = useSimulationKey(current, myId);
   createEffect(() => {
+    attempt();
     const room = entry()?.room;
     const id = key();
     setPosition(null);
@@ -99,6 +102,8 @@ export function useCustomSimulation(
     position,
     controls,
     error,
+    /** Starts the stopped game's engine again from the saved score. */
+    restart: () => setAttempt((n) => n + 1),
     active: () => key() !== '',
     chooseLocal: (choice: CustomGameChoice) =>
       connection?.chooseLocal(choice) ?? null,

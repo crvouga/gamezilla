@@ -45,13 +45,6 @@ export type GameBoardProps = {
    */
   readonly committed: readonly GameSide[];
   readonly commitment: string | null;
-  /**
-   * Keep the room the board's status line takes in every position, the
-   * finished one included, so a replay stepping into and out of the final
-   * position never resizes the board. Absent: a finished board takes that
-   * room back, as at the end of a live game.
-   */
-  readonly steadyStatus?: boolean | undefined;
 };
 /** A side arranging its private setup: the game's own setup board. */
 export type GameSetupBoardProps = {

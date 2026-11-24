@@ -1,4 +1,5 @@
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -10,6 +11,9 @@ import { SpaceShareAddPeopleView } from './space-share-add-people-view';
 import type { SpaceShareSheetViewProps } from './space-share-sheet-view';
 import { SpaceShareSheetView } from './space-share-sheet-view';
 import { AVERY, JORDAN, MORGAN, PLAYBOT } from './spaces-story.example';
+
+/** The add-people search's pick, spied on so a story can see the add. */
+const onPickPerson = fn();
 
 function addPeople(
   addition: SpaceAddition,
@@ -23,7 +27,7 @@ function addPeople(
       searching={false}
       addition={addition}
       searchDenied={denied?.()}
-      onPick={fn()}
+      onPick={onPickPerson}
       onRetry={fn()}
     />
   );
@@ -104,7 +108,8 @@ export const AddFailed: Story = {
       addPeople: () =>
         addPeople({
           status: 'error',
-          message: 'This space is full. Remove someone first.',
+          message:
+            "Couldn't reach the server. Check your connection and try again.",
         }),
     }),
 };
@@ -155,5 +160,20 @@ export const PressRemove: Story = {
       await canvas.findByTestId(`space-remove-person-${JORDAN.id}`)
     );
     await expect(args.onRemovePerson).toHaveBeenCalledWith(JORDAN);
+  },
+};
+
+/** J5: the host searches a friend and picks them; they are added. */
+export const AddFriend: Story = {
+  render: (args) =>
+    withSlots(args, { addPeople: () => addPeople({ status: 'idle' }) }),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId(Handles.spaceAddTrigger));
+    const body = within(canvasElement.ownerDocument.body);
+    await userEvent.click(
+      await body.findByTestId(Handles.spaceAddPerson(MORGAN.id))
+    );
+    await expect(onPickPerson).toHaveBeenCalled();
   },
 };

@@ -205,6 +205,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         connection={frameConnection(model)}
         error={refusal(model.error(), model.current()?.fen)}
         stopped={model.simulation.error()}
+        onReopen={() => model.simulation.restart()}
         status={status()}
         canCreate={model.canCreate()}
         playerCount={model.playerCount()}

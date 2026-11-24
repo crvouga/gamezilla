@@ -208,13 +208,28 @@ export function FrameConnectionView(props: {
 }
 
 /** A refused choice, in words; nothing for none. */
-export function FrameErrorView(props: { readonly text: string }): JSX.Element {
+export function FrameErrorView(props: {
+  readonly text: string;
+  /** The way forward the words name (`Reopen game`), in place. */
+  readonly retry?:
+    | { readonly label: string; readonly onPress: () => void }
+    | undefined;
+}): JSX.Element {
   return (
     <Show when={props.text !== ''}>
       <ErrorState
         variant="compact"
         title={t`That didn't go through`}
         body={props.text}
+        retry={
+          props.retry === undefined
+            ? undefined
+            : {
+                label: props.retry.label,
+                onClick: () => props.retry?.onPress(),
+                dataSet: { testid: 'custom-game-reopen' },
+              }
+        }
         dataSet={{ testid: 'custom-game-error' }}
       />
     </Show>

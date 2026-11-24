@@ -21,7 +21,6 @@ export function ConnectFourGameBoard(props: GameBoardProps): JSX.Element {
       position={props.position}
       interactive={props.interactive}
       testId={props.testId}
-      steadyStatus={props.steadyStatus}
       onDrop={(column) => props.onAction(String(column))}
     />
   );

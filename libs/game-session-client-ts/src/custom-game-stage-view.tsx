@@ -161,13 +161,6 @@ export function FrameStage(props: Props): JSX.Element {
       }
     >
       <FrameBoard {...props} />
-      <FrameErrorView
-        text={
-          props.stopped
-            ? t`The game stopped. Your last saved score is kept. Reopen the game to try again.`
-            : ''
-        }
-      />
     </GameBoardStage>
   );
 }
@@ -340,6 +333,20 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           <>
             <FrameConnectionView connection={props.connection} />
             <FrameErrorView text={props.error} />
+            {/* The engine stopped: said over the stage with the way back
+                in, never in the board's flow (the board never moves). */}
+            <FrameErrorView
+              text={
+                props.stopped
+                  ? t`The game stopped. Your last saved score is kept.`
+                  : ''
+              }
+              retry={
+                props.onReopen === undefined
+                  ? undefined
+                  : { label: t`Reopen game`, onPress: () => props.onReopen?.() }
+              }
+            />
             <FramePlayNoticesView play={props.play} people={props.people} />
           </>
         }

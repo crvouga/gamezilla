@@ -45,6 +45,11 @@ type FindProps = MultiplayerPlaceFrame & {
   /** How the game is won, in one sentence, where the game says. */
   readonly goal?: string | undefined;
   readonly find: MultiplayerFindChoice;
+  /**
+   * Searching is refused for now (a guest's daily games are used up): the
+   * notice says why and how to go on, and the command waits, held back.
+   */
+  readonly findRefused?: boolean | undefined;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
@@ -263,6 +268,7 @@ function FindDock(props: FindProps): JSX.Element {
         variant="solid"
         size="lg"
         fullWidth
+        disabled={props.findRefused === true}
         dataSet={{ testid: 'multiplayer-find' }}
       />
     </GameLobbyDock>

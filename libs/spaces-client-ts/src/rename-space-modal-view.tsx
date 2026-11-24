@@ -55,7 +55,7 @@ export function RenameSpaceModalView(
           role="alert"
           testId={Handles.spaceRenameNotAllowed}
         >
-          <Trans>That space name is not allowed</Trans>
+          <Trans>That name isn't allowed. Try a different one.</Trans>
         </P>
       </Show>
     </MutationModal>

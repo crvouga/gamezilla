@@ -37,9 +37,16 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
       id: 'people',
       label: 'People in this space',
       icon: UsersIcon,
+      testId: Handles.spaceMembersButton,
       onPress: fn(),
     },
-    { id: 'share', label: 'Share', icon: ShareIcon, onPress: fn() },
+    {
+      id: 'share',
+      label: 'Share',
+      icon: ShareIcon,
+      testId: Handles.spaceShare,
+      onPress: fn(),
+    },
     { id: 'rename', label: 'Rename', icon: SquarePenIcon, onPress: fn() },
     {
       id: 'minimize',

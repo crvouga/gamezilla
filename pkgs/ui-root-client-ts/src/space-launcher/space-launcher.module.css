@@ -138,3 +138,7 @@
     padding: var(--ui-space-6) var(--ui-space-4) var(--ui-space-4);
   }
 }
+.tile :global(.badge),
+.tile [data-component="Badge"] {
+  align-self: center;
+}

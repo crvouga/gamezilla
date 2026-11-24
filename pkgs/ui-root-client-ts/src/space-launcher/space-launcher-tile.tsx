@@ -100,8 +100,16 @@ export function SpaceLauncherTile(props: {
   /** Pressing does something for this viewer: unset, the tile only shows. */
   onPress: (() => void) | undefined;
 }): JSX.Element {
-  const fit = () => spaceGameFit(props.game.players, props.present, props.role);
-  const dimmed = () => spaceGameFitDimmed(fit());
+  // A guest who cannot suggest only watches the host choose: every game
+  // reads as the host sees it, none dimmed, none looking pressable.
+  const watching = () => props.role === 'guest' && props.onPress === undefined;
+  const fit = () =>
+    spaceGameFit(
+      props.game.players,
+      props.present,
+      watching() ? 'host' : props.role
+    );
+  const dimmed = () => !watching() && spaceGameFitDimmed(fit());
   const suggestedByYou = () => props.game.suggestedBy?.you === true;
   const press = () => {
     if (props.role === 'guest' && dimmed()) return undefined;

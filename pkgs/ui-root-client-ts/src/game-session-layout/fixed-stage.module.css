@@ -164,25 +164,43 @@
     width: 100%;
     max-width: none;
   }
-  /* A finished game's outcome heads the commands, in the bar's own flow:
-     the stage above gives up the room, so the final board and every
-     player's row stay whole and nothing lies over them. */
+  /* A finished game's outcome rises from the command bar as one sheet with
+     it, over the stage's foot: nothing in the stage moves or resizes when
+     the game ends, so the final board keeps exactly the live board's place
+     and size. The sheet is attached to the bar (no gap, square foot), so it
+     reads as the bar opening up, never as a card dropped on the seats. */
   .fixed [data-game-slot="controls"] > .sheet {
     width: auto;
   }
   .sheet {
-    max-height: 40dvh;
+    position: absolute;
+    inset-inline: 0;
+    bottom: 100%;
+    z-index: 2;
+    max-height: 60dvh;
     overflow: hidden auto;
+    padding: var(--ui-space-2) var(--ui-space-3) 0;
+    border-top: 1px solid var(--ui-color-border);
+    border-radius: var(--ui-radius-sheet) var(--ui-radius-sheet) 0 0;
+    background: var(--ui-color-surface);
+    box-shadow: var(--ui-shadow-float);
   }
-  /* A finished game's status line is only spoken: it keeps no visible
-     band (still read to a listener). */
+  /* Whatever of the stage the sheet would half cover after the board (the
+     person's own strip; the standings in the sheet name them) steps out of
+     sight without giving up its room, so no seat peeks out from under it
+     and the board stays exactly where it was. */
+  .fixed:has(.sheet) [data-game-board-stage] > [data-game-board] ~ * {
+    visibility: hidden;
+  }
+  /* A status line only spoken (a finished game's) shows nothing: the
+     outcome lies over its band, so a caption of two lines never covers
+     the final board's last row. */
   .fixed
     [data-game-slot="controls"]:has(
       > .status > [data-spoken-only="true"]:only-child
     )
-    > .status {
-    height: 0;
-    margin-top: calc(var(--ui-space-2) * -1);
+    > .sheet {
+    bottom: calc(100% - 44px);
   }
   /* The line about the game: one band of two lines, empty or full. */
   .status {
@@ -192,9 +210,9 @@
     height: 44px;
     overflow: hidden;
   }
-  /* A band that holds controls (a replay's steps) is as tall as they are:
-     it never changes while the page is open, and a control is never cut. */
-  .status:has(button) {
+  /* A replay's band holds its step controls: as tall as they are. It never
+     changes while the replay is open, and no control is cut. */
+  .status:has([data-testid="game-history-review-forward"]) {
     height: auto;
     min-height: 44px;
     overflow: visible;

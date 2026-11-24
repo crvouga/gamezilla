@@ -132,7 +132,6 @@ function RecordReview(props: {
             hand={props.record.hand}
             committed={[]}
             commitment={null}
-            steadyStatus
           />
         }
       />

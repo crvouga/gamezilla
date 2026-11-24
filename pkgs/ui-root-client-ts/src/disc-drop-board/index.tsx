@@ -128,7 +128,9 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
           class={`${styles['prompt']} text textCaption`}
           data-testid={`${props.testId}-prompt`}
         >
-          {promptText()}
+          {/* An empty line still holds a line box of the same height as a
+              written one, so the board never moves when the prompt clears. */}
+          {promptText() === '' ? '\u00a0' : promptText()}
         </p>
       </Show>
       <KeyboardHelp

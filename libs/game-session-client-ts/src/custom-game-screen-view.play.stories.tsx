@@ -1,4 +1,4 @@
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { CustomGameScreenView } from './custom-game-screen-view';
 import { onBoard } from './game-frame-board.example';
@@ -278,7 +278,14 @@ export const ChoiceRefused: Story = {
 export const ChoiceRetried: Story = {};
 
 /** The game's own engine stopped: the saved score is kept and reopening recovers. */
-export const Stopped: Story = { args: { stopped: true } };
+export const Stopped: Story = {
+  args: { stopped: true, onReopen: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('custom-game-reopen'));
+    await expect(args.onReopen).toHaveBeenCalled();
+  },
+};
 
 /** A long game lists only its latest moves; earlier ones are reached from the moves place. */
 export const LongRecord: Story = {

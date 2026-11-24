@@ -102,7 +102,11 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   const tags = createScreenSlot(() => props.tags);
   const turnLabel = createScreenSlot(() => props.turnLabel);
   const turn = (): boolean => props.active === true && turnLabel.present();
-  const inline = (): boolean => props.tagsPlacement === 'inline';
+  // A seat's state alone (Away, Out) follows the name on its line, so a seat
+  // never grows a row when it comes or goes and the board never moves.
+  const inline = (): boolean =>
+    props.tagsPlacement === 'inline' ||
+    (!tags.present() && props.state !== undefined && props.state !== null);
   const facts = (): boolean =>
     tags.present() || (props.state !== undefined && props.state !== null);
   const tagRow = (): JSX.Element => (
