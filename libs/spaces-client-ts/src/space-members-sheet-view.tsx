@@ -52,15 +52,6 @@ function SpaceMemberBadges(props: {
       : null;
   return (
     <StackHorizontal align="center" gap="xs">
-      <Show when={props.member.idle}>
-        <Badge
-          label={<Trans>Idle</Trans>}
-          intent="neutral"
-          tone="subtle"
-          size="sm"
-          dataSet={{ testid: Handles.spaceMemberIdle(props.member.actor.id) }}
-        />
-      </Show>
       <Show when={props.member.isHost}>
         <HostBadge size="sm" />
       </Show>
@@ -99,15 +90,31 @@ function rosterRow(
     client: member.actor,
     // A person reads names: "You" for themself, everyone else's username.
     // A person whose profile has not arrived yet still has a name to read.
-    title: member.isYou ? (
-      you
-    ) : member.person === null ? (
-      unnamed
-    ) : (
-      <SpacePersonName
-        person={member.person}
-        testId={Handles.spaceMemberName(id)}
-      />
+    // Status reads with the name (Idle, like Bot, right after it); the
+    // right edge keeps only the role and the host's Remove, so every row's
+    // controls line up.
+    title: (
+      <StackHorizontal align="center" gap="xs" wrap>
+        {member.isYou ? (
+          you
+        ) : member.person === null ? (
+          unnamed
+        ) : (
+          <SpacePersonName
+            person={member.person}
+            testId={Handles.spaceMemberName(id)}
+          />
+        )}
+        <Show when={member.idle}>
+          <Badge
+            label={<Trans>Idle</Trans>}
+            intent="neutral"
+            tone="subtle"
+            size="sm"
+            dataSet={{ testid: Handles.spaceMemberIdle(id) }}
+          />
+        </Show>
+      </StackHorizontal>
     ),
     isYou: member.isYou,
     isThisTab: member.isThisTab,

@@ -141,6 +141,12 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
           </Show>
         }
       >
+        {/* Back to Spaces on the left, as on every Join state. */}
+        <Button
+          title={<Trans>Back to Spaces</Trans>}
+          flex={1}
+          onClick={() => props.onBackToSpaces()}
+        />
         <Show when={props.canLeave}>
           <Button
             title={<Trans>Leave space</Trans>}
@@ -151,11 +157,6 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
             onClick={() => props.onLeave()}
           />
         </Show>
-        <Button
-          title={<Trans>Back to Spaces</Trans>}
-          flex={1}
-          onClick={() => props.onBackToSpaces()}
-        />
       </Show>
     </StackHorizontal>
   );
@@ -396,7 +397,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <EmptyState
           icon={Gamepad2Icon}
           title={t`You can't join this space`}
-          body={t`Ask the host to add you or to send you the space's link, then open it.`}
+          body={t`Ask the host to add you (it then shows in Spaces, under Shared with you) or to send you the space's link.`}
         />
       </Match>
       <Match when={props.status === 'missing'}>
