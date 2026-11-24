@@ -7,6 +7,7 @@
   "include": [
     "../ts-reset-shared-ts/src/ts-reset.ts",
     "../ui-root-client-ts/src/css-modules.d.ts",
+    "../ui-root-client-ts/src/lucide-icons.d.ts",
     "../ui-root-client-ts/src/lingui-augmentation.ts",
     "../bun-test-solid-client-ts/src/jest-dom.d.ts",
     "./tests/**/*.ts",

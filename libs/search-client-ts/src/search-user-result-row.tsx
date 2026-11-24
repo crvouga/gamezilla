@@ -17,7 +17,7 @@ export function SearchUserResultRow(props: {
       when={slots.userRow}
       fallback={<UserSearchResultRow user={props.user} />}
     >
-      {(userRow) => userRow()(props.user, props.query)}
+      {(userRow) => <>{userRow()(props.user, props.query)}</>}
     </Show>
   );
 }

@@ -1,4 +1,5 @@
 import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { ScreenBase } from '../screen-base/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenColumn } from '../screen-column/index';
@@ -28,6 +29,13 @@ export type ContentScreenProps = Pick<
 export function ContentScreen(props: ContentScreenProps): JSX.Element {
   const footer = createScreenSlot(() => props.footer);
   const width = (): ScreenMeasure => props.width ?? 'prose';
+  // One column per footer: the screen reads `footer` more than once, and a
+  // second column would take the footer's nodes from the mounted one.
+  const footerColumn = createMemo(() =>
+    footer.present() ? (
+      <ScreenColumn width={width()}>{footer.content()}</ScreenColumn>
+    ) : undefined
+  );
   return (
     <ScreenBase
       screenId={props.screenId}
@@ -36,11 +44,7 @@ export function ContentScreen(props: ContentScreenProps): JSX.Element {
       leading={props.leading}
       renderActionsMenu={props.renderActionsMenu}
       measure={width()}
-      footer={
-        footer.present() ? (
-          <ScreenColumn width={width()}>{footer.content()}</ScreenColumn>
-        ) : undefined
-      }
+      footer={footerColumn()}
       dataSet={{ component: 'ContentScreen', ...props.dataSet }}
       scroll
       content={() => (

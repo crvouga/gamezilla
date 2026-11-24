@@ -3,6 +3,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  untrack,
 } from 'solid-js';
 
 export type PendingOperation = {
@@ -47,16 +48,17 @@ export function createPendingNavigation() {
     proceed: () => void,
     affected?: readonly PendingOperation[]
   ): void => {
-    if (!blocked()) {
+    // Asked at the moment of leaving, often from inside an effect.
+    if (!untrack(blocked)) {
       proceed();
       return;
     }
-    if (destination() === null) setDestination({ proceed, affected });
+    if (untrack(destination) === null) setDestination({ proceed, affected });
   };
   const confirm = (): void => {
-    const departure = destination();
+    const departure = untrack(destination);
     if (departure === null) return;
-    const interrupted = operations().filter(
+    const interrupted = untrack(operations).filter(
       (operation) =>
         operation.pending() &&
         (departure.affected === undefined ||
