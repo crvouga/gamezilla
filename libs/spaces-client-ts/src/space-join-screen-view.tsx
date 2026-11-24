@@ -168,7 +168,12 @@ function JoinGuestsLine(props: {
         </P>
       </StackVertical>
       <Show when={rest() !== ''}>
-        <P variant="caption">{rest()}</P>
+        {/* Never shrinks: the count is the part that must show. */}
+        <StackVertical>
+          <P variant="caption" lines={1}>
+            {rest()}
+          </P>
+        </StackVertical>
       </Show>
     </StackHorizontal>
   );
