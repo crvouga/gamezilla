@@ -79,8 +79,11 @@ function writeFakeTools(dir: string): void {
       '  printf "mise %s\\n" "$*" >> "$WORKSPACE_RUN_TEST_CALLS"\n' +
       'fi\n' +
       'if [ "$1" = "env" ]; then printf \'export PATH="%s:$PATH"\\n\' "$PWD/.tools"; fi\n' +
+      // Pinned tools still to install, in `mise ls --missing` columns.
+      'if [ "$1" = "ls" ]; then printf "%b" "${WORKSPACE_RUN_TEST_MISSING-bun  1.4.3 (missing)  mise.toml  1.4.3\\n}"; fi\n' +
       'if [ "$1" = "install" ] && [ "${WORKSPACE_RUN_TEST_SYSTEM:-ok}" != "ok" ]; then exit 1; fi\n' +
-      '[ "$1" = "install" ] && echo "mise: installing every tool"\n' +
+      'if [ "$1" = "install" ] && [ -n "${WORKSPACE_RUN_TEST_PROMPT:-}" ] && read -r answer; then exit 94; fi\n' +
+      '[ "$1" = "install" ] && echo "mise: downloading $*"\n' +
       'exit 0\n'
   );
   writeExecutable(join(dir, '.bin/infisical'), '#!/usr/bin/env bash\nexit 0\n');
@@ -104,13 +107,14 @@ function checkout() {
   writeFileSync(join(dir, 'package.json'), '{"name":"root"}\n');
   writeFileSync(join(dir, 'apps/product-ts/package.json'), '{"name":"app"}\n');
   const script = (name: string, args: readonly string[] = []) => {
-    return (env: Record<string, string> = {}) => {
+    return (env: Record<string, string> = {}, input?: string) => {
       rmSync(calls, { force: true });
       const result = spawnSync(
         'bash',
         [join(dir, 'libs/tools-harness-ts/workspace', name), ...args],
         {
           encoding: 'utf8',
+          input,
           env: {
             ...process.env,
             HOME: join(dir, 'home'),
@@ -222,10 +226,41 @@ test('setup activates pinned tools and does not install dependencies if tools fa
   expect(result.status).toBe(0);
   expect(result.calls).toEqual([
     'mise trust --quiet mise.toml',
-    'mise install --yes',
+    'mise ls --current --missing --local',
+    'mise install --yes bun',
     'mise env --shell bash',
     INSTALL,
   ]);
+});
+
+// regression: workspace-mise-install-hidden-hang
+test('setup shows tool downloads and cannot wait on a hidden prompt', () => {
+  const { setup } = checkout();
+  // A terminal that would answer: only a closed stdin keeps mise from reading.
+  const result = setup({ WORKSPACE_RUN_TEST_PROMPT: '1' }, 'y\n');
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.stderr).toContain('mise: downloading install --yes bun');
+  expect(result.stdout).toContain('==> installing pinned tools: bun');
+});
+
+// regression: workspace-mise-install-hidden-hang
+test('setup installs only missing pinned tools and skips lazy ones', () => {
+  const { setup } = checkout();
+  const result = setup({
+    WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1',
+    WORKSPACE_RUN_TEST_MISSING:
+      'swift  6.4.0 (lazy)  mise.toml  6.4.0\\nhttp:alloy  6.2.0 (missing)  mise.toml  6.2.0\\n',
+  });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.calls).toContain('mise install --yes http:alloy');
+  const warm = setup({
+    WORKSPACE_RUN_TEST_RECORD_SYSTEM: '1',
+    WORKSPACE_RUN_TEST_MISSING: '',
+  });
+  expect(warm.status, warm.stderr).toBe(0);
+  expect(warm.calls.some((call) => call.startsWith('mise install'))).toBe(
+    false
+  );
 });
 
 // regression: workspace-teardown-foreign-listener

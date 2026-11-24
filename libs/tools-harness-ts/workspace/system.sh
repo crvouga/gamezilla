@@ -60,19 +60,36 @@ workspace_update_mise() {
   fi
 }
 
+# This checkout's pinned tools that are not installed, one name per line.
+# Read offline from mise.toml alone: a workstation's global tools never decide
+# whether this checkout can start. Lazy tools install on first use.
+workspace_missing_tools() {
+  MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise ls --current --missing --local </dev/null 2>/dev/null |
+    awk '$3 != "(lazy)" { print $1 }'
+}
+
 workspace_system() {
-  local status=0 mise_env
+  local status=0 mise_env missing
   workspace_bootstrap_mise || return 1
   # Asked only when mise refuses: a healthy launch runs no extra command.
-  if ! mise trust --quiet mise.toml 2>/dev/null; then
+  if ! mise trust --quiet mise.toml </dev/null 2>/dev/null; then
     workspace_update_mise || true
-    mise trust --quiet mise.toml || return 1
+    mise trust --quiet mise.toml </dev/null || return 1
   fi
-  # lib.sh turns lockfile mode off unless the repository commits mise.lock.
-  mise install --yes || status=$?
+  # Install only what this checkout pins and lacks, so a warm launch touches
+  # no network and a broken global tool cannot stall it. Downloads are long:
+  # their progress stays on the terminal, and stdin is closed so a prompt
+  # fails instead of waiting unseen. lib.sh turns lockfile mode off unless
+  # the repository commits mise.lock.
+  missing="$(workspace_missing_tools)" || return 1
+  if [ -n "$missing" ]; then
+    echo "==> installing pinned tools: $(printf '%s' "$missing" | tr '\n' ' ')"
+    # shellcheck disable=SC2086 # one tool name per word
+    mise install --yes $missing </dev/null >&2 || status=$?
+  fi
   # GUI launchers need not load the user's shell profile. Apply tool paths
   # here, including Bun and Node, before any dependency lifecycle scripts.
-  mise_env="$(mise env --shell bash)" || return 1
+  mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null)" || return 1
   eval "$mise_env"
   return "$status"
 }

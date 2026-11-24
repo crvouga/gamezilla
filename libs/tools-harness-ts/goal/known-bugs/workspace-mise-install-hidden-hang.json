@@ -1,0 +1,4 @@
+{
+  "summary": "Start stack ran `mise install` for every global and pinned tool with its output hidden and the terminal as stdin, so a long download or an unseen prompt looked like a launch that hangs forever after `==> mise install`.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}
