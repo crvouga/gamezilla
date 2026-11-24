@@ -38,11 +38,12 @@ function SpacesEmptyState(props: {
       title={<Trans>No spaces yet</Trans>}
       body={
         <Trans>
-          Start a space to play with friends. Spaces you join show up here.
+          Start one and invite friends to play. Spaces friends share with you
+          show up here too.
         </Trans>
       }
       action={{
-        label: <Trans>Start a space</Trans>,
+        label: <Trans>New space</Trans>,
         onClick: () => props.onCreateSpace(),
       }}
     />

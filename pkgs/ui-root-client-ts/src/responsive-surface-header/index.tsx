@@ -51,9 +51,12 @@ export function ResponsiveSurfaceHeader(
           </h2>
         </Show>
         <Show when={closable()}>
+          {/* Never where focus lands on open: a dialog starts on its own
+              content (`FocusTrap`), so the close control never wears the
+              focus ring before anyone has pressed a key. */}
           <CloseIconButton
             onClick={() => props.onClose()}
-            dataSet={props.closeDataSet}
+            dataSet={{ 'initial-focus': 'skip', ...props.closeDataSet }}
           />
         </Show>
       </div>

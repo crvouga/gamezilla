@@ -123,6 +123,12 @@ const ACTION_SLOT_PX = 48;
 const ROW_SPARE_PX = 32;
 /** The most of row 1 a long title may hold before it is cut short. */
 const TITLE_MAX_SHARE = 0.6;
+/**
+ * The most actions row 1 shows as buttons, at any width: the people in
+ * the space and Share, so a phone and a desktop offer the same controls in
+ * the same places and everything else waits, labelled, in the space menu.
+ */
+const MAX_INLINE_ACTIONS = 2;
 
 /**
  * How many of `count` actions sit in row 1 as buttons when `room` px are
@@ -297,7 +303,7 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
   // and the menu button always show.
   const inline = createMemo(() =>
     spaceInlineActionCount(
-      actions().length,
+      Math.min(actions().length, MAX_INLINE_ACTIONS),
       rowWidth() -
         Math.min(titleWidth(), rowWidth() * TITLE_MAX_SHARE) -
         statusWidth() -

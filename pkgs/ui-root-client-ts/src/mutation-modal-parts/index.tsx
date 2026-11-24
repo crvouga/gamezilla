@@ -104,9 +104,10 @@ export function MutationSuccess(props: {
   return (
     <>
       <StateArea>
+        {/* The surface's title already says the outcome; the state says
+            what it means, once. */}
         <SuccessState
-          title={props.labels.successTitle}
-          body={props.labels.successBody}
+          title={props.labels.successBody ?? props.labels.successTitle}
           dataSet={props.ids.successDataSet}
         />
       </StateArea>
@@ -193,7 +194,12 @@ export function MutationIdle(props: {
           variant={props.destructive ? 'destructive' : 'default'}
           disabled={props.submitDisabled}
           onClick={() => props.onRun()}
-          dataSet={{ action: 'submit', ...props.ids.submitDataSet }}
+          // A destructive confirm opens on Cancel, never on the act itself.
+          dataSet={{
+            action: 'submit',
+            ...(props.destructive ? { 'initial-focus': 'skip' } : {}),
+            ...props.ids.submitDataSet,
+          }}
         />
         <ModalButton
           label={props.labels.cancelLabel ?? t`Cancel`}

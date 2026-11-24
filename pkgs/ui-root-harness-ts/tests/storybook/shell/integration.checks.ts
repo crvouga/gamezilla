@@ -45,10 +45,10 @@ test('storybook integration: screens-space-home--host-choosing has exactly one r
   page,
 }) => {
   await open(page, 'screens-space-home--host-choosing', 390);
-  // One top bar, which says what the screen is and is the space's alone:
+  // One top bar, which names the space on its home and is the space's alone:
   // the app's account menu stays outside a space.
   await expect(page.getByTestId('space-title')).toHaveCount(1);
-  await expect(page.getByTestId('space-title')).toHaveText('Choose game');
+  await expect(page.getByTestId('space-title')).toHaveText('Friday game night');
   const bar = page.locator('[data-space-row="actions"]');
   await expect(bar).toHaveCount(1);
   await expect(

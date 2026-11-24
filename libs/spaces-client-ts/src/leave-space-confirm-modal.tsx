@@ -50,14 +50,15 @@ export function LeaveSpaceConfirmModal(
         <MutationModal
           visible={props.visible}
           onClose={props.onClose}
-          title={<Trans>Leave space?</Trans>}
+          title={<Trans>Leave this space?</Trans>}
           message={
             <Trans>
-              Leave this space on your account. You will leave on every device.
-              You can join again later if the space is still live.
+              You'll leave on all your devices. You can join again while the
+              space is live.
             </Trans>
           }
-          submitLabel={<Trans>Leave</Trans>}
+          submitLabel={<Trans>Leave space</Trans>}
+          variant="destructive"
           operation={operation}
           onSuccess={onSuccess}
           onPhaseChange={onPhaseChange}
@@ -65,7 +66,7 @@ export function LeaveSpaceConfirmModal(
           successTitle={<Trans>You left the space</Trans>}
           successBody={
             <Trans>
-              You can rejoin from the invite link if the space is still live.
+              You can join again from Spaces or the link while it's live.
             </Trans>
           }
           errorTitle={<Trans>Couldn't leave space</Trans>}
@@ -78,14 +79,14 @@ export function LeaveSpaceConfirmModal(
       <MutationModal
         visible={props.visible}
         onClose={props.onClose}
-        title={<Trans>Leave and end the space?</Trans>}
+        title={<Trans>End this space?</Trans>}
         message={
           <Trans>
-            You're the host, so leaving ends the space for everyone. This cannot
-            be undone.
+            You're the host, so leaving ends the space for everyone in it. This
+            can't be undone.
           </Trans>
         }
-        submitLabel={<Trans>Leave and end</Trans>}
+        submitLabel={<Trans>Leave and end space</Trans>}
         variant="destructive"
         operation={operation}
         onSuccess={onSuccess}

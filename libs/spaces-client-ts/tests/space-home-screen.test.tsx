@@ -135,9 +135,10 @@ test('the screen is the catalogue template and launcher, in one shell', () => {
     container.querySelectorAll('[data-component="SpaceLauncher"]')
   ).toHaveLength(1);
   expect(screen.getAllByTestId(Handles.spaceTitle)).toHaveLength(1);
-  // The bar says what this screen is, not which space it is in.
+  // On the space's home the bar names the space, so everyone in it knows
+  // where they are; the stage says what is happening (a game is chosen).
   expect(screen.getByTestId(Handles.spaceTitle).textContent).toBe(
-    'Choose game'
+    'Friday game night'
   );
   // The old list is gone: no menu rows, no second heading for the games.
   expect(

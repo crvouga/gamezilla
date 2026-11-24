@@ -1,49 +1,63 @@
-/* The launcher stage: a status card, then one tile per game, four across
-   on a phone. */
+/* The launcher stage: what is happening, then one card per game. On a
+   phone the cards sit two across; wider stages fit as many as keep each
+   card at least 152px, under a line that stays within reading width. */
 .stage {
   display: flex;
   flex: 1;
   flex-direction: column;
-  gap: var(--ui-space-4);
-  padding: var(--ui-space-4) var(--ui-space-4) var(--ui-space-6);
+  gap: var(--ui-space-5);
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: var(--ui-space-3) var(--ui-space-4) var(--ui-space-6);
 }
 .status {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-1);
-  padding: var(--ui-space-4);
-  border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-card);
-  background: var(--ui-color-surface);
+  max-width: 560px;
 }
 .muted {
   color: var(--ui-color-text-secondary);
 }
+.games {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+}
 .grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--ui-space-5) var(--ui-space-1);
-}
-@media (min-width: 640px) {
-  .grid {
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-  }
+  grid-template-columns: repeat(auto-fill, minmax(152px, 1fr));
+  gap: var(--ui-space-3);
 }
 
+/* One game: a card that is the whole control. */
 .tile {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--ui-space-1);
   min-width: 0;
-  padding: var(--ui-space-1) 0;
-  border: 0;
-  border-radius: var(--ui-radius-control);
-  background: transparent;
+  padding: var(--ui-space-4) var(--ui-space-3) var(--ui-space-3);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
   color: inherit;
   font: inherit;
   text-align: center;
   cursor: pointer;
+  transition:
+    background-color var(--ui-duration-fast) var(--ui-easing-standard),
+    border-color var(--ui-duration-fast) var(--ui-easing-standard),
+    transform var(--ui-duration-fast) var(--ui-easing-standard);
+}
+@media (hover: hover) {
+  .tile:not([aria-disabled="true"]):hover {
+    border-color: var(--ui-color-tint);
+  }
+}
+.tile:not([aria-disabled="true"]):active {
+  transform: scale(0.97);
 }
 .tile:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
@@ -54,14 +68,14 @@
 }
 .art {
   display: inline-flex;
-  margin-bottom: var(--ui-space-1);
+  margin-bottom: var(--ui-space-2);
   border-radius: var(--ui-radius-control);
   transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
 }
-/* The tile the host is on: the accent ring, said in words under it. */
-.tile[data-looking="true"] .art {
-  outline: 2px solid var(--ui-color-tint);
-  outline-offset: 2px;
+/* The tile the host is on: the accent edge, said in words in it. */
+.tile[data-looking="true"] {
+  border-color: var(--ui-color-tint);
+  box-shadow: inset 0 0 0 1px var(--ui-color-tint);
 }
 .tile[data-dimmed="true"] .art {
   opacity: var(--ui-opacity-muted);
@@ -92,7 +106,13 @@
   white-space: nowrap;
 }
 .foot {
-  margin-top: auto;
   color: var(--ui-color-text-secondary);
-  text-align: center;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tile {
+    transition: none;
+  }
+  .tile:not([aria-disabled="true"]):active {
+    transform: none;
+  }
 }

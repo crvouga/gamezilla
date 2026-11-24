@@ -83,7 +83,13 @@ test('an offline invitation explains the connection requirement once', () => {
   const view = mount(() => (
     <Join status="offline" connection="offline" needsConnection />
   ));
+  // Said once, as the screen's own state with the way back, never a
+  // banner over an empty page.
+  expect(
+    view.container.querySelectorAll('[data-testid="spaces-need-connection"]')
+  ).toHaveLength(1);
   expect(
     view.container.querySelectorAll('[data-component="Notice"]')
-  ).toHaveLength(1);
+  ).toHaveLength(0);
+  expect(view.container.textContent).toContain('Back to Spaces');
 });

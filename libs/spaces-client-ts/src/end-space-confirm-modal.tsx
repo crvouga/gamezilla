@@ -23,9 +23,12 @@ export function EndSpaceConfirmModal(
     <MutationModal
       visible={props.visible}
       onClose={props.onClose}
-      title={<Trans>End space?</Trans>}
+      title={<Trans>End this space?</Trans>}
       message={
-        <Trans>Everyone will leave this space. This cannot be undone.</Trans>
+        <Trans>
+          Everyone in it leaves and the space closes for good. This can't be
+          undone.
+        </Trans>
       }
       submitLabel={<Trans>End space</Trans>}
       variant="destructive"
@@ -33,7 +36,7 @@ export function EndSpaceConfirmModal(
       onSuccess={onSuccess}
       loadingLabel={<Trans>Ending space…</Trans>}
       successTitle={<Trans>Space ended</Trans>}
-      successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
+      successBody={<Trans>Everyone in it is back in Spaces.</Trans>}
       errorTitle={<Trans>Couldn't end space</Trans>}
       stackId="end-space-confirm"
       submitDataSet={{ testid: Handles.spaceEndConfirm }}

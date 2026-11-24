@@ -187,7 +187,9 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
       visible={props.visible}
       onClose={surfaceClose}
       closable
-      title={props.title}
+      // Once it is done the question is answered: the surface is titled with
+      // the outcome ("Space ended"), never still asking "End space?".
+      title={lifecycle.phase() === 'success' ? props.successTitle : props.title}
       presentation="modal"
       stackId={props.stackId}
       dataSet={{ component: 'MutationModal', ...props.dataSet }}

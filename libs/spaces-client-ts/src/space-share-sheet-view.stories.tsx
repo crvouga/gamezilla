@@ -1,4 +1,4 @@
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
+import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
@@ -115,11 +115,18 @@ export const SearchDenied: Story = {
     withSlots(args, {
       addPeople: () =>
         addPeople({ status: 'idle' }, () => (
-          <EmptyState
+          <DenialSurfaceView
             variant="compact"
-            icon={KeyRoundIcon}
-            title="Sign in to find people"
-            body="Searching people needs an account."
+            denial={{
+              icon: KeyRoundIcon,
+              title: 'Sign in to find people',
+              body: 'Searching people needs an account. Copy the link to invite anyone now.',
+              action: { label: 'Sign in', onPress: fn() },
+              dataSet: {
+                testid: 'permission-denial',
+                reason: 'requires_account',
+              },
+            }}
           />
         )),
     }),

@@ -54,8 +54,8 @@ function useCopy(props: SpaceLauncherProps) {
       : t`Pick a game for ${props.present} players`;
   const guestHint = () =>
     suggests()
-      ? t`You join when the game starts. Tap a game to suggest it.`
-      : t`You join when the game starts.`;
+      ? t`You'll join as soon as it starts. Tap a game to suggest it.`
+      : t`You'll join as soon as it starts.`;
   const guestFoot = () =>
     suggests()
       ? t`Only the host starts a game. Dimmed games don't fit ${props.present} players.`
@@ -64,11 +64,13 @@ function useCopy(props: SpaceLauncherProps) {
     status: () => (host() ? picking() : choosing()),
     hint: () =>
       host()
-        ? t`Tap a game to set it up. Modes and bots come next.`
+        ? t`Choose one to set it up. You'll pick its mode and any bots next.`
         : guestHint(),
     section: () => (host() || !suggests() ? t`Games` : t`Suggest a game`),
     foot: () =>
-      host() ? t`Guests see which game you're looking at.` : guestFoot(),
+      host()
+        ? t`Everyone here sees which game you're looking at.`
+        : guestFoot(),
   };
 }
 
@@ -108,23 +110,26 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
         </h2>
         <p class={`text textBody ${styles['muted']}`}>{copy.hint()}</p>
       </section>
-      <section class={styles['grid']} aria-label={copy.section()}>
-        <For each={props.games}>
-          {(game) => (
-            <SpaceLauncherTile
-              game={game}
-              role={props.role}
-              present={props.present}
-              hostName={props.hostName}
-              looking={props.role === 'guest' && props.lookingAt === game.key}
-              onPress={press(game.key)}
-            />
-          )}
-        </For>
+      <section class={styles['games']} aria-label={copy.section()}>
+        <div class={styles['grid']}>
+          <For each={props.games}>
+            {(game) => (
+              <SpaceLauncherTile
+                game={game}
+                role={props.role}
+                present={props.present}
+                hostName={props.hostName}
+                looking={props.role === 'guest' && props.lookingAt === game.key}
+                onPress={press(game.key)}
+              />
+            )}
+          </For>
+        </div>
+        {/* What the choice means, right under the games it is about. */}
+        <Show when={props.games.length > 0}>
+          <p class={`text textCaption ${styles['foot']}`}>{copy.foot()}</p>
+        </Show>
       </section>
-      <Show when={props.games.length > 0}>
-        <p class={`text textCaption ${styles['foot']}`}>{copy.foot()}</p>
-      </Show>
     </div>
   );
 }

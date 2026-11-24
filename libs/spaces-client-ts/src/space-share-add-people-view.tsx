@@ -53,9 +53,7 @@ function SpaceAdditionState(props: {
             variant="compact"
             title={<Trans>{added().name} added</Trans>}
             body={
-              <Trans>
-                They can find this space in their lobby and choose Join.
-              </Trans>
+              <Trans>They'll find it in Spaces, under Shared with you.</Trans>
             }
             dataSet={{ testid: Handles.spaceAddSuccess }}
           />

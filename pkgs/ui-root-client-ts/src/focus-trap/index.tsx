@@ -32,8 +32,24 @@ export type FocusTrapProps = {
 const COVER_HOST_CLASS = 'absolute inset-0 flex-1';
 const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
 
+/**
+ * Where focus lands on activate: what asked for it (`autofocus`, a name
+ * field), else the first tabbable control that is not the surface's own
+ * close button (`data-initial-focus="skip"`), else the dialog itself, so a
+ * confirm opens on its content and never on its X.
+ */
 function focusInto(host: HTMLElement): void {
-  const first = collectTabbable(host)[0];
+  if (host.contains(document.activeElement) && document.activeElement !== host)
+    return;
+  const asked = host.querySelector('[autofocus]');
+  if (asked instanceof HTMLElement) {
+    asked.focus();
+    return;
+  }
+  const tabbable = collectTabbable(host);
+  const first = tabbable.find(
+    (el) => el.closest('[data-initial-focus="skip"]') === null
+  );
   if (first !== undefined) first.focus();
   else host.focus();
 }

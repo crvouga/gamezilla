@@ -51,8 +51,11 @@ function SpaceShareLinkSection(props: {
   return (
     <StackVertical gap="sm">
       <H3 size="label">
-        <Trans>Link</Trans>
+        <Trans>Invite with a link</Trans>
       </H3>
+      <P variant="caption">
+        <Trans>Anyone with the link can join while you're both online.</Trans>
+      </P>
       <Button {...copyButton.buttonProps} />
     </StackVertical>
   );
@@ -70,11 +73,11 @@ function SpaceShareUserRow(props: {
       paddingY="sm"
       minHeight="row"
     >
-      <SpacePersonAvatar person={props.person} size={44} />
-      <StackVertical grow>
-        <SpacePersonName person={props.person} variant="bodyBold" lines={1} />
+      <SpacePersonAvatar person={props.person} size={40} />
+      <StackVertical grow shrink>
+        <SpacePersonName person={props.person} variant="rowTitle" lines={1} />
       </StackVertical>
-      {props.trailing}
+      <StackHorizontal align="center">{props.trailing}</StackHorizontal>
     </StackHorizontal>
   );
 }
@@ -102,6 +105,8 @@ function PeopleAccessRow(props: {
             <Button
               onClick={() => props.onRemove()}
               size="sm"
+              intent="neutral"
+              variant="outline"
               dataSet={{ testid: Handles.spaceRemovePerson(props.person.id) }}
               title={<Trans>Remove</Trans>}
             />
@@ -120,8 +125,7 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
       </H3>
       <P variant="caption">
         <Trans>
-          Added people find this space in their lobby and choose Join. Anyone
-          with the space link can also join.
+          People you add find this space in Spaces, under Shared with you.
         </Trans>
       </P>
       <Show when={props.peopleStatus === 'loading'}>
@@ -131,7 +135,7 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
         <EmptyState
           variant="compact"
           title={<Trans>No one added yet</Trans>}
-          body={<Trans>Share the space link to invite people.</Trans>}
+          body={<Trans>Copy the link above to invite people.</Trans>}
         />
       </Show>
       <Show when={props.people.length > 0}>

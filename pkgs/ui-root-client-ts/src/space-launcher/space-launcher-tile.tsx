@@ -120,9 +120,11 @@ export function SpaceLauncherTile(props: {
       onClick={() => press()?.()}
     >
       <span class={styles['art']}>
-        <GameTile motif={props.game.motif} size="lg" />
+        <GameTile motif={props.game.motif} size="xl" />
       </span>
-      <span class={`text textLabel ${styles['name']}`}>{props.game.name}</span>
+      <span class={`text textBodyBold ${styles['name']}`}>
+        {props.game.name}
+      </span>
       <TileMark
         game={props.game}
         fit={fit()}

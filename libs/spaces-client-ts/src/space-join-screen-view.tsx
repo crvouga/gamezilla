@@ -1,20 +1,30 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Card } from '@pkgs/ui-root-client-ts/card';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
+import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
+import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { Gamepad2Icon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from 'solid-js';
-import { Match, Show, Switch } from 'solid-js';
+import { Index, Match, Show, Switch } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
-import { SpaceGuestsView, SpaceSummaryView } from './space-card-view';
+import {
+  SpaceBadgeView,
+  SpaceGuestsPhrase,
+  SpaceHostPhrase,
+} from './space-card-view';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
+import { SpaceMarkView } from './space-mark';
+import type { SpacePerson } from './space-person-view';
+import { SpacePersonAvatar } from './space-person-view';
 import { SpacesNeedConnectionNotice } from './spaces-notices';
 
 /** What the viewer's device knows about a space it is not in (not ended). */
@@ -83,10 +93,13 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
   );
 }
 
-/** Join, or — while the host is away — Leave for someone on its list. */
+/**
+ * Join; while the host is away, the way back to Spaces instead, and Leave
+ * for someone on the space's list.
+ */
 function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
   return (
-    <StackHorizontal>
+    <StackHorizontal gap="sm">
       <Show
         when={props.connection === 'host-offline'}
         fallback={<SpaceJoinButton {...props} />}
@@ -101,12 +114,103 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
             onClick={() => props.onLeave()}
           />
         </Show>
+        <Button
+          title={<Trans>Back to Spaces</Trans>}
+          flex={1}
+          onClick={() => props.onBackToSpaces()}
+        />
       </Show>
     </StackHorizontal>
   );
 }
 
-/** Live (not joined) preview: summary card and helper copy. */
+const JOIN_FACE_SIZE = 32;
+const JOIN_FACES_SHOWN = 6;
+
+/** Who is in the space now: their faces, then who they are in words. */
+function SpaceJoinWhoIsHere(props: {
+  readonly guests: readonly SpacePerson[];
+}): JSX.Element {
+  const { t } = useLingui();
+  const count = (): string => {
+    const n = props.guests.length;
+    return n === 1 ? t`1 person here` : t`${n} people here`;
+  };
+  return (
+    <StackVertical gap="sm">
+      <Text variant="sectionLabel" tone="secondary">
+        <Show
+          when={props.guests.length > 0}
+          fallback={<Trans>No one else here yet</Trans>}
+        >
+          {count()}
+        </Show>
+      </Text>
+      <Show when={props.guests.length > 0}>
+        <StackHorizontal align="center" gap="sm">
+          <AvatarGroup
+            size={JOIN_FACE_SIZE}
+            maxVisible={JOIN_FACES_SHOWN}
+            ringColor="surface"
+          >
+            <Index each={props.guests}>
+              {(guest) => (
+                <SpacePersonAvatar person={guest()} size={JOIN_FACE_SIZE} />
+              )}
+            </Index>
+          </AvatarGroup>
+          <StackVertical grow shrink>
+            <P variant="caption" lines={1}>
+              <SpaceGuestsPhrase guests={props.guests} />
+            </P>
+          </StackVertical>
+        </StackHorizontal>
+      </Show>
+    </StackVertical>
+  );
+}
+
+/**
+ * The invitation: the space's mark, name and host with its Live tag, then
+ * who is in it, in one card, so a person sees what they are joining.
+ */
+function SpaceJoinInvitation(props: {
+  readonly space: SpaceCardData;
+}): JSX.Element {
+  return (
+    <Card>
+      <StackVertical gap="lg">
+        <StackHorizontal align="center" gap="md">
+          <SpaceMarkView
+            spaceId={props.space.spaceId}
+            title={props.space.title}
+            size="lg"
+          />
+          <StackVertical grow shrink gap="xs">
+            <H2 size="subtitle" lines={2}>
+              {props.space.title}
+            </H2>
+            <StackHorizontal align="center" gap="xs">
+              <Show when={props.space.host} keyed>
+                {(host) => <SpacePersonAvatar person={host} size={20} />}
+              </Show>
+              <StackVertical shrink>
+                <P variant="caption" lines={1}>
+                  <SpaceHostPhrase space={props.space} />
+                </P>
+              </StackVertical>
+            </StackHorizontal>
+          </StackVertical>
+          <SpaceBadgeView badge={props.space.badge} />
+        </StackHorizontal>
+        <Divider />
+        <SpaceJoinWhoIsHere guests={props.space.guests} />
+      </StackVertical>
+    </Card>
+  );
+}
+
+/** Live (not joined): the invitation and what joining does. */
 function SpaceJoinLiveBody(props: {
   readonly space: SpaceCardData | null;
   readonly checkingHost: boolean;
@@ -114,18 +218,16 @@ function SpaceJoinLiveBody(props: {
   return (
     <StackVertical gap="lg">
       <Show when={props.space}>
-        {(space) => (
-          <Card>
-            <SpaceSummaryView space={space()} />
-            <SpaceGuestsView guests={space().guests} />
-          </Card>
-        )}
+        {(space) => <SpaceJoinInvitation space={space()} />}
       </Show>
       <Show
         when={props.checkingHost}
         fallback={
           <P tone="secondary">
-            <Trans>Join to see who is here and hang out.</Trans>
+            <Trans>
+              Join to play together. You'll go straight to whatever the space is
+              doing.
+            </Trans>
           </P>
         }
       >
@@ -153,7 +255,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <EmptyState
           icon={Gamepad2Icon}
           title={t`You can't join this space`}
-          body={t`Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right.`}
+          body={t`Ask the host to send you the space's link or to add you, then try again.`}
           action={back}
         />
       </Match>
@@ -167,7 +269,13 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         />
       </Match>
       <Match when={props.status === 'offline'}>
-        <SpacesNeedConnectionNotice />
+        <EmptyState
+          icon={WifiOffIcon}
+          title={t`You're offline`}
+          body={t`Joining someone's space needs a connection. Your own spaces still work offline.`}
+          action={back}
+          dataSet={{ testid: Handles.spacesNeedConnection }}
+        />
       </Match>
       <Match when={props.status === 'live'}>
         <SpaceJoinLiveBody
@@ -209,7 +317,12 @@ export function SpaceJoinScreenView(
           when={props.status === 'live' && props.connection === 'host-offline'}
           fallback={<JoinPromptBody {...props} />}
         >
-          <SpaceHostOfflineNotice />
+          <StackVertical gap="lg">
+            <SpaceHostOfflineNotice />
+            <Show when={props.space}>
+              {(space) => <SpaceJoinInvitation space={space()} />}
+            </Show>
+          </StackVertical>
         </Show>
       </StackVertical>
     </ContentScreen>
