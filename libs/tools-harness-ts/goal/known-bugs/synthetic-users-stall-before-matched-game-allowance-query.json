@@ -1,0 +1,4 @@
+{
+  "summary": "Two synthetic users stayed on the Spaces tab after opening matchmaking and never started a search. The failure reproduced with the daily matched-game allowance query at fb8e798 and disappeared when that query was removed. The same journey passes with the current query implementation.",
+  "regressionTest": "apps/synthetic-population-worker-ts/tests/application-realm.test.ts"
+}
