@@ -10,6 +10,10 @@ import {
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorHtml } from '@libs/harness-ts/observations';
 import type { DeviceMutations } from '@libs/harness-ts/webview-mutations';
+import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared-ts/permission-policy';
+import type { Decision } from '@pkgs/permissions-shared-ts/decision';
+import { resolveUnlockRef } from '@pkgs/permissions-shared-ts/decision';
+import { policyAt } from '@pkgs/permissions-shared-ts/policy';
 import { awaitMutationVerdict } from '@pkgs/sync-engine-client-ts/await-mutation-verdict';
 import { createMutationClient } from '@pkgs/sync-engine-client-ts/create-mutation-client';
 import type {
@@ -164,4 +168,33 @@ export async function multiplayerRefusalCode(
     /<[^>]*data-testid="multiplayer-command-denial"[^>]*>/
   )?.[0];
   return tag?.match(/data-reason="([^"]+)"/)?.[1] ?? null;
+}
+
+/**
+ * Whether the person was last invited to sign in: the refusal of their last
+ * command, whose decision's way forward (as the shipped policy configures
+ * it) is signing in, or the sign-in action on the denial the screen shows.
+ */
+export async function multiplayerSignInInvited(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  const reply = multiplayerCommandReply(s, actor);
+  if (reply !== null) {
+    const decision = reply.result.ok
+      ? undefined
+      : (reply.result.failures[0]?.meta?.['decision'] as Decision | undefined);
+    if (decision?.unlockRef === undefined) return false;
+    return (
+      resolveUnlockRef(
+        policyAt(DEFAULT_PERMISSION_POLICY, s.harness.clock.now()),
+        decision.unlockRef
+      )?.ctaTarget === 'signup'
+    );
+  }
+  const denial = (await actorUi(s, actor)).get('multiplayer-command-denial');
+  return (
+    (await denial.isVisible()) &&
+    ((await denial.text()) ?? '').includes('Sign in')
+  );
 }

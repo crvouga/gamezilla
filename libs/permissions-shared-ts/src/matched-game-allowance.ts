@@ -1,3 +1,4 @@
+import { isGuestUser } from '@libs/auth-shared-ts/anon-user-service';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import {
   decideLimit,
@@ -17,6 +18,7 @@ import { unitsSince } from './ledger-time';
 import type { AppLimit, AppPolicyKey } from './permission-catalog';
 import { ACTION, LIMIT } from './permission-catalog';
 import { MATCHED_GAMES_LEFT_SHOWN_AT } from './permission-policy';
+import type { AccessIdentity, AccessReader } from './read-access';
 import { readAccess } from './read-access';
 
 /**
@@ -86,6 +88,77 @@ export function matchedGamesLeftShown(
       amount: left + 1,
     }),
   };
+}
+
+/** Today's matched game allowance of `identity`, from their synced access. */
+async function allowanceOf(
+  tx: AccessReader,
+  identity: AccessIdentity,
+  at: {
+    readonly startedAt: readonly unknown[];
+    readonly nowMs: number;
+    readonly clientAtMs: number;
+  }
+): Promise<Decision> {
+  const access = await readAccess(tx, identity, at.nowMs);
+  const policy = policyAt(access.policy, at.clientAtMs);
+  return decideMatchedGameAllowance(
+    policy,
+    resolveSubject(policy, access.facts, []),
+    { startedAt: at.startedAt, nowMs: at.nowMs }
+  );
+}
+
+/**
+ * Throws a permanent `MutationError` (code = the denial reason, meta = the
+ * decision, whose way forward is signing in) when the actor, who began
+ * matched games at `startedAt`, has used today's matched game allowance.
+ */
+export async function requireMatchedGameAllowanceInMutation(
+  ctx: { readonly tx: MutationDb; readonly env: MutationEnv },
+  startedAt: readonly unknown[]
+): Promise<void> {
+  const nowMs = (ctx.env.serverNow ?? ctx.env.now)().getTime();
+  const decision = await allowanceOf(ctx.tx, ctx.env, {
+    startedAt,
+    nowMs,
+    clientAtMs: Math.min(ctx.env.now().getTime(), nowMs),
+  });
+  if (decision.allowed) return;
+  throw new MutationError(
+    decision.reason ?? 'quota_exhausted',
+    `Quota ${ACTION.matchedGameStart} denied.`,
+    { decision }
+  );
+}
+
+/**
+ * Whether another person, who began matched games at `startedAt`, may begin
+ * one more today: a guest within today's matched game allowance, or an
+ * account. Someone unknown here (never signed in on this server) is decided
+ * as an account.
+ */
+export async function otherPersonHasMatchedGameLeft(
+  tx: MutationDb,
+  person: {
+    readonly id: string;
+    readonly startedAt: readonly unknown[];
+    readonly nowMs: number;
+  }
+): Promise<boolean> {
+  const guest = (await isGuestUser(tx, person.id)) === true;
+  const identity: AccessIdentity = {
+    actorId: person.id,
+    accountId: guest ? null : person.id,
+    isAnon: guest,
+  };
+  return (
+    await allowanceOf(tx, identity, {
+      startedAt: person.startedAt,
+      nowMs: person.nowMs,
+      clientAtMs: person.nowMs,
+    })
+  ).allowed;
 }
 
 /**

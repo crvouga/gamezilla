@@ -62,8 +62,8 @@ test('the five features in release part 113 retain all 138 cases across bounded 
   const parts = partsOf(units, 190);
   // Includes every pinned game history for each enrolled variant, and
   // secret-choices' twelve files weighed by their measured nightly cost.
-  expect(units.reduce((sum, unit) => sum + unit.weight, 0)).toBe(5947);
-  expect(partLoad(units).load).toBe(5495);
+  expect(units.reduce((sum, unit) => sum + unit.weight, 0)).toBe(5965);
+  expect(partLoad(units).load).toBe(5513);
   expect(
     parts
       .flat()

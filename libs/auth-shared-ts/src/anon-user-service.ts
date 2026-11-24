@@ -39,6 +39,21 @@ export type EnsureAnonUserResult = {
   readonly leftAccountIds: readonly string[];
 };
 
+/**
+ * Whether `userId` is a guest (an anonymous user): `null` when no such user
+ * exists here. Read only; it mints nothing.
+ */
+export async function isGuestUser(
+  db: Pick<SqlTx, 'query'>,
+  userId: string
+): Promise<boolean | null> {
+  const rows = await db.query(sql<{ readonly is_anon: unknown }>`
+    SELECT is_anon FROM auth_users WHERE id = ${userId} AND deleted_at IS NULL LIMIT 1
+  `);
+  const row = rows[0];
+  return row === undefined ? null : isAnonFlag(row.is_anon);
+}
+
 /** Transaction-scoped anon user helpers. Open a transaction in a use case. */
 export class AnonUserService {
   constructor(

@@ -81,7 +81,7 @@ Given(
 );
 
 Then(
-  "{actor} is told no new matched game can start because today's allowance is used",
+  "{actor} is told no new matched game can start because today's matched game allowance is used",
   async (w, actor: string) => {
     // The server decides the allowance, so its refusal arrives after the seek.
     expect(
