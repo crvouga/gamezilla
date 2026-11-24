@@ -32,7 +32,9 @@ export function FrameResultView(props: {
       id: standing.id,
       place: standing.place,
       ordinal: tied() ? t`Tied` : undefined,
-      name: standing.name,
+      // The viewer's own row reads "You", as the headline ("You win")
+      // and every space screen say it.
+      name: standing.you ? t`You` : standing.name,
       score: standing.score,
       you: standing.you,
       testId: standing.testId,

@@ -287,9 +287,12 @@ function SpaceJoinInvitation(props: {
           <SpaceJoinStatusTag space={props.space} host={props.host} />
         </StackHorizontal>
         <Divider />
+        {/* Before joining, who is here means the others: the viewer is
+            neither counted nor named until they are in. */}
         <SpaceJoinWhoIsHere
-          guests={props.space.guests}
-          viewerId={props.space.viewerId}
+          guests={props.space.guests.filter(
+            (guest) => guest.id !== props.space.viewerId
+          )}
           lastKnown={props.host === 'offline' || props.host === 'unknown'}
         />
       </StackVertical>

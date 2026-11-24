@@ -149,15 +149,13 @@ export function PuzzlesHomeView(
         <Show when={props.feed.status === 'ready'}>
           <StackVertical gap="sm">
             <Button
-              title={<Trans>Done</Trans>}
+              title={<Trans>Save settings</Trans>}
               fullWidth
               onClick={() => props.feed.onDone()}
               dataSet={{ testid: Handles.chessPuzzleFeedDone }}
             />
             <P variant="caption" tone="secondary" align="center">
-              <Trans>
-                Done saves these settings. Going back keeps the feed as it was.
-              </Trans>
+              <Trans>Going back instead keeps the feed as it was.</Trans>
             </P>
           </StackVertical>
         </Show>

@@ -29,6 +29,8 @@ export type SpaceShareSheetViewProps = {
   /** People with access, host included. */
   readonly people: readonly SpacePerson[];
   readonly hostId: string | null;
+  /** The viewer's own id: their row reads "You". */
+  readonly viewerId?: string | undefined;
   readonly onRemovePerson: (person: SpacePerson) => void;
   /** A confirm the sheet owns, such as removing a person. */
   readonly overlay?: JSX.Element;
@@ -36,6 +38,8 @@ export type SpaceShareSheetViewProps = {
 
 function SpaceShareLinkSection(props: {
   readonly onCopyLink: () => Promise<void>;
+  /** The viewer hosts: the link works while they are online. */
+  readonly youHost: boolean;
 }): JSX.Element {
   const { t } = useLingui();
   const copyButton = useMutationButton({
@@ -53,7 +57,16 @@ function SpaceShareLinkSection(props: {
         <Trans>Invite with a link</Trans>
       </H3>
       <P variant="caption">
-        <Trans>Anyone with the link can join while the host is online.</Trans>
+        <Show
+          when={props.youHost}
+          fallback={
+            <Trans>
+              Anyone with the link can join while the host is online.
+            </Trans>
+          }
+        >
+          <Trans>Anyone with the link can join while you're online.</Trans>
+        </Show>
       </P>
       <Button {...copyButton.buttonProps} />
     </StackVertical>
@@ -63,6 +76,8 @@ function SpaceShareLinkSection(props: {
 function SpaceShareUserRow(props: {
   readonly person: SpacePerson;
   readonly trailing: JSX.Element | null;
+  /** The viewer's own row: "You", as People and Join say it. */
+  readonly you?: boolean | undefined;
 }): JSX.Element {
   return (
     <StackHorizontal
@@ -74,7 +89,20 @@ function SpaceShareUserRow(props: {
     >
       <SpacePersonAvatar person={props.person} size={40} />
       <StackVertical grow shrink>
-        <SpacePersonName person={props.person} variant="rowTitle" lines={1} />
+        <Show
+          when={props.you === true}
+          fallback={
+            <SpacePersonName
+              person={props.person}
+              variant="rowTitle"
+              lines={1}
+            />
+          }
+        >
+          <P variant="rowTitle" lines={1}>
+            <Trans>You</Trans>
+          </P>
+        </Show>
       </StackVertical>
       <StackHorizontal align="center">{props.trailing}</StackHorizontal>
     </StackHorizontal>
@@ -83,17 +111,25 @@ function SpaceShareUserRow(props: {
 
 function PeopleAccessRow(props: {
   readonly person: SpacePerson;
+  readonly you: boolean;
   readonly isHost: boolean;
   readonly canManage: boolean;
   readonly onRemove: () => void;
 }): JSX.Element {
   return (
     <Switch
-      fallback={<SpaceShareUserRow person={props.person} trailing={null} />}
+      fallback={
+        <SpaceShareUserRow
+          person={props.person}
+          you={props.you}
+          trailing={null}
+        />
+      }
     >
       <Match when={props.isHost}>
         <SpaceShareUserRow
           person={props.person}
+          you={props.you}
           trailing={<HostBadge size="sm" />}
         />
       </Match>
@@ -146,6 +182,7 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
             {(person) => (
               <PeopleAccessRow
                 person={person}
+                you={props.viewerId === person.id}
                 isHost={props.hostId === person.id}
                 canManage={props.canManage}
                 onRemove={() => props.onRemovePerson(person)}
@@ -190,7 +227,12 @@ export function SpaceShareSheetView(
       {/* The sheet grows with the window and scrolls as one, so the people
           list is never cut mid-row while the window has room. */}
       <StackVertical gap="md">
-        <SpaceShareLinkSection onCopyLink={props.onCopyLink} />
+        <SpaceShareLinkSection
+          onCopyLink={props.onCopyLink}
+          youHost={
+            props.viewerId !== undefined && props.viewerId === props.hostId
+          }
+        />
         <Show when={props.canManage}>{props.addPeople}</Show>
         <SpaceSharePeopleList {...props} />
         {props.overlay}

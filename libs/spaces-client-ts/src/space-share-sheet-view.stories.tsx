@@ -68,6 +68,8 @@ const meta = {
     peopleStatus: 'ready',
     people: [AVERY, JORDAN, PLAYBOT],
     hostId: AVERY.id,
+    // The story's viewer is avery, the host: their row reads "You".
+    viewerId: AVERY.id,
     onRemovePerson: fn(),
   },
   render: (args) =>
@@ -81,7 +83,7 @@ export const Host: Story = {};
 
 /** A guest: the link and who has access, nothing to manage. */
 export const Guest: Story = {
-  args: { canManage: false },
+  args: { canManage: false, viewerId: JORDAN.id },
   render: (args) => withSlots(args, {}),
 };
 

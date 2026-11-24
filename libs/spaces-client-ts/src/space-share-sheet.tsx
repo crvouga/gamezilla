@@ -1,3 +1,4 @@
+import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { createMemo, createSignal, type JSX, Show } from 'solid-js';
 import { RemoveSpacePersonModal } from './remove-space-person-modal';
@@ -24,6 +25,7 @@ function spaceShareUrl(spaceId: string): string {
 
 /** Wires {@link SpaceShareSheetView} to the space's people and its link. */
 export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
+  const myId = useMyId();
   const canManageMembers = useSpaceCan(
     () => props.spaceId,
     PERMISSION.spacesManageMembers
@@ -48,6 +50,7 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
       peopleStatus={isLoading() ? 'loading' : 'ready'}
       people={people()}
       hostId={host()?.profileId ?? null}
+      viewerId={myId() === '' ? undefined : myId()}
       onRemovePerson={setRemoving}
       overlay={
         <Show when={removing()} keyed>
