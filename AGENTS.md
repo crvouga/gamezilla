@@ -115,6 +115,29 @@ Codex reads and `.claude/skills` links for Claude Code. Update them with
 `bunx skills update`, never by hand. Repo-wide lint rules stay Biome plugins
 (`libs/tools-harness-ts/biome-plugins/*.grit`), not ast-grep rules.
 
+## pstack
+
+[pstack](https://github.com/cursor/plugins/tree/main/pstack) is installed as
+project skills in `.agents/skills` (Codex, Cursor, Gemini CLI, OpenCode,
+Copilot), linked from `.claude/skills` for Claude Code, and recorded in
+`skills-lock.json`. Start rigorous work with `/poteto-mode` (playbooks, then
+the other skills as steps need them); `/poteto-help` routes a question to the
+right skill. Its Claude Code subagents are `.claude/agents/poteto-agent.md`
+and `.claude/agents/comment-sicko.md`; its guide and harness adapters are in
+`.agents/docs/`.
+
+- pstack skills use Cursor names (`Task`, `AskQuestion`, `generalPurpose`,
+  Cursor model slugs). Outside Cursor, read
+  [`.agents/docs/harness/claude-code.md`](.agents/docs/harness/claude-code.md)
+  once per session and map those names to your harness's equivalents. Here
+  `<pstack>` is `.agents`, and skills and subagents carry no `pstack:` prefix
+  (`/poteto-mode`, `poteto-agent`).
+- This repository's rules win over a pstack playbook: verification, PR flow
+  and merge are as stated above.
+- Update with `bunx skills update <skill>…`, never by hand; when a skill gains
+  files that fail `lint:naming` or Biome, add it to `NAMING_EXEMPT` and the
+  Biome excludes, as for the other third-party skills.
+
 ## Debugging
 
 Bug reports people send become GitHub issues, each linking its full report;
