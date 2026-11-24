@@ -13,6 +13,7 @@ Feature: The Puzzle Assistant explains why nothing happens from an earlier posit
   Rule: The assistant explains that the solver is reviewing an earlier position
     No counter-example: from the current position the move, hint or shown solution goes ahead, as every game's puzzles show.
 
+    @regression:named-puzzle-already-on-board
     Scenario: A move from an earlier position is explained
       When Alice tries a move from that earlier position
       Then Alice's assistant explains that they are reviewing an earlier position
