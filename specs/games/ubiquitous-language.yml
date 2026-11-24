@@ -1418,10 +1418,11 @@ terms:
       toward the same 10. Only a matched game that got under way counts:
       seeking, stopping a search and a matched game aborted before it was
       under way use none of it. With 3 or fewer left the guest is shown how
-      many remain; past it they cannot seek an opponent and are invited to
-      sign in to keep playing, while a matched game already begun goes on. A
-      new day, from midnight UTC, brings a fresh allowance.
-    forms: [today's matched game allowance, matched games started today, matched games remain today]
+      many remain; past it they cannot seek an opponent or have a rematch
+      and are invited to sign in to keep playing, while a matched game
+      already begun goes on. A new day, from midnight UTC, brings a fresh
+      allowance.
+    forms: [matched game allowance, today's matched game allowance, daily matched game allowance, matched games started today, matched games remain today]
     avoid: [matchmaking quota]
 
   - term: daily puzzle limit

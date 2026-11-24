@@ -2,7 +2,7 @@
 Feature: The daily matched game allowance for guests
   When a guest wants another opponent, they want to play freely and know
   before the limit how to keep playing, so the limit never costs them a game
-  they began. The limit is one allowance for every game offering matched
+  they began. The limit is one matched game allowance for every game offering matched
   games, so its rule about another game applies when at least two games offer
   them.
 
@@ -13,43 +13,44 @@ Feature: The daily matched game allowance for guests
       When Alice seeks an opponent for the game
       Then Alice can stop seeking an opponent
 
-    Scenario: A guest past today's allowance is invited to sign in
+    Scenario: A guest past today's matched game allowance is invited to sign in
       Given Alice is a guest who has started 10 matched games today
       When Alice seeks an opponent for the game
-      Then Alice is told no new matched game can start because today's allowance is used
+      Then Alice is told no new matched game can start because today's matched game allowance is used
       And Alice is invited to sign in
       And Alice is not waiting for an opponent
 
-  Rule: Matched games of every game count toward the same daily allowance
+  Rule: Matched games of every game count toward the same daily matched game allowance
 
     Scenario: A guest's tenth matched game of the day can be sought after matched games of another game
       Given Alice is a guest who has started 9 matched games of another game today
       When Alice seeks an opponent for the game
       Then Alice can stop seeking an opponent
 
-    Scenario: A guest who used today's allowance in another game cannot seek an opponent for the game
+    Scenario: A guest who used today's matched game allowance in another game cannot seek an opponent for the game
       Given Alice is a guest who has started 10 matched games of another game today
       When Alice seeks an opponent for the game
-      Then Alice is told no new matched game can start because today's allowance is used
+      Then Alice is told no new matched game can start because today's matched game allowance is used
       And Alice is not waiting for an opponent
 
-  Rule: Only matched games that got under way use the allowance
+  Rule: Only matched games that got under way use the matched game allowance
     No counter-example: a matched game under way is counted, which is the first rule's refusal.
 
-    Scenario: A matched game aborted before it was under way uses none of the allowance
+    Background:
       Given Alice is a guest who has started 9 matched games today
-      And Alice's matched game with Bob was aborted before it was under way
+
+    Scenario: A matched game aborted before it was under way uses none of the matched game allowance
+      Given Alice's matched game with Bob was aborted before it was under way
       When Alice seeks an opponent for the game
       Then Alice can stop seeking an opponent
 
-    Scenario: A search that was stopped uses none of the allowance
-      Given Alice is a guest who has started 9 matched games today
-      And Alice has stopped seeking an opponent
+    Scenario: A search that was stopped uses none of the matched game allowance
+      Given Alice has stopped seeking an opponent
       When Alice seeks an opponent for the game
       Then Alice can stop seeking an opponent
 
-  Rule: Reaching the allowance never interrupts a matched game
-    No counter-example: the allowance only refuses seeking an opponent, never a matched game already begun.
+  Rule: Reaching the matched game allowance never interrupts a matched game
+    No counter-example: the matched game allowance only refuses a new matched game, never one already begun.
 
     Scenario: A guest's tenth matched game of the day goes on
       Given Alice is a guest who has started 9 matched games today
@@ -69,7 +70,7 @@ Feature: The daily matched game allowance for guests
       When Alice opens finding an opponent
       Then Alice is not shown how many matched games remain today
 
-  Rule: A new day brings a fresh allowance
+  Rule: A new day brings a fresh matched game allowance
     No counter-example: matched games started today are the first rule's refusal.
 
     Scenario: Matched games started before today do not count
@@ -78,7 +79,7 @@ Feature: The daily matched game allowance for guests
       Then Alice can stop seeking an opponent
 
   Rule: Accounts have no daily matched game limit
-    No counter-example: a guest past today's allowance is the first rule's refusal.
+    No counter-example: a guest past today's matched game allowance is the first rule's refusal.
 
     Scenario: A free account seeks an opponent after many matched games today
       Given Alice has a free account that started 10 matched games today

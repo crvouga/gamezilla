@@ -86,3 +86,25 @@ Feature: A rematch after a matched game
       Given Bob's rematch offer ended when he found a new opponent
       When Alice accepts the rematch
       Then Alice is told the rematch offer has ended
+
+  Rule: A guest who has used today's matched game allowance gets no rematch
+
+    Scenario: A guest who has used today's matched game allowance and offers a rematch is invited to sign in
+      Given Alice is a guest who has started 9 matched games today
+      And Alice's 5+0 matched game with Bob is finished
+      When Alice offers a rematch
+      Then Alice is invited to sign in
+      And neither person is offered a rematch
+
+    Scenario: A rematch offered to a guest who has used today's matched game allowance is unavailable
+      Given Alice is a guest who has started 9 matched games today
+      And Alice's 5+0 matched game with Bob is finished
+      When Bob offers a rematch
+      Then Bob is told Alice cannot start another matched game today
+      And neither person is offered a rematch
+
+    Scenario: A guest with a matched game left today can offer a rematch
+      Given Alice is a guest who has started 8 matched games today
+      And Alice's 5+0 matched game with Bob is finished
+      When Alice offers a rematch
+      Then Bob is offered a rematch
