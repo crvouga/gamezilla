@@ -32,7 +32,6 @@ import {
 import { BLANK, TILES } from '@libs/word-tiles-shared-ts/word-tiles-tiles';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
-import { defineSnapshot } from '@pkgs/harness-root-shared-ts/define-snapshot';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared-ts/virtual-time-runtime';
 import { replayPuzzleEvidence } from '@pkgs/turn-game-shared-ts/puzzle-content';
@@ -439,15 +438,5 @@ export const wordTilesTableSystem = defineSystem<WordTilesTable>({
     exchangeTiles,
     openChallenge,
     publishChallenge,
-  ],
-  snapshots: [
-    defineSnapshot({
-      name: 'table',
-      capture: (s: WordTilesTable) => ({
-        position: s.position,
-        refusal: s.refusal,
-        last: s.last,
-      }),
-    }),
   ],
 });

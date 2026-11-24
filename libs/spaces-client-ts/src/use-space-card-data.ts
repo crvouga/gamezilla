@@ -24,7 +24,7 @@ export function useSpaceCardData(
   const hostUsername = useSpaceHostUsername(spaceId);
   const isOpen = useIsSpaceOpenLocally(spaceId);
   const presence = useSpacePresence(spaceId);
-  const guests = useSpacePeople(useSpaceGuestMembershipIds(spaceId()));
+  const guests = useSpacePeople(useSpaceGuestMembershipIds(spaceId));
   const myId = useMyId();
   return createMemo((): SpaceCardRead => {
     const ended = endedAt() !== null;

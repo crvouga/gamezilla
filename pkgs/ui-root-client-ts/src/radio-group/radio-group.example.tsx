@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Radio, RadioGroup } from '@pkgs/ui-root-client-ts/radio-group';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 
@@ -11,7 +12,9 @@ function Clock(props: {
   disabled?: boolean;
   orientation?: 'vertical' | 'horizontal';
 }): JSX.Element {
-  const [value, setValue] = createSignal<string | undefined>(props.initial);
+  const [value, setValue] = createSignal(
+    (): string | undefined => props.initial
+  );
   return (
     <RadioGroup
       aria-label={props.label}

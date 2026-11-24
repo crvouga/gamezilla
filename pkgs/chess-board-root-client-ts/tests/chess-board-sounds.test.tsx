@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -8,7 +8,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
 import type { AudioPlaybackPort } from '@pkgs/sounds-shared-ts/ports';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 
 import { noopAudio } from './board-fixture';
 
@@ -59,11 +59,14 @@ describe('board sounds', () => {
     expect(audio.counts).toEqual({ created: 7, removed: 0 });
     setFirst(false);
     setSecond(false);
+    flush();
     expect(audio.counts).toEqual({ created: 7, removed: 0 });
     setThird(false);
+    flush();
     expect(audio.counts).toEqual({ created: 7, removed: 7 });
     // A board mounted after the last one left gets a fresh bank.
     setFirst(true);
+    flush();
     expect(audio.counts).toEqual({ created: 14, removed: 7 });
     result.unmount();
     expect(audio.counts).toEqual({ created: 14, removed: 14 });

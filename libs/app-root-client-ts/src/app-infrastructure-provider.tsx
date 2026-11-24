@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Cross-cutting platform services: secure storage, logger, and config.
  * Clock / ids / HTTP come from `ClientEnvProvider` above.
@@ -21,7 +21,7 @@ import {
   SecureStorageProvider,
   SecureStorageStoreProvider,
 } from '@pkgs/secure-storage-root-client-ts/solid';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { originAvailabilityFor } from './origin-availability-for-env';
 
 export function AppInfrastructureProvider(props: {

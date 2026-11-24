@@ -7,7 +7,6 @@
 import type { Awaitable } from './awaitable';
 import type { RuntimeDef } from './define-runtime';
 import { isRuntimeDef } from './define-runtime';
-import type { CatalogSnapshot } from './define-snapshot';
 import type { CatalogAction, CatalogProperty, SYSTEM_TAG } from './effect';
 import type { Gen } from './gen';
 import type { Ports, Runtime, Session } from './runtime-types';
@@ -27,7 +26,6 @@ export type SystemRuntimeEntry = {
 export type SystemRegistry<S> = {
   readonly actions: CatalogAction<S>[];
   readonly properties: CatalogProperty<S>[];
-  readonly snapshots: CatalogSnapshot<S>[];
   readonly runtimeEntries: readonly SystemRuntimeEntry[];
   readonly defaultRuntimeName: string;
 };

@@ -23,6 +23,6 @@ const SYNTHETIC_POPULATION_SYSTEM = gameSystem(
   }
 );
 
-export function openHarness(testId: string, options?: OpenHarnessOptions) {
-  return openSystemHarness(SYNTHETIC_POPULATION_SYSTEM, testId, options);
+export function openHarness(options?: OpenHarnessOptions) {
+  return openSystemHarness(SYNTHETIC_POPULATION_SYSTEM, options);
 }

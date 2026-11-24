@@ -11,7 +11,8 @@ import { removeSpaceUserMutation } from '@libs/spaces-shared-ts/remove-space-use
 import { renameSpaceMutation } from '@libs/spaces-shared-ts/rename-space-mutation';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** Changes made in a space, told inside that space. */
 const IN_SPACE_CHANGES: readonly string[] = [

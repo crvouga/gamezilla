@@ -2,10 +2,7 @@ import { originAvailabilityFor } from '@libs/app-root-client-ts/origin-availabil
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { UiOp } from '@pkgs/ui-testing-root-shared-ts/ui-op';
-import {
-  describeUiOp,
-  performUiOp,
-} from '@pkgs/ui-testing-root-shared-ts/ui-op';
+import { performUiOp } from '@pkgs/ui-testing-root-shared-ts/ui-op';
 import { ensureActor, pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
@@ -202,11 +199,10 @@ export const letTimePass = defineAction({
   },
 });
 
-/** Replay / report of a concrete UI op. */
+/** Replay of a concrete UI op. */
 export const uiOp = defineAction({
   name: 'uiOp',
   pool: false,
-  describe: (op: UiOp) => describeUiOp(op),
   act: async (s: ProductHarness, op: UiOp) => {
     const handle = s.actors.get(op.actorId);
     if (handle === undefined) return;

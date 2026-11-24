@@ -19,6 +19,6 @@ const OBSERVATORY_SYSTEM = gameSystem('observatory', HARNESS_GAMES, {
   },
 });
 
-export function openHarness(testId: string, options?: OpenHarnessOptions) {
-  return openSystemHarness(OBSERVATORY_SYSTEM, testId, options);
+export function openHarness(options?: OpenHarnessOptions) {
+  return openSystemHarness(OBSERVATORY_SYSTEM, options);
 }

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { browserDetails } from '@pkgs/feedback-client-ts/browser-details';
 import { mountBugReports } from '@pkgs/feedback-client-ts/mount-bug-reports';
 import type { BrowserPort } from '@pkgs/feedback-client-ts/ports';
@@ -13,7 +13,7 @@ import type { DiagnosticProvider } from '@pkgs/feedback-shared-ts/types';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import { createExamplePhone } from './example-phone';
 import { createExampleTeam, EXAMPLE_ORIGIN } from './example-team';
 

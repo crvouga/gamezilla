@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Layout for the tab roots. Compact: bottom `AppTabBar` with any sub
  * docks above it. Wide: the header island (default `AppFrame` header,
@@ -13,8 +13,8 @@ import { usePathname, useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { RouteSectionProps } from '@solidjs/router';
-import { For, type JSX, Show, Suspense } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import type { JSX } from '@solidjs/web';
+import { For, Loading, Show } from 'solid-js';
 import { useAppSubs } from './app-subs-context';
 import { AppTabBar } from './app-tab-bar';
 
@@ -26,11 +26,9 @@ export function TabsLayout(props: RouteSectionProps): JSX.Element {
   return (
     <StackVertical grow>
       <StackVertical grow>{props.children}</StackVertical>
-      <Suspense fallback={null}>
-        <For each={subs.tabsDocks}>
-          {(Dock) => <Dynamic component={Dock} />}
-        </For>
-      </Suspense>
+      <Loading fallback={null}>
+        <For each={subs.tabsDocks}>{(Dock) => <Dock />}</For>
+      </Loading>
       <Show when={mode() === 'compact'}>
         <AppTabBar
           pathname={pathname()}

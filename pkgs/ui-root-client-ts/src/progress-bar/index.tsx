@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { spaced } from '../layout-classes';
 import styles from './progress-bar.module.css';
 
@@ -67,7 +68,7 @@ function ProgressTrack(props: {
       aria-valuemin={0}
       aria-valuemax={1}
       aria-valuenow={props.known ? props.value : undefined}
-      aria-busy={props.known ? undefined : true}
+      aria-busy={props.known ? undefined : 'true'}
     >
       <div
         class={spaced([

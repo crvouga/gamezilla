@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { expect, test } from 'bun:test';
 import {
@@ -9,7 +9,7 @@ import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import type { SpaceRole } from '@pkgs/ui-root-client-ts/space-types';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { renderUi } from './render';
 
 /** A variable, not a literal: a literal `role` reads as an ARIA role to jsx-a11y. */

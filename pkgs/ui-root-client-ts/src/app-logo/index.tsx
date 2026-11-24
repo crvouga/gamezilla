@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 
 const mark = new URL('./mark.svg', import.meta.url).href;

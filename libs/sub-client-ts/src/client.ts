@@ -8,7 +8,8 @@
  */
 
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 
 export type SubRoute = {
   /** `@solidjs/router` path pattern (`:param` segments). */

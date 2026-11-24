@@ -1,7 +1,7 @@
 import { PaintbrushIcon } from '@pkgs/ui-root-client-ts/icons';
 import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** Theme commands for the harness-console command palette. */
 export function ProductHarnessAppearanceCommands(): JSX.Element {

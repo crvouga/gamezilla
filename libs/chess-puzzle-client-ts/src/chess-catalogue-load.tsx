@@ -3,7 +3,7 @@ import type {
   CatalogueLoadClient,
   CatalogueLoadJob,
 } from '@libs/game-puzzle-client-ts/catalogue-load-client';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { createMemo } from 'solid-js';
 import { type PuzzleImportRow, usePuzzleImport } from './use-puzzle-import';
 

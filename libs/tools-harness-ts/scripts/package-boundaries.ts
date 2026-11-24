@@ -55,7 +55,7 @@ const ALLOWED: Readonly<Record<Category, readonly Category[]>> = {
 
 /** Runtime modules isomorphic source may not load. Type-only imports are fine. */
 const CLIENT_ONLY =
-  /^(solid-js|@solidjs\/|@lingui\/solid|@tanstack\/solid|lucide-solid|prosemirror-|web-vitals|workbox-window|happy-dom|@happy-dom\/|@testing-library\/)/;
+  /^(solid-js|@solidjs\/|prosemirror-|web-vitals|workbox-window|happy-dom|@happy-dom\/|@testing-library\/)/;
 const SERVER_ONLY =
   /^(node:|bun$|bun:sqlite|pg$|better-sqlite3|hono|@hono\/|stripe$|@aws-sdk\/|embedded-postgres|aedes|ffmpeg-static|sharp$|onnxruntime-node|cloudflare:)/;
 

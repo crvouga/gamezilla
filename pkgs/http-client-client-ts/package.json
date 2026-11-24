@@ -17,6 +17,7 @@
   "dependencies": {
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

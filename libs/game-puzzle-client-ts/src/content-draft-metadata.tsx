@@ -1,10 +1,10 @@
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { FormField } from '@pkgs/ui-root-client-ts/form-field';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { Textarea } from '@pkgs/ui-root-client-ts/textarea';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export function ContentDraftMetadata(props: {
   body: ContentBody;
@@ -17,7 +17,7 @@ export function ContentDraftMetadata(props: {
       <TextInput
         label={t`Title`}
         value={props.body.title}
-        maxLength={160}
+        maxlength={160}
         disabled={props.disabled}
         onChangeText={(title) => props.onChange({ ...props.body, title })}
         dataSet={{ testid: 'content-title' }}
@@ -38,7 +38,7 @@ export function ContentDraftMetadata(props: {
       <TextInput
         label={t`Difficulty (optional)`}
         value={props.body.difficulty}
-        maxLength={80}
+        maxlength={80}
         disabled={props.disabled}
         onChangeText={(difficulty) =>
           props.onChange({ ...props.body, difficulty })

@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ScreenBaseCompact } from '../screen-base-compact/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenBaseWide } from '../screen-base-wide/index';

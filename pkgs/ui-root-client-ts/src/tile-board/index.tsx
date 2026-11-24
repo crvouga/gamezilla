@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { Index, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import styles from './tile-board.module.css';
 
 /** `solid` blocks, `open` is walkable ground, `none` is no part of the board. */
@@ -135,17 +136,17 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
       class={styles['board']}
-      {...dataAttrs({ component: 'TileBoard' })}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it
-      tabIndex={input.interactive() ? 0 : -1}
+      tabindex={input.interactive() ? 0 : -1}
       aria-label={props.label}
       aria-describedby={props.describedBy}
-      aria-disabled={props.disabled === true}
+      aria-disabled={props.disabled === true ? 'true' : 'false'}
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
       data-interactive={String(input.interactive())}
       data-size={props.size ?? 'compact'}
+      {...dataAttrs({ component: 'TileBoard' })}
       style={{
         '--tile-board-columns': props.columns,
         '--tile-board-rows': props.rows,
@@ -157,7 +158,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       onLostPointerCapture={input.cancel}
     >
       <div class={styles['tiles']}>
-        <Index each={props.tiles}>
+        <For keyed={false} each={props.tiles}>
           {(tile, index) => (
             <span
               class={styles['tile']}
@@ -172,11 +173,11 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
               </Show>
             </span>
           )}
-        </Index>
+        </For>
       </div>
       <div class={styles['pieces']} aria-hidden="true">
         {/* By position: a piece keeps its element as it moves, so it glides. */}
-        <Index each={props.pieces}>
+        <For keyed={false} each={props.pieces}>
           {(piece) => (
             <span
               class={styles['piece']}
@@ -190,7 +191,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
               <span class={styles['token']}>{piece().glyph}</span>
             </span>
           )}
-        </Index>
+        </For>
       </div>
     </div>
   );

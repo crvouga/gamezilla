@@ -10,7 +10,18 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
+
+/** A write a test makes itself is on screen before the test reads it. */
+function settled<Args extends unknown[]>(
+  write: (...args: Args) => void
+): (...args: Args) => void {
+  return (...args) => {
+    write(...args);
+    flush();
+  };
+}
 
 export function renderNumberlink(ui: () => JSX.Element) {
   const time = createHarnessClock();
@@ -87,11 +98,11 @@ export function playerFixture() {
     board,
     pointer,
     state,
-    setState,
+    setState: settled(setState),
     actions,
-    setDisabled,
+    setDisabled: settled(setDisabled),
     definition,
-    refreshState: () => setState(state()),
+    refreshState: settled(() => setState(state())),
   };
 }
 
@@ -115,5 +126,11 @@ export function editorFixture() {
     if (!parsed.valid) throw new Error('Editor emitted an unreadable draft');
     return parsed.value;
   };
-  return { view, definition, setDefinition, board, changes };
+  return {
+    view,
+    definition,
+    setDefinition: settled(setDefinition),
+    board,
+    changes,
+  };
 }

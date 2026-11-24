@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { BackIconButton } from '@pkgs/ui-root-client-ts/back-icon-button';
 import { FormActionsFooter } from '@pkgs/ui-root-client-ts/form-actions-footer';
@@ -7,7 +7,8 @@ import { BellIcon, SearchIcon, ShareIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
 import { TopBarTitle } from '@pkgs/ui-root-client-ts/top-bar-title';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

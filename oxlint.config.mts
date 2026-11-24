@@ -211,16 +211,19 @@ const SOLID_REACTIVITY_RULES = {
   'solid/reactivity': 'error',
   'solid/no-destructure': 'error',
   'solid/components-return-once': 'error',
-  'solid/no-react-deps': 'error',
   'solid/no-module-scope-reactive-primitive': 'error',
+  'solid/removed-api': 'error',
+  'solid/no-single-arg-create-effect': 'error',
+  'solid/no-store-mutation-outside-setter': 'error',
+  'solid/no-write-in-pure-computation': 'error',
 } as const;
 
 /**
- * Every applicable eslint-plugin-solid rule. Left out on purpose: the Solid
- * 2.0 / SolidStart server-function rules (the app is Solid 1.9 + plain Vite;
- * they flag valid 1.x code), `prefer-classlist` / `prefer-structured-class`
- * (style preferences that fight the design-system class model) and
- * `no-proxy-apis` (build target is es2022; stores are Proxies by design).
+ * Every applicable eslint-plugin-solid rule. Left out on purpose: the
+ * server-function rules (the app is plain Vite with no server functions),
+ * `prefer-structured-class` (a style preference that fights the
+ * design-system class model) and `no-proxy-apis` (build target is es2022;
+ * stores are Proxies by design).
  */
 const SOLID_RULES = {
   ...SOLID_REACTIVITY_RULES,
@@ -232,13 +235,18 @@ const SOLID_RULES = {
   'solid/jsx-uses-vars': 'error',
   'solid/no-accessor-as-prop': 'error',
   'solid/no-array-handlers': 'error',
+  'solid/no-boolean-enumerated-attribute': 'error',
   'solid/no-innerhtml': 'error',
   'solid/no-react-specific-props': 'error',
+  'solid/no-restated-default-options': 'error',
+  'solid/no-unassigned-vars': 'error',
+  'solid/no-unused-signal': 'error',
   'solid/no-unknown-namespaces': 'error',
   'solid/prefer-for': 'error',
   'solid/prefer-show': 'error',
   'solid/self-closing-comp': 'error',
   'solid/style-prop': 'error',
+  'solid/validate-jsx-nesting': 'error',
 } as const;
 
 export default defineConfig({
@@ -246,6 +254,7 @@ export default defineConfig({
   plugins: [],
   jsPlugins: ['@shadcn/lint'],
   settings: {
+    solid: { version: 2 },
     shadcn: {
       componentImports: ['^@pkgs/ui$'],
       note: 'Use the Tailwind theme in pkgs/tailwind-shared-ts/src/tailwind.css and the components exported by @pkgs/ui.',

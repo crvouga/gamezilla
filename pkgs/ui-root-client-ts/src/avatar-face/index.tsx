@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
-import { type JSX, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import styles from '../avatar/avatar.module.css';
 import type { IconComponent } from '../create-icon/index';
 import { BotIcon } from '../icons';
@@ -49,6 +49,7 @@ function glyphSize(size: number): number {
 export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const icon = (): IconComponent | undefined =>
     props.bot ? BotIcon : props.icon;
+  const Glyph = dynamic(icon);
   return (
     <Switch fallback={<PersonPlaceholder fill={props.placeholderFill} />}>
       <Match when={props.bot ? undefined : props.svg}>
@@ -59,7 +60,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             alt=""
             width={props.size}
             height={props.size}
-            draggable={false}
+            draggable="false"
           />
         )}
       </Match>
@@ -89,13 +90,7 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         )}
       </Match>
       <Match when={icon()}>
-        {(glyph) => (
-          <Dynamic
-            component={glyph()}
-            size={glyphSize(props.size)}
-            color={props.color}
-          />
-        )}
+        <Glyph size={glyphSize(props.size)} color={props.color} />
       </Match>
     </Switch>
   );

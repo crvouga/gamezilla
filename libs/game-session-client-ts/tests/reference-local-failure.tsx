@@ -22,7 +22,8 @@ import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import { TurnGamesProvider } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
-import { type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onSettled } from 'solid-js';
 import { raceGame } from './reference-race-game';
 
 export async function localFailure() {
@@ -104,8 +105,14 @@ function RegisteredRoom(props: {
   readonly children: JSX.Element;
 }) {
   const register = useSpaceOpenRoomsRegistry();
-  register('race', { room: props.rig.room, clientId: 'alice-tab' });
-  onCleanup(() => register('race', null));
+  onSettled(() => {
+    register('race', {
+      room: props.rig.room,
+      clientId: 'alice-tab',
+      isCurrent: () => true,
+    });
+    return () => register('race', null);
+  });
   return <SpaceRoomProvider spaceId="race">{props.children}</SpaceRoomProvider>;
 }
 

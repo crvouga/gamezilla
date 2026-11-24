@@ -6,7 +6,7 @@ import {
   SquarePenIcon,
   UsersIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import {
   type SpaceScreenChromeValue,

@@ -1,7 +1,7 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AccountDeviceMetaPair } from './account-device-meta-pair';
 import type { AccountDeviceView } from './account-device-view';
 import { EM_DASH, formatOsLine, formatTimestamp } from './device-parsers';

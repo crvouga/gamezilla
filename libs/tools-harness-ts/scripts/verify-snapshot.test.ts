@@ -133,18 +133,23 @@ test('a linked-worktree submodule does not redirect snapshot Git commands', asyn
       'fixture'
     );
     const head = git('rev-parse', 'HEAD').toString().trim();
-    mkdirSync(join(source, 'vendor/atlas'), { recursive: true });
-    writeFileSync(join(source, 'vendor/atlas/package.json'), '{}');
+    mkdirSync(join(source, 'vendor/upstream'), { recursive: true });
+    writeFileSync(join(source, 'vendor/upstream/package.json'), '{}');
     writeFileSync(
-      join(source, 'vendor/atlas/.git'),
-      'gitdir: ../../.git/worktrees/fixture/modules/vendor/atlas\n'
+      join(source, 'vendor/upstream/.git'),
+      'gitdir: ../../.git/worktrees/fixture/modules/vendor/upstream\n'
     );
-    git('update-index', '--add', '--cacheinfo', `160000,${head},vendor/atlas`);
+    git(
+      'update-index',
+      '--add',
+      '--cacheinfo',
+      `160000,${head},vendor/upstream`
+    );
 
     run = await createVerifySnapshot(source);
 
-    expect(existsSync(join(run, 'vendor/atlas/package.json'))).toBe(true);
-    expect(existsSync(join(run, 'vendor/atlas/.git'))).toBe(false);
+    expect(existsSync(join(run, 'vendor/upstream/package.json'))).toBe(true);
+    expect(existsSync(join(run, 'vendor/upstream/.git'))).toBe(false);
     expect(() =>
       execFileSync('git', ['status', '--porcelain'], {
         cwd: run,

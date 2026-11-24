@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from './example-root';
 
 /** A bounded viewport so screen examples exercise scrolling and pinned chrome. */

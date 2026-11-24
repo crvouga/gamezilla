@@ -1,7 +1,6 @@
 import type { Awaitable } from './awaitable';
 import { buildRegistry } from './build-registry';
 import type { RuntimeDef } from './define-runtime';
-import type { CatalogSnapshot } from './define-snapshot';
 import type { CatalogAction, CatalogProperty } from './effect';
 import { SYSTEM_TAG } from './effect';
 import type { ExploreOptions, ReplayOptions, Report } from './explore';
@@ -30,7 +29,6 @@ export function defineSystem<S, Args = void>(def: {
   readonly runtimes: readonly RuntimeDef[];
   readonly actions?: readonly CatalogAction<S>[];
   readonly properties?: readonly CatalogProperty<S>[];
-  readonly snapshots?: readonly CatalogSnapshot<S>[];
 }): System<S, Args> {
   if (!def.name) throw new Error('defineSystem: name is required');
 
@@ -39,7 +37,6 @@ export function defineSystem<S, Args = void>(def: {
     runtimes: def.runtimes,
     actions: def.actions ?? [],
     properties: def.properties ?? [],
-    snapshots: def.snapshots ?? [],
   });
 
   const system = {

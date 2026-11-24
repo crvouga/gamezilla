@@ -3,15 +3,8 @@ import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import {
-  createEffect,
-  createMemo,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createEffect, createMemo, onCleanup, Show, untrack } from 'solid-js';
 
 /**
  * The matched game's board, tools and optional controls share one session.
@@ -30,8 +23,15 @@ export function MultiplayerFrameBoard(props: {
     return untrack(() => current.createBoard(props.board));
   });
   const line = createMemo(() => session().line?.() ?? null);
-  createEffect(() => props.onLine?.(line()));
-  onCleanup(() => props.onLine?.(null));
+  // The listener is read when a line is told, never tracked: a new
+  // listener alone repeats nothing.
+  const tell = (value: string | null): void => {
+    untrack(() => props.onLine)?.(value);
+  };
+  createEffect(line, tell);
+  onCleanup(() => tell(null));
+  const Board = dynamic(() => session().Board);
+  const Controls = dynamic(() => session().controls);
   return (
     <StackVertical gap="sm">
       <GameActionBar
@@ -41,12 +41,12 @@ export function MultiplayerFrameBoard(props: {
           'before-board'
         )}
       />
-      <Dynamic component={session().Board} />
+      <Board />
       <GameActionBar
         items={frameActionItems(session().actions(), props.board.testId)}
       />
       <Show when={session().controls}>
-        {(Controls) => <Dynamic component={Controls()} />}
+        <Controls />
       </Show>
     </StackVertical>
   );

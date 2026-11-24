@@ -1,6 +1,7 @@
 import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared-ts/space-room-module-name';
 import { RoomClientsProvider } from '@pkgs/room-root-client-ts/room-clients-context';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { useGamesRegistry } from './games-registry-context';
 import { useSpaceOpenRoomEntries } from './space-open-rooms-store';
 

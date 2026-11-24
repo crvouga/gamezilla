@@ -18,6 +18,7 @@
         "@libs/spaces-shared-ts#src",
         "@pkgs/clock-client-ts#src",
         "@pkgs/clock-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/logger-client-ts#src",
         "@pkgs/room-root-client-ts#src",
         "@pkgs/room-root-shared-ts#src",

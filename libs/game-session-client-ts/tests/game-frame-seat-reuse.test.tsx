@@ -20,7 +20,7 @@ import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -148,9 +148,11 @@ test('wide: a position-only tick keeps every player strip; a changed figure upda
     );
   const before = strips();
   setTable(tick(first));
+  flush();
   for (const [index, strip] of strips().entries())
     expect(strip === before[index]).toBe(true);
   setTable(tick(first, { black: '1' }));
+  flush();
   const after = strips();
   for (const [index, strip] of after.entries())
     expect(strip === before[index]).toBe(true);
@@ -158,20 +160,23 @@ test('wide: a position-only tick keeps every player strip; a changed figure upda
 });
 
 test('a seat that reads the same stays the same object; a changed one is replaced alone', () => {
-  createRoot((dispose) => {
-    const first = props().table;
-    const [table, setTable] = createSignal(first);
-    const stable = stableFrameTable(table);
-    const near = stable().near;
-    const others = stable().others;
-    setTable(tick(first));
-    expect(stable().near).toBe(near);
-    expect(stable().others[0]).toBe(others[0]!);
-    setTable(tick(first, { red: '2' }));
-    expect(stable().near).toBe(near);
-    expect(stable().others[0]).toBe(others[0]!);
-    expect(stable().others[1]).not.toBe(others[1]!);
-    expect(stable().others[1]?.stat?.value).toBe('2');
-    dispose();
-  });
+  const first = props().table;
+  const [table, setTable] = createSignal(first);
+  const { stable, dispose } = createRoot((dispose) => ({
+    stable: stableFrameTable(table),
+    dispose,
+  }));
+  const near = stable().near;
+  const others = stable().others;
+  setTable(tick(first));
+  flush();
+  expect(stable().near).toBe(near);
+  expect(stable().others[0]).toBe(others[0]!);
+  setTable(tick(first, { red: '2' }));
+  flush();
+  expect(stable().near).toBe(near);
+  expect(stable().others[0]).toBe(others[0]!);
+  expect(stable().others[1]).not.toBe(others[1]!);
+  expect(stable().others[1]?.stat?.value).toBe('2');
+  dispose();
 });

@@ -1,6 +1,7 @@
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared-ts/ports';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
 import { NotebookStoreProvider } from './notebook-store-context';
 import {
@@ -14,8 +15,7 @@ import { useProductHarnessSession } from './use-product-harness-session';
  * panel per node of the running system.
  *
  * `nav` (window layout and each node's view) is controlled by the host so
- * it can sync to browser history. Test reports live in the standalone Atlas
- * explorer, not a screen here.
+ * it can sync to browser history.
  */
 export function HarnessConsoleApp(props: {
   readonly shell: Component<PreviewShellProps>;

@@ -1,6 +1,6 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { heartsPresentation } from './hearts-presentation';
 
 export const heartsGameClient = defineGameClient({

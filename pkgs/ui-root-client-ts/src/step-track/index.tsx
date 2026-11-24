@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { Index, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { CheckIcon } from '../icons';
 import styles from './step-track.module.css';
 
@@ -57,7 +58,7 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
         class={`panel panelPlain ${styles['track']}`}
         aria-label={props.label}
       >
-        <Index each={props.steps}>
+        <For keyed={false} each={props.steps}>
           {(step, index) => (
             <li
               class={`panelItem ${styles['step']}`}
@@ -90,7 +91,7 @@ export function StepTrack(props: StepTrackProps): JSX.Element {
               </Show>
             </li>
           )}
-        </Index>
+        </For>
       </ol>
     </div>
   );

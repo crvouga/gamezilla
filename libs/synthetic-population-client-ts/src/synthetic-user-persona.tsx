@@ -2,10 +2,11 @@ import type {
   Persona,
   SkillLevel,
 } from '@libs/synthetic-population-shared-ts/persona';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useGameName } from './game-names';
 
 /** A skill level as people say it. */

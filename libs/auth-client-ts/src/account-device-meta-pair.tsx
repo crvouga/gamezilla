@@ -1,5 +1,5 @@
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type AccountDeviceMetaPairProps = {
   label: JSX.Element;

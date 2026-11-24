@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H1 } from '@pkgs/ui-root-client-ts/heading';
 import { CompassIcon, Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
@@ -12,7 +12,7 @@ import {
   StateBlockIcon,
 } from '@pkgs/ui-root-client-ts/state-block';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
 export type NotFoundScreenViewProps = {

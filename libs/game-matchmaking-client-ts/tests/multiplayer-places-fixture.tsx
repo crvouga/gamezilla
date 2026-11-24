@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** `MatchmakingScreenView` moved by its own place machine, for tests. */
 
 import { mock } from 'bun:test';
@@ -25,7 +25,8 @@ import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, flush } from 'solid-js';
 
 const accepted = () => mock(() => Promise.resolve());
 
@@ -147,7 +148,12 @@ export function mountPlaces(options: {
       time.timers
     );
     overlay = over.overlay;
-    if (options.open !== undefined) nav.open({ screen: options.open });
+    createEffect(
+      () => options.open,
+      (open) => {
+        if (open !== undefined) nav.open({ screen: open });
+      }
+    );
     place = nav.place;
     back = nav.back;
     return (
@@ -186,17 +192,28 @@ export function mountPlaces(options: {
       </ThemeProvider>
     </ClockProvider>
   ));
+  flush();
   return {
     ...view,
     props,
     place: () => place().screen,
     /** The bar's Back: false from a stage's home, where it leaves. */
-    back: () => back(),
+    back: () => {
+      const went = back();
+      flush();
+      return went;
+    },
     /** What lies over the board. */
     overlay: () => overlay(),
     /** The harness clock the versus card counts on. */
     time,
-    setStage,
-    set: (next: Overrides) => setProps((current) => ({ ...current, ...next })),
+    setStage: (next: MultiplayerStage) => {
+      setStage(next);
+      flush();
+    },
+    set: (next: Overrides) => {
+      setProps((current) => ({ ...current, ...next }));
+      flush();
+    },
   };
 }

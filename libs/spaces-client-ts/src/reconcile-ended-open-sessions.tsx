@@ -7,7 +7,7 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, onCleanup } from 'solid-js';
+import { createEffect } from 'solid-js';
 
 type EndedSessionRow = {
   readonly space_id: string;
@@ -38,25 +38,30 @@ export function ReconcileEndedOpenSessions(): null {
         `
   );
 
-  createEffect(() => {
-    const rows = query.rows();
-    if (!paintReady() || rows.length === 0 || runningRef.current) return;
-    runningRef.current = true;
-    let cancelled = false;
-    const timeoutId = timers.setTimeout(() => {
-      if (cancelled) return;
-      void mutationClient
-        .mutate(closeEndedOpenSessionsMutation, {})
-        .finally(() => {
-          if (!cancelled) runningRef.current = false;
-        });
-    }, 0);
-    onCleanup(() => {
-      cancelled = true;
-      timers.clearTimeout(timeoutId);
-      runningRef.current = false;
-    });
-  });
+  createEffect(
+    () => {
+      const rows = query.rows();
+      return paintReady() && rows.length > 0;
+    },
+    (due) => {
+      if (!due || runningRef.current) return;
+      runningRef.current = true;
+      let cancelled = false;
+      const timeoutId = timers.setTimeout(() => {
+        if (cancelled) return;
+        void mutationClient
+          .mutate(closeEndedOpenSessionsMutation, {})
+          .finally(() => {
+            if (!cancelled) runningRef.current = false;
+          });
+      }, 0);
+      return () => {
+        cancelled = true;
+        timers.clearTimeout(timeoutId);
+        runningRef.current = false;
+      };
+    }
+  );
 
   return null;
 }

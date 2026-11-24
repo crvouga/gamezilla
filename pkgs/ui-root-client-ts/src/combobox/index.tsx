@@ -1,12 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   ComboboxProps,
   ComboboxValue,
 } from '@pkgs/ui-root-shared-ts/combobox-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 import { ComboboxBody } from '../combobox-body/index';
 import { ComboboxLabel, ComboboxTrigger } from '../combobox-trigger/index';
 import { ResponsiveSurface } from '../responsive-surface/index';

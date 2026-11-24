@@ -9,7 +9,7 @@ import {
   tileBoardSwipe,
 } from '@pkgs/ui-root-client-ts/tile-board';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import TileBoardExample from '../../ui-root-client-ts/src/tile-board/tile-board.example';
 
 const TILES = [
@@ -99,6 +99,7 @@ test('a moved piece keeps its element, and tiles name what they hold', () => {
   const { view, setPieces } = mount();
   const before = view.container.querySelector('[data-piece="walker"]');
   setPieces([{ id: 'walker', column: 1, row: 0, glyph: '☻', tone: 'actor' }]);
+  flush();
   const after = view.container.querySelector('[data-piece="walker"]');
   expect(after).toBe(before);
   expect(after?.getAttribute('style')).toContain('translate(100%, 0%)');

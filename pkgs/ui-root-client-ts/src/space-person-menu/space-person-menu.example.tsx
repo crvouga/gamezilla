@@ -1,7 +1,7 @@
 import { SPACE_PERSON_CAPABILITIES } from '@pkgs/ui-root-client-ts/space-person-actions';
 import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-menu/space-people';
 import type { SpacePerson } from '@pkgs/ui-root-client-ts/space-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

@@ -1,37 +1,63 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Recovery sits inside the minimal theme root, outside sub providers. */
-import { ErrorBoundary, type JSX } from 'solid-js';
+import { i18n } from '@libs/app-root-shared-ts/i18n';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Errored, onSettled } from 'solid-js';
 import { CrashScreen } from './crash-screen';
 
-export function RootErrorBoundary(props: {
-  readonly children: JSX.Element;
+type RecoveryProps = {
   readonly copyError: (text: string) => Promise<void>;
   /** The way out of a screen that crashes again on Try again. */
   readonly goToSpaces: (reset: () => void) => void;
-}): JSX.Element {
+};
+
+function announceCrash(error: Error): void {
+  try {
+    document.dispatchEvent(new CustomEvent('product-crash', { detail: error }));
+  } catch {
+    /* reporting enrichment cannot break the crash screen */
+  }
+}
+
+function CrashRecovery(
+  props: RecoveryProps & {
+    readonly error: unknown;
+    readonly reset: () => void;
+  }
+): JSX.Element {
+  const normalized = createMemo(() =>
+    props.error instanceof Error ? props.error : new Error(String(props.error))
+  );
+  onSettled(() => announceCrash(normalized()));
   return (
-    <ErrorBoundary
-      fallback={(error: unknown, reset) => {
-        const normalized =
-          error instanceof Error ? error : new Error(String(error));
-        try {
-          document.dispatchEvent(
-            new CustomEvent('product-crash', { detail: normalized })
-          );
-        } catch {
-          /* reporting enrichment cannot break the crash screen */
-        }
-        return (
-          <CrashScreen
-            error={normalized}
+    <CrashScreen
+      error={normalized()}
+      reset={props.reset}
+      goToSpaces={props.goToSpaces}
+      copyError={props.copyError}
+    />
+  );
+}
+
+export function RootErrorBoundary(
+  props: RecoveryProps & { readonly children: JSX.Element }
+): JSX.Element {
+  return (
+    <Errored
+      fallback={(error, reset) => (
+        // The shell's translations are provided inside the tree that crashed.
+        <I18nProvider i18n={i18n}>
+          <CrashRecovery
+            error={error()}
             reset={reset}
             goToSpaces={props.goToSpaces}
             copyError={props.copyError}
           />
-        );
-      }}
+        </I18nProvider>
+      )}
     >
       {props.children}
-    </ErrorBoundary>
+    </Errored>
   );
 }

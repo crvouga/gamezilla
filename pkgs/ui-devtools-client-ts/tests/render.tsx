@@ -1,12 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { render } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Mounts `ui` under Lingui `I18nProvider` (en, source strings) + `ThemeProvider` + harness `ClockProvider` (virtual timers,

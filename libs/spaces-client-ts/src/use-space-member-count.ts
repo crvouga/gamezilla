@@ -3,7 +3,9 @@ import { type Accessor, createMemo } from 'solid-js';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 import { useSpaceGuestMembershipIds } from './use-space-guest-membership-ids';
 
-export function useSpaceMemberCount(spaceId: string): Accessor<number> {
+export function useSpaceMemberCount(
+  spaceId: Accessor<string>
+): Accessor<number> {
   const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);
   const guests = useSpaceGuestMembershipIds(spaceId);
   return createMemo(() => {

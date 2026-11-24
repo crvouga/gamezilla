@@ -1,6 +1,6 @@
 import NotificationsScreen from './notifications';
 import { AppNotificationsProvider } from './notifications-provider';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What notifications contributes to a client app: the inbox screen and tab,
  * the unread-count root the header badge reads above the SQLite gate, and the
@@ -9,7 +9,7 @@ import { AppNotificationsProvider } from './notifications-provider';
 
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { NotificationsTabIcon } from './notifications-tab-icon';
 import { NotificationsUnreadCountRoot } from './notifications-unread-count-chrome';
 

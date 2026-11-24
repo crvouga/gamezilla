@@ -1,11 +1,11 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  onCleanup,
+  onSettled,
   Show,
   untrack,
 } from 'solid-js';
@@ -88,9 +88,8 @@ function centreIndex(
 function createStableCells(
   read: () => readonly WordTileBoardCell[]
 ): () => readonly WordTileBoardCell[] {
-  return createMemo<readonly WordTileBoardCell[]>(
-    (previous) => reuseUnchangedCells(previous, read()),
-    []
+  return createMemo<readonly WordTileBoardCell[]>((previous) =>
+    reuseUnchangedCells(previous ?? [], read())
   );
 }
 
@@ -125,6 +124,14 @@ function focusCell(root: HTMLDivElement | undefined, index: number): void {
   });
 }
 
+/** Focus a cell once the view it is about to be drawn in has settled. */
+function focusCellWhenSettled(
+  root: () => HTMLDivElement | undefined,
+  index: number
+): void {
+  onSettled(() => focusCell(root(), index));
+}
+
 function boardKeyboard(
   board: WordTileBoardProps,
   onFocus: (index: number) => void
@@ -145,13 +152,13 @@ function createPrecisionCenter(
   root: () => HTMLDivElement | undefined,
   enlarged: () => boolean,
   focusIndex: () => number
-): () => void {
-  const center = () => {
+): (index?: number) => void {
+  // A caller that has just chosen a cell names it: the choice is not yet
+  // readable from `focusIndex`.
+  const center = (index: number = focusIndex()): void => {
     const element = viewport();
     if (!element || !enlarged()) return;
-    const cell = root()?.querySelector<HTMLElement>(
-      `[data-index="${focusIndex()}"]`
-    );
+    const cell = root()?.querySelector<HTMLElement>(`[data-index="${index}"]`);
     if (!cell) return;
     const bounds = cell.getBoundingClientRect();
     const clip = element.getBoundingClientRect();
@@ -160,14 +167,17 @@ function createPrecisionCenter(
     element.scrollTop +=
       bounds.top - clip.top - (clip.height - bounds.height) / 2;
   };
-  createEffect(() => {
-    const element = viewport();
-    if (!element || !enlarged()) return;
-    // Center on zoom or resize, never when a pointer focuses a visible cell.
-    // Moving that cell between press and release can change the hit target.
-    untrack(center);
-    onCleanup(observeElementResize(element, center));
-  });
+  // Center on zoom or resize, never when a pointer focuses a visible cell.
+  // Moving that cell between press and release can change the hit target.
+  createEffect(
+    () => (enlarged() ? viewport() : undefined),
+    (element) => {
+      if (!element) return undefined;
+      // The focused cell as it is now: a later focus move does not re-center.
+      untrack(center);
+      return observeElementResize(element, () => center());
+    }
+  );
   return center;
 }
 
@@ -201,7 +211,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   });
   const resize = (value: boolean): void => {
     setEnlarged(value);
-    focusCell(root, focusIndex());
+    focusCellWhenSettled(() => root, focusIndex());
   };
   return (
     <StackVertical gap="none">
@@ -216,7 +226,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
         <div
           ref={setViewport}
           class={styles['viewport']}
-          data-enlarged={enlarged()}
+          data-enlarged={String(enlarged())}
           data-measure={props.measure ?? 'full'}
           role="region"
           aria-label={t`Scrollable word board`}
@@ -225,12 +235,12 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             ref={root}
             class={styles['board']}
             data-measure={props.measure ?? 'full'}
-            data-enlarged={enlarged()}
-            {...dataAttrs({ component: 'WordTileBoard' })}
+            data-enlarged={String(enlarged())}
             role="group"
             aria-label={props.label}
             aria-describedby={props.describedBy}
             data-testid={props.testId}
+            {...dataAttrs({ component: 'WordTileBoard' })}
             style={{ '--word-tile-columns': props.columnLabels.length }}
           >
             <BoardRows
@@ -268,7 +278,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
               if (index < 0) return;
               setFocusIndex(index);
               focusCell(root, index);
-              center();
+              center(index);
             }}
           />
         </Show>

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
 import { useObjectStore } from '@pkgs/object-store-root-client-ts/solid';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
@@ -10,13 +10,12 @@ import type {
 } from '@pkgs/tts-root-shared-ts/tts-types';
 import type { Voice } from '@pkgs/tts-root-shared-ts/tts-voice';
 import { DEFAULT_TTS_VOICE } from '@pkgs/tts-root-shared-ts/tts-voice';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  on,
   onCleanup,
   type ParentProps,
   untrack,
@@ -161,35 +160,39 @@ export function createSpeak(args: Accessor<SpeakArgs>): SpeakResult {
   let lastSpoken: string | null = null;
 
   createEffect(
-    on([text, enabled, contextKey], ([value, on_, contextKey]) => {
-      if (!on_ || value.trim().length === 0) {
+    () => [text(), enabled(), contextKey()] as const,
+    ([value, speaks, key]) => {
+      if (!speaks || value.trim().length === 0) {
         lastSpoken = null;
         setIsLoading(false);
         setDurationMs(null);
         return;
       }
-      const utteranceKey = `${contextKey}\u0000${value}`;
+      const utteranceKey = `${key}\u0000${value}`;
       if (lastSpoken === utteranceKey) return;
       lastSpoken = utteranceKey;
       setIsLoading(true);
       setDurationMs(null);
       const controller = new AbortController();
+      // An utterance keeps the voice it started with: a later voice or
+      // format must not restart speech already under way.
+      const spoken = untrack(args);
       void tts
         .play({
           text: value,
-          voice: args().voice ?? DEFAULT_TTS_VOICE,
-          format: args().format ?? 'mp3',
+          voice: spoken.voice ?? DEFAULT_TTS_VOICE,
+          format: spoken.format ?? 'mp3',
           signal: controller.signal,
         })
         .catch(() => {
           if (controller.signal.aborted) return;
           setIsLoading(false);
         });
-      onCleanup(() => {
+      return () => {
         controller.abort();
         tts.stop();
-      });
-    })
+      };
+    }
   );
 
   const isSpeaking = createMemo(
@@ -197,12 +200,15 @@ export function createSpeak(args: Accessor<SpeakArgs>): SpeakResult {
   );
 
   // Latch the duration exactly once at the leading edge of playback.
-  createEffect(() => {
-    if (!isSpeaking()) return;
-    if (!isLoading()) return;
-    setIsLoading(false);
-    setDurationMs(tts.durationMs());
-  });
+  createEffect(
+    () =>
+      isSpeaking() && isLoading() ? { durationMs: tts.durationMs() } : null,
+    (leadingEdge) => {
+      if (leadingEdge === null) return;
+      setIsLoading(false);
+      setDurationMs(leadingEdge.durationMs);
+    }
+  );
 
   return { isLoading, isSpeaking, durationMs };
 }

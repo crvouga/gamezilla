@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { GlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import {
   PaintbrushIcon,
@@ -21,7 +21,8 @@ import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, Show } from 'solid-js';
 
 const CONNECTIVITY_DOT_SIZE = 14;
 const TRIGGER_AVATAR_SIZE = 32;

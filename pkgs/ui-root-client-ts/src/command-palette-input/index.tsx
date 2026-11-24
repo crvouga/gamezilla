@@ -1,10 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onSettled, untrack } from 'solid-js';
 import { SearchIcon } from '../icons';
+import { moveFocus } from '../move-focus';
 import { TextInput } from '../text-input/index';
 
 export type CommandPaletteInputProps = {
@@ -30,8 +32,10 @@ export function CommandPaletteInput(
 ): JSX.Element {
   const { t } = useLingui();
   let inputEl: HTMLInputElement | HTMLTextAreaElement | undefined;
-  onMount(() => {
-    if (props.focusOnMount ?? true) inputEl?.focus();
+  // A mount-time option: what it says when the field mounts is what counts.
+  const focusOnMount = untrack(() => props.focusOnMount ?? true);
+  onSettled(() => {
+    if (focusOnMount) moveFocus(inputEl);
   });
   return (
     <TextInput
@@ -51,7 +55,7 @@ export function CommandPaletteInput(
       aria-activedescendant={props.activeDescendantId}
       autocomplete="off"
       autocapitalize="none"
-      spellcheck={false}
+      spellcheck="false"
       startAdornment={<SearchIcon size={18} color="textSecondary" />}
       dataSet={{ component: 'CommandPaletteInput', ...props.dataSet }}
     />

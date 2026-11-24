@@ -1,10 +1,11 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
 import {
   syntheticUserCrumbs,

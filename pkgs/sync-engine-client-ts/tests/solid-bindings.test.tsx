@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
@@ -16,7 +16,7 @@ import type {
   WatchSubscription,
 } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import { render, screen } from '@solidjs/testing-library';
-import { createSignal, For } from 'solid-js';
+import { createSignal, For, flush } from 'solid-js';
 
 type Row = { id: string };
 
@@ -126,12 +126,14 @@ describe('@pkgs/sync-engine/solid', () => {
     expect(aliceWatch.listenerCount()).toBe(1);
 
     aliceWatch.emit([{ id: 'n1' }, { id: 'n2' }]);
+    flush();
     expect(screen.getByTestId('loading')).toHaveTextContent('ready');
     expect(screen.getAllByRole('listitem').map((li) => li.textContent)).toEqual(
       ['n1', 'n2']
     );
 
     setOwner('bob');
+    flush();
     expect(fake.watches.size).toBe(2);
     expect(aliceWatch.listenerCount()).toBe(0);
     expect(screen.getByTestId('loading')).toHaveTextContent('loading');
@@ -152,6 +154,7 @@ describe('@pkgs/sync-engine/solid', () => {
     expect(status).toHaveTextContent('online/hold');
     fake.setOnline(false);
     setReady(true);
+    flush();
     expect(status).toHaveTextContent('offline/paint');
   });
 

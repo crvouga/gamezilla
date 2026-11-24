@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
-const ModalTitleIdContext = createContext<string>();
+const ModalTitleIdContext = createContext<string | null>(null);
 
 export type ModalTitleIdProviderProps = {
   id: string;
@@ -20,14 +21,10 @@ export function ModalTitleIdProvider(
 ): JSX.Element {
   // Ids are minted once per surface instance; never reactive.
   const id = untrack(() => props.id);
-  return (
-    <ModalTitleIdContext.Provider value={id}>
-      {props.children}
-    </ModalTitleIdContext.Provider>
-  );
+  return <ModalTitleIdContext value={id}>{props.children}</ModalTitleIdContext>;
 }
 
 /** Title element id for the nearest surface, or `undefined` outside one. */
 export function useModalTitleId(): string | undefined {
-  return useContext(ModalTitleIdContext);
+  return useContext(ModalTitleIdContext) ?? undefined;
 }

@@ -6,7 +6,7 @@ import {
   lightCyclesTrioShared,
 } from '@libs/light-cycles-shared-ts/light-cycles-game';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LightCyclesBoard } from './light-cycles-board';
 import { lightCyclesFrame } from './light-cycles-frame';
 import { riderName } from './light-cycles-view';

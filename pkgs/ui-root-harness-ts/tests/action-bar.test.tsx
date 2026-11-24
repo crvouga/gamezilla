@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, describe, expect, mock, spyOn, test } from 'bun:test';
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
@@ -14,7 +14,7 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import type { OverflowMenuRenderProps } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { cssOf, mustQuery, renderUi } from './render';
 
 describe('ActionBar', () => {

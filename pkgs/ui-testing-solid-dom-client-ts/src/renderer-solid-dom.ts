@@ -26,6 +26,7 @@ import { fieldOf, isTextField, readDomText } from './dom-text';
 import { isDomVisible } from './dom-visibility';
 import { createHtmlSnapshotCache } from './html-snapshot-cache';
 import { createLayoutSynchronizer } from './layout-synchronizer';
+import { dispatchSettled, settle } from './settle';
 export type UserEvent = ReturnType<typeof userEvent.setup>;
 
 export type SolidDomAppScope = {
@@ -99,7 +100,7 @@ function scrollBy(
     const delta = direction === 'right' ? amount : -amount;
     target.scrollLeft = Math.max(0, target.scrollLeft + delta);
   }
-  target.dispatchEvent(new Event('scroll', { bubbles: false }));
+  dispatchSettled(target, new Event('scroll', { bubbles: false }));
 }
 
 /**
@@ -141,6 +142,7 @@ function focusInto(element: Element): void {
   if (element.contains(element.ownerDocument.activeElement)) return;
   const focusable = fieldOf(element) ?? element;
   if (focusable instanceof HTMLElement) focusable.focus();
+  settle();
 }
 
 /**
@@ -161,7 +163,7 @@ function writeFieldText(
   } else {
     set.call(field, text);
   }
-  field.dispatchEvent(new Event('input', { bubbles: true }));
+  dispatchSettled(field, new Event('input', { bubbles: true }));
 }
 
 function inputField(element: Element, text: string): void {
@@ -184,7 +186,10 @@ export function createSolidDomRenderedApp(
     snapshotActorHtml(scope.document, scope.container(), options)
   );
   const queryTestId = (testId: string): Element | null => {
+    settle();
     syncLayout();
+    // Size listeners answer the layout notifications with writes of their own.
+    settle();
     return queryActorTestId(scope.document, scope.container(), testId);
   };
   return {
@@ -209,6 +214,7 @@ export function createSolidDomRenderedApp(
       if (node.getAttribute('role') === 'option' && node instanceof HTMLElement)
         node.click();
       else await user.click(node);
+      settle();
       // Menus measure the trigger on open; re-layout so remounted anchors and
       // FloatingMenu listeners pick up trailing-edge boxes.
       syncLayout();
@@ -240,6 +246,7 @@ export function createSolidDomRenderedApp(
     pressKey: async (domKey, target) => {
       if (target !== undefined) focusInto(asElement(target));
       await user.keyboard(userEventKeyFromDom(domKey));
+      settle();
     },
     scroll: (element, direction, amount) => {
       scrollBy(asElement(element), direction, amount);
@@ -251,6 +258,7 @@ export function createSolidDomRenderedApp(
       scope.unmount();
     },
     snapshotHtml: (options) => {
+      settle();
       syncLayout();
       if (scope.container() === null) return undefined;
       return htmlCache.snapshot(options);

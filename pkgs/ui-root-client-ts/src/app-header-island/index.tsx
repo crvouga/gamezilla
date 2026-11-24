@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import {
   useAppFrameBreadcrumbs,
   useAppFrameGlobalTrailing,
@@ -21,21 +21,23 @@ const STROKE_CURRENT = 2.5;
 const STROKE_DEFAULT = 2;
 
 function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
+  const ItemIcon = dynamic(() => props.item.icon);
   return (
     <button
-      class="clickable clickableTint flex-row items-center gap-2 px-4 h-11 rounded-full border transition-colors"
-      classList={{
-        'bg-tint-subtle border-outline': props.item.active,
-        'border-transparent': !props.item.active,
-      }}
+      class={[
+        'clickable clickableTint flex-row items-center gap-2 px-4 h-11 rounded-full border transition-colors',
+        {
+          'bg-tint-subtle border-outline': props.item.active,
+          'border-transparent': !props.item.active,
+        },
+      ]}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
       type="button"
       aria-label={props.item.label}
       aria-current={props.item.active ? 'page' : undefined}
       onClick={() => props.item.onClick()}
     >
-      <Dynamic
-        component={props.item.icon}
+      <ItemIcon
         size={NAV_ICON_SIZE}
         strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
         color={props.item.active ? 'text' : 'textSecondary'}
@@ -46,11 +48,13 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
         data-slot="label"
       >
         <span
-          class="text line-clamp-1"
-          classList={{
-            'textBodyBold text-text': props.item.active,
-            'textBody text-text-secondary': !props.item.active,
-          }}
+          class={[
+            'text line-clamp-1',
+            {
+              'textBodyBold text-text': props.item.active,
+              'textBody text-text-secondary': !props.item.active,
+            },
+          ]}
         >
           {props.item.label}
         </span>
@@ -60,28 +64,32 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
 }
 
 function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
+  const ItemIcon = dynamic(() => props.item.icon);
   return (
     <button
-      class="clickable clickableTint flex-row items-center gap-3 px-3 h-11 w-full rounded-control transition-colors"
-      classList={{ 'bg-tint-subtle': props.item.active }}
+      class={[
+        'clickable clickableTint flex-row items-center gap-3 px-3 h-11 w-full rounded-control transition-colors',
+        { 'bg-tint-subtle': props.item.active },
+      ]}
       {...dataAttrs({ component: 'AppHeaderIslandTab', ...props.item.dataSet })}
       type="button"
       aria-label={props.item.label}
       aria-current={props.item.active ? 'page' : undefined}
       onClick={() => props.item.onClick()}
     >
-      <Dynamic
-        component={props.item.icon}
+      <ItemIcon
         size={RAIL_ICON_SIZE}
         strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
         color={props.item.active ? 'tint' : 'textSecondary'}
       />
       <span
-        class="text line-clamp-1 min-w-0"
-        classList={{
-          'textBodyBold text-on-primary-soft': props.item.active,
-          'textBody text-text-secondary': !props.item.active,
-        }}
+        class={[
+          'text line-clamp-1 min-w-0',
+          {
+            'textBodyBold text-on-primary-soft': props.item.active,
+            'textBody text-text-secondary': !props.item.active,
+          },
+        ]}
       >
         {props.item.label}
       </span>

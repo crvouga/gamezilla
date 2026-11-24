@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
 import type { FloatingMenuPlacement } from '../floating-menu-position';
@@ -181,9 +181,10 @@ function LabelledFace(props: {
   icon: IconComponent;
   label: string;
 }): JSX.Element {
+  const FaceIcon = dynamic(() => props.icon);
   return (
     <span class={styles['labelled']}>
-      <Dynamic component={props.icon} size={16} color="icon" />
+      <FaceIcon size={16} color="icon" />
       <span class="text textLabel">{props.label}</span>
     </span>
   );
@@ -199,6 +200,7 @@ function TriggerFace(props: {
   onOpen: () => void;
   dataSet: ComponentDataSet | undefined;
 }): JSX.Element {
+  const TriggerIcon = dynamic(() => props.icon);
   return (
     <Show
       when={props.trigger !== undefined}
@@ -213,11 +215,7 @@ function TriggerFace(props: {
           tooltipPlacement={props.tooltipPlacement}
           dataSet={props.dataSet}
         >
-          <Dynamic
-            component={props.icon}
-            size={triggerIconSize(props.size)}
-            color="icon"
-          />
+          <TriggerIcon size={triggerIconSize(props.size)} color="icon" />
         </IconButton>
       }
     >
@@ -228,7 +226,7 @@ function TriggerFace(props: {
         onClick={() => props.onOpen()}
         aria-label={props['aria-label']}
         aria-haspopup="menu"
-        aria-expanded={props.menu.open()}
+        aria-expanded={props.menu.open() ? 'true' : 'false'}
       >
         {props.trigger}
       </button>
@@ -274,8 +272,7 @@ export function OverflowMenuButton(
       {/* A custom trigger (a face and a name) gives up width to its row, so
           a long name truncates instead of running past its container. */}
       <div
-        class="box"
-        classList={{ 'shrink max-w-full': props.trigger !== undefined }}
+        class={['box', { 'shrink max-w-full': props.trigger !== undefined }]}
         data-component="OverflowMenuButton"
         ref={menu.setTrigger}
       >

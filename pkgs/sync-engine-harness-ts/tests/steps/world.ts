@@ -84,13 +84,5 @@ export function useSyncWorld(): void {
       noteWatch: null,
     }),
     dispose: (w) => w.s[Symbol.asyncDispose](),
-    record: (w, step, fn) =>
-      w.s.record(
-        {
-          kind: step.keyword.trim(),
-          title: `${step.keyword.trim()} ${step.text}`,
-        },
-        fn
-      ),
   });
 }

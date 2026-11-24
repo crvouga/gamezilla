@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * When a pending publication is confirmed its notice goes away; nothing the
  * person can tap may move because of that.

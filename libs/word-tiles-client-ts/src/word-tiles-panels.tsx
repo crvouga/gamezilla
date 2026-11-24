@@ -9,7 +9,8 @@ import {
   WordTileBlankContext,
   WordTileLetterChoices,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import type { WordTilesPreview } from './word-tiles-preview';
 
 export function seatName(seat: number): string {

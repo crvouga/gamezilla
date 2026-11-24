@@ -10,6 +10,7 @@
         "@libs/permissions-shared-ts#src",
         "@libs/sub-client-ts#src",
         "@pkgs/clock-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/permissions-shared-ts#src",
         "@pkgs/sql-root-shared-ts#src",
         "@pkgs/sync-engine-client-ts#src",

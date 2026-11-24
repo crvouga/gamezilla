@@ -20,12 +20,13 @@
     "@libs/test-ids-shared-ts": "workspace:*",
     "@libs/user-search-client-ts": "workspace:*",
     "@libs/user-search-shared-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
     "@pkgs/keyword-shared-ts": "workspace:*",
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

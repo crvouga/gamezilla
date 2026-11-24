@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { clientGatingLayer } from '@libs/permissions-harness-ts/client';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { billingSubscriptionsFixture } from './billing-fixture';
 
 test('puzzle scope facts reach client decisions and follow a changed target', async () => {
@@ -23,9 +23,11 @@ test('puzzle scope facts reach client decisions and follow a changed target', as
         const ownEdit = edit().allowed;
         const ownPlay = play().allowed;
         setOwner('00000000-0000-4000-8000-000000000b0b');
+        flush();
         const foreignEdit = edit().allowed;
         const foreignPlay = play().allowed;
         setOwner('00000000-0000-4000-8000-000000000e57');
+        flush();
         return {
           ownEdit,
           ownPlay,

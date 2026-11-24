@@ -3,13 +3,11 @@ import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
-  batch,
   createEffect,
   createSignal,
-  type JSX,
-  onCleanup,
   Show,
   untrack,
 } from 'solid-js';
@@ -56,55 +54,66 @@ export function useSpaceReach(spaceId: Accessor<string>): SpaceReach {
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const [unreachable, setUnreachable] = createSignal(false);
   const [attempt, setAttempt] = createSignal(0);
-  createEffect(() => {
-    attempt();
-    if (synced()) {
-      setUnreachable(false);
-      return;
+  const ask = async (asks: number): Promise<'refused' | 'ask-again'> => {
+    const admission = await askAdmission();
+    const context = {
+      spaceId: untrack(spaceId),
+      asks,
+      waitedMs: SPACE_REACH_WAIT_MS + (asks - 1) * SPACE_REACH_RECHECK_MS,
+    };
+    // regression: space-unreachable-while-room-reconnects
+    if (admission.verdict === 'refused') {
+      logger.warn('Space declared unreachable', {
+        ...context,
+        reason: admission.reason,
+      });
+      return 'refused';
     }
-    if (!engine.status().online || untrack(unreachable)) return;
-    let live = true;
-    let asks = 0;
-    const ask = async (): Promise<void> => {
-      asks += 1;
-      const admission = await askAdmission();
-      if (!live) return;
-      const context = {
-        spaceId: untrack(spaceId),
-        asks,
-        waitedMs: SPACE_REACH_WAIT_MS + (asks - 1) * SPACE_REACH_RECHECK_MS,
-      };
-      // regression: space-unreachable-while-room-reconnects
-      if (admission.verdict === 'refused') {
-        logger.warn('Space declared unreachable', {
-          ...context,
-          reason: admission.reason,
-        });
-        setUnreachable(true);
+    logger.info('Space room not answering yet; not refused', {
+      ...context,
+      verdict: admission.verdict,
+      ...(admission.verdict === 'unknown' ? { reason: admission.reason } : {}),
+    });
+    return 'ask-again';
+  };
+  createEffect(
+    (): 'synced' | 'offline' | 'waiting' => {
+      attempt();
+      if (synced()) return 'synced';
+      return engine.status().online ? 'waiting' : 'offline';
+    },
+    (state) => {
+      if (state === 'synced') {
+        setUnreachable(false);
         return;
       }
-      logger.info('Space room not answering yet; not refused', {
-        ...context,
-        verdict: admission.verdict,
-        ...(admission.verdict === 'unknown'
-          ? { reason: admission.reason }
-          : {}),
-      });
-      timer = timers.setTimeout(() => void ask(), SPACE_REACH_RECHECK_MS);
-    };
-    let timer = timers.setTimeout(() => void ask(), SPACE_REACH_WAIT_MS);
-    onCleanup(() => {
-      live = false;
-      timers.clearTimeout(timer);
-    });
-  });
+      // Read once: declaring the space unreachable must not start a new wait.
+      if (state === 'offline' || untrack(unreachable)) return;
+      let live = true;
+      let asks = 0;
+      const askNow = async (): Promise<void> => {
+        asks += 1;
+        const answer = await ask(asks);
+        if (!live) return;
+        if (answer === 'refused') {
+          setUnreachable(true);
+          return;
+        }
+        timer = timers.setTimeout(() => void askNow(), SPACE_REACH_RECHECK_MS);
+      };
+      let timer = timers.setTimeout(() => void askNow(), SPACE_REACH_WAIT_MS);
+      return () => {
+        live = false;
+        timers.clearTimeout(timer);
+      };
+    }
+  );
   return {
     unreachable,
-    tryAgain: () =>
-      batch(() => {
-        setUnreachable(false);
-        setAttempt((n) => n + 1);
-      }),
+    tryAgain: () => {
+      setUnreachable(false);
+      setAttempt((n) => n + 1);
+    },
   };
 }
 

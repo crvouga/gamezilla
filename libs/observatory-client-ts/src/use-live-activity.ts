@@ -71,7 +71,6 @@ export function useLiveActivity(): Accessor<LiveHeartbeat> {
         game: activity === 'browsing' ? null : gameName(control),
       };
     },
-    undefined,
     {
       equals: (a, b) =>
         a.place === b.place && a.activity === b.activity && a.game === b.game,

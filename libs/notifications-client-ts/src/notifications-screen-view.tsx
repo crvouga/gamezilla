@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type {
   Notification,
@@ -8,10 +8,11 @@ import type {
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import type { InboxChoiceFailure } from './inbox-choice-failure';
 import { InboxChoiceFailureNotice } from './inbox-choice-failure-notice';
 import { NotificationsFilterBar } from './notifications-filter-bar';

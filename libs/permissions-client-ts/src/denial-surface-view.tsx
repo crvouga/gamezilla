@@ -1,7 +1,8 @@
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** What a resolved denial shows: copy and the configured way forward. */
 export type DenialView = {

@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
@@ -11,7 +11,7 @@ import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { For, Match, Show, Switch } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar, SpacePersonName } from './space-person-view';
@@ -41,11 +41,13 @@ function SpaceShareLinkSection(props: {
   const { t } = useLingui();
   const copyButton = useMutationButton({
     operation: () => props.onCopyLink(),
-    labels: {
-      idle: t`Copy link`,
-      loading: t`Copying…`,
-      success: t`Copied`,
-      error: t`Couldn't copy`,
+    get labels() {
+      return {
+        idle: t`Copy link`,
+        loading: t`Copying…`,
+        success: t`Copied`,
+        error: t`Couldn't copy`,
+      };
     },
   });
   return (

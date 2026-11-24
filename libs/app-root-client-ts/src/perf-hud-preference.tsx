@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Persisted HUD visibility via Kv (`createKvState`, same pattern as the
  * theme preference). Off by default.
@@ -8,7 +8,8 @@ import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 
 const PERF_HUD_ROW_KEY = asKeyword('ui.prefs/perf-hud-enabled');
 const PERF_HUD_VALUE_ATTR = asKeyword('ui.prefs/value');

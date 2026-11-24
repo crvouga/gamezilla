@@ -17,7 +17,7 @@ import type {
   PuzzleAttempt,
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ChessPuzzleAnnouncement } from './chess-puzzle-announcement';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
@@ -26,16 +26,15 @@ import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';
 function ChessPuzzleCompanion(props: {
   readonly attempt: PuzzleAttempt;
 }): JSX.Element {
-  const a = props.attempt;
   return (
     <ChessPuzzleAnnouncement
-      status={a.status}
-      moves={a.line}
-      solveIdx={a.solveIdx}
-      solverSide={() => requireTwoPlayerSide(a.solverSide())}
-      hintStage={a.hintStage}
-      fen={a.position}
-      hintSquare={a.hintFrom}
+      status={props.attempt.status}
+      moves={props.attempt.line}
+      solveIdx={props.attempt.solveIdx}
+      solverSide={() => requireTwoPlayerSide(props.attempt.solverSide())}
+      hintStage={props.attempt.hintStage}
+      fen={props.attempt.position}
+      hintSquare={props.attempt.hintFrom}
     />
   );
 }

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -6,7 +6,8 @@ import {
   nextRovingIndex,
   rovingTabStop,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
-import { createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, For, Show } from 'solid-js';
 import { Chip } from '../chip/index';
 
 export type ChipGroupOption<K extends string = string> = {
@@ -215,7 +216,7 @@ export function ChipGroup<K extends string = string>(
             ? labelId
             : undefined
         }
-        aria-disabled={props.disabled === true ? true : undefined}
+        aria-disabled={props.disabled === true ? 'true' : undefined}
       >
         <Show
           when={isMultiple(props) ? props : undefined}

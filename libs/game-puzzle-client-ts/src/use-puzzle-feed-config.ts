@@ -87,14 +87,17 @@ export function createPuzzleFeedConfigState(): [
   );
 
   // An edit is shown until the saved row catches up with it.
-  createEffect(() => {
-    const edit = pending();
-    const row = saved();
-    if (edit === null || row === null || !customize().allowed) return;
-    if (encodePuzzleFeedConfig(edit) === encodePuzzleFeedConfig(row)) {
-      setPending(null);
+  createEffect(
+    () => {
+      const edit = pending();
+      const row = saved();
+      if (edit === null || row === null || !customize().allowed) return false;
+      return encodePuzzleFeedConfig(edit) === encodePuzzleFeedConfig(row);
+    },
+    (caughtUp) => {
+      if (caughtUp) setPending(null);
     }
-  });
+  );
 
   const setConfig: PuzzleFeedConfigSetter = (next) => {
     const value = typeof next === 'function' ? next(config()) : next;

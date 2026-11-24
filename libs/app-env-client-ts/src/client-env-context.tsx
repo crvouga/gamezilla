@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `ClientEnvProvider` — root of the product client tree. Projects the env's
  * nondeterminism ports (clock / timers / ids / server HTTP / mutation hold)
@@ -13,12 +13,14 @@ import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { ExternalUrlProvider } from '@pkgs/ui-root-client-ts/external-url';
 import { MutationSuccessHoldProvider } from '@pkgs/ui-root-client-ts/mutation-success-hold';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 import type { ClientEnv } from './client-env';
 import type { AppSyncEnginePool } from './sync-engine-pool';
 
-const EnvContext = createContext<ClientEnv>();
+/** `null` outside a provider: some trees mount without `createClient`. */
+const EnvContext = createContext<ClientEnv | null>(null);
 const PoolContext = createContext<AppSyncEnginePool>();
 
 export type ClientEnvProviderProps = {
@@ -33,8 +35,8 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
   const pool = untrack(() => props.syncEnginePool);
   const http: HttpClient = { fetch: env.server };
   return (
-    <EnvContext.Provider value={env}>
-      <PoolContext.Provider value={pool}>
+    <EnvContext value={env}>
+      <PoolContext value={pool}>
         <ClockProvider clock={env.clock} timers={env.timers}>
           <HttpClientProvider value={http}>
             <ExternalUrlProvider value={env.openExternalUrl}>
@@ -50,14 +52,14 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
             </ExternalUrlProvider>
           </HttpClientProvider>
         </ClockProvider>
-      </PoolContext.Provider>
-    </EnvContext.Provider>
+      </PoolContext>
+    </EnvContext>
   );
 }
 
 export function useClientEnv(): ClientEnv {
   const env = useContext(EnvContext);
-  if (env === undefined) {
+  if (env === null) {
     throw new Error(
       'useClientEnv: ClientEnvProvider missing — wrap the tree with createClient'
     );
@@ -67,15 +69,9 @@ export function useClientEnv(): ClientEnv {
 
 /** Soft read for trees that may mount without createClient (harness console). */
 export function useOptionalClientEnv(): ClientEnv | undefined {
-  return useContext(EnvContext);
+  return useContext(EnvContext) ?? undefined;
 }
 
 export function useSyncEnginePool(): AppSyncEnginePool {
-  const pool = useContext(PoolContext);
-  if (pool === undefined) {
-    throw new Error(
-      'useSyncEnginePool: ClientEnvProvider missing — wrap the tree with createClient'
-    );
-  }
-  return pool;
+  return useContext(PoolContext);
 }

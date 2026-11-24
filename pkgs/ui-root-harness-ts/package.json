@@ -34,8 +34,9 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -55,6 +56,7 @@
     "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
     "@playwright/test": "catalog:",
     "@solidjs/testing-library": "catalog:",
+    "@solidjs/vite-plugin": "catalog:",
     "@storybook/addon-a11y": "catalog:",
     "@storybook/addon-docs": "catalog:",
     "@storybook/addon-mcp": "catalog:",
@@ -67,8 +69,7 @@
     "storybook": "catalog:",
     "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "vite": "catalog:"
   },
   "category": "harness",
   "language": "typescript"

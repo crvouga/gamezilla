@@ -1,5 +1,6 @@
 import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 
 const COLUMNS = 7;
 const ROWS = 6;

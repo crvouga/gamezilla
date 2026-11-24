@@ -1,6 +1,6 @@
 import { BillingScreen } from './billing-screen';
 import { CheckoutReturnProvider } from './checkout-return';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What billing contributes to a client app: the membership screen, and the
  * session's memory of a paid checkout return. Nothing about membership

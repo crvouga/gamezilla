@@ -47,7 +47,7 @@ export function nightlyGroupNames(selection = 'all'): readonly string[] {
   if (selection === 'storybook') return [selection];
   if (!names.includes(selection))
     throw new Error(`Unknown nightly group: ${selection}`);
-  return selection === 'visual' ? ['gate', 'visual'] : [selection];
+  return [selection];
 }
 
 export function tracksNightlyIssue(

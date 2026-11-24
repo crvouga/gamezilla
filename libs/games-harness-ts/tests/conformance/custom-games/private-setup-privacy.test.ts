@@ -93,9 +93,7 @@ forEveryTurnGame(
     const opening = () => game.fixtures.firstSideVictory.slice(0, 2);
 
     test('each person receives their own setup alone; a watcher receives none', async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-private-setup-delivery`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         watchers: ['carol'],
         moves: opening(),
@@ -125,9 +123,7 @@ forEveryTurnGame(
     }, 240_000);
 
     test("a bot's setup reaches nobody, the creator included", async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-private-setup-bot`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         second: 'bot',
         watchers: ['carol'],
@@ -146,9 +142,7 @@ forEveryTurnGame(
     test("what a person receives does not change when only the other side's hidden setup does", async () => {
       // regression: private-setup-independent-bootstrap
       // regression: space-join-announcement-optimistic-race
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-private-setup-noninterference`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         watchers: ['carol'],
         ready: false,

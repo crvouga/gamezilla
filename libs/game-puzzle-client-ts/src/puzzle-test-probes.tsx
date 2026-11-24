@@ -1,5 +1,5 @@
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { PuzzleAttempt } from './puzzle-client';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 

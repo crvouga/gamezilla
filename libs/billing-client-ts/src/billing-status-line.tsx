@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * One line on where the membership stands, with its dates: when a trial
  * ends, when it renews, and — for one that will not renew — the last day of
@@ -7,9 +7,10 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 
 import type { BillingView } from './billing-view-model';
 

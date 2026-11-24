@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The billing screen's in-between states: a membership not known yet, a
  * paid checkout whose membership has not shown, a trial's last day, the last
@@ -20,9 +20,9 @@ import {
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared-ts/plus-membership-offer';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import { DAY, inputFor, NOW, PERIOD_END, row } from './billing-matrix';

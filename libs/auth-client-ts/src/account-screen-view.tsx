@@ -1,9 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   DatabaseIcon,
   SmartphoneIcon,
@@ -12,7 +12,8 @@ import {
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { AccountSignInAction, SignOutRow } from './account-actions-row';
 import type { SignInMethodsView } from './sign-in-methods-section';
 import { SignInMethodsSection } from './sign-in-methods-section';

@@ -1,18 +1,17 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
+import { dynamic, type JSX, Portal } from '@solidjs/web';
 import {
   createContext,
   createEffect,
   createSignal,
-  type JSX,
   Show,
   useContext,
 } from 'solid-js';
-import { Dynamic, Portal } from 'solid-js/web';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
 import { IconButton } from '../icon-button/index';
@@ -53,7 +52,7 @@ export function DismissibleBannerPortalProvider(
     host: (position) => (position === 'top' ? topHost() : bottomHost()),
   };
   return (
-    <DismissibleBannerPortalContext.Provider value={api}>
+    <DismissibleBannerPortalContext value={api}>
       <div
         class="box flex-1 min-h-0 min-w-0"
         data-component="DismissibleBannerPortalRoot"
@@ -72,7 +71,7 @@ export function DismissibleBannerPortalProvider(
           ref={setBottomHost}
         />
       </div>
-    </DismissibleBannerPortalContext.Provider>
+    </DismissibleBannerPortalContext>
   );
 }
 
@@ -116,9 +115,12 @@ export function InFlowBanner(props: InFlowBannerProps): JSX.Element {
   const position = (): DismissibleBannerPosition => props.position ?? 'top';
   const visible = (): boolean => props.visible ?? true;
 
-  createEffect(() => {
-    if (portal === null && visible()) throw new Error(MISSING_PORTAL_MSG);
-  });
+  createEffect(
+    () => portal === null && visible(),
+    (unhosted) => {
+      if (unhosted) throw new Error(MISSING_PORTAL_MSG);
+    }
+  );
 
   return (
     <Show when={portal?.host(position())}>
@@ -179,11 +181,11 @@ function DismissibleBannerPromptBody(props: {
   return (
     <div class="box flex-1 min-w-0 flex-row items-center gap-2 flex-wrap">
       <div class="box flex-1 min-w-0">
-        <p class="text textBodyBold" classList={toneTextClass(props.tone)}>
+        <p class={['text textBodyBold', toneTextClass(props.tone)]}>
           {props.title}
         </p>
         <Show when={props.subtitle !== undefined && props.subtitle !== null}>
-          <p class="text textCaption" classList={toneTextClass(props.tone)}>
+          <p class={['text textCaption', toneTextClass(props.tone)]}>
             {props.subtitle}
           </p>
         </Show>
@@ -235,15 +237,10 @@ function sheetClass(
 }
 
 function BannerToneIcon(props: { tone: DismissibleBannerTone }): JSX.Element {
+  const ToneIcon = dynamic(() => TONE[props.tone].icon);
   return (
     <Show when={TONE[props.tone].icon}>
-      {(icon) => (
-        <Dynamic
-          component={icon()}
-          size={iconSize.md}
-          color={TONE[props.tone].iconColor}
-        />
-      )}
+      <ToneIcon size={iconSize.md} color={TONE[props.tone].iconColor} />
     </Show>
   );
 }

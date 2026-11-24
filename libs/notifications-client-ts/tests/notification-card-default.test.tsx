@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, mock, test } from 'bun:test';
 import { ModerationProvider } from '@libs/moderation-client-ts/moderation-context';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';

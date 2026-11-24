@@ -13,7 +13,7 @@ import { openHarness } from './open-light-cycles-harness';
 
 // regression: light-cycles-result-read-from-empty-overlay
 test('seed 1 reads Nova winning round three after Alice and Bob sit out', async () => {
-  await using s = await openHarness('light-cycles-result-reading', { seed: 1 });
+  await using s = await openHarness({ seed: 1 });
   await s.apply(establishLightCyclesGame, {
     count: 3,
     riders: { Comet: 'alice', Ember: 'bob', Nova: 'carol' },

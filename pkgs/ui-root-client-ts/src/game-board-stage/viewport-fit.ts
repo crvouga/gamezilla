@@ -1,7 +1,7 @@
 import { BREAKPOINT_MIN_TABLET } from '@pkgs/ui-root-shared-ts/breakpoints';
 import { spacing } from '@pkgs/ui-root-shared-ts/scale';
 import { maxWidth } from '@pkgs/ui-root-shared-ts/sizes';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { createFrameResizeObserver } from '../observe-element-resize';
 
 /** Scroll changes the view, not the stage's original height budget. */
@@ -62,45 +62,47 @@ export function createViewportSquareFit(
   enabled: Accessor<boolean>
 ): Accessor<number | undefined> {
   const [limit, setLimit] = createSignal<number>();
-  createEffect(() => {
-    if (!enabled()) {
-      setLimit(undefined);
-      return;
-    }
-    const stage = root();
-    const view = stage?.ownerDocument.defaultView;
-    if (!stage || !view) return;
-    const read = () => {
-      const rect = stage.getBoundingClientRect();
-      if (view.innerWidth < BREAKPOINT_MIN_TABLET || rect.width <= 0) {
+  createEffect(
+    () => [enabled(), root()] as const,
+    ([on, stage]) => {
+      if (!on) {
         setLimit(undefined);
-        return;
+        return undefined;
       }
-      const chrome = Math.max(0, rect.height - rect.width);
-      const height = view.visualViewport?.height ?? view.innerHeight;
-      const below = belowStage(stage, rect);
-      const available =
-        height - contentTop(stage) - chrome - below - spacing[4];
-      setLimit(Math.max(maxWidth.form, Math.floor(available)));
-    };
-    read();
-    const observer = createFrameResizeObserver(view, read);
-    for (const target of layoutTargets(stage)) observer?.observe(target);
-    for (
-      let row = stage.parentElement?.nextElementSibling;
-      row;
-      row = row.nextElementSibling
-    )
-      observer?.observe(row);
-    view.addEventListener('resize', read);
-    view.visualViewport?.addEventListener('resize', read);
-    stage.addEventListener('ui-testing:element-layout', read);
-    onCleanup(() => {
-      observer?.disconnect();
-      view.removeEventListener('resize', read);
-      view.visualViewport?.removeEventListener('resize', read);
-      stage.removeEventListener('ui-testing:element-layout', read);
-    });
-  });
+      const view = stage?.ownerDocument.defaultView;
+      if (!stage || !view) return undefined;
+      const read = () => {
+        const rect = stage.getBoundingClientRect();
+        if (view.innerWidth < BREAKPOINT_MIN_TABLET || rect.width <= 0) {
+          setLimit(undefined);
+          return;
+        }
+        const chrome = Math.max(0, rect.height - rect.width);
+        const height = view.visualViewport?.height ?? view.innerHeight;
+        const below = belowStage(stage, rect);
+        const available =
+          height - contentTop(stage) - chrome - below - spacing[4];
+        setLimit(Math.max(maxWidth.form, Math.floor(available)));
+      };
+      read();
+      const observer = createFrameResizeObserver(view, read);
+      for (const target of layoutTargets(stage)) observer?.observe(target);
+      for (
+        let row = stage.parentElement?.nextElementSibling;
+        row;
+        row = row.nextElementSibling
+      )
+        observer?.observe(row);
+      view.addEventListener('resize', read);
+      view.visualViewport?.addEventListener('resize', read);
+      stage.addEventListener('ui-testing:element-layout', read);
+      return () => {
+        observer?.disconnect();
+        view.removeEventListener('resize', read);
+        view.visualViewport?.removeEventListener('resize', read);
+        stage.removeEventListener('ui-testing:element-layout', read);
+      };
+    }
+  );
   return limit;
 }

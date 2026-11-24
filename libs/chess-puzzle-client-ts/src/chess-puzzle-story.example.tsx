@@ -9,7 +9,7 @@ import {
   SoundsPreferenceProvider,
 } from '@pkgs/sounds-client-ts/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
 

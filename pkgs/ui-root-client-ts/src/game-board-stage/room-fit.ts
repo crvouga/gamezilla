@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { createFrameResizeObserver } from '../observe-element-resize';
 
 /**
@@ -158,57 +158,58 @@ export function createStageRoomFit(
   board: Accessor<HTMLElement | undefined>
 ): Accessor<number | undefined> {
   const [limit, setLimit] = createSignal<number>();
-  createEffect(() => {
-    const stage = root();
-    const surface = board();
-    const cell = stage?.parentElement;
-    const view = stage?.ownerDocument.defaultView;
-    if (!stage || !surface || !cell || !view) return;
-    // The board's height at the room's whole width, and whether narrowing
-    // it failed to shorten it, for the room's width that was measured at.
-    let whole: { width: number; height: number } | undefined;
-    let rigid = false;
-    const fit = createBoardRoomFitter();
-    const read = () => {
-      if (whole !== undefined && whole.width !== cell.clientWidth) {
-        whole = undefined;
-        rigid = false;
-      }
-      const narrowed = surface.offsetWidth < cell.clientWidth - 1;
-      if (!narrowed)
-        whole = { width: cell.clientWidth, height: surface.offsetHeight };
-      else if (whole !== undefined && surface.offsetHeight >= whole.height)
-        rigid = true;
-      const style = view.getComputedStyle(cell);
-      const fixed = style.getPropertyValue('--game-stage-room');
-      if (fixed.trim() !== '1' || rigid) {
-        setLimit(undefined);
-        return;
-      }
-      const next = fit({
-        width: cell.clientWidth,
-        height: cell.clientHeight,
-        chrome: stage.offsetHeight - surface.offsetHeight,
-        boardWidth: surface.offsetWidth,
-        boardHeight: surface.offsetHeight,
-        smallest: smallestIn(style),
-        heightAt: (width) => heightAt(stage, surface, width),
-      });
-      // A pixel of rounding never starts another pass.
-      setLimit((last) =>
-        last !== undefined && next !== undefined && Math.abs(last - next) <= 1
-          ? last
-          : next
-      );
-    };
-    read();
-    const observer = createFrameResizeObserver(view, read);
-    for (const target of [cell, stage, surface]) observer?.observe(target);
-    view.addEventListener('resize', read);
-    onCleanup(() => {
-      observer?.disconnect();
-      view.removeEventListener('resize', read);
-    });
-  });
+  createEffect(
+    () => [root(), board()] as const,
+    ([stage, surface]) => {
+      const cell = stage?.parentElement;
+      const view = stage?.ownerDocument.defaultView;
+      if (!stage || !surface || !cell || !view) return undefined;
+      // The board's height at the room's whole width, and whether narrowing
+      // it failed to shorten it, for the room's width that was measured at.
+      let whole: { width: number; height: number } | undefined;
+      let rigid = false;
+      const fit = createBoardRoomFitter();
+      const read = () => {
+        if (whole !== undefined && whole.width !== cell.clientWidth) {
+          whole = undefined;
+          rigid = false;
+        }
+        const narrowed = surface.offsetWidth < cell.clientWidth - 1;
+        if (!narrowed)
+          whole = { width: cell.clientWidth, height: surface.offsetHeight };
+        else if (whole !== undefined && surface.offsetHeight >= whole.height)
+          rigid = true;
+        const style = view.getComputedStyle(cell);
+        const fixed = style.getPropertyValue('--game-stage-room');
+        if (fixed.trim() !== '1' || rigid) {
+          setLimit(undefined);
+          return;
+        }
+        const next = fit({
+          width: cell.clientWidth,
+          height: cell.clientHeight,
+          chrome: stage.offsetHeight - surface.offsetHeight,
+          boardWidth: surface.offsetWidth,
+          boardHeight: surface.offsetHeight,
+          smallest: smallestIn(style),
+          heightAt: (width) => heightAt(stage, surface, width),
+        });
+        // A pixel of rounding never starts another pass.
+        setLimit((last) =>
+          last !== undefined && next !== undefined && Math.abs(last - next) <= 1
+            ? last
+            : next
+        );
+      };
+      read();
+      const observer = createFrameResizeObserver(view, read);
+      for (const target of [cell, stage, surface]) observer?.observe(target);
+      view.addEventListener('resize', read);
+      return () => {
+        observer?.disconnect();
+        view.removeEventListener('resize', read);
+      };
+    }
+  );
   return limit;
 }

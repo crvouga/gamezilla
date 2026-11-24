@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { AppLogo } from '@pkgs/ui-root-client-ts/app-logo';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

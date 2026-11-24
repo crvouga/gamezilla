@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Where the keyboard goes when one `ScreenBase` replaces another inside an
  * `AppFrame` (WCAG 2.4.3): onto the new screen's title, or back onto the
@@ -11,7 +11,8 @@ import { join } from 'node:path';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { screen } from '@solidjs/testing-library';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Show } from 'solid-js';
 import { renderUi } from './render';
 
 const COMPACT = { width: 390, height: 800 };

@@ -8,8 +8,12 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 
 export function readRouteParam(value: string | string[] | undefined): string {
   if (typeof value === 'string') return value;
@@ -45,32 +49,39 @@ export function useFriendUserProfile(userId: Accessor<string>): {
     return row?.deleted_at == null ? (row ?? null) : null;
   });
   const local = { row: localRow, isLoading: query.isLoading };
-  const [answered, setAnswered] = createSignal(false);
-  createEffect(() => {
-    const id = userId();
-    setAnswered(false);
-    if (!id) return;
-    const subscription = engine.subscribeQuery('profilesByIds', { ids: [id] });
-    let active = true;
-    void subscription.waitForFirstSync().then(() => {
-      if (active) setAnswered(true);
-    });
-    onCleanup(() => {
-      active = false;
-      subscription.unsubscribe();
-    });
-  });
+  // The answer belongs to the profile it was asked for, so another profile
+  // starts unanswered without anything having to reset it.
+  const [answeredId, setAnsweredId] = createSignal<string | null>(null);
+  const answered = () => answeredId() === userId();
+  createEffect(
+    () => userId(),
+    (id) => {
+      if (!id) return;
+      const subscription = engine.subscribeQuery('profilesByIds', {
+        ids: [id],
+      });
+      let active = true;
+      void subscription.waitForFirstSync().then(() => {
+        if (active) setAnsweredId(id);
+      });
+      return () => {
+        active = false;
+        subscription.unsubscribe();
+      };
+    }
+  );
   const profile = createMemo<FriendProfile>(() => ({
     userId: userId(),
     username: local.row()?.username ?? '',
     avatarConfig: local.row()?.avatar_config ?? null,
   }));
 
-  createEffect(() => {
-    if (myProfileId() !== null && userId() === myProfileId()) {
-      router.replace('/profile');
+  createEffect(
+    () => myProfileId() !== null && userId() === myProfileId(),
+    (isMine) => {
+      if (isMine) router.replace('/profile');
     }
-  });
+  );
 
   const refreshProfile = () => {
     void engine.refreshQueries();

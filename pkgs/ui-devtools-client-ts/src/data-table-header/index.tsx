@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { DATA_TABLE_SELECTION_COL_WIDTH } from '@pkgs/ui-devtools-shared-ts/data-table-metrics';
 import type {
   DataTableColumn,
@@ -8,7 +8,8 @@ import type {
 } from '@pkgs/ui-devtools-shared-ts/data-table-types';
 import { Checkbox } from '@pkgs/ui-root-client-ts/checkbox';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import styles from '../data-table/data-table.module.css';
 
 export type DataTableSelectionHeader = {

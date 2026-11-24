@@ -1,6 +1,6 @@
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { RemoveSpacePersonModalView } from './remove-space-person-modal-view';

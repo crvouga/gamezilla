@@ -44,7 +44,7 @@ async function playThrough(
 
 // regression: multiseat-named-announcement
 test('a four-seat listener hears the active person and the actual winner', async () => {
-  await using s = await openConformanceHarness('four-seat-named-announcement');
+  await using s = await openConformanceHarness();
   const { people } = await matched(s, GAME);
   const listener = people[1]!;
   const first = people[0]!;
@@ -74,7 +74,7 @@ test('a four-seat listener hears the active person and the actual winner', async
 
 // regression: multiseat-resign-confirmation
 test('four-seat resign confirmation explains the draw that all players receive', async () => {
-  await using s = await openConformanceHarness('four-seat-resign-confirmation');
+  await using s = await openConformanceHarness();
   const { people } = await matched(s, GAME);
   await playThrough(s, people, GAME.fixtures.firstSideVictory.slice(0, 4));
   const leaving = people[1]!;
@@ -100,7 +100,7 @@ test('four-seat resign confirmation explains the draw that all players receive',
 
 // regression: multiseat-matchmaking-count
 test('a four-seat search states its required group size before and while waiting', async () => {
-  await using s = await openConformanceHarness('four-seat-matchmaking-count');
+  await using s = await openConformanceHarness();
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(givenGameSpace, 'alice');
   await s.apply(openFindingAnOpponent, 'alice', GAME.shared.id);

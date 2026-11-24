@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type {
   MutationEnv,
@@ -71,8 +71,8 @@ export function MutationClientProvider(
     void client.drain().then(unregisterMutationDrain, unregisterMutationDrain);
   });
   return (
-    <MutationClientContext.Provider value={client}>
+    <MutationClientContext value={client}>
       {props.children}
-    </MutationClientContext.Provider>
+    </MutationClientContext>
   );
 }

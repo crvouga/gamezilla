@@ -5,7 +5,7 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListCaptionText } from './account-device-list-caption-text';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';

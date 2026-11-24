@@ -1,6 +1,6 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
@@ -25,7 +25,8 @@ import {
 } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { Index, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
 import { ChipSeatTags, PlaySeatTags } from './game-frame-seat-tags';
 import { frameUsesRail } from './game-frame-table';
@@ -347,11 +348,11 @@ export function FrameOthersView(props: TableProps): JSX.Element {
                 />
               )}
             </Show>
-            <Index each={props.table.others}>
+            <For keyed={false} each={props.table.others}>
               {(seat) => (
                 <FrameSeatChipView seat={seat()} people={props.people} />
               )}
-            </Index>
+            </For>
           </GamePlayerRail>
         </GameSessionParticipants>
       </Match>

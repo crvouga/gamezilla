@@ -14,7 +14,7 @@ import { openHarness } from './open-profile-harness';
 
 // regression: privacy-denial-replaces-action-control
 test('expired proof shows a visible refusal and leaves the account active', async () => {
-  await using s = await openHarness('privacy-old-proof-refusal');
+  await using s = await openHarness();
   await s.apply(proveAccount, 'alice');
   const accountId = await s.read(signedInAccountOf, 'alice');
   expect(accountId).not.toBeNull();

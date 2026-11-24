@@ -27,7 +27,7 @@ import { COUNTING_RACE_GAME } from './counting-race-game';
 const RACE_SYSTEM = gameSystem('counting-race', [COUNTING_RACE_GAME]);
 
 test('a game registered only through the public contracts is offered, played and counted by the shared platform', async () => {
-  await using s = await openGameHarness(RACE_SYSTEM, 'counting-race-plugin');
+  await using s = await openGameHarness(RACE_SYSTEM);
   await s.apply(establishCustomGame, 'counting-race', {
     moves: COUNTING_RACE_GAME.fixtures.firstSideVictory.slice(0, -1),
   });

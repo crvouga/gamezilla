@@ -1,5 +1,5 @@
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { CatalogueSourceUpload } from './catalogue-load-client';
 import type { CatalogueSourceStatus } from './catalogue-load-places';
 

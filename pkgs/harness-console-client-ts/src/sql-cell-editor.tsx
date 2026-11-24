@@ -7,7 +7,8 @@ import type {
 } from '@pkgs/ui-root-shared-ts/code-editor-types';
 import type { WebKeyboardEventLike } from '@pkgs/ui-root-shared-ts/match';
 import { matchesWebShortcut } from '@pkgs/ui-root-shared-ts/match';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 import type { CompletionResult, completeAt } from './sql-completion';
 import { applyCompletion } from './sql-completion';
 import { SqlCompletionPopup } from './sql-completion-popup';

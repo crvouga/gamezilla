@@ -33,7 +33,7 @@ The affected safety tasks from `ci-stage.ts`. A cache hit is not scheduled. The 
 
 A source change reruns that package and every transitive workspace dependent, because those tasks depend on `^src`. A test-only change stays on the package that holds the test: `src` inputs exclude `*.test.ts`. A workspace package that a package uses only from its tests and scripts (a `devDependency` its `src/` never imports) is not an edge of that package's own `src`: the package lists its `src` edges in its `turbo.json` (`libs/tools-harness-ts/scripts/src-task-edges.ts` writes them, `src-task-edges.test.ts` fails on drift). An edit to the helper reruns the package's own `lint`, `tc` and `test`, which `^src` still reaches, and stops there instead of walking up to everything that depends on the package. `mise.toml` and `tsconfig.base.json` (compiler options only) are global dependencies, and `bun.lock` is the audit input, so each of those misses the whole corpus. That full miss is still the five-minute promise. The workspace import aliases are in `tsconfig.paths.json`, which is not a global dependency: 73 of the 75 edits `tsconfig.base.json` took between 2026-09-01 and 2026-10-28 only added or renamed an alias, and each one missed every task. Packages resolve each other through `node_modules` and their `exports`, so `@apps/product-ts#tc` is the only task that lists the file. `lint` lists `biome.shared.json`, not `biome.json`: about three quarters of the entries in the plugins' `includes` lists name one package's directory, so `biome.json` is split into the shared part (rules, plugins, repository-wide scopes) and, per package, a `biome-scope.json` holding the entries that name it (`libs/tools-harness-ts/scripts/biome-scope-slices.ts` writes both after an edit to `biome.json`; `biome-scope-slices.test.ts` fails on drift). Scoping a package under a rule reruns that package's `lint`; a new rule, plugin or repository-wide scope still reruns every package's. A package's `src` also leaves out `tsconfig.tc.json`, `turbo.json` and `biome-scope.json`, which no dependent can see, and its `src` edges are the workspace packages its `src/` (and any other directory its `exports` name) imports, whichever section of `package.json` declares them.
 
-Deployment and live health remain on the release path. UI quality and the other deeper suites outside the gate catalog run nightly.
+Deployment and live health remain on the release path. The deeper suites outside the gate catalog run nightly.
 
 ## Cache-friendly structure
 
@@ -145,7 +145,7 @@ A foundational package such as `@pkgs/property-shared-ts` misses almost the whol
 
 - `//#deploy`, the environment apply, migrations, and worker publish
 - Health and the `@synthetic` probes
-- `@apps/product-ts#verify:ui-quality` and the other nightly suites (Verify Nightly)
+- The nightly suites (Verify Nightly)
 - Test reports, traces and coverage: the pull-request verification keeps none (Verify Nightly owns them)
 - A laptop `bun verify`, which keeps the 10 minute deadline and admits one verification at a time
 

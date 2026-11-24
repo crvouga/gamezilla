@@ -1,7 +1,7 @@
 import type { PuzzlePickSource } from '@libs/game-puzzle-shared-ts/next-puzzle-selection';
 import type { PuzzlePickState } from '@libs/game-puzzle-shared-ts/pick-state';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 
 export type PuzzleTestLoadingStatusProps = {

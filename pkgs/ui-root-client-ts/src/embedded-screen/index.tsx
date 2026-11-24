@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import type { ScreenMeasure } from '../screen-measure';
@@ -84,23 +85,25 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
           ref={(el) => {
             root = el;
           }}
-          class={
+          class={[
             props.fill === true
               ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg pt-ui-sm'
-              : 'box self-stretch min-w-0 gap-4'
-          }
-          classList={{
-            'px-ui-lg':
-              props.fill === true &&
-              inset() &&
-              standardInset(props.compactInset),
-            'px-ui-xs':
-              props.fill === true && inset() && props.compactInset === 'narrow',
-            [styles['narrowest'] ?? '']:
-              props.fill === true &&
-              inset() &&
-              props.compactInset === 'narrowest',
-          }}
+              : 'box self-stretch min-w-0 gap-4',
+            {
+              'px-ui-lg':
+                props.fill === true &&
+                inset() &&
+                standardInset(props.compactInset),
+              'px-ui-xs':
+                props.fill === true &&
+                inset() &&
+                props.compactInset === 'narrow',
+              [styles['narrowest'] ?? '']:
+                props.fill === true &&
+                inset() &&
+                props.compactInset === 'narrowest',
+            },
+          ]}
           {...dataAttrs({
             component: 'EmbeddedScreen',
             ...props.dataSet,

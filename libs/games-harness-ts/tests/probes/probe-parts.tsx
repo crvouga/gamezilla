@@ -21,7 +21,8 @@ import {
   type GameSide,
   gameSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 
 /** What a board and a puzzle board are both given. */
 type BoardProps = {

@@ -1,6 +1,12 @@
 import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared-ts/interaction-entities';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 
 /** Reconcile a decided result after restore, including an interrupted rating write. */
 export function usePuzzleResultRecorder(args: {
@@ -32,25 +38,33 @@ export function usePuzzleResultRecorder(args: {
     disposed = true;
     if (retry !== null) timers.clearTimeout(retry);
   });
-  const record = (): void => {
+  type Decided = {
+    readonly key: string;
+    readonly outcome: PuzzleOutcomeKind;
+    readonly score: 0 | 500 | 1000;
+  };
+  /** The decided result this member is to record, if there is one. */
+  const decided = (): Decided | null => {
     const r = args.recorder;
     const result = r.result();
     const key = result.attempt;
     const score = result.score;
-    if (score !== 0 && score !== 500 && score !== 1000) return;
+    if (score !== 0 && score !== 500 && score !== 1000) return null;
     if (
       key === null ||
       result.owner !== args.myId() ||
       !r.canRecord() ||
       !r.interactionsReady() ||
-      result.outcome === null ||
-      result.score === null
+      result.outcome === null
     )
-      return;
+      return null;
+    return { key, outcome: result.outcome, score };
+  };
+  const write = ({ key, outcome, score }: Decided): void => {
     if (finished.has(key) || writing.has(key)) return;
     writing.add(key);
     void args
-      .finalize(result.outcome, score)
+      .finalize(outcome, score)
       .then(() => {
         finished.add(key);
       })
@@ -66,9 +80,17 @@ export function usePuzzleResultRecorder(args: {
         writing.delete(key);
       });
   };
-  createEffect(() => {
-    void revision();
-    record();
-  });
-  return record;
+  createEffect(
+    () => {
+      void revision();
+      return decided();
+    },
+    (result) => {
+      if (result !== null) untrack(() => write(result));
+    }
+  );
+  return () => {
+    const result = decided();
+    if (result !== null) write(result);
+  };
 }

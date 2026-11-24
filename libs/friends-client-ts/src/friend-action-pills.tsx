@@ -1,5 +1,5 @@
 import type { FriendActionPillsProps } from '@libs/friends-shared-ts/friend-action-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import { useFriendActionMutations } from './use-friend-action-mutations';
 

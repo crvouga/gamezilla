@@ -1,12 +1,13 @@
 import { startPuzzlePlaytestMutation } from '@libs/game-puzzle-shared-ts/start-playtest-mutation';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import type { useContentDraftSave } from './use-content-draft-save';
 
@@ -61,9 +62,15 @@ export function ContentDraftPlaytest(props: {
           ? t`Playtest again`
           : t`Start playtest`;
       },
-      loading: t`Preparing…`,
-      success: t`Playtest ready`,
-      error: t`Try playtesting again`,
+      get loading() {
+        return t`Preparing…`;
+      },
+      get success() {
+        return t`Playtest ready`;
+      },
+      get error() {
+        return t`Try playtesting again`;
+      },
     },
     get disabled() {
       return (

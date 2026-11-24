@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type TestCommandProbeProps = {
   /** Accessible name of the command field. */
@@ -59,12 +59,12 @@ export function TestCommandProbe(props: TestCommandProbeProps): JSX.Element {
         value={props.command}
         onInput={(event) => props.onCommandInput(event.currentTarget.value)}
         aria-label={props.commandLabel}
-        tabIndex={-1}
+        tabindex={-1}
         data-testid={props.commandTestId}
       />
       <button
         type="button"
-        tabIndex={-1}
+        tabindex={-1}
         onClick={() => props.onSend()}
         data-testid={props.sendTestId}
       >

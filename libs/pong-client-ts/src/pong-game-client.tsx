@@ -1,7 +1,7 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { pongGameShared } from '@libs/pong-shared-ts/pong-game';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { PongBoard } from './pong-board';
 import { pongFrame } from './pong-frame';
 

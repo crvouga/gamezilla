@@ -9,10 +9,8 @@ export const { Given, When, Then } = stepsFor<ContentWorld>();
 export function useContentWorld(): void {
   setWorld<ContentWorld>({
     create: async (ctx) => ({
-      run: await contentSystem.run({ seed: ctx.testId, report: true }),
+      run: await contentSystem.run({ seed: ctx.testId }),
     }),
     dispose: (world) => world.run[Symbol.asyncDispose](),
-    record: (world, step, fn) =>
-      world.run.record({ kind: step.keyword.trim(), title: step.text }, fn),
   });
 }

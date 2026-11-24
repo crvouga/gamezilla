@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Switch } from 'solid-js';
 import {
   BottomActionBarAction,
   BottomActionBarButton,

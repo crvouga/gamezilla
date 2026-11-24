@@ -1,5 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
 import {

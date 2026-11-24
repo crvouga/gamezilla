@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -9,8 +9,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client-ts/screen-body-scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import type { JSX } from 'solid-js';
-import { createMemo, Index, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { SpaceCardTileView } from './space-card-tile-view';
 import type { SpaceCardData } from './space-card-view';
 import { SpaceCardView } from './space-card-view';
@@ -103,14 +103,14 @@ function SpacesCardGrid(props: {
       </Show>
       <Show when={paired().length > 0}>
         <Grid columns={2} gap="md">
-          <Index each={paired()}>
+          <For keyed={false} each={paired()}>
             {(space) => (
               <SpaceCardTileView
                 space={space()}
                 onOpen={() => props.onOpenSpace(space().spaceId)}
               />
             )}
-          </Index>
+          </For>
         </Grid>
       </Show>
     </StackVertical>
@@ -136,14 +136,14 @@ function SpacesGroup(props: {
         when={mode() === 'wide'}
         fallback={
           <MenuSection>
-            <Index each={props.spaces}>
+            <For keyed={false} each={props.spaces}>
               {(space) => (
                 <SpaceCardView
                   space={space()}
                   onOpen={() => props.onOpenSpace(space().spaceId)}
                 />
               )}
-            </Index>
+            </For>
           </MenuSection>
         }
       >

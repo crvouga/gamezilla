@@ -4,7 +4,7 @@
  * the draft's title and save line, headed by undo and redo. Production
  * never imports this module.
  */
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import { StoryDraftHistory } from './content-story.example';

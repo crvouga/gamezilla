@@ -6,8 +6,9 @@ import { MonitorIcon, ServerIcon, XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { createSignal, For, Show } from 'solid-js';
 import { InspectorRow } from './inspector-row';
+import { createLiveReading } from './live-reading';
 
 const ICON_SIZE = 32;
 const GLYPH_SIZE = 16;
@@ -48,11 +49,10 @@ function NodeRowView(props: {
 }
 
 function useTopologyRows(session: () => ProductHarnessSession) {
-  const [rows, setRows] = createSignal<readonly NodeRow[]>([]);
-  createEffect(() => {
+  return createLiveReading(() => {
     const live = session();
-    const refresh = () => {
-      setRows([
+    return {
+      read: (): readonly NodeRow[] => [
         ...[...live.clients.keys()].map((id) => ({
           id,
           kind: 'client' as const,
@@ -61,12 +61,10 @@ function useTopologyRows(session: () => ProductHarnessSession) {
           id,
           kind: 'server' as const,
         })),
-      ]);
+      ],
+      subscribe: (listener) => live.subscribe(listener),
     };
-    refresh();
-    onCleanup(live.subscribe(refresh));
   });
-  return rows;
 }
 
 /**

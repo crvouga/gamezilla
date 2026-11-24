@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
@@ -16,7 +16,8 @@ import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { CrashCopyButton, type CrashCopyPhase } from './crash-copy-button';
 
 const BUTTON_ICON_SIZE = 16;

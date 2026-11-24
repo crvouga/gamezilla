@@ -3,7 +3,7 @@ import { createClient } from '@libs/app-root-client-ts/create-client';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { createMemoryHistory } from '@solidjs/router';
+import { memoryHistory } from '@solidjs/router';
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
 import { harnessClientEnv } from './harness-client-env';
 import { hostedSpaceFixture } from './hosted-space-fixture';
@@ -19,7 +19,7 @@ test.each([false, true])(
       subs: [hostedSpaceFixture(recovered), ...APP_SUB_CLIENTS],
       loadApp: () => Promise.resolve(APP),
     });
-    const history = createMemoryHistory();
+    const history = memoryHistory();
     const view = render(() => <client.App embedded history={history} />);
     const notNow = async (): Promise<void> => {
       fireEvent.click(

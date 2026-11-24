@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Circle marks + the arrow layer for user / parent shapes.
  */
@@ -15,7 +15,8 @@ import {
   CELL_UNITS,
   squareOrigin,
 } from '@pkgs/chess-board-root-shared-ts/board-units';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, For, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import {
   ChessBoardArrows,

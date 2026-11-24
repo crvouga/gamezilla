@@ -1,12 +1,12 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ModalBody } from '@pkgs/ui-root-client-ts/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client-ts/social-sign-in-button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import { ContinueWithEmailButton } from './continue-with-email-button';
 import { useSignInCapabilities } from './sign-in-capabilities-context';

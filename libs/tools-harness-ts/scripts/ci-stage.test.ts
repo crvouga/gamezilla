@@ -68,7 +68,6 @@ test('Release holds main to the catalog, spec language and chart ownership gates
   for (const task of [
     '@libs/tools-harness-ts#ci:i18n',
     '@libs/tools-harness-ts#ci:specs',
-    '@libs/tools-harness-ts#ci:statecharts',
   ]) {
     expect(tasks).toContain(task);
     expect(isBlockingCiTask(task, tasks)).toBe(true);

@@ -10,8 +10,7 @@ import type { OpenHarness } from '@libs/harness-ts/open-harness';
 const BATTLESHIP_SYSTEM = gameSystem('battleship', [BATTLESHIP_HARNESS_GAME]);
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openGameHarness(BATTLESHIP_SYSTEM, testId, options);
+  return openGameHarness(BATTLESHIP_SYSTEM, options);
 }

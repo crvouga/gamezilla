@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {
@@ -12,7 +12,7 @@ import {
 } from '@pkgs/ui-root-client-ts/landmarks';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import {
   ExampleSection,

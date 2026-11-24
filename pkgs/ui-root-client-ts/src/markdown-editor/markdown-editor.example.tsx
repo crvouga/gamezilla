@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { MarkdownEditor } from '@pkgs/ui-root-client-ts/markdown-editor';
 import { createSignal } from 'solid-js';

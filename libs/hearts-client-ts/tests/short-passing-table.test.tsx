@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { HeartsBoard } from '@libs/hearts-client-ts/hearts-board';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 // regression: hearts-short-passing-context-crowds-hand
@@ -36,6 +36,7 @@ test('320x568 passing keeps players and scores discoverable and restores the tab
   fireEvent.click(toggle);
   expect(byTestId('hearts-card-2C').getAttribute('aria-pressed')).toBe('true');
   setPosition('hearts:4:play:10,20,30,40:0::-');
+  flush();
   expect(view.queryByRole('button', { name: 'Players and scores' })).toBeNull();
   expect(byTestId('hearts-seat-black').textContent).toContain('Score 20');
 });

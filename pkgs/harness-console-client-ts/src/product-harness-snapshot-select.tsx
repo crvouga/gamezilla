@@ -7,7 +7,8 @@ import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   formatSnapshotAge,
   formatSnapshotBytes,

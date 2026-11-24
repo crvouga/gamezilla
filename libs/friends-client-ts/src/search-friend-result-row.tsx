@@ -2,7 +2,7 @@ import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { FriendActionPills } from './friend-action-pills';
 import {

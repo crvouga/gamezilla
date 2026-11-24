@@ -2,8 +2,8 @@ import {
   USERNAME_MAX_LENGTH,
   USERNAME_MIN_LENGTH,
 } from '@libs/profile-shared-ts/username';
-import { Trans } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
 
 export function usernameErrorLabel(
   error: { readonly code: string } | null

@@ -8,7 +8,7 @@ import { AccountAutomationLabel } from '@libs/profile-client-ts/account-automati
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -17,7 +17,8 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { MultiplayerClock } from './multiplayer-clocks';
 
 /** Who this device is in the game, and the opponent as they may be shown. */

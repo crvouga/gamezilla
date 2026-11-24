@@ -1,8 +1,9 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PreviewCard } from '@pkgs/ui-root-client-ts/preview-card-grid';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ContentThumbnail } from './content-thumbnail';
 
 /** How many of a pack's puzzles the person has solved. */
@@ -32,11 +33,13 @@ export function ContentProgressLine(props: {
   return (
     <Text variant="inherit" testId="content-progress">
       <Show when={props.pack} fallback={solved()}>
-        {(pack) =>
-          props.solved === true
-            ? t`Solved · ${count()} in ${pack()}`
-            : t`Pack: ${pack()} · ${solved()}`
-        }
+        {(pack) => (
+          <>
+            {props.solved === true
+              ? t`Solved · ${count()} in ${pack()}`
+              : t`Pack: ${pack()} · ${solved()}`}
+          </>
+        )}
       </Show>
     </Text>
   );

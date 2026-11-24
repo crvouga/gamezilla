@@ -1,6 +1,6 @@
 import { RefusedChangeNotice } from '@libs/app-env-client-ts/refused-change-notice';
 import { patchAvatarMutation } from '@libs/profile-shared-ts/patch-avatar-mutation';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const AVATAR_CHANGES: readonly string[] = [patchAvatarMutation.name];
 

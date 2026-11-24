@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { usePuzzleRatingFeedback } from '@libs/game-puzzle-client-ts/use-puzzle-rating-feedback';
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 import { forEveryTurnGame } from '../game-suite';
 import { puzzleCase } from './puzzle-room';
 
@@ -19,7 +19,21 @@ function feedback(initial: PuzzleCompletion) {
     });
     return { dispose, completion, setCompletion, setEnabled, rating };
   });
-  return { ...root, cues, displayed };
+  flush();
+  // Effects settle on flush, so each direct write drains before it is read.
+  return {
+    ...root,
+    setCompletion: (next: PuzzleCompletion): void => {
+      root.setCompletion(next);
+      flush();
+    },
+    setEnabled: (next: boolean): void => {
+      root.setEnabled(next);
+      flush();
+    },
+    cues,
+    displayed,
+  };
 }
 
 forEveryTurnGame(import.meta.path, (game) => {

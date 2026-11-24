@@ -1,18 +1,17 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   clampPaletteSelection,
   nextPaletteSelection,
 } from '@pkgs/ui-root-shared-ts/command-palette-keyboard';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-root-shared-ts/modal-size';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createUniqueId,
-  type JSX,
-  on,
   Show,
   untrack,
 } from 'solid-js';
@@ -57,15 +56,13 @@ function createPaletteModel(
     buildPaletteRows(reg.commands(), reg.query(), reg.historyIds())
   );
   const items = createMemo(() => selectableRows(rows().rows));
-  // Reset selection when the query changes; clamp when the row set shrinks.
-  createEffect(on(reg.query, () => reg.setSelectedIndex(0), { defer: true }));
+  // Clamp the selection when the row set shrinks (a new query resets it in
+  // the registry itself).
   createEffect(
-    on(
-      () => rows().selectableCount,
-      (count) => {
-        reg.setSelectedIndex((prev) => clampPaletteSelection(prev, count));
-      }
-    )
+    () => rows().selectableCount,
+    (count) => {
+      reg.setSelectedIndex((prev) => clampPaletteSelection(prev, count));
+    }
   );
   const activeId = (): string | undefined => {
     const item = items()[reg.selectedIndex()];
@@ -175,8 +172,10 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           onClick={() => reg.close()}
         />
         <div
-          class="box absolute inset-0 items-center justify-start"
-          classList={{ boxNone: true }}
+          class={[
+            'box absolute inset-0 items-center justify-start',
+            { boxNone: true },
+          ]}
           style={{
             'padding-top': `${TOP_INSET_STEP * 4}px`,
             'padding-left': `${MODAL_CONTENT_MARGIN_STEP * 4}px`,

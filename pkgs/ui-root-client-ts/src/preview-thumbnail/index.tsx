@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import styles from './preview-thumbnail.module.css';
 
 /**
@@ -41,7 +41,7 @@ export function PreviewThumbnail(props: PreviewThumbnailProps): JSX.Element {
     <span
       class={styles['thumbnail']}
       data-size={props.size ?? 'lg'}
-      data-stacked={props.stacked === true}
+      data-stacked={String(props.stacked === true)}
       aria-hidden="true"
       {...dataAttrs({ component: 'PreviewThumbnail', ...props.dataSet })}
     >

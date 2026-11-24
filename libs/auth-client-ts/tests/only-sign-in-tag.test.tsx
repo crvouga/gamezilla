@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The "Only sign-in" tag sits on its row's middle, as a button there does. */
 
 import { afterEach, expect, test } from 'bun:test';

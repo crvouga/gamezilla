@@ -1,6 +1,6 @@
 import { choosePuzzleContentDraftMutation } from '@libs/game-puzzle-shared-ts/choose-content-draft-mutation';
 import type { ContentDraft } from '@libs/game-puzzle-shared-ts/content-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';

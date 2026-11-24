@@ -57,17 +57,6 @@ function copyInput(source: string, destination: string): void {
   });
 }
 
-/** The installed visual model is a prepared dependency, not cached evidence. */
-function copyPreparedModel(source: string, destination: string): void {
-  const path = '.cache/ui-quality-model';
-  if (!existsSync(join(source, path))) return;
-  cpSync(join(source, path), join(destination, path), {
-    recursive: true,
-    dereference: true,
-    mode: constants.COPYFILE_FICLONE,
-  });
-}
-
 /** Private Git metadata, including the original index; never registers a worktree. */
 async function copyGit(source: string, destination: string): Promise<void> {
   const common = git(source, [
@@ -142,7 +131,6 @@ export async function createVerifySnapshot(source: string): Promise<string> {
       copyInput(join(source, path), join(destination, path));
     await copyGit(source, destination);
     await copyDependencies(source, destination);
-    copyPreparedModel(source, destination);
     rebaseLinks(destination, source, destination);
     return destination;
   } catch (error) {

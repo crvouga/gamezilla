@@ -6,7 +6,7 @@ import { openHarness } from './open-light-cycles-harness';
 
 // regression: light-cycles-countdown-read-before-live
 test('a just-started Duel is read counting down from 3 once it reaches the arena', async () => {
-  await using s = await openHarness('light-cycles-countdown-reading', {
+  await using s = await openHarness({
     seed: 1,
   });
   await s.apply(establishLightCyclesGame, {

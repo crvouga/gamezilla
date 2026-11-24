@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { HeartsBoard } from '@libs/hearts-client-ts/hearts-board';
 import { heartsGameClient } from '@libs/hearts-client-ts/hearts-game-client';
@@ -6,9 +6,9 @@ import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import { encodeHearts } from '@libs/hearts-shared-ts/hearts-position';
 import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import {
@@ -16,6 +16,7 @@ import {
   type SolidDomDriver,
 } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { fireEvent } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const CLUBS = '2C3C4C5C6C7C8C9CTCJCQCKCAC';
@@ -165,6 +166,7 @@ test('the game automation passes and plays through the board as a person does', 
     },
   });
   setPosition(heartsRules.initial());
+  flush();
   await driver.launch();
   await heartsGameShared.automation.turns.perform(driver, 'board', '2C3C4C');
   expect(played).toEqual(['2C3C4C']);

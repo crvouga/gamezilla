@@ -7,7 +7,7 @@
 import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { MultiplayerLinkScreenView } from './multiplayer-link-screen-view';
 import { useMultiplayerLinkOpening } from './use-multiplayer-link-opening';
 

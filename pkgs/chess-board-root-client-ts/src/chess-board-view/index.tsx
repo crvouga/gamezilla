@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Presentational shell for {@link ChessBoard}: host element + paint stack. */
 
 import { indexFromSquare } from '@pkgs/chess-board-core-shared-ts/geometry';
@@ -16,13 +16,12 @@ import type {
 import { boardThemeToCssVars } from '@pkgs/chess-board-root-shared-ts/board-theme';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  on,
 } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { ChessBoardBackground } from '../chess-board-background/index';
@@ -49,27 +48,25 @@ function findKingSquare(position: Position, color: 'w' | 'b'): Square | null {
 function useSpokenLastMove(getCtrl: () => BoardController): Accessor<string> {
   const [liveMessage, setLiveMessage] = createSignal('');
   createEffect(
-    on(
-      () => getCtrl().model.game().lastMove,
-      (move) => {
-        if (move === null) {
-          setLiveMessage('');
-          return;
-        }
-        const g = getCtrl().model.game();
-        const piece = g.position[indexFromSquare(move.to)];
-        setLiveMessage(
-          speakMove({
-            move,
-            piece: piece ?? null,
-            inCheck: g.inCheck,
-            isCheckmate: g.isCheckmate,
-            isStalemate: g.isStalemate,
-            isGameOver: g.isGameOver,
-          })
-        );
+    () => getCtrl().model.game(),
+    (g) => {
+      const move = g.lastMove;
+      if (move === null) {
+        setLiveMessage('');
+        return;
       }
-    )
+      const piece = g.position[indexFromSquare(move.to)];
+      setLiveMessage(
+        speakMove({
+          move,
+          piece: piece ?? null,
+          inCheck: g.inCheck,
+          isCheckmate: g.isCheckmate,
+          isStalemate: g.isStalemate,
+          isGameOver: g.isGameOver,
+        })
+      );
+    }
   );
   return liveMessage;
 }
@@ -251,19 +248,21 @@ export function ChessBoardView(args: {
     // WAI-ARIA pattern for a keyboard game board trips these two rules.
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <div
-      class={`box border-2 border-solid ${styles['root']}`}
-      classList={{ [styles['lite'] ?? '']: !args.ctrl.motion().effects }}
+      class={[
+        `box border-2 border-solid ${styles['root']}`,
+        { [styles['lite'] ?? '']: !args.ctrl.motion().effects },
+      ]}
       style={hostStyle()}
+      data-grab={grabColors(args.props, args.ctrl)}
       {...dataAttrs({
         component: 'ChessBoard',
         testid: boardTestId(),
         ...args.props.dataSet,
       })}
-      data-grab={grabColors(args.props, args.ctrl)}
       ref={args.ctrl.setHost}
       onKeyDown={(e) => args.ctrl.onKeyDown(e)}
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
-      tabIndex={0}
+      tabindex={0}
       role="application"
       aria-label={`Chess board, ${args.ctrl.orientation()} facing you`}
     >

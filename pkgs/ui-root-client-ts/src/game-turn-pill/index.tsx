@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 
 /** The outcome mark: a plain line, a good result, or something to act on. */
@@ -58,20 +59,21 @@ function PillWords(props: GameTurnPillProps & { yours: boolean }): JSX.Element {
       {...dataAttrs({ component: 'GameTurnPillWords', ...props.dataSet })}
     >
       <div
-        class="text"
-        classList={{
-          textLabel: !plain(),
-          textCaption: plain(),
-          'text-text-secondary': plain(),
-          'text-on-primary-soft': props.yours && !plain(),
-        }}
+        class={[
+          'text',
+          {
+            textLabel: !plain(),
+            textCaption: plain(),
+            'text-text-secondary': plain(),
+            'text-on-primary-soft': props.yours && !plain(),
+          },
+        ]}
       >
         {props.title}
       </div>
       <Show when={props.detail}>
         <div
-          class="text textCaption"
-          classList={{ 'text-on-primary-soft': props.yours }}
+          class={['text textCaption', { 'text-on-primary-soft': props.yours }]}
         >
           {props.detail}
         </div>
@@ -162,11 +164,13 @@ function ShownPill(props: GameTurnPillProps): JSX.Element {
       {...dataAttrs({ component: 'GameTurnPill' })}
     >
       <div
-        class={`${styles['turnPill']} rounded-full`}
-        classList={{
-          'bg-tint-subtle': yours() && !plain(),
-          'bg-surface-muted': !yours() && !plain(),
-        }}
+        class={[
+          `${styles['turnPill']} rounded-full`,
+          {
+            'bg-tint-subtle': yours() && !plain(),
+            'bg-surface-muted': !yours() && !plain(),
+          },
+        ]}
       >
         <Show
           when={props.mark}

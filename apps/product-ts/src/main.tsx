@@ -19,8 +19,8 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { type JSX, onCleanup } from 'solid-js';
-import { render } from 'solid-js/web';
+import { type JSX, render } from '@solidjs/web';
+import { onCleanup } from 'solid-js';
 import './polyfill-entry';
 import './styles.css';
 

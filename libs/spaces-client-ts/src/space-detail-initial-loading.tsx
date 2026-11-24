@@ -1,6 +1,6 @@
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { closeSpaceDetail } from './space-routes';
 import { SpaceScreenChromeProvider } from './space-screen-chrome';
 import { SpaceScreenFrame } from './space-screen-frame';

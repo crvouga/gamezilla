@@ -15,7 +15,7 @@ const openHistory = scenarioAction({
 
 test('Pong cancelled-game history navigation leaves the live board once', async () => {
   // regression: pong-history-navigation
-  await using s = await openConformanceHarness('pong-history-navigation');
+  await using s = await openConformanceHarness();
   await s.apply(establishCustomGame, 'pong', { second: 'open', active: false });
   await s.apply(attemptCustomGame, 'alice', { operation: 'cancel' });
   await s.apply(openHistory);

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 /**
  * Phase bodies for {@link MutationModal}: idle (confirm / form), loading,
@@ -6,9 +6,10 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
  * one fixed-height state band so phase swaps never grow the dialog.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ErrorState } from '../error-state/index';
 import { LoadingState } from '../loading-state/index';
 import { ModalBody, ModalButton, ModalFooter } from '../modal-parts/index';

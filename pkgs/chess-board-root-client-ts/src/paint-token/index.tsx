@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Test paint tokens: unpainted text naming what their parent node paints, so
  * a UI driver reads a layer's text as the painted board. `PaintToken` sits
@@ -11,7 +11,7 @@
 import type { ChessBoardPaintKind } from '@pkgs/chess-board-core-shared-ts/probe';
 import { chessBoardPaintToken } from '@pkgs/chess-board-core-shared-ts/probe';
 import { COMPONENT_IDS_ENABLED } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import styles from '../chess-board/chess-board.module.css';
 

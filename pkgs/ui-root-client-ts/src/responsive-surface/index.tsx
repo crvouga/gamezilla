@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   CONTENT_EDGE_PADDING_STEP,
   ContentEdgePaddingProvider,
@@ -138,12 +138,14 @@ function SurfaceChrome(props: {
     >
       <OnColorReset>
         <div
-          class="box grow shrink min-h-0 overflow-hidden w-full"
-          classList={{
-            'px-4 pt-4 pb-6': !scroll(),
-            // Grid, not `.box` flex: the reliable scrollport host.
-            surfaceScrollShell: scroll(),
-          }}
+          class={[
+            'box grow shrink min-h-0 overflow-hidden w-full',
+            {
+              'px-4 pt-4 pb-6': !scroll(),
+              // Grid, not `.box` flex: the reliable scrollport host.
+              surfaceScrollShell: scroll(),
+            },
+          ]}
           data-component="ResponsiveSurfaceChrome"
           style={shellStyle()}
         >
@@ -221,9 +223,9 @@ function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
   const requestClose = (): void => {
     if (closable()) props.onClose();
   };
+  const Sheet = dynamic(() => host.Sheet);
   return (
-    <Dynamic
-      component={host.Sheet}
+    <Sheet
       open={props.visible}
       onClose={requestClose}
       stackId={props.stackId}
@@ -232,7 +234,7 @@ function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
     >
       {/* Sheet/FocusTrap clamp height; chrome fills and grids the body. */}
       <SurfaceChrome surface={props} maxHeight={undefined} />
-    </Dynamic>
+    </Sheet>
   );
 }
 
@@ -279,13 +281,13 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
       supportsSheetPresentation: host.supportsSheetPresentation,
     });
   return (
-    <PendingOperationScopeContext.Provider value={scope}>
+    <PendingOperationScopeContext value={scope}>
       <Show
         when={useSheet()}
         fallback={<DesktopModal {...props} onClose={requestClose} />}
       >
         <MobileSheet {...props} onClose={requestClose} />
       </Show>
-    </PendingOperationScopeContext.Provider>
+    </PendingOperationScopeContext>
   );
 }

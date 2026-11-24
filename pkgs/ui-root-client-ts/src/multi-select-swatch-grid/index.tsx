@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { arraysEqualAsSets } from '@pkgs/ui-root-shared-ts/arrays-equal-as-sets';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Show } from 'solid-js';
 import { TextInput } from '../text-input/index';
 
 const DEFAULT_HEX = /^[0-9a-fA-F]{6}$/;
@@ -65,7 +66,7 @@ function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
         'border-color': props.isRandom ? colorVar('tint') : colorVar('border'),
       }}
       onClick={() => props.onClick()}
-      aria-pressed={props.isRandom}
+      aria-pressed={props.isRandom ? 'true' : 'false'}
     >
       <p
         class="text textCaption text-text"
@@ -98,7 +99,7 @@ function DefaultSwatch(props: {
       }}
       onClick={() => props.onClick()}
       role="checkbox"
-      aria-checked={props.active}
+      aria-checked={props.active ? 'true' : 'false'}
       aria-label={isTrans() ? t`Transparent` : t`Color ${props.hex}`}
     >
       <Show when={isTrans()}>
@@ -162,7 +163,7 @@ function CustomHexInput(props: {
             aria-label={t`Custom hex color`}
             autocapitalize="off"
             autocorrect="off"
-            maxLength={6}
+            maxlength={6}
           />
         </div>
         <button

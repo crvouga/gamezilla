@@ -20,14 +20,15 @@
     "@libs/permissions-client-ts": "workspace:*",
     "@libs/permissions-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

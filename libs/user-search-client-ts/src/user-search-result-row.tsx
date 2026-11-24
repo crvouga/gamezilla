@@ -4,7 +4,7 @@ import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type UserSearchResultRowProps = {
   readonly user: UserSearchResult;

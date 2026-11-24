@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Chip } from '@pkgs/ui-root-client-ts/chip';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

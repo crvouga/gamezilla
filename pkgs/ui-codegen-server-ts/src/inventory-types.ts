@@ -23,7 +23,7 @@ export type PropFact = {
   readonly type: string;
   readonly optional: boolean;
   readonly doc: string;
-  /** Default read from `props.x ?? <value>` or `mergeProps`, as source text. */
+  /** Default read from `props.x ?? <value>` or `merge`, as source text. */
   readonly defaultText: string | null;
   /** The members of a literal union behind an alias (`ButtonSize`). */
   readonly values: readonly string[] | null;
@@ -52,7 +52,7 @@ export type MarkupFact = {
   readonly domEvents: readonly AttributeFact[];
   readonly dataAttributes: readonly AttributeFact[];
   readonly tabIndex: readonly AttributeFact[];
-  readonly classListStates: readonly AttributeFact[];
+  readonly classStates: readonly AttributeFact[];
   readonly classes: readonly string[];
   readonly testIds: readonly string[];
   readonly keys: readonly string[];

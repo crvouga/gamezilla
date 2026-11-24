@@ -8,7 +8,7 @@ import { openHarness } from './open-quoridor-harness';
 
 // regression: quoridor-empty-wall-inventory-guidance
 test('seed 1 explains an exhausted wall inventory and refuses d4h without changing the game', async () => {
-  await using s = await openHarness('quoridor-empty-walls', { seed: 1 });
+  await using s = await openHarness({ seed: 1 });
   await s.apply(establishQuoridor, { fixture: 'no-walls' });
   const before = await s.read(quoridorView);
   expect(before.game.remaining[0]).toBe(0);

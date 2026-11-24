@@ -133,7 +133,7 @@ describe('Verify workflow cancellation', () => {
       // What remains carries state between jobs until `verify:end`.
       expect(uploadOf(upload)).toMatch(/^verify-(plan|results|evidence)/);
     }
-    // Reports, traces, summaries and publication are the nightly profile's.
+    // Traces, summaries and retained verdicts are the nightly profile's.
     for (const name of [
       'observability-traces-',
       'turbo-summary-',
@@ -145,9 +145,6 @@ describe('Verify workflow cancellation', () => {
           .filter((upload) => uploadOf(upload)?.startsWith(name))
           .every(nightlyOnly)
       ).toBe(true);
-    expect(
-      steps.filter((step) => step.run?.includes('verify-reports.ts'))
-    ).toSatisfy((publish: { if?: string }[]) => publish.every(nightlyOnly));
     const end = workflow.jobs['verify-end']!.steps;
     const cleanup = end.at(-1)!;
     expect(cleanup.name).toBe('Delete transfer artifacts');
@@ -268,7 +265,6 @@ describe('Verify workflow cancellation', () => {
     // them and reads every upstream job.
     const consumers = step('verify-consumers.ts');
     const verdict = step('verify-verdict.ts');
-    const reports = step('verify-reports.ts');
     expect(consumers).toBeGreaterThan(-1);
     expect(end.steps[consumers]!.if).toBeUndefined();
     expect(verdict).toBeGreaterThan(consumers);
@@ -280,14 +276,8 @@ describe('Verify workflow cancellation', () => {
       },
     });
     expect(end.steps[verdict]!['continue-on-error']).toBeUndefined();
-    // Publication comes after the verdict and cannot change the job's result.
-    expect(reports).toBeGreaterThan(verdict);
-    expect(end.steps[reports]).toMatchObject({
-      if: "always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'",
-      'continue-on-error': true,
-    });
-    // Besides publication, only the nightly diagnostic uploads may fail
-    // without failing the job (`ci-artifacts.test.ts`).
+    // Only the nightly diagnostic uploads may fail without failing the job
+    // (`ci-artifacts.test.ts`).
     expect(
       end.steps.filter(
         (candidate) =>
@@ -296,7 +286,7 @@ describe('Verify workflow cancellation', () => {
             String(candidate.with?.['name'] ?? '')
           )
       )
-    ).toHaveLength(1);
+    ).toHaveLength(0);
     // regression: verify-repeated-mise-cache-stall (1jzx5994v8)
     expect(
       workflow.jobs['verify-shards']!.steps.filter(

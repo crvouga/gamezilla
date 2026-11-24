@@ -27,7 +27,7 @@ import {
 import { GameStandings } from '@pkgs/ui-root-client-ts/game-result';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const NAMES: Readonly<Record<GameSide, string>> = {
   white: 'Erin',

@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Primary screen action: one `useMutationButton` lifecycle shared by the
  * compact FAB and the wide header `Button`.
  */
 
-import { type Accessor, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { type Accessor, Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingActionButton } from '../floating-action-button/index';
@@ -90,13 +90,14 @@ export function ScreenBasePrimaryFab(props: {
 export function ScreenBasePrimaryButton(props: {
   render: ScreenBasePrimaryActionRender;
 }): JSX.Element {
+  const Icon = dynamic(() => props.render.icon());
   return (
     <Button
       intent="primary"
       {...props.render.buttonProps}
       startIcon={
         <Show when={props.render.icon()}>
-          {(icon) => <Dynamic component={icon()} size={18} />}
+          <Icon size={18} />
         </Show>
       }
       dataSet={{

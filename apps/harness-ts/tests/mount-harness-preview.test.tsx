@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { PreviewShell } from '@apps/harness-ts/mount-harness-preview';
+import { render } from '@solidjs/web';
 import { onCleanup } from 'solid-js';
-import { render } from 'solid-js/web';
 
 test('Mockingbird switches directly between clients and retains their mounted state', async () => {
   const root = document.createElement('main');

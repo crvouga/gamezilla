@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { render } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 /** Synthetic layout verifies the sizing adapter; hosted captures prove geometry. */
 function mountStage(input: {
@@ -88,6 +88,7 @@ test('viewport square stage budgets the 1440x900 completed board and player chro
     mounted.stage.dispatchEvent(new Event('ui-testing:element-layout'));
     expect(mounted.stage.style.getPropertyValue('--game-board-fit')).toBe(fit);
     mounted.setFit(undefined);
+    flush();
     expect(mounted.stage.style.getPropertyValue('--game-board-fit')).toBe('');
   } finally {
     mounted.dispose();

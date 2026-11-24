@@ -8,7 +8,8 @@ import {
   type ScreenPlaceNavigation,
   useScreenPlace,
 } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { type Accessor, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo } from 'solid-js';
 import {
   isPuzzleFeedPlace,
   PUZZLE_PLAY_PLACES,

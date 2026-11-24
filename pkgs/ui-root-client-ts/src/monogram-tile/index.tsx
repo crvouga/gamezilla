@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * `xs` 20px inline beside a name in a bar or a line of text; `sm` 32px in a
@@ -111,8 +111,8 @@ export function MonogramTile(props: MonogramTileProps): JSX.Element {
     <span
       class={`box inline-flex shrink-0 items-center justify-center text text-on-primary select-none ${SIZE[props.size ?? 'md']} ${PAINT_CLASS[paint()]}`}
       aria-hidden="true"
-      {...dataAttrs({ component: 'MonogramTile', ...props.dataSet })}
       data-paint={paint()}
+      {...dataAttrs({ component: 'MonogramTile', ...props.dataSet })}
     >
       {monogramOf(props.name)}
     </span>

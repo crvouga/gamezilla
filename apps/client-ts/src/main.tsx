@@ -1,5 +1,5 @@
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 // @io-wall-ok — browser composition root
 /**
  * Web entry: builds the wall `ClientEnv` from browser APIs, creates the
@@ -20,7 +20,7 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 
 // Before anything runs a `using`: the native shell's web view is Safari's.
 polyfillDisposal();

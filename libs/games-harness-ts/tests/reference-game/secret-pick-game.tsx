@@ -33,7 +33,8 @@ import {
   type TurnGameCapabilities,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import {
   SECRET_PICK_BOTS,
   SECRET_PICK_RULES,
@@ -76,7 +77,7 @@ function SetupBoard(props: GameSetupBoardProps): JSX.Element {
             type="button"
             data-testid={`${props.testId}-${secret}`}
             disabled={props.locked}
-            aria-pressed={props.setup === secret}
+            aria-pressed={props.setup === secret ? 'true' : 'false'}
             onClick={() => props.onChange(secret)}
           >
             {secret}

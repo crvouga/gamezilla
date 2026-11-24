@@ -31,8 +31,8 @@ import {
   ratedPuzzleStartKey,
 } from '@libs/game-session-harness-ts/puzzle-fixtures';
 import { puzzleNamespaceOfGame } from '@libs/game-session-harness-ts/puzzle-pool';
+import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-harness-ts/application';
 import { dailyPuzzleLimitClientLayer } from '@libs/permissions-harness-ts/client-layers';
-import { dailyPuzzleLimitApplicationLayer } from '@libs/permissions-shared-ts/application';
 import { PERMISSIONS_MUTATIONS } from '@libs/permissions-shared-ts/mutations';
 import type { CaseInput } from '@libs/permissions-shared-ts/people';
 import { identityFor, personOf } from '@libs/permissions-shared-ts/people';

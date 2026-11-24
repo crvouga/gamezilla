@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { ChevronDownIcon, ChevronUpIcon } from '../icons';
 import { spaced } from '../layout-classes';
 import {
@@ -41,7 +42,7 @@ function WideRow<R>(props: { table: TableBodyProps<R>; row: R }): JSX.Element {
       data-testid={rowTestId(props.table.testId, props.table.rowKey(props.row))}
       data-component={componentId('TableRow')}
       data-pressable={pressable() ? 'true' : undefined}
-      tabIndex={pressable() ? 0 : undefined}
+      tabindex={pressable() ? 0 : undefined}
       aria-label={pressable() ? props.table.rowLabel?.(props.row) : undefined}
       onClick={() => {
         if (pressable()) press();

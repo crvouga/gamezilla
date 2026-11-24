@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Publishes the signed-in person's name and face into the shell's global
  * menu. Mounts inside the sync tree, because it reads profile rows; the shell
@@ -18,11 +18,11 @@ import { useSessionAccountEmail } from '@libs/auth-client-ts/use-current-user';
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createEffect,
   createMemo,
-  type JSX,
   onCleanup,
   Show,
 } from 'solid-js';
@@ -44,24 +44,30 @@ function PublishIdentity(props: {
   // The face is a render thunk, and it reads the config where it renders —
   // inside the menu — rather than closing over the value at publish time. The
   // avatar then follows an edit without this effect having to republish.
-  createEffect(() => {
-    const profileId = props.profileId;
-    const username = props.username();
-    publish({
-      usernameLabel:
-        profileId === null
-          ? null
-          : usernameLabel(moderation(), username, profileId),
-      email: email(),
-      avatar: (size) => (
-        <DeviceAvatar
-          avatarConfig={avatarConfig()}
-          seedFallback={props.profileId ?? 'guest'}
-          size={size}
-        />
-      ),
-    });
-  });
+  createEffect(
+    () => {
+      const profileId = props.profileId;
+      return {
+        usernameLabel:
+          profileId === null
+            ? null
+            : usernameLabel(moderation(), props.username(), profileId),
+        email: email(),
+      };
+    },
+    (identity) => {
+      publish({
+        ...identity,
+        avatar: (size) => (
+          <DeviceAvatar
+            avatarConfig={avatarConfig()}
+            seedFallback={props.profileId ?? 'guest'}
+            size={size}
+          />
+        ),
+      });
+    }
+  );
   onCleanup(() => publish(BOOT_GLOBAL_MENU_IDENTITY));
   return null;
 }

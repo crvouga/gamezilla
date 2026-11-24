@@ -8,13 +8,7 @@ import {
   type PublishedPageCursor,
 } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-} from 'solid-js';
+import { type Accessor, createMemo, createSignal } from 'solid-js';
 import type { ContentSubject } from './content-places';
 
 export type ContentIdPage = {
@@ -30,16 +24,21 @@ function createIdPage(
   rows: Accessor<readonly { id: string }[]>,
   key?: Accessor<string>
 ): ContentIdPage {
-  const [afterIds, setAfterIds] = createSignal<readonly string[]>(['']);
+  // Another key is another list: its pages start over.
+  const [afterIds, setAfterIds] = createSignal((): readonly string[] => {
+    key?.();
+    return [''];
+  });
   const limit = createMemo(() => afterIds().length * CONTENT_PAGE_SIZE);
   const ordered = createMemo(() => rows().toSorted(byContentId));
   const hasMore = () => ordered().length >= limit();
-  if (key !== undefined)
-    createEffect(on(key, () => setAfterIds(['']), { defer: true }));
   const more = (): void => {
     const last = ordered()[limit() - 1];
-    if (hasMore() && last !== undefined && !afterIds().includes(last.id))
-      setAfterIds((prior) => [...prior, last.id]);
+    // Asked twice before the first shows, a page is still added once.
+    if (hasMore() && last !== undefined)
+      setAfterIds((prior) =>
+        prior.includes(last.id) ? prior : [...prior, last.id]
+      );
   };
   return { afterIds, limit, hasMore, more };
 }
@@ -64,15 +63,14 @@ export function createPublishedPage(
   const more = (): void => {
     const last = ordered()[limit() - 1];
     const beforeAt = last?.published_at;
-    if (
-      !hasMore() ||
-      last === undefined ||
-      beforeAt == null ||
-      cursors().some((cursor) => cursor.beforeId === last.id)
-    )
-      return;
+    if (!hasMore() || last === undefined || beforeAt == null) return;
     const next = { beforeAt, beforeId: last.id };
-    setCursors((prior) => [...prior, next]);
+    // Asked twice before the first shows, a page is still added once.
+    setCursors((prior) =>
+      prior.some((cursor) => cursor.beforeId === last.id)
+        ? prior
+        : [...prior, next]
+    );
   };
   return { cursors, limit, hasMore, more };
 }
@@ -122,14 +120,18 @@ export function useContentPages(
   const moreAttempts = (): void => {
     const last = play().attempts[attemptLimit() - 1];
     if (last !== undefined)
-      setAttemptCursors((prior) => [
-        ...prior,
-        {
-          beforeOrder: last.activity_order,
-          beforeAt: last.updated_at,
-          beforeId: last.id,
-        },
-      ]);
+      setAttemptCursors((prior) =>
+        prior.some((cursor) => cursor.beforeId === last.id)
+          ? prior
+          : [
+              ...prior,
+              {
+                beforeOrder: last.activity_order,
+                beforeAt: last.updated_at,
+                beforeId: last.id,
+              },
+            ]
+      );
   };
   return {
     published,

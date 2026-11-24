@@ -47,6 +47,7 @@
     "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"

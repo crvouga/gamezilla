@@ -5,7 +5,8 @@
  * that must not mount overlay chrome at all.
  */
 
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 import type { ComponentDataSet } from './component-id';
 
 export type BottomSheetHostSheetProps = {

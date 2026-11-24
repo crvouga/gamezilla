@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ContentPackItem } from './content-pack-item';
 import type { useContentPackEdit } from './use-content-pack-edit';
 

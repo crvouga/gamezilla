@@ -15,11 +15,16 @@ import {
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import type { RoomCommandPayload } from '@pkgs/room-root-shared-ts/types';
 import { render, screen } from '@solidjs/testing-library';
-import { createEffect, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect } from 'solid-js';
 
-function stubEntry(clientId: string): SpaceOpenRoomEntry {
+function stubEntry(
+  clientId: string,
+  isCurrent: () => boolean = () => true
+): SpaceOpenRoomEntry {
   return {
     clientId,
+    isCurrent,
     room: {
       dispatch: () => undefined,
       getSnapshot: () => ({}),
@@ -32,21 +37,23 @@ function EntryProbe(props: {
   readonly spaceId: string;
   readonly onEntry: (entry: SpaceOpenRoomEntry | null) => void;
 }): JSX.Element {
-  const entry = useSpaceOpenRoomEntry(props.spaceId);
-  createEffect(() => {
-    props.onEntry(entry());
-  });
+  const entry = useSpaceOpenRoomEntry(() => props.spaceId);
+  createEffect(
+    () => ({ entry: entry(), onEntry: props.onEntry }),
+    (now) => now.onEntry(now.entry)
+  );
   return null;
 }
 
 function CommitButton(props: {
   readonly spaceId: string;
   readonly entry: SpaceOpenRoomEntry;
+  readonly testId?: string;
 }): JSX.Element {
   const setEntry = useSpaceOpenRoomsRegistry();
   return (
     <button
-      data-testid="commit"
+      data-testid={props.testId ?? 'commit'}
       type="button"
       onClick={() => setEntry(props.spaceId, props.entry)}
     >
@@ -137,6 +144,41 @@ describe('SpaceOpenRoomsStoreProvider entries notify', () => {
     screen.getByTestId('commit').click();
     expect(roomDispatchCount).toBe(1);
     expect(dispatched[0]?.payload).toEqual({ game: 'race' });
+
+    unmount();
+  });
+
+  // regression: space-command-lost-to-replaced-room
+  it('holds a command issued while the room is being replaced for the replacement', () => {
+    const toClosing: RoomCommandPayload[] = [];
+    const toReplacement: RoomCommandPayload[] = [];
+    let closing = false;
+    const first = stubEntry('client-3', () => !closing);
+    (first.room as { dispatch: (p: RoomCommandPayload) => void }).dispatch = (
+      p
+    ) => toClosing.push(p);
+    const replacement = stubEntry('client-3');
+    (
+      replacement.room as { dispatch: (p: RoomCommandPayload) => void }
+    ).dispatch = (p) => toReplacement.push(p);
+
+    const unmount = mount(() => (
+      <SpaceOpenRoomsStoreProvider>
+        <DispatchProbe spaceId="space-3" />
+        <CommitButton spaceId="space-3" entry={first} />
+        <CommitButton spaceId="space-3" entry={replacement} testId="replace" />
+      </SpaceOpenRoomsStoreProvider>
+    ));
+
+    screen.getByTestId('commit').click();
+    closing = true;
+    screen.getByTestId('dispatch').click();
+    expect(toClosing).toEqual([]);
+    expect(toReplacement).toEqual([]);
+
+    screen.getByTestId('replace').click();
+    expect(toClosing).toEqual([]);
+    expect(toReplacement.map((p) => p.payload)).toEqual([{ game: 'race' }]);
 
     unmount();
   });

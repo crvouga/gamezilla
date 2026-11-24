@@ -2,7 +2,7 @@ import type {
   BootProductHarnessOptions,
   ProductHarnessSession,
 } from '@pkgs/harness-console-shared-ts/ports';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 export type ProductHarnessSessionState =
   | { readonly status: 'idle' }
@@ -57,47 +57,49 @@ export function useProductHarnessSession(
   let current: ProductHarnessSession | null = null;
   let disposeGate = Promise.resolve();
   let skipSnapshotLoad = false;
-  createEffect(() => {
-    generation();
-    if (!active()) {
-      setState({ status: 'idle' });
-      return;
-    }
-    let cancelled = false;
-    let live: ProductHarnessSession | null = null;
-    setState({ status: 'booting' });
-    const skip = skipSnapshotLoad;
-    skipSnapshotLoad = false;
-    const isCancelled = () => cancelled;
-    const run = disposeGate.then(async () => {
-      const outcome = await bootSession({
-        boot: bootProductHarness,
-        skip,
-        isCancelled,
+  createEffect(
+    () => ({ generation: generation(), active: active() }),
+    (wanted) => {
+      if (!wanted.active) {
+        setState({ status: 'idle' });
+        return;
+      }
+      let cancelled = false;
+      let live: ProductHarnessSession | null = null;
+      setState({ status: 'booting' });
+      const skip = skipSnapshotLoad;
+      skipSnapshotLoad = false;
+      const isCancelled = () => cancelled;
+      const run = disposeGate.then(async () => {
+        const outcome = await bootSession({
+          boot: bootProductHarness,
+          skip,
+          isCancelled,
+        });
+        if (outcome === null) return;
+        if (!outcome.ok) {
+          setState({ status: 'error', error: outcome.error });
+          return;
+        }
+        if (isCancelled()) {
+          await outcome.session.dispose().catch(() => {});
+          return;
+        }
+        live = outcome.session;
+        current = outcome.session;
+        setState({ status: 'ready', session: outcome.session });
       });
-      if (outcome === null) return;
-      if (!outcome.ok) {
-        setState({ status: 'error', error: outcome.error });
-        return;
-      }
-      if (isCancelled()) {
-        await outcome.session.dispose().catch(() => {});
-        return;
-      }
-      live = outcome.session;
-      current = outcome.session;
-      setState({ status: 'ready', session: outcome.session });
-    });
-    onCleanup(() => {
-      cancelled = true;
-      current = null;
-      disposeGate = run
-        .then(async () => {
-          if (live !== null) await live.dispose();
-        })
-        .catch(() => {});
-    });
-  });
+      return () => {
+        cancelled = true;
+        current = null;
+        disposeGate = run
+          .then(async () => {
+            if (live !== null) await live.dispose();
+          })
+          .catch(() => {});
+      };
+    }
+  );
   return {
     get state() {
       return state();

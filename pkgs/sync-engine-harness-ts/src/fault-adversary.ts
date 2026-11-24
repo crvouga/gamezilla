@@ -141,8 +141,6 @@ function applyMove(s: SyncHarness, move: FaultMove): void {
 /** Lift ended gaps, then apply one adversary turn (JSON args: replayable). */
 export const faultTurn = defineAction({
   name: 'faultTurn',
-  describe: (lifted: readonly FaultGap[], moves: readonly FaultMove[]) =>
-    `faultTurn(lift ${lifted.length}, ${moves.map((m) => m.kind).join(', ') || 'none'})`,
   act: (
     s: SyncHarness,
     lifted: readonly FaultGap[],

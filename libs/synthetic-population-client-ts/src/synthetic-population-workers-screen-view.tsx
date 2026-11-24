@@ -1,12 +1,13 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { DataTable } from '@pkgs/ui-root-client-ts/data-table';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { SyntheticPopulationOverview } from './synthetic-population-api';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
 import { panelCrumbs, useRefreshAction } from './synthetic-population-frame';

@@ -28,7 +28,7 @@ import { useSecureStorageStore } from '@pkgs/secure-storage-root-client-ts/solid
 import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import { usePathname } from '@pkgs/ui-root-client-ts/app-router';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal, untrack } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
@@ -66,28 +66,25 @@ function useResumePendingEffect(args: {
   setError: (error: Error | null) => void;
 }): void {
   const timers = useTimers();
-  createEffect(() => {
-    if (!args.resumePending()) return;
-    // `markSignInPending` during start() flips resumePending on this same page
-    // before Google loads — do not treat that as a completed OAuth return.
-    if (args.startInFlightRef.current) return;
-    args.setPhase('loading');
-    args.setAwaitingCallback(true);
-  });
-
-  createEffect(() => {
-    if (!args.resumePending() || args.startInFlightRef.current) return;
-    const timer = timers.setTimeout(() => {
-      if (args.startInFlightRef.current) return;
-      void new SignInPendingStore(args.store).clear();
-      args.setAwaitingCallback(false);
-      args.setError(new Error('Sign-in timed out. Please try again.'));
-      args.setPhase('error');
-    }, RESUME_PENDING_TIMEOUT_MS);
-    onCleanup(() => {
-      timers.clearTimeout(timer);
-    });
-  });
+  createEffect(
+    () => args.resumePending(),
+    (resumePending) => {
+      // `markSignInPending` during start() flips resumePending on this same
+      // page before Google loads — do not treat that as a completed OAuth
+      // return.
+      if (!resumePending || args.startInFlightRef.current) return;
+      args.setPhase('loading');
+      args.setAwaitingCallback(true);
+      const timer = timers.setTimeout(() => {
+        if (args.startInFlightRef.current) return;
+        void new SignInPendingStore(args.store).clear();
+        args.setAwaitingCallback(false);
+        args.setError(new Error('Sign-in timed out. Please try again.'));
+        args.setPhase('error');
+      }, RESUME_PENDING_TIMEOUT_MS);
+      return () => timers.clearTimeout(timer);
+    }
+  );
 }
 
 /**
@@ -142,35 +139,39 @@ function useSignInOutcomeEffect(args: {
   setError: (error: Error | null) => void;
   setPhase: (phase: SignInPhase) => void;
 }): void {
-  createEffect(() => {
-    const authState = args.authState();
-    const localToken = args.localToken();
-    if (!authState.isHydrated && localToken === null) return;
-    // Same-page redirect handoff: keep loading until the document unloads.
-    if (args.startInFlightRef.current) return;
+  createEffect(
+    () => ({
+      authState: args.authState(),
+      localToken: args.localToken(),
+      resumePending: args.resumePending(),
+      phase: args.phase(),
+      awaitingCallback: args.awaitingCallback(),
+    }),
+    ({ authState, localToken, resumePending, phase, awaitingCallback }) => {
+      if (!authState.isHydrated && localToken === null) return;
+      // Same-page redirect handoff: keep loading until the document unloads.
+      if (args.startInFlightRef.current) return;
 
-    // OAuth return: never leave the provider picker up once the session exists.
-    if (
-      args.resumePending() &&
-      isSignedInHere(localToken) &&
-      args.phase() !== 'success'
-    ) {
-      args.setAwaitingCallback(false);
-      args.setPhase('success');
-      return;
+      // OAuth return: never leave the provider picker up once the session
+      // exists.
+      if (resumePending && isSignedInHere(localToken) && phase !== 'success') {
+        args.setAwaitingCallback(false);
+        args.setPhase('success');
+        return;
+      }
+
+      if (phase !== 'loading' || !awaitingCallback) return;
+      resolveSignInOutcome({
+        authState,
+        localToken,
+        store: args.store,
+        onError: args.onError,
+        setAwaitingCallback: args.setAwaitingCallback,
+        setError: args.setError,
+        setPhase: args.setPhase,
+      });
     }
-
-    if (args.phase() !== 'loading' || !args.awaitingCallback()) return;
-    resolveSignInOutcome({
-      authState,
-      localToken,
-      store: args.store,
-      onError: args.onError,
-      setAwaitingCallback: args.setAwaitingCallback,
-      setError: args.setError,
-      setPhase: args.setPhase,
-    });
-  });
+  );
 }
 
 function createSignInStart(args: {
@@ -221,11 +222,14 @@ export function useSignInModalLifecycle({
   const authState = createSubscriptionSignal(port.session);
   const localToken = useFreshAuthToken();
   const startInFlightRef = { current: false };
+  // The marker found at mount seeds the first phase; the resume effect
+  // follows every later change.
+  const resumedAtMount = untrack(resumePending);
   const [phase, setPhase] = createSignal<SignInPhase>(
-    resumePending() ? 'loading' : 'idle'
+    resumedAtMount ? 'loading' : 'idle'
   );
   const [error, setError] = createSignal<Error | null>(null);
-  const [awaitingCallback, setAwaitingCallback] = createSignal(resumePending());
+  const [awaitingCallback, setAwaitingCallback] = createSignal(resumedAtMount);
 
   useResumePendingEffect({
     resumePending,

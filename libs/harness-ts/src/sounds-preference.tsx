@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -7,7 +7,7 @@ import {
   SoundsPreferenceProvider,
   useSoundsPreference,
 } from '@pkgs/sounds-client-ts/solid';
-import { createRoot } from 'solid-js';
+import { render } from '@solidjs/web';
 import { actorUi, scenarioAction } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { openSettings } from './shell-actions';
@@ -16,21 +16,24 @@ import { openSettings } from './shell-actions';
 export async function readSoundsOn(s: ProductHarness, actor: string) {
   const env = await s.harness.client(actor);
   let read = () => false;
-  const dispose = createRoot((cleanup) => {
-    const Probe = () => {
-      const preference = useSoundsPreference();
-      read = () => !preference.muted();
-      return null;
-    };
-    <ClockProvider clock={env.clock} timers={env.timers}>
-      <KvProvider value={env.kv}>
-        <SoundsPreferenceProvider>
-          <Probe />
-        </SoundsPreferenceProvider>
-      </KvProvider>
-    </ClockProvider>;
-    return cleanup;
-  });
+  const Probe = () => {
+    const preference = useSoundsPreference();
+    read = () => !preference.muted();
+    return null;
+  };
+  // Mounted on a detached host: providers build their children on insertion.
+  const dispose = render(
+    () => (
+      <ClockProvider clock={env.clock} timers={env.timers}>
+        <KvProvider value={env.kv}>
+          <SoundsPreferenceProvider>
+            <Probe />
+          </SoundsPreferenceProvider>
+        </KvProvider>
+      </ClockProvider>
+    ),
+    document.createElement('div')
+  );
   try {
     await s.session.waitForIdle();
     return read();

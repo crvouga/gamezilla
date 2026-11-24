@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
@@ -9,8 +9,8 @@ import {
 } from '@pkgs/ui-root-client-ts/screen-title-context';
 import { useScreenTitleScroll } from '@pkgs/ui-root-client-ts/use-screen-title-scroll';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import type { JSX } from 'solid-js';
 import { renderUi } from './render';
 
 describe('Collapsible', () => {

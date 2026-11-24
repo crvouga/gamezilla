@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { HttpClientProvider } from '@pkgs/http-client-client-ts/solid';
 import { ObjectStoreProvider } from '@pkgs/object-store-root-client-ts/solid';

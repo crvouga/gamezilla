@@ -1,6 +1,6 @@
 import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
 import { withdrawPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/withdraw-content-mutation';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { type Accessor, createMemo } from 'solid-js';
 import { contentBuilderStanding } from './content-builder-standing';

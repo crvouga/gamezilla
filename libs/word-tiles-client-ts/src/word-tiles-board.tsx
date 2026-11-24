@@ -2,7 +2,7 @@ import { decodePosition } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { useRandom } from '@pkgs/uuid-client-ts/solid';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { useWordTilesLexicon } from './use-word-tiles-lexicon';
 import {
   createWordTilesSession,

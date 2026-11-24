@@ -1,6 +1,6 @@
 /**
- * UI ops as data — the replayable, describable form of a driver call used by
- * explore walks and recordings. `performUiOp` is the single interpreter.
+ * UI ops as data — the replayable form of a driver call used by explore
+ * walks and recordings. `performUiOp` is the single interpreter.
  */
 
 import type { JsonValue } from '@pkgs/harness-root-shared-ts/json';
@@ -10,7 +10,6 @@ import type {
   GestureOptions,
   ScrollDirection,
 } from './driver';
-import { formatTestIdPath } from './format';
 import type { DriverKey } from './keys';
 
 export type UiOp = {
@@ -36,21 +35,6 @@ function gestureOf(op: UiOp): GestureOptions {
 
 function num(op: UiOp, key: string): number {
   return Number(op.extra[key] ?? 0);
-}
-
-/** Report step title: `tap testId("x") >> testId("y")` / `key enter`. */
-export function describeUiOp(op: UiOp): string {
-  const target = op.path.length > 0 ? ` ${formatTestIdPath(op.path)}` : '';
-  switch (op.op) {
-    case 'input':
-      return `input ${JSON.stringify(textOf(op))}${target}`;
-    case 'key':
-      return `key ${keyOf(op)}${target}`;
-    case 'scroll':
-      return `scroll ${String(op.extra['direction'] ?? '')}${target}`;
-    default:
-      return `${op.op}${target}`;
-  }
 }
 
 /** Resolve `op.path` against `driver` (root `get` then nested `get`s). */

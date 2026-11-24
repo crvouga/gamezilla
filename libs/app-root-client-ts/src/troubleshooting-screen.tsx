@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** `/more/troubleshooting` — the diagnostics behind Settings → Troubleshooting. */
 
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { usePerfHudPreference } from './perf-hud-preference';
 import { TroubleshootingScreenView } from './troubleshooting-screen-view';
 

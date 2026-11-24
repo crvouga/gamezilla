@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { SocialSignInButton } from '@pkgs/ui-root-client-ts/social-sign-in-button';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const LOADING_DEMO_MS = 1500;

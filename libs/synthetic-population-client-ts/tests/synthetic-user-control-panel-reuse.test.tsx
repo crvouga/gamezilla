@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * One control panel route shows every Synthetic User in turn: the screen
  * stays mounted while the person moves from one to the next, so nothing a

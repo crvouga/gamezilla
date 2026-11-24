@@ -4,14 +4,15 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { AccountAutomationBadge } from '@libs/profile-client-ts/account-automation-badge';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { DataTable } from '@pkgs/ui-root-client-ts/data-table';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, Show } from 'solid-js';
 import { useLiveLabels } from './live-labels';
 import type { OnlineNowEntryView } from './observatory-api';
 import { ObservatoryDenial } from './observatory-denial';

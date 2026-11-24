@@ -1,6 +1,7 @@
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useDenialView } from './denial-surface';
 import type { DenialView } from './denial-surface-view';
 

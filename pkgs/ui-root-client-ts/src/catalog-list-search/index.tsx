@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input/index';

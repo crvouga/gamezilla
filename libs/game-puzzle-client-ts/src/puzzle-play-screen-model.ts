@@ -12,7 +12,7 @@ import type { SolveStatus } from '@libs/game-puzzle-shared-ts/solve-status';
 import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { SpeakingAvatarSpeaker } from '@pkgs/ui-root-client-ts/speaking-avatar';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { PuzzleMoveNavProps } from './puzzle-move-history-nav';
 import type { PuzzlePlayPlace, PuzzlePlayStage } from './puzzle-play-places';
 import type { PuzzleMoveWriting } from './use-puzzle-notation';

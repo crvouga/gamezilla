@@ -1,5 +1,5 @@
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 
@@ -10,7 +10,7 @@ export type SpaceHostAvatarProps = {
 };
 
 export function SpaceHostAvatar(props: SpaceHostAvatarProps): JSX.Element {
-  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const host = useSpaceHostMembershipDisplay(() => props.spaceId);
   return (
     <UserProfileAvatar
       profileId={host()?.profileId ?? null}

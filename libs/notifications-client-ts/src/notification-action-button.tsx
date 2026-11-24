@@ -1,18 +1,18 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type {
   NotificationAction,
   NotificationCardActions,
 } from '@libs/notifications-shared-ts/notification-action';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { isSoundId, Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** A card's one main answer (Join, Accept) or one of its other choices. */
 export type NotificationActionEmphasis = 'primary' | 'secondary';

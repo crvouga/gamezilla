@@ -7,7 +7,7 @@ import type {
   RoomCommandPayload,
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
-import type { Accessor } from 'solid-js';
+import { type Accessor, untrack } from 'solid-js';
 import { useSpaceOpenRooms } from './space-open-rooms-store';
 import { useSpaceRoomSessionId } from './space-room-context';
 
@@ -44,7 +44,9 @@ export function useSpaceRoomDispatch(): (payload: RoomCommandPayload) => void {
   const openRooms = useSpaceOpenRooms();
   const registryDispatch = useRoomDispatch(SPACE_ROOM_NAME);
   return (payload: RoomCommandPayload) => {
-    const id = spaceId();
+    // A command goes to the space open when it is issued, whoever issues it
+    // (a handler, an effect's side effect): never a subscription.
+    const id = untrack(spaceId);
     if (id !== null && id.length > 0) {
       openRooms.dispatch(id, payload);
       return;

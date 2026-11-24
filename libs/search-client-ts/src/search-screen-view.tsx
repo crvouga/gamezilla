@@ -3,7 +3,7 @@ import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-vi
 import { searchResultPhase } from '@libs/search-shared-ts/search-result-phase';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
@@ -21,7 +21,8 @@ import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import { SearchRecentQueries } from './search-recent-queries';
 
 const FIELD_ICON_SIZE = 18;

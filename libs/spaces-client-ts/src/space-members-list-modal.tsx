@@ -1,6 +1,6 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
-import type { JSX } from 'solid-js';
-import { createEffect, createMemo, mapArray, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, mapArray } from 'solid-js';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import { SpaceMembersSheetView } from './space-members-sheet-view';
 import { useSpaceRoomClientId } from './space-room-context';
@@ -24,21 +24,19 @@ export function SpaceMembersListModal(
   props: SpaceMembersListModalProps
 ): JSX.Element {
   const myId = useMyId();
-  const presence = useOpenSpacePresence(props.spaceId);
-  const colors = useSpaceParticipantColors(props.spaceId);
+  const presence = useOpenSpacePresence(() => props.spaceId);
+  const colors = useSpaceParticipantColors(() => props.spaceId);
   const selfClientId = useSpaceRoomClientId();
   const clearQuiet = useClearSpaceQuiet();
   createEffect(
-    on(
-      () => props.visible,
-      (visible) => {
-        if (visible) clearQuiet();
-      }
-    )
+    () => props.visible,
+    (visible) => {
+      if (visible) clearQuiet();
+    }
   );
 
   const members = mapArray(presence.people, (person) => {
-    const role = useMemberRole(props.spaceId, person.id);
+    const role = useMemberRole(() => props.spaceId, person.id);
     const shown = useSpacePerson(() => person.id);
     return createMemo(
       (): SpaceMemberRow => ({

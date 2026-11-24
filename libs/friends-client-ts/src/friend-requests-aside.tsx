@@ -2,11 +2,12 @@ import type { FriendProfile } from '@libs/friends-shared-ts/friends-types';
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { useProfileRow } from '@libs/profile-client-ts/public-use-profile-row';
-import { Plural, Trans, useLingui } from '@lingui/solid/macro';
+import { Plural, Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { useFriendRequests } from './use-friend-requests';
 

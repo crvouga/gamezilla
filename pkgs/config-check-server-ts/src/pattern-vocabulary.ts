@@ -73,7 +73,7 @@ export const GLOBAL_OBJECTS: ReadonlySet<string> = new Set([
 ]);
 
 /** Platform modules only `pkgs/` may load. */
-export const PLATFORM_IMPORT = /^solid-js\/(web|html|h|universal)(\/|$)/;
+export const PLATFORM_IMPORT = /^@solidjs\/(web|html|h|universal)(\/|$)/;
 
 /** Third-party UI, icon, styling and animation libraries. */
 export const THIRD_PARTY_UI =

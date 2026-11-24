@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
@@ -14,8 +14,9 @@ import {
 } from '@pkgs/ui-root-shared-ts/select-logic';
 import type { SelectOption } from '@pkgs/ui-root-shared-ts/select-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const FRUIT: SelectOption[] = [

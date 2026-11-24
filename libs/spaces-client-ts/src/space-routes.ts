@@ -43,14 +43,9 @@ export function normalizeSpaceRouteParam(
  */
 export function useSpaceRouteId(): Accessor<string> {
   const params = useLocalSearchParams<{ id?: string | undefined }>();
-  const lastRef = { current: normalizeSpaceRouteParam(params().id) };
-  return createMemo(() => {
+  return createMemo<string>((last) => {
     const fromParams = normalizeSpaceRouteParam(params().id);
-    if (fromParams.length > 0) {
-      lastRef.current = fromParams;
-      return fromParams;
-    }
-    return lastRef.current;
+    return fromParams.length > 0 ? fromParams : (last ?? '');
   });
 }
 

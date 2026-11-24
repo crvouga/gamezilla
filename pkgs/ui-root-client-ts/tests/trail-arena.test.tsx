@@ -6,7 +6,7 @@ import {
   type TrailRider,
 } from '@pkgs/ui-root-client-ts/trail-arena';
 import { cleanup, fireEvent, render } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -237,8 +237,10 @@ test('the arena is named and described, and the overlay is announced in place', 
   const status = view.getByRole('status');
   expect(status.textContent).toBe('');
   setOverlay({ title: '3', detail: 'Round 2' });
+  flush();
   expect(status.textContent).toBe('3Round 2');
   setOverlay({ title: 'Comet wins the round' });
+  flush();
   expect(status.textContent).toBe('Comet wins the round');
   expect(view.getByTestId('arena-overlay').dataset['open']).toBe('true');
 });

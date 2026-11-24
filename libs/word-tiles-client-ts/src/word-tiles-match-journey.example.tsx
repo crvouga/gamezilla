@@ -10,7 +10,7 @@ import {
   newPosition,
 } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import { TILES } from '@libs/word-tiles-shared-ts/word-tiles-tiles';
-import { createSignal, mergeProps } from 'solid-js';
+import { createSignal, merge } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import type { WordTilesBoardViewProps } from './word-tiles-board-view';
 import {
@@ -43,7 +43,7 @@ export function matchJourney(args: WordTilesBoardViewProps) {
   const [lexicon, setLexicon] = createSignal<LexiconState>(args.lexicon);
   // The record as the app keeps it: each accepted move by the rules' label.
   const [moves, setMoves] = createSignal<readonly string[]>([]);
-  return mergeProps(args, {
+  return merge(args, {
     get position() {
       return position();
     },

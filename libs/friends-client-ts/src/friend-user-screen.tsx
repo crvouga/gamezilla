@@ -4,7 +4,7 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
 import type { FriendUserPresence } from './friend-user-screen-content';
 import {

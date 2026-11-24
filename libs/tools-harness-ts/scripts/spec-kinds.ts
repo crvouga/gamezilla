@@ -5,7 +5,7 @@
  *
  * `specs/` holds only `<context>/` directories, the shared kernel
  * (`ubiquitous-language.yml`), the conformance manifest, the single product
- * statechart with its journeys and Atlas metadata, and the combined rulebook.
+ * statechart with its journeys and map metadata, and the combined rulebook.
  * A context directory is flat:
  * its `ubiquitous-language.yml`, features, Quint models, DMN decision tables,
  * Alloy structures and OpenSLO objectives. A spec kind with no runner yet
@@ -23,7 +23,6 @@ export const SPECS_ROOT_FILES: readonly string[] = [
   'conformance.yaml',
   'product.machine.json',
   'journeys.yaml',
-  'atlas.yaml',
   'README.md',
 ];
 

@@ -4,7 +4,7 @@ import {
 } from '@pkgs/ui-root-client-ts/space-launcher';
 import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
 import type { SpaceRole } from '@pkgs/ui-root-client-ts/space-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   SpaceExampleFrame,
   type SpaceExampleSpies,

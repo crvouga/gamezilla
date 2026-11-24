@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The handle of an `AppStage`: the one small button that floats over the
  * view on show, and switches to the next. Renders inside one.
@@ -6,7 +6,8 @@
 
 import { ArrowLeftRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import styles from '../app-stage/app-stage.module.css';
 
 /** The button's diameter, in px. */

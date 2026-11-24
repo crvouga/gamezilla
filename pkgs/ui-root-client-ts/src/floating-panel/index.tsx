@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** `auto` wraps the content; `window` is a fixed-size window. */
 export type FloatingPanelSize = 'auto' | 'window';
@@ -96,7 +97,7 @@ export function FloatingPanel(props: FloatingPanelProps): JSX.Element {
   const size = (): FloatingPanelSize => props.size ?? 'auto';
   return (
     <section
-      ref={(element) => props.panelRef?.(element)}
+      ref={[props.panelRef]}
       role={props.role === 'region' ? 'region' : 'dialog'}
       aria-modal={props.role === 'region' ? undefined : 'false'}
       aria-label={props.label}

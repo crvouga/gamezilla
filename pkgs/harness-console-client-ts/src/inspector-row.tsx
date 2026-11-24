@@ -1,7 +1,7 @@
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * One dense row of an inspector list (a backend, a route, a topic): an

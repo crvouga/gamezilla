@@ -23,6 +23,7 @@
         "@pkgs/harness-root-shared-ts#src",
         "@pkgs/http-client-client-ts#src",
         "@pkgs/http-client-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/logger-shared-ts#src",
         "@pkgs/object-store-opfs-client-ts#src",
         "@pkgs/object-store-root-shared-ts#src",

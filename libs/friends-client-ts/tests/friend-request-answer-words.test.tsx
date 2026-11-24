@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A friend request is answered with the same two words everywhere: Accept
  * and Decline, as the inbox and the request modal say them.

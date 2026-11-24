@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ChevronDownIcon } from '../icons';
 
@@ -20,19 +21,23 @@ export function GameDisclosure(props: {
   return (
     <div
       class={styles['disclosure']}
-      data-rule={props.rule !== false}
+      data-rule={String(props.rule !== false)}
       {...dataAttrs({ component: 'GameDisclosure' })}
     >
       <button
         type="button"
         class={`${styles['disclosureTrigger']} text textLabel`}
-        aria-expanded={open()}
+        aria-expanded={open() ? 'true' : 'false'}
         aria-controls={id}
         onClick={() => setOpen(!open())}
         {...dataAttrs({ component: 'GameDisclosureTrigger', ...props.dataSet })}
       >
         {props.title}
-        <span class={styles['chevron']} data-open={open()} aria-hidden="true">
+        <span
+          class={styles['chevron']}
+          data-open={String(open())}
+          aria-hidden="true"
+        >
           <ChevronDownIcon size={18} />
         </span>
       </button>

@@ -1,6 +1,6 @@
-import { useLingui } from '@lingui/solid/macro';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { dynamic, type JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 import type { ScreenBaseBreadcrumb } from '../screen-base-types';
 import { useBreadcrumbClick } from '../use-breadcrumb-click';
@@ -10,19 +10,23 @@ function StaticCrumb(props: {
   current: boolean;
   titleId: string | undefined;
 }): JSX.Element {
+  const Tag = dynamic(() =>
+    props.current && props.titleId !== undefined ? 'h1' : 'span'
+  );
   return (
-    <Dynamic
-      component={props.current && props.titleId !== undefined ? 'h1' : 'span'}
+    <Tag
       id={props.current ? props.titleId : undefined}
-      class="text px-4 h-11 inline-flex items-center rounded-full border"
-      classList={{
-        'textBodyBold bg-tint-subtle border-outline': props.current,
-        'textBody text-text-secondary border-transparent': !props.current,
-      }}
+      class={[
+        'text px-4 h-11 inline-flex items-center rounded-full border',
+        {
+          'textBodyBold bg-tint-subtle border-outline': props.current,
+          'textBody text-text-secondary border-transparent': !props.current,
+        },
+      ]}
       aria-current={props.current ? 'page' : undefined}
     >
       {props.name}
-    </Dynamic>
+    </Tag>
   );
 }
 

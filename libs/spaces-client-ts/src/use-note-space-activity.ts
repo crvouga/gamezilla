@@ -6,7 +6,7 @@ import { isViewingSpaceClient } from '@libs/spaces-shared-ts/space-presence-clie
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { useSpaceRoomClientId } from './space-room-context';
 import {
   useSpaceRoomDispatch,
@@ -53,47 +53,53 @@ export function useNoteSpaceActivity(): () => void {
     dispatch(NoteActivity({ clientId: id, at: clock.now() }));
   };
 
-  createEffect(() => {
-    // Availability of the host never turns this device's quiet time into activity.
-    const online = engine.status().online;
-    if (!online) {
-      sawOffline.current = true;
-      return;
-    }
-    if (!sawOffline.current) return;
-    sawOffline.current = false;
-    sent.current = false;
-    setEpoch((value) => value + 1);
-  });
-
-  createEffect(() => {
-    attempt();
-    const id = clientId();
-    const online = engine.status().online && connected();
-    if (id === null || !isViewingSpaceClient(id) || !online) return;
-    const recorded = activity()[id];
-    const current = epoch();
-    // A stamp already in the room is this device's last action. Noting
-    // again on a remount would wipe idle. A return from offline must note.
-    if (current === 0) {
-      if (recorded !== undefined) return;
-    } else {
-      if (baselinedEpoch.current !== current) {
-        baselinedEpoch.current = current;
-        baseline.current = recorded;
-        sent.current = false;
+  // Availability of the host never turns this device's quiet time into activity.
+  createEffect(
+    () => engine.status().online,
+    (online) => {
+      if (!online) {
+        sawOffline.current = true;
+        return;
       }
-      if (recorded !== undefined && recorded !== baseline.current) return;
-    }
-    // One note until the retry. A rejection rolls the stamp back; noting
-    // again in that same moment never lands.
-    sendPending(id, current);
-    const handle = timers.setTimeout(() => {
+      if (!sawOffline.current) return;
+      sawOffline.current = false;
       sent.current = false;
-      setAttempt((value) => value + 1);
-    }, NOTE_RETRY_MS);
-    onCleanup(() => timers.clearTimeout(handle));
-  });
+      setEpoch((value) => value + 1);
+    }
+  );
+
+  // A stamp already in the room is this device's last action. Noting again
+  // on a remount would wipe idle. A return from offline must note.
+  const alreadyNoted = (recorded: number | undefined, current: number) => {
+    if (current === 0) return recorded !== undefined;
+    if (baselinedEpoch.current !== current) {
+      baselinedEpoch.current = current;
+      baseline.current = recorded;
+      sent.current = false;
+    }
+    return recorded !== undefined && recorded !== baseline.current;
+  };
+
+  createEffect(
+    () => {
+      attempt();
+      const id = clientId();
+      const online = engine.status().online && connected();
+      if (id === null || !isViewingSpaceClient(id) || !online) return null;
+      return { id, recorded: activity()[id], epoch: epoch() };
+    },
+    (due) => {
+      if (due === null || alreadyNoted(due.recorded, due.epoch)) return;
+      // One note until the retry. A rejection rolls the stamp back; noting
+      // again in that same moment never lands.
+      sendPending(due.id, due.epoch);
+      const handle = timers.setTimeout(() => {
+        sent.current = false;
+        setAttempt((value) => value + 1);
+      }, NOTE_RETRY_MS);
+      return () => timers.clearTimeout(handle);
+    }
+  );
 
   return note;
 }

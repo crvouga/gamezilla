@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import styles from './game-tile.module.css';
 
 /**
@@ -292,11 +293,13 @@ function Trails(): JSX.Element {
 export function GameTile(props: GameTileProps): JSX.Element {
   return (
     <span
-      class={`${styles['tile']}`}
-      classList={{
-        'rounded-control': props.size !== 'xl',
-        'rounded-card': props.size === 'xl',
-      }}
+      class={[
+        `${styles['tile']}`,
+        {
+          'rounded-control': props.size !== 'xl',
+          'rounded-card': props.size === 'xl',
+        },
+      ]}
       data-motif={props.motif}
       data-size={props.size ?? 'md'}
       aria-hidden="true"

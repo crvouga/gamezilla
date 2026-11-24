@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, mock, test } from 'bun:test';
 import { FloatingMenu } from '@pkgs/ui-root-client-ts/floating-menu';
 import type { FloatingMenuContent } from '@pkgs/ui-root-client-ts/floating-menu-content';

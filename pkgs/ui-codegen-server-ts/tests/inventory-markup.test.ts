@@ -21,8 +21,7 @@ export function Switch(props) {
     <button
       role="switch"
       aria-checked={props.value}
-      classList={{ 'opacity-disabled': props.disabled === true }}
-      class="clickable w-12"
+      class={['clickable w-12', { 'opacity-disabled': props.disabled === true }]}
       data-on={props.value ? 'true' : 'false'}
       data-testid="switch"
       onKeyDown={onKey}
@@ -41,7 +40,7 @@ test('the markup of a module names its roles, states, keys and defaults', () => 
   expect(markup.aria).toEqual([
     { element: 'button', name: 'aria-checked', value: 'props.value' },
   ]);
-  expect(markup.classListStates).toEqual([
+  expect(markup.classStates).toEqual([
     {
       element: 'button',
       name: 'opacity-disabled',

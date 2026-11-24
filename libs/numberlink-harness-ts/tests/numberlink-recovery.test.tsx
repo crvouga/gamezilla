@@ -7,7 +7,7 @@ import {
   PATH_4,
 } from '@libs/numberlink-client-ts/numberlink-player.example';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderNumberlink } from './numberlink-client-fixture';
 
 // regression: numberlink-recovery-displaces-undo
@@ -43,6 +43,7 @@ test('three paths use one recovery trigger and remove the chosen path only', () 
       { pairId: 'pair-3', cells: [] },
     ]);
     setState('{"paths":[]}');
+    flush();
     expect(
       view
         .getByRole('button', { name: 'Remove a path' })

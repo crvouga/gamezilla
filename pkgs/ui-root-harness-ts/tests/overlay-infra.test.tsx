@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
@@ -19,8 +19,9 @@ import {
   SURFACE_STACK_STEP,
 } from '@pkgs/ui-root-shared-ts/constants';
 import { screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { cssOf, renderUi } from './render';
 
 describe('FocusTrap', () => {
@@ -61,6 +62,7 @@ describe('FocusTrap', () => {
     await user.keyboard('{Escape}');
     expect(onEscape).toHaveBeenCalledTimes(1);
     setOpen(false);
+    flush();
   });
 
   test('does not start over when a focus listener reads a signal', () => {
@@ -85,9 +87,11 @@ describe('FocusTrap', () => {
     expect(focused).toBe(1);
     screen.getByTestId('a').blur();
     setSeen(1);
+    flush();
     expect(screen.getByTestId('a')).not.toHaveFocus();
     expect(focused).toBe(1);
     setOpen(false);
+    flush();
   });
 });
 
@@ -121,6 +125,7 @@ describe('keyboard shortcuts', () => {
     await user.keyboard('{Control>}k{/Control}');
     expect(onKey).not.toHaveBeenCalled();
     setActive(true);
+    flush();
     await user.keyboard('{Control>}k{/Control}');
     expect(onKey).toHaveBeenCalledTimes(1);
   });
@@ -183,6 +188,7 @@ describe('SurfaceStack', () => {
     expect(screen.getByText('one:top')).toBeInTheDocument();
 
     setSecond(true);
+    flush();
     const layerTwo = screen.getByText('two').parentElement as Element;
     expect(cssOf(layerTwo)).toContain(
       `z-index:${SURFACE_STACK_BASE + SURFACE_STACK_STEP}`
@@ -191,6 +197,7 @@ describe('SurfaceStack', () => {
     expect(screen.getByText('two:top')).toBeInTheDocument();
 
     setSecond(false);
+    flush();
     expect(screen.queryByText('two')).toBeNull();
     expect(screen.getByText('one:top')).toBeInTheDocument();
   });

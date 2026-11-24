@@ -14,8 +14,8 @@ import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show, untrack } from 'solid-js';
 import { frameSwatch } from './game-frame-look';
 import type { FramePeople } from './game-frame-view-types';
 import {
@@ -76,7 +76,9 @@ function RecordReview(props: {
   record: GameHistoryRecord;
   onBack: () => void;
 }): JSX.Element {
-  const [ply, setPly] = createSignal(props.record.moves.length);
+  // The review opens on the record's last position: read once, so a record
+  // read again from the device does not move the person off their place.
+  const [ply, setPly] = createSignal(untrack(() => props.record.moves.length));
   const presentation = useGamePresentation();
   const replayMoves = useReplayMoves();
   const myId = useMyId();
@@ -103,6 +105,7 @@ function RecordReview(props: {
     }))
   );
   const replay = createMemo(() => replayMoves(props.record));
+  const Board = dynamic(() => presentation(position()).Board);
   return (
     <>
       <DefineBackButton onPress={props.onBack} label={t`Game history`} />
@@ -119,8 +122,7 @@ function RecordReview(props: {
         onSeek={setPly}
         onBack={props.onBack}
         board={
-          <Dynamic
-            component={presentation(position()).Board}
+          <Board
             position={position()}
             orientation={side()}
             interactive={false}

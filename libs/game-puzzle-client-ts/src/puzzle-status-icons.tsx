@@ -1,5 +1,5 @@
 import type { PuzzleStatusKind } from '@libs/game-puzzle-shared-ts/status-kind';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import {
   ClockIcon,
@@ -8,7 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 
 const ICON_SIZE = 18;

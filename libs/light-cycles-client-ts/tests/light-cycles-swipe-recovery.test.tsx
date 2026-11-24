@@ -7,7 +7,7 @@ import {
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -60,7 +60,9 @@ test('an interrupted swipe cannot turn a rider after steering resumes', () => {
     );
   pointer('pointerdown', 100);
   setStale(true);
+  flush();
   setStale(false);
+  flush();
   pointer('pointermove', 140);
   expect(inputs).toEqual([]);
   pointer('pointerup', 140);

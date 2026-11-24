@@ -5,7 +5,6 @@ import type {
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
-import { defineSnapshot } from '@pkgs/harness-root-shared-ts/define-snapshot';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import { virtualTimeRuntime } from '@pkgs/harness-root-shared-ts/virtual-time-runtime';
 import { numberedCells, numberlinkFixture } from './numberlink-fixtures';
@@ -94,15 +93,5 @@ export const numberlinkSystem = defineSystem<NumberlinkHarness>({
     arrangeNumberlinkPath,
     removeNumberlinkPath,
     clearNumberlink,
-  ],
-  snapshots: [
-    defineSnapshot({
-      name: 'drawing',
-      capture: (s: NumberlinkHarness) => ({
-        definition: s.definition,
-        state: s.state,
-        refusal: s.refusal,
-      }),
-    }),
   ],
 });

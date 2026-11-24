@@ -8,7 +8,7 @@ import type { Inventory } from '@pkgs/ui-testing-root-shared-ts/inventory';
 import type { DriverKey } from '@pkgs/ui-testing-root-shared-ts/keys';
 import { DRIVER_KEY_TO_DOM } from '@pkgs/ui-testing-root-shared-ts/keys';
 import type { RenderedApp } from '@pkgs/ui-testing-root-shared-ts/render-adapter';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { LayoutProvider } from './dom-layout';
 import type { WaitPump } from './dom-wait';
 import { DEFAULT_WAIT_TIMEOUT_MS, microtaskPump } from './dom-wait';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The injected `copy` sink records payloads in native Storybook Actions.
  */
@@ -7,7 +7,7 @@ import {
   JsonView,
   type JsonViewProps,
 } from '@pkgs/ui-devtools-client-ts/json-view';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 

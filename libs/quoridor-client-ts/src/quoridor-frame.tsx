@@ -11,7 +11,7 @@ import {
   standingsFromWinner,
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createQuoridorBoard } from './quoridor-board';
 import { PAWN_GLYPHS, quoridorPlayerName } from './quoridor-board-cells';
 

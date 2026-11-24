@@ -1,10 +1,11 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 
 /**
  * Where opening the link stands: going to the person's space, stopped at

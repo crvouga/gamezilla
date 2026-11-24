@@ -2,7 +2,8 @@ import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TrailArena } from '@pkgs/ui-root-client-ts/trail-arena';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import {
@@ -40,7 +41,7 @@ function SteeredArena(props: {
   helpId: string;
   testId: string;
 }): JSX.Element {
-  const [round, setRound] = createSignal(props.initialRound);
+  const [round, setRound] = createSignal(() => props.initialRound);
   return (
     <StackVertical gap="md">
       <P id={props.helpId}>{props.help}</P>

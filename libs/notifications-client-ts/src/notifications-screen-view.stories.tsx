@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { withShippedModeration } from '@libs/moderation-client-ts/moderation-story.example';
 import { buildNotificationSections } from '@libs/notifications-shared-ts/notifications-sections';

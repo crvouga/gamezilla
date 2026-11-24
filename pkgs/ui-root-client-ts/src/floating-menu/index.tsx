@@ -1,17 +1,16 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { nextMenuItemIndex } from '@pkgs/ui-root-shared-ts/floating-menu-keyboard';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
   For,
-  type JSX,
-  onCleanup,
   Show,
 } from 'solid-js';
 import type {
@@ -31,6 +30,7 @@ import type {
   FloatingMenuPosition,
 } from '../floating-menu-position';
 import { computeFloatingMenuPosition } from '../floating-menu-position';
+import { moveFocus } from '../move-focus';
 import { OnColorReset } from '../on-color-context/index';
 import type { LayoutRect } from '../portal-host-frame';
 import { measureHostFrame, windowRectToHostLocal } from '../portal-host-frame';
@@ -94,19 +94,19 @@ function useMenuFocus(
   active: () => boolean,
   onClose: () => void
 ): void {
-  createEffect(() => {
+  createEffect(createMemo(active), (isActive) => {
     const el = host();
-    if (!active() || el === undefined) return;
+    if (!isActive || el === undefined) return undefined;
     const previous =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    (menuItems(el)[0] ?? el).focus();
+    moveFocus(menuItems(el)[0] ?? el);
     const unsubscribe = pushEscapeDismissHandler(onClose);
-    onCleanup(() => {
+    return () => {
       unsubscribe();
-      previous?.focus();
-    });
+      moveFocus(previous);
+    };
   });
 }
 
@@ -175,7 +175,7 @@ function FloatingMenuPanel(props: {
           }}
           role="menu"
           aria-label={props.label}
-          tabIndex={-1}
+          tabindex={-1}
           onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
         >
           <Show when={props.content.header}>
@@ -233,15 +233,17 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
   const layout = useThemeLayout();
   // Remeasure when harness layout synthesis updates the trigger box.
   const [layoutEpoch, setLayoutEpoch] = createSignal(0);
-  createEffect(() => {
-    if (!props.open) return;
+  const openAnchor = (): Element | undefined => {
     const anchor = props.anchor;
-    if (!(anchor instanceof Element)) return;
+    return props.open && anchor instanceof Element ? anchor : undefined;
+  };
+  createEffect(openAnchor, (anchor) => {
+    if (anchor === undefined) return undefined;
     const bump = (): void => {
       setLayoutEpoch((n) => n + 1);
     };
     anchor.addEventListener(ELEMENT_LAYOUT_EVENT, bump);
-    onCleanup(() => anchor.removeEventListener(ELEMENT_LAYOUT_EVENT, bump));
+    return () => anchor.removeEventListener(ELEMENT_LAYOUT_EVENT, bump);
   });
   // Measure on open (and when layoutEpoch bumps); a menu that outlives its
   // trigger keeps its last spot until the next open.

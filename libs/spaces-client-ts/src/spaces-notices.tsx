@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** "Spaces need a connection" — said plainly, never a silent failure. */
 export function SpacesNeedConnectionNotice(): JSX.Element {

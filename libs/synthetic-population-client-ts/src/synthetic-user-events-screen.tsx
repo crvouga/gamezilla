@@ -2,7 +2,7 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useParams } from '@solidjs/router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { SyntheticUserEventsScreenView } from './synthetic-user-events-screen-view';
 import { useSyntheticUser, useSyntheticUserEvents } from './use-synthetic-user';
 
@@ -15,10 +15,10 @@ function EventsContent(): JSX.Element {
     <SyntheticUserEventsScreenView
       user={user.shown()}
       events={events.shown()}
-      loading={events.events.loading}
-      failed={Boolean(events.events.error)}
+      loading={events.loading()}
+      failed={events.failed()}
       onRefresh={() => {
-        void events.refetch();
+        void events.reread();
       }}
     />
   );

@@ -88,9 +88,7 @@ async function matchedGameWorlds(game: HarnessGame): Promise<Snapshot[]> {
     matchmaking.clockChoices === true
       ? `${matchmaking.namespace}${choice}`
       : defaultMatchChoice(matchmaking);
-  await using s = await openConformanceHarness(
-    `legal-matched-worlds-${game.shared.id}`
-  );
+  await using s = await openConformanceHarness();
   const worlds: Snapshot[] = [];
   const keep = async (label: string) =>
     worlds.push(

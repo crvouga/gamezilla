@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Square } from '@pkgs/chess-board-core-shared-ts/types';
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
@@ -12,7 +12,7 @@ import type {
   SpacePerson,
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   spaceExampleChessSetup,
   spaceExampleChessSide,

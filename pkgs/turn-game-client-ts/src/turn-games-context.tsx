@@ -1,6 +1,7 @@
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 
 const Context = createContext<{
   rules: TurnGames;
@@ -12,21 +13,17 @@ export function TurnGamesProvider(props: {
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <Context.Provider
-      value={{ rules: props.rules, presentations: props.presentations }}
-    >
+    <Context value={{ rules: props.rules, presentations: props.presentations }}>
       {props.children}
-    </Context.Provider>
+    </Context>
   );
 }
 export function useTurnGames() {
   const value = useContext(Context);
-  if (value === undefined) throw new Error('TurnGamesProvider is required');
   return value.rules;
 }
 export function useGamePresentation() {
   const value = useContext(Context);
-  if (value === undefined) throw new Error('TurnGamesProvider is required');
   return (position: string): GamePresentation<JSX.Element> => {
     const id = value.rules.forPosition(position).id;
     const presentation = value.presentations.find((p) => p.id === id);
@@ -39,7 +36,6 @@ export function useGamePresentation() {
 /** How a game is won, in one sentence, by the game's id; none if it has no such line. */
 export function useGameGoal() {
   const value = useContext(Context);
-  if (value === undefined) throw new Error('TurnGamesProvider is required');
   return (gameId: string): string | undefined =>
     value.presentations.find((p) => p.id === gameId)?.goal?.();
 }

@@ -17,7 +17,7 @@ import { openHarness } from './open-friends-harness';
 
 test('a joined guest can observe their lobby card without the host profile', async () => {
   // regression: space-guest-lobby-card-unobservable
-  await using s = await openHarness('space-guest-lobby-card-unobservable');
+  await using s = await openHarness();
   await s.apply(createSpace, 'alice');
   const link = await s.read(readSpaceLink, 'alice');
   if (link === null) throw new Error('Alice did not create a space');

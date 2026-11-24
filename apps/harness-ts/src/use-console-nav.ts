@@ -24,17 +24,22 @@ export type UseConsoleNavResult = {
 
 /** Property-shaped reactive state; URL is authoritative for back/forward. */
 export function useConsoleNav(): UseConsoleNavResult {
-  const [state, setState] = createSignal(
-    parseConsoleNav(readConsoleNavSearch())
-  );
+  // The latest state is held outside the signal so a patch made before the
+  // view settles builds on the patch before it.
+  let current = parseConsoleNav(readConsoleNavSearch());
+  const [state, setState] = createSignal(current);
+  const commit = (next: ConsoleNavState): void => {
+    current = next;
+    setState(next);
+  };
   writeConsoleNavUrl(
-    buildConsoleSearch(state(), readConsoleNavSearch()),
-    state(),
+    buildConsoleSearch(current, readConsoleNavSearch()),
+    current,
     'replace'
   );
   onCleanup(
     subscribeConsoleNavPopState(() => {
-      setState(parseConsoleNav(readConsoleNavSearch()));
+      commit(parseConsoleNav(readConsoleNavSearch()));
     })
   );
   return {
@@ -42,8 +47,8 @@ export function useConsoleNav(): UseConsoleNavResult {
       return state();
     },
     patch(partial, mode = 'push') {
-      const next = applyConsoleNavPatch(state(), partial);
-      if (consoleNavEqual(state(), next)) return;
+      const next = applyConsoleNavPatch(current, partial);
+      if (consoleNavEqual(current, next)) return;
       // A view change hands the keyboard back; a change of panel keeps the
       // control it was made from focused.
       if (partial.pane !== undefined) releaseConsoleFocus();
@@ -52,7 +57,7 @@ export function useConsoleNav(): UseConsoleNavResult {
         next,
         mode
       );
-      setState(next);
+      commit(next);
     },
   };
 }

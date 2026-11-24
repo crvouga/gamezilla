@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { SpaceRole } from '../space-types';
 import styles from './space-launcher.module.css';
 import {
@@ -99,8 +100,8 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
   return (
     <div
       class={styles['stage']}
-      {...dataAttrs({ component: 'SpaceLauncher', ...props.dataSet })}
       data-role={props.role}
+      {...dataAttrs({ component: 'SpaceLauncher', ...props.dataSet })}
     >
       <section class={styles['status']}>
         <h2 class="text textTitle" data-testid={props.testIds?.status}>

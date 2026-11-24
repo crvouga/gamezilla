@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The billing screen rendered for every caller × membership row × billing
  * switch × customer link: exactly the controls, notice and status the view
@@ -15,9 +15,9 @@ import { buildBillingView } from '@libs/billing-client-ts/billing-view-model';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared-ts/plus-membership-offer';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { AppRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StaticAppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';

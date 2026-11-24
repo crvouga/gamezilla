@@ -15,8 +15,8 @@ import type {
 import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, type JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { useContentGame, useContentPlace } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { contentPlaceOf } from './content-places';
@@ -205,6 +205,7 @@ export function ContentLibraryScreen(): JSX.Element {
       .map((edition) => withPreview(data.content(), data.play(), edition))
   );
   const preview = game.client.Preview;
+  const Preview = dynamic(() => preview);
   const openEdition = (revisionId: string): void =>
     game.open({ kind: 'edition', revisionId, packRevisionId: null });
   return (
@@ -234,9 +235,7 @@ export function ContentLibraryScreen(): JSX.Element {
       renderPreview={
         preview === undefined
           ? undefined
-          : (definition) => (
-              <Dynamic component={preview} definition={definition} />
-            )
+          : (definition) => <Preview definition={definition} />
       }
       onOpenEdition={openEdition}
       onOpenDraft={(documentId) => game.open({ kind: 'builder', documentId })}

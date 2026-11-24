@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, describe, expect, test } from 'bun:test';
 import { TimeoutError } from '@pkgs/ui-testing-root-shared-ts/timeout-error';
@@ -6,7 +6,8 @@ import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
 import type { SolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared-ts/serialize-dom-html';
-import { createSignal, type JSX, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onSettled } from 'solid-js';
 import { createDemoClock, DemoApp, DemoProviders } from './demo-app';
 
 function demoDriver(): SolidDomDriver {
@@ -241,7 +242,7 @@ describe('SolidDomDriver', () => {
     const sizes: number[] = [];
     driver = customDriver(() => {
       let host: HTMLElement | undefined;
-      onMount(() => {
+      onSettled(() => {
         host?.addEventListener('ui-testing:element-layout', () => {
           if (host === undefined) return;
           sizes.push(host.getBoundingClientRect().width);
@@ -270,7 +271,7 @@ describe('SolidDomDriver', () => {
     driver = customDriver(() => {
       const [width, setWidth] = createSignal(0);
       let host: HTMLElement | undefined;
-      onMount(() => {
+      onSettled(() => {
         host?.addEventListener('ui-testing:element-layout', () => {
           setWidth(host?.getBoundingClientRect().width ?? 0);
         });

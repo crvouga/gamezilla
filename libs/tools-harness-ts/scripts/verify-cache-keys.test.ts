@@ -385,8 +385,8 @@ test('a package the root manifest depends on is hashed into every task', () => {
 
 // regression: root-workspace-dependency-invalidates-every-task
 test('the root manifest depends on no workspace package', () => {
-  // The Atlas packages and the glob matcher were root dependencies; every
-  // Atlas bump changed all 1,114 task hashes (Verify run 38187450396: 0 hits).
+  // Workspace packages listed as root dependencies changed all 1,114 task
+  // hashes on each of their edits (Verify run 38187450396: 0 hits).
   const root = join(import.meta.dirname, '../../..');
   const manifest = JSON.parse(
     readFileSync(join(root, 'package.json'), 'utf8')

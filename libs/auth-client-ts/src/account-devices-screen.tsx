@@ -1,6 +1,6 @@
 import { useClipboard } from '@pkgs/device-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import { useIsSignedIn } from './access-facts';
 import { AccountDevicesScreenView } from './account-devices-screen-view';

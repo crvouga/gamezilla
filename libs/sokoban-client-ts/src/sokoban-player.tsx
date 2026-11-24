@@ -12,7 +12,7 @@ import type {
   SokobanBoard,
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
@@ -20,14 +20,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import {
-  createMemo,
-  createUniqueId,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, Match, Show, Switch } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
 import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
 import { type SokobanFeedback, SokobanStatus } from './sokoban-feedback';

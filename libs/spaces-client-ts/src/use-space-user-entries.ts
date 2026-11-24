@@ -18,7 +18,7 @@ type SpaceUserRow = {
   readonly avatar_config: string | null;
 };
 
-export function useSpaceUserEntries(spaceId: string): {
+export function useSpaceUserEntries(spaceId: Accessor<string>): {
   readonly entries: Accessor<readonly SpaceUserEntry[]>;
   readonly isLoading: Accessor<boolean>;
 } {
@@ -28,7 +28,7 @@ export function useSpaceUserEntries(spaceId: string): {
       SELECT a.user_id, p.username, p.avatar_config
       FROM spaces_users AS a
       INNER JOIN profile AS p ON p.id = a.user_id
-      WHERE a.space_id = ${spaceId} AND a.deleted_at IS NULL
+      WHERE a.space_id = ${spaceId()} AND a.deleted_at IS NULL
       ORDER BY p.username COLLATE NOCASE ASC
     `
   );

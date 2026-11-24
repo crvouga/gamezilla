@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { FloatingActionClearance } from '../floating-action-clearance/index';
 import type { VirtualListProps } from '../virtual-list/index';
 import { VirtualList } from '../virtual-list/index';

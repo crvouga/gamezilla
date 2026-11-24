@@ -1,5 +1,5 @@
+import { spaceRolesApplicationLayer } from '@libs/permissions-harness-ts/application';
 import { clientGatingLayer } from '@libs/permissions-harness-ts/client';
-import { spaceRolesApplicationLayer } from '@libs/permissions-shared-ts/application';
 import { grantKeyOf } from '@libs/permissions-shared-ts/capabilities';
 import { capabilityOf } from '@libs/permissions-shared-ts/people';
 import { serverEnforcementLayer } from '@libs/permissions-shared-ts/server';

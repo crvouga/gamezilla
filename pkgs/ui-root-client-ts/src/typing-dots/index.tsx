@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -6,7 +6,8 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
  */
 
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import styles from '../speaking-avatar/speaking-avatar.module.css';
 import { useThemeTokens } from '../theme-context/index';
 
@@ -41,11 +42,13 @@ export function TypingDots(props: TypingDotsProps): JSX.Element {
       <For each={DOT_CLASSES}>
         {(dotClass) => (
           <div
-            class="box rounded-full"
-            classList={{
-              [String(styles['dot'])]: true,
-              [String(dotClass)]: true,
-            }}
+            class={[
+              'box rounded-full',
+              {
+                [String(styles['dot'])]: true,
+                [String(dotClass)]: true,
+              },
+            ]}
             style={{
               'background-color': fill(),
               width: cssPx(DOT_SIZE),

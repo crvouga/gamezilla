@@ -2,7 +2,7 @@
 /**
  * Babel config for Solid `.tsx` under Bun (`register.ts`).
  * Strips TypeScript, compiles Lingui macros for the Solid JSX runtime, then
- * compiles Solid JSX to DOM expressions (`babel-preset-solid`).
+ * compiles Solid JSX to DOM expressions (`@solidjs/babel-plugin`).
  */
 const path = require('node:path');
 const { getConfig } = require('@lingui/conf');
@@ -24,10 +24,10 @@ module.exports = function (api) {
         require.resolve('@babel/preset-typescript'),
         { isTSX: true, allExtensions: true, allowDeclareFields: true },
       ],
-      // Browser DOM output; `hydratable` off — tests mount fresh roots.
-      [require.resolve('babel-preset-solid'), { generate: 'dom' }],
     ],
     plugins: [
+      // Browser DOM output; `hydratable` off — tests mount fresh roots.
+      [require.resolve('@solidjs/babel-plugin'), { generate: 'dom' }],
       // Keep `message` on descriptors so a missing key renders English.
       [
         require.resolve('@lingui/babel-plugin-lingui-macro'),

@@ -8,7 +8,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  on,
   untrack,
 } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
@@ -51,9 +50,10 @@ export function createWordTilesDraft(
   // A candidate follows the position and rack it was made on; tiles that
   // are no longer possible go back, the rest stay tentative.
   createEffect(
-    on([() => props.position, () => props.hand, () => props.syncKey], () =>
-      setCandidate((c) => rebase(c, props.position, props.hand))
-    )
+    () => [props.position, props.hand, props.syncKey] as const,
+    ([shown, hand]) => {
+      setCandidate((c) => rebase(c, shown, hand));
+    }
   );
   const preview = createMemo(() => {
     const decoded = position();

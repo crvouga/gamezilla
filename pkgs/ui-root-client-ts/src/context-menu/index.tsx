@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, flush, Show } from 'solid-js';
 import { CommandPaletteKbd } from '../command-palette-kbd/index';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
@@ -74,9 +75,12 @@ function rowsOf(
           ),
         dataSet: { testid: `context-menu-${item.id}` },
         // Close first, so focus is back on what the person pointed at
-        // (a field keeps its selection) before the item acts on it.
+        // (a field keeps its selection) before the item acts on it. The
+        // item acts inside the same gesture (copy and paste need it), so
+        // the close settles here instead of on the next microtask.
         onClick: () => {
           onClose();
+          flush();
           item.onSelect();
         },
       });

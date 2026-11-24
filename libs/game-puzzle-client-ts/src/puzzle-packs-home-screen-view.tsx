@@ -3,11 +3,12 @@ import type {
   ContentRevision,
 } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { ContentLibraryProgress } from './content-library-card';
 import { ContentLibraryHubView } from './content-library-hub-view';
 import {

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -21,7 +21,8 @@ import {
   GameWatchingFooter,
 } from '@pkgs/ui-root-client-ts/game-watching';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import {

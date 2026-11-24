@@ -1,12 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
+import type { JSX } from '@solidjs/web';
 import {
   createContext,
   createMemo,
   createSignal,
-  type JSX,
   Show,
   useContext,
 } from 'solid-js';
@@ -45,7 +45,7 @@ export function FriendRequestDecisionProvider(props: {
     close: () => setShown(null),
   };
   return (
-    <FriendRequestDecisionContext.Provider value={value}>
+    <FriendRequestDecisionContext value={value}>
       {props.children}
       <Show when={shown()} keyed>
         {(snapshot) => (
@@ -57,7 +57,7 @@ export function FriendRequestDecisionProvider(props: {
           />
         )}
       </Show>
-    </FriendRequestDecisionContext.Provider>
+    </FriendRequestDecisionContext>
   );
 }
 

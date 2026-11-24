@@ -15,7 +15,8 @@ import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, Show, untrack } from 'solid-js';
 import {
   COLUMN_LABELS,
   orientationName,
@@ -101,9 +102,14 @@ export function BattleshipSetupBoard(
   const setup = createSetupController(props);
   const statusId = createUniqueId();
   const phone = createMediaQuery('(max-width: 639px)');
+  // Read once: the opening layout is this mount's own, and a later resize
+  // or prop never overrides what the person chose since.
   const [enlarged, setEnlarged] = createSignal(
-    props.initialPlacement === 'enlarged' ||
-      ((props.initialPlacement ?? 'responsive') === 'responsive' && phone())
+    untrack(
+      () =>
+        props.initialPlacement === 'enlarged' ||
+        ((props.initialPlacement ?? 'responsive') === 'responsive' && phone())
+    )
   );
   return (
     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>

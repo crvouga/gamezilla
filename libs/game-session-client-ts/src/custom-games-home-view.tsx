@@ -1,10 +1,11 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { GameModeCard } from '@pkgs/ui-root-client-ts/game-lobby';
 import { BotIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { FrameLobbyPage } from './game-frame-shell';

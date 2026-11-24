@@ -1,9 +1,10 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import { useUnfinishedGame } from './use-unfinished-game';
 
 /** The test id of what the game's choices say finding an opponent offers. */

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 import type { HarnessConsoleNav } from '../src/debugger-chrome';
 import {
   type HarnessViewSession,
@@ -68,6 +68,7 @@ describe('useHarnessView', () => {
       'events',
     ]);
     w.setShow('server:server-a');
+    flush();
     expect(view.shown()?.id).toBe('server:server-a');
   });
 
@@ -75,6 +76,7 @@ describe('useHarnessView', () => {
     const w = world();
     const view = mounted(() => useHarnessView(w.session, w.nav));
     view.show('client:alice');
+    flush();
     expect(w.writes).toEqual([]);
   });
 
@@ -83,9 +85,12 @@ describe('useHarnessView', () => {
     const view = mounted(() => useHarnessView(w.session, w.nav));
     expect(view.shown()?.id).toBe('client:bob');
     w.change((clients) => clients.delete('bob'));
+    flush();
     expect(view.shown()?.id).toBe('client:alice');
     w.change((clients) => clients.set('carol', {}));
+    flush();
     view.show('client:carol');
+    flush();
     expect(view.shown()?.id).toBe('client:carol');
   });
 
@@ -93,6 +98,7 @@ describe('useHarnessView', () => {
     const w = world('client:bob');
     const view = mounted(() => useHarnessView(w.session, w.nav));
     w.change((clients) => clients.clear());
+    flush();
     expect(view.shownId()).toBe('harness');
   });
 });

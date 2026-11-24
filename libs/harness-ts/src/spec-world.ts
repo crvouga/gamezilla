@@ -5,7 +5,7 @@
  */
 
 import type { ScenarioContext } from '@pkgs/gherkin-shared-ts/registry';
-import { isHostLimit, setWorld } from '@pkgs/gherkin-shared-ts/registry';
+import { setWorld } from '@pkgs/gherkin-shared-ts/registry';
 import type { OpenHarnessOptions } from './mode';
 import type { OpenHarness } from './open-harness';
 
@@ -34,37 +34,6 @@ function preview(value: unknown): string {
 function nameOf(fn: unknown): string {
   if (typeof fn !== 'function') return String(fn);
   return fn.name.length > 0 ? fn.name : preview(fn);
-}
-
-type StepMeta = Parameters<OpenHarness['record']>[0];
-
-/**
- * Record a scenario step in the report. A host limit — the host proved it
- * cannot do what the step asks — ends the scenario and passes it, so the step
- * is recorded as passed, followed by a note where the scenario stopped; the
- * error still leaves so the runner ends the scenario. Any other error fails
- * the step.
- */
-export async function recordStep<T>(
-  s: Pick<OpenHarness, 'record'>,
-  meta: StepMeta,
-  fn: () => Promise<T>
-): Promise<T> {
-  let limit: Error | undefined;
-  const result = await s.record(meta, async () => {
-    try {
-      return await fn();
-    } catch (error) {
-      if (!isHostLimit(error)) throw error;
-      limit = error as Error;
-      return undefined as T;
-    }
-  });
-  if (limit === undefined) return result;
-  await s.record({ kind: 'host limit', title: limit.message }, () =>
-    Promise.resolve()
-  );
-  throw limit;
 }
 
 /** `s` with `apply` / `read` / `until` / `never` / `advanceTime` recorded. */
@@ -162,14 +131,11 @@ export function recall(w: HarnessWorld, key: string): unknown {
 
 /** Opens the package's composition (`tests/harness/open-<sub>-harness.ts`). */
 export type OpenPackageHarness = (
-  testId: string,
   options?: OpenHarnessOptions
 ) => Promise<OpenHarness>;
 
 /**
- * Register the harness world for this package's features. Each scenario's report
- * is named after the scenario and points at its feature line, and each step
- * is one labelled report step holding the harness calls it made. `extend` adds
+ * Register the harness world for this package's features. `extend` adds
  * what steps shared with a non-harness host need (e.g. the critical journeys'
  * `journey` host) to every scenario's world.
  */
@@ -182,13 +148,7 @@ export function useHarnessWorld(
     ...(matches === undefined ? {} : { matches }),
     create: async (ctx) => {
       const calls: string[] = [];
-      const opened = await openHarness(ctx.testId, {
-        report: {
-          title: `${ctx.featureName}: ${ctx.scenarioName}`,
-          sourceFile: ctx.featureUri,
-          sourceLine: ctx.scenarioLine,
-        },
-      });
+      const opened = await openHarness();
       const world: HarnessWorld = {
         s: recordingRun(opened, calls),
         ctx,
@@ -204,14 +164,7 @@ export function useHarnessWorld(
       // `And`, `But` and `*` continue the kind of step before them.
       if (['Given', 'When', 'Then'].includes(keyword))
         w.memo.set(STEP_KIND_KEY, keyword);
-      return recordStep(
-        w.s,
-        {
-          kind: step.keyword.trim(),
-          title: `${step.keyword.trim()} ${step.text}`,
-        },
-        fn
-      );
+      return fn();
     },
   });
 }

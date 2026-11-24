@@ -1,6 +1,7 @@
 import type { MultiplayerRatingPool } from '@libs/game-matchmaking-shared-ts/time-control';
-import { Trans } from '@lingui/solid/macro';
-import { type JSX, Match, Switch } from 'solid-js';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 
 export function SpeedName(props: { readonly speed: string }): JSX.Element {
   return (

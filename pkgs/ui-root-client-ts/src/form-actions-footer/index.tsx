@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { children, createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { children, createMemo, Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { ButtonIntent } from '../button-face';
 import { useLayoutMode } from '../use-layout-mode';
@@ -131,11 +132,13 @@ export function FormActionsFooterView(
   const compact = (): boolean => mode() !== 'wide';
   return (
     <div
-      class="box gap-2"
-      classList={{
-        'flex-col items-stretch': compact(),
-        'flex-row-reverse': !compact(),
-      }}
+      class={[
+        'box gap-2',
+        {
+          'flex-col items-stretch': compact(),
+          'flex-row-reverse': !compact(),
+        },
+      ]}
       {...dataAttrs({
         component: 'FormActionsFooter',
         layout: compact() ? 'stacked' : 'row',

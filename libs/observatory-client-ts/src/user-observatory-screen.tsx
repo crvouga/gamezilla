@@ -6,7 +6,7 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { UserObservatoryScreenView } from './user-observatory-screen-view';
 
 function UserObservatoryContent(): JSX.Element {

@@ -2,8 +2,8 @@ import { claimUsernameMutation } from '@libs/profile-shared-ts/claim-username-mu
 import type { ProfileRow } from '@libs/profile-shared-ts/profile-row-sql';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { Accessor, JSX } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
 import { useProfileRow } from './claim-username-use-profile-row';
 import { ProfileHandleScreenView } from './profile-handle-screen-view';
@@ -14,22 +14,24 @@ function useSyncedUsername(row: Accessor<ProfileRow | null>) {
   const [value, setValue] = createSignal('');
   const lastPersistedRef = { current: null as string | null };
 
-  createEffect(() => {
-    const current = row();
-    if (current === null) return;
-    const persisted =
-      typeof current.username === 'string' ? current.username : '';
-    const prev = lastPersistedRef.current;
-    if (prev === null) {
-      setValue((draft) => (draft === '' ? persisted : draft));
-      lastPersistedRef.current = persisted;
-      return;
+  createEffect(
+    () => row(),
+    (current) => {
+      if (current === null) return;
+      const persisted =
+        typeof current.username === 'string' ? current.username : '';
+      const prev = lastPersistedRef.current;
+      if (prev === null) {
+        setValue((draft) => (draft === '' ? persisted : draft));
+        lastPersistedRef.current = persisted;
+        return;
+      }
+      if (persisted !== prev) {
+        setValue((draft) => (draft === prev ? persisted : draft));
+        lastPersistedRef.current = persisted;
+      }
     }
-    if (persisted !== prev) {
-      setValue((draft) => (draft === prev ? persisted : draft));
-      lastPersistedRef.current = persisted;
-    }
-  });
+  );
 
   return [value, setValue] as const;
 }

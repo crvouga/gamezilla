@@ -3,8 +3,8 @@ import type {
   ContentAttempt,
 } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { changePuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/change-attempt-mutation';
-import { useLingui } from '@lingui/solid/macro';
 import { createAsync } from '@pkgs/async-root-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { usePendingOperation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
@@ -20,14 +20,18 @@ export function useContentAttemptChange(attempt: () => ContentAttempt) {
   const createId = useCreateId();
   const [last, setLast] = createSignal<AttemptCommand | null>(null);
   const [adopting, setAdopting] = createSignal<string | null>(null);
-  createEffect(() => {
-    const id = adopting();
-    if (
-      attempt().current_position_id === id &&
-      data.play().positions.some((entry) => entry.id === id)
-    )
-      setAdopting(null);
-  });
+  createEffect(
+    () => {
+      const id = adopting();
+      return (
+        attempt().current_position_id === id &&
+        data.play().positions.some((entry) => entry.id === id)
+      );
+    },
+    (adopted) => {
+      if (adopted) setAdopting(null);
+    }
+  );
   const change = createAsync({
     operation: async (_context, command: AttemptCommand) => {
       const current = attempt();

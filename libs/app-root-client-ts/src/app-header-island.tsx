@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Wide navigation composition: logo, tab rows and the global menu, as the
  * sidebar (`AppFrame` `rail`); ignored on compact layouts.
@@ -6,7 +6,7 @@
 
 import { useAppFrameGlobalTrailing } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { usePathname, useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AppHeaderIslandView } from './app-header-island-view';
 import { useAppTabs } from './app-tabs';
 import { GlobalMenuInSidebar } from './global-menu-in-sidebar';

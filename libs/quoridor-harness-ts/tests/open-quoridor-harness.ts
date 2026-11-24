@@ -15,8 +15,7 @@ const QUORIDOR_SYSTEM = gameSystem('quoridor', [
 ]);
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openGameHarness(QUORIDOR_SYSTEM, testId, options);
+  return openGameHarness(QUORIDOR_SYSTEM, options);
 }

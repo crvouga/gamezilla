@@ -28,6 +28,7 @@
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

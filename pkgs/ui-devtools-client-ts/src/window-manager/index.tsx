@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   applyWindowLayoutCommand,
@@ -21,14 +21,13 @@ import {
   componentDataAttrs,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
   For,
-  type JSX,
-  on,
   Show,
 } from 'solid-js';
 import {
@@ -109,7 +108,7 @@ function createWindowManagerApi(
     wanted = null;
     if (tab?.isConnected === true) tab.focus();
   };
-  createEffect(on(elements.layout, focusTab, { defer: true }));
+  createEffect(elements.layout, focusTab, { defer: true });
   const dispatch: WindowManagerApi['dispatch'] = (command, options) => {
     const before = elements.layout();
     const next = applyWindowLayoutCommand(before, command);
@@ -256,7 +255,7 @@ export function WindowManager(props: WindowManagerProps): JSX.Element {
       .filter((id) => windowOfPanel(layout(), id) !== null)
   );
   return (
-    <WindowManagerContext.Provider value={api}>
+    <WindowManagerContext value={api}>
       <div
         ref={(element) => {
           root = element;
@@ -306,6 +305,6 @@ export function WindowManager(props: WindowManagerProps): JSX.Element {
           {said()}
         </VisuallyHidden>
       </div>
-    </WindowManagerContext.Provider>
+    </WindowManagerContext>
   );
 }

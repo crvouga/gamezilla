@@ -32,8 +32,6 @@ export type HarnessActor = {
    * harness holds itself.
    */
   readonly mutations?: DeviceMutations;
-  /** A native rendered frame, available only on real browser actors. */
-  readonly screenshot?: () => Promise<Uint8Array>;
   /**
    * The actor's local database, wherever the actor runs (in-process SQLite,
    * or inside a live browser), or `null` before the app has opened one.

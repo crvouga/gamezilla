@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -6,7 +6,7 @@ import type {
   RadiusToken,
   SurfaceTone,
 } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { radiusClass, spaced, surfaceClass } from '../layout-classes';
 
 /** Fill of a pane. */

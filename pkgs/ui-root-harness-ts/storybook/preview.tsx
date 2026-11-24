@@ -1,24 +1,27 @@
 import { i18n as globalI18n, setupI18n } from '@lingui/core';
 import { compileMessage } from '@lingui/message-utils/compileMessage';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   type AppRouter,
   StaticAppRouterProvider,
 } from '@pkgs/ui-root-client-ts/app-router';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createEffect, type JSX, onCleanup, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, onCleanup, Show } from 'solid-js';
 import { addons } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';
+import { applyDecorators as applySolidDecorators } from 'storybook-solidjs-vite/renderer/solid-next';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/application.css';
 import { backgrounds, viewports } from './preview-options';
 import { loadStoryFonts } from './story-fonts';
 import { storyReducedMotion } from './story-motion';
 import { trackStoryReadiness } from './story-readiness';
+import { untrackedStory } from './untracked-story';
 
 // Stories render source English from macro descriptors, without the product
 // catalog. Production builds drop Lingui's runtime compiler, so supply it or
@@ -89,10 +92,12 @@ const withProviders = createJSXDecorator((Story, context) => {
   onCleanup(() =>
     context.canvasElement.removeEventListener('advance-story-time', advance)
   );
-  createEffect(() => {
-    const ms = Number(context.globals['timeStep'] ?? 0);
-    if (Number.isFinite(ms) && ms > 0) harness.clock.advance(ms);
-  });
+  createEffect(
+    () => Number(context.globals['timeStep'] ?? 0),
+    (ms) => {
+      if (Number.isFinite(ms) && ms > 0) harness.clock.advance(ms);
+    }
+  );
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   i18n.setMessagesCompiler(compileMessage);
   return (
@@ -116,6 +121,8 @@ const withProviders = createJSXDecorator((Story, context) => {
 
 export default {
   decorators: [withProviders],
+  applyDecorators: (story, decorators) =>
+    untrackedStory(applySolidDecorators(story, decorators)),
   loaders: [
     async () => {
       await loadStoryFonts(document.fonts);

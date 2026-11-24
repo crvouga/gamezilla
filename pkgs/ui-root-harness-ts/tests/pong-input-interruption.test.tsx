@@ -4,7 +4,7 @@ import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { PaddleCourt } from '@pkgs/ui-root-client-ts/paddle-court';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 afterEach(cleanup);
@@ -37,8 +37,10 @@ test('Pong held input clears when connection disables the court', () => {
   const arena = view.getByRole('application');
   fireEvent.keyDown(arena, { key: 'w' });
   view.setEnabled(false);
+  flush();
   fireEvent.keyUp(arena, { key: 'w' });
   view.setEnabled(true);
+  flush();
   fireEvent.keyDown(arena, { key: 's' });
   expect(view.directions).toEqual([-1, 0, 1]);
 });
@@ -74,7 +76,9 @@ test('Pong held input never survives an interruption for any prior key combinati
             window.dispatchEvent(new WindowEvent('blur'));
           } else {
             view.setEnabled(false);
+            flush();
             view.setEnabled(true);
+            flush();
           }
           expect(view.directions.at(-1)).toBe(0);
           fireEvent.keyDown(arena, { key: down ? 'ArrowDown' : 'ArrowUp' });

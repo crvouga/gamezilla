@@ -6,7 +6,7 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameCountdown } from '@pkgs/ui-root-client-ts/game-countdown';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 describe('game presentation contracts', () => {
@@ -29,18 +29,23 @@ describe('game presentation contracts', () => {
     clock.advance(1);
     expect(view.getByRole('timer').textContent).toBe('2');
     setPaused(clock.now());
+    flush();
     expect(clock.pendingOneShotCount()).toBe(0);
     clock.advance(4000);
     expect(view.getByRole('timer').textContent).toBe('2');
     setPaused(null);
+    flush();
     expect(view.getByRole('timer').textContent).toBe('0');
     expect(clock.pendingOneShotCount()).toBe(0);
     setDeadline(clock.now() + 3000);
+    flush();
     expect(clock.pendingOneShotCount()).toBe(1);
     setDeadline(null);
+    flush();
     expect(view.queryByRole('timer')).toBeNull();
     expect(clock.pendingOneShotCount()).toBe(0);
     setDeadline(clock.now() + 1000);
+    flush();
     view.unmount();
     expect(clock.pendingOneShotCount()).toBe(0);
   });

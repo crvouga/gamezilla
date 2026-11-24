@@ -1,10 +1,11 @@
 import type { PuzzleHistoryPly } from '@libs/game-puzzle-shared-ts/move-history';
 import { puzzleSwipeHandlers } from '@libs/game-puzzle-shared-ts/puzzle-swipe-handlers';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { PuzzleMoveNavProps } from './puzzle-move-history-nav';
 import { PuzzleMoveNav } from './puzzle-move-history-nav';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';

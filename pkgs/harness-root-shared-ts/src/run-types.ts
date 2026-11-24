@@ -1,12 +1,7 @@
-import type {
-  RecordStepMeta,
-  RunReport,
-} from '@crvouga/atlas/reports/report-types';
 import type { MonitorState, Transition } from './checkpoint';
 import type { Action, Property, Read } from './effect';
 import type { Step } from './recording';
 import type { ActionSlice, SystemCore as System } from './registry';
-import type { RunReporter } from './reporter';
 import type { Rng } from './rng';
 import type { Session } from './runtime-types';
 
@@ -78,24 +73,6 @@ export type Run<S> = {
   readonly randomActions: (
     opts?: RandomActionsOptions<S>
   ) => Promise<RandomActionsReport>;
-  /**
-   * Open one labeled report step, run `fn`, capture snapshots after
-   * (or before when `snapshotBefore`). Nested `apply` / `advanceTime`
-   * attach frames to this step instead of minting new ones.
-   */
-  readonly record: <T>(
-    meta: RecordStepMeta,
-    fn: () => Promise<T>
-  ) => Promise<T>;
-  /** Capture registered snapshotters onto the current/open step. */
-  readonly snapshot: () => Promise<void>;
-  /**
-   * Mark the run failed for a failure raised outside any step (e.g. a test
-   * body assertion). No-op when reporting is disabled.
-   */
-  readonly fail: (cause: unknown) => void;
-  /** In-memory report so far (empty when reporting is disabled). */
-  readonly report: () => RunReport | null;
   readonly [Symbol.asyncDispose]: () => Promise<void>;
 };
 
@@ -110,7 +87,6 @@ export type RunInternal<S> = {
   readonly monitors: MonitorState[];
   readonly transitions: Transition[];
   readonly steps: Step[];
-  readonly reporter: RunReporter | null;
   rng: Rng;
   step: number;
 };

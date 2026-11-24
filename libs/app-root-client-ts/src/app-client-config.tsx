@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo } from 'solid-js';
 
 /**
  * Live push needs the synced EMQX URL, which a fresh install / account DB
@@ -13,8 +14,11 @@ export function AppClientConfig(props: {
   const engine = useSyncEngine();
   const { config } = useClientConfig();
   const emqxUrl = createMemo(() => config().emqx_wss_url?.trim() ?? '');
-  createEffect(() => {
-    if (emqxUrl().length > 0) engine.ensurePush();
-  });
+  createEffect(
+    () => emqxUrl().length > 0,
+    (hydrated) => {
+      if (hydrated) engine.ensurePush();
+    }
+  );
   return <>{props.children}</>;
 }

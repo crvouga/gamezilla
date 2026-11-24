@@ -8,7 +8,8 @@ import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { children, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { children, Match, Show, Switch } from 'solid-js';
 import { fn } from 'storybook/test';
 import { type StoryRoute, storyRoute } from './storybook-route';
 

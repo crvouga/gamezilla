@@ -161,7 +161,6 @@ function useSeatReadings(
         ])
       );
     },
-    NO_READINGS,
     { equals: sameReadings }
   );
 }
@@ -181,7 +180,6 @@ export function useFrameTable(
   const readings = useSeatReadings(model, board);
   const layout = createMemo(
     () => frameTable(model.current()?.sides ?? [], model.mySide()),
-    undefined,
     { equals: sameTable }
   );
   const playSeat = (game: CustomGame, side: CustomGameSide): FramePlaySeat => {

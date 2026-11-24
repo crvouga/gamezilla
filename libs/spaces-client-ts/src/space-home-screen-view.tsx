@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   GAME_TILE_MOTIFS,
   type GameTileMotif,
@@ -10,7 +10,8 @@ import {
 } from '@pkgs/ui-root-client-ts/space-launcher';
 import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
 import type { SpacePerson } from '@pkgs/ui-root-client-ts/space-types';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { SpaceOffer } from './space-offer-context';
 import { SpaceScreenNotice, useSpaceScreenChrome } from './space-screen-chrome';
 import { ClaimSpaceShell } from './space-shell-claim';

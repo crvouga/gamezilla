@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What a person sees while the app boots on a local database that is
  * missing, damaged, full, hung or gone: the app, never an error screen.

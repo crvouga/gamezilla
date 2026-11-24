@@ -1,5 +1,6 @@
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ScreenExampleSetup } from '../../storybook/fixtures/screen-example-game';
 

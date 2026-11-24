@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   CircleCheckIcon,
@@ -9,7 +9,7 @@ import {
 import { PickerSection } from '@pkgs/ui-root-client-ts/picker-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export function AvatarEditorSeedField(props: {
   /**

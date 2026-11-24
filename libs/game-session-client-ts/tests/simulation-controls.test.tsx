@@ -3,7 +3,7 @@ import { useCustomSimulation } from '@libs/game-session-client-ts/use-custom-sim
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { cleanup } from '@solidjs/testing-library';
-import { createComputed, createSignal, untrack } from 'solid-js';
+import { createEffect, createSignal, flush, untrack } from 'solid-js';
 import { LocalFailureProviders, localFailure } from './reference-local-failure';
 
 afterEach(cleanup);
@@ -21,12 +21,15 @@ test('a control surface reads no reactive state, so releasing input while a boar
     );
     const controls = untrack(simulation.controls);
     // A board's teardown hands its surface neutral input, then releases it.
-    createComputed(() => {
-      runs += 1;
-      for (const side of controls.sides)
-        controls.onInput(side, { kind: 'direction', direction: 0 });
-      controls.onRelease();
-    });
+    createEffect(
+      () => {
+        runs += 1;
+        for (const side of controls.sides)
+          controls.onInput(side, { kind: 'direction', direction: 0 });
+        controls.onRelease();
+      },
+      () => undefined
+    );
     return null;
   }
   const view = renderWithI18n(() => (
@@ -37,6 +40,7 @@ test('a control surface reads no reactive state, so releasing input while a boar
   try {
     expect(runs).toBe(1);
     setAllowed(false);
+    flush();
     expect(runs).toBe(1);
   } finally {
     view.unmount();

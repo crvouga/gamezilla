@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SpaceUnreachableScreenViewProps = {
   /** Custom title, or the localized "<host>'s space" fallback. */

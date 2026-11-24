@@ -1,5 +1,7 @@
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
 
@@ -163,8 +165,8 @@ function GridCell(props: {
         cell()?.previewEdges?.includes('left') === true
       )}
       aria-label={cell()?.label}
-      aria-disabled={cell()?.enabled !== true}
-      tabIndex={props.focusable ? 0 : -1}
+      aria-disabled={ariaBoolean(cell()?.enabled !== true)}
+      tabindex={props.focusable ? 0 : -1}
       onFocus={() => {
         props.onFocusIndex(props.index);
         props.board.onPreview?.(id());
@@ -263,12 +265,12 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       ref={root}
       class={`${styles['board']} ${battleship['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
-      data-fill={props.fill === true}
-      {...dataAttrs({ component: 'CellGridBoard' })}
+      data-fill={String(props.fill === true)}
       role="group"
       aria-label={props.label}
       aria-describedby={props.describedBy}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'CellGridBoard' })}
       style={{ '--cell-grid-columns': props.columnLabels.length }}
     >
       <Show when={!inset()}>
@@ -334,8 +336,8 @@ export function CellGridLegend(props: {
     <ul
       class={styles['legend']}
       aria-label={props.label}
-      {...dataAttrs({ component: 'CellGridLegend' })}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'CellGridLegend' })}
     >
       <For each={props.items}>
         {(item) => (

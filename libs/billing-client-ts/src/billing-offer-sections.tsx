@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What the membership costs and what it adds, both read from the offer the
  * provider is reconciled to — never prices typed into the screen.
@@ -9,11 +9,12 @@
 
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import type { PriceSummary } from './billing-view-model';
 import { formatMinorUnits } from './billing-view-model';
 

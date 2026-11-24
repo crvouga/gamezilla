@@ -14,7 +14,8 @@ import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { ScreenIntro } from '@pkgs/ui-root-client-ts/screen-intro';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { DiscDropBoardExample } from '../../storybook/fixtures/disc-drop-board-example';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 

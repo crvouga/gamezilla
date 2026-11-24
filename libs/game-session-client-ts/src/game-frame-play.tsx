@@ -8,15 +8,14 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameActionItem } from '@pkgs/ui-root-client-ts/game-action-bar';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createMemo,
   createSignal,
-  type JSX,
   Show,
   untrack,
 } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import { customGameCanMove } from './custom-game-can-move';
 import { useSeatNames } from './custom-game-status';
 import { frameTable } from './game-frame-table';
@@ -227,9 +226,9 @@ export function FrameBoardMount(props: { board: FrameBoard }): JSX.Element {
     <Show when={props.board.session()} keyed>
       {(session) => (
         <>
-          <Dynamic component={session.Board} />
-          <Show when={session.controls}>
-            {(controls) => <Dynamic component={controls()} />}
+          <session.Board />
+          <Show when={session.controls} keyed>
+            {(Controls) => <Controls />}
           </Show>
         </>
       )}

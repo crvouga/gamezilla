@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createMemo, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal } from 'solid-js';
 import { SpacePeopleRow } from '../space-people-row/index';
 import type {
   SpacePersonActionId,

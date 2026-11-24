@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Each board is named once: by the switch beside it, or its own title side by side. */
 import { afterEach, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';

@@ -13,7 +13,8 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { CancellationFeedbackForm } from './cancellation-feedback-form';
 import { useFeedbackDelivery } from './use-feedback-delivery';
 

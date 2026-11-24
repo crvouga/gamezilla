@@ -32,7 +32,7 @@ import type {
   CardTablePosition,
   CardTableSeat,
 } from '@pkgs/ui-root-client-ts/card-table';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   cardName,
   heartsRefusal,

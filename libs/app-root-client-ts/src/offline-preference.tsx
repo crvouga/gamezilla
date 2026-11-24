@@ -1,12 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import {
-  type Accessor,
-  createSignal,
-  type JSX,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, onCleanup, untrack } from 'solid-js';
 import type { OfflineNetworkController } from './offline-network-controller';
 
 export type OfflinePreference = {

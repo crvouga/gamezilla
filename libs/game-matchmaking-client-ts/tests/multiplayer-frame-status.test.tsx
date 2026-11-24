@@ -3,7 +3,7 @@ import { MultiplayerStatus } from '@libs/game-matchmaking-client-ts/multiplayer-
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import {
   frameFixture,
   MATCH,
@@ -70,6 +70,7 @@ test('four-seat named frame announcements track each active person for players a
         const announcement = view.getByTestId('multiplayer-announcement');
         for (const turn of turns) {
           setGame({ ...FOUR_SEAT_MATCH, turn });
+          flush();
           expect(announcement).toHaveTextContent(`${PEOPLE[turn]}'s turn.`);
           expect(announcement).toHaveTextContent('Move toward e5.');
           for (const other of turns.filter((person) => person !== turn))
@@ -82,6 +83,7 @@ test('four-seat named frame announcements track each active person for players a
           outcome: 'white',
           reason: 'resignation',
         });
+        flush();
         expect(announcement).toHaveTextContent(
           myId === 'alice'
             ? 'You won the multiplayer game.'
@@ -119,12 +121,15 @@ test('the live matched announcement includes the frame shot result and actual vi
   );
   expect(announcement()).toHaveTextContent('Matched with Bob');
   setGame({ ...MATCH, fen: 'fixture:next' });
+  flush();
   expect(announcement()).toHaveTextContent(
     'fixture:next. C3 hit. Viewer: white.'
   );
   setViewer({ ...VIEWER, myId: 'bob' });
+  flush();
   expect(announcement()).toHaveTextContent('Viewer: black.');
   setViewer({ ...VIEWER, myId: 'spectator', participant: false });
+  flush();
   expect(announcement()).toHaveTextContent('Watching multiplayer Fleet.');
   expect(announcement()).toHaveTextContent('Viewer: watcher.');
 });
@@ -145,13 +150,16 @@ test('private setup and terminal outcomes retain their match headline', () => {
   ));
   expect(view.queryByText('Fire at a square.')).toBeNull();
   setGame({ ...MATCH, setup_ready: 'white,black' });
+  flush();
   expect(view.getByText('Fire at a square.')).toBeInTheDocument();
   setGame({ ...MATCH, outcome: 'black', reason: 'resignation' });
+  flush();
   expect(view.getByTestId('multiplayer-announcement')).toHaveTextContent(
     'Your opponent won the multiplayer game.'
   );
   expect(view.queryByText('Fire at a square.')).toBeNull();
   setGame({ ...MATCH, outcome: 'aborted' });
+  flush();
   expect(view.getByTestId('multiplayer-announcement')).toHaveTextContent(
     'The multiplayer game was aborted.'
   );
@@ -198,6 +206,7 @@ test('live frame announcements track every new position and seat ownership', () 
           `fixture:live / ${side}`
         );
         setGame({ ...MATCH, fen: `fixture:${revision}` });
+        flush();
         expect(view.getByTestId('multiplayer-announcement')).toHaveTextContent(
           `fixture:${revision} / ${side}`
         );

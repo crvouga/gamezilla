@@ -1,10 +1,11 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Show } from 'solid-js';
 
 /** A command an operator can send one Synthetic User. */
 export type SyntheticUserCommand = 'pause' | 'resume' | 'restart';

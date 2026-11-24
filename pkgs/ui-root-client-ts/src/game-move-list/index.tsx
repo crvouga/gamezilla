@@ -1,17 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  For,
-  Index,
-  type JSX,
-  onCleanup,
-  onMount,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, For, onSettled, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { observeElementResize } from '../observe-element-resize';
 import styles from './game-move-list.module.css';
@@ -136,7 +128,7 @@ function MoveButton(props: {
       <button
         type="button"
         class={`${styles['moveButton']} text textLabel`}
-        data-current={props.current}
+        data-current={String(props.current)}
         aria-current={props.current ? 'step' : undefined}
         aria-label={props.move.accessibleName}
         data-testid={props.move.testId}
@@ -335,22 +327,22 @@ function TurnList(props: GameMoveListProps): JSX.Element {
   // page never jumps to a record beside the board. It is kept in view when
   // the marked move changes and whenever the list's own size settles or
   // changes (a rail squeezed by what sits above it), not only once.
-  const keepMarkedInView = (): void => {
-    if (props.layout !== 'table' || root === undefined) return;
+  const keepMarkedInView = (layout: GameMoveListProps['layout']): void => {
+    if (layout !== 'table' || root === undefined) return;
     forgetMadeRoom(root);
     scrollMarkedIntoView(root);
     alignPastKey(root);
     hideCutByKey(root);
   };
-  createEffect(() => {
-    void props.current;
-    void turns();
-    keepMarkedInView();
-  });
-  onMount(() => {
-    if (root !== undefined)
-      onCleanup(observeElementResize(root, keepMarkedInView));
-  });
+  createEffect(
+    () => [props.layout, props.current, turns()] as const,
+    ([layout]) => keepMarkedInView(layout)
+  );
+  onSettled(() =>
+    root === undefined
+      ? undefined
+      : observeElementResize(root, () => keepMarkedInView(props.layout))
+  );
   const columns = (): number => Math.max(1, props.perTurn);
   return (
     <div
@@ -360,9 +352,9 @@ function TurnList(props: GameMoveListProps): JSX.Element {
         if (props.layout === 'table' && root !== undefined) hideCutByKey(root);
       }}
       data-layout={props.layout}
-      data-many-seats={columns() > 2}
-      data-one-a-row={columns() === 1}
-      data-wrap={props.layout === 'turn' && props.wrap === true}
+      data-many-seats={String(columns() > 2)}
+      data-one-a-row={String(columns() === 1)}
+      data-wrap={String(props.layout === 'turn' && props.wrap === true)}
       style={{ '--move-columns': String(columns()) }}
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
     >
@@ -380,7 +372,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       <ol class={styles['turns']} aria-label={props['aria-label']}>
         {/* By position, not by object: a move appended updates its own
             turn, never the whole list. */}
-        <Index each={turns()}>
+        <For keyed={false} each={turns()}>
           {(turn) => (
             <li class={styles['turn']}>
               <span
@@ -391,7 +383,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                   when={props.layout === 'turn' && props.turnLabel}
                   fallback={turn().number}
                 >
-                  {(label) => label()(turn().number)}
+                  {(label) => <>{label()(turn().number)}</>}
                 </Show>
               </span>
               <Show when={props.layout === 'turn' && props.heading}>
@@ -404,7 +396,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                   </span>
                 )}
               </Show>
-              <Index each={turn().moves}>
+              <For keyed={false} each={turn().moves}>
                 {(move) => (
                   <MoveButton
                     move={move()}
@@ -414,7 +406,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                     onSelect={(ply) => props.onSelect(ply)}
                   />
                 )}
-              </Index>
+              </For>
               <Show
                 when={
                   props.layout === 'turn' &&
@@ -430,7 +422,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
               </Show>
             </li>
           )}
-        </Index>
+        </For>
       </ol>
     </div>
   );

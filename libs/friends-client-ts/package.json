@@ -32,8 +32,8 @@
     "@libs/sub-client-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
     "@libs/user-search-shared-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
     "@pkgs/http-client-client-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/sounds-client-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
@@ -41,6 +41,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

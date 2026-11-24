@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Recursive renderer for one node in the {@link JsonView} tree.
  *
@@ -8,7 +8,7 @@
  * - Recursing into children when expanded
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonPath,
   JsonValueKind,
@@ -26,7 +26,8 @@ import {
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import styles from '../json-view/json-view.module.css';
 
 const INDENT_PX = 14;
@@ -73,7 +74,7 @@ export function JsonViewNode(props: JsonViewNodeProps): JSX.Element {
       class="box"
       role="treeitem"
       aria-selected="false"
-      aria-expanded={expandable() ? expanded() : undefined}
+      aria-expanded={expandable() ? (expanded() ? 'true' : 'false') : undefined}
     >
       <NodeRow
         nodeKey={props.nodeKey}
@@ -152,7 +153,7 @@ function NodeRow(props: {
           type="button"
           style={rowStyle(props.depth)}
           onClick={() => props.onToggle()}
-          aria-expanded={props.expanded}
+          aria-expanded={props.expanded ? 'true' : 'false'}
         >
           {content()}
         </button>

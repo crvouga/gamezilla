@@ -137,8 +137,7 @@ export const CONFORMANCE_SYSTEM = gameSystem('games', CONFORMANCE_GAMES, {
 });
 
 export function openConformanceHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openGameHarness(CONFORMANCE_SYSTEM, testId, options);
+  return openGameHarness(CONFORMANCE_SYSTEM, options);
 }

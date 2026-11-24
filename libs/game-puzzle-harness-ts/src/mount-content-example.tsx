@@ -44,7 +44,7 @@ export async function mountContentExample(
       <ClockProvider clock={ports.clock} timers={ports.timers}>
         <IdProvider createId={ports.createId} random={ports.random}>
           <SyncEngineProvider value={engine ?? client.engine}>
-            <MutationClientContext.Provider value={mutations}>
+            <MutationClientContext value={mutations}>
               <ThemeProvider
                 colorScheme="light"
                 fixedLayout={{ width: 390, height: 844 }}
@@ -60,7 +60,7 @@ export async function mountContentExample(
                   </ContentExampleHost>
                 </SurfaceStackProvider>
               </ThemeProvider>
-            </MutationClientContext.Provider>
+            </MutationClientContext>
           </SyncEngineProvider>
         </IdProvider>
       </ClockProvider>

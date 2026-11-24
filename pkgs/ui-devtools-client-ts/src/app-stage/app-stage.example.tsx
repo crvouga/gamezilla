@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   AppStage,
   type AppStageView,
 } from '@pkgs/ui-devtools-client-ts/app-stage';
-import { createSignal, type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 /** A stand-in for a whole app: a title, and a count that shows it kept its state. */

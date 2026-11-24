@@ -1,5 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { GameActions, GameSection } from '../game-section/index';
 import { createScreenSlot } from '../screen-slot';
 import styles from './game-setup-panel.module.css';
@@ -51,7 +52,7 @@ export function GameSetupPanel(props: GameSetupPanelProps): JSX.Element {
         <div
           class={styles['setupSplit']}
           data-setup-split="true"
-          data-details-across={props.detailsAcross === true}
+          data-details-across={String(props.detailsAcross === true)}
         >
           <div class={styles['setupMain']}>
             {props.children}

@@ -2,7 +2,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 
 export default function MenuScreenExample(): JSX.Element {

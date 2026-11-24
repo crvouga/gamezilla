@@ -56,7 +56,7 @@ async function readQueuedCommands(s: ProductHarness) {
 
 // regression: solo-offline-catalogue-progression
 test('thirty solo catalogue puzzles can be completed over three offline days', async () => {
-  await using s = await openGameHarness(SYSTEM, 'solo-thirty-offline');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');
@@ -94,7 +94,7 @@ test('thirty solo catalogue puzzles can be completed over three offline days', a
 
 // regression: solver-only-finish-on-close-stride
 test('a clean finish sent before closing includes both solo actions', async () => {
-  await using s = await openGameHarness(SYSTEM, 'solo-close-finish');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');
@@ -108,7 +108,7 @@ test('a clean finish sent before closing includes both solo actions', async () =
 
 // regression: solo-offline-catalogue-progression
 test('two solo catalogue lines with the same supplied position solve without a connection', async () => {
-  await using s = await openGameHarness(SYSTEM, 'solo-long-offline');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');

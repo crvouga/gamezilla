@@ -3,11 +3,12 @@ import {
   TIME_CONTROLS,
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { CheckIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import {
   MultiplayerMenuPlace,
   type MultiplayerPlaceFrame,

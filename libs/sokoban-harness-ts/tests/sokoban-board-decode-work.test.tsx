@@ -6,7 +6,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 // regression: sokoban-move-reparses-unchanged-board
 test('the first left move on the solved maximum board does not parse its terrain again', () => {
@@ -49,13 +49,16 @@ test('the first left move on the solved maximum board does not parse its terrain
     expect(boardReads).toBe(1);
     boardReads = 0;
     setState(states[2]!);
+    flush();
     expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
       '3'
     );
     expect(boardReads).toBe(0);
     setDefinition('{}');
+    flush();
     expect(view.queryByTestId('sokoban-unreadable')).not.toBeNull();
     setDefinition(MAXIMUM_BOARD);
+    flush();
     expect(view.queryByTestId('sokoban-unreadable')).toBeNull();
     expect(boardReads).toBe(1);
   } finally {

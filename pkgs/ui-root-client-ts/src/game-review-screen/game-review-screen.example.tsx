@@ -1,7 +1,8 @@
 import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 import { ScreenExampleStage } from '../../storybook/fixtures/screen-example-game';
 

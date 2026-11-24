@@ -12,7 +12,8 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { StaticAppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -74,6 +75,7 @@ test('checking a host explains the wait, then offers Join when ready', () => {
   ).toBeNull();
   expect(screen.queryByTestId(Handles.spaceJoin)).toBeNull();
   setConnection('ready');
+  flush();
   expect(screen.queryByText('Checking the host’s connection…')).toBeNull();
   expect(screen.getByTestId(Handles.spaceJoin)).toBeTruthy();
 });

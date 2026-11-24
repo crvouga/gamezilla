@@ -82,6 +82,7 @@
         "@libs/sub-client-ts#src",
         "@libs/test-ids-shared-ts#src",
         "@pkgs/clock-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/secure-storage-root-client-ts#src",
         "@pkgs/solid-context-client-ts#src",
         "@pkgs/sync-engine-client-ts#src",

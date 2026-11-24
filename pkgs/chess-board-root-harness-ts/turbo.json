@@ -39,6 +39,7 @@
         "@pkgs/clock-client-ts#src",
         "@pkgs/clock-shared-ts#src",
         "@pkgs/harness-root-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/sounds-client-ts#src",
         "@pkgs/sounds-shared-ts#src",
         "@pkgs/tailwind-shared-ts#src",

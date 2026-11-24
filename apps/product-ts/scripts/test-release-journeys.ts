@@ -3,7 +3,6 @@ import { execFileSync, spawn } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
-import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
@@ -18,7 +17,7 @@ import {
 } from './dist-headers';
 import { healthTestArguments, parseCli, selectSpecs } from './health';
 import { LOCAL_MONITOR_TOKEN } from './local-api-env';
-import { removeManifest, type StackManifest } from './manifest';
+import { removeManifest } from './manifest';
 import { databaseVerdict, profileOf } from './production-database';
 import {
   prepareReleasePublic,
@@ -27,7 +26,6 @@ import {
   writeReleaseStubs,
 } from './release-artifacts';
 import { printReleasePairingEvidence } from './release-failure-diagnostics';
-import { releaseFailureTraces } from './release-failure-traces';
 import { printReleaseQueryEvidence } from './release-query-diagnostics';
 import {
   parseReleasePart,
@@ -162,30 +160,6 @@ function brokerExitCode(booted: {
   return verdict.ok ? 0 : 1;
 }
 
-/** Narrate collected server work before the failed run's temporary files go away. */
-async function printFailureTraces(manifest: StackManifest): Promise<void> {
-  if (manifest.observabilityTraceDir === null) {
-    console.error('Release failure traces unavailable: tracing was disabled.');
-    return;
-  }
-  const store = (rootDir: string) =>
-    createNodeFsObjectStore({ rootDir, fs: wallNodeFs(), layout: 'tree' });
-  try {
-    console.error(
-      await releaseFailureTraces({
-        reports: store(artifacts.reportDir),
-        telemetry: store(manifest.observabilityTraceDir),
-        run: { startMs: manifest.startedAtMs, endMs: wallClock.now() },
-        mutationNames: ['findChessOpponent', 'createSpace'],
-      })
-    );
-  } catch {
-    console.error(
-      'Release failure trace narration unavailable: collected data could not be read.'
-    );
-  }
-}
-
 /** Teardown scratch: Windows may still hold a just-stopped stack's files. */
 function removeScratch(path: string): void {
   removeTree(path, { whenLocked: 'leave' });
@@ -229,8 +203,6 @@ try {
 } finally {
   await server?.stop(true);
   await stack.stop();
-  if (process.exitCode !== undefined && process.exitCode !== 0)
-    await printFailureTraces(stack.manifest);
   removeManifest(REPO_ROOT, options.instanceId);
   if (!options.keepData) removeScratch(stack.manifest.dataDir);
   removeReleaseArtifacts(

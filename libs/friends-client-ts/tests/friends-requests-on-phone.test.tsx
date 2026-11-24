@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The friend requests waiting reach the person on the friends list on
  * every size: a desktop lists them in the column beside the list, a phone

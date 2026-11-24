@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more/about` — app name / version / build provenance. Commit hash + date
  * come from `import.meta.env.VITE_COMMIT_*` inlined at build time.
@@ -13,8 +13,9 @@ import {
   SECURITY_CONTACT,
 } from '@libs/app-root-shared-ts/app-metadata';
 import { writeClipboardText } from '@libs/app-root-shared-ts/write-clipboard-text';
-import { useLingui as useLinguiRuntime } from '@lingui/solid';
-import { type Accessor, createMemo, type JSX } from 'solid-js';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo } from 'solid-js';
 import { AboutScreenView, type CommitProvenance } from './about-screen-view';
 import { formatCommitDate } from './format-commit-date';
 

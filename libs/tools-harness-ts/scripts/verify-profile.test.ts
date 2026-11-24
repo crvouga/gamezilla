@@ -215,7 +215,7 @@ describe('Verify Nightly workflow', () => {
       'gate',
       ...Object.keys(NIGHTLY_SUITES),
     ]);
-    expect(nightlyGroupNames('visual')).toEqual(['gate', 'visual']);
+    expect(nightlyGroupNames('visual')).toEqual(['visual']);
     expect(nightlyGroupNames('random')).toEqual(['random']);
     expect(() => nightlyGroupNames('unknown')).toThrow('Unknown nightly group');
     const needs = {

@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The plan the person is on: tier, status, any notice, and the one action
  * that moves the membership forward. A settings panel, not a marketing hero.
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Card } from '@pkgs/ui-root-client-ts/card';
@@ -13,7 +13,8 @@ import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 
 import type { BillingActions } from './billing-plan-actions';
 import { BillingPlanActions } from './billing-plan-actions';

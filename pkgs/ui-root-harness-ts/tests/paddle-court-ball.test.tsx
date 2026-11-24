@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { PaddleCourt } from '@pkgs/ui-root-client-ts/paddle-court';
 import { mustQuery, renderUi } from './render';

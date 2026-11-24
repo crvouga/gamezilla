@@ -1,13 +1,13 @@
 import type { AvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { resolveAvatarSeed } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarHero } from '@pkgs/ui-root-client-ts/avatar-hero';
 import { ConfirmationModal } from '@pkgs/ui-root-client-ts/confirmation-modal';
 import { FormScreen } from '@pkgs/ui-root-client-ts/form-screen';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, For, Show } from 'solid-js';
 import { avatarEditorFields, avatarStyleKey } from './avatar-editor-fields';
 import {

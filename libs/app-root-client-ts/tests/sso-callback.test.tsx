@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import SsoCallbackRoute from '@libs/app-root-client-ts/sso-callback';
 import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
 import { SIGN_IN_PENDING_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import type { AuthClientPort } from '@pkgs/auth-root-shared-ts/auth-client-port';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { AppRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StaticAppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';

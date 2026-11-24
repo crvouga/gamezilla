@@ -1,8 +1,9 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { PuzzleClockLabel } from './puzzle-clock-label';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleStatusHeader } from './puzzle-status-header';

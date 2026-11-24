@@ -1,6 +1,6 @@
 import { useClipboard } from '@pkgs/device-client-ts/solid';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import { AccountDeviceDetailScreenView } from './account-device-detail-screen-view';
 import { useAccountDevice } from './use-account-device';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Keyword } from '@pkgs/keyword-shared-ts/keyword';
 import { useKvOptional } from '@pkgs/kv-root-client-ts/solid';
@@ -6,12 +6,13 @@ import type { Kv } from '@pkgs/kv-root-shared-ts/interface';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import type { HistorySnapshot } from '@pkgs/ui-root-shared-ts/history-store';
 import { HistoryStore } from '@pkgs/ui-root-shared-ts/history-store';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createEffect,
   createSignal,
-  type JSX,
+  flush,
   untrack,
   useContext,
 } from 'solid-js';
@@ -59,7 +60,8 @@ export type CommandRegistryContextValue = {
   readonly invoke: (id: CommandId) => Promise<void>;
 };
 
-const CommandRegistryContext = createContext<CommandRegistryContextValue>();
+const CommandRegistryContext =
+  createContext<CommandRegistryContextValue | null>(null);
 
 type PaletteState = {
   isOpen: Accessor<boolean>;
@@ -77,7 +79,11 @@ type PaletteState = {
 function createPaletteState(): PaletteState {
   const [isOpen, setIsOpen] = createSignal(false);
   const [query, setQuery] = createSignal('');
-  const [selectedIndex, setSelected] = createSignal(0);
+  // A new query puts the selection back on the first result.
+  const [selectedIndex, setSelected] = createSignal(() => {
+    query();
+    return 0;
+  });
   const [runningId, setRunningId] = createSignal<string | null>(null);
   const [errors, setErrorsRaw] = createSignal<ReadonlyMap<string, string>>(
     new Map()
@@ -143,6 +149,9 @@ function createInvoke(args: {
     } finally {
       state.setRunningId(null);
       invoking = false;
+      // Whoever awaits `invoke` continues with the palette already closed
+      // (or showing the error) and focus back where it was.
+      flush();
     }
   };
 }
@@ -227,20 +236,23 @@ export function CommandRegistryProvider(
   // Close when an enclosing `KeyboardShortcutScope` deactivates (another
   // overlay took over), regardless of whether default shortcuts are bound.
   const scopeActive = useKeyboardShortcutsEnabled(() => true);
-  createEffect(() => {
-    if (!scopeActive() && value.isOpen()) value.close();
-  });
+  createEffect(
+    () => !scopeActive() && value.isOpen(),
+    (overtaken) => {
+      if (overtaken) value.close();
+    }
+  );
 
   return (
-    <CommandRegistryContext.Provider value={value}>
+    <CommandRegistryContext value={value}>
       {props.children}
-    </CommandRegistryContext.Provider>
+    </CommandRegistryContext>
   );
 }
 
 export function useCommandRegistry(): CommandRegistryContextValue {
   const ctx = useContext(CommandRegistryContext);
-  if (ctx === undefined) {
+  if (ctx === null) {
     throw new Error(
       'useCommandRegistry must be used within CommandRegistryProvider'
     );
@@ -251,5 +263,5 @@ export function useCommandRegistry(): CommandRegistryContextValue {
 export function useCommandRegistryOptional():
   | CommandRegistryContextValue
   | undefined {
-  return useContext(CommandRegistryContext);
+  return useContext(CommandRegistryContext) ?? undefined;
 }

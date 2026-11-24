@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -8,7 +8,8 @@ import type {
   SelectSize,
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
 
 export type SelectTriggerProps<T extends SelectValue> = {
@@ -54,20 +55,22 @@ export function SelectTrigger<T extends SelectValue>(
       onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-haspopup="listbox"
-      aria-expanded={props.open}
+      aria-expanded={props.open ? 'true' : 'false'}
       aria-label={props['aria-label']}
     >
       <Show when={props.selected?.preview !== undefined}>
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <p
-        class="text line-clamp-1 flex-1 min-w-0 shrink"
-        classList={{
-          textFootnote: compact(),
-          textBody: !compact(),
-          'text-text': hasSelection(),
-          'text-text-secondary': !hasSelection(),
-        }}
+        class={[
+          'text line-clamp-1 flex-1 min-w-0 shrink',
+          {
+            textFootnote: compact(),
+            textBody: !compact(),
+            'text-text': hasSelection(),
+            'text-text-secondary': !hasSelection(),
+          },
+        ]}
       >
         {props.selected?.label ?? props.placeholder}
       </p>

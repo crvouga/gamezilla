@@ -7,13 +7,8 @@ import { puzzleLink } from '@libs/game-puzzle-shared-ts/puzzle-link';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useClipboard } from '@pkgs/device-client-ts/solid';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import {
-  type Accessor,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, onCleanup, Show } from 'solid-js';
 import type {
   PuzzleShareModel,
   PuzzleShareState,

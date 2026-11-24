@@ -1,17 +1,17 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import {
   nextRovingIndex,
   rovingTabStop,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createSignal,
   createUniqueId,
-  type JSX,
-  onCleanup,
+  onSettled,
   Show,
   useContext,
 } from 'solid-js';
@@ -162,16 +162,14 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       aria-describedby={props['aria-describedby'] ?? field?.describedBy}
       aria-invalid={
         props['aria-invalid'] === true || field?.invalid === true
-          ? true
+          ? 'true'
           : undefined
       }
-      aria-required={field?.required === true ? true : undefined}
-      aria-disabled={props.disabled === true ? true : undefined}
+      aria-required={field?.required === true ? 'true' : undefined}
+      aria-disabled={props.disabled === true ? 'true' : undefined}
       aria-orientation={props.orientation ?? 'vertical'}
     >
-      <RadioGroupContext.Provider value={api}>
-        {props.children}
-      </RadioGroupContext.Provider>
+      <RadioGroupContext value={api}>{props.children}</RadioGroupContext>
     </div>
   );
 }
@@ -201,7 +199,7 @@ export function Radio(props: RadioProps): JSX.Element {
   const id = `radio-${createUniqueId()}`;
   const disabled = (): boolean => group.disabled() || props.disabled === true;
   const checked = (): boolean => group.value() === props.value;
-  onCleanup(
+  onSettled(() =>
     group.register({ value: () => props.value, disabled: () => disabled() })
   );
   return (
@@ -217,11 +215,11 @@ export function Radio(props: RadioProps): JSX.Element {
         ])}
         data-testid={props.testId}
         role="radio"
-        aria-checked={checked()}
+        aria-checked={checked() ? 'true' : 'false'}
         aria-describedby={
           props.description === undefined ? undefined : `${id}-description`
         }
-        tabIndex={group.tabStop() === props.value ? 0 : -1}
+        tabindex={group.tabStop() === props.value ? 0 : -1}
         disabled={disabled()}
         onClick={() => group.select(props.value)}
         onKeyDown={(event) => onRadioKeyDown(event.currentTarget, event)}

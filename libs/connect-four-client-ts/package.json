@@ -17,9 +17,10 @@
     "@libs/connect-four-shared-ts": "workspace:*",
     "@libs/game-menu-client-ts": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

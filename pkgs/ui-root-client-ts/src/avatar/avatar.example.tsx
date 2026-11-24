@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   AVATAR_SEAT_COLORS,
@@ -9,7 +9,8 @@ import { sampleAvatarSvg } from '@pkgs/ui-root-client-ts/avatar-sample-svg';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useThemeTokens } from '@pkgs/ui-root-client-ts/theme-context';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';

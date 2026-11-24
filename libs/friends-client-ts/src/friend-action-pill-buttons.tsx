@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
@@ -7,7 +7,8 @@ import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 import { useFriendRequestDecision } from './use-friend-request-decision';
 
 function usePillSounds(
@@ -15,12 +16,15 @@ function usePillSounds(
 ): (transition: MutationStateTransition) => void {
   const engine = useOptionalSoundEngine();
   return (transition) => {
-    const current = engine?.();
+    // The phase change is the event: the engine and the sound it plays are
+    // looked up once, when it arrives.
+    const current = untrack(() => engine?.());
     if (current === undefined) return;
+    const chosen = untrack(sounds);
     if (transition.to === 'success') {
-      current.play(sounds().success ?? Sounds.feedback.success);
+      current.play(chosen.success ?? Sounds.feedback.success);
     } else if (transition.to === 'error') {
-      current.play(sounds().error ?? Sounds.feedback.error);
+      current.play(chosen.error ?? Sounds.feedback.error);
     }
   };
 }
@@ -44,11 +48,13 @@ export function AcceptDeclinePills(props: {
     get disabled() {
       return decision.pending();
     },
-    labels: {
-      idle: <Trans>Accept</Trans>,
-      loading: t`Accepting…`,
-      success: t`Accepted`,
-      error: t`Couldn't accept`,
+    get labels() {
+      return {
+        idle: <Trans>Accept</Trans>,
+        loading: t`Accepting…`,
+        success: t`Accepted`,
+        error: t`Couldn't accept`,
+      };
     },
     successHoldMs: 0,
   });
@@ -57,11 +63,13 @@ export function AcceptDeclinePills(props: {
     get disabled() {
       return decision.pending();
     },
-    labels: {
-      idle: <Trans>Decline</Trans>,
-      loading: t`Declining…`,
-      success: t`Declined`,
-      error: t`Couldn't decline`,
+    get labels() {
+      return {
+        idle: <Trans>Decline</Trans>,
+        loading: t`Declining…`,
+        success: t`Declined`,
+        error: t`Couldn't decline`,
+      };
     },
     successHoldMs: 0,
   });

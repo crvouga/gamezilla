@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
 import type {
@@ -6,8 +6,7 @@ import type {
   IconSizeToken,
 } from '@pkgs/ui-root-shared-ts/token-names';
 import { textToneColor } from '@pkgs/ui-root-shared-ts/tones';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import type { IconComponent } from '../create-icon/index';
 
 export type IconGlyphProps = {
@@ -46,9 +45,9 @@ function toneColor(tone: ColorTone | undefined): string | undefined {
  * ```
  */
 export function Icon(props: IconGlyphProps): JSX.Element {
+  const Glyph = dynamic(() => props.icon);
   return (
-    <Dynamic
-      component={props.icon}
+    <Glyph
       size={iconSize[props.size ?? 'lg']}
       color={toneColor(props.tone)}
       strokeWidth={props.bold === true ? STROKE_BOLD : undefined}

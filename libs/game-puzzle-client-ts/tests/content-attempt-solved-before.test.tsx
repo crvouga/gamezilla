@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { PuzzlePackStageScreenView } from '@libs/game-puzzle-client-ts/puzzle-pack-stage-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';

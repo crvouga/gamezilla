@@ -1,15 +1,15 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Command registration: `useRegisterCommands(() => [...])` keeps a reactive
  * list of commands registered while the owner lives; `RegisterCommand` is
  * the declarative single-command form.
  */
 
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createEffect,
   createUniqueId,
-  type JSX,
   onCleanup,
 } from 'solid-js';
 import { useCommandRegistry } from '../command-registry-context/index';
@@ -34,8 +34,10 @@ export function useRegisterCommands(
   let version = 0;
   let registeredIds = new Set<string>();
 
-  createEffect(() => {
-    const next = commands();
+  // Each command is copied where it is read, so a change to any of its
+  // fields registers it again.
+  const current = (): Command[] => commands().map((cmd) => ({ ...cmd }));
+  createEffect(current, (next) => {
     version += 1;
     const nextIds = new Set<string>();
     for (const cmd of next) {

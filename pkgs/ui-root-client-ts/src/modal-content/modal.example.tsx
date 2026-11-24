@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ConfirmationModal } from '@pkgs/ui-root-client-ts/confirmation-modal';
@@ -12,7 +12,8 @@ import {
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ResponsiveSurfaceHeader } from '@pkgs/ui-root-client-ts/responsive-surface-header';
 import { BottomSheetPanel } from '@pkgs/ui-root-client-ts/web-bottom-sheet';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

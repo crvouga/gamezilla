@@ -15,12 +15,13 @@
  * nothing.
  */
 
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   children,
   createContext,
+  createMemo,
   createSignal,
-  type JSX,
   onCleanup,
   Show,
   useContext,
@@ -58,16 +59,28 @@ export type SpaceShellClaimFrameProps = {
 
 /** Counts the claims below; `claimed` while any is held. */
 function createClaims(): SpaceShellClaims & { claimed: Accessor<boolean> } {
-  const [count, setCount] = createSignal(0);
+  // A screen claims during its own setup and the frame's first render must
+  // already know, so the count is plain and answers at once. The signal is
+  // this frame's bookkeeping, written from owned scope, and only tells the
+  // frame to look again.
+  let count = 0;
+  const [changes, setChanges] = createSignal(0, { ownedWrite: true });
+  const change = (difference: number): void => {
+    count += difference;
+    setChanges((n) => n + 1);
+  };
   return {
-    claimed: () => count() > 0,
+    claimed: () => {
+      changes();
+      return count > 0;
+    },
     claim: () => {
-      setCount((n) => n + 1);
+      change(1);
       let held = true;
       return () => {
         if (!held) return;
         held = false;
-        setCount((n) => n - 1);
+        change(-1);
       };
     },
   };
@@ -85,12 +98,17 @@ export function SpaceShellClaimFrame(
 ): JSX.Element {
   const claims = createClaims();
   const content = children(() => (
-    <SpaceShellClaimContext.Provider value={claims}>
+    <SpaceShellClaimContext value={claims}>
       {props.children}
-    </SpaceShellClaimContext.Provider>
+    </SpaceShellClaimContext>
   ));
+  // The content is created first, so a claim made in its setup is counted.
+  const bare = createMemo(() => {
+    content();
+    return claims.claimed();
+  });
   return (
-    <Show when={claims.claimed()} fallback={props.shell(content())}>
+    <Show when={bare()} fallback={props.shell(content())}>
       {content()}
     </Show>
   );

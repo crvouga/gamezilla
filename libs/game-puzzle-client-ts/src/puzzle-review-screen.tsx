@@ -14,7 +14,8 @@ import {
 } from '@libs/spaces-client-ts/use-space-room-selector';
 import { t } from '@lingui/core/macro';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { useReviewPuzzleEntity } from './puzzle-play-queries';
 import { PuzzleReviewBoard } from './puzzle-review-board';
 import { PuzzleReviewScreenView } from './puzzle-review-screen-view';

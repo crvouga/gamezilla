@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { ExportChoice } from '@libs/account-privacy-client-ts/export-choice';
 import type { PrivacyActionAccess } from '@libs/account-privacy-client-ts/privacy-action-access';
@@ -10,7 +10,8 @@ import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen, waitFor } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 const allowed: PrivacyActionAccess = { kind: 'allowed' };
@@ -63,6 +64,7 @@ test('an idle export uses its current permission and recovers when permission ch
   );
   expect(requests).toBe(0);
   setAccess(allowed);
+  flush();
   expect(screen.queryByTestId('privacy-export-access')).toBeNull();
   fireEvent.click(screen.getByTestId('privacy-export-request'));
   expect(requests).toBe(1);
@@ -91,6 +93,7 @@ test('permission changing during a request retains its failure and retry outcome
   ));
   fireEvent.click(screen.getByTestId('privacy-export-request'));
   setAccess(denied);
+  flush();
   expect(screen.getByTestId('privacy-export-request')).toBeDefined();
   rejectRequest?.(
     new Error('The request was refused. Sign in, then try again.')
@@ -120,6 +123,7 @@ test('an existing replacement confirmation stays mounted when live access change
     />
   ));
   setAccess(denied);
+  flush();
   expect(screen.getByRole('dialog').textContent).toContain(
     'Replace your ready export?'
   );

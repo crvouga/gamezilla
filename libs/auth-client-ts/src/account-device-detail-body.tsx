@@ -1,7 +1,7 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ClipboardCopy } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AccountDeviceActiveSessionLine } from './account-device-active-session-line';
 import { AccountDeviceIdField } from './account-device-id-field';
 import { AccountDeviceMetaGrid } from './account-device-meta-grid';

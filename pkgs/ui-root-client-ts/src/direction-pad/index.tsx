@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import styles from './direction-pad.module.css';
 
 export type DirectionPadHeading = 'up' | 'right' | 'down' | 'left';
@@ -112,13 +113,13 @@ function PadButton(props: {
 export function DirectionPad(props: DirectionPadProps): JSX.Element {
   return (
     <div
-      {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       class={styles['pad']}
       data-size={props.size ?? 'lg'}
       data-layout={props.layout ?? 'cross'}
       role="group"
-      data-disabled={props.disabled}
-      data-concealed={props.concealed === true}
+      data-disabled={String(props.disabled)}
+      data-concealed={String(props.concealed === true)}
+      {...dataAttrs({ component: 'DirectionPad', testid: props.testId })}
       aria-hidden={props.concealed === true ? 'true' : undefined}
     >
       <For each={props.layout === 'arrows' ? ARROW_HEADINGS : HEADINGS}>

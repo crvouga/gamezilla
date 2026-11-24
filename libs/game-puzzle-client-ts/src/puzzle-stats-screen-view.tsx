@@ -2,7 +2,7 @@ import type {
   PuzzleGameLogEntry,
   PuzzleStats,
 } from '@libs/game-puzzle-shared-ts/stats';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 import {
   PuzzleStatsLogView,

@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   GlobalTrailingInRail,
   useAppFrameHeader,
@@ -74,8 +75,10 @@ function AppFrameWide(props: AppFrameProps): JSX.Element {
             )}
           </Show>
           <div
-            class="box flex-1 min-h-0 min-w-0"
-            classList={{ 'pt-4': rail() !== undefined }}
+            class={[
+              'box flex-1 min-h-0 min-w-0',
+              { 'pt-4': rail() !== undefined },
+            ]}
           >
             <GlobalTrailingInRail when={rail() !== undefined}>
               <AppFrameWideColumn {...props} />

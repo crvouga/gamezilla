@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
@@ -24,7 +24,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Show, untrack } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameErrorView, FrameStatusView } from './game-frame-status-view';
@@ -275,7 +276,11 @@ function RecordSteps(props: RecordProps): JSX.Element {
 
 /** A move by its number: for a long game, and for a listener. */
 function ReviewJumpField(props: RecordProps): JSX.Element {
-  const [jump, setJump] = createSignal(String(props.record.displayedPly));
+  // Prefilled once with the move shown as the field opens: what the person
+  // types is theirs, and stepping through the moves does not rewrite it.
+  const [jump, setJump] = createSignal(
+    untrack(() => String(props.record.displayedPly))
+  );
   return (
     <StackHorizontal align="end" gap="sm">
       <StackVertical grow>

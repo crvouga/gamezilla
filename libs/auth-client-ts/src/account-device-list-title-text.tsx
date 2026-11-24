@@ -1,5 +1,5 @@
 import { Text, type TextProps } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import type { AccountDeviceView } from './account-device-view';
 import { formatDeviceListTitle } from './device-parsers';

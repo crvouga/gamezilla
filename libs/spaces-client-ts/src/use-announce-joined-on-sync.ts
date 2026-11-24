@@ -3,7 +3,7 @@ import { markSpaceJoinAnnouncedMutation } from '@libs/spaces-shared-ts/mark-join
 import { AnnounceMemberJoined } from '@libs/spaces-shared-ts/space-log-messages';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
-import { createEffect } from 'solid-js';
+import { type Accessor, createEffect } from 'solid-js';
 import { useSpaceOpenSession } from './use-open-space-session-ids';
 import {
   useSpaceRoomDispatch,
@@ -22,7 +22,7 @@ function dispatchJoinAnnounce(
  * already have join_announced=1 — only room commands run. Joiners persist the
  * flag via markSpaceJoinAnnounced first.
  */
-export function useAnnounceJoinedOnSync(spaceId: string): void {
+export function useAnnounceJoinedOnSync(spaceId: Accessor<string>): void {
   const dispatch = useSpaceRoomDispatch();
   const myId = useMyId();
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
@@ -31,30 +31,39 @@ export function useAnnounceJoinedOnSync(spaceId: string): void {
   const announcedSpaceRef = { current: null as string | null };
   const mutatingRef = { current: false };
 
-  createEffect(() => {
-    if (!synced() || myId().length === 0 || spaceId.length === 0) return;
-    if (!session.isOpen()) return;
-    if (announcedSpaceRef.current === spaceId) return;
-
-    if (session.joinAnnounced()) {
-      announcedSpaceRef.current = spaceId;
-      dispatchJoinAnnounce(dispatch, myId());
-      return;
-    }
-
+  const persistThenAnnounce = (id: string): void => {
     if (mutatingRef.current) return;
     mutatingRef.current = true;
     void mutationClient
-      .mutate(markSpaceJoinAnnouncedMutation, { spaceId })
+      .mutate(markSpaceJoinAnnouncedMutation, { spaceId: id })
       .then((result) => {
         if (!result.ok) return;
         // The optimistic row can trigger the effect before upload resolves.
-        if (announcedSpaceRef.current === spaceId) return;
-        announcedSpaceRef.current = spaceId;
+        if (announcedSpaceRef.current === id) return;
+        announcedSpaceRef.current = id;
         dispatchJoinAnnounce(dispatch, myId());
       })
       .finally(() => {
         mutatingRef.current = false;
       });
-  });
+  };
+
+  createEffect(
+    () => {
+      const id = spaceId();
+      const me = myId();
+      if (!synced() || me.length === 0 || id.length === 0) return null;
+      if (!session.isOpen()) return null;
+      return { id, me, announced: session.joinAnnounced() };
+    },
+    (due) => {
+      if (due === null || announcedSpaceRef.current === due.id) return;
+      if (!due.announced) {
+        persistThenAnnounce(due.id);
+        return;
+      }
+      announcedSpaceRef.current = due.id;
+      dispatchJoinAnnounce(dispatch, due.me);
+    }
+  );
 }

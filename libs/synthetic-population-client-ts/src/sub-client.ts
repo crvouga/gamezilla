@@ -6,7 +6,8 @@ import {
   SYNTHETIC_USERS_PATH,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { defineSubClient, type SubClient } from '@libs/sub-client-ts/client';
-import { createComponent, type JSX, lazy } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createComponent, lazy } from 'solid-js';
 import { type GameName, GameNamesProvider } from './game-names';
 
 /**

@@ -1,4 +1,5 @@
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 
 export type SignInCapabilities = {
   readonly google: boolean;
@@ -50,7 +51,7 @@ export function SignInCapabilitiesProvider(props: {
       return props.value.ready;
     },
   };
-  return <Ctx.Provider value={value}>{props.children}</Ctx.Provider>;
+  return <Ctx value={value}>{props.children}</Ctx>;
 }
 
 export function useSignInCapabilities(): SignInCapabilities {

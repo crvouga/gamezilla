@@ -39,17 +39,97 @@ function useRecordStarted(args: {
   append: () => void;
 }): void {
   const handledRef: Ref<string | null> = { current: null };
-  createEffect(() => {
-    const r = args.recorder;
-    const key = args.attemptKey();
-    if (key === null || !r.canRecord() || args.myId().length === 0) return;
-    if (!r.interactionsReady() || r.status() === 'loading') return;
-    if (handledRef.current === key) return;
-    handledRef.current = key;
-    if (r.status() !== PUZZLE_PLAY_STATUS.solving) return;
-    if (hasPendingPlay(untrack(r.interactions), untrack(r.puzzleId))) return;
-    args.append();
-  });
+  const r = args.recorder;
+  createEffect(
+    () => {
+      const key = args.attemptKey();
+      if (key === null || !r.canRecord() || args.myId().length === 0)
+        return null;
+      if (!r.interactionsReady() || r.status() === 'loading') return null;
+      return { key, solving: r.status() === PUZZLE_PLAY_STATUS.solving };
+    },
+    (attempt) => {
+      if (attempt === null || handledRef.current === attempt.key) return;
+      handledRef.current = attempt.key;
+      if (!attempt.solving) return;
+      untrack(() => {
+        if (!hasPendingPlay(r.interactions(), r.puzzleId())) args.append();
+      });
+    }
+  );
+}
+
+/**
+ * Mirrors the solver's moves: each room status transition is compared with
+ * what was seen before it on this puzzle, and with the last action pressed.
+ */
+function useRecordMoves(args: {
+  recorder: InteractionRecorderArgs;
+  myId: Accessor<string>;
+  append: Parameters<
+    typeof syncInteractionForRoomStatus
+  >[0]['appendInteraction'];
+}): (uci: string) => void {
+  const r = args.recorder;
+  const prevStatusRef: Ref<PuzzlePlayStatus | 'loading' | null> = {
+    current: null,
+  };
+  const prevSolveIdxRef: Ref<number | null> = { current: null };
+  const lastUciRef: Ref<string | null> = { current: null };
+  type Seen = {
+    readonly puzzleId: string;
+    readonly status: PuzzlePlayStatus | 'loading';
+    readonly canRecord: boolean;
+    readonly myId: string;
+    readonly solveIdx: number;
+  };
+  const syncStatus = (now: Seen): void => {
+    const prev = prevStatusRef.current;
+    prevStatusRef.current = now.status;
+    if (now.canRecord)
+      syncInteractionForRoomStatus({
+        prev,
+        status: now.status,
+        myId: now.myId,
+        solveIdx: now.solveIdx,
+        prevSolveIdx: prevSolveIdxRef.current,
+        lastUci: lastUciRef.current,
+        appendInteraction: args.append,
+      });
+    lastUciRef.current = null;
+  };
+  // One effect, so its steps keep their order: another puzzle forgets what
+  // was seen, then the transition is mirrored against what was seen before
+  // it, then the step it was compared with moves on.
+  createEffect(
+    (): Seen => ({
+      puzzleId: r.puzzleId(),
+      status: r.status(),
+      canRecord: r.canRecord(),
+      myId: args.myId(),
+      solveIdx: r.solveIdx(),
+    }),
+    (now, before) => {
+      if (before?.puzzleId !== now.puzzleId) {
+        prevStatusRef.current = null;
+        prevSolveIdxRef.current = null;
+        lastUciRef.current = null;
+      }
+      const moved =
+        before === undefined ||
+        before.status !== now.status ||
+        before.canRecord !== now.canRecord ||
+        before.myId !== now.myId ||
+        before.solveIdx !== now.solveIdx;
+      if (moved) untrack(() => syncStatus(now));
+      if (before?.solveIdx !== now.solveIdx)
+        prevSolveIdxRef.current = now.solveIdx;
+    }
+  );
+
+  return (uci) => {
+    lastUciRef.current = uci;
+  };
 }
 
 /**
@@ -79,21 +159,9 @@ export function usePuzzleInteractionRecorder(args: InteractionRecorderArgs): {
     });
   };
 
-  const prevStatusRef: Ref<PuzzlePlayStatus | 'loading' | null> = {
-    current: null,
-  };
-  const prevSolveIdxRef: Ref<number | null> = { current: null };
-  const lastUciRef: Ref<string | null> = { current: null };
   const attemptKey = (): string | null => {
     return args.attemptKey();
   };
-
-  createEffect(() => {
-    void args.puzzleId();
-    prevStatusRef.current = null;
-    prevSolveIdxRef.current = null;
-    lastUciRef.current = null;
-  });
 
   useRecordStarted({
     recorder: args,
@@ -106,34 +174,13 @@ export function usePuzzleInteractionRecorder(args: InteractionRecorderArgs): {
     },
   });
 
-  createEffect(() => {
-    const prev = prevStatusRef.current;
-    prevStatusRef.current = args.status();
-    if (!args.canRecord()) {
-      lastUciRef.current = null;
-      return;
-    }
-    syncInteractionForRoomStatus({
-      prev,
-      status: args.status(),
-      myId: myId(),
-      solveIdx: args.solveIdx(),
-      prevSolveIdx: prevSolveIdxRef.current,
-      lastUci: lastUciRef.current,
-      appendInteraction: (kind, extra) => {
-        appendInteraction(kind, extra).catch(reportWriteFailure(kind));
-      },
-    });
-    lastUciRef.current = null;
+  const setLastAction = useRecordMoves({
+    recorder: args,
+    myId,
+    append: (kind, extra) => {
+      appendInteraction(kind, extra).catch(reportWriteFailure(kind));
+    },
   });
-
-  createEffect(() => {
-    prevSolveIdxRef.current = args.solveIdx();
-  });
-
-  const setLastAction = (uci: string): void => {
-    lastUciRef.current = uci;
-  };
 
   const appendUsedHint = async (): Promise<void> => {
     if (!args.canRecord()) return;

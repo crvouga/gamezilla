@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 
 export type SwitchProps = {
   /** Current on/off setting; the parent owns and updates this value. */
@@ -42,14 +43,16 @@ export function Switch(props: SwitchProps): JSX.Element {
       {/* The identifiers name the control a person presses, so a driver that
           taps by test id toggles it (the wrapper would swallow the click). */}
       <button
-        class="clickable flex-row items-center justify-center min-h-11 w-12 shrink-0 rounded-full"
-        classList={{
-          'opacity-disabled cursor-not-allowed': props.disabled === true,
-        }}
+        class={[
+          'clickable flex-row items-center justify-center min-h-11 w-12 shrink-0 rounded-full',
+          {
+            'opacity-disabled cursor-not-allowed': props.disabled === true,
+          },
+        ]}
         {...dataAttrs({ component: 'Switch', ...props.dataSet })}
         type="button"
         role="switch"
-        aria-checked={props.value}
+        aria-checked={props.value ? 'true' : 'false'}
         aria-label={props['aria-label']}
         aria-labelledby={
           props['aria-label'] === undefined && props.label !== undefined
@@ -60,17 +63,21 @@ export function Switch(props: SwitchProps): JSX.Element {
         onClick={() => props.onValueChange(!props.value)}
       >
         <span
-          class="switchTrack flex flex-row items-center w-12 h-7 rounded-full shrink-0"
-          classList={{
-            'bg-tint-active': props.value,
-            'bg-outline': !props.value,
-          }}
+          class={[
+            'switchTrack flex flex-row items-center w-12 h-7 rounded-full shrink-0',
+            {
+              'bg-tint-active': props.value,
+              'bg-outline': !props.value,
+            },
+          ]}
           data-on={props.value ? 'true' : 'false'}
           aria-hidden="true"
         >
           <span
-            class="switchThumb block size-6 rounded-full shrink-0 bg-on-primary"
-            classList={{ 'translate-x-5': props.value }}
+            class={[
+              'switchThumb block size-6 rounded-full shrink-0 bg-on-primary',
+              { 'translate-x-5': props.value },
+            ]}
           />
         </span>
       </button>

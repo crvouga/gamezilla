@@ -1,11 +1,11 @@
 /** One provider on the account: linked (with its address) or connectable. */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { BrandIcon } from '@pkgs/ui-root-client-ts/brand-icon';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -13,7 +13,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 import { providerName } from './auth-flow-messages';
 import type { LinkedIdentity } from './use-linked-identities';
@@ -49,11 +50,13 @@ function ConnectableMethodRow(props: {
   const { i18n, t } = useLingui();
   const connect = useMutationButton({
     operation: () => props.onConnect(props.provider),
-    labels: {
-      idle: t`Connect`,
-      loading: t`Connecting…`,
-      success: t`Connected`,
-      error: t`Try again`,
+    get labels() {
+      return {
+        idle: t`Connect`,
+        loading: t`Connecting…`,
+        success: t`Connected`,
+        error: t`Try again`,
+      };
     },
   });
   return (

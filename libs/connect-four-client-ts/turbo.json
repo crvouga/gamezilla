@@ -6,6 +6,7 @@
       "dependsOn": [
         "@libs/connect-four-shared-ts#src",
         "@libs/game-menu-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/turn-game-shared-ts#src",
         "@pkgs/ui-root-client-ts#src"
       ]

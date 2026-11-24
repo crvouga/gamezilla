@@ -12,6 +12,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  untrack,
 } from 'solid-js';
 import type { MultiplayerFindChoice } from './matchmaking-home-view';
 import type { MultiplayerConfirm } from './multiplayer-game-view';
@@ -72,8 +73,10 @@ export function useMultiplayerPlaces(
   leaveMoves: () => void
 ): ScreenPlaceNavigation<MultiplayerPlace> {
   const nav = useScreenPlace(MULTIPLAYER_PLACES, stage);
-  createEffect<Shown | undefined>((before) => {
-    const shown: Shown = { stage: stage(), place: nav.place() };
+  // What was last settled on: a kept place counts as shown before the
+  // navigation that opens it reports back.
+  let before: Shown | undefined;
+  const settle = (shown: Shown): Shown => {
     if (before === undefined) return shown;
     if (shown.stage !== before.stage) {
       const kept = multiplayerPlaceKept(before, shown.stage);
@@ -83,10 +86,18 @@ export function useMultiplayerPlaces(
       }
       nav.home();
     }
+    // Leaving the moves is a command given now: whatever it reads, it reads
+    // as of this moment.
     if (before.place.screen === 'moves' && shown.place.screen !== 'moves')
-      leaveMoves();
+      untrack(leaveMoves);
     return shown;
-  });
+  };
+  createEffect(
+    (): Shown => ({ stage: stage(), place: nav.place() }),
+    (shown) => {
+      before = settle(shown);
+    }
+  );
   return nav;
 }
 

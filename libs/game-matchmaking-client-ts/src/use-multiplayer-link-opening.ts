@@ -17,11 +17,10 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  on,
-  onCleanup,
   untrack,
 } from 'solid-js';
 import {
+  type MultiplayerLinkAttempt,
   type MultiplayerLinkOpening,
   type MultiplayerLinkTarget,
   startMultiplayerLinkAttempt,
@@ -75,25 +74,30 @@ export function useMultiplayerLinkOpening(
   };
 
   // Latched: a later re-query must not open the link a second time.
-  const localReady = createMemo<boolean>((was) => was || hosted.ready(), false);
-  createEffect(
-    on(attempt, () => {
-      const current = startMultiplayerLinkAttempt({
-        timers,
-        resolveTarget,
-        openSpace: (spaceId) =>
-          router.replace(
-            spaceGameHref(spaceId, gameId, { [LINKED_MULTIPLAYER_PARAM]: '1' })
-          ),
-        settle: setOpening,
-      });
-      onCleanup(current.cancel);
-      createEffect(
-        on(localReady, (ready) => {
-          if (ready) current.ready();
-        })
-      );
-    })
+  const localReady = createMemo<boolean>(
+    (was) => was === true || hosted.ready()
   );
+  // The try under way and whether the query has answered live outside the
+  // graph: whichever of the two effects runs second starts the try, once.
+  let current: MultiplayerLinkAttempt | null = null;
+  let answered = false;
+  createEffect(localReady, (ready) => {
+    answered = ready;
+    if (ready) current?.ready();
+  });
+  createEffect(attempt, () => {
+    const started = startMultiplayerLinkAttempt({
+      timers,
+      resolveTarget,
+      openSpace: (spaceId) =>
+        router.replace(
+          spaceGameHref(spaceId, gameId, { [LINKED_MULTIPLAYER_PARAM]: '1' })
+        ),
+      settle: setOpening,
+    });
+    current = started;
+    if (answered) started.ready();
+    return started.cancel;
+  });
   return { opening, retry: () => setAttempt((n) => n + 1) };
 }

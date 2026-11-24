@@ -1,11 +1,12 @@
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { CircleCheckIcon, XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;

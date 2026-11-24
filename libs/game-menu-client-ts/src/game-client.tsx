@@ -13,7 +13,7 @@ import type {
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { gameFamily, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { assertContentFrame, assertFrame } from './game-frame-contract';
 import { GameMenu } from './game-menu';
 import { assertGameSettings, type GameSettings } from './game-settings';

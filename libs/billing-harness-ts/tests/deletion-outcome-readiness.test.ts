@@ -22,7 +22,7 @@ import { openHarness } from './open-billing-harness';
 
 // regression: privacy-receipt-waits-for-deletion-permission
 test('the deleted account can reopen its pending cancellation receipt', async () => {
-  await using s = await openHarness('pending-cancellation-receipt');
+  await using s = await openHarness();
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(openBilling, 'alice');
   await s.apply(subscribeToPlus, 'alice');

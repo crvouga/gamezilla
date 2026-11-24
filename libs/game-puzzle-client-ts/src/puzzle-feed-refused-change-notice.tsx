@@ -1,6 +1,6 @@
 import { RefusedChangeNotice } from '@libs/app-env-client-ts/refused-change-notice';
 import { savePuzzleFeedSettingsMutation } from '@libs/game-puzzle-shared-ts/save-puzzle-feed-settings-mutation';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const FEED_SETTINGS_CHANGES: readonly string[] = [
   savePuzzleFeedSettingsMutation.name,

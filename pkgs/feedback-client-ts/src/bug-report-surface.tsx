@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   OVERLAY_PORTAL_Z_INDEX,
   OverlayPortalProvider,
@@ -10,14 +10,8 @@ import {
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import {
-  createMemo,
-  createSignal,
-  onCleanup,
-  Show,
-  splitProps,
-} from 'solid-js';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
+import { createMemo, createSignal, omit, onCleanup, Show } from 'solid-js';
 import {
   BugReportFormView,
   type BugReportFormViewProps,
@@ -42,10 +36,10 @@ export type BugReportSurfaceViewProps = BugReportFormViewProps & {
  * wider screen, titled and closable, holding `BugReportFormView`.
  */
 export function BugReportSurfaceView(props: BugReportSurfaceViewProps) {
-  const [surface, form] = splitProps(props, ['visible']);
+  const form = omit(props, 'visible');
   return (
     <ResponsiveSurface
-      visible={surface.visible}
+      visible={props.visible}
       onClose={form.onClose}
       title="Report a bug"
       size="medium"

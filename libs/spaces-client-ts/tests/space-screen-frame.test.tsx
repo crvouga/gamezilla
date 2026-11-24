@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Every screen in a space sits in the space's own rows, loading included. */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -16,7 +16,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 afterEach(cleanup);
 

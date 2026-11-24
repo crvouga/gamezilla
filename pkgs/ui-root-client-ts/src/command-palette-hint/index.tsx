@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
 
 export type CommandPaletteHintProps = {
   legend?: JSX.Element | undefined;

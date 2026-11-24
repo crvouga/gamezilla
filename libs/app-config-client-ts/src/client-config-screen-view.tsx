@@ -2,7 +2,7 @@ import type {
   ClientConfigDbRow,
   ClientRuntimeConfig,
 } from '@libs/app-config-shared-ts/parse-client-config';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -10,7 +10,8 @@ import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 function onOff(enabled: boolean, on: string, off: string): string {
   return enabled ? on : off;

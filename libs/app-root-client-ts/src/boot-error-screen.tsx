@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
@@ -7,7 +7,7 @@ import { requestBugReport } from '@pkgs/feedback-client-ts/request-bug-report';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import { isLeaderLostError } from '@pkgs/sql-client-sqlite-web-shared-ts/rpc';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   type LocalDatabaseBootErrorKind,
   LocalDatabaseBootErrorScreenView,

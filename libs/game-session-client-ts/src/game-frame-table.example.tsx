@@ -22,7 +22,8 @@ import type {
   GameSide,
   GameWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { type JSX, mergeProps, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { merge, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { FrameStory } from './game-frame-board.example';
@@ -285,7 +286,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
   const viewer = (): GameSide | null => viewerOf(props);
   // The board session is made once, as the frame makes it when it mounts.
   const session = untrack(() => {
-    const board: GameFrameBoardProps = mergeProps(props.board, {
+    const board: GameFrameBoardProps = merge(props.board, {
       get viewer() {
         return viewer();
       },

@@ -19,7 +19,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  on,
   untrack,
 } from 'solid-js';
 
@@ -62,16 +61,19 @@ function createTableNav(args: {
   };
 
   createEffect(
-    on(
-      [args.sourceKey, args.defaultOrderBy, args.defaultOrderDir],
-      ([, nextOrderBy, nextOrderDir]) => {
-        setPageIndexState(0);
-        setOrderBy(nextOrderBy);
-        setOrderDir(nextOrderDir);
-        bumpEpoch();
-      },
-      { defer: true }
-    )
+    () =>
+      [
+        args.sourceKey(),
+        args.defaultOrderBy(),
+        args.defaultOrderDir(),
+      ] as const,
+    ([, nextOrderBy, nextOrderDir]) => {
+      setPageIndexState(0);
+      setOrderBy(nextOrderBy);
+      setOrderDir(nextOrderDir);
+      bumpEpoch();
+    },
+    { defer: true }
   );
 
   const toggleSort = (columnId: string) => {
@@ -147,29 +149,30 @@ export function createDataTablePageCache<T>(args: {
     };
   });
 
-  createEffect(() => {
-    // Snapshot on purpose: a resolved page only applies if the table still
-    // shows the request (key + epoch) that started the load.
-    const staticRequest = request();
-    const staticEpoch = nav.epoch();
-    const cached = maps.cache.get(staticRequest.key);
-    if (cached != null) {
-      setView(entryToView(cached));
-      return;
-    }
-    setView({ status: 'loading' });
-    const isCurrent = () =>
-      untrack(request).key === staticRequest.key &&
-      untrack(nav.epoch) === staticEpoch;
-    loader.run(staticRequest).then(
-      (entry) => {
-        if (isCurrent()) setView(entryToView(entry));
-      },
-      () => {
-        /* aborted on dispose */
+  // Snapshot on purpose: a resolved page only applies if the table still
+  // shows the request (key + epoch) that started the load.
+  createEffect(
+    () => [request(), nav.epoch()] as const,
+    ([staticRequest, staticEpoch]) => {
+      const cached = maps.cache.get(staticRequest.key);
+      if (cached != null) {
+        setView(entryToView(cached));
+        return;
       }
-    );
-  });
+      setView({ status: 'loading' });
+      const isCurrent = () =>
+        untrack(request).key === staticRequest.key &&
+        untrack(nav.epoch) === staticEpoch;
+      loader.run(staticRequest).then(
+        (entry) => {
+          if (isCurrent()) setView(entryToView(entry));
+        },
+        () => {
+          /* aborted on dispose */
+        }
+      );
+    }
+  );
 
   const retry = () => {
     const key = untrack(request).key;

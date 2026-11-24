@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type ModalBackdropProps = {
   /** Fired on click outside the content (when `dismissOnBackdrop`). */
@@ -45,8 +45,10 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
         onClick={onScrimClick}
       />
       <div
-        class="box flex-1 w-full h-full justify-center items-center p-4"
-        classList={{ boxNone: true }}
+        class={[
+          'box flex-1 w-full h-full justify-center items-center p-4',
+          { boxNone: true },
+        ]}
       >
         {props.children}
       </div>

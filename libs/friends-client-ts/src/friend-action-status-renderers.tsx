@@ -6,13 +6,14 @@ import {
 } from '@libs/friends-shared-ts/friends-mutation-codes';
 import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { CheckIcon, UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, Show } from 'solid-js';
 import {
   AcceptDeclinePills,
   SingleActionPill,

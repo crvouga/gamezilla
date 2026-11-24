@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Generic demo app used only by this package's tests — built from `@pkgs/ui`
  * so the driver is exercised against real design-system DOM (data-testid on
@@ -6,10 +6,10 @@
  */
 
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import type { HarnessClockBundle } from '@pkgs/clock-shared-ts/harness-clock';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ModalBackdrop } from '@pkgs/ui-root-client-ts/modal-backdrop';
 import { ModalContent } from '@pkgs/ui-root-client-ts/modal-content';
@@ -25,7 +25,8 @@ import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 
 const COMPACT = { width: 390, height: 844 };
 

@@ -17,7 +17,7 @@ test('upstream workspace packages do not adopt product package categories', () =
       {
         name: '@libs/tools-harness-ts',
         category: 'harness',
-        devDependencies: { '@crvouga/atlas': 'workspace:*' },
+        devDependencies: { '@upstream/tooling': 'workspace:*' },
       },
       { tier: 'libs', sources: [] }
     )

@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
-import { useLingui } from '@lingui/solid/macro';
+/** @jsxImportSource @solidjs/web */
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { PageView } from '@pkgs/ui-devtools-shared-ts/data-table-page-load';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export const DATA_TABLE_SHELL_CLASS =
   'flex-1 min-h-0 min-w-0 self-stretch bg-surface border border-border rounded-card overflow-hidden';

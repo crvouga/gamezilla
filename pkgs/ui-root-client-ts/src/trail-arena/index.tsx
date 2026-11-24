@@ -1,12 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createMemo,
-  createUniqueId,
-  For,
-  Index,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import { trailShapes } from '../trail-arena-geometry';
 import { controlledSlots, trailArenaInput } from '../trail-arena-input';
 import {
@@ -60,17 +54,17 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   return (
     <div
-      {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       class={styles['arena']}
-      data-interactive={interactive()}
-      data-dimmed={props.dimmed === true}
+      data-interactive={String(interactive())}
+      data-dimmed={String(props.dimmed === true)}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
+      {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       role="application"
       aria-label={props.label}
       aria-describedby={props.instructionsId}
-      tabIndex={interactive() ? 0 : -1}
+      tabindex={interactive() ? 0 : -1}
       onKeyDown={input.keyDown}
       onPointerDown={input.pointerDown}
       onPointerMove={input.pointerMove}
@@ -153,7 +147,7 @@ function Markers(props: {
 }): JSX.Element {
   return (
     <>
-      <Index each={props.riders}>
+      <For keyed={false} each={props.riders}>
         {(rider) => (
           <RiderHead
             rider={rider()}
@@ -162,8 +156,8 @@ function Markers(props: {
             testId={props.testId}
           />
         )}
-      </Index>
-      <Index each={props.crashes}>
+      </For>
+      <For keyed={false} each={props.crashes}>
         {(crash) => (
           <CrashMarker
             crash={crash()}
@@ -171,7 +165,7 @@ function Markers(props: {
             testId={props.testId}
           />
         )}
-      </Index>
+      </For>
     </>
   );
 }

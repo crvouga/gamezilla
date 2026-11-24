@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { spaced } from '../layout-classes';
 
 export type CodeBlockProps = {
@@ -50,7 +50,7 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element {
   return (
     <pre
       class={codeBlockClass(props)}
-      tabIndex={props.wrap === true ? undefined : 0}
+      tabindex={props.wrap === true ? undefined : 0}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('CodeBlock')}

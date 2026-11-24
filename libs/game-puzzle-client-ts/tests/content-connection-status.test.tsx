@@ -6,6 +6,7 @@ import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client-ts/sync-status';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 
 test('a late failed request does not insert another panel above offline authoring', () => {
   // regression: offline-authoring-late-error-layout-shift
@@ -39,6 +40,7 @@ test('a late failed request does not insert another panel above offline authorin
   const panelsBefore = parent?.childElementCount;
   status = { ...status, lastError: 'Failed to fetch' };
   for (const listener of listeners) listener();
+  flush();
   expect(parent?.childElementCount).toBe(panelsBefore);
   expect(
     view.queryByText('Changes have not reached your other devices')
@@ -48,6 +50,7 @@ test('a late failed request does not insert another panel above offline authorin
   expect(reconnects).toBe(1);
   status = { ...status, online: true };
   for (const listener of listeners) listener();
+  flush();
   expect(
     view.getByText('Changes have not reached your other devices')
   ).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { decodeNumberlinkDraft } from '@libs/numberlink-shared-ts/numberlink-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { numberlinkContentFrame } from './numberlink-content-frame';
 import { NumberlinkEditor } from './numberlink-editor';

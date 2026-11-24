@@ -11,10 +11,10 @@ import {
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
 import { workspaceWatchOptions } from '@pkgs/vite-workspace-resolver-server-ts/workspace-watch';
+import solid from '@solidjs/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { visualizer } from 'rollup-plugin-visualizer';
 import { defineConfig, type PluginOption } from 'vite';
-import solid from 'vite-plugin-solid';
 
 const clientDir = import.meta.dirname;
 const repoRoot = resolve(clientDir, '../..');

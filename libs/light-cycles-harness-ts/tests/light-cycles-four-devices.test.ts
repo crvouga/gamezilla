@@ -62,7 +62,7 @@ async function nextHeadings(
 }
 
 test('four people ride one found Quad on their own devices while a fifth person watches', async () => {
-  await using s = await openHarness('light-cycles-four-devices');
+  await using s = await openHarness();
   await s.apply(findPlayers, PEOPLE, 4);
   await s.apply(pairPeopleUp);
 

@@ -10,7 +10,7 @@ import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { FriendAcceptedNotificationCard } from './friend-accepted-notification-card';

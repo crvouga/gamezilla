@@ -1,15 +1,15 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
 import type { PresenceRosterRow } from '@pkgs/collab-ui-client-ts/presence-roster-list';
 import { PresenceRosterList } from '@pkgs/collab-ui-client-ts/presence-roster-list';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar, SpacePersonName } from './space-person-view';

@@ -12,7 +12,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { TileBoard } from '@pkgs/ui-root-client-ts/tile-board';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import {
   ContentPackEditorView,
   ContentPackItemRow,
@@ -79,7 +80,7 @@ export function StoryCountingEditor(props: {
     <TextInput
       label="Target"
       value={props.target}
-      maxLength={1}
+      maxlength={1}
       disabled={props.disabled}
       onChangeText={() => undefined}
     />

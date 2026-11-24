@@ -1,6 +1,7 @@
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
-import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, Show } from 'solid-js';
 
 /**
  * A place's choices, sent one at a time: which one is on its way, and the

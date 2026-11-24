@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The lobby's desktop grid never ends in an empty slot beside a lone card. */
 
 import { afterEach, expect, test } from 'bun:test';

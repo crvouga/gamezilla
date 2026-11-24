@@ -10,7 +10,6 @@
  */
 
 import { describe, test } from 'bun:test';
-import type { RunReportOptions } from '@crvouga/atlas/reports/report-types';
 import type { Layer } from '@pkgs/conformance-shared-ts/evidence';
 import type { StepOutcome } from '@pkgs/gherkin-shared-ts/failure';
 import {
@@ -32,12 +31,9 @@ import {
 } from '@pkgs/gherkin-shared-ts/registry';
 import { tagFilter } from '@pkgs/gherkin-shared-ts/tags';
 import { recordScenario } from './evidence';
-import { createFeatureReporter } from './feature-report';
 import { withScenarioCleanup } from './scenario-cleanup';
 
 export type RunFeatureOptions = {
-  /** Reporting ports for worlds without an existing timeline recorder. */
-  readonly report?: RunReportOptions;
   readonly packageName: string;
   /** Feature path as reported (package-relative). */
   readonly featureUri: string;
@@ -56,7 +52,6 @@ export type RunFeatureOptions = {
   readonly slice?: Slice | undefined;
   /** Per-scenario timeout; default is `bun test --timeout`. */
   readonly timeoutMs?: number | undefined;
-  readonly reportHint?: string | undefined;
   /** Report bucket to record each decided scenario's evidence in. */
   readonly reportDir?: string | undefined;
   /**
@@ -123,11 +118,11 @@ function scenarioContext(run: ScenarioRun): ScenarioContext {
   };
 }
 
-async function recordStep(
+/** Run one step, through the world's own step wrapper when it has one. */
+async function runWorldStep(
   context: {
     world: unknown;
     lifecycle: ReturnType<typeof worldLifecycle>;
-    reporter: ReturnType<typeof createFeatureReporter>;
   },
   match: StepMatch,
   step: SpecStep
@@ -135,14 +130,6 @@ async function recordStep(
   const run = () => runStep(context.world, match, step);
   if (context.lifecycle.record !== undefined) {
     await context.lifecycle.record(context.world, step, run);
-  } else if (context.reporter !== null) {
-    await context.reporter.record(
-      {
-        kind: step.keyword.trim(),
-        title: `${step.keyword.trim()} ${step.text}`,
-      },
-      run
-    );
   } else {
     await run();
   }
@@ -169,25 +156,18 @@ async function runScenario(
 ): Promise<boolean> {
   const { options, scenario } = run;
   const lifecycle = worldLifecycle(ctx);
-  const reporter = createFeatureReporter(
-    ctx,
-    options.report,
-    lifecycle.record !== undefined
-  );
   const world = await lifecycle.create(ctx);
   const outcomes: StepOutcome[] = [];
-  let hostLimited = false;
   return withScenarioCleanup(
     async () => {
       for (const [index, step] of scenario.steps.entries()) {
         const match = matchStep(step.text);
         const callsBefore = lifecycle.calls?.(world).length ?? 0;
         try {
-          await recordStep({ world, lifecycle, reporter }, match, step);
+          await runWorldStep({ world, lifecycle }, match, step);
           outcomes.push(outcome(step, 'passed'));
         } catch (cause) {
           if (isHostLimit(cause)) {
-            hostLimited = true;
             const skipped = scenario.steps.length - index - 1;
             console.warn(
               `${options.featureUri}:${String(step.line)} ${runName(scenario, ctx)}: ${(cause as Error).message} — ${String(skipped)} later step(s) skipped`
@@ -215,9 +195,6 @@ async function runScenario(
               definition: definitionText(match, step),
               calls: (lifecycle.calls?.(world) ?? []).slice(callsBefore),
               cause,
-              reportHint:
-                options.reportHint ??
-                'report: open Specs and evidence in Atlas (bun atlas:viz)',
             }),
             { cause }
           );
@@ -225,20 +202,7 @@ async function runScenario(
       }
       return true;
     },
-    () =>
-      withScenarioCleanup(
-        async () => {
-          try {
-            await lifecycle.dispose(world);
-          } catch (cause) {
-            reporter?.markFailed(cause);
-            throw cause;
-          }
-        },
-        async () => {
-          if (!hostLimited) await reporter?.flush();
-        }
-      )
+    () => lifecycle.dispose(world)
   );
 }
 

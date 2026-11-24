@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import type { WordTileBoardCell } from '../word-tile-board/index';
 import styles from './word-tile-workbench.module.css';
 
@@ -42,7 +43,7 @@ export function WordTileBlankContext(props: {
           {(cell) => (
             <div
               class={styles['neighbor']}
-              data-blank={cell.id === props.cells[props.index]?.id}
+              data-blank={String(cell.id === props.cells[props.index]?.id)}
               role="img"
               aria-label={cell.label}
             >

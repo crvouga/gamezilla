@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { createChessBoardSounds } from '@pkgs/chess-board-root-client-ts/chess-board-sounds';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
 import { chessSoundUrls } from '@pkgs/sounds-shared-ts/chess-sound-urls';
 import type { AudioPlaybackPort } from '@pkgs/sounds-shared-ts/ports';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { noopAudio } from './board-fixture';
 
 function deferredAudio() {
@@ -48,7 +48,14 @@ function scope(port: AudioPlaybackPort, initially = true) {
     </AudioPlaybackProvider>
   ));
   if (player === undefined) throw new Error('Audio scope did not mount');
-  return { player, setEnabled, close: mounted.unmount };
+  return {
+    player,
+    setEnabled(next: boolean): void {
+      setEnabled(next);
+      flush();
+    },
+    close: mounted.unmount,
+  };
 }
 test('disabling and re-enabling during a blocked seek never resurrects old sound', async () => {
   // regression: chessboard-sound-authority

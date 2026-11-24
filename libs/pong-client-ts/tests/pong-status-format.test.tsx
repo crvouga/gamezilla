@@ -7,7 +7,7 @@ import { i18n } from '@lingui/core';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -61,6 +61,7 @@ test('the court status is formatted once per change of its words, not once per f
         },
       })
     );
+  flush();
   const seconds = Math.ceil(start.countdown / config.tickRate);
   expect(view.getByText(`Serve in ${seconds}`)).toBeDefined();
   expect(serves()).toBeLessThanOrEqual(1);
@@ -71,6 +72,7 @@ test('the court status is formatted once per change of its words, not once per f
       countdown: start.countdown - config.tickRate,
     })
   );
+  flush();
   expect(view.getByText(`Serve in ${seconds - 1}`)).toBeDefined();
   format.mockRestore();
 });

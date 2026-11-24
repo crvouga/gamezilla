@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { CELLS } from '@libs/battleship-shared-ts/battleship-board';
@@ -9,7 +9,7 @@ import { byTestId, renderBoard } from './render';
 // regression: battleship-lobby-picture-collapses
 test('as a lobby’s picture the game is one side’s waters, with nothing to press', () => {
   const { container } = renderBoard(() => (
-    <GameBoardPreviewContext.Provider value={() => true}>
+    <GameBoardPreviewContext value={() => true}>
       <BattleshipBoard
         position={BATTLESHIP_PREFIX}
         orientation="white"
@@ -23,7 +23,7 @@ test('as a lobby’s picture the game is one side’s waters, with nothing to pr
         testId="picture"
         onAction={() => undefined}
       />
-    </GameBoardPreviewContext.Provider>
+    </GameBoardPreviewContext>
   ));
   // The pair's switch and its keys are taller than any room a picture is
   // given: the board fitted to that room shrank to nothing.

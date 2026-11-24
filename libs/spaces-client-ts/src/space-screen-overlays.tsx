@@ -1,7 +1,8 @@
 import { NoteActivity } from '@libs/spaces-shared-ts/space-activity';
 import { isViewingSpaceClient } from '@libs/spaces-shared-ts/space-presence-client-id';
 import { useClock } from '@pkgs/clock-client-ts/solid';
-import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, Show } from 'solid-js';
 import { RemoveSpacePersonModal } from './remove-space-person-modal';
 import { RenameSpaceModal } from './rename-space-modal';
 import { useSpaceMembersDialog } from './space-members-dialog-context';
@@ -46,7 +47,7 @@ export function useSpaceOverlays(): SpaceOverlays {
   return {
     shareOpen: () => shareDialog?.open() ?? ownShareOpen(),
     setShareOpen: (open) => {
-      if (shareDialog === undefined) setOwnShareOpen(open);
+      if (shareDialog === null) setOwnShareOpen(open);
       else shareDialog.setOpen(open);
     },
     membersOpen: members.open,

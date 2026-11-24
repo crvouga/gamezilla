@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Match, Show, Switch } from 'solid-js';
 import { ChipGroup } from '../chip-group/index';
 import { NumberStepper } from '../number-stepper/index';
 
@@ -122,8 +123,10 @@ function CountOption(props: { field: GameOptionCountField }): JSX.Element {
           {(message) => (
             <p
               id={messageId}
-              class="text textCaption"
-              classList={{ 'text-destructive': message().tone === 'error' }}
+              class={[
+                'text textCaption',
+                { 'text-destructive': message().tone === 'error' },
+              ]}
               data-tone={message().tone ?? 'hint'}
             >
               {message().text}
@@ -159,9 +162,9 @@ export function GameOptionField(props: GameOptionFieldProps): JSX.Element {
   return (
     <div
       class="box min-w-0"
-      {...dataAttrs({ component: 'GameOptionField', ...props.dataSet })}
       data-kind={props.kind}
       data-readonly={props.readOnly === true ? 'true' : undefined}
+      {...dataAttrs({ component: 'GameOptionField', ...props.dataSet })}
     >
       <Switch>
         <Match when={props.kind === 'choice' ? props : undefined}>

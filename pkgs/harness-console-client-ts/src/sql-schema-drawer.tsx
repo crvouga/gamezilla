@@ -6,7 +6,8 @@ import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { Toolbar } from '@pkgs/ui-root-client-ts/toolbar';
-import { For, type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Switch } from 'solid-js';
 
 import type { SchemaIndex } from './use-schema-index';
 

@@ -1,14 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { NotificationProvider } from '@libs/notifications-shared-ts/notification-provider';
 import type { NotificationsClientDeps } from '@libs/notifications-shared-ts/notifications-actions';
-import {
-  type Accessor,
-  createContext,
-  createMemo,
-  type JSX,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createMemo, useContext } from 'solid-js';
 
 export type NotificationsShellContextValue = {
   readonly userId: string;
@@ -47,20 +42,14 @@ export function NotificationsProviderRegistry(
     },
   };
   return (
-    <NotificationsShellContext.Provider value={value}>
+    <NotificationsShellContext value={value}>
       {props.children}
-    </NotificationsShellContext.Provider>
+    </NotificationsShellContext>
   );
 }
 
 export function useNotificationsShell(): NotificationsShellContextValue {
-  const ctx = useContext(NotificationsShellContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'useNotificationsShell requires NotificationsProviderRegistry'
-    );
-  }
-  return ctx;
+  return useContext(NotificationsShellContext);
 }
 
 export function useNotificationRenderProvider(

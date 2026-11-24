@@ -32,7 +32,6 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
     "@pkgs/a11y-shared-ts": "workspace:*",
     "@pkgs/chess-board-core-shared-ts": "workspace:*",
     "@pkgs/chess-board-root-client-ts": "workspace:*",
@@ -40,10 +39,12 @@
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/sounds-client-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@pkgs/tailwind-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "chess.js": "catalog:",
     "solid-js": "catalog:"
   },
@@ -55,14 +56,14 @@
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
+    "@solidjs/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "vite": "catalog:"
   },
   "category": "harness",
   "game": "chess",

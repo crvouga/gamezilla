@@ -1,7 +1,7 @@
 import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
-import type { ComponentProps } from 'solid-js';
+import type { ComponentProps } from '@solidjs/web';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ChessBoard } from './index';
 

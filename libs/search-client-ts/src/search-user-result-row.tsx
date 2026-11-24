@@ -1,6 +1,7 @@
 import { UserSearchResultRow } from '@libs/user-search-client-ts/user-search-result-row';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 import { useSearchResultSlots } from './search-result-slots';
 
@@ -16,7 +17,7 @@ export function SearchUserResultRow(props: {
       when={slots.userRow}
       fallback={<UserSearchResultRow user={props.user} />}
     >
-      {(userRow) => userRow()(props.user, props.query)}
+      {(userRow) => <>{userRow()(props.user, props.query)}</>}
     </Show>
   );
 }

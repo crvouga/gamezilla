@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Solid contexts for the device ports carried on `ClientEnv`. */
 
 import type { DevMenuPort } from '@libs/app-root-shared-ts/ports';
 import type { NetworkStatePort } from '@pkgs/device-shared-ts/network-state';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import { type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 
 const NetworkStateContext = defineContext<NetworkStatePort>('NetworkState');
 const DevMenuContext = defineContext<DevMenuPort>('DevMenu');

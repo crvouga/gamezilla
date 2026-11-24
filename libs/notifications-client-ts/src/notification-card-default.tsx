@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import type { Notification } from '@libs/notifications-shared-ts/notification';
@@ -9,7 +9,7 @@ import type {
 import { notificationTimeCritical } from '@libs/notifications-shared-ts/notifications-sections';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -22,7 +22,8 @@ import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 
 import { InboxCardMenu } from './inbox-card-menu';
 import {

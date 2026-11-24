@@ -8,12 +8,13 @@ import { CustomGameScreen } from '@libs/game-session-client-ts/custom-game-scree
 import { GameHistory } from '@libs/game-session-client-ts/game-history';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   type GameCapability,
   gameSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { GameClient } from './game-client';
 import { GameHistoryHomeScreen } from './game-history-home-screen';
 import { GameSettingsScreen } from './game-settings-screen';

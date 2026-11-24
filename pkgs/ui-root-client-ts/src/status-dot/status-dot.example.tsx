@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';

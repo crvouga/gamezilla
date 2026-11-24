@@ -3,7 +3,7 @@ import { displayNotification } from '@libs/notifications-client-ts/notification-
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { isSoundId, Sounds } from '@pkgs/sounds-shared-ts/sound-id';
@@ -16,7 +16,7 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, Show, untrack } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { profileFromFriendRequestNotification } from './friend-request-notification-profile';
@@ -46,10 +46,12 @@ function useDecisionSounds(
 ): (transition: MutationStateTransition) => void {
   const engine = useOptionalSoundEngine();
   return (transition) => {
-    const current = engine?.();
+    // The phase change is the event: the engine and the sound it plays are
+    // looked up once, when it arrives.
+    const current = untrack(() => engine?.());
     if (current === undefined) return;
     if (transition.to === 'success') {
-      current.play(successSound() ?? Sounds.feedback.success);
+      current.play(untrack(successSound) ?? Sounds.feedback.success);
     } else if (transition.to === 'error') {
       current.play(Sounds.feedback.error);
     }
@@ -81,11 +83,13 @@ function AcceptButton(props: {
     get disabled() {
       return props.decision.pending();
     },
-    labels: {
-      idle: accept()?.label ?? t`Accept`,
-      loading: t`Accepting…`,
-      success: t`Accepted`,
-      error: t`Couldn't accept`,
+    get labels() {
+      return {
+        idle: accept()?.label ?? t`Accept`,
+        loading: t`Accepting…`,
+        success: t`Accepted`,
+        error: t`Couldn't accept`,
+      };
     },
     successHoldMs: 0,
     onPhaseChange,
@@ -126,11 +130,13 @@ function DeclineButton(props: {
     get disabled() {
       return props.decision.pending();
     },
-    labels: {
-      idle: decline()?.label ?? t`Decline`,
-      loading: t`Declining…`,
-      success: t`Declined`,
-      error: t`Couldn't decline`,
+    get labels() {
+      return {
+        idle: decline()?.label ?? t`Decline`,
+        loading: t`Declining…`,
+        success: t`Declined`,
+        error: t`Couldn't decline`,
+      };
     },
     successHoldMs: 0,
     onPhaseChange,

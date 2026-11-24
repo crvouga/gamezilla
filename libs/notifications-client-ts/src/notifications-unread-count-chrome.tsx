@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Chrome (AppFrame header island, compact tab bar) mounts above the SQLite
  * gate and the notifications registry. Tab icons must not call
@@ -7,11 +7,11 @@
  * (loaded with the sync tree) publishes the query into the same signal.
  */
 
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createSignal,
-  type JSX,
   useContext,
 } from 'solid-js';
 
@@ -25,23 +25,11 @@ const UnreadCountPublisherContext = createContext<UnreadCountPublisher>();
 
 /** Tracked unread count for chrome; 0 when the sync tree has not published. */
 export function useNotificationsUnreadCountChrome(): Accessor<number> {
-  const ctx = useContext(UnreadCountContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'useNotificationsUnreadCountChrome requires NotificationsUnreadCountRoot'
-    );
-  }
-  return ctx;
+  return useContext(UnreadCountContext);
 }
 
 export function useNotificationsUnreadCountPublisher(): UnreadCountPublisher {
-  const publish = useContext(UnreadCountPublisherContext);
-  if (publish === undefined) {
-    throw new Error(
-      'useNotificationsUnreadCountPublisher requires NotificationsUnreadCountRoot'
-    );
-  }
-  return publish;
+  return useContext(UnreadCountPublisherContext);
 }
 
 /**
@@ -53,10 +41,8 @@ export function NotificationsUnreadCountRoot(props: {
 }): JSX.Element {
   const [count, setCount] = createSignal(BOOT_NOTIFICATIONS_UNREAD_COUNT);
   return (
-    <UnreadCountPublisherContext.Provider value={setCount}>
-      <UnreadCountContext.Provider value={count}>
-        {props.children}
-      </UnreadCountContext.Provider>
-    </UnreadCountPublisherContext.Provider>
+    <UnreadCountPublisherContext value={setCount}>
+      <UnreadCountContext value={count}>{props.children}</UnreadCountContext>
+    </UnreadCountPublisherContext>
   );
 }

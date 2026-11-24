@@ -6,7 +6,7 @@ import {
   OBSERVATORY_TOPIC,
 } from '@libs/observatory-shared-ts/live-session';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
-import { createEffect, onCleanup } from 'solid-js';
+import { createEffect } from 'solid-js';
 import { useObservatoryApi } from './observatory-api';
 
 /** Which notices a screen rereads on. */
@@ -31,40 +31,42 @@ export function useObservatoryUpdates(
   const env = useClientEnv();
   const config = useClientConfig();
   const api = useObservatoryApi();
-  createEffect(() => {
-    const url = config.config().emqx_wss_url;
-    if (!url) return;
-    const pubsub = env.createPubSub({
-      url,
-      clientIdPrefix: 'user-observatory',
-      timers: env.timers,
-      random: env.random,
-      logger: createLogger({ name: 'user-observatory', now: env.clock.now }),
-      auth: () => api.subscriptionCredentials(),
-    });
-    if (pubsub === null) return;
-    let timer: unknown;
-    const invalidate = () => {
-      if (timer !== undefined) return;
-      timer = env.timers.setTimeout(() => {
-        timer = undefined;
-        void refresh();
-      }, delayMs);
-    };
-    const unsubscribe = pubsub.subscribe(OBSERVATORY_TOPIC, (data) => {
-      const notice = liveNotice(data);
-      if (notice === null || accept(notice)) invalidate();
-    });
-    const status = pubsub.onStatus((value) => {
-      if (value === 'connected') invalidate();
-    });
-    onCleanup(() => {
-      env.timers.clearTimeout(timer);
-      unsubscribe();
-      status();
-      pubsub.close();
-    });
-  });
+  createEffect(
+    () => config.config().emqx_wss_url,
+    (url) => {
+      if (!url) return;
+      const pubsub = env.createPubSub({
+        url,
+        clientIdPrefix: 'user-observatory',
+        timers: env.timers,
+        random: env.random,
+        logger: createLogger({ name: 'user-observatory', now: env.clock.now }),
+        auth: () => api.subscriptionCredentials(),
+      });
+      if (pubsub === null) return;
+      let timer: unknown;
+      const invalidate = () => {
+        if (timer !== undefined) return;
+        timer = env.timers.setTimeout(() => {
+          timer = undefined;
+          void refresh();
+        }, delayMs);
+      };
+      const unsubscribe = pubsub.subscribe(OBSERVATORY_TOPIC, (data) => {
+        const notice = liveNotice(data);
+        if (notice === null || accept(notice)) invalidate();
+      });
+      const status = pubsub.onStatus((value) => {
+        if (value === 'connected') invalidate();
+      });
+      return () => {
+        env.timers.clearTimeout(timer);
+        unsubscribe();
+        status();
+        pubsub.close();
+      };
+    }
+  );
 }
 
 /**
@@ -78,9 +80,12 @@ export function useRefreshWithoutUpdates(
 ): void {
   const env = useClientEnv();
   const config = useClientConfig();
-  createEffect(() => {
-    if (config.config().emqx_wss_url || !active()) return;
-    const id = env.timers.setInterval(() => void refresh(), everyMs);
-    onCleanup(() => env.timers.clearInterval(id));
-  });
+  createEffect(
+    () => !config.config().emqx_wss_url && active(),
+    (polling) => {
+      if (!polling) return;
+      const id = env.timers.setInterval(() => void refresh(), everyMs);
+      return () => env.timers.clearInterval(id);
+    }
+  );
 }

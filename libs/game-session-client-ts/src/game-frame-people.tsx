@@ -1,7 +1,8 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import { botName } from './custom-game-bot-name';
 import type { FrameHolder, FramePeople } from './game-frame-view-types';
 

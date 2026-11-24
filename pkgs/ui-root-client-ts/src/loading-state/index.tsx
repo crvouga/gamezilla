@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { SpinnerProps } from '../spinner/index';
 import { Spinner } from '../spinner/index';
 import type { StateBlockVariant } from '../state-block/index';
@@ -47,7 +48,7 @@ export function loadingStateSpinnerSize(
  *
  * @example
  * ```tsx
- * <Suspense fallback={<LoadingState />}>{children}</Suspense>
+ * <Loading fallback={<LoadingState />}>{children}</Loading>
  * <LoadingState caption={t`Loading entity…`} />
  * <LoadingState variant="compact" caption={t`Waiting for metrics…`} />
  * ```

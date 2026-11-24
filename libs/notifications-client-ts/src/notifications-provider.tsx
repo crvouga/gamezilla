@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useConfigService } from '@libs/auth-client-ts/config-service-context';
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { useDeviceId } from '@libs/auth-client-ts/use-device-id';
@@ -11,7 +11,8 @@ import type { NotificationsClientDeps } from '@libs/notifications-shared-ts/noti
 import { useCan } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { useNotificationSources } from './notification-sources';
 import { NotificationsProviderRegistry } from './notifications-provider-registry';
 import { NotificationsUnreadCountLiveBridge } from './notifications-unread-count-live-bridge';

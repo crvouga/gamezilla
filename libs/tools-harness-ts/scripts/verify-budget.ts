@@ -201,10 +201,9 @@ export function gateExitCode(input: {
   readonly deadlineHit: boolean;
   readonly signal: NodeJS.Signals | null;
   readonly code: number | null;
-  readonly published: boolean;
 }): number {
   if (input.deadlineHit || input.signal !== null) return 124;
-  return input.published ? (input.code ?? 1) : 1;
+  return input.code ?? 1;
 }
 
 type SummaryTask = {

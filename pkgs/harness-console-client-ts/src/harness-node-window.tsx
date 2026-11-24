@@ -10,14 +10,8 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import {
-  type Accessor,
-  createMemo,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, Match, Show, Switch } from 'solid-js';
 import type {
   HarnessConsoleNav,
   PaneNavHistoryMode,

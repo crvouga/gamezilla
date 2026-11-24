@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * App-wide provider stack (outermost → innermost). Must sit under
  * `ClientEnvProvider` (`createClient(env)`).
@@ -19,7 +19,7 @@
  */
 
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';
 import { AppLocalDatabaseProvider } from './app-local-database-provider';

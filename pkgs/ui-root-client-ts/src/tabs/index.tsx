@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import {
   firstEnabledIndex,
   nextRovingIndex,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
-import { createSignal, createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import { spaced } from '../layout-classes';
 import { useLayoutMode } from '../use-layout-mode';
@@ -193,9 +194,9 @@ export function Tabs<V extends string = string>(
                 }
                 data-component={componentId('Tab')}
                 role="tab"
-                aria-selected={isSelected()}
+                aria-selected={isSelected() ? 'true' : 'false'}
                 aria-controls={panelId(index())}
-                tabIndex={isSelected() ? 0 : -1}
+                tabindex={isSelected() ? 0 : -1}
                 disabled={item.disabled === true}
                 onClick={() => select(item.value)}
                 onKeyDown={(event) => onTabKeyDown(event.currentTarget, event)}
@@ -233,7 +234,7 @@ export function Tabs<V extends string = string>(
             data-component={componentId('TabPanel')}
             role="tabpanel"
             aria-labelledby={tabId(index())}
-            tabIndex={0}
+            tabindex={0}
             hidden={item.value !== selected()}
           >
             <Show

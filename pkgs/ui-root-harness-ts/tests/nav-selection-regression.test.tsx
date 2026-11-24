@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Selecting a navigation item never moves the row: every label box is held
  * at its semibold width, whether or not it is the current item. The wide
@@ -10,7 +10,7 @@ import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
 import { HouseIcon, SearchIcon } from '@pkgs/ui-root-client-ts/icons';
 import { TabBar, type TabBarItem } from '@pkgs/ui-root-client-ts/tab-bar';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const WIDE = { width: 1440, height: 900 };
@@ -59,6 +59,7 @@ describe('navigation selection keeps the layout still', () => {
     expectReservedWidths(nav, ['Spaces', 'Search']);
     const before = labelBoxes(nav);
     setCurrent('search');
+    flush();
     expect(labelBoxes(nav)).toEqual(before);
   });
 
@@ -87,6 +88,7 @@ describe('navigation selection keeps the layout still', () => {
     expectReservedWidths(nav, ['Home', 'Search']);
     const before = labelBoxes(nav);
     setCurrent('search');
+    flush();
     expect(labelBoxes(nav)).toEqual(before);
   });
 });

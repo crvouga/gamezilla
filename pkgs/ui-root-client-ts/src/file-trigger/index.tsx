@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type FileTriggerProps = {
   /** Accessible name of the file input. */
@@ -45,7 +45,7 @@ export function FileTrigger(props: FileTriggerProps): JSX.Element {
         accept={props.accept}
         class="hidden"
         hidden
-        tabIndex={-1}
+        tabindex={-1}
         aria-label={props.label}
         data-testid={props.testId}
         data-component={componentId('FileTrigger')}

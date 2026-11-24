@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `mountApplication` -- how an app entry point puts its root component on
  * the page. It loads the design-system stylesheet and fonts, finds the mount element,
@@ -20,8 +20,7 @@
 
 import '../fonts';
 import '../application.css';
-import type { JSX } from 'solid-js';
-import { render } from 'solid-js/web';
+import { type JSX, render } from '@solidjs/web';
 
 export type MountOptions = {
   /** `id` of the mount element in the host page. Default `root`. */

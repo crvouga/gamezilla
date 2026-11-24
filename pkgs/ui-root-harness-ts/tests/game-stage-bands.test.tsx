@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 /**
@@ -104,11 +105,13 @@ describe('GameSessionLayout fixed stage', () => {
     );
     const before = mustQuery('[data-component="GameLayout"]');
     setOffline(true);
+    flush();
     expect(mustQuery('[data-component="GameLayout"]')).toBe(before);
     expect(
       document.querySelector('[data-component="GameStageNotices"]')
     ).not.toBeNull();
     setOffline(false);
+    flush();
     expect(
       document.querySelector('[data-component="GameStageNotices"]')
     ).toBeNull();

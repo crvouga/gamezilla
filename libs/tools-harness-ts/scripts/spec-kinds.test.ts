@@ -16,7 +16,6 @@ describe('specs/ layout', () => {
       'conformance.yaml',
       'product.machine.json',
       'journeys.yaml',
-      'atlas.yaml',
       'README.md',
     ]) {
       expect(specsRootEntryProblem(name, false)).toBeNull();

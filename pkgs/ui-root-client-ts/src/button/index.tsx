@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import type {
   ButtonFeedback,
   ButtonIntent,
@@ -144,7 +146,7 @@ export function Button(props: ButtonProps): JSX.Element {
       : undefined;
   return (
     <button
-      ref={(element) => bindElementTargets(element, props)}
+      ref={bindElementTargets(props)}
       class={`clickable clickableTint btn ${buttonClass({
         flex: props.flex,
         fullWidth: props.fullWidth === true,
@@ -163,11 +165,11 @@ export function Button(props: ButtonProps): JSX.Element {
       value={props.value}
       onClick={() => state().handleClick?.()}
       disabled={state().nonInteractive}
-      aria-busy={state().phase === 'loading' ? true : undefined}
+      aria-busy={state().phase === 'loading' ? 'true' : undefined}
       aria-label={props['aria-label']}
-      aria-pressed={props['aria-pressed']}
-      aria-current={props['aria-current']}
-      aria-expanded={props['aria-expanded']}
+      aria-pressed={ariaBoolean(props['aria-pressed'])}
+      aria-current={ariaBoolean(props['aria-current'])}
+      aria-expanded={ariaBoolean(props['aria-expanded'])}
       style={flexStyle()}
     >
       <span class="box shrink min-w-0 flex-row items-center justify-center overflow-hidden">

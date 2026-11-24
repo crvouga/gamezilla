@@ -13,8 +13,13 @@ import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useRandom } from '@pkgs/uuid-client-ts/solid';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  untrack,
+} from 'solid-js';
 import type { AvatarEditorScreenViewProps } from './avatar-editor-screen-view';
 import { useMyProfileId } from './patch-avatar-use-my-profile-id';
 import { useProfileRow } from './patch-avatar-use-profile-row';
@@ -44,27 +49,31 @@ function useDraftSync(args: {
   persisted: Accessor<AvatarConfig>;
   ready: Accessor<boolean>;
 }) {
-  const [draft, setDraft] = createSignal<AvatarConfig>(args.persisted());
+  // Seeds the draft shown before the saved avatar loads; the effect below
+  // adopts the saved one once it is ready and follows it from then on.
+  const [draft, setDraft] = createSignal<AvatarConfig>(untrack(args.persisted));
   const bootstrappedRef = { current: false };
   const lastPersistedRef = { current: null as AvatarConfig | null };
 
-  createEffect(() => {
-    const persisted = args.persisted();
-    if (!args.ready()) return;
-    const prev = lastPersistedRef.current;
-    if (!bootstrappedRef.current || prev === null) {
-      setDraft(persisted);
-      lastPersistedRef.current = persisted;
-      bootstrappedRef.current = true;
-      return;
+  createEffect(
+    () => ({ persisted: args.persisted(), ready: args.ready() }),
+    ({ persisted, ready }) => {
+      if (!ready) return;
+      const prev = lastPersistedRef.current;
+      if (!bootstrappedRef.current || prev === null) {
+        setDraft(persisted);
+        lastPersistedRef.current = persisted;
+        bootstrappedRef.current = true;
+        return;
+      }
+      if (!configsEqual(prev, persisted)) {
+        setDraft((current) =>
+          configsEqual(current, prev) ? persisted : current
+        );
+        lastPersistedRef.current = persisted;
+      }
     }
-    if (!configsEqual(prev, persisted)) {
-      setDraft((current) =>
-        configsEqual(current, prev) ? persisted : current
-      );
-      lastPersistedRef.current = persisted;
-    }
-  });
+  );
 
   return { draft, setDraft };
 }
@@ -75,11 +84,14 @@ const COPIED_HOLD_MS = 2000;
 function useSeedCopy(seed: Accessor<string>) {
   const timers = useTimers();
   const [copied, setCopied] = createSignal(false);
-  createEffect(() => {
-    if (!copied()) return;
-    const id = timers.setTimeout(() => setCopied(false), COPIED_HOLD_MS);
-    onCleanup(() => timers.clearTimeout(id));
-  });
+  createEffect(
+    () => copied(),
+    (isCopied) => {
+      if (!isCopied) return;
+      const id = timers.setTimeout(() => setCopied(false), COPIED_HOLD_MS);
+      return () => timers.clearTimeout(id);
+    }
+  );
   const copy = () => {
     void navigator.clipboard.writeText(seed()).then(() => setCopied(true));
   };

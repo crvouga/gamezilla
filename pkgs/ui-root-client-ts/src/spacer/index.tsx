@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { SpaceToken } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SpacerProps = {
   /** A fixed step along the main axis. Unset, the spacer grows. */

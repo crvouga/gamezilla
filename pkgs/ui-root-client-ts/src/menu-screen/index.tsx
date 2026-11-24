@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ContentScreen } from '../content-screen/index';
 import {
   type MenuSectionLayout,

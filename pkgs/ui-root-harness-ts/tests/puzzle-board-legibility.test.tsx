@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Puzzle boards read figure over ground, and lists keep their card's corners. */
 
 import { describe, expect, test } from 'bun:test';

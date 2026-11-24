@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { MiniPlayerDock } from '@pkgs/ui-root-client-ts/mini-player';
 import { ReturnToGame } from '@pkgs/ui-root-client-ts/return-to-game';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

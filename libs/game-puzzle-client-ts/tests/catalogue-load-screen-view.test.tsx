@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The catalogue loader's contract: which place holds which control, and
  * what each named state shows.
@@ -21,7 +21,8 @@ import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -413,6 +414,7 @@ describe('the confirmed stop', () => {
     fireEvent.click(screen.getByTestId('puzzle-load-stop'));
     expect(modal()).not.toBeNull();
     setSaving(false);
+    flush();
     expect(shown('puzzle-load-hub')).toBe(true);
     expect(modal()).toBeNull();
   });

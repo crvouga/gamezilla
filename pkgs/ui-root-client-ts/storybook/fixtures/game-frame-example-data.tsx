@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Sample tables for the game frame examples: up to eight seats of people,
  * bots, guests and open seats, with long names to exercise truncation.
@@ -11,7 +11,7 @@ import {
   type AvatarKind,
 } from '@pkgs/ui-root-client-ts/avatar';
 import type { GameSeatLook } from '@pkgs/ui-root-client-ts/game-seat-swatch';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type ExampleSeat = {
   id: string;

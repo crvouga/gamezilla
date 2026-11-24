@@ -1,0 +1,4 @@
+{
+  "summary": "A key pressed on a chessboard square in the same turn its focus arrived acted on the square the cursor had left, because the cursor only follows focus when updates settle; Enter then selected nothing.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/board-key-square.test.ts"
+}

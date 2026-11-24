@@ -11,7 +11,8 @@ import {
   useLocalSearchParams,
   useRouter,
 } from '@pkgs/ui-root-client-ts/app-router';
-import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show, untrack } from 'solid-js';
 import {
   PuzzleLinkScreenView,
   type PuzzleLinkStatus,

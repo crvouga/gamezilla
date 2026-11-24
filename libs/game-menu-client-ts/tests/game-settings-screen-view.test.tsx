@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** A settings group is a hub: rows that lead onward, or a word that none do. */
 import { expect, mock, test } from 'bun:test';
 import type { GameSettingsPlace } from '@libs/game-menu-client-ts/game-settings';

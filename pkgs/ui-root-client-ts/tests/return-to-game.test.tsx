@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The way back to an unfinished game: one command that goes there, docked
  * like the miniplayer or inline in place of a command it replaces.

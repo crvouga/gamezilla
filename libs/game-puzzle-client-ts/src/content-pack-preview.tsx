@@ -1,6 +1,6 @@
 import { workingContentDraft } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -9,7 +9,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPreview } from './content-preview';
 

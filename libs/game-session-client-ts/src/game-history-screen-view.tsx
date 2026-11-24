@@ -1,7 +1,7 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { t } from '@lingui/core/macro';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
@@ -16,15 +16,8 @@ import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Match, Show, Switch } from 'solid-js';
 import { FramePersonName } from './game-frame-people';
 import type { FramePeople } from './game-frame-view-types';
 

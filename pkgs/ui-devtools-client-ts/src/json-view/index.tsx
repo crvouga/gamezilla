@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonExpansionState,
   JsonPath,
@@ -23,8 +23,8 @@ import {
 } from '@pkgs/ui-root-client-ts/scroll-view';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import type { JsonViewCopy } from '../json-view-node/index';
 import { JsonViewNode } from '../json-view-node/index';
 import styles from './json-view.module.css';
@@ -110,62 +110,51 @@ function JsonViewLabel(props: { label: JSX.Element }): JSX.Element {
  * ```
  */
 export function JsonView(props: JsonViewProps): JSX.Element {
-  const [local] = splitProps(props, [
-    'value',
-    'initialExpandDepth',
-    'expandAllMaxDepth',
-    'label',
-    'hideToolbar',
-    'hideRowCopy',
-    'copy',
-    'maxHeight',
-    'class',
-    'style',
-    'dataSet',
-  ]);
-  const initialExpandDepth = () => local.initialExpandDepth ?? 1;
-  const expandAllMaxDepth = () => local.expandAllMaxDepth ?? 8;
+  const initialExpandDepth = () => props.initialExpandDepth ?? 1;
+  const expandAllMaxDepth = () => props.expandAllMaxDepth ?? 8;
   const exp = createJsonExpansion({
-    value: () => local.value,
+    value: () => props.value,
     initialExpandDepth,
     expandAllMaxDepth,
   });
   const rootIsContainer = createMemo(() =>
-    isContainer(classifyValue(local.value))
+    isContainer(classifyValue(props.value))
   );
-  const rowCopy = () => (local.hideRowCopy === true ? undefined : local.copy);
+  const rowCopy = () => (props.hideRowCopy === true ? undefined : props.copy);
 
   return (
     <div
-      class="box bg-surface-muted border border-border rounded-control"
-      classList={{ [String(local.class)]: true }}
-      style={local.style}
-      {...dataAttrs({ component: 'JsonView', ...local.dataSet })}
+      class={[
+        'box bg-surface-muted border border-border rounded-control',
+        props.class,
+      ]}
+      style={props.style}
+      {...dataAttrs({ component: 'JsonView', ...props.dataSet })}
     >
-      <Show when={local.label !== undefined}>
-        <JsonViewLabel label={local.label} />
+      <Show when={props.label !== undefined}>
+        <JsonViewLabel label={props.label} />
       </Show>
-      <Show when={local.hideToolbar !== true}>
+      <Show when={props.hideToolbar !== true}>
         <JsonViewToolbar
           rootIsContainer={rootIsContainer()}
           onExpandAll={exp.expandAll}
           onCollapseAll={exp.collapseAll}
           onReset={exp.reset}
-          copy={local.copy}
-          value={local.value}
+          copy={props.copy}
+          value={props.value}
         />
       </Show>
       <ScrollView
         role="tree"
         flushEdge={false}
         tone="surface"
-        maxHeight={local.maxHeight}
+        maxHeight={props.maxHeight}
         paddingY="sm"
         paddingX="md"
       >
         <JsonViewNode
           nodeKey={null}
-          value={local.value}
+          value={props.value}
           path={ROOT_PATH}
           depth={0}
           isExpanded={exp.isExpanded}
@@ -232,6 +221,7 @@ function ToolbarButton(props: {
   onClick: () => void;
   disabled?: boolean | undefined;
 }): JSX.Element {
+  const Icon = dynamic(() => props.icon);
   return (
     <button
       class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-11 rounded-sm"
@@ -241,16 +231,14 @@ function ToolbarButton(props: {
       disabled={props.disabled ?? false}
     >
       <Show when={props.icon}>
-        {(icon) => (
-          <div
-            class="box"
-            classList={{
-              [styles['rotated'] ?? '']: props.iconRotated === true,
-            }}
-          >
-            <Dynamic component={icon()} size={10} />
-          </div>
-        )}
+        <div
+          class={[
+            'box',
+            { [styles['rotated'] ?? '']: props.iconRotated === true },
+          ]}
+        >
+          <Icon size={10} />
+        </div>
       </Show>
       <p class="text textCaption text-tint">{props.label}</p>
     </button>

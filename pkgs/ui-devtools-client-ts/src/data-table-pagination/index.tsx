@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
-import { useLingui } from '@lingui/solid/macro';
+/** @jsxImportSource @solidjs/web */
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PaginationControls } from '@pkgs/ui-root-client-ts/pagination-controls';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /**
  * Controlled zero-based page navigation with a localized page count. Hidden when there are no rows; the caller owns loading the selected page.

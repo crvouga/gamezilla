@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `UnorderedList` / `OrderedList` / `ListEntry` -- list meaning for
  * arbitrary content: "these are N items, and here is each one". Like the
@@ -27,7 +27,7 @@
  */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SemanticListProps = {
   /** `ListEntry` children only. */

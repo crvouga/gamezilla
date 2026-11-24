@@ -1,10 +1,11 @@
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import type { ExportDownloadState } from './privacy-export-state';
 
 function ExportReady(props: {

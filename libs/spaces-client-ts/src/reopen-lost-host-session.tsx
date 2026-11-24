@@ -3,7 +3,7 @@ import { shouldEnterOwnLiveSpace } from '@libs/spaces-shared-ts/reopen-lost-host
 import { isViewerSpaceHost } from '@libs/spaces-shared-ts/resolve-space-presence';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createEffect } from 'solid-js';
+import { type Accessor, createEffect, createMemo } from 'solid-js';
 import { useSpacePresence } from './public-use-space-presence';
 import { useJoinSpace } from './use-join-space';
 
@@ -32,26 +32,29 @@ export function useReopenLostHostSession(spaceId: Accessor<string>): void {
     `
   );
 
-  createEffect(() => {
-    const id = spaceId();
+  const standing = createMemo((): 'active' | 'enter' | 'wait' => {
     const current = presence();
-    if (current.status === 'active') {
-      attemptedId = '';
-      return;
-    }
-    if (attemptedId === id) return;
-    if (current.status !== 'join' || current.ended) return;
+    if (current.status === 'active') return 'active';
+    if (current.status !== 'join' || current.ended) return 'wait';
     const space = host.rows()[0];
-    if (space === undefined || space.deleted_at !== null) return;
-    if (
-      !shouldEnterOwnLiveSpace({
-        isHost: isViewerSpaceHost(space, myId()),
-        spaceEnded: space.ended_at !== null,
-      })
-    ) {
-      return;
-    }
-    attemptedId = id;
-    void joinSpace(id).catch(() => undefined);
+    if (space === undefined || space.deleted_at !== null) return 'wait';
+    const enter = shouldEnterOwnLiveSpace({
+      isHost: isViewerSpaceHost(space, myId()),
+      spaceEnded: space.ended_at !== null,
+    });
+    return enter ? 'enter' : 'wait';
   });
+
+  createEffect(
+    () => ({ id: spaceId(), standing: standing() }),
+    (now) => {
+      if (now.standing === 'active') {
+        attemptedId = '';
+        return;
+      }
+      if (now.standing !== 'enter' || attemptedId === now.id) return;
+      attemptedId = now.id;
+      void joinSpace(now.id).catch(() => undefined);
+    }
+  );
 }

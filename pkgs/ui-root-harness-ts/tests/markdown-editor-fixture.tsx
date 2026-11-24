@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect } from 'bun:test';
 import { MarkdownEditor } from '@pkgs/ui-root-client-ts/markdown-editor';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 export function editor() {
@@ -32,6 +32,7 @@ export function formatAndUndo(
   text: string
 ): void {
   mounted.setValue(text);
+  flush();
   fireEvent.click(mounted.heading);
   expect(mounted.field.querySelector('h2')?.textContent).toBe(text);
   expect(mounted.value()).toBe(`## ${text}`);

@@ -3,7 +3,8 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 import {
   ScreenExampleSetup,

@@ -4,7 +4,7 @@ import { contentDraftProof } from '@libs/game-puzzle-shared-ts/content-proof';
 import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
 import { publishPuzzleContentMutation } from '@libs/game-puzzle-shared-ts/publish-content-mutation';
 import { validatePuzzleContentDraftMutation } from '@libs/game-puzzle-shared-ts/validate-content-mutation';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';

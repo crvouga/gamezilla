@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more/sync` — local database + sync engine state from the shell's
  * `SyncStatusContext`; "Retry sync" re-runs the engine's query refresh.
@@ -8,7 +8,7 @@
 
 import { OtherRefusedChanges } from '@libs/app-env-client-ts/refused-change-notice';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { SyncScreenView } from './sync-screen-view';
 import { useSyncStatus } from './sync-status-context';
 

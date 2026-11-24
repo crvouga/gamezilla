@@ -375,7 +375,7 @@ New packages are wired like any other package; each omission fails a check:
 | A client package using Lingui macros in `LINGUI_CATALOG_SOURCES` (`libs/tools-harness-ts/scripts/lingui-scope.ts`) and the `@libs/tools-harness-ts#ci:i18n` inputs | the package's `lint`, `ci-i18n.test.ts` |
 | Solid lint scope (`libs/tools-harness-ts/port/solid-scope.json`) | the package's `lint` |
 | `specs/race/` listed in `specs/conformance.yaml` contexts and the context map (`specs/README.md`) | `@libs/tools-harness-ts#ci:conformance`, `bun spec:verify` |
-| A harness running `specs/race/` declares `specDomains`, `specParts` and its parts in `apps/product-ts/scripts/ui-quality/sources.json` | `ui-quality-graph.test.ts`, `ci-load.test.ts` |
+| A harness running `specs/race/` declares `specDomains`, `specParts` and its parts | `ci-load.test.ts` |
 
 A game's own Gherkin parameter types join `libs/harness-ts/src/parameter-types.ts`.
 

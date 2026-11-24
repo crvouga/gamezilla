@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Command palette, banners, and in-session chrome. Overlay /
  * surface-stack hosts live in `AppUiPortals` (outer shell) so `AppFrame`
@@ -25,7 +25,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { CommandPalette } from '@pkgs/ui-root-client-ts/command-palette';
 import { CommandRegistryProvider } from '@pkgs/ui-root-client-ts/command-registry-context';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { AppCommands } from './app-commands';
 import { AppUpdateRequiredBanner } from './app-update-required';
 import { useEmbeddedApp } from './embedded-app-context';

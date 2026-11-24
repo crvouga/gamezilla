@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Local sync umbrella: identity-scoped SQLite boot (`shell/sync/sync-engine-boot.tsx`).
  *
@@ -6,7 +6,7 @@
  * so `@pkgs/sync-engine/solid` stays off the shell entry chunk.
  */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { SyncEngineBoot } from './sync-engine-boot';
 
 export function AppLocalDatabaseProvider(props: {

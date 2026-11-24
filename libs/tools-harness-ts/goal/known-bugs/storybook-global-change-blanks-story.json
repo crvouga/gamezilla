@@ -1,0 +1,4 @@
+{
+  "summary": "Changing a Storybook toolbar global (background, measure, outline) emptied the story: the renderer re-ran the mounted story because an addon decorator had read the global while it rendered, and a re-run returns nothing.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/untracked-story.test.ts"
+}

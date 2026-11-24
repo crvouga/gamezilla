@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import type { JunitCase } from '@crvouga/atlas/reports/junit';
+import type { JunitCase } from '@libs/harness-ts/junit-cases';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 
@@ -16,9 +16,6 @@ test('failed JUnit cases become deterministic exact-name traces', () => {
   const cases = [
     {
       file: 'tests/harness/example.test.ts',
-      classname: 'example',
-      suite: 'harness',
-      time: 0,
       name: 'offline edits converge',
       line: 12,
       status: 'failed' as const,
@@ -40,9 +37,6 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
   const cases = [
     {
       file: 'tests/harness/example.test.ts',
-      classname: 'example',
-      suite: 'harness',
-      time: 0,
       name: 'passes',
       line: 1,
       status: 'passed' as const,
@@ -50,9 +44,6 @@ test('passed and skipped JUnit cases do not create failure traces', () => {
     },
     {
       file: 'tests/harness/example.test.ts',
-      classname: 'example',
-      suite: 'harness',
-      time: 0,
       name: 'skips',
       line: 2,
       status: 'skipped' as const,

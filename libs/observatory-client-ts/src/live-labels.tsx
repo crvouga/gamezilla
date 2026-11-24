@@ -3,7 +3,7 @@ import type {
   LiveKind,
   LivePlace,
 } from '@libs/observatory-shared-ts/live-session';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 
 /** What a row of those online now says about one of them. */
 export type LiveDescription = {

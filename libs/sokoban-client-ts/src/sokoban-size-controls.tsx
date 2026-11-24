@@ -1,11 +1,12 @@
 import type { SokobanBoard } from '@libs/sokoban-shared-ts/sokoban-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DisclosureCard } from '@pkgs/ui-root-client-ts/disclosure-card';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createEffect, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 /**
  * The board's size, set once and then out of the way: one closed line
@@ -20,12 +21,9 @@ export function SokobanSizeControls(props: {
 }): JSX.Element {
   const { t } = useLingui();
   const mode = useLayoutMode();
-  const [columns, setColumns] = createSignal('');
-  const [rows, setRows] = createSignal('');
-  createEffect(() => {
-    setColumns(String(props.board.width));
-    setRows(String(props.board.height));
-  });
+  // The fields show the board's size again whenever the board changes.
+  const [columns, setColumns] = createSignal(() => String(props.board.width));
+  const [rows, setRows] = createSignal(() => String(props.board.height));
   const whole = (text: string): number =>
     /^\d{1,3}$/.test(text.trim()) ? Number(text.trim()) : Number.NaN;
   return (
@@ -39,9 +37,9 @@ export function SokobanSizeControls(props: {
         <TextInput
           grow
           label={t`Columns`}
-          inputMode="numeric"
+          inputmode="numeric"
           value={columns()}
-          maxLength={3}
+          maxlength={3}
           disabled={props.disabled}
           onChangeText={setColumns}
           dataSet={{ testid: 'sokoban-columns' }}
@@ -49,9 +47,9 @@ export function SokobanSizeControls(props: {
         <TextInput
           grow
           label={t`Rows`}
-          inputMode="numeric"
+          inputmode="numeric"
           value={rows()}
-          maxLength={3}
+          maxlength={3}
           disabled={props.disabled}
           onChangeText={setRows}
           dataSet={{ testid: 'sokoban-rows' }}

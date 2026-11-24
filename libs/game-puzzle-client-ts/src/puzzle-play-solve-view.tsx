@@ -1,11 +1,12 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';

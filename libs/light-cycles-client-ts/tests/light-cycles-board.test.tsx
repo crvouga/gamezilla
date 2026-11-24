@@ -12,7 +12,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -56,7 +56,10 @@ function board(sides: readonly GameSide[], initial: LightCyclesState) {
       />
     </ThemeProvider>
   ));
-  const set = (state: LightCyclesState) => setPosition(trio.encode(state));
+  const set = (state: LightCyclesState) => {
+    setPosition(trio.encode(state));
+    flush();
+  };
   return { ...view, inputs, set, setStale };
 }
 
@@ -185,6 +188,7 @@ test('a crashed rider, a round result and a lost connection each refuse steering
     );
   view.set(running(start));
   view.setStale(true);
+  flush();
   expect(view.getByTestId('arena-status').dataset['steering']).toBe('away');
   // regression: light-cycles-reconnecting-arena-looks-live
   expect(view.getByTestId('arena-arena').dataset['dimmed']).toBe('true');
@@ -192,6 +196,7 @@ test('a crashed rider, a round result and a lost connection each refuse steering
   expect(overlay.dataset['open']).toBe('true');
   expect(overlay.textContent).toContain('Reconnecting');
   view.setStale(false);
+  flush();
   expect(view.getByTestId('arena-arena').dataset['dimmed']).toBe('false');
   expect(view.getByTestId('arena-arena-overlay').dataset['open']).toBe('false');
 });

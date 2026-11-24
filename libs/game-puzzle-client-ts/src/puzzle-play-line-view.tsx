@@ -1,7 +1,8 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
 import { PuzzleMoveHistory } from './puzzle-move-history';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';

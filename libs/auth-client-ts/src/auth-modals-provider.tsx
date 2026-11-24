@@ -5,14 +5,13 @@ import {
 import type { SignInOptions } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  on,
   useContext,
 } from 'solid-js';
 import { useConfigService } from './config-service-context';
@@ -73,7 +72,7 @@ export function AuthModalsProvider(props: {
   };
 
   return (
-    <Ctx.Provider value={value}>
+    <Ctx value={value}>
       {props.children}
       <SignInModal
         visible={connection.visible()}
@@ -87,7 +86,7 @@ export function AuthModalsProvider(props: {
         onError={connection.onError}
       />
       {signOutConfirm.modal}
-    </Ctx.Provider>
+    </Ctx>
   );
 }
 
@@ -109,13 +108,11 @@ function useSignInModalConnection(args: {
   const resumePending = createMemo(() => isHydrated() && pending() !== null);
 
   createEffect(
-    on(
-      resumePending,
-      (value) => {
-        if (value) args.openSignInModal();
-      },
-      { defer: true }
-    )
+    () => resumePending(),
+    (value) => {
+      if (value) args.openSignInModal();
+    },
+    { defer: true }
   );
 
   const onError = (err: Error) => {
@@ -158,13 +155,7 @@ function useSignInModalConnection(args: {
 }
 
 export function useAuthModals(): AuthModals {
-  const v = useContext(Ctx);
-  if (v === undefined) {
-    throw new Error(
-      'useAuthModals: AuthModalsProvider missing — wrap with AppProviders'
-    );
-  }
-  return v;
+  return useContext(Ctx);
 }
 
 /**

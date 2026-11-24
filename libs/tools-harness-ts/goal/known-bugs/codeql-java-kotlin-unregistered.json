@@ -1,0 +1,4 @@
+{
+  "summary": "PR 560 run 45357897716 rejected the successful Analyze (java-kotlin) check from GitHub Actions (app 15368) because the repository registry lacked its context.",
+  "regressionTest": "libs/tools-harness-ts/scripts/codeql-required-checks.test.ts"
+}

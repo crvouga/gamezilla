@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The signed-in person's face for the shell's stories. In the product the
  * profile sub publishes it (a DiceBear face drawn from the person's avatar
@@ -10,7 +10,7 @@ import { funEmoji } from '@dicebear/collection';
 import { createAvatar } from '@dicebear/core';
 import type { GlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-identity-context';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Avery's default face, at `size`: the same seed and the expression the

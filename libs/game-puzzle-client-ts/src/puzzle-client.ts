@@ -12,7 +12,8 @@ import type { SolveStatus } from '@libs/game-puzzle-shared-ts/solve-status';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { PuzzleMarks } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 
 /** What the board marks on its cells. */
 export type PuzzleBoardMarks = {

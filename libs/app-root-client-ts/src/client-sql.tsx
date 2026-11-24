@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { NotebookStoreProvider } from '@pkgs/harness-console-client-ts/notebook-store-context';
 import { SqlNotebookPane } from '@pkgs/harness-console-client-ts/sql-notebook-pane';
 import { useSqlClient } from '@pkgs/sql-client-root-client-ts/solid';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ClientSqlScreenView } from './client-sql-screen-view';
 
 export default function ClientSqlRoute(): JSX.Element {

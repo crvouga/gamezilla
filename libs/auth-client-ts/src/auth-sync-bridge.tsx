@@ -1,6 +1,7 @@
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, type JSX, on, type ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, type ParentProps } from 'solid-js';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
 /**
@@ -13,17 +14,15 @@ export function AuthSyncBridge(props: ParentProps): JSX.Element {
   const engine = useSyncEngineInstance();
   const log = useLogger('auth-sync');
   createEffect(
-    on(
-      token,
-      () => {
-        void engine.refreshQueries().catch((error: unknown) =>
-          log.error('session query refresh failed', {
-            error: error instanceof Error ? error.message : String(error),
-          })
-        );
-      },
-      { defer: true }
-    )
+    () => token(),
+    () => {
+      void engine.refreshQueries().catch((error: unknown) =>
+        log.error('session query refresh failed', {
+          error: error instanceof Error ? error.message : String(error),
+        })
+      );
+    },
+    { defer: true }
   );
   return <>{props.children}</>;
 }

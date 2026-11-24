@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { reportSolidBoundaryError } from '@libs/app-env-client-ts/browser-boundaries';
 import {
@@ -9,12 +9,12 @@ import {
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { requestBugReport } from '@pkgs/feedback-client-ts/request-bug-report';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createSignal,
-  type JSX,
   onCleanup,
-  onMount,
+  onSettled,
   untrack,
 } from 'solid-js';
 import type { CrashCopyPhase } from './crash-copy-button';
@@ -43,7 +43,7 @@ function useCrashTrace(error: () => Error): () => string | undefined {
   onCleanup(() => {
     mounted = false;
   });
-  onMount(() => {
+  onSettled(() => {
     const exception = untrack(error);
     try {
       const id = reportSolidBoundaryError(exception);
@@ -66,11 +66,14 @@ function useCrashCopy(copyError: (text: string) => Promise<void>): {
   onCleanup(() => {
     mounted = false;
   });
-  createEffect(() => {
-    if (phase() !== 'copied') return;
-    const handle = timers.setTimeout(() => setPhase('idle'), COPIED_HOLD_MS);
-    onCleanup(() => timers.clearTimeout(handle));
-  });
+  createEffect(
+    () => phase(),
+    (current) => {
+      if (current !== 'copied') return;
+      const handle = timers.setTimeout(() => setPhase('idle'), COPIED_HOLD_MS);
+      return () => timers.clearTimeout(handle);
+    }
+  );
   const copy = async (text: string): Promise<void> => {
     setPhase('pending');
     try {

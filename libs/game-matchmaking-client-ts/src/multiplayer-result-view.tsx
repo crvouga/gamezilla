@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   StageOverlay,
   StageOverlayEvent,
@@ -11,7 +11,8 @@ import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
 import type {
   MultiplayerGameCommands,

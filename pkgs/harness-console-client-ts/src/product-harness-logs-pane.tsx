@@ -3,7 +3,8 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { LogLine } from '@pkgs/ui-root-client-ts/log-line';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
+import { createLiveReading } from './live-reading';
 
 /**
  * Live reverse-chrono log list backed by a product-harness ring buffer.
@@ -11,13 +12,12 @@ import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
 export function ProductHarnessLogsPane(props: {
   readonly logs: ProductHarnessLogBuffer;
 }) {
-  const [entries, setEntries] = createSignal(props.logs.snapshot());
-
-  createEffect(() => {
+  const entries = createLiveReading(() => {
     const logs = props.logs;
-    setEntries(logs.snapshot());
-    const unsub = logs.subscribe(() => setEntries(logs.snapshot()));
-    onCleanup(unsub);
+    return {
+      read: () => logs.snapshot(),
+      subscribe: (listener) => logs.subscribe(listener),
+    };
   });
 
   const newestFirst = () => [...entries()].reverse();

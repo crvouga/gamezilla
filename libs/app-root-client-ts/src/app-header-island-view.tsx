@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { isAppTabActive } from '@libs/app-root-shared-ts/is-app-tab-active';
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import type { AppHeaderIslandItem } from '@pkgs/ui-root-client-ts/app-header-island-types';
 import { AppLogo } from '@pkgs/ui-root-client-ts/app-logo';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { AppTabSpec } from './app-tabs';
 
 const LOGO_SIZE = 24;

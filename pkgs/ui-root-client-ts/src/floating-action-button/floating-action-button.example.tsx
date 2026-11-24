@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { FloatingActionButton } from '@pkgs/ui-root-client-ts/floating-action-button';
 import { PlusIcon, SquarePenIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

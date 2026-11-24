@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ChipGroupOption } from '@pkgs/ui-root-client-ts/chip-group';
 import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

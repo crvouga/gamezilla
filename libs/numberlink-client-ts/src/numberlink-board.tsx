@@ -3,12 +3,13 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   PathGridBoard,
   type PathGridBoardProps,
 } from '@pkgs/ui-root-client-ts/path-grid-board';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 
 type NumberlinkBoardProps = Pick<
   PathGridBoardProps,
@@ -49,7 +50,6 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
   // Equal membership keeps endpoints and statuses still while a path grows.
   const connected = createMemo(
     () => new Set(connectedPairs(props.definition, props.state)),
-    new Set<string>(),
     { equals: sameMembers }
   );
   const endpoints = createMemo(() =>

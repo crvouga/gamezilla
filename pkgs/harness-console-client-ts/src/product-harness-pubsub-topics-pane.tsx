@@ -4,8 +4,12 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { InspectorRow, InspectorSection } from './inspector-row';
+import { createLiveReading, subscribeWithPolling } from './live-reading';
+
+/** How often a node is read again without being told it changed. */
+const POLL_MS = 500;
 
 /**
  * Live pubsub topic inventory across in-memory bus peers.
@@ -15,18 +19,12 @@ export function ProductHarnessPubSubTopicsPane(props: {
   readonly subscribe: (listener: () => void) => () => void;
 }) {
   const timers = useTimers();
-  const [stats, setStats] = createSignal(props.pubsub.listTopicStats());
-
-  createEffect(() => {
-    const { pubsub, subscribe } = props;
-    const refresh = () => setStats(pubsub.listTopicStats());
-    refresh();
-    const unsub = subscribe(refresh);
-    const handle = timers.setInterval(refresh, 500);
-    onCleanup(() => {
-      unsub();
-      timers.clearInterval(handle);
-    });
+  const stats = createLiveReading(() => {
+    const pubsub = props.pubsub;
+    return {
+      read: () => pubsub.listTopicStats(),
+      subscribe: subscribeWithPolling(props.subscribe, timers, POLL_MS),
+    };
   });
 
   return (

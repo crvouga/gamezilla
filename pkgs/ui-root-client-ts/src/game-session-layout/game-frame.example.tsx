@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -26,7 +26,8 @@ import {
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, For, type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Match, Switch } from 'solid-js';
 import {
   exampleAvatar,
   exampleSeats,

@@ -1,0 +1,26 @@
+{
+  "name": "@pkgs/lingui-solid-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./macro": "./src/macro.ts",
+    "./runtime": "./src/runtime.tsx"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@lingui/core": "catalog:",
+    "@pkgs/i18n-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "language": "typescript"
+}

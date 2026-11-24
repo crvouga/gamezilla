@@ -3,7 +3,7 @@ import {
   SYNTHETIC_USERS_PATH,
   syntheticUserPath,
 } from '@libs/observatory-shared-ts/observatory-routes';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
 import type {
   ScreenBaseAction,

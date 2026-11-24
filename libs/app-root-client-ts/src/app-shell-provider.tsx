@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Platform shell. Sits under `ClientEnvProvider` and `AppThemeProvider`.
  *
@@ -14,14 +14,14 @@
 
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { i18n } from '@libs/app-root-shared-ts/i18n';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   AudioPlaybackProvider,
   SoundEngineProvider,
   SoundsPreferenceProvider,
 } from '@pkgs/sounds-client-ts/solid';
 import { SpinnerProvider } from '@pkgs/ui-root-client-ts/spinner-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { DevicePortsProvider } from './device-ports-context';
 import { PerfRoot } from './perf-root';
 

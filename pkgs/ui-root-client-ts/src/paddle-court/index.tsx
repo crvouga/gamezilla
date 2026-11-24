@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, Index, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 import {
   type CourtControls,
@@ -255,14 +256,16 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
       <Scoreboard {...props} />
       <div class={styles['stage']}>
         <div
-          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
           ref={court}
           class={styles['court']}
-          data-interactive={props.enabled && props.controlled.length > 0}
+          data-interactive={String(
+            props.enabled && props.controlled.length > 0
+          )}
+          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
           role="application"
           aria-label={props.label}
           aria-describedby={props.instructionsId}
-          tabIndex={props.enabled && props.controlled.length > 0 ? 0 : -1}
+          tabindex={props.enabled && props.controlled.length > 0 ? 0 : -1}
           onKeyDown={input.keyDown}
           onKeyUp={input.keyUp}
           onBlur={() => input.release()}
@@ -289,21 +292,23 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
               cy={props.height / 2}
               r={props.height * 0.14}
             />
-            <Index each={props.paddles}>
+            <For keyed={false} each={props.paddles}>
               {(paddle) => (
                 <rect
                   class={styles['paddle']}
                   data-side={paddle().side}
                   data-color={paddle().color}
                   data-testid={`${props.testId}-${paddle().side}-paddle`}
-                  data-controlled={props.controlled.includes(paddle().side)}
+                  data-controlled={String(
+                    props.controlled.includes(paddle().side)
+                  )}
                   x={paddle().x - (paddle().width * PADDLE_DRAWN_SCALE) / 2}
                   y={paddle().y - paddle().height / 2}
                   width={paddle().width * PADDLE_DRAWN_SCALE}
                   height={paddle().height}
                 />
               )}
-            </Index>
+            </For>
             <circle
               class={styles['ball']}
               data-testid={`${props.testId}-ball`}

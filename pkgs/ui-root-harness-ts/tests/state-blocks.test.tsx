@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The state blocks and the screen's sticky primary action: an empty state
  * invites, an error says what to do and offers the retry, a skeleton takes

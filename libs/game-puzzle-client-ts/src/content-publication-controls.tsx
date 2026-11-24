@@ -4,7 +4,8 @@ import type {
 } from '@libs/game-puzzle-shared-ts/content-types';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 import { ContentPublicationControlsView } from './content-publication-controls-view';
 import type { ContentAuthorPublication } from './use-content-author-publication';
 import { useDeniedView } from './use-denied-view';

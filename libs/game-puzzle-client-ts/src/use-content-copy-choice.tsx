@@ -3,7 +3,7 @@ import type {
   ContentDocument,
   ContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal } from 'solid-js';

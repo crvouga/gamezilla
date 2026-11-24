@@ -3,7 +3,8 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 
 export default function ProfileScreenLayoutExample(): JSX.Element {

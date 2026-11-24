@@ -9,7 +9,8 @@ import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client-ts/use-space-room-selector';
 import { t } from '@lingui/core/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { createComputed, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, untrack } from 'solid-js';
 import { PUZZLE_SCREEN } from './puzzle-screens';
 import {
   PUZZLE_STATS_PLACES,
@@ -40,10 +41,10 @@ export function PuzzleStatsScreen(props: {
   );
   const nav = useScreenPlace(PUZZLE_STATS_PLACES, stage);
   // Back from a review opened here: the log it was opened from.
-  createComputed(() => {
-    if (stage() !== 'ready' || returning?.toLog !== true) return;
+  createEffect(stage, (current) => {
+    if (current !== 'ready' || returning?.toLog !== true) return;
     returning.toLog = false;
-    nav.open({ screen: 'log' });
+    untrack(() => nav.open({ screen: 'log' }));
   });
   const atHome = (): boolean => nav.place().screen === 'summary';
 

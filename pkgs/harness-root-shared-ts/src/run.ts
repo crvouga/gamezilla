@@ -1,5 +1,3 @@
-import type { RunReportOptions } from '@crvouga/atlas/reports/report-types';
-import { resolveReportOptions } from '@crvouga/atlas/reports/report-types';
 import type { MonitorState, Transition } from './checkpoint';
 import {
   assertProperty,
@@ -9,14 +7,12 @@ import {
   observeRead,
   resumeMonitors,
 } from './checkpoint';
-import type { CatalogSnapshot } from './define-snapshot';
 import type { Action, CatalogProperty, Property, Read } from './effect';
 import { popMemoFrame, pushMemoFrame } from './memo';
 import { ActionNotEnabled } from './probe';
 import type { Step } from './recording';
 import type { RuntimeOption, SystemCore as System } from './registry';
 import { getSystemRegistry, resolveRuntime } from './registry';
-import { RunReporter } from './reporter';
 import type { Rng } from './rng';
 import type { Run, RunInternal } from './run-types';
 import { setRunInternal } from './run-types';
@@ -30,11 +26,6 @@ export type RunOptions<_S, Args = void> = {
   readonly seed: number | bigint | string;
   /** Runtime name or inline RuntimeDef. Omit → system default runtime. */
   readonly runtime?: RuntimeOption;
-  /**
-   * Timeline reporting. Default off.
-   * Pass `true` for in-memory only, or `{ store, testId, … }` to persist.
-   */
-  readonly report?: boolean | RunReportOptions;
 } & ArgsOption<Args>;
 
 const ELAPSE_ACTION = 'elapse';
@@ -186,35 +177,17 @@ async function applyAction<S>(
   }
   if (!enabled) throw new ActionNotEnabled(action.name);
 
-  const doCheckpoint = () =>
-    runCheckpoint(internal, action.name, resolved, (surf, ...a) =>
-      action.act(surf, ...(a as never[]))
-    );
-
-  const reporter = internal.reporter;
-  if (reporter !== null && reporter.shouldCaptureApply && action.report) {
-    await reporter.recordApply({
-      action: action.name,
-      applyArgs: resolved,
-      describe: action.describe,
-      run: doCheckpoint,
-    });
-    return;
-  }
-  await doCheckpoint();
+  await runCheckpoint(internal, action.name, resolved, (surf, ...a) =>
+    action.act(surf, ...(a as never[]))
+  );
 }
 
 async function disposeRun(
   monitors: MonitorState[],
   surface: unknown,
-  reporter: RunReporter | null,
   session: Session
 ): Promise<void> {
   const endViolations = await disposeMonitors(monitors, surface);
-  if (reporter !== null) {
-    if (endViolations.length > 0) reporter.markFailed(endViolations[0]);
-    await reporter.flush();
-  }
   await session.dispose();
   if (endViolations.length > 0) throw endViolations[0]!;
 }
@@ -227,7 +200,6 @@ function buildRun<S>(args: {
   readonly runtimeName: string;
   readonly monitors: MonitorState[];
   readonly actionRng: Rng;
-  readonly reporter: RunReporter | null;
 }): Run<S> {
   const transitions: Transition[] = [];
   const steps: Step[] = [];
@@ -241,7 +213,6 @@ function buildRun<S>(args: {
     monitors: args.monitors,
     transitions,
     steps,
-    reporter: args.reporter,
     rng: args.actionRng,
     step: 0,
   };
@@ -266,7 +237,6 @@ function buildRun<S>(args: {
       await assertProperty(p, args.surface, internal.step);
     },
     async advanceTime(ms) {
-      // Never opens a report step (avoids poll spam during until/expect).
       await runCheckpoint(internal, ELAPSE_ACTION, [ms], async () => {
         await args.session.advanceTime(ms);
       });
@@ -278,27 +248,8 @@ function buildRun<S>(args: {
       const { randomActions } = await import('./random-actions');
       return randomActions(s, opts ?? {});
     },
-    async record(meta, fn) {
-      const reporter = internal.reporter;
-      if (reporter === null) return fn();
-      let result!: Awaited<ReturnType<typeof fn>>;
-      await reporter.record(meta, async () => {
-        result = await fn();
-      });
-      return result;
-    },
-    fail(cause) {
-      internal.reporter?.markFailed(cause);
-    },
-    async snapshot() {
-      if (internal.reporter === null) return;
-      await internal.reporter.snapshot();
-    },
-    report() {
-      return internal.reporter?.toReport() ?? null;
-    },
     [Symbol.asyncDispose]: () =>
-      disposeRun(args.monitors, args.surface, internal.reporter, args.session),
+      disposeRun(args.monitors, args.surface, args.session),
   };
   setRunInternal(s, internal);
   return s;
@@ -337,20 +288,6 @@ export async function run<S, Args = void>(
     popMemoFrame();
   }
 
-  const reportOpts = resolveReportOptions(opts.report);
-  const reporter =
-    reportOpts === null
-      ? null
-      : new RunReporter({
-          system: system.name,
-          runtime: runtimeName,
-          seed: String(opts.seed),
-          options: reportOpts,
-          snapshots: registry.snapshots as readonly CatalogSnapshot<unknown>[],
-          surface,
-          sessionNow: () => session.ports.clock.now(),
-        });
-
   return buildRun({
     surface,
     session,
@@ -359,6 +296,5 @@ export async function run<S, Args = void>(
     runtimeName,
     monitors,
     actionRng: session.ports.rng.fork('actions'),
-    reporter,
   });
 }

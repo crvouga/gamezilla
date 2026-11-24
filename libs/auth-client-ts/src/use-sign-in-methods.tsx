@@ -1,16 +1,15 @@
-import { useLingui } from '@lingui/solid/macro';
 import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
-  on,
 } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';
 import { authFlowErrorMessage } from './auth-flow-messages';
@@ -63,9 +62,10 @@ export function useSignInMethods(signedIn: Accessor<boolean>): SignInMethods {
   // opens the provider straight from the gesture (no network wait a popup
   // blocker would punish).
   createEffect(
-    on(signedIn, (isSignedIn) => {
+    () => signedIn(),
+    (isSignedIn) => {
       if (isSignedIn) void port.prepareLink().catch(() => undefined);
-    })
+    }
   );
   const unlink = async (): Promise<void> => {
     const provider = removing();

@@ -3,6 +3,7 @@ import { PongLiveRally } from '@libs/pong-client-ts/pong-live-rally.example';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { render } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 
 // regression: pong-live-story-reencodes-position-per-reader
 test('live court readers share one encoding per rendered position', () => {
@@ -37,6 +38,7 @@ test('live court readers share one encoding per rendered position', () => {
     const callbacks = [...frames.values()];
     frames.clear();
     for (const callback of callbacks) callback(time);
+    flush();
   };
   try {
     const initial = readConsumers();

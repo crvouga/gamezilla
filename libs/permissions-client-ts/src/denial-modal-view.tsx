@@ -5,7 +5,8 @@ import {
   ModalFooter,
 } from '@pkgs/ui-root-client-ts/modal-parts';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { DenialView } from './denial-surface-view';
 
 export type DenialModalViewProps = {

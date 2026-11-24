@@ -26,8 +26,7 @@ const BILLING_LIFECYCLE_SYSTEM = defineProductSystem(
 );
 
 export function openLifecycleHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(BILLING_LIFECYCLE_SYSTEM, testId, options);
+  return openSystemHarness(BILLING_LIFECYCLE_SYSTEM, options);
 }

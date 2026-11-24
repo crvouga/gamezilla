@@ -2,7 +2,7 @@ import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { SYNTHETIC_POPULATION_TOPIC } from '@libs/synthetic-population-shared-ts/synthetic-population-topic';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
-import { createEffect, onCleanup } from 'solid-js';
+import { createEffect } from 'solid-js';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 
 /**
@@ -16,42 +16,44 @@ export function useSyntheticPopulationUpdates(
   const env = useClientEnv();
   const config = useClientConfig();
   const api = useSyntheticPopulationApi();
-  createEffect(() => {
-    const url = config.config().emqx_wss_url;
-    if (!url) return;
-    const pubsub = env.createPubSub({
-      url,
-      clientIdPrefix: 'synthetic-population-observation',
-      timers: env.timers,
-      random: env.random,
-      logger: createLogger({
-        name: 'synthetic-population-observation',
-        now: env.clock.now,
-      }),
-      auth: () => api.subscriptionCredentials(),
-    });
-    if (pubsub === null) return;
-    let timer: unknown;
-    const invalidate = () => {
-      if (timer !== undefined) return;
-      timer = env.timers.setTimeout(() => {
-        timer = undefined;
-        void refresh();
-      }, delayMs);
-    };
-    const unsubscribe = pubsub.subscribe(SYNTHETIC_POPULATION_TOPIC, () =>
-      invalidate()
-    );
-    const status = pubsub.onStatus((value) => {
-      if (value === 'connected') invalidate();
-    });
-    onCleanup(() => {
-      env.timers.clearTimeout(timer);
-      unsubscribe();
-      status();
-      pubsub.close();
-    });
-  });
+  createEffect(
+    () => config.config().emqx_wss_url,
+    (url) => {
+      if (!url) return;
+      const pubsub = env.createPubSub({
+        url,
+        clientIdPrefix: 'synthetic-population-observation',
+        timers: env.timers,
+        random: env.random,
+        logger: createLogger({
+          name: 'synthetic-population-observation',
+          now: env.clock.now,
+        }),
+        auth: () => api.subscriptionCredentials(),
+      });
+      if (pubsub === null) return;
+      let timer: unknown;
+      const invalidate = () => {
+        if (timer !== undefined) return;
+        timer = env.timers.setTimeout(() => {
+          timer = undefined;
+          void refresh();
+        }, delayMs);
+      };
+      const unsubscribe = pubsub.subscribe(SYNTHETIC_POPULATION_TOPIC, () =>
+        invalidate()
+      );
+      const status = pubsub.onStatus((value) => {
+        if (value === 'connected') invalidate();
+      });
+      return () => {
+        env.timers.clearTimeout(timer);
+        unsubscribe();
+        status();
+        pubsub.close();
+      };
+    }
+  );
 }
 
 /**
@@ -64,9 +66,12 @@ export function useRefreshWithoutUpdates(
 ): void {
   const env = useClientEnv();
   const config = useClientConfig();
-  createEffect(() => {
-    if (config.config().emqx_wss_url) return;
-    const id = env.timers.setInterval(() => void refresh(), everyMs);
-    onCleanup(() => env.timers.clearInterval(id));
-  });
+  createEffect(
+    () => !config.config().emqx_wss_url,
+    (polling) => {
+      if (!polling) return;
+      const id = env.timers.setInterval(() => void refresh(), everyMs);
+      return () => env.timers.clearInterval(id);
+    }
+  );
 }

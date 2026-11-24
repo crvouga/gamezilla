@@ -1,5 +1,6 @@
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /**
  * Says what is missing when this device has never finished a sync and the

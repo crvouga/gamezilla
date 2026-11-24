@@ -13,7 +13,7 @@ import { openHarness } from './open-chess-harness';
 
 // regression: puzzle-catalog-fixtures-withhold-push
 test('an open puzzle pool receives newly ingested rows and retirement tombstones', async () => {
-  await using s = await openHarness('puzzle-catalog-fixtures-withhold-push');
+  await using s = await openHarness();
   await s.apply(createSpace, 'alice');
   await s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
   const puzzle = NAMED_PUZZLES.twoRookClearance;

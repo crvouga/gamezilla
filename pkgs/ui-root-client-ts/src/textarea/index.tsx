@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, createUniqueId, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createUniqueId, Show } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
 
@@ -93,12 +94,10 @@ export function Textarea(props: TextareaProps): JSX.Element {
     return ids === '' ? undefined : ids;
   };
   createEffect(
-    on(
-      () => [props.value, props.autoGrow] as const,
-      ([, autoGrow]) => {
-        if (autoGrow === true && element !== undefined) fitHeight(element);
-      }
-    )
+    () => [props.value, props.autoGrow] as const,
+    ([, autoGrow]) => {
+      if (autoGrow === true && element !== undefined) fitHeight(element);
+    }
   );
   return (
     <div class="box gap-ui-xs" data-component={componentId('Textarea')}>
@@ -115,15 +114,15 @@ export function Textarea(props: TextareaProps): JSX.Element {
         name={props.name}
         rows={props.rows ?? 3}
         value={props.value}
-        maxLength={props.maxLength}
+        maxlength={props.maxLength}
         placeholder={props.placeholder}
         disabled={props.disabled === true}
-        readOnly={props.readOnly === true}
+        readonly={props.readOnly === true}
         required={props.required === true || field?.required === true}
         data-testid={props.testId}
         aria-label={props['aria-label']}
         aria-describedby={describedBy()}
-        aria-invalid={invalid() ? true : undefined}
+        aria-invalid={invalid() ? 'true' : undefined}
         onInput={(event) => props.onValueChange(event.currentTarget.value)}
       />
       <Show when={counted() ? props.maxLength : undefined} keyed>

@@ -3,7 +3,13 @@ import { usePermissions } from '@libs/permissions-client-ts/use-permissions';
 import { ACTION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 
 /** Consumes the rated-puzzle quota when a puzzle is started (§22.4). */
 export type RatedStartGate = {
@@ -40,11 +46,16 @@ export function useRatedStartGate(onRetry: () => void): RatedStartGate {
   // Edge-triggered: retry only when a policy / fact change flips the local
   // answer from denied to allowed. A level trigger would spin if the local
   // hint and the consume ever disagreed.
-  createEffect<boolean>((wasAllowed) => {
-    const allowed = permissions.can(ACTION.puzzleRatedSolve).allowed;
-    if (denial() !== null && allowed && !wasAllowed) retry();
-    return allowed;
-  }, true);
+  createEffect(
+    () => ({
+      allowed: permissions.can(ACTION.puzzleRatedSolve).allowed,
+      denied: denial() !== null,
+    }),
+    (now, before) => {
+      if (now.denied && now.allowed && before?.allowed === false)
+        untrack(retry);
+    }
+  );
 
   const start = async (puzzleId: string): Promise<boolean> => {
     const key = ratedStartKey(puzzleId, clock.now());

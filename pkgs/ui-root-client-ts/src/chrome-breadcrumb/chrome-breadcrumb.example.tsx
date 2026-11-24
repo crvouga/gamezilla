@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { ChromeBreadcrumb } from '@pkgs/ui-root-client-ts/chrome-breadcrumb';
 import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Spaces' session tree: the open-room registry every space screen and the
  * miniplayer read, and the leave / end confirmations that outlive the screen
@@ -8,7 +8,7 @@
  * pulls room and mutation graphs.
  */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { EndSpaceModalProvider } from './end-space-modal-provider';
 import { LeaveSpaceModalProvider } from './leave-space-modal-provider';

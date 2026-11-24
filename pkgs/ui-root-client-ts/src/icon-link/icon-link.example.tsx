@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { IconLink } from '@pkgs/ui-root-client-ts/icon-link';
 import { ChevronLeftIcon, HouseIcon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 export default function IconLinkExample(): JSX.Element {

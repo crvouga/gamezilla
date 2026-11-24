@@ -1,9 +1,9 @@
 import type { I18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { HarnessConsoleApp } from '@pkgs/harness-console-client-ts/app';
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared-ts/ports';
 import { HttpClientProvider } from '@pkgs/http-client-client-ts/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { DismissibleBannerPortalProvider } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -15,7 +15,7 @@ import {
 } from '@pkgs/ui-root-client-ts/theme-preference';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   ConsoleChromeProvider,
   useConsoleChrome,

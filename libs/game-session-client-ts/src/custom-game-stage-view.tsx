@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -15,7 +15,8 @@ import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOverlay } from './game-frame-overlay-view';

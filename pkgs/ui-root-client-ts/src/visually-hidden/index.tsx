@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type VisuallyHiddenProps = {
   /** Text content. */
@@ -38,7 +39,7 @@ export function VisuallyHidden(props: VisuallyHiddenProps): JSX.Element {
       data-component={componentId('VisuallyHidden')}
       role={props.role}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
     >
       {props.children}
     </span>

@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
-import { Trans, useLingui } from '@lingui/solid/macro';
+/** @jsxImportSource @solidjs/web */
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CopyIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** Where copying the crash details stands: waiting, done, or refused. */
 export type CrashCopyPhase = 'idle' | 'pending' | 'copied' | 'error';

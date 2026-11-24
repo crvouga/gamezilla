@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The account menu at the foot of the wide sidebar names who is signed in. */
 
 import { afterEach, expect, test } from 'bun:test';

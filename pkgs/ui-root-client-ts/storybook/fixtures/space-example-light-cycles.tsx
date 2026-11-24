@@ -1,4 +1,5 @@
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import type { AvatarSeatColor } from '../../src/avatar/index';
 import type { GameOptionFieldProps } from '../../src/game-option-field/index';
 import type { GameSeatColor } from '../../src/game-seat-swatch/index';

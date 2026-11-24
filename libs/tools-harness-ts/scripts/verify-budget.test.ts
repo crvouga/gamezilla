@@ -259,7 +259,6 @@ describe('resolveRunDeadlineSeconds', () => {
         deadlineHit: true,
         signal: null,
         code: 0,
-        published: true,
       })
     ).toBe(124);
     expect(
@@ -267,7 +266,6 @@ describe('resolveRunDeadlineSeconds', () => {
         deadlineHit: false,
         signal: 'SIGTERM',
         code: 0,
-        published: true,
       })
     ).toBe(124);
     expect(
@@ -275,7 +273,6 @@ describe('resolveRunDeadlineSeconds', () => {
         deadlineHit: false,
         signal: null,
         code: 0,
-        published: true,
       })
     ).toBe(0);
     expect(
@@ -283,7 +280,6 @@ describe('resolveRunDeadlineSeconds', () => {
         deadlineHit: false,
         signal: null,
         code: null,
-        published: false,
       })
     ).toBe(1);
   });

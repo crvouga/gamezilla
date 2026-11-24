@@ -7,7 +7,8 @@ import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import {
   COLUMN_LABELS,
   orientationName,

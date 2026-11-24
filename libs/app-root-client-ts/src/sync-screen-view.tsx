@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { SyncEngineStatus } from '@pkgs/sync-engine-client-ts/sync-status';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -12,7 +12,8 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, Show } from 'solid-js';
 
 const STATUS_DOT_SIZE = 12;
 const BUTTON_ICON_SIZE = 16;

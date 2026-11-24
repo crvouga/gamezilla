@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The Hearts table says each thing once: the seats' facts live on the
  * table, the players' strips name the seat each sits in, the turn line is

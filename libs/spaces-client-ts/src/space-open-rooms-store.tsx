@@ -7,12 +7,12 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createMemo,
   createSignal,
-  type JSX,
   useContext,
 } from 'solid-js';
 
@@ -21,6 +21,12 @@ type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 export type SpaceOpenRoomEntry = {
   readonly room: SpaceRoom;
   readonly clientId: string;
+  /**
+   * Whether this room is still the one its space should have. False from the
+   * moment the space's identity changes (a guest becoming its host, …) until
+   * the replacement opens: commands issued then wait for the replacement.
+   */
+  readonly isCurrent: () => boolean;
 };
 
 type SpaceOpenRoomsApi = {
@@ -90,25 +96,25 @@ export function SpaceOpenRoomsStoreProvider(props: {
     current: null,
   };
 
+  // The registry as of the latest commit. Imperative readers (dispatch, refs)
+  // use it so a command sent right after a commit reaches the room instead
+  // of the buffer the commit has already emptied.
+  let committed: ReadonlyMap<string, SpaceOpenRoomEntry> = new Map();
+
   const setEntry: SpaceOpenRoomsRegistrySetter = (spaceId, entry) => {
-    setEntries((prev) => {
-      const current = prev.get(spaceId) ?? null;
-      if (entry === null) {
-        if (current === null) return prev;
-        const next = new Map(prev);
-        next.delete(spaceId);
-        return next;
-      }
-      if (current?.room === entry.room && current.clientId === entry.clientId) {
-        return prev;
-      }
-      const next = new Map(prev);
-      next.set(spaceId, entry);
-      return next;
-    });
-    if (entry !== null) {
-      // Keep a ref view in sync before flush so concurrent dispatch sees the
-      // room even before the signal write settles.
+    const current = committed.get(spaceId) ?? null;
+    const unchanged =
+      entry === null
+        ? current === null
+        : current?.room === entry.room && current.clientId === entry.clientId;
+    if (!unchanged) {
+      const next = new Map(committed);
+      if (entry === null) next.delete(spaceId);
+      else next.set(spaceId, entry);
+      committed = next;
+      setEntries(next);
+    }
+    if (entry?.isCurrent() === true) {
       pendingRef.current.flush(spaceId, (payload) => {
         entry.room.dispatch(payload);
       });
@@ -133,28 +139,30 @@ export function SpaceOpenRoomsStoreProvider(props: {
       changeView(spaceId, 1);
       return () => changeView(spaceId, -1);
     },
-    getEntry: (spaceId) => entries().get(spaceId) ?? null,
+    getEntry: (spaceId) => committed.get(spaceId) ?? null,
     dispatch: (spaceId, payload) => {
-      const entry = entries().get(spaceId);
-      if (entry !== undefined) {
+      const entry = committed.get(spaceId);
+      // regression: space-command-lost-to-replaced-room
+      if (entry?.isCurrent() === true) {
         entry.room.dispatch(payload);
         return;
       }
-      // Local Room still opening — queue until registry commit.
+      // Local Room still opening or being replaced: queue until the
+      // registry commits the room that stays.
       pendingRef.current.enqueue(spaceId, payload);
     },
   };
 
   return (
-    <SpaceOpenRoomsPendingClearContext.Provider value={clearPending}>
-      <SpaceOpenRoomsRegistryContext.Provider value={setEntry}>
-        <SpaceOpenRoomsEntriesContext.Provider value={entries}>
-          <SpaceOpenRoomsContext.Provider value={api}>
+    <SpaceOpenRoomsPendingClearContext value={clearPending}>
+      <SpaceOpenRoomsRegistryContext value={setEntry}>
+        <SpaceOpenRoomsEntriesContext value={entries}>
+          <SpaceOpenRoomsContext value={api}>
             {props.children}
-          </SpaceOpenRoomsContext.Provider>
-        </SpaceOpenRoomsEntriesContext.Provider>
-      </SpaceOpenRoomsRegistryContext.Provider>
-    </SpaceOpenRoomsPendingClearContext.Provider>
+          </SpaceOpenRoomsContext>
+        </SpaceOpenRoomsEntriesContext>
+      </SpaceOpenRoomsRegistryContext>
+    </SpaceOpenRoomsPendingClearContext>
   );
 }
 

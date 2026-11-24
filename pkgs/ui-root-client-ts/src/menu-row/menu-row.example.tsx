@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
@@ -14,7 +14,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

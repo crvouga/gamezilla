@@ -1,12 +1,13 @@
 import { discoverContent } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
-import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show, untrack } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPackEditorView } from './content-pack-editor-view';

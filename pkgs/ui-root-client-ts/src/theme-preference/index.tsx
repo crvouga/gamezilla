@@ -1,13 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { enumKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createSignal,
-  type JSX,
   useContext,
 } from 'solid-js';
 import type { ThemeProviderProps } from '../theme-context/index';
@@ -51,20 +51,12 @@ export function ThemePreferenceProvider(props: {
     setStored(next);
   };
   return (
-    <ThemePreferenceContext.Provider
-      value={{ preference, setPreference, settled }}
-    >
+    <ThemePreferenceContext value={{ preference, setPreference, settled }}>
       {props.children}
-    </ThemePreferenceContext.Provider>
+    </ThemePreferenceContext>
   );
 }
 
 export function useThemePreference(): ThemePreferenceContextValue {
-  const ctx = useContext(ThemePreferenceContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'useThemePreference must be used within ThemePreferenceProvider'
-    );
-  }
-  return ctx;
+  return useContext(ThemePreferenceContext);
 }

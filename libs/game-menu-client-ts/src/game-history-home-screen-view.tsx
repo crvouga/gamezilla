@@ -1,9 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
 export type GameHistoryHomeScreenViewProps = {
