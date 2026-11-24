@@ -81,9 +81,11 @@ export const SPACE_EXAMPLE_LAUNCHER_GAMES: readonly SpaceLauncherGame[] = [
 
 /** Who suggested which game: ana suggested Pong. */
 function withSuggestion(role: SpaceRole): readonly SpaceLauncherGame[] {
+  // The app has no guest suggestions: a guest's tiles carry no marks.
+  if (role === 'guest') return SPACE_EXAMPLE_LAUNCHER_GAMES;
   return SPACE_EXAMPLE_LAUNCHER_GAMES.map((game) =>
     game.key === 'pong'
-      ? { ...game, suggestedBy: { name: 'ana', you: role === 'guest' } }
+      ? { ...game, suggestedBy: { name: 'ana', you: false } }
       : game
   );
 }
@@ -114,7 +116,8 @@ export default function SpaceLauncherExample(
           hostName={SPACE_EXAMPLE_HOST_NAME}
           present={people().length}
           games={withSuggestion(props.role)}
-          lookingAt="light-cycles"
+          // The app's guest home shows no "host is looking" cue either.
+          lookingAt={undefined}
           onChoose={(key) => props.onChoose(key)}
           onSuggest={props.onSuggest}
         />

@@ -108,7 +108,9 @@ export function PuzzleStatusHeader(
               props.solutionShown ? (
                 <Trans>Solution shown</Trans>
               ) : props.solvedLate === true && props.kind === 'solved' ? (
-                <Trans>Solved after a wrong move</Trans>
+                // The recorded result leads; the result below says the
+                // solution came after a wrong move.
+                <Trans>Failed</Trans>
               ) : props.retryOpen === true && props.kind === 'failed' ? (
                 <Trans>Wrong move</Trans>
               ) : (

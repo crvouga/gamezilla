@@ -40,9 +40,9 @@ type Story = StoryObj<Args>;
  * bob's space while bob chooses a game, seen by the toolbar's role. The
  * host chooses: every tile is selectable, ana's suggestion is marked,
  * Hearts says how bots fill its seats, solo games say so, and tapping a
- * game opens its setup. A guest watches, as in the app's space home: the
- * tiles only show, bob's tile is ringed and says "bob is looking", and
- * nothing offers the host's bots. The game toolbar does not apply.
+ * game opens its setup. A guest watches, exactly as in the app's space
+ * home: the tiles only show, with how many each seats, and nothing offers
+ * the host's bots. The game toolbar does not apply.
  */
 export const Screen: Story = {
   parameters: {
@@ -68,7 +68,6 @@ export const Screen: Story = {
     await expect(
       canvas.getByRole('heading', { name: 'bob is choosing a game' })
     ).toBeVisible();
-    await expect(canvas.getByText('bob is looking')).toBeVisible();
     await expect(canvas.getByText('4 players')).toBeVisible();
     await expect(
       canvas.getByRole('button', { name: /^Chess/ })

@@ -376,7 +376,8 @@ function RatingChange(props: StatusProps): JSX.Element {
             </Trans>
           </Show>
         }
-        tone="solid"
+        // No change is quiet; a gain or a loss is the result's own figure.
+        tone={(diff() ?? 0) === 0 ? 'subtle' : 'solid'}
         dataSet={{ testid: 'multiplayer-rating-change' }}
       />
     </Show>
