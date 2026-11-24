@@ -70,7 +70,8 @@ export function I18nProvider(props: I18nProviderProps): JSX.Element {
   );
   const context: I18nContext = {
     i18n,
-    _: (...args) => i18n().t(...args),
+    _: ((...args: Parameters<I18n['_']>) =>
+      i18n()._(...args)) as I18n['_'],
   };
   return (
     <Show when={i18n().locale}>
@@ -129,10 +130,10 @@ export function Trans(props: TransProps): JSX.Element {
   const lingui = useLingui();
   const translation = createMemo(() => {
     const { values, components } = interpolation(props);
-    const text = lingui.i18n()._(props.id, values, {
-      message: props.message,
-      formats: props.formats,
-    });
+    const options: MessageOptions = {};
+    if (props.message !== undefined) options.message = props.message;
+    if (props.formats !== undefined) options.formats = props.formats;
+    const text = lingui.i18n()._(props.id, values, options);
     return text ? formatElements(text, components) : null;
   });
   return <>{translation()}</>;

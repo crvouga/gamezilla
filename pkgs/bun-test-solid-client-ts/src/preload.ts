@@ -14,6 +14,7 @@
 import './register';
 import { afterEach, expect, mock } from 'bun:test';
 import * as linguiCore from '@lingui/core';
+import { setHarnessTaskCheckpoint } from '@pkgs/clock-shared-ts/harness-clock';
 
 // `import.meta.env` is `process.env` under Bun: keep `@pkgs/ui` DOM identifiers
 // (`data-component` / `data-screen`) on, as Vite dev and test builds do.
@@ -39,11 +40,35 @@ const { cleanup } = await import('@solidjs/testing-library');
 
 expect.extend(matchers);
 
-// A browser reaches a microtask checkpoint, where Solid applies queued writes,
-// after every event it delivers. A synthetic dispatch returns to the test
-// synchronously instead, so apply them at the same point: once the outermost
-// dispatch has returned.
-const { flush } = await import('solid-js');
+// A browser drains its microtasks, where Solid applies queued writes, after
+// every event and timer callback it delivers. Synthetic events and virtual
+// timers return to the test synchronously instead, so apply the writes at
+// the same points: once the outermost dispatch or a fired timer has returned.
+// Solid already drains when it runs from a microtask or owns the current
+// scope, and it refuses a nested drain there.
+let draining = false;
+const nativeQueueMicrotask = globalThis.queueMicrotask;
+globalThis.queueMicrotask = (callback) => {
+  nativeQueueMicrotask(() => {
+    draining = true;
+    try {
+      callback();
+    } finally {
+      draining = false;
+    }
+  });
+};
+const { flush, getOwner } = await import('solid-js');
+function taskCheckpoint(): void {
+  if (draining || getOwner() !== null) return;
+  draining = true;
+  try {
+    flush();
+  } finally {
+    draining = false;
+  }
+}
+setHarnessTaskCheckpoint(taskCheckpoint);
 let dispatchDepth = 0;
 /** Every class that implements dispatch itself: the base and each element that adds a default action. */
 function dispatchingPrototypes(): Set<object> {
@@ -76,7 +101,7 @@ for (const prototype of dispatchingPrototypes()) {
         return Reflect.apply(dispatch, this, [event]);
       } finally {
         dispatchDepth -= 1;
-        if (dispatchDepth === 0) flush();
+        if (dispatchDepth === 0) taskCheckpoint();
       }
     }
   );
