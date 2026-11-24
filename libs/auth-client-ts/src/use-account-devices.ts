@@ -3,7 +3,7 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createMemo, type Accessor } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import type {
   AccountDeviceRow,
   AccountDeviceView,

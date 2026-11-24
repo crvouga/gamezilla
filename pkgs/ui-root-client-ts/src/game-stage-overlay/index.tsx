@@ -32,7 +32,7 @@ function VersusBand(props: {
     <span
       class={styles['band']}
       data-edge={props.edge}
-      data-solo={props.sides.length === 1}
+      data-solo={String(props.sides.length === 1)}
     >
       <For each={props.sides}>
         {(side) => (
@@ -193,18 +193,19 @@ function ResultDetails(props: {
   return (
     <div
       class={card['details']}
-      data-folds={props.label !== undefined}
-      data-open={open()}
+      data-folds={String(props.label !== undefined)}
+      data-open={String(open())}
     >
       <Show when={props.label}>
         {(label) => (
           <button
             type="button"
             class={`text textLabel ${card['detailsToggle']}`}
-            aria-expanded={open()}
+            aria-expanded={open() ? 'true' : 'false'}
             onClick={() => {
-              setOpen(!open());
-              if (open()) queueMicrotask(reveal);
+              const next = !open();
+              setOpen(next);
+              if (next) queueMicrotask(reveal);
             }}
             data-testid="game-result-overlay-details"
           >
@@ -232,7 +233,7 @@ function ResultCard(
     <section
       class={`${styles['card']} ${card['quiet']} ${props.docked ? card['docked'] : ''}`}
       data-tone={props.tone}
-      data-docked={props.docked}
+      data-docked={String(props.docked)}
       {...dataAttrs(
         props.docked
           ? { component: 'GameResultCard', ...props.dataSet }
@@ -244,7 +245,7 @@ function ResultCard(
           class={styles['cardTitle']}
           role={props.live === true ? 'status' : undefined}
           aria-live={props.live === true ? 'polite' : undefined}
-          aria-atomic={props.live === true ? true : undefined}
+          aria-atomic={props.live === true ? 'true' : undefined}
         >
           <Show when={props.eyebrow}>
             <span class={`text textCaption ${styles['eyebrow']}`}>
@@ -320,7 +321,7 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
       <button
         type="button"
         class={styles['scrim']}
-        tabIndex={-1}
+        tabindex={-1}
         aria-hidden="true"
         onClick={() => props.onDismiss()}
       />
@@ -363,9 +364,13 @@ export function GameStageOverlayFrame(props: {
   children: JSX.Element;
 }): JSX.Element {
   const [corner, setCorner] = createSignal<string>();
+  let frame: HTMLDivElement | undefined;
+  onSettled(() => {
+    if (frame !== undefined) setCorner(boardCornerUnder(frame));
+  });
   return (
     <div
-      ref={(el) => onSettled(() => setCorner(boardCornerUnder(el)))}
+      ref={frame}
       class={styles['overlay']}
       style={{ '--game-board-corner': corner() }}
       {...dataAttrs({ component: 'GameStageOverlay' })}

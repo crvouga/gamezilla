@@ -7,7 +7,7 @@ import {
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { type Accessor, createMemo, Match, Switch, untrack } from 'solid-js';
 import {
   type GameSettings,
@@ -52,28 +52,27 @@ function GameSettingsGroup(props: {
   onOpen: (place: { readonly screen: string }) => void;
 }): JSX.Element {
   const rows = createMemo((): GameSettingsRowView[] =>
-    gameSettingsRows(props.node, props.can).map((row) => ({
-      key: row.key,
-      title: <Dynamic component={row.title} />,
-      caption:
-        row.caption === undefined ? undefined : (
-          <Dynamic component={row.caption} />
-        ),
-      testId: gameSettingsHandle(props.gameId, props.node.place, row.key),
-      opens: gameSettingsChild(props.node.place, row.key),
-    }))
+    gameSettingsRows(props.node, props.can).map((row) => {
+      const Title = row.title;
+      const Caption = row.caption;
+      return {
+        key: row.key,
+        title: <Title />,
+        caption: Caption === undefined ? undefined : <Caption />,
+        testId: gameSettingsHandle(props.gameId, props.node.place, row.key),
+        opens: gameSettingsChild(props.node.place, row.key),
+      };
+    })
   );
   const subtitle = (): (() => JSX.Element) | undefined =>
     props.node.opens.kind === 'group' ? props.node.opens.subtitle : undefined;
+  const Title = dynamic(() => props.node.row?.title ?? SettingsTitle);
+  const Subtitle = dynamic(subtitle);
   return (
     <GameSettingsScreenView
       place={props.node.place}
-      title={<Dynamic component={props.node.row?.title ?? SettingsTitle} />}
-      subtitle={
-        subtitle() === undefined ? undefined : (
-          <Dynamic component={subtitle()} />
-        )
-      }
+      title={<Title />}
+      subtitle={subtitle() === undefined ? undefined : <Subtitle />}
       rows={rows()}
       onOpen={props.onOpen}
     />

@@ -17,7 +17,7 @@ import { observeElementResize } from './observe-element-resize';
  * ```
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import type { ElementHandle } from './element-handle';
 import { createElementHandle } from './element-handle';
 
@@ -42,9 +42,8 @@ export function createMeasure(): Measure {
   const source = createElementHandle<'measure'>();
   const [width, setWidth] = createSignal(0);
   const [height, setHeight] = createSignal(0);
-  createEffect(() => {
-    const element = source.element();
-    if (element === undefined) return;
+  createEffect(source.element, (element) => {
+    if (element === undefined) return undefined;
     const read = (): void => {
       const rect = element.getBoundingClientRect();
       setWidth(Math.floor(rect.width));
@@ -53,10 +52,10 @@ export function createMeasure(): Measure {
     read();
     element.addEventListener(ELEMENT_LAYOUT_EVENT, read);
     const stop = observeElementResize(element, read);
-    onCleanup(() => {
+    return () => {
       element.removeEventListener(ELEMENT_LAYOUT_EVENT, read);
       stop();
-    });
+    };
   });
   return { target: source.handle, width, height };
 }

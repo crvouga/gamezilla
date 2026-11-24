@@ -20,7 +20,7 @@ export type MiniplayerSpaceSummaryProps = {
 export function MiniplayerSpaceSummary(
   props: MiniplayerSpaceSummaryProps
 ): JSX.Element {
-  const count = useSpaceMemberCount(props.spaceId);
+  const count = useSpaceMemberCount(() => props.spaceId);
   return (
     <StackHorizontal grow align="center" gap="md">
       <SpaceMark spaceId={props.spaceId} />

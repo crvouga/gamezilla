@@ -14,7 +14,7 @@ import type { SignInPending } from '@libs/auth-shared-ts/sign-in-pending-parse';
 import { parseSignInPending } from '@libs/auth-shared-ts/sign-in-pending-parse';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { createSecureStorageItem } from '@pkgs/secure-storage-root-client-ts/solid';
-import { createMemo, type Accessor } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 /**
  * Reactive view of the pending marker for the modal provider. `pending` is the

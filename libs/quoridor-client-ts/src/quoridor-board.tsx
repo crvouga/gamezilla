@@ -16,7 +16,13 @@ import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, createSignal, on, Show } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  Show,
+} from 'solid-js';
 import {
   type QuoridorTool,
   quoridorBoardCells,
@@ -59,10 +65,13 @@ function createBoardSelection(props: BoardViewProps) {
     setChosen(null);
     setPreview(null);
   };
-  createEffect(on([() => props.position, () => props.syncKey], cancel));
-  createEffect(() => {
-    if (tool() === 'move') cancel();
-  });
+  createEffect(() => [props.position, props.syncKey] as const, cancel);
+  createEffect(
+    () => tool() === 'move',
+    (moving) => {
+      if (moving) cancel();
+    }
+  );
   const selected = () => {
     const value = chosen();
     return tool() !== 'move' && value?.position === props.position
@@ -126,9 +135,12 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
   // Cancel and Place wall leave the page; focus lands on the active tool instead.
   const toolFocus = createFocusTarget();
   const [refocus, setRefocus] = createSignal(false);
-  createEffect(() => {
-    if (refocus() && toolFocus.focus()) setRefocus(false);
-  });
+  createEffect(
+    () => refocus() && toolFocus.mounted(),
+    (ready) => {
+      if (ready && toolFocus.focus()) setRefocus(false);
+    }
+  );
   return (
     <StackVertical gap="xs">
       <Show when={game().winner === null && quoridorMustPass(game())}>
@@ -209,19 +221,15 @@ export function createQuoridorBoard(
   props: GameBoardProps
 ): GameFrameBoardSession<JSX.Element> {
   const game = createMemo(() => decodeQuoridor(props.position));
-  const [tool, setTool] = createSignal<QuoridorTool>('move');
-  const [refusal, setRefusal] = createSignal('');
   // Each new position starts a fresh turn with the pawn tool, never a leftover wall tool.
-  createEffect(
-    on(
-      () => props.position,
-      () => {
-        setTool('move');
-        setRefusal('');
-      },
-      { defer: true }
-    )
-  );
+  const [tool, setTool] = createSignal((): QuoridorTool => {
+    props.position;
+    return 'move';
+  });
+  const [refusal, setRefusal] = createSignal(() => {
+    props.position;
+    return '';
+  });
   const live = (): boolean => props.interactive && game().winner === null;
   const toolActions = (): readonly GameFrameAction[] =>
     TOOLS.map((each) => ({

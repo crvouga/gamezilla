@@ -1,7 +1,7 @@
 import { useMyDeviceId, useMyId } from '@libs/auth-client-ts/use-current-user';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
+import { createEffect, createMemo, For, Show } from 'solid-js';
 import {
   SpaceOpenRoomsStoreProvider,
   useSpaceOpenRooms,
@@ -16,21 +16,23 @@ import { useSpaceRoom } from './use-space-room';
 
 function SpaceOpenRoomSlot(props: { readonly spaceId: string }): null {
   const setEntry = useSpaceOpenRoomsRegistry();
-  const state: SpaceRoomUiState = useSpaceRoom(props.spaceId);
+  const state: SpaceRoomUiState = useSpaceRoom(() => props.spaceId);
 
-  createEffect(() => {
-    const room = state.room;
-    if (room === null) {
-      // Keep any buffered commands — Room may still be hydrating locally.
-      setEntry(props.spaceId, null);
-      return;
+  createEffect(
+    () => ({
+      spaceId: props.spaceId,
+      room: state.room,
+      clientId: state.clientId,
+    }),
+    (now) => {
+      // A null room keeps any buffered commands: it may still be hydrating.
+      setEntry(
+        now.spaceId,
+        now.room === null ? null : { room: now.room, clientId: now.clientId }
+      );
+      return () => setEntry(now.spaceId, null);
     }
-    setEntry(props.spaceId, { room, clientId: state.clientId });
-  });
-
-  onCleanup(() => {
-    setEntry(props.spaceId, null);
-  });
+  );
 
   return null;
 }
@@ -44,10 +46,9 @@ export function SpaceOpenRoomsProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const sessions = useOpenSpaceSessionIds();
-  const [stableIds, setStableIds] = createSignal<readonly string[]>([]);
-  createEffect(() => {
-    if (!sessions.isLoading()) setStableIds(sessions.spaceIds());
-  });
+  const stableIds = createMemo<readonly string[]>((previous) =>
+    sessions.isLoading() ? (previous ?? []) : sessions.spaceIds()
+  );
   // While the open-session query is loading, keep prior ids mounted and also
   // include any ids already present in `spaceIds` so an optimistic create
   // cannot unmount a brand-new room slot (which stuck the event log on
@@ -77,15 +78,17 @@ function SpaceOpenRoomSlots(props: {
   const viewedIds = createMemo(() =>
     Array.from(new Set([...props.spaceIds, ...rooms.viewingIds()]))
   );
-  createEffect(() => {
-    const currentIds = new Set(props.spaceIds);
-    for (const spaceId of previousIds) {
-      if (currentIds.has(spaceId)) continue;
-      clearPending?.(spaceId);
-      rooms.clearClientId(spaceId, deviceId());
+  createEffect(
+    () => ({ currentIds: new Set(props.spaceIds), device: deviceId() }),
+    (now) => {
+      for (const spaceId of previousIds) {
+        if (now.currentIds.has(spaceId)) continue;
+        clearPending?.(spaceId);
+        rooms.clearClientId(spaceId, now.device);
+      }
+      previousIds = now.currentIds;
     }
-    previousIds = currentIds;
-  });
+  );
   return (
     <For each={viewedIds()}>
       {(spaceId) => (

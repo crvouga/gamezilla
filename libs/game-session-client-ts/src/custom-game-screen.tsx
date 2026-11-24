@@ -5,8 +5,8 @@ import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
@@ -114,9 +114,12 @@ function useCustomGamePlace(
 ) {
   const phase = (): FramePhase => model.current()?.status ?? 'none';
   const navigation = useScreenPlace(CUSTOM_GAME_PLACES, phase);
-  createEffect(() => {
-    if (navigation.place().screen !== 'moves') review.returnLive();
-  });
+  createEffect(
+    () => navigation.place().screen !== 'moves',
+    (away) => {
+      if (away) review.returnLive();
+    }
+  );
   return { phase, ...navigation };
 }
 

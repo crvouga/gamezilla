@@ -16,7 +16,7 @@ import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 /** The board's props, everything but where it is and who may play. */
 const BOARD: Omit<
@@ -235,6 +235,7 @@ test('mandatory pass leads the tools and updates when the position changes', () 
   fireEvent.click(pass);
   expect(actions).toEqual(['pass']);
   setInteractive(false);
+  flush();
   expect(
     view.getByTestId('forced-pass-action-pass').hasAttribute('disabled')
   ).toBe(true);
@@ -243,6 +244,7 @@ test('mandatory pass leads the tools and updates when the position changes', () 
   );
   setPosition(encodeQuoridor(newQuoridor('hill')));
   setInteractive(true);
+  flush();
   expect(view.queryByTestId('forced-pass-action-pass')).toBeNull();
   for (const mode of ['move', 'h', 'v'])
     expect(

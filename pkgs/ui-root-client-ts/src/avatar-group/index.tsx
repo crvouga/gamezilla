@@ -6,7 +6,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
 import type { JSX } from '@solidjs/web';
-import { createMemo, For, children as resolveChildren, Show } from 'solid-js';
+import { createMemo, For, Show, children as resolveChildren } from 'solid-js';
 import { formatCompactNumber } from '../compact-number';
 import { useThemeTokens } from '../theme-context/index';
 

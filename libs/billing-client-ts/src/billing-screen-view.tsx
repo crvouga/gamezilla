@@ -6,8 +6,8 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { PlusMembershipOffer } from '@pkgs/billing-root-shared-ts/offer';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';

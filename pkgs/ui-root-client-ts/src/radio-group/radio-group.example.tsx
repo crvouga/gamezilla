@@ -12,7 +12,9 @@ function Clock(props: {
   disabled?: boolean;
   orientation?: 'vertical' | 'horizontal';
 }): JSX.Element {
-  const [value, setValue] = createSignal<string | undefined>(props.initial);
+  const [value, setValue] = createSignal(
+    (): string | undefined => props.initial
+  );
   return (
     <RadioGroup
       aria-label={props.label}

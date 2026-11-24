@@ -102,12 +102,13 @@ export function HistoryPlyCluster(props: {
   writing: PuzzleMoveWriting;
   onSeek: (solveIdx: number) => void;
 }): JSX.Element {
-  const prefix = props.writing.moveNumber(props.ply.before, props.ply.plyIndex);
+  const prefix = () =>
+    props.writing.moveNumber(props.ply.before, props.ply.plyIndex);
   return (
     <StackHorizontal align="center" gap="xs">
       <HistoryPlyChip
         ply={props.ply}
-        prefix={prefix}
+        prefix={prefix()}
         selected={props.ply.solveIdxAfter === props.selectedSolveIdx}
         interactive={props.interactive}
         writing={props.writing}

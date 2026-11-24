@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { filterSelectOptions } from '@pkgs/ui-root-shared-ts/select-logic';
@@ -9,7 +10,13 @@ import type {
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
 import type { JSX } from '@solidjs/web';
-import { createMemo, createSignal, createUniqueId, onSettled, Show } from 'solid-js';
+import {
+  createMemo,
+  createSignal,
+  createUniqueId,
+  onSettled,
+  Show,
+} from 'solid-js';
 import { ErrorState } from '../error-state/index';
 import { SearchIcon } from '../icons';
 import { LoadingState } from '../loading-state/index';
@@ -42,6 +49,37 @@ type SelectBodyProps<T extends SelectValue> = SelectProps<T> & {
   listboxLabel: string | undefined;
 };
 
+/** The filter box above the options; it takes focus when it appears. */
+function SelectSearch(props: {
+  query: string;
+  onQuery: (next: string) => void;
+  label: LocalizedString;
+  listboxId: string;
+}): JSX.Element {
+  let input: HTMLInputElement | undefined;
+  // The search box owns initial focus (after the surface's trap).
+  onSettled(() => {
+    input?.focus();
+  });
+  return (
+    <TextInput
+      ref={(el) => {
+        input = el;
+      }}
+      type="search"
+      value={props.query}
+      onChangeText={(next) => props.onQuery(next)}
+      placeholder={props.label}
+      aria-label={props.label}
+      aria-controls={props.listboxId}
+      autocorrect="off"
+      autocapitalize="none"
+      startAdornment={<SearchIcon size={18} />}
+      dataSet={{ component: 'SelectSearch' }}
+    />
+  );
+}
+
 function SelectSurfaceBody<T extends SelectValue>(
   props: SelectBodyProps<T>
 ): JSX.Element {
@@ -60,21 +98,11 @@ function SelectSurfaceBody<T extends SelectValue>(
     >
       <div class="box gap-2">
         <Show when={searchable()}>
-          <TextInput
-            ref={(el) => {
-              // The search box owns initial focus (after the surface's trap).
-              onSettled(() => el.focus());
-            }}
-            type="search"
-            value={query()}
-            onChangeText={setQuery}
-            placeholder={props.searchPlaceholder ?? t`Search…`}
-            aria-label={props.searchPlaceholder ?? t`Search…`}
-            aria-controls={props.listboxId}
-            autocorrect="off"
-            autocapitalize="none"
-            startAdornment={<SearchIcon size={18} />}
-            dataSet={{ component: 'SelectSearch' }}
+          <SelectSearch
+            query={query()}
+            onQuery={setQuery}
+            label={props.searchPlaceholder ?? t`Search…`}
+            listboxId={props.listboxId}
           />
         </Show>
         <Show when={hasError()}>

@@ -1,5 +1,11 @@
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createSignal, type Setter, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  type Setter,
+  useContext,
+} from 'solid-js';
 
 type SpaceMembersDialog = {
   readonly open: Accessor<boolean>;
@@ -13,10 +19,10 @@ export function SpaceMembersDialogProvider(props: {
   readonly spaceId: string;
   readonly children: JSX.Element;
 }): JSX.Element {
-  const [open, setOpen] = createSignal(false);
-  createEffect(() => {
+  // Another space starts closed.
+  const [open, setOpen] = createSignal(() => {
     props.spaceId;
-    setOpen(false);
+    return false;
   });
   return (
     <SpaceMembersDialogContext value={{ open, setOpen }}>
@@ -26,8 +32,5 @@ export function SpaceMembersDialogProvider(props: {
 }
 
 export function useSpaceMembersDialog(): SpaceMembersDialog {
-  const dialog = useContext(SpaceMembersDialogContext);
-  if (dialog === undefined)
-    throw new Error('Space members dialog requires its route provider');
-  return dialog;
+  return useContext(SpaceMembersDialogContext);
 }

@@ -2,7 +2,7 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { useNamedRoomRoster } from '@pkgs/room-root-client-ts/room-clients-context';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import { useSpaceRoomSessionId } from './space-room-context';
 import { useConfirmedHostAbsence } from './use-confirmed-host-absence';
 import { SpaceField, useSpaceColumn } from './use-space-column';
@@ -44,14 +44,14 @@ export function useSpaceHostConnection(): Accessor<HostLink> {
     () => inRoom() && !roster().some((actor) => actor.id === host())
   );
   const confirmedAbsent = useConfirmedHostAbsence(absent);
-  const [sawHost, setSawHost] = createSignal(false);
+  // Once the host has been seen in the room, they stay seen.
+  const sawHost = createMemo<boolean>(
+    (seen) => seen === true || (inRoom() && !absent())
+  );
   const dropConfirmed = useConfirmedHostAbsence(
     () => sawHost() && engine.status().online && !inRoom()
   );
   let hostOfflineKnown = false;
-  createEffect(() => {
-    if (inRoom() && !absent()) setSawHost(true);
-  });
   return createMemo(() => {
     const hostId = host();
     if (hostId === null) return 'loading';

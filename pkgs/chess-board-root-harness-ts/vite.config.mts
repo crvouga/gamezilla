@@ -4,9 +4,9 @@ import { createRequire } from 'node:module';
 import { resolve } from 'node:path';
 import { getConfig } from '@lingui/conf';
 import { workspaceExportsResolver } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
+import solid from '@solidjs/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'vite';
-import solid from '@solidjs/vite-plugin';
 
 const require = createRequire(import.meta.url);
 const repoRoot = resolve(import.meta.dirname, '../..');

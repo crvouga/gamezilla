@@ -15,13 +15,13 @@ import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useParams } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createResource, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createMemo } from 'solid-js';
+import { createLiveRead } from './live-read';
 import {
   LiveWatchScreenView,
   type LiveWatchState,
 } from './live-watch-screen-view';
-import { type LiveWatchRead, useObservatoryApi } from './observatory-api';
-import { resourceValue } from './resource-value';
+import { useObservatoryApi } from './observatory-api';
 import {
   useObservatoryUpdates,
   useRefreshWithoutUpdates,
@@ -33,38 +33,37 @@ const KEEP_WATCHING_MS = LIVE_WATCH_LEASE_MS / 3;
 function useLiveWatch(sessionId: () => string) {
   const api = useObservatoryApi();
   const timers = useTimers();
-  const [read, { refetch }] = createResource(sessionId, (id) => api.watch(id));
-  let lastUsername: string | null = null;
   // Without a connection, the last known screen stays in view.
-  const [last, setLast] = createSignal<LiveWatchRead>();
-  createEffect(() => {
-    const value = resourceValue(read);
-    if (value !== undefined) setLast(value);
-  });
+  const read = createLiveRead(
+    () => sessionId() || undefined,
+    (id) => api.watch(id)
+  );
+  let lastUsername: string | null = null;
   const state = createMemo<LiveWatchState>(() => {
-    const value = resourceValue(read) ?? last();
+    const value = read.shown();
     if (value === undefined)
-      return read.error ? { kind: 'failed' } : { kind: 'loading' };
+      return read.failed() ? { kind: 'failed' } : { kind: 'loading' };
     if (!value.online) return { kind: 'offline', username: lastUsername };
     lastUsername = value.entry.username;
     return { kind: 'watching', entry: value.entry, frame: value.frame };
   });
   const watching = () => state().kind === 'watching';
   useObservatoryUpdates(
-    () => (watching() ? refetch() : undefined),
+    () => (watching() ? read.reread() : undefined),
     (notice) =>
       notice.type === LIVE_PRESENCE_CHANGED ||
       (notice.type === LIVE_FRAME_CHANGED && notice.sessionId === sessionId()),
     100
   );
-  createEffect(() => {
-    if (!watching()) return;
-    const id = timers.setInterval(() => void refetch(), KEEP_WATCHING_MS);
-    onCleanup(() => timers.clearInterval(id));
+  // Every read restarts the wait, so this only looks when nothing else did.
+  createEffect(watching, (on) => {
+    if (!on) return;
+    const id = timers.setInterval(() => void read.reread(), KEEP_WATCHING_MS);
+    return () => timers.clearInterval(id);
   });
   // Without live updates, look as often as the screen is sent.
-  useRefreshWithoutUpdates(() => refetch(), LIVE_FRAME_INTERVAL_MS, watching);
-  return { state, retry: () => void refetch() };
+  useRefreshWithoutUpdates(read.reread, LIVE_FRAME_INTERVAL_MS, watching);
+  return { state, retry: () => void read.reread() };
 }
 
 function LiveWatchContent(): JSX.Element {

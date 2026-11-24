@@ -1,6 +1,6 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { JSX } from '@solidjs/web';
-import { createEffect, onCleanup, Show } from 'solid-js';
+import { createEffect, Show } from 'solid-js';
 import { ConfirmationModal } from '../confirmation-modal/index';
 import {
   PendingNavigationContext,
@@ -13,14 +13,17 @@ export function PendingNavigationProvider(props: {
   children: JSX.Element;
 }): JSX.Element {
   const navigation = createPendingNavigation();
-  createEffect(() => {
-    if (!navigation.blocked()) return;
-    const beforeUnload = (event: BeforeUnloadEvent): void => {
-      event.preventDefault();
-    };
-    window.addEventListener('beforeunload', beforeUnload);
-    onCleanup(() => window.removeEventListener('beforeunload', beforeUnload));
-  });
+  createEffect(
+    () => navigation.blocked(),
+    (blocked) => {
+      if (!blocked) return undefined;
+      const beforeUnload = (event: BeforeUnloadEvent): void => {
+        event.preventDefault();
+      };
+      window.addEventListener('beforeunload', beforeUnload);
+      return () => window.removeEventListener('beforeunload', beforeUnload);
+    }
+  );
   return (
     <PendingNavigationContext value={navigation}>
       {props.children}

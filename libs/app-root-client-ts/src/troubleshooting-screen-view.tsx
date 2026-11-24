@@ -13,7 +13,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import { type JSX, Dynamic } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import { type Accessor, For } from 'solid-js';
 
 const ROW_ICON_SIZE = 20;
@@ -100,13 +100,7 @@ export function TroubleshootingScreenView(
               title={row.title}
               caption={row.caption}
               value={row.value}
-              leading={
-                <Dynamic
-                  component={row.icon}
-                  size={ROW_ICON_SIZE}
-                  color="icon"
-                />
-              }
+              leading={<row.icon size={ROW_ICON_SIZE} color="icon" />}
               href={row.href}
               onClick={() => props.onNavigate(row.href)}
               dataSet={{ testid: row.testid }}

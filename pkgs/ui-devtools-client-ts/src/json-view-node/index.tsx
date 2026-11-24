@@ -74,7 +74,7 @@ export function JsonViewNode(props: JsonViewNodeProps): JSX.Element {
       class="box"
       role="treeitem"
       aria-selected="false"
-      aria-expanded={expandable() ? expanded() : undefined}
+      aria-expanded={expandable() ? (expanded() ? 'true' : 'false') : undefined}
     >
       <NodeRow
         nodeKey={props.nodeKey}
@@ -153,7 +153,7 @@ function NodeRow(props: {
           type="button"
           style={rowStyle(props.depth)}
           onClick={() => props.onToggle()}
-          aria-expanded={props.expanded}
+          aria-expanded={props.expanded ? 'true' : 'false'}
         >
           {content()}
         </button>

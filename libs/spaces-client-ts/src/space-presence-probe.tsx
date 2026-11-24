@@ -18,7 +18,7 @@ export function SpacePresenceProbe(): JSX.Element {
 function OpenSpacePresenceMarkers(props: {
   readonly spaceId: string;
 }): JSX.Element {
-  const presence = useOpenSpacePresence(props.spaceId);
+  const presence = useOpenSpacePresence(() => props.spaceId);
   const myId = useMyId();
   return (
     <SpacePresenceMarkers

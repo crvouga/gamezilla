@@ -166,7 +166,7 @@ export function SocialSignInButton(
       onClick={() => props.onClick()}
       disabled={isDisabled()}
       aria-label={defaultLabel()}
-      aria-busy={loading() ? true : undefined}
+      aria-busy={loading() ? 'true' : undefined}
       aria-describedby={props['aria-describedby']}
       style={buttonStyle({
         palette: palette(),

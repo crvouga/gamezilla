@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createMemo, createSignal, onCleanup } from 'solid-js';
 import type { BugReportController, BugReportState } from './controller';
 import type { ShakeControl, ShakeState } from './shake';
 
@@ -8,13 +8,17 @@ type Source<T> = {
 };
 
 export function useSource<T>(source: Accessor<Source<T>>): Accessor<T> {
-  const [state, setState] = createSignal<{ value: T }>();
-  createEffect(() => {
+  // One subscription per source: another source drops the one before it.
+  const reading = createMemo<Accessor<T>>(() => {
     const current = source();
-    setState({ value: current.state() });
-    onCleanup(current.subscribe(() => setState({ value: current.state() })));
+    const [changes, setChanges] = createSignal(0);
+    onCleanup(current.subscribe(() => setChanges((count) => count + 1)));
+    return () => {
+      changes();
+      return current.state();
+    };
   });
-  return () => (state() ?? { value: source().state() }).value;
+  return () => reading()();
 }
 
 export function useBugReportState(

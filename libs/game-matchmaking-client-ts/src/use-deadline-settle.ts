@@ -1,7 +1,7 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerDeadlineMs } from '@libs/game-matchmaking-shared-ts/multiplayer-clock';
 import { createTimedValue, useTimers } from '@pkgs/clock-client-ts/solid';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { multiplayerSettleDue } from './multiplayer-settle-due';
 
 const RETRY_MS = 2000;
@@ -29,12 +29,16 @@ export function useDeadlineSettle(args: {
       return multiplayerDeadlineMs(game);
     }
   );
-  createEffect(() => {
-    retry();
-    const gameId = due();
-    if (gameId === null || !args.online()) return;
-    void args.settle(gameId).catch(() => undefined);
-    const handle = timers.setTimeout(() => setRetry((n) => n + 1), RETRY_MS);
-    onCleanup(() => timers.clearTimeout(handle));
-  });
+  createEffect(
+    () => {
+      retry();
+      return args.online() ? due() : null;
+    },
+    (gameId) => {
+      if (gameId === null) return;
+      void args.settle(gameId).catch(() => undefined);
+      const handle = timers.setTimeout(() => setRetry((n) => n + 1), RETRY_MS);
+      return () => timers.clearTimeout(handle);
+    }
+  );
 }

@@ -81,16 +81,19 @@ function SegmentButton<K extends string>(props: {
 }): JSX.Element {
   return (
     <button
-      class={["clickable segment hitTarget rounded-full flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1", {
-        clickableTint: !props.isActive,
-      }]}
+      class={[
+        'clickable segment hitTarget rounded-full flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1',
+        {
+          clickableTint: !props.isActive,
+        },
+      ]}
       data-component="Segment"
       data-key={props.segment.key}
       data-testid={segmentTestId(props.groupTestId, props.segment.key)}
       type="button"
       role="radio"
-      aria-checked={props.isActive}
-      tabIndex={props.tabStop ? 0 : -1}
+      aria-checked={props.isActive ? 'true' : 'false'}
+      tabindex={props.tabStop ? 0 : -1}
       onKeyDown={onSegmentKeyDown}
       onClick={() => {
         if (!props.isActive) props.onSelect(props.segment.key);
@@ -98,10 +101,13 @@ function SegmentButton<K extends string>(props: {
       disabled={props.disabled}
     >
       <span
-        class={["text textBodyBold whitespace-nowrap", {
-          'text-on-primary-soft': props.isActive,
-          'text-text': !props.isActive,
-        }]}
+        class={[
+          'text textBodyBold whitespace-nowrap',
+          {
+            'text-on-primary-soft': props.isActive,
+            'text-text': !props.isActive,
+          },
+        ]}
       >
         {props.segment.label}
       </span>
@@ -150,11 +156,14 @@ export function SegmentedControl<K extends string = string>(
     segmentIndicatorCss(selectedIndex(), props.segments.length);
   return (
     <div
-      class={["box flex-row p-1 gap-1 border border-outline rounded-full relative", { 'opacity-disabled': props.disabled === true }]}
+      class={[
+        'box flex-row p-1 gap-1 border border-outline rounded-full relative',
+        { 'opacity-disabled': props.disabled === true },
+      ]}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
       role="radiogroup"
       aria-label={props['aria-label']}
-      aria-disabled={props.disabled === true ? true : undefined}
+      aria-disabled={props.disabled === true ? 'true' : undefined}
     >
       <Show when={props.segments.length > 0}>
         <div

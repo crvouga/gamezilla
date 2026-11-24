@@ -12,7 +12,7 @@ import {
 } from '@libs/app-root-shared-ts/types';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createSignal, onCleanup, untrack } from 'solid-js';
+import { type Accessor, createEffect, createSignal, untrack } from 'solid-js';
 
 const PerfSamplerContext = defineContext<PerfSampler>('PerfSampler');
 
@@ -28,14 +28,17 @@ export function PerfSamplerProvider(
 ): JSX.Element {
   // Composition-root configuration: read once, not tracked.
   const sampler = untrack(() => props.sampler);
-  createEffect(() => {
-    if (!props.active()) {
-      sampler.stop();
-      return;
+  createEffect(
+    () => props.active(),
+    (active) => {
+      if (!active) {
+        sampler.stop();
+        return;
+      }
+      sampler.start();
+      return () => sampler.stop();
     }
-    sampler.start();
-    onCleanup(() => sampler.stop());
-  });
+  );
   return (
     <PerfSamplerContext.Provider value={sampler}>
       {props.children}
@@ -58,9 +61,12 @@ export function createPerfSnapshot(
   const sampler = usePerfSampler();
   const [snapshot, setSnapshot] =
     createSignal<PerfSnapshot>(EMPTY_PERF_SNAPSHOT);
-  createEffect(() => {
-    if (!enabled()) return;
-    onCleanup(sampler.subscribe((next) => setSnapshot(next)));
-  });
+  createEffect(
+    () => enabled(),
+    (on) => {
+      if (!on) return;
+      return sampler.subscribe((next) => setSnapshot(next));
+    }
+  );
   return snapshot;
 }

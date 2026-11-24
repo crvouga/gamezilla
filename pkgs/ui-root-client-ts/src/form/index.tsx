@@ -60,7 +60,7 @@ export function Form(props: FormProps): JSX.Element {
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Form')}
-      noValidate={props.noValidate === true}
+      novalidate={props.noValidate === true}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
       aria-describedby={props['aria-describedby']}

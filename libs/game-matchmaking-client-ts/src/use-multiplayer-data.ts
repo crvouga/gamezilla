@@ -10,7 +10,7 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { createEffect, onCleanup } from 'solid-js';
+import { createEffect } from 'solid-js';
 import {
   awaitsMatchRoom,
   matchingMultiplayerRoomGame,
@@ -79,14 +79,13 @@ export function useMultiplayerData(gameId: () => string) {
     () => sql<MultiplayerRatingRow>`SELECT speed, rating, games FROM chess_multiplayer_ratings
     WHERE owner_id = ${myId()} AND deleted_at IS NULL`
   );
-  createEffect(() => {
-    const id = spaceId();
+  createEffect(spaceId, (id) => {
     if (!id) return;
     const held = sync.subscribeQueries([
       { name: 'chessMultiplayerSpace', params: { spaceId: id } },
     ]);
-    onCleanup(() => held.unsubscribe());
     void sync.refreshQueries();
+    return () => held.unsubscribe();
   });
   // The host's matched game shows only on finding an opponent for its own
   // game; another game's finding an opponent offers returning to it.

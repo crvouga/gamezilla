@@ -8,7 +8,7 @@ import {
   playQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
 import type { JSX } from '@solidjs/web';
-import { createSignal, mergeProps } from 'solid-js';
+import { createSignal, merge } from 'solid-js';
 
 type Table = Parameters<typeof renderGameTable>;
 
@@ -39,7 +39,7 @@ function renderJourney(
     if (side === undefined) throw new Error(`Unknown Quoridor seat ${player}`);
     return side;
   };
-  const board = mergeProps(args, {
+  const board = merge(args, {
     get position() {
       return encodeQuoridor(game());
     },
@@ -58,7 +58,7 @@ function renderJourney(
     },
   });
   const story = (context.parameters['table'] ?? {}) as GameTableStory;
-  const table: GameTableStory = mergeProps(story, {
+  const table: GameTableStory = merge(story, {
     get turn() {
       return sideOf(game().turn);
     },

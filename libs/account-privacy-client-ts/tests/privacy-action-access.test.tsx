@@ -11,7 +11,7 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen, waitFor } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 const allowed: PrivacyActionAccess = { kind: 'allowed' };
@@ -64,6 +64,7 @@ test('an idle export uses its current permission and recovers when permission ch
   );
   expect(requests).toBe(0);
   setAccess(allowed);
+  flush();
   expect(screen.queryByTestId('privacy-export-access')).toBeNull();
   fireEvent.click(screen.getByTestId('privacy-export-request'));
   expect(requests).toBe(1);
@@ -92,6 +93,7 @@ test('permission changing during a request retains its failure and retry outcome
   ));
   fireEvent.click(screen.getByTestId('privacy-export-request'));
   setAccess(denied);
+  flush();
   expect(screen.getByTestId('privacy-export-request')).toBeDefined();
   rejectRequest?.(
     new Error('The request was refused. Sign in, then try again.')
@@ -121,6 +123,7 @@ test('an existing replacement confirmation stays mounted when live access change
     />
   ));
   setAccess(denied);
+  flush();
   expect(screen.getByRole('dialog').textContent).toContain(
     'Replace your ready export?'
   );

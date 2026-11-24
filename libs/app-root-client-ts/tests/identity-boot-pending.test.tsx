@@ -9,7 +9,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { LoggerProvider } from '@pkgs/logger-client-ts/solid';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 
 function pendingIdentity() {
   const time = createHarnessClock();
@@ -25,7 +25,11 @@ function pendingIdentity() {
       </LoggerProvider>
     </ClockProvider>
   ));
-  return { ...view, time, bind: () => setBound(true) };
+  const bind = (): void => {
+    setBound(true);
+    flush();
+  };
+  return { ...view, time, bind };
 }
 
 // regression: identity-boot-loading-forever

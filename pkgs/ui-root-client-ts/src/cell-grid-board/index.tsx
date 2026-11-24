@@ -1,3 +1,4 @@
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, For, Show } from 'solid-js';
@@ -164,8 +165,8 @@ function GridCell(props: {
         cell()?.previewEdges?.includes('left') === true
       )}
       aria-label={cell()?.label}
-      aria-disabled={cell()?.enabled !== true}
-      tabIndex={props.focusable ? 0 : -1}
+      aria-disabled={ariaBoolean(cell()?.enabled !== true)}
+      tabindex={props.focusable ? 0 : -1}
       onFocus={() => {
         props.onFocusIndex(props.index);
         props.board.onPreview?.(id());
@@ -264,7 +265,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       ref={root}
       class={`${styles['board']} ${battleship['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
-      data-fill={props.fill === true}
+      data-fill={String(props.fill === true)}
       {...dataAttrs({ component: 'CellGridBoard' })}
       role="group"
       aria-label={props.label}

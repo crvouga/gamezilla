@@ -22,29 +22,31 @@ export function PongJourney(props: {
 }): JSX.Element {
   const config = pongConfig({ targetScore: 3 });
   const step = createPongStep(config);
-  const [state, setState] = createSignal({
+  // The court as last stepped: several ticks in one press each step from
+  // this, never from a signal read back before it has settled.
+  let court = {
     ...initialPongState(config, () => 0),
     phase: 'playing' as const,
     countdown: 0,
     ball: { x: 90, y: 360, vx: -480, vy: 0 },
-  } as ReturnType<typeof initialPongState>);
+  } as ReturnType<typeof initialPongState>;
+  const [state, setState] = createSignal(court);
   const [stale, setStale] = createSignal(false);
   let tick = 0;
   const advance = (input?: PongInput) => {
     if (stale()) return;
     tick += 1;
-    setState(
-      step(
-        state(),
-        input ? [{ tick, sequence: tick, playerId: 'left', value: input }] : [],
-        {
-          tick,
-          deltaMs: 1000 / config.tickRate,
-          elapsedMs: (tick * 1000) / config.tickRate,
-          random: () => 0,
-        }
-      )
+    court = step(
+      court,
+      input ? [{ tick, sequence: tick, playerId: 'left', value: input }] : [],
+      {
+        tick,
+        deltaMs: 1000 / config.tickRate,
+        elapsedMs: (tick * 1000) / config.tickRate,
+        random: () => 0,
+      }
     );
+    setState(court);
   };
   const controls: GameSimulationControls = {
     sides: ['white'],

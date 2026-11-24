@@ -68,7 +68,7 @@ function ProgressTrack(props: {
       aria-valuemin={0}
       aria-valuemax={1}
       aria-valuenow={props.known ? props.value : undefined}
-      aria-busy={props.known ? undefined : true}
+      aria-busy={props.known ? undefined : 'true'}
     >
       <div
         class={spaced([

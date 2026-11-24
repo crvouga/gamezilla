@@ -182,8 +182,7 @@ export function useFrameRecord(
   const refusal = useRefusalText();
   // By value: a move appended changes one label, not every row.
   const moves = createMemo(
-    () => review.game()?.moves.map((move) => move.san) ?? [],
-    [],
+    (): readonly string[] => review.game()?.moves.map((move) => move.san) ?? [],
     {
       equals: (a, b) =>
         a.length === b.length && a.every((label, index) => label === b[index]),

@@ -35,7 +35,10 @@ export default function SparklineExample(): JSX.Element {
             <ExampleSection title={`tone ${tone}`}>
               <StackVertical width="full" maxWidth="form">
                 <div
-                  class={["box rounded-sm p-1", { 'bg-tint-active': tone === 'on-primary' }]}
+                  class={[
+                    'box rounded-sm p-1',
+                    { 'bg-tint-active': tone === 'on-primary' },
+                  ]}
                 >
                   <Sparkline values={RATINGS} tone={tone} size="sm" />
                 </div>

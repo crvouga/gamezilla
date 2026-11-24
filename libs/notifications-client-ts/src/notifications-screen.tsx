@@ -10,7 +10,7 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, onSettled } from 'solid-js';
+import { createEffect, createSignal, onSettled, untrack } from 'solid-js';
 import {
   type InboxChoiceFailure,
   inboxChoiceFailure,
@@ -33,7 +33,10 @@ function UnlockOnArrival(props: {
   readonly decision: ReturnType<typeof useDecision>;
 }): JSX.Element {
   const unlock = useUnlock();
-  onSettled(() => unlock.run(props.decision()));
+  onSettled(() => {
+    // Arriving is the event: the invitation is for the denial met then.
+    unlock.run(untrack(() => props.decision()));
+  });
   return null;
 }
 
@@ -92,17 +95,21 @@ function useInboxChoices() {
   };
   // Coming back online clears a "connection is missing" notice.
   let sawOffline = false;
-  createEffect(() => {
-    const isOnline = sync.status().online;
-    if (!isOnline) {
-      sawOffline = true;
-      return;
+  createEffect(
+    () => sync.status().online,
+    (isOnline) => {
+      if (!isOnline) {
+        sawOffline = true;
+        return;
+      }
+      if (sawOffline) {
+        sawOffline = false;
+        setFailure((current) =>
+          current === 'connection-missing' ? null : current
+        );
+      }
     }
-    if (sawOffline) {
-      sawOffline = false;
-      if (failure() === 'connection-missing') setFailure(null);
-    }
-  });
+  );
   return { actions, failure, marking, markAllRead };
 }
 

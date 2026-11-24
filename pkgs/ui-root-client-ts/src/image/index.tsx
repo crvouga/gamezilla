@@ -3,7 +3,7 @@
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, on } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { radiusClass, spaced } from '../layout-classes';
 
 /** Frame shape, width over height. */
@@ -91,14 +91,11 @@ function pictureClass(image: ImageProps, state: ImageLoadState): string {
  * ```
  */
 export function Image(props: ImageProps): JSX.Element {
-  const [state, setState] = createSignal<ImageLoadState>('loading');
-  createEffect(
-    on(
-      () => props.src,
-      () => setState('loading'),
-      { defer: true }
-    )
-  );
+  // Every new file starts over from `loading`.
+  const [state, setState] = createSignal((): ImageLoadState => {
+    void props.src;
+    return 'loading';
+  });
   return (
     <div
       class={frameClass(props)}

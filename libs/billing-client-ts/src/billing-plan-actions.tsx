@@ -101,8 +101,12 @@ function useSubscribeButton(props: {
           ? t`Start ${props.trialDays}-day free trial`
           : t`Subscribe`;
       },
-      loading: t`Opening…`,
-      success: t`Opening…`,
+      get loading() {
+        return t`Opening…`;
+      },
+      get success() {
+        return t`Opening…`;
+      },
       get error() {
         const failure = billingFailureIn(button.error());
         if (failure === 'has_membership')
@@ -128,8 +132,12 @@ function useManageButton(props: {
           ? t`Update payment method`
           : t`Manage subscription`;
       },
-      loading: t`Opening…`,
-      success: t`Opening…`,
+      get loading() {
+        return t`Opening…`;
+      },
+      get success() {
+        return t`Opening…`;
+      },
       get error() {
         return billingFailureIn(button.error()) === 'provider_unavailable'
           ? t`Try again in a moment`

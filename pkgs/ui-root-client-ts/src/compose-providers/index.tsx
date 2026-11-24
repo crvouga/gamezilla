@@ -1,6 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
-import { type JSX, Dynamic } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import { type Component, type ParentProps, Show, untrack } from 'solid-js';
 
 export type ProviderComponent = Component<ParentProps>;
@@ -22,13 +22,13 @@ function Nest(props: NestProps): JSX.Element {
   const index = untrack(() => props.index);
   const Provider = providers[index];
   return (
-    <Show when={Provider} fallback={props.children}>
-      {(component) => (
-        <Dynamic component={component()}>
+    <Show when={Provider} keyed fallback={props.children}>
+      {(Wrap) => (
+        <Wrap>
           <Nest providers={providers} index={index + 1}>
             {props.children}
           </Nest>
-        </Dynamic>
+        </Wrap>
       )}
     </Show>
   );

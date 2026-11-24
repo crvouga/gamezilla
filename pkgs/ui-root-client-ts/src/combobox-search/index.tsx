@@ -4,9 +4,10 @@ import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComboboxKeyEvent } from '@pkgs/ui-root-shared-ts/combobox-key-nav';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { onSettled } from 'solid-js';
+import { onSettled, untrack } from 'solid-js';
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input/index';
+import { moveFocus } from '../move-focus';
 
 export type ComboboxSearchProps = {
   value: string;
@@ -28,8 +29,10 @@ export type ComboboxSearchProps = {
  */
 export function ComboboxSearch(props: ComboboxSearchProps): JSX.Element {
   let inputEl: HTMLInputElement | HTMLTextAreaElement | undefined;
+  // A mount-time option: what it says when the field mounts is what counts.
+  const focusOnMount = untrack(() => props.focusOnMount ?? true);
   onSettled(() => {
-    if (props.focusOnMount ?? true) inputEl?.focus();
+    if (focusOnMount) moveFocus(inputEl);
   });
   return (
     <div class="box shrink-0 pb-2">

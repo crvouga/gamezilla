@@ -7,7 +7,7 @@ import {
 import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { moderationRulesOver } from '@libs/moderation-shared-ts/moderation-rules';
 import type { TeamRule } from '@libs/moderation-shared-ts/policy';
-import { createRoot } from 'solid-js';
+import { children, createRenderEffect, createRoot, flush } from 'solid-js';
 
 describe('ModerationProvider', () => {
   test('a rule change re-judges a name already on screen', () => {
@@ -22,19 +22,24 @@ describe('ModerationProvider', () => {
     });
     let label: (() => string) | undefined;
     const dispose = createRoot((done) => {
-      ModerationProvider({
-        rules: moderation,
-        get children() {
-          const current = useModeration();
-          label = () => usernameLabel(current(), 'chess_cheater', 'p1');
-          return null;
-        },
-      });
+      // A provider renders what is under it only while its output is observed.
+      const rendered = children(() =>
+        ModerationProvider({
+          rules: moderation,
+          get children() {
+            const current = useModeration();
+            label = () => usernameLabel(current(), 'chess_cheater', 'p1');
+            return null;
+          },
+        })
+      );
+      createRenderEffect(rendered, () => undefined);
       return done;
     });
     expect(label?.()).toBe('@chess_cheater');
     rules = [{ kind: 'username', name: 'chess_cheater', sinceMs: 0 }];
     for (const listener of listeners) listener();
+    flush();
     expect(label?.()).not.toBe('@chess_cheater');
     dispose();
     expect(listeners.size).toBe(0);

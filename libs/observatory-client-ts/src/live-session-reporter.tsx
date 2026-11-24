@@ -3,6 +3,7 @@ import { useClientRequestAuth } from '@libs/auth-client-ts/use-client-request-au
 import { useCurrentAccountId } from '@libs/auth-client-ts/use-current-account-id';
 import { useDeviceId } from '@libs/auth-client-ts/use-device-id';
 import { clientAuthHeaders } from '@libs/auth-shared-ts/client-request-auth';
+import type { LiveHeartbeat } from '@libs/observatory-shared-ts/live-session';
 import {
   LIVE_FRAME_INTERVAL_MS,
   LIVE_HEARTBEAT_MS,
@@ -13,7 +14,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useThemeHost } from '@pkgs/ui-root-client-ts/theme-context';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { createLiveReport } from './live-report-client';
 import { useLiveActivity } from './use-live-activity';
 
@@ -63,28 +64,29 @@ function useLiveSessionReport(): void {
   const [watched, setWatched] = createSignal(false);
   let beat: unknown;
   let generation = 0;
-  const heartbeat = async () => {
+  // A move starts a new beat, so a repeated beat always carries the latest.
+  const heartbeat = async (doing: LiveHeartbeat) => {
     timers.clearTimeout(beat);
     generation += 1;
     const mine = generation;
-    const answer = await report.heartbeat(untrack(activity));
+    const answer = await report.heartbeat(doing);
     if (mine !== generation) return;
     if (answer !== null) setWatched(answer.watched);
-    beat = timers.setTimeout(() => void heartbeat(), LIVE_HEARTBEAT_MS);
+    beat = timers.setTimeout(() => void heartbeat(doing), LIVE_HEARTBEAT_MS);
   };
-  createEffect(on(activity, () => void heartbeat()));
-  createEffect(() => {
-    if (watchedHere()) setWatched(true);
+  createEffect(activity, (doing) => void heartbeat(doing));
+  createEffect(watchedHere, (here) => {
+    if (here) setWatched(true);
   });
-  createEffect(() => {
-    if (!watched()) return;
+  createEffect(watched, (on) => {
+    if (!on) return;
     const id = timers.setInterval(() => {
       void report.frame(clock.now()).then((kept) => {
         if (kept === false && !watchedHere()) setWatched(false);
       });
     }, LIVE_FRAME_INTERVAL_MS);
     void report.frame(clock.now());
-    onCleanup(() => timers.clearInterval(id));
+    return () => timers.clearInterval(id);
   });
   const leave = () => report.end();
   globalThis.addEventListener?.('pagehide', leave);

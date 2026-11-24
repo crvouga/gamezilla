@@ -191,6 +191,29 @@ function requestInitFor(hop: URL | FormPost): RequestInit {
   };
 }
 
+/**
+ * A value harness steps read back the moment it is written, and the sheet
+ * tracks: the signal only announces the change, so a read never waits for
+ * the view to settle.
+ */
+function createLiveValue<T>(initial: T): {
+  readonly read: Accessor<T>;
+  readonly write: (next: T) => void;
+} {
+  let current = initial;
+  const [version, setVersion] = createSignal(0);
+  return {
+    read: () => {
+      version();
+      return current;
+    },
+    write: (next) => {
+      current = next;
+      setVersion((count) => count + 1);
+    },
+  };
+}
+
 /** Who hears that an external page sent the browser back into the app. */
 function createAppReturns(): {
   readonly notify: (hop: URL | FormPost) => void;
@@ -225,14 +248,14 @@ export function createHarnessBrowser(args: {
   readonly onAuthSuccess?: () => void;
 }): HarnessBrowser {
   const fetch = withCookies(args.network);
-  const [tab, setTab] = createSignal<HarnessBrowserTab | null>(null);
-  const [address, setAddress] = createSignal<string | null>(null);
+  const tab = createLiveValue<HarnessBrowserTab | null>(null);
+  const address = createLiveValue<string | null>(null);
   let nextId = 1;
   let pendingAuth: PendingAuth | null = null;
 
   const show = (page: HarnessBrowserPage | null): void => {
-    setTab(page === null ? null : { id: nextId++, page });
-    setAddress(page?.url ?? null);
+    tab.write(page === null ? null : { id: nextId++, page });
+    address.write(page?.url ?? null);
   };
 
   const finishAuth = (result: OpenAuthSessionResult): void => {
@@ -297,12 +320,12 @@ export function createHarnessBrowser(args: {
   const navigate = (url: string): void => run(new URL(url));
 
   return {
-    tab,
-    address,
+    tab: tab.read,
+    address: address.read,
     fetch,
     navigate,
     post: (action, fields) => run({ url: new URL(action), fields }),
-    setAddress,
+    setAddress: address.write,
     close: () => {
       show(null);
       finishAuth({ type: 'cancel' });

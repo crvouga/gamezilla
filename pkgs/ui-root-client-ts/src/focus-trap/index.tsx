@@ -6,7 +6,13 @@ import {
   nextTabStop,
 } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
 import type { JSX } from '@solidjs/web';
-import { createEffect, onCleanup, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  untrack,
+} from 'solid-js';
+import { moveFocus } from '../move-focus';
 
 export type FocusTrapProps = {
   /** When true, trap Tab focus inside the subtree. */
@@ -35,49 +41,56 @@ const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
 
 function focusInto(host: HTMLElement): void {
   const first = collectTabbable(host)[0];
-  if (first !== undefined) first.focus();
-  else host.focus();
+  moveFocus(first ?? host);
 }
 
 function useTrapLifecycle(props: FocusTrapProps, host: () => HTMLElement) {
-  createEffect(() => {
-    if (!props.active) return;
-    const el = host();
-    const previous =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    // Untracked: moving focus runs other components' focus listeners right
-    // here, and a signal one of them reads must not start this trap over.
-    untrack(() => {
-      if (props.autoFocus ?? true) focusInto(el);
-    });
+  const active = createMemo(() => props.active);
+  // Whether to hand focus back is decided when the trap lets go, from the
+  // value the trap holds then.
+  let returnFocus = true;
+  createRenderEffect(
+    () => props.returnFocus ?? true,
+    (value) => {
+      returnFocus = value;
+    }
+  );
+  createEffect(
+    // Activating starts the trap; `autoFocus` is read as it stands then.
+    () => (active() ? untrack(() => props.autoFocus ?? true) : undefined),
+    (autoFocus) => {
+      if (autoFocus === undefined) return undefined;
+      const el = host();
+      const previous =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+      if (autoFocus) focusInto(el);
 
-    const onKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key !== 'Tab') return;
-      const target = nextTabStop(
-        collectTabbable(el),
-        document.activeElement,
-        ev.shiftKey
-      );
-      if (target === null) return;
-      ev.preventDefault();
-      target.focus();
-    };
-    el.addEventListener('keydown', onKeyDown);
-    onCleanup(() => {
-      el.removeEventListener('keydown', onKeyDown);
-      if (untrack(() => props.returnFocus ?? true) && previous !== null) {
-        previous.focus();
-      }
-    });
-  });
+      const onKeyDown = (ev: KeyboardEvent) => {
+        if (ev.key !== 'Tab') return;
+        const target = nextTabStop(
+          collectTabbable(el),
+          document.activeElement,
+          ev.shiftKey
+        );
+        if (target === null) return;
+        ev.preventDefault();
+        target.focus();
+      };
+      el.addEventListener('keydown', onKeyDown);
+      return () => {
+        el.removeEventListener('keydown', onKeyDown);
+        if (returnFocus) moveFocus(previous);
+      };
+    }
+  );
 
-  createEffect(() => {
-    const onEscape = props.onEscape;
-    if (!props.active || onEscape === undefined) return;
-    onCleanup(pushEscapeDismissHandler(onEscape));
-  });
+  createEffect(
+    () => (active() ? props.onEscape : undefined),
+    (onEscape) =>
+      onEscape === undefined ? undefined : pushEscapeDismissHandler(onEscape)
+  );
 }
 
 /**
@@ -106,7 +119,7 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
       aria-modal="true"
       aria-label={props.label}
       aria-labelledby={props.labelledBy}
-      tabIndex={-1}
+      tabindex={-1}
     >
       {props.children}
     </div>

@@ -23,11 +23,7 @@ export function GameNamesProvider(props: {
   const names = untrack(
     () => new Map(props.games.map((game) => [game.id, game.title]))
   );
-  return (
-    <GameNamesContext value={names}>
-      {props.children}
-    </GameNamesContext>
-  );
+  return <GameNamesContext value={names}>{props.children}</GameNamesContext>;
 }
 
 /** A game's name as people see it; an id no game claims shows as itself. */

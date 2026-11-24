@@ -16,11 +16,15 @@ function LinkedPuzzle(): JSX.Element {
   const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
   const isDriver = useIsPuzzleDriver();
   const gameScreen = useGameScreen();
-  createEffect(() => {
-    if (params()[LINKED_PUZZLE_PARAM] === undefined || !isDriver()) return;
-    if (gameScreen.screen() === PUZZLE_SCREEN.puzzle) return;
-    untrack(() => gameScreen.show(PUZZLE_SCREEN.puzzle));
-  });
+  createEffect(
+    () =>
+      params()[LINKED_PUZZLE_PARAM] !== undefined &&
+      isDriver() &&
+      gameScreen.screen() !== PUZZLE_SCREEN.puzzle,
+    (elsewhere) => {
+      if (elsewhere) untrack(() => gameScreen.show(PUZZLE_SCREEN.puzzle));
+    }
+  );
   return null;
 }
 

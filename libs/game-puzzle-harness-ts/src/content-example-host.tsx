@@ -4,7 +4,7 @@ import { ConfigServiceProvider } from '@libs/auth-client-ts/config-service-conte
 import { LoggerProvider } from '@pkgs/logger-client-ts/solid';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { AppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
-import { createMemoryHistory, MemoryRouter, Route } from '@solidjs/router';
+import { createRouter, memoryHistory } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
 import { contentExampleAuth } from './content-example-auth';
 
@@ -12,20 +12,22 @@ import { contentExampleAuth } from './content-example-auth';
 export function ContentExampleHost(props: {
   children: JSX.Element;
 }): JSX.Element {
+  // The single route renders this host's own children, so its router is too.
+  const Router = createRouter({
+    routes: [{ path: '*', component: () => props.children }],
+    history: memoryHistory(),
+  });
   return (
     <LoggerProvider value={createNoopLogger()}>
       <ConfigServiceProvider value={{ getApiUrl: () => '' }}>
         <AuthClientProvider port={contentExampleAuth()}>
-          <MemoryRouter
-            history={createMemoryHistory()}
-            root={(route) => (
+          <Router>
+            {(route) => (
               <AppRouterProvider>
                 <AuthModalsProvider>{route.children}</AuthModalsProvider>
               </AppRouterProvider>
             )}
-          >
-            <Route path="*" component={() => props.children} />
-          </MemoryRouter>
+          </Router>
         </AuthClientProvider>
       </ConfigServiceProvider>
     </LoggerProvider>

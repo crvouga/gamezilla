@@ -43,7 +43,7 @@ function PairTools(props: {
       <TextInput
         label={t`Pair label`}
         value={props.pair.label}
-        maxLength={8}
+        maxlength={8}
         disabled={props.disabled}
         onChangeText={(label) =>
           props.editor.editPair({ ...props.pair, label })

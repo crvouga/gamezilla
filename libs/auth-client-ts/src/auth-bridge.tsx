@@ -28,7 +28,12 @@ import { writeSecureStorageItem } from '@pkgs/secure-storage-root-shared-ts/secu
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, onCleanup, type ParentProps } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  type ParentProps,
+} from 'solid-js';
 import type { AuthBridgeRefreshDeps } from './auth-bridge-refresh';
 import { AuthBridgeRefresh } from './auth-bridge-refresh';
 import { useAuthClientPort } from './auth-client-provider';
@@ -51,34 +56,34 @@ function useClearStaleAccountOnExternalUserChange(args: {
 }): void {
   const previousExternalUserIdRef = { current: null as string | null };
 
-  createEffect(() => {
-    const authState = args.authState();
-    const isHydrated = authState.isHydrated;
-    const isSignedIn = isAuthSessionSignedIn(authState);
-    const externalUserId = authState.session?.externalUserId ?? null;
-    if (!isHydrated) return;
-    if (!isSignedIn || externalUserId === null) {
-      if (!isSignedIn) previousExternalUserIdRef.current = null;
-      return;
+  createEffect(
+    () => ({ authState: args.authState(), deps: args.deps() }),
+    ({ authState, deps }) => {
+      const isSignedIn = isAuthSessionSignedIn(authState);
+      const externalUserId = authState.session?.externalUserId ?? null;
+      if (!authState.isHydrated) return;
+      if (!isSignedIn || externalUserId === null) {
+        if (!isSignedIn) previousExternalUserIdRef.current = null;
+        return;
+      }
+      const stored = new SessionCapabilityStore(
+        deps.store
+      ).readExternalUserId();
+      const previous = previousExternalUserIdRef.current ?? stored;
+      previousExternalUserIdRef.current = externalUserId;
+      if (
+        !shouldClearAccountOnExternalUserChange(
+          previous,
+          externalUserId,
+          isSignedIn
+        )
+      ) {
+        return;
+      }
+      deps.lastSyncedTokenRef.current = null;
+      void writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, null);
     }
-    const stored = new SessionCapabilityStore(
-      args.deps().store
-    ).readExternalUserId();
-    const previous = previousExternalUserIdRef.current ?? stored;
-    previousExternalUserIdRef.current = externalUserId;
-    if (
-      !shouldClearAccountOnExternalUserChange(
-        previous,
-        externalUserId,
-        isSignedIn
-      )
-    ) {
-      return;
-    }
-    const deps = args.deps();
-    deps.lastSyncedTokenRef.current = null;
-    void writeSecureStorageItem(deps.store, LAST_LOCAL_ACCOUNT_ID_KEY, null);
-  });
+  );
 }
 
 async function handleBaSignedIn(args: {
@@ -110,31 +115,72 @@ function useStorageFirstBoot(args: {
 }): void {
   const bootedRef = { current: false };
 
-  createEffect(() => {
-    if (
-      !args.tokenHydrated() ||
-      !args.accountIdHydrated() ||
-      bootedRef.current
-    ) {
-      return;
+  createEffect(
+    () => ({
+      hydrated: args.tokenHydrated() && args.accountIdHydrated(),
+      deps: args.deps(),
+    }),
+    ({ hydrated, deps }) => {
+      if (!hydrated || bootedRef.current) return;
+      const session = new SessionCapabilityStore(deps.store);
+      const token = session.readToken();
+      bootedRef.current = true;
+      if (token === null) {
+        void new AuthBridgeRefresh(deps).bindLocalAccountThenEnsure();
+        return;
+      }
+      const expiresAt = session.readExpiresAt();
+      const externalUserId = session.readExternalUserId();
+      deps.lastSyncedTokenRef.current = null;
+      void new AuthBridgeRefresh(deps).runRefresh({
+        token,
+        expiresAt,
+        externalUserId,
+        force: true,
+      });
     }
-    const deps = args.deps();
-    const session = new SessionCapabilityStore(deps.store);
-    const token = session.readToken();
-    bootedRef.current = true;
-    if (token === null) {
-      void new AuthBridgeRefresh(deps).bindLocalAccountThenEnsure();
-      return;
-    }
-    const expiresAt = session.readExpiresAt();
-    const externalUserId = session.readExternalUserId();
-    deps.lastSyncedTokenRef.current = null;
-    void new AuthBridgeRefresh(deps).runRefresh({
-      token,
-      expiresAt,
-      externalUserId,
-      force: true,
+  );
+}
+
+async function reconcileAuthSession(args: {
+  signedIn: boolean;
+  expiresAt: string | null;
+  externalUserId: string | null;
+  sessionError: Error | null;
+  deps: AuthBridgeRefreshDeps;
+  port: AuthClientPort;
+  wasBaSignedInRef: { current: boolean };
+}): Promise<void> {
+  const { deps, wasBaSignedInRef } = args;
+  if (args.sessionError !== null) {
+    deps.log.warn('auth session error', { error: args.sessionError.message });
+  }
+  if (!args.signedIn) {
+    const storedToken = new SessionCapabilityStore(deps.store).readToken();
+    const rotateAccount = wasBaSignedInRef.current || storedToken !== null;
+    const clear = shouldClearCapabilityOnBaSignedOut({
+      storedToken,
+      wasBaSignedIn: wasBaSignedInRef.current,
     });
+    wasBaSignedInRef.current = false;
+    if (clear) {
+      // The provider ended a session this device still held.
+      await new AuthBridgeRefresh(deps).handleSignedOut({
+        rotateAccount,
+        endedElsewhere: storedToken !== null,
+      });
+    }
+    return;
+  }
+  if (!wasBaSignedInRef.current) {
+    deps.lastSyncedTokenRef.current = null;
+    wasBaSignedInRef.current = true;
+  }
+  await handleBaSignedIn({
+    deps,
+    port: args.port,
+    expiresAt: args.expiresAt,
+    externalUserId: args.externalUserId,
   });
 }
 
@@ -146,52 +192,28 @@ function useReconcileAuthSession(args: {
   const wasBaSignedInRef = { current: false };
   const chainRef = { current: Promise.resolve() };
 
-  createEffect(() => {
-    const authState = args.authState();
-    if (!authState.isHydrated) return;
-    const signedIn = isAuthSessionSignedIn(authState);
-    const expiresAt = normalizeExpiresAt(authState.session?.expiresAt ?? null);
-    const externalUserId = authState.session?.externalUserId ?? null;
-    const sessionError = authSessionError(authState);
-    const deps = args.deps();
-    chainRef.current = chainRef.current
-      .catch(() => undefined)
-      .then(async () => {
-        if (sessionError !== null) {
-          deps.log.warn('auth session error', { error: sessionError.message });
-        }
-        if (!signedIn) {
-          const storedToken = new SessionCapabilityStore(
-            deps.store
-          ).readToken();
-          const rotateAccount =
-            wasBaSignedInRef.current || storedToken !== null;
-          const clear = shouldClearCapabilityOnBaSignedOut({
-            storedToken,
-            wasBaSignedIn: wasBaSignedInRef.current,
-          });
-          wasBaSignedInRef.current = false;
-          if (clear) {
-            // The provider ended a session this device still held.
-            await new AuthBridgeRefresh(deps).handleSignedOut({
-              rotateAccount,
-              endedElsewhere: storedToken !== null,
-            });
-          }
-          return;
-        }
-        if (!wasBaSignedInRef.current) {
-          deps.lastSyncedTokenRef.current = null;
-          wasBaSignedInRef.current = true;
-        }
-        await handleBaSignedIn({
-          deps,
-          port: args.port,
-          expiresAt,
-          externalUserId,
-        });
-      });
-  });
+  createEffect(
+    () => ({ authState: args.authState(), deps: args.deps() }),
+    ({ authState, deps }) => {
+      if (!authState.isHydrated) return;
+      const next = {
+        signedIn: isAuthSessionSignedIn(authState),
+        expiresAt: normalizeExpiresAt(authState.session?.expiresAt ?? null),
+        externalUserId: authState.session?.externalUserId ?? null,
+        sessionError: authSessionError(authState),
+      };
+      chainRef.current = chainRef.current
+        .catch(() => undefined)
+        .then(() =>
+          reconcileAuthSession({
+            ...next,
+            deps,
+            port: args.port,
+            wasBaSignedInRef,
+          })
+        );
+    }
+  );
 }
 
 function subscribeToForeground(onForeground: () => void): () => void {
@@ -212,25 +234,27 @@ function useRefreshOnAppForeground(args: {
   externalUserId: Accessor<string | null>;
   deps: Accessor<AuthBridgeRefreshDeps>;
 }): void {
-  createEffect(() => {
-    if (!args.enabled()) return;
-    const unsubscribe = subscribeToForeground(() => {
-      void (async () => {
-        const deps = args.deps();
-        const token = await new SessionBearerTokenResolver(deps.timers).resolve(
-          args.port
-        );
-        if (token === null) return;
-        await new AuthBridgeRefresh(deps).runRefresh({
-          token,
-          expiresAt: args.expiresAt(),
-          externalUserId: args.externalUserId(),
-          force: true,
-        });
-      })();
-    });
-    onCleanup(unsubscribe);
-  });
+  createEffect(
+    () => args.enabled(),
+    (enabled) => {
+      if (!enabled) return;
+      return subscribeToForeground(() => {
+        void (async () => {
+          const deps = args.deps();
+          const token = await new SessionBearerTokenResolver(
+            deps.timers
+          ).resolve(args.port);
+          if (token === null) return;
+          await new AuthBridgeRefresh(deps).runRefresh({
+            token,
+            expiresAt: args.expiresAt(),
+            externalUserId: args.externalUserId(),
+            force: true,
+          });
+        })();
+      });
+    }
+  );
 }
 
 /**
@@ -247,23 +271,28 @@ function useRevalidateSession(args: {
 }): void {
   const timers = useTimers();
   const origin = useOptionalOriginAvailability();
-  createEffect(() => {
-    if (!args.enabled()) return;
-    // regression: privacy-proof-unknown-after-reopen
-    // A reopened app knows its session only from storage. Ask the server as
-    // soon as it can be reached, not a minute from now: until it answers, the
-    // device cannot tell when the person last signed in, and choices that
-    // need a recent sign-in (export, deletion) are refused as if they had not.
-    if (!args.port.session.getSnapshot().isHydrated) {
+  createEffect(
+    () => args.enabled(),
+    (enabled) => {
+      if (!enabled) return;
+      // regression: privacy-proof-unknown-after-reopen
+      // A reopened app knows its session only from storage. Ask the server as
+      // soon as it can be reached, not a minute from now: until it answers, the
+      // device cannot tell when the person last signed in, and choices that
+      // need a recent sign-in (export, deletion) are refused as if they had not.
       const boot = new AbortController();
-      void hydrateSessionWhenReachable(args.port, origin, boot.signal);
-      onCleanup(() => boot.abort());
+      if (!args.port.session.getSnapshot().isHydrated) {
+        void hydrateSessionWhenReachable(args.port, origin, boot.signal);
+      }
+      const id = timers.setInterval(() => {
+        void args.port.session.refresh();
+      }, SESSION_REVALIDATE_MS);
+      return () => {
+        boot.abort();
+        timers.clearInterval(id);
+      };
     }
-    const id = timers.setInterval(() => {
-      void args.port.session.refresh();
-    }, SESSION_REVALIDATE_MS);
-    onCleanup(() => timers.clearInterval(id));
-  });
+  );
 }
 
 async function hydrateSessionWhenReachable(
@@ -286,20 +315,25 @@ function useRevalidateSessionWhenOriginReturns(args: {
   port: AuthClientPort;
   origin: ReturnType<typeof useOptionalOriginAvailability>;
 }): void {
-  createEffect(() => {
-    const origin = args.origin;
-    if (!args.enabled() || origin === undefined || origin.kind !== 'health') {
-      return;
+  createEffect(
+    () => args.enabled(),
+    (enabled) => {
+      const origin = args.origin;
+      if (!enabled || origin === undefined || origin.kind !== 'health') {
+        return;
+      }
+      let sawUnavailable = false;
+      return origin.subscribe(() => {
+        const next = originRevalidate(
+          sawUnavailable,
+          origin.getSnapshot().phase
+        );
+        sawUnavailable = next.sawUnavailable;
+        if (!next.revalidate) return;
+        void args.port.session.refresh();
+      });
     }
-    let sawUnavailable = false;
-    const unsubscribe = origin.subscribe(() => {
-      const next = originRevalidate(sawUnavailable, origin.getSnapshot().phase);
-      sawUnavailable = next.sawUnavailable;
-      if (!next.revalidate) return;
-      void args.port.session.refresh();
-    });
-    onCleanup(unsubscribe);
-  });
+  );
 }
 
 /**

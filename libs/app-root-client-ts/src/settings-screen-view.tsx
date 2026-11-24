@@ -22,7 +22,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { type Accessor, For, Show } from 'solid-js';
 
 const ROW_ICON_SIZE = 20;
@@ -342,6 +342,7 @@ function SettingsRowItem(props: {
       ? props.row.onPress
       : () => props.onNavigate(href);
   };
+  const RowIcon = dynamic(() => props.row.icon);
   return (
     <MenuRow
       title={props.row.title}
@@ -351,9 +352,7 @@ function SettingsRowItem(props: {
           ? props.row.value
           : undefined
       }
-      leading={
-        <Dynamic component={props.row.icon} size={ROW_ICON_SIZE} color="icon" />
-      }
+      leading={<RowIcon size={ROW_ICON_SIZE} color="icon" />}
       trailing={
         props.row.toggle === undefined ? undefined : (
           <Switch

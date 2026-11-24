@@ -18,7 +18,14 @@ import {
 } from '@libs/spaces-client-ts/use-space-room-selector';
 import { registerFeedbackContext } from '@pkgs/feedback-shared-ts/context';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
-import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 import type { PuzzleAttempt, PuzzleCoachLine } from './puzzle-client';
 import { usePuzzleGame } from './puzzle-game-context';
 import {
@@ -43,18 +50,21 @@ function useReclaimStalePuzzleHost(canDrive: Accessor<boolean>): void {
   const hostIdentity = useSpaceRoomSelector(PuzzlePlayAttr.hostIdentity.from);
   const roomSynced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const { peersByMemberId } = useSpacePresence();
-  createEffect(() => {
-    const reclaim = shouldReclaimPuzzleHost({
-      canDrive: canDrive(),
-      memberId: memberId(),
-      roomStatus: roomStatus(),
-      hostIdentity: hostIdentity(),
-      roomSynced: roomSynced(),
-      hostPresent:
-        hostIdentity() !== null && peersByMemberId().has(hostIdentity()!),
-    });
-    if (reclaim) dispatch(ReclaimPuzzlePlay({}));
-  });
+  createEffect(
+    () =>
+      shouldReclaimPuzzleHost({
+        canDrive: canDrive(),
+        memberId: memberId(),
+        roomStatus: roomStatus(),
+        hostIdentity: hostIdentity(),
+        roomSynced: roomSynced(),
+        hostPresent:
+          hostIdentity() !== null && peersByMemberId().has(hostIdentity()!),
+      }),
+    (reclaim) => {
+      if (reclaim) untrack(() => dispatch(ReclaimPuzzlePlay({})));
+    }
+  );
 }
 
 /** True for the member the room recorded as the puzzle host (the one moving). */
@@ -81,31 +91,37 @@ function useStartPuzzleSessionOnMount(args: {
   const roomPuzzleId = useSpaceRoomSelector(PuzzlePlayAttr.puzzleId.from);
   const myId = useMyId();
   const lastStartedNonceRef: { current: number } = { current: 0 };
-  createEffect(() => {
-    const decision = decidePuzzleSessionStart({
+  createEffect(
+    () => ({
       canDrive: args.canDrive(),
       identityReady: myId().length > 0,
       startNonce: args.startNonce(),
-      lastStartedNonce: lastStartedNonceRef.current,
       playGeneration: args.playGeneration(),
       readyGeneration: args.readyGeneration(),
       roomStatus: roomStatus(),
       roomPuzzleId: roomPuzzleId(),
       fen: args.fen(),
       moves: args.movesStr(),
-    });
-    if (decision.kind === 'skip') return;
-    lastStartedNonceRef.current = args.startNonce();
-    if (decision.kind === 'start') {
-      dispatch(
-        StartPuzzlePlay({
-          puzzleId: args.puzzleId(),
-          fen: args.fen(),
-          moves: args.movesStr(),
-        })
-      );
+    }),
+    (facts) => {
+      const decision = decidePuzzleSessionStart({
+        ...facts,
+        lastStartedNonce: lastStartedNonceRef.current,
+      });
+      if (decision.kind === 'skip') return;
+      lastStartedNonceRef.current = facts.startNonce;
+      if (decision.kind === 'start')
+        untrack(() =>
+          dispatch(
+            StartPuzzlePlay({
+              puzzleId: args.puzzleId(),
+              fen: facts.fen,
+              moves: facts.moves,
+            })
+          )
+        );
     }
-  });
+  );
 }
 
 /**

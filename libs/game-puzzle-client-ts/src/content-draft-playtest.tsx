@@ -62,9 +62,15 @@ export function ContentDraftPlaytest(props: {
           ? t`Playtest again`
           : t`Start playtest`;
       },
-      loading: t`Preparing…`,
-      success: t`Playtest ready`,
-      error: t`Try playtesting again`,
+      get loading() {
+        return t`Preparing…`;
+      },
+      get success() {
+        return t`Playtest ready`;
+      },
+      get error() {
+        return t`Try playtesting again`;
+      },
     },
     get disabled() {
       return (

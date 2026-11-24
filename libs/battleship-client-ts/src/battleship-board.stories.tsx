@@ -14,7 +14,7 @@ import {
   type GameSetups,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createSignal, mergeProps } from 'solid-js';
+import { createSignal, merge } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipBoard } from './battleship-board';
@@ -93,7 +93,7 @@ function renderSending(
   context: { readonly parameters: Readonly<Record<string, unknown>> }
 ) {
   const [sending, setSending] = createSignal(false);
-  const board = mergeProps(args, {
+  const board = merge(args, {
     get interactive() {
       return args.interactive && !sending();
     },
@@ -228,7 +228,7 @@ function shotJourney(
     render: (args, context) => {
       const [moves, setMoves] = createSignal([...cells]);
       const [fired, setFired] = createSignal(false);
-      const board = mergeProps(args, {
+      const board = merge(args, {
         get position() {
           return after(moves());
         },

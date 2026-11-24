@@ -3,7 +3,7 @@ import type { AuthSessionState } from '@pkgs/auth-root-shared-ts/auth-session-st
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import type { JSX } from '@solidjs/web';
-import type { ParentProps } from 'solid-js';
+import { type ParentProps, untrack } from 'solid-js';
 
 const AuthClientPortContext = defineContext<AuthClientPort>('AuthClientPort');
 
@@ -11,8 +11,7 @@ export function AuthClientProvider(
   props: ParentProps<{ readonly port: AuthClientPort }>
 ): JSX.Element {
   // Composition-root DI: the port identity is fixed for this tree's lifetime.
-  // oxlint-disable-next-line solid/reactivity -- intentional one-time DI capture
-  const staticPort = props.port;
+  const staticPort = untrack(() => props.port);
   return (
     <AuthClientPortContext.Provider value={staticPort}>
       {props.children}

@@ -9,8 +9,8 @@ import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Dynamic } from '@solidjs/web';
-import { createEffect, on, Show } from 'solid-js';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createEffect, Show } from 'solid-js';
 import type {
   CatalogueLoadCopy,
   CatalogueSourceUpload,
@@ -70,25 +70,33 @@ function SourceUpload(props: {
 /** No file is saved: choose one and upload it. */
 function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
   const { t } = useLingui();
+  const FileLabel = dynamic(() => props.copy.fileLabel);
+  const FileHint = dynamic(() => props.copy.fileHint);
   const save = useMutationButton({
     operation: () => props.onSave(),
     get disabled() {
       return props.source.status !== 'chosen' || props.link === 'offline';
     },
     labels: {
-      idle: t`Upload ${props.copy.sourceName}`,
-      loading: t`Uploading ${props.copy.sourceName}…`,
-      success: t`${props.copy.sourceName} uploaded`,
-      error: t`Try uploading again`,
+      get idle() {
+        return t`Upload ${props.copy.sourceName}`;
+      },
+      get loading() {
+        return t`Uploading ${props.copy.sourceName}…`;
+      },
+      get success() {
+        return t`${props.copy.sourceName} uploaded`;
+      },
+      get error() {
+        return t`Try uploading again`;
+      },
     },
   });
   // Another file is another attempt: the button forgets the last outcome.
   createEffect(
-    on(
-      () => props.source.chosen,
-      () => save.reset(),
-      { defer: true }
-    )
+    () => props.source.chosen,
+    () => save.reset(),
+    { defer: true }
   );
   return (
     <>
@@ -112,16 +120,12 @@ function SourceChoice(props: CatalogueLoadSourceViewProps): JSX.Element {
         </Notice>
       </Show>
       <FilePicker
-        label={<Dynamic component={props.copy.fileLabel} />}
+        label={<FileLabel />}
         accept={props.copy.fileAccept}
         chooseLabel={t`Choose file`}
         emptyLabel={t`No file chosen`}
         fileName={props.source.chosen}
-        hint={
-          props.source.chosen === null ? (
-            <Dynamic component={props.copy.fileHint} />
-          ) : undefined
-        }
+        hint={props.source.chosen === null ? <FileHint /> : undefined}
         onSelect={(file) => props.onSelectFile(file)}
         dataSet={{ testid: 'puzzle-load-file' }}
         fileDataSet={{ testid: 'puzzle-source-chosen' }}

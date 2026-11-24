@@ -194,9 +194,9 @@ export function Tabs<V extends string = string>(
                 }
                 data-component={componentId('Tab')}
                 role="tab"
-                aria-selected={isSelected()}
+                aria-selected={isSelected() ? 'true' : 'false'}
                 aria-controls={panelId(index())}
-                tabIndex={isSelected() ? 0 : -1}
+                tabindex={isSelected() ? 0 : -1}
                 disabled={item.disabled === true}
                 onClick={() => select(item.value)}
                 onKeyDown={(event) => onTabKeyDown(event.currentTarget, event)}
@@ -234,7 +234,7 @@ export function Tabs<V extends string = string>(
             data-component={componentId('TabPanel')}
             role="tabpanel"
             aria-labelledby={tabId(index())}
-            tabIndex={0}
+            tabindex={0}
             hidden={item.value !== selected()}
           >
             <Show

@@ -25,14 +25,17 @@ export type ActiveSpaceBodyProps = {
  * room state uses registry hooks under {@link SpaceRoomProvider}.
  */
 export function ActiveSpaceBody(props: ActiveSpaceBodyProps): JSX.Element {
-  useAnnounceJoinedOnSync(props.spaceId);
+  useAnnounceJoinedOnSync(() => props.spaceId);
   useNoteSpaceActivity();
   const connection = useSpaceHostConnection();
   const engine = useSyncEngine();
   const [keptMenu, setKeptMenu] = createSignal(false);
-  createEffect(() => {
-    if (connection() !== 'loading') setKeptMenu(true);
-  });
+  createEffect(
+    () => connection() !== 'loading',
+    (known) => {
+      if (known) setKeptMenu(true);
+    }
+  );
   const sessionUi: SpaceSessionUiValue = {
     get spaceId() {
       return props.spaceId;

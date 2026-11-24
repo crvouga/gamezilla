@@ -55,7 +55,7 @@ export function MultiplayerSearchingView(
               when={props.search.timeControl}
               fallback={<Trans>Untimed</Trans>}
             >
-              {(control) => timeControlWords(control())}
+              {(control) => <>{timeControlWords(control())}</>}
             </Show>
           </>
         }

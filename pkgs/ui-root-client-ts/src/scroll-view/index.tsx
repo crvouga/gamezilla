@@ -87,7 +87,7 @@ export function ScrollView(props: ScrollViewProps): JSX.Element {
       role={props.role}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
-      tabIndex={props.tabIndex ?? 0}
+      tabindex={props.tabIndex ?? 0}
       {...scrollHandlers(props)}
     >
       <div

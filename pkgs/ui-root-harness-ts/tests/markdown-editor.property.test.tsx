@@ -3,6 +3,7 @@ import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
 import { editor, formatAndUndo } from './markdown-editor-fixture';
+import { flush } from 'solid-js';
 
 const writing = fc
   .array(fc.constantFrom('Board', 'movement', 'feels', 'clear', 'today'), {
@@ -30,7 +31,9 @@ test('formatting cannot exceed the serialized writing limit', () => {
       'markdown-editor',
       fc.property(writing, (text) => {
         mounted.setLimit(text.length);
+        flush();
         mounted.setValue(text);
+        flush();
         fireEvent.click(mounted.heading);
         expect(mounted.value()).toBe(text);
         expect(mounted.field.textContent).toBe(text);
@@ -52,6 +55,7 @@ test('pasted links cannot introduce executable destinations', () => {
         writing,
         (scheme, text) => {
           mounted.setValue('');
+          flush();
           fireEvent.paste(mounted.field, {
             clipboardData: {
               files: [],

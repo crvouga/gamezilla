@@ -1,7 +1,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, onCleanup, onSettled, Show } from 'solid-js';
+import { createEffect, createSignal, onSettled, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { GameActionBar, type GameActionItem } from '../game-action-bar/index';
 import styles from './word-tile-workbench.module.css';
@@ -43,9 +43,9 @@ export function WordTileActions(props: {
       ?.querySelector<HTMLButtonElement>('[aria-expanded]')
       ?.focus({ preventScroll: true });
   };
-  createEffect(() => {
-    if (open()) onCleanup(pushEscapeDismissHandler(close));
-  });
+  createEffect(open, (shown) =>
+    shown ? pushEscapeDismissHandler(close) : undefined
+  );
   return (
     <Show when={props.items.length > 0}>
       <div ref={root} {...dataAttrs({ component: 'WordTileActions' })}>
@@ -106,21 +106,19 @@ export function WordTileLetterChoices(props: {
     const buttons = root?.querySelectorAll('button');
     for (const button of buttons ?? [])
       button.addEventListener('keydown', chooseKey);
-    onCleanup(() => {
-      for (const button of buttons ?? [])
-        button.removeEventListener('keydown', chooseKey);
-    });
     root
       ?.querySelector<HTMLButtonElement>('button')
       ?.focus({ preventScroll: true });
-    onCleanup(() => {
+    return () => {
+      for (const button of buttons ?? [])
+        button.removeEventListener('keydown', chooseKey);
       if (
         root?.contains(document.activeElement) &&
         previous instanceof HTMLElement &&
         previous.isConnected
       )
         previous.focus({ preventScroll: true });
-    });
+    };
   });
   return (
     <div

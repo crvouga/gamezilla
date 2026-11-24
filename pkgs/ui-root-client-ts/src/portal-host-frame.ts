@@ -4,7 +4,7 @@ import { observeElementResize } from './observe-element-resize';
  * `ResizeObserver` (falls back to a one-shot measure when unavailable).
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 export type PortalHostFrame = {
   x: number;
@@ -64,12 +64,11 @@ export function createHostFrame(
     ZERO_PORTAL_HOST_FRAME,
     { equals: portalHostFramesEqual }
   );
-  createEffect(() => {
-    const el = host();
-    if (el === undefined) return;
+  createEffect(host, (el) => {
+    if (el === undefined) return undefined;
     const measure = () => setFrame(measureHostFrame(el));
     measure();
-    onCleanup(observeElementResize(el, measure));
+    return observeElementResize(el, measure);
   });
   return frame;
 }

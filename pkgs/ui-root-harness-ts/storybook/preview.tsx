@@ -90,10 +90,12 @@ const withProviders = createJSXDecorator((Story, context) => {
   onCleanup(() =>
     context.canvasElement.removeEventListener('advance-story-time', advance)
   );
-  createEffect(() => {
-    const ms = Number(context.globals['timeStep'] ?? 0);
-    if (Number.isFinite(ms) && ms > 0) harness.clock.advance(ms);
-  });
+  createEffect(
+    () => Number(context.globals['timeStep'] ?? 0),
+    (ms) => {
+      if (Number.isFinite(ms) && ms > 0) harness.clock.advance(ms);
+    }
+  );
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   i18n.setMessagesCompiler(compileMessage);
   return (

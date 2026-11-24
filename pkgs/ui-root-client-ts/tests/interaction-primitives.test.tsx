@@ -14,7 +14,7 @@ import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { fireEvent, render } from '@solidjs/testing-library';
-import { createEffect, createSignal, For, Show } from 'solid-js';
+import { createEffect, createSignal, flush, For, Show } from 'solid-js';
 
 function byTestId(testId: string): HTMLElement {
   const element = document.querySelector<HTMLElement>(
@@ -167,6 +167,7 @@ describe('focus targets', () => {
     region.blur();
     expect(document.activeElement).not.toBe(byTestId('region'));
     setShown(false);
+    flush();
     expect(field.mounted()).toBe(false);
     expect(field.focus()).toBe(false);
   });
@@ -185,8 +186,7 @@ describe('scroll targets', () => {
     };
     try {
       render(() => {
-        createEffect(() => {
-          selected();
+        createEffect(selected, () => {
           current.scrollIntoView({ inline: 'center' });
         });
         return (
@@ -202,6 +202,7 @@ describe('scroll targets', () => {
       });
       expect(revealed.at(-1)).toBe('item-0');
       setSelected(2);
+      flush();
       expect(revealed.at(-1)).toBe('item-2');
       expect(revealed).not.toContain('item-1');
     } finally {
@@ -283,7 +284,12 @@ describe('measure', () => {
       const seen: string[] = [];
       render(() => {
         const frame = createMeasure();
-        createEffect(() => seen.push(`${frame.width()}x${frame.height()}`));
+        createEffect(
+          () => `${frame.width()}x${frame.height()}`,
+          (size) => {
+            seen.push(size);
+          }
+        );
         return <StackVertical testId="frame" measureTarget={frame.target} />;
       });
       expect(seen.at(-1)).toBe('320x200');

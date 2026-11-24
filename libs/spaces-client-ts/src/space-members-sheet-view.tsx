@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
 import type { PresenceRosterRow } from '@pkgs/collab-ui-client-ts/presence-roster-list';
 import { PresenceRosterList } from '@pkgs/collab-ui-client-ts/presence-roster-list';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';

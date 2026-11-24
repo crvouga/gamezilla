@@ -118,8 +118,8 @@ export function DirectionPad(props: DirectionPadProps): JSX.Element {
       data-size={props.size ?? 'lg'}
       data-layout={props.layout ?? 'cross'}
       role="group"
-      data-disabled={props.disabled}
-      data-concealed={props.concealed === true}
+      data-disabled={String(props.disabled)}
+      data-concealed={String(props.concealed === true)}
       aria-hidden={props.concealed === true ? 'true' : undefined}
     >
       <For each={props.layout === 'arrows' ? ARROW_HEADINGS : HEADINGS}>

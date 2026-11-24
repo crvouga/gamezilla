@@ -41,7 +41,7 @@ export function PreviewThumbnail(props: PreviewThumbnailProps): JSX.Element {
     <span
       class={styles['thumbnail']}
       data-size={props.size ?? 'lg'}
-      data-stacked={props.stacked === true}
+      data-stacked={String(props.stacked === true)}
       aria-hidden="true"
       {...dataAttrs({ component: 'PreviewThumbnail', ...props.dataSet })}
     >

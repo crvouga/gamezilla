@@ -21,19 +21,23 @@ export function GameDisclosure(props: {
   return (
     <div
       class={styles['disclosure']}
-      data-rule={props.rule !== false}
+      data-rule={String(props.rule !== false)}
       {...dataAttrs({ component: 'GameDisclosure' })}
     >
       <button
         type="button"
         class={`${styles['disclosureTrigger']} text textLabel`}
-        aria-expanded={open()}
+        aria-expanded={open() ? 'true' : 'false'}
         aria-controls={id}
         onClick={() => setOpen(!open())}
         {...dataAttrs({ component: 'GameDisclosureTrigger', ...props.dataSet })}
       >
         {props.title}
-        <span class={styles['chevron']} data-open={open()} aria-hidden="true">
+        <span
+          class={styles['chevron']}
+          data-open={String(open())}
+          aria-hidden="true"
+        >
           <ChevronDownIcon size={18} />
         </span>
       </button>

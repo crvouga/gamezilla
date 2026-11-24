@@ -19,7 +19,8 @@ import { createContext, untrack, useContext } from 'solid-js';
 import type { ClientEnv } from './client-env';
 import type { AppSyncEnginePool } from './sync-engine-pool';
 
-const EnvContext = createContext<ClientEnv>();
+/** `null` outside a provider: some trees mount without `createClient`. */
+const EnvContext = createContext<ClientEnv | null>(null);
 const PoolContext = createContext<AppSyncEnginePool>();
 
 export type ClientEnvProviderProps = {
@@ -58,7 +59,7 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
 
 export function useClientEnv(): ClientEnv {
   const env = useContext(EnvContext);
-  if (env === undefined) {
+  if (env === null) {
     throw new Error(
       'useClientEnv: ClientEnvProvider missing — wrap the tree with createClient'
     );
@@ -68,15 +69,9 @@ export function useClientEnv(): ClientEnv {
 
 /** Soft read for trees that may mount without createClient (harness console). */
 export function useOptionalClientEnv(): ClientEnv | undefined {
-  return useContext(EnvContext);
+  return useContext(EnvContext) ?? undefined;
 }
 
 export function useSyncEnginePool(): AppSyncEnginePool {
-  const pool = useContext(PoolContext);
-  if (pool === undefined) {
-    throw new Error(
-      'useSyncEnginePool: ClientEnvProvider missing — wrap the tree with createClient'
-    );
-  }
-  return pool;
+  return useContext(PoolContext);
 }

@@ -11,7 +11,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import type { JSX } from '@solidjs/web';
-import { createSignal, Match, Show, Switch } from 'solid-js';
+import { createSignal, Match, Show, Switch, untrack } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { GameFrameOptions } from './game-frame-options';
@@ -120,8 +120,14 @@ function ClockTimeFields(props: {
 export function FrameClockPlace(
   props: Props & { readonly clock: NonNullable<FrameOptions['clock']> }
 ): JSX.Element {
-  const [minutes, setMinutes] = createSignal(String(props.clock.minutes || 5));
-  const [increment, setIncrement] = createSignal(String(props.clock.increment));
+  // Prefilled once with the clock as the place opens: a time being typed is
+  // the person's until it is saved.
+  const [minutes, setMinutes] = createSignal(
+    untrack(() => String(props.clock.minutes || 5))
+  );
+  const [increment, setIncrement] = createSignal(
+    untrack(() => String(props.clock.increment))
+  );
   const choices = createFrameChoices(() => props.onClose());
   // A time is saved as its field is left, and on the way back too, so
   // leaving never drops an edit.

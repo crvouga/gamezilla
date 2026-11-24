@@ -32,14 +32,14 @@ function SyntheticUserContent(): JSX.Element {
   const replay = useCan(PERMISSION.syntheticPopulationReplay);
   return (
     <SyntheticUserScreenView
-      loading={user.record.loading}
-      failed={Boolean(user.record.error)}
+      loading={user.loading()}
+      failed={user.failed()}
       user={user.shown()}
       snapshot={user.snapshot()}
       canControl={control()}
       canReplay={replay()}
       onRefresh={() => {
-        void user.refetch();
+        void user.reread();
       }}
       onCommand={user.command}
       onOpen={(destination) => router.push(DESTINATIONS[destination](id()))}

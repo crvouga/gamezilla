@@ -7,7 +7,7 @@ import { CatalogList } from '@pkgs/ui-root-client-ts/catalog-list';
 import { ContentEdgePaddingProvider } from '@pkgs/ui-root-client-ts/content-edge-padding';
 import type { CatalogItem } from '@pkgs/ui-root-shared-ts/catalog-item';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { cssOf, renderUi } from './render';
 
 const ITEMS: readonly CatalogItem[] = [
@@ -82,6 +82,7 @@ describe('CatalogDetailNav', () => {
     fireEvent.click(next);
     expect(onNavigate).toHaveBeenCalledWith('chk');
     setCurrent('misc');
+    flush();
     expect(screen.getByText('4 of 4')).toBeInTheDocument();
     expect(next).toBeDisabled();
     fireEvent.click(prev);

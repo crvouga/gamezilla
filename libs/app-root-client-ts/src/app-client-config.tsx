@@ -14,8 +14,11 @@ export function AppClientConfig(props: {
   const engine = useSyncEngine();
   const { config } = useClientConfig();
   const emqxUrl = createMemo(() => config().emqx_wss_url?.trim() ?? '');
-  createEffect(() => {
-    if (emqxUrl().length > 0) engine.ensurePush();
-  });
+  createEffect(
+    () => emqxUrl().length > 0,
+    (hydrated) => {
+      if (hydrated) engine.ensurePush();
+    }
+  );
   return <>{props.children}</>;
 }

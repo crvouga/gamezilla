@@ -52,7 +52,10 @@ const SHAPE_CLASS: Record<SkeletonShape, string> = {
 export function Skeleton(props: SkeletonProps): JSX.Element {
   return (
     <div
-      class={["box skeleton shrink-0 overflow-hidden bg-surface-muted", { [SHAPE_CLASS[props.shape ?? 'text']]: true }]}
+      class={[
+        'box skeleton shrink-0 overflow-hidden bg-surface-muted',
+        { [SHAPE_CLASS[props.shape ?? 'text']]: true },
+      ]}
       {...dataAttrs({
         component: 'Skeleton',
         shape: props.shape ?? 'text',

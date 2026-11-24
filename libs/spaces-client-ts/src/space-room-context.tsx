@@ -2,7 +2,13 @@ import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared-ts/space-room-module
 import type { AnyRoomClient } from '@pkgs/room-root-client-ts/room-clients-context';
 import { RoomClientsProvider } from '@pkgs/room-root-client-ts/room-clients-context';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createMemo, onCleanup, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  createMemo,
+  useContext,
+} from 'solid-js';
 import {
   useSpaceOpenRoomEntry,
   useSpaceOpenRooms,
@@ -45,9 +51,7 @@ export function SpaceRoomProvider(props: SpaceRoomProviderProps): JSX.Element {
   const spaceId = createMemo(() => resolveId(props.spaceId));
   const entry = useSpaceOpenRoomEntry(spaceId);
   const rooms = useSpaceOpenRooms();
-  createEffect(() => {
-    onCleanup(rooms.view(spaceId()));
-  });
+  createEffect(spaceId, (id) => rooms.view(id));
   const roomMap = createMemo((): ReadonlyMap<string, AnyRoomClient> | null => {
     const current = entry();
     if (current === null) return null;

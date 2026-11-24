@@ -1,9 +1,10 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { componentDataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createMemo, For, Show, untrack } from 'solid-js';
+import { createMemo, For, Show, untrack } from 'solid-js';
 import { useContentEdgePadding } from '../content-edge-padding/index';
 import { spaced } from '../layout-classes';
 import type { ScrollFrameProps } from '../scroll-frame';
@@ -96,41 +97,45 @@ function rowPanel<ItemT>(
   };
 }
 
+function VirtualRow<ItemT>(props: {
+  rows: RowsProps<ItemT>;
+  item: VirtualItem;
+}): JSX.Element {
+  // A row is a slot: it keeps its index while the data underneath changes
+  // (filtered lists swap items without changing the slot) and while the
+  // rows above it are measured, which moves its offset.
+  const index = untrack(() => props.item.index);
+  const data = createMemo(() => props.rows.items[index]);
+  return (
+    <Show when={data()} keyed>
+      {(row) => (
+        <div
+          role="listitem"
+          class={rowPanel(props.rows, row, index).class}
+          data-panel-place={rowPanel(props.rows, row, index).place}
+          data-index={index}
+          ref={(el) =>
+            queueMicrotask(() => props.rows.virtualizer.measureElement(el))
+          }
+          style={{
+            position: 'absolute',
+            top: '0',
+            left: '0',
+            width: '100%',
+            transform: `translateY(${props.item.start}px)`,
+          }}
+        >
+          {props.rows.renderItem(row, index)}
+        </div>
+      )}
+    </Show>
+  );
+}
+
 function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
   // One panel around every row: `panel` without `panelGroups`.
   const outerPanel = (): boolean =>
     props.panel && props.panelGroups === undefined;
-  const renderRow = (item: Accessor<VirtualItem>): JSX.Element => {
-    // A row is a slot: it keeps its index while the data underneath changes
-    // (filtered lists swap items without changing the slot) and while the
-    // rows above it are measured, which moves its offset.
-    const index = untrack(() => item().index);
-    const data = createMemo(() => props.items[index]);
-    return (
-      <Show when={data()} keyed>
-        {(row) => (
-          <div
-            role="listitem"
-            class={rowPanel(props, row, index).class}
-            data-panel-place={rowPanel(props, row, index).place}
-            data-index={index}
-            ref={(el) =>
-              queueMicrotask(() => props.virtualizer.measureElement(el))
-            }
-            style={{
-              position: 'absolute',
-              top: '0',
-              left: '0',
-              width: '100%',
-              transform: `translateY(${item().start}px)`,
-            }}
-          >
-            {props.renderItem(row, index)}
-          </div>
-        )}
-      </Show>
-    );
-  };
   return (
     <div
       role="list"
@@ -142,7 +147,7 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
       }}
     >
       <For each={props.virtualizer.items()} keyed={(item) => item.index}>
-        {(item) => renderRow(item)}
+        {(item) => <VirtualRow rows={props} item={item()} />}
       </For>
     </div>
   );
@@ -233,8 +238,8 @@ export function VirtualList<ItemT>(
       role={props.role}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
-      aria-multiselectable={props['aria-multiselectable']}
-      tabIndex={props.tabIndex}
+      aria-multiselectable={ariaBoolean(props['aria-multiselectable'])}
+      tabindex={props.tabIndex}
       {...scrollHandlers(props)}
     >
       <div

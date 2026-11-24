@@ -5,7 +5,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { SyncEngineProvider } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client-ts/sync-status';
-import { type Accessor, createSignal } from 'solid-js';
+import { type Accessor, createSignal, flush } from 'solid-js';
 
 // regression: published-pack-start-before-membership-hydration
 test('a published pack uses its cached edition without derived membership rows', () => {
@@ -47,15 +47,20 @@ test('a published pack uses its cached edition without derived membership rows',
     }),
   ]);
   for (const listener of listeners) listener();
+  flush();
   expect(ready()).toBe(true);
   setPuzzle('second-puzzle');
+  flush();
   expect(ready()).toBe(false);
   setPuzzle('first-puzzle');
   db.run("UPDATE puzzle_content_revisions SET deleted_at = '2026-11-01'");
   for (const listener of listeners) listener();
+  flush();
   expect(ready()).toBe(false);
   setPack('bundled:sokoban:starter:edition');
+  flush();
   expect(ready()).toBe(true);
   setPack(null);
+  flush();
   expect(ready()).toBe(true);
 });

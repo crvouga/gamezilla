@@ -13,7 +13,7 @@ import { PendingNavigationConfirmation } from '@pkgs/ui-root-client-ts/pending-n
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { A, createMemoryHistory, MemoryRouter, Route } from '@solidjs/router';
+import { createRouter, memoryHistory } from '@solidjs/router';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { renderUi } from './render';
@@ -44,7 +44,7 @@ function Editor(props: {
       <button type="button" onClick={() => confirmNavigation(props.hide)}>
         Close embedded editor
       </button>
-      <A href="/next">Open next place</A>
+      <a href="/next">Open next place</a>
     </>
   );
 }
@@ -66,24 +66,11 @@ function setup(inDialog = false, cancelBackground?: () => void) {
   });
   const dispose = mock();
   const [shown, setShown] = createSignal(true);
-  const rendered = renderUi(() => (
-    <MemoryRouter
-      history={createMemoryHistory()}
-      root={(props) => (
-        <AppRouterProvider>
-          <SurfaceStackProvider>
-            <Show when={cancelBackground}>
-              {(cancel) => <BackgroundWork cancel={cancel()} />}
-            </Show>
-            {props.children}
-            <PendingNavigationConfirmation />
-          </SurfaceStackProvider>
-        </AppRouterProvider>
-      )}
-    >
-      <Route
-        path="/"
-        component={() => (
+  const Router = createRouter({
+    routes: [
+      {
+        path: '/',
+        component: () => (
           <Show when={shown()} fallback={<p>Embedded editor closed</p>}>
             <Show
               when={inDialog}
@@ -109,10 +96,26 @@ function setup(inDialog = false, cancelBackground?: () => void) {
               </ResponsiveSurface>
             </Show>
           </Show>
-        )}
-      />
-      <Route path="/next" component={() => <p>Next place</p>} />
-    </MemoryRouter>
+        ),
+      },
+      { path: '/next', component: () => <p>Next place</p> },
+    ],
+    history: memoryHistory(),
+  });
+  const rendered = renderUi(() => (
+    <Router>
+      {(props) => (
+        <AppRouterProvider>
+          <SurfaceStackProvider>
+            <Show when={cancelBackground}>
+              {(cancel) => <BackgroundWork cancel={cancel()} />}
+            </Show>
+            {props.children}
+            <PendingNavigationConfirmation />
+          </SurfaceStackProvider>
+        </AppRouterProvider>
+      )}
+    </Router>
   ));
   return { ...rendered, resolve, reject, dispose };
 }

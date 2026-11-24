@@ -22,7 +22,14 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, createUniqueId, For, on, Show } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  For,
+  Show,
+} from 'solid-js';
 import {
   type WindowManagerApi,
   WindowManagerContext,
@@ -101,7 +108,7 @@ function createWindowManagerApi(
     wanted = null;
     if (tab?.isConnected === true) tab.focus();
   };
-  createEffect(on(elements.layout, focusTab, { defer: true }));
+  createEffect(elements.layout, focusTab, { defer: true });
   const dispatch: WindowManagerApi['dispatch'] = (command, options) => {
     const before = elements.layout();
     const next = applyWindowLayoutCommand(before, command);

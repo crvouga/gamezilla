@@ -88,7 +88,11 @@ export function Layer(props: LayerProps): JSX.Element {
       data-inset={props.inset}
       role={props.role}
       aria-label={props['aria-label']}
-      aria-hidden={props['aria-hidden']}
+      aria-hidden={
+        props['aria-hidden'] === undefined
+          ? undefined
+          : `${props['aria-hidden']}`
+      }
     >
       {props.children}
     </div>

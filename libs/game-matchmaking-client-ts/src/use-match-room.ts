@@ -18,7 +18,7 @@ import { createRoomSnapshot } from '@pkgs/room-root-client-ts/room-signals';
 import { KeyValueClientRoomStorage } from '@pkgs/room-root-client-ts/storage';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import { useCreateId, useRandom } from '@pkgs/uuid-client-ts/solid';
-import { type Accessor, createEffect, createSignal, on, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 export type MatchRoomClient = RoomClient<RoomState, Message, Message, string>;
 
@@ -52,48 +52,46 @@ export function useMatchRoom(gameId: Accessor<string | undefined>) {
           config.getApiUrl(),
         ] as const);
   });
-  createEffect(
-    on(connectionKey, (key) => {
-      if (key === null) return;
-      const [topic, identity, installId, apiUrl] = key;
-      const transport = createTransport({
-        topic,
-        module: MATCH_ROOM_MODULE,
-        apiUrl,
-        identity,
-        installId,
-        clientId: createId(),
-        getSessionToken: getToken,
-        clock,
-        timers,
-        random,
-      });
-      const keys = keyValueRoomClientKeywords(topic);
-      let disposed = false;
-      let opened: RoomClient<RoomState, Message, Message, string> | null = null;
+  createEffect(connectionKey, (key) => {
+    if (key === null) return;
+    const [topic, identity, installId, apiUrl] = key;
+    const transport = createTransport({
+      topic,
+      module: MATCH_ROOM_MODULE,
+      apiUrl,
+      identity,
+      installId,
+      clientId: createId(),
+      getSessionToken: getToken,
+      clock,
+      timers,
+      random,
+    });
+    const keys = keyValueRoomClientKeywords(topic);
+    let disposed = false;
+    let opened: RoomClient<RoomState, Message, Message, string> | null = null;
+    setRoom(null);
+    void RoomClient.open({
+      topic,
+      module: matchRoomModule,
+      transport,
+      identity,
+      storage: new KeyValueClientRoomStorage(kv, keys.committed, keys.queue),
+      clock,
+      timers,
+      createId,
+    }).then((value) => {
+      opened = value;
+      if (disposed) value.destroy();
+      else setRoom(value);
+    });
+    return () => {
+      disposed = true;
+      opened?.destroy();
+      transport.destroy();
       setRoom(null);
-      void RoomClient.open({
-        topic,
-        module: matchRoomModule,
-        transport,
-        identity,
-        storage: new KeyValueClientRoomStorage(kv, keys.committed, keys.queue),
-        clock,
-        timers,
-        createId,
-      }).then((value) => {
-        opened = value;
-        if (disposed) value.destroy();
-        else setRoom(value);
-      });
-      onCleanup(() => {
-        disposed = true;
-        opened?.destroy();
-        transport.destroy();
-        setRoom(null);
-      });
-    })
-  );
+    };
+  });
   const state = createRoomSnapshot(room);
   return {
     game: () => matchRoomGame(state()),

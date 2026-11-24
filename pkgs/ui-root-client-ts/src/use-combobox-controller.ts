@@ -21,7 +21,12 @@ import type {
   ComboboxProps,
   ComboboxValue,
 } from '@pkgs/ui-root-shared-ts/combobox-types';
-import { type Accessor, createEffect, createMemo, createSignal, on } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 
 export type ComboboxController<T extends ComboboxValue> = {
   multiple: Accessor<boolean>;
@@ -74,11 +79,15 @@ function createHighlight(
   query: Accessor<string>,
   count: Accessor<number>
 ) {
-  const [highlightedIndex, setIndex] = createSignal(0);
-  createEffect(on([open, query], () => setIndex(0)));
-  createEffect(
-    on(count, (n) => setIndex((prev) => clampHighlightedIndex(prev, n)))
-  );
+  // Opening, closing or typing puts the highlight back on the first option.
+  const [highlightedIndex, setIndex] = createSignal(() => {
+    open();
+    query();
+    return 0;
+  });
+  createEffect(count, (n) => {
+    setIndex((prev) => clampHighlightedIndex(prev, n));
+  });
   const setHighlightedIndex = (updater: (prev: number) => number): void => {
     setIndex((prev) => clampHighlightedIndex(updater(prev), count()));
   };

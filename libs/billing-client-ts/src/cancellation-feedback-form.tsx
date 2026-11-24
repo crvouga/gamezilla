@@ -30,27 +30,35 @@ export function CancellationFeedbackForm(
   const [reason, setReason] = createSignal<CancellationReason>('');
   const [comment, setComment] = createSignal('');
   const [dirty, setDirty] = createSignal(false);
-  createEffect(() => {
-    const saved = props.saved;
-    if (saved === null || untrack(dirty)) return;
-    setReason(saved.reason);
-    setComment(saved.comment);
-  });
+  createEffect(
+    () => props.saved,
+    (saved) => {
+      // An answer being edited is kept; only a newly saved one is adopted.
+      if (saved === null || untrack(dirty)) return;
+      setReason(saved.reason);
+      setComment(saved.comment);
+    }
+  );
   const save = useMutationButton({
     operation: async () => {
       await props.onSave({ reason: reason(), comment: comment() });
       setDirty(false);
     },
-    labels: {
-      idle: t`Save feedback`,
-      loading: t`Saving…`,
-      success: t`Saved`,
-      error: t`Try saving again`,
+    get labels() {
+      return {
+        idle: t`Save feedback`,
+        loading: t`Saving…`,
+        success: t`Saved`,
+        error: t`Try saving again`,
+      };
     },
   });
-  createEffect(() => {
-    if (props.delivery === 'rejected') save.reset();
-  });
+  createEffect(
+    () => props.delivery === 'rejected',
+    (rejected) => {
+      if (rejected) save.reset();
+    }
+  );
   return (
     <StackVertical gap="md" testId="billing-cancellation-feedback">
       <H2>

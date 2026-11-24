@@ -1,12 +1,12 @@
 import { afterEach, expect, test } from 'bun:test';
 import { CancellationFeedbackForm } from '@libs/billing-client-ts/cancellation-feedback-form';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -41,6 +41,7 @@ test('a refused saved answer remains editable with retry and no success claim', 
     'Waiting to share'
   );
   setDelivery('rejected');
+  flush();
   expect(screen.queryByTestId('billing-feedback-saved')).toBeNull();
   expect(screen.getByRole('alert').textContent).toContain(
     'Your answer is still here'

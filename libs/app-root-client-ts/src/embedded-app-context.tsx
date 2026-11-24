@@ -17,9 +17,7 @@ export function EmbeddedAppProvider(props: {
   // Composition-root configuration: read once, not tracked.
   const embedded = untrack(() => props.embedded);
   return (
-    <EmbeddedAppContext value={embedded}>
-      {props.children}
-    </EmbeddedAppContext>
+    <EmbeddedAppContext value={embedded}>{props.children}</EmbeddedAppContext>
   );
 }
 

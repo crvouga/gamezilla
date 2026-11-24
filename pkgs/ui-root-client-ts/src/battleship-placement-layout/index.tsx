@@ -18,7 +18,7 @@ export function BattleshipPlacementLayout(props: {
   return (
     <div
       class={styles['layout']}
-      data-inspection={props.inspection === true}
+      data-inspection={String(props.inspection === true)}
       {...dataAttrs({ component: 'BattleshipPlacementLayout' })}
     >
       <div class={styles['controls']}>{props.controls}</div>

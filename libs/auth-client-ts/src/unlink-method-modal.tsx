@@ -1,8 +1,8 @@
 /** Confirm-first removal of one sign-in method (never the last one). */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { SignInMethodId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from '@solidjs/web';
 

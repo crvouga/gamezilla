@@ -4,6 +4,7 @@ import { createSignal, onSettled } from 'solid-js';
 import { Button } from '../button/index';
 import { safeMarkdownHref } from '../safe-markdown';
 import { TextInput } from '../text-input/index';
+import { moveFocus } from '../move-focus';
 
 /**
  * Focused link entry for MarkdownEditor. Accepts only safe Markdown URLs; Enter saves a valid URL and Escape cancels without changing the document.
@@ -14,7 +15,7 @@ export function EditorLinkForm(props: {
 }) {
   const [href, setHref] = createSignal('');
   let host: HTMLDivElement | undefined;
-  onSettled(() => host?.querySelector('input')?.focus());
+  onSettled(() => moveFocus(host?.querySelector('input')));
   const valid = () => safeMarkdownHref(href());
   return (
     <div

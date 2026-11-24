@@ -41,7 +41,7 @@ function SteeredArena(props: {
   helpId: string;
   testId: string;
 }): JSX.Element {
-  const [round, setRound] = createSignal(props.initialRound);
+  const [round, setRound] = createSignal(() => props.initialRound);
   return (
     <StackVertical gap="md">
       <P id={props.helpId}>{props.help}</P>

@@ -68,8 +68,7 @@ function FocusExample(): JSX.Element {
 function ScrollExample(): JSX.Element {
   const [selected, setSelected] = createSignal(0);
   const current = createScrollTarget();
-  createEffect(() => {
-    selected();
+  createEffect(selected, () => {
     current.scrollIntoView({ inline: 'center', block: 'nearest' });
   });
   return (

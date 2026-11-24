@@ -7,7 +7,7 @@ import { PathGridBoard } from '@pkgs/ui-root-client-ts/path-grid-board';
 import { pathGridSegment } from '@pkgs/ui-root-client-ts/path-grid-pointer';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import PathGridBoardExample from '../../ui-root-client-ts/src/path-grid-board/path-grid-board.example';
 import { renderUi as render } from './render';
 
@@ -156,6 +156,7 @@ test('cancellation, lost capture and disabling discard the trace once without co
   expect(f.log).toEqual(['capture:1', 'start:0', 'release:1', 'cancel']);
   f.pointer('pointerdown', 40, 40);
   f.setDisabled(true);
+  flush();
   f.pointer('pointerup', 200, 40);
   fireEvent.click(f.view.getByRole('button', { name: 'Cell 0, pair 1' }));
   expect(f.log).toEqual([
@@ -185,6 +186,7 @@ test('keyboard focus is stable while paths update and disabled controls remain r
   fireEvent.keyDown(last, { key: 'Escape' });
   expect(f.log).toEqual(['navigate:5', 'activate:5', 'escape']);
   f.setConnected(true);
+  flush();
   expect(f.view.getByRole('button', { name: 'Cell 5, connected' })).toBe(last);
   expect(document.activeElement).toBe(last);
   expect(
@@ -194,6 +196,7 @@ test('keyboard focus is stable while paths update and disabled controls remain r
     f.root.querySelector('[data-path="one"]')?.getAttribute('data-connected')
   ).toBe('true');
   f.setDisabled(true);
+  flush();
   expect(first.getAttribute('aria-disabled')).toBe('true');
   expect(auditTree(f.root).map(formatFailure)).toEqual([]);
   f.view.unmount();
@@ -205,6 +208,7 @@ test('the explorer renders every path color and its disabled state', () => {
   const root = view.getByRole('group', { name: 'Labeled path colors' });
   expect(root.querySelectorAll('polyline').length).toBe(6);
   setDisabled(true);
+  flush();
   expect(root.querySelector('button')?.getAttribute('aria-disabled')).toBe(
     'true'
   );

@@ -95,11 +95,14 @@ function DefaultOptionRow<T extends SelectValue>(props: {
   const disabled = (): boolean => props.option.disabled === true;
   return (
     <button
-      class={["clickable clickableTint w-full min-h-11 flex-row items-center gap-3 py-3 px-4 text-left disabled:opacity-disabled", { 'bg-tint-subtle': props.selected }]}
+      class={[
+        'clickable clickableTint w-full min-h-11 flex-row items-center gap-3 py-3 px-4 text-left disabled:opacity-disabled',
+        { 'bg-tint-subtle': props.selected },
+      ]}
       {...dataAttrs({ component: 'SelectOption', ...props.option.dataSet })}
       type="button"
       role="option"
-      aria-selected={props.selected}
+      aria-selected={props.selected ? 'true' : 'false'}
       disabled={disabled()}
       onClick={() => props.onPick()}
     >
@@ -127,14 +130,17 @@ function CustomOptionRow<T extends SelectValue>(props: {
 }): JSX.Element {
   return (
     <div
-      class={["box min-w-0", {
-        'bg-tint-subtle': props.selected && props.option.disabled !== true,
-      }]}
+      class={[
+        'box min-w-0',
+        {
+          'bg-tint-subtle': props.selected && props.option.disabled !== true,
+        },
+      ]}
       {...dataAttrs({ component: 'SelectOption', ...props.option.dataSet })}
       role="option"
-      tabIndex={-1}
-      aria-selected={props.selected}
-      aria-disabled={props.option.disabled === true ? true : undefined}
+      tabindex={-1}
+      aria-selected={props.selected ? 'true' : 'false'}
+      aria-disabled={props.option.disabled === true ? 'true' : undefined}
     >
       {props.render(props.option, props.selected, props.onPick)}
     </div>
@@ -218,7 +224,7 @@ export function SelectOptions<T extends SelectValue>(
         }}
         role="listbox"
         id={props.id}
-        tabIndex={-1}
+        tabindex={-1}
         aria-label={props.label}
         onKeyDown={(ev) => onKeyDown(ev.currentTarget, ev)}
       >

@@ -8,7 +8,13 @@ import {
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-root-shared-ts/modal-size';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createUniqueId, on, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createUniqueId,
+  Show,
+  untrack,
+} from 'solid-js';
 import { CommandPaletteEmpty } from '../command-palette-empty/index';
 import type { PaletteItemRow, PaletteRows } from '../command-palette-filter';
 import { buildPaletteRows, selectableRows } from '../command-palette-filter';
@@ -50,15 +56,13 @@ function createPaletteModel(
     buildPaletteRows(reg.commands(), reg.query(), reg.historyIds())
   );
   const items = createMemo(() => selectableRows(rows().rows));
-  // Reset selection when the query changes; clamp when the row set shrinks.
-  createEffect(on(reg.query, () => reg.setSelectedIndex(0), { defer: true }));
+  // Clamp the selection when the row set shrinks (a new query resets it in
+  // the registry itself).
   createEffect(
-    on(
-      () => rows().selectableCount,
-      (count) => {
-        reg.setSelectedIndex((prev) => clampPaletteSelection(prev, count));
-      }
-    )
+    () => rows().selectableCount,
+    (count) => {
+      reg.setSelectedIndex((prev) => clampPaletteSelection(prev, count));
+    }
   );
   const activeId = (): string | undefined => {
     const item = items()[reg.selectedIndex()];
@@ -168,7 +172,10 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           onClick={() => reg.close()}
         />
         <div
-          class={["box absolute inset-0 items-center justify-start", { boxNone: true }]}
+          class={[
+            'box absolute inset-0 items-center justify-start',
+            { boxNone: true },
+          ]}
           style={{
             'padding-top': `${TOP_INSET_STEP * 4}px`,
             'padding-left': `${MODAL_CONTENT_MARGIN_STEP * 4}px`,

@@ -12,7 +12,7 @@ import { HouseIcon, SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const WIDE = { width: 1280, height: 900 };
@@ -119,9 +119,11 @@ describe('AppFrame rail', () => {
     );
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
     setInSpace(true);
+    flush();
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
     expect(screen.getByText('Space chrome')).toBeTruthy();
     setInSpace(false);
+    flush();
     expect(document.querySelector('[data-region="rail"]')).not.toBeNull();
   });
 
@@ -143,6 +145,7 @@ describe('AppFrame rail', () => {
     const before = column();
     expect(before.className).toMatch(/\bmax-w-ui-space\b/);
     setInSpace(true);
+    flush();
     expect(column()).toBe(before);
     expect(column().className).toMatch(/\bmax-w-ui-space\b/);
   });

@@ -24,9 +24,12 @@ export function LeaveSpaceConfirmModal(
 ): JSX.Element {
   const engine = useOptionalSoundEngine();
   const [confirmedAsHost, setConfirmedAsHost] = createSignal<boolean>();
-  createEffect(() => {
-    if (!props.visible) setConfirmedAsHost(undefined);
-  });
+  createEffect(
+    () => props.visible,
+    (visible) => {
+      if (!visible) setConfirmedAsHost(undefined);
+    }
+  );
   const operation = (): Promise<void> => {
     setConfirmedAsHost(props.asHost ?? false);
     return props.operation();

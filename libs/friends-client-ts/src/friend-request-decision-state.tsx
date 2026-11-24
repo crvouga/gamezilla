@@ -3,7 +3,13 @@
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import type { JSX } from '@solidjs/web';
-import { createContext, createMemo, createSignal, Show, useContext } from 'solid-js';
+import {
+  createContext,
+  createMemo,
+  createSignal,
+  Show,
+  useContext,
+} from 'solid-js';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';
 
 /**

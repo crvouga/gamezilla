@@ -81,11 +81,13 @@ function AcceptButton(props: {
     get disabled() {
       return props.decision.pending();
     },
-    labels: {
-      idle: accept()?.label ?? t`Accept`,
-      loading: t`Accepting…`,
-      success: t`Accepted`,
-      error: t`Couldn't accept`,
+    get labels() {
+      return {
+        idle: accept()?.label ?? t`Accept`,
+        loading: t`Accepting…`,
+        success: t`Accepted`,
+        error: t`Couldn't accept`,
+      };
     },
     successHoldMs: 0,
     onPhaseChange,
@@ -126,11 +128,13 @@ function DeclineButton(props: {
     get disabled() {
       return props.decision.pending();
     },
-    labels: {
-      idle: decline()?.label ?? t`Decline`,
-      loading: t`Declining…`,
-      success: t`Declined`,
-      error: t`Couldn't decline`,
+    get labels() {
+      return {
+        idle: decline()?.label ?? t`Decline`,
+        loading: t`Declining…`,
+        success: t`Declined`,
+        error: t`Couldn't decline`,
+      };
     },
     successHoldMs: 0,
     onPhaseChange,

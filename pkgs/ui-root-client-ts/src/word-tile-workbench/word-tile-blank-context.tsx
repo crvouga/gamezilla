@@ -43,7 +43,7 @@ export function WordTileBlankContext(props: {
           {(cell) => (
             <div
               class={styles['neighbor']}
-              data-blank={cell.id === props.cells[props.index]?.id}
+              data-blank={String(cell.id === props.cells[props.index]?.id)}
               role="img"
               aria-label={cell.label}
             >

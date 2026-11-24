@@ -21,7 +21,7 @@ import { isMacPlatform } from '@pkgs/ui-root-shared-ts/match';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createSignal, Show } from 'solid-js';
+import { type Accessor, createSignal, flush, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 /** `mod` → Meta on macOS web, Ctrl elsewhere. */
@@ -326,6 +326,7 @@ describe('shortcuts', () => {
     expect(screen.queryByRole('dialog')).toBeNull();
 
     setPanelActive(true);
+    flush();
     await user.keyboard(`{${MOD}>}k{/${MOD}}`);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'Go to Spaces' })).toBeTruthy();
@@ -359,11 +360,14 @@ describe('registry hooks', () => {
       { id: 'a', title: 'A', run: () => {} },
       { id: 'b', title: 'B', run: () => {} },
     ]);
+    flush();
     expect(ids().sort()).toEqual(['a', 'b', 'decl']);
     setExtra([{ id: 'b', title: 'B2', run: () => {} }]);
+    flush();
     expect(ids().sort()).toEqual(['b', 'decl']);
     expect(registry?.store.get('b')?.title).toBe('B2');
     setShowDeclarative(false);
+    flush();
     expect(ids()).toEqual(['b']);
   });
 
@@ -389,14 +393,17 @@ describe('registry hooks', () => {
     expect(handle?.error()).toBeUndefined();
     expect(palette?.isOpen()).toBe(false);
     palette?.open();
+    flush();
     expect(palette?.isOpen()).toBe(true);
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     await handle?.run();
     expect(ran).toHaveBeenCalledTimes(1);
     expect(palette?.isOpen()).toBe(false);
     palette?.toggle();
+    flush();
     expect(palette?.isOpen()).toBe(true);
     palette?.close();
+    flush();
     expect(palette?.isOpen()).toBe(false);
   });
 });

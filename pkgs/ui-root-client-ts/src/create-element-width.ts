@@ -5,21 +5,19 @@ import { observeElementResize } from './observe-element-resize';
  * (tests / SSR), and stays `0` until the element mounts.
  */
 
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 export function createElementWidth(
   el: Accessor<HTMLElement | null>
 ): Accessor<number> {
   const [width, setWidth] = createSignal(0);
-  createEffect(() => {
-    const node = el();
-    if (node === null) return;
+  createEffect(el, (node) => {
+    if (node === null) return undefined;
     const apply = (): void => {
-      const next = Math.floor(node.getBoundingClientRect().width);
-      setWidth((prev) => (prev === next ? prev : next));
+      setWidth(Math.floor(node.getBoundingClientRect().width));
     };
     apply();
-    onCleanup(observeElementResize(node, apply));
+    return observeElementResize(node, apply);
   });
   return width;
 }

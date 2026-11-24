@@ -6,7 +6,13 @@ import {
   createQuery,
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createEffect, createMemo, mergeProps, onCleanup, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  merge,
+  untrack,
+} from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 
 function readStringArray(raw: unknown): readonly string[] {
@@ -115,13 +121,12 @@ function useHydratePuzzleById(
   row: Accessor<PuzzleEntityRow | null>
 ): void {
   const sync = useSyncEngineInstance();
-  createEffect(() => {
-    const id = puzzleId();
+  createEffect(puzzleId, (id) => {
     if (id.length === 0 || untrack(row) !== null) return;
     const handle = sync.subscribeQueries([
       { name: PUZZLE_BY_ID_QUERY_NAME, params: { id } },
     ]);
-    onCleanup(() => handle.unsubscribe());
+    return () => handle.unsubscribe();
   });
 }
 
@@ -222,7 +227,7 @@ export function usePuzzleEntityAndInteractions(puzzleId: Accessor<string>): {
 } {
   const base = usePuzzleEntity(puzzleId);
   const interactions = usePuzzleInteractions(puzzleId);
-  return mergeProps(base, {
+  return merge(base, {
     get interactions() {
       return interactions.rows();
     },

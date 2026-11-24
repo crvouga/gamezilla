@@ -7,7 +7,7 @@ import { acceptFleet } from '@libs/battleship-shared-ts/battleship-fleet';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 /** Blue (white) hits a1 then sinks a destroyer at b1; Red misses e5 then hits c3. */
@@ -133,6 +133,7 @@ test('interactive targets fire through onAction and wait, aiming, for the outcom
       'e5:miss',
     ])
   );
+  flush();
   expect(target('e5').getAttribute('data-emphasis')).toBe('recent');
   expect(target('e5').getAttribute('data-tone')).toBe('quiet');
 });

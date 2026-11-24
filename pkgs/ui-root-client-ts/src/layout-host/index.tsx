@@ -6,6 +6,7 @@ import type {
   SurfaceTone,
 } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 import { bindDataSet } from '../data-set-binding';
 import type { ElementTargetProps } from '../element-targets';
 import { bindElementTargets } from '../element-targets';
@@ -89,12 +90,13 @@ function hostClass(host: LayoutHostProps): string {
  * Design-system internal; screens compose `Stack*` and `Surface`.
  */
 export function LayoutHost(props: LayoutHostProps): JSX.Element {
+  // `of` is the host component's own props object, the same one for its life.
+  const of = untrack(() => props.of);
+  const targets = bindElementTargets(of);
+  const dataSet = bindDataSet(of);
   return (
     <div
-      ref={(element) => {
-        bindElementTargets(element, props.of);
-        bindDataSet(element, props.of);
-      }}
+      ref={[targets, dataSet]}
       class={hostClass(props)}
       id={props.of.id}
       data-testid={props.of.testId}
@@ -104,9 +106,21 @@ export function LayoutHost(props: LayoutHostProps): JSX.Element {
       aria-labelledby={props.of['aria-labelledby']}
       aria-describedby={props.of['aria-describedby']}
       aria-live={props.of['aria-live']}
-      aria-atomic={props.of['aria-atomic']}
-      aria-busy={props.of['aria-busy']}
-      aria-hidden={props.of['aria-hidden']}
+      aria-atomic={
+        props.of['aria-atomic'] === undefined
+          ? undefined
+          : `${props.of['aria-atomic']}`
+      }
+      aria-busy={
+        props.of['aria-busy'] === undefined
+          ? undefined
+          : `${props.of['aria-busy']}`
+      }
+      aria-hidden={
+        props.of['aria-hidden'] === undefined
+          ? undefined
+          : `${props.of['aria-hidden']}`
+      }
       inert={props.of.inert === true ? true : undefined}
       hidden={props.of.hidden === true ? true : undefined}
     >

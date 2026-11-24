@@ -126,8 +126,8 @@ export function RiderHead(props: {
       data-y={props.rider.y}
       data-heading={props.rider.heading}
       data-next={props.rider.next ?? props.rider.heading}
-      data-alive={props.rider.alive}
-      data-controlled={props.rider.controlled}
+      data-alive={String(props.rider.alive)}
+      data-controlled={String(props.rider.controlled)}
       data-mark={props.rider.mark}
       data-trail-count={props.trailCount}
       data-scale={props.scale ?? 1}
@@ -211,7 +211,7 @@ export function ArenaOverlay(props: {
       role="status"
       aria-live="polite"
       data-testid={`${props.testId}-overlay`}
-      data-open={props.overlay !== undefined}
+      data-open={String(props.overlay !== undefined)}
     >
       <Show when={props.overlay}>
         {(overlay) => (

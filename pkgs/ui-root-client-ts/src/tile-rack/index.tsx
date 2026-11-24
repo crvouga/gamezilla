@@ -52,9 +52,9 @@ export function TileRack(props: TileRackProps): JSX.Element {
               }
               data-selected={String(tile.selected)}
               data-placed={String(tile.placed)}
-              aria-pressed={tile.selected}
+              aria-pressed={tile.selected ? 'true' : 'false'}
               aria-label={tile.label}
-              aria-disabled={!tile.enabled}
+              aria-disabled={tile.enabled ? 'false' : 'true'}
               onClick={() => {
                 if (tile.enabled) props.onActivate(tile.id);
               }}

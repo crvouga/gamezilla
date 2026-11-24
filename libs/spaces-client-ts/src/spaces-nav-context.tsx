@@ -14,7 +14,15 @@
 
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createMemo, createSignal, createUniqueId, onCleanup, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  useContext,
+} from 'solid-js';
 
 export type SpacesNavBackHandler = () => void;
 
@@ -108,11 +116,7 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
     setHandler,
   };
 
-  return (
-    <SpacesNavContext value={value}>
-      {props.children}
-    </SpacesNavContext>
-  );
+  return <SpacesNavContext value={value}>{props.children}</SpacesNavContext>;
 }
 
 function useSpacesNavContext(): SpacesNavContextValue {
@@ -160,10 +164,13 @@ export function useSpacesNavTitle(): Accessor<string | undefined> {
 export function DefineSpaceTitle(props: { readonly title: string }): null {
   const nav = useContext(SpacesNavContext);
   const id = createUniqueId();
-  createEffect(() => {
-    nav?.setTitle(id, props.title);
-    onCleanup(() => nav?.setTitle(id, undefined));
-  });
+  createEffect(
+    () => props.title,
+    (title) => {
+      nav?.setTitle(id, title);
+      return () => nav?.setTitle(id, undefined);
+    }
+  );
   return null;
 }
 
@@ -201,12 +208,13 @@ export function DefineBackButton(props: DefineBackButtonProps): null {
   const confirmNavigation = useConfirmNavigation();
   const id = createUniqueId();
 
-  createEffect(() => {
-    setHandler(id, () => confirmNavigation(() => props.onPress()), props.label);
-    onCleanup(() => {
-      setHandler(id, null);
-    });
-  });
+  createEffect(
+    () => props.label,
+    (label) => {
+      setHandler(id, () => confirmNavigation(() => props.onPress()), label);
+      return () => setHandler(id, null);
+    }
+  );
 
   return null;
 }
@@ -228,10 +236,13 @@ export function GameChoicesName(props: {
 }): JSX.Element {
   const nav = useContext(SpacesNavContext);
   const id = createUniqueId();
-  createEffect(() => {
-    nav?.setPlace(id, props.name);
-    onCleanup(() => nav?.setPlace(id, undefined));
-  });
+  createEffect(
+    () => props.name,
+    (name) => {
+      nav?.setPlace(id, name);
+      return () => nav?.setPlace(id, undefined);
+    }
+  );
   return (
     <GameChoicesNameContext value={() => props.name}>
       {props.children}

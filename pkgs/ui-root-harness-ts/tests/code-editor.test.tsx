@@ -7,7 +7,7 @@ import { CODE_EDITOR_LINE_HEIGHT } from '@pkgs/ui-root-shared-ts/code-editor-hig
 import type { CodeToken } from '@pkgs/ui-root-shared-ts/code-editor-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 const label = 'Code' as unknown as LocalizedString;
@@ -78,6 +78,7 @@ describe('CodeEditor', () => {
       `height:${2 * CODE_EDITOR_LINE_HEIGHT + 20}px`
     );
     setValue('a\nb\nc\nd');
+    flush();
     expect(cssOf(frame)).toContain(
       `height:${4 * CODE_EDITOR_LINE_HEIGHT + 20}px`
     );

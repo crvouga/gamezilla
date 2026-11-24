@@ -10,7 +10,7 @@ export type SpaceHostAvatarProps = {
 };
 
 export function SpaceHostAvatar(props: SpaceHostAvatarProps): JSX.Element {
-  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const host = useSpaceHostMembershipDisplay(() => props.spaceId);
   return (
     <UserProfileAvatar
       profileId={host()?.profileId ?? null}

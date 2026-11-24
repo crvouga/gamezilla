@@ -27,6 +27,7 @@
  * ```
  */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -171,8 +172,8 @@ export function P(props: TextProps): JSX.Element {
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
+      aria-hidden={ariaBoolean(props['aria-hidden'])}
     >
       {props.children}
     </p>
@@ -192,8 +193,8 @@ export function Text(props: TextProps): JSX.Element {
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
+      aria-hidden={ariaBoolean(props['aria-hidden'])}
     >
       {props.children}
     </span>
@@ -213,8 +214,8 @@ export function Strong(props: TextProps): JSX.Element {
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
+      aria-hidden={ariaBoolean(props['aria-hidden'])}
     >
       {props.children}
     </strong>
@@ -234,8 +235,8 @@ export function Em(props: TextProps): JSX.Element {
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
+      aria-hidden={ariaBoolean(props['aria-hidden'])}
     >
       {props.children}
     </em>
@@ -255,8 +256,8 @@ export function Code(props: TextProps): JSX.Element {
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
+      aria-hidden={ariaBoolean(props['aria-hidden'])}
     >
       {props.children}
     </code>
@@ -270,15 +271,15 @@ export function Time(props: TimeProps): JSX.Element {
       {...dataAttrs(props.dataSet)}
       class={textClass(KIND.Time, props)}
       id={props.id}
-      dateTime={props.dateTime}
+      datetime={props.dateTime}
       data-testid={props.testId}
       data-component={componentId('Time')}
       role={props.role}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={ariaBoolean(props['aria-atomic'])}
+      aria-hidden={ariaBoolean(props['aria-hidden'])}
     >
       {props.children}
     </time>

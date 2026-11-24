@@ -32,9 +32,10 @@ export type StepFooterProps = {
  */
 export function StepFooter(props: StepFooterProps): JSX.Element {
   const id = createUniqueId();
+  const targets = bindElementTargets(props);
   return (
     <section
-      ref={(element) => bindElementTargets(element, props)}
+      ref={targets}
       class={styles['footer']}
       aria-labelledby={id}
       {...dataAttrs({ component: 'StepFooter', ...props.dataSet })}

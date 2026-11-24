@@ -1,6 +1,14 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, For, onCleanup, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  onCleanup,
+  Show,
+  untrack,
+} from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createPathGridPointer } from '../path-grid-pointer';
 import type { PathGridBoardProps, PathGridEndpoint } from '../path-grid-types';
@@ -49,14 +57,14 @@ function PathCell(props: {
       data-cell={props.index}
       data-testid={`${props.board.testId}-cell-${props.index}`}
       data-tone={props.endpoint?.tone}
-      data-connected={props.endpoint?.connected === true}
-      data-selected={props.index === props.board.selectedCell}
+      data-connected={String(props.endpoint?.connected === true)}
+      data-selected={String(props.index === props.board.selectedCell)}
       aria-current={
         props.index === props.board.selectedCell ? 'true' : undefined
       }
       aria-label={label()}
-      aria-disabled={props.board.disabled === true}
-      tabIndex={props.focusable ? 0 : -1}
+      aria-disabled={props.board.disabled === true ? 'true' : 'false'}
+      tabindex={props.focusable ? 0 : -1}
       onFocus={() => props.onFocus()}
       onKeyDown={(event) => props.onKey(event)}
       onClick={(event) => {
@@ -108,8 +116,8 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
             class={styles['line']}
             data-path={line().id}
             data-tone={line().tone}
-            data-connected={line().connected}
-            data-provisional={line().provisional === true}
+            data-connected={String(line().connected)}
+            data-provisional={String(line().provisional === true)}
             points={line()
               .cells.map(
                 (cell) =>
@@ -143,13 +151,14 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   );
   let root: HTMLDivElement | undefined;
   const pointer = createPathGridPointer(props, () => root);
-  createEffect(() => {
-    void props.columns;
-    void props.rows;
-    void props.disabled;
-    pointer.cancel();
-    if (untrack(focus) >= props.columns * props.rows) setFocus(0);
-  });
+  createEffect(
+    () => [props.columns, props.rows, props.disabled] as const,
+    ([columns, rows]) => {
+      // The host's cancel handler is called, not followed.
+      untrack(() => pointer.cancel());
+      setFocus((cell) => (cell >= columns * rows ? 0 : cell));
+    }
+  );
   onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {
     setInput('keyboard');
@@ -177,7 +186,9 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       aria-label={props.label}
       aria-describedby={props.describedBy}
       data-testid={props.testId}
-      data-tracing={props.disabled !== true && props.onTraceStart !== undefined}
+      data-tracing={String(
+        props.disabled !== true && props.onTraceStart !== undefined
+      )}
       data-input={input()}
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
       onPointerDown={(event) => {

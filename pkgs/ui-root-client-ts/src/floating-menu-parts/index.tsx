@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { type JSX, dynamic } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type {
   FloatingMenuHeaderSpec,
@@ -50,18 +50,21 @@ function HeaderLine(props: {
   return (
     <Show when={isTexty(props.value)} fallback={props.value}>
       <p
-        class={["text line-clamp-1", {
-          textBodyBold: props.variant === 'bodyBold',
-          textCaption: props.variant === 'caption',
-          textLabel: props.variant === 'label',
-          textTitle: props.variant === 'title',
-          textSubtitle: props.variant === 'subtitle',
-          textHeading: props.variant === 'heading',
-          textNavigationTitle: props.variant === 'navigationTitle',
-          textLink: props.variant === 'link',
-          textMono: props.variant === 'mono',
-          'text-text-secondary': props.muted === true,
-        }]}
+        class={[
+          'text line-clamp-1',
+          {
+            textBodyBold: props.variant === 'bodyBold',
+            textCaption: props.variant === 'caption',
+            textLabel: props.variant === 'label',
+            textTitle: props.variant === 'title',
+            textSubtitle: props.variant === 'subtitle',
+            textHeading: props.variant === 'heading',
+            textNavigationTitle: props.variant === 'navigationTitle',
+            textLink: props.variant === 'link',
+            textMono: props.variant === 'mono',
+            'text-text-secondary': props.muted === true,
+          },
+        ]}
       >
         {props.value}
       </p>
@@ -117,9 +120,13 @@ export function FloatingMenuItem(props: {
   row: FloatingMenuItemRow;
   onSelect: (row: FloatingMenuItemRow) => void;
 }): JSX.Element {
+  const RowIcon = dynamic(() => props.row.icon);
   return (
     <button
-      class={["clickable clickableTint min-h-11 py-2 px-4 flex-row items-center gap-3 text-left -outline-offset-2", { 'opacity-disabled': props.row.disabled === true }]}
+      class={[
+        'clickable clickableTint min-h-11 py-2 px-4 flex-row items-center gap-3 text-left -outline-offset-2',
+        { 'opacity-disabled': props.row.disabled === true },
+      ]}
       {...dataAttrs({ component: 'FloatingMenuItem', ...props.row.dataSet })}
       type="button"
       role="menuitem"
@@ -130,8 +137,7 @@ export function FloatingMenuItem(props: {
       <Show
         when={props.row.leading !== undefined}
         fallback={
-          <Dynamic
-            component={props.row.icon}
+          <RowIcon
             size={ROW_ICON_SIZE}
             color={props.row.tone === 'destructive' ? 'destructive' : 'icon'}
           />
@@ -142,7 +148,10 @@ export function FloatingMenuItem(props: {
         </div>
       </Show>
       <p
-        class={["text textBody line-clamp-1 flex-1 min-w-0", { 'text-destructive': props.row.tone === 'destructive' }]}
+        class={[
+          'text textBody line-clamp-1 flex-1 min-w-0',
+          { 'text-destructive': props.row.tone === 'destructive' },
+        ]}
       >
         {resolveItemLabel(props.row)}
       </p>

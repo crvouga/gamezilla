@@ -6,7 +6,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 const CORNER = JSON.stringify({
   format: 1,
@@ -58,14 +58,17 @@ test('Undo, Redo and Restart positions invalidate a refusal from the previous po
   key('ArrowLeft');
   expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
   setState(start); // Undo the corner push.
+  flush();
   expect(view.queryByTestId('sokoban-refusal')).toBeNull();
   key('ArrowUp'); // Refusal at the restored position.
   expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
   setState(cornered); // Redo must clear that refusal too.
+  flush();
   expect(view.queryByTestId('sokoban-refusal')).toBeNull();
   key('ArrowLeft');
   expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
   setState(start); // Restart from the blocked corner.
+  flush();
   expect(view.queryByTestId('sokoban-refusal')).toBeNull();
 });
 

@@ -17,7 +17,7 @@ export function ContentDraftMetadata(props: {
       <TextInput
         label={t`Title`}
         value={props.body.title}
-        maxLength={160}
+        maxlength={160}
         disabled={props.disabled}
         onChangeText={(title) => props.onChange({ ...props.body, title })}
         dataSet={{ testid: 'content-title' }}
@@ -38,7 +38,7 @@ export function ContentDraftMetadata(props: {
       <TextInput
         label={t`Difficulty (optional)`}
         value={props.body.difficulty}
-        maxLength={80}
+        maxlength={80}
         disabled={props.disabled}
         onChangeText={(difficulty) =>
           props.onChange({ ...props.body, difficulty })

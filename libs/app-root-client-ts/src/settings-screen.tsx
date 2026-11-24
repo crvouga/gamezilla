@@ -27,9 +27,14 @@ function useBugReporting<T>(
   source: Source<T> | undefined,
   absent: T
 ): Accessor<T> {
-  const [value, setValue] = createSignal(source ? source.state() : absent);
-  if (source) onCleanup(source.subscribe(() => setValue(() => source.state())));
-  return value;
+  // Held behind a field: a bare signal reads a function value as a derivation.
+  const [value, setValue] = createSignal<{ readonly current: T }>({
+    current: source ? source.state() : absent,
+  });
+  if (source) {
+    onCleanup(source.subscribe(() => setValue({ current: source.state() })));
+  }
+  return () => value().current;
 }
 
 /** `/more`: wires `SettingsScreenView` to preferences, permissions and subs. */

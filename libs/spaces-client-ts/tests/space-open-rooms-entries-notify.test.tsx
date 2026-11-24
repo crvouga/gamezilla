@@ -33,10 +33,11 @@ function EntryProbe(props: {
   readonly spaceId: string;
   readonly onEntry: (entry: SpaceOpenRoomEntry | null) => void;
 }): JSX.Element {
-  const entry = useSpaceOpenRoomEntry(props.spaceId);
-  createEffect(() => {
-    props.onEntry(entry());
-  });
+  const entry = useSpaceOpenRoomEntry(() => props.spaceId);
+  createEffect(
+    () => ({ entry: entry(), onEntry: props.onEntry }),
+    (now) => now.onEntry(now.entry)
+  );
   return null;
 }
 

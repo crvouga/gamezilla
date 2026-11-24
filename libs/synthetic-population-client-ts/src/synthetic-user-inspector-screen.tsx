@@ -13,10 +13,10 @@ function InspectorContent(): JSX.Element {
     <SyntheticUserInspectorScreenView
       user={user.shown()}
       snapshot={user.snapshot()}
-      loading={user.record.loading}
-      failed={Boolean(user.record.error)}
+      loading={user.loading()}
+      failed={user.failed()}
       onRefresh={() => {
-        void user.refetch();
+        void user.reread();
       }}
       onInspect={() => user.command('inspect')}
     />

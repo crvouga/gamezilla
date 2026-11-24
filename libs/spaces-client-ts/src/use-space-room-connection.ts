@@ -15,7 +15,13 @@ import type {
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useCreateId, useRandom } from '@pkgs/uuid-client-ts/solid';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  untrack,
+} from 'solid-js';
 import type { CreateSpaceRoomResult } from './create-space-room';
 import { SpaceRoomFactory } from './create-space-room';
 import { useCreateRoomTransport } from './room-transport-factory';
@@ -290,13 +296,14 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
     return normalizeSessionToken(fresh ?? sessionToken());
   };
 
-  createEffect(() => {
-    const key = bootstrapKey();
+  // Keyed only on bootstrapKey: one live socket per open space identity.
+  // Token refresh flows through accessors on reconnect.
+  createEffect(bootstrapKey, (key) => {
     if (key === null) {
       tearDown();
       return;
     }
-    const stop = beginOpenSpaceRoom({
+    return beginOpenSpaceRoom({
       bootstrap: untrack(() => bootstrap())!,
       bootstrapKey: key,
       configService,
@@ -315,9 +322,6 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
       openingKeyRef,
       tearDown,
     });
-    // Intentionally keyed only on bootstrapKey: one live socket per open
-    // space identity. Token refresh flows through accessors on reconnect.
-    onCleanup(stop);
   });
 
   return { room, transport };

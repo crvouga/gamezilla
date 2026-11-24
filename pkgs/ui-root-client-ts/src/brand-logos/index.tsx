@@ -16,7 +16,7 @@ export function GoogleBrandLogo(props: BrandIconSvgProps): JSX.Element {
       width={props.size}
       height={props.size}
       alt=""
-      draggable={false}
+      draggable="false"
     />
   );
 }

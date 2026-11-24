@@ -51,7 +51,7 @@ export function ArrowKeyGroup(props: ArrowKeyGroupProps): JSX.Element {
       class={`box min-w-0 rounded-control ${spacingClass({ gap: props.gap ?? 'lg' })}`}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the group itself takes focus so the arrow keys reach it
-      tabIndex={0}
+      tabindex={0}
       aria-label={props['aria-label']}
       onKeyDown={onKeyDown}
       data-testid={props.testId}

@@ -55,7 +55,10 @@ export function WindowManagerPanelHost(
   const content = untrack(() => api.panel(props.panelId)?.content());
   return (
     <div
-      class={["box absolute z-0 overflow-hidden bg-background rounded-bl-control rounded-br-control", { hidden: rect() === undefined }]}
+      class={[
+        'box absolute z-0 overflow-hidden bg-background rounded-bl-control rounded-br-control',
+        { hidden: rect() === undefined },
+      ]}
       data-component={componentId('WindowManagerPanel')}
       {...dataAttrs({
         'window-part': 'panel',
@@ -67,7 +70,7 @@ export function WindowManagerPanelHost(
       id={api.panelId(props.panelId)}
       role="tabpanel"
       aria-labelledby={api.tabId(props.panelId)}
-      tabIndex={-1}
+      tabindex={-1}
       onPointerDown={focus}
       onFocusIn={focus}
     >

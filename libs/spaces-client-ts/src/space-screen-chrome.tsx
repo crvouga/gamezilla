@@ -99,7 +99,15 @@ import type {
 } from '@pkgs/ui-root-client-ts/space-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createMemo, getOwner, runWithOwner, Show, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  getOwner,
+  runWithOwner,
+  Show,
+  useContext,
+} from 'solid-js';
 import { spaceBackName } from './space-back-name';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
 import type { SpacePerson } from './space-person-view';

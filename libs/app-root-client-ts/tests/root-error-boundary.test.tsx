@@ -15,7 +15,7 @@ import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 const FAILURE =
   'useAuthModals: AuthModalsProvider missing — wrap with AppProviders';
@@ -67,6 +67,7 @@ test.each(['light', 'dark'] as const)(
   (scheme) => {
     const view = mountCrash();
     view.setTheme(scheme);
+    flush();
     const alert = screen.getByRole('alert');
     const root = alert.closest('[data-component="RootErrorBoundary"]');
     expect(root?.closest('[data-theme]')?.getAttribute('data-theme')).toBe(
@@ -97,6 +98,7 @@ test('copies diagnostic text and releases its feedback timer when recovered', as
   const view = mountCrash();
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(view.clipboard.last()).toBe(
     `Something went wrong\n\n${FAILURE}\n\nVersion: 1.0.0`
   );
@@ -108,6 +110,7 @@ test('copies diagnostic text and releases its feedback timer when recovered', as
   ).toContain('Copy error');
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(view.harness.clock.pendingOneShotCount()).toBe(1);
   view.setBroken(false);
   fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
@@ -125,11 +128,13 @@ test('a denied clipboard write keeps recovery usable and shows a retryable error
   });
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(screen.getByRole('status').textContent).toContain('Couldn’t copy');
   expect(screen.queryByText('Copied')).toBeNull();
   expect(view.harness.clock.pendingOneShotCount()).toBe(0);
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(attempts).toBe(2);
   expect(screen.getByRole('button', { name: 'Copied' })).toBeTruthy();
 });
@@ -175,6 +180,7 @@ test('a screen that crashes again on Try again still offers a way to Spaces', ()
   expect(view.departures).toHaveLength(1);
   view.setBroken(false);
   view.departures[0]?.();
+  flush();
   expect(screen.getByText('Recovered screen')).toBeTruthy();
 });
 
@@ -201,6 +207,8 @@ test('the crash reference is visible and the copied text carries it without the 
     expect(reference.closest('details')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
     await Promise.resolve();
+    flush();
+  flush();
     expect(view.clipboard.last()).toBe(
       `Something went wrong\n\n${FAILURE}\n\nReference: ${TRACE_ID}\n\nVersion: 1.0.0`
     );

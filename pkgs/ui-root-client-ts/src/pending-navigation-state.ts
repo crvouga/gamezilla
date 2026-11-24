@@ -1,4 +1,9 @@
-import { type Accessor, createEffect, createMemo, createSignal, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 
 export type PendingOperation = {
   pending: Accessor<boolean>;
@@ -18,15 +23,19 @@ export function createPendingNavigation() {
   const blocked = createMemo(() =>
     operations().some((operation) => operation.pending() && !operation.approved)
   );
-  createEffect(() => {
+  // The departure that may leave now: every operation it waits on finished.
+  const cleared = (): Departure | null => {
     const departure = destination();
-    if (departure === null) return;
+    if (departure === null) return null;
     const unfinished = departure.affected
       ? departure.affected.some((operation) => operation.pending())
       : blocked();
-    if (unfinished) return;
+    return unfinished ? null : departure;
+  };
+  createEffect(cleared, (departure) => {
+    if (departure === null) return;
     setDestination(null);
-    untrack(departure.proceed);
+    departure.proceed();
   });
   const register = (operation: PendingOperation): (() => void) => {
     const entry = { ...operation, approved: false };

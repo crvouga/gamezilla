@@ -5,7 +5,7 @@ import {
   warmAudioPlayers,
 } from '@pkgs/sounds-client-ts/solid';
 import { chessSoundUrls } from '@pkgs/sounds-shared-ts/chess-sound-urls';
-import { createEffect, on } from 'solid-js';
+import { createEffect } from 'solid-js';
 
 const PUZZLE_SOUND_KEYS = [
   'solved',
@@ -34,11 +34,9 @@ export function useChessPuzzleSounds(): {
 
   const handles = createPlayFromStartHandles(players);
   const preference = useSoundsPreference();
-  createEffect(
-    on(preference.muted, (muted) => {
-      if (muted) for (const key of PUZZLE_SOUND_KEYS) handles[key].cancel();
-    })
-  );
+  createEffect(preference.muted, (muted) => {
+    if (muted) for (const key of PUZZLE_SOUND_KEYS) handles[key].cancel();
+  });
   warmAudioPlayers(
     PUZZLE_SOUND_KEYS.map((key) => players[key]),
     PUZZLE_SOUND_KEYS.map((key) => handles[key])

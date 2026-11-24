@@ -5,8 +5,9 @@ import {
   resolveHarnessView,
 } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import { type Accessor, createMemo, untrack } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
+import { createLiveReading } from './live-reading';
 
 export type HarnessView = {
   /** Bumps whenever the session's nodes change; session maps mutate in place. */
@@ -40,13 +41,13 @@ function samePanels(
 function useSessionRevision(
   session: Accessor<HarnessViewSession>
 ): Accessor<number> {
-  const [revision, setRevision] = createSignal(untrack(session).revision);
-  createEffect(() => {
+  return createLiveReading(() => {
     const current = session();
-    setRevision(current.revision);
-    onCleanup(current.subscribe(() => setRevision(current.revision)));
+    return {
+      read: () => current.revision,
+      subscribe: (listener) => current.subscribe(listener),
+    };
   });
-  return revision;
 }
 
 function useHarnessPanels(
@@ -57,8 +58,10 @@ function useHarnessPanels(
   // panels keep their place and show nothing until the clients are back.
   const clients = createMemo<readonly string[]>((before) => {
     revision();
-    return session().snapshotRestoring ? before : [...session().clients.keys()];
-  }, []);
+    return session().snapshotRestoring
+      ? (before ?? [])
+      : [...session().clients.keys()];
+  });
   return createMemo(
     () => {
       revision();
@@ -68,7 +71,6 @@ function useHarnessPanels(
         rooms: [...session().rooms.keys()],
       });
     },
-    undefined,
     { equals: samePanels }
   );
 }

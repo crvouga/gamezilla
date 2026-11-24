@@ -15,7 +15,7 @@
  */
 
 import { type JSX, render } from '@solidjs/web';
-import { Match, onCleanup, onSettled, Show, Switch } from 'solid-js';
+import { Match, onSettled, Show, Switch } from 'solid-js';
 import type {
   HarnessBrowser,
   HarnessBrowserPage,
@@ -94,8 +94,7 @@ function ShadowPage(props: {
   let host!: HTMLDivElement;
   onSettled(() => {
     const root = host.attachShadow({ mode: 'open' });
-    const dispose = render(() => props.children(), root);
-    onCleanup(dispose);
+    return render(() => props.children(), root);
   });
   return <div class="min-h-full" ref={host} />;
 }
@@ -107,12 +106,10 @@ function Sheet(props: {
 }): JSX.Element {
   let body!: HTMLDivElement;
   onSettled(() => {
-    onCleanup(
-      interceptLinks(
-        body,
-        () => props.browser.address() ?? props.tab.page.url,
-        (url) => props.browser.navigate(url)
-      )
+    return interceptLinks(
+      body,
+      () => props.browser.address() ?? props.tab.page.url,
+      (url) => props.browser.navigate(url)
     );
   });
   const host = (): string => {

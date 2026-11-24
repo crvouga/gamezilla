@@ -37,27 +37,34 @@ function useOptionDraft<T>(
   apply: (value: T) => Promise<void>
 ): { value: Accessor<T>; change: (value: T) => void } {
   const [draft, setDraft] = createSignal<{ value: T } | null>(null);
+  // The latest change as made, for the sending loop and the next tap: both
+  // act before the shown draft settles.
+  let latest: { value: T } | null = null;
+  const show = (next: { value: T } | null): void => {
+    latest = next;
+    setDraft(next);
+  };
   let sending = false;
-  const flush = async (): Promise<void> => {
+  const send = async (): Promise<void> => {
     if (sending) return;
     sending = true;
     let sent: { value: T } | null = null;
     try {
-      for (let next = draft(); next !== null && next !== sent; next = draft()) {
+      for (let next = latest; next !== null && next !== sent; next = latest) {
         sent = next;
         await apply(next.value);
       }
     } finally {
       sending = false;
-      setDraft(null);
+      show(null);
     }
   };
   return {
     value: () => draft()?.value ?? read(),
     change: (value) => {
-      if (value === (draft()?.value ?? read())) return;
-      setDraft({ value });
-      flush().catch(() => setDraft(null));
+      if (value === (latest?.value ?? read())) return;
+      show({ value });
+      send().catch(() => show(null));
     },
   };
 }
@@ -68,7 +75,7 @@ type OptionProps<K extends GameOptionGroup['kind']> = Omit<
 > & { readonly option: Extract<GameOptionGroup, { kind: K }> };
 
 function ChoiceOption(props: OptionProps<'choice'>): JSX.Element {
-  const id = frameOptionTestId(props.option.id);
+  const id = (): string => frameOptionTestId(props.option.id);
   const draft = useOptionDraft(
     () => props.option.read(props.position),
     (value: string) => props.apply(props.option.encode(value))
@@ -78,20 +85,20 @@ function ChoiceOption(props: OptionProps<'choice'>): JSX.Element {
       kind="choice"
       label={props.option.label()}
       readOnly={!props.editable}
-      testId={id}
+      testId={id()}
       value={draft.value()}
       onChange={draft.change}
       options={props.option.options.map((choice) => ({
         value: choice.value,
         label: choice.label(),
-        testId: `${id}-${choice.value}`,
+        testId: `${id()}-${choice.value}`,
       }))}
     />
   );
 }
 
 function CountOption(props: OptionProps<'count'>): JSX.Element {
-  const id = frameOptionTestId(props.option.id);
+  const id = (): string => frameOptionTestId(props.option.id);
   const draft = useOptionDraft(
     () => props.option.read(props.position),
     (value: number) => props.apply(props.option.encode(value))
@@ -103,14 +110,14 @@ function CountOption(props: OptionProps<'count'>): JSX.Element {
       kind="count"
       label={props.option.label()}
       readOnly={!props.editable}
-      testId={id}
+      testId={id()}
       value={draft.value()}
       min={min()}
       max={max()}
       onChange={draft.change}
       message={{
         text: (
-          <Text variant="inherit" testId={`${id}-range`}>
+          <Text variant="inherit" testId={`${id()}-range`}>
             <Trans>
               Choose from {min()} to {max()}.
             </Trans>

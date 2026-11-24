@@ -5,7 +5,7 @@ import type {
   NumberlinkDefinition,
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
+import { type Accessor, createMemo, createSignal } from 'solid-js';
 import {
   movedNumberlinkEndpoint,
   replaceNumberlinkPair,
@@ -14,14 +14,17 @@ import {
 } from './numberlink-editor-actions';
 
 function createEndpointSelection(board: Accessor<NumberlinkDefinition | null>) {
-  const [selected, setSelected] = createSignal('');
+  // A selection whose pair is gone falls to the board's first pair.
+  const [selected, setSelected] = createSignal((before?: string): string => {
+    const pairs = board()?.pairs ?? [];
+    return pairs.some((current) => current.id === before)
+      ? (before ?? '')
+      : (pairs[0]?.id ?? '');
+  });
   const [endpoint, setEndpoint] = createSignal<0 | 1>(0);
   const pair = createMemo(() =>
     board()?.pairs.find((current) => current.id === selected())
   );
-  createEffect(() => {
-    if (pair() === undefined) setSelected(board()?.pairs[0]?.id ?? '');
-  });
   return { selected, setSelected, endpoint, setEndpoint, pair };
 }
 

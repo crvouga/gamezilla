@@ -1,11 +1,8 @@
 import { inspectionSchema } from '@libs/synthetic-population-shared-ts/inspection';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { type Accessor, createEffect, createMemo, createResource, createSignal } from 'solid-js';
-import { resourceValue } from './resource-value';
-import {
-  type SyntheticUserDetail,
-  useSyntheticPopulationApi,
-} from './synthetic-population-api';
+import { type Accessor, createMemo } from 'solid-js';
+import { createLiveRead } from './live-read';
+import { useSyntheticPopulationApi } from './synthetic-population-api';
 import { useSyntheticPopulationUpdates } from './use-synthetic-population-updates';
 
 /**
@@ -16,16 +13,15 @@ import { useSyntheticPopulationUpdates } from './use-synthetic-population-update
 export function useSyntheticUser(id: Accessor<string>) {
   const api = useSyntheticPopulationApi();
   const createId = useCreateId();
-  const [record, { refetch }] = createResource(id, (userId) =>
-    api.inspect(userId)
+  const record = createLiveRead(
+    () => id() || undefined,
+    (userId) => api.inspect(userId)
   );
-  const [shown, setShown] = createSignal<SyntheticUserDetail>();
-  createEffect(() => {
-    const value = resourceValue(record);
-    if (value !== undefined) setShown(value);
-    else if (shown()?.id !== id()) setShown(undefined);
+  const shown = createMemo(() => {
+    const value = record.shown();
+    return record.failed() && value?.id !== id() ? undefined : value;
   });
-  useSyntheticPopulationUpdates(() => refetch());
+  useSyntheticPopulationUpdates(record.reread);
   const snapshot = createMemo(() => {
     let raw: unknown = shown()?.inspection;
     if (typeof raw === 'string') {
@@ -42,23 +38,25 @@ export function useSyntheticUser(id: Accessor<string>) {
   });
   const command = async (value: 'pause' | 'resume' | 'restart' | 'inspect') => {
     await api.command(id(), { command: value, operationId: createId() });
-    await refetch();
+    await record.reread();
   };
-  return { record, shown, snapshot, command, refetch };
+  return {
+    shown,
+    loading: record.loading,
+    failed: record.failed,
+    snapshot,
+    command,
+    reread: record.reread,
+  };
 }
 
 /** One Synthetic User's recorded events, read again on every live update. */
 export function useSyntheticUserEvents(id: Accessor<string>) {
   const api = useSyntheticPopulationApi();
-  const [events, { refetch }] = createResource(id, (userId) =>
-    api.events(userId)
+  const events = createLiveRead(
+    () => id() || undefined,
+    (userId) => api.events(userId)
   );
-  const [shown, setShown] =
-    createSignal<Awaited<ReturnType<typeof api.events>>>();
-  createEffect(() => {
-    const value = resourceValue(events);
-    if (value !== undefined) setShown(value);
-  });
-  useSyntheticPopulationUpdates(() => refetch());
-  return { events, shown, refetch };
+  useSyntheticPopulationUpdates(events.reread);
+  return events;
 }

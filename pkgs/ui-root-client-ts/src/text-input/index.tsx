@@ -7,7 +7,7 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createUniqueId, Show, splitProps } from 'solid-js';
+import { createUniqueId, omit, Show } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import type { FocusTarget } from '../focus';
 import { spaced } from '../layout-classes';
@@ -18,7 +18,6 @@ export type TextInputVariant = 'default' | 'embedded';
 export type TextInputProps = Omit<
   JSX.InputHTMLAttributes<HTMLInputElement>,
   | 'class'
-  | 'classList'
   | 'style'
   | 'placeholder'
   | 'aria-label'
@@ -85,43 +84,57 @@ function FieldFooter(props: {
   );
 }
 
-type FieldLocal = Pick<
-  TextInputProps,
-  | 'value'
-  | 'onChangeText'
-  | 'onSubmitEditing'
-  | 'placeholder'
-  | 'aria-label'
-  | 'secureTextEntry'
-  | 'variant'
-  | 'ref'
-  | 'focusTarget'
-  | 'type'
-  | 'onKeyDown'
-> & { hasError: boolean; hasAdornment: boolean };
+/** Props the wrapper or the field reads by name; the rest reach the input as written. */
+const OWN_KEYS = [
+  'label',
+  'error',
+  'invalid',
+  'helperText',
+  'startAdornment',
+  'grow',
+  'dataSet',
+  'value',
+  'onChangeText',
+  'onSubmitEditing',
+  'placeholder',
+  'aria-label',
+  'secureTextEntry',
+  'variant',
+  'ref',
+  'focusTarget',
+  'type',
+  'onKeyDown',
+] as const satisfies readonly (keyof TextInputProps)[];
 
-function fieldType(local: FieldLocal): string {
-  if (local.secureTextEntry) return 'password';
-  return local.type ?? 'text';
+function fieldType(input: TextInputProps): string {
+  if (input.secureTextEntry) return 'password';
+  return typeof input.type === 'string' ? input.type : 'text';
 }
 
-function Field(
-  props: FieldLocal & { rest: Record<string, unknown> }
-): JSX.Element {
+function Field(props: {
+  /** The text input's own props, read where each is used. */
+  input: TextInputProps;
+  /** Attaches the element to the input's handles. */
+  targets: (element: HTMLElement) => void;
+  hasError: boolean;
+  hasAdornment: boolean;
+  rest: Record<string, unknown>;
+}): JSX.Element {
   const onKeyDown = (event: KeyboardEvent): void => {
-    const handler = props.onKeyDown;
+    const handler = props.input.onKeyDown;
     if (typeof handler === 'function') {
       (handler as (e: KeyboardEvent) => void)(event);
     }
-    if (event.key !== 'Enter' || props.onSubmitEditing === undefined) return;
+    const submit = props.input.onSubmitEditing;
+    if (event.key !== 'Enter' || submit === undefined) return;
     event.preventDefault();
-    props.onSubmitEditing();
+    submit();
   };
   return (
     <input
       ref={(element) => {
-        bindElementTargets(element, props);
-        props.ref?.(element);
+        props.targets(element);
+        props.input.ref?.(element);
       }}
       class={spaced([
         // 44px tall, 16px text inset; a leading adornment (16px pad, ~20px
@@ -129,16 +142,16 @@ function Field(
         'input min-h-11 py-2 pr-4 text-base',
         props.hasAdornment ? 'pl-11' : 'pl-4',
         props.hasError ? 'inputError' : undefined,
-        props.variant === 'embedded'
+        props.input.variant === 'embedded'
           ? 'inputEmbedded border-0 rounded-none bg-transparent textBodyBold'
           : undefined,
       ])}
-      type={fieldType(props)}
-      value={props.value}
-      placeholder={props.placeholder}
-      aria-label={props['aria-label']}
-      aria-invalid={props.hasError || undefined}
-      onInput={(event) => props.onChangeText(event.currentTarget.value)}
+      type={fieldType(props.input)}
+      value={props.input.value}
+      placeholder={props.input.placeholder}
+      aria-label={props.input['aria-label']}
+      aria-invalid={props.hasError ? 'true' : undefined}
+      onInput={(event) => props.input.onChangeText(event.currentTarget.value)}
       onKeyDown={onKeyDown}
       {...componentDataAttrs('TextInputField', undefined)}
       {...props.rest}
@@ -173,64 +186,42 @@ function StartAdornment(props: { children: JSX.Element }): JSX.Element {
  */
 export function TextInput(props: TextInputProps): JSX.Element {
   const labelId = `field-label-${createUniqueId()}`;
-  const [local, field, rest] = splitProps(
-    props,
-    [
-      'label',
-      'error',
-      'invalid',
-      'helperText',
-      'startAdornment',
-      'grow',
-      'dataSet',
-    ],
-    [
-      'value',
-      'onChangeText',
-      'onSubmitEditing',
-      'placeholder',
-      'aria-label',
-      'secureTextEntry',
-      'variant',
-      'ref',
-      'focusTarget',
-      'type',
-      'onKeyDown',
-    ]
-  );
+  const rest = omit(props, ...OWN_KEYS);
+  const targets = bindElementTargets(props);
   const hasAdornment = () =>
-    local.startAdornment !== undefined && local.startAdornment !== null;
+    props.startAdornment !== undefined && props.startAdornment !== null;
   return (
     <div
       class={spaced([
         'box',
-        field.variant === 'embedded' ? undefined : 'gap-1',
-        local.grow === true ? 'flex-1 min-w-0' : undefined,
+        props.variant === 'embedded' ? undefined : 'gap-1',
+        props.grow === true ? 'flex-1 min-w-0' : undefined,
       ])}
-      {...dataAttrs({ component: 'TextInput', ...local.dataSet })}
+      {...dataAttrs({ component: 'TextInput', ...props.dataSet })}
     >
-      <Show when={local.label !== undefined}>
+      <Show when={props.label !== undefined}>
         <label id={labelId} class="text textLabel">
-          {local.label}
+          {props.label}
         </label>
       </Show>
       <div class="box relative">
         <Field
-          {...field}
-          hasError={local.error !== undefined || local.invalid === true}
+          input={props}
+          targets={targets}
+          hasError={props.error !== undefined || props.invalid === true}
           hasAdornment={hasAdornment()}
           rest={{
             ...rest,
             'aria-labelledby':
               rest['aria-labelledby'] ??
-              (local.label !== undefined ? labelId : undefined),
+              (props.label !== undefined ? labelId : undefined),
           }}
         />
         <Show when={hasAdornment()}>
-          <StartAdornment>{local.startAdornment}</StartAdornment>
+          <StartAdornment>{props.startAdornment}</StartAdornment>
         </Show>
       </div>
-      <FieldFooter error={local.error} helperText={local.helperText} />
+      <FieldFooter error={props.error} helperText={props.helperText} />
     </div>
   );
 }

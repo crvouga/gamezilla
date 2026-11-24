@@ -82,7 +82,10 @@ function StepperButton(props: {
 }): JSX.Element {
   return (
     <button
-      class={["clickable clickableTint size-11 shrink-0 items-center justify-center rounded-full border border-outline text-text", { 'cursor-not-allowed': props.disabled }]}
+      class={[
+        'clickable clickableTint size-11 shrink-0 items-center justify-center rounded-full border border-outline text-text',
+        { 'cursor-not-allowed': props.disabled },
+      ]}
       data-component="NumberStepperButton"
       data-testid={props.testId}
       type="button"
@@ -90,7 +93,7 @@ function StepperButton(props: {
       disabled={props.disabled}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
-      tabIndex={-1}
+      tabindex={-1}
     >
       <StepperGlyph plus={props.plus} />
     </button>
@@ -167,7 +170,10 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
     stepperPartTestId(props.dataSet?.['testid'], part);
   return (
     <div
-      class={["box flex-row items-center justify-between gap-3 py-1", { 'opacity-disabled': model.off() }]}
+      class={[
+        'box flex-row items-center justify-between gap-3 py-1',
+        { 'opacity-disabled': model.off() },
+      ]}
       {...dataAttrs({ component: 'NumberStepper', ...props.dataSet })}
     >
       <span class="text textLabel flex-1">{props.label}</span>
@@ -184,7 +190,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           class="text textStat min-w-12 text-center"
           role="spinbutton"
           data-testid={testId('value')}
-          tabIndex={model.off() ? -1 : 0}
+          tabindex={model.off() ? -1 : 0}
           aria-label={props.label}
           aria-valuenow={props.value}
           aria-valuemin={props.min}
@@ -193,7 +199,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
             model.bound() === null ? undefined : reasonId,
             props['aria-describedby']
           )}
-          aria-disabled={model.off() ? true : undefined}
+          aria-disabled={model.off() ? 'true' : undefined}
           onKeyDown={(event) =>
             onSpinKeyDown(event, model.change, model.jump, model.step())
           }

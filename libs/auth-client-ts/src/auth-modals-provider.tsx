@@ -6,7 +6,14 @@ import type { SignInOptions } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createMemo, createSignal, on, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  createMemo,
+  createSignal,
+  useContext,
+} from 'solid-js';
 import { useConfigService } from './config-service-context';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInModal } from './sign-in-modal';
@@ -101,13 +108,11 @@ function useSignInModalConnection(args: {
   const resumePending = createMemo(() => isHydrated() && pending() !== null);
 
   createEffect(
-    on(
-      resumePending,
-      (value) => {
-        if (value) args.openSignInModal();
-      },
-      { defer: true }
-    )
+    () => resumePending(),
+    (value) => {
+      if (value) args.openSignInModal();
+    },
+    { defer: true }
   );
 
   const onError = (err: Error) => {
@@ -150,13 +155,7 @@ function useSignInModalConnection(args: {
 }
 
 export function useAuthModals(): AuthModals {
-  const v = useContext(Ctx);
-  if (v === undefined) {
-    throw new Error(
-      'useAuthModals: AuthModalsProvider missing — wrap with AppProviders'
-    );
-  }
-  return v;
+  return useContext(Ctx);
 }
 
 /**

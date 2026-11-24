@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import {
@@ -139,19 +140,22 @@ export function CellGridPalette<K extends string = string>(
         class={styles['track']}
         role="radiogroup"
         aria-labelledby={id}
-        aria-disabled={props.disabled === true ? true : undefined}
+        aria-disabled={props.disabled === true ? 'true' : undefined}
         {...dataAttrs({ ...props.dataSet })}
       >
         <For each={props.items}>
           {(item) => (
             <button
               type="button"
-              class={[`clickable ${styles['tool']}`, { clickableTint: item.key !== props.selected }]}
+              class={[
+                `clickable ${styles['tool']}`,
+                { clickableTint: item.key !== props.selected },
+              ]}
               role="radio"
-              aria-checked={item.key === props.selected}
+              aria-checked={ariaBoolean(item.key === props.selected)}
               data-key={item.key}
               data-testid={item.testid}
-              tabIndex={tabStop() === item.key ? 0 : -1}
+              tabindex={tabStop() === item.key ? 0 : -1}
               disabled={props.disabled === true}
               onKeyDown={onToolKeyDown}
               onClick={() => {

@@ -55,19 +55,22 @@ export function SelectTrigger<T extends SelectValue>(
       onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-haspopup="listbox"
-      aria-expanded={props.open}
+      aria-expanded={props.open ? 'true' : 'false'}
       aria-label={props['aria-label']}
     >
       <Show when={props.selected?.preview !== undefined}>
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <p
-        class={["text line-clamp-1 flex-1 min-w-0 shrink", {
-          textFootnote: compact(),
-          textBody: !compact(),
-          'text-text': hasSelection(),
-          'text-text-secondary': !hasSelection(),
-        }]}
+        class={[
+          'text line-clamp-1 flex-1 min-w-0 shrink',
+          {
+            textFootnote: compact(),
+            textBody: !compact(),
+            'text-text': hasSelection(),
+            'text-text-secondary': !hasSelection(),
+          },
+        ]}
       >
         {props.selected?.label ?? props.placeholder}
       </p>

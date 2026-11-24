@@ -21,7 +21,7 @@ import { recordingDriver } from '@pkgs/ui-testing-root-shared-ts/recording-drive
 import type { StepRecorder } from '@pkgs/ui-testing-root-shared-ts/step-recorder';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client-ts/multi-app-solid-dom-session';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
-import { createMemoryHistory, type MemoryHistory } from '@solidjs/router';
+import { type MemoryHistoryAdapter, memoryHistory } from '@solidjs/router';
 import type { ActorBrowserStorage } from './actor-browser-storage';
 import type { Harness } from './create-harness';
 import { inProcessDevice, webviewDevice } from './device-probes';
@@ -50,7 +50,7 @@ async function createSolidDomClientDriver(args: {
   readonly id: string;
   readonly session: MultiAppSolidDomSession;
   readonly runFor: (durationMs: number) => Promise<void>;
-  readonly history: MemoryHistory;
+  readonly history: MemoryHistoryAdapter;
   readonly viewport: { width: number; height: number };
   readonly shortcutsActive: () => boolean;
 }): Promise<Driver> {
@@ -84,8 +84,8 @@ async function createSolidDomClientDriver(args: {
 async function actorHistory(
   harness: Harness,
   id: string
-): Promise<MemoryHistory> {
-  const history = createMemoryHistory();
+): Promise<MemoryHistoryAdapter> {
+  const history = memoryHistory();
   const savedHref = await readEmbeddedHref((await harness.client(id)).kv);
   if (savedHref !== null) history.set({ value: savedHref, replace: true });
   return history;
@@ -280,7 +280,7 @@ export async function launchActor(args: LaunchActorArgs): Promise<ActorEntry> {
 }
 
 async function navigateActor(
-  history: MemoryHistory,
+  history: MemoryHistoryAdapter,
   runFor: (durationMs: number) => Promise<void>,
   path: string
 ): Promise<void> {

@@ -5,7 +5,7 @@ import { expect, test } from 'bun:test';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { render } from '@solidjs/testing-library';
-import { createSignal, For, Show } from 'solid-js';
+import { createSignal, flush, For, Show } from 'solid-js';
 
 function byTestId(testId: string): HTMLElement {
   const element = document.querySelector<HTMLElement>(
@@ -35,9 +35,11 @@ test('a focus target follows whichever button holds it and lets go on unmount', 
   expect(target.focus()).toBe(true);
   expect(document.activeElement).toBe(byTestId('first'));
   setPressed(1);
+  flush();
   expect(target.focus()).toBe(true);
   expect(document.activeElement).toBe(byTestId('second'));
   setShown(false);
+  flush();
   expect(target.mounted()).toBe(false);
   expect(target.focus()).toBe(false);
   view.unmount();

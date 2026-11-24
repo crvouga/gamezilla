@@ -45,7 +45,7 @@ export function SeatOptionsToggle(props: {
     <button
       type="button"
       class={`${seat['seatToggle']} clickable clickableTint rounded-full`}
-      aria-expanded={props.state.open()}
+      aria-expanded={props.state.open() ? 'true' : 'false'}
       aria-controls={props.state.id}
       onClick={() => props.state.toggle()}
       {...dataAttrs({ component: 'GamePlayerOptionsToggle', ...props.dataSet })}
@@ -55,7 +55,7 @@ export function SeatOptionsToggle(props: {
       </span>
       <span
         class={`${styles['chevron']} ${seat['seatToggleChevron']}`}
-        data-open={props.state.open()}
+        data-open={String(props.state.open())}
         aria-hidden="true"
       >
         <ChevronDownIcon size={16} />

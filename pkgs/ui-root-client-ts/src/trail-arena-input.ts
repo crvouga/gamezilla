@@ -66,14 +66,17 @@ export function trailArenaInput(props: TrailControls) {
   // A held finger belongs to the control session in which it began. A
   // reconnect, round break or ownership change requires a fresh gesture.
   let previousSession = '';
-  createEffect(() => {
-    const session = `${props.enabled}:${props.riders
-      .filter((rider) => rider.controlled)
-      .map((rider) => rider.index)
-      .join(',')}`;
-    if (session !== previousSession) swipes.clear();
-    previousSession = session;
-  });
+  createEffect(
+    () =>
+      `${props.enabled}:${props.riders
+        .filter((rider) => rider.controlled)
+        .map((rider) => rider.index)
+        .join(',')}`,
+    (session) => {
+      if (session !== previousSession) swipes.clear();
+      previousSession = session;
+    }
+  );
   const keyDown = (event: KeyboardEvent) => {
     const slots = controlledSlots(props);
     if (

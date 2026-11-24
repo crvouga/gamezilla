@@ -162,9 +162,12 @@ function IconButtonFace(
 
   return (
     <button
-      class={[`clickable clickableTint ${hitBoxClass()}`, {
-        'opacity-disabled cursor-not-allowed': props.disabled === true,
-      }]}
+      class={[
+        `clickable clickableTint ${hitBoxClass()}`,
+        {
+          'opacity-disabled cursor-not-allowed': props.disabled === true,
+        },
+      ]}
       {...dataAttrs({
         component: 'IconButton',
         variant: props.variant ?? 'icon',
@@ -174,8 +177,16 @@ function IconButtonFace(
       onClick={handleClick}
       disabled={props.disabled === true}
       aria-label={resolveAriaLabel(label(), props['aria-label'])}
-      aria-haspopup={props['aria-haspopup']}
-      aria-expanded={props['aria-expanded']}
+      aria-haspopup={
+        props['aria-haspopup'] === undefined
+          ? undefined
+          : `${props['aria-haspopup']}`
+      }
+      aria-expanded={
+        props['aria-expanded'] === undefined
+          ? undefined
+          : `${props['aria-expanded']}`
+      }
       aria-describedby={
         tooltip !== null && props.tooltipMode !== 'none'
           ? tooltip.id

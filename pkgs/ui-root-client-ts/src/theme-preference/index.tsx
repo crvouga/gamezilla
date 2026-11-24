@@ -4,7 +4,12 @@ import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { enumKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createSignal, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  useContext,
+} from 'solid-js';
 import type { ThemeProviderProps } from '../theme-context/index';
 
 const COLOR_SCHEME_ROW_KEY = asKeyword('ui.prefs/color-scheme');
@@ -46,20 +51,12 @@ export function ThemePreferenceProvider(props: {
     setStored(next);
   };
   return (
-    <ThemePreferenceContext
-      value={{ preference, setPreference, settled }}
-    >
+    <ThemePreferenceContext value={{ preference, setPreference, settled }}>
       {props.children}
     </ThemePreferenceContext>
   );
 }
 
 export function useThemePreference(): ThemePreferenceContextValue {
-  const ctx = useContext(ThemePreferenceContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'useThemePreference must be used within ThemePreferenceProvider'
-    );
-  }
-  return ctx;
+  return useContext(ThemePreferenceContext);
 }

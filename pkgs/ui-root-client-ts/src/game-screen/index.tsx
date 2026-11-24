@@ -77,7 +77,7 @@ export function GameScreen(props: {
         >
           <div
             class={heading['heading']}
-            data-keep-title={props.keepTitle === true}
+            data-keep-title={String(props.keepTitle === true)}
             {...dataAttrs({ component: 'GameHeading' })}
           >
             <div
@@ -163,12 +163,12 @@ export function GameLayout(props: {
       <div
         class={styles['layout']}
         style={{ '--game-rail-rows': String(Math.max(1, railRows())) }}
-        data-has-stage={stage.present()}
-        data-has-setup={setup.present()}
-        data-has-aside={aside.present()}
-        data-stage-preview={props.stagePreview === true}
-        data-arena={props.arena === true}
-        data-workspace={props.workspace === true}
+        data-has-stage={String(stage.present())}
+        data-has-setup={String(setup.present())}
+        data-has-aside={String(aside.present())}
+        data-stage-preview={String(props.stagePreview === true)}
+        data-arena={String(props.arena === true)}
+        data-workspace={String(props.workspace === true)}
         data-stage-align={props.stageAlign ?? 'start'}
         {...dataAttrs({ component: 'GameLayout' })}
       >
@@ -176,18 +176,24 @@ export function GameLayout(props: {
           <div class={styles['setup']}>{setup.content()}</div>
         </Show>
         <div
-          class={[`${styles['stage']} ${precision['stage']}`, {
-            [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
-          }]}
+          class={[
+            `${styles['stage']} ${precision['stage']}`,
+            {
+              [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+            },
+          ]}
           data-game-slot="stage"
         >
           {stage.content()}
         </div>
         <Show when={controls.present()}>
           <div
-            class={[styles['controls'], {
-              [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
-            }]}
+            class={[
+              styles['controls'],
+              {
+                [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+              },
+            ]}
             data-game-slot="controls"
             {...dataAttrs({ component: 'GameControls' })}
           >
@@ -196,9 +202,12 @@ export function GameLayout(props: {
         </Show>
         <Show when={aside.present()}>
           <div
-            class={[styles['rail'], {
-              [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
-            }]}
+            class={[
+              styles['rail'],
+              {
+                [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+              },
+            ]}
             data-game-slot="rail"
           >
             {aside.content()}

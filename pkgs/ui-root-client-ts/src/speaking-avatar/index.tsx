@@ -1,15 +1,15 @@
 /** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { speakingAvatarSvg } from '@pkgs/ui-root-shared-ts/speaking-avatar-svg';
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createMemo, Show, splitProps, untrack } from 'solid-js';
+import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
 import { SpeechBubble } from '../speech-bubble/index';
@@ -43,7 +43,7 @@ export type SpeakingAvatarSpeaker = (
 
 export type SpeakingAvatarProps = Omit<
   JSX.HTMLAttributes<HTMLDivElement>,
-  'children' | 'class' | 'classList' | 'style'
+  'children' | 'class' | 'style'
 > & {
   message: string;
   /** Cancels old speech when the described position changes, even for identical text. */
@@ -96,7 +96,7 @@ function HeadImage(props: { svg: string; size: number }): JSX.Element {
       alt=""
       width={props.size}
       height={props.size}
-      draggable={false}
+      draggable="false"
     />
   );
 }
@@ -115,7 +115,7 @@ function AvatarHead(props: {
       class="clickable relative self-center"
       type="button"
       onClick={() => props.onToggle()}
-      aria-pressed={props.muted}
+      aria-pressed={props.muted ? 'true' : 'false'}
       aria-label={props.muted ? t`Unmute coach` : t`Mute coach`}
       data-testid={props.testId}
     >
@@ -159,7 +159,8 @@ function AvatarHead(props: {
  * ```
  */
 export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
-  const [local, rest] = splitProps(props, [
+  const rest = omit(
+    props,
     'message',
     'contextKey',
     'header',
@@ -169,16 +170,16 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     'seed',
     'speak',
     'numberOfLines',
-    'dataSet',
-  ]);
+    'dataSet'
+  );
   // Audio wiring is composition-level configuration: read once.
   // Named `create*` so the injected primitive is treated as a tracked scope.
   const createSpeech = untrack(() =>
-    local.speak === false ? undefined : local.speaker
+    props.speak === false ? undefined : props.speaker
   );
-  const size = () => local.avatarSize ?? DEFAULT_AVATAR_SIZE;
+  const size = () => props.avatarSize ?? DEFAULT_AVATAR_SIZE;
   const svg = createMemo(() =>
-    speakingAvatarSvg(local.seed ?? DEFAULT_SEED, size())
+    speakingAvatarSvg(props.seed ?? DEFAULT_SEED, size())
   );
 
   const [muted, setMuted] = createKvState<boolean>({
@@ -187,12 +188,12 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     codec: MUTED_CODEC,
   });
   const speechArgs = createMemo<SpeakingAvatarSpeechArgs>(() => ({
-    text: local.message,
-    contextKey: local.contextKey,
+    text: props.message,
+    contextKey: props.contextKey,
     enabled:
       !muted() &&
-      local.bubbleResolving !== true &&
-      local.message.trim().length > 0,
+      props.bubbleResolving !== true &&
+      props.message.trim().length > 0,
   }));
   const speech = createSpeech === undefined ? SILENT : createSpeech(speechArgs);
   const indicator = () => resolveIndicatorState(muted(), speech.isSpeaking());
@@ -200,11 +201,11 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
   return (
     <div
       class="box flex-row items-center px-4 gap-1 min-w-0"
-      {...dataAttrs({ component: 'SpeakingAvatar', ...local.dataSet })}
+      {...dataAttrs({ component: 'SpeakingAvatar', ...props.dataSet })}
       {...rest}
-      data-muted={muted()}
-      data-speaking={speech.isSpeaking()}
-      data-loading={speech.isLoading()}
+      data-muted={String(muted())}
+      data-speaking={String(speech.isSpeaking())}
+      data-loading={String(speech.isLoading())}
     >
       <Show
         when={createSpeech !== undefined}
@@ -221,17 +222,17 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
           indicator={indicator()}
           onToggle={() => setMuted((m) => !m)}
           testId={
-            local.dataSet?.['testid'] === undefined
+            props.dataSet?.['testid'] === undefined
               ? undefined
-              : `${local.dataSet['testid']}-mute`
+              : `${props.dataSet['testid']}-mute`
           }
         />
       </Show>
       <SpeechBubble
-        text={local.message}
-        loading={speech.isLoading() || local.bubbleResolving === true}
-        header={local.header}
-        numberOfLines={local.numberOfLines}
+        text={props.message}
+        loading={speech.isLoading() || props.bubbleResolving === true}
+        header={props.header}
+        numberOfLines={props.numberOfLines}
       />
     </div>
   );

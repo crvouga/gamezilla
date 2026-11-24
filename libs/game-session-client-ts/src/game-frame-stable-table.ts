@@ -1,4 +1,4 @@
-import { type Accessor, createMemo, mergeProps } from 'solid-js';
+import { type Accessor, createMemo, merge } from 'solid-js';
 import type { FramePlaySeat, FrameTable } from './game-frame-view-types';
 
 /** Plain data compared by value; a function (a seat's press) by identity. */
@@ -58,7 +58,7 @@ export function withStableTable<P extends { readonly table: FrameTable }>(
   props: P
 ): P {
   const table = stableFrameTable(() => props.table);
-  return mergeProps(props, {
+  return merge(props, {
     get table() {
       return table();
     },

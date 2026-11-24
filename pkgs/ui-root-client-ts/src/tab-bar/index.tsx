@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import type { IconComponent } from '../create-icon/index';
@@ -53,11 +53,11 @@ function isModifiedClick(event: MouseEvent): boolean {
 }
 
 function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
+  const Icon = dynamic(() => props.item.icon);
   return (
     <>
       <span class="box relative items-center justify-center">
-        <Dynamic
-          component={props.item.icon}
+        <Icon
           size={ICON_SIZE}
           strokeWidth={props.item.current ? STROKE_CURRENT : STROKE_DEFAULT}
           color={props.item.current ? 'tint' : 'textSecondary'}
@@ -81,10 +81,13 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
         data-slot="label"
       >
         <span
-          class={["text textFootnote line-clamp-1 max-w-full transition-colors", {
-            'text-tint font-semibold': props.item.current,
-            'text-text-secondary': !props.item.current,
-          }]}
+          class={[
+            'text textFootnote line-clamp-1 max-w-full transition-colors',
+            {
+              'text-tint font-semibold': props.item.current,
+              'text-text-secondary': !props.item.current,
+            },
+          ]}
         >
           {props.item.label}
         </span>

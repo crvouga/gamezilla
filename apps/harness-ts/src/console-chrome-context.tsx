@@ -10,7 +10,7 @@ const ConsoleChromeContext = createContext<ConsoleChromeContextValue | null>(
   null
 );
 
-export const ConsoleChromeProvider = ConsoleChromeContext.Provider;
+export const ConsoleChromeProvider = ConsoleChromeContext;
 
 export function useConsoleChrome(): ConsoleChromeContextValue {
   const value = useContext(ConsoleChromeContext);

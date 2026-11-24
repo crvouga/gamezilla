@@ -26,7 +26,7 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -854,11 +854,16 @@ test('in the steps, the playtest is drawn again only when its place changes', ()
     />
   ));
   setValidation(null);
+  flush();
   setValidation('invalid');
+  flush();
   setValidation('unchecked');
+  flush();
   expect(seen).toEqual([true]);
   setProven(true);
+  flush();
   setValidation('valid');
+  flush();
   expect(seen).toEqual([true, false]);
   expect(screen.getAllByTestId('playtest').length).toBe(1);
 });

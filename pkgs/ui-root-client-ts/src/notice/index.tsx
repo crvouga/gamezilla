@@ -4,7 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { type JSX, dynamic } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { IconButton } from '../icon-button/index';
@@ -105,11 +105,15 @@ const TONE: Record<NoticeTone, NoticeToneSpec> = {
  */
 export function Notice(props: NoticeProps): JSX.Element {
   const tone = (): NoticeToneSpec => TONE[props.tone ?? 'neutral'];
+  const ToneIcon = dynamic(() => props.icon ?? tone().icon);
   return (
     <div
       id={props.id}
       role={props.tone === 'error' ? 'alert' : undefined}
-      class={["box flex-row items-start gap-3 rounded-control px-4 py-3", { [tone().surface]: true }]}
+      class={[
+        'box flex-row items-start gap-3 rounded-control px-4 py-3',
+        { [tone().surface]: true },
+      ]}
       {...dataAttrs({
         component: 'Notice',
         tone: props.tone ?? 'neutral',
@@ -117,19 +121,18 @@ export function Notice(props: NoticeProps): JSX.Element {
       })}
     >
       <div class="box h-5 shrink-0 justify-center">
-        <Dynamic
-          component={props.icon ?? tone().icon}
-          size={iconSize.sm}
-          color={tone().iconColor}
-        />
+        <ToneIcon size={iconSize.sm} color={tone().iconColor} />
       </div>
       <div
-        class={["box flex-1 min-w-0 gap-1 textCaption", {
-          'text-info': props.tone === 'info',
-          'text-success': props.tone === 'success',
-          'text-warning': props.tone === 'warning',
-          'text-destructive': props.tone === 'error',
-        }]}
+        class={[
+          'box flex-1 min-w-0 gap-1 textCaption',
+          {
+            'text-info': props.tone === 'info',
+            'text-success': props.tone === 'success',
+            'text-warning': props.tone === 'warning',
+            'text-destructive': props.tone === 'error',
+          },
+        ]}
       >
         {props.children}
       </div>

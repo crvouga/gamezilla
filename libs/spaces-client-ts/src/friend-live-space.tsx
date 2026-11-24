@@ -133,7 +133,7 @@ function FriendLiveSpaceJoinFor(props: {
   readonly hostAccountId: string;
 }): JSX.Element {
   const router = useRouter();
-  const isOpen = useIsSpaceOpenLocally(props.spaceId);
+  const isOpen = useIsSpaceOpenLocally(() => props.spaceId);
   return (
     <FriendLiveSpaceJoinView
       action={isOpen() ? 'open' : 'join'}

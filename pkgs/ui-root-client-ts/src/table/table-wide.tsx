@@ -42,7 +42,7 @@ function WideRow<R>(props: { table: TableBodyProps<R>; row: R }): JSX.Element {
       data-testid={rowTestId(props.table.testId, props.table.rowKey(props.row))}
       data-component={componentId('TableRow')}
       data-pressable={pressable() ? 'true' : undefined}
-      tabIndex={pressable() ? 0 : undefined}
+      tabindex={pressable() ? 0 : undefined}
       aria-label={pressable() ? props.table.rowLabel?.(props.row) : undefined}
       onClick={() => {
         if (pressable()) press();

@@ -47,7 +47,7 @@ export function useSpaceOverlays(): SpaceOverlays {
   return {
     shareOpen: () => shareDialog?.open() ?? ownShareOpen(),
     setShareOpen: (open) => {
-      if (shareDialog === undefined) setOwnShareOpen(open);
+      if (shareDialog === null) setOwnShareOpen(open);
       else shareDialog.setOpen(open);
     },
     membersOpen: members.open,

@@ -50,10 +50,13 @@ function BodyInner(props: {
       {/* 16px page edge (`CONTENT_EDGE_PADDING_STEP`), 12px between
           sections; a large title brings its own top space. */}
       <div
-        class={["box gap-3 px-4 pb-4", {
-          'flex-1 min-h-0': !props.scroll,
-          'pt-4': !props.largeTitle,
-        }]}
+        class={[
+          'box gap-3 px-4 pb-4',
+          {
+            'flex-1 min-h-0': !props.scroll,
+            'pt-4': !props.largeTitle,
+          },
+        ]}
         data-component="ScreenBody"
       >
         {props.children}
@@ -69,7 +72,7 @@ function PinnedFooter(props: {
 }): JSX.Element {
   return (
     <div
-      class={["box bg-transparent", { safeBottom: props.safeBottom }]}
+      class={['box bg-transparent', { safeBottom: props.safeBottom }]}
       data-component="ScreenFooter"
     >
       <div class="box px-4 py-3">{props.children}</div>
@@ -95,9 +98,7 @@ function FloatingActionHost(props: {
 
 /** Zero-height spacer that pads scroll content by the bottom safe-area inset. */
 function SafeBottomSpacer(): JSX.Element {
-  return (
-    <div class={["box", { safeBottom: true }]} aria-hidden="true" />
-  );
+  return <div class={['box', { safeBottom: true }]} aria-hidden="true" />;
 }
 
 function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
@@ -123,9 +124,7 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
     <Show
       when={props.scroll}
       fallback={
-        <div
-          class={["box flex-1 min-h-0", { safeBottom: needsSafeBottom() }]}
-        >
+        <div class={['box flex-1 min-h-0', { safeBottom: needsSafeBottom() }]}>
           {inner}
         </div>
       }
@@ -178,7 +177,7 @@ export function ScreenBaseCompactBody(
       <Show when={props.bottomBar}>
         {(bottomBar) => (
           <div
-            class={["box bg-transparent", { safeBottom: true }]}
+            class={['box bg-transparent', { safeBottom: true }]}
             data-component="ScreenBottomBar"
           >
             {bottomBar()}

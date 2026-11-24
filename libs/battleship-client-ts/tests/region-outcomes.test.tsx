@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { shotGridCells } from '@libs/battleship-client-ts/battleship-grid-cells';
 import { BattleshipTargetGrid } from '@libs/battleship-client-ts/battleship-target-grid';
 import { screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 // regression: battleship-overview-hides-shot-outcomes
@@ -47,6 +47,7 @@ test('every region describes its shot outcomes without first changing the workin
       aiming: null,
     })
   );
+  flush();
   expect(
     screen.getByRole('button', { description: 'J10: miss, latest shot' })
   ).toBe(byTestId('outcomes-area-9'));

@@ -23,7 +23,7 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
 import { render, screen } from '@solidjs/testing-library';
-import { createEffect, createRoot, createSignal } from 'solid-js';
+import { createEffect, createRoot, createSignal, flush } from 'solid-js';
 
 const COUNT = asKeyword('room/count');
 const TITLE = asKeyword('room/title');
@@ -87,11 +87,18 @@ describe('createRoomSnapshot', () => {
         () => source,
         (s) => String(s[TITLE])
       );
-      createEffect(() => seen.push(`${count()}:${title()}`));
+      createEffect(
+        () => `${count()}:${title()}`,
+        (value) => {
+          seen.push(value);
+        }
+      );
       return cleanup;
     });
+    flush();
     try {
       source.setState({ [COUNT]: 2, [TITLE]: 'Second' });
+      flush();
       expect(seen).toEqual(['1:First', '2:Second']);
       expect(source.listeners()).toBe(1);
     } finally {
@@ -100,53 +107,61 @@ describe('createRoomSnapshot', () => {
     expect(source.listeners()).toBe(0);
   });
   test('reads synchronously, tracks notify, and swaps rooms', () => {
-    createRoot((dispose) => {
-      const a = createFakeRoom({ [COUNT]: 1 });
-      const b = createFakeRoom({ [COUNT]: 10 });
-      const [room, setRoom] = createSignal<FakeRoom | null>(a);
-      const snapshot = createRoomSnapshot(room);
-      const count = createRoomSelector(room, (s) => Number(s[COUNT]));
+    const a = createFakeRoom({ [COUNT]: 1 });
+    const b = createFakeRoom({ [COUNT]: 10 });
+    const [room, setRoom] = createSignal<FakeRoom | null>(a);
+    const { snapshot, count, dispose } = createRoot((cleanup) => ({
+      snapshot: createRoomSnapshot(room),
+      count: createRoomSelector(room, (s) => Number(s[COUNT])),
+      dispose: cleanup,
+    }));
 
-      expect(snapshot()).toEqual({ [COUNT]: 1 });
-      a.setState({ [COUNT]: 2 });
-      expect(count()).toBe(2);
-      // All read primitives share one subscription and one batched update.
-      expect(a.listeners()).toBe(1);
+    expect(snapshot()).toEqual({ [COUNT]: 1 });
+    a.setState({ [COUNT]: 2 });
+    flush();
+    expect(count()).toBe(2);
+    // All read primitives share one subscription and one batched update.
+    expect(a.listeners()).toBe(1);
 
-      setRoom(b);
-      expect(snapshot()).toEqual({ [COUNT]: 10 });
-      expect(a.listeners()).toBe(0);
-      a.setState({ [COUNT]: 3 });
-      expect(count()).toBe(10);
+    setRoom(b);
+    flush();
+    expect(snapshot()).toEqual({ [COUNT]: 10 });
+    expect(a.listeners()).toBe(0);
+    a.setState({ [COUNT]: 3 });
+    flush();
+    expect(count()).toBe(10);
 
-      setRoom(null);
-      expect(snapshot()).toBe(EMPTY_ROOM_STATE);
-      expect(b.listeners()).toBe(0);
-      dispose();
-    });
+    setRoom(null);
+    flush();
+    expect(snapshot()).toBe(EMPTY_ROOM_STATE);
+    expect(b.listeners()).toBe(0);
+    dispose();
   });
 
   test('log, roster, and dispatch follow the room accessor', () => {
-    createRoot((dispose) => {
-      const a = createFakeRoom({});
-      const [room, setRoom] = createSignal<FakeRoom | null>(null);
-      const roster = createRoomRoster(room);
-      const log = createRoomLog(room);
-      const dispatch = createRoomDispatch(room);
+    const a = createFakeRoom({});
+    const [room, setRoom] = createSignal<FakeRoom | null>(null);
+    const { roster, log, dispatch, dispose } = createRoot((cleanup) => ({
+      roster: createRoomRoster(room),
+      log: createRoomLog(room),
+      dispatch: createRoomDispatch(room),
+      dispose: cleanup,
+    }));
 
-      expect(roster()).toEqual([]);
-      expect(log()).toEqual([]);
-      dispatch(PING);
-      expect(a.dispatched).toEqual([]);
+    expect(roster()).toEqual([]);
+    expect(log()).toEqual([]);
+    dispatch(PING);
+    expect(a.dispatched).toEqual([]);
 
-      setRoom(a);
-      const actor = { clientId: 'c1' } as unknown as RoomActor;
-      a.setRoster([actor]);
-      expect(roster()).toEqual([actor]);
-      dispatch(PING);
-      expect(a.dispatched).toEqual([PING]);
-      dispose();
-    });
+    setRoom(a);
+    flush();
+    const actor = { clientId: 'c1' } as unknown as RoomActor;
+    a.setRoster([actor]);
+    flush();
+    expect(roster()).toEqual([actor]);
+    dispatch(PING);
+    expect(a.dispatched).toEqual([PING]);
+    dispose();
   });
 });
 
@@ -182,16 +197,19 @@ describe('RoomClientsProvider', () => {
     const button = screen.getByRole('button');
     expect(button).toHaveTextContent('Lobby (0)');
     lobby.setState({ [TITLE]: 'Lobby 2' });
+    flush();
     expect(button).toHaveTextContent('Lobby 2 (0)');
 
     button.click();
     expect(lobby.dispatched).toEqual([HELLO]);
 
     setRooms(new Map([['main', game]]));
+    flush();
     expect(button).toHaveTextContent('Game (0)');
     expect(lobby.listeners()).toBe(0);
 
     setRooms(null);
+    flush();
     expect(button).toHaveTextContent('none (0)');
     button.click();
     expect(game.dispatched).toEqual([]);

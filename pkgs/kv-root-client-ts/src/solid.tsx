@@ -19,7 +19,12 @@ import type { Logger } from '@pkgs/logger-shared-ts/logger';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createSignal, onCleanup, type ParentProps, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createSignal,
+  onCleanup,
+  type ParentProps,
+} from 'solid-js';
 
 const KvContext = defineContext<Kv>('Kv');
 
@@ -95,7 +100,18 @@ export function createKvState<T>(
   const log = createLogger({ name: 'kv-state', now: clock.now });
   const enabled = kv !== undefined && persist;
 
-  const [value, setValueRaw] = createSignal<T>(defaultValue);
+  // Boxed: a `T` that is itself a function must stay a value, not a derivation.
+  const [box, setBox] = createSignal<{ readonly value: T }>(
+    { value: defaultValue },
+    { equals: (previous, next) => previous.value === next.value }
+  );
+  const value = (): T => box().value;
+  // The value last written: an updater sees it before Solid publishes the write.
+  let latest = defaultValue;
+  const write = (next: T): void => {
+    latest = next;
+    setBox({ value: next });
+  };
   let generation = 0;
   let cancelled = false;
   const notifyHydrated = (): void => {
@@ -113,7 +129,7 @@ export function createKvState<T>(
         if (cancelled || myGen !== generation) return;
         const decoded = decodePersistedRecord(record, codec);
         if (decoded === null) return;
-        setValueRaw(() => decoded);
+        write(decoded);
       })
       .catch((error: unknown) => {
         log.error('hydrate failed', {
@@ -129,9 +145,9 @@ export function createKvState<T>(
   const setValue: KvStateSetter<T> = (updater) => {
     const next =
       typeof updater === 'function'
-        ? (updater as (prev: T) => T)(untrack(value))
+        ? (updater as (prev: T) => T)(latest)
         : updater;
-    setValueRaw(() => next);
+    write(next);
     if (enabled) {
       generation += 1;
       persistValue({ kv, key, codec, value: next, log });

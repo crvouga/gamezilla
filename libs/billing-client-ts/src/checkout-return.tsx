@@ -13,7 +13,14 @@ import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { jsonKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createMemo, createSignal, untrack, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  createSignal,
+  untrack,
+  useContext,
+} from 'solid-js';
 
 export type CheckoutReturn = {
   /** When the paid return was seen (or last checked again), or `null`. */
@@ -77,7 +84,7 @@ function createCheckoutReturn(): CheckoutReturn {
   };
 }
 
-const CheckoutReturnContext = createContext<CheckoutReturn>();
+const CheckoutReturnContext = createContext<CheckoutReturn | null>(null);
 
 /** Billing's session provider: one checkout return per signed-in session. */
 export function CheckoutReturnProvider(props: {

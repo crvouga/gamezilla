@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { type JSX, dynamic } from '@solidjs/web';
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { ActionBarLabeledControl } from '../action-bar-labeled-control/index';
 import type { ActionBarIconItem } from '../action-bar-logic';
@@ -61,6 +61,7 @@ export function ActionBarIconButton(
     props.item.disabled === true || props.item.loading === true;
   const presentation = (): IconPresentation =>
     resolveIconPresentation(props.item, success());
+  const Glyph = dynamic(() => presentation().icon);
 
   const onClick = (): void => {
     const item = props.item;
@@ -78,8 +79,7 @@ export function ActionBarIconButton(
 
   const glyph = (): JSX.Element => (
     <div class="box items-center justify-center">
-      <Dynamic
-        component={presentation().icon}
+      <Glyph
         size={actionBarGlyphSize(props.buttonSize)}
         color={presentation().color}
       />

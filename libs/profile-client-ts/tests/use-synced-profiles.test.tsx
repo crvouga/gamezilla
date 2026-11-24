@@ -3,7 +3,7 @@ import { expect, test } from 'bun:test';
 import { profilesByIds } from '@libs/profile-shared-ts/profiles-by-ids-query';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { mountProfileSubscriptions } from './profile-subscription-probe';
 
 function profileIds(count: number): string[] {
@@ -39,13 +39,16 @@ test('updates the complete set and releases every former subscription', () => {
     expect(probe.activeIds()).toEqual(initial);
     const count = probe.subscriptions.length;
     setWanted([...initial.toReversed(), initial[0] ?? '', '']);
+    flush();
     expect(probe.subscriptions).toHaveLength(count);
     setWanted(['person-0400', 'person-0401', 'person-0401', '']);
+    flush();
     expect(probe.activeIds()).toEqual(['person-0400', 'person-0401']);
     expect(probe.subscriptions.slice(0, count).every((sub) => sub.closed)).toBe(
       true
     );
     setWanted([]);
+    flush();
     expect(probe.activeIds()).toEqual([]);
   } finally {
     probe.unmount();

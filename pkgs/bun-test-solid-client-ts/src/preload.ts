@@ -59,8 +59,24 @@ globalThis.queueMicrotask = (callback) => {
   });
 };
 const { flush, getOwner } = await import('solid-js');
+const SOLID_FRAME = /[\\/]@solidjs[\\/]signals[\\/]/;
+/**
+ * An effect callback that dispatches (`element.focus()`) runs unowned inside
+ * a drain Solid started itself: `render`, or a `flush()` the test called. No
+ * public state tells that apart from a dispatch by the test, so read it off
+ * the call stack. Solid applies such a callback's writes in the same drain.
+ */
+function calledBySolid(): boolean {
+  const limit = Error.stackTraceLimit;
+  Error.stackTraceLimit = 64;
+  try {
+    return SOLID_FRAME.test(new Error('probe').stack ?? '');
+  } finally {
+    Error.stackTraceLimit = limit;
+  }
+}
 function taskCheckpoint(): void {
-  if (draining || getOwner() !== null) return;
+  if (draining || getOwner() !== null || calledBySolid()) return;
   draining = true;
   try {
     flush();
@@ -96,11 +112,17 @@ for (const prototype of dispatchingPrototypes()) {
     prototype,
     'dispatchEvent',
     function dispatchEvent(this: EventTarget, event: Event): unknown {
+      // A browser exposes the event it is delivering as `window.event`, and
+      // Solid reads it to tell a handler from the effect callback that
+      // dispatched to it (`element.focus()`). happy-dom leaves it unset.
+      const outer: unknown = Reflect.get(globalThis, 'event');
+      Reflect.set(globalThis, 'event', event);
       dispatchDepth += 1;
       try {
         return Reflect.apply(dispatch, this, [event]);
       } finally {
         dispatchDepth -= 1;
+        Reflect.set(globalThis, 'event', outer);
         if (dispatchDepth === 0) taskCheckpoint();
       }
     }

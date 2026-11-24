@@ -7,7 +7,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -59,6 +59,7 @@ test('Pong exposes a labelled court and only the player’s normalized paddle co
   fireEvent.input(slider, { target: { value: '750' } });
   expect(view.inputs).toEqual([['black', { kind: 'target', target: 0.75 }]]);
   view.setPaused(true);
+  flush();
   expect(slider.disabled).toBe(true);
   expect(view.getByRole('status').textContent).toBe(
     'Paused while a player returns'
@@ -74,6 +75,7 @@ test('a spectator sees the score without either input control and a malformed po
   expect(view.getByText('Left 0')).toBeDefined();
   expect(view.getByText('Right 0')).toBeDefined();
   view.setPosition('pong:broken');
+  flush();
   expect(view.getByRole('alert').textContent).toContain(
     'Return to your spaces'
   );
@@ -102,9 +104,11 @@ test('serve and pause remain on court with explicit cues for both touch edges', 
       'Drag'
     );
   view.setPaused(true);
+  flush();
   expect(court.contains(view.getByRole('status'))).toBe(true);
   expect(view.queryByTestId('pong-first-gesture')).toBeNull();
   view.setPaused(false);
+  flush();
   expect(view.getByTestId('pong-first-gesture')).toBeDefined();
   const state = initialPongState(pongConfig(), () => 0);
   view.setPosition(
@@ -115,6 +119,7 @@ test('serve and pause remain on court with explicit cues for both touch edges', 
       ball: { ...state.ball, vx: pongConfig().ballSpeed },
     })
   );
+  flush();
   expect(view.queryByRole('status')).toBeNull();
 });
 
@@ -122,6 +127,7 @@ test('serve and pause remain on court with explicit cues for both touch edges', 
 test('literal unreadable story offers the existing Spaces destination', () => {
   const view = board([]);
   view.setPosition('pong:not-a-position');
+  flush();
   const recovery = view.getByRole('link', { name: 'Back to spaces' });
   expect(recovery.getAttribute('href')).toBe('/');
   expect(view.getByRole('alert').contains(recovery)).toBe(true);
@@ -140,6 +146,7 @@ test('the multiplayer court retains one readable status through the live rally a
       ball: { ...state.ball, vx: pongConfig().ballSpeed },
     })
   );
+  flush();
   const status = view.getByTestId('multiplayer-board-status');
   expect(status.textContent).toBe('Keep the ball in play.');
   expect(view.getByRole('application').contains(status)).toBe(false);
@@ -149,6 +156,7 @@ test('the multiplayer court retains one readable status through the live rally a
   });
   expect(view.inputs).toEqual([['white', { kind: 'target', target: 0.75 }]]);
   view.setPaused(true);
+  flush();
   expect(view.getAllByTestId('multiplayer-board-status')).toHaveLength(1);
   expect(view.getByTestId('multiplayer-board-status').textContent).toBe(
     'Paused while a player returns'

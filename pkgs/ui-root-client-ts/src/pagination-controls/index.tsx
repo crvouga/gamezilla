@@ -6,7 +6,7 @@ import { buildPaginationWindow } from '@pkgs/ui-root-shared-ts/build-pagination-
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { type JSX, dynamic } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import {
@@ -62,6 +62,7 @@ function NavButton(props: {
   readonly onClick: () => void;
   readonly icon: IconComponent;
 }): JSX.Element {
+  const NavIcon = dynamic(() => props.icon);
   return (
     <button
       class="clickable clickableTint"
@@ -73,7 +74,7 @@ function NavButton(props: {
       onClick={() => props.onClick()}
     >
       <div class="box" style={circleStyle(props.size, false)}>
-        <Dynamic component={props.icon} size={ICON_SIZE} color="icon" />
+        <NavIcon size={ICON_SIZE} color="icon" />
       </div>
     </button>
   );

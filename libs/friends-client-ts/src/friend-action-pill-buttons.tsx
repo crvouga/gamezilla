@@ -44,11 +44,13 @@ export function AcceptDeclinePills(props: {
     get disabled() {
       return decision.pending();
     },
-    labels: {
-      idle: <Trans>Accept</Trans>,
-      loading: t`Accepting…`,
-      success: t`Accepted`,
-      error: t`Couldn't accept`,
+    get labels() {
+      return {
+        idle: <Trans>Accept</Trans>,
+        loading: t`Accepting…`,
+        success: t`Accepted`,
+        error: t`Couldn't accept`,
+      };
     },
     successHoldMs: 0,
   });
@@ -57,11 +59,13 @@ export function AcceptDeclinePills(props: {
     get disabled() {
       return decision.pending();
     },
-    labels: {
-      idle: <Trans>Decline</Trans>,
-      loading: t`Declining…`,
-      success: t`Declined`,
-      error: t`Couldn't decline`,
+    get labels() {
+      return {
+        idle: <Trans>Decline</Trans>,
+        loading: t`Declining…`,
+        success: t`Declined`,
+        error: t`Couldn't decline`,
+      };
     },
     successHoldMs: 0,
   });

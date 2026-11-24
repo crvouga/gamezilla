@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { type JSX, dynamic } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback, ButtonIntent } from '../button-face';
 import { buttonInteraction, MUTATION_FEEDBACK_ICONS } from '../button-face';
@@ -65,6 +65,12 @@ function FabContent(props: {
     fabLabelForPhase(props.phase, props.labels);
   const showText = (): boolean =>
     props.labels.label !== undefined && text() !== undefined;
+  const IdleIcon = dynamic(() => props.icon);
+  const FeedbackIcon = dynamic(() =>
+    props.phase === 'success'
+      ? MUTATION_FEEDBACK_ICONS.success
+      : MUTATION_FEEDBACK_ICONS.error
+  );
   return (
     <>
       <Switch>
@@ -72,17 +78,10 @@ function FabContent(props: {
           <Spinner decorative color="current" />
         </Match>
         <Match when={props.phase === 'success' || props.phase === 'error'}>
-          <Dynamic
-            component={
-              props.phase === 'success'
-                ? MUTATION_FEEDBACK_ICONS.success
-                : MUTATION_FEEDBACK_ICONS.error
-            }
-            size={FAB_ICON_SIZE}
-          />
+          <FeedbackIcon size={FAB_ICON_SIZE} />
         </Match>
         <Match when={props.phase === 'idle'}>
-          <Dynamic component={props.icon} size={FAB_ICON_SIZE} />
+          <IdleIcon size={FAB_ICON_SIZE} />
         </Match>
       </Switch>
       <Show when={showText()}>
@@ -136,7 +135,7 @@ export function FloatingActionButton(
       type="button"
       onClick={() => state().handleClick?.()}
       disabled={state().nonInteractive}
-      aria-busy={state().phase === 'loading' ? true : undefined}
+      aria-busy={state().phase === 'loading' ? 'true' : undefined}
       aria-label={props['aria-label']}
     >
       <div class="box relative z-1 flex-row items-center gap-2">

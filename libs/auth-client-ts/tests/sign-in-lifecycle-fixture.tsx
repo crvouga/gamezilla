@@ -18,7 +18,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SecureStorageStoreProvider } from '@pkgs/secure-storage-root-client-ts/solid';
 import { createInMemorySecureStorage } from '@pkgs/secure-storage-root-shared-ts/impl-memory';
 import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
-import { MemoryRouter } from '@solidjs/router';
+import { createRouter, memoryHistory } from '@solidjs/router';
 import { render } from '@solidjs/testing-library';
 
 export async function signInLifecycleFixture() {
@@ -71,9 +71,10 @@ export async function signInLifecycleFixture() {
     });
     return null;
   }
+  const Router = createRouter({ routes: [], history: memoryHistory() });
   const view = render(() => (
-    <MemoryRouter
-      root={() => (
+    <Router>
+      {() => (
         <ClockProvider clock={time.clock} timers={time.timers}>
           <SecureStorageStoreProvider value={store}>
             <AuthClientProvider port={port}>
@@ -82,7 +83,7 @@ export async function signInLifecycleFixture() {
           </SecureStorageStoreProvider>
         </ClockProvider>
       )}
-    />
+    </Router>
   ));
   return { time, store, publish, lifecycle, dispose: view.unmount };
 }

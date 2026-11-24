@@ -13,10 +13,10 @@ function EventsContent(): JSX.Element {
       events={population
         .shown()
         ?.events.filter((event) => event.event !== 'UiDriverAction')}
-      loading={population.overview.loading}
-      failed={Boolean(population.overview.error)}
+      loading={population.loading()}
+      failed={population.failed()}
       onRefresh={() => {
-        void population.refetch();
+        void population.reread();
       }}
     />
   );

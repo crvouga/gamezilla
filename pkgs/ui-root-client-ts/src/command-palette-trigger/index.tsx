@@ -3,7 +3,7 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { Dynamic, type JSX } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import type { IconComponent } from '../create-icon/index';
 import { IconButton } from '../icon-button/index';
 import { ListChecksIcon } from '../icons';
@@ -28,6 +28,7 @@ export function CommandPaletteTrigger(
 ): JSX.Element {
   const { t } = useLingui();
   const palette = useCommandPalette();
+  const TriggerIcon = dynamic(() => props.icon ?? ListChecksIcon);
   return (
     <IconButton
       size={props.size ?? 40}
@@ -37,11 +38,7 @@ export function CommandPaletteTrigger(
       aria-expanded={palette.isOpen()}
       dataSet={{ component: 'CommandPaletteTrigger', ...props.dataSet }}
     >
-      <Dynamic
-        component={props.icon ?? ListChecksIcon}
-        size={22}
-        color="icon"
-      />
+      <TriggerIcon size={22} color="icon" />
     </IconButton>
   );
 }

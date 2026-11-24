@@ -9,7 +9,7 @@ import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
 import { ScreenIntro } from '@pkgs/ui-root-client-ts/screen-intro';
 import { SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client-ts/screen-measure';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 // regression: ui-menu-helper-nested-paragraph
@@ -57,6 +57,7 @@ test('false reactive slots do not reserve rails, footer chrome or setup actions'
     view.container.querySelector('[data-component="GameActions"]') === null
   ).toBe(true);
   setVisible(true);
+  flush();
   expect(
     view.container.querySelector('[data-has-aside="true"]')
   ).not.toBeNull();
@@ -65,6 +66,7 @@ test('false reactive slots do not reserve rails, footer chrome or setup actions'
   ).not.toBeNull();
   expect(view.getByRole('textbox') === input).toBe(true);
   setVisible(false);
+  flush();
   expect(view.container.querySelector('[data-has-aside="true"]') === null).toBe(
     true
   );
@@ -86,8 +88,10 @@ test('a review with an empty reactive rail keeps the menu measure', () => {
     mustQuery('[data-component="ScrollViewContent"]') as HTMLElement;
   expect(content().style.maxWidth).toBe(SCREEN_MAX_WIDTH.menu);
   setVisible(true);
+  flush();
   expect(content().style.maxWidth).toBe('100%');
   setVisible(false);
+  flush();
   expect(content().style.maxWidth).toBe(SCREEN_MAX_WIDTH.menu);
 });
 
@@ -168,6 +172,7 @@ test('replacing form actions updates labels, disabled state and operation', asyn
     view.getByRole<HTMLButtonElement>('button', { name: 'Save' }).disabled
   ).toBe(true);
   setEnabled(true);
+  flush();
   const button = view.getByRole('button', {
     name: 'Publish',
   }) as HTMLButtonElement;
@@ -189,10 +194,12 @@ test('empty setup stages disappear while zero remains valid supporting content',
     view.container.querySelector('[data-component="GameLayout"]') === null
   ).toBe(true);
   setRecord(true);
+  flush();
   expect(
     view.container.querySelector('[data-has-aside="true"]')?.textContent
   ).toBe('0');
   setRecord(false);
+  flush();
   expect(
     view.container.querySelector('[data-component="GameLayout"]') === null
   ).toBe(true);
@@ -212,9 +219,11 @@ test('an empty lazy title does not create an invisible heading', () => {
     view.container.querySelector('[data-component="ScreenIntro"]') === null
   ).toBe(true);
   setVisible(true);
+  flush();
   expect(view.getByRole('heading', { level: 1 }).textContent).toBe(
     'Round review'
   );
   setVisible(false);
+  flush();
   expect(view.queryAllByRole('heading').length).toBe(0);
 });

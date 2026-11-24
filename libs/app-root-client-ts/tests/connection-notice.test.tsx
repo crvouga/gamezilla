@@ -9,12 +9,16 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
 function mountIndicator(initial: ConnectionCause) {
-  const [cause, setCause] = createSignal<ConnectionCause>(initial);
+  const [cause, writeCause] = createSignal<ConnectionCause>(initial);
+  const setCause = (next: ConnectionCause): void => {
+    writeCause(next);
+    flush();
+  };
   const view = renderWithI18n(() => (
     <ThemeProvider
       colorScheme="light"

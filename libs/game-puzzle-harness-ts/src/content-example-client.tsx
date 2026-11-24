@@ -22,7 +22,7 @@ function CountingEditor(props: PuzzleEditorProps): JSX.Element {
     <TextInput
       label="Target"
       value={props.definition.slice(7)}
-      maxLength={1}
+      maxlength={1}
       disabled={props.disabled}
       onChangeText={(value) => props.onChange(`target:${value}`)}
     />

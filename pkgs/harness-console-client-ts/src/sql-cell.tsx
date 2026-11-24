@@ -18,7 +18,13 @@ import { Text } from '@pkgs/ui-root-client-ts/text';
 import { Toolbar } from '@pkgs/ui-root-client-ts/toolbar';
 import type { CodeSelection } from '@pkgs/ui-root-shared-ts/code-editor-types';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, Show } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  Show,
+} from 'solid-js';
 
 import type { SqlNotebookCell } from './notebook-doc';
 import type { SqlCellRun } from './run-sql-cell';
@@ -133,22 +139,23 @@ function useRegisterInsert(
   selection: Accessor<CodeSelection>
 ): void {
   const { onRegisterInsert, onChangeSql } = props;
-  createEffect(() => {
-    const cell = props.cell();
-    const focused = props.focused();
-    if (!focused) {
-      onRegisterInsert(null);
-      return;
+  createEffect(
+    () => ({ cell: props.cell(), focused: props.focused() }),
+    ({ cell, focused }) => {
+      if (!focused) {
+        onRegisterInsert(null);
+        return;
+      }
+      onRegisterInsert({
+        insertAtCaret: (text) => {
+          const { start, end } = selection();
+          onChangeSql(cell.sql.slice(0, start) + text + cell.sql.slice(end));
+        },
+        setSql: onChangeSql,
+      });
+      return () => onRegisterInsert(null);
     }
-    onRegisterInsert({
-      insertAtCaret: (text) => {
-        const { start, end } = selection();
-        onChangeSql(cell.sql.slice(0, start) + text + cell.sql.slice(end));
-      },
-      setSql: onChangeSql,
-    });
-    onCleanup(() => onRegisterInsert(null));
-  });
+  );
 }
 
 function CellChrome(props: {

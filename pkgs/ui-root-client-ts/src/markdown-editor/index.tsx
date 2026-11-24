@@ -9,7 +9,14 @@ import type {
 import { defaultMarkdownParser, schema } from 'prosemirror-markdown';
 import type { Command, Selection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
-import { createEffect, createSignal, createUniqueId, onCleanup, onSettled, Show } from 'solid-js';
+import {
+  createEffect,
+  createSignal,
+  createUniqueId,
+  onSettled,
+  Show,
+  untrack,
+} from 'solid-js';
 import { EditorLinkForm } from '../editor-link-form/index';
 import { suggestionKeyHandler } from '../editor-suggestion-key';
 import { EditorSuggestionMenu } from '../editor-suggestion-menu/index';
@@ -47,7 +54,8 @@ function useEditor(props: MarkdownEditorProps) {
     },
     submit: () => props.onSubmit?.(),
   });
-  const mount = (host: HTMLElement) => {
+  /** Builds the view in `host`; returns its teardown. */
+  const mount = (host: HTMLElement): (() => void) => {
     const current = createMarkdownView({
       host,
       props,
@@ -68,12 +76,13 @@ function useEditor(props: MarkdownEditorProps) {
     current.dom.classList.add(styles['editor'] ?? '');
     setView(current);
     setSuggestion(editorSuggestion(current.state, props.commands ?? []));
-    onCleanup(() => current.destroy());
+    return () => current.destroy();
   };
-  createEffect(() => {
-    const current = view();
-    const value = props.value;
-    if (!current) return;
+  const sync = (
+    current: EditorView,
+    value: string,
+    commands: readonly MarkdownEditorCommand[]
+  ): void => {
     current.setProps({ editable: () => !props.disabled });
     if (value === lastValue) return;
     lastValue = value;
@@ -89,8 +98,27 @@ function useEditor(props: MarkdownEditorProps) {
       )
     );
     dismissed = '';
-    setSuggestion(editorSuggestion(current.state, props.commands ?? []));
-  });
+    setSuggestion(editorSuggestion(current.state, commands));
+  };
+  createEffect(
+    () => ({
+      current: view(),
+      value: props.value,
+      commands: props.commands ?? [],
+      // What the view's own callbacks read when it is told to update.
+      shown: [
+        props.disabled,
+        props.invalid,
+        props.placeholder,
+        props['aria-label'],
+      ],
+    }),
+    ({ current, value, commands }) => {
+      if (!current) return;
+      // The view reads the props above through its callbacks as it updates.
+      untrack(() => sync(current, value, commands));
+    }
+  );
   const dismiss = () => {
     const match = suggestion();
     if (match) dismissed = `${match.from}:${match.query}`;
@@ -120,25 +148,31 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
     view.focus();
     savedSelection = undefined;
   };
-  onSettled(() => {
-    if (host) editor.mount(host);
-  });
-  createEffect(() => {
-    if (editor.suggestion())
-      onCleanup(pushEscapeDismissHandler(editor.dismiss));
-  });
-  createEffect(() => {
-    const field = editor.view()?.dom;
-    if (!field) return;
-    field.setAttribute('aria-autocomplete', 'list');
-    if (editor.suggestion()) {
-      field.setAttribute('aria-controls', id);
-      field.setAttribute('aria-activedescendant', `${id}-${editor.selected()}`);
-    } else {
-      field.removeAttribute('aria-activedescendant');
-      field.removeAttribute('aria-controls');
+  onSettled(() => (host ? editor.mount(host) : undefined));
+  createEffect(
+    () => editor.suggestion() !== null,
+    (suggesting) =>
+      suggesting ? pushEscapeDismissHandler(editor.dismiss) : undefined
+  );
+  createEffect(
+    () =>
+      [
+        editor.view()?.dom,
+        editor.suggestion() !== null,
+        editor.selected(),
+      ] as const,
+    ([field, suggesting, selected]) => {
+      if (!field) return;
+      field.setAttribute('aria-autocomplete', 'list');
+      if (suggesting) {
+        field.setAttribute('aria-controls', id);
+        field.setAttribute('aria-activedescendant', `${id}-${selected}`);
+      } else {
+        field.removeAttribute('aria-activedescendant');
+        field.removeAttribute('aria-controls');
+      }
     }
-  });
+  );
   return (
     <div
       class="box flex-1 min-h-0 shrink overflow-hidden"

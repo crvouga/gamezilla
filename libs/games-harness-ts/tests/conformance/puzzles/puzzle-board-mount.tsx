@@ -13,9 +13,9 @@ import type {
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   AudioPlaybackProvider,
   SoundsPreferenceProvider,

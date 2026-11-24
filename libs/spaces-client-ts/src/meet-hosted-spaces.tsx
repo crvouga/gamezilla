@@ -117,22 +117,27 @@ export function MeetHostedSpaces(): JSX.Element {
       invited.decision() !== null
   );
   const decision = useLimitDecision(LIMIT.hostedSpaces, () => (over() ? 1 : 0));
-  createEffect(() => {
-    if (!over()) return;
-    const answer = decision();
-    if (!answer.allowed) invited.note(answer);
-  });
+  createEffect(
+    () => (over() ? decision() : null),
+    (answer) => {
+      if (answer !== null && !answer.allowed) invited.note(answer);
+    }
+  );
 
-  createEffect(() => {
-    const current = routeSpaceId(path());
-    const earliest = live()[0];
-    if (current === null || earliest === undefined || current === earliest)
-      return;
-    const refused = rejected().has(current);
-    const collapsed = flagged() && ended().has(current);
-    if (!refused && !collapsed) return;
-    router.replace(spaceDetailHref(earliest));
-  });
+  createEffect(
+    () => {
+      const current = routeSpaceId(path());
+      const earliest = live()[0];
+      if (current === null || earliest === undefined || current === earliest)
+        return null;
+      const refused = rejected().has(current);
+      const collapsed = flagged() && ended().has(current);
+      return refused || collapsed ? earliest : null;
+    },
+    (earliest) => {
+      if (earliest !== null) router.replace(spaceDetailHref(earliest));
+    }
+  );
 
   return (
     <SpaceProbe testId={Handles.spacesHostingLive}>

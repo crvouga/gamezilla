@@ -16,7 +16,13 @@ import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Match, children as resolveChildren, Show, Switch } from 'solid-js';
+import {
+  createMemo,
+  Match,
+  children as resolveChildren,
+  Show,
+  Switch,
+} from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
 import { ProfileAvatarFigure } from './profile-avatar-figure';
 import { UserUsernameView } from './user-username-view';

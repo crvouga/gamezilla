@@ -10,7 +10,7 @@ import { ThemeProvider, useTheme } from '@pkgs/ui-root-client-ts/theme-context';
 import { renderTokensCss } from '@pkgs/ui-root-shared-ts/css-vars';
 import { render } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 
 const FIXED = { width: 320, height: 480 } as const;
 
@@ -160,6 +160,7 @@ describe('nested ThemeProvider', () => {
     expect(document.querySelector('[data-testid="inner"]')).not.toBeNull();
 
     setShowInner(false);
+    flush();
     expect(document.querySelector('[data-testid="inner"]')).toBeNull();
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
 

@@ -21,22 +21,24 @@ function useLightCyclesSounds(
 ): void {
   const engine = useOptionalSoundEngine();
   let previous: { crashes: number; round: number; phase: string } | null = null;
-  createEffect(() => {
-    const current = state();
-    if (current === null) return;
-    const now = {
-      crashes: current.crashes.length,
-      round: current.round,
-      phase: current.phase,
-    };
-    if (previous !== null && enabled() && previous.round === now.round) {
-      if (now.phase === 'round-over' && previous.phase !== 'round-over')
-        engine?.().play('gameplay.turnEnd');
-      else if (now.crashes > previous.crashes)
-        engine?.().play('gameplay.capture');
-      else if (now.phase === 'running' && previous.phase === 'countdown')
-        engine?.().play('gameplay.turnStart');
+  createEffect(
+    () => [state(), enabled()] as const,
+    ([current, audible]) => {
+      if (current === null) return;
+      const now = {
+        crashes: current.crashes.length,
+        round: current.round,
+        phase: current.phase,
+      };
+      if (previous !== null && audible && previous.round === now.round) {
+        if (now.phase === 'round-over' && previous.phase !== 'round-over')
+          engine?.().play('gameplay.turnEnd');
+        else if (now.crashes > previous.crashes)
+          engine?.().play('gameplay.capture');
+        else if (now.phase === 'running' && previous.phase === 'countdown')
+          engine?.().play('gameplay.turnStart');
+      }
+      previous = now;
     }
-    previous = now;
-  });
+  );
 }

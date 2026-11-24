@@ -27,7 +27,7 @@ import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, on, Show } from 'solid-js';
+import { createEffect, createMemo, createSignal, Show } from 'solid-js';
 import { COLUMN_LABELS, GLYPHS, ROW_LABELS, sideName } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
 
@@ -96,14 +96,13 @@ function marks(ships: boolean): readonly CellGridLegendItem[] {
 
 /** The cell just fired at, until the position (or a resync) answers it. */
 function createAim(props: GameBoardProps) {
-  const [aiming, setAiming] = createSignal<string | null>(null);
   const position = createMemo(() => props.position);
   const syncKey = createMemo(() => props.syncKey);
-  createEffect(
-    on([position, syncKey], () => setAiming(null), {
-      defer: true,
-    })
-  );
+  const [aiming, setAiming] = createSignal<string | null>(() => {
+    position();
+    syncKey();
+    return null;
+  });
   return {
     aiming,
     fire: (cell: string): void => {
@@ -182,15 +181,19 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
   const rival = () => otherSide(requireTwoPlayerSide(props.orientation));
   const interactive = () => props.interactive && battle().winner === null;
   const aim = createAim(props);
-  const [selected, setSelected] = createSignal<string | null>(null);
   const position = createMemo(() => props.position);
   const syncKey = createMemo(() => props.syncKey);
-  createEffect(on([position, syncKey], () => setSelected(null)));
+  const [selected, setSelected] = createSignal<string | null>(() => {
+    position();
+    syncKey();
+    return null;
+  });
   const [view, setView] = createSignal<BoardView>('own');
   createEffect(
-    on([interactive, () => battle().winner], ([now, winner]) => {
-      if (now || winner === props.orientation) setView('target');
-    })
+    () => interactive() || battle().winner === props.orientation,
+    (targeting) => {
+      if (targeting) setView('target');
+    }
   );
   const incoming = () => battle().shots[rival()];
   const outgoing = () =>

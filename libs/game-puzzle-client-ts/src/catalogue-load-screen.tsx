@@ -7,7 +7,14 @@ import {
 } from '@pkgs/turn-game-client-ts/use-screen-place';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, createSignal, on, Show, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  createSignal,
+  onFlush,
+  Show,
+  untrack,
+} from 'solid-js';
 import type {
   CatalogueLoad,
   CatalogueLoadClient,
@@ -63,15 +70,11 @@ function useCatalogueSource(
   readonly source: Accessor<CatalogueSourceView>;
   readonly save: () => Promise<void>;
 } {
-  const [saveError, setSaveError] = createSignal<string | null>(null);
   // Another file, or none (a saved one was found), is another attempt.
-  createEffect(
-    on(
-      () => load.chosenFile(),
-      () => setSaveError(null),
-      { defer: true }
-    )
-  );
+  const [saveError, setSaveError] = createSignal((): string | null => {
+    load.chosenFile();
+    return null;
+  });
   const source = createMemo((): CatalogueSourceView => {
     const check = load.source();
     const chosen = load.chosenFile();
@@ -96,8 +99,10 @@ function useCatalogueSource(
     try {
       const saving = load.save();
       // Forget the opened place once the upload is under way, so the stage
-      // it ends in shows its home.
-      if (load.upload() !== null) nav.home();
+      // it ends in shows its home. The upload shows once this change lands.
+      onFlush(() => {
+        if (load.upload() !== null) nav.home();
+      });
       await saving;
     } catch (cause) {
       setSaveError(message(cause));

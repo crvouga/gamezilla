@@ -5,11 +5,11 @@ import { describe, expect, test } from 'bun:test';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { ProfileAvatarFigure } from '@libs/profile-client-ts/profile-avatar-figure';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { accessibleName } from '@pkgs/a11y-shared-ts/accessible-name';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { imageName } from '@pkgs/a11y-shared-ts/name-rules';
 import { roleOf } from '@pkgs/a11y-shared-ts/roles';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { render } from '@solidjs/testing-library';
 

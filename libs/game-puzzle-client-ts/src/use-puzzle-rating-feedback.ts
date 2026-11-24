@@ -1,5 +1,5 @@
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
-import { type Accessor, createEffect, createMemo, on } from 'solid-js';
+import { type Accessor, createEffect, createMemo, untrack } from 'solid-js';
 
 /** Instant display and one feedback cue per distinct completion, including a late rating. */
 export function usePuzzleRatingFeedback(args: {
@@ -13,8 +13,8 @@ export function usePuzzleRatingFeedback(args: {
     const completion = args.completion();
     return `${completion.outcome}-${completion.ratingBefore}-${completion.ratingAfter}-${completion.rated}`;
   });
-  createEffect(
-    on(completionKey, () => {
+  createEffect(completionKey, () =>
+    untrack(() => {
       const completion = args.completion();
       args.onDisplayRatingChange(completion.ratingAfter);
       if (args.feedbackEnabled()) args.onRatingComplete(completion.delta);

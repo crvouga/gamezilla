@@ -5,7 +5,7 @@ import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context
 import { useSpaceRoomSelector } from '@libs/spaces-client-ts/use-space-room-selector';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useSecureStorageStore } from '@pkgs/secure-storage-root-client-ts/solid';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { useIsPuzzleDriver } from './use-puzzle-space-role';
 
 function keyPart(value: string): string {
@@ -34,8 +34,7 @@ export function usePuzzleAttemptMemory() {
     ready: false,
     unavailable: false,
   });
-  createEffect(() => {
-    const current = key();
+  createEffect(key, (current) => {
     if (current === null) return;
     let active = true;
     const refresh = () => {
@@ -49,10 +48,6 @@ export function usePuzzleAttemptMemory() {
     };
     const unsubscribe = store.subscribe(current, refresh);
     refresh();
-    onCleanup(() => {
-      active = false;
-      unsubscribe();
-    });
     void store.hydrate(current).catch((error: unknown) => {
       if (!active) return;
       log.error('Puzzle resume memory could not be read', { error });
@@ -63,21 +58,30 @@ export function usePuzzleAttemptMemory() {
         unavailable: true,
       });
     });
+    return () => {
+      active = false;
+      unsubscribe();
+    };
   });
   const ready = createMemo(() => snapshot().key === key() && snapshot().ready);
   const seen = createMemo(
     () => ready() && (snapshot().unavailable || snapshot().value === attempt())
   );
-  createEffect(() => {
-    const current = key();
-    const id = attempt();
-    const playing = status() === 'solving' || status() === 'wrong';
-    if (!ready() || !canPick() || !playing || current === null || id === null)
-      return;
-    if (snapshot().value === id) return;
-    void store.write(current, id).catch((error: unknown) => {
-      log.error('Puzzle resume memory could not be saved', { error });
-    });
-  });
+  createEffect(
+    () => {
+      const current = key();
+      const id = attempt();
+      const playing = status() === 'solving' || status() === 'wrong';
+      if (!ready() || !canPick() || !playing || current === null || id === null)
+        return null;
+      return snapshot().value === id ? null : { key: current, id };
+    },
+    (unsaved) => {
+      if (unsaved === null) return;
+      void store.write(unsaved.key, unsaved.id).catch((error: unknown) => {
+        log.error('Puzzle resume memory could not be saved', { error });
+      });
+    }
+  );
   return { ready, seen };
 }

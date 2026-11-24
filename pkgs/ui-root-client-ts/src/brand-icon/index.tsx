@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { Dynamic, type JSX } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import type { BrandIconName } from '../brand-icon-registry';
 import { BRAND_ICON_REGISTRY } from '../brand-icon-registry';
 
@@ -22,6 +22,7 @@ export type BrandIconProps = {
  * ```
  */
 export function BrandIcon(props: BrandIconProps): JSX.Element {
+  const Logo = dynamic(() => BRAND_ICON_REGISTRY[props.name]);
   return (
     <span
       class="box inline-flex items-center justify-center"
@@ -31,10 +32,7 @@ export function BrandIcon(props: BrandIconProps): JSX.Element {
         ...props.dataSet,
       })}
     >
-      <Dynamic
-        component={BRAND_ICON_REGISTRY[props.name]}
-        size={props.size ?? 20}
-      />
+      <Logo size={props.size ?? 20} />
     </span>
   );
 }

@@ -2,7 +2,7 @@ import type { FriendActionMutations } from '@libs/friends-shared-ts/friend-actio
 import type { FriendshipStatus } from '@libs/friends-shared-ts/friends-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
-import { createMemo, type Accessor } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import { renderFriendActionPillsForStatus } from './friend-action-status-renderers';
 
 export function FriendActionPillsForStatus(props: {

@@ -10,10 +10,10 @@ function WorkersContent(): JSX.Element {
   return (
     <SyntheticPopulationWorkersScreenView
       overview={population.shown()}
-      loading={population.overview.loading}
-      failed={Boolean(population.overview.error)}
+      loading={population.loading()}
+      failed={population.failed()}
       onRefresh={() => {
-        void population.refetch();
+        void population.reread();
       }}
     />
   );

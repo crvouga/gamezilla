@@ -14,11 +14,17 @@ import { BrandIcon } from '@pkgs/ui-root-client-ts/brand-icon';
 import { ComposeProviders } from '@pkgs/ui-root-client-ts/compose-providers';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';
-import { createMemoryHistory, MemoryRouter, Route } from '@solidjs/router';
+import { createRouter, memoryHistory } from '@solidjs/router';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
-import { createContext, createSignal, type ParentProps, useContext } from 'solid-js';
+import {
+  createContext,
+  createSignal,
+  flush,
+  type ParentProps,
+  useContext,
+} from 'solid-js';
 import { renderUi } from './render';
 
 describe('hrefToPath', () => {
@@ -68,15 +74,17 @@ describe('AppRouterProvider over @solidjs/router', () => {
 
   test('push / back / params / pathname', async () => {
     const user = userEvent.setup();
-    const history = createMemoryHistory();
+    const Router = createRouter({
+      routes: [
+        { path: '/', component: Screen },
+        { path: '/space/:id', component: Screen },
+      ],
+      history: memoryHistory(),
+    });
     renderUi(() => (
-      <MemoryRouter
-        history={history}
-        root={(p) => <AppRouterProvider>{p.children}</AppRouterProvider>}
-      >
-        <Route path="/" component={Screen} />
-        <Route path="/space/:id" component={Screen} />
-      </MemoryRouter>
+      <Router>
+        {(p) => <AppRouterProvider>{p.children}</AppRouterProvider>}
+      </Router>
     ));
     expect(screen.getByText('path:/')).toBeInTheDocument();
     expect(screen.getByText('back:no')).toBeInTheDocument();
@@ -148,6 +156,7 @@ describe('brand + providers', () => {
     const mark = screen.getByRole('img', { name: 'acme' }).querySelector('img');
     expect(mark?.getAttribute('src')).toBe('/first.svg');
     setSource('/second.svg');
+    flush();
     expect(mark?.getAttribute('src')).toBe('/second.svg');
   });
 

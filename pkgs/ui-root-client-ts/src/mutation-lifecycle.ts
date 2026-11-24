@@ -10,7 +10,7 @@
 
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
-import { type Accessor, createEffect, on, onCleanup, untrack } from 'solid-js';
+import { type Accessor, createEffect, onCleanup } from 'solid-js';
 import { MutationObservation } from './mutation-observation';
 import { usePendingOperation } from './pending-navigation';
 
@@ -58,10 +58,11 @@ export function useMutationLifecycle(
   // Track the previous phase ourselves: `on(..., { defer: true })` skips the
   // first run without recording it, so the first transition would lose `from`.
   createEffect(
-    on(phase, (to, from) => {
-      if (from === undefined || from === to) return;
-      untrack(() => params.onPhaseChange?.({ from, to }));
-    })
+    () => ({ to: phase(), notify: params.onPhaseChange }),
+    (next, previous) => {
+      if (previous === undefined || previous.to === next.to) return;
+      next.notify?.({ from: previous.to, to: next.to });
+    }
   );
   return { phase, error, run: observation.run, reset: observation.reset };
 }

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
-import { createSignal } from 'solid-js';
+import { createSignal, Errored, flush } from 'solid-js';
 import { renderUi } from './render';
 
 // regression: ui-puzzle-invalid-board-ratio
@@ -10,16 +10,23 @@ test.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
   'invalid board ratio %s is refused instead of producing invalid CSS',
   (ratio) => {
     let message = '';
-    try {
-      renderUi(() => (
+    const view = renderUi(() => (
+      <Errored
+        fallback={(error) => {
+          const refusal: unknown = error();
+          message = refusal instanceof Error ? refusal.message : String(refusal);
+          return null;
+        }}
+      >
         <PuzzleScreen screenId="invalid" boardAspectRatio={ratio}>
           <p>Board</p>
         </PuzzleScreen>
-      ));
-    } catch (error) {
-      message = error instanceof Error ? error.message : String(error);
-    }
+      </Errored>
+    ));
     expect(message).toBe('Board aspect ratio must be finite and positive');
+    expect(
+      view.container.querySelector('[data-component="PuzzleScreen"]')
+    ).toBeNull();
   }
 );
 
@@ -44,6 +51,7 @@ test('rectangular boards update without remounting and own their overlays and co
     );
   expect(fitted()?.style.getPropertyValue('--ui-play-aspect-ratio')).toBe('1');
   setRatio(7 / 6);
+  flush();
   expect(fitted()?.style.getPropertyValue('--ui-play-aspect-ratio')).toBe(
     String(7 / 6)
   );

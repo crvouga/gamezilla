@@ -12,7 +12,13 @@ import {
   Virtualizer,
   type VirtualizerOptions,
 } from '@tanstack/virtual-core';
-import { type Accessor, createMemo, createSignal, onSettled } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  createSignal,
+  onSettled,
+  untrack,
+} from 'solid-js';
 
 export type { VirtualItem };
 
@@ -53,7 +59,10 @@ export function createListVirtualizer(
       if (!deriving) setReports((count) => count + 1);
     },
   });
-  const instance = new Virtualizer<HTMLDivElement, HTMLDivElement>(resolved());
+  // The options as they stand at creation: `items` applies every later change.
+  const instance = new Virtualizer<HTMLDivElement, HTMLDivElement>(
+    untrack(resolved)
+  );
   const items = createMemo(
     (): readonly VirtualItem[] => {
       reports();

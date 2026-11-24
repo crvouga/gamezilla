@@ -11,24 +11,27 @@ import {
   RELATIVE_TIME_TICK_MS,
   relativeTimeParts,
 } from '@pkgs/ui-root-shared-ts/relative-time-format';
-import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 
 /** `clock.now()` sampled on mount, on every `restart` change, and every tick. */
 function createLiveNow(restart: Accessor<unknown>): Accessor<number> {
   const clock = useClock();
   const timers = useTimers();
   const [nowMs, setNowMs] = createSignal(clock.now());
-  createEffect(
-    on(restart, () => {
+  createEffect(restart, () => {
+    setNowMs(clock.now());
+    const id = timers.setInterval(() => {
       setNowMs(clock.now());
-      const id = timers.setInterval(() => {
-        setNowMs(clock.now());
-      }, RELATIVE_TIME_TICK_MS);
-      onCleanup(() => {
-        timers.clearInterval(id);
-      });
-    })
-  );
+    }, RELATIVE_TIME_TICK_MS);
+    return () => {
+      timers.clearInterval(id);
+    };
+  });
   return nowMs;
 }
 

@@ -6,7 +6,7 @@ import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
+import { createEffect, createSignal, Show } from 'solid-js';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
@@ -53,14 +53,15 @@ export function CopyToClipboardField(
   const copiedLabel = (): LocalizedString =>
     props.copiedLabel ?? t`Copied to clipboard`;
 
-  createEffect(() => {
-    if (!copied()) return;
-    const id = timers.setTimeout(
-      () => setCopied(false),
-      props.copiedResetMs ?? DEFAULT_COPIED_RESET_MS
-    );
-    onCleanup(() => timers.clearTimeout(id));
-  });
+  createEffect(
+    () =>
+      copied() ? (props.copiedResetMs ?? DEFAULT_COPIED_RESET_MS) : undefined,
+    (resetMs) => {
+      if (resetMs === undefined) return undefined;
+      const id = timers.setTimeout(() => setCopied(false), resetMs);
+      return () => timers.clearTimeout(id);
+    }
+  );
 
   const onCopy = async (): Promise<void> => {
     try {
@@ -94,10 +95,13 @@ export function CopyToClipboardField(
       >
         <div class="box flex-1 min-w-0">
           <p
-            class={["text", {
-              'select-none': props.selectable === false,
-              'select-text': props.selectable !== false,
-            }]}
+            class={[
+              'text',
+              {
+                'select-none': props.selectable === false,
+                'select-text': props.selectable !== false,
+              },
+            ]}
           >
             {props.value}
           </p>

@@ -26,7 +26,14 @@ import {
   usePathname,
   useRouter,
 } from '@pkgs/ui-root-client-ts/app-router';
-import { type Accessor, batch, createEffect, createMemo, createSignal, type Setter, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type Setter,
+  untrack,
+} from 'solid-js';
 import { usePuzzleFeedState } from './puzzle-feed-context';
 import type { PuzzleTestLoadingStatusProps } from './puzzle-test-loading-status';
 import { useNextPuzzleId } from './use-next-puzzle-id';
@@ -104,19 +111,17 @@ function applyPlacement(args: PlacementCommit): void {
       : args.gate.start(decision.puzzleId);
     void start.then((allowed) => {
       if (args.attemptSeed() !== seed) return;
-      batch(() => {
-        const wasLinked = decision.puzzleId === untrack(args.linked);
-        if (wasLinked) args.setLinked(null);
-        args.setLinkedDenied(wasLinked && !allowed);
-        if (allowed) {
-          args.setActivePuzzleId(decision.puzzleId);
-          args.commitAttempt(seed, true);
-          return;
-        }
-        args.placedAttemptRef.current = seed;
-        args.setActivePuzzleId(null);
-        args.clearRoomPuzzle();
-      });
+      const wasLinked = decision.puzzleId === untrack(args.linked);
+      if (wasLinked) args.setLinked(null);
+      args.setLinkedDenied(wasLinked && !allowed);
+      if (allowed) {
+        args.setActivePuzzleId(decision.puzzleId);
+        args.commitAttempt(seed, true);
+        return;
+      }
+      args.placedAttemptRef.current = seed;
+      args.setActivePuzzleId(null);
+      args.clearRoomPuzzle();
     });
     return;
   }
@@ -150,6 +155,50 @@ type PuzzlePlacementInput = {
   clearRoomPuzzle: () => void;
 };
 
+type PlacementFacts = Omit<
+  Parameters<typeof decidePuzzlePlacement>[0],
+  'placedSeed'
+>;
+type PlacementBoard = Omit<PlacementCommit, 'seed' | 'decision'>;
+
+/** What a placement is decided from; `null` while the room cannot say yet. */
+function placementFacts(
+  args: PuzzlePlacementInput,
+  state: {
+    recordReady: Accessor<boolean>;
+    active: Accessor<string | null>;
+    seed: Accessor<number>;
+    next: ReturnType<typeof useNextPuzzleId>;
+    linked: Accessor<string | null>;
+  }
+): PlacementFacts | null {
+  if (!args.roomReady()) return null;
+  if (args.roomFinished() && !args.seenAttempt() && !state.recordReady())
+    return null;
+  return {
+    active: state.active(),
+    seed: state.seed(),
+    nextId: state.next.puzzleId(),
+    room: args.roomPuzzleId(),
+    nextLoading: state.next.loading(),
+    canPick: args.canPick(),
+    linked: state.linked(),
+    roomResumable: args.roomResumable(),
+  };
+}
+
+/** Decide where the puzzle goes from the facts and what is placed, and do it. */
+function placeFrom(facts: PlacementFacts, board: PlacementBoard): void {
+  applyPlacement({
+    ...board,
+    seed: facts.seed,
+    decision: decidePuzzlePlacement({
+      ...facts,
+      placedSeed: board.placedAttemptRef.current,
+    }),
+  });
+}
+
 function useAdvanceFinishedPuzzle(
   args: PuzzlePlacementInput,
   state: {
@@ -160,24 +209,27 @@ function useAdvanceFinishedPuzzle(
     setAttemptSeed: Setter<number>;
   }
 ): void {
-  createEffect(() => {
-    if (
-      !args.roomReady() ||
-      !state.recorded() ||
-      !args.canPick() ||
-      !args.roomFinished() ||
-      args.seenAttempt()
-    )
-      return;
-    if (state.activePuzzleId() !== null || state.attemptSeed() !== 0) return;
-    const finished = args.roomPuzzleId();
-    if (finished === null) return;
-    batch(() => {
+  createEffect(
+    () => {
+      if (
+        !args.roomReady() ||
+        !state.recorded() ||
+        !args.canPick() ||
+        !args.roomFinished() ||
+        args.seenAttempt()
+      )
+        return null;
+      if (state.activePuzzleId() !== null || state.attemptSeed() !== 0)
+        return null;
+      return args.roomPuzzleId();
+    },
+    (finished) => {
+      if (finished === null) return;
       state.setAvoidFinishedId(finished);
-      args.clearRoomPuzzle();
+      untrack(args.clearRoomPuzzle);
       state.setAttemptSeed((seed) => seed + 1);
-    });
-  });
+    }
+  );
 }
 
 function createLinkedPuzzleRequest(state: {
@@ -191,11 +243,9 @@ function createLinkedPuzzleRequest(state: {
     const onBoard = untrack(state.activePuzzleId) === puzzleId;
     if (onBoard && !over) return;
     state.clearRoomPuzzle();
-    batch(() => {
-      if (onBoard) state.setActivePuzzleId(null);
-      state.setLinked(puzzleId);
-      state.setAttemptSeed((seed) => seed + 1);
-    });
+    if (onBoard) state.setActivePuzzleId(null);
+    state.setLinked(puzzleId);
+    state.setAttemptSeed((seed) => seed + 1);
   };
 }
 
@@ -242,36 +292,32 @@ function usePuzzlePlacement(args: PuzzlePlacementInput): PuzzlePlacement {
     setAttemptSeed,
   });
 
-  createEffect(() => {
-    if (!args.roomReady()) return;
-    if (args.roomFinished() && !args.seenAttempt() && !resultRecord.ready())
-      return;
-    applyPlacement({
-      seed: attemptSeed(),
-      decision: decidePuzzlePlacement({
-        active: activePuzzleId(),
-        seed: attemptSeed(),
-        nextId: next.puzzleId(),
-        room: args.roomPuzzleId(),
-        nextLoading: next.loading(),
-        placedSeed: placedAttemptRef.current,
-        canPick: args.canPick(),
-        linked: linked(),
-        roomResumable: args.roomResumable(),
+  const board: PlacementBoard = {
+    gatedSeedRef,
+    placedAttemptRef,
+    alreadyRated,
+    gate: args.gate,
+    attemptSeed,
+    linked,
+    setLinked,
+    setLinkedDenied,
+    setActivePuzzleId,
+    commitAttempt,
+    clearRoomPuzzle: args.clearRoomPuzzle,
+  };
+  createEffect(
+    () =>
+      placementFacts(args, {
+        recordReady: resultRecord.ready,
+        active: activePuzzleId,
+        seed: attemptSeed,
+        next,
+        linked,
       }),
-      gatedSeedRef,
-      placedAttemptRef,
-      alreadyRated,
-      gate: args.gate,
-      attemptSeed,
-      linked,
-      setLinked,
-      setLinkedDenied,
-      setActivePuzzleId,
-      commitAttempt,
-      clearRoomPuzzle: args.clearRoomPuzzle,
-    });
-  });
+    (facts) => {
+      if (facts !== null) untrack(() => placeFrom(facts, board));
+    }
+  );
 
   return {
     activePuzzleId,
@@ -300,11 +346,12 @@ function useUnlockDeniedLink(args: {
   denial: Accessor<Decision | null>;
 }): void {
   const unlock = useUnlock();
-  createEffect(() => {
-    const denial = args.denial();
-    if (!args.linkedDenied() || denial === null) return;
-    untrack(() => unlock.run(denial));
-  });
+  createEffect(
+    () => (args.linkedDenied() ? args.denial() : null),
+    (denial) => {
+      if (denial !== null) untrack(() => unlock.run(denial));
+    }
+  );
 }
 
 /**
@@ -322,21 +369,31 @@ function useLinkedPuzzleRequest(args: {
   const pathname = usePathname();
   const router = useRouter();
   const requested = { current: null as string | null };
-  createEffect(() => {
-    const linked = params()[LINKED_PUZZLE_PARAM];
-    if (linked === undefined || linked.length === 0 || !args.canPick()) return;
-    if (requested.current !== linked) {
-      requested.current = linked;
-      untrack(() =>
-        args.requestLinked(linked, isFinishedPuzzleStatus(args.roomStatus()))
-      );
+  createEffect(
+    () => {
+      const linked = params()[LINKED_PUZZLE_PARAM];
+      if (linked === undefined || linked.length === 0 || !args.canPick())
+        return null;
+      return {
+        linked,
+        placed:
+          args.activePuzzleId() === linked &&
+          args.roomStatus() !== PUZZLE_PLAY_STATUS.idle,
+      };
+    },
+    (request) => {
+      if (request === null) return;
+      if (requested.current !== request.linked) {
+        requested.current = request.linked;
+        const over = untrack(() => isFinishedPuzzleStatus(args.roomStatus()));
+        untrack(() => args.requestLinked(request.linked, over));
+        // A finished attempt leaves the board to be started again: the
+        // address keeps the request until that attempt is placed.
+        if (over) return;
+      }
+      if (request.placed) untrack(() => router.replace(pathname()));
     }
-    if (
-      args.activePuzzleId() === linked &&
-      args.roomStatus() !== PUZZLE_PLAY_STATUS.idle
-    )
-      untrack(() => router.replace(pathname()));
-  });
+  );
 }
 
 /** Puzzle links: place the linked puzzle, and unlock a denied one. */

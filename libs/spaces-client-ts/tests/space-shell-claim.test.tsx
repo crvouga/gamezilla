@@ -8,7 +8,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { cleanup } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal, onSettled, Show } from 'solid-js';
+import { createSignal, flush, onSettled, Show } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -76,9 +76,11 @@ test('flipping the claim moves the screen without recreating it', () => {
   const node = getByTestId('screen');
   expect(shells(container)).toBe(1);
   setClaimed(true);
+  flush();
   expect(shells(container)).toBe(0);
   expect(getByTestId('screen')).toBe(node);
   setClaimed(false);
+  flush();
   expect(shells(container)).toBe(1);
   expect(getByTestId('screen')).toBe(node);
   expect(container.querySelectorAll('[data-testid="screen"]')).toHaveLength(1);

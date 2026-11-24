@@ -2,7 +2,7 @@
 
 import { redo, undo } from 'prosemirror-history';
 import type { Command } from 'prosemirror-state';
-import { Dynamic } from '@solidjs/web';
+import { dynamic } from '@solidjs/web';
 import { For } from 'solid-js';
 import { editorFormats } from '../editor-commands';
 import { IconButton } from '../icon-button/index';
@@ -49,20 +49,23 @@ export function EditorToolbar(props: {
       onPointerDown={() => props.saveSelection()}
     >
       <For each={editorFormats}>
-        {(format, index) => (
-          <IconButton
-            label={format.label}
-            size={28}
-            disabled={props.disabled}
-            tooltip="default"
-            tooltipFloating
-            tooltipPlacement="top"
-            dataSet={{ testid: `editor-${format.id}` }}
-            onClick={() => props.run(format.command)}
-          >
-            <Dynamic component={formatIcons[index()] ?? CodeIcon} size={16} />
-          </IconButton>
-        )}
+        {(format, index) => {
+          const FormatIcon = dynamic(() => formatIcons[index()] ?? CodeIcon);
+          return (
+            <IconButton
+              label={format.label}
+              size={28}
+              disabled={props.disabled}
+              tooltip="default"
+              tooltipFloating
+              tooltipPlacement="top"
+              dataSet={{ testid: `editor-${format.id}` }}
+              onClick={() => props.run(format.command)}
+            >
+              <FormatIcon size={16} />
+            </IconButton>
+          );
+        }}
       </For>
       <IconButton
         label="Insert link"

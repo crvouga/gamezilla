@@ -65,9 +65,15 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
           ? t`Not confirmed. Check again`
           : t`Join space`;
       },
-      loading: t`Joining…`,
-      success: t`Joined`,
-      error: t`Couldn't join`,
+      get loading() {
+        return t`Joining…`;
+      },
+      get success() {
+        return t`Joined`;
+      },
+      get error() {
+        return t`Couldn't join`;
+      },
     },
     get disabled() {
       return props.joinDisabled;
@@ -140,10 +146,10 @@ function SpaceJoinLiveBody(props: {
 
 function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
   const { t } = useLingui();
-  const back = {
+  const back = () => ({
     label: t`Back to Spaces`,
     onClick: () => props.onBackToSpaces(),
-  };
+  });
   return (
     <Switch>
       <Match when={props.status === 'loading'}>
@@ -154,7 +160,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
           icon={Gamepad2Icon}
           title={t`You can't join this space`}
           body={t`Only the host's friends and people the host adds can join it. Ask the host to add you, or check that the link is right.`}
-          action={back}
+          action={back()}
         />
       </Match>
       <Match when={props.status === 'missing'}>
@@ -162,7 +168,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
           icon={Gamepad2Icon}
           title={t`This space can't be found`}
           body={t`The link may be wrong, or the space may never have existed.`}
-          action={back}
+          action={back()}
           dataSet={{ testid: Handles.spaceNotFound }}
         />
       </Match>

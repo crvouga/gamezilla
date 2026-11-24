@@ -10,7 +10,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 function mountBoard(mode: 'classic' | 'hill') {
   const { clock, timers } = createHarnessClock();
@@ -70,6 +70,7 @@ test('an incoming move clears both the selected and focused wall preview', () =>
   for (const mode of ['classic', 'hill'] as const) {
     const { view, advance } = mountBoard(mode);
     advance();
+    flush();
     expect(view.queryByTestId('lifecycle-wall-commit')).toBeNull();
     // The new turn starts with the pawn tool, so the anchor square drops its wall suffix.
     expect(
@@ -89,6 +90,7 @@ test('a host reset clears the proposed wall even when the position is unchanged'
   for (const mode of ['classic', 'hill'] as const) {
     const { view, anchor, setSyncKey } = mountBoard(mode);
     setSyncKey(1);
+    flush();
     expect(view.queryByTestId('lifecycle-wall-commit')).toBeNull();
     expect(anchor().getAttribute('data-preview-edge-top')).toBe('false');
     view.unmount();

@@ -45,7 +45,7 @@ export function FileTrigger(props: FileTriggerProps): JSX.Element {
         accept={props.accept}
         class="hidden"
         hidden
-        tabIndex={-1}
+        tabindex={-1}
         aria-label={props.label}
         data-testid={props.testId}
         data-component={componentId('FileTrigger')}

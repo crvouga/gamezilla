@@ -14,7 +14,7 @@ import {
   moveCursor,
 } from '@pkgs/chess-board-root-shared-ts/keyboard-nav';
 import type { PointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
-import { type Accessor, batch } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 export type BoardKeysArgs = {
   readonly host: Accessor<HTMLElement | undefined>;
@@ -47,14 +47,12 @@ export function createBoardKeyHandler(
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       args.clearAnnotations();
-      // Not batched: Enter on a target plays a move, and the parent's
-      // `onMove` must run with its own effects, not inside a board batch.
       args.session.down(args.cursor());
       args.session.up(args.cursor());
       return;
     }
     if (event.key === 'Escape') {
-      batch(args.cancel);
+      args.cancel();
     }
   };
 }

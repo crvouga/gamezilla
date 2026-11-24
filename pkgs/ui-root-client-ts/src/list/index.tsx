@@ -41,7 +41,10 @@ export function List(props: ListProps): JSX.Element {
   );
   return (
     <ul
-      class={["panel m-0 p-0 list-none", { panelPlain: props.separator === false }]}
+      class={[
+        'panel m-0 p-0 list-none',
+        { panelPlain: props.separator === false },
+      ]}
       {...dataAttrs({ component: 'List', ...props.dataSet })}
     >
       <For each={items()}>{(child) => <li class="panelItem">{child}</li>}</For>
@@ -112,7 +115,7 @@ export function ListItem(props: ListItemProps): JSX.Element {
         <div
           class={`box ${selectedClass(props.selected === true)}`}
           {...dataAttrs({ component: 'ListItem', ...props.dataSet })}
-          aria-selected={props.selected === true ? true : undefined}
+          aria-selected={props.selected === true ? 'true' : undefined}
         >
           {content()}
         </div>
@@ -124,7 +127,7 @@ export function ListItem(props: ListItemProps): JSX.Element {
           {...dataAttrs({ component: 'ListItem', ...props.dataSet })}
           type="button"
           onClick={() => onClick()()}
-          aria-pressed={props.selected === true ? true : undefined}
+          aria-pressed={props.selected === true ? 'true' : undefined}
         >
           {content()}
         </button>

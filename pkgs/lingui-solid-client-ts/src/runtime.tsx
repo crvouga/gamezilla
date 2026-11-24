@@ -70,8 +70,7 @@ export function I18nProvider(props: I18nProviderProps): JSX.Element {
   );
   const context: I18nContext = {
     i18n,
-    _: ((...args: Parameters<I18n['_']>) =>
-      i18n()._(...args)) as I18n['_'],
+    _: ((...args: Parameters<I18n['_']>) => i18n()._(...args)) as I18n['_'],
   };
   return (
     <Show when={i18n().locale}>
@@ -119,7 +118,8 @@ function interpolation(props: TransProps): {
       values[key] = '';
       continue;
     }
-    const index = Object.keys(components).length;
+    let index = Object.keys(components).length;
+    while (index in components) index += 1;
     components[index] = () => value as JSX.Element;
     values[key] = `<${index}/>`;
   }

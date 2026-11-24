@@ -16,6 +16,7 @@ import { acknowledgeWriteRejectionMutation } from '@pkgs/sync-engine-shared-ts/a
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -52,6 +53,7 @@ function refusalsEngine(initial: readonly WriteRefusal[]) {
   const set = (next: readonly WriteRefusal[]): void => {
     rows = next;
     for (const listener of listeners) listener();
+    flush();
   };
   return { engine, set };
 }

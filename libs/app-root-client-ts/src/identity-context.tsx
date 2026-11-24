@@ -14,7 +14,13 @@ import {
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSecureStorageItem } from '@pkgs/secure-storage-root-client-ts/solid';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createMemo, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  createMemo,
+  useContext,
+} from 'solid-js';
 
 export type LocalIdentityValue = {
   /** Current local `users.id`; `null` until the local boot lands. */
@@ -44,23 +50,18 @@ export function LocalIdentityProvider(props: {
     deviceId,
     sessionToken,
   };
-  createEffect(() => {
-    setBrowserLocalIdentity(userId(), deviceId());
-  });
+  createEffect(
+    () => ({ user: userId(), device: deviceId() }),
+    (bound) => {
+      setBrowserLocalIdentity(bound.user, bound.device);
+    }
+  );
   useBugReportAccount();
   return (
-    <LocalIdentityContext value={value}>
-      {props.children}
-    </LocalIdentityContext>
+    <LocalIdentityContext value={value}>{props.children}</LocalIdentityContext>
   );
 }
 
 export function useLocalIdentity(): LocalIdentityValue {
-  const value = useContext(LocalIdentityContext);
-  if (value === undefined) {
-    throw new Error(
-      'useLocalIdentity: missing LocalIdentityProvider — wrap with AppProviders'
-    );
-  }
-  return value;
+  return useContext(LocalIdentityContext);
 }

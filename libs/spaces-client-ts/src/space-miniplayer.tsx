@@ -81,9 +81,12 @@ export function SpaceMiniplayer(): JSX.Element {
     return current.mode === 'single' ? current.primarySpaceId : null;
   });
 
-  createEffect(() => {
-    if (mode().mode !== 'stack') setSheetOpen(false);
-  });
+  createEffect(
+    () => mode().mode !== 'stack',
+    (single) => {
+      if (single) setSheetOpen(false);
+    }
+  );
 
   return (
     <Show when={paintReady() && mode().mode !== 'hidden'}>

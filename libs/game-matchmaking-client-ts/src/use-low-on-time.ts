@@ -52,7 +52,7 @@ export function useLowOnTime(
       return at === null || at <= now ? null : at;
     }
   );
-  return createMemo<Seen | null>(seen, null, {
+  return createMemo<Seen | null>(seen, {
     equals: (before, after) => before?.turn === after?.turn,
   });
 }
@@ -70,14 +70,17 @@ export function useLowOnTimeWarning(args: {
 }): void {
   const sounds = useSoundEngine();
   const warned = useGameMark(WARNED_GAME);
-  createEffect(() => {
+  const due = createMemo((): string | null => {
     const low = args.low();
     const game = args.game();
-    if (low === null || !warned.ready() || warned.marks(game.id)) return;
-    if (isDailyTimeControl(game.time_control)) return;
+    if (low === null || !warned.ready() || warned.marks(game.id)) return null;
+    if (isDailyTimeControl(game.time_control)) return null;
     const owner = multiplayerOwner(game, low.side);
-    if (owner !== args.myId()) return;
-    warned.mark(game.id, true);
+    return owner === args.myId() ? game.id : null;
+  });
+  createEffect(due, (gameId) => {
+    if (gameId === null) return;
+    warned.mark(gameId, true);
     sounds.play(sounds.Sounds.gameplay.timerWarning);
   });
 }

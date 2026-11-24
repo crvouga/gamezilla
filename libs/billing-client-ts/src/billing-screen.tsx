@@ -14,12 +14,12 @@ import { useUnlock } from '@libs/permissions-client-ts/unlock';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useHostingInvite } from '@libs/spaces-client-ts/hosting-invite';
-import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   CHECKOUT_RETURN_PARAM,
   isPaidCheckoutReturn,
 } from '@pkgs/billing-root-shared-ts/checkout-return';
 import { createTimedValue, useClock } from '@pkgs/clock-client-ts/solid';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import {
@@ -29,7 +29,13 @@ import {
 } from '@pkgs/ui-root-client-ts/app-router';
 import { useOpenExternalUrl } from '@pkgs/ui-root-client-ts/external-url';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, createSignal, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  untrack,
+} from 'solid-js';
 import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';
@@ -83,13 +89,18 @@ function useCheckoutReturnTracking(): CheckoutReturn {
   const pathname = usePathname();
   const router = useRouter();
   const clock = useClock();
-  createEffect(() => {
-    if (!isPaidCheckoutReturn(params()[CHECKOUT_RETURN_PARAM])) return;
-    if (untrack(checkoutReturn.returnedAtMs) === null) {
-      checkoutReturn.mark(clock.now());
+  createEffect(
+    () => isPaidCheckoutReturn(params()[CHECKOUT_RETURN_PARAM]),
+    (paidReturn) => {
+      if (!paidReturn) return;
+      // The mark in the address is the event; what is saved and where the
+      // screen lives are only looked up when it arrives.
+      if (untrack(checkoutReturn.returnedAtMs) === null) {
+        checkoutReturn.mark(clock.now());
+      }
+      router.replace(untrack(pathname));
     }
-    router.replace(untrack(pathname));
-  });
+  );
   return checkoutReturn;
 }
 
@@ -109,18 +120,25 @@ export function BillingScreen(): JSX.Element {
   const [awaitingPlus, setAwaitingPlus] = createSignal(false);
   // Checkout answers a hosting invitation. Confirming an existing membership
   // after a connection returns does not.
-  createEffect(() => {
-    if (!awaitingPlus() || view().tier !== 'paid') return;
-    invite.clear();
-    setAwaitingPlus(false);
-  });
+  createEffect(
+    () => awaitingPlus() && view().tier === 'paid',
+    (paid) => {
+      if (!paid) return;
+      invite.clear();
+      setAwaitingPlus(false);
+    }
+  );
   // The paid checkout's membership has shown: nothing is waiting any more.
-  createEffect(() => {
-    const state = view().state;
-    if (checkoutReturn.returnedAtMs() === null) return;
-    if (state === 'loading' || state === 'none' || state === 'ended') return;
-    checkoutReturn.clear();
-  });
+  createEffect(
+    () => {
+      const state = view().state;
+      if (checkoutReturn.returnedAtMs() === null) return false;
+      return !(state === 'loading' || state === 'none' || state === 'ended');
+    },
+    (membershipShown) => {
+      if (membershipShown) checkoutReturn.clear();
+    }
+  );
   const formatDate = (ms: number): string =>
     new Intl.DateTimeFormat(i18n().locale, {
       year: 'numeric',

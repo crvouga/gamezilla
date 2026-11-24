@@ -6,13 +6,10 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createResource, createSignal } from 'solid-js';
+import { createSignal } from 'solid-js';
 import type { EveryCommand } from './every-synthetic-user-controls';
-import { resourceValue } from './resource-value';
-import {
-  type SyntheticPopulationDirectoryPage,
-  useSyntheticPopulationApi,
-} from './synthetic-population-api';
+import { createLiveRead } from './live-read';
+import { useSyntheticPopulationApi } from './synthetic-population-api';
 import { SyntheticUsersScreenView } from './synthetic-users-screen-view';
 import { useSyntheticPopulationOverview } from './use-synthetic-population-overview';
 
@@ -27,7 +24,7 @@ function useDirectoryPages(revision: () => number) {
   const [cursors, setCursors] = createSignal<readonly (string | null)[]>([
     null,
   ]);
-  const [page, { refetch }] = createResource(
+  const page = createLiveRead(
     () => ({
       q: search(),
       cursor: cursors().at(-1) ?? null,
@@ -35,17 +32,10 @@ function useDirectoryPages(revision: () => number) {
     }),
     (input) => api.directory(input.q, input.cursor)
   );
-  const [shown, setShown] = createSignal<SyntheticPopulationDirectoryPage>();
-  createEffect(() => {
-    const value = resourceValue(page);
-    if (value !== undefined) setShown(value);
-  });
   return {
     page,
-    shown,
     search,
     cursors,
-    refetch,
     find(value: string) {
       setCursors([null]);
       setSearch(value);
@@ -68,24 +58,22 @@ function SyntheticUsersContent(): JSX.Element {
     testId: 'synthetic-population-control-denied',
   });
   const population = useSyntheticPopulationOverview();
-  const pages = useDirectoryPages(
-    () => resourceValue(population.overview)?.observedAtMs ?? 0
-  );
+  const pages = useDirectoryPages(() => population.shown()?.observedAtMs ?? 0);
   return (
     <SyntheticUsersScreenView
       search={pages.search()}
       onSearch={pages.find}
-      page={pages.shown()}
-      loading={pages.page.loading}
-      failed={Boolean(pages.page.error)}
+      page={pages.page.shown()}
+      loading={pages.page.loading()}
+      failed={pages.page.failed()}
       onRetry={() => {
-        void population.refetch();
-        void pages.refetch();
+        void population.reread();
+        void pages.page.reread();
       }}
       pageNumber={pages.cursors().length}
       onPrevious={pages.cursors().length > 1 ? pages.previous : undefined}
       onNext={(() => {
-        const next = pages.shown()?.nextCursor;
+        const next = pages.page.shown()?.nextCursor;
         return next ? () => pages.next(next) : undefined;
       })()}
       overview={population.shown()}
@@ -95,7 +83,7 @@ function SyntheticUsersContent(): JSX.Element {
       controlDenial={control().allowed ? undefined : controlDenial()}
       onCommandAll={async (command: EveryCommand) => {
         await api.commandAll({ command, operationId: createId() });
-        await population.refetch();
+        await population.reread();
       }}
     />
   );

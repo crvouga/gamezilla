@@ -29,16 +29,32 @@ function useDraftEditStep(props: HistoryProps, direction: DraftEditDirection) {
     labels:
       direction === 'undo'
         ? {
-            idle: t`Undo`,
-            loading: t`Undoing…`,
-            success: t`Edit undone`,
-            error: t`Try undoing again`,
+            get idle() {
+              return t`Undo`;
+            },
+            get loading() {
+              return t`Undoing…`;
+            },
+            get success() {
+              return t`Edit undone`;
+            },
+            get error() {
+              return t`Try undoing again`;
+            },
           }
         : {
-            idle: t`Redo`,
-            loading: t`Redoing…`,
-            success: t`Edit restored`,
-            error: t`Try redoing again`,
+            get idle() {
+              return t`Redo`;
+            },
+            get loading() {
+              return t`Redoing…`;
+            },
+            get success() {
+              return t`Edit restored`;
+            },
+            get error() {
+              return t`Try redoing again`;
+            },
           },
     get disabled() {
       return (

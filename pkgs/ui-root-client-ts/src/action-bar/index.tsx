@@ -96,7 +96,7 @@ function ActionBarItemsRow(props: {
   const text = (): JSX.Element => (
     <ActionBarTextItems
       actions={props.bar.layout().inlineText}
-      track={(id, el) => props.bar.widths.track(textKey(id), el)}
+      track={(id) => props.bar.widths.track(textKey(id))}
     />
   );
   return (
@@ -110,17 +110,15 @@ function ActionBarItemsRow(props: {
         buttonSize={props.bar.resolved().buttonSize}
         showInlineLabels={props.showInlineLabels}
         slotWidth={props.bar.resolved().slotWidth}
-        track={(id, el) => props.bar.widths.track(itemKey(id), el)}
+        track={(id) => props.bar.widths.track(itemKey(id))}
       />
       <Show when={props.textPlacement === 'end'}>{text()}</Show>
       <Show when={props.bar.layout().overflowActions.length > 0}>
         <ActionBarOverflowTrigger
           buttonSize={props.bar.resolved().buttonSize}
           onOpen={onOpen}
-          setTrigger={(el) => {
-            props.bar.menu.setTrigger(el);
-            props.bar.widths.track(ACTION_BAR_MORE_KEY, el);
-          }}
+          setTrigger={(el) => props.bar.menu.setTrigger(el)}
+          track={() => props.bar.widths.track(ACTION_BAR_MORE_KEY)}
           open={props.bar.menu.open()}
           overflowTrigger={props.overflowTrigger}
           showInlineLabels={props.showInlineLabels}

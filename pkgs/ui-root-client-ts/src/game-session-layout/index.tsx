@@ -204,9 +204,12 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
   );
   return (
     <div
-      class={[`box gap-4 min-w-0 pb-6 ${styles['session']}`, { [fixed['fixed'] ?? '']: props.fixedStage === true }]}
-      data-board-focus={props.boardFocus === true}
-      data-game-fixed={props.fixedStage === true}
+      class={[
+        `box gap-4 min-w-0 pb-6 ${styles['session']}`,
+        { [fixed['fixed'] ?? '']: props.fixedStage === true },
+      ]}
+      data-board-focus={String(props.boardFocus === true)}
+      data-game-fixed={String(props.fixedStage === true)}
       {...dataAttrs({ component: 'GameSessionLayout', ...props.dataSet })}
     >
       <Show when={header.present()}>{header.content()}</Show>
@@ -279,10 +282,13 @@ export function GameSessionHeader(props: {
   return (
     <Show when={title.present() || trailing.present()}>
       <div
-        class={["box flex-row flex-wrap items-center gap-2 min-w-0", {
-          'justify-between': title.present(),
-          'justify-start': !title.present(),
-        }]}
+        class={[
+          'box flex-row flex-wrap items-center gap-2 min-w-0',
+          {
+            'justify-between': title.present(),
+            'justify-start': !title.present(),
+          },
+        ]}
         {...dataAttrs({ component: 'GameSessionHeader', ...props.dataSet })}
       >
         <Show when={title.present()}>

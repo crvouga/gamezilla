@@ -10,7 +10,7 @@
 
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import styles from '../tab-strip/tab-strip.module.css';
 import type { TabStripItem } from '../tab-strip-types';
@@ -54,6 +54,7 @@ function shellStyle(closable: boolean): JSX.CSSProperties {
 export function TabStripTab(props: TabStripTabProps): JSX.Element {
   const { t } = useLingui();
   const closable = (): boolean => props.item.onClose !== undefined;
+  const Icon = dynamic(() => props.item.icon);
   const labelClass = (): string =>
     props.active
       ? 'text textLabel line-clamp-1 shrink text-text pointer-events-none'
@@ -75,7 +76,10 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
       </Show>
       <div class={shellClass(props.active)} style={shellStyle(closable())}>
         <button
-          class={["clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent", { clickableTint: !props.active }]}
+          class={[
+            'clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent',
+            { clickableTint: !props.active },
+          ]}
           data-component="TabStripTab"
           data-id={props.item.id}
           type="button"
@@ -85,19 +89,16 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
           }}
           id={props.tabId}
           role="tab"
-          aria-selected={props.active}
+          aria-selected={props.active ? 'true' : 'false'}
           aria-keyshortcuts={closable() ? 'Delete' : undefined}
-          tabIndex={props.active ? 0 : -1}
+          tabindex={props.active ? 0 : -1}
           onClick={() => props.onSelect(props.item.id)}
         >
           <Show when={props.item.icon}>
-            {(icon) => (
-              <Dynamic
-                component={icon()}
-                size={15}
-                color={props.active ? 'tabIconSelected' : 'tabIconDefault'}
-              />
-            )}
+            <Icon
+              size={15}
+              color={props.active ? 'tabIconSelected' : 'tabIconDefault'}
+            />
           </Show>
           <span class={labelClass()}>{props.item.label}</span>
         </button>
@@ -109,7 +110,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
             type="button"
             aria-label={t`Close`}
             aria-describedby={props.tabId}
-            tabIndex={-1}
+            tabindex={-1}
             onClick={() => props.item.onClose?.()}
           >
             <XIcon size={12} color="textSecondary" />

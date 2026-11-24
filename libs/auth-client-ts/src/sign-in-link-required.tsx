@@ -6,10 +6,10 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { AuthLinkRequiredError } from '@pkgs/auth-root-client-ts/auth-link-required-error';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import {

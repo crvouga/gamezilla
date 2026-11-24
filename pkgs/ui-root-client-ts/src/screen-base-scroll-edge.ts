@@ -1,4 +1,4 @@
-import { type Accessor, createSignal, onCleanup, onSettled } from 'solid-js';
+import { type Accessor, createSignal, onSettled } from 'solid-js';
 import { bodyScrolledPastTop } from './screen-base-logic';
 
 /**
@@ -13,7 +13,7 @@ export function useBodyScrolled(
   const [scrolled, setScrolled] = createSignal(false);
   onSettled(() => {
     const host = root();
-    if (host === undefined) return;
+    if (host === undefined) return undefined;
     const onScroll = (event: Event): void => {
       const target = event.target;
       if (!(target instanceof HTMLElement)) return;
@@ -21,9 +21,8 @@ export function useBodyScrolled(
       if (next !== undefined) setScrolled(next);
     };
     host.addEventListener('scroll', onScroll, { capture: true, passive: true });
-    onCleanup(() =>
-      host.removeEventListener('scroll', onScroll, { capture: true })
-    );
+    return () =>
+      host.removeEventListener('scroll', onScroll, { capture: true });
   });
   return scrolled;
 }

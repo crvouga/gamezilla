@@ -4,9 +4,10 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { onSettled } from 'solid-js';
+import { onSettled, untrack } from 'solid-js';
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input/index';
+import { moveFocus } from '../move-focus';
 
 export type CommandPaletteInputProps = {
   value: string;
@@ -31,8 +32,10 @@ export function CommandPaletteInput(
 ): JSX.Element {
   const { t } = useLingui();
   let inputEl: HTMLInputElement | HTMLTextAreaElement | undefined;
+  // A mount-time option: what it says when the field mounts is what counts.
+  const focusOnMount = untrack(() => props.focusOnMount ?? true);
   onSettled(() => {
-    if (props.focusOnMount ?? true) inputEl?.focus();
+    if (focusOnMount) moveFocus(inputEl);
   });
   return (
     <TextInput
@@ -52,7 +55,7 @@ export function CommandPaletteInput(
       aria-activedescendant={props.activeDescendantId}
       autocomplete="off"
       autocapitalize="none"
-      spellcheck={false}
+      spellcheck="false"
       startAdornment={<SearchIcon size={18} color="textSecondary" />}
       dataSet={{ component: 'CommandPaletteInput', ...props.dataSet }}
     />

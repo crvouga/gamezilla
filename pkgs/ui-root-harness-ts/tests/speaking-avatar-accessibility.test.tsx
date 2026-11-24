@@ -2,7 +2,7 @@
 import { expect, test } from 'bun:test';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal, untrack } from 'solid-js';
+import { createSignal, flush, untrack } from 'solid-js';
 import { renderUi } from './render';
 
 // regression: avatar-loading-hides-observation
@@ -34,8 +34,11 @@ test('speech loading retains complete words in the same live region through cont
   expect(region.getAttribute('style')).not.toContain('line-clamp');
   expect(region.style.overflow).not.toBe('hidden');
   setText('Checkmate! You found a valid finish.');
+  flush();
   setContext('second');
+  flush();
   setLoading(false);
+  flush();
   expect(screen.getByText(untrack(text))).toBe(region);
   fireEvent.click(screen.getByRole('button', { name: 'Mute coach' }));
   expect(enabled.at(-1)).toBe(false);

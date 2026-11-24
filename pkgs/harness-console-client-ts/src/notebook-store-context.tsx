@@ -1,7 +1,12 @@
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import type { JSX } from '@solidjs/web';
-import { createContext, createMemo, type ParentProps, useContext } from 'solid-js';
+import {
+  createContext,
+  createMemo,
+  type ParentProps,
+  useContext,
+} from 'solid-js';
 import type { NotebookStore } from './notebook-store';
 import { createNotebookStore } from './notebook-store';
 

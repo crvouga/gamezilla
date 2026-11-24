@@ -1,7 +1,15 @@
 /** @jsxImportSource @solidjs/web */
 
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createMemo, createSignal, onCleanup, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  createMemo,
+  createSignal,
+  onSettled,
+  useContext,
+} from 'solid-js';
 
 import type { ScreenBaseBreadcrumb } from '../screen-base-types';
 
@@ -21,12 +29,15 @@ type AppFrameChromeContextValue = {
     ) => readonly ScreenNavigation[]
   ) => void;
   readonly headerOverride: Accessor<AppFrameHeaderOverride>;
-  readonly setHeaderOverride: (node: AppFrameHeaderOverride) => void;
+  /** Registers an override; the returned function withdraws that one only. */
+  readonly overrideHeader: (node: AppFrameHeaderOverride) => () => void;
   readonly globalTrailing: Accessor<JSX.Element | null>;
   readonly globalStatus: Accessor<JSX.Element | null>;
 };
 
-const AppFrameChromeContext = createContext<AppFrameChromeContextValue>();
+const AppFrameChromeContext = createContext<AppFrameChromeContextValue | null>(
+  null
+);
 
 export type AppFrameChromeProviderProps = {
   /** Wide screens publish their existing breadcrumb contracts to the header island. */
@@ -48,15 +59,24 @@ export type AppFrameChromeProviderProps = {
 export function AppFrameChromeProvider(
   props: AppFrameChromeProviderProps
 ): JSX.Element {
-  const [headerOverride, setHeaderOverride] =
-    createSignal<AppFrameHeaderOverride>(null);
+  // Held in an entry so a leaving screen withdraws its own override and
+  // never the one the arriving screen has just registered.
+  const [override, setOverride] = createSignal<{
+    readonly node: AppFrameHeaderOverride;
+  } | null>(null);
   const [screens, setScreens] = createSignal<readonly ScreenNavigation[]>([]);
   const value: AppFrameChromeContextValue = {
     screenNavigation: () => props.screenNavigation === true,
     screens,
     setScreens,
-    headerOverride,
-    setHeaderOverride: (node) => setHeaderOverride(() => node),
+    headerOverride: () => override()?.node ?? null,
+    overrideHeader: (node) => {
+      const entry = { node };
+      setOverride(entry);
+      return () => {
+        setOverride((current) => (current === entry ? null : current));
+      };
+    },
     globalTrailing: () => props.globalTrailing ?? null,
     globalStatus: () => props.globalStatus ?? null,
   };
@@ -73,9 +93,8 @@ export function AppFrameChromeProvider(
  */
 export function useSetAppFrameHeader(node: AppFrameHeaderOverride): void {
   const ctx = useContext(AppFrameChromeContext);
-  if (ctx === undefined) return;
-  ctx.setHeaderOverride(node);
-  onCleanup(() => ctx.setHeaderOverride(null));
+  if (ctx === null) return;
+  onSettled(() => ctx.overrideHeader(node));
 }
 
 /** True inside a column whose sidebar already carries the global chrome. */
@@ -145,14 +164,14 @@ export function usePublishScreenNavigation(
   titleId: string
 ): Accessor<boolean> {
   const ctx = useContext(AppFrameChromeContext);
-  if (ctx === undefined) return () => false;
+  if (ctx === null) return () => false;
   const entry = { breadcrumbs, titleId };
   const unregister = () =>
     ctx.setScreens((screens) => screens.filter((screen) => screen !== entry));
-  createEffect(() => {
-    if (!ctx.screenNavigation()) return;
+  createEffect(createMemo(ctx.screenNavigation), (publishes) => {
+    if (!publishes) return undefined;
     ctx.setScreens((screens) => [...screens, entry]);
-    onCleanup(unregister);
+    return unregister;
   });
   return () => ctx.screenNavigation() && ctx.headerOverride() === null;
 }

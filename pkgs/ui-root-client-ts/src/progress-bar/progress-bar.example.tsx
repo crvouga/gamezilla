@@ -2,7 +2,7 @@
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import type { JSX } from '@solidjs/web';
-import { createSignal, onCleanup } from 'solid-js';
+import { createSignal, onSettled } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const TICK_MS = 200;
@@ -12,10 +12,12 @@ function DeterminateDemo(): JSX.Element {
   const timers = useTimers();
   const [progress, setProgress] = createSignal(0);
 
-  const id = timers.setInterval(() => {
-    setProgress((p) => (p >= 1 ? 0 : p + STEP));
-  }, TICK_MS);
-  onCleanup(() => timers.clearInterval(id));
+  onSettled(() => {
+    const id = timers.setInterval(() => {
+      setProgress((p) => (p >= 1 ? 0 : p + STEP));
+    }, TICK_MS);
+    return () => timers.clearInterval(id);
+  });
 
   return (
     <ProgressBar

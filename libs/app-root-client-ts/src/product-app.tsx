@@ -1,9 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 /**
  * Product client root — `ClientEnvProvider` is applied by `createClient`.
- * Rendered as the router `root`, so `props.children` is the route outlet.
+ * Rendered as the router's root layout, so `props.children` is the route outlet.
  * Production and harnesses mount the same component; embedded hosts (multi-App
- * product-harness) get a `MemoryRouter` from `createClient` instead of the URL.
+ * product-harness) get a memory history from `createClient` instead of the URL.
  *
  * Paint order (low-end Android): AppFrame chrome → session/SQLite. Nothing
  * gates the frame: fonts swap in (`font-display: swap`) and sync boot shows
@@ -23,7 +23,7 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { useNavigate } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
-import { onCleanup, onSettled, Show, Suspense } from 'solid-js';
+import { Loading, onSettled, Show } from 'solid-js';
 import { AppHeaderGlobalMenu } from './app-header-global-menu';
 import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
@@ -70,7 +70,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
   };
   onSettled(() => {
     availability.start();
-    onCleanup(() => availability.stop());
+    return () => availability.stop();
   });
   return (
     <OriginAvailabilityProvider value={availability}>
@@ -101,9 +101,9 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
                       >
                         <AppProvidersSession>
                           {/* Lazy routes load their chunk behind one loading state. */}
-                          <Suspense fallback={<LoadingState />}>
+                          <Loading fallback={<LoadingState />}>
                             {props.children}
-                          </Suspense>
+                          </Loading>
                         </AppProvidersSession>
                       </AppFrame>
                     </AppFrameChromeProvider>

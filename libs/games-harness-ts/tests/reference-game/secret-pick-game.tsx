@@ -77,7 +77,7 @@ function SetupBoard(props: GameSetupBoardProps): JSX.Element {
             type="button"
             data-testid={`${props.testId}-${secret}`}
             disabled={props.locked}
-            aria-pressed={props.setup === secret}
+            aria-pressed={props.setup === secret ? 'true' : 'false'}
             onClick={() => props.onChange(secret)}
           >
             {secret}

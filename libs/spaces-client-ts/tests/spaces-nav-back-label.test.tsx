@@ -13,7 +13,7 @@ import {
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { cleanup } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -50,6 +50,7 @@ test('a screen opened from a game’s choices names them on Back; the choices na
   ));
   expect(view.getByTestId('back-label').textContent).toBe('Connect Four');
   setOpened(false);
+  flush();
   expect(view.getByTestId('back-label').textContent).toBe('Games');
 });
 
@@ -83,5 +84,6 @@ test('the selected game names itself to the bar while its screens show', () => {
   ));
   expect(view.getByTestId('place').textContent).toBe('Chess');
   setChosen(false);
+  flush();
   expect(view.getByTestId('place').textContent).toBe('none');
 });

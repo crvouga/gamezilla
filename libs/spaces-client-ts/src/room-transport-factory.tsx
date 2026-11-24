@@ -67,9 +67,7 @@ export function RoomTransportFactoryProvider(props: {
   readonly children: JSX.Element;
   readonly createTransport: CreateRoomTransport;
 }): JSX.Element {
-  return (
-    <Ctx value={props.createTransport}>{props.children}</Ctx>
-  );
+  return <Ctx value={props.createTransport}>{props.children}</Ctx>;
 }
 
 export function useCreateRoomTransport(): CreateRoomTransport {

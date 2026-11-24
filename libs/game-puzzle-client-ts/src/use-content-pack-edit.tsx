@@ -1,14 +1,36 @@
 import { createPuzzleFromPackMutation } from '@libs/game-puzzle-shared-ts/create-pack-puzzle-mutation';
 import { editPuzzlePackMutation } from '@libs/game-puzzle-shared-ts/edit-pack-mutation';
 import type { PackEdit } from '@libs/game-puzzle-shared-ts/pack-edit';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { createAsync } from '@pkgs/async-root-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
-import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
+import {
+  type MutationButtonLabels,
+  useMutationButton,
+} from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import type { useContentDraftSave } from './use-content-draft-save';
+
+/** The create command's words, read where they are drawn. */
+function useCreateLabels(): MutationButtonLabels {
+  const { t } = useLingui();
+  return {
+    get idle() {
+      return t`Create puzzle in this pack`;
+    },
+    get loading() {
+      return t`Creating…`;
+    },
+    get success() {
+      return t`Puzzle draft created`;
+    },
+    get error() {
+      return t`Try creating again`;
+    },
+  };
+}
 
 export function useContentPackEdit(props: {
   documentId: string;
@@ -86,12 +108,7 @@ export function useContentPackEdit(props: {
       props.onSaved(packDraftId);
       setCreated(puzzleId);
     },
-    labels: {
-      idle: t`Create puzzle in this pack`,
-      loading: t`Creating…`,
-      success: t`Puzzle draft created`,
-      error: t`Try creating again`,
-    },
+    labels: useCreateLabels(),
   });
   return { change, run, execute, retry, create, created };
 }

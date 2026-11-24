@@ -1,5 +1,5 @@
 import type { JSX } from '@solidjs/web';
-import { createMemo, createSelector, For, Show } from 'solid-js';
+import { createMemo, createProjection, For, Show } from 'solid-js';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-board.module.css';
 
@@ -24,8 +24,8 @@ function BoardCell(props: {
       data-state={cell()?.state ?? 'empty'}
       data-square={cell()?.square ?? 'none'}
       aria-label={cell()?.label}
-      aria-disabled={cell()?.enabled !== true}
-      tabIndex={props.focusable ? 0 : -1}
+      aria-disabled={cell()?.enabled === true ? 'false' : 'true'}
+      tabindex={props.focusable ? 0 : -1}
       onFocus={() => props.onFocusIndex(props.index)}
       onKeyDown={(event) => props.onKey(event, props.index)}
       onClick={() => {
@@ -40,7 +40,7 @@ function BoardCell(props: {
         fallback={
           <span class={styles['square']} aria-hidden="true">
             <Show when={cell()?.square}>
-              {(square) => props.board.squareText(square())}
+              {(square) => <>{props.board.squareText(square())}</>}
             </Show>
           </span>
         }
@@ -64,8 +64,13 @@ export function BoardRows(props: {
   onFocusIndex: (index: number) => void;
   onKey: (event: KeyboardEvent, index: number) => void;
 }): JSX.Element {
-  // One comparison per focus move, not one per square.
-  const isFocus = createSelector(() => props.focusIndex());
+  // Holds the focused index alone, so a focus move updates the square left
+  // and the square entered, not every square.
+  const focused = createProjection<Record<number, boolean>>((draft) => {
+    const index = props.focusIndex();
+    for (const key of Object.keys(draft)) draft[Number(key)] = false;
+    draft[index] = true;
+  }, {});
   return (
     <>
       <span class={styles['header']} data-axis="corner" aria-hidden="true" />
@@ -91,7 +96,7 @@ export function BoardRows(props: {
                     board={props.board}
                     cells={props.cells}
                     index={index()}
-                    focusable={isFocus(index())}
+                    focusable={focused[index()] === true}
                     onFocusIndex={props.onFocusIndex}
                     onKey={props.onKey}
                   />

@@ -77,10 +77,13 @@ export function WindowManagerSeparator(
   };
   return (
     <div
-      class={[`box absolute z-2 touch-none ${styles['separator'] ?? ''}`, {
-        'cursor-col-resize': row(),
-        'cursor-row-resize': !row(),
-      }]}
+      class={[
+        `box absolute z-2 touch-none ${styles['separator'] ?? ''}`,
+        {
+          'cursor-col-resize': row(),
+          'cursor-row-resize': !row(),
+        },
+      ]}
       data-component={componentId('WindowManagerSeparator')}
       {...dataAttrs({
         'window-part': 'separator',
@@ -90,7 +93,7 @@ export function WindowManagerSeparator(
       })}
       style={separatorStyle(props.frame)}
       role="separator"
-      tabIndex={0}
+      tabindex={0}
       aria-label={
         row() ? t`Resize windows left and right` : t`Resize windows up and down`
       }

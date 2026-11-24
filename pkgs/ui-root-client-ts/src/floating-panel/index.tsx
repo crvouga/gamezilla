@@ -97,7 +97,7 @@ export function FloatingPanel(props: FloatingPanelProps): JSX.Element {
   const size = (): FloatingPanelSize => props.size ?? 'auto';
   return (
     <section
-      ref={(element) => props.panelRef?.(element)}
+      ref={[props.panelRef]}
       role={props.role === 'region' ? 'region' : 'dialog'}
       aria-modal={props.role === 'region' ? undefined : 'false'}
       aria-label={props.label}

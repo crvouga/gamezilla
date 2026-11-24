@@ -12,7 +12,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 const realMatchMedia = window.matchMedia;
 afterEach(() => {
@@ -144,6 +144,7 @@ test('the serve after a point names who scored and match point', () => {
       servingToward: 'right',
     })
   );
+  flush();
   expect(view.getByRole('status').textContent).toMatch(
     /^You scored\nServe in \d+$/
   );
@@ -231,6 +232,7 @@ test('match point names whose it is, or says it is yours', () => {
       servingToward: 'right',
     })
   );
+  flush();
   expect(view.getByRole('status').textContent).toMatch(
     /^You scored\nMatch point: jordan_plays\nServe in \d+$/
   );

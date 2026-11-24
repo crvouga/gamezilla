@@ -8,7 +8,13 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createMemo, type ParentProps, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  type ParentProps,
+  useContext,
+} from 'solid-js';
 import type { RoomReadable } from './room-signals';
 import {
   createRoomDispatch,
@@ -48,9 +54,7 @@ export function RoomClientsProvider(
     () => props.rooms ?? EMPTY_REGISTRY
   );
   return (
-    <RoomClientsContext value={registry}>
-      {props.children}
-    </RoomClientsContext>
+    <RoomClientsContext value={registry}>{props.children}</RoomClientsContext>
   );
 }
 

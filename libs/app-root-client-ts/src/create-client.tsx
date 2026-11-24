@@ -2,9 +2,9 @@
 /**
  * The only client constructor — wall (`main.tsx`) and harnesses pass different
  * `ClientEnv` implementations and different sub sets. `App` owns the
- * router: the browser `Router` (URL is the source of truth) or, when
- * `embedded`, a `MemoryRouter` so several product Apps can share one page (or
- * a test can drive `history`).
+ * router: browser history (URL is the source of truth) or, when `embedded`,
+ * a memory history so several product Apps can share one page (or a test can
+ * drive `history`).
  *
  * The shell names no sub. Routes, tabs, docks and providers all come from
  * the `subs` fold, so booting one bounded context and booting all of them
@@ -19,13 +19,14 @@ import { createAppSyncEnginePool } from '@libs/app-env-client-ts/sync-engine-poo
 import type { SubClient } from '@libs/sub-client-ts/client';
 import { composeSubClients } from '@libs/sub-client-ts/compose-client';
 import {
-  type MemoryHistory,
-  MemoryRouter,
-  Router,
-  type RouteSectionProps,
+  createRouter,
+  type MemoryHistoryAdapter,
+  memoryHistory,
+  type RouteDefinition,
+  type RouterHistory,
 } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
-import { type Component, Show, untrack } from 'solid-js';
+import { type Component, untrack } from 'solid-js';
 import type { AppComposition, LoadComposedSubs } from './app-subs-context';
 import { AppCompositionProvider } from './app-subs-context';
 import { createOfflineClientEnv } from './offline-client-env';
@@ -35,11 +36,20 @@ import { ProductApp } from './product-app';
 import { buildRouteTable } from './route-table';
 import { buildAppRoutes } from './routes';
 
+/**
+ * The part of a memory history the embedded router drives. A caller that
+ * owns one keeps the route across remounts and navigates by writing to it.
+ */
+export type EmbeddedHistory = Pick<
+  MemoryHistoryAdapter,
+  'get' | 'set' | 'go' | 'listen'
+>;
+
 export type ClientAppProps = {
   /** Multi-App product-harness / tests: in-memory router, no document shortcuts. */
   readonly embedded?: boolean | undefined;
   /** Embedded only: externally owned history (tests drive navigation). */
-  readonly history?: MemoryHistory | undefined;
+  readonly history?: EmbeddedHistory | undefined;
 };
 
 export type Client = {
@@ -72,10 +82,34 @@ export type CreateClientArgs = CreateClientOptions & {
   readonly loadApp: LoadComposedSubs;
 };
 
-function makeRoot(embedded: boolean): Component<RouteSectionProps> {
-  return (props) => (
-    <ProductApp embedded={embedded}>{props.children}</ProductApp>
-  );
+/** The router hears every write to the history, its own commits excepted. */
+function embeddedRouterHistory(history: EmbeddedHistory): RouterHistory {
+  return {
+    get: history.get,
+    set: history.set,
+    init: history.listen,
+    utils: { go: history.go },
+  };
+}
+
+/**
+ * One router per mounted App: an embedded App's history arrives with the
+ * mount, and several embedded Apps share a page, each on its own history.
+ */
+function createAppRouter(
+  routes: RouteDefinition[],
+  history: EmbeddedHistory | undefined,
+  embedded: boolean
+) {
+  if (!embedded) {
+    // Screens scroll inside their own containers, so the document has no
+    // scroll position worth restoring.
+    return createRouter({ routes, scrollRestoration: false });
+  }
+  return createRouter({
+    routes,
+    history: embeddedRouterHistory(history ?? memoryHistory()),
+  });
 }
 
 export function createClient(env: ClientEnv, args: CreateClientArgs): Client {
@@ -97,21 +131,16 @@ export function createClient(env: ClientEnv, args: CreateClientArgs): Client {
       embedded: props.embedded === true,
       history: props.history,
     }));
+    const Router = createAppRouter(routes, history, embedded);
     return (
       <OfflinePreferenceProvider controller={network.offline}>
         <ClientEnvProvider env={network.env} syncEnginePool={syncEnginePool}>
           <AppCompositionProvider value={composition}>
-            <Show
-              when={embedded}
-              fallback={<Router root={makeRoot(false)}>{routes}</Router>}
-            >
-              <MemoryRouter
-                root={makeRoot(true)}
-                {...(history === undefined ? {} : { history })}
-              >
-                {routes}
-              </MemoryRouter>
-            </Show>
+            <Router>
+              {(route) => (
+                <ProductApp embedded={embedded}>{route.children}</ProductApp>
+              )}
+            </Router>
           </AppCompositionProvider>
         </ClientEnvProvider>
       </OfflinePreferenceProvider>

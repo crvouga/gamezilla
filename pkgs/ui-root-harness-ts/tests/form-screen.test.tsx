@@ -4,7 +4,7 @@ import { FormScreen } from '@pkgs/ui-root-client-ts/form-screen';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, flush, Show } from 'solid-js';
 import { renderUi } from './render';
 
 // regression: ui-form-actions-provider-context
@@ -111,9 +111,11 @@ test('native validity and a disabled save action guard programmatic submissions'
   expect(calls).toBe(0);
   fireEvent.input(input, { target: { value: 'Ready' } });
   setDisabled(true);
+  flush();
   fireEvent.submit(form);
   expect(calls).toBe(0);
   setDisabled(false);
+  flush();
   fireEvent.submit(form);
   await Promise.resolve();
   expect(calls).toBe(1);

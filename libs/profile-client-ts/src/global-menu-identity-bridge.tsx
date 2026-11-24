@@ -19,7 +19,13 @@ import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, onCleanup, Show } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  onCleanup,
+  Show,
+} from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
 import { useMyProfileId } from './public-use-my-profile-id';
 import { useProfileColumn } from './use-profile-column';
@@ -38,24 +44,30 @@ function PublishIdentity(props: {
   // The face is a render thunk, and it reads the config where it renders —
   // inside the menu — rather than closing over the value at publish time. The
   // avatar then follows an edit without this effect having to republish.
-  createEffect(() => {
-    const profileId = props.profileId;
-    const username = props.username();
-    publish({
-      usernameLabel:
-        profileId === null
-          ? null
-          : usernameLabel(moderation(), username, profileId),
-      email: email(),
-      avatar: (size) => (
-        <DeviceAvatar
-          avatarConfig={avatarConfig()}
-          seedFallback={props.profileId ?? 'guest'}
-          size={size}
-        />
-      ),
-    });
-  });
+  createEffect(
+    () => {
+      const profileId = props.profileId;
+      return {
+        usernameLabel:
+          profileId === null
+            ? null
+            : usernameLabel(moderation(), props.username(), profileId),
+        email: email(),
+      };
+    },
+    (identity) => {
+      publish({
+        ...identity,
+        avatar: (size) => (
+          <DeviceAvatar
+            avatarConfig={avatarConfig()}
+            seedFallback={props.profileId ?? 'guest'}
+            size={size}
+          />
+        ),
+      });
+    }
+  );
   onCleanup(() => publish(BOOT_GLOBAL_MENU_IDENTITY));
   return null;
 }

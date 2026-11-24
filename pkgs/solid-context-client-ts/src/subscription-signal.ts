@@ -12,7 +12,9 @@ export type ExternalSubscription<T> = {
 export function createSubscriptionSignal<T>(
   source: ExternalSubscription<T>
 ): Accessor<T> {
-  const [changes, setChanges] = createSignal(0);
+  // A version counter private to this bridge. The source decides when it
+  // notifies, which may be while a component body or a computation runs.
+  const [changes, setChanges] = createSignal(0, { ownedWrite: true });
   const unsubscribe = source.subscribe(() => {
     setChanges((count) => count + 1);
   });

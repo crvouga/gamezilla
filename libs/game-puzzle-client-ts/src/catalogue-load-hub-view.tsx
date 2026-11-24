@@ -146,9 +146,15 @@ function HubCommand(props: {
       get idle() {
         return props.loadedBefore ? t`Load again` : t`Start loading`;
       },
-      loading: t`Starting load…`,
-      success: t`Load started`,
-      error: t`Try loading again`,
+      get loading() {
+        return t`Starting load…`;
+      },
+      get success() {
+        return t`Load started`;
+      },
+      get error() {
+        return t`Try loading again`;
+      },
     },
   });
   const blocked = (): CatalogueStartBlock | null =>

@@ -1,6 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
-import { type JSX, Dynamic } from '@solidjs/web';
+import { type JSX, dynamic } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback } from '../button-face';
 import { MUTATION_FEEDBACK_ICONS } from '../button-face';
@@ -122,10 +122,13 @@ function IconRail(props: {
 }): JSX.Element {
   return (
     <div
-      class={[`box absolute inset-y-0 flex-row items-center justify-center ${props.size.railClass}`, {
-        'left-0': props.side === 'start',
-        'right-0': props.side === 'end',
-      }]}
+      class={[
+        `box absolute inset-y-0 flex-row items-center justify-center ${props.size.railClass}`,
+        {
+          'left-0': props.side === 'start',
+          'right-0': props.side === 'end',
+        },
+      ]}
     >
       {props.children}
     </div>
@@ -151,17 +154,15 @@ function CenteredLabelRow(props: {
 }
 
 function SizedLeadingIcon(props: ButtonContentProps): JSX.Element {
+  const LeadingIcon = dynamic(() => props.icon);
   return (
     <Show when={props.icon}>
-      {(icon) => (
-        <IconSlot size={props.size}>
-          <Dynamic
-            component={icon()}
-            size={props.size.iconSize}
-            strokeWidth={props.size.iconStrokeWidth}
-          />
-        </IconSlot>
-      )}
+      <IconSlot size={props.size}>
+        <LeadingIcon
+          size={props.size.iconSize}
+          strokeWidth={props.size.iconStrokeWidth}
+        />
+      </IconSlot>
     </Show>
   );
 }
@@ -191,12 +192,12 @@ function StatusGlyph(props: {
   icon?: IconComponent | undefined;
   size: ButtonSizeSpec;
 }): JSX.Element {
+  const Glyph = dynamic(() => props.icon ?? XIcon);
   return (
     <Show
       when={props.spinner === true}
       fallback={
-        <Dynamic
-          component={props.icon ?? XIcon}
+        <Glyph
           size={props.size.iconSize}
           strokeWidth={props.size.iconStrokeWidth}
         />

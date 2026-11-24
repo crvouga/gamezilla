@@ -8,7 +8,12 @@
  */
 
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createSignal, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  useContext,
+} from 'solid-js';
 
 export const BOOT_NOTIFICATIONS_UNREAD_COUNT = 0;
 
@@ -20,23 +25,11 @@ const UnreadCountPublisherContext = createContext<UnreadCountPublisher>();
 
 /** Tracked unread count for chrome; 0 when the sync tree has not published. */
 export function useNotificationsUnreadCountChrome(): Accessor<number> {
-  const ctx = useContext(UnreadCountContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'useNotificationsUnreadCountChrome requires NotificationsUnreadCountRoot'
-    );
-  }
-  return ctx;
+  return useContext(UnreadCountContext);
 }
 
 export function useNotificationsUnreadCountPublisher(): UnreadCountPublisher {
-  const publish = useContext(UnreadCountPublisherContext);
-  if (publish === undefined) {
-    throw new Error(
-      'useNotificationsUnreadCountPublisher requires NotificationsUnreadCountRoot'
-    );
-  }
-  return publish;
+  return useContext(UnreadCountPublisherContext);
 }
 
 /**
@@ -49,9 +42,7 @@ export function NotificationsUnreadCountRoot(props: {
   const [count, setCount] = createSignal(BOOT_NOTIFICATIONS_UNREAD_COUNT);
   return (
     <UnreadCountPublisherContext value={setCount}>
-      <UnreadCountContext value={count}>
-        {props.children}
-      </UnreadCountContext>
+      <UnreadCountContext value={count}>{props.children}</UnreadCountContext>
     </UnreadCountPublisherContext>
   );
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @solidjs/web */
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -16,7 +17,7 @@ import type {
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
 import type { JSX } from '@solidjs/web';
-import { createEffect, on, Show } from 'solid-js';
+import { createEffect, Show, untrack } from 'solid-js';
 import { CheckIcon } from '../icons';
 import { VirtualList } from '../virtual-list/index';
 
@@ -51,13 +52,16 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
 }): JSX.Element {
   return (
     <button
-      class={["clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left", { 'bg-tint-highlight': props.highlighted }]}
+      class={[
+        'clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left',
+        { 'bg-tint-highlight': props.highlighted },
+      ]}
       {...dataAttrs({ component: 'ComboboxOption', ...props.option.dataSet })}
       type="button"
       style={{ 'min-height': cssPx(COMBOBOX_OPTION_MIN_HEIGHT) }}
       id={props.id}
       role="option"
-      aria-selected={props.selected}
+      aria-selected={ariaBoolean(props.selected)}
       onClick={() => props.onPick()}
     >
       <Show when={props.option.preview !== undefined}>
@@ -86,51 +90,72 @@ function scrollHighlightedIntoView(
   scroller.scrollTop = index * COMBOBOX_OPTION_ESTIMATE;
 }
 
+/** One option: the caller's rendering inside the option host, or the default row. */
+function ComboboxRow<T extends ComboboxValue>(props: {
+  list: ComboboxListProps<T>;
+  option: ComboboxOption<T>;
+  index: number;
+}): JSX.Element {
+  const selected = (): boolean =>
+    isValueSelected(props.list.value, props.list.values, props.option.value);
+  const highlighted = (): boolean =>
+    props.list.highlightedIndex === props.index;
+  const id = (): string => comboboxOptionId(props.list.listboxId, props.index);
+  const onPick = (): void => props.list.onPick(props.option.value);
+  return (
+    <Show
+      when={props.list.renderOption}
+      fallback={
+        <DefaultOptionRow
+          id={id()}
+          option={props.option}
+          selected={selected()}
+          highlighted={highlighted()}
+          onPick={onPick}
+        />
+      }
+    >
+      {(render) => (
+        <div
+          class={['box', { 'bg-tint-highlight': highlighted() }]}
+          {...dataAttrs({
+            component: 'ComboboxOption',
+            ...props.option.dataSet,
+          })}
+          id={id()}
+          role="option"
+          aria-selected={ariaBoolean(selected())}
+        >
+          {render()(props.option, selected(), onPick)}
+        </div>
+      )}
+    </Show>
+  );
+}
+
 export function ComboboxList<T extends ComboboxValue>(
   props: ComboboxListProps<T>
 ): JSX.Element {
   let scroller: HTMLDivElement | undefined;
   createEffect(
-    on(
-      () => props.highlightedIndex,
-      (index) => {
-        if (props.options.length === 0) return;
-        scrollHighlightedIntoView(
-          scroller,
-          comboboxOptionId(props.listboxId, index),
-          index
-        );
-      },
-      { defer: true }
-    )
+    () => {
+      // Only a move of the highlight scrolls; the list is read as it stands.
+      const index = props.highlightedIndex;
+      return untrack(() => ({
+        index,
+        empty: props.options.length === 0,
+        rowId: comboboxOptionId(props.listboxId, index),
+      }));
+    },
+    (highlight) => {
+      if (highlight.empty) return;
+      scrollHighlightedIntoView(scroller, highlight.rowId, highlight.index);
+    },
+    { defer: true }
   );
-  const renderRow = (option: ComboboxOption<T>, index: number): JSX.Element => {
-    const selected = isValueSelected(props.value, props.values, option.value);
-    const onPick = (): void => props.onPick(option.value);
-    const render = props.renderOption;
-    if (render !== undefined) {
-      return (
-        <div
-          class={["box", { 'bg-tint-highlight': props.highlightedIndex === index }]}
-          {...dataAttrs({ component: 'ComboboxOption', ...option.dataSet })}
-          id={comboboxOptionId(props.listboxId, index)}
-          role="option"
-          aria-selected={selected}
-        >
-          {render(option, selected, onPick)}
-        </div>
-      );
-    }
-    return (
-      <DefaultOptionRow
-        id={comboboxOptionId(props.listboxId, index)}
-        option={option}
-        selected={selected}
-        highlighted={props.highlightedIndex === index}
-        onPick={onPick}
-      />
-    );
-  };
+  const renderRow = (option: ComboboxOption<T>, index: number): JSX.Element => (
+    <ComboboxRow list={props} option={option} index={index} />
+  );
   return (
     <VirtualList
       ref={(el) => {

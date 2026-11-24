@@ -108,7 +108,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
     tags.present() || (props.state !== undefined && props.state !== null);
   const tagRow = (): JSX.Element => (
     <span
-      class={[styles['playerTags'], { 'shrink-0': inline(), [line['tags'] ?? '']: inline() }]}
+      class={[
+        styles['playerTags'],
+        { 'shrink-0': inline(), [line['tags'] ?? '']: inline() },
+      ]}
       // After the name, the tags never wrap onto a second line.
       style={inline() ? { '--player-tags-wrap': 'nowrap' } : undefined}
     >
@@ -121,7 +124,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   return (
     <>
       <span
-        class={[styles['playerAvatar'], { 'opacity-disabled': props.state?.kind === 'out' }]}
+        class={[
+          styles['playerAvatar'],
+          { 'opacity-disabled': props.state?.kind === 'out' },
+        ]}
         aria-hidden="true"
       >
         <Show
@@ -132,7 +138,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         </Show>
       </span>
       <span
-        class={[styles['playerIdentity'], { [line['identity'] ?? '']: inline() }]}
+        class={[
+          styles['playerIdentity'],
+          { [line['identity'] ?? '']: inline() },
+        ]}
       >
         {/* One line: the swatch, the name (cut short when long, its whole
             self in the tooltip and to a listener) and the turn; the tags
@@ -145,7 +154,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
               )}
             </Show>
             <span
-              class={[`text textLabel ${styles['playerName']} ${line['name']}`, { 'text-on-primary-soft': props.active === true }]}
+              class={[
+                `text textLabel ${styles['playerName']} ${line['name']}`,
+                { 'text-on-primary-soft': props.active === true },
+              ]}
               title={props.plainName}
             >
               {props.name}
@@ -208,15 +220,18 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
     options.present() && props.optionsPlacement === 'below';
   return (
     <section
-      class={[`${styles['player']} rounded-card py-1`, {
-        'bg-surface': !active(),
-        'bg-tint-subtle': active(),
-        'px-3': !compact(),
-        'px-1': compact(),
-      }]}
+      class={[
+        `${styles['player']} rounded-card py-1`,
+        {
+          'bg-surface': !active(),
+          'bg-tint-subtle': active(),
+          'px-3': !compact(),
+          'px-1': compact(),
+        },
+      ]}
       data-density={compact() ? 'compact' : 'regular'}
       aria-current={active() ? 'step' : undefined}
-      data-active={active()}
+      data-active={String(active())}
       data-state={props.state?.kind}
       {...dataAttrs({ component: 'GamePlayerBar', ...props.dataSet })}
     >

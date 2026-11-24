@@ -61,7 +61,7 @@ export function StatusDot(props: StatusDotProps): JSX.Element {
       }}
       role={props.label === undefined ? undefined : 'img'}
       aria-label={props.label}
-      aria-hidden={props.label === undefined ? true : undefined}
+      aria-hidden={props.label === undefined ? 'true' : undefined}
     />
   );
 }

@@ -23,11 +23,12 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
   const moderation = useModeration();
   const [value, setValue] = createSignal<string>('');
 
-  createEffect(() => {
-    if (props.visible) {
-      setValue(() => persistedTitle() ?? '');
+  createEffect(
+    () => (props.visible ? (persistedTitle() ?? '') : undefined),
+    (title) => {
+      if (title !== undefined) setValue(title);
     }
-  });
+  );
 
   const refused = createMemo(
     () => !moderation().checkWrite('spaceTitle', value().trim()).allowed
@@ -38,7 +39,7 @@ export function RenameSpaceModal(props: RenameSpaceModalProps): JSX.Element {
       visible={props.visible}
       value={value()}
       refused={refused()}
-      onChangeValue={(next) => setValue(() => next)}
+      onChangeValue={(next) => setValue(next)}
       onClose={props.onClose}
       operation={async () => {
         await renameSpace(props.spaceId, value());

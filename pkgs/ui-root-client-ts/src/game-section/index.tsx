@@ -45,8 +45,8 @@ export function GameSection(props: {
     <section
       class={`${styles['section']} rounded-card border border-border bg-surface`}
       aria-labelledby={id}
-      data-fill={props.fill === true}
-      data-section-media={media.present()}
+      data-fill={String(props.fill === true)}
+      data-section-media={String(media.present())}
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
       <div class="box gap-1" data-section-part="head">

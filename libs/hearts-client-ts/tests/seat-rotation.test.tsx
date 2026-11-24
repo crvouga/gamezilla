@@ -10,7 +10,7 @@ import {
   GameTableSeats,
 } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 afterEach(cleanup);
@@ -48,6 +48,7 @@ test('every rotation keeps each literal player and score in its own seat', () =>
   ));
   for (const side of [...GAME_SIDES, ...GAME_SIDES].reverse()) {
     setOrientation(side);
+    flush();
     for (const identity of GAME_SIDES) {
       const seat = byTestId(`rotation-seat-${identity}`);
       expect(seat.textContent).toContain(names[identity]);

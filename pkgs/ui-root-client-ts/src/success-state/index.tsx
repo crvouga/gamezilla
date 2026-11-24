@@ -3,7 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
@@ -64,6 +64,7 @@ function SuccessStateFill(props: SuccessStateProps): JSX.Element {
 }
 
 function SuccessStateCompact(props: SuccessStateProps): JSX.Element {
+  const Icon = dynamic(() => props.icon ?? CircleCheckIcon);
   return (
     <div
       class="box flex-row items-start gap-3 px-4 py-3 bg-success-surface rounded-control"
@@ -71,11 +72,7 @@ function SuccessStateCompact(props: SuccessStateProps): JSX.Element {
       role="status"
     >
       <div class="box h-6 shrink-0 justify-center">
-        <Dynamic
-          component={props.icon ?? CircleCheckIcon}
-          size={iconSize.md}
-          color="success"
-        />
+        <Icon size={iconSize.md} color="success" />
       </div>
       <div class="box flex-1 min-w-0 gap-1">
         <p class="text textBodyBold text-success">{props.title}</p>

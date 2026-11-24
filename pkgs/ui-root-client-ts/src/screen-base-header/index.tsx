@@ -55,7 +55,7 @@ function HeaderLeading(props: {
       <Show when={props.showBack}>
         {/* Pulled into the edge so the chevron, not its hit area, lines up
             with the 16px page edge. */}
-        <div class={["box", { '-ml-2': props.leading === undefined }]}>
+        <div class={['box', { '-ml-2': props.leading === undefined }]}>
           <BackIconButton
             size={Math.max(chrome().buttonSize, MIN_BACK_BUTTON_SIZE)}
             onClick={() => props.onBack()}

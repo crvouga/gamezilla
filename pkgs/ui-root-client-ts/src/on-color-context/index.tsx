@@ -16,7 +16,7 @@ import type { JSX } from '@solidjs/web';
 import { type Accessor, createContext, createMemo, useContext } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 
-const OnColorContext = createContext<Accessor<OnColorSet | null>>();
+const OnColorContext = createContext<Accessor<OnColorSet | null> | null>(null);
 
 /** Current contrast-safe foreground set (reactive). */
 export function useOnColor(): Accessor<OnColorSet> {
@@ -27,7 +27,7 @@ export function useOnColor(): Accessor<OnColorSet> {
     fgMuted: tokens.colors.textSecondary,
     icon: tokens.colors.icon,
   };
-  if (ctx === undefined) return () => fallback;
+  if (ctx === null) return () => fallback;
   return () => ctx() ?? fallback;
 }
 

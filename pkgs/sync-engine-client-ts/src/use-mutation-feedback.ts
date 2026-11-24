@@ -1,4 +1,4 @@
-import { type Accessor, createComputed, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createMemo, createSignal, onCleanup } from 'solid-js';
 import type {
   MutationFeedback,
   MutationFeedbackScope,
@@ -11,22 +11,20 @@ export function useMutationFeedback(
   scope?: Accessor<MutationFeedbackScope>
 ): Accessor<MutationFeedback | null | undefined> {
   const engine = useSyncEngineInstance();
-  const [feedback, setFeedback] = createSignal<
-    MutationFeedback | null | undefined
-  >();
-  createComputed(() => {
+  // One subscription per name and scope: a change releases the one before it.
+  const watch = createMemo(() => {
     const name =
       typeof mutationName === 'string' ? mutationName : mutationName();
     const subscription = engine.mutationFeedback(name, scope?.());
-    const apply = (): void => {
-      setFeedback(
-        subscription.getHydrated()
-          ? (subscription.getSnapshot()[0] ?? null)
-          : undefined
-      );
-    };
-    apply();
-    onCleanup(subscription.subscribe(apply));
+    const [changes, setChanges] = createSignal(0);
+    onCleanup(subscription.subscribe(() => setChanges((count) => count + 1)));
+    return { subscription, changes };
   });
-  return feedback;
+  return createMemo(() => {
+    const { subscription, changes } = watch();
+    changes();
+    return subscription.getHydrated()
+      ? (subscription.getSnapshot()[0] ?? null)
+      : undefined;
+  });
 }

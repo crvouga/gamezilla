@@ -15,10 +15,10 @@ function EventsContent(): JSX.Element {
     <SyntheticUserEventsScreenView
       user={user.shown()}
       events={events.shown()}
-      loading={events.events.loading}
-      failed={Boolean(events.events.error)}
+      loading={events.loading()}
+      failed={events.failed()}
       onRefresh={() => {
-        void events.refetch();
+        void events.reread();
       }}
     />
   );

@@ -70,7 +70,7 @@ function DataLine(props: {
   return (
     <span
       class={`text textLabel ${styles['data']}`}
-      data-on={props.on}
+      data-on={String(props.on)}
       aria-hidden="true"
     >
       <Show when={props.data?.swatch}>
@@ -115,7 +115,7 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       aria-label={said()}
       title={said()}
       aria-haspopup="menu"
-      aria-expanded={props.expanded === true}
+      aria-expanded={props.expanded === true ? 'true' : 'false'}
       onClick={(event) => props.onPress(face ?? event.currentTarget)}
       {...dataAttrs(
         spaceDataSet(
@@ -147,7 +147,7 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       </span>
       <span
         class={`text textCaption ${styles['name']}`}
-        data-quiet={props.person.kind === 'openSeat'}
+        data-quiet={String(props.person.kind === 'openSeat')}
         aria-hidden="true"
       >
         {words.name(props.person)}

@@ -1,6 +1,12 @@
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, type ParentProps, untrack, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  type ParentProps,
+  untrack,
+  useContext,
+} from 'solid-js';
 
 const GamesRegistryContext = createContext<
   Accessor<readonly GameClientDefinition[]>

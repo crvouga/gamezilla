@@ -63,7 +63,7 @@ function GameCard(props: { game: SpaceGame; role: SpaceRole }): JSX.Element {
         </div>
       </div>
       <Show when={props.game.setup.settings.length > 0}>
-        <div class={styles['settings']} data-read-only={readOnly()}>
+        <div class={styles['settings']} data-read-only={String(readOnly())}>
           <For each={props.game.setup.settings}>
             {(field) => (
               <GameOptionField

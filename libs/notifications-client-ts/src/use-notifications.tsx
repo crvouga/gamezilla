@@ -8,10 +8,10 @@ import {
   NEEDS_YOU_SECTION_KEY,
 } from '@libs/notifications-shared-ts/notifications-sections';
 import { clientRowToInteraction } from '@libs/notifications-shared-ts/row-mapper';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useClock } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
+import { type Accessor, createMemo, createSignal } from 'solid-js';
 import { useNotificationsShell } from './notifications-provider-registry';
 
 export function useNotifications(options?: {
@@ -34,16 +34,11 @@ export function useNotifications(options?: {
     if (key === 'this_week') return t`This week`;
     return t`Earlier`;
   };
+  // A filter the caller names wins each time it changes; without one the
+  // person's own choice stands.
   const [filter, setFilter] = createSignal<NotificationFilter>(
-    options?.filter ?? 'all'
+    (chosen) => options?.filter ?? chosen ?? 'all'
   );
-
-  createEffect(() => {
-    const external = options?.filter;
-    if (external !== undefined) {
-      setFilter(external);
-    }
-  });
   const { rows, isLoading } = createQuery(() =>
     inboxListSql(shell.userId, filter())
   );

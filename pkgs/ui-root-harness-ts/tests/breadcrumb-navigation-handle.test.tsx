@@ -2,7 +2,7 @@ import { expect, mock, test } from 'bun:test';
 import { ScreenBreadcrumbTrail } from '@pkgs/ui-root-client-ts/screen-breadcrumb-trail';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 // regression: wide-breadcrumb-parent-navigation-handle
@@ -36,6 +36,7 @@ test.each(['trail', 'pills'] as const)(
     expect(parent).toHaveBeenCalledTimes(1);
     expect(root).not.toHaveBeenCalled();
     setNested(false);
+    flush();
     expect(screen.queryByTestId('nav-back')).toBeNull();
   }
 );

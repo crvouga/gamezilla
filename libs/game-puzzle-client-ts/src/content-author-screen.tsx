@@ -238,8 +238,7 @@ export function ContentAuthorScreen(props: {
   // Independent SQL watches can deliver the new head before its draft row.
   // Keep the workspace alive: only an explicit choice adopts another body.
   const initial = createMemo<ContentDraft | null>(
-    (first) => first ?? draft() ?? null,
-    null
+    (first) => first ?? draft() ?? null
   );
   const decision = useDecision(PERMISSION.puzzlesEditContent, () => ({
     puzzleOwnerId: document()?.owner_id ?? '',

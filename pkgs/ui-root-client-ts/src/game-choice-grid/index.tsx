@@ -34,7 +34,7 @@ export function GameChoiceGrid(props: {
           {(choice) => (
             <label
               class={styles['choice']}
-              data-selected={props.value === choice.value}
+              data-selected={String(props.value === choice.value)}
             >
               <input
                 class={styles['choiceInput']}

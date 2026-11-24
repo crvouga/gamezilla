@@ -59,7 +59,7 @@ import {
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from '@solidjs/web';
-import { createEffect, For, on } from 'solid-js';
+import { createEffect, For } from 'solid-js';
 
 /**
  * Seven, the length of the victory every custom-game model follows
@@ -322,15 +322,13 @@ function useCountSounds(props: PuzzleBoardProps): void {
     finish: createAudioPlayer(COUNTING_RACE_SOUNDS.finish),
   });
   createEffect(
-    on(
-      () => props.position,
-      (position, before) => {
-        if (!props.sound || position === before) return;
-        handles.count.play();
-        if (parse(position)?.count === FINISH) handles.finish.play();
-      },
-      { defer: true }
-    )
+    () => props.position,
+    (position, before) => {
+      if (!props.sound || position === before) return;
+      handles.count.play();
+      if (parse(position)?.count === FINISH) handles.finish.play();
+    },
+    { defer: true }
   );
 }
 

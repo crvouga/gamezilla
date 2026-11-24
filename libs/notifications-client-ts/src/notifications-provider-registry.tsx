@@ -49,13 +49,7 @@ export function NotificationsProviderRegistry(
 }
 
 export function useNotificationsShell(): NotificationsShellContextValue {
-  const ctx = useContext(NotificationsShellContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'useNotificationsShell requires NotificationsProviderRegistry'
-    );
-  }
-  return ctx;
+  return useContext(NotificationsShellContext);
 }
 
 export function useNotificationRenderProvider(

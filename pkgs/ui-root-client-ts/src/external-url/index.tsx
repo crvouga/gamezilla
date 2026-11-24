@@ -5,7 +5,7 @@ import { createContext, untrack, useContext } from 'solid-js';
 
 export type OpenExternalUrl = (url: string) => Promise<void>;
 
-const ExternalUrlContext = createContext<OpenExternalUrl>();
+const ExternalUrlContext = createContext<OpenExternalUrl | null>(null);
 
 export type ExternalUrlProviderProps = {
   readonly value: OpenExternalUrl;
@@ -24,11 +24,7 @@ export function ExternalUrlProvider(
   props: ExternalUrlProviderProps
 ): JSX.Element {
   const open = untrack(() => props.value);
-  return (
-    <ExternalUrlContext value={open}>
-      {props.children}
-    </ExternalUrlContext>
-  );
+  return <ExternalUrlContext value={open}>{props.children}</ExternalUrlContext>;
 }
 
 /** Explicit port for tests / hosts that never leave the app. */
@@ -37,16 +33,12 @@ export function StaticExternalUrlProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   const open = untrack(() => props.open ?? (() => Promise.resolve()));
-  return (
-    <ExternalUrlContext value={open}>
-      {props.children}
-    </ExternalUrlContext>
-  );
+  return <ExternalUrlContext value={open}>{props.children}</ExternalUrlContext>;
 }
 
 export function useOpenExternalUrl(): OpenExternalUrl {
   const open = useContext(ExternalUrlContext);
-  if (open === undefined) {
+  if (open === null) {
     throw new Error('useOpenExternalUrl: ExternalUrlProvider missing');
   }
   return open;

@@ -4,7 +4,7 @@ import { type Accessor, createMemo } from 'solid-js';
 export function createRoomConnectionKey<T extends readonly string[]>(
   read: Accessor<T | null>
 ): Accessor<T | null> {
-  return createMemo(read, undefined, {
+  return createMemo(read, {
     equals: (previous, next) =>
       previous === next ||
       (previous !== null &&

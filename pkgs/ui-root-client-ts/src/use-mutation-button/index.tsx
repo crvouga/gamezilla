@@ -25,10 +25,10 @@
  * ```
  */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, onCleanup } from 'solid-js';
+import { type Accessor, createEffect } from 'solid-js';
 import type { ButtonProps } from '../button/index';
 import type { ButtonFeedback } from '../button-face';
 import type { MutationStateTransition } from '../mutation-lifecycle';
@@ -146,17 +146,20 @@ export function useMutationButton(
       : params.labels.error;
   const timers = useTimers();
 
-  createEffect(() => {
-    if (lifecycle.phase() !== 'success') return;
-    const id = timers.setTimeout(() => {
-      try {
-        params.onSuccess?.();
-      } finally {
-        lifecycle.reset();
-      }
-    }, holdMs());
-    onCleanup(() => timers.clearTimeout(id));
-  });
+  createEffect(
+    () => (lifecycle.phase() === 'success' ? holdMs() : undefined),
+    (hold) => {
+      if (hold === undefined) return undefined;
+      const id = timers.setTimeout(() => {
+        try {
+          params.onSuccess?.();
+        } finally {
+          lifecycle.reset();
+        }
+      }, hold);
+      return () => timers.clearTimeout(id);
+    }
+  );
 
   const click = (): void => {
     void lifecycle.run();

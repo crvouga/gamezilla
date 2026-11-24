@@ -13,7 +13,7 @@ import type {
   BoardMotionEnvironment,
 } from '@pkgs/chess-board-root-shared-ts/board-motion';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
-import { type Accessor, createSignal } from 'solid-js';
+import { type Accessor, createSignal, untrack } from 'solid-js';
 
 const CELL = /^translate\((-?[\d.]+)cqw, (-?[\d.]+)cqw\)$/;
 
@@ -84,7 +84,9 @@ export function createRecordingMotion(args: {
   const running = new Map<HTMLElement, Running>();
   const earlierCompletion = args.earlierCompletion ?? { callback: undefined };
   const animate: AnimateTransform = (element, from, to, durationMs) => {
-    const o = args.orientation();
+    // The board asks for a slide from its own effects: record it as the
+    // board faces at that moment.
+    const o = untrack(args.orientation);
     const piece = element.dataset['piece'] ?? '?';
     const line = `${piece}:${squareOfTransform(from, o)}>${squareOfTransform(to, o)}@${durationMs}`;
     setSlides((prev) => [...prev, line]);

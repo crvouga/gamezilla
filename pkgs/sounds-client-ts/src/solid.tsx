@@ -31,7 +31,12 @@ import { createSoundEngine } from '@pkgs/sounds-shared-ts/sound-engine';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createMemo, onCleanup, type ParentProps } from 'solid-js';
+import {
+  type Accessor,
+  createMemo,
+  onCleanup,
+  type ParentProps,
+} from 'solid-js';
 
 // ---------------------------------------------------------------------------
 // Audio playback port
@@ -187,15 +192,15 @@ const SoundEngineContext = defineContext<Accessor<SoundEngine>>('SoundEngine');
 export function SoundEngineProvider(props: ParentProps): JSX.Element {
   const prefs = useSoundsPreference();
   const audio = useAudioPlaybackPort();
-  const engine = createMemo<SoundEngine>((prev) => {
-    prev?.dispose();
-    return createSoundEngine({
+  const engine = createMemo<SoundEngine>(() => {
+    const built = createSoundEngine({
       muted: prefs.muted(),
       masterVolume: prefs.masterVolume(),
       audio,
     });
+    onCleanup(() => built.dispose());
+    return built;
   });
-  onCleanup(() => engine().dispose());
   return (
     <SoundEngineContext.Provider value={engine}>
       {props.children}

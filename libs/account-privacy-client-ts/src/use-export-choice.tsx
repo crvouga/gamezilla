@@ -2,8 +2,8 @@ import { requestPersonalDataExportMutation } from '@libs/account-privacy-shared-
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { usePermissions } from '@libs/permissions-client-ts/use-permissions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { type Accessor, createSignal } from 'solid-js';

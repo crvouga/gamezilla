@@ -2,7 +2,7 @@ import type { Assistant } from '@pkgs/assistant-shared-ts/engine';
 import type { SpeakingAvatarProps } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import type { JSX } from '@solidjs/web';
-import { batch, createEffect, createSignal, onCleanup, splitProps } from 'solid-js';
+import { createEffect, createSignal, omit } from 'solid-js';
 import { subscribeAssistantSpeaking } from '../assistant-speaking-bridge';
 
 export type SpeakingAvatarAssistantProps<TPayload = unknown> = {
@@ -17,22 +17,25 @@ export type SpeakingAvatarAssistantProps<TPayload = unknown> = {
 export function SpeakingAvatarAssistant<TPayload = unknown>(
   props: SpeakingAvatarAssistantProps<TPayload>
 ): JSX.Element {
-  const [local, avatarProps] = splitProps(props, ['assistant']);
-  const [message, setMessage] = createSignal('');
-  const [bubbleResolving, setBubbleResolving] = createSignal(false);
-
-  createEffect(() => {
-    setMessage('');
-    setBubbleResolving(false);
-    onCleanup(
-      subscribeAssistantSpeaking(local.assistant, (u) => {
-        batch(() => {
-          setMessage(u.message ?? '');
-          setBubbleResolving(u.bubbleResolving ?? false);
-        });
-      })
-    );
+  const avatarProps = omit(props, 'assistant');
+  // A line belongs to the assistant that spoke it: another assistant starts silent.
+  const [message, setMessage] = createSignal(() => {
+    props.assistant;
+    return '';
   });
+  const [bubbleResolving, setBubbleResolving] = createSignal(() => {
+    props.assistant;
+    return false;
+  });
+
+  createEffect(
+    () => props.assistant,
+    (assistant) =>
+      subscribeAssistantSpeaking(assistant, (u) => {
+        setMessage(u.message ?? '');
+        setBubbleResolving(u.bubbleResolving ?? false);
+      })
+  );
 
   return (
     <SpeakingAvatar

@@ -2,13 +2,23 @@
 
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
-import { type Accessor, createComputed, createContext, createMemo, createSignal, onCleanup, type ParentProps, untrack, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  createSignal,
+  onCleanup,
+  type ParentProps,
+  untrack,
+  useContext,
+} from 'solid-js';
 
 import type { SyncEngine, WatchSubscription } from './sync-engine-port';
 import type { SyncEngineStatus } from './sync-status';
 import { computeWatchQueryIsLoading } from './watch-query-loading';
 
-const EngineContext = createContext<SyncEngine>();
+// `null` is "no provider", so the hook can name the provider to mount.
+const EngineContext = createContext<SyncEngine | null>(null);
 
 /**
  * Whether the mounted engine's identity matches this tab's selected account
@@ -19,11 +29,7 @@ const PaintGateContext = createContext<Accessor<boolean>>(() => true);
 export function SyncEngineProvider(props: ParentProps<{ value: SyncEngine }>) {
   // Stable engine handle: read once on mount by design (not tracked).
   const engine = untrack(() => props.value);
-  return (
-    <EngineContext value={engine}>
-      {props.children}
-    </EngineContext>
-  );
+  return <EngineContext value={engine}>{props.children}</EngineContext>;
 }
 
 export function SyncEnginePaintGateProvider(
@@ -31,17 +37,13 @@ export function SyncEnginePaintGateProvider(
 ) {
   // The accessor itself is the reactive value; its identity is stable.
   const ready = untrack(() => props.ready);
-  return (
-    <PaintGateContext value={ready}>
-      {props.children}
-    </PaintGateContext>
-  );
+  return <PaintGateContext value={ready}>{props.children}</PaintGateContext>;
 }
 
 /** Raw engine instance (stable; no status subscription). */
 export function useSyncEngineInstance(): SyncEngine {
   const engine = useContext(EngineContext);
-  if (engine === undefined) {
+  if (engine === null) {
     throw new Error(
       'useSyncEngine: provider missing — mount inside SyncEngineProvider'
     );
@@ -111,21 +113,26 @@ export function createQuery<T extends Record<string, unknown>>(
   query: Accessor<Sql<T>>
 ): QueryResult<T> {
   const engine = useSyncEngineInstance();
-  const [rows, setRows] = createSignal<readonly T[]>([]);
-  const [hydrated, setHydrated] = createSignal(false);
   const key = createMemo(() => watchKey(query()));
-
-  createComputed(() => {
+  // One watch per key: a changed key releases the watch before it.
+  const watch = createMemo(() => {
     key();
     const sub: WatchSubscription<readonly T[]> = untrack(() =>
       engine.watch(query())
     );
-    const apply = (): void => {
-      setRows(() => sub.getSnapshot());
-      setHydrated(sub.getHydrated());
-    };
-    apply();
-    onCleanup(sub.subscribe(apply));
+    const [changes, setChanges] = createSignal(0);
+    onCleanup(sub.subscribe(() => setChanges((count) => count + 1)));
+    return { sub, changes };
+  });
+  const rows = createMemo(() => {
+    const current = watch();
+    current.changes();
+    return current.sub.getSnapshot();
+  });
+  const hydrated = createMemo(() => {
+    const current = watch();
+    current.changes();
+    return current.sub.getHydrated();
   });
 
   const isLoading = createMemo(() =>

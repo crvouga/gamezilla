@@ -3,7 +3,7 @@ import { BattleshipSetupBoard } from '@libs/battleship-client-ts/battleship-setu
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 // regression: battleship-ship-picker-label-in-name
@@ -45,6 +45,7 @@ test('ship picker names its purpose and whole visible selection through placemen
   setFleet(
     'fleet:carrier@a1h;battleship@a3v;cruiser@c3v;submarine@e3v;destroyer@g3v'
   );
+  flush();
   await user.click(byTestId('setup-ship-picker'));
   await user.click(
     screen.getByRole('option', { name: 'Carrier · A1, across' })

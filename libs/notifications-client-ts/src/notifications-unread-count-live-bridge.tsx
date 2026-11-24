@@ -18,9 +18,12 @@ export function NotificationsUnreadCountLiveBridge(props: {
 }): JSX.Element {
   const publish = useNotificationsUnreadCountPublisher();
   const unreadCount = useNotificationsUnreadCount();
-  createEffect(() => {
-    publish(unreadCount());
-  });
+  createEffect(
+    () => unreadCount(),
+    (count) => {
+      publish(count);
+    }
+  );
   onCleanup(() => {
     publish(BOOT_NOTIFICATIONS_UNREAD_COUNT);
   });

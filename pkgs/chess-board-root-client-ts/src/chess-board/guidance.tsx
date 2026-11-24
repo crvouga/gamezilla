@@ -1,5 +1,5 @@
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
@@ -51,8 +51,13 @@ export function ChessBoardGuidance(props: {
       </P>
       {/* Keep the board anchored when a wrong move temporarily disables input. */}
       <div
-        class={[`box flex-row flex-wrap items-baseline gap-2 ${styles['guidanceRow']}`, { invisible: !props.ctrl.model.interaction().interactive }]}
-        aria-hidden={!props.ctrl.model.interaction().interactive}
+        class={[
+          `box flex-row flex-wrap items-baseline gap-2 ${styles['guidanceRow']}`,
+          { invisible: !props.ctrl.model.interaction().interactive },
+        ]}
+        aria-hidden={
+          props.ctrl.model.interaction().interactive ? 'false' : 'true'
+        }
         inert={!props.ctrl.model.interaction().interactive}
       >
         <P variant="caption" tone="secondary">

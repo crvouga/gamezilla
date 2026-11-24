@@ -21,18 +21,19 @@ function ProfileEntityBootstrap(): JSX.Element {
   const mutationClient = useMutationClient();
   const authClient = useAuthClientPort();
 
-  createEffect(() => {
-    const id = myId();
-    if (id.length === 0) return;
+  createEffect(
     // The bridge writes the provider identity only after the account is ready.
     // An earlier anonymous bootstrap must leave the signup handoff pending.
-    const externalId = externalUserItem.value();
-    void new ProfileEnsurer(mutationClient, authClient)
-      .ensure(typeof externalId === 'string' ? externalId : null)
-      .catch(() => {
-        // Best-effort: re-asserted on the next identity change.
-      });
-  });
+    () => ({ id: myId(), externalId: externalUserItem.value() }),
+    ({ id, externalId }) => {
+      if (id.length === 0) return;
+      void new ProfileEnsurer(mutationClient, authClient)
+        .ensure(typeof externalId === 'string' ? externalId : null)
+        .catch(() => {
+          // Best-effort: re-asserted on the next identity change.
+        });
+    }
+  );
 
   return null;
 }

@@ -1,7 +1,7 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -118,11 +118,13 @@ export function ExportChoice(props: ExportChoiceProps): JSX.Element {
   const { t } = useLingui();
   const request = useMutationButton({
     operation: () => props.onRequest(),
-    labels: {
-      idle: t`Request personal-data export`,
-      loading: t`Requesting…`,
-      success: t`Export requested`,
-      error: t`Try again`,
+    get labels() {
+      return {
+        idle: t`Request personal-data export`,
+        loading: t`Requesting…`,
+        success: t`Export requested`,
+        error: t`Try again`,
+      };
     },
   });
   return (

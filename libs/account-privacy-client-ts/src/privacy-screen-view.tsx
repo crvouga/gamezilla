@@ -1,7 +1,7 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';

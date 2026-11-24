@@ -42,10 +42,13 @@ export function TypingDots(props: TypingDotsProps): JSX.Element {
       <For each={DOT_CLASSES}>
         {(dotClass) => (
           <div
-            class={["box rounded-full", {
-              [String(styles['dot'])]: true,
-              [String(dotClass)]: true,
-            }]}
+            class={[
+              'box rounded-full',
+              {
+                [String(styles['dot'])]: true,
+                [String(dotClass)]: true,
+              },
+            ]}
             style={{
               'background-color': fill(),
               width: cssPx(DOT_SIZE),

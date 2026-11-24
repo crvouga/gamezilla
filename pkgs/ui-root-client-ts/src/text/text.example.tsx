@@ -48,7 +48,10 @@ function Tones(): JSX.Element {
       <For each={COLOR_TONES}>
         {(tone) => (
           <div
-            class={["box rounded-sm", { 'bg-tint-active': tone === 'on-primary' }]}
+            class={[
+              'box rounded-sm',
+              { 'bg-tint-active': tone === 'on-primary' },
+            ]}
           >
             <P variant="label" tone={tone}>
               {tone}

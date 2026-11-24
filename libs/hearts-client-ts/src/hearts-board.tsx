@@ -17,7 +17,7 @@ import {
 } from '@pkgs/ui-root-client-ts/card-table';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, on } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 import { passActionTo, passHeadingTo, passWaiting } from './hearts-copy';
 import {
   handCards,
@@ -161,23 +161,25 @@ function handInstruction(
  * one they refuse says why. A watcher sees the table and no hand.
  */
 export function HeartsBoard(props: GameBoardProps): JSX.Element {
-  const [selected, setSelected] = createSignal<readonly string[]>([]);
-  // A pass sent and not yet answered: shown in progress, not sent twice.
-  const [sending, setSending] = createSignal(false);
   // Memos, so a prop read again with the same value resets nothing.
   const position = createMemo(() => props.position);
   const commitment = createMemo(() => props.commitment);
   const syncKey = createMemo(() => props.syncKey);
   // A new position, or a pass made, ends the choice in progress.
-  createEffect(
-    on([position, commitment], () => {
-      setSelected([]);
-      setSending(false);
-    })
-  );
+  const [selected, setSelected] = createSignal<readonly string[]>(() => {
+    position();
+    commitment();
+    return [];
+  });
+  // A pass sent and not yet answered: shown in progress, not sent twice.
   // A refused or failed pass resets the board: the chosen cards stay, so
   // the person can send them again.
-  createEffect(on(syncKey, () => setSending(false), { defer: true }));
+  const [sending, setSending] = createSignal(() => {
+    position();
+    commitment();
+    syncKey();
+    return false;
+  });
   const passing = () => decodeHearts(props.position)?.phase === 'pass';
   const held = () => parseCards(props.hand ?? '') ?? [];
   // Only cards still held are ever chosen.

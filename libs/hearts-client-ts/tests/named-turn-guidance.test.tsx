@@ -7,7 +7,7 @@ import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 afterEach(cleanup);
@@ -96,9 +96,11 @@ test('the board reads reactive semantic identity rather than the lent JSX', () =
   ));
   expect(byTestId('named-hearts-center').textContent).toBe('Mei Chen to play.');
   setName('Mei Chen updated');
+  flush();
   expect(byTestId('named-hearts-center').textContent).toBe(
     'Mei Chen updated to play.'
   );
   setName(null);
+  flush();
   expect(byTestId('named-hearts-center').textContent).toBe('North to play.');
 });

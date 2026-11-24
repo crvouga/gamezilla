@@ -11,9 +11,9 @@ import { useSearchHistory } from './use-search-history';
 
 /** `/search`: wires `SearchScreenView` to the debounced people search and history. */
 export function SearchScreen(): JSX.Element {
-  const { queries, touch, clear } = useSearchHistory();
+  const history = useSearchHistory();
   const [query, setQuery] = createSignal('');
-  const state = useDebouncedUserSearchEffect(query, touch);
+  const state = useDebouncedUserSearchEffect(query, history.touch);
   const denial = useUserSearchDenial();
   const slots = useSearchResultSlots();
   return (
@@ -21,7 +21,7 @@ export function SearchScreen(): JSX.Element {
       aside={slots.aside?.()}
       requests={slots.requests?.()}
       query={query()}
-      recentQueries={queries}
+      recentQueries={history.queries}
       search={state}
       denial={state.canSearch ? undefined : denial()}
       renderUserRow={(user, query) => (
@@ -29,7 +29,7 @@ export function SearchScreen(): JSX.Element {
       )}
       onQueryChange={setQuery}
       onSelectRecent={setQuery}
-      onClearRecent={clear}
+      onClearRecent={history.clear}
     />
   );
 }

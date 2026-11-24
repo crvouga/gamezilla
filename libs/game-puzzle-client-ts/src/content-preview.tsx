@@ -1,11 +1,12 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 
 export function ContentPreview(props: { definition: string }): JSX.Element {
   const game = useContentGame();
+  const Player = dynamic(() => game.client.Player);
   const initial = createMemo(() => {
     const result = game.content.rules.initial(props.definition);
     return result.accepted ? { state: result.state } : null;
@@ -27,8 +28,7 @@ export function ContentPreview(props: { definition: string }): JSX.Element {
           }
         >
           {(result) => (
-            <Dynamic
-              component={game.client.Player}
+            <Player
               definition={props.definition}
               state={result().state}
               disabled

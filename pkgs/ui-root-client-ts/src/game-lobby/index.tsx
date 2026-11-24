@@ -159,7 +159,7 @@ export function GameLobbyScreen(props: GameLobbyScreenProps): JSX.Element {
         root = el;
       }}
       class={styles['screen']}
-      data-wide={mode() === 'wide'}
+      data-wide={String(mode() === 'wide')}
       {...dataAttrs({
         component: 'GameLobbyScreen',
         ...props.dataSet,
@@ -180,7 +180,7 @@ export function GameLobbyScreen(props: GameLobbyScreenProps): JSX.Element {
         {props.children}
       </ScrollView>
       <Show when={dock.present()}>
-        <footer class={styles['dock']} data-inset={mode() !== 'wide'}>
+        <footer class={styles['dock']} data-inset={String(mode() !== 'wide')}>
           {dock.content()}
         </footer>
       </Show>

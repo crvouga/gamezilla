@@ -1,6 +1,6 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { type Accessor, createMemo, createSignal } from 'solid-js';
+import { type Accessor, createMemo, createSignal, untrack } from 'solid-js';
 import type { MultiplayerMove } from './multiplayer-format';
 import { multiplayerMoves, positionAfter } from './multiplayer-format';
 import { FLIPPED_GAME, useGameMark } from './use-game-mark';
@@ -45,7 +45,7 @@ function useReview(game: Accessor<MultiplayerGame | null>) {
     readonly gameId: string;
     readonly ply: number;
   } | null>(null);
-  const earlier = createMemo((): EarlierPosition | null => {
+  const earlier: Accessor<EarlierPosition | null> = createMemo(() => {
     const at = chosen();
     if (at === null || at.gameId !== game()?.id) return null;
     const fen = positionAfter(moves(), at.ply);
@@ -53,13 +53,18 @@ function useReview(game: Accessor<MultiplayerGame | null>) {
     return { ply: at.ply, move: moves()[at.ply - 1] ?? null, fen };
   });
   const shownPly = (): number => earlier()?.ply ?? moves().length;
-  /** The position after the latest move is the current position. */
+  /**
+   * The position after the latest move is the current position. Asked from
+   * presses and from the places' effect alike, so the game is read as it
+   * stands, never tracked.
+   */
   const show = (ply: number): void => {
-    const current = game();
-    const reviewing =
-      current !== null && ply >= 0 && ply < moves().length
+    const reviewing = untrack(() => {
+      const current = game();
+      return current !== null && ply >= 0 && ply < moves().length
         ? { gameId: current.id, ply }
         : null;
+    });
     setChosen(reviewing);
   };
   return {
@@ -75,7 +80,7 @@ function useReview(game: Accessor<MultiplayerGame | null>) {
       if (at !== null) show(at.ply + 1);
     },
     goToStart: (): void => show(0),
-    returnToCurrent: (): void => show(moves().length),
+    returnToCurrent: (): void => show(untrack(moves).length),
   };
 }
 

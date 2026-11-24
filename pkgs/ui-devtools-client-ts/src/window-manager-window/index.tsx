@@ -140,7 +140,10 @@ export function WindowManagerWindow(
   return (
     <section
       role="group"
-      class={[`box absolute z-1 pointer-events-none overflow-hidden rounded-control border border-solid ${styles['window'] ?? ''}`, { 'border-tint': focused(), 'border-border': !focused() }]}
+      class={[
+        `box absolute z-1 pointer-events-none overflow-hidden rounded-control border border-solid ${styles['window'] ?? ''}`,
+        { 'border-tint': focused(), 'border-border': !focused() },
+      ]}
       data-component={componentId('WindowManagerWindow')}
       {...dataAttrs({
         'window-part': 'window',

@@ -103,7 +103,8 @@ export function SpaceLauncherTile(props: {
 }): JSX.Element {
   const fit = () => spaceGameFit(props.game.players, props.present, props.role);
   const dimmed = () => spaceGameFitDimmed(fit());
-  const suggestedByYou = () => props.game.suggestedBy?.you === true;
+  const pressed = () =>
+    props.game.suggestedBy?.you === true ? 'true' : 'false';
   const press = () => {
     if (props.role === 'guest' && dimmed()) return undefined;
     return props.onPress;
@@ -114,10 +115,10 @@ export function SpaceLauncherTile(props: {
       class={styles['tile']}
       data-game={props.game.key}
       data-testid={props.game.testId}
-      data-dimmed={dimmed()}
-      data-looking={props.looking}
+      data-dimmed={String(dimmed())}
+      data-looking={String(props.looking)}
       aria-disabled={press() === undefined ? 'true' : undefined}
-      aria-pressed={props.role === 'guest' ? suggestedByYou() : undefined}
+      aria-pressed={props.role === 'guest' ? pressed() : undefined}
       onClick={() => press()?.()}
     >
       <span class={styles['art']}>

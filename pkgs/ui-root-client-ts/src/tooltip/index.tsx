@@ -7,7 +7,16 @@ import {
   releaseActiveTooltip,
 } from '@pkgs/ui-root-shared-ts/tooltip-coordinator';
 import type { JSX } from '@solidjs/web';
-import { createContext, createEffect, createSignal, createUniqueId, onCleanup, Show, untrack, useContext } from 'solid-js';
+import {
+  createContext,
+  createEffect,
+  createSignal,
+  createUniqueId,
+  onCleanup,
+  Show,
+  untrack,
+  useContext,
+} from 'solid-js';
 import { FloatingTooltip } from '../floating-tooltip/index';
 import { useHoverCapable } from '../use-hover-capable';
 import styles from './tooltip.module.css';
@@ -86,7 +95,7 @@ function TooltipAnchor(props: {
   return (
     <div
       ref={anchor}
-      class={["box", { [styles['anchor'] ?? '']: true }]}
+      class={['box', { [styles['anchor'] ?? '']: true }]}
       role="presentation"
       onMouseEnter={() => {
         if (hoverCapable()) props.controller.show();
@@ -158,42 +167,48 @@ function TooltipBubble(props: {
   // A static bubble is placed by CSS against its trigger, so beside the
   // screen's edge part of it would fall outside: slide it back in as it
   // opens. A floating one is already placed within the viewport.
-  createEffect(() => {
-    if (!props.controller.visible() || props.floating === true) return;
-    const view = bubble?.ownerDocument.defaultView;
-    if (bubble === undefined || view == null) return;
-    const rect = bubble.getBoundingClientRect();
-    // Nothing is laid out (no renderer): there is no edge to keep clear of.
-    if (rect.width === 0) return;
-    // Where CSS alone put it: the last slide is taken back out, and reading
-    // it never makes this run again.
-    const slid = untrack(shift);
-    const placed = { left: rect.left - slid, right: rect.right - slid };
-    setShift(tooltipEdgeShift(placed, view.innerWidth));
-  });
+  createEffect(
+    () => props.controller.visible() && props.floating !== true,
+    (opened) => {
+      if (!opened) return;
+      const view = bubble?.ownerDocument.defaultView;
+      if (bubble === undefined || view == null) return;
+      const rect = bubble.getBoundingClientRect();
+      // Nothing is laid out (no renderer): there is no edge to keep clear of.
+      if (rect.width === 0) return;
+      // Where CSS alone put it: the last slide is taken back out, and reading
+      // it never makes this run again.
+      const slid = untrack(shift);
+      const placed = { left: rect.left - slid, right: rect.right - slid };
+      setShift(tooltipEdgeShift(placed, view.innerWidth));
+    }
+  );
   return (
     <div
       ref={bubble}
       style={{ translate: shift() === 0 ? undefined : `${shift()}px 0` }}
-      class={["box bg-surface-overlay border border-border shadow-float rounded-sm px-2 py-1 w-max max-w-60", {
-        [styles['bubble'] ?? '']: !props.floating,
-        [styles['floating'] ?? '']: props.floating === true,
-        [styles['top'] ?? '']:
-          !props.floating && tooltipSide(props.placement()) === 'top',
-        [styles['bottom'] ?? '']:
-          !props.floating && tooltipSide(props.placement()) === 'bottom',
-        [styles['start'] ?? '']:
-          !props.floating && tooltipAlign(props.placement()) === 'start',
-        [styles['center'] ?? '']:
-          !props.floating && tooltipAlign(props.placement()) === 'center',
-        [styles['end'] ?? '']:
-          !props.floating && tooltipAlign(props.placement()) === 'end',
-        [styles['open'] ?? '']: props.controller.visible(),
-      }]}
+      class={[
+        'box bg-surface-overlay border border-border shadow-float rounded-sm px-2 py-1 w-max max-w-60',
+        {
+          [styles['bubble'] ?? '']: !props.floating,
+          [styles['floating'] ?? '']: props.floating === true,
+          [styles['top'] ?? '']:
+            !props.floating && tooltipSide(props.placement()) === 'top',
+          [styles['bottom'] ?? '']:
+            !props.floating && tooltipSide(props.placement()) === 'bottom',
+          [styles['start'] ?? '']:
+            !props.floating && tooltipAlign(props.placement()) === 'start',
+          [styles['center'] ?? '']:
+            !props.floating && tooltipAlign(props.placement()) === 'center',
+          [styles['end'] ?? '']:
+            !props.floating && tooltipAlign(props.placement()) === 'end',
+          [styles['open'] ?? '']: props.controller.visible(),
+        },
+      ]}
       {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
       id={props.controller.id}
       role="tooltip"
-      aria-hidden={props.controller.visible() ? undefined : true}
+      aria-hidden={props.controller.visible() ? undefined : 'true'}
     >
       <p class="text textFootnote line-clamp-2 text-text text-center">
         {props.label}

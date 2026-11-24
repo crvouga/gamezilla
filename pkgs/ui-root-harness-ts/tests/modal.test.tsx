@@ -17,7 +17,7 @@ import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 function Dialog(props: {
@@ -83,6 +83,7 @@ describe('ModalRoot', () => {
     ).not.toBeNull();
 
     setOpen(false);
+    flush();
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(trigger).toHaveFocus();
   });
@@ -106,6 +107,7 @@ describe('ModalRoot', () => {
     fireEvent.click(mustQuery('[data-component="ModalContent"]'));
     expect(onClose).toHaveBeenCalledTimes(1);
     setDismiss(false);
+    flush();
     fireEvent.click(mustQuery('[data-component="ModalScrim"]'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
@@ -138,6 +140,7 @@ describe('ModalRoot', () => {
     expect(closeFirst).not.toHaveBeenCalled();
 
     setSecond(false);
+    flush();
     await user.keyboard('{Escape}');
     expect(closeFirst).toHaveBeenCalledTimes(1);
   });
@@ -261,6 +264,7 @@ describe('ConfirmationModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
 
     setSubmitting(true);
+    flush();
     expect(confirm).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeDisabled();
     // Escape is swallowed while submitting.
@@ -268,7 +272,9 @@ describe('ConfirmationModal', () => {
     expect(onCancel).toHaveBeenCalledTimes(1);
 
     setSubmitting(false);
+    flush();
     setError('Still in use');
+    flush();
     expect(screen.getByText('Still in use')).toBeInTheDocument();
     await user.keyboard('{Escape}');
     expect(onCancel).toHaveBeenCalledTimes(2);

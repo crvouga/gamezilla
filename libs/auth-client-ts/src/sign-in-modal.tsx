@@ -14,10 +14,10 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AuthLinkRequiredError } from '@pkgs/auth-root-client-ts/auth-link-required-error';
 import type { SignInOptions } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
@@ -26,7 +26,15 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createSignal, Match, on, Show, Switch } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createSignal,
+  Match,
+  Show,
+  Switch,
+  untrack,
+} from 'solid-js';
 import { authFlowErrorMessage } from './auth-flow-messages';
 import { EmailSignInSurface } from './email-sign-in-surface';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
@@ -61,21 +69,20 @@ function useResetOnClose(args: {
 }): void {
   const wasVisibleRef = { current: false };
   createEffect(
-    on(
-      args.visible,
-      (visible) => {
-        if (visible) {
-          wasVisibleRef.current = true;
-          return;
-        }
-        if (!wasVisibleRef.current) return;
-        const phase = args.phase();
-        if (phase === 'loading') return;
-        if (phase === 'success') return;
-        args.reset();
-      },
-      { defer: true }
-    )
+    () => args.visible(),
+    (visible) => {
+      if (visible) {
+        wasVisibleRef.current = true;
+        return;
+      }
+      if (!wasVisibleRef.current) return;
+      // Closing is the event; the phase is only looked up when it happens.
+      const phase = untrack(args.phase);
+      if (phase === 'loading') return;
+      if (phase === 'success') return;
+      args.reset();
+    },
+    { defer: true }
   );
 }
 
@@ -87,9 +94,10 @@ function useEmailSurface(args: {
   visible: () => boolean;
   start: (runner: () => Promise<void>) => Promise<void>;
 }) {
-  const [open, setOpen] = createSignal(false);
-  createEffect(() => {
-    if (!args.visible()) setOpen(false);
+  // Starts closed again whenever the sign-in surface shows or hides.
+  const [open, setOpen] = createSignal<boolean>(() => {
+    args.visible();
+    return false;
   });
   return {
     visible: () => args.visible() && open(),

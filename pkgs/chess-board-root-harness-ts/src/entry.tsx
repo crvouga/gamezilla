@@ -2,7 +2,6 @@
 /** @jsxImportSource @solidjs/web */
 import './styles.css';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { Square } from '@pkgs/chess-board-core-shared-ts/types';
 import {
   BoardMotionProvider,
@@ -12,6 +11,7 @@ import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { render } from '@solidjs/web';

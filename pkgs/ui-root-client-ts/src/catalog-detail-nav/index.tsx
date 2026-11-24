@@ -13,7 +13,7 @@ import type { CatalogItem } from '@pkgs/ui-root-shared-ts/catalog-item';
 import { resolveCatalogNeighbor } from '@pkgs/ui-root-shared-ts/catalog-item';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
@@ -35,6 +35,7 @@ function NavButton(props: {
   target: CatalogItem | null;
   onNavigate: (id: string) => void;
 }): JSX.Element {
+  const NavIcon = dynamic(() => props.icon);
   return (
     <button
       class="clickable clickableOpacity items-center justify-center"
@@ -57,7 +58,7 @@ function NavButton(props: {
           height: cssPx(NAV_VISUAL_SIZE),
         }}
       >
-        <props.icon size={18} />
+        <NavIcon size={18} />
       </div>
     </button>
   );

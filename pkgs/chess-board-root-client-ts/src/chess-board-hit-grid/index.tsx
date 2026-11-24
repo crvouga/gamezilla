@@ -2,9 +2,9 @@
 /**
  * 8×8 grid of square buttons for focus, screen readers and test ids. It is
  * static: 64 buttons created once in a8 → h1 order, never reordered (black's
- * orientation changes only square transforms), with one native `focusin`
- * listener for all of them and a selector so moving the cursor touches only
- * the two buttons whose `tabIndex` changes. It takes no pointer events (the
+ * orientation changes only square transforms), with one `focusin` listener
+ * for all of them and a memo per square so moving the cursor touches only
+ * the two buttons whose `tabindex` changes. It takes no pointer events (the
  * board host handles those) and sits under the pieces, so a sliding piece
  * never has a layer above it to composite.
  */
@@ -22,7 +22,7 @@ import type {
 } from '@pkgs/chess-board-core-shared-ts/types';
 import { cellTransform } from '@pkgs/chess-board-root-shared-ts/board-units';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createMemo, createSelector, For } from 'solid-js';
+import { type Accessor, createMemo, For } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
@@ -66,13 +66,11 @@ function squareName(square: Square, position: Position): string {
 }
 
 export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
-  const isCursor = createSelector(() => props.cursor);
-  const isSelected = createSelector(() => props.selected());
   const targets = createMemo(() => new Set(props.legalTargets()));
   return (
     <div
       class={`box absolute inset-0 ${styles['grid']}`}
-      on:focusin={(e) => {
+      onFocusIn={(e) => {
         const square = (e.target as HTMLElement).dataset['square'];
         if (square !== undefined) props.onSquareFocus(square as Square);
       }}
@@ -85,6 +83,8 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
             return feedback === undefined ? name : `${name}, ${feedback}`;
           });
           const legal = createMemo(() => targets().has(square));
+          const isCursor = createMemo(() => props.cursor === square);
+          const isSelected = createMemo(() => props.selected() === square);
           return (
             <button
               type="button"
@@ -93,9 +93,9 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
               data-testid={chessBoardSquareTestId(props.boardTestId, square)}
               data-square={square}
               aria-label={`${label()}${legal() ? ', Legal destination' : ''}`}
-              aria-pressed={isSelected(square)}
-              aria-disabled={!props.interactive}
-              tabIndex={isCursor(square) ? 0 : -1}
+              aria-pressed={isSelected() ? 'true' : 'false'}
+              aria-disabled={props.interactive ? 'false' : 'true'}
+              tabindex={isCursor() ? 0 : -1}
               onClick={(event) => {
                 // Pointer gestures already commit through the board host.
                 // Assistive activation emits only a click, with no press.

@@ -2,7 +2,7 @@ import type {
   ContentDocument,
   ContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-types';
-import { type Accessor, createEffect, createSignal } from 'solid-js';
+import { type Accessor, createEffect, createSignal, untrack } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { useContentAuthorPublication } from './use-content-author-publication';
 import { useContentCopyChoice } from './use-content-copy-choice';
@@ -54,15 +54,14 @@ export function useContentAuthorWorkspace(
   const [withdrawing, setWithdrawing] = createSignal(false);
   const packPending = () =>
     packTools.change.loading() || packTools.create.feedback() === 'loading';
-  createEffect(() => {
-    const draft = data
-      .content()
-      .drafts.find((entry) => entry.id === adopting());
-    if (draft !== undefined) {
-      writer.adopt(draft);
+  createEffect(
+    () => data.content().drafts.find((entry) => entry.id === adopting()),
+    (draft) => {
+      if (draft === undefined) return;
+      untrack(() => writer.adopt(draft));
       setAdopting(null);
     }
-  });
+  );
   const disabled = () =>
     writer.saving() || adopting() !== null || packPending();
   const conflicted = () =>

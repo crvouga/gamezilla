@@ -9,7 +9,7 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, flush } from 'solid-js';
 
 import { BOARD_PX, centerOf, noopAudio } from './board-fixture';
 
@@ -30,8 +30,8 @@ function mountParent() {
   let seenByEffect: string | null = null;
   const inOnMove: (string | null)[] = [];
   const result = renderWithI18n(() => {
-    createEffect(() => {
-      seenByEffect = last();
+    createEffect(last, (value) => {
+      seenByEffect = value;
     });
     return (
       <ClockProvider clock={clock} timers={timers}>
@@ -51,6 +51,8 @@ function mountParent() {
                 dataSet={{ testid: 'parent-board' }}
                 onMove={(m: Move) => {
                   setLast(`${m.from}${m.to}`);
+                  // A parent that needs its effect now settles its own write.
+                  flush();
                   inOnMove.push(seenByEffect);
                 }}
               />

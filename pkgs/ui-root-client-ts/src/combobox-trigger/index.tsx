@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type {
@@ -49,10 +50,13 @@ function SingleSummary<T extends ComboboxValue>(props: {
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <label
-        class={["text textBody line-clamp-1 flex-1 min-w-0", {
-          'text-text': props.selected !== undefined,
-          'text-text-secondary': props.selected === undefined,
-        }]}
+        class={[
+          'text textBody line-clamp-1 flex-1 min-w-0',
+          {
+            'text-text': props.selected !== undefined,
+            'text-text-secondary': props.selected === undefined,
+          },
+        ]}
       >
         {props.selected?.label ?? props.placeholder}
       </label>
@@ -69,7 +73,10 @@ export function ComboboxTrigger<T extends ComboboxValue>(
   const showClear = (): boolean => props.onClear !== undefined && hasChips();
   return (
     <div
-      class={["input box flex-row items-center gap-2", { 'ps-2': hasChips(), 'opacity-disabled': props.disabled }]}
+      class={[
+        'input box flex-row items-center gap-2',
+        { 'ps-2': hasChips(), 'opacity-disabled': props.disabled },
+      ]}
       data-component="ComboboxField"
     >
       <Show when={hasChips()}>
@@ -84,7 +91,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
         role="combobox"
-        aria-expanded={props.open}
+        aria-expanded={ariaBoolean(props.open)}
         aria-controls={props.listboxId}
         aria-haspopup="listbox"
         aria-label={props['aria-label']}

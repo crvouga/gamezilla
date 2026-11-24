@@ -50,7 +50,6 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
   // Equal membership keeps endpoints and statuses still while a path grows.
   const connected = createMemo(
     () => new Set(connectedPairs(props.definition, props.state)),
-    new Set<string>(),
     { equals: sameMembers }
   );
   const endpoints = createMemo(() =>

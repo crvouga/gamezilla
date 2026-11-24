@@ -3,7 +3,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { AppStage } from '@pkgs/ui-devtools-client-ts/app-stage';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 function mount(start = 'alice') {
@@ -43,12 +43,15 @@ describe('AppStage', () => {
     expect(mounts).toEqual({ alice: 1, bob: 1 });
 
     setShown('logs');
+    flush();
     expect(shownViews()).toEqual(['logs']);
     expect(mounts).toEqual({ alice: 1, bob: 1, logs: 1 });
 
     // Back and forth mounts nothing a second time.
     setShown('bob');
+    flush();
     setShown('logs');
+    flush();
     expect(mounts).toEqual({ alice: 1, bob: 1, logs: 1 });
     expect(screen.getByText('alice app')).toBeInTheDocument();
   });

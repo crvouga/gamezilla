@@ -28,8 +28,8 @@ export function GameClock(props: {
   return (
     <div
       class={styles['clock']}
-      data-active={props.active === true}
-      data-low={props.low === true}
+      data-active={String(props.active === true)}
+      data-low={String(props.low === true)}
       role="timer"
       // The name sits on the timer: a generic span may not carry one.
       aria-label={props.ariaLabel}
@@ -42,7 +42,7 @@ export function GameClock(props: {
       </Show>
       <span
         class={`${styles['clockValue']} text textLabel textNumeral`}
-        data-low={props.low === true}
+        data-low={String(props.low === true)}
         {...dataAttrs({ component: 'GameClockValue', ...props.dataSet })}
       >
         {props.value}

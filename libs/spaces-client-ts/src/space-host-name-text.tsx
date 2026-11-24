@@ -12,7 +12,7 @@ export type SpaceHostNameTextProps = {
 };
 
 export function SpaceHostNameText(props: SpaceHostNameTextProps): JSX.Element {
-  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const host = useSpaceHostMembershipDisplay(() => props.spaceId);
   return (
     <UserUsername
       profileId={host()?.profileId ?? null}

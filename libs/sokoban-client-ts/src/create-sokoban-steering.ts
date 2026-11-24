@@ -7,7 +7,7 @@ import type {
   SokobanDirection,
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
-import { type Accessor, createEffect, createSignal, on } from 'solid-js';
+import { type Accessor, createEffect, createSignal, untrack } from 'solid-js';
 import { cellOf } from './sokoban-board-view';
 
 /** Moves pressed while the last one is still being kept wait here, at most this many. */
@@ -24,10 +24,12 @@ export function createSokobanSteering(args: {
   readonly disabled: Accessor<boolean>;
   readonly onAction: (action: string) => void;
 }) {
-  const [refusal, setRefusal] = createSignal<{
-    readonly code: string;
-    readonly message: string;
-  } | null>(null);
+  type Refusal = { readonly code: string; readonly message: string };
+  // A refusal is about the position it was pressed on.
+  const [refusal, setRefusal] = createSignal((): Refusal | null => {
+    args.position();
+    return null;
+  });
   const [queued, setQueued] = createSignal<readonly SokobanDirection[]>([]);
   const [queueOverflow, setQueueOverflow] = createSignal(false);
   const attempt = (direction: SokobanDirection): void => {
@@ -52,14 +54,14 @@ export function createSokobanSteering(args: {
     }
     setQueued((waiting) => [...waiting, direction]);
   };
-  createEffect(on(args.position, () => setRefusal(null), { defer: true }));
   createEffect(
-    on([args.disabled, args.position], ([disabled]) => {
-      const [next, ...rest] = queued();
+    () => [args.disabled(), args.position()] as const,
+    ([disabled]) => {
+      const [next, ...rest] = untrack(queued);
       if (disabled || next === undefined) return;
       setQueued(rest);
-      attempt(next);
-    })
+      untrack(() => attempt(next));
+    }
   );
   /** A tap beside the worker steps toward it; any other tap does nothing. */
   const tap = (index: number): void => {

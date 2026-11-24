@@ -59,7 +59,7 @@ export function createIcon(shapes: IconNode): IconComponent {
         class="box inline-flex items-center justify-center shrink-0"
         role={props.label === undefined ? undefined : 'img'}
         aria-label={props.label}
-        aria-hidden={props.label === undefined ? true : undefined}
+        aria-hidden={props.label === undefined ? 'true' : undefined}
         {...componentDataAttrs('Icon', props.dataSet)}
       >
         <svg

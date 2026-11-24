@@ -67,9 +67,12 @@ export function SyncStatusLiveBridge(props: {
   readonly status: Accessor<SyncEngineStatus>;
 }): JSX.Element {
   const publish = useSyncStatusPublisher();
-  createEffect(() => {
-    publish(props.status());
-  });
+  createEffect(
+    () => props.status(),
+    (status) => {
+      publish(status);
+    }
+  );
   onCleanup(() => {
     publish(BOOT_SYNC_STATUS);
   });

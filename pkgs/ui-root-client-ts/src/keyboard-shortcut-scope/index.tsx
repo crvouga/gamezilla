@@ -7,7 +7,9 @@ import { type Accessor, createContext, useContext } from 'solid-js';
  * `undefined` = no gate (standalone). Hosts set `active` so only one sibling
  * subtree owns shortcuts at a time.
  */
-const KeyboardShortcutScopeContext = createContext<Accessor<boolean>>();
+const KeyboardShortcutScopeContext = createContext<Accessor<boolean> | null>(
+  null
+);
 
 export function KeyboardShortcutScope(props: {
   readonly active: boolean;
@@ -25,5 +27,5 @@ export function KeyboardShortcutScope(props: {
 export function useKeyboardShortcutScopeOptional():
   | Accessor<boolean>
   | undefined {
-  return useContext(KeyboardShortcutScopeContext);
+  return useContext(KeyboardShortcutScopeContext) ?? undefined;
 }

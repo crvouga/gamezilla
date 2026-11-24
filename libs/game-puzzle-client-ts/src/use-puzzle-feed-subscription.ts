@@ -7,7 +7,12 @@ import {
   puzzlePoolRangesForRating,
 } from '@libs/game-puzzle-shared-ts/feed-config';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
 
@@ -35,33 +40,36 @@ export function usePuzzleFeedSubscription(
   // The game's share of the catalogue; the durable game's reads name none.
   const scope = namespace === '' ? {} : { namespace };
   const rating = useEffectivePuzzleRatingFor(config);
-  const [poolReady, setPoolReady] = createSignal(false);
-  const ranges = createMemo(() => puzzlePoolRangesForRating(rating()), [], {
+  const ranges = createMemo(() => puzzlePoolRangesForRating(rating()), {
     equals: (a, b) => rangesKey(a) === rangesKey(b),
   });
   // Band-centred, so it changes only when the bands do.
   const nearestRating = createMemo(() => puzzleNearestRating(rating()));
-  createEffect(() => {
-    setPoolReady(false);
-    const bands = ranges();
-    const handle = sync.subscribeQueries([
-      ...bands.map((range) => ({
-        name: POOL_QUERY_NAME,
-        params: { ...range, ...scope },
-      })),
-      {
-        name: NEAREST_QUERY_NAME,
-        params: { rating: nearestRating(), ...scope },
-      },
-    ]);
-    let live = true;
-    void handle.ready.then((ready) => {
-      if (live && ready) setPoolReady(true);
-    });
-    onCleanup(() => {
-      live = false;
-      handle.unsubscribe();
-    });
+  // Other bands are not ready until their own hydrate lands.
+  const [poolReady, setPoolReady] = createSignal((): boolean => {
+    ranges();
+    nearestRating();
+    return false;
   });
+  createEffect(
+    () => ({ bands: ranges(), nearest: nearestRating() }),
+    ({ bands, nearest }) => {
+      const handle = sync.subscribeQueries([
+        ...bands.map((range) => ({
+          name: POOL_QUERY_NAME,
+          params: { ...range, ...scope },
+        })),
+        { name: NEAREST_QUERY_NAME, params: { rating: nearest, ...scope } },
+      ]);
+      let live = true;
+      void handle.ready.then((ready) => {
+        if (live && ready) setPoolReady(true);
+      });
+      return () => {
+        live = false;
+        handle.unsubscribe();
+      };
+    }
+  );
   return poolReady;
 }

@@ -28,7 +28,14 @@ import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
-import { createMemo, createUniqueId, Match, Show, Switch, untrack } from 'solid-js';
+import {
+  createMemo,
+  createUniqueId,
+  Match,
+  Show,
+  Switch,
+  untrack,
+} from 'solid-js';
 
 const config = pongConfig();
 
@@ -315,7 +322,6 @@ function useCourtStatus(props: {
         servingToward: props.state.servingToward,
       };
     },
-    undefined,
     { equals: sameStatusInput }
   );
   const status = createMemo(() =>

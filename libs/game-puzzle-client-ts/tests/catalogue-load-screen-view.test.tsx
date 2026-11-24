@@ -22,7 +22,7 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -414,6 +414,7 @@ describe('the confirmed stop', () => {
     fireEvent.click(screen.getByTestId('puzzle-load-stop'));
     expect(modal()).not.toBeNull();
     setSaving(false);
+    flush();
     expect(shown('puzzle-load-hub')).toBe(true);
     expect(modal()).toBeNull();
   });

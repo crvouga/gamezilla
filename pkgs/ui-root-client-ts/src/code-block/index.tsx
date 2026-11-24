@@ -50,7 +50,7 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element {
   return (
     <pre
       class={codeBlockClass(props)}
-      tabIndex={props.wrap === true ? undefined : 0}
+      tabindex={props.wrap === true ? undefined : 0}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('CodeBlock')}

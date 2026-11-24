@@ -2,7 +2,7 @@
 
 import { sequentialFocusOrder } from '@pkgs/a11y-shared-ts/focus';
 import type { JSX } from '@solidjs/web';
-import { createContext, onCleanup, onSettled, useContext } from 'solid-js';
+import { createContext, onSettled, useContext } from 'solid-js';
 
 type LiveScreen = { readonly root: HTMLElement; readonly id: () => string };
 
@@ -15,7 +15,7 @@ type ScreenFocusMemory = {
   pending: boolean;
 };
 
-const ScreenFocusContext = createContext<ScreenFocusMemory>();
+const ScreenFocusContext = createContext<ScreenFocusMemory | null>(null);
 
 /**
  * Where the keyboard goes when one screen replaces another (WCAG 2.4.3 Focus
@@ -38,9 +38,7 @@ export function ScreenFocusProvider(props: {
     pending: false,
   };
   return (
-    <ScreenFocusContext value={memory}>
-      {props.children}
-    </ScreenFocusContext>
+    <ScreenFocusContext value={memory}>{props.children}</ScreenFocusContext>
   );
 }
 
@@ -120,15 +118,16 @@ export function useScreenFocus(
   screenId: () => string
 ): void {
   const memory = useContext(ScreenFocusContext);
-  if (memory === undefined) return;
+  if (memory === null) return;
   onSettled(() => {
     const element = root();
-    if (element === undefined) return;
+    if (element === undefined) return undefined;
     const tracked: Tracked = { last: undefined, holding: false };
     const detach = trackKeyboard(element, tracked);
     const screen: LiveScreen = { root: element, id: screenId };
     memory.live.push(screen);
-    onCleanup(() => {
+    queueMicrotask(() => handOver(memory));
+    return () => {
       detach();
       memory.live.splice(memory.live.indexOf(screen), 1);
       if (tracked.last === undefined) memory.places.delete(screenId());
@@ -138,7 +137,6 @@ export function useScreenFocus(
       memory.pending = true;
       // After the navigation has swapped the screens and closed its menus.
       queueMicrotask(() => handOver(memory));
-    });
-    queueMicrotask(() => handOver(memory));
+    };
   });
 }

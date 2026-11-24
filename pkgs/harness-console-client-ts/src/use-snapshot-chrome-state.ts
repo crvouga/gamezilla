@@ -1,5 +1,5 @@
 import type { ProductHarnessSnapshotInfo } from '@pkgs/harness-console-shared-ts/ports';
-import { createEffect, createMemo, createSignal } from 'solid-js';
+import { createMemo, createSignal } from 'solid-js';
 import type { useProductHarnessSnapshots } from './use-product-harness-snapshots';
 
 export type SortKey = 'newest' | 'oldest';
@@ -30,24 +30,16 @@ function snapByIdMap(
 function useCheckedSnapshotIds(
   snaps: () => readonly ProductHarnessSnapshotInfo[]
 ) {
+  // Only snapshots that still exist stay checked.
   const [checkedIds, setCheckedIds] = createSignal<ReadonlySet<string>>(
-    new Set<string>()
-  );
-
-  createEffect(() => {
-    const current = snaps();
-    if (current.length === 0) {
-      setCheckedIds(new Set<string>());
-      return;
-    }
-    setCheckedIds((prev) => {
+    (prev: ReadonlySet<string> | undefined) => {
       const next = new Set<string>();
-      for (const s of current) {
-        if (prev.has(s.id)) next.add(s.id);
+      for (const s of snaps()) {
+        if (prev?.has(s.id)) next.add(s.id);
       }
-      return next.size === prev.size ? prev : next;
-    });
-  });
+      return prev !== undefined && next.size === prev.size ? prev : next;
+    }
+  );
 
   const onToggleChecked = (id: string, next: boolean) => {
     setCheckedIds((prev) => {
@@ -73,20 +65,16 @@ function useCheckedSnapshotIds(
 function useSelectedSnapshotId(
   snaps: () => readonly ProductHarnessSnapshotInfo[]
 ) {
-  const [selectedId, setSelectedId] = createSignal<string | null>(null);
-
-  createEffect(() => {
-    const current = snaps();
-    if (current.length === 0) {
-      setSelectedId(null);
-      return;
-    }
-    setSelectedId((prev) => {
-      if (prev !== null && current.some((s) => s.id === prev)) return prev;
+  // The selection follows the list: a snapshot that is gone gives way to the
+  // first one that can be loaded.
+  const [selectedId, setSelectedId] = createSignal<string | null>(
+    (prev: string | null | undefined) => {
+      const current = snaps();
+      if (prev != null && current.some((s) => s.id === prev)) return prev;
       const firstCompatible = current.find((s) => s.compatible);
-      return (firstCompatible ?? current[0])!.id;
-    });
-  });
+      return (firstCompatible ?? current[0])?.id ?? null;
+    }
+  );
 
   return {
     get selectedId() {

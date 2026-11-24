@@ -11,7 +11,7 @@ import {
 } from '@pkgs/sync-engine-client-ts/sync-status';
 import { StaticAppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { cleanup, render, waitFor } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -91,7 +91,10 @@ function profileProbe(initialStatus: Partial<SyncEngineStatus> = {}) {
   if (state === undefined) throw new Error('Profile probe did not mount');
   return {
     state,
-    setId,
+    setId: (next: string) => {
+      setId(next);
+      flush();
+    },
     subscriptions,
     unmount: view.unmount,
     refreshes: () => refreshes,
@@ -100,10 +103,12 @@ function profileProbe(initialStatus: Partial<SyncEngineStatus> = {}) {
     ) => {
       rows = next;
       for (const listener of rowListeners) listener();
+      flush();
     },
     setStatus: (next: Partial<SyncEngineStatus>) => {
       status = { ...status, ...next };
       for (const listener of listeners) listener(status);
+      flush();
     },
   };
 }

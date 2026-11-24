@@ -10,7 +10,13 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, on, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  Show,
+  untrack,
+} from 'solid-js';
 import { useGamesRegistry } from './games-registry-context';
 import { SpaceHomeScreenView } from './space-home-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';
@@ -30,12 +36,16 @@ function OpenLinkedGame(props: {
   readonly onSelectGame: (game: SelectedGameId) => void;
 }): null {
   const params = useLocalSearchParams<{ game?: string | undefined }>();
-  createEffect(() => {
-    const game = params()[SPACE_GAME_PARAM];
-    if (game === undefined || !props.canSelectGame) return;
-    const linked = props.games.find((g) => g.id === game);
-    if (linked !== undefined) untrack(() => props.onSelectGame(linked.id));
-  });
+  createEffect(
+    () => {
+      const game = params()[SPACE_GAME_PARAM];
+      if (game === undefined || !props.canSelectGame) return undefined;
+      return props.games.find((g) => g.id === game)?.id;
+    },
+    (linked) => {
+      if (linked !== undefined) untrack(() => props.onSelectGame)(linked);
+    }
+  );
   return null;
 }
 
@@ -74,9 +84,13 @@ export function GamesMainMenu(): JSX.Element {
     useOfflineGameBrowse(selectedGame);
   const { spaceId } = useSpaceSessionUi();
   const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
-  const [hostChooses, setHostChooses] = createSignal(false);
+  // The answer belongs to the game it was given on: a new game withdraws it.
+  const [hostChooses, setHostChooses] = createSignal(() => {
+    shownGame();
+    return false;
+  });
   // A guest is told why going back did nothing, connected or not: only the
-  // host moves the space. The answer belongs to the game it was given on.
+  // host moves the space.
   const onBackToGames = (): void => {
     if (!canSelectGame()) {
       setHostChooses(true);
@@ -84,7 +98,6 @@ export function GamesMainMenu(): JSX.Element {
     }
     showList();
   };
-  createEffect(on(shownGame, () => setHostChooses(false), { defer: true }));
   const selectedMenu = createMemo(
     () => games.find((g) => g.id === shownGame()) ?? null
   );

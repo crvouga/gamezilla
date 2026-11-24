@@ -1,4 +1,4 @@
-import { type JSX, Dynamic } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import { type Component, createContext, Show, useContext } from 'solid-js';
 
 const SpaceOfferContext = createContext<Component | null>(null);
@@ -13,9 +13,7 @@ export function SpaceOfferProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <SpaceOfferContext value={props.offer}>
-      {props.children}
-    </SpaceOfferContext>
+    <SpaceOfferContext value={props.offer}>{props.children}</SpaceOfferContext>
   );
 }
 
@@ -23,8 +21,8 @@ export function SpaceOfferProvider(props: {
 export function SpaceOffer(): JSX.Element {
   const offer = useContext(SpaceOfferContext);
   return (
-    <Show when={offer}>
-      <Dynamic component={offer ?? undefined} />
+    <Show when={offer} keyed>
+      {(Offer) => <Offer />}
     </Show>
   );
 }

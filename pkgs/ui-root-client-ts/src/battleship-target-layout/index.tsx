@@ -1,3 +1,4 @@
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createUniqueId, For, Show } from 'solid-js';
@@ -19,7 +20,7 @@ export function BattleshipRegionOverview(props: {
   const descriptionId = createUniqueId();
   return (
     <div
-      data-placement={props.placement === true}
+      data-placement={String(props.placement === true)}
       role="group"
       aria-label={props.label}
       class={styles['navigator']}
@@ -42,7 +43,7 @@ export function BattleshipRegionOverview(props: {
                     : undefined
                 }
                 title={label}
-                aria-pressed={props.region === index()}
+                aria-pressed={ariaBoolean(props.region === index())}
                 disabled={props.disabled}
                 data-testid={`${props.testId}-area-${index()}`}
                 onClick={() => props.onRegion(index())}
@@ -120,7 +121,7 @@ export function BattleshipWholeBoard(props: {
   return (
     <div
       class={styles['whole']}
-      data-finished={props.finished === true}
+      data-finished={String(props.finished === true)}
       {...dataAttrs({ component: 'BattleshipWholeBoard' })}
     >
       {props.children}

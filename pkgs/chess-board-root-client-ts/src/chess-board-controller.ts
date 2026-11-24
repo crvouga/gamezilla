@@ -29,7 +29,14 @@ import {
 import type { PointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
 import { createPointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 import { watchBoardInput } from './board-input-lifecycle';
 import { useBoardMotionEnvironment } from './board-motion-context';
 import styles from './chess-board/chess-board.module.css';
@@ -79,33 +86,34 @@ function useBoardPx(
   sizeProp: Accessor<number | undefined>
 ): Accessor<number> {
   const [measured, setMeasured] = createSignal(0);
-  createEffect(() => {
-    const fixed = sizeProp();
-    if (fixed !== undefined) {
-      setMeasured(normalizeBoardSize(fixed));
-      return;
-    }
-    const node = el();
-    if (node === undefined) return;
-    const apply = (width: number): void => {
-      setMeasured(normalizeBoardSize(width));
-    };
-    apply(node.offsetWidth || node.getBoundingClientRect().width);
-    const onLayout = (): void => {
+  createEffect(
+    () => ({ fixed: sizeProp(), node: el() }),
+    ({ fixed, node }) => {
+      if (fixed !== undefined) {
+        setMeasured(normalizeBoardSize(fixed));
+        return;
+      }
+      if (node === undefined) return;
+      const apply = (width: number): void => {
+        setMeasured(normalizeBoardSize(width));
+      };
       apply(node.offsetWidth || node.getBoundingClientRect().width);
-    };
-    const stopResize = observeElementResize(node, (entry) => {
-      apply(
-        entry?.borderBoxSize[0]?.inlineSize ??
-          (entry?.contentRect.width ?? 0) + 2 * node.clientLeft
-      );
-    });
-    node.addEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
-    onCleanup(() => {
-      stopResize();
-      node.removeEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
-    });
-  });
+      const onLayout = (): void => {
+        apply(node.offsetWidth || node.getBoundingClientRect().width);
+      };
+      const stopResize = observeElementResize(node, (entry) => {
+        apply(
+          entry?.borderBoxSize[0]?.inlineSize ??
+            (entry?.contentRect.width ?? 0) + 2 * node.clientLeft
+        );
+      });
+      node.addEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
+      return () => {
+        stopResize();
+        node.removeEventListener(ELEMENT_LAYOUT_EVENT, onLayout);
+      };
+    }
+  );
   return () => {
     const fixed = sizeProp();
     if (fixed !== undefined) return normalizeBoardSize(fixed);
@@ -146,12 +154,17 @@ function createMotion(props: ChessBoardProps) {
     })
   );
   const animator = createPieceAnimator({
-    animate: () => (env.hidden() ? null : env.animate),
+    // Asked at each placement, which effects make: whether the page is
+    // hidden at that moment.
+    animate: () => (untrack(env.hidden) ? null : env.animate),
     paintedTransform: env.paintedTransform,
   });
-  createEffect(() => {
-    if (!motion().slides) animator.dispose();
-  });
+  createEffect(
+    () => motion().slides,
+    (slides) => {
+      if (!slides) animator.dispose();
+    }
+  );
   onCleanup(animator.dispose);
   return { motion, animator, hidden: env.hidden };
 }
@@ -224,10 +237,12 @@ function createInput(args: {
     lifted: styles['lifted'] ?? '',
   });
   onCleanup(drag.dispose);
+  // The pointer reads the board as it is at each event, and when an effect
+  // ends a press: never as a dependency.
   const pointer = new BoardPointer({
-    boardPx: parts.boardPx,
-    orientation: parts.orientation,
-    enableUserArrows: () => props.enableUserArrows === true,
+    boardPx: () => untrack(parts.boardPx),
+    orientation: () => untrack(parts.orientation),
+    enableUserArrows: () => untrack(() => props.enableUserArrows === true),
     session: parts.session,
     actions: parts.model.actions,
     userShapes: parts.userShapes,
@@ -235,17 +250,16 @@ function createInput(args: {
     drag,
     hover: createHoverSquare(hoverEl, styles['hoverTouch'] ?? ''),
     animator: parts.animator,
-    motion: parts.motion,
+    motion: () => untrack(parts.motion),
     haptics: args.haptics,
     dragActiveClass: styles['dragActive'] ?? '',
     setTouch: parts.setTouch,
   });
   watchBoardInput(props, parts, pointer);
-  createEffect(() => {
-    const node = args.host();
-    if (node === undefined) return;
-    onCleanup(pointer.attach(node));
-  });
+  createEffect(
+    () => args.host(),
+    (node) => (node === undefined ? undefined : pointer.attach(node))
+  );
   const onKeyDown = createBoardKeyHandler({
     host: args.host,
     orientation: parts.orientation,

@@ -4,7 +4,15 @@ import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { collectTabbable } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, createUniqueId, onCleanup, Show, untrack } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  onSettled,
+  Show,
+  untrack,
+} from 'solid-js';
 import type { FloatingMenuPlacement } from '../floating-menu-position';
 import { computeFloatingMenuPosition } from '../floating-menu-position';
 import { OnColorReset } from '../on-color-context/index';
@@ -65,9 +73,8 @@ function usePopoverLifecycle(args: {
   anchor: () => HTMLElement | undefined;
   close: (reason: CloseReason) => void;
 }): void {
-  createEffect(() => {
-    const panel = args.panel();
-    if (panel === undefined) return;
+  createEffect(args.panel, (panel) => {
+    if (panel === undefined) return undefined;
     (collectTabbable(panel)[0] ?? panel).focus();
     const onPointerDown = (event: PointerEvent): void => {
       if (contains(panel, event.target)) return;
@@ -76,10 +83,10 @@ function usePopoverLifecycle(args: {
     };
     document.addEventListener('pointerdown', onPointerDown, true);
     const unsubscribe = pushEscapeDismissHandler(() => args.close('escape'));
-    onCleanup(() => {
+    return () => {
       document.removeEventListener('pointerdown', onPointerDown, true);
       unsubscribe();
-    });
+    };
   });
 }
 
@@ -97,11 +104,11 @@ function PopoverPanel(props: {
   const layout = useThemeLayout();
   const [height, setHeight] = createSignal(0);
   let panel: HTMLDivElement | undefined;
-  createEffect(() => {
-    if (panel === undefined) return;
+  onSettled(() => {
+    if (panel === undefined) return undefined;
     setHeight(panel.getBoundingClientRect().height);
     props.ref(panel);
-    onCleanup(() => props.ref(undefined));
+    return () => props.ref(undefined);
   });
   const viewport = () => {
     const host = hostFrame();
@@ -139,7 +146,7 @@ function PopoverPanel(props: {
           data-component={componentId('Popover')}
           role="dialog"
           aria-label={props.label}
-          tabIndex={-1}
+          tabindex={-1}
         >
           {props.children}
         </div>
@@ -187,6 +194,7 @@ function PopoverPanel(props: {
 export function Popover(props: PopoverProps): JSX.Element {
   const id = `popover-${createUniqueId()}`;
   const hostFrame = useSurfaceStackHostFrame();
+  // Its own state starts where the caller's `open` stood at the first render.
   const [own, setOwn] = createSignal(untrack(() => props.open ?? false));
   const [panel, setPanel] = createSignal<HTMLElement | undefined>();
   const [anchor, setAnchor] = createSignal<HTMLElement | undefined>();

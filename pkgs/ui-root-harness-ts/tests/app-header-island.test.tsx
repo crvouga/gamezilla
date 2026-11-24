@@ -9,7 +9,7 @@ import { HouseIcon, SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createContext, createSignal, Show, useContext } from 'solid-js';
+import { createContext, createSignal, flush, Show, useContext } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const WIDE = { width: 1280, height: 900 };
@@ -135,10 +135,12 @@ test('screen breadcrumbs replace root pills, retain navigation and reset after u
   await userEvent.setup().click(screen.getByRole('link', { name: 'Profile' }));
   expect(ancestor).toHaveBeenCalledTimes(1);
   setTitle('Avatar');
+  flush();
   expect(nav.querySelector('[aria-current="page"]')?.textContent).toBe(
     'Avatar'
   );
   setOpen(false);
+  flush();
   expect(screen.queryByRole('navigation', { name: 'Breadcrumb' })).toBeNull();
   expect(screen.getByRole('button', { name: 'Profile tab' })).toBeTruthy();
 });
@@ -261,6 +263,7 @@ test('persistent shell resolves newly routed ancestors to their named destinatio
     WIDE
   );
   setRouted(true);
+  flush();
   await userEvent.setup().click(screen.getByRole('link', { name: 'Profile' }));
   expect(push).toHaveBeenCalledWith('/profile');
   expect(back).not.toHaveBeenCalled();

@@ -8,7 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/data-table';
 import { screen, within } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 type Worker = { id: string; active: number };
@@ -90,6 +90,7 @@ describe('DataTable', () => {
     await user.click(screen.getByRole('button', { name: 'Retry' }));
     expect(retry).toHaveBeenCalledTimes(1);
     setRows(WORKERS);
+    flush();
     expect(screen.getByText('Workers could not be loaded.')).toBeTruthy();
     expect(screen.getByRole('table')).toBeTruthy();
   });

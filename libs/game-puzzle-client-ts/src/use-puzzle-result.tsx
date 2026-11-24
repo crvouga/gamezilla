@@ -81,12 +81,12 @@ function RatingFeedback(props: {
 export function PuzzleResultFeedback(props: {
   readonly model: PuzzlePlayerChromeModel;
 }): JSX.Element {
-  const enabled = createMemo((wasSolving: boolean) => {
+  const enabled = createMemo<boolean>((wasSolving) => {
     const status = props.model.status();
     return status === 'loading' || status === 'idle'
       ? false
-      : status === 'solving' || wasSolving;
-  }, false);
+      : status === 'solving' || wasSolving === true;
+  });
   return (
     <Show when={props.model.completion()}>
       {(current) => <RatingFeedback completion={current} enabled={enabled} />}

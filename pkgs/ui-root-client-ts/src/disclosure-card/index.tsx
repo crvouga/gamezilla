@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -31,6 +32,7 @@ export type DisclosureCardProps = {
  * work itself is what fills the screen.
  */
 export function DisclosureCard(props: DisclosureCardProps): JSX.Element {
+  // `defaultOpen` seeds the state once; the card owns it from then on.
   const [open, setOpen] = createSignal(
     untrack(() => props.defaultOpen === true)
   );
@@ -38,13 +40,13 @@ export function DisclosureCard(props: DisclosureCardProps): JSX.Element {
   return (
     <section
       class={`${styles['card']} rounded-card border border-border bg-surface`}
-      data-open={open()}
+      data-open={String(open())}
       {...dataAttrs({ component: 'DisclosureCard', ...props.dataSet })}
     >
       <button
         type="button"
         class={styles['trigger']}
-        aria-expanded={open()}
+        aria-expanded={ariaBoolean(open())}
         aria-controls={id}
         data-testid={props.toggleTestId}
         onClick={() => setOpen(!open())}
@@ -57,7 +59,11 @@ export function DisclosureCard(props: DisclosureCardProps): JSX.Element {
             </span>
           </Show>
         </span>
-        <span class={styles['chevron']} data-open={open()} aria-hidden="true">
+        <span
+          class={styles['chevron']}
+          data-open={String(open())}
+          aria-hidden="true"
+        >
           <ChevronDownIcon size={20} />
         </span>
       </button>

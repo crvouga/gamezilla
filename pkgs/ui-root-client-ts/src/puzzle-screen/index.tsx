@@ -90,7 +90,7 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         ref={root}
         class={styles['puzzle']}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
-        data-square={ratio() === 1}
+        data-square={String(ratio() === 1)}
         data-board-sizing={props.boardSizing ?? 'fit'}
         {...dataAttrs({
           component: 'PuzzleScreen',

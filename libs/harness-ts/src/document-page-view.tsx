@@ -9,7 +9,7 @@
  */
 
 import type { JSX } from '@solidjs/web';
-import { onCleanup, onSettled } from 'solid-js';
+import { onSettled } from 'solid-js';
 
 import type { FormFields } from './browser';
 import {
@@ -161,7 +161,7 @@ export function DocumentPage(props: DocumentPageProps): JSX.Element {
     }
     host.replaceChildren(...nodes);
     host.addEventListener('click', onClick);
-    onCleanup(() => host.removeEventListener('click', onClick));
+    return () => host.removeEventListener('click', onClick);
   });
 
   return <div class={`${HARNESS_BROWSER_PAGE_CLASS} min-h-full`} ref={host} />;

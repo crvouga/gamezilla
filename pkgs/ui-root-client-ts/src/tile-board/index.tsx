@@ -139,10 +139,10 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       {...dataAttrs({ component: 'TileBoard' })}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it
-      tabIndex={input.interactive() ? 0 : -1}
+      tabindex={input.interactive() ? 0 : -1}
       aria-label={props.label}
       aria-describedby={props.describedBy}
-      aria-disabled={props.disabled === true}
+      aria-disabled={props.disabled === true ? 'true' : 'false'}
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
       data-interactive={String(input.interactive())}

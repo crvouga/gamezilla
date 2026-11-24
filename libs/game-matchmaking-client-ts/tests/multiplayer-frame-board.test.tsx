@@ -7,9 +7,9 @@ import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentati
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import fc from 'fast-check';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import fc from 'fast-check';
+import { createSignal, flush } from 'solid-js';
 
 test('matched Quoridor keeps its board and wall tools in the same live session', () => {
   // regression: matched-game-board-session-actions
@@ -77,8 +77,10 @@ test('matched Quoridor keeps its board and wall tools in the same live session',
   fireEvent.click(view.getByText('initial: h'));
   expect(actions).toEqual(['h']);
   setPosition('after move');
+  flush();
   expect(view.getByText('after move: h')).toBeInTheDocument();
   setInteractive(false);
+  flush();
   expect(view.getByTestId('multiplayer-board-mode-h')).toBeDisabled();
   expect(view.getByText('Board options')).toBeInTheDocument();
   expect(mounts).toBe(1);
@@ -133,6 +135,7 @@ test("a matched board's live line goes to the status line, never under the board
         ));
         for (const next of lines) {
           setLine(next);
+          flush();
           expect(heard.at(-1)).toBe(next);
           if (next !== null) expect(view.queryByText(next)).toBeNull();
         }

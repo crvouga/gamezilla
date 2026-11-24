@@ -21,7 +21,15 @@ import { cellTransform } from '@pkgs/chess-board-root-shared-ts/board-units';
 import type { PieceAnimator } from '@pkgs/chess-board-root-shared-ts/piece-animator';
 import { bumpChessBoardRender } from '@pkgs/chess-board-root-shared-ts/render-counts';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, For, on, onCleanup, Show, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  For,
+  onCleanup,
+  Show,
+  untrack,
+} from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
 
@@ -66,23 +74,27 @@ function Piece(props: {
     props.rows();
     return props.row.code;
   });
-  const orientation = () => props.orientation();
   createEffect(
-    on([square, orientation], ([sq, o], prev) => {
+    () => ({
+      sq: square(),
+      o: props.orientation(),
+      // Only a new square or a flip re-places the piece; the rest is read
+      // as it stands then.
+      policy: untrack(props.motion),
+      rows: untrack(props.rows),
+      replacement: untrack(props.replacement),
+    }),
+    ({ sq, o, policy, rows, replacement }, prev) => {
       const node = el;
       if (node === undefined) return;
-      const policy = props.motion();
       // Flipping the board re-seats every piece at once: no slide.
-      const slide = prev?.[1] === o && policy.slides;
+      const slide = prev?.o === o && policy.slides;
       props.animator.place(node, cellTransform(sq, o), {
         slide,
         durationMs: policy.durationMs,
-        arrival: {
-          rows: untrack(props.rows),
-          replacement: props.replacement(),
-        },
+        arrival: { rows, replacement },
       });
-    })
+    }
   );
   onCleanup(() => {
     if (el !== undefined) props.animator.remove(el);
@@ -126,15 +138,17 @@ export function ChessBoardPieces(props: ChessBoardPiecesProps): JSX.Element {
   // A position that re-places no piece (one only appears or leaves) is still
   // an arrival: it too must settle the slides it interrupts.
   createEffect(
-    on(
-      () => props.rows(),
-      (rows) =>
-        props.animator.arrive({ rows, replacement: props.replacement() })
-    )
+    () => ({ rows: props.rows(), replacement: untrack(props.replacement) }),
+    (arrival) => {
+      props.animator.arrive(arrival);
+    }
   );
-  createEffect(() => {
-    if (props.engaged()) props.animator.interrupt();
-  });
+  createEffect(
+    () => props.engaged(),
+    (engaged) => {
+      if (engaged) props.animator.interrupt();
+    }
+  );
   return (
     <div
       class={styles['contents']}

@@ -121,7 +121,7 @@ export type GameTablePlayer = {
 
 type SeatLender = (side: string) => GameTablePlayer;
 
-const GameTableSeatsContext = createContext<SeatLender | undefined>();
+const GameTableSeatsContext = createContext<SeatLender | null>(null);
 
 /**
  * Lends the board inside it the person in each seat, by the seat's side,
@@ -133,13 +133,11 @@ export function GameTableSeats(props: {
 }): JSX.Element {
   const lend: SeatLender = (side) => props.seat(side);
   return (
-    <GameTableSeatsContext value={lend}>
-      {props.children}
-    </GameTableSeatsContext>
+    <GameTableSeatsContext value={lend}>{props.children}</GameTableSeatsContext>
   );
 }
 
 /** The person in each seat, when a host lends them; `undefined` otherwise. */
 export function useGameTableSeat(): SeatLender | undefined {
-  return useContext(GameTableSeatsContext);
+  return useContext(GameTableSeatsContext) ?? undefined;
 }

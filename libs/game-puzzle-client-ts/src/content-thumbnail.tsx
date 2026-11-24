@@ -40,7 +40,7 @@ export function ContentThumbnail(props: {
           </Show>
         }
       >
-        {(render) => render()(props.preview ?? '')}
+        {(render) => <>{render()(props.preview ?? '')}</>}
       </Show>
     </PreviewThumbnail>
   );

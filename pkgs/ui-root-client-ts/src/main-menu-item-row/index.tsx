@@ -104,9 +104,12 @@ function ItemBody(props: {
     disabled() && props.item.caption !== undefined;
   return (
     <div
-      class={["box flex-row items-stretch pl-4 min-h-14", {
-        'opacity-disabled': disabled(),
-      }]}
+      class={[
+        'box flex-row items-stretch pl-4 min-h-14',
+        {
+          'opacity-disabled': disabled(),
+        },
+      ]}
       data-emphasis={props.item.emphasis}
     >
       <Show when={props.item.leading}>
@@ -133,10 +136,13 @@ function ItemBody(props: {
           </div>
           <Show when={props.item.caption !== undefined && !captionInTrailing()}>
             <p
-              class={["text textCaption max-w-full", {
-                'line-clamp-1': props.item.emphasis === 'quiet',
-                'line-clamp-2': props.item.emphasis !== 'quiet',
-              }]}
+              class={[
+                'text textCaption max-w-full',
+                {
+                  'line-clamp-1': props.item.emphasis === 'quiet',
+                  'line-clamp-2': props.item.emphasis !== 'quiet',
+                },
+              ]}
             >
               {props.item.caption}
             </p>
@@ -169,7 +175,10 @@ function TileBody(props: {
 }): JSX.Element {
   return (
     <div
-      class={["box gap-3 p-4 h-full", { 'opacity-disabled': props.item.disabled === true }]}
+      class={[
+        'box gap-3 p-4 h-full',
+        { 'opacity-disabled': props.item.disabled === true },
+      ]}
       data-emphasis={props.item.emphasis}
     >
       <div class="box flex-row items-start justify-between gap-3">
@@ -255,7 +264,7 @@ export function MainMenuItemRow(props: {
           type="button"
           onClick={() => confirmNavigation(() => onClick()())}
           disabled={props.item.disabled === true}
-          aria-pressed={props.item.selected === true ? true : undefined}
+          aria-pressed={props.item.selected === true ? 'true' : undefined}
         >
           <Body
             item={props.item}

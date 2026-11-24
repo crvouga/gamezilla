@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -49,9 +50,9 @@ export function Chip(props: ChipProps): JSX.Element {
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
       type="button"
       role={role()}
-      aria-pressed={role() === 'button' ? selected() : undefined}
-      aria-checked={role() === 'radio' ? selected() : undefined}
-      tabIndex={props.tabStop === false ? -1 : undefined}
+      aria-pressed={role() === 'button' ? ariaBoolean(selected()) : undefined}
+      aria-checked={role() === 'radio' ? ariaBoolean(selected()) : undefined}
+      tabindex={props.tabStop === false ? -1 : undefined}
       onClick={() => props.onClick?.()}
       onKeyDown={(event) => props.onKeyDown?.(event)}
       disabled={props.disabled === true}

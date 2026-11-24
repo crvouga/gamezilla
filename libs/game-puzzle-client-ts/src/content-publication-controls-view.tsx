@@ -190,9 +190,15 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
           ? t`Validate`
           : t`Validate again`;
       },
-      loading: t`Checking…`,
-      success: t`Check finished`,
-      error: t`Check again`,
+      get loading() {
+        return t`Checking…`;
+      },
+      get success() {
+        return t`Check finished`;
+      },
+      get error() {
+        return t`Check again`;
+      },
     },
     get disabled() {
       return props.disabled;
@@ -208,9 +214,15 @@ function usePublicationActions(props: ContentPublicationControlsViewProps) {
         // A newer draft beside a published edition becomes a new edition.
         return props.published ? t`Publish new edition` : t`Publish`;
       },
-      loading: t`Publishing…`,
-      success: t`Publication saved`,
-      error: t`Try publishing again`,
+      get loading() {
+        return t`Publishing…`;
+      },
+      get success() {
+        return t`Publication saved`;
+      },
+      get error() {
+        return t`Try publishing again`;
+      },
     },
     get disabled() {
       return props.disabled || props.copyState.kind === 'reading';

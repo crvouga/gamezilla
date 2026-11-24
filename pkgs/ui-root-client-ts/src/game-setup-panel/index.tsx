@@ -52,7 +52,7 @@ export function GameSetupPanel(props: GameSetupPanelProps): JSX.Element {
         <div
           class={styles['setupSplit']}
           data-setup-split="true"
-          data-details-across={props.detailsAcross === true}
+          data-details-across={String(props.detailsAcross === true)}
         >
           <div class={styles['setupMain']}>
             {props.children}

@@ -14,16 +14,21 @@ export function MarkdownContent(props: {
   dataSet?: ComponentDataSet;
 }) {
   let host: HTMLDivElement | undefined;
-  createEffect(() => {
-    const doc = cleanMarkdownNode(defaultMarkdownParser.parse(props.value));
-    host?.replaceChildren(
-      DOMSerializer.fromSchema(schema).serializeFragment(doc.content)
-    );
-  });
+  createEffect(
+    () => cleanMarkdownNode(defaultMarkdownParser.parse(props.value)),
+    (doc) => {
+      host?.replaceChildren(
+        DOMSerializer.fromSchema(schema).serializeFragment(doc.content)
+      );
+    }
+  );
   return (
     <div
       ref={host}
-      class={["text text-sm leading-relaxed break-words", { [styles['content'] ?? '']: true }]}
+      class={[
+        'text text-sm leading-relaxed break-words',
+        { [styles['content'] ?? '']: true },
+      ]}
       {...dataAttrs({ component: 'MarkdownContent', ...props.dataSet })}
     />
   );

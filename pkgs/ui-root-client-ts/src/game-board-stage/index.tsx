@@ -58,27 +58,30 @@ export function GameBoardStage(props: {
   const own = createScreenSlot(() => props.own);
   const overlay = createScreenSlot(() => props.overlay);
   const preview = (): boolean => props.preview === true;
-  let root: HTMLDivElement | undefined;
+  const [root, setRoot] = createSignal<HTMLDivElement>();
   const square = (): boolean => props.viewportFit === 'square' && !preview();
-  const limit = createViewportSquareFit(() => root, square);
+  const limit = createViewportSquareFit(root, square);
   const [surface, setSurface] = createSignal<HTMLDivElement>();
-  const room = createStageRoomFit(() => root, surface);
+  const room = createStageRoomFit(root, surface);
   // A fixed stage sits in the middle of its room, and stays there.
-  const centre = createStageCentre(() => root, surface);
+  const centre = createStageCentre(root, surface);
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();
-    const cell = root?.parentElement;
+    const cell = root()?.parentElement;
     return limit !== undefined && !!cell && limit < cell.clientWidth - 1;
   };
   return (
     <div
-      ref={root}
-      class={[`${styles['boardStage']} ${precision['board']}`, {
-        [boardAlign['start'] ?? '']: props.align === 'start',
-        [fit['squareStage'] ?? '']: square(),
-      }]}
-      data-preview={props.preview === true}
+      ref={setRoot}
+      class={[
+        `${styles['boardStage']} ${precision['board']}`,
+        {
+          [boardAlign['start'] ?? '']: props.align === 'start',
+          [fit['squareStage'] ?? '']: square(),
+        },
+      ]}
+      data-preview={String(props.preview === true)}
       data-viewport-fit={props.viewportFit}
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,
@@ -93,10 +96,13 @@ export function GameBoardStage(props: {
       <Show when={others.present()}>{others.content()}</Show>
       <div
         ref={setSurface}
-        class={[styles['board'], {
-          [fit['squareBoard'] ?? '']: square(),
-          relative: overlay.present(),
-        }]}
+        class={[
+          styles['board'],
+          {
+            [fit['squareBoard'] ?? '']: square(),
+            relative: overlay.present(),
+          },
+        ]}
         data-game-board
       >
         <GameBoardPreviewContext value={preview}>

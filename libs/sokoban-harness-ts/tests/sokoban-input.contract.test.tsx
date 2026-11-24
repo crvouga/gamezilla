@@ -14,7 +14,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 /** Worker B1, crate C1, goal E1; A1 is a wall. */
 const CORRIDOR = JSON.stringify({ format: 1, rows: ['#@$ .'] });
@@ -85,10 +85,12 @@ test('arrow keys, W A S D and the buttons send only moves the rules accept', () 
 test('moves pressed while one is being kept are sent in order once it lands', () => {
   const { actions, board, setDisabled } = player();
   setDisabled(true);
+  flush();
   fireEvent.keyDown(board, { key: 'ArrowRight' });
   fireEvent.keyDown(board, { key: 'ArrowRight' });
   expect(actions).toEqual([]);
   setDisabled(false);
+  flush();
   expect(actions).toEqual(['r', 'r']);
 });
 
@@ -106,6 +108,7 @@ test('a wide touch screen retains the named movement pad', () => {
 test('the fifth queued direction reports the limit without promising it was saved', () => {
   const { view, board, setDisabled } = player();
   setDisabled(true);
+  flush();
   for (const key of [
     'ArrowRight',
     'ArrowRight',
@@ -118,6 +121,7 @@ test('the fifth queued direction reports the limit without promising it was save
     'Not added: four moves waiting.'
   );
   setDisabled(false);
+  flush();
   expect(view.queryByTestId('sokoban-saving')).toBeNull();
   expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
     '4'
@@ -355,6 +359,7 @@ test('changing from a close maximum board to a small board restores every square
     view.getByTestId('sokoban-board').querySelectorAll('[role="img"]')
   ).toHaveLength(36);
   setDefinition(TWO_CRATES);
+  flush();
   expect(
     view.getByTestId('sokoban-board').querySelectorAll('[role="img"]')
   ).toHaveLength(42);

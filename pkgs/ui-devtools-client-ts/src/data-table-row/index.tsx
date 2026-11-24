@@ -52,7 +52,7 @@ export function DataTableCellContent<T>(props: {
         </p>
       }
     >
-      {(cell) => cell()(props.row)}
+      {(cell) => <>{cell()(props.row)}</>}
     </Show>
   );
 }
@@ -90,7 +90,7 @@ function DataTableCell<T>(props: {
             type="button"
             style={inner()}
             onClick={() => onClick()()}
-            tabIndex={props.tabbable ? 0 : -1}
+            tabindex={props.tabbable ? 0 : -1}
           >
             <DataTableCellContent column={props.column} row={props.row} />
           </button>
@@ -107,11 +107,15 @@ function DataTableCell<T>(props: {
  */
 export function DataTableRow<T>(props: DataTableRowProps<T>): JSX.Element {
   const { t } = useLingui();
+  const selected = (): 'true' | 'false' | undefined => {
+    if (!props.selection) return undefined;
+    return props.selection.selected ? 'true' : 'false';
+  };
   return (
     <tr
       class={`${styles['bodyRow']} ${styles[props.density]}`}
       data-row-key={props.rowKey}
-      aria-selected={props.selection ? props.selection.selected : undefined}
+      aria-selected={selected()}
     >
       <Show when={props.selection}>
         {(selection) => (

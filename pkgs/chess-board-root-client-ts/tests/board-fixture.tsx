@@ -26,7 +26,7 @@ import type {
   AudioPlayerStatus,
 } from '@pkgs/sounds-shared-ts/ports';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 export const BOARD_PX = 320;
 const CELL = BOARD_PX / 8;
@@ -145,7 +145,10 @@ export function mountBoard(props: Partial<ChessBoardProps> = {}) {
   return {
     host,
     moves,
-    setOrientation,
+    setOrientation(next: 'white' | 'black'): void {
+      setOrientation(next);
+      flush();
+    },
     unmount: result.unmount,
     down: (init: PointerInit) => pointer('pointerdown', init),
     move: (init: PointerInit) => pointer('pointermove', init),

@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ModalBody } from '@pkgs/ui-root-client-ts/modal-parts';
 import { SocialSignInButton } from '@pkgs/ui-root-client-ts/social-sign-in-button';

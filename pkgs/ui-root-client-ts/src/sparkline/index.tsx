@@ -77,7 +77,7 @@ export function Sparkline(props: SparklineProps): JSX.Element {
         preserveAspectRatio="none"
         role={label() === undefined ? undefined : 'img'}
         aria-label={label()}
-        aria-hidden={label() === undefined ? true : undefined}
+        aria-hidden={label() === undefined ? 'true' : undefined}
         data-testid={props.testId}
         data-component={componentId('Sparkline')}
       >

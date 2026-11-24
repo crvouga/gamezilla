@@ -12,13 +12,18 @@ import type { AppRouteEntry } from './route-table';
 import { NOT_FOUND_ROUTE_PATH } from './route-table';
 import { TabsLayout } from './tabs-layout';
 
-function toRoute(entry: AppRouteEntry): RouteDefinition {
+/** A route of the composed app: a screen, or the tab layout around its roots. */
+export type AppRouteDefinition = Omit<RouteDefinition, 'children'> & {
+  readonly children?: readonly AppRouteDefinition[] | undefined;
+};
+
+function toRoute(entry: AppRouteEntry): AppRouteDefinition {
   return { path: entry.path, component: entry.component };
 }
 
 export function buildAppRoutes(
   table: readonly AppRouteEntry[]
-): RouteDefinition[] {
+): AppRouteDefinition[] {
   const tabRoutes = table.filter((entry) => entry.tab === true);
   const stackRoutes = table.filter((entry) => entry.tab !== true);
   return [

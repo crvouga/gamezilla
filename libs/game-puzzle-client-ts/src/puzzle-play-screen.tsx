@@ -7,7 +7,7 @@ import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { type Accessor, createMemo, Show } from 'solid-js';
 import { PuzzleFeedRefusedChangeNotice } from './puzzle-feed-refused-change-notice';
 import { usePuzzleGame } from './puzzle-game-context';
@@ -50,14 +50,14 @@ function PuzzlePlayerBoardSlot(props: {
 }): JSX.Element {
   const sounds = useSoundsPreference();
   const { client } = usePuzzleGame();
+  const Board = dynamic(() => client.Board);
   const p = props.p;
   return (
     <Show
       when={p.boardPosition() !== null && p.boardPosition()!.length > 0}
       fallback={<LoadingState size="lg" />}
     >
-      <Dynamic
-        component={client.Board}
+      <Board
         mode="play"
         testId="chess-puzzle-board"
         size={props.size}

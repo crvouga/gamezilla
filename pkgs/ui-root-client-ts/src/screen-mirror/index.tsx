@@ -5,7 +5,7 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createMemo, createSignal, onCleanup, onSettled } from 'solid-js';
+import { createMemo, createSignal, onSettled } from 'solid-js';
 
 /** The screen sizes a mirror draws the other screen at. */
 export type ScreenMirrorDevice = 'phone' | 'desktop';
@@ -68,12 +68,14 @@ export function ScreenMirror(props: ScreenMirrorProps): JSX.Element {
   });
   onSettled(() => {
     setStyles(hostStyles());
-    if (host === undefined || typeof ResizeObserver === 'undefined') return;
+    if (host === undefined || typeof ResizeObserver === 'undefined') {
+      return undefined;
+    }
     const observer = new ResizeObserver((entries) => {
       setWidth(entries[0]?.contentRect.width ?? null);
     });
     observer.observe(host);
-    onCleanup(() => observer.disconnect());
+    return () => observer.disconnect();
   });
   return (
     <div

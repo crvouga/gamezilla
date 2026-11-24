@@ -5,7 +5,7 @@ import type { JSX } from '@solidjs/web';
 import { createContext, untrack, useContext } from 'solid-js';
 import { createWebBottomSheetHost } from '../web-bottom-sheet/index';
 
-const BottomSheetHostContext = createContext<BottomSheetHost>();
+const BottomSheetHostContext = createContext<BottomSheetHost | null>(null);
 
 let defaultHost: BottomSheetHost | undefined;
 

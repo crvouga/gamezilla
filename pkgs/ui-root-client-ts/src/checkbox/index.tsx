@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -64,14 +65,17 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
   const filled = () => props.checked || indeterminate();
   return (
     <button
-      class={["clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11", {
-        'min-w-11 justify-center': props.label === undefined,
-        'opacity-disabled cursor-not-allowed': props.disabled === true,
-      }]}
+      class={[
+        'clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11',
+        {
+          'min-w-11 justify-center': props.label === undefined,
+          'opacity-disabled cursor-not-allowed': props.disabled === true,
+        },
+      ]}
       {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
       type="button"
       role="checkbox"
-      aria-checked={indeterminate() ? 'mixed' : props.checked}
+      aria-checked={indeterminate() ? 'mixed' : ariaBoolean(props.checked)}
       aria-label={props['aria-label']}
       disabled={props.disabled}
       onClick={() => props.onToggle(indeterminate() ? true : !props.checked)}

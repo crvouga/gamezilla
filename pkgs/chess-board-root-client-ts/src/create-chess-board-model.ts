@@ -32,7 +32,14 @@ import type {
 } from '@pkgs/chess-board-core-shared-ts/types';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
-import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  onCleanup,
+  untrack,
+} from 'solid-js';
 
 export type ChessBoardModelArgs = {
   readonly game: ChessGame;
@@ -75,7 +82,8 @@ function createExternalFenSync(
   let prevKey: number | undefined;
   let seen = false;
   createEffect(
-    on([args.fen, args.fenSyncKey], ([fen, key]) => {
+    () => [args.fen(), args.fenSyncKey()] as const,
+    ([fen, key]) => {
       if (fen === undefined || fen.length === 0) return;
       if (seen && fen === prevFenProp && key === prevKey) return;
       const localFen = args.game.getSnapshot().fen;
@@ -97,7 +105,7 @@ function createExternalFenSync(
       }
       interaction.clear();
       args.game.clearLastMove();
-    })
+    }
   );
 }
 
@@ -135,41 +143,53 @@ function createCaptureGhost(
     handle = undefined;
   };
   onCleanup(clear);
+  // The ghost shown now, tracked beside the signal: a transition decides
+  // from what it last set, before that write is readable.
+  let shown: CaptureGhost | null = null;
+  const show = (next: CaptureGhost | null): void => {
+    shown = next;
+    setGhost(next);
+  };
   createEffect(
-    on(
-      [() => game().position, args.animated, args.orientation],
-      ([position, slides, facing]) => {
-        if (position === prev && slides === animated && facing === orientation)
-          return;
-        const next = captureGhostForTransition({
-          prev,
-          position,
-          lastMove: game().lastMove,
-          animations:
-            slides && (orientation === undefined || facing === orientation),
-        });
-        const retained =
-          next === null &&
-          ghost() !== null &&
-          slides &&
-          facing === orientation &&
-          game().lastMove !== null &&
-          ownerRemains(owner, position);
-        prev = position;
-        animated = slides;
-        orientation = facing;
-        if (retained) return;
-        clear();
-        setGhost(next);
-        owner = undefined;
-        if (next === null) return;
-        owner = captureOwner(position, game().lastMove);
-        handle = args.timers.setTimeout(() => {
-          handle = undefined;
-          setGhost(null);
-        }, args.moveDurationMs());
-      }
-    )
+    () =>
+      ({
+        snapshot: game(),
+        slides: args.animated(),
+        facing: args.orientation(),
+        durationMs: args.moveDurationMs(),
+      }) as const,
+    ({ snapshot, slides, facing, durationMs }) => {
+      const { position, lastMove } = snapshot;
+      if (position === prev && slides === animated && facing === orientation)
+        return;
+      const next = captureGhostForTransition({
+        prev,
+        position,
+        lastMove,
+        animations:
+          slides && (orientation === undefined || facing === orientation),
+      });
+      const retained =
+        next === null &&
+        shown !== null &&
+        slides &&
+        facing === orientation &&
+        lastMove !== null &&
+        ownerRemains(owner, position);
+      prev = position;
+      animated = slides;
+      orientation = facing;
+      if (retained) return;
+      clear();
+      show(next);
+      owner = undefined;
+      if (next === null) return;
+      owner = captureOwner(position, lastMove);
+      handle = args.timers.setTimeout(() => {
+        handle = undefined;
+        show(null);
+      }, durationMs);
+    }
   );
   return ghost;
 }
@@ -183,16 +203,22 @@ export function createChessBoardModel(
     args.sounds.cancel();
   };
   onCleanup(cancelSound);
-  createEffect(() => {
-    if (!args.soundEnabled()) cancelSound();
-  });
+  createEffect(
+    () => args.soundEnabled(),
+    (enabled) => {
+      if (!enabled) cancelSound();
+    }
+  );
+  // A move is played by a gesture, by a parent's position or by a queued
+  // premove: each reads the sound and motion settings as they are then.
+  const soundOn = (): boolean => untrack(args.soundEnabled);
   const playMove = (move: Move, post: PostMoveAudio): void => {
     args.sounds.cancel();
-    if (!args.soundEnabled()) return;
+    if (!soundOn()) return;
     scheduler.apply(move, post, {
       captureDelayMs:
-        args.animated() && move.captured !== undefined
-          ? args.moveDurationMs()
+        untrack(args.animated) && move.captured !== undefined
+          ? untrack(args.moveDurationMs)
           : 0,
     });
   };
@@ -205,16 +231,25 @@ export function createChessBoardModel(
         args.onMove(result.move);
       },
       onIllegal: () => {
-        if (args.soundEnabled()) args.sounds.playIllegal();
+        if (soundOn()) args.sounds.playIllegal();
         args.onIllegal();
       },
     },
-    args.interactive()
+    // The first value only: the effect below keeps the store in step.
+    untrack(args.interactive)
   );
-  createEffect(() => actions.setInteractive(args.interactive()));
-  createEffect(() => actions.setPremovesEnabled(args.premoves()));
-  createEffect(() => actions.setAutoPromoteQueen(args.autoPromoteQueen()));
-  createEffect(() => actions.setPlayerColor(args.playerColor()));
+  createEffect(args.interactive, (value) => {
+    actions.setInteractive(value);
+  });
+  createEffect(args.premoves, (value) => {
+    actions.setPremovesEnabled(value);
+  });
+  createEffect(args.autoPromoteQueen, (value) => {
+    actions.setAutoPromoteQueen(value);
+  });
+  createEffect(args.playerColor, (value) => {
+    actions.setPlayerColor(value);
+  });
 
   const game = createSubscriptionSignal(args.game);
   const interaction = createSubscriptionSignal(actions);
@@ -223,13 +258,11 @@ export function createChessBoardModel(
 
   // Local apply flips the turn — flush if a premove was queued somehow.
   createEffect(
-    on(
-      () => game().turn,
-      () => {
-        actions.flushPremmove();
-      },
-      { defer: true }
-    )
+    () => game().turn,
+    () => {
+      actions.flushPremmove();
+    },
+    { defer: true }
   );
 
   const tracker = createPieceRowsTracker();

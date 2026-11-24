@@ -2,7 +2,7 @@ import { afterEach, expect, test } from 'bun:test';
 import { SpacePresenceMarkers } from '@libs/spaces-client-ts/space-presence-markers';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { cleanup, render } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -25,6 +25,7 @@ test('idle presence observations stay hidden and update without rendering badges
       ?.textContent
   ).toBe('1');
   setIdle([]);
+  flush();
   expect(
     container.querySelector(
       `[data-testid="${Handles.spaceMemberIdle(memberId)}"]`

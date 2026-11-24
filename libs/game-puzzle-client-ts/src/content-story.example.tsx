@@ -80,7 +80,7 @@ export function StoryCountingEditor(props: {
     <TextInput
       label="Target"
       value={props.target}
-      maxLength={1}
+      maxlength={1}
       disabled={props.disabled}
       onChangeText={() => undefined}
     />

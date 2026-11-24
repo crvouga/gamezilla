@@ -66,7 +66,7 @@ function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
         'border-color': props.isRandom ? colorVar('tint') : colorVar('border'),
       }}
       onClick={() => props.onClick()}
-      aria-pressed={props.isRandom}
+      aria-pressed={props.isRandom ? 'true' : 'false'}
     >
       <p
         class="text textCaption text-text"
@@ -99,7 +99,7 @@ function DefaultSwatch(props: {
       }}
       onClick={() => props.onClick()}
       role="checkbox"
-      aria-checked={props.active}
+      aria-checked={props.active ? 'true' : 'false'}
       aria-label={isTrans() ? t`Transparent` : t`Color ${props.hex}`}
     >
       <Show when={isTrans()}>
@@ -163,7 +163,7 @@ function CustomHexInput(props: {
             aria-label={t`Custom hex color`}
             autocapitalize="off"
             autocorrect="off"
-            maxLength={6}
+            maxlength={6}
           />
         </div>
         <button

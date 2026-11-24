@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -16,6 +17,7 @@ export type CollapsibleProps = {
 
 /** `Collapsible` -- disclosure row that toggles its body (`aria-expanded`). */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
+  // `defaultOpen` seeds the state once; the row owns it from then on.
   const [isOpen, setIsOpen] = createSignal(
     untrack(() => props.defaultOpen ?? false)
   );
@@ -27,7 +29,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
       <button
         class="clickable clickableTint flex-row items-center gap-2 py-2"
         type="button"
-        aria-expanded={isOpen()}
+        aria-expanded={ariaBoolean(isOpen())}
         onClick={() => setIsOpen((v) => !v)}
       >
         <Show
@@ -43,7 +45,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
             </span>
           }
         >
-          {(render) => render()(isOpen())}
+          {(render) => <>{render()(isOpen())}</>}
         </Show>
         <p class="text textBodyBold">{props.title}</p>
       </button>

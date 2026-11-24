@@ -73,7 +73,7 @@ function CompactRow<R>(props: {
         <div
           class={spaced(['box px-ui-lg py-ui-md min-h-11', PRESSABLE_ROW])}
           role="button"
-          tabIndex={0}
+          tabindex={0}
           aria-label={props.table.rowLabel?.(props.row)}
           onClick={press}
           onKeyDown={(event) => onRowKeyDown(event, press)}

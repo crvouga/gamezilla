@@ -7,7 +7,14 @@ import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { ActivityRegion } from '@pkgs/ui-root-client-ts/activity-region';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, onCleanup, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  onCleanup,
+  untrack,
+  useContext,
+} from 'solid-js';
 import { SpaceProbe } from './space-probe';
 import { noteSpaceQuiet, registerSpaceQuiet } from './space-quiet-registry';
 import { useSpaceRoomClientId } from './space-room-context';
@@ -44,13 +51,13 @@ export function SpaceQuietHost(props: {
   const pending = {
     current: null as ReturnType<typeof timers.setTimeout> | null,
   };
-  const wasOnline = { current: engine.status().online };
 
+  // Marks whichever client this device is at the moment it acts.
   const mark = (quiet: boolean): void => {
-    const id = clientId();
+    const id = untrack(clientId);
     if (id === null || id.length === 0) return;
     noteSpaceQuiet(id, quiet);
-    if ((quietMarks()[id] === true) === quiet) return;
+    if ((untrack(quietMarks)[id] === true) === quiet) return;
     dispatch(MarkQuiet({ clientId: id, quiet }));
   };
 
@@ -64,23 +71,21 @@ export function SpaceQuietHost(props: {
     arm();
   };
 
-  createEffect(() => {
-    const id = clientId();
+  createEffect(clientId, (id) => {
     if (id === null || id.length === 0) return;
     arm();
-    onCleanup(
-      registerSpaceQuiet(id, (quiet) => {
-        if (quiet) mark(true);
-        else poke();
-      })
-    );
+    return registerSpaceQuiet(id, (quiet) => {
+      if (quiet) mark(true);
+      else poke();
+    });
   });
 
-  createEffect(() => {
-    const online = engine.status().online;
-    if (online && !wasOnline.current) poke();
-    wasOnline.current = online;
-  });
+  createEffect(
+    () => engine.status().online,
+    (online, wasOnline) => {
+      if (online && wasOnline === false) poke();
+    }
+  );
 
   onCleanup(() => {
     if (pending.current !== null) timers.clearTimeout(pending.current);

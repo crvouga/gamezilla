@@ -34,7 +34,15 @@ import type {
 import type { TextCasing } from '@pkgs/ui-root-shared-ts/text-casing';
 import { defaultTextCasing } from '@pkgs/ui-root-shared-ts/text-casing';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createEffect, createMemo, createSignal, onCleanup, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createEffect,
+  createMemo,
+  createSignal,
+  untrack,
+  useContext,
+} from 'solid-js';
 import { createMediaQuery } from '../media-query';
 
 export type ThemeLayout = {
@@ -67,7 +75,8 @@ export type ThemeLayoutValue = {
 
 export type Theme = ThemeTokens & ThemeLayoutValue;
 
-const ThemeTokensContext = createContext<ThemeTokens>();
+// `null` outside any provider: the outermost provider reads it to know it is the root.
+const ThemeTokensContext = createContext<ThemeTokens | null>(null);
 const ThemeLayoutContext = createContext<ThemeLayoutValue>();
 const ThemeHostContext = createContext<Accessor<HTMLElement | undefined>>(
   () => undefined
@@ -122,9 +131,8 @@ function createHostLayout(
   if (fixed !== undefined || typeof ResizeObserver === 'undefined') {
     return layout;
   }
-  createEffect(() => {
-    const el = host();
-    if (el === undefined) return;
+  createEffect(host, (el) => {
+    if (el === undefined) return undefined;
     const apply = (): void => {
       const rect = el.getBoundingClientRect();
       const next = { width: rect.width, height: rect.height };
@@ -133,7 +141,7 @@ function createHostLayout(
       );
     };
     apply();
-    onCleanup(observeElementResize(el, apply));
+    return observeElementResize(el, apply);
   });
   return layout;
 }
@@ -156,7 +164,7 @@ function mirrorDocumentTheme(scheme: ColorScheme): () => void {
 export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   // Nested providers compose via host `data-theme` + Solid context only —
   // never fight over `<html>`. In-repo portals mount inside the host.
-  const isRoot = useContext(ThemeTokensContext) === undefined;
+  const isRoot = useContext(ThemeTokensContext) === null;
   const prefersDark = createMediaQuery(DARK_QUERY);
   const colorScheme = createMemo((): ColorScheme => {
     const wanted = props.colorScheme;
@@ -166,23 +174,26 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   const palette = createMemo(() => COLOR_PALETTE[colorScheme()]);
 
   if (isRoot) {
-    createEffect(() => {
-      if (
-        typeof document === 'undefined' ||
-        props.manageDocumentTheme === false
-      )
-        return;
-      onCleanup(mirrorDocumentTheme(colorScheme()));
-    });
+    createEffect(
+      () =>
+        typeof document === 'undefined' || props.manageDocumentTheme === false
+          ? undefined
+          : colorScheme(),
+      (scheme) =>
+        scheme === undefined ? undefined : mirrorDocumentTheme(scheme)
+    );
   }
 
-  // Static options: read once by design.
-  // oxlint-disable-next-line solid/reactivity -- static configuration
-  const mergedFonts: FontStacks = { ...fonts, ...props.fonts };
-  // oxlint-disable-next-line solid/reactivity -- static configuration
-  const fontStyle = themeFontStyle(props.fonts, mergedFonts);
-  // oxlint-disable-next-line solid/reactivity -- static configuration
-  const textCasing = props.textCasing ?? defaultTextCasing;
+  // Static options: `fonts`, `textCasing` and `fixedLayout` are read once by
+  // design, so a later change to them is ignored.
+  const fixed = untrack(() => ({
+    fonts: props.fonts,
+    textCasing: props.textCasing,
+    layout: props.fixedLayout,
+  }));
+  const mergedFonts: FontStacks = { ...fonts, ...fixed.fonts };
+  const fontStyle = themeFontStyle(fixed.fonts, mergedFonts);
+  const textCasing = fixed.textCasing ?? defaultTextCasing;
 
   const tokens: ThemeTokens = {
     colors: CSS_VAR_COLORS,
@@ -195,8 +206,7 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   };
 
   const [host, setHost] = createSignal<HTMLElement>();
-  // oxlint-disable-next-line solid/reactivity -- static configuration
-  const layout = createHostLayout(host, props.fixedLayout);
+  const layout = createHostLayout(host, fixed.layout);
   const breakpoint = createMemo(() => getBreakpoint(layout().width));
   const layoutValue: ThemeLayoutValue = { layout, breakpoint };
 
@@ -206,10 +216,13 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
         <ThemeHostContext value={host}>
           <div
             ref={setHost}
-            class={["themeHost", {
-              'bg-transparent': props.transparent === true,
-              'bg-none': props.transparent === true,
-            }]}
+            class={[
+              'themeHost',
+              {
+                'bg-transparent': props.transparent === true,
+                'bg-none': props.transparent === true,
+              },
+            ]}
             data-theme={colorScheme()}
             data-reduced-motion={
               props.reducedMotion === true ? 'true' : undefined
@@ -228,7 +241,7 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
 /** Design tokens only — never re-runs on container resize. */
 export function useThemeTokens(): ThemeTokens {
   const ctx = useContext(ThemeTokensContext);
-  if (ctx === undefined) {
+  if (ctx === null) {
     throw new Error(
       'ThemeTokens: provider missing — wrap the tree with ThemeProvider'
     );
@@ -238,13 +251,7 @@ export function useThemeTokens(): ThemeTokens {
 
 /** Layout metrics — track resize / orientation. */
 export function useThemeLayout(): ThemeLayoutValue {
-  const ctx = useContext(ThemeLayoutContext);
-  if (ctx === undefined) {
-    throw new Error(
-      'ThemeLayout: provider missing — wrap the tree with ThemeProvider'
-    );
-  }
-  return ctx;
+  return useContext(ThemeLayoutContext);
 }
 
 /**

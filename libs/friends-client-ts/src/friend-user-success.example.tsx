@@ -1,4 +1,4 @@
-import { createSignal, untrack } from 'solid-js';
+import { createSignal } from 'solid-js';
 import {
   FriendUserScreenView,
   type FriendUserScreenViewProps,
@@ -6,10 +6,9 @@ import {
 
 /** The local relationship updates before the success modal is dismissed. */
 export function FriendUserSuccessExample(props: FriendUserScreenViewProps) {
-  const [status, setStatus] = createSignal(untrack(() => props.status));
-  const [confirming, setConfirming] = createSignal(
-    untrack(() => props.confirming)
-  );
+  // Seeded from the story's args, and reseeded when a control changes them.
+  const [status, setStatus] = createSignal(() => props.status);
+  const [confirming, setConfirming] = createSignal(() => props.confirming);
   const remove = async () => {
     await props.onRemove();
     setStatus('none');

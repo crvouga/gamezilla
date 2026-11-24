@@ -1,5 +1,3 @@
-import { batch } from 'solid-js';
-
 type Source = {
   readonly subscribe: (listener: () => void) => () => void;
 };
@@ -10,7 +8,7 @@ type Subscription = {
 
 const subscriptions = new WeakMap<Source, Subscription>();
 
-/** One source notification is one Solid update, including across component owners. */
+/** Every reader of a source shares one subscription, so one notification is one Solid update. */
 export function subscribeRoom(
   source: Source,
   listener: () => void
@@ -19,11 +17,9 @@ export function subscribeRoom(
   if (subscription === undefined) {
     const listeners = new Set([listener]);
     const unsubscribe = source.subscribe(() => {
-      batch(() => {
-        for (const notify of [...listeners]) {
-          if (listeners.has(notify)) notify();
-        }
-      });
+      for (const notify of [...listeners]) {
+        if (listeners.has(notify)) notify();
+      }
     });
     subscription = { listeners, unsubscribe };
     subscriptions.set(source, subscription);

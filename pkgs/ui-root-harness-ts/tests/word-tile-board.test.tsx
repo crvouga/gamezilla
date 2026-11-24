@@ -10,7 +10,7 @@ import {
   type WordTileBoardCell,
 } from '@pkgs/ui-root-client-ts/word-tile-board';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import WordTileBoardExample from '../../ui-root-client-ts/src/word-tile-board/word-tile-board.example';
 
 function example() {
@@ -101,6 +101,7 @@ test('the board reads its squares once per change, however a caller computes the
   ));
   expect(reads).toBe(1);
   setLetter('B');
+  flush();
   expect([reads, view.getByTestId('counted-cell-c4').textContent]).toEqual([
     2,
     'B 1',
@@ -233,6 +234,7 @@ test('square details show the center value, inspect committed tiles, and preserv
         : cell
     )
   );
+  flush();
   expect(details.textContent).toBe('Z 10, b1, your tentative tile');
   expect(actions).toEqual(['cell-1']);
 });
@@ -288,6 +290,7 @@ test('a placement updates the changed square in place instead of rebuilding the 
     setAttribute(name, value);
   };
   setLetter('S');
+  flush();
   const squaresAfter = overview();
   expect(squaresAfter).toHaveLength(9);
   expect(squaresAfter.every((square, at) => square === squaresBefore[at])).toBe(

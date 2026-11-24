@@ -7,7 +7,7 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, For, Show } from 'solid-js';
+import { createMemo, For, Show } from 'solid-js';
 import {
   AppStageHandle,
   type AppStageHandleProps,
@@ -49,18 +49,19 @@ function StageView(props: {
   readonly view: AppStageView;
   readonly shown: boolean;
 }): JSX.Element {
-  const [seen, setSeen] = createSignal(false);
-  createEffect(() => {
-    if (props.shown) setSeen(true);
-  });
+  // Latches: a view mounts the first time it is shown and stays mounted.
+  const seen = createMemo<boolean>((was) => was === true || props.shown);
   return (
     <section
-      class={["box absolute inset-0 overflow-hidden bg-background", {
-        'invisible pointer-events-none z-0': !props.shown,
-        'z-1': props.shown,
-      }]}
+      class={[
+        'box absolute inset-0 overflow-hidden bg-background',
+        {
+          'invisible pointer-events-none z-0': !props.shown,
+          'z-1': props.shown,
+        },
+      ]}
       inert={!props.shown}
-      aria-hidden={!props.shown}
+      aria-hidden={props.shown ? 'false' : 'true'}
       aria-label={props.view.title}
       data-component={componentId('AppStageView')}
       {...dataAttrs({

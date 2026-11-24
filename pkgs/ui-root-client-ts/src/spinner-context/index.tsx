@@ -31,11 +31,7 @@ export function SpinnerProvider(props: { children: JSX.Element }): JSX.Element {
   const value: SpinnerContextValue = {
     phaseOffsetMs: () => (clock.now() - origin) % SPIN_DURATION_MS,
   };
-  return (
-    <SpinnerContext value={value}>
-      {props.children}
-    </SpinnerContext>
-  );
+  return <SpinnerContext value={value}>{props.children}</SpinnerContext>;
 }
 
 /**

@@ -3,8 +3,8 @@
 
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import ArrowUpRight from 'lucide/dist/esm/icons/arrow-up-right.mjs';
 import type { JSX } from '@solidjs/web';
+import ArrowUpRight from 'lucide/dist/esm/icons/arrow-up-right.mjs';
 import { Show } from 'solid-js';
 import { createIcon } from '../create-icon/index';
 import { Icon } from '../icon/index';

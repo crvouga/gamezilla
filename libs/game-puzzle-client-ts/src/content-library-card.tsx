@@ -33,11 +33,13 @@ export function ContentProgressLine(props: {
   return (
     <Text variant="inherit" testId="content-progress">
       <Show when={props.pack} fallback={solved()}>
-        {(pack) =>
-          props.solved === true
-            ? t`Solved · ${count()} in ${pack()}`
-            : t`Pack: ${pack()} · ${solved()}`
-        }
+        {(pack) => (
+          <>
+            {props.solved === true
+              ? t`Solved · ${count()} in ${pack()}`
+              : t`Pack: ${pack()} · ${solved()}`}
+          </>
+        )}
       </Show>
     </Text>
   );

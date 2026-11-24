@@ -9,7 +9,7 @@ import {
   type PuzzleFeedConfig,
 } from '@libs/game-puzzle-shared-ts/feed-config';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { createComputed, createMemo, createSignal, on } from 'solid-js';
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
   PUZZLE_PLAY_PLACES,
@@ -82,7 +82,7 @@ export function useStoryPuzzlePlaces(args: {
   readonly home: () => void;
 } {
   const nav = useScreenPlace(PUZZLE_PLAY_PLACES, args.stage);
-  createComputed(on(args.place, (place) => nav.open(place)));
+  createEffect(args.place, (place) => untrack(() => nav.open(place)));
   return {
     place: nav.place,
     onOpen: (place) => {

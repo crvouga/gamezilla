@@ -4,7 +4,7 @@ import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { type JSX, Dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import { ContentAttemptControls } from './content-attempt-controls';
 import { ContentAttemptNext } from './content-attempt-next';
@@ -141,6 +141,7 @@ function AttemptBody(props: {
   source: ContentBody;
 }): JSX.Element {
   const game = useContentGame();
+  const Player = dynamic(() => game.client.Player);
   const nav = useContentPlace();
   const data = useContentLibraryState();
   const writer = useContentAttemptChange(() => props.attempt);
@@ -169,8 +170,7 @@ function AttemptBody(props: {
       player={
         <Show when={progress()}>
           {(state) => (
-            <Dynamic
-              component={game.client.Player}
+            <Player
               definition={props.source.definition}
               state={state().state}
               disabled={writer.pending() || rulesChanged()}

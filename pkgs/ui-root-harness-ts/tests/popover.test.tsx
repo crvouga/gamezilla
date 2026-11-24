@@ -8,7 +8,7 @@ import { Text } from '@pkgs/ui-root-client-ts/text';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 function Harness(props: {
@@ -117,6 +117,7 @@ describe('Popover', () => {
     ));
     expect(screen.getByRole('dialog', { name: 'Owned' })).toBeTruthy();
     setOpen(false);
+    flush();
     expect(screen.queryByRole('dialog', { name: 'Owned' })).toBeNull();
   });
 });

@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, Match, on, Switch } from 'solid-js';
+import { createEffect, Match, Switch, untrack } from 'solid-js';
 import type {
   MutationPhase,
   MutationStateTransition,
@@ -161,12 +161,11 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
   });
   // Every open starts from the confirm body again.
   createEffect(
-    on(
-      () => props.visible,
-      (visible) => {
-        if (visible && lifecycle.phase() !== 'loading') lifecycle.reset();
-      }
-    )
+    () => props.visible,
+    (visible) => {
+      // The phase as it stands at the open: a later phase change is not one.
+      if (visible && untrack(lifecycle.phase) !== 'loading') lifecycle.reset();
+    }
   );
   const dismissSuccess = (): void => {
     props.onClose();

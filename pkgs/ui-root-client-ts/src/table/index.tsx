@@ -96,9 +96,10 @@ export function Table<R>(props: TableProps<R>): JSX.Element {
   const layout = useThemeLayout();
   const { i18n } = useLingui();
   const wide = (): boolean => layout.breakpoint() !== 'mobile';
-  // The first order is the caller's; after that it is the reader's choice.
+  // The first order is the caller's; after that it is the reader's choice,
+  // until the caller names another default.
   const [sort, setSort] = createSignal<TableSort | undefined>(
-    props.defaultSort
+    () => props.defaultSort
   );
   const body: TableBodyProps<R> = {
     get columns() {

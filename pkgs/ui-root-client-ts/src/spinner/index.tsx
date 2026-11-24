@@ -102,7 +102,7 @@ export function Spinner(props: SpinnerProps): JSX.Element {
         props.decorative === true ? undefined : (props.label ?? t`Loading…`)
       }
       aria-live={props.decorative === true ? undefined : 'polite'}
-      aria-hidden={props.decorative === true ? true : undefined}
+      aria-hidden={props.decorative === true ? 'true' : undefined}
     >
       <svg
         class={`${styles['petals']} size-full`}

@@ -216,7 +216,7 @@ export function ChipGroup<K extends string = string>(
             ? labelId
             : undefined
         }
-        aria-disabled={props.disabled === true ? true : undefined}
+        aria-disabled={props.disabled === true ? 'true' : undefined}
       >
         <Show
           when={isMultiple(props) ? props : undefined}

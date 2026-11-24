@@ -8,7 +8,13 @@ import type {
 } from '@pkgs/room-root-shared-ts/types';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createMemo, createSignal, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createMemo,
+  createSignal,
+  useContext,
+} from 'solid-js';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
@@ -84,25 +90,25 @@ export function SpaceOpenRoomsStoreProvider(props: {
     current: null,
   };
 
+  // The registry as of the latest commit. Imperative readers (dispatch, refs)
+  // use it so a command sent right after a commit reaches the room instead
+  // of the buffer the commit has already emptied.
+  let committed: ReadonlyMap<string, SpaceOpenRoomEntry> = new Map();
+
   const setEntry: SpaceOpenRoomsRegistrySetter = (spaceId, entry) => {
-    setEntries((prev) => {
-      const current = prev.get(spaceId) ?? null;
-      if (entry === null) {
-        if (current === null) return prev;
-        const next = new Map(prev);
-        next.delete(spaceId);
-        return next;
-      }
-      if (current?.room === entry.room && current.clientId === entry.clientId) {
-        return prev;
-      }
-      const next = new Map(prev);
-      next.set(spaceId, entry);
-      return next;
-    });
+    const current = committed.get(spaceId) ?? null;
+    const unchanged =
+      entry === null
+        ? current === null
+        : current?.room === entry.room && current.clientId === entry.clientId;
+    if (!unchanged) {
+      const next = new Map(committed);
+      if (entry === null) next.delete(spaceId);
+      else next.set(spaceId, entry);
+      committed = next;
+      setEntries(next);
+    }
     if (entry !== null) {
-      // Keep a ref view in sync before flush so concurrent dispatch sees the
-      // room even before the signal write settles.
       pendingRef.current.flush(spaceId, (payload) => {
         entry.room.dispatch(payload);
       });
@@ -127,9 +133,9 @@ export function SpaceOpenRoomsStoreProvider(props: {
       changeView(spaceId, 1);
       return () => changeView(spaceId, -1);
     },
-    getEntry: (spaceId) => entries().get(spaceId) ?? null,
+    getEntry: (spaceId) => committed.get(spaceId) ?? null,
     dispatch: (spaceId, payload) => {
-      const entry = entries().get(spaceId);
+      const entry = committed.get(spaceId);
       if (entry !== undefined) {
         entry.room.dispatch(payload);
         return;

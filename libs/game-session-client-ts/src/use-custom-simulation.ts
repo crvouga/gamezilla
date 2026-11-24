@@ -1,14 +1,23 @@
 import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
-import { useSpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
+import {
+  type SpaceOpenRoomEntry,
+  useSpaceOpenRoomEntry,
+} from '@libs/spaces-client-ts/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  untrack,
+} from 'solid-js';
 import { connectCustomSimulation } from './custom-simulation-session';
 
 /** The screen owns one controller for its board and its choices. */
@@ -32,14 +41,7 @@ export function useCustomSimulation(
   const [elsewhere, setElsewhere] = createSignal(false);
   let connection: ReturnType<typeof connectCustomSimulation> | null = null;
   const key = useSimulationKey(current, myId);
-  createEffect(() => {
-    const room = entry()?.room;
-    const id = key();
-    setPosition(null);
-    setError(false);
-    setSteering({});
-    setElsewhere(false);
-    if (room === undefined || id === '') return;
+  const connect = (room: SpaceOpenRoomEntry['room']): (() => void) => {
     const next = connectCustomSimulation({
       room,
       game: untrack(current)!,
@@ -61,11 +63,22 @@ export function useCustomSimulation(
       },
     });
     connection = next;
-    onCleanup(() => {
+    return () => {
       next.dispose();
       if (connection === next) connection = null;
-    });
-  });
+    };
+  };
+  createEffect(
+    () => ({ room: entry()?.room, id: key() }),
+    (now) => {
+      setPosition(null);
+      setError(false);
+      setSteering({});
+      setElsewhere(false);
+      if (now.room === undefined || now.id === '') return;
+      return connect(now.room);
+    }
+  );
   const sides = useSteeredSides(current, myId, allowed, {
     steering,
     elsewhere,

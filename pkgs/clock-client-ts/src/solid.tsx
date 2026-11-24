@@ -3,7 +3,13 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createEffect, createMemo, createSignal, onCleanup, type ParentProps } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+  type ParentProps,
+} from 'solid-js';
 
 export type ClockContextValue = {
   readonly clock: Clock;
@@ -58,14 +64,13 @@ export function createTimedValue<T>(
     const value = compute(nowMs);
     return { value, nowMs, at: changesAt(value, nowMs) };
   });
-  createEffect(() => {
-    const { at, nowMs } = reading();
+  createEffect(reading, ({ at, nowMs }) => {
     if (at === null) return;
     const handle = timers.setTimeout(
       () => setTick((n) => n + 1),
       Math.max(0, at - nowMs)
     );
-    onCleanup(() => timers.clearTimeout(handle));
+    return () => timers.clearTimeout(handle);
   });
   return () => reading().value;
 }

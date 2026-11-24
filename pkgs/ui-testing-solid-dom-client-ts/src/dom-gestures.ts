@@ -12,6 +12,7 @@ import type {
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { LayoutProvider } from './dom-layout';
 import { ensureElementLayout, pointFromRatio } from './dom-layout';
+import { dispatchSettled } from './settle';
 
 type Point = { readonly x: number; readonly y: number };
 
@@ -56,13 +57,13 @@ function dispatchPointer(
   button: PointerButton
 ): void {
   const init = pointerInit(phase, point, button);
-  element.dispatchEvent(new PointerEvent(`pointer${phase}`, init));
+  dispatchSettled(element, new PointerEvent(`pointer${phase}`, init));
   const mouseType =
     phase === 'down' ? 'mousedown' : phase === 'up' ? 'mouseup' : 'mousemove';
-  element.dispatchEvent(new MouseEvent(mouseType, init));
+  dispatchSettled(element, new MouseEvent(mouseType, init));
   // A secondary press opens the context menu (on press, as macOS / Linux do).
   if (phase === 'down' && button === 'secondary') {
-    element.dispatchEvent(new MouseEvent('contextmenu', init));
+    dispatchSettled(element, new MouseEvent('contextmenu', init));
   }
 }
 
@@ -73,7 +74,10 @@ function dispatchRelease(
   button: PointerButton
 ): void {
   const type = button === 'primary' ? 'click' : 'auxclick';
-  element.dispatchEvent(new MouseEvent(type, pointerInit('up', point, button)));
+  dispatchSettled(
+    element,
+    new MouseEvent(type, pointerInit('up', point, button))
+  );
 }
 
 /** Press + release at a relative position, followed by `click`. */

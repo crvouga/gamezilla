@@ -1,14 +1,23 @@
 /** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, For, on, Show } from 'solid-js';
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  Show,
+  untrack,
+} from 'solid-js';
 import { Button } from '../button/index';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
 import { CardTableContext } from './table-context';
+import { moveFocus } from '../move-focus';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
 export type CardTablePosition = 'bottom' | 'left' | 'top' | 'right';
@@ -347,21 +356,20 @@ function createHandFocus(
   // rather than falling out of the hand, unless it went elsewhere first.
   let played = false;
   createEffect(
-    on(
-      ids,
-      () => {
-        const at = Math.min(current(), Math.max(0, ids().length - 1));
-        setCurrent(at);
-        const active = row()?.ownerDocument.activeElement;
-        const lost =
-          active === null ||
-          active === undefined ||
-          active === row()?.ownerDocument.body;
-        if (played && lost) buttons()[at]?.focus();
-        played = false;
-      },
-      { defer: true }
-    )
+    // The hand alone starts this over; where the person was is only read.
+    () => ({ last: ids().length - 1, was: untrack(current) }),
+    ({ last, was }) => {
+      const at = Math.min(was, Math.max(0, last));
+      setCurrent(at);
+      const active = row()?.ownerDocument.activeElement;
+      const lost =
+        active === null ||
+        active === undefined ||
+        active === row()?.ownerDocument.body;
+      if (played && lost) moveFocus(buttons()[at]);
+      played = false;
+    },
+    { defer: true }
   );
   const move = (event: KeyboardEvent, at: number): void => {
     const step = MOVES[event.key];
@@ -421,13 +429,13 @@ function Hand(
                   data-testid={props.cardTestId(id)}
                   data-card={id}
                   aria-label={spokenName(card())}
-                  aria-pressed={card().selected ?? undefined}
-                  aria-disabled={!card().enabled}
+                  aria-pressed={ariaBoolean(card().selected ?? undefined)}
+                  aria-disabled={ariaBoolean(!card().enabled)}
                   aria-describedby={props.reasonId(
                     card().refusal ?? props.handWaiting ?? ''
                   )}
                   title={card().refusal ?? props.handWaiting}
-                  tabIndex={index() === focus.current() ? 0 : -1}
+                  tabindex={index() === focus.current() ? 0 : -1}
                   onFocus={() => focus.setCurrent(index())}
                   onKeyDown={(event) => focus.move(event, index())}
                   onClick={() => {
@@ -602,7 +610,11 @@ export function CardTable(props: CardTableProps): JSX.Element {
     () => new Map(props.seats.map((seat) => [seat.testId, seat]))
   );
   // Why the last card pressed was refused, until the table moves on.
-  const [refusal, setRefusal] = createSignal('');
+  const [refusal, setRefusal] = createSignal(() => {
+    // Read only so that a table that moves on starts over.
+    void props.center;
+    return '';
+  });
   const reasons = createMemo(() => [
     ...new Set(
       props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
@@ -614,13 +626,6 @@ export function CardTable(props: CardTableProps): JSX.Element {
     const index = reasons().indexOf(reason);
     return index < 0 ? undefined : `${props.testId}-reason-${index}`;
   };
-  createEffect(
-    on(
-      () => props.center,
-      () => setRefusal(''),
-      { defer: true }
-    )
-  );
   return (
     <div
       class={styles['root']}

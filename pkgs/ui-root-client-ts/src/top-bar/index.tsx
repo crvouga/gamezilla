@@ -62,9 +62,12 @@ function FlexLayout(props: SlotsProps): JSX.Element {
         </div>
       </Show>
       <div
-        class={["box grow shrink basis-auto min-w-0 flex-row items-center", {
-          [ALIGN_CLASS[props.centerAlign ?? 'start']]: true,
-        }]}
+        class={[
+          'box grow shrink basis-auto min-w-0 flex-row items-center',
+          {
+            [ALIGN_CLASS[props.centerAlign ?? 'start']]: true,
+          },
+        ]}
       >
         {props.center}
       </div>
@@ -79,7 +82,10 @@ function AbsoluteCenterLayout(props: SlotsProps): JSX.Element {
       <div class={`box justify-start ${SIDE_SLOT_CLASS}`}>{props.leading}</div>
       <div class={`box justify-end ${SIDE_SLOT_CLASS}`}>{props.trailing}</div>
       <div
-        class={["box absolute inset-0 flex-row items-center justify-center z-2 px-12", { boxNone: true }]}
+        class={[
+          'box absolute inset-0 flex-row items-center justify-center z-2 px-12',
+          { boxNone: true },
+        ]}
       >
         <div class="box min-w-0 max-w-full">{props.center}</div>
       </div>
@@ -113,11 +119,14 @@ export function TopBar(props: TopBarProps): JSX.Element {
     props.centerPosition !== 'flex';
   return (
     <header
-      class={["box shrink-0 bg-background border-b", {
-        safeTop: props.safeAreaTop !== false,
-        'border-border': props.divider !== false,
-        'border-transparent': props.divider === false,
-      }]}
+      class={[
+        'box shrink-0 bg-background border-b',
+        {
+          safeTop: props.safeAreaTop !== false,
+          'border-border': props.divider !== false,
+          'border-transparent': props.divider === false,
+        },
+      ]}
       {...dataAttrs({
         component: 'TopBar',
         divider: props.divider === false ? 'none' : 'hairline',

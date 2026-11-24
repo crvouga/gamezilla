@@ -12,7 +12,7 @@ import {
 } from '@pkgs/chess-board-core-shared-ts/probe';
 import { COMPONENT_IDS_ENABLED } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Show, type Accessor } from 'solid-js';
+import { type Accessor, createMemo, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
 import type { BoardController } from '../chess-board-controller';

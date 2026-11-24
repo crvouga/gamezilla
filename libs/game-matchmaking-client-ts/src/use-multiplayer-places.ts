@@ -7,7 +7,12 @@ import {
   useScreenPlace,
 } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
 import type { MultiplayerFindChoice } from './matchmaking-home-view';
 import type { MultiplayerConfirm } from './multiplayer-game-view';
 import {
@@ -67,8 +72,10 @@ export function useMultiplayerPlaces(
   leaveMoves: () => void
 ): ScreenPlaceNavigation<MultiplayerPlace> {
   const nav = useScreenPlace(MULTIPLAYER_PLACES, stage);
-  createEffect<Shown | undefined>((before) => {
-    const shown: Shown = { stage: stage(), place: nav.place() };
+  // What was last settled on: a kept place counts as shown before the
+  // navigation that opens it reports back.
+  let before: Shown | undefined;
+  const settle = (shown: Shown): Shown => {
     if (before === undefined) return shown;
     if (shown.stage !== before.stage) {
       const kept = multiplayerPlaceKept(before, shown.stage);
@@ -81,7 +88,13 @@ export function useMultiplayerPlaces(
     if (before.place.screen === 'moves' && shown.place.screen !== 'moves')
       leaveMoves();
     return shown;
-  });
+  };
+  createEffect(
+    (): Shown => ({ stage: stage(), place: nav.place() }),
+    (shown) => {
+      before = settle(shown);
+    }
+  );
   return nav;
 }
 

@@ -24,7 +24,7 @@ import {
 } from '@pkgs/ui-root-shared-ts/token-names';
 import { surfaceToneColor } from '@pkgs/ui-root-shared-ts/tones';
 import { render } from '@solidjs/testing-library';
-import { createSignal, For } from 'solid-js';
+import { createSignal, flush, For } from 'solid-js';
 
 function classes(testId: string): readonly string[] {
   const element = document.querySelector(`[data-testid="${testId}"]`);
@@ -144,6 +144,7 @@ describe('Stack', () => {
     ));
     expect(classes('r')).toEqual(['box', 'gap-ui-xs']);
     setWide(true);
+    flush();
     expect(classes('r')).toEqual(['box', 'gap-ui-xl', 'hidden']);
     expect(
       document.querySelector('[data-testid="r"]')?.hasAttribute('hidden')

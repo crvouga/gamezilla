@@ -4,6 +4,7 @@ import { describe, expect, test } from 'bun:test';
 import { ScreenMirror } from '@pkgs/ui-root-client-ts/screen-mirror';
 import { screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
+import { flush } from 'solid-js';
 
 describe('ScreenMirror', () => {
   test('draws the other screen in a sandbox where nothing can run', () => {
@@ -44,6 +45,7 @@ describe('ScreenMirror', () => {
     const [html, setHtml] = createSignal('<body><p>Spaces</p></body>');
     renderUi(() => <ScreenMirror title="Bob's screen" html={html()} />);
     setHtml('<body><p>Settings</p></body>');
+    flush();
     const srcdoc = screen.getByTitle("Bob's screen").getAttribute('srcdoc');
     expect(srcdoc).toContain('Settings');
     expect(srcdoc).not.toContain('Spaces');

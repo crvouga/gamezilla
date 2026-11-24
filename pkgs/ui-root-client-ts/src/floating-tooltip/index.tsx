@@ -1,6 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 import { type JSX, Portal } from '@solidjs/web';
-import { createEffect, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createSignal } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 import type { TooltipPlacement } from '../tooltip/index';
 import styles from '../tooltip/tooltip.module.css';
@@ -17,13 +17,17 @@ export function FloatingTooltip(props: {
   const theme = useThemeTokens();
   const [position, setPosition] = createSignal<JSX.CSSProperties>({});
   let bubble: HTMLDivElement | undefined;
-  createEffect(() => {
-    if (!props.visible()) return;
+  const shown = () =>
+    props.visible()
+      ? { anchor: props.anchor(), placement: props.placement() }
+      : undefined;
+  createEffect(shown, (tip) => {
+    if (tip === undefined) return undefined;
+    const { anchor, placement } = tip;
     const update = () => {
-      const rect = props.anchor()?.getBoundingClientRect();
+      const rect = anchor?.getBoundingClientRect();
       if (!rect || !bubble) return;
       const size = bubble.getBoundingClientRect();
-      const placement = props.placement();
       const above = placement.startsWith('top');
       let left = rect.left + (rect.width - size.width) / 2;
       if (placement.endsWith('-start')) left = rect.left;
@@ -37,16 +41,19 @@ export function FloatingTooltip(props: {
     update();
     window.addEventListener('resize', update);
     document.addEventListener('scroll', update, true);
-    onCleanup(() => {
+    return () => {
       window.removeEventListener('resize', update);
       document.removeEventListener('scroll', update, true);
-    });
+    };
   });
   return (
     <Portal>
       <div
         ref={bubble}
-        class={["box fixed pointer-events-none w-max max-w-full", { [styles['floating-layer'] ?? '']: true }]}
+        class={[
+          'box fixed pointer-events-none w-max max-w-full',
+          { [styles['floating-layer'] ?? '']: true },
+        ]}
         style={position()}
         data-component="FloatingTooltip"
         data-theme={theme.colorScheme()}

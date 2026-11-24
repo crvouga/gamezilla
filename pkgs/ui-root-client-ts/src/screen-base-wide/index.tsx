@@ -46,7 +46,10 @@ function WidePageHeader(
   const measure = useScreenMeasure(() => props.measure);
   return (
     <header
-      class={["box flex-row items-end gap-3 shrink-0 min-h-13 pt-2 pb-4", { 'w-full': props.measure !== undefined }]}
+      class={[
+        'box flex-row items-end gap-3 shrink-0 min-h-13 pt-2 pb-4',
+        { 'w-full': props.measure !== undefined },
+      ]}
       style={{ 'max-width': measure().maxWidth }}
       data-component="ScreenBaseHeader"
     >
@@ -118,7 +121,10 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
       when={props.scroll}
       fallback={
         <div
-          class={["box flex-1 min-h-0 gap-2", { 'w-full': props.measure !== undefined }]}
+          class={[
+            'box flex-1 min-h-0 gap-2',
+            { 'w-full': props.measure !== undefined },
+          ]}
           style={{ 'max-width': measure().maxWidth }}
         >
           {inner}

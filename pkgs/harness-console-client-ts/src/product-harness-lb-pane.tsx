@@ -10,8 +10,12 @@ import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createEffect, createSignal, For, onCleanup, Show } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { InspectorRow, InspectorSection } from './inspector-row';
+import { createLiveReading, subscribeWithPolling } from './live-reading';
+
+/** How often a node is read again without being told it changed. */
+const POLL_MS = 500;
 
 function BalancerSummary(props: {
   readonly snapshot: ProductHarnessLoadBalancerSnapshot;
@@ -87,18 +91,12 @@ export function ProductHarnessLoadBalancerPane(props: {
   readonly subscribe: (listener: () => void) => () => void;
 }) {
   const timers = useTimers();
-  const [snapshot, setSnapshot] = createSignal(props.loadBalancer.inspect());
-
-  createEffect(() => {
-    const { loadBalancer, subscribe } = props;
-    const refresh = () => setSnapshot(loadBalancer.inspect());
-    refresh();
-    const unsub = subscribe(refresh);
-    const handle = timers.setInterval(refresh, 500);
-    onCleanup(() => {
-      unsub();
-      timers.clearInterval(handle);
-    });
+  const snapshot = createLiveReading(() => {
+    const loadBalancer = props.loadBalancer;
+    return {
+      read: () => loadBalancer.inspect(),
+      subscribe: subscribeWithPolling(props.subscribe, timers, POLL_MS),
+    };
   });
 
   const recent = () => [...snapshot().recentRoutes].reverse();

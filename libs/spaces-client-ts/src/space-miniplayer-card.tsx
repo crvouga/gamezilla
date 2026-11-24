@@ -24,7 +24,7 @@ export type SpaceMiniplayerCardProps = {
 export function SpaceMiniplayerCard(
   props: SpaceMiniplayerCardProps
 ): JSX.Element {
-  const endedAt = useSpaceColumn(props.spaceId, SpaceField.endedAt);
+  const endedAt = useSpaceColumn(() => props.spaceId, SpaceField.endedAt);
   // Treat only real timestamps as ended (empty/undefined → still live).
   const live = createMemo((): boolean => {
     const current = endedAt();

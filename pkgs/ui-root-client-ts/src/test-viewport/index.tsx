@@ -20,9 +20,7 @@ export function TestViewportProvider(props: {
   // prop once at creation time is correct (not a reactive solid signal).
   const val = untrack(() => props.value);
   return (
-    <TestViewportContext value={val}>
-      {props.children}
-    </TestViewportContext>
+    <TestViewportContext value={val}>{props.children}</TestViewportContext>
   );
 }
 
