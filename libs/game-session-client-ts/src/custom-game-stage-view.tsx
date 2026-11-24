@@ -136,11 +136,15 @@ function lineSpokenOnly(props: Props): boolean {
 function PlayLine(props: Props): JSX.Element {
   // The viewer's own plain turn reads "Your turn.", the sentence the
   // matchmaking stage uses, beside the seat that says "Your move".
+  // Someone else's plain turn names the player, as a watcher's line does
+  // ("jordan_plays to move."), not only their pieces.
   const status = (): Props['status'] => {
     const line = props.status;
-    return line !== null && line.plainTurn && line.emphasis === 'yours'
-      ? { ...line, description: t`Your turn.` }
-      : line;
+    if (line === null || !line.plainTurn) return line;
+    if (line.emphasis === 'yours')
+      return { ...line, description: t`Your turn.` };
+    const name = moverName(props);
+    return name === null ? line : { ...line, description: t`${name} to move.` };
   };
   return (
     <FrameStatusView

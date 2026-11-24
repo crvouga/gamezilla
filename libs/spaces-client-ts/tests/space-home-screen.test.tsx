@@ -238,7 +238,7 @@ test('Share is one of the space\u2019s actions and opens the share sheet', () =>
 // regression: space-seats-explained-twice
 // regression: game-list-watch-rule-unclear
 // regression: space-game-list-repeats-spectator-rule
-test('each tile says only how many play; nothing says who watches twice', () => {
+test('each tile says how many play and how many watch, once', () => {
   const container = mount({ role: 'host', people: [you(AVERY), ...GUESTS] });
   const text = container.textContent ?? '';
   expect(text).toContain('Pick a game for 5 players');
@@ -247,10 +247,10 @@ test('each tile says only how many play; nothing says who watches twice', () => 
     (game) => screen.getByTestId(Handles.gameMenu(game.id)).textContent ?? ''
   );
   expect(marks).toEqual([
-    'ChessUp to 2',
-    'HeartsUp to 4',
-    'Light CyclesUp to 4',
-    'NumberlinkSolo',
+    'Chess2 play · 3 watch',
+    'Hearts4 play · 1 watches',
+    'Light Cycles4 play · 1 watches',
+    'NumberlinkSolo · 4 watch',
   ]);
 });
 

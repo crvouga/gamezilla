@@ -4,6 +4,7 @@ import { useLingui } from '@lingui/solid/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { For, type JSX, Show } from 'solid-js';
+import { type SpaceGameFit, spaceGameFit } from '../space-game-fit';
 import type { SpaceRole } from '../space-types';
 import { Spinner } from '../spinner/index';
 import styles from './space-launcher.module.css';
@@ -75,6 +76,30 @@ function useCopy(props: SpaceLauncherProps) {
   };
 }
 
+/** Where a fit sorts: games everyone here can play lead, short ones last. */
+const FIT_ORDER: Readonly<Record<SpaceGameFit['kind'], number>> = {
+  fits: 0,
+  bots: 1,
+  tooMany: 2,
+  solo: 3,
+  needs: 4,
+};
+
+/**
+ * The games in the order a group reads them: those that seat everyone here
+ * first (with bots next), then those where some watch, then those too few
+ * are here for. The given order holds within each.
+ */
+function orderedGames(
+  games: readonly SpaceLauncherGame[],
+  present: number,
+  viewer: SpaceRole
+): SpaceLauncherGame[] {
+  const rank = (game: SpaceLauncherGame): number =>
+    FIT_ORDER[spaceGameFit(game.players, present, viewer).kind];
+  return [...games].sort((a, b) => rank(a) - rank(b));
+}
+
 /**
  * `SpaceLauncher` -- the stage while the host chooses a game: a status
  * line, then a grid of game tiles (four across on a phone), one per game.
@@ -120,7 +145,16 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
       </section>
       <section class={styles['games']} aria-label={copy.section()}>
         <div class={styles['grid']}>
-          <For each={props.games}>
+          <For
+            each={orderedGames(
+              props.games,
+              props.present,
+              // A guest who cannot suggest reads every game as the host does.
+              props.role === 'guest' && props.onSuggest === undefined
+                ? 'host'
+                : props.role
+            )}
+          >
             {(game) => (
               <SpaceLauncherTile
                 game={game}

@@ -24,7 +24,7 @@ export type SpaceLauncherGame = Pick<
 };
 
 /** The fit of a game in words: `2–4 players`, `Needs 4`, `4 · add 2 bots`. */
-export function useFitWords(): (fit: SpaceGameFit) => string {
+export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
   const { t } = useLingui();
   const counts = (values: readonly number[]): string => {
     const first = values[0] ?? 1;
@@ -36,10 +36,18 @@ export function useFitWords(): (fit: SpaceGameFit) => string {
     if (values.length === 2) return t`${first} or ${last}`;
     return t`${values.join(', ')} players`;
   };
-  return (fit) => {
+  // With the head count, a game that seats fewer says who sits out.
+  const watch = (n: number): string => (n === 1 ? t`1 watches` : t`${n} watch`);
+  return (fit, present) => {
     if (fit.kind === 'fits') return counts(fit.counts);
-    if (fit.kind === 'solo') return t`Solo`;
-    if (fit.kind === 'tooMany') return t`Up to ${fit.max}`;
+    if (fit.kind === 'solo')
+      return present === undefined || present < 2
+        ? t`Solo`
+        : t`Solo · ${watch(present - 1)}`;
+    if (fit.kind === 'tooMany')
+      return present === undefined
+        ? t`Up to ${fit.max}`
+        : t`${fit.max} play · ${watch(present - fit.max)}`;
     if (fit.kind === 'needs') return t`Needs ${fit.target}`;
     return fit.bots === 1
       ? t`${fit.target} · add 1 bot`
@@ -50,6 +58,7 @@ export function useFitWords(): (fit: SpaceGameFit) => string {
 function TileMark(props: {
   game: SpaceLauncherGame;
   fit: SpaceGameFit;
+  present: number;
   looking: boolean;
   hostName: string;
 }): JSX.Element {
@@ -59,7 +68,7 @@ function TileMark(props: {
     <Switch
       fallback={
         <span class={`text textCaption ${styles['fit']}`}>
-          {fitWords(props.fit)}
+          {fitWords(props.fit, props.present)}
         </span>
       }
     >
@@ -136,6 +145,7 @@ export function SpaceLauncherTile(props: {
       <TileMark
         game={props.game}
         fit={fit()}
+        present={props.present}
         looking={props.looking}
         hostName={props.hostName}
       />

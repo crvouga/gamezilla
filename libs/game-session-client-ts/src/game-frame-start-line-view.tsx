@@ -169,9 +169,14 @@ export function FrameStartView(
                 tone="secondary"
                 testId="custom-game-startable"
               >
-                {/* The page already says they watch; this says where the
-                    game stands. */}
-                {startLine(props.start, props.invitedTo)}
+                {/* Where the game stands, never an instruction they cannot
+                    follow: "Everyone is ready." for one they cannot start. */}
+                <Show
+                  when={props.start.reason !== null}
+                  fallback={<Trans>Everyone is ready.</Trans>}
+                >
+                  {startLine(props.start, props.invitedTo)}
+                </Show>
               </P>
             </>
           }

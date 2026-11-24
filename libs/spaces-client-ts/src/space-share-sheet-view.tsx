@@ -140,13 +140,6 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
       <Show when={props.peopleStatus === 'loading'}>
         <LoadingState variant="compact" size="sm" />
       </Show>
-      <Show when={props.peopleStatus === 'ready' && props.people.length === 0}>
-        <EmptyState
-          variant="compact"
-          title={<Trans>No one added yet</Trans>}
-          body={<Trans>Copy the link above to invite people.</Trans>}
-        />
-      </Show>
       <Show when={props.people.length > 0}>
         <List>
           <For each={props.people}>
@@ -160,6 +153,19 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
             )}
           </For>
         </List>
+      </Show>
+      {/* Only the host so far: their row stays, the invitation under it. */}
+      <Show
+        when={
+          props.peopleStatus === 'ready' &&
+          props.people.every((person) => person.id === props.hostId)
+        }
+      >
+        <EmptyState
+          variant="compact"
+          title={<Trans>No one added yet</Trans>}
+          body={<Trans>Copy the link above to invite people.</Trans>}
+        />
       </Show>
     </StackVertical>
   );

@@ -100,7 +100,7 @@ export function SpaceCardTileView(props: {
               size="lg"
             />
             <StackVertical grow shrink gap="xs">
-              <Text variant="rowTitle" lines={1}>
+              <Text variant="rowTitle" lines={2}>
                 {props.space.title}
               </Text>
               <SpaceTileHost space={props.space} />

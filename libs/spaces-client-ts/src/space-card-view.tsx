@@ -201,29 +201,24 @@ export function SpaceHostPhrase(props: {
 export function SpaceGuestsPhrase(props: {
   readonly guests: readonly SpacePerson[];
 }): JSX.Element {
-  const first = (): SpacePerson | undefined => props.guests[0];
-  const second = (): SpacePerson | undefined => props.guests[1];
+  const { t } = useLingui();
+  // Plain words, so the line's clamp ends a long name in an ellipsis
+  // instead of breaking it across lines.
+  const nameOf = (person: SpacePerson | undefined): string =>
+    person === undefined || person.name.trim() === '' ? t`Guest` : person.name;
   const others = (): number => Math.max(0, props.guests.length - 1);
   return (
     <Switch fallback={<Trans>No guests yet</Trans>}>
-      <Match when={props.guests.length === 1 && first()} keyed>
-        {(guest) => <SpacePersonName person={guest} variant="caption" />}
+      <Match when={props.guests.length === 1}>{nameOf(props.guests[0])}</Match>
+      <Match when={props.guests.length === 2}>
+        <Trans>
+          {nameOf(props.guests[0])} and {nameOf(props.guests[1])}
+        </Trans>
       </Match>
-      <Match when={props.guests.length === 2 && first()} keyed>
-        {(guest) => (
-          <Trans>
-            <SpacePersonName person={guest} variant="caption" /> and{' '}
-            <SpacePersonName person={second() ?? guest} variant="caption" />
-          </Trans>
-        )}
-      </Match>
-      <Match when={props.guests.length > 2 && first()} keyed>
-        {(guest) => (
-          <Trans>
-            <SpacePersonName person={guest} variant="caption" /> and {others()}{' '}
-            others
-          </Trans>
-        )}
+      <Match when={props.guests.length > 2}>
+        <Trans>
+          {nameOf(props.guests[0])} and {others()} others
+        </Trans>
       </Match>
     </Switch>
   );

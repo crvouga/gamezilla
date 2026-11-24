@@ -451,7 +451,7 @@ describe('SpaceLauncher', () => {
     ));
     const duel = screen.getByTestId('tile-duel');
     expect(duel.getAttribute('data-dimmed')).toBe('false');
-    expect(duel.textContent).toBe('DuelUp to 2');
+    expect(duel.textContent).toBe('Duel2 play · 1 watches');
     const four = screen.getByRole('button', { name: /Four/ });
     expect(four.getAttribute('data-dimmed')).toBe('true');
     expect(four.textContent).toBe('FourNeeds 4');

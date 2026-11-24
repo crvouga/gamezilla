@@ -90,11 +90,12 @@ export const Loading: Story = {
   args: { peopleStatus: 'loading', people: [] },
 };
 
-/** Nobody added yet: the list points at the link. */
-export const Empty: Story = { args: { people: [] } };
+/** Nobody added yet: the host's own row, and the list points at the link. */
+export const Empty: Story = { args: { people: [AVERY] } };
 
-/** An addition went through: who was added and what they do next. */
+/** An addition went through: who was added, now in the list, and what they do next. */
 export const Added: Story = {
+  args: { people: [AVERY, JORDAN, PLAYBOT, MORGAN] },
   render: (args) =>
     withSlots(args, {
       addPeople: () => addPeople({ status: 'success', name: 'morgan' }),
