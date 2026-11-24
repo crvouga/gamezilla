@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Cell-feedback badges (checks, x marks, annotation glyphs) drawn in the
  * board-unit SVG layer.
@@ -27,7 +27,8 @@ import {
   glyphStyle,
   TEXT_GLYPH,
 } from '@pkgs/chess-board-root-shared-ts/feedback-badge';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { PaintToken } from '../paint-token/index';
 import { FeedbackOutline } from './outline';

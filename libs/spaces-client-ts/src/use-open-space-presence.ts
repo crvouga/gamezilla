@@ -16,8 +16,7 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import type { Accessor } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { createMemo, type Accessor } from 'solid-js';
 import { type PresencePerson, presencePeople } from './presence-people';
 import { useSpaceOpenRoomEntry } from './space-open-rooms-store';
 import { useOwnSpaceActivity } from './use-own-space-activity';

@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more/theme` — light / dark / system appearance picker persisted through
  * `ThemePreferenceProvider` (kv-backed).
  */
 
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ThemeSettingsScreenView } from './theme-screen-view';
 
 /** `/more/theme`: wires `ThemeSettingsScreenView` to the theme preference. */

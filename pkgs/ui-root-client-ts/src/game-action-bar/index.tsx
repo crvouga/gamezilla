@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { createScreenSlot } from '../screen-slot';
 import styles from './game-action-bar.module.css';
@@ -91,8 +92,7 @@ export function GameActionBar(props: GameActionBarProps): JSX.Element {
   return (
     <Show when={props.items.length > 0 || commands.present()}>
       <div
-        class={styles['actions']}
-        classList={{ 'w-full': props.width !== 'content' }}
+        class={[styles['actions'], { 'w-full': props.width !== 'content' }]}
         role="group"
         aria-label={props['aria-label']}
         {...dataAttrs({ component: 'GameActionBar', ...props.dataSet })}

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Building blocks of the Storybook matrices for the closed primitives: a
  * titled group of variants, and a labelled tile to stand in for content.
@@ -8,7 +8,7 @@
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** One variant group: what is being shown, then the variants. */
 export function ExampleSection(props: {

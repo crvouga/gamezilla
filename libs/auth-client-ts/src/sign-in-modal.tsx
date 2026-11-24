@@ -14,7 +14,7 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AuthLinkRequiredError } from '@pkgs/auth-root-client-ts/auth-link-required-error';
 import type { SignInOptions } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
@@ -25,16 +25,8 @@ import { ModalButton, ModalFooter } from '@pkgs/ui-root-client-ts/modal-parts';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSX,
-  Match,
-  on,
-  Show,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal, Match, on, Show, Switch } from 'solid-js';
 import { authFlowErrorMessage } from './auth-flow-messages';
 import { EmailSignInSurface } from './email-sign-in-surface';
 import { useSignInCapabilities } from './sign-in-capabilities-context';

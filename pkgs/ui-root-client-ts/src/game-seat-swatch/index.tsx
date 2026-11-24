@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 
 /**
@@ -118,15 +119,14 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
   };
   return (
     <span
-      class="box inline-flex flex-row shrink-0 items-center justify-center size-5"
-      classList={{
+      class={["box inline-flex flex-row shrink-0 items-center justify-center size-5", {
         'rounded-full': color() !== undefined,
         // Several paints are light on a light card (a light-cycles trail,
         // a pale disc); the outline ring keeps every painted swatch at 3:1
         // or more against the card in both themes.
         'border border-outline': color() !== undefined,
         [DOT[color() ?? 'player1']]: color() !== undefined,
-      }}
+      }]}
       role={labelled() ? 'img' : undefined}
       aria-label={labelled() ? props.label : undefined}
       aria-hidden={labelled() ? undefined : 'true'}
@@ -137,8 +137,7 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
       <Show when={props.look.mark}>
         {(mark) => (
           <span
-            class={`text textLabel whitespace-nowrap ${pawnInk() ?? ''}`}
-            classList={{
+            class={[`text textLabel whitespace-nowrap ${pawnInk() ?? ''}`, {
               'text-background':
                 color() !== undefined &&
                 !discPaint() &&
@@ -150,7 +149,7 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
               'text-game-connect-four-canvas': color() === 'disc-two',
               'text-game-light-cycles-canvas': trailPaint(),
               'text-text': color() === undefined,
-            }}
+            }]}
           >
             {mark()}
           </span>

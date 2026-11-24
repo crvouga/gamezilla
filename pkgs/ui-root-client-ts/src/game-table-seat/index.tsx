@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createContext, type JSX, Show, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, Show, useContext } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { createScreenSlot } from '../screen-slot';
@@ -132,9 +133,9 @@ export function GameTableSeats(props: {
 }): JSX.Element {
   const lend: SeatLender = (side) => props.seat(side);
   return (
-    <GameTableSeatsContext.Provider value={lend}>
+    <GameTableSeatsContext value={lend}>
       {props.children}
-    </GameTableSeatsContext.Provider>
+    </GameTableSeatsContext>
   );
 }
 

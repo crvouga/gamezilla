@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createEffect, For, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, For, on, Show } from 'solid-js';
 import type { PaletteRow } from '../command-palette-filter';
 import { CommandPaletteRow } from '../command-palette-row/index';
 import { CommandPaletteSection } from '../command-palette-section/index';

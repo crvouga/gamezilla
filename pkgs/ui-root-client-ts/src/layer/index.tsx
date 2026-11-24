@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { directionClass, flexContainerClass, spaced } from '../layout-classes';
 import type { Align, Direction, Justify, RegionRole } from '../layout-props';
 import type { Responsive } from '../responsive';

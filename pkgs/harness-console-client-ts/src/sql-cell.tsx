@@ -17,15 +17,8 @@ import { Switch } from '@pkgs/ui-root-client-ts/switch';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { Toolbar } from '@pkgs/ui-root-client-ts/toolbar';
 import type { CodeSelection } from '@pkgs/ui-root-shared-ts/code-editor-types';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, Show } from 'solid-js';
 
 import type { SqlNotebookCell } from './notebook-doc';
 import type { SqlCellRun } from './run-sql-cell';

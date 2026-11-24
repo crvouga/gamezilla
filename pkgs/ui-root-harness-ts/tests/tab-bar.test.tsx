@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The compact bottom navigation, as a person and a listener meet it. */
 
 import { describe, expect, mock, test } from 'bun:test';

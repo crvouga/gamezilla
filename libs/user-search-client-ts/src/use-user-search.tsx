@@ -24,16 +24,8 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
-import {
-  type Accessor,
-  batch,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, batch, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 
 type SearchHitRow = {
   readonly id: string;

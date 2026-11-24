@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The actor's web browser, drawn as a sheet over the app — how an in-app
  * browser (the sign-in window, a hosted billing page) looks on a phone.
@@ -14,8 +14,8 @@
  * the light DOM still paints Stripe and the sign-in screens as designed.
  */
 
-import { type JSX, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
-import { render } from 'solid-js/web';
+import { type JSX, render } from '@solidjs/web';
+import { Match, onCleanup, onSettled, Show, Switch } from 'solid-js';
 import type {
   HarnessBrowser,
   HarnessBrowserPage,
@@ -92,7 +92,7 @@ function ShadowPage(props: {
   readonly children: () => JSX.Element;
 }): JSX.Element {
   let host!: HTMLDivElement;
-  onMount(() => {
+  onSettled(() => {
     const root = host.attachShadow({ mode: 'open' });
     const dispose = render(() => props.children(), root);
     onCleanup(dispose);
@@ -106,7 +106,7 @@ function Sheet(props: {
   readonly isolateStyles: boolean;
 }): JSX.Element {
   let body!: HTMLDivElement;
-  onMount(() => {
+  onSettled(() => {
     onCleanup(
       interceptLinks(
         body,

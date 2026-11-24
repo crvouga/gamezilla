@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The closed layout primitives: token props in, classes out, and nothing a
  * caller could use to paint around them.

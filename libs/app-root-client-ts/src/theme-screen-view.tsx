@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   CheckIcon,
@@ -13,8 +13,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import { type Accessor, For, type JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Accessor, For } from 'solid-js';
 
 const ROW_ICON_SIZE = 20;
 const CHECK_SIZE = 20;

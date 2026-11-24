@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
@@ -11,7 +11,8 @@ import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import { HouseIcon, SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const WIDE = { width: 1280, height: 900 };

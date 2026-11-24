@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Button } from '../button/index';
 import { StackHorizontal } from '../stack/index';
 

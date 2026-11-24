@@ -10,7 +10,8 @@ import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-pres
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 /** Story-only transport and virtual ticks; all motion and scoring use product mechanics. */
 export function PongJourney(props: {

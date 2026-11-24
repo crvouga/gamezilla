@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';

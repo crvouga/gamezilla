@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { FormField } from '@pkgs/ui-root-client-ts/form-field';
 import { Radio, RadioGroup } from '@pkgs/ui-root-client-ts/radio-group';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { Textarea } from '@pkgs/ui-root-client-ts/textarea';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

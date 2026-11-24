@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import { render, screen } from '@solidjs/testing-library';
-import { createRoot } from 'solid-js';
+import { createRoot, flush } from 'solid-js';
 
 type Greeter = { readonly greet: (name: string) => string };
 
@@ -64,6 +64,7 @@ describe('createSubscriptionSignal', () => {
     });
     expect(value?.()).toBe(1);
     emit(2);
+    flush();
     expect(value?.()).toBe(2);
     expect(listeners.size).toBe(1);
     dispose();

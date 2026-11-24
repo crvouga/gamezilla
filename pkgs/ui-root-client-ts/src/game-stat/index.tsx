@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ProgressBar } from '../progress-bar/index';
 import { createScreenSlot } from '../screen-slot';
@@ -46,12 +47,11 @@ export function GameStat(props: {
       <span class={`${styles['meta']} text textCaption`}>{props.label}</span>
       <span class="box flex-row flex-wrap items-center gap-2 min-w-0">
         <strong
-          class="text"
-          classList={{
+          class={["text", {
             textStat: props.size !== 'compact',
             textLabel: props.size === 'compact',
             [statStyles['compactValue'] ?? '']: props.size === 'compact',
-          }}
+          }]}
         >
           {props.value}
         </strong>

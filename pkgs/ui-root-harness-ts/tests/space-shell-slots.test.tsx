@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import {
@@ -24,7 +24,7 @@ import type {
 } from '@pkgs/ui-root-client-ts/space-types';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { renderUi } from './render';
 
 /** Sheets open over the stage through the app's surface stack. */

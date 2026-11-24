@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Product client root — `ClientEnvProvider` is applied by `createClient`.
  * Rendered as the router `root`, so `props.children` is the route outlet.
@@ -22,7 +22,8 @@ import { AppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { useNavigate } from '@solidjs/router';
-import { type JSX, onCleanup, onMount, Show, Suspense } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onCleanup, onSettled, Show, Suspense } from 'solid-js';
 import { AppHeaderGlobalMenu } from './app-header-global-menu';
 import { AppHeaderIslandHost } from './app-header-island';
 import { AppProvidersOuter, AppProvidersSession } from './app-providers';
@@ -67,7 +68,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
     navigate('/');
     reset();
   };
-  onMount(() => {
+  onSettled(() => {
     availability.start();
     onCleanup(() => availability.stop());
   });

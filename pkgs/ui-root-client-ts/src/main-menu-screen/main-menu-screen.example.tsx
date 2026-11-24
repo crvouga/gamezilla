@@ -1,6 +1,7 @@
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MainMenuScreen } from '@pkgs/ui-root-client-ts/main-menu-screen';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 
 export default function MainMenuScreenExample(): JSX.Element {

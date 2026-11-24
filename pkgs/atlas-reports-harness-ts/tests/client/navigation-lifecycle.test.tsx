@@ -6,7 +6,7 @@ import {
 } from '@crvouga/atlas/reports/use-report-nav';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 
 // regression: report-viewer-leaked-timer
 test('each viewer releases its listeners and pending hash writes when unmounted', () => {

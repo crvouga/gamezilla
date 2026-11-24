@@ -1,5 +1,5 @@
-import { Trans } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
 
 export function friendRequestErrorLabel(code: string): JSX.Element {
   switch (code) {

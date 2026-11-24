@@ -6,7 +6,8 @@ import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-con
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, createSignal, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show, untrack } from 'solid-js';
 import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 

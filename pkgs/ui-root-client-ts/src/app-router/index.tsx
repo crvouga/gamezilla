@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Href, HrefObject } from '@pkgs/ui-root-shared-ts/href';
 import { hrefToPath, normalizePath } from '@pkgs/ui-root-shared-ts/href';
@@ -9,14 +9,8 @@ import {
   useParams,
   useSearchParams,
 } from '@solidjs/router';
-import {
-  type Accessor,
-  createContext,
-  createSignal,
-  type JSX,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createSignal, untrack, useContext } from 'solid-js';
 import {
   useConfirmNavigation,
   usePendingNavigation,
@@ -73,9 +67,9 @@ function RoutedAppRouter(props: AppRouterProviderProps): JSX.Element {
     canGoBack: () => depth() > 0,
   };
   return (
-    <AppRouterContext.Provider value={router}>
+    <AppRouterContext value={router}>
       {props.children}
-    </AppRouterContext.Provider>
+    </AppRouterContext>
   );
 }
 
@@ -111,9 +105,9 @@ function StaticRouterContext(props: StaticRouterProps): JSX.Element {
     canGoBack: router.canGoBack,
   };
   return (
-    <AppRouterContext.Provider value={guarded}>
+    <AppRouterContext value={guarded}>
       {props.children}
-    </AppRouterContext.Provider>
+    </AppRouterContext>
   );
 }
 

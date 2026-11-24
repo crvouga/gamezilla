@@ -1,9 +1,10 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 export type RenameSpaceModalViewProps = {
   readonly visible: boolean;

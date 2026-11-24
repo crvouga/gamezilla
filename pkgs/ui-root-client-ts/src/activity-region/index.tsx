@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type ActivityRegionProps = {
   children?: JSX.Element | undefined;
@@ -30,8 +30,7 @@ export type ActivityRegionProps = {
 export function ActivityRegion(props: ActivityRegionProps): JSX.Element {
   return (
     <div
-      class="box"
-      classList={{ 'flex-1': props.grow === true }}
+      class={["box", { 'flex-1': props.grow === true }]}
       data-testid={props.testId}
       data-component={componentId('ActivityRegion')}
       onPointerDown={() => props.onActivity()}

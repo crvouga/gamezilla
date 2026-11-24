@@ -1,5 +1,6 @@
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
-import { createEffect, createMemo, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { RenameSpaceModalView } from './rename-space-modal-view';
 import { useRenameSpace } from './use-rename-space';
 import { SpaceField, useSpaceColumn } from './use-space-column';

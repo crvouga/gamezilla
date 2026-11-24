@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -23,8 +23,7 @@ export function MarkdownContent(props: {
   return (
     <div
       ref={host}
-      class="text text-sm leading-relaxed break-words"
-      classList={{ [styles['content'] ?? '']: true }}
+      class={["text text-sm leading-relaxed break-words", { [styles['content'] ?? '']: true }]}
       {...dataAttrs({ component: 'MarkdownContent', ...props.dataSet })}
     />
   );

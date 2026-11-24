@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createEffect, createSignal, Show } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {

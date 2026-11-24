@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * What the dot says. `unread` is the accent dot that marks something new

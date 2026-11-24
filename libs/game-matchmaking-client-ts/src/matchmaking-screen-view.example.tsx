@@ -19,7 +19,8 @@ import { GAME_VERSUS_AVATAR_SIZE } from '@pkgs/ui-root-client-ts/game-stage-over
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createRenderEffect, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createRenderEffect, createSignal, Show } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
   MatchmakingScreenView,

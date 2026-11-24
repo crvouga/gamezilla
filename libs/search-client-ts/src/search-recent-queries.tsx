@@ -1,11 +1,12 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { HistoryIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 
 const ROW_ICON_SIZE = 18;
 

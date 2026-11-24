@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 export type OpenExternalUrl = (url: string) => Promise<void>;
 
@@ -24,9 +25,9 @@ export function ExternalUrlProvider(
 ): JSX.Element {
   const open = untrack(() => props.value);
   return (
-    <ExternalUrlContext.Provider value={open}>
+    <ExternalUrlContext value={open}>
       {props.children}
-    </ExternalUrlContext.Provider>
+    </ExternalUrlContext>
   );
 }
 
@@ -37,9 +38,9 @@ export function StaticExternalUrlProvider(props: {
 }): JSX.Element {
   const open = untrack(() => props.open ?? (() => Promise.resolve()));
   return (
-    <ExternalUrlContext.Provider value={open}>
+    <ExternalUrlContext value={open}>
       {props.children}
-    </ExternalUrlContext.Provider>
+    </ExternalUrlContext>
   );
 }
 

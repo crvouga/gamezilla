@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 export type CheckboxProps = {
   /** Current selection; the parent owns and updates this value. */
@@ -63,11 +64,10 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
   const filled = () => props.checked || indeterminate();
   return (
     <button
-      class="clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11"
-      classList={{
+      class={["clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11", {
         'min-w-11 justify-center': props.label === undefined,
         'opacity-disabled cursor-not-allowed': props.disabled === true,
-      }}
+      }]}
       {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
       type="button"
       role="checkbox"

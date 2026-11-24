@@ -1,5 +1,6 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { RemoveSpacePersonModal } from './remove-space-person-modal';
 import type { SpacePerson } from './space-person-view';
 import { SpaceShareAddPeople } from './space-share-add-people';

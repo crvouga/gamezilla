@@ -1,12 +1,6 @@
 import { inspectionSchema } from '@libs/synthetic-population-shared-ts/inspection';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createResource,
-  createSignal,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createResource, createSignal } from 'solid-js';
 import { resourceValue } from './resource-value';
 import {
   type SyntheticUserDetail,

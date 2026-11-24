@@ -5,7 +5,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { SyntheticUserDetail } from './synthetic-population-api';
 import { AvailabilityBadge, useActivityLabel } from './synthetic-user-labels';
 

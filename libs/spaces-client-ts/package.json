@@ -28,7 +28,6 @@
     "@libs/sub-client-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
     "@libs/user-search-client-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
     "@pkgs/async-root-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
@@ -37,6 +36,7 @@
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/observability-root-shared-ts": "workspace:*",
@@ -56,6 +56,7 @@
     "@pkgs/uuid-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

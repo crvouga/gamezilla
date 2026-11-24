@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { SegmentedControl } from '../segmented-control/index';
 import { useLayoutMode } from '../use-layout-mode';
 
@@ -34,14 +35,12 @@ export function InspectionWorkspace(props: InspectionWorkspaceProps) {
   ];
   return (
     <div
-      class="box flex-1 min-h-0 min-w-0 gap-4"
-      classList={{ 'flex-row': wide() }}
+      class={["box flex-1 min-h-0 min-w-0 gap-4", { 'flex-row': wide() }]}
       {...dataAttrs({ component: 'InspectionWorkspace', ...props.dataSet })}
     >
       <Show when={props.tools.length > 0}>
         <div
-          class="box min-h-0 min-w-0 gap-3"
-          classList={{ 'w-80 shrink-0': wide(), 'flex-1': !wide() }}
+          class={["box min-h-0 min-w-0 gap-3", { 'w-80 shrink-0': wide(), 'flex-1': !wide() }]}
         >
           <SegmentedControl
             aria-label={props.toolsLabel}
@@ -94,11 +93,10 @@ function InspectionPane(props: {
   return (
     <section
       aria-label={props.label}
-      class="box flex-1 min-h-0 min-w-0"
-      classList={{
+      class={["box flex-1 min-h-0 min-w-0", {
         'overflow-auto': props.scroll === true,
         'overflow-hidden': props.scroll !== true,
-      }}
+      }]}
     >
       {props.content}
     </section>

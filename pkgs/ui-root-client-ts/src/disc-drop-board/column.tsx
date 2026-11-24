@@ -1,4 +1,5 @@
-import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import styles from './disc-drop-board.module.css';
 import type { DiscDropBoardProps } from './index';
 

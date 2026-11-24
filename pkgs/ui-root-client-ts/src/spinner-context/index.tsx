@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { ACTIVITY_REVOLUTION_MS } from '@pkgs/ui-root-shared-ts/activity-indicator';
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 
 /** One full revolution (matches `spinner.module.css`). */
 export const SPIN_DURATION_MS = ACTIVITY_REVOLUTION_MS;
@@ -31,9 +32,9 @@ export function SpinnerProvider(props: { children: JSX.Element }): JSX.Element {
     phaseOffsetMs: () => (clock.now() - origin) % SPIN_DURATION_MS,
   };
   return (
-    <SpinnerContext.Provider value={value}>
+    <SpinnerContext value={value}>
       {props.children}
-    </SpinnerContext.Provider>
+    </SpinnerContext>
   );
 }
 

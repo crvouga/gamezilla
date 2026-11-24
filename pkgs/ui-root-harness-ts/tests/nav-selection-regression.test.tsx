@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Selecting a navigation item never moves the row: every label box is held
  * at its semibold width, whether or not it is the current item. The wide

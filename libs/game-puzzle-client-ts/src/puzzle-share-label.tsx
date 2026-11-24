@@ -1,5 +1,6 @@
-import { Trans } from '@lingui/solid/macro';
-import { type JSX, Match, Switch } from 'solid-js';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import type { PuzzleShareState } from './puzzle-play-screen-model';
 
 /** What the share control says: the command, then how copying went. */

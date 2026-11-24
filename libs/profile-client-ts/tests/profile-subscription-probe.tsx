@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useSyncedProfiles } from '@libs/profile-client-ts/use-synced-profiles';
 import { profilesByIds } from '@libs/profile-shared-ts/profiles-by-ids-query';
 import { SyncEngineProvider } from '@pkgs/sync-engine-client-ts/sync-engine-context';

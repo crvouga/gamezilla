@@ -1,12 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import {
   type ComponentDataSet,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { ChipGroup } from '../chip-group/index';
 import type { IconComponent } from '../create-icon/index';

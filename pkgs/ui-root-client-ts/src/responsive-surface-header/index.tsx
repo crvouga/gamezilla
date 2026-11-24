@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { CloseIconButton } from '../close-icon-button/index';
 import { useModalTitleId } from '../modal-title-id/index';
 
@@ -35,11 +36,10 @@ export function ResponsiveSurfaceHeader(
   return (
     <Show when={showHeader()}>
       <div
-        class="box flex-row items-center mb-3 gap-2 min-h-11"
-        classList={{
+        class={["box flex-row items-center mb-3 gap-2 min-h-11", {
           'justify-between': hasTitle(),
           'justify-end': !hasTitle(),
-        }}
+        }]}
         data-component="ResponsiveSurfaceHeader"
       >
         <Show when={hasTitle()}>

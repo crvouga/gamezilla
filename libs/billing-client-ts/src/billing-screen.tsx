@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more/billing` — the membership screen. Reads everything locally (the
  * synced membership row, the permission system's decisions) so it renders
@@ -14,7 +14,7 @@ import { useUnlock } from '@libs/permissions-client-ts/unlock';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useHostingInvite } from '@libs/spaces-client-ts/hosting-invite';
-import { useLingui as useLinguiRuntime } from '@lingui/solid';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   CHECKOUT_RETURN_PARAM,
   isPaidCheckoutReturn,
@@ -28,14 +28,8 @@ import {
   useRouter,
 } from '@pkgs/ui-root-client-ts/app-router';
 import { useOpenExternalUrl } from '@pkgs/ui-root-client-ts/external-url';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { BillingScreenView } from './billing-screen-view';
 import type { BillingView, BillingViewInput } from './billing-view-model';
 import { billingViewChangesAtMs, buildBillingView } from './billing-view-model';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -11,7 +11,8 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 
 const MIN_HIT_TARGET = 44;
 

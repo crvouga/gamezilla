@@ -1,11 +1,12 @@
 import type { SokobanBoard } from '@libs/sokoban-shared-ts/sokoban-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { DisclosureCard } from '@pkgs/ui-root-client-ts/disclosure-card';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createEffect, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal } from 'solid-js';
 
 /**
  * The board's size, set once and then out of the way: one closed line

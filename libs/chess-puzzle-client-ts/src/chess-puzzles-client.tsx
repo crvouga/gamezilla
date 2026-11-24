@@ -17,7 +17,7 @@ import type {
   PuzzleAttempt,
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ChessPuzzleAnnouncement } from './chess-puzzle-announcement';
 import { ChessPuzzleBoard } from './chess-puzzle-board';
 import { useChessPuzzleFeedback } from './use-chess-puzzle-feedback';

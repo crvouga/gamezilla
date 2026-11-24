@@ -1,12 +1,4 @@
-import {
-  type Accessor,
-  createComputed,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createComputed, createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js';
 import {
   type StageOverlay,
   type StageOverlayEvent,

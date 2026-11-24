@@ -1,19 +1,20 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentDataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
-import {
-  createVirtualizer,
-  type VirtualItem,
-  type Virtualizer,
-} from '@tanstack/solid-virtual';
-import { createMemo, For, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, For, Show, untrack } from 'solid-js';
 import { useContentEdgePadding } from '../content-edge-padding/index';
 import { spaced } from '../layout-classes';
 import type { ScrollFrameProps } from '../scroll-frame';
 import { scrollFlush, scrollFrameClass, scrollHandlers } from '../scroll-frame';
 import { useTestViewport } from '../test-viewport/index';
 import styles from './virtual-list.module.css';
+import {
+  createListVirtualizer,
+  type ListVirtualizer,
+  type VirtualItem,
+} from './virtualizer';
 
 export type VirtualListProps<ItemT> = ScrollFrameProps & {
   items: readonly ItemT[];
@@ -69,7 +70,7 @@ const DEFAULT_ESTIMATE = 56;
 const PANEL_BORDER_PX = 2;
 
 type RowsProps<ItemT> = {
-  virtualizer: Virtualizer<HTMLDivElement, HTMLDivElement>;
+  virtualizer: ListVirtualizer;
   items: readonly ItemT[];
   renderItem: (item: ItemT, index: number) => JSX.Element;
   panel: boolean;
@@ -99,20 +100,20 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
   // One panel around every row: `panel` without `panelGroups`.
   const outerPanel = (): boolean =>
     props.panel && props.panelGroups === undefined;
-  const virtualItems = createMemo(() => props.virtualizer.getVirtualItems());
-  const renderRow = (item: VirtualItem): JSX.Element => {
-    // The virtualizer reuses `VirtualItem` objects for unchanged slots, so the
-    // row content must track the item at that index (filtered lists swap the
-    // data underneath without changing the slot).
-    const data = createMemo(() => props.items[item.index]);
+  const renderRow = (item: Accessor<VirtualItem>): JSX.Element => {
+    // A row is a slot: it keeps its index while the data underneath changes
+    // (filtered lists swap items without changing the slot) and while the
+    // rows above it are measured, which moves its offset.
+    const index = untrack(() => item().index);
+    const data = createMemo(() => props.items[index]);
     return (
       <Show when={data()} keyed>
         {(row) => (
           <div
             role="listitem"
-            class={rowPanel(props, row, item.index).class}
-            data-panel-place={rowPanel(props, row, item.index).place}
-            data-index={item.index}
+            class={rowPanel(props, row, index).class}
+            data-panel-place={rowPanel(props, row, index).place}
+            data-index={index}
             ref={(el) =>
               queueMicrotask(() => props.virtualizer.measureElement(el))
             }
@@ -121,10 +122,10 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
               top: '0',
               left: '0',
               width: '100%',
-              transform: `translateY(${item.start}px)`,
+              transform: `translateY(${item().start}px)`,
             }}
           >
-            {props.renderItem(row, item.index)}
+            {props.renderItem(row, index)}
           </div>
         )}
       </Show>
@@ -135,12 +136,14 @@ function VirtualRows<ItemT>(props: RowsProps<ItemT>): JSX.Element {
       role="list"
       class={outerPanel() ? 'panel' : undefined}
       style={{
-        height: `${props.virtualizer.getTotalSize() + (outerPanel() ? PANEL_BORDER_PX : 0)}px`,
+        height: `${props.virtualizer.totalSize() + (outerPanel() ? PANEL_BORDER_PX : 0)}px`,
         position: 'relative',
         width: '100%',
       }}
     >
-      <For each={virtualItems()}>{(item) => renderRow(item)}</For>
+      <For each={props.virtualizer.items()} keyed={(item) => item.index}>
+        {(item) => renderRow(item)}
+      </For>
     </div>
   );
 }
@@ -155,11 +158,11 @@ type ListLocal<ItemT> = Pick<
   | 'fixedViewport'
 >;
 
-function createListVirtualizer<ItemT>(
+function createVirtualizer<ItemT>(
   local: ListLocal<ItemT>,
   getScrollElement: () => HTMLDivElement | null,
   testViewport: VirtualListViewport | null
-): Virtualizer<HTMLDivElement, HTMLDivElement> {
+): ListVirtualizer {
   // Layout mode is decided once at mount. The test-host viewport fills in
   // for happy-dom (no ResizeObserver rects) when the prop is unset.
   const fixed = untrack(() => local.fixedViewport ?? testViewport);
@@ -168,18 +171,11 @@ function createListVirtualizer<ItemT>(
     if (typeof e === 'function') return e(index);
     return e ?? DEFAULT_ESTIMATE;
   };
-  return createVirtualizer<HTMLDivElement, HTMLDivElement>({
-    get count() {
-      return local.items.length;
-    },
-    get overscan() {
-      return local.overscan ?? 4;
-    },
-    get gap() {
-      return local.gap ?? 0;
-    },
+  return createListVirtualizer(() => ({
+    count: local.items.length,
+    overscan: local.overscan ?? 4,
+    gap: local.gap ?? 0,
     getScrollElement,
-    useAnimationFrameWithResizeObserver: true,
     estimateSize: estimate,
     getItemKey: (index) => {
       const item = local.items[index];
@@ -193,7 +189,7 @@ function createListVirtualizer<ItemT>(
             cb(fixed);
           },
         }),
-  });
+  }));
 }
 
 function fixedScrollerStyle(
@@ -203,7 +199,7 @@ function fixedScrollerStyle(
 }
 
 /**
- * `VirtualList` -- windowed vertical list over `@tanstack/solid-virtual`.
+ * `VirtualList` -- windowed vertical list over `@tanstack/virtual-core`.
  *
  * Only rows inside the viewport (plus overscan) touch the DOM. Rows are
  * measured after paint so variable heights work; pass `estimateSize` close to
@@ -216,7 +212,7 @@ export function VirtualList<ItemT>(
   const edge = useContentEdgePadding();
   let scroller: HTMLDivElement | undefined;
   const testViewport = useTestViewport();
-  const virtualizer = createListVirtualizer(
+  const virtualizer = createVirtualizer(
     props,
     () => scroller ?? null,
     testViewport

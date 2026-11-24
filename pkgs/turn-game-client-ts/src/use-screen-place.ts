@@ -1,10 +1,4 @@
-import {
-  type Accessor,
-  createComputed,
-  createMemo,
-  createSignal,
-  on,
-} from 'solid-js';
+import { type Accessor, createComputed, createMemo, createSignal, on } from 'solid-js';
 import {
   type OpenedPlace,
   placeBehind,

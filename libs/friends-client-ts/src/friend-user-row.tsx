@@ -14,7 +14,7 @@ import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 

@@ -1,7 +1,7 @@
 import { chessPuzzlesClient } from '@libs/chess-puzzle-client-ts/chess-puzzles-client';
 import { chessGameShared } from '@libs/chess-sub-shared-ts/chess-game';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { chessPresentation } from './chess-game-presentation';
 import { chessSettings } from './chess-settings';
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `TabStrip` -- browser / IDE folder-tab chrome for shell and console.
  *
@@ -11,20 +11,14 @@
  * while focus is inside the `tablist`.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-shortcuts';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createUniqueId,
-  Index,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createUniqueId, For, on, Show } from 'solid-js';
 import { handleTabStripKeyDown } from '../tab-strip-keyboard';
 import { TAB_MIN_HEIGHT, TabStripTab } from '../tab-strip-tab/index';
 import type { TabStripItem } from '../tab-strip-types';
@@ -182,7 +176,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
         tabIndex={-1}
         onKeyDown={(ev) => moveTabFocus(ev, props, tabEls)}
       >
-        <Index each={props.items}>
+        <For keyed={false} each={props.items}>
           {(item, index) => {
             const active = (): boolean => item().id === props.selectedId;
             const prevActive = (): boolean =>
@@ -199,7 +193,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
               />
             );
           }}
-        </Index>
+        </For>
       </ScrollView>
       <Show when={props.trailing !== undefined && props.trailing !== null}>
         <div

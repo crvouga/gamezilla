@@ -13,7 +13,7 @@ import {
   standingsByScore,
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { HeartsBoard } from './hearts-board';
 import { heartsSeatName, passHeading, passPlan } from './hearts-copy';
 import { tableCenter } from './hearts-table-view';

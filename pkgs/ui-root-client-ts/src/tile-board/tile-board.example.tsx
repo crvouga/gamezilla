@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   TileBoard,
   type TileBoardDirection,
   type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const COLUMNS = 6;

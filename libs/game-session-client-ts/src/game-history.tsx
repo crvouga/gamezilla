@@ -14,8 +14,8 @@ import {
   useGamePresentation,
   useTurnGames,
 } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { frameSwatch } from './game-frame-look';
 import type { FramePeople } from './game-frame-view-types';
 import {

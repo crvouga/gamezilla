@@ -1,5 +1,5 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
@@ -10,7 +10,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { SyntheticUserReplayResult } from './synthetic-population-api';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
 import { syntheticUserCrumbs } from './synthetic-population-frame';

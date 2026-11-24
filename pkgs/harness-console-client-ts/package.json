@@ -27,6 +27,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

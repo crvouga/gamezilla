@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Whether this product App is one of several mounted in a single page
  * (multi-App product-harness). Embedded Apps use an in-memory router and leave
  * document-level shortcuts / PWA prompts to the host.
  */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 const EmbeddedAppContext = createContext<boolean>(false);
 
@@ -16,9 +17,9 @@ export function EmbeddedAppProvider(props: {
   // Composition-root configuration: read once, not tracked.
   const embedded = untrack(() => props.embedded);
   return (
-    <EmbeddedAppContext.Provider value={embedded}>
+    <EmbeddedAppContext value={embedded}>
       {props.children}
-    </EmbeddedAppContext.Provider>
+    </EmbeddedAppContext>
   );
 }
 

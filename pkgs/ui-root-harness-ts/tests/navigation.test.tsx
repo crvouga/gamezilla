@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { AppLogo } from '@pkgs/ui-root-client-ts/app-logo';
@@ -17,13 +17,8 @@ import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';
 import { createMemoryHistory, MemoryRouter, Route } from '@solidjs/router';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import {
-  createContext,
-  createSignal,
-  type JSX,
-  type ParentProps,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createSignal, type ParentProps, useContext } from 'solid-js';
 import { renderUi } from './render';
 
 describe('hrefToPath', () => {
@@ -194,7 +189,7 @@ describe('brand + providers', () => {
     const Ctx = createContext<string[]>([]);
     const tag = (name: string) => (p: ParentProps) => {
       const outer = useContext(Ctx);
-      return <Ctx.Provider value={[...outer, name]}>{p.children}</Ctx.Provider>;
+      return <Ctx value={[...outer, name]}>{p.children}</Ctx>;
     };
     function Leaf(): JSX.Element {
       return <p class="text">{useContext(Ctx).join('>')}</p>;

@@ -2,8 +2,8 @@ import { claimUsernameMutation } from '@libs/profile-shared-ts/claim-username-mu
 import type { ProfileRow } from '@libs/profile-shared-ts/profile-row-sql';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { Accessor, JSX } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, type Accessor } from 'solid-js';
 import { useMyProfileId } from './claim-username-use-my-profile-id';
 import { useProfileRow } from './claim-username-use-profile-row';
 import { ProfileHandleScreenView } from './profile-handle-screen-view';

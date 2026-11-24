@@ -1,5 +1,6 @@
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal } from 'solid-js';
 
 import { GamesMainMenu } from './games-main-menu';
 import { SpaceScreenChromeProvider } from './space-screen-chrome';

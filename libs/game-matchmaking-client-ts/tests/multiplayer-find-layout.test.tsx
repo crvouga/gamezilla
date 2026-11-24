@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Before a search: a hub of rows, the search's conditions and its one
  * command. The ratings and the guide are places of their own, the same on

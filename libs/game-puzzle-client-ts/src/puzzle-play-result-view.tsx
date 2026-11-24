@@ -1,7 +1,7 @@
 import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
@@ -15,7 +15,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';

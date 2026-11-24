@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { Index, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import styles from './tile-board.module.css';
 
 /** `solid` blocks, `open` is walkable ground, `none` is no part of the board. */
@@ -157,7 +158,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       onLostPointerCapture={input.cancel}
     >
       <div class={styles['tiles']}>
-        <Index each={props.tiles}>
+        <For keyed={false} each={props.tiles}>
           {(tile, index) => (
             <span
               class={styles['tile']}
@@ -172,11 +173,11 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
               </Show>
             </span>
           )}
-        </Index>
+        </For>
       </div>
       <div class={styles['pieces']} aria-hidden="true">
         {/* By position: a piece keeps its element as it moves, so it glides. */}
-        <Index each={props.pieces}>
+        <For keyed={false} each={props.pieces}>
           {(piece) => (
             <span
               class={styles['piece']}
@@ -190,7 +191,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
               <span class={styles['token']}>{piece().glyph}</span>
             </span>
           )}
-        </Index>
+        </For>
       </div>
     </div>
   );

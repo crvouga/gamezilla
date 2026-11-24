@@ -3,12 +3,13 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   PathGridBoard,
   type PathGridBoardProps,
 } from '@pkgs/ui-root-client-ts/path-grid-board';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 
 type NumberlinkBoardProps = Pick<
   PathGridBoardProps,

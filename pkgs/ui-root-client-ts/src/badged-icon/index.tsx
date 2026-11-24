@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { Badge, type BadgeIntent } from '../badge/index';
 import { formatCompactNumber } from '../compact-number';
 
@@ -44,8 +45,7 @@ export function BadgedIcon(props: BadgedIconProps): JSX.Element {
   const hasBadge = (): boolean => text().length > 0;
   return (
     <span
-      class="box relative shrink-0 w-fit"
-      classList={{ 'pr-3': hasBadge() }}
+      class={["box relative shrink-0 w-fit", { 'pr-3': hasBadge() }]}
       data-component={componentId('BadgedIcon')}
     >
       {props.children}

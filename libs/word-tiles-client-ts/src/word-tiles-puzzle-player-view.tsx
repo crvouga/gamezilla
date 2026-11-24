@@ -17,14 +17,8 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, on, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import {
   assignBlank,

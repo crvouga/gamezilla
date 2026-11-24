@@ -4,13 +4,7 @@ import {
   puzzleElapsedMs,
 } from '@libs/game-puzzle-shared-ts/puzzle-clock';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 
 const TICK_MS = 250;
 

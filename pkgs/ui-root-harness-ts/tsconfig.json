@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.paths.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web"
   },
   "include": [
     "../ts-reset-shared-ts/src/ts-reset.ts",

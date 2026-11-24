@@ -26,14 +26,8 @@ import { useGameBoardPreview } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, on, Show } from 'solid-js';
 import { COLUMN_LABELS, GLYPHS, ROW_LABELS, sideName } from './battleship-copy';
 import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
 

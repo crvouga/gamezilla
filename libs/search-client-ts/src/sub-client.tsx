@@ -1,10 +1,10 @@
 import SearchScreen from './search';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** What search contributes to a client app: the Search tab and its screen. */
 
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { SearchIcon } from '@pkgs/ui-root-client-ts/icons';
 
 /** Read inside the tab memo, so the label follows the active locale. */

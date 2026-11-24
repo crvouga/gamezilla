@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { AnimatedSpeakerWaves } from '../animated-speaker-waves/index';
 import { Volume2Icon, VolumeXIcon } from '../icons';
 import { useThemeTokens } from '../theme-context/index';

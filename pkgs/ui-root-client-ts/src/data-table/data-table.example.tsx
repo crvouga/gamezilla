@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -10,7 +10,8 @@ import { PauseIcon, PlayIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 /** Story-only DataTable fixtures: a small club's players. */

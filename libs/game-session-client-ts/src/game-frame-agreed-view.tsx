@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameLobbyDock } from '@pkgs/ui-root-client-ts/game-lobby';
@@ -10,7 +10,8 @@ import { ScreenIntro } from '@pkgs/ui-root-client-ts/screen-intro';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Match, Show, Switch } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { GameFrameOptions } from './game-frame-options';

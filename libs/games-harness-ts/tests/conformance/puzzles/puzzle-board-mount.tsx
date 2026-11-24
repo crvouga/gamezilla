@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A game's puzzle board mounted alone inside the app's providers a board
  * may read (translations, clock, theme, audio and sounds preference), as the
@@ -13,7 +13,7 @@ import type {
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import {

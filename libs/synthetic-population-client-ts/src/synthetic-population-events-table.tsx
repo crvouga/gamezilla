@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { DataTable } from '@pkgs/ui-root-client-ts/data-table';
 import {
@@ -10,7 +10,8 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import type { SyntheticPopulationEventView } from './synthetic-population-api';
 import { useMomentLabel } from './synthetic-user-labels';
 

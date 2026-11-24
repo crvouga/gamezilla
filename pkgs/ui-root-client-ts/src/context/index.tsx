@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { BottomSheetHost } from '@pkgs/ui-root-shared-ts/bottom-sheet-host-types';
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 import { createWebBottomSheetHost } from '../web-bottom-sheet/index';
 
 const BottomSheetHostContext = createContext<BottomSheetHost>();
@@ -30,9 +31,9 @@ export function BottomSheetHostProvider(
   // The host is static composition-root configuration.
   const host = untrack(() => props.host);
   return (
-    <BottomSheetHostContext.Provider value={host}>
+    <BottomSheetHostContext value={host}>
       {props.children}
-    </BottomSheetHostContext.Provider>
+    </BottomSheetHostContext>
   );
 }
 

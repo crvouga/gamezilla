@@ -6,7 +6,8 @@ import type {
 } from '@libs/game-puzzle-shared-ts/content-types';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { ContentAuthorConfirms } from './content-author-confirms';
 import { ContentAuthorCopiesList } from './content-author-copies-list';
 import { ContentAuthorScreenView } from './content-author-screen-view';

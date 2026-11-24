@@ -4,7 +4,8 @@ import {
   type PathGridTone,
 } from '@pkgs/ui-root-client-ts/path-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const TONES: readonly PathGridTone[] = [

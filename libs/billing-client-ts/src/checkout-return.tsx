@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * When this person came back from paying at checkout. Checkout is a
  * full-page trip to the provider, so the paid return's mark in the address
@@ -12,15 +12,8 @@ import { useClock } from '@pkgs/clock-client-ts/solid';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { jsonKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
-import {
-  type Accessor,
-  createContext,
-  createMemo,
-  createSignal,
-  type JSX,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createMemo, createSignal, untrack, useContext } from 'solid-js';
 
 export type CheckoutReturn = {
   /** When the paid return was seen (or last checked again), or `null`. */
@@ -91,9 +84,9 @@ export function CheckoutReturnProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <CheckoutReturnContext.Provider value={createCheckoutReturn()}>
+    <CheckoutReturnContext value={createCheckoutReturn()}>
       {props.children}
-    </CheckoutReturnContext.Provider>
+    </CheckoutReturnContext>
   );
 }
 

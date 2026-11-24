@@ -1,5 +1,6 @@
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 import type { CatalogueLoadJobStatus } from './catalogue-load-places';
 
 /**

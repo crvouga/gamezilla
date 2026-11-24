@@ -2,7 +2,7 @@ import type { Friend } from '@libs/friends-shared-ts/friends-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
@@ -15,7 +15,7 @@ import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtu
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { VirtualListPanelPlace } from '@pkgs/ui-root-client-ts/virtual-list';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { FriendRowDisclosure, FriendUserRow } from './friend-user-row';
 

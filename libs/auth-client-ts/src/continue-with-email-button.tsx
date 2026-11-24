@@ -1,8 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MailIcon } from '@pkgs/ui-root-client-ts/icons';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
 
 /**

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The space bar's Back names where it goes, from every game screen. */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -12,7 +12,8 @@ import {
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 
 afterEach(cleanup);
 

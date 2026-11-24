@@ -1,12 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { CatalogItem } from '@pkgs/ui-root-shared-ts/catalog-item';
 import { filterCatalogItems } from '@pkgs/ui-root-shared-ts/catalog-item';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal } from 'solid-js';
 import { CatalogListRows } from '../catalog-list-rows/index';
 import { CatalogListSearch } from '../catalog-list-search/index';
 import { ScrollView } from '../scroll-view/index';
@@ -40,8 +41,7 @@ export function CatalogList(props: CatalogListProps): JSX.Element {
 
   return (
     <div
-      class="box flex-1 min-h-0 gap-3"
-      classList={{ 'p-4': !bleed() }}
+      class={["box flex-1 min-h-0 gap-3", { 'p-4': !bleed() }]}
       {...dataAttrs({ component: 'CatalogList', ...props.dataSet })}
     >
       <CatalogListSearch

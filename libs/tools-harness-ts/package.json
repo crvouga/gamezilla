@@ -65,6 +65,7 @@
     "@pkgs/quint-server-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "fast-check": "catalog:",
     "sharp": "0.35.5",
     "typescript": "catalog:",

@@ -8,7 +8,8 @@ import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import { WebSocketRoomTransport } from '@pkgs/room-adapter-web-shared-ts/websocket-transport';
 import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 import { roomRoundTrip } from './room-transport-measures';
 
 export type CreateRoomTransportArgs = {
@@ -67,7 +68,7 @@ export function RoomTransportFactoryProvider(props: {
   readonly createTransport: CreateRoomTransport;
 }): JSX.Element {
   return (
-    <Ctx.Provider value={props.createTransport}>{props.children}</Ctx.Provider>
+    <Ctx value={props.createTransport}>{props.children}</Ctx>
   );
 }
 

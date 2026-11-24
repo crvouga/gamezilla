@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { flexContainerClass, spaced, surfaceClass } from '../layout-classes';
 import type { Justify } from '../layout-props';
 import { spacingClass } from '../space-classes';

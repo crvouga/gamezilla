@@ -13,7 +13,8 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 /** Worker B1, crate C1, goal E1; A1 is a wall. */
 const CORRIDOR = JSON.stringify({ format: 1, rows: ['#@$ .'] });

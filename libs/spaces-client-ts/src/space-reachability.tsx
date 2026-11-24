@@ -3,16 +3,8 @@ import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
-import {
-  type Accessor,
-  batch,
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, batch, createEffect, createSignal, onCleanup, Show, untrack } from 'solid-js';
 import { useSpaceRoomAdmission } from './space-room-admission';
 import { SpaceUnreachableScreenView } from './space-unreachable-screen-view';
 import { useSpaceDisplayTitle } from './use-space-display-title';

@@ -16,7 +16,8 @@ import {
   type CardTablePass,
 } from '@pkgs/ui-root-client-ts/card-table';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
-import { createEffect, createMemo, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, on } from 'solid-js';
 import { passActionTo, passHeadingTo, passWaiting } from './hearts-copy';
 import {
   handCards,

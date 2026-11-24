@@ -4,8 +4,8 @@ import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
 import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { ContentAttemptControls } from './content-attempt-controls';
 import { ContentAttemptNext } from './content-attempt-next';
 import {

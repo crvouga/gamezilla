@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { HeartsBoard } from '@libs/hearts-client-ts/hearts-board';
 import { encodeHearts } from '@libs/hearts-shared-ts/hearts-position';
 import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { fireEvent } from '@solidjs/testing-library';
-import { createStore } from 'solid-js/store';
+import { createStore } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const CLUBS = '2C3C4C5C6C7C8C9CTCJCQCKCAC';

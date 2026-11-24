@@ -1,17 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, For, on, Show } from 'solid-js';
 import { useAppFrameGlobalStatus } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
 import { createElementWidth } from '../create-element-width';

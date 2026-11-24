@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A friends-list row ends in one thing: Join while the friend is in a live
  * space, otherwise the chevron that says the row opens them.

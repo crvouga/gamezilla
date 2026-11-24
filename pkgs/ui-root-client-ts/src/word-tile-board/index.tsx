@@ -1,14 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, onCleanup, Show, untrack } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createMediaQuery } from '../media-query';
 import { observeElementResize } from '../observe-element-resize';

@@ -8,15 +8,8 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameActionItem } from '@pkgs/ui-root-client-ts/game-action-bar';
-import {
-  type Accessor,
-  createMemo,
-  createSignal,
-  type JSX,
-  Show,
-  untrack,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Accessor, createMemo, createSignal, Show, untrack } from 'solid-js';
 import { customGameCanMove } from './custom-game-can-move';
 import { useSeatNames } from './custom-game-status';
 import { frameTable } from './game-frame-table';

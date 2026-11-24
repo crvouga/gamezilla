@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { CommandPalette } from '@pkgs/ui-root-client-ts/command-palette';
@@ -20,7 +20,8 @@ import { useCommandPaletteShortcut } from '@pkgs/ui-root-client-ts/use-command-p
 import { isMacPlatform } from '@pkgs/ui-root-shared-ts/match';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 /** `mod` → Meta on macOS web, Ctrl elsewhere. */

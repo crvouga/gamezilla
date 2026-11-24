@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
 import { useObjectStore } from '@pkgs/object-store-root-client-ts/solid';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
@@ -10,17 +10,8 @@ import type {
 } from '@pkgs/tts-root-shared-ts/tts-types';
 import type { Voice } from '@pkgs/tts-root-shared-ts/tts-voice';
 import { DEFAULT_TTS_VOICE } from '@pkgs/tts-root-shared-ts/tts-voice';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  on,
-  onCleanup,
-  type ParentProps,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup, type ParentProps, untrack } from 'solid-js';
 import { playSynthesized } from './play-synthesized';
 import { TtsClient } from './tts-client';
 import type { TtsPlayerSnapshot } from './tts-player-controller';

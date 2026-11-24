@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Publishing reads as one sequence of steps with one next action. */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -16,7 +16,8 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen, waitFor } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 afterEach(cleanup);
 

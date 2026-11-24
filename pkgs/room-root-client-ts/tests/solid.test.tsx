@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';

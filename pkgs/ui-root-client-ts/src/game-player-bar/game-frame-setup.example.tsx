@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -8,7 +8,8 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Show } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import {

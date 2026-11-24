@@ -1,5 +1,6 @@
-import { Trans } from '@lingui/solid/macro';
-import { createEffect, type JSX, onCleanup, Show } from 'solid-js';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
+import { createEffect, onCleanup, Show } from 'solid-js';
 import { ConfirmationModal } from '../confirmation-modal/index';
 import {
   PendingNavigationContext,
@@ -21,9 +22,9 @@ export function PendingNavigationProvider(props: {
     onCleanup(() => window.removeEventListener('beforeunload', beforeUnload));
   });
   return (
-    <PendingNavigationContext.Provider value={navigation}>
+    <PendingNavigationContext value={navigation}>
       {props.children}
-    </PendingNavigationContext.Provider>
+    </PendingNavigationContext>
   );
 }
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The only client constructor — wall (`main.tsx`) and harnesses pass different
  * `ClientEnv` implementations and different sub sets. `App` owns the
@@ -24,7 +24,8 @@ import {
   Router,
   type RouteSectionProps,
 } from '@solidjs/router';
-import { type Component, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Component, Show, untrack } from 'solid-js';
 import type { AppComposition, LoadComposedSubs } from './app-subs-context';
 import { AppCompositionProvider } from './app-subs-context';
 import { createOfflineClientEnv } from './offline-client-env';

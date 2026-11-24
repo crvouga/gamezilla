@@ -1,13 +1,7 @@
 import type { ModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import type { AppModeration } from '@libs/moderation-shared-ts/policy';
-import type { Accessor, JSX, ParentProps } from 'solid-js';
-import {
-  createContext,
-  createSignal,
-  onCleanup,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createSignal, onCleanup, untrack, useContext, type Accessor, type ParentProps } from 'solid-js';
 
 const ModerationContext = createContext<Accessor<AppModeration>>();
 
@@ -24,9 +18,9 @@ export function ModerationProvider(
   const [moderation, setModeration] = createSignal(rules.current());
   onCleanup(rules.subscribe(() => setModeration(() => rules.current())));
   return (
-    <ModerationContext.Provider value={moderation}>
+    <ModerationContext value={moderation}>
       {props.children}
-    </ModerationContext.Provider>
+    </ModerationContext>
   );
 }
 

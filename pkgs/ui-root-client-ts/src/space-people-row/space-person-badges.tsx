@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import {
   CheckIcon,
   CrownIcon,

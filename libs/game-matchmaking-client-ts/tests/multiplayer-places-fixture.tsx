@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** `MatchmakingScreenView` moved by its own place machine, for tests. */
 
 import { mock } from 'bun:test';
@@ -25,7 +25,8 @@ import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 const accepted = () => mock(() => Promise.resolve());
 

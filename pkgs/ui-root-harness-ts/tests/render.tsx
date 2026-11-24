@@ -1,12 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { render } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 type RenderOptions = {
   colorScheme?: 'light' | 'dark';

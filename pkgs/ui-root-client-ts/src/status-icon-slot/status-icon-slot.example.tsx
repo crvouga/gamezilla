@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -6,7 +6,8 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { StatusIconSlot } from '@pkgs/ui-root-client-ts/status-icon-slot';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

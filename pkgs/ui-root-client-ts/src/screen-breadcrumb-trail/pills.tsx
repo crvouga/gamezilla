@@ -1,6 +1,6 @@
-import { useLingui } from '@lingui/solid/macro';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 import type { ScreenBaseBreadcrumb } from '../screen-base-types';
 import { useBreadcrumbClick } from '../use-breadcrumb-click';

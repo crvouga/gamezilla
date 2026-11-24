@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { TabStrip } from '@pkgs/ui-devtools-client-ts/tab-strip';

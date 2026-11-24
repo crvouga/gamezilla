@@ -7,7 +7,8 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal, type JSX, onMount, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onSettled, Show } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -55,7 +56,7 @@ test('flipping the claim moves the screen without recreating it', () => {
   const [claimed, setClaimed] = createSignal(false);
   let mounts = 0;
   function Screen(): JSX.Element {
-    onMount(() => {
+    onSettled(() => {
       mounts += 1;
     });
     return (

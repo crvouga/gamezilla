@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { Tooltip } from '@pkgs/ui-root-client-ts/tooltip';

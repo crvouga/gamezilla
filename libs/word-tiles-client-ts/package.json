@@ -19,10 +19,11 @@
     "@libs/game-puzzle-client-ts": "workspace:*",
     "@libs/word-tiles-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

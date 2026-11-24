@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Minimize2Icon, ShareIcon, UsersIcon } from '../../src/icons';
 import type { SpaceScreenChrome } from '../../src/space-shell/index';
 

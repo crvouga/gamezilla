@@ -1,6 +1,7 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PreviewCardGrid } from '@pkgs/ui-root-client-ts/preview-card-grid';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import { ContentChips, ContentDifficultyChip } from './content-chips';
 import {
   ContentLibraryCard,

@@ -6,16 +6,8 @@ import {
   useScreenPlace,
 } from '@pkgs/turn-game-client-ts/use-screen-place';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  on,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, on, Show, untrack } from 'solid-js';
 import type {
   CatalogueLoad,
   CatalogueLoadClient,

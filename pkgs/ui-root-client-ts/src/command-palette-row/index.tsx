@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -10,7 +10,8 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 import type { MatchRange } from '@pkgs/ui-root-shared-ts/fuzzy-match';
 import { fuzzyMatch } from '@pkgs/ui-root-shared-ts/fuzzy-match';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { CommandPaletteKbd } from '../command-palette-kbd/index';
 import type { IconComponent } from '../create-icon/index';
 import { HighlightedText } from '../highlighted-text/index';
@@ -68,10 +69,9 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
     normalizeShortcut(props.command.shortcut)?.keys;
   return (
     <button
-      class="clickable clickableTint py-2 px-3 gap-1 text-left border-l-3 border-l-transparent"
-      classList={{
+      class={["clickable clickableTint py-2 px-3 gap-1 text-left border-l-3 border-l-transparent", {
         'bg-tint-subtle border-l-tint': props.selected,
-      }}
+      }]}
       data-component="CommandPaletteRow"
       type="button"
       style={{

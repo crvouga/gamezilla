@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { EmbeddedScreen } from '../embedded-screen/index';
 import type { MainMenuItem } from '../main-menu-item-row/index';
 import { MainMenuItemRow } from '../main-menu-item-row/index';
@@ -98,12 +99,11 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
         }
       >
         <div
-          class="grid gap-3 self-stretch"
-          classList={{
+          class={["grid gap-3 self-stretch", {
             'grid-cols-2': columns() === 2,
             'grid-cols-3': columns() === 3,
             'grid-cols-4': columns() === 4,
-          }}
+          }]}
           role="list"
           data-layout={tiles() ? 'tiles' : 'grid'}
         >

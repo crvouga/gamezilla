@@ -3,7 +3,7 @@ import { SpacesLobbyView } from '@libs/spaces-client-ts/spaces-lobby-view';
 import { useSpacesLobby } from '@libs/spaces-client-ts/use-spaces-lobby';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { SecureStorageStoreProvider } from '@pkgs/secure-storage-root-client-ts/solid';
 import { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';

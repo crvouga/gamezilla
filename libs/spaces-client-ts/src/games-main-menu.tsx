@@ -6,18 +6,11 @@ import type {
 import type { SelectedGameId } from '@libs/spaces-shared-ts/games';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, on, Show, untrack } from 'solid-js';
 import { useGamesRegistry } from './games-registry-context';
 import { SpaceHomeScreenView } from './space-home-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';

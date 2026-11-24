@@ -1,7 +1,7 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { createMemo, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 
 export function ContentPreview(props: { definition: string }): JSX.Element {

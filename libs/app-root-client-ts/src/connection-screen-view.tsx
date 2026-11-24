@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui as useLinguiRuntime } from '@lingui/solid';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -12,7 +12,7 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { StatusDotStatus } from '@pkgs/ui-root-client-ts/status-dot';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { type ConnectionCause, connectionStateOf } from './connection-cause';
 import {
   useConnectionExplanation,

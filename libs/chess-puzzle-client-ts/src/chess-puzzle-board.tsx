@@ -13,7 +13,8 @@ import { formatUci } from '@pkgs/chess-rules-shared-ts/uci';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { puzzleBoardArrows } from './puzzle-board-arrows';
 import { puzzleBoardFeedback } from './puzzle-board-feedback';
 

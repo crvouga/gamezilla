@@ -11,13 +11,8 @@
 
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { SyncEngineStatus } from '@pkgs/sync-engine-client-ts/sync-status';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
 
 /** Mirrors `INITIAL_SYNC_STATUS` without a value import from sync-engine/client. */
 export const BOOT_SYNC_STATUS: SyncEngineStatus = {

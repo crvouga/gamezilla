@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 /**
  * `CatalogDetailNav` -- slim prev / next controls for a catalog detail screen.
@@ -8,12 +8,13 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
  * (buttons disabled); no wrap-around.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { CatalogItem } from '@pkgs/ui-root-shared-ts/catalog-item';
 import { resolveCatalogNeighbor } from '@pkgs/ui-root-shared-ts/catalog-item';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { ChevronLeftIcon, ChevronRightIcon } from '../icons';
 

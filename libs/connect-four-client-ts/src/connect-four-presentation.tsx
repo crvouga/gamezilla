@@ -8,7 +8,7 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ConnectFourBoard } from './connect-four-board';
 
 /**

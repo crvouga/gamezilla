@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   EmbeddedScreen,
   type EmbeddedScreenProps,
@@ -175,21 +176,19 @@ export function GameLayout(props: {
           <div class={styles['setup']}>{setup.content()}</div>
         </Show>
         <div
-          class={`${styles['stage']} ${precision['stage']}`}
-          data-game-slot="stage"
-          classList={{
+          class={[`${styles['stage']} ${precision['stage']}`, {
             [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
-          }}
+          }]}
+          data-game-slot="stage"
         >
           {stage.content()}
         </div>
         <Show when={controls.present()}>
           <div
-            class={styles['controls']}
-            data-game-slot="controls"
-            classList={{
+            class={[styles['controls'], {
               [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
-            }}
+            }]}
+            data-game-slot="controls"
             {...dataAttrs({ component: 'GameControls' })}
           >
             {controls.content()}
@@ -197,11 +196,10 @@ export function GameLayout(props: {
         </Show>
         <Show when={aside.present()}>
           <div
-            class={styles['rail']}
-            data-game-slot="rail"
-            classList={{
+            class={[styles['rail'], {
               [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
-            }}
+            }]}
+            data-game-slot="rail"
           >
             {aside.content()}
           </div>

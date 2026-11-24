@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Mounts every Storybook example once. This is the test that
  * catches API drift between `<name>.example.tsx` and its component.
@@ -15,8 +15,8 @@ const fixtures = readdirSync(sourceRoot, { recursive: true })
   .sort();
 
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
+import { Dynamic } from '@solidjs/web';
 import type { Component } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import { renderUi } from './render';
 
 describe('Storybook fixtures', () => {

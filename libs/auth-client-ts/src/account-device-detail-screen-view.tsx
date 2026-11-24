@@ -1,10 +1,10 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ClipboardCopy } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { SmartphoneIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 import { AccountDeviceDetailBody } from './account-device-detail-body';
 import { AccountDeviceDetailHeader } from './account-device-detail-header';

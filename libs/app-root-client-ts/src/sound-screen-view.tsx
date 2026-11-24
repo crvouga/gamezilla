@@ -1,14 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Volume2Icon, VolumeXIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { Dynamic, type JSX } from '@solidjs/web';
 
 const ROW_ICON_SIZE = 20;
 

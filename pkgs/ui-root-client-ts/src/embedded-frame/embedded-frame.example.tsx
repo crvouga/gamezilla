@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { EmbeddedFrame } from '@pkgs/ui-root-client-ts/embedded-frame';
 import { Pane } from '@pkgs/ui-root-client-ts/pane';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

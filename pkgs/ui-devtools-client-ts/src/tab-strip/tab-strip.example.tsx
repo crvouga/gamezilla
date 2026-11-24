@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { TabStrip } from '@pkgs/ui-devtools-client-ts/tab-strip';
 import type { TabStripItem } from '@pkgs/ui-devtools-client-ts/tab-strip-types';
@@ -11,7 +11,8 @@ import {
   ScrollTextIcon,
   TerminalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 export default function TabStripExample(): JSX.Element {

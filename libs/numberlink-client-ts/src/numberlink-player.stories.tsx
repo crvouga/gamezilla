@@ -3,7 +3,8 @@ import {
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
-import { createSignal, type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, untrack } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { numberlinkContentFrame } from './numberlink-content-frame';

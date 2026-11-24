@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * One tab of a window: selects its panel on click, drags to another window,
  * and answers the layout keys. The tab and its close control are sibling
  * buttons in one shell, as in `TabStrip`.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { windowPanels } from '@pkgs/ui-devtools-shared-ts/window-layout';
 import {
   WINDOW_TAB_KEYSHORTCUTS,
@@ -14,8 +14,8 @@ import {
 } from '@pkgs/ui-devtools-shared-ts/window-layout-keyboard';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createEffect, Show } from 'solid-js';
 import styles from '../tab-strip/tab-strip.module.css';
 import {
   useWindowManager,
@@ -95,8 +95,7 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
   return (
     <div
       ref={setShell}
-      class={shellClass(props.active)}
-      classList={{ 'touch-none': !api.compact() }}
+      class={[shellClass(props.active), { 'touch-none': !api.compact() }]}
       data-component={componentId('WindowManagerTabShell')}
       style={{
         height: `${WINDOW_TAB_HEIGHT}px`,
@@ -115,8 +114,7 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
       </Show>
       <button
         ref={(element) => api.registerTab(props.panel.id, element)}
-        class="clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent"
-        classList={{ clickableTint: !props.active }}
+        class={["clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent", { clickableTint: !props.active }]}
         data-component={componentId('WindowManagerTab')}
         {...dataAttrs({
           'window-part': 'tab',
@@ -151,11 +149,10 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
           )}
         </Show>
         <span
-          class="text line-clamp-1 shrink pointer-events-none"
-          classList={{
+          class={["text line-clamp-1 shrink pointer-events-none", {
             'textLabel text-text': props.active,
             'textBody text-text-secondary': !props.active,
-          }}
+          }]}
         >
           {title()}
         </span>

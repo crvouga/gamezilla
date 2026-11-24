@@ -1,11 +1,12 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { CatalogueLoadJob } from './catalogue-load-client';
 
 /** Counts and times in the person's own locale: `1,198,400`, `Nov 14, 2023, 10:10 PM`. */

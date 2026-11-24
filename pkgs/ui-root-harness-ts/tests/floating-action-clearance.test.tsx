@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';

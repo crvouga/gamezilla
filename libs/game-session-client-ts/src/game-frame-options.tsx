@@ -1,15 +1,9 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import {
-  type Accessor,
-  createSignal,
-  For,
-  type JSX,
-  Match,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, For, Match, Switch } from 'solid-js';
 
 /**
  * A game's options while its custom game is set up, drawn by the frame from

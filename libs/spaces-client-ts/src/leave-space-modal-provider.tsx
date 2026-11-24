@@ -1,5 +1,6 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createContext, createSignal, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createSignal, useContext } from 'solid-js';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useLeaveSpace } from './use-leave-space';
 import { useSpaceCan } from './use-space-can';
@@ -51,7 +52,7 @@ export function LeaveSpaceModalProvider(props: {
   const modals: LeaveSpaceModals = { requestLeaveSpace };
 
   return (
-    <Ctx.Provider value={modals}>
+    <Ctx value={modals}>
       {props.children}
       <LeaveSpaceConfirmModal
         visible={pending() !== null}
@@ -60,7 +61,7 @@ export function LeaveSpaceModalProvider(props: {
         asHost={canEndSpace()}
         onSuccess={() => pending()?.onSuccess?.()}
       />
-    </Ctx.Provider>
+    </Ctx>
   );
 }
 

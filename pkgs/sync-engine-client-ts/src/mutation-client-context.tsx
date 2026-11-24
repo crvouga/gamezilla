@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { createContext, useContext } from 'solid-js';
 
 import type { MutationClient } from './create-mutation-client';

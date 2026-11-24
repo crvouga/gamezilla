@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createEffect, createMemo, mapArray, on } from 'solid-js';
 import type { SpaceMemberRow } from './space-members-sheet-view';
 import { SpaceMembersSheetView } from './space-members-sheet-view';

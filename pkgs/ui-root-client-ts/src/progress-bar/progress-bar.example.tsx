@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
-import { createSignal, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onCleanup } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const TICK_MS = 200;

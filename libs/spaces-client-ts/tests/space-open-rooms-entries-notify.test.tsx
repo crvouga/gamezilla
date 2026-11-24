@@ -15,7 +15,8 @@ import {
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import type { RoomCommandPayload } from '@pkgs/room-root-shared-ts/types';
 import { render, screen } from '@solidjs/testing-library';
-import { createEffect, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect } from 'solid-js';
 
 function stubEntry(clientId: string): SpaceOpenRoomEntry {
   return {

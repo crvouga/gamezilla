@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Keyword } from '@pkgs/keyword-shared-ts/keyword';
 import { useKvOptional } from '@pkgs/kv-root-client-ts/solid';
@@ -6,15 +6,8 @@ import type { Kv } from '@pkgs/kv-root-shared-ts/interface';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import type { HistorySnapshot } from '@pkgs/ui-root-shared-ts/history-store';
 import { HistoryStore } from '@pkgs/ui-root-shared-ts/history-store';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createSignal,
-  type JSX,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createSignal, untrack, useContext } from 'solid-js';
 import {
   DEFAULT_OPEN_SHORTCUTS,
   useRegistryDocumentShortcuts,
@@ -232,9 +225,9 @@ export function CommandRegistryProvider(
   });
 
   return (
-    <CommandRegistryContext.Provider value={value}>
+    <CommandRegistryContext value={value}>
       {props.children}
-    </CommandRegistryContext.Provider>
+    </CommandRegistryContext>
   );
 }
 

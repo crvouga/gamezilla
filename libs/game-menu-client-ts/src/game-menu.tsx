@@ -14,7 +14,7 @@ import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
 import type { GameModeOption } from '@libs/spaces-shared-ts/game';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import {
   useLocalSearchParams,
@@ -22,9 +22,8 @@ import {
 } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import { Dynamic, type JSX } from '@solidjs/web';
 import { createEffect, createMemo, Show, untrack } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import type { GameClient } from './game-client';
 import { GameHomeScreenView } from './game-home-screen-view';
 import { gameChoices, type Offers, sharedScreens } from './game-menu-choices';

@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, createUniqueId, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createUniqueId, on, Show } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The screen a composition lands on when none of its subs owns `/`.
  *
@@ -15,7 +15,7 @@ import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { HouseIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 function BareHomeScreen(): JSX.Element {
   return (

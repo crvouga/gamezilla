@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Annotation arrows in board-unit space. Colors resolve against
  * `theme.arrows` keys or pass through as raw CSS colors. The arrow being
@@ -21,7 +21,8 @@ import {
   BOARD_UNITS,
   BOARD_VIEW_BOX,
 } from '@pkgs/chess-board-root-shared-ts/board-units';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, For, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import type { ShapePreview } from '../chess-board-user-shapes';
 import { PaintToken } from '../paint-token/index';

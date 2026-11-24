@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { expect, test } from 'bun:test';
 import { initialNumberlinkDefinition } from '@libs/numberlink-client-ts/numberlink-editor-actions';

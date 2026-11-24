@@ -1,13 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, createUniqueId, For, Show } from 'solid-js';
 import { useGameBoardPreview } from '../game-board-stage/board-preview';
 import { Column, landing, nextColumn } from './column';
 import styles from './disc-drop-board.module.css';

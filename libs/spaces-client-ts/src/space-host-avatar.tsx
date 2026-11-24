@@ -1,5 +1,5 @@
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 

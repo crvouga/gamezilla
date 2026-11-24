@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { TileRack, type TileRackTile } from '@pkgs/ui-root-client-ts/tile-rack';
 import {
@@ -6,7 +6,8 @@ import {
   type WordTileBoardCell,
   type WordTileSquare,
 } from '@pkgs/ui-root-client-ts/word-tile-board';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const COLUMNS = ['a', 'b', 'c', 'd', 'e'];

@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
-import { type JSX, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import styles from '../avatar/avatar.module.css';
 import type { IconComponent } from '../create-icon/index';
 import { BotIcon } from '../icons';

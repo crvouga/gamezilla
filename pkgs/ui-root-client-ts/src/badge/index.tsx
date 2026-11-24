@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { StatusDotStatus } from '../status-dot/index';
 import { StatusDot } from '../status-dot/index';
 
@@ -56,11 +56,10 @@ function BadgeHost(props: {
     <span
       // Not a `.box`: that host reset (`padding: 0`, later in the same layer)
       // would strip the pill's own padding.
-      class="badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full"
-      classList={{
+      class={["badge inline-flex shrink-0 self-start items-center justify-center min-w-0 max-w-full", {
         invisible: props.invisible,
         'gap-1': props.dot !== undefined,
-      }}
+      }]}
       aria-hidden={props.invisible ? true : undefined}
       {...dataAttrs({
         component: 'Badge',

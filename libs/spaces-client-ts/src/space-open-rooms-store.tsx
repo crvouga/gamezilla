@@ -7,14 +7,8 @@ import type {
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
-import {
-  type Accessor,
-  createContext,
-  createMemo,
-  createSignal,
-  type JSX,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createMemo, createSignal, useContext } from 'solid-js';
 
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
@@ -146,15 +140,15 @@ export function SpaceOpenRoomsStoreProvider(props: {
   };
 
   return (
-    <SpaceOpenRoomsPendingClearContext.Provider value={clearPending}>
-      <SpaceOpenRoomsRegistryContext.Provider value={setEntry}>
-        <SpaceOpenRoomsEntriesContext.Provider value={entries}>
-          <SpaceOpenRoomsContext.Provider value={api}>
+    <SpaceOpenRoomsPendingClearContext value={clearPending}>
+      <SpaceOpenRoomsRegistryContext value={setEntry}>
+        <SpaceOpenRoomsEntriesContext value={entries}>
+          <SpaceOpenRoomsContext value={api}>
             {props.children}
-          </SpaceOpenRoomsContext.Provider>
-        </SpaceOpenRoomsEntriesContext.Provider>
-      </SpaceOpenRoomsRegistryContext.Provider>
-    </SpaceOpenRoomsPendingClearContext.Provider>
+          </SpaceOpenRoomsContext>
+        </SpaceOpenRoomsEntriesContext>
+      </SpaceOpenRoomsRegistryContext>
+    </SpaceOpenRoomsPendingClearContext>
   );
 }
 

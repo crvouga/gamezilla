@@ -18,13 +18,7 @@ import { createRoomSnapshot } from '@pkgs/room-root-client-ts/room-signals';
 import { KeyValueClientRoomStorage } from '@pkgs/room-root-client-ts/storage';
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import { useCreateId, useRandom } from '@pkgs/uuid-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  on,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createSignal, on, onCleanup } from 'solid-js';
 
 export type MatchRoomClient = RoomClient<RoomState, Message, Message, string>;
 

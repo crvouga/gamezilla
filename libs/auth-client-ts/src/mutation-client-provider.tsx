@@ -7,7 +7,8 @@ import type {
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { type JSX, type ParentProps, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type ParentProps, untrack } from 'solid-js';
 
 import { useRulesAuth } from './use-rules-auth';
 

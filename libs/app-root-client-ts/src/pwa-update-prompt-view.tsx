@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { DismissibleBanner } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 export type PwaUpdatePromptBannerViewProps = {
   /** Shown while a newer version is waiting to take over. */

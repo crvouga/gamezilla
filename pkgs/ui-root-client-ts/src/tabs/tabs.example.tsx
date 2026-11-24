@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TabItem } from '@pkgs/ui-root-client-ts/tabs';
 import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import {
   ExampleSection,

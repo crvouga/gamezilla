@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
 

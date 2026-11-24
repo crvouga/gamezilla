@@ -1,17 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Command registration: `useRegisterCommands(() => [...])` keeps a reactive
  * list of commands registered while the owner lives; `RegisterCommand` is
  * the declarative single-command form.
  */
 
-import {
-  type Accessor,
-  createEffect,
-  createUniqueId,
-  type JSX,
-  onCleanup,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createUniqueId, onCleanup } from 'solid-js';
 import { useCommandRegistry } from '../command-registry-context/index';
 import type { Command, RegisteredCommand } from '../types';
 

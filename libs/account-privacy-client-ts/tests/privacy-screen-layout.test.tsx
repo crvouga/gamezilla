@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The account privacy screen sits under Profile: its breadcrumb leads back
  * to the profile tab, never to Spaces.
@@ -6,7 +6,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { PrivacyScreenLayout } from '@libs/account-privacy-client-ts/privacy-screen-layout';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { AppRouter } from '@pkgs/ui-root-client-ts/app-router';

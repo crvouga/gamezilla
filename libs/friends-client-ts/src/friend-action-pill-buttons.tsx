@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
@@ -7,7 +7,7 @@ import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { useFriendRequestDecision } from './use-friend-request-decision';
 
 function usePillSounds(

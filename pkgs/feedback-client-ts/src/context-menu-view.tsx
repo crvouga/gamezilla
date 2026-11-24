@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { ContextMenu } from '@pkgs/ui-root-client-ts/context-menu';
 import type { ContextMenuControl, ContextMenuState } from './context-menu';
 import { CONTEXT_MENU } from './copy';

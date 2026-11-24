@@ -17,14 +17,7 @@ import { useClock } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
 import type { MatchRoomClient } from './use-match-room';
 

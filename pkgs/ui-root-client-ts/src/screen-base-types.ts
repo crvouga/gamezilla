@@ -1,6 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { ActionBarOverflowPolicy } from './action-bar-logic';
 import type { IconComponent } from './create-icon/index';
 import type { OverflowMenuRenderProps } from './overflow-menu-button/index';

@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, For, Show } from 'solid-js';
 import styles from './battleship-target-layout.module.css';
 
 /** Visible spatial regions over a square ocean; only the enlarged cells commit input. */

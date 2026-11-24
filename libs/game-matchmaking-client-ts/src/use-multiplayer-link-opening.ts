@@ -12,15 +12,7 @@ import { useTimers } from '@pkgs/clock-client-ts/solid';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup, untrack } from 'solid-js';
 import {
   type MultiplayerLinkOpening,
   type MultiplayerLinkTarget,

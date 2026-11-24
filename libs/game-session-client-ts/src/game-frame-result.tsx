@@ -1,6 +1,6 @@
 import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameResultSummary } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameWinner } from '@pkgs/turn-game-shared-ts/game-rules';

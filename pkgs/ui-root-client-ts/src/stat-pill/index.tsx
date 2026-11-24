@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { formatCompactNumber } from '../compact-number';
 import type { IconComponent } from '../create-icon/index';
 
@@ -44,11 +44,10 @@ export function StatPill(props: StatPillProps): JSX.Element {
   const active = (): boolean => props.active === true;
   return (
     <span
-      class="box inline-flex flex-row shrink-0 self-start items-center gap-1 rounded-full px-3 min-h-8 max-w-full"
-      classList={{
+      class={["box inline-flex flex-row shrink-0 self-start items-center gap-1 rounded-full px-3 min-h-8 max-w-full", {
         'bg-surface-muted': !active(),
         'bg-tint-subtle': active(),
-      }}
+      }]}
       {...dataAttrs({ component: 'StatPill', ...props.dataSet })}
       data-value={String(props.value)}
       data-active={active() ? 'true' : undefined}
@@ -63,14 +62,12 @@ export function StatPill(props: StatPillProps): JSX.Element {
         )}
       </Show>
       <span
-        class="text textLabel textNumeral whitespace-nowrap"
-        classList={{ 'text-on-primary-soft': active(), 'text-text': !active() }}
+        class={["text textLabel textNumeral whitespace-nowrap", { 'text-on-primary-soft': active(), 'text-text': !active() }]}
       >
         {formatCompactNumber(props.value, i18n().locale)}
       </span>
       <span
-        class="text textCaption truncate"
-        classList={{ 'text-on-primary-soft': active() }}
+        class={["text textCaption truncate", { 'text-on-primary-soft': active() }]}
       >
         {props.label}
       </span>

@@ -8,7 +8,8 @@ import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
 import type { SqlStatementResult } from './run-sql-cell';
 import { formatProductHarnessDbCell } from './sql-schema-query';

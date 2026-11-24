@@ -4,13 +4,8 @@ import type {
   EndpointPair,
   NumberlinkDefinition,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { useLingui } from '@lingui/solid/macro';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
 import {
   movedNumberlinkEndpoint,
   replaceNumberlinkPair,

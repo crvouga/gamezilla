@@ -8,7 +8,8 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 test('matched Quoridor keeps its board and wall tools in the same live session', () => {
   // regression: matched-game-board-session-actions

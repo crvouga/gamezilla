@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon } from '../icons';
 import type { TextLines } from '../text-classes';
 import { textStyleClass } from '../text-classes';
@@ -151,12 +152,11 @@ function MenuRowBody(
           {/* `div`, not `p`: callers pass their own text blocks, and a `p`
               may not contain one. A long title ends in an ellipsis. */}
           <div
-            class="text textBody textRowTitle line-clamp-1 max-w-full"
-            classList={{
+            class={["text textBody textRowTitle line-clamp-1 max-w-full", {
               'text-tint': selected(),
               'text-destructive': !selected() && destructive(),
               'text-text': !selected() && !destructive(),
-            }}
+            }]}
           >
             {props.title}
           </div>
@@ -228,7 +228,7 @@ function partAttrs(
 function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
   return (
     <button
-      class={`clickable clickableTint ${rowClass(props.selected === true)}`}
+      class={[`clickable clickableTint ${rowClass(props.selected === true)}`, { 'opacity-disabled': props.disabled === true }]}
       {...partAttrs(props.part, props.dataSet)}
       type={props.submit === undefined ? 'button' : 'submit'}
       name={props.submit?.name}
@@ -238,7 +238,6 @@ function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
       aria-label={props['aria-label']}
       aria-current={props.selected === true ? true : undefined}
       aria-expanded={props.expanded}
-      classList={{ 'opacity-disabled': props.disabled === true }}
     >
       <MenuRowBody {...props} interactive />
     </button>

@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { HistoryPlyCluster } from '@libs/game-puzzle-client-ts/puzzle-move-history-ply';
 import { PuzzleRatingBadge } from '@libs/game-puzzle-client-ts/puzzle-rating-badge';
 import { PuzzleStatusHeader } from '@libs/game-puzzle-client-ts/puzzle-status-header';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, render, screen } from '@solidjs/testing-library';
 

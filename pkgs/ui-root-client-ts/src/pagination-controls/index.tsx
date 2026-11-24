@@ -1,13 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { PaginationWindowItem } from '@pkgs/ui-root-shared-ts/build-pagination-window';
 import { buildPaginationWindow } from '@pkgs/ui-root-shared-ts/build-pagination-window';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import {
   ChevronLeftIcon,

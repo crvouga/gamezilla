@@ -1,13 +1,14 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CopyToClipboardField } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** Which commit this build came from, with its date already formatted. */
 export type CommitProvenance = {

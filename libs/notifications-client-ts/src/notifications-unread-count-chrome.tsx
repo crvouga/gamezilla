@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Chrome (AppFrame header island, compact tab bar) mounts above the SQLite
  * gate and the notifications registry. Tab icons must not call
@@ -7,13 +7,8 @@
  * (loaded with the sync tree) publishes the query into the same signal.
  */
 
-import {
-  type Accessor,
-  createContext,
-  createSignal,
-  type JSX,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createSignal, useContext } from 'solid-js';
 
 export const BOOT_NOTIFICATIONS_UNREAD_COUNT = 0;
 
@@ -53,10 +48,10 @@ export function NotificationsUnreadCountRoot(props: {
 }): JSX.Element {
   const [count, setCount] = createSignal(BOOT_NOTIFICATIONS_UNREAD_COUNT);
   return (
-    <UnreadCountPublisherContext.Provider value={setCount}>
-      <UnreadCountContext.Provider value={count}>
+    <UnreadCountPublisherContext value={setCount}>
+      <UnreadCountContext value={count}>
         {props.children}
-      </UnreadCountContext.Provider>
-    </UnreadCountPublisherContext.Provider>
+      </UnreadCountContext>
+    </UnreadCountPublisherContext>
   );
 }

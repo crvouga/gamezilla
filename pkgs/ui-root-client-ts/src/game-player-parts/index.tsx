@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The pieces a player strip (`GamePlayerBar`) and a player chip
  * (`GamePlayerChip`) share, so a seat says the same thing the same way at
@@ -9,7 +9,7 @@
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Badge } from '../badge/index';
 import { StatusDot } from '../status-dot/index';
 
@@ -54,14 +54,12 @@ export function GameSeatStatValue(props: {
       {...dataAttrs({ component: 'GameSeatStat', value: props.stat.value })}
     >
       <span
-        class="text textCaption whitespace-nowrap"
-        classList={{ 'text-on-primary-soft': props.active }}
+        class={["text textCaption whitespace-nowrap", { 'text-on-primary-soft': props.active }]}
       >
         {props.stat.label}
       </span>
       <span
-        class="text textStat textNumeral whitespace-nowrap"
-        classList={{ 'text-on-primary-soft': props.active }}
+        class={["text textStat textNumeral whitespace-nowrap", { 'text-on-primary-soft': props.active }]}
       >
         {props.stat.value}
       </span>
@@ -80,8 +78,7 @@ export function GameSeatStatInline(props: {
 }): JSX.Element {
   return (
     <span
-      class="text textCaption whitespace-nowrap"
-      classList={{ 'text-on-primary-soft': props.active }}
+      class={["text textCaption whitespace-nowrap", { 'text-on-primary-soft': props.active }]}
       {...dataAttrs({ component: 'GameSeatStat', value: props.stat.value })}
     >
       {props.stat.label}{' '}
@@ -117,11 +114,10 @@ export function GameSeatReadiness(props: {
         size={READINESS_DOT_SIZE}
       />
       <span
-        class="text textCaption whitespace-nowrap"
-        classList={{
+        class={["text textCaption whitespace-nowrap", {
           'text-success': props.ready,
           'text-text-secondary': !props.ready,
-        }}
+        }]}
       >
         {props.label}
       </span>

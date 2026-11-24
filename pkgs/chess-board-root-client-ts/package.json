@@ -22,16 +22,17 @@
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload ./src/board-style-preload.ts tests"
   },
   "dependencies": {
-    "@lingui/solid": "catalog:",
     "@pkgs/chess-board-core-shared-ts": "workspace:*",
     "@pkgs/chess-board-root-shared-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
     "@pkgs/sounds-client-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "chess.js": "catalog:",
     "solid-js": "catalog:"
   },

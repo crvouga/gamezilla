@@ -1,7 +1,8 @@
 import type { UiTreatment } from '@pkgs/permissions-shared-ts/policy';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 
 /** Whether the action is allowed, or the config treatment of its denial. */
 export type GatedAccess = 'allowed' | UiTreatment;

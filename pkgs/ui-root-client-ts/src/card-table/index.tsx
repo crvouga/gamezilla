@@ -1,17 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  Index,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, For, on, Show } from 'solid-js';
 import { Button } from '../button/index';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
@@ -188,9 +180,9 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
         {seat().player}
       </Show>
       <span class={styles['facts']}>
-        <Index each={seat().facts}>
+        <For keyed={false} each={seat().facts}>
           {(fact) => <span class={styles['fact']}>{fact()}</span>}
-        </Index>
+        </For>
         <Show when={seat().status}>
           {(status) => (
             <span
@@ -218,7 +210,7 @@ function Trick(props: {
 }): JSX.Element {
   return (
     <div class={styles['trick']} data-trick={String(props.trick)}>
-      <Index each={props.seats}>
+      <For keyed={false} each={props.seats}>
         {(seat) => (
           <span
             class={styles['slot']}
@@ -253,7 +245,7 @@ function Trick(props: {
             </Show>
           </span>
         )}
-      </Index>
+      </For>
     </div>
   );
 }
@@ -476,7 +468,7 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
     <div class={styles['pass']} aria-hidden="true">
       <span class={styles['passLabel']}>{props.pass.label}</span>
       <span class={styles['passPlaces']}>
-        <Index each={places()}>
+        <For keyed={false} each={places()}>
           {(card) => (
             <span class={styles['slot']} data-filled={String(card() !== null)}>
               <Show when={card()}>
@@ -488,7 +480,7 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
               </Show>
             </span>
           )}
-        </Index>
+        </For>
       </span>
     </div>
   );
@@ -641,8 +633,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
         testId={props.testId}
       >
         <div
-          class={styles['table']}
-          classList={{ [felt['felt'] ?? '']: true }}
+          class={[styles['table'], { [felt['felt'] ?? '']: true }]}
           role="group"
           aria-label={props.label}
         >

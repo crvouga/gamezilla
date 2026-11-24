@@ -1,11 +1,11 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { openSpaceDetail } from './space-routes';
 import { useFriendLiveSpace } from './use-friend-live-space';

@@ -15,16 +15,8 @@
  * nothing.
  */
 
-import {
-  type Accessor,
-  children,
-  createContext,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, children, createContext, createSignal, onCleanup, Show, useContext } from 'solid-js';
 
 type SpaceShellClaims = {
   /** Registers one claim; the returned function releases it, once. */
@@ -85,9 +77,9 @@ export function SpaceShellClaimFrame(
 ): JSX.Element {
   const claims = createClaims();
   const content = children(() => (
-    <SpaceShellClaimContext.Provider value={claims}>
+    <SpaceShellClaimContext value={claims}>
       {props.children}
-    </SpaceShellClaimContext.Provider>
+    </SpaceShellClaimContext>
   ));
   return (
     <Show when={claims.claimed()} fallback={props.shell(content())}>

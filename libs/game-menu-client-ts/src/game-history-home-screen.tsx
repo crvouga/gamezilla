@@ -4,7 +4,7 @@ import {
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import { t } from '@lingui/core/macro';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { GameHistoryHomeScreenView } from './game-history-home-screen-view';
 
 /** History and stats in a space: the hub, back to the game's choices. */

@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
-import { createEffect, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, on } from 'solid-js';
 import { radiusClass, spaced } from '../layout-classes';
 
 /** Frame shape, width over height. */

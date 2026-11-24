@@ -1,6 +1,6 @@
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Story-only stand-in for a game's own screen: games live in their own

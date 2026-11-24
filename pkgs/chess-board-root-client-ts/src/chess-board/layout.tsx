@@ -1,5 +1,6 @@
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import styles from './layout.module.css';
 
 /** Default match sizing stays intrinsic; square wells reserve guidance first. */

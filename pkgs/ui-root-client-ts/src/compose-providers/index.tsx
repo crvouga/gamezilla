@@ -1,13 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import {
-  type Component,
-  type JSX,
-  type ParentProps,
-  Show,
-  untrack,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Component, type ParentProps, Show, untrack } from 'solid-js';
 
 export type ProviderComponent = Component<ParentProps>;
 

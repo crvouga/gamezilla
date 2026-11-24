@@ -1,7 +1,8 @@
 import type { PuzzleGame } from '@libs/game-puzzle-shared-ts/puzzle-setup';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 import type { GamePuzzlesClient } from './puzzle-client';
 
 /** The game whose puzzles a surface shows: its rules, capability and client part. */

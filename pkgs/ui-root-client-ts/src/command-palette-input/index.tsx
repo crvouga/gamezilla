@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onSettled } from 'solid-js';
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input/index';
 
@@ -30,7 +31,7 @@ export function CommandPaletteInput(
 ): JSX.Element {
   const { t } = useLingui();
   let inputEl: HTMLInputElement | HTMLTextAreaElement | undefined;
-  onMount(() => {
+  onSettled(() => {
     if (props.focusOnMount ?? true) inputEl?.focus();
   });
   return (

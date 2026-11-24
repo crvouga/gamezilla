@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import {
   firstEnabledIndex,
   nextRovingIndex,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
-import { createSignal, createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import { spaced } from '../layout-classes';
 import { useLayoutMode } from '../use-layout-mode';

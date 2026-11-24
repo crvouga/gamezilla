@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The move list's name never shares a shrinking row with its controls. */
 
 import { afterEach, expect, test } from 'bun:test';

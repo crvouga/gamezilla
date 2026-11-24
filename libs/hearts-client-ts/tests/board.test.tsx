@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { HeartsBoard } from '@libs/hearts-client-ts/hearts-board';
 import { heartsGameClient } from '@libs/hearts-client-ts/hearts-game-client';
@@ -6,7 +6,7 @@ import { heartsGameShared } from '@libs/hearts-shared-ts/hearts-game';
 import { encodeHearts } from '@libs/hearts-shared-ts/hearts-position';
 import { heartsRules } from '@libs/hearts-shared-ts/hearts-rules';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';

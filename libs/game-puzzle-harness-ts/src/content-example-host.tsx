@@ -5,7 +5,7 @@ import { LoggerProvider } from '@pkgs/logger-client-ts/solid';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { AppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { createMemoryHistory, MemoryRouter, Route } from '@solidjs/router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { contentExampleAuth } from './content-example-auth';
 
 /** The reference app also hosts the policy denial surface's identity and navigation dependencies. */

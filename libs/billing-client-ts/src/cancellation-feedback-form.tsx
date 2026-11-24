@@ -3,7 +3,7 @@ import type {
   CancellationReason,
 } from '@libs/billing-shared-ts/cancellation-feedback';
 import { CANCELLATION_COMMENT_LIMIT } from '@libs/billing-shared-ts/cancellation-feedback';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { FormField } from '@pkgs/ui-root-client-ts/form-field';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -12,7 +12,8 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { Textarea } from '@pkgs/ui-root-client-ts/textarea';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { createEffect, createSignal, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, Show, untrack } from 'solid-js';
 
 export type CancellationFeedbackFormProps = {
   readonly saved: CancellationFeedback | null;

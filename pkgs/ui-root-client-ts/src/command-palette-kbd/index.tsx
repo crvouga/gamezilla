@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { isMacPlatform } from '@pkgs/ui-root-shared-ts/match';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 
 const STATIC_TOKEN_MAP: Readonly<Record<string, string>> = {
   shift: '⇧',

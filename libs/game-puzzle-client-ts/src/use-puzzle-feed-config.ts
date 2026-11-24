@@ -15,12 +15,7 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
 import type { PuzzleFeedConfigSetter } from './puzzle-feed-context';
 import { usePuzzleFeedState } from './puzzle-feed-context';
 import { usePuzzleGame } from './puzzle-game-context';

@@ -22,6 +22,7 @@
     "@pkgs/sounds-client-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@pkgs/tts-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

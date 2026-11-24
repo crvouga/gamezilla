@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A desktop inbox reads as a feed across the content column, with each
  * card's answers beside its words and its "…" right after them; a phone
@@ -19,7 +19,7 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 afterEach(cleanup);
 

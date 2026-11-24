@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** What the not-found screen says, once, and where it offers to go. */
 
 import { afterEach, expect, test } from 'bun:test';

@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import styles from './direction-pad.module.css';
 
 export type DirectionPadHeading = 'up' | 'right' | 'down' | 'left';

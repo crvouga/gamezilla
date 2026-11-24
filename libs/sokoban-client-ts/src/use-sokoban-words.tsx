@@ -1,5 +1,5 @@
 import type { SokobanSquare } from '@libs/sokoban-shared-ts/sokoban-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 
 /** Localized names for squares, pieces and the rules' refusal codes. */
 export function useSokobanWords() {

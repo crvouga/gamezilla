@@ -3,8 +3,8 @@ import {
   type SystemSurface,
 } from '@crvouga/mockingbird-ui/system';
 import type { PreviewShellProps } from '@pkgs/harness-console-client-ts/product-harness-screen';
+import { render } from '@solidjs/web';
 import { getOwner, onCleanup } from 'solid-js';
-import { render } from 'solid-js/web';
 
 /** Mount each preview surface under the same Solid providers and running session. */
 export function PreviewShell(props: PreviewShellProps) {

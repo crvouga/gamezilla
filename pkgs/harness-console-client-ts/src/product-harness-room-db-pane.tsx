@@ -5,13 +5,8 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 
 /**
  * Room state / event-log inspector (in-memory storage, not SQL).

@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 /**

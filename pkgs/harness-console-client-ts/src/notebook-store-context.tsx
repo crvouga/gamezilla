@@ -1,12 +1,7 @@
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
-import {
-  createContext,
-  createMemo,
-  type JSX,
-  type ParentProps,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createMemo, type ParentProps, useContext } from 'solid-js';
 import type { NotebookStore } from './notebook-store';
 import { createNotebookStore } from './notebook-store';
 
@@ -23,7 +18,7 @@ export function NotebookStoreProvider(
     save: (doc) => store().save(doc),
     clear: (nodeId) => store().clear(nodeId),
   };
-  return <Ctx.Provider value={value}>{props.children}</Ctx.Provider>;
+  return <Ctx value={value}>{props.children}</Ctx>;
 }
 
 export function useNotebookStore(): NotebookStore {

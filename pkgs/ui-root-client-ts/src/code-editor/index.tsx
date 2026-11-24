@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { HighlightSegment } from '@pkgs/ui-root-shared-ts/code-editor-highlight';
 import {
@@ -17,14 +17,8 @@ import type {
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { spacingScale } from '@pkgs/ui-root-shared-ts/scale';
-import {
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Show,
-  splitProps,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Show, splitProps } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 import { useDocumentShortcuts } from '../use-document-shortcuts';
 import styles from './code-editor.module.css';
@@ -167,8 +161,7 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
 
   return (
     <div
-      class="box gap-1"
-      classList={{ [String(props.class)]: true }}
+      class={["box gap-1", { [String(props.class)]: true }]}
       {...dataAttrs({ component: 'CodeEditor', ...props.dataSet })}
       style={props.style}
     >

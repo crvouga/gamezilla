@@ -2,7 +2,7 @@ import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-edits';
 import { sokobanGameShared } from '@libs/sokoban-shared-ts/sokoban-game';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { SokobanEditor } from './sokoban-editor';
 import { SokobanPlayer, SokobanPreview } from './sokoban-player';

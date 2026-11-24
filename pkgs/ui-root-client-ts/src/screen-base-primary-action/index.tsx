@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Primary screen action: one `useMutationButton` lifecycle shared by the
  * compact FAB and the wide header `Button`.
  */
 
-import { type Accessor, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Accessor, Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingActionButton } from '../floating-action-button/index';

@@ -4,7 +4,8 @@ import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Match, Show, Switch } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 import {
   ScreenExampleSetup,

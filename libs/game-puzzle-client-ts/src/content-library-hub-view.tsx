@@ -1,11 +1,12 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { ContentProgressLine } from './content-library-card';
 import { ContentThumbnail } from './content-thumbnail';
 import type { PuzzlePacksHomeScreenViewProps } from './puzzle-packs-home-screen-view';

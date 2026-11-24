@@ -1,17 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import {
-  createMemo,
-  For,
-  type JSX,
-  children as resolveChildren,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, children as resolveChildren, Show } from 'solid-js';
 import { formatCompactNumber } from '../compact-number';
 import { useThemeTokens } from '../theme-context/index';
 

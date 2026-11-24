@@ -7,7 +7,7 @@ import { createFrameResizeObserver } from './observe-element-resize';
  * is reported as unknown.
  */
 
-import { createSignal, onCleanup, onMount } from 'solid-js';
+import { createSignal, onCleanup, onSettled } from 'solid-js';
 
 export type KeyedWidths = {
   /**
@@ -48,7 +48,7 @@ export function createKeyedWidths(): KeyedWidths {
         });
       }
       observer?.observe(el);
-      onMount(() => record(el));
+      onSettled(() => record(el));
       onCleanup(() => {
         observer?.unobserve(el);
         keys.delete(el);

@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   ACTIVITY_PETAL_SHAPES,
   ACTIVITY_VIEWBOX,
@@ -9,7 +9,8 @@ import {
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { spaced } from '../layout-classes';
 import { useSharedSpinnerDelay } from '../spinner-context/index';
 import { toneClass } from '../text-classes';

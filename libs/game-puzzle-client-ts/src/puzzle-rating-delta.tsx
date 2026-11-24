@@ -1,9 +1,9 @@
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 function formatSignedDelta(delta: number): string {
   if (delta > 0) return `+${delta}`;

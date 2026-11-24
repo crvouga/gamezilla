@@ -1,9 +1,4 @@
-import {
-  type Accessor,
-  createComputed,
-  createSignal,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createComputed, createSignal, onCleanup } from 'solid-js';
 import type {
   MutationFeedback,
   MutationFeedbackScope,

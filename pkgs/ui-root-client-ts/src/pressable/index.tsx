@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { DataSetProps } from '../data-set-binding';
 import { bindDataSet } from '../data-set-binding';
 import type { ElementTargetProps } from '../element-targets';

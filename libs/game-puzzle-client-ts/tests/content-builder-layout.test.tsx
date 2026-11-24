@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The puzzle and pack builders as small screens: a hub of steps with one
  * next step, then a screen each for the details, the board, the preview,
@@ -25,7 +25,8 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 afterEach(cleanup);
 

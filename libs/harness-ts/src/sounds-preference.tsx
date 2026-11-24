@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';

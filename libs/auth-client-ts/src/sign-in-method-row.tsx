@@ -1,7 +1,7 @@
 /** One provider on the account: linked (with its address) or connectable. */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   OauthProviderId,
   SignInMethodId,
@@ -13,7 +13,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 import { providerName } from './auth-flow-messages';
 import type { LinkedIdentity } from './use-linked-identities';

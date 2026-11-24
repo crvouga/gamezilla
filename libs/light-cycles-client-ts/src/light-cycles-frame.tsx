@@ -22,7 +22,8 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { LightCyclesBoard } from './light-cycles-board';
 import { decodeLightCycles } from './light-cycles-board-view';
 import { riderName, steeringLine } from './light-cycles-view';

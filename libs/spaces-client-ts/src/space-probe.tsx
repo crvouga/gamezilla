@@ -1,6 +1,6 @@
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * One observation for the harness, outside the visible interface: hidden

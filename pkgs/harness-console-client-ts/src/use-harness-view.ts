@@ -5,14 +5,7 @@ import {
   resolveHarnessView,
 } from '@pkgs/harness-console-shared-ts/harness-windows';
 import type { ProductHarnessSession } from '@pkgs/harness-console-shared-ts/ports';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
 
 export type HarnessView = {

@@ -1,8 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 
 /**
  * Wraps the sign-out {@link MutationModal}: runs the (offline-safe) `signOut`,

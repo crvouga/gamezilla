@@ -3,8 +3,7 @@ import {
   IDLE_AFTER_MS,
 } from '@libs/spaces-shared-ts/space-activity';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
-import type { Accessor } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import { createEffect, createSignal, type Accessor } from 'solid-js';
 
 /** A rejected room update does not undo the activity on this device. */
 export function useOwnSpaceActivity(

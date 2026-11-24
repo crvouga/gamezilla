@@ -1,16 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-  type ParentProps,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, type ParentProps } from 'solid-js';
 
 export type ClockContextValue = {
   readonly clock: Clock;

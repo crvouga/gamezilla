@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
-import { createSignal, onMount } from 'solid-js';
+import { createSignal, onSettled } from 'solid-js';
 import { Button } from '../button/index';
 import { safeMarkdownHref } from '../safe-markdown';
 import { TextInput } from '../text-input/index';
@@ -14,7 +14,7 @@ export function EditorLinkForm(props: {
 }) {
   const [href, setHref] = createSignal('');
   let host: HTMLDivElement | undefined;
-  onMount(() => host?.querySelector('input')?.focus());
+  onSettled(() => host?.querySelector('input')?.focus());
   const valid = () => safeMarkdownHref(href());
   return (
     <div

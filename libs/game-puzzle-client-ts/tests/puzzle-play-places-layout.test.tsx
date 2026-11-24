@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Which of the puzzle feed's small screens holds which control. */
 
 import { afterEach, expect, test } from 'bun:test';

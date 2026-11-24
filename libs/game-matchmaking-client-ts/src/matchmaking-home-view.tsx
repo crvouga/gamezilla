@@ -1,5 +1,5 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
@@ -10,7 +10,8 @@ import { ClockIcon, GaugeIcon, InfoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   MultiplayerLobbyPlace,
   type MultiplayerPlaceFrame,

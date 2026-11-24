@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { reportSolidBoundaryError } from '@libs/app-env-client-ts/browser-boundaries';
 import {
@@ -9,14 +9,8 @@ import {
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { requestBugReport } from '@pkgs/feedback-client-ts/request-bug-report';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  onMount,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, onCleanup, onSettled, untrack } from 'solid-js';
 import type { CrashCopyPhase } from './crash-copy-button';
 import { CrashScreenView, useCrashTitle } from './crash-screen-view';
 
@@ -43,7 +37,7 @@ function useCrashTrace(error: () => Error): () => string | undefined {
   onCleanup(() => {
     mounted = false;
   });
-  onMount(() => {
+  onSettled(() => {
     const exception = untrack(error);
     try {
       const id = reportSolidBoundaryError(exception);

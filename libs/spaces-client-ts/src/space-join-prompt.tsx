@@ -1,11 +1,11 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
 import { useRequestLeaveSpace } from './leave-space-modal-provider';
 import { SpaceEndedScreen } from './space-ended-screen';

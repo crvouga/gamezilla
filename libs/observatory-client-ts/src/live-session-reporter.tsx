@@ -12,14 +12,8 @@ import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useThemeHost } from '@pkgs/ui-root-client-ts/theme-context';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  on,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, on, onCleanup, untrack } from 'solid-js';
 import { createLiveReport } from './live-report-client';
 import { useLiveActivity } from './use-live-activity';
 

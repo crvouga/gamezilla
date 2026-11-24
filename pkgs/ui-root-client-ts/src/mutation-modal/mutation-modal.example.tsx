@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
-import { useLingui } from '@lingui/solid/macro';
+/** @jsxImportSource @solidjs/web */
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 function createDelay(): (ms: number) => Promise<void> {

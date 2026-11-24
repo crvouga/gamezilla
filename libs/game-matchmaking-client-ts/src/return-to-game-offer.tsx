@@ -3,7 +3,7 @@ import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-oppo
 import { SHARED_MATCHMAKING_SCREEN } from '@libs/game-matchmaking-shared-ts/multiplayer-link';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { MiniPlayerDock } from '@pkgs/ui-root-client-ts/mini-player';
@@ -12,13 +12,8 @@ import {
   type ReturnToGamePlacement,
 } from '@pkgs/ui-root-client-ts/return-to-game';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import {
-  type Accessor,
-  createMemo,
-  createSignal,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, createSignal, Show } from 'solid-js';
 import { type UnfinishedGame, useUnfinishedGame } from './use-unfinished-game';
 
 /** Seeking refused because a game must be finished first. */

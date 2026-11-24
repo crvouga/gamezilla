@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, For, Show } from 'solid-js';
 import { ChipGroup } from '../chip-group/index';
 import { IconButton } from '../icon-button/index';
 import { ChevronDownIcon, ChevronUpIcon } from '../icons';

@@ -1,6 +1,6 @@
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -11,7 +11,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Sparkline } from '@pkgs/ui-root-client-ts/sparkline';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import { PuzzleGameLog } from './puzzle-game-log';
 import { PuzzleRatingHistory } from './puzzle-rating-history';
 import { PuzzleStatsCards } from './puzzle-stats-cards';

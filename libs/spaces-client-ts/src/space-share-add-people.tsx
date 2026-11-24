@@ -7,7 +7,7 @@ import {
 } from '@libs/user-search-client-ts/use-user-search';
 import { createAsync } from '@pkgs/async-root-client-ts/solid';
 import { usePendingOperation } from '@pkgs/ui-root-client-ts/pending-navigation';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, Show } from 'solid-js';
 import type {
   SpaceAddCandidate,

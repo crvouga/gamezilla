@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { BadgedIcon } from '@pkgs/ui-root-client-ts/badged-icon';
 import { BellIcon, MailIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

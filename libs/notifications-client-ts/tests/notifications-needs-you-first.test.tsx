@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The inbox is one list on every size: what needs the person first, then
  * the Activity timeline, every heading on the edge the title and the

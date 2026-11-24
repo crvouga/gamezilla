@@ -1,7 +1,7 @@
 import FriendUserScreen from './friend-user';
 import ProfileFriendsScreen from './profile-friends';
 import SessionProvider from './session-provider';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What friends contributes to a client app: the friends list and the other
  * person's profile screen, the friend-request notification source, the

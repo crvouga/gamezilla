@@ -1,7 +1,8 @@
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import { createSignal, type JSX, onCleanup, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onCleanup, onSettled } from 'solid-js';
 import { IdentityBootScreenView } from './identity-boot-screen-view';
 
 /** Local identity normally binds immediately; a failed refresh must not hang. */
@@ -12,7 +13,7 @@ export function IdentityBootPending(): JSX.Element {
   const timers = useTimers();
   const log = useLogger('identity-boot');
   const [stuck, setStuck] = createSignal(false);
-  onMount(() => {
+  onSettled(() => {
     const timer = timers.setTimeout(() => {
       log.error('local identity did not become ready');
       setStuck(true);

@@ -1,12 +1,5 @@
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createSignal,
-  type JSX,
-  type Setter,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createSignal, type Setter, useContext } from 'solid-js';
 
 type SpaceMembersDialog = {
   readonly open: Accessor<boolean>;
@@ -26,9 +19,9 @@ export function SpaceMembersDialogProvider(props: {
     setOpen(false);
   });
   return (
-    <SpaceMembersDialogContext.Provider value={{ open, setOpen }}>
+    <SpaceMembersDialogContext value={{ open, setOpen }}>
       {props.children}
-    </SpaceMembersDialogContext.Provider>
+    </SpaceMembersDialogContext>
   );
 }
 

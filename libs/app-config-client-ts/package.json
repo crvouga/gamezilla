@@ -15,10 +15,11 @@
   },
   "dependencies": {
     "@libs/app-config-shared-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

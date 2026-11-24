@@ -2,7 +2,8 @@ import {
   useDebouncedUserSearchEffect,
   useUserSearchDenial,
 } from '@libs/user-search-client-ts/use-user-search';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { useSearchResultSlots } from './search-result-slots';
 import { SearchScreenView } from './search-screen-view';
 import { SearchUserResultRow } from './search-user-result-row';

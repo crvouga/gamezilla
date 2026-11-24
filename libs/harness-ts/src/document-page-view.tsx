@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A vendor's own HTML page in the actor's browser: the payment provider's
  * hosted checkout and billing portal, the sign-in provider's screens. The
@@ -8,7 +8,8 @@
  * — the way a browser submits them.
  */
 
-import { type JSX, onCleanup, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onCleanup, onSettled } from 'solid-js';
 
 import type { FormFields } from './browser';
 import {
@@ -149,7 +150,7 @@ export function DocumentPage(props: DocumentPageProps): JSX.Element {
     submit(form, button);
   };
 
-  onMount(() => {
+  onSettled(() => {
     const doc = host.ownerDocument;
     const nodes = bodyNodes(props.html, doc);
     const css = scopePageCss(documentCss(props.html));

@@ -5,7 +5,7 @@ import {
   placeBehind,
   type ScreenPlaces,
 } from '@pkgs/turn-game-client-ts/screen-places';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * A game's settings, declared as data: a tree of rows the platform draws.

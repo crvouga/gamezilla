@@ -1,6 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ChipGroup } from '@pkgs/ui-root-client-ts/chip-group';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
@@ -9,7 +9,8 @@ import { SearchIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import type {
   PuzzleFeedThemes,
   PuzzleStageScreenViewProps,

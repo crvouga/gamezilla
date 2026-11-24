@@ -1,9 +1,10 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   GameLobbyDock,
   GameModeCard,
 } from '@pkgs/ui-root-client-ts/game-lobby';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   MultiplayerLobbyPlace,
   type MultiplayerPlaceFrame,

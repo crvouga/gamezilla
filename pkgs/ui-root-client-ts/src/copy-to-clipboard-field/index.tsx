@@ -1,17 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
@@ -99,11 +94,10 @@ export function CopyToClipboardField(
       >
         <div class="box flex-1 min-w-0">
           <p
-            class="text"
-            classList={{
+            class={["text", {
               'select-none': props.selectable === false,
               'select-text': props.selectable !== false,
-            }}
+            }]}
           >
             {props.value}
           </p>

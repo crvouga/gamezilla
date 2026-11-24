@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import {
@@ -8,7 +8,7 @@ import {
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import { AppLogo } from '@pkgs/ui-root-client-ts/app-logo';
 import { HouseIcon, SearchIcon, UserIcon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

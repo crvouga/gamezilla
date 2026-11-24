@@ -1,13 +1,14 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { PerfSnapshot } from '@libs/app-root-shared-ts/types';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { GaugeIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 const ROW_ICON_SIZE = 20;
 

@@ -1,15 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { layer } from '@pkgs/ui-root-shared-ts/layers';
-import {
-  type Accessor,
-  createContext,
-  createSignal,
-  type JSX,
-  Show,
-  useContext,
-} from 'solid-js';
-import { Portal } from 'solid-js/web';
+import { type JSX, Portal } from '@solidjs/web';
+import { type Accessor, createContext, createSignal, Show, useContext } from 'solid-js';
 import type { PortalHostFrame } from '../portal-host-frame';
 import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from '../portal-host-frame';
 
@@ -51,7 +44,7 @@ export function OverlayPortalProvider(
   const [host, setHost] = createSignal<HTMLElement>();
   const api: OverlayPortalApi = { host, frame: createHostFrame(root) };
   return (
-    <OverlayPortalContext.Provider value={api}>
+    <OverlayPortalContext value={api}>
       <div
         class="box flex-1 min-w-0 w-full max-w-full relative"
         data-component="OverlayPortalRoot"
@@ -60,14 +53,13 @@ export function OverlayPortalProvider(
       >
         {props.children}
         <div
-          class="box absolute inset-0"
-          classList={{ boxNone: true }}
+          class={["box absolute inset-0", { boxNone: true }]}
           data-component="OverlayPortalHost"
           style={{ 'z-index': OVERLAY_PORTAL_Z_INDEX }}
           ref={setHost}
         />
       </div>
-    </OverlayPortalContext.Provider>
+    </OverlayPortalContext>
   );
 }
 

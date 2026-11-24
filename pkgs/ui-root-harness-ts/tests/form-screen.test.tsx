@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { Trans } from '@lingui/solid';
+import { Trans } from '@pkgs/lingui-solid-client-ts/runtime';
 import { FormScreen } from '@pkgs/ui-root-client-ts/form-screen';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { fireEvent } from '@solidjs/testing-library';

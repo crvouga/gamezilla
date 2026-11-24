@@ -6,14 +6,7 @@ import {
   createQuery,
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  mergeProps,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, mergeProps, onCleanup, untrack } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 
 function readStringArray(raw: unknown): readonly string[] {

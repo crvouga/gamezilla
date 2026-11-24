@@ -21,13 +21,7 @@ import type {
   ComboboxProps,
   ComboboxValue,
 } from '@pkgs/ui-root-shared-ts/combobox-types';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on } from 'solid-js';
 
 export type ComboboxController<T extends ComboboxValue> = {
   multiple: Accessor<boolean>;

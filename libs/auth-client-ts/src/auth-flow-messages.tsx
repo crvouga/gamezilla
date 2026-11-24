@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What to tell a person when sign-in, linking or unlinking did not go
  * through, keyed by the server's `AUTH_ERROR` codes.

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `ClientEnvProvider` — root of the product client tree. Projects the env's
  * nondeterminism ports (clock / timers / ids / server HTTP / mutation hold)
@@ -13,7 +13,8 @@ import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { ExternalUrlProvider } from '@pkgs/ui-root-client-ts/external-url';
 import { MutationSuccessHoldProvider } from '@pkgs/ui-root-client-ts/mutation-success-hold';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 import type { ClientEnv } from './client-env';
 import type { AppSyncEnginePool } from './sync-engine-pool';
@@ -33,8 +34,8 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
   const pool = untrack(() => props.syncEnginePool);
   const http: HttpClient = { fetch: env.server };
   return (
-    <EnvContext.Provider value={env}>
-      <PoolContext.Provider value={pool}>
+    <EnvContext value={env}>
+      <PoolContext value={pool}>
         <ClockProvider clock={env.clock} timers={env.timers}>
           <HttpClientProvider value={http}>
             <ExternalUrlProvider value={env.openExternalUrl}>
@@ -50,8 +51,8 @@ export function ClientEnvProvider(props: ClientEnvProviderProps): JSX.Element {
             </ExternalUrlProvider>
           </HttpClientProvider>
         </ClockProvider>
-      </PoolContext.Provider>
-    </EnvContext.Provider>
+      </PoolContext>
+    </EnvContext>
   );
 }
 

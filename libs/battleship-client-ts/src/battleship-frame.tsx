@@ -17,7 +17,7 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { BattleshipBoard } from './battleship-board';
 import { shipName } from './battleship-copy';
 import { statusText } from './battleship-status';

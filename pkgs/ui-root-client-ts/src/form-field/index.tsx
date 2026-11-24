@@ -1,13 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createContext,
-  createUniqueId,
-  type JSX,
-  Show,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createUniqueId, Show, useContext } from 'solid-js';
 import { FieldLabel } from '../field-label/index';
 import { spaced } from '../layout-classes';
 
@@ -121,9 +116,9 @@ export function FormField(props: FormFieldProps): JSX.Element {
       >
         {props.label}
       </FieldLabel>
-      <FormFieldContext.Provider value={control}>
+      <FormFieldContext value={control}>
         {props.children(control)}
-      </FormFieldContext.Provider>
+      </FormFieldContext>
       <Show when={props.help} keyed>
         {(help) => (
           <p

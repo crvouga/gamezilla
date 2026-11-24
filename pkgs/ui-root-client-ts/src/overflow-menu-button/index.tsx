@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
 import type { FloatingMenuPlacement } from '../floating-menu-position';
@@ -274,8 +274,7 @@ export function OverflowMenuButton(
       {/* A custom trigger (a face and a name) gives up width to its row, so
           a long name truncates instead of running past its container. */}
       <div
-        class="box"
-        classList={{ 'shrink max-w-full': props.trigger !== undefined }}
+        class={["box", { 'shrink max-w-full': props.trigger !== undefined }]}
         data-component="OverflowMenuButton"
         ref={menu.setTrigger}
       >

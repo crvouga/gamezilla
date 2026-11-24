@@ -1,6 +1,6 @@
 import type { BoardTheme } from '@pkgs/chess-board-core-shared-ts/types';
 import type { FeedbackBadge } from '@pkgs/chess-board-root-shared-ts/feedback-badge';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { PaintToken } from '../paint-token/index';
 
 /** Two contrasting perimeter strokes leave the entire piece silhouette clear. */

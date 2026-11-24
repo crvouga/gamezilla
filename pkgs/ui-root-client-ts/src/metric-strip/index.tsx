@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 
 export type SummaryMetric = {
   readonly label: JSX.Element;

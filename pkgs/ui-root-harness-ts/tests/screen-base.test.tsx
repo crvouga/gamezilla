@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
@@ -14,7 +14,8 @@ import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
 import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { type JSX, splitProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { splitProps } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 const COMPACT = { width: 390, height: 800 };
@@ -30,8 +31,7 @@ function Screen(
       breadcrumbs={[{ name: 'Home', onClick: () => {} }, { name: 'Demo' }]}
       content={({ bodyClass }) => (
         <div
-          class="box"
-          classList={{ [bodyClass]: true }}
+          class={["box", { [bodyClass]: true }]}
           data-testid="content"
         >
           {local.body ?? <p class="text">{'body'}</p>}

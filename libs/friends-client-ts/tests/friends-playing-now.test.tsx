@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Who is playing now is told by room: each room leads with its own tile
  * (the same tile on every screen), names who of your friends is there, and
@@ -30,7 +30,7 @@ import { StaticAppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
 afterEach(cleanup);

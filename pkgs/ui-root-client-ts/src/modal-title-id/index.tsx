@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 const ModalTitleIdContext = createContext<string>();
 
@@ -21,9 +22,9 @@ export function ModalTitleIdProvider(
   // Ids are minted once per surface instance; never reactive.
   const id = untrack(() => props.id);
   return (
-    <ModalTitleIdContext.Provider value={id}>
+    <ModalTitleIdContext value={id}>
       {props.children}
-    </ModalTitleIdContext.Provider>
+    </ModalTitleIdContext>
   );
 }
 

@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
- * Icon adapter over `lucide-solid`. Every icon in the design system is a
- * `createIcon(LucideX)` so consumers get theme-aware color defaults.
+ * Icon renderer over Lucide's shape data. Every icon in the design system is
+ * a `createIcon(lucideShapes)` so consumers get theme-aware color defaults.
  *
  * Default stroke is the CSS var `--ui-on-icon` (set by {@link OnColorProvider}),
  * not a JS context read. That way icons created as JSX outside a colored
@@ -12,7 +12,9 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { componentDataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { IconNode } from 'lucide';
+import type { Component } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 
 export type IconProps = {
@@ -32,14 +34,20 @@ const DEFAULT_STROKE_WIDTH = 2;
 /** Cascade-friendly default; {@link OnColorProvider} overrides per surface. */
 const DEFAULT_ICON_COLOR = 'var(--ui-on-icon)';
 
-type LucideIconLike = Component<{
-  size?: number | string;
-  color?: string;
-  'stroke-width'?: number | string;
-  'aria-hidden'?: boolean | 'true' | 'false';
-}>;
+const SVG_NAMESPACE = 'http://www.w3.org/2000/svg';
 
-export function createIcon(LucideIcon: LucideIconLike): IconComponent {
+/** Lucide's `[tag, attributes]` pairs as SVG elements; an icon's shapes never change. */
+function shapeElements(shapes: IconNode): SVGElement[] {
+  return shapes.map(([tag, attributes]) => {
+    const element = document.createElementNS(SVG_NAMESPACE, tag);
+    for (const [name, value] of Object.entries(attributes)) {
+      if (value !== undefined) element.setAttribute(name, String(value));
+    }
+    return element;
+  });
+}
+
+export function createIcon(shapes: IconNode): IconComponent {
   return function Icon(props: IconProps): JSX.Element {
     const tokens = useThemeTokens();
     const color = (): string => {
@@ -54,11 +62,19 @@ export function createIcon(LucideIcon: LucideIconLike): IconComponent {
         aria-hidden={props.label === undefined ? true : undefined}
         {...componentDataAttrs('Icon', props.dataSet)}
       >
-        <LucideIcon
-          size={props.size ?? DEFAULT_SIZE}
-          color={color()}
+        <svg
+          xmlns={SVG_NAMESPACE}
+          width={props.size ?? DEFAULT_SIZE}
+          height={props.size ?? DEFAULT_SIZE}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color()}
           stroke-width={props.strokeWidth ?? DEFAULT_STROKE_WIDTH}
-        />
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          {shapeElements(shapes)}
+        </svg>
       </span>
     );
   };

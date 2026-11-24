@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show, untrack } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 
 export type CollapsibleProps = {

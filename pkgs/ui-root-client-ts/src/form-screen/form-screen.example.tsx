@@ -2,7 +2,8 @@ import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { FormScreen } from '@pkgs/ui-root-client-ts/form-screen';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 
 export default function FormScreenExample(): JSX.Element {

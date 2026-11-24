@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The lobby's groups are titled like every page's sections, and on a phone
  * the list ends clear of the floating "New space".

@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonExpansionState,
   JsonPath,
@@ -23,8 +23,8 @@ import {
 } from '@pkgs/ui-root-client-ts/scroll-view';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, createSignal, type JSX, Show, splitProps } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createMemo, createSignal, Show, splitProps } from 'solid-js';
 import type { JsonViewCopy } from '../json-view-node/index';
 import { JsonViewNode } from '../json-view-node/index';
 import styles from './json-view.module.css';
@@ -137,8 +137,7 @@ export function JsonView(props: JsonViewProps): JSX.Element {
 
   return (
     <div
-      class="box bg-surface-muted border border-border rounded-control"
-      classList={{ [String(local.class)]: true }}
+      class={["box bg-surface-muted border border-border rounded-control", { [String(local.class)]: true }]}
       style={local.style}
       {...dataAttrs({ component: 'JsonView', ...local.dataSet })}
     >
@@ -243,10 +242,9 @@ function ToolbarButton(props: {
       <Show when={props.icon}>
         {(icon) => (
           <div
-            class="box"
-            classList={{
+            class={["box", {
               [styles['rotated'] ?? '']: props.iconRotated === true,
-            }}
+            }]}
           >
             <Dynamic component={icon()} size={10} />
           </div>

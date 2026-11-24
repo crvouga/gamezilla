@@ -8,13 +8,7 @@ import {
   type PublishedPageCursor,
 } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on } from 'solid-js';
 import type { ContentSubject } from './content-places';
 
 export type ContentIdPage = {

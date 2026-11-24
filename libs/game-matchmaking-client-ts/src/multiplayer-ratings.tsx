@@ -7,10 +7,11 @@ import {
   gameSpeed,
   MULTIPLAYER_SPEEDS,
 } from '@libs/game-matchmaking-shared-ts/time-control';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, Show } from 'solid-js';
 import { SpeedName } from './speed-name';
 import type { MultiplayerRatingRow } from './use-multiplayer-data';
 

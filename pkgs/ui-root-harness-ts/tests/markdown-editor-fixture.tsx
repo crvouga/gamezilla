@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect } from 'bun:test';
 import { MarkdownEditor } from '@pkgs/ui-root-client-ts/markdown-editor';
 import { fireEvent } from '@solidjs/testing-library';

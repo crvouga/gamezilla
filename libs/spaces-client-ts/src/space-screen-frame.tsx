@@ -2,7 +2,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useSetAppFrameHeader } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { SpaceScreenNotice, useSpaceScreenChrome } from './space-screen-chrome';
 import { SpaceShellClaimFrame } from './space-shell-claim';
 

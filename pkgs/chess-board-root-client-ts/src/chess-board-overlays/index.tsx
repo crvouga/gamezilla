@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Promotion overlay + test probe for {@link ChessBoardView}. The probe (a
  * chess.js parse + JSON of the whole board state) exists only in dev / test
@@ -11,8 +11,8 @@ import {
   chessBoardProbeTestId,
 } from '@pkgs/chess-board-core-shared-ts/probe';
 import { COMPONENT_IDS_ENABLED } from '@pkgs/ui-root-shared-ts/component-id';
-import type { Accessor, JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show, type Accessor } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
 import type { BoardController } from '../chess-board-controller';

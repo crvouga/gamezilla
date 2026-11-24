@@ -1,5 +1,5 @@
 import type { EndpointPair } from '@libs/numberlink-shared-ts/numberlink-types';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
 
 /** Connect the editor's endpoint choice to its visible and named board cell. */

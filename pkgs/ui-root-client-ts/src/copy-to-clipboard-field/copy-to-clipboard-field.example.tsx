@@ -1,13 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The injected `copy` sink records payloads in native Storybook Actions.
  */
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   type ClipboardCopy,
   CopyToClipboardField,
 } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 

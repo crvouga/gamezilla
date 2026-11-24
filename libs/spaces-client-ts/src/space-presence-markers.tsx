@@ -1,7 +1,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 
 /** Presence observations for the harness, outside the visible interface. */
 export function SpacePresenceMarkers(props: {

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `@solidjs/router` route definitions built from the composed route table.
  * Tab roots nest under `TabsLayout`; everything else is a top-level route;

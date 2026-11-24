@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -9,7 +9,8 @@ import {
   resolveModalLayoutWidth,
 } from '@pkgs/ui-root-shared-ts/modal-size';
 import { spacing } from '@pkgs/ui-root-shared-ts/scale';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ContentEdgePaddingProvider } from '../content-edge-padding/index';
 import { OnColorReset } from '../on-color-context/index';
 import { useThemeLayout } from '../theme-context/index';
@@ -75,8 +76,7 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
   return (
     <OnColorReset>
       <div
-        class="box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated shadow-float"
-        classList={{ 'p-5': padded() }}
+        class={["box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated shadow-float", { 'p-5': padded() }]}
         {...dataAttrs({
           component: 'ModalContent',
           size: props.size ?? 'medium',

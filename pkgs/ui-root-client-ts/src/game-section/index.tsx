@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import sizing from './game-actions.module.css';

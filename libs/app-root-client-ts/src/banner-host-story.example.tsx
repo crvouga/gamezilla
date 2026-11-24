@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { DismissibleBannerPortalProvider } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
 import { createJSXDecorator } from 'storybook-solidjs-vite';

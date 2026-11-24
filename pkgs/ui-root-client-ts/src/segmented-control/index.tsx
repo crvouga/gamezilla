@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { nextRovingIndex } from '@pkgs/ui-root-shared-ts/roving-focus';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 
 export type Segment<K extends string = string> = {
   key: K;
@@ -80,10 +81,9 @@ function SegmentButton<K extends string>(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable segment hitTarget rounded-full flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1"
-      classList={{
+      class={["clickable segment hitTarget rounded-full flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1", {
         clickableTint: !props.isActive,
-      }}
+      }]}
       data-component="Segment"
       data-key={props.segment.key}
       data-testid={segmentTestId(props.groupTestId, props.segment.key)}
@@ -98,11 +98,10 @@ function SegmentButton<K extends string>(props: {
       disabled={props.disabled}
     >
       <span
-        class="text textBodyBold whitespace-nowrap"
-        classList={{
+        class={["text textBodyBold whitespace-nowrap", {
           'text-on-primary-soft': props.isActive,
           'text-text': !props.isActive,
-        }}
+        }]}
       >
         {props.segment.label}
       </span>
@@ -151,8 +150,7 @@ export function SegmentedControl<K extends string = string>(
     segmentIndicatorCss(selectedIndex(), props.segments.length);
   return (
     <div
-      class="box flex-row p-1 gap-1 border border-outline rounded-full relative"
-      classList={{ 'opacity-disabled': props.disabled === true }}
+      class={["box flex-row p-1 gap-1 border border-outline rounded-full relative", { 'opacity-disabled': props.disabled === true }]}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
       role="radiogroup"
       aria-label={props['aria-label']}

@@ -4,7 +4,8 @@ import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { ScreenBodyScrollView } from '@pkgs/ui-root-client-ts/screen-body-scroll-view';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
 
 const PEOPLE = [

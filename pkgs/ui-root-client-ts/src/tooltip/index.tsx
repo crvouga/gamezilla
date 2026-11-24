@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -6,17 +6,8 @@ import {
   claimActiveTooltip,
   releaseActiveTooltip,
 } from '@pkgs/ui-root-shared-ts/tooltip-coordinator';
-import {
-  createContext,
-  createEffect,
-  createSignal,
-  createUniqueId,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createEffect, createSignal, createUniqueId, onCleanup, Show, untrack, useContext } from 'solid-js';
 import { FloatingTooltip } from '../floating-tooltip/index';
 import { useHoverCapable } from '../use-hover-capable';
 import styles from './tooltip.module.css';
@@ -95,8 +86,7 @@ function TooltipAnchor(props: {
   return (
     <div
       ref={anchor}
-      class="box"
-      classList={{ [styles['anchor'] ?? '']: true }}
+      class={["box", { [styles['anchor'] ?? '']: true }]}
       role="presentation"
       onMouseEnter={() => {
         if (hoverCapable()) props.controller.show();
@@ -185,8 +175,7 @@ function TooltipBubble(props: {
     <div
       ref={bubble}
       style={{ translate: shift() === 0 ? undefined : `${shift()}px 0` }}
-      class="box bg-surface-overlay border border-border shadow-float rounded-sm px-2 py-1 w-max max-w-60"
-      classList={{
+      class={["box bg-surface-overlay border border-border shadow-float rounded-sm px-2 py-1 w-max max-w-60", {
         [styles['bubble'] ?? '']: !props.floating,
         [styles['floating'] ?? '']: props.floating === true,
         [styles['top'] ?? '']:
@@ -200,7 +189,7 @@ function TooltipBubble(props: {
         [styles['end'] ?? '']:
           !props.floating && tooltipAlign(props.placement()) === 'end',
         [styles['open'] ?? '']: props.controller.visible(),
-      }}
+      }]}
       {...dataAttrs({ component: 'Tooltip', ...props.dataSet })}
       id={props.controller.id}
       role="tooltip"
@@ -247,7 +236,7 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   const placement = (): TooltipPlacement => props.placement ?? 'bottom';
 
   return (
-    <TooltipContext.Provider value={controller}>
+    <TooltipContext value={controller}>
       <TooltipAnchor
         controller={controller}
         enableFocus={props.enableFocus}
@@ -258,6 +247,6 @@ export function Tooltip(props: TooltipProps): JSX.Element {
       >
         {props.children}
       </TooltipAnchor>
-    </TooltipContext.Provider>
+    </TooltipContext>
   );
 }

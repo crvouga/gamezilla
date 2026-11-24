@@ -1,5 +1,5 @@
-/** @jsxImportSource solid-js */
-import type { JSX } from 'solid-js';
+/** @jsxImportSource @solidjs/web */
+import type { JSX } from '@solidjs/web';
 
 export type TopBarTitleProps = {
   label: JSX.Element;
@@ -19,11 +19,10 @@ export type TopBarTitleProps = {
 export function TopBarTitle(props: TopBarTitleProps): JSX.Element {
   return (
     <h1
-      class="text truncate min-w-0 max-w-full"
-      classList={{
+      class={["text truncate min-w-0 max-w-full", {
         textHeading: props.size !== 'large',
         textTitle: props.size === 'large',
-      }}
+      }]}
     >
       {props.label}
     </h1>

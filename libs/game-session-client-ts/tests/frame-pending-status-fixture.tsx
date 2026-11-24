@@ -15,7 +15,8 @@ import { boardOnly, fixedPlayers } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 /** Deferred model boundary: exercises production status derivation, not transport. */
 export function pendingFrameModel() {

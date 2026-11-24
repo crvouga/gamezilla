@@ -4,7 +4,7 @@ import type {
 } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
@@ -14,7 +14,8 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import { ContentAuthorHubView } from './content-author-hub-view';
 import {
   ContentAuthorBoardView,

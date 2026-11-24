@@ -1,9 +1,10 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { DraftEditDirection } from './draft-edit-history';
 import type { useContentDraftSave } from './use-content-draft-save';
 import type { DraftEditHistoryTools } from './use-draft-edit-history';

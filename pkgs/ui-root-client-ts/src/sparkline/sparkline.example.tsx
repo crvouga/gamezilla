@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Sparkline } from '@pkgs/ui-root-client-ts/sparkline';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -7,7 +7,8 @@ import {
   COLOR_TONES,
   CONTROL_SIZE_TOKENS,
 } from '@pkgs/ui-root-shared-ts/token-names';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -34,8 +35,7 @@ export default function SparklineExample(): JSX.Element {
             <ExampleSection title={`tone ${tone}`}>
               <StackVertical width="full" maxWidth="form">
                 <div
-                  class="box rounded-sm p-1"
-                  classList={{ 'bg-tint-active': tone === 'on-primary' }}
+                  class={["box rounded-sm p-1", { 'bg-tint-active': tone === 'on-primary' }]}
                 >
                   <Sparkline values={RATINGS} tone={tone} size="sm" />
                 </div>

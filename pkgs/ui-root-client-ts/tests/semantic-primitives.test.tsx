@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Text, headings, landmarks, lists and the small semantic hosts: the element
  * is the meaning, the props are tokens.

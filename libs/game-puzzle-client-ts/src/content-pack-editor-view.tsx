@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import {
@@ -13,7 +13,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { ContentStatusChip } from './content-chips';
 import { ContentThumbnail } from './content-thumbnail';
 

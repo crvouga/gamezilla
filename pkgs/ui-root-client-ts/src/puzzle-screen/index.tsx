@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';

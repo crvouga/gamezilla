@@ -81,7 +81,7 @@ import {
 } from '@libs/profile-shared-ts/avatar-config';
 import { profileAvatarSvg } from '@libs/profile-shared-ts/profile-dicebear';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   LogOutIcon,
@@ -98,16 +98,8 @@ import type {
   SpacePerson as SpaceShellPerson,
 } from '@pkgs/ui-root-client-ts/space-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import {
-  type Accessor,
-  createContext,
-  createMemo,
-  getOwner,
-  type JSX,
-  runWithOwner,
-  Show,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createMemo, getOwner, runWithOwner, Show, useContext } from 'solid-js';
 import { spaceBackName } from './space-back-name';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
 import type { SpacePerson } from './space-person-view';
@@ -417,12 +409,12 @@ export function SpaceScreenChromeProvider(
     },
   };
   return (
-    <SpaceScreenChromeContext.Provider value={value}>
-      <SpaceLiveNoticeContext.Provider value={true}>
+    <SpaceScreenChromeContext value={value}>
+      <SpaceLiveNoticeContext value={true}>
         {props.children}
-      </SpaceLiveNoticeContext.Provider>
+      </SpaceLiveNoticeContext>
       <SpaceScreenOverlays spaceId={spaceId()} overlays={overlays} />
-    </SpaceScreenChromeContext.Provider>
+    </SpaceScreenChromeContext>
   );
 }
 
@@ -435,9 +427,9 @@ export function SpaceScreenChromeValueProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <SpaceScreenChromeContext.Provider value={props.value}>
+    <SpaceScreenChromeContext value={props.value}>
       {props.children}
-    </SpaceScreenChromeContext.Provider>
+    </SpaceScreenChromeContext>
   );
 }
 

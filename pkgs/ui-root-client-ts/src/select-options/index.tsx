@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -12,7 +12,8 @@ import type {
   SelectRenderOption,
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
-import { createSignal, Index, type JSX, onMount, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, onSettled, Show } from 'solid-js';
 import { CheckIcon } from '../icons';
 import { ScrollView } from '../scroll-view/index';
 
@@ -94,8 +95,7 @@ function DefaultOptionRow<T extends SelectValue>(props: {
   const disabled = (): boolean => props.option.disabled === true;
   return (
     <button
-      class="clickable clickableTint w-full min-h-11 flex-row items-center gap-3 py-3 px-4 text-left disabled:opacity-disabled"
-      classList={{ 'bg-tint-subtle': props.selected }}
+      class={["clickable clickableTint w-full min-h-11 flex-row items-center gap-3 py-3 px-4 text-left disabled:opacity-disabled", { 'bg-tint-subtle': props.selected }]}
       {...dataAttrs({ component: 'SelectOption', ...props.option.dataSet })}
       type="button"
       role="option"
@@ -127,10 +127,9 @@ function CustomOptionRow<T extends SelectValue>(props: {
 }): JSX.Element {
   return (
     <div
-      class="box min-w-0"
-      classList={{
+      class={["box min-w-0", {
         'bg-tint-subtle': props.selected && props.option.disabled !== true,
-      }}
+      }]}
       {...dataAttrs({ component: 'SelectOption', ...props.option.dataSet })}
       role="option"
       tabIndex={-1}
@@ -204,7 +203,7 @@ export function SelectOptions<T extends SelectValue>(
     if (option.disabled === true) return;
     props.onPick(option.value);
   };
-  onMount(() => {
+  onSettled(() => {
     if (props.focusOnMount && hostEl !== undefined) {
       focusInitial(hostEl, props.options, props.value);
     }
@@ -225,7 +224,7 @@ export function SelectOptions<T extends SelectValue>(
       >
         {/* Rows stay by position. A press refreshes option objects before the
             click, and a new node would drop the choice. */}
-        <Index each={props.options}>
+        <For keyed={false} each={props.options}>
           {(option, index) => (
             <SelectOptionEntry
               option={option()}
@@ -235,7 +234,7 @@ export function SelectOptions<T extends SelectValue>(
               onPick={() => pickIfEnabled(option())}
             />
           )}
-        </Index>
+        </For>
       </div>
     </ScrollView>
   );

@@ -1,11 +1,12 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { BoardFit } from '@pkgs/ui-root-client-ts/board-fit';
 import { createMeasure } from '@pkgs/ui-root-client-ts/measure';
 import { PuzzleScreen } from '@pkgs/ui-root-client-ts/puzzle-screen';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createEffect, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, on, Show } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleStatusLine } from './puzzle-status-line';
 

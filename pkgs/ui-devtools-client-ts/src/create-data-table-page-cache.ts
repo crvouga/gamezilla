@@ -14,14 +14,7 @@ import type {
   DataTableOrderDir,
   DataTablePageCacheEntry,
 } from '@pkgs/ui-devtools-shared-ts/data-table-types';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on, untrack } from 'solid-js';
 
 export type DataTablePageCache<T> = {
   readonly view: Accessor<PageView<T>>;

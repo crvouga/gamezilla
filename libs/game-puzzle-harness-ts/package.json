@@ -54,6 +54,7 @@
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

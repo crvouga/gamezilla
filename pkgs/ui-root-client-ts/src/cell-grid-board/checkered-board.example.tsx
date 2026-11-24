@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const FILES = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

@@ -1,10 +1,4 @@
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  onCleanup,
-  useContext,
-} from 'solid-js';
+import { type Accessor, createContext, createEffect, onCleanup, useContext } from 'solid-js';
 import {
   createPendingNavigation,
   type PendingNavigation,

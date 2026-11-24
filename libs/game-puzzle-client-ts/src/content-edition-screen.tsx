@@ -1,6 +1,7 @@
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { contentEditionAvailable } from './content-availability';
 import { ContentEditionScreenView } from './content-edition-screen-view';
 import { useContentGame } from './content-game-context';

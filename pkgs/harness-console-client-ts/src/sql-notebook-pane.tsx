@@ -7,19 +7,8 @@ import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Match,
-  onCleanup,
-  type Setter,
-  Show,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, For, Match, onCleanup, type Setter, Show, Switch } from 'solid-js';
 import { writeClipboard } from './copy-to-clipboard';
 import type { SqlNotebookCell, SqlNotebookDoc } from './notebook-doc';
 import {

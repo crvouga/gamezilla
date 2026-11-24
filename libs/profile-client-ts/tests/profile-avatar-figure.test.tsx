@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The picture on a person's own profile, as a listener hears it. */
 
 import { describe, expect, test } from 'bun:test';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { ProfileAvatarFigure } from '@libs/profile-client-ts/profile-avatar-figure';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { accessibleName } from '@pkgs/a11y-shared-ts/accessible-name';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { imageName } from '@pkgs/a11y-shared-ts/name-rules';

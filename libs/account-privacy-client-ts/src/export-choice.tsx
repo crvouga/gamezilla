@@ -1,13 +1,14 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { useLingui as useLinguiRuntime } from '@lingui/solid';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { PrivacyActionAccess } from './privacy-action-access';
 import { exportReadyByMs, formatPrivacyMoment } from './privacy-dates';
 import type { ExportPhase } from './privacy-export-state';

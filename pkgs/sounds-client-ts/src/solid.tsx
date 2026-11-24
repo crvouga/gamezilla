@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Solid bindings for `@pkgs/sounds`: audio playback port context, per-player
  * status signals, the persisted sounds preference, and the `SoundEngine`
@@ -30,13 +30,8 @@ import type {
 import { createSoundEngine } from '@pkgs/sounds-shared-ts/sound-engine';
 import type { SoundId } from '@pkgs/sounds-shared-ts/sound-id';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
-import {
-  type Accessor,
-  createMemo,
-  type JSX,
-  onCleanup,
-  type ParentProps,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, onCleanup, type ParentProps } from 'solid-js';
 
 // ---------------------------------------------------------------------------
 // Audio playback port

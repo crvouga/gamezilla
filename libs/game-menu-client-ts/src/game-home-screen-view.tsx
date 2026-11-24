@@ -1,6 +1,6 @@
 import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -17,7 +17,8 @@ import {
   SquareStackIcon,
   UsersIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { createMemo, type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Match, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';
 import type { GameMenuPlace } from './game-menu-places';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';

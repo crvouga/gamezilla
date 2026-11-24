@@ -3,15 +3,8 @@ import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import {
-  createEffect,
-  createMemo,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createEffect, createMemo, onCleanup, Show, untrack } from 'solid-js';
 
 /**
  * The matched game's board, tools and optional controls share one session.

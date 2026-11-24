@@ -1,10 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { Dynamic, type JSX } from '@solidjs/web';
 import type { IconComponent } from '../create-icon/index';
 import { IconButton } from '../icon-button/index';
 import { ListChecksIcon } from '../icons';

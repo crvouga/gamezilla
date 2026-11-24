@@ -15,15 +15,8 @@ import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, on, Show } from 'solid-js';
 import {
   type QuoridorTool,
   quoridorBoardCells,

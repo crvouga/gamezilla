@@ -1,13 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createMemo,
-  For,
-  type JSX,
-  children as resolveChildren,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, children as resolveChildren } from 'solid-js';
 
 export type MenuListProps = {
   children: JSX.Element;
@@ -45,11 +41,10 @@ export function MenuList(props: MenuListProps): JSX.Element {
   );
   return (
     <div
-      class="panel"
-      classList={{
+      class={["panel", {
         panelPlain: props.separator === false,
         'flex-1': props.grow === true,
-      }}
+      }]}
       {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
       role="group"
     >

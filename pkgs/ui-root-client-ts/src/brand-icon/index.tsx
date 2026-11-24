@@ -1,9 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { Dynamic, type JSX } from '@solidjs/web';
 import type { BrandIconName } from '../brand-icon-registry';
 import { BRAND_ICON_REGISTRY } from '../brand-icon-registry';
 

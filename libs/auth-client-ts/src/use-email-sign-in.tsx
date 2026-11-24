@@ -4,7 +4,7 @@
  * (`.tsx` so the Lingui macro is compiled by the Solid/Babel pipeline.)
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { type Accessor, createEffect, createSignal, on } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';

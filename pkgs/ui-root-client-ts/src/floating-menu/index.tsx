@@ -1,19 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { nextMenuItemIndex } from '@pkgs/ui-root-shared-ts/floating-menu-keyboard';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  For,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, createUniqueId, For, onCleanup, Show } from 'solid-js';
 import type {
   FloatingMenuContent,
   FloatingMenuContentRow,

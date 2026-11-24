@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
@@ -10,7 +10,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createEffect, createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import {
   ExampleSection,

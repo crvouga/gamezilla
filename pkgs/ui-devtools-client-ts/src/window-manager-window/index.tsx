@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The chrome of one window: a frame, a tab bar and the window's controls.
  * The frame floats above the panel it surrounds and lets the pointer
  * through, so the panel's own element never has to live inside it.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   windowById,
   windowGroups,
@@ -26,7 +26,8 @@ import {
 } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import styles from '../window-manager/window-manager.module.css';
 import { useWindowManager } from '../window-manager-context';
 import { useWindowMenuActions } from '../window-manager-menu';
@@ -139,8 +140,7 @@ export function WindowManagerWindow(
   return (
     <section
       role="group"
-      class={`box absolute z-1 pointer-events-none overflow-hidden rounded-control border border-solid ${styles['window'] ?? ''}`}
-      classList={{ 'border-tint': focused(), 'border-border': !focused() }}
+      class={[`box absolute z-1 pointer-events-none overflow-hidden rounded-control border border-solid ${styles['window'] ?? ''}`, { 'border-tint': focused(), 'border-border': !focused() }]}
       data-component={componentId('WindowManagerWindow')}
       {...dataAttrs({
         'window-part': 'window',

@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { IconButton } from '../icon-button/index';
 import {
@@ -109,8 +109,7 @@ export function Notice(props: NoticeProps): JSX.Element {
     <div
       id={props.id}
       role={props.tone === 'error' ? 'alert' : undefined}
-      class="box flex-row items-start gap-3 rounded-control px-4 py-3"
-      classList={{ [tone().surface]: true }}
+      class={["box flex-row items-start gap-3 rounded-control px-4 py-3", { [tone().surface]: true }]}
       {...dataAttrs({
         component: 'Notice',
         tone: props.tone ?? 'neutral',
@@ -125,13 +124,12 @@ export function Notice(props: NoticeProps): JSX.Element {
         />
       </div>
       <div
-        class="box flex-1 min-w-0 gap-1 textCaption"
-        classList={{
+        class={["box flex-1 min-w-0 gap-1 textCaption", {
           'text-info': props.tone === 'info',
           'text-success': props.tone === 'success',
           'text-warning': props.tone === 'warning',
           'text-destructive': props.tone === 'error',
-        }}
+        }]}
       >
         {props.children}
       </div>

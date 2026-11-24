@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { FriendsPlayingNowView, usePlayingRooms } from './friends-playing-now';
 import { useFriends } from './use-friends';
 

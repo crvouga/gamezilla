@@ -1,6 +1,6 @@
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AccountDeviceCurrentBadge } from './account-device-current-badge';
 import { AccountDeviceListTitleText } from './account-device-list-title-text';
 import type { AccountDeviceView } from './account-device-view';

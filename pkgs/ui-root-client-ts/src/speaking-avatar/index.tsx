@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
@@ -8,14 +8,8 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { speakingAvatarSvg } from '@pkgs/ui-root-shared-ts/speaking-avatar-svg';
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
-import {
-  type Accessor,
-  createMemo,
-  type JSX,
-  Show,
-  splitProps,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, Show, splitProps, untrack } from 'solid-js';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
 import { SpeechBubble } from '../speech-bubble/index';

@@ -1,8 +1,8 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { List } from '@pkgs/ui-root-client-ts/list';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { ActiveSpaceSheetRow } from './active-space-sheet-row';
 import type { RequestEndSpaceOptions } from './end-space-modal-provider';

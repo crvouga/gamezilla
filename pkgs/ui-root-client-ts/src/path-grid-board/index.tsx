@@ -1,15 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  Index,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, For, onCleanup, Show, untrack } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
 import { createPathGridPointer } from '../path-grid-pointer';
 import type { PathGridBoardProps, PathGridEndpoint } from '../path-grid-types';
@@ -111,7 +102,7 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
       aria-hidden="true"
     >
       {/* By position, so a growing path updates its node in place. */}
-      <Index each={props.board.lines}>
+      <For keyed={false} each={props.board.lines}>
         {(line) => (
           <polyline
             class={styles['line']}
@@ -127,7 +118,7 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
               .join(' ')}
           />
         )}
-      </Index>
+      </For>
     </svg>
   );
 }

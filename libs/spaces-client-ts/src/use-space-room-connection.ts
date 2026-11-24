@@ -15,14 +15,7 @@ import type {
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useCreateId, useRandom } from '@pkgs/uuid-client-ts/solid';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 import type { CreateSpaceRoomResult } from './create-space-room';
 import { SpaceRoomFactory } from './create-space-room';
 import { useCreateRoomTransport } from './room-transport-factory';

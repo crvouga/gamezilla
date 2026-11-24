@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback } from '../button-face';
 import { MUTATION_FEEDBACK_ICONS } from '../button-face';
 import type { IconComponent } from '../create-icon/index';
@@ -122,11 +122,10 @@ function IconRail(props: {
 }): JSX.Element {
   return (
     <div
-      class={`box absolute inset-y-0 flex-row items-center justify-center ${props.size.railClass}`}
-      classList={{
+      class={[`box absolute inset-y-0 flex-row items-center justify-center ${props.size.railClass}`, {
         'left-0': props.side === 'start',
         'right-0': props.side === 'end',
-      }}
+      }]}
     >
       {props.children}
     </div>
@@ -142,8 +141,7 @@ function CenteredLabelRow(props: {
 }): JSX.Element {
   return (
     <div
-      class={`box ${rowClass()}`}
-      classList={{ [props.size.gutterClass]: props.padded }}
+      class={[`box ${rowClass()}`, { [props.size.gutterClass]: props.padded }]}
     >
       {props.leading}
       {props.children}

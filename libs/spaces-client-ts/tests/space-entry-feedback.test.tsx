@@ -12,7 +12,8 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { StaticAppRouterProvider } from '@pkgs/ui-root-client-ts/app-router';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 afterEach(cleanup);
 

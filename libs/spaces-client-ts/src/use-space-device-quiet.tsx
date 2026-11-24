@@ -6,14 +6,8 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { ActivityRegion } from '@pkgs/ui-root-client-ts/activity-region';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  type JSX,
-  onCleanup,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, onCleanup, useContext } from 'solid-js';
 import { SpaceProbe } from './space-probe';
 import { noteSpaceQuiet, registerSpaceQuiet } from './space-quiet-registry';
 import { useSpaceRoomClientId } from './space-room-context';
@@ -94,13 +88,13 @@ export function SpaceQuietHost(props: {
   });
 
   return (
-    <ClearQuietContext.Provider value={() => poke}>
+    <ClearQuietContext value={() => poke}>
       <ActivityRegion grow onActivity={poke}>
         <SpaceProbe testId={Handles.spaceQuietClient}>
           {clientId() ?? ''}
         </SpaceProbe>
         {props.children}
       </ActivityRegion>
-    </ClearQuietContext.Provider>
+    </ClearQuietContext>
   );
 }

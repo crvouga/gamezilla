@@ -3,9 +3,10 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared-ts/config';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { createEffect, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect } from 'solid-js';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
   toConfigurationDraft,

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Publishes the signed-in person's name and face into the shell's global
  * menu. Mounts inside the sync tree, because it reads profile rows; the shell
@@ -18,14 +18,8 @@ import { useSessionAccountEmail } from '@libs/auth-client-ts/use-current-user';
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, onCleanup, Show } from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
 import { useMyProfileId } from './public-use-my-profile-id';
 import { useProfileColumn } from './use-profile-column';

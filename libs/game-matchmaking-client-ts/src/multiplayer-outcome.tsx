@@ -13,7 +13,8 @@ import {
   GAME_VERSUS_AVATAR_SIZE,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 import type {
   MultiplayerResultShown,
   MultiplayerVersusShown,

@@ -9,13 +9,7 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 import { usePuzzleSourceUpload } from './use-puzzle-source-upload';
 import { usePuzzleStop } from './use-puzzle-stop';
 import { useSavedPuzzleSource } from './use-saved-puzzle-source';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
@@ -20,7 +20,8 @@ import {
 } from '@pkgs/ui-root-shared-ts/constants';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { cssOf, renderUi } from './render';
 
 describe('FocusTrap', () => {

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Explorer preview. Audio is injected via `speaker`; the design-system
  * harness has no TTS backend, so every instance renders with `speak={false}`
@@ -6,7 +6,8 @@
  */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
-import { createSignal, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onCleanup } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const ROTATING_LINES = [

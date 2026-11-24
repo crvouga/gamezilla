@@ -1,6 +1,7 @@
 import type { HarnessConsolePorts } from '@pkgs/harness-console-shared-ts/ports';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
 import { NotebookStoreProvider } from './notebook-store-context';
 import {

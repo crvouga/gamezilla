@@ -3,7 +3,8 @@ import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameChoiceGrid } from '@pkgs/ui-root-client-ts/game-choice-grid';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameSetupPanel } from '@pkgs/ui-root-client-ts/game-setup-panel';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 
 /** Illustrative play surface; no game implementation or product dependency. */
 export function ScreenExampleBoard(): JSX.Element {

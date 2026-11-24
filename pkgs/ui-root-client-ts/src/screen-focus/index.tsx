@@ -1,13 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { sequentialFocusOrder } from '@pkgs/a11y-shared-ts/focus';
-import {
-  createContext,
-  type JSX,
-  onCleanup,
-  onMount,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, onCleanup, onSettled, useContext } from 'solid-js';
 
 type LiveScreen = { readonly root: HTMLElement; readonly id: () => string };
 
@@ -43,9 +38,9 @@ export function ScreenFocusProvider(props: {
     pending: false,
   };
   return (
-    <ScreenFocusContext.Provider value={memory}>
+    <ScreenFocusContext value={memory}>
       {props.children}
-    </ScreenFocusContext.Provider>
+    </ScreenFocusContext>
   );
 }
 
@@ -126,7 +121,7 @@ export function useScreenFocus(
 ): void {
   const memory = useContext(ScreenFocusContext);
   if (memory === undefined) return;
-  onMount(() => {
+  onSettled(() => {
     const element = root();
     if (element === undefined) return;
     const tracked: Tracked = { last: undefined, holding: false };

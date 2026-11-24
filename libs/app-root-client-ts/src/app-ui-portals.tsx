@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Overlay + surface-stack hosts for chrome that paints **outside** the SQLite
  * gate (`AppFrame` header, boot top bar). `FloatingMenu` / modals throw
@@ -12,7 +12,7 @@
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { PendingNavigationConfirmation } from '@pkgs/ui-root-client-ts/pending-navigation-provider';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export function AppUiPortals(props: {
   readonly children: JSX.Element;

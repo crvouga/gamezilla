@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What the shell says about the connection, per {@link ConnectionCause}.
  * One place so the header notice and Connection in Settings agree.
  */
 
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { createOriginAvailabilitySnapshot } from '@pkgs/http-client-client-ts/solid';
 import type { Accessor } from 'solid-js';
 import {

@@ -1,20 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import {
   nextRovingIndex,
   rovingTabStop,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
-import {
-  type Accessor,
-  createContext,
-  createSignal,
-  createUniqueId,
-  type JSX,
-  onCleanup,
-  Show,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createSignal, createUniqueId, onCleanup, Show, useContext } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
 
@@ -169,9 +161,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       aria-disabled={props.disabled === true ? true : undefined}
       aria-orientation={props.orientation ?? 'vertical'}
     >
-      <RadioGroupContext.Provider value={api}>
+      <RadioGroupContext value={api}>
         {props.children}
-      </RadioGroupContext.Provider>
+      </RadioGroupContext>
     </div>
   );
 }

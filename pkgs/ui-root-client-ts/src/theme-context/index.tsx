@@ -1,5 +1,5 @@
 import { observeElementResize } from '../observe-element-resize';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Theme context and provider.
  *
@@ -33,16 +33,8 @@ import type {
 } from '@pkgs/ui-root-shared-ts/scale';
 import type { TextCasing } from '@pkgs/ui-root-shared-ts/text-casing';
 import { defaultTextCasing } from '@pkgs/ui-root-shared-ts/text-casing';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createMemo, createSignal, onCleanup, useContext } from 'solid-js';
 import { createMediaQuery } from '../media-query';
 
 export type ThemeLayout = {
@@ -209,16 +201,15 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
   const layoutValue: ThemeLayoutValue = { layout, breakpoint };
 
   return (
-    <ThemeTokensContext.Provider value={tokens}>
-      <ThemeLayoutContext.Provider value={layoutValue}>
-        <ThemeHostContext.Provider value={host}>
+    <ThemeTokensContext value={tokens}>
+      <ThemeLayoutContext value={layoutValue}>
+        <ThemeHostContext value={host}>
           <div
             ref={setHost}
-            class="themeHost"
-            classList={{
+            class={["themeHost", {
               'bg-transparent': props.transparent === true,
               'bg-none': props.transparent === true,
-            }}
+            }]}
             data-theme={colorScheme()}
             data-reduced-motion={
               props.reducedMotion === true ? 'true' : undefined
@@ -228,9 +219,9 @@ export function ThemeProvider(props: ThemeProviderProps): JSX.Element {
           >
             {props.children}
           </div>
-        </ThemeHostContext.Provider>
-      </ThemeLayoutContext.Provider>
-    </ThemeTokensContext.Provider>
+        </ThemeHostContext>
+      </ThemeLayoutContext>
+    </ThemeTokensContext>
   );
 }
 

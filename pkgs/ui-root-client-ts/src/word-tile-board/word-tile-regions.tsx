@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, Index, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, } from 'solid-js';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-overview.module.css';
 
@@ -39,7 +40,7 @@ export function WordTileRegions(props: {
         >
           {/* Index keeps one rect per square, so a placement updates two
               attributes instead of rebuilding all 225 rects. */}
-          <Index each={props.cells}>
+          <For keyed={false} each={props.cells}>
             {(cell, index) => (
               <rect
                 x={index % columns()}
@@ -51,7 +52,7 @@ export function WordTileRegions(props: {
                 data-square={cell().square ?? 'none'}
               />
             )}
-          </Index>
+          </For>
           <rect
             class={styles['window']}
             data-viewport-indicator="true"

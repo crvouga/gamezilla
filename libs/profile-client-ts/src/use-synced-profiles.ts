@@ -1,7 +1,6 @@
 import { profilesByIds } from '@libs/profile-shared-ts/profiles-by-ids-query';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, onCleanup } from 'solid-js';
+import { createEffect, createMemo, onCleanup, type Accessor } from 'solid-js';
 
 /** The most profiles one subscription asks for (the query's own bound). */
 const MAX_SYNCED_PROFILES = 200;

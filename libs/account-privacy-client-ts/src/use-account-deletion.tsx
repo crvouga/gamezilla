@@ -2,7 +2,7 @@ import { confirmAccountDeletionMutation } from '@libs/account-privacy-shared-ts/
 import { useSignOut } from '@libs/auth-client-ts/use-sign-out';
 import { usePermissions } from '@libs/permissions-client-ts/use-permissions';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';

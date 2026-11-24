@@ -1,6 +1,7 @@
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 
 const Context = createContext<{
   rules: TurnGames;
@@ -12,11 +13,11 @@ export function TurnGamesProvider(props: {
   children: JSX.Element;
 }): JSX.Element {
   return (
-    <Context.Provider
+    <Context
       value={{ rules: props.rules, presentations: props.presentations }}
     >
       {props.children}
-    </Context.Provider>
+    </Context>
   );
 }
 export function useTurnGames() {

@@ -15,8 +15,8 @@ import type {
 import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, type JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { useContentGame, useContentPlace } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { contentPlaceOf } from './content-places';

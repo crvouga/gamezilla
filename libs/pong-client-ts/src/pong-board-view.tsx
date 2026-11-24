@@ -6,7 +6,7 @@ import {
   type PongState,
 } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameFrameSeat } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameBoardProps,
@@ -27,15 +27,8 @@ import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import {
-  createMemo,
-  createUniqueId,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, Match, Show, Switch, untrack } from 'solid-js';
 
 const config = pongConfig();
 

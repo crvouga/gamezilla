@@ -1,10 +1,11 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { FriendsProfileRoute } from './friends-profile-routes';
 import { useFriends } from './use-friends';

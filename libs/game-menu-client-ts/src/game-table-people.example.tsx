@@ -12,7 +12,7 @@ import {
   ROBIN,
 } from '@libs/spaces-client-ts/spaces-story.example';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** The person holding each side: Avery plays the first side, and so on. */
 export const STORY_TABLE_PEOPLE = {

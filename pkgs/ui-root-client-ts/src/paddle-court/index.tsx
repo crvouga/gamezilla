@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, Index, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 import {
   type CourtControls,
@@ -289,7 +290,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
               cy={props.height / 2}
               r={props.height * 0.14}
             />
-            <Index each={props.paddles}>
+            <For keyed={false} each={props.paddles}>
               {(paddle) => (
                 <rect
                   class={styles['paddle']}
@@ -303,7 +304,7 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
                   height={paddle().height}
                 />
               )}
-            </Index>
+            </For>
             <circle
               class={styles['ball']}
               data-testid={`${props.testId}-ball`}

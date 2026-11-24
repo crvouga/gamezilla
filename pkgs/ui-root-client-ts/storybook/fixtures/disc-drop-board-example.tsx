@@ -1,5 +1,6 @@
 import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 /** Deliberately different dimensions exercise the presentation contract. */
 export function DiscDropBoardExample(props: {
   interactive: boolean;

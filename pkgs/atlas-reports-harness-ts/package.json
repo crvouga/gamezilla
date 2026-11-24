@@ -15,8 +15,8 @@
     "@pkgs/harness-root-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "@tanstack/query-persist-client-core": "catalog:",
-    "@tanstack/solid-query": "catalog:",
     "happy-dom": "catalog:",
     "solid-js": "catalog:"
   },

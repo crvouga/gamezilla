@@ -1,20 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssGap, cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { BUTTON_SIZES, type ButtonSize } from '../button-parts/index';
 import type { IconComponent } from '../create-icon/index';
@@ -140,13 +133,12 @@ function ErrorActionRow(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-row flex-wrap items-center gap-2"
-      classList={{
+      class={["box flex-row flex-wrap items-center gap-2", {
         'justify-center': props.align === 'center',
         'justify-start': props.align === 'start',
         'mt-2': props.flush !== true && props.align === 'center',
         'mt-1': props.flush !== true && props.align === 'start',
-      }}
+      }]}
     >
       {props.children}
     </div>

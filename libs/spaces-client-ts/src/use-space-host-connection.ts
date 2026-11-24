@@ -2,12 +2,7 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { useNamedRoomRoster } from '@pkgs/room-root-client-ts/room-clients-context';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
 import { useSpaceRoomSessionId } from './space-room-context';
 import { useConfirmedHostAbsence } from './use-confirmed-host-absence';
 import { SpaceField, useSpaceColumn } from './use-space-column';

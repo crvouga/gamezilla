@@ -1,11 +1,6 @@
-/** @jsxImportSource solid-js */
-import {
-  createContext,
-  type JSX,
-  type ParentProps,
-  untrack,
-  useContext,
-} from 'solid-js';
+/** @jsxImportSource @solidjs/web */
+import type { JSX } from '@solidjs/web';
+import { createContext, type ParentProps, untrack, useContext } from 'solid-js';
 
 export type DefinedContext<T> = {
   /** Mounts `props.value` for the subtree. */
@@ -25,21 +20,22 @@ export type DefinedContext<T> = {
  * reactive data through signals/stores on the value itself when needed.
  */
 export function defineContext<T>(name: string): DefinedContext<T> {
-  const Ctx = createContext<T>();
+  // `null` is "no provider": a default-less context throws on read instead.
+  const Ctx = createContext<T | null>(null);
   const use = (): T => {
     const value = useContext(Ctx);
-    if (value === undefined) {
+    if (value === null) {
       throw new Error(
         `${name}: provider missing — wrap the tree with ${name}Provider`
       );
     }
     return value;
   };
-  const useOptional = (): T | undefined => useContext(Ctx);
+  const useOptional = (): T | undefined => useContext(Ctx) ?? undefined;
   const Provider = (props: ParentProps<{ readonly value: T }>): JSX.Element => {
     // Stable service handle: read once on mount by design (not tracked).
     const value = untrack(() => props.value);
-    return <Ctx.Provider value={value}>{props.children}</Ctx.Provider>;
+    return <Ctx value={value}>{props.children}</Ctx>;
   };
   return { Provider, use, useOptional };
 }

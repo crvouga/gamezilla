@@ -1,12 +1,13 @@
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CodeBlock } from '@pkgs/ui-root-client-ts/code-block';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { useMomentLabel } from './synthetic-user-labels';
 
 /**

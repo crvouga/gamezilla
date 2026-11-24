@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';

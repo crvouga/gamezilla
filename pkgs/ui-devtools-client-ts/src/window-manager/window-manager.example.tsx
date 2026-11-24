@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { WindowManager } from '@pkgs/ui-devtools-client-ts/window-manager';
 import type { WindowPanel } from '@pkgs/ui-devtools-client-ts/window-manager-types';
@@ -19,7 +19,8 @@ import {
   ScrollTextIcon,
   TerminalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 /** Named starting arrangements of the six demo panels. */

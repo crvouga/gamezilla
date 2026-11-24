@@ -1,9 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
+/// <reference path="../lucide-icons.d.ts" />
 
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import ArrowUpRight from 'lucide-solid/icons/arrow-up-right';
-import { type JSX, Show } from 'solid-js';
+import ArrowUpRight from 'lucide/dist/esm/icons/arrow-up-right.mjs';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { createIcon } from '../create-icon/index';
 import { Icon } from '../icon/index';
 import { spaced } from '../layout-classes';

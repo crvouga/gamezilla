@@ -1,6 +1,5 @@
 import type { FriendActionMutations } from '@libs/friends-shared-ts/friend-action-types';
-import type { Accessor } from 'solid-js';
-import { createSignal } from 'solid-js';
+import { createSignal, type Accessor } from 'solid-js';
 import { useAcceptFriendRequest } from './use-accept-friend-request';
 import { useCancelFriendRequest } from './use-cancel-friend-request';
 import { useDeclineFriendRequest } from './use-decline-friend-request';

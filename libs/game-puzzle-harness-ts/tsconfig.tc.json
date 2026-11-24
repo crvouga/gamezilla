@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "compilerOptions": { "jsx": "preserve", "jsxImportSource": "solid-js" },
+  "compilerOptions": { "jsx": "preserve", "jsxImportSource": "@solidjs/web" },
   "include": [
     "../../pkgs/ts-reset-shared-ts/src/ts-reset.ts",
     "../../pkgs/ui-root-client-ts/src/css-modules.d.ts",

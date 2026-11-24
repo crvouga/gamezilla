@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ArrowKeyGroup } from '@pkgs/ui-root-client-ts/arrow-key-group';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CopyToClipboardField } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
@@ -17,7 +17,8 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,

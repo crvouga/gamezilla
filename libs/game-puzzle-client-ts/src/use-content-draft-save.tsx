@@ -4,7 +4,7 @@ import {
   contentBody,
 } from '@libs/game-puzzle-shared-ts/content-types';
 import { savePuzzleContentDraftMutation } from '@libs/game-puzzle-shared-ts/save-content-draft-mutation';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { usePendingOperation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';

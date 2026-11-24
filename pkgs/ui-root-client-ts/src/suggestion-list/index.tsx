@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 
 export type SuggestionItem = {
@@ -37,8 +38,7 @@ function SuggestionRow(props: {
       id={props.id}
       tabIndex={-1}
       aria-selected={props.highlighted}
-      class="clickable clickableTint flex-row items-center gap-ui-sm px-ui-sm py-ui-xs text-start"
-      classList={{ 'bg-tint-subtle': props.highlighted }}
+      class={["clickable clickableTint flex-row items-center gap-ui-sm px-ui-sm py-ui-xs text-start", { 'bg-tint-subtle': props.highlighted }]}
       onPointerDown={(event) => event.preventDefault()}
       onPointerEnter={() => props.onHover()}
       onClick={() => props.onPick()}

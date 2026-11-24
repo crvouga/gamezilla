@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Recursive renderer for one node in the {@link JsonView} tree.
  *
@@ -8,7 +8,7 @@
  * - Recursing into children when expanded
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonPath,
   JsonValueKind,
@@ -26,7 +26,8 @@ import {
 import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import styles from '../json-view/json-view.module.css';
 
 const INDENT_PX = 14;

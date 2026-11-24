@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import styles from './battleship-placement-layout.module.css';
 
 /** Keeps fleet placement controls with the working grid and a legible full-fleet overview. */

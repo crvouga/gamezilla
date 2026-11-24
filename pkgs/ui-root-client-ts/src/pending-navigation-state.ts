@@ -1,10 +1,4 @@
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, untrack } from 'solid-js';
 
 export type PendingOperation = {
   pending: Accessor<boolean>;

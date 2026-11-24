@@ -8,7 +8,7 @@ import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useParams } from '@solidjs/router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   type SyntheticUserDestination,
   SyntheticUserScreenView,

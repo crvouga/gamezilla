@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `Pressable`, the element handles that replace DOM refs, and the one
  * function an app entry mounts with.

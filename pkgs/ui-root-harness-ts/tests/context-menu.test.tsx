@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
@@ -15,7 +15,8 @@ import {
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 function groups(spy: {

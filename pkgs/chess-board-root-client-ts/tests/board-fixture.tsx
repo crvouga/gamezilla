@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A mounted {@link ChessBoard} driven by raw pointer events, for what the
  * page-object suite cannot see: the individual events of one gesture (a

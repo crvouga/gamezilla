@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { notificationCardTestId } from '@libs/notifications-shared-ts/notification-id';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { createMemo, type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Match, Switch } from 'solid-js';
 import { NotificationCardDefault } from './notification-card-default';
 import { useNotificationRenderProvider } from './notifications-provider-registry';
 

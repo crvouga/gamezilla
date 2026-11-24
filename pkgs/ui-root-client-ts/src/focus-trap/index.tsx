@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import {
   collectTabbable,
   nextTabStop,
 } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
-import { createEffect, type JSX, onCleanup, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, onCleanup, untrack } from 'solid-js';
 
 export type FocusTrapProps = {
   /** When true, trap Tab focus inside the subtree. */

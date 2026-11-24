@@ -58,7 +58,8 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createEffect, For, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, For, on } from 'solid-js';
 
 /**
  * Seven, the length of the victory every custom-game model follows

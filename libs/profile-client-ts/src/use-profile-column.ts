@@ -1,7 +1,6 @@
 import { profileRowByIdSql } from '@libs/profile-shared-ts/profile-row-sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import type { Accessor } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { createMemo, type Accessor } from 'solid-js';
 
 export const ProfileField = {
   username: 'username',

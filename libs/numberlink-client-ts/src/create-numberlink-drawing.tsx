@@ -6,14 +6,9 @@ import type {
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { sameCell } from '@libs/numberlink-shared-ts/numberlink-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { PathGridTraceCancellation } from '@pkgs/ui-root-client-ts/path-grid-board';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
 
 type DrawingPorts = {
   readonly definition: Accessor<NumberlinkDefinition>;

@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { spaceDataSet } from '../space-data-set';
 import { SpaceMenuSheet } from '../space-menu-sheet/index';

@@ -10,7 +10,7 @@
 
 import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared-ts/serialize-dom-html';
 import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared-ts/serialize-dom-html';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { LayoutProvider } from './dom-layout';
 import type { SolidMount } from './mount-solid-app';
 import { mountSolidRoot } from './mount-solid-app';

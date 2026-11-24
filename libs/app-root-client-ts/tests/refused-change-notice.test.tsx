@@ -84,7 +84,7 @@ function renderNotices(engine: SyncEngine) {
         fixedLayout={{ width: 390, height: 844 }}
       >
         <SyncEngineProvider value={engine}>
-          <MutationClientContext.Provider value={client}>
+          <MutationClientContext value={client}>
             <StackVertical testId="place-space">
               <RefusedChangeNotice
                 mutations={[
@@ -98,7 +98,7 @@ function renderNotices(engine: SyncEngine) {
             <StackVertical testId="place-sync">
               <OtherRefusedChanges />
             </StackVertical>
-          </MutationClientContext.Provider>
+          </MutationClientContext>
         </SyncEngineProvider>
       </ThemeProvider>
     </ClockProvider>

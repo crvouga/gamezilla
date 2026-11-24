@@ -1,18 +1,19 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The divider between two windows: drag it, or focus it and use the arrows.
  * It is a WAI-ARIA window splitter, so its position is a value assistive
  * technology reads and sets.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { WindowSeparatorFrame } from '@pkgs/ui-devtools-shared-ts/window-layout-geometry';
 import {
   WINDOW_SEPARATOR_KEYSHORTCUTS,
   windowSeparatorKeyCommand,
 } from '@pkgs/ui-devtools-shared-ts/window-layout-keyboard';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import styles from '../window-manager/window-manager.module.css';
 import { useWindowManager } from '../window-manager-context';
 import { captureWindowPointer } from '../window-manager-drag';
@@ -76,11 +77,10 @@ export function WindowManagerSeparator(
   };
   return (
     <div
-      class={`box absolute z-2 touch-none ${styles['separator'] ?? ''}`}
-      classList={{
+      class={[`box absolute z-2 touch-none ${styles['separator'] ?? ''}`, {
         'cursor-col-resize': row(),
         'cursor-row-resize': !row(),
-      }}
+      }]}
       data-component={componentId('WindowManagerSeparator')}
       {...dataAttrs({
         'window-part': 'separator',

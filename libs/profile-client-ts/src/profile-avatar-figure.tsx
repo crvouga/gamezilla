@@ -1,12 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The picture on a person's own profile, described to someone listening as
  * their avatar: one image with a name, whatever draws it inside.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export function ProfileAvatarFigure(props: {
   readonly children: JSX.Element;

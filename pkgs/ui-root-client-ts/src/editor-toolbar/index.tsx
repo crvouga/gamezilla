@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { redo, undo } from 'prosemirror-history';
 import type { Command } from 'prosemirror-state';
+import { Dynamic } from '@solidjs/web';
 import { For } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
 import { editorFormats } from '../editor-commands';
 import { IconButton } from '../icon-button/index';
 import {

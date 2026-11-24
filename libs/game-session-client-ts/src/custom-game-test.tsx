@@ -1,7 +1,8 @@
 import { TEST_HOOKS_ENABLED } from '@libs/app-config-shared-ts/test-hooks';
 import { customGameChoiceSchema } from '@libs/game-session-shared-ts/custom-game-choice';
 import { TestCommandProbe } from '@pkgs/ui-root-client-ts/test-command-probe';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { customGameCanMove } from './custom-game-can-move';
 import type { CustomGameReview } from './use-custom-game-review';
 import type { CustomGameScreenModel } from './use-custom-game-screen';

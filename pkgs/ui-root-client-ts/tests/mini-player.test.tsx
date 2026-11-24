@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The miniplayer dock owns its geometry per layout mode: flush and square on
  * compact, gapped and card-rounded on wide.

@@ -1,6 +1,7 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { createEffect, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, on } from 'solid-js';
 import type { CatalogueLoadJobStatus } from './catalogue-load-places';
 import type { CatalogueLoadStopKind } from './catalogue-load-view';
 

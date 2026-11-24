@@ -1,4 +1,5 @@
-import { createMemo, createSelector, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSelector, For, Show } from 'solid-js';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-board.module.css';
 

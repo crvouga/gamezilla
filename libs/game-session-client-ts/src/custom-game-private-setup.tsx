@@ -1,6 +1,6 @@
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /**

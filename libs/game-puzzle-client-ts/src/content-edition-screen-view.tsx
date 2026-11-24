@@ -1,14 +1,15 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** The published edition, as the screen shows it. */
 export type ContentEditionSummary = {

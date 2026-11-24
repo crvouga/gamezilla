@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
@@ -7,7 +7,8 @@ import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type {
   ContentAttemptPack,
   PuzzlePackStageScreenViewProps,

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';

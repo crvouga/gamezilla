@@ -1,18 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { collectTabbable } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  type JSX,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, createUniqueId, onCleanup, Show, untrack } from 'solid-js';
 import type { FloatingMenuPlacement } from '../floating-menu-position';
 import { computeFloatingMenuPosition } from '../floating-menu-position';
 import { OnColorReset } from '../on-color-context/index';

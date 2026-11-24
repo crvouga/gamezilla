@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { Combobox } from '@pkgs/ui-root-client-ts/combobox';
@@ -7,7 +7,8 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const COLORS: ComboboxOption[] = [

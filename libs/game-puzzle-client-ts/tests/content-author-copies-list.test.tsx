@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The builder's draft copies tell each copy apart before one is chosen. */
 
 import { afterEach, expect, test } from 'bun:test';

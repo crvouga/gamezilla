@@ -12,7 +12,8 @@ import { t } from '@lingui/core/macro';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { useWordTilesLexicon } from './use-word-tiles-lexicon';
 import { newCandidate } from './word-tiles-candidate';
 import {

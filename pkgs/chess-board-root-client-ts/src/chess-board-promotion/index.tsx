@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Promotion picker stacked on the destination file. */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type {
   BoardOrientation,
@@ -13,7 +13,8 @@ import type {
 import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createEffect, For, type JSX, onMount, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, For, onSettled, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
 
@@ -98,7 +99,7 @@ function PromotionChoice(props: {
 }): JSX.Element {
   const { t } = useLingui();
   let button: HTMLButtonElement | undefined;
-  onMount(() => {
+  onSettled(() => {
     if (props.kind === 'q') button?.focus();
   });
   const name = () =>

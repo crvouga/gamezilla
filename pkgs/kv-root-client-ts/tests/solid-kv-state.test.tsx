@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -12,7 +12,7 @@ import {
 import type { Kv, KvRecord } from '@pkgs/kv-root-shared-ts/interface';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import { render, screen, waitFor } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const KEY = asKeyword('ui.prefs/test-flag');
 const CODEC = booleanKvCodec(asKeyword('ui.prefs/value'));

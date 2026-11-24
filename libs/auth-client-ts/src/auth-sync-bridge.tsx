@@ -1,6 +1,7 @@
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, type JSX, on, type ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, on, type ParentProps } from 'solid-js';
 import { useFreshAuthToken } from './use-fresh-auth-token';
 
 /**

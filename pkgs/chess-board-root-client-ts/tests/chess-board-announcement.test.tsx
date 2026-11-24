@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** What a screen-reader user hears after a move played on the board. */
 
 import { afterEach, describe, expect, test } from 'bun:test';

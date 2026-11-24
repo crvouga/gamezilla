@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { CatalogItem } from '@pkgs/ui-root-shared-ts/catalog-item';
 import { groupCatalogItems } from '@pkgs/ui-root-shared-ts/catalog-item';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { EmptyState } from '../empty-state/index';
 import { MenuRow } from '../menu-row/index';
 import { MenuSection } from '../menu-section/index';

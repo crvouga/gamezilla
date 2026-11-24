@@ -1,7 +1,7 @@
 import { createPuzzleFromPackMutation } from '@libs/game-puzzle-shared-ts/create-pack-puzzle-mutation';
 import { editPuzzlePackMutation } from '@libs/game-puzzle-shared-ts/edit-pack-mutation';
 import type { PackEdit } from '@libs/game-puzzle-shared-ts/pack-edit';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { createAsync } from '@pkgs/async-root-client-ts/solid';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';

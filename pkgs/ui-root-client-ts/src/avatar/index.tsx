@@ -1,13 +1,14 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { bestOnColor } from '@pkgs/ui-root-shared-ts/contrast';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { AvatarFace } from '../avatar-face/index';
 import type { IconComponent } from '../create-icon/index';
 import { UserIcon } from '../icons';

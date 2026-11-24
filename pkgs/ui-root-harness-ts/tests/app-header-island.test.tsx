@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
@@ -349,7 +349,7 @@ test('breadcrumb JSX keeps the screen provider context and mounts once', () => {
     () => (
       <AppFrameChromeProvider screenNavigation>
         <AppFrame header={<AppHeaderIsland />}>
-          <LabelContext.Provider value="Scoped username">
+          <LabelContext value="Scoped username">
             <ScreenBase
               screenId="scoped-editor"
               breadcrumbs={[
@@ -362,7 +362,7 @@ test('breadcrumb JSX keeps the screen provider context and mounts once', () => {
               ]}
               content={() => <p>Form</p>}
             />
-          </LabelContext.Provider>
+          </LabelContext>
         </AppFrame>
       </AppFrameChromeProvider>
     ),

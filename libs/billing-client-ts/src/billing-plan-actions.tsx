@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The plan card's actions: the one that moves the membership forward, the
  * billing portal, a "check again" after a paid checkout that has not shown,
@@ -7,7 +7,7 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CreditCardIcon,
@@ -20,7 +20,8 @@ import {
   type UseMutationButtonResult,
   useMutationButton,
 } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 
 import type { BillingRequestFailure } from './billing-request-error';
 import { billingFailureIn } from './billing-request-error';

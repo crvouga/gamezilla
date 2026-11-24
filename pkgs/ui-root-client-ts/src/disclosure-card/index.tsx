@@ -1,14 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createSignal,
-  createUniqueId,
-  type JSX,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, Show, untrack } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
 import styles from './disclosure-card.module.css';
 

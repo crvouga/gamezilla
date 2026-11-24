@@ -1,7 +1,7 @@
 import { decodeLightCyclesPosition } from '@libs/light-cycles-shared-ts/light-cycles-position';
 import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   GameBoardProps,
   GameSimulationControls,
@@ -18,14 +18,8 @@ import {
 } from '@pkgs/ui-root-client-ts/trail-arena';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import {
-  createMemo,
-  createUniqueId,
-  For,
-  Index,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import {
   arenaDescription,
   arenaOverlay,
@@ -59,7 +53,7 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
   return (
     <VisuallyHidden>
       {/* By seat index: a new decoded state every tick reuses these nodes. */}
-      <Index each={props.state.riders}>
+      <For keyed={false} each={props.state.riders}>
         {(rider, index) => (
           <Text
             variant="label"
@@ -71,7 +65,7 @@ function Scores(props: { state: LightCyclesState; testId: string }) {
             }}
           >{t`${riderName(rider().seat)} ${props.state.scores[index] ?? 0}`}</Text>
         )}
-      </Index>
+      </For>
       <Text
         variant="caption"
         tone="secondary"

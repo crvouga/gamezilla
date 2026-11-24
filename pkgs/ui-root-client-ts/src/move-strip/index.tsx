@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { PointerHandlers } from '../board-fit/index';
 import { ScrollView } from '../scroll-view/index';
 import styles from './move-strip.module.css';
@@ -55,11 +56,10 @@ export type MoveStripProps = {
 export function MoveStrip(props: MoveStripProps): JSX.Element {
   return (
     <div
-      class="box flex-row items-center justify-center self-stretch shrink-0 min-w-0"
-      classList={{
+      class={["box flex-row items-center justify-center self-stretch shrink-0 min-w-0", {
         'h-ui-control-md': props.overflow !== 'wrap',
         'min-h-ui-control-md': props.overflow === 'wrap',
-      }}
+      }]}
       data-testid={props.testId}
       data-component={componentId('MoveStrip')}
       data-fit={props.fit ?? 'fill'}

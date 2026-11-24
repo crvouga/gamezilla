@@ -10,7 +10,8 @@ import {
   ChevronsRightIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 
 /**
  * The jumps and steps look as a game record's do: quiet glyphs with no

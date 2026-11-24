@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { createSignal, type JSX, onCleanup, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createSignal, onCleanup, Show } from 'solid-js';
 import { ActionBarLabeledControl } from '../action-bar-labeled-control/index';
 import type { ActionBarIconItem } from '../action-bar-logic';
 import { actionBarGlyphSize } from '../action-bar-logic';

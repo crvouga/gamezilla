@@ -8,7 +8,8 @@ import { useLiveSpacesByPerson } from '@libs/spaces-client-ts/use-live-spaces-by
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { FriendRequestsAside } from './friend-requests-aside';
 import { FriendRequestsEntry } from './friend-requests-entry';
 import { FriendRowDisclosure } from './friend-user-row';

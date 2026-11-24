@@ -1,6 +1,6 @@
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
 import { Badge, type BadgeIntent } from '@pkgs/ui-root-client-ts/badge';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const HIDDEN_RATING = ' '.repeat(4);
 

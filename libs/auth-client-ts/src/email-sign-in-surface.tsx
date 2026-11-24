@@ -4,10 +4,10 @@
  * surface, which shows its progress and outcome.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ModalBody } from '@pkgs/ui-root-client-ts/modal-parts';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { EmailSignInForm } from './email-sign-in-form';
 import { useEmailSignIn } from './use-email-sign-in';
 

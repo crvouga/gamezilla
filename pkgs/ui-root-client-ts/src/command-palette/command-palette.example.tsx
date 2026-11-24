@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { CommandPalette } from '@pkgs/ui-root-client-ts/command-palette';
 import { CommandPaletteTrigger } from '@pkgs/ui-root-client-ts/command-palette-trigger';
@@ -11,7 +11,8 @@ import {
   WifiIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 function DemoCommands(props: { onIncrement: () => void }): JSX.Element {

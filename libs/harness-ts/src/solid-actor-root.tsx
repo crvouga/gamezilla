@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Solid root for one harness actor: the product `App` in embedded mode (memory
  * router, no document shortcuts) so many actors share one document, with the
@@ -17,7 +17,8 @@ import type {
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import type { MemoryHistory } from '@solidjs/router';
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 import type { HarnessBrowser } from './browser';
 
 import { HarnessBrowserSheet } from './browser-sheet';

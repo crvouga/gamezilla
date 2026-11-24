@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { MatchRange } from '@pkgs/ui-root-shared-ts/fuzzy-match';
 import { mergeRanges } from '@pkgs/ui-root-shared-ts/fuzzy-match';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import type { TextRole } from '../text/index';
 
 export type HighlightedTextProps = {
@@ -84,27 +85,25 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
       when={props.ranges.length > 0}
       fallback={
         <p
-          class="text"
-          classList={{
+          class={["text", {
             ...variantClassList(variant()),
             'line-clamp-1': clampOne(),
-          }}
+          }]}
         >
           {props.text}
         </p>
       }
     >
       <p
-        class="text shrink min-w-0"
-        classList={{
+        class={["text shrink min-w-0", {
           ...variantClassList(variant()),
           'line-clamp-1': clampOne(),
-        }}
+        }]}
       >
         <For each={segments()}>
           {(segment) => (
             <span
-              classList={variantClassList(
+              class={variantClassList(
                 segment.bold ? boldVariant() : variant()
               )}
             >

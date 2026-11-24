@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { ScreenMirror } from '@pkgs/ui-root-client-ts/screen-mirror';

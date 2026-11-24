@@ -34,8 +34,9 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -68,7 +69,7 @@
     "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-solid": "catalog:"
+    "@solidjs/vite-plugin": "catalog:"
   },
   "category": "harness",
   "language": "typescript"

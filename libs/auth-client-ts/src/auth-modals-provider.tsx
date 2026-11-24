@@ -5,16 +5,8 @@ import {
 import type { SignInOptions } from '@pkgs/auth-root-shared-ts/auth-client-port';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  on,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createMemo, createSignal, on, useContext } from 'solid-js';
 import { useConfigService } from './config-service-context';
 import { useSignInCapabilities } from './sign-in-capabilities-context';
 import { SignInModal } from './sign-in-modal';
@@ -73,7 +65,7 @@ export function AuthModalsProvider(props: {
   };
 
   return (
-    <Ctx.Provider value={value}>
+    <Ctx value={value}>
       {props.children}
       <SignInModal
         visible={connection.visible()}
@@ -87,7 +79,7 @@ export function AuthModalsProvider(props: {
         onError={connection.onError}
       />
       {signOutConfirm.modal}
-    </Ctx.Provider>
+    </Ctx>
   );
 }
 

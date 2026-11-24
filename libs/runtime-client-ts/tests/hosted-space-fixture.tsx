@@ -2,7 +2,8 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createResource, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createResource, Show } from 'solid-js';
 
 /** Seed before the product's session queries mount; no open room transport. */
 function HostedSpaceFixture(props: {

@@ -1,6 +1,6 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
@@ -10,7 +10,8 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import {
   ContentAttemptProgressView,
   ContentAttemptSaveStatus,

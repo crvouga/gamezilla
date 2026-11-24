@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { IconComponent } from '../create-icon/index';
 import { CircleCheckIcon } from '../icons';

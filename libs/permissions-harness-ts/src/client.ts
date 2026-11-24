@@ -56,7 +56,8 @@ import { createInMemorySyncEngine } from '@pkgs/sync-engine-harness-ts/in-memory
 import type { MutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { createHarnessIds } from '@pkgs/uuid-shared-ts/seeded-create-id';
-import { createComponent, createRoot, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createComponent, createRoot } from 'solid-js';
 
 /** What the probe hands back once mounted: how to read the case's answer. */
 export type ClientProbe = () => DecisionOutput | Promise<DecisionOutput>;

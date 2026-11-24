@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import precision from '../game-screen/game-precision.module.css';
 import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
@@ -73,11 +74,10 @@ export function GameBoardStage(props: {
   return (
     <div
       ref={root}
-      class={`${styles['boardStage']} ${precision['board']}`}
-      classList={{
+      class={[`${styles['boardStage']} ${precision['board']}`, {
         [boardAlign['start'] ?? '']: props.align === 'start',
         [fit['squareStage'] ?? '']: square(),
-      }}
+      }]}
       data-preview={props.preview === true}
       data-viewport-fit={props.viewportFit}
       style={{
@@ -93,16 +93,15 @@ export function GameBoardStage(props: {
       <Show when={others.present()}>{others.content()}</Show>
       <div
         ref={setSurface}
-        class={styles['board']}
-        data-game-board
-        classList={{
+        class={[styles['board'], {
           [fit['squareBoard'] ?? '']: square(),
           relative: overlay.present(),
-        }}
+        }]}
+        data-game-board
       >
-        <GameBoardPreviewContext.Provider value={preview}>
+        <GameBoardPreviewContext value={preview}>
           {props.children}
-        </GameBoardPreviewContext.Provider>
+        </GameBoardPreviewContext>
         <Show when={overlay.present()}>
           <GameStageOverlayFrame>{overlay.content()}</GameStageOverlayFrame>
         </Show>

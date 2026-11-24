@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback, ButtonIntent } from '../button-face';
 import { buttonInteraction, MUTATION_FEEDBACK_ICONS } from '../button-face';
 import type { IconComponent } from '../create-icon/index';

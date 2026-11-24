@@ -1,17 +1,11 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   OauthProviderId,
   SignInMethodId,
 } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { isOauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';
 import { authFlowErrorMessage } from './auth-flow-messages';
 import { useSignInCapabilities } from './sign-in-capabilities-context';

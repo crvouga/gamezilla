@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
-import { createEffect, createSignal, type JSX, onCleanup } from 'solid-js';
-import { Portal } from 'solid-js/web';
+/** @jsxImportSource @solidjs/web */
+import { type JSX, Portal } from '@solidjs/web';
+import { createEffect, createSignal, onCleanup } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 import type { TooltipPlacement } from '../tooltip/index';
 import styles from '../tooltip/tooltip.module.css';
@@ -46,8 +46,7 @@ export function FloatingTooltip(props: {
     <Portal>
       <div
         ref={bubble}
-        class="box fixed pointer-events-none w-max max-w-full"
-        classList={{ [styles['floating-layer'] ?? '']: true }}
+        class={["box fixed pointer-events-none w-max max-w-full", { [styles['floating-layer'] ?? '']: true }]}
         style={position()}
         data-component="FloatingTooltip"
         data-theme={theme.colorScheme()}

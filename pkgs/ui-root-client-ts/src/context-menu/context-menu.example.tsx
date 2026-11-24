@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { ContextMenu } from '@pkgs/ui-root-client-ts/context-menu';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import {
   FIELD_MENU,

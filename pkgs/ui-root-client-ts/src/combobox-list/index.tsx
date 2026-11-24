@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -15,7 +15,8 @@ import type {
 } from '@pkgs/ui-root-shared-ts/combobox-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
-import { createEffect, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, on, Show } from 'solid-js';
 import { CheckIcon } from '../icons';
 import { VirtualList } from '../virtual-list/index';
 
@@ -50,8 +51,7 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
 }): JSX.Element {
   return (
     <button
-      class="clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left"
-      classList={{ 'bg-tint-highlight': props.highlighted }}
+      class={["clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left", { 'bg-tint-highlight': props.highlighted }]}
       {...dataAttrs({ component: 'ComboboxOption', ...props.option.dataSet })}
       type="button"
       style={{ 'min-height': cssPx(COMBOBOX_OPTION_MIN_HEIGHT) }}
@@ -111,9 +111,8 @@ export function ComboboxList<T extends ComboboxValue>(
     if (render !== undefined) {
       return (
         <div
-          class="box"
+          class={["box", { 'bg-tint-highlight': props.highlightedIndex === index }]}
           {...dataAttrs({ component: 'ComboboxOption', ...option.dataSet })}
-          classList={{ 'bg-tint-highlight': props.highlightedIndex === index }}
           id={comboboxOptionId(props.listboxId, index)}
           role="option"
           aria-selected={selected}

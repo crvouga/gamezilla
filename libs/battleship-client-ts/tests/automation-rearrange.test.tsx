@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { BattleshipSetupBoard } from '@libs/battleship-client-ts/battleship-setup-board';
 import { battleshipAutomation } from '@libs/battleship-shared-ts/battleship-automation';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';

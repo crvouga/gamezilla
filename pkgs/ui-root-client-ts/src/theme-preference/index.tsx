@@ -1,15 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { enumKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
-import {
-  type Accessor,
-  createContext,
-  createSignal,
-  type JSX,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createSignal, useContext } from 'solid-js';
 import type { ThemeProviderProps } from '../theme-context/index';
 
 const COLOR_SCHEME_ROW_KEY = asKeyword('ui.prefs/color-scheme');
@@ -51,11 +46,11 @@ export function ThemePreferenceProvider(props: {
     setStored(next);
   };
   return (
-    <ThemePreferenceContext.Provider
+    <ThemePreferenceContext
       value={{ preference, setPreference, settled }}
     >
       {props.children}
-    </ThemePreferenceContext.Provider>
+    </ThemePreferenceContext>
   );
 }
 

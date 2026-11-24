@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import {
   ContentEdgePaddingProvider,
   CONTENT_EDGE_PADDING_STEP as SCREEN_BODY_PADDING_STEP,
@@ -49,12 +50,11 @@ function BodyInner(props: {
       {/* 16px page edge (`CONTENT_EDGE_PADDING_STEP`), 12px between
           sections; a large title brings its own top space. */}
       <div
-        class="box gap-3 px-4 pb-4"
-        data-component="ScreenBody"
-        classList={{
+        class={["box gap-3 px-4 pb-4", {
           'flex-1 min-h-0': !props.scroll,
           'pt-4': !props.largeTitle,
-        }}
+        }]}
+        data-component="ScreenBody"
       >
         {props.children}
       </div>
@@ -69,8 +69,7 @@ function PinnedFooter(props: {
 }): JSX.Element {
   return (
     <div
-      class="box bg-transparent"
-      classList={{ safeBottom: props.safeBottom }}
+      class={["box bg-transparent", { safeBottom: props.safeBottom }]}
       data-component="ScreenFooter"
     >
       <div class="box px-4 py-3">{props.children}</div>
@@ -97,7 +96,7 @@ function FloatingActionHost(props: {
 /** Zero-height spacer that pads scroll content by the bottom safe-area inset. */
 function SafeBottomSpacer(): JSX.Element {
   return (
-    <div class="box" classList={{ safeBottom: true }} aria-hidden="true" />
+    <div class={["box", { safeBottom: true }]} aria-hidden="true" />
   );
 }
 
@@ -125,8 +124,7 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
       when={props.scroll}
       fallback={
         <div
-          class="box flex-1 min-h-0"
-          classList={{ safeBottom: needsSafeBottom() }}
+          class={["box flex-1 min-h-0", { safeBottom: needsSafeBottom() }]}
         >
           {inner}
         </div>
@@ -180,8 +178,7 @@ export function ScreenBaseCompactBody(
       <Show when={props.bottomBar}>
         {(bottomBar) => (
           <div
-            class="box bg-transparent"
-            classList={{ safeBottom: true }}
+            class={["box bg-transparent", { safeBottom: true }]}
             data-component="ScreenBottomBar"
           >
             {bottomBar()}

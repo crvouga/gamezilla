@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Story-only SQL notebook: the production `SqlNotebookPane` over a fixed,
  * in-memory stand-in for this device's SQLite, so the inspector renders
@@ -11,7 +11,7 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { createHarnessIds } from '@pkgs/uuid-shared-ts/seeded-create-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** Answers the schema listing with `tables`; every other read is empty. */
 function createStorySqlClient(tables: readonly string[]): SqlClient {

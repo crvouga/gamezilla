@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import {
@@ -8,7 +8,7 @@ import {
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
 import { ActiveSpacesSheet } from './active-spaces-sheet';
 import { useRequestEndSpace } from './end-space-modal-provider';

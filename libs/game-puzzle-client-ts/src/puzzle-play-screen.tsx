@@ -7,8 +7,8 @@ import { createSpeak } from '@pkgs/tts-root-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Accessor, createMemo, Show } from 'solid-js';
 import { PuzzleFeedRefusedChangeNotice } from './puzzle-feed-refused-change-notice';
 import { usePuzzleGame } from './puzzle-game-context';
 import {

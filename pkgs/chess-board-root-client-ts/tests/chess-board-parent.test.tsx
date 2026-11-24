@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, describe, expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';

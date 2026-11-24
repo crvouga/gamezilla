@@ -1,4 +1,4 @@
-import { type Accessor, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createMemo, createSignal, onCleanup } from 'solid-js';
 
 export type ExternalSubscription<T> = {
   readonly getSnapshot: () => T;
@@ -12,10 +12,13 @@ export type ExternalSubscription<T> = {
 export function createSubscriptionSignal<T>(
   source: ExternalSubscription<T>
 ): Accessor<T> {
-  const [value, setValue] = createSignal<T>(source.getSnapshot());
+  const [changes, setChanges] = createSignal(0);
   const unsubscribe = source.subscribe(() => {
-    setValue(() => source.getSnapshot());
+    setChanges((count) => count + 1);
   });
   onCleanup(unsubscribe);
-  return value;
+  return createMemo(() => {
+    changes();
+    return source.getSnapshot();
+  });
 }

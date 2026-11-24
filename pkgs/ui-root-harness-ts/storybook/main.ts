@@ -9,7 +9,7 @@ import {
 } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
 import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
-import solid from 'vite-plugin-solid';
+import solid from '@solidjs/vite-plugin';
 import { configureDocgen } from './docgen';
 import { previewAnnotations } from './entrypoints';
 
@@ -88,7 +88,7 @@ const config: StorybookConfig = {
     ];
     config.resolve = {
       ...config.resolve,
-      dedupe: ['solid-js', '@lingui/core', '@lingui/solid'],
+      dedupe: ['solid-js', '@solidjs/web', '@lingui/core'],
     };
     config.define = {
       ...config.define,

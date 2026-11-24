@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Plural, Trans } from '@lingui/solid/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
@@ -24,7 +24,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
 import { FrameErrorView, FrameStatusView } from './game-frame-status-view';

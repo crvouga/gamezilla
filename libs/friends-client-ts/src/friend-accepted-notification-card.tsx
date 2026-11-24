@@ -3,7 +3,7 @@ import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 function accepterUsername(interaction: Notification): string {
   const username = interaction.payload['toUsername'];

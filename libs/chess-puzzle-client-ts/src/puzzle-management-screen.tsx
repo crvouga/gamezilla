@@ -1,6 +1,6 @@
 import { CatalogueLoadScreen } from '@libs/game-puzzle-client-ts/catalogue-load-screen';
-import { Trans } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
 import { chessCatalogueLoad } from './chess-catalogue-load';
 
 /**

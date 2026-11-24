@@ -1,9 +1,10 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { TableColumn } from '@pkgs/ui-root-client-ts/table';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { useGameName } from './game-names';
 import type { SyntheticPopulationDirectoryPage } from './synthetic-population-api';
 import { SyntheticUserAvatar } from './synthetic-user-identity';

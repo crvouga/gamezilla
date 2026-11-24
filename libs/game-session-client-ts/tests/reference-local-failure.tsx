@@ -22,7 +22,8 @@ import { assertRoomModuleName } from '@pkgs/room-root-shared-ts/types';
 import { TurnGamesProvider } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
-import { type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onCleanup } from 'solid-js';
 import { raceGame } from './reference-race-game';
 
 export async function localFailure() {

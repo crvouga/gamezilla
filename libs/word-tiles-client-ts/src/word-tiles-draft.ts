@@ -3,14 +3,7 @@ import {
   type WordTilesPosition,
 } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on, untrack } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import { type Candidate, newCandidate, rebase } from './word-tiles-candidate';
 import { previewCandidate, type WordTilesPreview } from './word-tiles-preview';

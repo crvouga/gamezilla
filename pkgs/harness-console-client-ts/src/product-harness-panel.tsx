@@ -13,8 +13,8 @@ import type {
 import { EmbeddedFrame } from '@pkgs/ui-root-client-ts/embedded-frame';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { ProductHarnessCommandsPane } from './product-harness-commands-pane';
 import { ProductHarnessLoadBalancerPane } from './product-harness-lb-pane';

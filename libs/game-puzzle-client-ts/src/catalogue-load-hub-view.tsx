@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -8,7 +8,8 @@ import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import type {
   CatalogueLoadCopy,
   CatalogueLoadJob,

@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentDataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useContentEdgePadding } from '../content-edge-padding/index';
 import { flexContainerClass, spaced } from '../layout-classes';
 import type { Align } from '../layout-props';

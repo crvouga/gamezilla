@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import type { WordTileBoardCell } from '../word-tile-board/index';
 import styles from './word-tile-workbench.module.css';
 

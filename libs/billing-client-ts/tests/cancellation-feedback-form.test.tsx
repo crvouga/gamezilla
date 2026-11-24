@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from 'bun:test';
 import { CancellationFeedbackForm } from '@libs/billing-client-ts/cancellation-feedback-form';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';

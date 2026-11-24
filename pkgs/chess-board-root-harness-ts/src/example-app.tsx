@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import { createSignal } from 'solid-js';
 import type { ExampleConfig } from './example-config';

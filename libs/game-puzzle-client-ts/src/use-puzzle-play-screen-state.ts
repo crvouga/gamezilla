@@ -26,15 +26,7 @@ import {
   usePathname,
   useRouter,
 } from '@pkgs/ui-root-client-ts/app-router';
-import {
-  type Accessor,
-  batch,
-  createEffect,
-  createMemo,
-  createSignal,
-  type Setter,
-  untrack,
-} from 'solid-js';
+import { type Accessor, batch, createEffect, createMemo, createSignal, type Setter, untrack } from 'solid-js';
 import { usePuzzleFeedState } from './puzzle-feed-context';
 import type { PuzzleTestLoadingStatusProps } from './puzzle-test-loading-status';
 import { useNextPuzzleId } from './use-next-puzzle-id';

@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo } from 'solid-js';
 
 /**
  * Live push needs the synced EMQX URL, which a fresh install / account DB

@@ -1,5 +1,6 @@
-/** @jsxImportSource solid-js */
-import { type Accessor, createContext, type JSX, useContext } from 'solid-js';
+/** @jsxImportSource @solidjs/web */
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, useContext } from 'solid-js';
 
 /**
  * Ambient gate for document-level keyboard shortcuts.
@@ -14,9 +15,9 @@ export function KeyboardShortcutScope(props: {
 }): JSX.Element {
   const active: Accessor<boolean> = () => props.active;
   return (
-    <KeyboardShortcutScopeContext.Provider value={active}>
+    <KeyboardShortcutScopeContext value={active}>
       {props.children}
-    </KeyboardShortcutScopeContext.Provider>
+    </KeyboardShortcutScopeContext>
   );
 }
 

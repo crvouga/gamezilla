@@ -1,24 +1,17 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Live relative-time label ("3m ago") via injected `Clock` / `Timers`.
  *
  * Re-evaluates every {@link RELATIVE_TIME_TICK_MS} and whenever `at` changes.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import {
   RELATIVE_TIME_TICK_MS,
   relativeTimeParts,
 } from '@pkgs/ui-root-shared-ts/relative-time-format';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js';
 
 /** `clock.now()` sampled on mount, on every `restart` change, and every tick. */
 function createLiveNow(restart: Accessor<unknown>): Accessor<number> {

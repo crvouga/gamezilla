@@ -9,7 +9,8 @@ import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceRoomDispatch } from '@libs/spaces-client-ts/use-space-room-selector';
 import { t } from '@lingui/core/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { createComputed, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createComputed, createMemo } from 'solid-js';
 import { PUZZLE_SCREEN } from './puzzle-screens';
 import {
   PUZZLE_STATS_PLACES,

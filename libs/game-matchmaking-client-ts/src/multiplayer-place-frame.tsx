@@ -1,9 +1,10 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameLobbyScreen } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
 
 /** What every place of finding an opponent is given by its shell. */

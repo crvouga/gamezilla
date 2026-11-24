@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import { EmptyState } from '../empty-state/index';
 import { ErrorState } from '../error-state/index';
 import { LoadingState } from '../loading-state/index';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Which place holds which control, what each stage opens on, and how a
  * person moves between the places of a matched game.

@@ -1,5 +1,5 @@
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { LobbyRefusedChangeNotice } from './space-refused-change-notice';
 import { openSpaceDetail } from './space-routes';
 import { SpacesScreenView } from './spaces-screen-view';

@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { Button } from '../button';
 import { PlayIcon } from '../icons';
 import { P } from '../text';
@@ -70,13 +71,12 @@ export function ReturnToGame(props: ReturnToGameProps): JSX.Element {
   );
   return (
     <div
-      class="box w-full self-stretch bg-surface border border-border gap-ui-md p-ui-md"
-      classList={{
+      class={["box w-full self-stretch bg-surface border border-border gap-ui-md p-ui-md", {
         'flex-row items-center min-h-18': row(),
         'flex-col items-stretch': !row(),
         'rounded-card': inline() || mode() === 'wide',
         'rounded-none': !inline() && mode() !== 'wide',
-      }}
+      }]}
       role="region"
       aria-live="polite"
       data-testid={props.testId}

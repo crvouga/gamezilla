@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, expect, test } from 'bun:test';
 import { cleanup, screen } from '@solidjs/testing-library';

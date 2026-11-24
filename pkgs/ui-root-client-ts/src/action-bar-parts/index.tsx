@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import { ActionBarIconButton } from '../action-bar-icon-button/index';
 import { ActionBarLabeledControl } from '../action-bar-labeled-control/index';
 import type {

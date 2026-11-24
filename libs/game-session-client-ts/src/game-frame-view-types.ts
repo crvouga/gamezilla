@@ -18,7 +18,7 @@ import type {
   GameTurnPillEmphasis,
   GameTurnPillTone,
 } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { FrameStartReason } from './game-frame-start-reason';
 
 /**

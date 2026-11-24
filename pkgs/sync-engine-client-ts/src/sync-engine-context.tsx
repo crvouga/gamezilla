@@ -1,18 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import type { Sql } from '@pkgs/sql-root-shared-ts/sql';
-import {
-  type Accessor,
-  createComputed,
-  createContext,
-  createMemo,
-  createSignal,
-  onCleanup,
-  type ParentProps,
-  untrack,
-  useContext,
-} from 'solid-js';
+import { type Accessor, createComputed, createContext, createMemo, createSignal, onCleanup, type ParentProps, untrack, useContext } from 'solid-js';
 
 import type { SyncEngine, WatchSubscription } from './sync-engine-port';
 import type { SyncEngineStatus } from './sync-status';
@@ -30,9 +20,9 @@ export function SyncEngineProvider(props: ParentProps<{ value: SyncEngine }>) {
   // Stable engine handle: read once on mount by design (not tracked).
   const engine = untrack(() => props.value);
   return (
-    <EngineContext.Provider value={engine}>
+    <EngineContext value={engine}>
       {props.children}
-    </EngineContext.Provider>
+    </EngineContext>
   );
 }
 
@@ -42,9 +32,9 @@ export function SyncEnginePaintGateProvider(
   // The accessor itself is the reactive value; its identity is stable.
   const ready = untrack(() => props.ready);
   return (
-    <PaintGateContext.Provider value={ready}>
+    <PaintGateContext value={ready}>
       {props.children}
-    </PaintGateContext.Provider>
+    </PaintGateContext>
   );
 }
 

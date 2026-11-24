@@ -1,15 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createMemo, createSignal, onCleanup, useContext } from 'solid-js';
 
 import type { ScreenBaseBreadcrumb } from '../screen-base-types';
 
@@ -69,9 +61,9 @@ export function AppFrameChromeProvider(
     globalStatus: () => props.globalStatus ?? null,
   };
   return (
-    <AppFrameChromeContext.Provider value={value}>
+    <AppFrameChromeContext value={value}>
       {props.children}
-    </AppFrameChromeContext.Provider>
+    </AppFrameChromeContext>
   );
 }
 
@@ -103,9 +95,9 @@ export function GlobalTrailingInRail(props: {
   const outer = useContext(GlobalTrailingInRailContext);
   const when = createMemo(() => props.when || outer());
   return (
-    <GlobalTrailingInRailContext.Provider value={when}>
+    <GlobalTrailingInRailContext value={when}>
       {props.children}
-    </GlobalTrailingInRailContext.Provider>
+    </GlobalTrailingInRailContext>
   );
 }
 

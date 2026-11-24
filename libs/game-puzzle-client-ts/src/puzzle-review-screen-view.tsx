@@ -1,8 +1,9 @@
 import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared-ts/interaction-entities';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 
 /**
  * `unselected`: no puzzle picked from the log; `unavailable`: the puzzle is

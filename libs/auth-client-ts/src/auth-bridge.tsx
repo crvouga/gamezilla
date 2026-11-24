@@ -27,14 +27,8 @@ import {
 import { writeSecureStorageItem } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  type JSX,
-  onCleanup,
-  type ParentProps,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, onCleanup, type ParentProps } from 'solid-js';
 import type { AuthBridgeRefreshDeps } from './auth-bridge-refresh';
 import { AuthBridgeRefresh } from './auth-bridge-refresh';
 import { useAuthClientPort } from './auth-client-provider';
@@ -396,8 +390,8 @@ export function AuthBridge(
   });
 
   return (
-    <SignOutIntentContext.Provider value={signOutIntentOf(signOutIntentRef)}>
+    <SignOutIntentContext value={signOutIntentOf(signOutIntentRef)}>
       {props.children}
-    </SignOutIntentContext.Provider>
+    </SignOutIntentContext>
   );
 }

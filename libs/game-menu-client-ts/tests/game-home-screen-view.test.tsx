@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** A game's menu is a hub of rows; how to play is a place behind it. */
 import { expect, mock, test } from 'bun:test';
 import { GameHomeScreenView } from '@libs/game-menu-client-ts/game-home-screen-view';

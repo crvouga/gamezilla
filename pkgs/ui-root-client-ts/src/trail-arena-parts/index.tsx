@@ -1,4 +1,5 @@
-import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Match, Show, Switch } from 'solid-js';
 import styles from '../trail-arena/trail-arena.module.css';
 import { headingRotation, type TrailShape } from '../trail-arena-geometry';
 import type {

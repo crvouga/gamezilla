@@ -1,6 +1,6 @@
 import { connectFourGameShared } from '@libs/connect-four-shared-ts/connect-four-game';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { connectFourPresentation } from './connect-four-presentation';
 
 export const connectFourGameClient = defineGameClient({

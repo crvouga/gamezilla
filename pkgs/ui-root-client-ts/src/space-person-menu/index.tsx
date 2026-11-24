@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
 import type {

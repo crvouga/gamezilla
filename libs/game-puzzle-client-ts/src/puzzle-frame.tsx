@@ -1,7 +1,7 @@
 import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared-ts/puzzle-link';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createEffect, untrack } from 'solid-js';
 import type { GamePuzzlesClient } from './puzzle-client';
 import { PuzzleFeedProvider } from './puzzle-feed-provider';

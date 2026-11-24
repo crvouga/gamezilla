@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
@@ -26,7 +26,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-shortcuts';
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
-import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Match, Show, Switch } from 'solid-js';
 import type { FramePeople } from './game-frame-view-types';
 import {
   type GameHistoryOutcome,

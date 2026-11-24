@@ -2,14 +2,15 @@ import { startPuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/start-at
 import { DenialSurface } from '@libs/permissions-client-ts/denial-surface';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { useContentPackChoiceReady } from './use-content-pack-choice-ready';

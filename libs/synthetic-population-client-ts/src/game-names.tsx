@@ -1,4 +1,5 @@
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 /** A registered game's id and the name the game menu shows for it. */
 export type GameName = {
@@ -23,9 +24,9 @@ export function GameNamesProvider(props: {
     () => new Map(props.games.map((game) => [game.id, game.title]))
   );
   return (
-    <GameNamesContext.Provider value={names}>
+    <GameNamesContext value={names}>
       {props.children}
-    </GameNamesContext.Provider>
+    </GameNamesContext>
   );
 }
 

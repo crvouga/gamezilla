@@ -13,17 +13,8 @@
  */
 
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createMemo,
-  createSignal,
-  createUniqueId,
-  type JSX,
-  onCleanup,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createMemo, createSignal, createUniqueId, onCleanup, useContext } from 'solid-js';
 
 export type SpacesNavBackHandler = () => void;
 
@@ -118,9 +109,9 @@ export function SpacesNavProvider(props: SpacesNavProviderProps): JSX.Element {
   };
 
   return (
-    <SpacesNavContext.Provider value={value}>
+    <SpacesNavContext value={value}>
       {props.children}
-    </SpacesNavContext.Provider>
+    </SpacesNavContext>
   );
 }
 
@@ -242,9 +233,9 @@ export function GameChoicesName(props: {
     onCleanup(() => nav?.setPlace(id, undefined));
   });
   return (
-    <GameChoicesNameContext.Provider value={() => props.name}>
+    <GameChoicesNameContext value={() => props.name}>
       {props.children}
-    </GameChoicesNameContext.Provider>
+    </GameChoicesNameContext>
   );
 }
 

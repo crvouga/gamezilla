@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { expect, test } from 'bun:test';
 import { SokobanPlayerView as SokobanPlayer } from '@libs/sokoban-client-ts/sokoban-player';

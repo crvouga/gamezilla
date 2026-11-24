@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, describe, expect, it } from 'bun:test';
 import { createClient } from '@libs/app-root-client-ts/create-client';

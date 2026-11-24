@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { fireEvent, screen } from '@solidjs/testing-library';

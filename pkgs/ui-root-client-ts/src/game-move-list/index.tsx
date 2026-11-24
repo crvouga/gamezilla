@@ -1,17 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  For,
-  Index,
-  type JSX,
-  onCleanup,
-  onMount,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, For, onCleanup, onSettled, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { observeElementResize } from '../observe-element-resize';
 import styles from './game-move-list.module.css';
@@ -347,7 +339,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
     void turns();
     keepMarkedInView();
   });
-  onMount(() => {
+  onSettled(() => {
     if (root !== undefined)
       onCleanup(observeElementResize(root, keepMarkedInView));
   });
@@ -380,7 +372,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       <ol class={styles['turns']} aria-label={props['aria-label']}>
         {/* By position, not by object: a move appended updates its own
             turn, never the whole list. */}
-        <Index each={turns()}>
+        <For keyed={false} each={turns()}>
           {(turn) => (
             <li class={styles['turn']}>
               <span
@@ -404,7 +396,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                   </span>
                 )}
               </Show>
-              <Index each={turn().moves}>
+              <For keyed={false} each={turn().moves}>
                 {(move) => (
                   <MoveButton
                     move={move()}
@@ -414,7 +406,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                     onSelect={(ply) => props.onSelect(ply)}
                   />
                 )}
-              </Index>
+              </For>
               <Show
                 when={
                   props.layout === 'turn' &&
@@ -430,7 +422,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
               </Show>
             </li>
           )}
-        </Index>
+        </For>
       </ol>
     </div>
   );

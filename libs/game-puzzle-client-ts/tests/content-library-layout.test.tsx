@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The puzzle library as small screens: a hub of rows, then one list each
  * (Continue, Solved, Browse, My creations, Playtests).

@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 
 export type SkeletonShape = 'text' | 'rect' | 'circle';
 
@@ -51,8 +52,7 @@ const SHAPE_CLASS: Record<SkeletonShape, string> = {
 export function Skeleton(props: SkeletonProps): JSX.Element {
   return (
     <div
-      class="box skeleton shrink-0 overflow-hidden bg-surface-muted"
-      classList={{ [SHAPE_CLASS[props.shape ?? 'text']]: true }}
+      class={["box skeleton shrink-0 overflow-hidden bg-surface-muted", { [SHAPE_CLASS[props.shape ?? 'text']]: true }]}
       {...dataAttrs({
         component: 'Skeleton',
         shape: props.shape ?? 'text',

@@ -1,14 +1,15 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type Accessor, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, Show } from 'solid-js';
 import { contentBuilderNextStep } from './content-builder-standing';
 import type { ContentPublicationCopyState } from './content-publication-copy-state';
 import {

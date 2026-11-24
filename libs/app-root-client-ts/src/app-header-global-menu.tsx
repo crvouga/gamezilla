@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Global dropdown mounted as `AppFrameChromeProvider` `globalTrailing` so
  * every top bar shares it. Rows: Settings, Connectivity (→ Connection in
@@ -13,7 +13,7 @@ import { useGlobalMenuIdentity } from '@libs/app-env-client-ts/global-menu-ident
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AppHeaderGlobalMenuView } from './app-header-global-menu-view';
 import { useGlobalMenuInSidebar } from './global-menu-in-sidebar';
 import { createConnectivity } from './use-connectivity';

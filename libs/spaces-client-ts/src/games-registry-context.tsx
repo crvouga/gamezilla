@@ -1,12 +1,6 @@
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
-import {
-  type Accessor,
-  createContext,
-  type JSX,
-  type ParentProps,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, type ParentProps, untrack, useContext } from 'solid-js';
 
 const GamesRegistryContext = createContext<
   Accessor<readonly GameClientDefinition[]>
@@ -30,9 +24,9 @@ export function GamesRegistryProvider(
   // Registry is composition-root configuration: read once, not tracked.
   const value = untrack(() => props.value);
   return (
-    <GamesRegistryContext.Provider value={() => value}>
+    <GamesRegistryContext value={() => value}>
       {props.children}
-    </GamesRegistryContext.Provider>
+    </GamesRegistryContext>
   );
 }
 

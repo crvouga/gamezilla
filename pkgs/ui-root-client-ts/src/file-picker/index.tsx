@@ -2,7 +2,8 @@ import {
   type ComponentDataSet,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 import { FileIcon } from '../icons';
 import styles from './file-picker.module.css';
 
@@ -45,8 +46,7 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
         {props.label}
       </span>
       <span
-        class={styles['field']}
-        classList={{ [styles['empty'] ?? '']: props.fileName === null }}
+        class={[styles['field'], { [styles['empty'] ?? '']: props.fileName === null }]}
       >
         <input
           type="file"

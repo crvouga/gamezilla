@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { FilePicker } from '@pkgs/ui-root-client-ts/file-picker';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
@@ -9,8 +9,8 @@ import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { createEffect, type JSX, on, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createEffect, on, Show } from 'solid-js';
 import type {
   CatalogueLoadCopy,
   CatalogueSourceUpload,

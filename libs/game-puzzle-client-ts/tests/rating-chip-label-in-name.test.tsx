@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { PuzzleRatingBadge } from '@libs/game-puzzle-client-ts/puzzle-rating-badge';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';

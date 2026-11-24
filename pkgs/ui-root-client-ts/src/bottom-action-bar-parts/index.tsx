@@ -1,12 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Slots for `BottomActionBar`: tab-style icon+caption action and a contained
  * `Button`.
  */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { Dynamic, type JSX } from '@solidjs/web';
 import type {
   BottomActionBarActionItem,
   BottomActionBarButtonItem,
@@ -51,12 +50,11 @@ export function BottomActionBarAction(props: {
         color={iconColor()}
       />
       <p
-        class="text textFootnote line-clamp-1 text-center w-full"
-        classList={{
+        class={["text textFootnote line-clamp-1 text-center w-full", {
           'text-tint': selected(),
           'text-text': !selected() && !disabled(),
           'text-text-secondary': !selected() && disabled(),
-        }}
+        }]}
       >
         {props.item.label}
       </p>

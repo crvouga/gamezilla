@@ -5,7 +5,7 @@
  * through `./preload` for `bun test`.
  *
  * - Workspace `.tsx` → Babel (`babel.config.cjs`: TypeScript strip, Lingui
- *   macro for the Solid runtime, `babel-preset-solid` DOM output). Bun's own
+ *   macro for the Solid runtime, `@solidjs/babel-plugin` DOM output). Bun's own
  *   `tsx` loader emits JSX `jsx()` calls, which Solid cannot render.
  * - Solid's browser **dev** build is selected by the `--conditions=browser
  *   --conditions=development` flags every caller passes (Bun's default `node`
@@ -72,7 +72,7 @@ const TRANSFORM_PACKAGES = [
   '@babel/preset-typescript',
   '@babel/plugin-transform-explicit-resource-management',
   '@lingui/babel-plugin-lingui-macro',
-  'babel-preset-solid',
+  '@solidjs/babel-plugin',
 ] as const;
 const CACHE_SALT = [
   readFileSync(configFile, 'utf8'),
@@ -247,6 +247,24 @@ export async function disposeDomWindow(): Promise<void> {
   await GlobalRegistrator.unregister();
 }
 
+/**
+ * `textContent = value` stringifies in a browser: `0` becomes the text "0".
+ * happy-dom drops every falsy value instead, and Solid assigns numbers as
+ * they are, so a rendered `0` would leave the element without its text node.
+ */
+function stringifyTextContent(): void {
+  const prototype = window.Element.prototype;
+  const descriptor = Object.getOwnPropertyDescriptor(prototype, 'textContent');
+  const assign = descriptor?.set;
+  if (descriptor === undefined || assign === undefined) return;
+  Object.defineProperty(prototype, 'textContent', {
+    ...descriptor,
+    set(this: Element, value: unknown) {
+      assign.call(this, value == null ? '' : String(value));
+    },
+  });
+}
+
 if (typeof document === 'undefined') {
   const saved = new Map<string, PropertyDescriptor>();
   // In a Bun Worker these globals belong to its parent channel. Replacing
@@ -277,6 +295,7 @@ if (typeof document === 'undefined') {
   // `Event` stays happy-dom's so element dispatch still works. The preserved
   // worker dispatchEvent only accepts the constructor from before registration.
   if (preserveDispatch) rememberNativeEvent(nativeEvent);
+  stringifyTextContent();
 }
 
 if (typeof Symbol.dispose !== 'symbol') {

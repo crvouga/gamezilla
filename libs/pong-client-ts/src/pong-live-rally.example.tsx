@@ -9,7 +9,8 @@ import {
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createMemo, createSignal, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
 import { createPongLiveInputs } from './pong-live-inputs.example';
 
 /**

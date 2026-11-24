@@ -16,7 +16,7 @@ import {
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import { createJSXDecorator } from 'storybook-solidjs-vite';
 import type { PuzzleBoardMarks } from './puzzle-client';

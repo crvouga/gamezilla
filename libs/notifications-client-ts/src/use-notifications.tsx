@@ -8,15 +8,10 @@ import {
   NEEDS_YOU_SECTION_KEY,
 } from '@libs/notifications-shared-ts/notifications-sections';
 import { clientRowToInteraction } from '@libs/notifications-shared-ts/row-mapper';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
 import { useNotificationsShell } from './notifications-provider-registry';
 
 export function useNotifications(options?: {

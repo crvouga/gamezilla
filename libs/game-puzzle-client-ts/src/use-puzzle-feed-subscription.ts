@@ -7,13 +7,7 @@ import {
   puzzlePoolRangesForRating,
 } from '@libs/game-puzzle-shared-ts/feed-config';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 import { useEffectivePuzzleRatingFor } from './use-effective-puzzle-rating';
 

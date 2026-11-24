@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { MarkdownEditorCommand } from '@pkgs/ui-root-shared-ts/markdown-editor-types';
 import { type Accessor, For } from 'solid-js';
@@ -29,8 +29,7 @@ export function EditorSuggestionMenu(props: {
             id={`${props.id}-${index()}`}
             aria-selected={props.selected() === index()}
             tabIndex={-1}
-            class="clickable clickableTint flex-row items-center gap-3 px-3 py-2 text-left"
-            classList={{ 'bg-tint-subtle': props.selected() === index() }}
+            class={["clickable clickableTint flex-row items-center gap-3 px-3 py-2 text-left", { 'bg-tint-subtle': props.selected() === index() }]}
             onPointerDown={(event) => event.preventDefault()}
             onClick={() => props.choose(command)}
           >

@@ -1,11 +1,6 @@
 import { t } from '@lingui/core/macro';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, onCleanup, Show } from 'solid-js';
 import { observeElementResize } from '../observe-element-resize';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { P } from '../text/index';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** A puzzle play view mounted for layout tests: time stands still. */
 
 import type { PuzzlePlayPlace } from '@libs/game-puzzle-client-ts/puzzle-play-places';

@@ -1,11 +1,12 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameLobbyDock } from '@pkgs/ui-root-client-ts/game-lobby';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { frameStartLine } from './game-frame-setup-copy';
 import type { FrameStart } from './game-frame-view-types';
 

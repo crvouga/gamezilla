@@ -5,17 +5,10 @@ import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import {
-  type Accessor,
-  createMemo,
-  type JSX,
-  Match,
-  Switch,
-  untrack,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Accessor, createMemo, Match, Switch, untrack } from 'solid-js';
 import {
   type GameSettings,
   type GameSettingsNode,

@@ -1,4 +1,4 @@
-import { createRenderEffect, onCleanup, onMount, untrack } from 'solid-js';
+import { createRenderEffect, onCleanup, onSettled, untrack } from 'solid-js';
 import type { CourtControls, CourtSide } from '../paddle-court-input';
 
 const PADDLE_KEYS = new Set(['arrowup', 'arrowdown', 'w', 's']);
@@ -19,7 +19,7 @@ export function useCourtInputLifecycle(
       untrack(() => release(previous.sides));
     previous = next;
   });
-  onMount(() => {
+  onSettled(() => {
     const blur = () => release();
     const visibility = () => {
       if (document.visibilityState === 'hidden') release();

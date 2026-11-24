@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -6,7 +6,8 @@ import {
   nextRovingIndex,
   rovingTabStop,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
-import { createUniqueId, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, For } from 'solid-js';
 import board from '../cell-grid-board/cell-grid-board.module.css';
 import type {
   CellGridBoardProps,
@@ -145,8 +146,7 @@ export function CellGridPalette<K extends string = string>(
           {(item) => (
             <button
               type="button"
-              class={`clickable ${styles['tool']}`}
-              classList={{ clickableTint: item.key !== props.selected }}
+              class={[`clickable ${styles['tool']}`, { clickableTint: item.key !== props.selected }]}
               role="radio"
               aria-checked={item.key === props.selected}
               data-key={item.key}

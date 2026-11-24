@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Pushes the inbox unread query into {@link NotificationsUnreadCountRoot}.
  * Must run under `NotificationsProviderRegistry` + `SyncEngineProvider`.
  */
 
-import { createEffect, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, onCleanup } from 'solid-js';
 
 import {
   BOOT_NOTIFICATIONS_UNREAD_COUNT,

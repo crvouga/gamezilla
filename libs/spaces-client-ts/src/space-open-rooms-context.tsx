@@ -1,14 +1,7 @@
 import { useMyDeviceId, useMyId } from '@libs/auth-client-ts/use-current-user';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, For, onCleanup, Show } from 'solid-js';
 import {
   SpaceOpenRoomsStoreProvider,
   useSpaceOpenRooms,

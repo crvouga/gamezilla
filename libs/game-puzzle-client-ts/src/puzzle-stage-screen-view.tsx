@@ -1,5 +1,6 @@
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import {
   PuzzleFeedAdvanceView,
   PuzzleFeedHistoryView,

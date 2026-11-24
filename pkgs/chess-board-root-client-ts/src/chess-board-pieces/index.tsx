@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Piece layer: one HTML box per piece, placed by `transform` through the
  * {@link PieceAnimator}. Rows keep their identity across plies
@@ -20,17 +20,8 @@ import type { MotionPolicy } from '@pkgs/chess-board-root-shared-ts/board-motion
 import { cellTransform } from '@pkgs/chess-board-root-shared-ts/board-units';
 import type { PieceAnimator } from '@pkgs/chess-board-root-shared-ts/piece-animator';
 import { bumpChessBoardRender } from '@pkgs/chess-board-root-shared-ts/render-counts';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  For,
-  type JSX,
-  on,
-  onCleanup,
-  Show,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, For, on, onCleanup, Show, untrack } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
 

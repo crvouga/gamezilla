@@ -19,7 +19,9 @@ export const LINGUI_CATALOG_INCLUDE = LINGUI_CATALOG_SOURCES.map(
   (dir) => `<rootDir>/${dir}`
 );
 
-export const LINGUI_JSX_MACRO_PACKAGES = ['@lingui/solid/macro'] as const;
+export const LINGUI_JSX_MACRO_PACKAGES = [
+  '@pkgs/lingui-solid-client-ts/macro',
+] as const;
 
 export default defineConfig({
   sourceLocale: 'en',

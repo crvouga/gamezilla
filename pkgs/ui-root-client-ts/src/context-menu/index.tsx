@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { CommandPaletteKbd } from '../command-palette-kbd/index';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';

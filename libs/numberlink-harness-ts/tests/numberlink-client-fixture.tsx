@@ -10,7 +10,8 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 export function renderNumberlink(ui: () => JSX.Element) {
   const time = createHarnessClock();

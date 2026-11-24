@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { spacingScale } from '@pkgs/ui-root-shared-ts/scale';
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 import styles from './content-edge-padding.module.css';
 
 /** Spacing-scale step (`1` = 4px → 16px) for screen/surface horizontal insets. */
@@ -42,9 +43,9 @@ export function ContentEdgePaddingProvider(
     bottomStep: props.bottomStep ?? 0,
   }));
   return (
-    <ContentEdgePaddingContext.Provider value={value}>
+    <ContentEdgePaddingContext value={value}>
       {props.children}
-    </ContentEdgePaddingContext.Provider>
+    </ContentEdgePaddingContext>
   );
 }
 

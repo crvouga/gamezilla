@@ -18,8 +18,7 @@ import {
 } from '@libs/spaces-client-ts/use-space-room-selector';
 import { registerFeedbackContext } from '@pkgs/feedback-shared-ts/context';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from 'solid-js';
 import type { PuzzleAttempt, PuzzleCoachLine } from './puzzle-client';
 import { usePuzzleGame } from './puzzle-game-context';
 import {

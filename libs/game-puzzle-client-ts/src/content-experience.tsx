@@ -9,16 +9,8 @@ import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  Match,
-  Show,
-  Switch,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createMemo, createSignal, Match, Show, Switch } from 'solid-js';
 import { ContentAttemptScreen } from './content-attempt-screen';
 import { ContentAuthorScreen } from './content-author-screen';
 import { ContentConnectionStatus } from './content-connection-status';

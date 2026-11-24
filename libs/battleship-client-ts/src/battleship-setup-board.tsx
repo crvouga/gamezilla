@@ -15,7 +15,8 @@ import { createMediaQuery } from '@pkgs/ui-root-client-ts/media-query';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, createUniqueId, Show } from 'solid-js';
 import {
   COLUMN_LABELS,
   orientationName,

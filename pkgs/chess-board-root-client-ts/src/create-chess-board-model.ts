@@ -32,14 +32,7 @@ import type {
 } from '@pkgs/chess-board-core-shared-ts/types';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  on,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, on, onCleanup } from 'solid-js';
 
 export type ChessBoardModelArgs = {
   readonly game: ChessGame;

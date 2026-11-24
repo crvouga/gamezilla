@@ -13,9 +13,9 @@ import {
   type WordTilesSeatCount,
 } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { WordTilesBoard } from './word-tiles-board';
 import { wordTilesFrame } from './word-tiles-frame';
 import { seatName } from './word-tiles-panels';

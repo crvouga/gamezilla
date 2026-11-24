@@ -9,7 +9,8 @@ import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 function requiredAttribute(element: Element, name: string): string {

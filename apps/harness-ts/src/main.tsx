@@ -12,7 +12,7 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 import './polyfill-entry';
 import './styles.css';
 

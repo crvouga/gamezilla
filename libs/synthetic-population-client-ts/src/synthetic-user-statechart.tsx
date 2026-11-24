@@ -1,11 +1,12 @@
 import { behaviorStatechart } from '@libs/synthetic-population-shared-ts/behavior-statechart';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 
 type BehaviorNode = typeof behaviorStatechart.root;
 type BehaviorSnapshot = ReturnType<typeof behaviorStatechart.resolveState>;

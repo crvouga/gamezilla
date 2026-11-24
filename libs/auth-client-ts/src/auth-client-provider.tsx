@@ -2,7 +2,8 @@ import type { AuthClientPort } from '@pkgs/auth-root-shared-ts/auth-client-port'
 import type { AuthSessionState } from '@pkgs/auth-root-shared-ts/auth-session-state';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
-import type { JSX, ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { ParentProps } from 'solid-js';
 
 const AuthClientPortContext = defineContext<AuthClientPort>('AuthClientPort');
 

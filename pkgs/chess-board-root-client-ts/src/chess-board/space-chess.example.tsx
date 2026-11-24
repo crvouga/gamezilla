@@ -1,6 +1,7 @@
 import { SpaceInGameTemplate } from '@pkgs/ui-root-client-ts/space-in-game-template';
 import type { SpaceRole } from '@pkgs/ui-root-client-ts/space-types';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import {
   SpaceExampleFrame,
   type SpaceExampleSpies,

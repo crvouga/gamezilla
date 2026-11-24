@@ -13,7 +13,7 @@ file($body) where {
     JsImportCallExpression() as $call where { $call <: `import($src)` },
     JsCallExpression() as $call where { $call <: `require($src)` }
   } where {
-    $src <: r"^['\"](?:solid-js|@solidjs/[^'\"]+|@lingui/solid|lucide-solid|@tanstack/solid-[^'\"]+)(?:/[^'\"]*)?['\"]$",
+    $src <: r"^['\"](?:solid-js|@solidjs/[^'\"]+|@pkgs/lingui-solid-client-ts)(?:/[^'\"]*)?['\"]$",
     register_diagnostic(span=$src, message="Framework-agnostic core must not import solid-js / the Solid stack. Move the Solid binding to a `solid.ts(x)` module outside this scope.", severity="error")
   }
 }

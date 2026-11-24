@@ -1,14 +1,14 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { placeBehind } from '@pkgs/turn-game-client-ts/screen-places';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import type { ScreenBaseBreadcrumb } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { createSignal, Match, Show, Switch } from 'solid-js';
 import type {
   CatalogueLoadCopy,
   CatalogueLoadJob,

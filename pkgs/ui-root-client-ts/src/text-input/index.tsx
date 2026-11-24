@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -6,7 +6,8 @@ import {
   componentDataAttrs,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show, splitProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show, splitProps } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import type { FocusTarget } from '../focus';
 import { spaced } from '../layout-classes';

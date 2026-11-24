@@ -19,19 +19,8 @@ import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
-import {
-  type Accessor,
-  type Component,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Match,
-  onCleanup,
-  Show,
-  Switch,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, type Component, createMemo, createSignal, For, Match, onCleanup, Show, Switch, untrack } from 'solid-js';
 import type { HarnessConsoleNav } from './debugger-chrome';
 import { HarnessHome, type HarnessHomeTool } from './harness-home';
 import {

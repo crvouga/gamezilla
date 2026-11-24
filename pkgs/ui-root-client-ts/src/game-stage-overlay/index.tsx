@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, For, type JSX, onMount, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, onSettled, Show } from 'solid-js';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { ChevronDownIcon, XIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
@@ -364,7 +365,7 @@ export function GameStageOverlayFrame(props: {
   const [corner, setCorner] = createSignal<string>();
   return (
     <div
-      ref={(el) => onMount(() => setCorner(boardCornerUnder(el)))}
+      ref={(el) => onSettled(() => setCorner(boardCornerUnder(el)))}
       class={styles['overlay']}
       style={{ '--game-board-corner': corner() }}
       {...dataAttrs({ component: 'GameStageOverlay' })}

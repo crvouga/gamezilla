@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Board perf page: a 200-ply FEN scrub (every ply slides) and a 20-board
  * mount. Uses injected {@link useClock} / {@link useTimers}.
@@ -12,7 +12,8 @@ import {
 } from '@pkgs/chess-board-root-shared-ts/chess-board-bench';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Show } from 'solid-js';
 
 export type BenchResultLine = {
   readonly label: string;

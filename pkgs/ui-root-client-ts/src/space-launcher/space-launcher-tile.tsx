@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
-import { type JSX, Match, Switch } from 'solid-js';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import { Badge } from '../badge/index';
 import { GameTile } from '../game-tile/index';
 import {

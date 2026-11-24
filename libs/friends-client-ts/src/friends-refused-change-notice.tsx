@@ -4,7 +4,7 @@ import { cancelFriendRequestMutation } from '@libs/friends-shared-ts/cancel-frie
 import { declineFriendRequestMutation } from '@libs/friends-shared-ts/decline-friend-request-mutation';
 import { removeFriendMutation } from '@libs/friends-shared-ts/remove-friend-mutation';
 import { unblockUserMutation } from '@libs/friends-shared-ts/unblock-user-mutation';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** Changes to who someone is to the person, told where friends are shown. */
 const FRIEND_CHANGES: readonly string[] = [

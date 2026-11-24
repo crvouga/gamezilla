@@ -9,13 +9,7 @@ import { useGetFreshAuthToken } from '@libs/auth-client-ts/use-fresh-auth-token'
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import type { SyncClientAuth } from '@pkgs/sync-engine-client-ts/sync-http-client';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 import { useAppData } from './app-subs-context';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
 import type { ReadySyncEngine } from './create-sync-engine-boot-state';

@@ -7,7 +7,8 @@ import {
   encodeQuoridor,
   playQuoridor,
 } from '@libs/quoridor-shared-ts/quoridor';
-import { createSignal, type JSX, mergeProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, mergeProps } from 'solid-js';
 
 type Table = Parameters<typeof renderGameTable>;
 

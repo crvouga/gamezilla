@@ -124,6 +124,7 @@
     "@pkgs/ui-testing-bun-webview-shared-ts": "workspace:*",
     "@pkgs/ui-testing-root-shared-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:"
   },
@@ -196,7 +197,7 @@
     "storybook": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
+    "@solidjs/vite-plugin": "catalog:",
     "workbox-build": "catalog:",
     "wrangler": "catalog:"
   },

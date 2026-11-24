@@ -1,6 +1,6 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * The destructive confirm before a publication leaves discovery. The

@@ -14,14 +14,8 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useParams } from '@solidjs/router';
-import {
-  createEffect,
-  createMemo,
-  createResource,
-  createSignal,
-  type JSX,
-  onCleanup,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createResource, createSignal, onCleanup } from 'solid-js';
 import {
   LiveWatchScreenView,
   type LiveWatchState,

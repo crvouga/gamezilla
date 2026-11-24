@@ -29,14 +29,7 @@ import {
 import type { PointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
 import { createPointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 import { watchBoardInput } from './board-input-lifecycle';
 import { useBoardMotionEnvironment } from './board-motion-context';
 import styles from './chess-board/chess-board.module.css';

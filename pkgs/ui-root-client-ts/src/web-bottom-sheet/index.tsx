@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * CSS bottom sheet -- the web {@link BottomSheetHost}, and the phone form of
  * {@link ResponsiveSurface} (screens open a sheet through
@@ -26,7 +26,8 @@ import type {
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 import { FocusTrap } from '../focus-trap/index';
 import { ModalTitleIdProvider } from '../modal-title-id/index';
 import { OnColorReset } from '../on-color-context/index';

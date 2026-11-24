@@ -1,5 +1,5 @@
-/** @jsxImportSource solid-js */
-import type { JSX } from 'solid-js';
+/** @jsxImportSource @solidjs/web */
+import type { JSX } from '@solidjs/web';
 import type { GamesBootstrapFromPluginsProps } from './games-bootstrap-from-plugins';
 import { GamesBootstrapFromPlugins } from './games-bootstrap-from-plugins';
 

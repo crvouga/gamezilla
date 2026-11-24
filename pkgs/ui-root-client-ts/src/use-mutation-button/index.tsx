@@ -25,9 +25,10 @@
  * ```
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { type Accessor, createEffect, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, onCleanup } from 'solid-js';
 import type { ButtonProps } from '../button/index';
 import type { ButtonFeedback } from '../button-face';
 import type { MutationStateTransition } from '../mutation-lifecycle';

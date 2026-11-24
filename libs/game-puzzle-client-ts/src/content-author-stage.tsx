@@ -1,6 +1,7 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import type { useContentDraftSave } from './use-content-draft-save';
 

@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import type { ColorScheme } from '@pkgs/ui-root-shared-ts/colors-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SchemePreviewProps = {
   children: JSX.Element;

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more` — settings index: account, preferences, about and troubleshooting
  * groups of `MenuRow`s linking to the sub-screens.
@@ -14,13 +14,8 @@ import {
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
-import {
-  type Accessor,
-  createSignal,
-  For,
-  type JSX,
-  onCleanup,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, For, onCleanup } from 'solid-js';
 import { useAppSubs } from './app-subs-context';
 import { useOfflinePreference } from './offline-preference';
 import { SettingsScreenView } from './settings-screen-view';

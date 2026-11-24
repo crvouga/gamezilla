@@ -29,6 +29,7 @@
     "@pkgs/polyfill-shared-ts": "workspace:*",
     "@pkgs/tailwind-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -59,7 +60,7 @@
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
+    "@solidjs/vite-plugin": "catalog:",
     "workbox-build": "catalog:"
   },
   "category": "client",

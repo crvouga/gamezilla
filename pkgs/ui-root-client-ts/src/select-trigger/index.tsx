@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -8,7 +8,8 @@ import type {
   SelectSize,
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
 
 export type SelectTriggerProps<T extends SelectValue> = {
@@ -61,13 +62,12 @@ export function SelectTrigger<T extends SelectValue>(
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <p
-        class="text line-clamp-1 flex-1 min-w-0 shrink"
-        classList={{
+        class={["text line-clamp-1 flex-1 min-w-0 shrink", {
           textFootnote: compact(),
           textBody: !compact(),
           'text-text': hasSelection(),
           'text-text-secondary': !hasSelection(),
-        }}
+        }]}
       >
         {props.selected?.label ?? props.placeholder}
       </p>

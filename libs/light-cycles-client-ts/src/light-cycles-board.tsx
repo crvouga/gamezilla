@@ -1,7 +1,8 @@
 import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
-import { createEffect, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo } from 'solid-js';
 import {
   decodeLightCycles,
   LightCyclesBoardView,

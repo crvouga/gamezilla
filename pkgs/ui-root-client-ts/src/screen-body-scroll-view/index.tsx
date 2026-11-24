@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { FloatingActionClearance } from '../floating-action-clearance/index';
 import type { ScrollViewProps } from '../scroll-view/index';
 import { ScrollView } from '../scroll-view/index';

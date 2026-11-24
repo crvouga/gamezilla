@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import styles from '../screen-layouts.module.css';
 import type { ScreenMeasure } from '../screen-measure';
 import { useScreenMeasure } from '../use-screen-measure';
@@ -16,8 +16,7 @@ export function ScreenColumn(props: {
   const measure = useScreenMeasure(() => props.width ?? 'prose');
   return (
     <div
-      class={styles['column']}
-      classList={{ 'mx-auto': measure().centered }}
+      class={[styles['column'], { 'mx-auto': measure().centered }]}
       style={{ 'max-width': measure().maxWidth }}
       {...dataAttrs({ component: 'ScreenColumn' })}
     >

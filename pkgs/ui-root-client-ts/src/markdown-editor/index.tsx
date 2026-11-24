@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
@@ -9,14 +9,7 @@ import type {
 import { defaultMarkdownParser, schema } from 'prosemirror-markdown';
 import type { Command, Selection } from 'prosemirror-state';
 import type { EditorView } from 'prosemirror-view';
-import {
-  createEffect,
-  createSignal,
-  createUniqueId,
-  onCleanup,
-  onMount,
-  Show,
-} from 'solid-js';
+import { createEffect, createSignal, createUniqueId, onCleanup, onSettled, Show } from 'solid-js';
 import { EditorLinkForm } from '../editor-link-form/index';
 import { suggestionKeyHandler } from '../editor-suggestion-key';
 import { EditorSuggestionMenu } from '../editor-suggestion-menu/index';
@@ -127,7 +120,7 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
     view.focus();
     savedSelection = undefined;
   };
-  onMount(() => {
+  onSettled(() => {
     if (host) editor.mount(host);
   });
   createEffect(() => {

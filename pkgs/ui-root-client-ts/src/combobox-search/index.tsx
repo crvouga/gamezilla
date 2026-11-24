@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComboboxKeyEvent } from '@pkgs/ui-root-shared-ts/combobox-key-nav';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { onSettled } from 'solid-js';
 import { SearchIcon } from '../icons';
 import { TextInput } from '../text-input/index';
 
@@ -27,7 +28,7 @@ export type ComboboxSearchProps = {
  */
 export function ComboboxSearch(props: ComboboxSearchProps): JSX.Element {
   let inputEl: HTMLInputElement | HTMLTextAreaElement | undefined;
-  onMount(() => {
+  onSettled(() => {
     if (props.focusOnMount ?? true) inputEl?.focus();
   });
   return (

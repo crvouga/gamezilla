@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
-import { type JSX, Show } from 'solid-js';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { GameWatcherCount } from '../game-watching/index';
 import { EyeIcon } from '../icons';
 import { Tooltip } from '../tooltip/index';

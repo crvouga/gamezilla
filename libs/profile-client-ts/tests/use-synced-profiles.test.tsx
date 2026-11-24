@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { profilesByIds } from '@libs/profile-shared-ts/profiles-by-ids-query';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';

@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Spaces' room wiring: the transport the shell injected, plus the open-rooms
  * registry every space screen and the miniplayer read.
  */
 
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { HostingAccount } from './hosting-invite';
 import { RoomTransportFactoryProvider } from './room-transport-factory';
 import { SpaceOpenRoomsProvider } from './space-open-rooms-context';

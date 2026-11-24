@@ -4,7 +4,7 @@ import { usernameLabel } from '@libs/moderation-shared-ts/display';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 

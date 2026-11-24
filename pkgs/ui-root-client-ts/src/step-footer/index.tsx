@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import type { ScrollTarget } from '../scroll';
 import styles from './step-footer.module.css';

@@ -1,5 +1,5 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
@@ -7,7 +7,8 @@ import {
   type StepTrackStep,
 } from '@pkgs/ui-root-client-ts/step-track';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show, untrack } from 'solid-js';
 import { ContentStatusChip } from './content-chips';
 
 /** The one step that comes next on the way to publishing a draft. */

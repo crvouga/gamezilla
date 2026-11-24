@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId } from 'solid-js';
 import { ContentScreen } from '../content-screen/index';
 import {
   type FormActionsFooterProps,

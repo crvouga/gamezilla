@@ -9,7 +9,8 @@ import {
   stageOverlayAfter,
   stageOverlayPhaseEvent,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
-import { createComputed, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createComputed, createSignal, on } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
 import {

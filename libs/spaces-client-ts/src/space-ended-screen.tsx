@@ -1,5 +1,5 @@
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { SpaceEndedScreenView } from './space-ended-screen-view';
 import { useSpaceDisplayTitle } from './use-space-display-title';
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';

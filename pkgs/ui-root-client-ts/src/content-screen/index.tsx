@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ScreenBase } from '../screen-base/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenColumn } from '../screen-column/index';

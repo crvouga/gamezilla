@@ -8,14 +8,7 @@ import {
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  type Accessor,
-  createComputed,
-  createMemo,
-  createSignal,
-  on,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createComputed, createMemo, createSignal, on, untrack } from 'solid-js';
 import { usePuzzleFeedState } from './puzzle-feed-context';
 import { usePuzzleGame } from './puzzle-game-context';
 import type {

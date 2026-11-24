@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client-ts/multi-app-solid-dom-session';
 import { createMultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client-ts/multi-app-solid-dom-session';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared-ts/serialize-dom-html';
-import { createSignal, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onCleanup } from 'solid-js';
 import { createDemoClock, DemoApp, DemoProviders } from './demo-app';
 
 function actorContainer(actorId: string): Element | null {

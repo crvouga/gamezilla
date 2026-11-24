@@ -1,12 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createMemo,
-  createUniqueId,
-  For,
-  Index,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import { trailShapes } from '../trail-arena-geometry';
 import { controlledSlots, trailArenaInput } from '../trail-arena-input';
 import {
@@ -153,7 +147,7 @@ function Markers(props: {
 }): JSX.Element {
   return (
     <>
-      <Index each={props.riders}>
+      <For keyed={false} each={props.riders}>
         {(rider) => (
           <RiderHead
             rider={rider()}
@@ -162,8 +156,8 @@ function Markers(props: {
             testId={props.testId}
           />
         )}
-      </Index>
-      <Index each={props.crashes}>
+      </For>
+      <For keyed={false} each={props.crashes}>
         {(crash) => (
           <CrashMarker
             crash={crash()}
@@ -171,7 +165,7 @@ function Markers(props: {
             testId={props.testId}
           />
         )}
-      </Index>
+      </For>
     </>
   );
 }

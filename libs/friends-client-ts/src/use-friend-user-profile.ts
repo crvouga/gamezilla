@@ -8,8 +8,7 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createMemo, createSignal, onCleanup, type Accessor } from 'solid-js';
 
 export function readRouteParam(value: string | string[] | undefined): string {
   if (typeof value === 'string') return value;

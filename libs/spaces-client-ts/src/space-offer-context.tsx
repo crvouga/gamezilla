@@ -1,11 +1,5 @@
-import {
-  type Component,
-  createContext,
-  type JSX,
-  Show,
-  useContext,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { type Component, createContext, Show, useContext } from 'solid-js';
 
 const SpaceOfferContext = createContext<Component | null>(null);
 
@@ -19,9 +13,9 @@ export function SpaceOfferProvider(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <SpaceOfferContext.Provider value={props.offer}>
+    <SpaceOfferContext value={props.offer}>
       {props.children}
-    </SpaceOfferContext.Provider>
+    </SpaceOfferContext>
   );
 }
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A puzzle attempt as two small screens: the board with its own commands
  * and one control onward, then where the attempt stands.

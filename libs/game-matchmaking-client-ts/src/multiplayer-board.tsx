@@ -12,7 +12,8 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { MultiplayerFrameBoard } from './multiplayer-frame-board';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { MultiplayerSeat } from './multiplayer-seat';

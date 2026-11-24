@@ -1,6 +1,6 @@
 import { i18n as globalI18n, setupI18n } from '@lingui/core';
 import { compileMessage } from '@lingui/message-utils/compileMessage';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import {
@@ -9,7 +9,8 @@ import {
 } from '@pkgs/ui-root-client-ts/app-router';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createEffect, type JSX, onCleanup, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, onCleanup, Show } from 'solid-js';
 import { addons } from 'storybook/preview-api';
 import { fn } from 'storybook/test';
 import { createJSXDecorator, type Preview } from 'storybook-solidjs-vite';

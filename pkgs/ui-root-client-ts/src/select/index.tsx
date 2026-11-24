@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { filterSelectOptions } from '@pkgs/ui-root-shared-ts/select-logic';
 import type {
@@ -8,14 +8,8 @@ import type {
   SelectProps,
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
-import {
-  createMemo,
-  createSignal,
-  createUniqueId,
-  type JSX,
-  onMount,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, createUniqueId, onSettled, Show } from 'solid-js';
 import { ErrorState } from '../error-state/index';
 import { SearchIcon } from '../icons';
 import { LoadingState } from '../loading-state/index';
@@ -69,7 +63,7 @@ function SelectSurfaceBody<T extends SelectValue>(
           <TextInput
             ref={(el) => {
               // The search box owns initial focus (after the surface's trap).
-              onMount(() => el.focus());
+              onSettled(() => el.focus());
             }}
             type="search"
             value={query()}

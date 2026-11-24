@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';

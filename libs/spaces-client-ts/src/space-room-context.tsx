@@ -1,15 +1,8 @@
 import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared-ts/space-room-module-name';
 import type { AnyRoomClient } from '@pkgs/room-root-client-ts/room-clients-context';
 import { RoomClientsProvider } from '@pkgs/room-root-client-ts/room-clients-context';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createMemo,
-  type JSX,
-  onCleanup,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createMemo, onCleanup, useContext } from 'solid-js';
 import {
   useSpaceOpenRoomEntry,
   useSpaceOpenRooms,
@@ -71,10 +64,10 @@ export function SpaceRoomProvider(props: SpaceRoomProviderProps): JSX.Element {
     },
   };
   return (
-    <SpaceRoomSessionContext.Provider value={session}>
+    <SpaceRoomSessionContext value={session}>
       <RoomClientsProvider rooms={roomMap()}>
         {props.children}
       </RoomClientsProvider>
-    </SpaceRoomSessionContext.Provider>
+    </SpaceRoomSessionContext>
   );
 }

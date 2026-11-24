@@ -12,16 +12,8 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createSignal,
-  type JSX,
-  Show,
-  untrack,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createSignal, Show, untrack, useContext } from 'solid-js';
 
 import { SpaceProbe } from './space-probe';
 import { openSpaceDetail, useSpaceRouteId } from './space-routes';
@@ -186,7 +178,7 @@ export function HostingAccount(props: {
   const api: HostingInviteApi = { decision, offer, note, clear };
 
   return (
-    <HostingInviteContext.Provider value={api}>
+    <HostingInviteContext value={api}>
       <HostingCollapse note={note} />
       <SpaceProbe testId={Handles.spacesHostedProbe}>
         {spaces.ids().join('\n')}
@@ -202,6 +194,6 @@ export function HostingAccount(props: {
         )}
       </Show>
       {props.children}
-    </HostingInviteContext.Provider>
+    </HostingInviteContext>
   );
 }

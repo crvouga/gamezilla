@@ -15,7 +15,8 @@ import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 /** The board's props, everything but where it is and who may play. */
 const BOARD: Omit<

@@ -4,7 +4,8 @@ import {
   PreviewThumbnail,
   type PreviewThumbnailSize,
 } from '@pkgs/ui-root-client-ts/preview-thumbnail';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /**
  * What a row opens, pictured: the puzzle's board (a pack's first puzzle,

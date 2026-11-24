@@ -1,11 +1,12 @@
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 
 /** How many of the latest rated puzzles the history lists. */
 const RATING_HISTORY_LENGTH = 10;

@@ -19,7 +19,6 @@
     "@libs/moderation-client-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
     "@pkgs/auth-root-client-ts": "workspace:*",
     "@pkgs/auth-root-shared-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
@@ -28,6 +27,7 @@
     "@pkgs/feedback-shared-ts": "workspace:*",
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/secure-storage-root-client-ts": "workspace:*",
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
@@ -39,6 +39,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

@@ -1,4 +1,4 @@
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
 import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Solid context for the injected {@link PerfSampler}. The provider starts /
  * stops sampling with `active`; `createPerfSnapshot` bridges the sampler's
@@ -11,14 +11,8 @@ import {
   EMPTY_PERF_SNAPSHOT,
 } from '@libs/app-root-shared-ts/types';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal, onCleanup, untrack } from 'solid-js';
 
 const PerfSamplerContext = defineContext<PerfSampler>('PerfSampler');
 

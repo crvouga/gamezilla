@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, spyOn, test } from 'bun:test';
 import { AppThemeProvider } from '@libs/app-root-client-ts/app-theme-provider';
 import { RootErrorBoundary } from '@libs/app-root-client-ts/root-error-boundary';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { type Tracer, trace } from '@opentelemetry/api';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -14,7 +14,8 @@ import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 
 const FAILURE =
   'useAuthModals: AuthModalsProvider missing — wrap with AppProviders';

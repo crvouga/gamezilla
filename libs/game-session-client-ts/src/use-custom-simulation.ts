@@ -8,14 +8,7 @@ import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup, untrack } from 'solid-js';
 import { connectCustomSimulation } from './custom-simulation-session';
 
 /** The screen owns one controller for its board and its choices. */

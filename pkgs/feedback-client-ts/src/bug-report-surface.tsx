@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import {
@@ -10,14 +10,8 @@ import {
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import {
-  createMemo,
-  createSignal,
-  onCleanup,
-  Show,
-  splitProps,
-} from 'solid-js';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
+import { createMemo, createSignal, onCleanup, Show, splitProps } from 'solid-js';
 import {
   BugReportFormView,
   type BugReportFormViewProps,

@@ -3,11 +3,12 @@ import {
   type SyntheticPopulationConfig,
   syntheticPopulationConfigSchema,
 } from '@libs/synthetic-population-shared-ts/config';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 
 const numericFields = [
   'desired',

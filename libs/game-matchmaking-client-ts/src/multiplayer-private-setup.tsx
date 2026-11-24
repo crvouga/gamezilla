@@ -1,7 +1,7 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerSides } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -9,8 +9,8 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { type JSX, Dynamic } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { MultiplayerPrivateSetup } from './use-multiplayer-private-setup';
 
 /**

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   BellIcon,
@@ -7,7 +7,8 @@ import {
   UserIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { TabBar, type TabBarItem } from '@pkgs/ui-root-client-ts/tab-bar';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';

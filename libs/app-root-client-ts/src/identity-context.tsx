@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `LocalIdentityProvider` — establishes the install's device id and current
  * `users.id` (see `identity-boot.ts`), then exposes them reactively from the
@@ -13,14 +13,8 @@ import {
   SESSION_TOKEN_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSecureStorageItem } from '@pkgs/secure-storage-root-client-ts/solid';
-import {
-  type Accessor,
-  createContext,
-  createEffect,
-  createMemo,
-  type JSX,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createEffect, createMemo, useContext } from 'solid-js';
 
 export type LocalIdentityValue = {
   /** Current local `users.id`; `null` until the local boot lands. */
@@ -55,9 +49,9 @@ export function LocalIdentityProvider(props: {
   });
   useBugReportAccount();
   return (
-    <LocalIdentityContext.Provider value={value}>
+    <LocalIdentityContext value={value}>
       {props.children}
-    </LocalIdentityContext.Provider>
+    </LocalIdentityContext>
   );
 }
 

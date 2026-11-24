@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Card } from '@pkgs/ui-root-client-ts/card';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
@@ -10,7 +10,7 @@ import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-l
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
 import { SpaceGuestsView, SpaceSummaryView } from './space-card-view';

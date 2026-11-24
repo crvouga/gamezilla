@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * 8×8 grid of square buttons for focus, screen readers and test ids. It is
  * static: 64 buttons created once in a8 → h1 order, never reordered (black's
@@ -21,13 +21,8 @@ import type {
   Square,
 } from '@pkgs/chess-board-core-shared-ts/types';
 import { cellTransform } from '@pkgs/chess-board-root-shared-ts/board-units';
-import {
-  type Accessor,
-  createMemo,
-  createSelector,
-  For,
-  type JSX,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, createSelector, For } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];

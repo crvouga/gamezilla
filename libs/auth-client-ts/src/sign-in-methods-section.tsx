@@ -6,7 +6,7 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   OauthProviderId,
   SignInMethodId,
@@ -15,7 +15,8 @@ import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 
 import { AccountSyncErrorNotice } from './account-sync-error-notice';
 import { providerName } from './auth-flow-messages';

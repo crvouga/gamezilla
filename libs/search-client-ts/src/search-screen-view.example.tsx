@@ -16,7 +16,8 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For, Match, Show, Switch } from 'solid-js';
 
 /**
  * Story fixture: a person found by search, with the default face every

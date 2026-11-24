@@ -1,12 +1,6 @@
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
 import type { SchemaRow } from './sql-schema-query';
 import {
   listProductHarnessTables,

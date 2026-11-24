@@ -7,12 +7,7 @@ import {
   useScreenPlace,
 } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
-import {
-  type Accessor,
-  createEffect,
-  createMemo,
-  createSignal,
-} from 'solid-js';
+import { type Accessor, createEffect, createMemo, createSignal } from 'solid-js';
 import type { MultiplayerFindChoice } from './matchmaking-home-view';
 import type { MultiplayerConfirm } from './multiplayer-game-view';
 import {

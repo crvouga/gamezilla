@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import { createEffect, createSignal, type JSX, on, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, on, onCleanup } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
 import { PwaUpdatePromptBannerView } from './pwa-update-prompt-view';
 import type { PwaUpdatePrompt } from './register-service-worker';

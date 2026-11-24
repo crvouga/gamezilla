@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import type {
@@ -11,7 +11,8 @@ import {
   Trash2Icon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

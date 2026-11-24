@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 /**
  * Fixed scroller rect for layout-less hosts (happy-dom unit tests, static
@@ -19,9 +20,9 @@ export function TestViewportProvider(props: {
   // prop once at creation time is correct (not a reactive solid signal).
   const val = untrack(() => props.value);
   return (
-    <TestViewportContext.Provider value={val}>
+    <TestViewportContext value={val}>
       {props.children}
-    </TestViewportContext.Provider>
+    </TestViewportContext>
   );
 }
 

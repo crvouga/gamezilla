@@ -20,7 +20,7 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import type { Random } from '@pkgs/uuid-shared-ts/create-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * One sub-router contributed by a game to the composed space command/event

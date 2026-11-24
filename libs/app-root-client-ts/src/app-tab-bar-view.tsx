@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { isAppTabActive } from '@libs/app-root-shared-ts/is-app-tab-active';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { TabBar, type TabBarItem } from '@pkgs/ui-root-client-ts/tab-bar';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import type { AppTabSpec } from './app-tabs';
 
 export type AppTabBarViewProps = {

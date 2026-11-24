@@ -52,6 +52,7 @@
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@solidjs/router": "catalog:",
     "@solidjs/testing-library": "catalog:",
+    "@solidjs/web": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "solid-js": "catalog:",

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { NotificationFilter } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
@@ -9,7 +9,8 @@ import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createEffect, createSignal, type JSX, onMount } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, onSettled } from 'solid-js';
 import {
   type InboxChoiceFailure,
   inboxChoiceFailure,
@@ -32,7 +33,7 @@ function UnlockOnArrival(props: {
   readonly decision: ReturnType<typeof useDecision>;
 }): JSX.Element {
   const unlock = useUnlock();
-  onMount(() => unlock.run(props.decision()));
+  onSettled(() => unlock.run(props.decision()));
   return null;
 }
 

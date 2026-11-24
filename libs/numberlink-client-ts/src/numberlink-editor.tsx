@@ -1,7 +1,7 @@
 import type { PuzzleEditorProps } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import type { EndpointPair } from '@libs/numberlink-shared-ts/numberlink-types';
 import { PAIR_COLORS } from '@libs/numberlink-shared-ts/numberlink-types';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
@@ -13,7 +13,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { NumberlinkBoard } from './numberlink-board';
 import { NumberlinkPlacementTarget } from './numberlink-placement-target';
 import {

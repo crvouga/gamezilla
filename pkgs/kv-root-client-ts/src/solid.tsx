@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Solid bindings for {@link Kv}: a provider plus `createKvState`, the
  * `createSignal`-like primitive persisted via {@link Kv}.
@@ -18,14 +18,8 @@ import type { KvStateCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import type { Logger } from '@pkgs/logger-shared-ts/logger';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import {
-  type Accessor,
-  createSignal,
-  type JSX,
-  onCleanup,
-  type ParentProps,
-  untrack,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, onCleanup, type ParentProps, untrack } from 'solid-js';
 
 const KvContext = defineContext<Kv>('Kv');
 

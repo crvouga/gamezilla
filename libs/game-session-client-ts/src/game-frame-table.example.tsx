@@ -22,7 +22,8 @@ import type {
   GameSide,
   GameWinner,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { type JSX, mergeProps, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { mergeProps, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { FrameStory } from './game-frame-board.example';
