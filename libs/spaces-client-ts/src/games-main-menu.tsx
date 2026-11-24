@@ -43,7 +43,8 @@ function OpenLinkedGame(props: {
       return props.games.find((g) => g.id === game)?.id;
     },
     (linked) => {
-      if (linked !== undefined) untrack(() => props.onSelectGame)(linked);
+      // Selecting reads the connection state at the moment the link opens.
+      if (linked !== undefined) untrack(() => props.onSelectGame(linked));
     }
   );
   return null;

@@ -27,7 +27,7 @@ import type {
   PuzzlesCapability,
 } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createEffect, For } from 'solid-js';
+import { createEffect, For, untrack } from 'solid-js';
 import { countRules } from './count-rules';
 import { probeAutomation, probePresentation } from './probe-parts';
 
@@ -56,7 +56,8 @@ function PuzzleBoard(props: PuzzleBoardProps) {
   createEffect(
     () => props.position,
     (position, before) => {
-      if (!props.sound || position === before) return;
+      // Read when the position changes: turning sounds on replays nothing.
+      if (!untrack(() => props.sound) || position === before) return;
       handles.move.play();
       if (position === 'solo-count:7w') handles.end.play();
     },
