@@ -99,3 +99,16 @@ test('the hosted CodeQL default setup results are required with their exact prod
     )
   ).toContain('Missing required check: CodeQL (app 57789)');
 });
+
+// regression: codeql-java-kotlin-unregistered
+test('verify:end accepts the successful Java/Kotlin analysis from GitHub Actions', () => {
+  const analysis: PrCheck = {
+    name: 'Analyze (java-kotlin)',
+    appId: 15368,
+    status: 'completed',
+    conclusion: 'success',
+  };
+  expect(
+    requiredPrCheckFailures(required, [...checks, analysis], false)
+  ).toEqual([]);
+});
