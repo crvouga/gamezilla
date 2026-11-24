@@ -12,6 +12,7 @@ import {
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
+import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
@@ -24,7 +25,6 @@ import {
   FrameFactsView,
   FramePlayNoticesView,
   FrameStatusView,
-  FrameWatchingView,
   frameWatchersLabel,
 } from './game-frame-status-view';
 import {
@@ -353,16 +353,26 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
         boardFocus
         actionsBeside
         fixedStage={props.boardWorkspace !== true}
-        status={<PlayLine {...props} />}
+        status={
+          // Someone watching is told so on the bar's own status line, so
+          // their board keeps the players' full width and place.
+          <Show
+            when={props.phase === 'active' && props.viewerSide === null}
+            fallback={<PlayLine {...props} />}
+          >
+            <P
+              variant="caption"
+              tone="secondary"
+              align="center"
+              testId="custom-game-watching"
+            >
+              <Trans>You're watching. Moves appear as they're played.</Trans>
+            </P>
+          </Show>
+        }
         actions={<PlayActions {...props} />}
         aside={<FrameMovesCard {...props} />}
         allMoves={allMovesOf(props)}
-        footer={
-          <FrameWatchingView
-            phase={props.phase}
-            viewerSide={props.viewerSide}
-          />
-        }
       >
         <FrameStage {...props} />
       </GameSessionLayout>

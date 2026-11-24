@@ -311,7 +311,7 @@ in a screen is a *missing atom*, so these are the likely ones.
 
 | Candidate | Why it might be needed |
 | --- | --- |
-| Toast (`ToastStack`) | ✅ | Rule 11: alerts that come and go float, never in the flow; `tests/toast-stack.test.tsx` |
+| Toast (`ToastStack`) | ✅ | Rule 11: alerts that come and go float, never in the flow; `ui-root-harness-ts/tests/toast-stack.test.tsx` |
 | DatePicker / TimePicker | Only if scheduled games or puzzle-of-the-day filters need it |
 | Stepper / Wizard progress | Multi-step game setup or onboarding |
 | Rating / Elo display (`numeral` + delta) | Leaderboards, profile, post-game review |

@@ -5,6 +5,7 @@ import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { type JSX, Show } from 'solid-js';
 
 /**
@@ -21,26 +22,33 @@ export function MultiplayerNotices(props: {
       <Show when={props.denial}>
         {(denied) => <DenialSurfaceView denial={denied()} />}
       </Show>
-      <Show when={props.error}>
-        {(error) => (
-          <ErrorState
-            variant="compact"
-            title={<Trans>Multiplayer command refused</Trans>}
-            body={error()}
-            dataSet={{ testid: 'multiplayer-error' }}
-          />
-        )}
-      </Show>
-      <Show when={!props.online}>
-        <Notice icon={WifiOffIcon} dataSet={{ testid: 'multiplayer-offline' }}>
-          <Text variant="inherit" role="status">
-            <Trans>
-              Multiplayer commands need a connection. Your accepted game stays
-              here.
-            </Trans>
-          </Text>
-        </Notice>
-      </Show>
+      {/* A refusal stands where the command is; what comes and goes (a
+          refused command, no connection) floats over the screen. */}
+      <ToastStack>
+        <Show when={props.error}>
+          {(error) => (
+            <ErrorState
+              variant="compact"
+              title={<Trans>That didn't go through</Trans>}
+              body={error()}
+              dataSet={{ testid: 'multiplayer-error' }}
+            />
+          )}
+        </Show>
+        <Show when={!props.online}>
+          <Notice
+            icon={WifiOffIcon}
+            dataSet={{ testid: 'multiplayer-offline' }}
+          >
+            <Text variant="inherit" role="status">
+              <Trans>
+                Multiplayer commands need a connection. Your accepted game stays
+                here.
+              </Trans>
+            </Text>
+          </Notice>
+        </Show>
+      </ToastStack>
     </>
   );
 }

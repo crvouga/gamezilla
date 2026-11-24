@@ -138,6 +138,11 @@ export function FrameStartView(
     readonly seat?: JSX.Element | undefined;
     /** The side the viewer is invited to play, while they have not answered. */
     readonly invitedTo?: string | undefined;
+    /**
+     * The viewer only watches: no seat, no invitation, no open seat to take.
+     * They are told the host moves the game on.
+     */
+    readonly watching?: boolean | undefined;
   }
 ): JSX.Element {
   return (
@@ -149,12 +154,7 @@ export function FrameStartView(
           </P>
           {/* Someone with nothing to press here (a seated guest, a watcher
               with every seat taken) is told who moves the game on. */}
-          <Show
-            when={
-              props.start.hostStarts ||
-              (props.start.readiness === null && !props.start.canStart)
-            }
-          >
+          <Show when={props.start.hostStarts || props.watching === true}>
             <P
               variant="caption"
               tone="secondary"

@@ -8,7 +8,6 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
@@ -134,7 +133,6 @@ function outcomeCaption(props: Props): string | undefined {
  */
 export function FrameOutcomeCard(props: Props): JSX.Element {
   const tone = () => frameResultTone(props.result);
-  const mode = useLayoutMode();
   return (
     <GameResultCard
       tone={tone()}
@@ -143,9 +141,6 @@ export function FrameOutcomeCard(props: Props): JSX.Element {
         props.result?.headline ?? props.status?.description ?? t`Game finished`
       }
       caption={outcomeCaption(props)}
-      detailsLabel={
-        props.result === null || mode() === 'wide' ? undefined : t`Standings`
-      }
       titleDataSet={{ testid: 'custom-game-result-headline' }}
       dataSet={{ testid: 'custom-game-outcome' }}
     >

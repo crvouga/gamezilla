@@ -246,7 +246,10 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
           never moves. Elsewhere (a puzzle's standing rule) the notices are
           the page's own rows, centred with a centred stage. */}
       <Show when={props.fixedStage === true}>
-        <ToastStack dataSet={{ component: 'GameSessionNotices' }}>
+        <ToastStack
+          placement="top"
+          dataSet={{ component: 'GameSessionNotices' }}
+        >
           {props.notices}
         </ToastStack>
       </Show>

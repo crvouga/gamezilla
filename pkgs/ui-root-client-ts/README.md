@@ -112,7 +112,7 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
     it appears or clears. An outcome that ends a phase (a game over) is a
     dialog (`GameResultDialog`). What a control did stays on the control
     (`useMutationButton`, `MutationModal`, `FormActionsFooter`).
-    `tests/toast-stack.test.tsx` holds the stack to the screen, not the flow.
+    `ui-root-harness-ts/tests/toast-stack.test.tsx` holds it to the screen.
 
 ## Composition
 

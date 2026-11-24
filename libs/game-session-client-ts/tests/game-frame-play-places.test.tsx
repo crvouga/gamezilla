@@ -510,14 +510,14 @@ describe('the result place', () => {
     );
   });
 
-  test('on a phone the standings fold behind their own control beside the board', () => {
+  test('on a phone the ending is a dialog with the standings open in it', () => {
     mountFrame(() => over(), 390);
-    const toggle = screen.getByTestId('game-result-overlay-details');
-    expect(toggle.textContent).toContain('Standings');
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    fireEvent.click(toggle);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByTestId('custom-game-result')).toBeTruthy();
+    const dialog = screen.getByRole('dialog', { name: 'Game over' });
+    // The dialog has room: the standings show in full, behind no control.
+    expect(screen.queryByTestId('game-result-overlay-details')).toBeNull();
+    expect(dialog.contains(screen.getByTestId('custom-game-result'))).toBe(
+      true
+    );
     expect(shown('game-result-overlay-dismiss')).toBe(false);
   });
 

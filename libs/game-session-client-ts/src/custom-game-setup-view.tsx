@@ -406,6 +406,11 @@ export function CustomGameSetupPlace(
       dock={
         <FrameStartView
           start={props.setup.start}
+          watching={
+            props.setup.start.readiness === null &&
+            props.setup.takeSeat === null &&
+            !props.setup.seats.some((seat) => seat.invitation?.mine === true)
+          }
           invitedTo={
             props.setup.seats.find((seat) => seat.invitation?.mine === true)
               ?.sideLabel

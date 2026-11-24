@@ -5,33 +5,52 @@
   gap: var(--ui-space-4);
   min-width: 0;
 }
-/* The outcome card is the dialog's content, not a card within a card. */
+/* The outcome card is the dialog's content, not a card within a card: its
+   result word (`Victory`, in the result's colour), the headline and its
+   reason in full, then the standings, open, since the dialog has room. */
 .body > [data-component="GameResultCard"] {
+  gap: var(--ui-space-3);
   max-width: none;
   padding: 0;
   border: 0;
   background: none;
   box-shadow: none;
 }
+.body
+  > [data-component="GameResultCard"]
+  > :first-child
+  > :first-child
+  > span:first-child {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  padding-inline-end: 0;
+  white-space: normal;
+}
+.body > [data-component="GameResultCard"] > :first-child h2 {
+  min-height: 0;
+  padding-inline-end: 0;
+}
+.body > [data-component="GameResultCard"] > :first-child p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
 /* The commands stack the dialog's full width, the filled one first. */
+.actions,
+.actions [data-component="GameActions"],
 .actions [data-component="GameActionBar"] {
   display: flex;
   flex-direction: column;
   align-items: stretch;
   gap: var(--ui-space-2);
+  width: 100%;
 }
 .actions [data-component="GameActionBar"] > * {
-  width: 100%;
-  max-width: none;
-}
-.actions,
-.actions [data-component="GameActions"] {
-  display: flex;
-  flex-direction: column;
-  align-items: stretch;
-  width: 100%;
-}
-.actions [data-component="GameActionBar"] > [data-component="Button"] {
   flex: none;
   align-self: stretch;
+  width: 100%;
+  max-width: none;
 }

@@ -1,28 +1,58 @@
 /* Alerts that come and go float over the screen in one stack, never in
-   the page's flow: nothing under them moves when one appears or clears. */
+   the page's flow: nothing under them moves when one appears or clears.
+   Above every dialog's scrim (the overlay layer), so an alert about a
+   dialog's own choice is never dimmed behind it. */
 .stack {
   position: fixed;
-  top: calc(env(safe-area-inset-top, 0px) + 64px);
-  left: 50%;
-  z-index: 40;
+  z-index: var(--ui-layer-overlay);
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-2);
-  width: min(480px, calc(100vw - 2 * var(--ui-space-4)));
-  transform: translateX(-50%);
   pointer-events: none;
 }
-/* Each alert is its own floating card: opaque, so nothing reads through
-   its words, and raised with the one float shadow. */
-.stack > * {
+/* A phone: the screen's width less its gutters, clear of the top bar, or
+   above the bottom chrome (a footer's command, the tab bar). */
+@media (max-width: 767px) {
+  .stack {
+    left: var(--ui-space-4);
+    right: var(--ui-space-4);
+  }
+  .stack[data-placement="top"] {
+    top: calc(env(safe-area-inset-top, 0px) + 60px);
+  }
+  .stack[data-placement="bottom"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+  }
+}
+/* A wide window: the bottom corner of the page, clear of the sidebar, the
+   titles and the board. */
+@media (min-width: 768px) {
+  .stack {
+    right: var(--ui-space-6);
+    bottom: var(--ui-space-6);
+    width: min(400px, calc(100vw - 2 * var(--ui-space-6)));
+  }
+}
+/* Each alert is its own floating card: opaque, raised with the one float
+   shadow, and dismissible as a whole by the stack's own close. */
+.item {
+  position: relative;
   overflow: hidden;
   border-radius: var(--ui-radius-card);
   background: var(--ui-color-background);
   box-shadow: var(--ui-shadow-float);
   pointer-events: auto;
 }
+.item > :first-child {
+  padding-inline-end: var(--ui-space-8);
+}
+.close {
+  position: absolute;
+  top: var(--ui-space-1);
+  right: var(--ui-space-1);
+}
 @media (prefers-reduced-motion: no-preference) {
-  .stack > * {
+  .item {
     animation: ui-dialog-enter var(--ui-duration-normal)
       var(--ui-easing-standard) both;
   }
