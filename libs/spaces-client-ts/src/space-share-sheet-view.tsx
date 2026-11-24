@@ -41,11 +41,13 @@ function SpaceShareLinkSection(props: {
   const { t } = useLingui();
   const copyButton = useMutationButton({
     operation: () => props.onCopyLink(),
-    labels: {
-      idle: t`Copy link`,
-      loading: t`Copying…`,
-      success: t`Copied`,
-      error: t`Couldn't copy`,
+    get labels() {
+      return {
+        idle: t`Copy link`,
+        loading: t`Copying…`,
+        success: t`Copied`,
+        error: t`Couldn't copy`,
+      };
     },
   });
   return (

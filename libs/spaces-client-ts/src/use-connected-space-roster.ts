@@ -7,6 +7,7 @@ import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { type Accessor, createMemo } from 'solid-js';
 import {
+  useHasSpaceRoomSession,
   useSpaceRoomClientId,
   useSpaceRoomSessionId,
 } from './space-room-context';
@@ -23,7 +24,7 @@ export function useConnectedSpaceRoster(): Accessor<readonly RoomActor[]> {
   const synced = useSpaceRoomSelector(RoomMetaAttr.isSynced.from);
   const spaceId = useSpaceRoomSessionId();
   // A standalone presence strip has no space identity to hydrate.
-  if (spaceId() === null)
+  if (!useHasSpaceRoomSession())
     return createMemo(() => (connected() && synced() ? roster() : []));
   const seats = useSpaceRoomSelector(SpaceMembersRoomAttr.seats.from);
   const host = useSpaceColumn(() => spaceId() ?? '', SpaceField.hostMemberId);

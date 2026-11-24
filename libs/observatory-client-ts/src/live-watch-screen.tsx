@@ -11,12 +11,12 @@ import {
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { createLiveRead } from '@pkgs/async-root-client-ts/live-read';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useParams } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createMemo } from 'solid-js';
-import { createLiveRead } from './live-read';
 import {
   LiveWatchScreenView,
   type LiveWatchState,

@@ -45,8 +45,8 @@ function usePongSounds(
   let previous: PongState['feedback'] | null = null;
   const feedback = createMemo(() => state()?.feedback);
   createEffect(
-    () => [feedback(), enabled()] as const,
-    ([current, audible]) => {
+    () => [feedback(), enabled(), engine?.()] as const,
+    ([current, audible, sounds]) => {
       if (current === undefined) return;
       if (previous !== null && audible) {
         const sound =
@@ -57,7 +57,7 @@ function usePongSounds(
               : current.walls > previous.walls
                 ? 'gameplay.place'
                 : null;
-        if (sound !== null) engine?.().play(sound);
+        if (sound !== null) sounds?.play(sound);
       }
       previous = current;
     }

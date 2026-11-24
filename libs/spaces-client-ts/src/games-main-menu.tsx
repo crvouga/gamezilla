@@ -82,8 +82,11 @@ export function GamesMainMenu(): JSX.Element {
   const selectedGame = useSpaceRoomSelector(GamesRoomAttr.selected.from);
   const { shownGame, chooseGame, showList } =
     useOfflineGameBrowse(selectedGame);
-  const { spaceId } = useSpaceSessionUi();
-  const canSelectGame = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
+  const sessionUi = useSpaceSessionUi();
+  const canSelectGame = useSpaceCan(
+    () => sessionUi.spaceId,
+    PERMISSION.spacesSelectGame
+  );
   // The answer belongs to the game it was given on: a new game withdraws it.
   const [hostChooses, setHostChooses] = createSignal(() => {
     shownGame();

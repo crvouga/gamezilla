@@ -15,6 +15,7 @@
         "@pkgs/feedback-shared-ts#src",
         "@pkgs/http-client-client-ts#src",
         "@pkgs/http-client-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/logger-client-ts#src",
         "@pkgs/secure-storage-root-client-ts#src",
         "@pkgs/secure-storage-root-shared-ts#src",

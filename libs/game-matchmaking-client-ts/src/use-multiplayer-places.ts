@@ -12,6 +12,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  untrack,
 } from 'solid-js';
 import type { MultiplayerFindChoice } from './matchmaking-home-view';
 import type { MultiplayerConfirm } from './multiplayer-game-view';
@@ -85,8 +86,10 @@ export function useMultiplayerPlaces(
       }
       nav.home();
     }
+    // Leaving the moves is a command given now: whatever it reads, it reads
+    // as of this moment.
     if (before.place.screen === 'moves' && shown.place.screen !== 'moves')
-      leaveMoves();
+      untrack(leaveMoves);
     return shown;
   };
   createEffect(

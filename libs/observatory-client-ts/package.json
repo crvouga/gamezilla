@@ -26,6 +26,7 @@
     "@libs/profile-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@lingui/core": "catalog:",
+    "@pkgs/async-root-client-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",

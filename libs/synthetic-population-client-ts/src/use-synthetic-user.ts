@@ -1,7 +1,7 @@
 import { inspectionSchema } from '@libs/synthetic-population-shared-ts/inspection';
+import { createLiveRead } from '@pkgs/async-root-client-ts/live-read';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { type Accessor, createMemo } from 'solid-js';
-import { createLiveRead } from './live-read';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import { useSyntheticPopulationUpdates } from './use-synthetic-population-updates';
 

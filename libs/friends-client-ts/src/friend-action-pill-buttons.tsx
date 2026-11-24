@@ -8,6 +8,7 @@ import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-l
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 import { useFriendRequestDecision } from './use-friend-request-decision';
 
 function usePillSounds(
@@ -15,12 +16,15 @@ function usePillSounds(
 ): (transition: MutationStateTransition) => void {
   const engine = useOptionalSoundEngine();
   return (transition) => {
-    const current = engine?.();
+    // The phase change is the event: the engine and the sound it plays are
+    // looked up once, when it arrives.
+    const current = untrack(() => engine?.());
     if (current === undefined) return;
+    const chosen = untrack(sounds);
     if (transition.to === 'success') {
-      current.play(sounds().success ?? Sounds.feedback.success);
+      current.play(chosen.success ?? Sounds.feedback.success);
     } else if (transition.to === 'error') {
-      current.play(sounds().error ?? Sounds.feedback.error);
+      current.play(chosen.error ?? Sounds.feedback.error);
     }
   };
 }

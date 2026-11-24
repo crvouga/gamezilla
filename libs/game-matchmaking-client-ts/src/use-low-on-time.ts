@@ -12,7 +12,7 @@ import { multiplayerOwner } from '@libs/game-matchmaking-shared-ts/multiplayer-r
 import { isDailyTimeControl } from '@libs/game-matchmaking-shared-ts/time-control';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import { useSoundEngine } from '@pkgs/sounds-client-ts/solid';
-import { type Accessor, createEffect, createMemo } from 'solid-js';
+import { type Accessor, createEffect, createMemo, untrack } from 'solid-js';
 import { useGameMark, WARNED_GAME } from './use-game-mark';
 import { useOfflineSince } from './use-offline-since';
 
@@ -81,6 +81,8 @@ export function useLowOnTimeWarning(args: {
   createEffect(due, (gameId) => {
     if (gameId === null) return;
     warned.mark(gameId, true);
-    sounds.play(sounds.Sounds.gameplay.timerWarning);
+    // The warning plays on the engine as it stands now, at the sounds
+    // preference of this moment.
+    untrack(() => sounds.play(sounds.Sounds.gameplay.timerWarning));
   });
 }

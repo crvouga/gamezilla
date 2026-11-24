@@ -9,8 +9,8 @@
  * the palette opens via `mod+k` / `mod+shift+p` from `CommandRegistryProvider`.
  */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { bugReportCommand } from '@pkgs/feedback-client-ts/request-bug-report';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import {
   GaugeIcon,

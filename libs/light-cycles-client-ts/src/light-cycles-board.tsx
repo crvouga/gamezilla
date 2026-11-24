@@ -22,8 +22,8 @@ function useLightCyclesSounds(
   const engine = useOptionalSoundEngine();
   let previous: { crashes: number; round: number; phase: string } | null = null;
   createEffect(
-    () => [state(), enabled()] as const,
-    ([current, audible]) => {
+    () => [state(), enabled(), engine?.()] as const,
+    ([current, audible, sounds]) => {
       if (current === null) return;
       const now = {
         crashes: current.crashes.length,
@@ -32,11 +32,11 @@ function useLightCyclesSounds(
       };
       if (previous !== null && audible && previous.round === now.round) {
         if (now.phase === 'round-over' && previous.phase !== 'round-over')
-          engine?.().play('gameplay.turnEnd');
+          sounds?.play('gameplay.turnEnd');
         else if (now.crashes > previous.crashes)
-          engine?.().play('gameplay.capture');
+          sounds?.play('gameplay.capture');
         else if (now.phase === 'running' && previous.phase === 'countdown')
-          engine?.().play('gameplay.turnStart');
+          sounds?.play('gameplay.turnStart');
       }
       previous = now;
     }

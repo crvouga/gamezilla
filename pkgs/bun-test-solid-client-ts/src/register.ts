@@ -259,7 +259,7 @@ function stringifyTextContent(): void {
   if (descriptor === undefined || assign === undefined) return;
   Object.defineProperty(prototype, 'textContent', {
     ...descriptor,
-    set(this: Element, value: unknown) {
+    set(this: Element, value: string | number | boolean | null | undefined) {
       assign.call(this, value == null ? '' : String(value));
     },
   });

@@ -20,6 +20,7 @@
         "@pkgs/keyword-shared-ts#src",
         "@pkgs/kv-root-client-ts#src",
         "@pkgs/kv-root-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/message-shared-ts#src",
         "@pkgs/permissions-shared-ts#src",
         "@pkgs/room-root-client-ts#src",

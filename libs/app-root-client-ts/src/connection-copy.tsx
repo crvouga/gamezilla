@@ -5,8 +5,8 @@
  */
 
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { createOriginAvailabilitySnapshot } from '@pkgs/http-client-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { Accessor } from 'solid-js';
 import {
   type ConnectionCause,

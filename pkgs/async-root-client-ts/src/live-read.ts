@@ -6,7 +6,7 @@ import {
   onCleanup,
 } from 'solid-js';
 
-/** A read these screens keep current, with the states they draw themselves. */
+/** A read kept current, with the states its caller draws itself. */
 export type LiveRead<T> = {
   /** The last value read, kept while a later read runs or fails. */
   readonly shown: Accessor<T | undefined>;
@@ -20,7 +20,7 @@ export type LiveRead<T> = {
 
 /**
  * Reads `read(source())` whenever the source changes and whenever `reread`
- * asks. These screens draw their own loading and error states, so the read
+ * asks. Callers draw their own loading and error states, so the read
  * never reaches the route's loading boundary (which would swap the whole
  * screen for a spinner on every live update). Only the newest read lands; an
  * `undefined` source reads nothing.

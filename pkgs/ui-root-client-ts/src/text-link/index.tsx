@@ -1,5 +1,4 @@
 /** @jsxImportSource @solidjs/web */
-/// <reference path="../lucide-icons.d.ts" />
 
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';

@@ -91,11 +91,16 @@ function pictureClass(image: ImageProps, state: ImageLoadState): string {
  * ```
  */
 export function Image(props: ImageProps): JSX.Element {
-  // Every new file starts over from `loading`.
-  const [state, setState] = createSignal((): ImageLoadState => {
-    void props.src;
-    return 'loading';
-  });
+  // Every new file starts over from `loading`. A file the document already
+  // holds can report `load` or `error` while `src` is being set, inside the
+  // render that sets it, so the write is allowed there.
+  const [state, setState] = createSignal(
+    (): ImageLoadState => {
+      void props.src;
+      return 'loading';
+    },
+    { ownedWrite: true }
+  );
   return (
     <div
       class={frameClass(props)}

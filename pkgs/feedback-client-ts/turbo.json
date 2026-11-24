@@ -13,6 +13,7 @@
         "@pkgs/feedback-shared-ts#src",
         "@pkgs/http-client-shared-ts#src",
         "@pkgs/i18n-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/object-store-opfs-shared-ts#src",
         "@pkgs/object-store-root-shared-ts#src",
         "@pkgs/tailwind-shared-ts#src",

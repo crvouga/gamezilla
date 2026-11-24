@@ -6,13 +6,13 @@ import { liveWatchPath } from '@libs/observatory-shared-ts/observatory-routes';
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { createLiveRead } from '@pkgs/async-root-client-ts/live-read';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { enumKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
-import { createLiveRead } from './live-read';
 import { useObservatoryApi } from './observatory-api';
 import { OnlineNowScreenView } from './online-now-screen-view';
 import {

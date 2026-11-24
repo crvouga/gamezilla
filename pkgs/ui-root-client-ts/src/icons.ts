@@ -1,4 +1,3 @@
-/// <reference path="./lucide-icons.d.ts" />
 /**
  * Single import boundary for Lucide icons. Every other file must import
  * named icons from `@pkgs/ui`, never from `lucide` directly. Each icon is its own module, so the

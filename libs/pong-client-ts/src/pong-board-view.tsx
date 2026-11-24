@@ -30,6 +30,7 @@ import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import {
   createMemo,
+  createSignal,
   createUniqueId,
   Match,
   Show,
@@ -89,6 +90,16 @@ function PaddleSlider(props: {
   testId: string;
 }): JSX.Element {
   const mode = useLayoutMode();
+  // The thumb stands where the paddle is, and where the person last put it
+  // until the paddle next moves: their input is the slider's own value, so
+  // nothing writes the paddle's place back over it meanwhile.
+  const paddle = createMemo(
+    () =>
+      (props.state.paddles[props.side === 'white' ? 'left' : 'right'].y /
+        config.height) *
+      1000
+  );
+  const [thumb, setThumb] = createSignal(() => paddle());
   return (
     <Show
       when={
@@ -106,22 +117,19 @@ function PaddleSlider(props: {
           min={0}
           max={1000}
           step={20}
-          value={
-            (props.state.paddles[props.side === 'white' ? 'left' : 'right'].y /
-              config.height) *
-            1000
-          }
+          value={thumb()}
           disabled={
             controls().paused ||
             controls().stale ||
             props.state.phase === 'completed'
           }
-          onInput={(target) =>
+          onInput={(target) => {
+            setThumb(target);
             controls().onInput(props.side, {
               kind: 'target',
               target: target / 1000,
-            })
-          }
+            });
+          }}
           dataSet={{ testid: `${props.testId}-${props.side}-control` }}
         />
       )}

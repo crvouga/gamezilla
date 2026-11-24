@@ -27,6 +27,7 @@
     "@libs/sub-client-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
+    "@pkgs/async-root-client-ts": "workspace:*",
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/lingui-solid-client-ts": "workspace:*",

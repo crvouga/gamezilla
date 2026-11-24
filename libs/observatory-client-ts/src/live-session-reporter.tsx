@@ -14,7 +14,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useThemeHost } from '@pkgs/ui-root-client-ts/theme-context';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createSignal, onCleanup, untrack } from 'solid-js';
 import { createLiveReport } from './live-report-client';
 import { useLiveActivity } from './use-live-activity';
 
@@ -40,12 +40,14 @@ function useLiveReportClient() {
   const auth = useClientRequestAuth();
   const http = useHttpClient();
   const host = useThemeHost();
+  // Each report carries whatever holds when it is sent: a beat or a frame
+  // starts from an effect, and a changed credential must not restart it.
   return createLiveReport({
-    root: host,
+    root: () => untrack(host),
     baseUrl: config.getApiUrl(),
     fetch: http.fetch,
-    headers: () => clientAuthHeaders(auth),
-    secrets: () => [auth.sessionToken ?? ''],
+    headers: () => untrack(() => clientAuthHeaders(auth)),
+    secrets: () => untrack(() => [auth.sessionToken ?? '']),
   });
 }
 

@@ -5,7 +5,7 @@ import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, Show } from 'solid-js';
+import { createEffect, createSignal, Show, untrack } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
@@ -35,7 +35,9 @@ export function LeaveSpaceConfirmModal(
     return props.operation();
   };
   const onPhaseChange = (transition: MutationStateTransition): void => {
-    const current = engine?.();
+    // The phase change is the event: the engine is looked up once, when it
+    // arrives.
+    const current = untrack(() => engine?.());
     if (current === undefined) return;
     if (transition.to === 'success') {
       current.play(Sounds.social.roomLeft);

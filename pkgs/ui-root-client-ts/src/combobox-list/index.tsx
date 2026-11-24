@@ -54,7 +54,7 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
     <button
       class={[
         'clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left',
-        { 'bg-tint-highlight': props.highlighted },
+        { 'bg-tint-subtle': props.highlighted },
       ]}
       {...dataAttrs({ component: 'ComboboxOption', ...props.option.dataSet })}
       type="button"
@@ -117,7 +117,7 @@ function ComboboxRow<T extends ComboboxValue>(props: {
     >
       {(render) => (
         <div
-          class={['box', { 'bg-tint-highlight': highlighted() }]}
+          class={['box', { 'bg-tint-subtle': highlighted() }]}
           {...dataAttrs({
             component: 'ComboboxOption',
             ...props.option.dataSet,

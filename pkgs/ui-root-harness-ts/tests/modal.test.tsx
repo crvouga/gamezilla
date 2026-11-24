@@ -17,7 +17,7 @@ import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
-import { createSignal, flush } from 'solid-js';
+import { createSignal, Errored, flush } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 function Dialog(props: {
@@ -146,9 +146,20 @@ describe('ModalRoot', () => {
   });
 
   test('throws when a visible modal has no SurfaceStackProvider', () => {
-    expect(() =>
-      renderUi(() => <Dialog visible onRequestClose={() => {}} title="Lost" />)
-    ).toThrow(/SurfaceStackProvider missing/);
+    // An error nothing catches stops Solid for good, so a boundary takes it.
+    const thrown: { message: string | null } = { message: null };
+    renderUi(() => (
+      <Errored
+        fallback={(error) => {
+          const caught: unknown = error();
+          thrown.message = caught instanceof Error ? caught.message : null;
+          return null;
+        }}
+      >
+        <Dialog visible onRequestClose={() => {}} title="Lost" />
+      </Errored>
+    ));
+    expect(thrown.message).toMatch(/SurfaceStackProvider missing/);
   });
 });
 

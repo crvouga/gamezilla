@@ -23,6 +23,7 @@ import {
 } from '../screen-base-primary-action/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import { ScreenLargeTitle } from '../screen-large-title/index';
+import { createScreenSlot } from '../screen-slot';
 import { ScrollView } from '../scroll-view/index';
 import type { ScreenTitleScrollProps } from '../use-screen-title-scroll';
 
@@ -101,11 +102,16 @@ function SafeBottomSpacer(): JSX.Element {
   return <div class={['box', { safeBottom: true }]} aria-hidden="true" />;
 }
 
-function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
+function ScrollableBody(
+  props: Pick<
+    ScreenBaseCompactBodyProps,
+    'scroll' | 'largeTitle' | 'content' | 'titleScroll'
+  > & { hasFooter: boolean; hasBottomBar: boolean }
+): JSX.Element {
   const needsSafeBottom = (): boolean =>
     bodyNeedsSafeBottom({
-      hasFooter: props.footer !== undefined,
-      hasBottomBar: props.bottomBar !== undefined,
+      hasFooter: props.hasFooter,
+      hasBottomBar: props.hasBottomBar,
     });
   const inner = (
     <BodyInner scroll={props.scroll} largeTitle={props.largeTitle}>
@@ -154,6 +160,10 @@ function ScrollableBody(props: ScreenBaseCompactBodyProps): JSX.Element {
 export function ScreenBaseCompactBody(
   props: ScreenBaseCompactBodyProps
 ): JSX.Element {
+  // Each slot is resolved once: reading the prop again would build its
+  // nodes a second time and pull them out of the place they render in.
+  const footer = createScreenSlot(() => props.footer);
+  const bottomBar = createScreenSlot(() => props.bottomBar);
   return (
     <div class="box flex-1 min-h-0 relative">
       {/* Scrollers in the body end with room the FAB covers, so the last
@@ -165,24 +175,27 @@ export function ScreenBaseCompactBody(
             : 0
         }
       >
-        <ScrollableBody {...props} />
+        <ScrollableBody
+          scroll={props.scroll}
+          largeTitle={props.largeTitle}
+          content={props.content}
+          titleScroll={props.titleScroll}
+          hasFooter={footer.present()}
+          hasBottomBar={bottomBar.present()}
+        />
       </FloatingActionClearanceProvider>
-      <Show when={props.footer}>
-        {(footer) => (
-          <PinnedFooter safeBottom={props.bottomBar === undefined}>
-            {footer()}
-          </PinnedFooter>
-        )}
+      <Show when={footer.present()}>
+        <PinnedFooter safeBottom={!bottomBar.present()}>
+          {footer.content()}
+        </PinnedFooter>
       </Show>
-      <Show when={props.bottomBar}>
-        {(bottomBar) => (
-          <div
-            class={['box bg-transparent', { safeBottom: true }]}
-            data-component="ScreenBottomBar"
-          >
-            {bottomBar()}
-          </div>
-        )}
+      <Show when={bottomBar.present()}>
+        <div
+          class={['box bg-transparent', { safeBottom: true }]}
+          data-component="ScreenBottomBar"
+        >
+          {bottomBar.content()}
+        </div>
       </Show>
       <Show when={primaryActionVisible(props.primary) ? props.primary : null}>
         {(primary) => (

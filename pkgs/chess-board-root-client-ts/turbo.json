@@ -10,6 +10,7 @@
         "@pkgs/chess-board-root-shared-ts#src",
         "@pkgs/clock-client-ts#src",
         "@pkgs/clock-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/solid-context-client-ts#src",
         "@pkgs/sounds-client-ts#src",
         "@pkgs/sounds-shared-ts#src",

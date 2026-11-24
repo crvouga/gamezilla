@@ -119,7 +119,8 @@ for (const prototype of dispatchingPrototypes()) {
       Reflect.set(globalThis, 'event', event);
       dispatchDepth += 1;
       try {
-        return Reflect.apply(dispatch, this, [event]);
+        const delivered: unknown = Reflect.apply(dispatch, this, [event]);
+        return delivered;
       } finally {
         dispatchDepth -= 1;
         Reflect.set(globalThis, 'event', outer);

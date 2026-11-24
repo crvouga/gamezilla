@@ -12,6 +12,7 @@ import {
   createContext,
   createEffect,
   createSignal,
+  flush,
   untrack,
   useContext,
 } from 'solid-js';
@@ -148,6 +149,9 @@ function createInvoke(args: {
     } finally {
       state.setRunningId(null);
       invoking = false;
+      // Whoever awaits `invoke` continues with the palette already closed
+      // (or showing the error) and focus back where it was.
+      flush();
     }
   };
 }

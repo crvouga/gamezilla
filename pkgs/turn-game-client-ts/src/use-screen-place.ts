@@ -1,4 +1,4 @@
-import { type Accessor, createMemo, createSignal } from 'solid-js';
+import { type Accessor, createMemo, createSignal, untrack } from 'solid-js';
 import {
   type OpenedPlace,
   placeBehind,
@@ -45,13 +45,18 @@ export function useScreenPlace<Stage extends string, Place extends ScreenPlace>(
     }
   );
   const place = createMemo(() => placeIn(places, current(), opened()));
+  // A move is made from where the device stands when it is asked for, by a
+  // press or by an effect reacting to the data: the stage and the place are
+  // read once, as of that moment.
+  const standing = () => untrack(() => ({ stage: current(), place: place() }));
   return {
     place,
-    open: (next) => setOpened({ stage: current(), place: next }),
+    open: (next) => setOpened({ stage: standing().stage, place: next }),
     back: () => {
-      const behind = placeBehind(places, current(), place());
+      const { stage: from, place: shown } = standing();
+      const behind = placeBehind(places, from, shown);
       if (behind === null) return false;
-      setOpened({ stage: current(), place: behind });
+      setOpened({ stage: from, place: behind });
       return true;
     },
     home: () => setOpened(null),

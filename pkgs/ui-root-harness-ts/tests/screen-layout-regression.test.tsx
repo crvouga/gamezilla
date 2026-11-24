@@ -74,6 +74,35 @@ test('false reactive slots do not reserve rails, footer chrome or setup actions'
 });
 
 // regression: ui-screen-empty-reactive-slots
+test('a footer that arrives after the screen is up shows on a phone and a desktop', () => {
+  for (const width of [390, 1200]) {
+    const [visible, setVisible] = createSignal(false);
+    const view = renderUi(
+      () => (
+        <ContentScreen
+          screenId="late-footer"
+          breadcrumbs={[{ name: 'Late footer' }]}
+          footer={visible() ? <p>Footer</p> : undefined}
+        >
+          <input aria-label="Body" />
+        </ContentScreen>
+      ),
+      { width }
+    );
+    const footer = () =>
+      view.container.querySelector('[data-component="ScreenFooter"]');
+    expect(footer()).toBeNull();
+    setVisible(true);
+    flush();
+    expect(footer()?.textContent).toBe('Footer');
+    setVisible(false);
+    flush();
+    expect(footer()).toBeNull();
+    view.unmount();
+  }
+});
+
+// regression: ui-screen-empty-reactive-slots
 test('a review with an empty reactive rail keeps the menu measure', () => {
   const [visible, setVisible] = createSignal(false);
   renderUi(() => (

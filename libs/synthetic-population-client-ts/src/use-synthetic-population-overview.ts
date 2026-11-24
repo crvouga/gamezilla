@@ -1,4 +1,4 @@
-import { createLiveRead } from './live-read';
+import { createLiveRead } from '@pkgs/async-root-client-ts/live-read';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
   useRefreshWithoutUpdates,

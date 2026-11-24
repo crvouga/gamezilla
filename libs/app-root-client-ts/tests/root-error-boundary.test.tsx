@@ -3,7 +3,6 @@ import { afterEach, expect, spyOn, test } from 'bun:test';
 import { AppThemeProvider } from '@libs/app-root-client-ts/app-theme-provider';
 import { RootErrorBoundary } from '@libs/app-root-client-ts/root-error-boundary';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { type Tracer, trace } from '@opentelemetry/api';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -11,6 +10,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createRecordingClipboard } from '@pkgs/device-shared-ts/clipboard';
 import { createMotionPreference } from '@pkgs/device-shared-ts/motion-preference';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
@@ -208,7 +208,7 @@ test('the crash reference is visible and the copied text carries it without the 
     fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
     await Promise.resolve();
     flush();
-  flush();
+    flush();
     expect(view.clipboard.last()).toBe(
       `Something went wrong\n\n${FAILURE}\n\nReference: ${TRACE_ID}\n\nVersion: 1.0.0`
     );

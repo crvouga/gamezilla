@@ -1,8 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { useLingui as useLinguiRuntime } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { RefreshCwIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';

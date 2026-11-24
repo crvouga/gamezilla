@@ -13,9 +13,9 @@ import { SignInLinkRequiredContent } from '@libs/auth-client-ts/sign-in-link-req
 import { SignInModalBody } from '@libs/auth-client-ts/sign-in-modal-body';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { cleanup, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import { renderChrome } from './render-chrome';

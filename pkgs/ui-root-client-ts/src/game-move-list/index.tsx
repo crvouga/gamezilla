@@ -383,7 +383,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
                   when={props.layout === 'turn' && props.turnLabel}
                   fallback={turn().number}
                 >
-                  {(label) => label()(turn().number)}
+                  {(label) => <>{label()(turn().number)}</>}
                 </Show>
               </span>
               <Show when={props.layout === 'turn' && props.heading}>

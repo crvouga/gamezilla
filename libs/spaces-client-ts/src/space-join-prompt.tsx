@@ -6,7 +6,7 @@ import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-fe
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import type { JSX } from '@solidjs/web';
-import { createSignal, Show } from 'solid-js';
+import { createSignal, Show, untrack } from 'solid-js';
 import { useRequestLeaveSpace } from './leave-space-modal-provider';
 import { SpaceEndedScreen } from './space-ended-screen';
 import type { SpaceJoinStatus } from './space-join-screen-view';
@@ -46,7 +46,9 @@ function useJoinAction(spaceId: () => string, onOffline: () => void) {
       await joinSpace(spaceId());
     },
     onPhaseChange: (transition: MutationStateTransition): void => {
-      const current = engine?.();
+      // The phase change is the event: the engine is looked up once, when
+      // it arrives.
+      const current = untrack(() => engine?.());
       if (current === undefined) return;
       if (transition.to === 'success') {
         current.play(Sounds.social.roomJoined);

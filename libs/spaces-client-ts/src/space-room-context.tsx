@@ -36,6 +36,14 @@ export function useSpaceRoomClientId(): Accessor<string | null> {
   return () => (ctx === null ? null : ctx.clientId);
 }
 
+/**
+ * Whether a {@link SpaceRoomProvider} is mounted above: where a hook stands
+ * in the tree, which never changes for its lifetime.
+ */
+export function useHasSpaceRoomSession(): boolean {
+  return useContext(SpaceRoomSessionContext) !== null;
+}
+
 /** Space id for the detail session (null outside {@link SpaceRoomProvider}). */
 export function useSpaceRoomSessionId(): Accessor<string | null> {
   const ctx = useContext(SpaceRoomSessionContext);

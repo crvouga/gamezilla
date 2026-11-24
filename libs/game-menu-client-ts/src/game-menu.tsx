@@ -90,16 +90,25 @@ function useOpenLinkedMultiplayer(
 ): void {
   const params = useLocalSearchParams<{ multiplayer?: string | undefined }>();
   const router = useRouter();
-  const { spaceId } = useSpaceSessionUi();
-  const isHost = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
+  const session = useSpaceSessionUi();
+  const isHost = useSpaceCan(
+    () => session.spaceId,
+    PERMISSION.spacesSelectGame
+  );
   let opened = false;
   createEffect(
-    () =>
-      params()[LINKED_MULTIPLAYER_PARAM] !== undefined && offered() && isHost(),
-    (linked) => {
+    () => ({
+      linked:
+        params()[LINKED_MULTIPLAYER_PARAM] !== undefined &&
+        offered() &&
+        isHost(),
+      spaceId: session.spaceId,
+      screen: navigation.screen(),
+    }),
+    ({ linked, spaceId, screen }) => {
       if (!linked || opened) return;
       opened = true;
-      if (navigation.screen() !== SHARED_GAME_SCREEN.matchmakingHome)
+      if (screen !== SHARED_GAME_SCREEN.matchmakingHome)
         navigation.show(SHARED_GAME_SCREEN.matchmakingHome);
       router.replace(spaceDetailHref(spaceId));
     }

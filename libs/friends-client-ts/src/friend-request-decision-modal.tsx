@@ -46,10 +46,12 @@ function useDecisionSounds(
 ): (transition: MutationStateTransition) => void {
   const engine = useOptionalSoundEngine();
   return (transition) => {
-    const current = engine?.();
+    // The phase change is the event: the engine and the sound it plays are
+    // looked up once, when it arrives.
+    const current = untrack(() => engine?.());
     if (current === undefined) return;
     if (transition.to === 'success') {
-      current.play(successSound() ?? Sounds.feedback.success);
+      current.play(untrack(successSound) ?? Sounds.feedback.success);
     } else if (transition.to === 'error') {
       current.play(Sounds.feedback.error);
     }
