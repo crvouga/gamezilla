@@ -169,6 +169,16 @@ export function spaceCardAction(space: SpaceCardData): SpaceCardAction {
   return space.active || space.hostedByViewer ? 'open' : 'join';
 }
 
+/**
+ * The guests a card names and counts: everyone in the space but the
+ * viewer, as Join counts them, so a card never lists the person reading it.
+ */
+export function spaceCardOthers(space: SpaceCardData): readonly SpacePerson[] {
+  return space.viewerId === undefined
+    ? space.guests
+    : space.guests.filter((guest) => guest.id !== space.viewerId);
+}
+
 /** Who hosts the space: "Hosted by you", or the host's name. */
 export function SpaceHostPhrase(props: {
   readonly space: SpaceCardData;
@@ -277,7 +287,7 @@ function SpaceCardMetaLine(props: {
           <SpaceHostPhrase space={props.space} />
         </P>
       </StackVertical>
-      <SpaceCardGuests guests={props.space.guests} />
+      <SpaceCardGuests guests={spaceCardOthers(props.space)} />
     </StackHorizontal>
   );
 }

@@ -37,7 +37,7 @@ export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
     return t`${values.join(', ')} players`;
   };
   // With the head count, a game that seats fewer says who sits out.
-  const watch = (n: number): string => (n === 1 ? t`1 watches` : t`${n} watch`);
+  const watch = (n: number): string => t`${n} watching`;
   return (fit, present) => {
     if (fit.kind === 'fits') return counts(fit.counts);
     if (fit.kind === 'solo')
@@ -47,11 +47,11 @@ export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
     if (fit.kind === 'tooMany')
       return present === undefined
         ? t`Up to ${fit.max}`
-        : t`${fit.max} play · ${watch(present - fit.max)}`;
+        : t`${fit.max} players · ${watch(present - fit.max)}`;
     if (fit.kind === 'needs') return t`Needs ${fit.target}`;
     return fit.bots === 1
-      ? t`${fit.target} play · add 1 bot`
-      : t`${fit.target} play · add ${fit.bots} bots`;
+      ? t`${fit.target} players · 1 bot`
+      : t`${fit.target} players · ${fit.bots} bots`;
   };
 }
 

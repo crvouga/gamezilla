@@ -247,10 +247,10 @@ test('each tile says how many play and how many watch, once', () => {
     (game) => screen.getByTestId(Handles.gameMenu(game.id)).textContent ?? ''
   );
   expect(marks).toEqual([
-    'Chess2 play · 3 watch',
-    'Hearts4 play · 1 watches',
-    'Light Cycles4 play · 1 watches',
-    'NumberlinkSolo · 4 watch',
+    'Chess2 players · 3 watching',
+    'Hearts4 players · 1 watching',
+    'Light Cycles4 players · 1 watching',
+    'NumberlinkSolo · 4 watching',
   ]);
 });
 

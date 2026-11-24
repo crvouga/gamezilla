@@ -12,6 +12,7 @@ import {
   SpaceGuestsPhrase,
   SpaceHostPhrase,
   spaceCardAction,
+  spaceCardOthers,
   spaceCardTestId,
   useSpaceCardLabel,
 } from './space-card-view';
@@ -28,13 +29,13 @@ function SpaceTileGuests(props: {
 }): JSX.Element {
   return (
     <StackHorizontal align="center" gap="sm">
-      <Show when={props.space.guests.length > 0}>
+      <Show when={spaceCardOthers(props.space).length > 0}>
         <AvatarGroup
           size={GUEST_AVATAR_SIZE}
           maxVisible={GUEST_AVATAR_MAX_VISIBLE}
           ringColor="surface"
         >
-          <Index each={props.space.guests}>
+          <Index each={spaceCardOthers(props.space)}>
             {(guest) => (
               <SpacePersonAvatar person={guest()} size={GUEST_AVATAR_SIZE} />
             )}
@@ -43,7 +44,7 @@ function SpaceTileGuests(props: {
       </Show>
       <StackVertical grow shrink>
         <P variant="caption" lines={1}>
-          <SpaceGuestsPhrase guests={props.space.guests} />
+          <SpaceGuestsPhrase guests={spaceCardOthers(props.space)} />
         </P>
       </StackVertical>
     </StackHorizontal>

@@ -297,14 +297,18 @@ function ReplayPlayers(
               )}
             </Show>
             <P variant="label">
-              <HistoryPlayers
-                players={[player]}
-                played={false}
-                people={props.people}
-              />
-              <Show when={player.you}>
-                {' '}
-                <Trans>(you)</Trans>
+              {/* The viewer reads "You", as on every other screen. */}
+              <Show
+                when={player.you}
+                fallback={
+                  <HistoryPlayers
+                    players={[player]}
+                    played={false}
+                    people={props.people}
+                  />
+                }
+              >
+                <Trans>You</Trans>
               </Show>
             </P>
             <Show

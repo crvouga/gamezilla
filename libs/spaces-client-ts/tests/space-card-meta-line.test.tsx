@@ -70,6 +70,7 @@ test('the host is its own phrase; the guests are a few faces and a count', () =>
   const line = metaLine(JOINED_SPACE);
   expect(line.captions).toEqual(['Hosted by sam']);
   expect(line.faces).toBe(3);
-  expect(line.overflow).toBe(`+${JOINED_SPACE.guests.length - 3}`);
+  // The viewer (avery) is among the guests but never on their own card.
+  expect(line.overflow).toBe(`+${JOINED_SPACE.guests.length - 1 - 3}`);
   expect(line.oneRow).toBe(true);
 });

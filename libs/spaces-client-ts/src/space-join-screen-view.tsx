@@ -18,7 +18,11 @@ import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from 'solid-js';
 import { Index, Match, Show, Switch } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
-import { SpaceBadgeView, SpaceHostPhrase } from './space-card-view';
+import {
+  SpaceBadgeView,
+  SpaceHostPhrase,
+  spaceCardOthers,
+} from './space-card-view';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
@@ -180,7 +184,7 @@ function JoinGuestsLine(props: {
 }
 
 const JOIN_FACE_SIZE = 32;
-const JOIN_FACES_SHOWN = 6;
+const JOIN_FACES_SHOWN = 5;
 
 /** Who is in the space now: their faces, then who they are in words. */
 function SpaceJoinWhoIsHere(props: {
@@ -207,7 +211,9 @@ function SpaceJoinWhoIsHere(props: {
         </Show>
       </Text>
       <Show when={props.guests.length > 0}>
-        <StackHorizontal align="center" gap="sm">
+        {/* The faces, then the names on a line of their own, so the person
+            named is never cut by the stack beside them. */}
+        <StackVertical gap="sm">
           <AvatarGroup
             size={JOIN_FACE_SIZE}
             maxVisible={JOIN_FACES_SHOWN}
@@ -219,10 +225,8 @@ function SpaceJoinWhoIsHere(props: {
               )}
             </Index>
           </AvatarGroup>
-          <StackVertical grow shrink>
-            <JoinGuestsLine guests={props.guests} viewerId={props.viewerId} />
-          </StackVertical>
-        </StackHorizontal>
+          <JoinGuestsLine guests={props.guests} viewerId={props.viewerId} />
+        </StackVertical>
       </Show>
     </StackVertical>
   );
@@ -290,9 +294,7 @@ function SpaceJoinInvitation(props: {
         {/* Before joining, who is here means the others: the viewer is
             neither counted nor named until they are in. */}
         <SpaceJoinWhoIsHere
-          guests={props.space.guests.filter(
-            (guest) => guest.id !== props.space.viewerId
-          )}
+          guests={spaceCardOthers(props.space)}
           lastKnown={props.host === 'offline' || props.host === 'unknown'}
         />
       </StackVertical>
