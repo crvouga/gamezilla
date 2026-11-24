@@ -43,7 +43,7 @@ function SpaceTileGuests(props: {
         </AvatarGroup>
       </Show>
       <StackVertical grow shrink>
-        <P variant="caption" lines={1}>
+        <P variant="caption" lines={2}>
           <SpaceGuestsPhrase guests={spaceCardOthers(props.space)} />
         </P>
       </StackVertical>

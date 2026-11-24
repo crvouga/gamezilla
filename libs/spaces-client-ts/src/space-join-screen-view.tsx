@@ -164,22 +164,13 @@ function JoinGuestsLine(props: {
     if (list.length > 2) return t`and ${list.length - 1} others`;
     return '';
   };
+  // One sentence over up to two lines: a long name wraps, so the guest
+  // reads who is here and the count always shows.
   return (
-    <StackHorizontal align="center" gap="xs" testId="space-join-guests">
-      <StackVertical shrink>
-        <P variant="caption" lines={1}>
-          {nameOf(ordered()[0])}
-        </P>
-      </StackVertical>
-      <Show when={rest() !== ''}>
-        {/* Never shrinks: the count is the part that must show. */}
-        <StackVertical>
-          <P variant="caption" lines={1}>
-            {rest()}
-          </P>
-        </StackVertical>
-      </Show>
-    </StackHorizontal>
+    <P variant="caption" lines={2} testId="space-join-guests">
+      {nameOf(ordered()[0])}
+      <Show when={rest() !== ''}> {rest()}</Show>
+    </P>
   );
 }
 
@@ -282,7 +273,7 @@ function SpaceJoinInvitation(props: {
                 {(host) => <SpacePersonAvatar person={host} size={20} />}
               </Show>
               <StackVertical shrink>
-                <P variant="caption" lines={1}>
+                <P variant="caption" lines={2}>
                   <SpaceHostPhrase space={props.space} />
                 </P>
               </StackVertical>

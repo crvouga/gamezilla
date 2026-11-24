@@ -24,7 +24,11 @@ export type SpaceLauncherGame = Pick<
 };
 
 /** The fit of a game in words: `2–4 players`, `Needs 4`, `4 · add 2 bots`. */
-export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
+export function useFitWords(): (
+  fit: SpaceGameFit,
+  present?: number,
+  guest?: boolean
+) => string {
   const { t } = useLingui();
   const counts = (values: readonly number[]): string => {
     const first = values[0] ?? 1;
@@ -38,7 +42,7 @@ export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
   };
   // With the head count, a game that seats fewer says who sits out.
   const watch = (n: number): string => t`${n} watching`;
-  return (fit, present) => {
+  return (fit, present, guest) => {
     if (fit.kind === 'fits') return counts(fit.counts);
     if (fit.kind === 'solo')
       return present === undefined || present < 2
@@ -49,9 +53,12 @@ export function useFitWords(): (fit: SpaceGameFit, present?: number) => string {
         ? t`Up to ${fit.max}`
         : t`${fit.max} players · ${watch(present - fit.max)}`;
     if (fit.kind === 'needs') return t`Needs ${fit.target}`;
+    // Bots are the host's to add: a guest reads only how many it seats.
+    if (guest === true || present === undefined)
+      return t`${fit.target} players`;
     return fit.bots === 1
-      ? t`${fit.target} players · 1 bot`
-      : t`${fit.target} players · ${fit.bots} bots`;
+      ? t`${present} people + 1 bot`
+      : t`${present} people + ${fit.bots} bots`;
   };
 }
 
@@ -59,6 +66,8 @@ function TileMark(props: {
   game: SpaceLauncherGame;
   fit: SpaceGameFit;
   present: number;
+  /** A guest reads player counts, never the host's bots. */
+  guest: boolean;
   looking: boolean;
   hostName: string;
 }): JSX.Element {
@@ -68,7 +77,7 @@ function TileMark(props: {
     <Switch
       fallback={
         <span class={`text textCaption ${styles['fit']}`}>
-          {fitWords(props.fit, props.present)}
+          {fitWords(props.fit, props.present, props.guest)}
         </span>
       }
     >
@@ -146,6 +155,7 @@ export function SpaceLauncherTile(props: {
         game={props.game}
         fit={fit()}
         present={props.present}
+        guest={props.role === 'guest'}
         looking={props.looking}
         hostName={props.hostName}
       />
