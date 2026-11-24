@@ -440,6 +440,20 @@ export function multiplayerStatusHasDetail(props: StatusProps): boolean {
   );
 }
 
+/** A draw offered to the person, mid-game, waiting for their answer. */
+function drawOfferedToMe(props: StatusProps): boolean {
+  const by = props.game.draw_offer_by;
+  return (
+    props.game.outcome === 'ongoing' &&
+    props.viewer.participant &&
+    Boolean(
+      by &&
+        by !== props.viewer.myId &&
+        multiplayerSideOf(props.game, by) !== null
+    )
+  );
+}
+
 /** The person's own clock is the one that is low on time. */
 const ownClockLow = (props: StatusProps): boolean =>
   props.lowOnTime !== null &&
@@ -538,9 +552,22 @@ export function MultiplayerStatus(props: StatusProps): JSX.Element {
       tone={tone(props)}
       look={tone(props) === 'neutral' ? 'plain' : 'pill'}
       dataSet={{ testid: 'multiplayer-announcement' }}
-      title={<MultiplayerStatusTitle {...props} />}
+      title={
+        // A draw offered mid-game is the one thing to answer: it is the
+        // line, in one sentence, as on the custom-game band; whose turn it
+        // is stays for a listener.
+        <Show
+          when={drawOfferedToMe(props)}
+          fallback={<MultiplayerStatusTitle {...props} />}
+        >
+          <VisuallyHidden>
+            <MultiplayerStatusTitle {...props} />{' '}
+          </VisuallyHidden>
+          <Offers {...props} />
+        </Show>
+      }
       detail={
-        multiplayerStatusHasDetail(props) ? (
+        multiplayerStatusHasDetail(props) && !drawOfferedToMe(props) ? (
           <MultiplayerStatusDetail {...props} />
         ) : undefined
       }

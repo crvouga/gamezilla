@@ -45,8 +45,7 @@ function NextActions(props: Props): JSX.Element {
             // A player who may not start the next game still has a way on:
             // the card says the host starts the rematch.
             <Button
-              title={<Trans>Leave</Trans>}
-              aria-label={t`Leave the game, back to the space`}
+              title={<Trans>Back to the space</Trans>}
               variant="outline"
               intent="neutral"
               onClick={() => props.onBack()}

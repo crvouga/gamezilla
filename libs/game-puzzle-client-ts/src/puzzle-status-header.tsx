@@ -64,6 +64,11 @@ export type PuzzleStatusHeaderProps = {
    * failed mark, never a plain "Solved" over a failed attempt.
    */
   solvedLate?: boolean | undefined;
+  /**
+   * A wrong move with Retry still open: the line says what happened, not
+   * that the attempt is over ("Failed" waits for the result).
+   */
+  retryOpen?: boolean | undefined;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -104,6 +109,8 @@ export function PuzzleStatusHeader(
                 <Trans>Solution shown</Trans>
               ) : props.solvedLate === true && props.kind === 'solved' ? (
                 <Trans>Solved after a wrong move</Trans>
+              ) : props.retryOpen === true && props.kind === 'failed' ? (
+                <Trans>Wrong move</Trans>
               ) : (
                 statusLabel(props.kind)
               )

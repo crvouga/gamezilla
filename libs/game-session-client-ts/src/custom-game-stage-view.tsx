@@ -69,6 +69,14 @@ function stageTable(props: Props): FrameTable {
   };
 }
 
+/** The name of the one seat to move, for a watcher's line. */
+function moverName(props: Props): string | null {
+  const seats = [props.table.near, ...props.table.others].filter(
+    (seat): seat is FramePlaySeat => seat !== null && seat.deciding
+  );
+  return seats.length === 1 ? (seats[0]?.plainName ?? null) : null;
+}
+
 /**
  * The board as the game draws it. A board that seats every player itself
  * (`table.shape === 'board'`) is lent each of them.
@@ -433,7 +441,20 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
                   </Trans>
                 }
               >
-                {(line) => <Trans>You're watching. {line().description}</Trans>}
+                {(line) => (
+                  // The player to move by name, as the matchmaking band says
+                  // it; the side's words when no seat is to move.
+                  <Show
+                    when={moverName(props)}
+                    fallback={
+                      <Trans>You're watching. {line().description}</Trans>
+                    }
+                  >
+                    {(name) => (
+                      <Trans>You're watching. {name()} to move.</Trans>
+                    )}
+                  </Show>
+                )}
               </Show>
             </P>
           </Show>

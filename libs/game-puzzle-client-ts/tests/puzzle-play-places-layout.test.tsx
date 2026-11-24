@@ -101,10 +101,10 @@ test('play: the line is read, not pressed, and one control opens it', () => {
   expect(opened).toEqual(['line', 'feed']);
 });
 
-test('play: a wrong move reports failure, and Retry is the one filled command', () => {
+test('play: a wrong move says so, and Retry is the one filled command', () => {
   mountPlay('play', { statusKind: 'failed', status: 'wrong' });
   expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
-    'Failed'
+    'Wrong move'
   );
   expect(shown('chess-puzzle-action-solution')).toBe(true);
   expect(shown('chess-puzzle-action-skip')).toBe(true);

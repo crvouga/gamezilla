@@ -263,6 +263,15 @@
     justify-content: center;
     min-height: 44px;
   }
+  /* Beside a wide board the line is the rail's heading: body size, in the
+     text's own colour (a warning keeps its tone). */
+  .status [data-look="plain"] :global(.textCaption),
+  .status > [data-component="P"]:global(.textCaption) {
+    font-size: var(--ui-font-size-base);
+  }
+  .status [data-look="plain"] :global(.text-text-secondary) {
+    color: var(--ui-color-text);
+  }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));

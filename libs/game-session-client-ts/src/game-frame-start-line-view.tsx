@@ -148,10 +148,13 @@ export function FrameStartView(
   return (
     <GameLobbyDock
       status={
-        // A watcher has nothing to press: who moves the game on leads, and
+        // Someone with nothing to press (a watcher, a ready guest): who moves the game on leads, and
         // where the game stands follows, quietly.
         <Show
-          when={props.watching !== true}
+          when={
+            props.watching !== true &&
+            !(props.start.hostStarts && !mustGetReady(props.start))
+          }
           fallback={
             <>
               <P

@@ -78,10 +78,8 @@ export const LongName: Story = {
 export const DrawOffered: Story = {
   render: (args) =>
     renderStory({
-      announcement: {
-        title: 'Your turn.',
-        detail: 'Bob offered you a draw.',
-      },
+      // One sentence, the one thing to answer, as the app says it.
+      announcement: { title: 'Bob offered you a draw.' },
     })(args),
   args: { game: { ...STORY_GAME, draw: 'answer' } },
 };
