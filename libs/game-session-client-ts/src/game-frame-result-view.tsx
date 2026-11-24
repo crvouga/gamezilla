@@ -19,10 +19,19 @@ export function FrameResultView(props: {
   readonly result: FrameResult;
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
+  // Everyone level (a draw): each row says "Tied", never "1st" twice.
+  const tied = (): boolean => {
+    const standings = props.result.standings;
+    return (
+      standings.length > 1 &&
+      standings.every((standing) => standing.place === standings[0]?.place)
+    );
+  };
   const rows = createMemo((): readonly GameStandingRow[] =>
     props.result.standings.map((standing) => ({
       id: standing.id,
       place: standing.place,
+      ordinal: tied() ? t`Tied` : undefined,
       name: standing.name,
       score: standing.score,
       you: standing.you,

@@ -58,6 +58,7 @@ function HintButton(props: {
 function RetryButton(props: {
   slot: Slot<'retry'>;
   onRetry: () => void;
+  fullWidth?: boolean | undefined;
 }): JSX.Element {
   // After a wrong move retrying is the thing to do; once the puzzle is
   // over it is the quieter second choice beside Next.
@@ -68,6 +69,7 @@ function RetryButton(props: {
       intent={prominent() ? 'primary' : 'neutral'}
       variant={prominent() ? 'solid' : 'outline'}
       icon={RotateCcwIcon}
+      fullWidth={props.fullWidth}
       disabled={props.slot.type === 'action' && props.slot.disabled}
       onClick={() => props.onRetry()}
       dataSet={{ testid: 'chess-puzzle-action-retry' }}
@@ -79,6 +81,8 @@ function RetryButton(props: {
 export function PuzzleActionButton(props: {
   slot: Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
   model: PuzzleActionBarModel;
+  /** The one thing to do now, on a row of its own. */
+  fullWidth?: boolean | undefined;
 }): JSX.Element {
   return (
     <Switch>
@@ -105,7 +109,13 @@ export function PuzzleActionButton(props: {
         )}
       </Match>
       <Match when={props.slot.id === 'retry' && props.slot} keyed>
-        {(slot) => <RetryButton slot={slot} onRetry={props.model.onRetry} />}
+        {(slot) => (
+          <RetryButton
+            slot={slot}
+            onRetry={props.model.onRetry}
+            fullWidth={props.fullWidth}
+          />
+        )}
       </Match>
       <Match when={props.slot.id === 'next'}>
         <Button

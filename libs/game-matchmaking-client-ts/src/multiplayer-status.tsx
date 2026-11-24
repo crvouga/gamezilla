@@ -356,13 +356,25 @@ function RatingChange(props: StatusProps): JSX.Element {
               : 'neutral'
         }
         label={
-          <Trans>
-            <VisuallyHidden>Your </VisuallyHidden>Rating
-            <VisuallyHidden> changed by</VisuallyHidden>{' '}
-            {(diff() ?? 0) > 0 ? '+' : ''}
-            {diff() ?? 0}
-            <VisuallyHidden>.</VisuallyHidden>
-          </Trans>
+          // No change reads as that, never "Rating 0", which looks like a
+          // rating of nought.
+          <Show
+            when={(diff() ?? 0) !== 0}
+            fallback={
+              <Trans>
+                <VisuallyHidden>Your </VisuallyHidden>Rating unchanged
+                <VisuallyHidden>.</VisuallyHidden>
+              </Trans>
+            }
+          >
+            <Trans>
+              <VisuallyHidden>Your </VisuallyHidden>Rating
+              <VisuallyHidden> changed by</VisuallyHidden>{' '}
+              {(diff() ?? 0) > 0 ? '+' : ''}
+              {diff() ?? 0}
+              <VisuallyHidden>.</VisuallyHidden>
+            </Trans>
+          </Show>
         }
         tone="solid"
         dataSet={{ testid: 'multiplayer-rating-change' }}

@@ -126,9 +126,17 @@ function lineSpokenOnly(props: Props): boolean {
  * stay one unit that fits the window.
  */
 function PlayLine(props: Props): JSX.Element {
+  // The viewer's own plain turn reads "Your turn.", the sentence the
+  // matchmaking stage uses, beside the seat that says "Your move".
+  const status = (): Props['status'] => {
+    const line = props.status;
+    return line !== null && line.plainTurn && line.emphasis === 'yours'
+      ? { ...line, description: t`Your turn.` }
+      : line;
+  };
   return (
     <FrameStatusView
-      status={props.status}
+      status={status()}
       arena={realTime(props)}
       quiet
       spokenOnly={lineSpokenOnly(props)}

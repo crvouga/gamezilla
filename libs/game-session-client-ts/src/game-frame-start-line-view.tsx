@@ -148,13 +148,36 @@ export function FrameStartView(
   return (
     <GameLobbyDock
       status={
-        <>
+        // A watcher has nothing to press: who moves the game on leads, and
+        // where the game stands follows, quietly.
+        <Show
+          when={props.watching !== true}
+          fallback={
+            <>
+              <P
+                variant="bodyBold"
+                role="status"
+                testId="custom-game-host-starts"
+              >
+                <Trans>Waiting for the host to start.</Trans>
+              </P>
+              <P
+                variant="caption"
+                tone="secondary"
+                testId="custom-game-startable"
+              >
+                <Trans>You're watching.</Trans>{' '}
+                {startLine(props.start, props.invitedTo)}
+              </P>
+            </>
+          }
+        >
           <P variant="bodyBold" role="status" testId="custom-game-startable">
             {startLine(props.start, props.invitedTo)}
           </P>
-          {/* Someone with nothing to press here (a seated guest, a watcher
-              with every seat taken) is told who moves the game on. */}
-          <Show when={props.start.hostStarts || props.watching === true}>
+          {/* A seated guest, with nothing to press here, is told who moves
+              the game on. */}
+          <Show when={props.start.hostStarts}>
             <P
               variant="caption"
               tone="secondary"
@@ -169,7 +192,7 @@ export function FrameStartView(
               </Show>
             </P>
           </Show>
-        </>
+        </Show>
       }
     >
       {props.seat}

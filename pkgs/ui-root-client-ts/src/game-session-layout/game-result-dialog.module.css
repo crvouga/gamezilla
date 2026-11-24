@@ -4,6 +4,11 @@
   flex-direction: column;
   gap: var(--ui-space-4);
   min-width: 0;
+  /* A little room either side, given back by the margin, so a glyph that
+     leans past its box (the "V" of Victory) is never cut by the dialog's
+     scrolling edge. Text stays where it was. */
+  margin-inline: calc(-1 * var(--ui-space-1));
+  padding-inline: var(--ui-space-1);
 }
 /* The outcome card is the dialog's content, not a card within a card: its
    result word (`Victory`, in the result's colour), the headline and its
