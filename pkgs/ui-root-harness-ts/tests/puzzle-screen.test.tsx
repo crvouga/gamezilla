@@ -14,7 +14,8 @@ test.each([0, -1, Number.NaN, Number.POSITIVE_INFINITY])(
       <Errored
         fallback={(error) => {
           const refusal: unknown = error();
-          message = refusal instanceof Error ? refusal.message : String(refusal);
+          message =
+            refusal instanceof Error ? refusal.message : String(refusal);
           return null;
         }}
       >

@@ -41,7 +41,10 @@ export default function IconExample(): JSX.Element {
               {(tone) => (
                 <StackVertical gap="xs" align="center">
                   <div
-                    class={["box rounded-sm p-1", { 'bg-tint-active': tone === 'on-primary' }]}
+                    class={[
+                      'box rounded-sm p-1',
+                      { 'bg-tint-active': tone === 'on-primary' },
+                    ]}
                   >
                     <Icon icon={BellIcon} tone={tone} />
                   </div>

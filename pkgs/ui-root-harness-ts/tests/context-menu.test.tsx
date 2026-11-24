@@ -14,8 +14,8 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { createSignal } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 

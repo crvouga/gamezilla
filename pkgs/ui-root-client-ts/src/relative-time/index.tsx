@@ -5,8 +5,8 @@
  * Re-evaluates every {@link RELATIVE_TIME_TICK_MS} and whenever `at` changes.
  */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   RELATIVE_TIME_TICK_MS,
   relativeTimeParts,

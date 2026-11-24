@@ -85,20 +85,25 @@ export function EmbeddedScreen(props: EmbeddedScreenProps): JSX.Element {
           ref={(el) => {
             root = el;
           }}
-          class={[props.fill === true
+          class={[
+            props.fill === true
               ? 'box flex-1 min-h-0 self-stretch min-w-0 gap-ui-lg pt-ui-sm'
-              : 'box self-stretch min-w-0 gap-4', {
-            'px-ui-lg':
-              props.fill === true &&
-              inset() &&
-              standardInset(props.compactInset),
-            'px-ui-xs':
-              props.fill === true && inset() && props.compactInset === 'narrow',
-            [styles['narrowest'] ?? '']:
-              props.fill === true &&
-              inset() &&
-              props.compactInset === 'narrowest',
-          }]}
+              : 'box self-stretch min-w-0 gap-4',
+            {
+              'px-ui-lg':
+                props.fill === true &&
+                inset() &&
+                standardInset(props.compactInset),
+              'px-ui-xs':
+                props.fill === true &&
+                inset() &&
+                props.compactInset === 'narrow',
+              [styles['narrowest'] ?? '']:
+                props.fill === true &&
+                inset() &&
+                props.compactInset === 'narrowest',
+            },
+          ]}
           {...dataAttrs({
             component: 'EmbeddedScreen',
             ...props.dataSet,

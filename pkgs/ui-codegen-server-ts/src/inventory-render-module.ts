@@ -87,7 +87,7 @@ export function renderModule(
     ...list('logic modules', m.sharedModules),
     ...list('classes', m.classes),
     ...module.components.flatMap(componentBlock),
-    ...attributeTable('States (`classList` branches)', m.classListStates),
+    ...attributeTable('States (conditional `class` entries)', m.classStates),
     ...attributeTable('ARIA', m.aria),
     ...attributeTable('DOM events', m.domEvents),
     ...attributeTable('`data-*` attributes', m.dataAttributes),

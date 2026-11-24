@@ -27,12 +27,48 @@ import { createMarkdownView } from '../editor-view';
 import { cleanMarkdownNode } from '../safe-markdown';
 import styles from './markdown-editor.module.css';
 
+/** Shows `value` in place of the document, outside the undo history. */
+function replaceDocument(view: EditorView, value: string): void {
+  view.updateState(
+    view.state.apply(
+      view.state.tr
+        .replaceWith(
+          0,
+          view.state.doc.content.size,
+          cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
+        )
+        .setMeta('addToHistory', false)
+    )
+  );
+}
+
+/** Points the field at the open suggestion list and its selected row. */
+function describeSuggestions(
+  field: Element,
+  listId: string,
+  selected: number | null
+): void {
+  field.setAttribute('aria-autocomplete', 'list');
+  if (selected === null) {
+    field.removeAttribute('aria-activedescendant');
+    field.removeAttribute('aria-controls');
+    return;
+  }
+  field.setAttribute('aria-controls', listId);
+  field.setAttribute('aria-activedescendant', `${listId}-${selected}`);
+}
+
+type Suggestion = EditorSuggestion | null;
+
+/** Names one suggestion, so a dismissed one stays dismissed. */
+function marked(match: EditorSuggestion): string {
+  return `${match.from}:${match.query}`;
+}
+
 function useEditor(props: MarkdownEditorProps) {
   const clock = useClock();
   const [view, setView] = createSignal<EditorView>();
-  const [suggestion, setSuggestion] = createSignal<EditorSuggestion | null>(
-    null
-  );
+  const [suggestion, setSuggestion] = createSignal<Suggestion>(null);
   const [selected, setSelected] = createSignal(0);
   let lastValue = '';
   let dismissed = '';
@@ -49,7 +85,7 @@ function useEditor(props: MarkdownEditorProps) {
     selected,
     setSelected,
     dismiss: (match) => {
-      dismissed = `${match.from}:${match.query}`;
+      dismissed = marked(match);
       setSuggestion(null);
     },
     submit: () => props.onSubmit?.(),
@@ -68,9 +104,7 @@ function useEditor(props: MarkdownEditorProps) {
         }
         const match = editorSuggestion(next.state, props.commands ?? []);
         if (match?.query !== suggestion()?.query) setSelected(0);
-        setSuggestion(
-          match && `${match.from}:${match.query}` !== dismissed ? match : null
-        );
+        setSuggestion(match && marked(match) !== dismissed ? match : null);
       },
     });
     current.dom.classList.add(styles['editor'] ?? '');
@@ -86,17 +120,7 @@ function useEditor(props: MarkdownEditorProps) {
     current.setProps({ editable: () => !props.disabled });
     if (value === lastValue) return;
     lastValue = value;
-    current.updateState(
-      current.state.apply(
-        current.state.tr
-          .replaceWith(
-            0,
-            current.state.doc.content.size,
-            cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
-          )
-          .setMeta('addToHistory', false)
-      )
-    );
+    replaceDocument(current, value);
     dismissed = '';
     setSuggestion(editorSuggestion(current.state, commands));
   };
@@ -121,7 +145,7 @@ function useEditor(props: MarkdownEditorProps) {
   );
   const dismiss = () => {
     const match = suggestion();
-    if (match) dismissed = `${match.from}:${match.query}`;
+    if (match) dismissed = marked(match);
     setSuggestion(null);
   };
   return { view, suggestion, selected, choose, mount, dismiss };
@@ -162,15 +186,7 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
         editor.selected(),
       ] as const,
     ([field, suggesting, selected]) => {
-      if (!field) return;
-      field.setAttribute('aria-autocomplete', 'list');
-      if (suggesting) {
-        field.setAttribute('aria-controls', id);
-        field.setAttribute('aria-activedescendant', `${id}-${selected}`);
-      } else {
-        field.removeAttribute('aria-activedescendant');
-        field.removeAttribute('aria-controls');
-      }
+      if (field) describeSuggestions(field, id, suggesting ? selected : null);
     }
   );
   return (

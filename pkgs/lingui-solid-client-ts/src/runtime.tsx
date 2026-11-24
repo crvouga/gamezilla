@@ -68,10 +68,9 @@ export function I18nProvider(props: I18nProviderProps): JSX.Element {
       return unsubscribe;
     }
   );
-  const context: I18nContext = {
-    i18n,
-    _: ((...args: Parameters<I18n['_']>) => i18n()._(...args)) as I18n['_'],
-  };
+  const translate = (...args: Parameters<I18n['_']>): string =>
+    i18n()._(...args);
+  const context: I18nContext = { i18n, _: translate as I18n['_'] };
   return (
     <Show when={i18n().locale}>
       <LinguiContext value={context}>{props.children}</LinguiContext>
@@ -105,14 +104,14 @@ function formatElements(value: string, components: Components): JSX.Element {
 }
 
 /** Element values become indexed components so the message stays a string. */
-function interpolation(props: TransProps): {
+function interpolation(message: Pick<TransProps, 'values' | 'components'>): {
   values: Record<string, unknown> | undefined;
   components: Components;
 } {
-  const components: Components = { ...props.components };
-  if (!props.values) return { values: undefined, components };
-  const values: Record<string, unknown> = { ...props.values };
-  for (const [key, value] of Object.entries(props.values)) {
+  const components: Components = { ...message.components };
+  if (!message.values) return { values: undefined, components };
+  const values: Record<string, unknown> = { ...message.values };
+  for (const [key, value] of Object.entries(message.values)) {
     if (typeof value === 'string' || typeof value === 'number') continue;
     if (value == null || typeof value === 'boolean') {
       values[key] = '';
@@ -120,7 +119,7 @@ function interpolation(props: TransProps): {
     }
     let index = Object.keys(components).length;
     while (index in components) index += 1;
-    components[index] = () => value as JSX.Element;
+    components[index] = () => value;
     values[key] = `<${index}/>`;
   }
   return { values, components };

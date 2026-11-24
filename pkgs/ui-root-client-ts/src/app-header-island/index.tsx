@@ -2,7 +2,7 @@
 
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import {
   useAppFrameBreadcrumbs,

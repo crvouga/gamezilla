@@ -14,7 +14,7 @@ import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { fireEvent, render } from '@solidjs/testing-library';
-import { createEffect, createSignal, flush, For, Show } from 'solid-js';
+import { createEffect, createSignal, For, flush, Show } from 'solid-js';
 
 function byTestId(testId: string): HTMLElement {
   const element = document.querySelector<HTMLElement>(

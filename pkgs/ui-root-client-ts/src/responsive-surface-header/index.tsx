@@ -36,10 +36,13 @@ export function ResponsiveSurfaceHeader(
   return (
     <Show when={showHeader()}>
       <div
-        class={["box flex-row items-center mb-3 gap-2 min-h-11", {
-          'justify-between': hasTitle(),
-          'justify-end': !hasTitle(),
-        }]}
+        class={[
+          'box flex-row items-center mb-3 gap-2 min-h-11',
+          {
+            'justify-between': hasTitle(),
+            'justify-end': !hasTitle(),
+          },
+        ]}
         data-component="ResponsiveSurfaceHeader"
       >
         <Show when={hasTitle()}>

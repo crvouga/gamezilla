@@ -20,7 +20,7 @@
 
 import '../fonts';
 import '../application.css';
-import { render, type JSX } from '@solidjs/web';
+import { type JSX, render } from '@solidjs/web';
 
 export type MountOptions = {
   /** `id` of the mount element in the host page. Default `root`. */

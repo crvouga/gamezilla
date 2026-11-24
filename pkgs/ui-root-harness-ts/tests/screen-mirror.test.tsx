@@ -3,8 +3,8 @@
 import { describe, expect, test } from 'bun:test';
 import { ScreenMirror } from '@pkgs/ui-root-client-ts/screen-mirror';
 import { screen } from '@solidjs/testing-library';
-import { renderUi } from './render';
 import { flush } from 'solid-js';
+import { renderUi } from './render';
 
 describe('ScreenMirror', () => {
   test('draws the other screen in a sandbox where nothing can run', () => {

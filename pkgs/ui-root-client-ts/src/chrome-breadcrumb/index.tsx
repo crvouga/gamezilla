@@ -48,10 +48,13 @@ function CrumbBody(props: {
     <>
       {props.crumb.leading}
       <span
-        class={[`text ${SIZE[props.size]} line-clamp-1 min-w-0`, {
-          'text-text': props.current,
-          'text-text-secondary': !props.current,
-        }]}
+        class={[
+          `text ${SIZE[props.size]} line-clamp-1 min-w-0`,
+          {
+            'text-text': props.current,
+            'text-text-secondary': !props.current,
+          },
+        ]}
         data-testid={props.crumb.nameTestId}
       >
         {props.crumb.name}
@@ -90,10 +93,13 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
         <For each={props.crumbs}>
           {(crumb, index) => (
             <li
-              class={["box flex-row items-center gap-1 min-w-0", {
-                'shrink-0': index() === last(),
-                shrink: index() !== last(),
-              }]}
+              class={[
+                'box flex-row items-center gap-1 min-w-0',
+                {
+                  'shrink-0': index() === last(),
+                  shrink: index() !== last(),
+                },
+              ]}
             >
               <Show when={index() > 0}>
                 <span class="box shrink-0" aria-hidden="true">

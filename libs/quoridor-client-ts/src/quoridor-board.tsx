@@ -223,11 +223,11 @@ export function createQuoridorBoard(
   const game = createMemo(() => decodeQuoridor(props.position));
   // Each new position starts a fresh turn with the pawn tool, never a leftover wall tool.
   const [tool, setTool] = createSignal((): QuoridorTool => {
-    props.position;
+    game();
     return 'move';
   });
   const [refusal, setRefusal] = createSignal(() => {
-    props.position;
+    game();
     return '';
   });
   const live = (): boolean => props.interactive && game().winner === null;

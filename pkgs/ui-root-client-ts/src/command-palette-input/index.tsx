@@ -1,13 +1,13 @@
 /** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { onSettled, untrack } from 'solid-js';
 import { SearchIcon } from '../icons';
-import { TextInput } from '../text-input/index';
 import { moveFocus } from '../move-focus';
+import { TextInput } from '../text-input/index';
 
 export type CommandPaletteInputProps = {
   value: string;

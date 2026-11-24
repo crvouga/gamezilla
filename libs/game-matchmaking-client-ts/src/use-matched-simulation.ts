@@ -17,6 +17,7 @@ import { useClock } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
 import {
   type Accessor,
   createEffect,
@@ -26,6 +27,15 @@ import {
 } from 'solid-js';
 import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
 import type { MatchRoomClient } from './use-match-room';
+
+/** Names one run of inputs: a new epoch or input generation is a new run. */
+function executionGeneration(
+  execution: SimulationExecution | undefined
+): string | undefined {
+  return execution === undefined
+    ? undefined
+    : `${execution.epoch}:${execution.inputGeneration}`;
+}
 
 /** Matched play uses its already-open authoritative room, including viewers with no paddle. */
 export function useMatchedSimulation(
@@ -73,12 +83,7 @@ export function useMatchedSimulation(
       const connection = connectSimulationPresentation({
         simulation: definition,
         clock,
-        generation: () => {
-          const execution = acceptedRoom()?.execution;
-          return execution === undefined
-            ? undefined
-            : `${execution.epoch}:${execution.inputGeneration}`;
-        },
+        generation: () => executionGeneration(acceptedRoom()?.execution),
         isReady: () =>
           untrack(online) &&
           acceptedRoom() !== null &&

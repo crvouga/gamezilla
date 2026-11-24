@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';

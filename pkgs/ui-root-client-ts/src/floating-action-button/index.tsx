@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback, ButtonIntent } from '../button-face';
 import { buttonInteraction, MUTATION_FEEDBACK_ICONS } from '../button-face';

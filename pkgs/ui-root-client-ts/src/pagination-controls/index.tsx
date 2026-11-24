@@ -6,7 +6,7 @@ import { buildPaginationWindow } from '@pkgs/ui-root-shared-ts/build-pagination-
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import {

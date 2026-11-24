@@ -189,6 +189,7 @@
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/ui-testing-bun-webview-server-ts": "workspace:*",
     "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
+    "@solidjs/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/better-sqlite3": "catalog:",
     "@types/bun": "catalog:",
@@ -197,7 +198,6 @@
     "storybook": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "@solidjs/vite-plugin": "catalog:",
     "workbox-build": "catalog:",
     "wrangler": "catalog:"
   },

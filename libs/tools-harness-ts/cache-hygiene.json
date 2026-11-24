@@ -293,11 +293,6 @@
       "reason": "lints every file outside the packages"
     }
   },
-  "globalDependencies": [
-    "tsconfig.base.json",
-    "mise.toml"
-  ],
-  "globalEnv": [
-    "VERIFY_TIME_LIMITS"
-  ]
+  "globalDependencies": ["tsconfig.base.json", "mise.toml"],
+  "globalEnv": ["VERIFY_TIME_LIMITS"]
 }

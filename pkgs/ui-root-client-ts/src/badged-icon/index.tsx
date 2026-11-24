@@ -45,7 +45,7 @@ export function BadgedIcon(props: BadgedIconProps): JSX.Element {
   const hasBadge = (): boolean => text().length > 0;
   return (
     <span
-      class={["box relative shrink-0 w-fit", { 'pr-3': hasBadge() }]}
+      class={['box relative shrink-0 w-fit', { 'pr-3': hasBadge() }]}
       data-component={componentId('BadgedIcon')}
     >
       {props.children}

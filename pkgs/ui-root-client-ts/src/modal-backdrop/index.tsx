@@ -45,7 +45,10 @@ export function ModalBackdrop(props: ModalBackdropProps): JSX.Element {
         onClick={onScrimClick}
       />
       <div
-        class={["box flex-1 w-full h-full justify-center items-center p-4", { boxNone: true }]}
+        class={[
+          'box flex-1 w-full h-full justify-center items-center p-4',
+          { boxNone: true },
+        ]}
       >
         {props.children}
       </div>

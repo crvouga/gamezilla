@@ -22,13 +22,16 @@ export function ExplorerWorkspace(props: ExplorerWorkspaceProps): JSX.Element {
   const wide = () => mode() === 'wide';
   return (
     <div
-      class={["box flex-1 min-h-0 min-w-0 gap-6", { 'flex-row': wide() }]}
+      class={['box flex-1 min-h-0 min-w-0 gap-6', { 'flex-row': wide() }]}
       {...dataAttrs({ component: 'ExplorerWorkspace', ...props.dataSet })}
     >
       <Show when={wide() || !props.selected}>
         <section
           aria-label={props.masterLabel}
-          class={["box min-h-0 min-w-0 gap-3", { 'w-80 shrink-0': wide(), 'flex-1': !wide() }]}
+          class={[
+            'box min-h-0 min-w-0 gap-3',
+            { 'w-80 shrink-0': wide(), 'flex-1': !wide() },
+          ]}
         >
           {props.master}
         </section>

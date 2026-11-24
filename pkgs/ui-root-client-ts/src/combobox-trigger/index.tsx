@@ -1,8 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
-import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type {
   ComboboxOption,
   ComboboxValue,

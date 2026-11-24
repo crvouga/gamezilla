@@ -132,10 +132,13 @@ export function FormActionsFooterView(
   const compact = (): boolean => mode() !== 'wide';
   return (
     <div
-      class={["box gap-2", {
-        'flex-col items-stretch': compact(),
-        'flex-row-reverse': !compact(),
-      }]}
+      class={[
+        'box gap-2',
+        {
+          'flex-col items-stretch': compact(),
+          'flex-row-reverse': !compact(),
+        },
+      ]}
       {...dataAttrs({
         component: 'FormActionsFooter',
         layout: compact() ? 'stacked' : 'row',

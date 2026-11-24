@@ -85,27 +85,31 @@ export function HighlightedText(props: HighlightedTextProps): JSX.Element {
       when={props.ranges.length > 0}
       fallback={
         <p
-          class={["text", {
-            ...variantClassList(variant()),
-            'line-clamp-1': clampOne(),
-          }]}
+          class={[
+            'text',
+            {
+              ...variantClassList(variant()),
+              'line-clamp-1': clampOne(),
+            },
+          ]}
         >
           {props.text}
         </p>
       }
     >
       <p
-        class={["text shrink min-w-0", {
-          ...variantClassList(variant()),
-          'line-clamp-1': clampOne(),
-        }]}
+        class={[
+          'text shrink min-w-0',
+          {
+            ...variantClassList(variant()),
+            'line-clamp-1': clampOne(),
+          },
+        ]}
       >
         <For each={segments()}>
           {(segment) => (
             <span
-              class={variantClassList(
-                segment.bold ? boldVariant() : variant()
-              )}
+              class={variantClassList(segment.bold ? boldVariant() : variant())}
             >
               {segment.text}
             </span>

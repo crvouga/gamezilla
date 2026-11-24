@@ -19,8 +19,8 @@ import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
 import { useCommandPaletteShortcut } from '@pkgs/ui-root-client-ts/use-command-palette-shortcut';
 import { isMacPlatform } from '@pkgs/ui-root-shared-ts/match';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { type Accessor, createSignal, flush, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 

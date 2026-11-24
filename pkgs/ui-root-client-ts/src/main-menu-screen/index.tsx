@@ -99,11 +99,14 @@ export function MainMenuScreen(props: MainMenuScreenProps): JSX.Element {
         }
       >
         <div
-          class={["grid gap-3 self-stretch", {
-            'grid-cols-2': columns() === 2,
-            'grid-cols-3': columns() === 3,
-            'grid-cols-4': columns() === 4,
-          }]}
+          class={[
+            'grid gap-3 self-stretch',
+            {
+              'grid-cols-2': columns() === 2,
+              'grid-cols-3': columns() === 3,
+              'grid-cols-4': columns() === 4,
+            },
+          ]}
           role="list"
           data-layout={tiles() ? 'tiles' : 'grid'}
         >

@@ -6,8 +6,8 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { onSettled, untrack } from 'solid-js';
 import { SearchIcon } from '../icons';
-import { TextInput } from '../text-input/index';
 import { moveFocus } from '../move-focus';
+import { TextInput } from '../text-input/index';
 
 export type ComboboxSearchProps = {
   value: string;

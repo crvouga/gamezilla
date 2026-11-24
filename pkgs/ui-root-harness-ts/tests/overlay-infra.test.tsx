@@ -19,8 +19,8 @@ import {
   SURFACE_STACK_STEP,
 } from '@pkgs/ui-root-shared-ts/constants';
 import { screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { createSignal, flush } from 'solid-js';
 import { cssOf, renderUi } from './render';
 

@@ -14,8 +14,8 @@ import {
 } from '@pkgs/ui-root-shared-ts/select-logic';
 import type { SelectOption } from '@pkgs/ui-root-shared-ts/select-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { createSignal } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 

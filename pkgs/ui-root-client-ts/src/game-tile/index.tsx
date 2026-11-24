@@ -293,10 +293,13 @@ function Trails(): JSX.Element {
 export function GameTile(props: GameTileProps): JSX.Element {
   return (
     <span
-      class={[`${styles['tile']}`, {
-        'rounded-control': props.size !== 'xl',
-        'rounded-card': props.size === 'xl',
-      }]}
+      class={[
+        `${styles['tile']}`,
+        {
+          'rounded-control': props.size !== 'xl',
+          'rounded-card': props.size === 'xl',
+        },
+      ]}
       data-motif={props.motif}
       data-size={props.size ?? 'md'}
       aria-hidden="true"

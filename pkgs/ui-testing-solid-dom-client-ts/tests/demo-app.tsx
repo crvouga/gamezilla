@@ -6,10 +6,10 @@
  */
 
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import type { HarnessClockBundle } from '@pkgs/clock-shared-ts/harness-clock';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ModalBackdrop } from '@pkgs/ui-root-client-ts/modal-backdrop';
 import { ModalContent } from '@pkgs/ui-root-client-ts/modal-content';

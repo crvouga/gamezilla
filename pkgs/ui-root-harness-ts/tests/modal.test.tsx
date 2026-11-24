@@ -15,8 +15,8 @@ import { ModalRoot } from '@pkgs/ui-root-client-ts/modal-root';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { createSignal, Errored, flush } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 

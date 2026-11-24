@@ -21,8 +21,8 @@ import type { OverflowMenuRenderProps } from '@pkgs/ui-root-client-ts/overflow-m
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { cssOf, mustQuery, renderUi } from './render';
 
 // regression: ui-translated-icon-label-unnamed

@@ -56,14 +56,14 @@
     "@pkgs/property-shared-ts": "workspace:*",
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
+    "@solidjs/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",
     "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:",
-    "vite": "catalog:",
-    "@solidjs/vite-plugin": "catalog:"
+    "vite": "catalog:"
   },
   "category": "harness",
   "game": "chess",

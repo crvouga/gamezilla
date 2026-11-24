@@ -7,9 +7,9 @@ import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
+import solid from '@solidjs/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
-import solid from '@solidjs/vite-plugin';
 import { configureDocgen } from './docgen';
 import { previewAnnotations } from './entrypoints';
 

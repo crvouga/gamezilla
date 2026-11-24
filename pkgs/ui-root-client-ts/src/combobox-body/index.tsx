@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComboboxKeyEvent } from '@pkgs/ui-root-shared-ts/combobox-key-nav';
 import type {
   ComboboxOption,

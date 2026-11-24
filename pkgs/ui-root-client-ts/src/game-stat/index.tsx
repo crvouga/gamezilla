@@ -47,11 +47,14 @@ export function GameStat(props: {
       <span class={`${styles['meta']} text textCaption`}>{props.label}</span>
       <span class="box flex-row flex-wrap items-center gap-2 min-w-0">
         <strong
-          class={["text", {
-            textStat: props.size !== 'compact',
-            textLabel: props.size === 'compact',
-            [statStyles['compactValue'] ?? '']: props.size === 'compact',
-          }]}
+          class={[
+            'text',
+            {
+              textStat: props.size !== 'compact',
+              textLabel: props.size === 'compact',
+              [statStyles['compactValue'] ?? '']: props.size === 'compact',
+            },
+          ]}
         >
           {props.value}
         </strong>

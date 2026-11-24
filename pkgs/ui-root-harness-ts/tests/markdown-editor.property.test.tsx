@@ -2,8 +2,8 @@ import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { fireEvent } from '@solidjs/testing-library';
 import fc from 'fast-check';
-import { editor, formatAndUndo } from './markdown-editor-fixture';
 import { flush } from 'solid-js';
+import { editor, formatAndUndo } from './markdown-editor-fixture';
 
 const writing = fc
   .array(fc.constantFrom('Board', 'movement', 'feels', 'clear', 'today'), {

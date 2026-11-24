@@ -10,8 +10,8 @@ import {
 import { AppHeaderIsland } from '@pkgs/ui-root-client-ts/app-header-island';
 import { HouseIcon, SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import { screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { createSignal, flush, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 

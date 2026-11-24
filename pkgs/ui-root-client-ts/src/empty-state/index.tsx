@@ -103,20 +103,26 @@ export function EmptyState(props: EmptyStateProps): JSX.Element {
         {(icon) => <StateBlockIcon icon={icon()} variant={variant()} />}
       </Show>
       <p
-        class={["text w-full", {
-          textSubtitle: isFill(),
-          textLabel: !isFill(),
-          'text-center': centered(),
-        }]}
+        class={[
+          'text w-full',
+          {
+            textSubtitle: isFill(),
+            textLabel: !isFill(),
+            'text-center': centered(),
+          },
+        ]}
       >
         {props.title}
       </p>
       <p
-        class={["text text-text-secondary w-full", {
-          textBody: isFill(),
-          textCaption: !isFill(),
-          'text-center': centered(),
-        }]}
+        class={[
+          'text text-text-secondary w-full',
+          {
+            textBody: isFill(),
+            textCaption: !isFill(),
+            'text-center': centered(),
+          },
+        ]}
       >
         {props.body}
       </p>

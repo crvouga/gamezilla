@@ -41,7 +41,7 @@ export function MiniPlayerDock(props: MiniPlayerDockProps): JSX.Element {
   const mode = useLayoutMode();
   return (
     <div
-      class={["box w-full self-stretch", { 'pt-ui-sm': mode() === 'wide' }]}
+      class={['box w-full self-stretch', { 'pt-ui-sm': mode() === 'wide' }]}
       data-component={componentId('MiniPlayerDock')}
       data-layout={mode()}
     >
@@ -54,10 +54,13 @@ export function MiniPlayerBar(props: MiniPlayerBarProps): JSX.Element {
   const mode = useLayoutMode();
   return (
     <div
-      class={["box w-full self-stretch flex-row items-center gap-ui-sm overflow-hidden min-h-18 bg-surface border border-border", {
-        'rounded-card': mode() === 'wide',
-        'rounded-none': mode() !== 'wide',
-      }]}
+      class={[
+        'box w-full self-stretch flex-row items-center gap-ui-sm overflow-hidden min-h-18 bg-surface border border-border',
+        {
+          'rounded-card': mode() === 'wide',
+          'rounded-none': mode() !== 'wide',
+        },
+      ]}
       data-testid={props.testId}
       data-component={componentId('MiniPlayerBar')}
     >

@@ -56,10 +56,13 @@ export type MoveStripProps = {
 export function MoveStrip(props: MoveStripProps): JSX.Element {
   return (
     <div
-      class={["box flex-row items-center justify-center self-stretch shrink-0 min-w-0", {
-        'h-ui-control-md': props.overflow !== 'wrap',
-        'min-h-ui-control-md': props.overflow === 'wrap',
-      }]}
+      class={[
+        'box flex-row items-center justify-center self-stretch shrink-0 min-w-0',
+        {
+          'h-ui-control-md': props.overflow !== 'wrap',
+          'min-h-ui-control-md': props.overflow === 'wrap',
+        },
+      ]}
       data-testid={props.testId}
       data-component={componentId('MoveStrip')}
       data-fit={props.fit ?? 'fill'}

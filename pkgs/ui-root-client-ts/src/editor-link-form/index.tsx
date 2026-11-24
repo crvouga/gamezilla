@@ -2,9 +2,9 @@
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
 import { createSignal, onSettled } from 'solid-js';
 import { Button } from '../button/index';
+import { moveFocus } from '../move-focus';
 import { safeMarkdownHref } from '../safe-markdown';
 import { TextInput } from '../text-input/index';
-import { moveFocus } from '../move-focus';
 
 /**
  * Focused link entry for MarkdownEditor. Accepts only safe Markdown URLs; Enter saves a valid URL and Escape cancels without changing the document.

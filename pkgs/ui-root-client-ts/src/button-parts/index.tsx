@@ -1,6 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback } from '../button-face';
 import { MUTATION_FEEDBACK_ICONS } from '../button-face';

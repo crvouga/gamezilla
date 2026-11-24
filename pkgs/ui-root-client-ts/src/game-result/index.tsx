@@ -108,10 +108,16 @@ function StandingRow(props: {
       data-testid={props.row.testId}
     >
       <div
-        class={["box flex-row items-center gap-3 px-4 py-2 min-h-14", { 'bg-tint-subtle': you() }]}
+        class={[
+          'box flex-row items-center gap-3 px-4 py-2 min-h-14',
+          { 'bg-tint-subtle': you() },
+        ]}
       >
         <span
-          class={["text textLabel textNumeral shrink-0 min-w-10", { 'text-on-primary-soft': you() }]}
+          class={[
+            'text textLabel textNumeral shrink-0 min-w-10',
+            { 'text-on-primary-soft': you() },
+          ]}
         >
           {props.row.ordinal ?? formatOrdinal(props.row.place, i18n().locale)}
         </span>
@@ -124,7 +130,10 @@ function StandingRow(props: {
           </Show>
         </span>
         <span
-          class={["text textLabel flex-1 min-w-0 truncate", { 'text-on-primary-soft': you() }]}
+          class={[
+            'text textLabel flex-1 min-w-0 truncate',
+            { 'text-on-primary-soft': you() },
+          ]}
         >
           {props.row.name}
         </span>

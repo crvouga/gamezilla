@@ -16,8 +16,8 @@ import { useBreadcrumbNav } from '@pkgs/ui-root-client-ts/use-breadcrumb-nav';
 import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';
 import { createRouter, memoryHistory } from '@solidjs/router';
 import { screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import {
   createContext,
   createSignal,

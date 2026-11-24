@@ -1,12 +1,12 @@
 /** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssGap, cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { type Accessor, createEffect, createSignal, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { BUTTON_SIZES, type ButtonSize } from '../button-parts/index';

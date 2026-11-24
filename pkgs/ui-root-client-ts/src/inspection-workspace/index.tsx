@@ -35,12 +35,15 @@ export function InspectionWorkspace(props: InspectionWorkspaceProps) {
   ];
   return (
     <div
-      class={["box flex-1 min-h-0 min-w-0 gap-4", { 'flex-row': wide() }]}
+      class={['box flex-1 min-h-0 min-w-0 gap-4', { 'flex-row': wide() }]}
       {...dataAttrs({ component: 'InspectionWorkspace', ...props.dataSet })}
     >
       <Show when={props.tools.length > 0}>
         <div
-          class={["box min-h-0 min-w-0 gap-3", { 'w-80 shrink-0': wide(), 'flex-1': !wide() }]}
+          class={[
+            'box min-h-0 min-w-0 gap-3',
+            { 'w-80 shrink-0': wide(), 'flex-1': !wide() },
+          ]}
         >
           <SegmentedControl
             aria-label={props.toolsLabel}
@@ -93,10 +96,13 @@ function InspectionPane(props: {
   return (
     <section
       aria-label={props.label}
-      class={["box flex-1 min-h-0 min-w-0", {
-        'overflow-auto': props.scroll === true,
-        'overflow-hidden': props.scroll !== true,
-      }]}
+      class={[
+        'box flex-1 min-h-0 min-w-0',
+        {
+          'overflow-auto': props.scroll === true,
+          'overflow-hidden': props.scroll !== true,
+        },
+      ]}
     >
       {props.content}
     </section>

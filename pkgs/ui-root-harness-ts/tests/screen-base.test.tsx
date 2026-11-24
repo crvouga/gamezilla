@@ -13,8 +13,8 @@ import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtu
 import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
 import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import userEvent from '@testing-library/user-event';
 import type { JSX } from '@solidjs/web';
+import userEvent from '@testing-library/user-event';
 import { omit } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 

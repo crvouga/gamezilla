@@ -41,10 +41,13 @@ export function MenuList(props: MenuListProps): JSX.Element {
   );
   return (
     <div
-      class={["panel", {
-        panelPlain: props.separator === false,
-        'flex-1': props.grow === true,
-      }]}
+      class={[
+        'panel',
+        {
+          panelPlain: props.separator === false,
+          'flex-1': props.grow === true,
+        },
+      ]}
       {...dataAttrs({ component: 'MenuList', ...props.dataSet })}
       role="group"
     >

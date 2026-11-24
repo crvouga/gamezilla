@@ -236,6 +236,15 @@ function memberName(name: ts.PropertyName | undefined): string | undefined {
   return undefined;
 }
 
+/** `import type { JSX } from '@solidjs/web'` names types and loads nothing. */
+function isTypeOnlyImport(specifier: ts.Node): boolean {
+  const declaration = specifier.parent;
+  return (
+    ts.isImportDeclaration(declaration) &&
+    declaration.importClause?.isTypeOnly === true
+  );
+}
+
 function checkImport(specifier: string, at: number, report: Report): void {
   if (STYLE_IMPORT.test(specifier))
     report(at, 'style-import', `stylesheet import \`${specifier}\``);
@@ -493,7 +502,8 @@ function checkScript(
             'deep-import',
             `\`${text}\` leaves the package; import the other package's public entry point`
           );
-        if (isComposer(kind)) checkImport(text, node.getStart(), report);
+        if (isComposer(kind) && !isTypeOnlyImport(node))
+          checkImport(text, node.getStart(), report);
       } else checkLiteral(node, text, kind, report);
     }
     if (isComposer(kind)) checkComposerNode(node, declared, report);

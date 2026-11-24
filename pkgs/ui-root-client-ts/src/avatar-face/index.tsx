@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 import styles from '../avatar/avatar.module.css';
 import type { IconComponent } from '../create-icon/index';

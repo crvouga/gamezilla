@@ -76,7 +76,10 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
   return (
     <OnColorReset>
       <div
-        class={["box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated shadow-float", { 'p-5': padded() }]}
+        class={[
+          'box dialogEnter rounded-sheet w-full self-center overflow-hidden bg-surface-elevated shadow-float',
+          { 'p-5': padded() },
+        ]}
         {...dataAttrs({
           component: 'ModalContent',
           size: props.size ?? 'medium',

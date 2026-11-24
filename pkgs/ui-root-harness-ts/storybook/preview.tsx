@@ -1,8 +1,8 @@
 import { i18n as globalI18n, setupI18n } from '@lingui/core';
 import { compileMessage } from '@lingui/message-utils/compileMessage';
-import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import {
   type AppRouter,
   StaticAppRouterProvider,

@@ -3,7 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
-import { type JSX, dynamic } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import {
   CONTENT_EDGE_PADDING_STEP,

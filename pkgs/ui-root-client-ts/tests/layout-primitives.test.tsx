@@ -24,7 +24,7 @@ import {
 } from '@pkgs/ui-root-shared-ts/token-names';
 import { surfaceToneColor } from '@pkgs/ui-root-shared-ts/tones';
 import { render } from '@solidjs/testing-library';
-import { createSignal, flush, For } from 'solid-js';
+import { createSignal, For, flush } from 'solid-js';
 
 function classes(testId: string): readonly string[] {
   const element = document.querySelector(`[data-testid="${testId}"]`);

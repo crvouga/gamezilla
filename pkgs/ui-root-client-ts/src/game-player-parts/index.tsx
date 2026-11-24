@@ -54,12 +54,18 @@ export function GameSeatStatValue(props: {
       {...dataAttrs({ component: 'GameSeatStat', value: props.stat.value })}
     >
       <span
-        class={["text textCaption whitespace-nowrap", { 'text-on-primary-soft': props.active }]}
+        class={[
+          'text textCaption whitespace-nowrap',
+          { 'text-on-primary-soft': props.active },
+        ]}
       >
         {props.stat.label}
       </span>
       <span
-        class={["text textStat textNumeral whitespace-nowrap", { 'text-on-primary-soft': props.active }]}
+        class={[
+          'text textStat textNumeral whitespace-nowrap',
+          { 'text-on-primary-soft': props.active },
+        ]}
       >
         {props.stat.value}
       </span>
@@ -78,7 +84,10 @@ export function GameSeatStatInline(props: {
 }): JSX.Element {
   return (
     <span
-      class={["text textCaption whitespace-nowrap", { 'text-on-primary-soft': props.active }]}
+      class={[
+        'text textCaption whitespace-nowrap',
+        { 'text-on-primary-soft': props.active },
+      ]}
       {...dataAttrs({ component: 'GameSeatStat', value: props.stat.value })}
     >
       {props.stat.label}{' '}
@@ -114,10 +123,13 @@ export function GameSeatReadiness(props: {
         size={READINESS_DOT_SIZE}
       />
       <span
-        class={["text textCaption whitespace-nowrap", {
-          'text-success': props.ready,
-          'text-text-secondary': !props.ready,
-        }]}
+        class={[
+          'text textCaption whitespace-nowrap',
+          {
+            'text-success': props.ready,
+            'text-text-secondary': !props.ready,
+          },
+        ]}
       >
         {props.label}
       </span>

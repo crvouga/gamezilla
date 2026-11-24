@@ -13,11 +13,11 @@ import {
   untrack,
 } from 'solid-js';
 import { Button } from '../button/index';
+import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
 import { CardTableContext } from './table-context';
-import { moveFocus } from '../move-focus';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
 export type CardTablePosition = 'bottom' | 'left' | 'top' | 'right';

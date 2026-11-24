@@ -30,7 +30,7 @@ export type ActivityRegionProps = {
 export function ActivityRegion(props: ActivityRegionProps): JSX.Element {
   return (
     <div
-      class={["box", { 'flex-1': props.grow === true }]}
+      class={['box', { 'flex-1': props.grow === true }]}
       data-testid={props.testId}
       data-component={componentId('ActivityRegion')}
       onPointerDown={() => props.onActivity()}

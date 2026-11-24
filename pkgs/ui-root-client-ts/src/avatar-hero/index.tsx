@@ -57,7 +57,10 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
         <Show when={props.action}>
           {(action) => (
             <button
-              class={["clickable clickableTint absolute right-0 bottom-0 size-11 min-w-11 min-h-11 rounded-full border border-border bg-background items-center justify-center", { 'opacity-disabled': action().disabled === true }]}
+              class={[
+                'clickable clickableTint absolute right-0 bottom-0 size-11 min-w-11 min-h-11 rounded-full border border-border bg-background items-center justify-center',
+                { 'opacity-disabled': action().disabled === true },
+              ]}
               type="button"
               aria-label={action().label}
               disabled={action().disabled === true}

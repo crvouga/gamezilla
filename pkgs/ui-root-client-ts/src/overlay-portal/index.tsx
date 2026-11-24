@@ -2,7 +2,13 @@
 
 import { layer } from '@pkgs/ui-root-shared-ts/layers';
 import { type JSX, Portal } from '@solidjs/web';
-import { type Accessor, createContext, createSignal, Show, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  Show,
+  useContext,
+} from 'solid-js';
 import type { PortalHostFrame } from '../portal-host-frame';
 import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from '../portal-host-frame';
 
@@ -53,7 +59,7 @@ export function OverlayPortalProvider(
       >
         {props.children}
         <div
-          class={["box absolute inset-0", { boxNone: true }]}
+          class={['box absolute inset-0', { boxNone: true }]}
           data-component="OverlayPortalHost"
           style={{ 'z-index': OVERLAY_PORTAL_Z_INDEX }}
           ref={setHost}

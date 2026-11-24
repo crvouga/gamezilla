@@ -1,6 +1,6 @@
 import type { RenderedApp } from '@pkgs/ui-testing-root-shared-ts/render-adapter';
 import { MULTI_APP_ACTOR_FRAME } from '@pkgs/ui-testing-solid-dom-shared-ts/snapshot-frame';
-import { render, type JSX } from '@solidjs/web';
+import { type JSX, render } from '@solidjs/web';
 import type { LayoutProvider } from './dom-layout';
 import { ACTOR_ATTR } from './dom-query';
 import type { UserEvent } from './renderer-solid-dom';

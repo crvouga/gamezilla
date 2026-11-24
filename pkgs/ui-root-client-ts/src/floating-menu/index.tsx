@@ -30,6 +30,7 @@ import type {
   FloatingMenuPosition,
 } from '../floating-menu-position';
 import { computeFloatingMenuPosition } from '../floating-menu-position';
+import { moveFocus } from '../move-focus';
 import { OnColorReset } from '../on-color-context/index';
 import type { LayoutRect } from '../portal-host-frame';
 import { measureHostFrame, windowRectToHostLocal } from '../portal-host-frame';
@@ -39,7 +40,6 @@ import {
   useSurfaceStackHostFrame,
 } from '../surface-stack/index';
 import { useThemeLayout } from '../theme-context/index';
-import { moveFocus } from '../move-focus';
 
 export const FLOATING_MENU_DEFAULT_WIDTH = 260;
 

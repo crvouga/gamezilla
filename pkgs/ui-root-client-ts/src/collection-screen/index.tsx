@@ -51,7 +51,10 @@ export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
       dataSet={{ component: 'CollectionScreen', ...props.dataSet }}
       content={() => (
         <div
-          class={[styles['collectionSplit'], { [styles['collectionSplitAside'] ?? '']: !!aside() }]}
+          class={[
+            styles['collectionSplit'],
+            { [styles['collectionSplitAside'] ?? '']: !!aside() },
+          ]}
         >
           <div class={styles['collection']}>
             <Show when={controls.present()}>

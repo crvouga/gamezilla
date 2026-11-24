@@ -74,11 +74,14 @@ export function ModalFooter(props: ModalFooterProps): JSX.Element {
   const mode = useLayoutMode();
   return (
     <div
-      class={["box gap-2 mt-2", {
-        'flex-col items-stretch': mode() !== 'wide',
-        'flex-row-reverse flex-wrap items-center justify-start':
-          mode() === 'wide',
-      }]}
+      class={[
+        'box gap-2 mt-2',
+        {
+          'flex-col items-stretch': mode() !== 'wide',
+          'flex-row-reverse flex-wrap items-center justify-start':
+            mode() === 'wide',
+        },
+      ]}
       {...dataAttrs({ component: 'ModalFooter', ...props.dataSet })}
     >
       {props.children}

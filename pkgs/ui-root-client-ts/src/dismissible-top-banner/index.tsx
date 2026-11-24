@@ -4,7 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import { type JSX, dynamic, Portal } from '@solidjs/web';
+import { dynamic, type JSX, Portal } from '@solidjs/web';
 import {
   createContext,
   createEffect,

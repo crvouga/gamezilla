@@ -5,7 +5,7 @@ import { expect, test } from 'bun:test';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { render } from '@solidjs/testing-library';
-import { createSignal, flush, For, Show } from 'solid-js';
+import { createSignal, For, flush, Show } from 'solid-js';
 
 function byTestId(testId: string): HTMLElement {
   const element = document.querySelector<HTMLElement>(

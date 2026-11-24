@@ -10,7 +10,13 @@ import {
   useSearchParams,
 } from '@solidjs/router';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createContext, createSignal, untrack, useContext } from 'solid-js';
+import {
+  type Accessor,
+  createContext,
+  createSignal,
+  untrack,
+  useContext,
+} from 'solid-js';
 import {
   useConfirmNavigation,
   usePendingNavigation,
@@ -85,11 +91,7 @@ function RoutedAppRouter(props: AppRouterProviderProps): JSX.Element {
     },
     canGoBack,
   };
-  return (
-    <AppRouterContext value={router}>
-      {props.children}
-    </AppRouterContext>
-  );
+  return <AppRouterContext value={router}>{props.children}</AppRouterContext>;
 }
 
 /**
@@ -123,11 +125,7 @@ function StaticRouterContext(props: StaticRouterProps): JSX.Element {
     back: () => confirmNavigation(router.back),
     canGoBack: router.canGoBack,
   };
-  return (
-    <AppRouterContext value={guarded}>
-      {props.children}
-    </AppRouterContext>
-  );
+  return <AppRouterContext value={guarded}>{props.children}</AppRouterContext>;
 }
 
 export function StaticAppRouterProvider(props: StaticRouterProps): JSX.Element {

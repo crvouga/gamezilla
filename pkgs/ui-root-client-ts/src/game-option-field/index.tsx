@@ -123,7 +123,10 @@ function CountOption(props: { field: GameOptionCountField }): JSX.Element {
           {(message) => (
             <p
               id={messageId}
-              class={["text textCaption", { 'text-destructive': message().tone === 'error' }]}
+              class={[
+                'text textCaption',
+                { 'text-destructive': message().tone === 'error' },
+              ]}
               data-tone={message().tone ?? 'hint'}
             >
               {message().text}
