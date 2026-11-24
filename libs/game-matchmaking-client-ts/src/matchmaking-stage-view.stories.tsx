@@ -80,7 +80,7 @@ export const DrawOffered: Story = {
     renderStory({
       announcement: {
         title: 'Your turn.',
-        detail: 'Bob offered you a multiplayer draw.',
+        detail: 'Bob offered you a draw.',
       },
     })(args),
   args: { game: { ...STORY_GAME, draw: 'answer' } },

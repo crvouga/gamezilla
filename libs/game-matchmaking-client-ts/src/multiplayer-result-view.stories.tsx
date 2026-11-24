@@ -53,7 +53,7 @@ export const RematchOffered: Story = {
         tone: 'lost',
         title: 'Your opponent won.',
         caption: caption(
-          'By resignation. Bob offered you a multiplayer rematch.',
+          'By resignation. Bob offered you a rematch.',
           'destructive',
           '-8'
         ),
@@ -95,8 +95,8 @@ export const Watching: Story = {
       watching: true,
       result: {
         tone: 'neutral',
-        title:
-          'Watching multiplayer Connect Four. alice won the multiplayer game.',
+        // As the screen says it: who won first, the watching for a listener.
+        title: 'alice won the game.',
         caption: 'By resignation.',
       },
     })(args),

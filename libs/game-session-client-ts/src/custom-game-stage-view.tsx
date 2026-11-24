@@ -130,6 +130,7 @@ function PlayLine(props: Props): JSX.Element {
     <FrameStatusView
       status={props.status}
       arena={realTime(props)}
+      quiet
       spokenOnly={lineSpokenOnly(props)}
     />
   );

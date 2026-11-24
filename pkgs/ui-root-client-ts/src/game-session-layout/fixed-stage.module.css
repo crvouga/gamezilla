@@ -293,6 +293,11 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* A quiet turn line sits centred on the status band, like every other line. */
+.status [data-component="GameTurnPill"][data-look="plain"] {
+  justify-content: center;
+  text-align: center;
+}
 /* A wide window shows the whole game too: no page padding to scroll for. */
 @media (min-width: 768px) {
   [data-component="ScrollViewContent"]:has(

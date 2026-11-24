@@ -116,6 +116,11 @@ export function FrameStatusView(props: {
    * reads as a button under the arena.
    */
   readonly arena?: boolean | undefined;
+  /**
+   * On the command bar's status band: a neutral line is quiet text, never
+   * a pill that reads as one more button beside the commands.
+   */
+  readonly quiet?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -149,10 +154,10 @@ export function FrameStatusView(props: {
             (status().description.trim() === '' && !status().sending)
           }
           look={
-            props.arena === true &&
             status().tone === 'neutral' &&
-            status().emphasis !== 'yours' &&
-            !status().sending
+            !status().sending &&
+            (props.quiet === true ||
+              (props.arena === true && status().emphasis !== 'yours'))
               ? 'plain'
               : 'pill'
           }
