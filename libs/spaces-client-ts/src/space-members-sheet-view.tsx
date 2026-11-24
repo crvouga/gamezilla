@@ -122,7 +122,7 @@ export function SpaceMembersSheetView(
           fallback={
             <EmptyState
               variant="compact"
-              title={<Trans>No one connected yet</Trans>}
+              title={<Trans>No one else is here yet</Trans>}
               body={<Trans>Share the space link to invite people.</Trans>}
               action={
                 props.onShare === undefined

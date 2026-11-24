@@ -91,7 +91,7 @@ function withSuggestion(role: SpaceRole): readonly SpaceLauncherGame[] {
 export type SpaceLauncherExampleProps = SpaceExampleSpies & {
   role: SpaceRole;
   onChoose: (key: string) => void;
-  onSuggest: (key: string) => void;
+  onSuggest?: ((key: string) => void) | undefined;
 };
 
 /**
@@ -116,7 +116,7 @@ export default function SpaceLauncherExample(
           games={withSuggestion(props.role)}
           lookingAt="light-cycles"
           onChoose={(key) => props.onChoose(key)}
-          onSuggest={(key) => props.onSuggest(key)}
+          onSuggest={props.onSuggest}
         />
       </SpaceStageTemplate>
     </SpaceExampleFrame>

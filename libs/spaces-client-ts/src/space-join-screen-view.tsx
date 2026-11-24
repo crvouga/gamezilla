@@ -105,7 +105,8 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
         when={props.connection === 'host-offline'}
         fallback={
           <>
-            <Show when={props.needsConnection}>
+            {/* A failed or unconfirmed join keeps a way back beside it. */}
+            <Show when={props.needsConnection || props.joinPending}>
               <Button
                 title={<Trans>Back to Spaces</Trans>}
                 intent="neutral"

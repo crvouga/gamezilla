@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@lingui/solid/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import type { JSX } from 'solid-js';
+import { type JSX, Show } from 'solid-js';
 
 export type EndSpaceConfirmModalProps = {
   visible: boolean;
@@ -10,6 +10,8 @@ export type EndSpaceConfirmModalProps = {
   operation: () => Promise<void>;
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: (() => void) | undefined;
+  /** The space's name, so the question says which space it ends. */
+  spaceName?: string | undefined;
 };
 
 /** Confirm-end shell (space-agnostic; action wiring lives at the call site). */
@@ -23,7 +25,11 @@ export function EndSpaceConfirmModal(
     <MutationModal
       visible={props.visible}
       onClose={props.onClose}
-      title={<Trans>End this space?</Trans>}
+      title={
+        <Show when={props.spaceName} fallback={<Trans>End this space?</Trans>}>
+          {(name) => <Trans>End {name()}?</Trans>}
+        </Show>
+      }
       message={
         <Trans>
           Everyone in it leaves and the space closes for good. This can't be

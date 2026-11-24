@@ -17,19 +17,21 @@ const meta = {
     operation: fn(() => Promise.resolve()),
     onSuccess: fn(),
     asHost: false,
+    spaceName: 'Friday game night',
   },
 } satisfies Meta<typeof LeaveSpaceConfirmModal>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A guest leaves on every device; they can join again while it is live. */
-export const Guest: Story = {};
+export const Guest: Story = { parameters: { spaceBehind: 'guest' } };
 
 /** The host leaving ends the space for everyone, and the copy says so. */
 export const AsHost: Story = { args: { asHost: true } };
 
 /** J9: a guest confirms Leave; the dialog says they left. */
 export const GuestLeaves: Story = {
+  parameters: { spaceBehind: 'guest' },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId(Handles.spaceLeaveConfirm));

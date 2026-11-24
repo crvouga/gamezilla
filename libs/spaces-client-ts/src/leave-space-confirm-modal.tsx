@@ -16,6 +16,8 @@ export type LeaveSpaceConfirmModalProps = {
   onSuccess?: (() => void) | undefined;
   /** Host leave ends the space for everyone (I4); the copy says so. */
   asHost?: boolean;
+  /** The space's name, so the question says which space it is about. */
+  spaceName?: string | undefined;
 };
 
 /** Confirm-leave shell (space-agnostic; action wiring lives at the call site). */
@@ -50,7 +52,14 @@ export function LeaveSpaceConfirmModal(
         <MutationModal
           visible={props.visible}
           onClose={props.onClose}
-          title={<Trans>Leave this space?</Trans>}
+          title={
+            <Show
+              when={props.spaceName}
+              fallback={<Trans>Leave this space?</Trans>}
+            >
+              {(name) => <Trans>Leave {name()}?</Trans>}
+            </Show>
+          }
           message={
             <Trans>
               You'll leave on all your devices. You can join again while the
@@ -79,7 +88,14 @@ export function LeaveSpaceConfirmModal(
       <MutationModal
         visible={props.visible}
         onClose={props.onClose}
-        title={<Trans>End this space?</Trans>}
+        title={
+          <Show
+            when={props.spaceName}
+            fallback={<Trans>End this space?</Trans>}
+          >
+            {(name) => <Trans>End {name()}?</Trans>}
+          </Show>
+        }
         message={
           <Trans>
             You're the host, so leaving ends the space for everyone in it. This

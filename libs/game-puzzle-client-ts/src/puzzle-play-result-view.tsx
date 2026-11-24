@@ -35,7 +35,7 @@ function ResultTitle(props: PuzzleStageScreenViewProps): JSX.Element {
       >
         {/* The line above leads with how it was solved; this says what
             it counts as. */}
-        <Trans>Counts as a failed attempt</Trans>
+        <Trans>Attempt recorded as failed</Trans>
       </Match>
       <Match when={props.status === 'solved'}>
         <Text variant="inherit" tone="success">
@@ -61,7 +61,9 @@ function ResultCaption(props: PuzzleStageScreenViewProps): JSX.Element {
           props.result.completion?.outcome === 'failed'
         }
       >
-        <Trans>Retry to solve it without a wrong move.</Trans>
+        <Trans>
+          You found the solution after a wrong move. Retry to solve it cleanly.
+        </Trans>
       </Match>
       <Match when={props.status === 'solved'}>
         <Trans>You found every move of the line.</Trans>

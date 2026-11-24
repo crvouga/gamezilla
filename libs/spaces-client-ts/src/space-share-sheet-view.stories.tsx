@@ -84,6 +84,7 @@ export const Host: Story = {};
 /** A guest: the link and who has access, nothing to manage. */
 export const Guest: Story = {
   args: { canManage: false, viewerId: JORDAN.id },
+  parameters: { spaceBehind: 'guest' },
   render: (args) => withSlots(args, {}),
 };
 
