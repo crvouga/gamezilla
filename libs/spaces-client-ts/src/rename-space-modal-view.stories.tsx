@@ -54,7 +54,7 @@ export const SaveFailed: Story = {
 export const SaveName: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    const input = await canvas.findByTestId(Handles.spaceRenameInput);
+    const input = await canvas.findByRole('textbox', { name: 'Space name' });
     await userEvent.clear(input);
     await userEvent.type(input, 'Board game club');
     await expect(args.onChangeValue).toHaveBeenCalled();
