@@ -219,7 +219,7 @@ function StoryStage(props: {
             props.watching === true
               ? 'To move'
               : props.offline === true
-                ? 'Your turn when online'
+                ? 'Offline'
                 : 'Your move'
           }
           trailing={

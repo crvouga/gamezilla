@@ -149,7 +149,7 @@ export function MultiplayerSeat(props: {
         >
           <Show
             when={props.connected !== false}
-            fallback={<Trans>Your turn when online</Trans>}
+            fallback={<Trans>Offline</Trans>}
           >
             <Trans>Your move</Trans>
           </Show>
