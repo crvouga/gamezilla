@@ -135,6 +135,8 @@ const SPACE_BODIES = new Set([
   'screens-puzzles-import-status',
   'screens-games-chess-puzzle',
   'screens-puzzles-stage',
+  'screens-puzzles-result',
+  'screens-puzzles-home',
   'screens-puzzle-packs-stage',
   'screens-puzzle-packs-stage-progress',
   'screens-puzzle-packs-builder',

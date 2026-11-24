@@ -1,6 +1,6 @@
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { Trans } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
@@ -65,6 +65,10 @@ export function SpacePersonName(props: {
   readonly lines?: TextLines | undefined;
   readonly testId?: string | undefined;
 }): JSX.Element {
+  const { t } = useLingui();
+  // A person whose name has not arrived yet still reads as someone.
+  const shown = (name: string): string =>
+    name.trim() === '' ? t`Guest` : name;
   return (
     <Show when={props.person} keyed>
       {(person) => (
@@ -73,7 +77,7 @@ export function SpacePersonName(props: {
           fallback={
             <>
               <Text variant={props.variant ?? 'body'} testId={props.testId}>
-                {person.name}
+                {shown(person.name)}
               </Text>
               <BotLabel person={person} />
             </>
@@ -85,7 +89,7 @@ export function SpacePersonName(props: {
               lines={props.lines}
               testId={props.testId}
             >
-              {person.name}
+              {shown(person.name)}
             </P>
             <BotLabel person={person} />
           </StackHorizontal>

@@ -5,6 +5,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { For, type JSX, Show } from 'solid-js';
 import type { SpaceRole } from '../space-types';
+import { Spinner } from '../spinner/index';
 import styles from './space-launcher.module.css';
 import {
   type SpaceLauncherGame,
@@ -108,7 +109,14 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
         <h2 class="text textTitle" data-testid={props.testIds?.status}>
           {copy.status()}
         </h2>
-        <p class={`text textBody ${styles['muted']}`}>{copy.hint()}</p>
+        {/* A guest is waiting on the host: the one activity indicator says
+            so beside the words, so their screen reads as a wait, not a menu. */}
+        <p class={`text textBody ${styles['muted']} ${styles['hint']}`}>
+          <Show when={props.role === 'guest'}>
+            <Spinner size="sm" decorative />
+          </Show>
+          <span>{copy.hint()}</span>
+        </p>
       </section>
       <section class={styles['games']} aria-label={copy.section()}>
         <div class={styles['grid']}>

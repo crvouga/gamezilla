@@ -85,6 +85,7 @@ function rosterRow(
     ),
     isYou: member.isYou,
     isThisTab: member.isThisTab,
+    idle: member.idle,
     badges: <SpaceMemberBadges member={member} />,
     dataSet: { testid: Handles.spaceMemberRow(id) },
   };

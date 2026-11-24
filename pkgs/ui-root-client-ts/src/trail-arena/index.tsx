@@ -62,6 +62,9 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
     <div
       {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       class={styles['arena']}
+      // Its shape, so a room shorter than the arena is wide narrows it to
+      // fit whole (both riders in view) instead of running off the bottom.
+      style={{ '--arena-aspect': String(props.width / props.height) }}
       data-interactive={interactive()}
       data-dimmed={props.dimmed === true}
       data-width={props.width}

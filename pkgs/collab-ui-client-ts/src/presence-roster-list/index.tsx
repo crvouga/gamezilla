@@ -21,6 +21,8 @@ export type PresenceRosterRow = {
   readonly isYou?: boolean;
   readonly isThisTab?: boolean;
   readonly isHost?: boolean;
+  /** Here but not active lately: the dot dims to say so, beside its words. */
+  readonly idle?: boolean;
   readonly badges?: JSX.Element;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   readonly dataSet?: Record<string, string> | undefined;
@@ -60,7 +62,10 @@ export function PresenceRosterList(
                 >
                   {props.renderAvatar(row.client, 36)}
                 </ParticipantColorRing>
-                <StatusDot status="online" size={8} />
+                <StatusDot
+                  status={row.idle === true ? 'warning' : 'online'}
+                  size={8}
+                />
               </div>
             }
             trailing={row.badges}

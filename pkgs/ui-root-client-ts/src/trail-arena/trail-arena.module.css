@@ -48,7 +48,10 @@
    the arena is never letterboxed in a second dark frame. */
 .arena {
   position: relative;
-  width: 100%;
+  /* As wide as the column, but never taller than the room it is given
+     (the nearest size container, else the screen). */
+  width: min(100%, calc(100cqh * var(--arena-aspect, 1)));
+  margin-inline: auto;
   border-radius: var(--ui-radius-card);
   background: none;
   overflow: visible;

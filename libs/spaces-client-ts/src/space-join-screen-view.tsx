@@ -192,7 +192,7 @@ function SpaceJoinWhoIsHere(props: {
  * who is in it, in one card, so a person sees what they are joining.
  */
 /** How the host's side stands, as the invitation tags it. */
-type SpaceJoinHost = 'ready' | 'checking' | 'offline';
+type SpaceJoinHost = 'ready' | 'checking' | 'offline' | 'unknown';
 
 /** The invitation's tag: Live once the host is reachable, else why not. */
 function SpaceJoinStatusTag(props: {
@@ -249,26 +249,36 @@ function SpaceJoinInvitation(props: {
         <Divider />
         <SpaceJoinWhoIsHere
           guests={props.space.guests}
-          lastKnown={props.host === 'offline'}
+          lastKnown={props.host === 'offline' || props.host === 'unknown'}
         />
       </StackVertical>
     </Card>
   );
 }
 
+/**
+ * Without a connection nothing about the space is current: no Live tag,
+ * and who was there is the last word.
+ */
+function joinHostState(props: {
+  readonly checkingHost: boolean;
+  readonly needsConnection: boolean;
+}): SpaceJoinHost {
+  if (props.needsConnection) return 'unknown';
+  return props.checkingHost ? 'checking' : 'ready';
+}
+
 /** Live (not joined): the invitation and what joining does. */
 function SpaceJoinLiveBody(props: {
   readonly space: SpaceCardData | null;
   readonly checkingHost: boolean;
+  readonly needsConnection: boolean;
 }): JSX.Element {
   return (
     <StackVertical gap="lg">
       <Show when={props.space}>
         {(space) => (
-          <SpaceJoinInvitation
-            space={space()}
-            host={props.checkingHost ? 'checking' : 'ready'}
-          />
+          <SpaceJoinInvitation space={space()} host={joinHostState(props)} />
         )}
       </Show>
       <Show
@@ -332,6 +342,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <SpaceJoinLiveBody
           space={props.space}
           checkingHost={props.connection === 'loading'}
+          needsConnection={props.needsConnection}
         />
       </Match>
     </Switch>

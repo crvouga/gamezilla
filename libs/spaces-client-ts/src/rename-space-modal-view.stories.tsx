@@ -49,3 +49,19 @@ export const SaveFailed: Story = {
     ).toBeVisible();
   },
 };
+
+/** J7: the host types a name and saves; the dialog says it is done. */
+export const SaveName: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const input = await canvas.findByTestId(Handles.spaceRenameInput);
+    await userEvent.clear(input);
+    await userEvent.type(input, 'Board game club');
+    await expect(args.onChangeValue).toHaveBeenCalled();
+    await userEvent.click(
+      await canvas.findByTestId(Handles.spaceRenameConfirm)
+    );
+    await expect(args.operation).toHaveBeenCalledTimes(1);
+    await expect(await canvas.findByText('Space renamed')).toBeVisible();
+  },
+};

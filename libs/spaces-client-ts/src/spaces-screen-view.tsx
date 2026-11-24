@@ -58,7 +58,6 @@ export function SpacesScreenView(props: SpacesScreenViewProps): JSX.Element {
         status={props.status}
         hostedCount={props.hostedCount}
         spaces={props.spaces}
-        onCreateSpace={() => void props.onCreateSpace()}
         onOpenSpace={props.onOpenSpace}
       />
     </CollectionScreen>

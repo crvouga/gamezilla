@@ -27,7 +27,6 @@ function mountWide(spaces: readonly SpaceCardData[], hosted: number) {
         status="ready"
         hostedCount={hosted}
         spaces={spaces}
-        onCreateSpace={() => undefined}
         onOpenSpace={() => undefined}
       />
     </ThemeProvider>

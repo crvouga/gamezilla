@@ -35,6 +35,8 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  /* Its room is a size a board can fit itself to (`cqh`). */
+  container-type: size;
   overflow-x: hidden;
   overflow-y: auto;
 }

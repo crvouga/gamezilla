@@ -25,27 +25,25 @@ export type SpacesLobbyViewProps = {
   readonly hostedCount: number;
   /** Spaces to show, open-on-this-device first. */
   readonly spaces: readonly SpaceCardData[];
-  readonly onCreateSpace: () => void;
   readonly onOpenSpace: (spaceId: string) => void;
 };
 
-function SpacesEmptyState(props: {
-  readonly onCreateSpace: () => void;
-}): JSX.Element {
+/**
+ * Nothing to list yet. The screen's own New space (the header's button, a
+ * phone's floating one) is the one way to start: the empty state says where
+ * it is rather than offering a second button beside it.
+ */
+function SpacesEmptyState(): JSX.Element {
   return (
     <EmptyState
       icon={Gamepad2Icon}
       title={<Trans>No spaces yet</Trans>}
       body={
         <Trans>
-          Start one and invite friends to play. Spaces friends share with you
-          show up here too.
+          Start one with New space and invite friends to play. Spaces friends
+          share with you show up here too.
         </Trans>
       }
-      action={{
-        label: <Trans>New space</Trans>,
-        onClick: () => props.onCreateSpace(),
-      }}
     />
   );
 }
@@ -225,7 +223,7 @@ export function SpacesLobbyView(props: SpacesLobbyViewProps): JSX.Element {
                 spaces={[]}
                 onOpenSpace={props.onOpenSpace}
               />
-              <SpacesEmptyState onCreateSpace={props.onCreateSpace} />
+              <SpacesEmptyState />
             </>
           }
         >
