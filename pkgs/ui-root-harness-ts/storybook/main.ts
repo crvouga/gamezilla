@@ -10,6 +10,7 @@ import {
 import solid from '@solidjs/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
+import type { PluginOption } from 'vite';
 import { configureDocgen } from './docgen';
 import { previewAnnotations } from './entrypoints';
 
@@ -29,6 +30,20 @@ const storyDirectories = ['pkgs', 'libs']
       .map((name) => resolve(root, tier, name, 'src'))
   )
   .sort();
+/** Every plugin `@solidjs/vite-plugin` (alias `vite-plugin-solid`) registers. */
+function isSolidCompilerPlugin(name: string): boolean {
+  return name === 'solid' || name.startsWith('solid:');
+}
+
+/** Vite accepts nested plugin arrays; a plugin factory may return one. */
+export function flattenPlugins(
+  plugins: readonly PluginOption[]
+): PluginOption[] {
+  return plugins.flatMap((plugin) =>
+    Array.isArray(plugin) ? flattenPlugins(plugin) : [plugin]
+  );
+}
+
 const config: StorybookConfig = {
   framework: 'storybook-solidjs-vite',
   stories: [
@@ -51,18 +66,22 @@ const config: StorybookConfig = {
   },
   core: { disableTelemetry: true },
   async viteFinal(config) {
-    for (const plugin of config.plugins ?? []) {
+    // The framework preset adds its own Solid compiler as a nested plugin
+    // array. Flatten before filtering, or it survives without the Lingui
+    // macro pass and compiles `<Trans>` before the macro can see it.
+    const plugins = flattenPlugins(config.plugins ?? []);
+    for (const plugin of plugins) {
       if (plugin && typeof plugin === 'object' && 'name' in plugin)
         configureDocgen(plugin, storyDirectories);
     }
     config.plugins = [
-      ...(config.plugins ?? []).filter(
+      ...plugins.filter(
         (plugin) =>
           !(
             plugin &&
             typeof plugin === 'object' &&
             'name' in plugin &&
-            plugin.name === 'solid'
+            isSolidCompilerPlugin(plugin.name)
           )
       ),
       workspaceExportsResolver({

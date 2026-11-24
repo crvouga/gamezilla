@@ -1,0 +1,4 @@
+{
+  "summary": "After the Solid 2 migration, Storybook kept the framework preset's own Solid compiler (registered as a nested plugin array the filter never matched) beside the Lingui-aware one. The preset compiled every `<Trans>` before the Lingui macro ran, the macro then removed its import, and screen stories failed to render with `Trans is not defined`. Fixed by flattening the plugin list before replacing the Solid compiler.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-vite-config.test.ts"
+}
