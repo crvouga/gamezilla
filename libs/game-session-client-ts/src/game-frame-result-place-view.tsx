@@ -54,17 +54,37 @@ function NextActions(props: Props): JSX.Element {
             />
           }
         >
-          <GameActionButton
-            title={<Trans>Rematch</Trans>}
-            variant="solid"
-            dataSet={{ testid: 'custom-game-rematch' }}
-            operation={() => props.onChoose({ operation: 'rematch' })}
-          />
-          <GameActionButton
-            title={<Trans>New game</Trans>}
-            dataSet={{ testid: 'custom-game-new' }}
-            operation={() => props.onChoose({ operation: 'create' })}
-          />
+          {/* A cancelled game had no result to replay: New game leads. */}
+          <Show
+            when={props.phase === 'cancelled'}
+            fallback={
+              <>
+                <GameActionButton
+                  title={<Trans>Rematch</Trans>}
+                  variant="solid"
+                  dataSet={{ testid: 'custom-game-rematch' }}
+                  operation={() => props.onChoose({ operation: 'rematch' })}
+                />
+                <GameActionButton
+                  title={<Trans>New game</Trans>}
+                  dataSet={{ testid: 'custom-game-new' }}
+                  operation={() => props.onChoose({ operation: 'create' })}
+                />
+              </>
+            }
+          >
+            <GameActionButton
+              title={<Trans>New game</Trans>}
+              variant="solid"
+              dataSet={{ testid: 'custom-game-new' }}
+              operation={() => props.onChoose({ operation: 'create' })}
+            />
+            <GameActionButton
+              title={<Trans>Rematch</Trans>}
+              dataSet={{ testid: 'custom-game-rematch' }}
+              operation={() => props.onChoose({ operation: 'rematch' })}
+            />
+          </Show>
         </Show>
       </Show>
       <Show when={props.next.reviewable}>

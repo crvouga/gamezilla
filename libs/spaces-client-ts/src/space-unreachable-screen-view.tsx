@@ -1,7 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@lingui/solid/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 
 export type SpaceUnreachableScreenViewProps = {
@@ -28,21 +30,31 @@ export function SpaceUnreachableScreenView(
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: props.title },
       ]}
+      // The same bottom bar as every Join state: the way back on the left,
+      // the filled command on the right.
+      footer={
+        <StackHorizontal gap="sm">
+          <Button
+            title={<Trans>Back to Spaces</Trans>}
+            intent="neutral"
+            variant="outline"
+            flex={1}
+            onClick={() => props.onBackToSpaces()}
+            dataSet={{ testid: Handles.spaceUnreachableBack }}
+          />
+          <Button
+            title={<Trans>Try again</Trans>}
+            flex={1}
+            onClick={() => props.onRetry()}
+            dataSet={{ testid: Handles.spaceUnreachableRetry }}
+          />
+        </StackHorizontal>
+      }
     >
       <ErrorState
         title={t`Can't reach this space right now`}
         // The space by name, in full: the header may cut a long one short.
         body={t`${props.title} didn't answer. Check your connection and try again, or go back to Spaces.`}
-        retry={{
-          label: t`Try again`,
-          onClick: () => props.onRetry(),
-          dataSet: { testid: Handles.spaceUnreachableRetry },
-        }}
-        secondary={{
-          label: t`Back to Spaces`,
-          onClick: () => props.onBackToSpaces(),
-          dataSet: { testid: Handles.spaceUnreachableBack },
-        }}
         dataSet={{ testid: Handles.spaceUnreachable }}
       />
     </ContentScreen>
