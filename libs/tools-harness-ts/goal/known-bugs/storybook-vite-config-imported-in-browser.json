@@ -1,0 +1,4 @@
+{
+  "summary": "The Storybook compiler regression imported Vite into the browser-conditioned UI test process. Vite failed while initializing its Node dependencies on the hosted release runner before the compiler check ran.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-vite-config.test.ts"
+}
