@@ -49,12 +49,13 @@
 }
 /* The alert's own tinted card is the toast: it fills it to the corners,
    whatever wraps it, with room for the close button over its end. */
-.item > :not(.close),
-.item > :not(.close) > * {
+.item > :not(.close) {
   width: 100%;
   margin: 0;
 }
 .item :is([data-component="Notice"], [data-component="ErrorState"]) {
+  align-self: stretch;
+  width: 100%;
   border-radius: 0;
   padding-inline-end: var(--ui-space-12);
 }
