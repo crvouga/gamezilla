@@ -92,6 +92,7 @@ export const Aborted: Story = {
 export const Watching: Story = {
   render: (args) =>
     renderStory({
+      watching: true,
       result: {
         tone: 'neutral',
         title:

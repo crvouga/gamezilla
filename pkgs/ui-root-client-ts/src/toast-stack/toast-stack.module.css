@@ -23,7 +23,12 @@
   .stack[data-placement="bottom"] {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
   }
-  /* Over a tab bar and a floating command (a lobby's New space). */
+  /* Over a game's command bar (its status line and commands). */
+  .stack[data-placement="above-commands"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 136px);
+  }
+  /* Over a tab bar and a floating command (a lobby's New space), or a
+     lobby's docked commands. */
   .stack[data-placement="above-actions"] {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 176px);
   }

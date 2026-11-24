@@ -182,6 +182,7 @@ function StoryStage(props: {
   readonly ownName?: string | undefined;
   /** The viewer only watches: neither seat is theirs, no move is theirs. */
   readonly watching?: boolean | undefined;
+  readonly offline?: boolean | undefined;
   readonly overlay?: JSX.Element | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
@@ -223,7 +224,9 @@ function StoryStage(props: {
     >
       <ConnectFourStoryBoard
         moves={drops()}
-        interactive={props.active && props.watching !== true}
+        interactive={
+          props.active && props.watching !== true && props.offline !== true
+        }
       />
     </GameBoardStage>
   );
@@ -385,6 +388,8 @@ export type StorySlots = {
   readonly ownName?: string;
   /** The viewer watches the game: no seat and no move are theirs. */
   readonly watching?: boolean;
+  /** No connection: the board takes no move until it returns. */
+  readonly offline?: boolean;
   /** The line under the board. */
   readonly announcement?: { readonly title: string; readonly detail?: string };
   /** How the game ended, on the result card. */
@@ -406,6 +411,7 @@ export function renderStory(slots: StorySlots = {}) {
           shown={slots.shown}
           ownName={slots.ownName}
           watching={slots.watching}
+          offline={slots.offline}
           active={slots.announcement !== undefined}
           overlay={overlay}
         />

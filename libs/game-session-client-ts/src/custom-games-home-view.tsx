@@ -50,7 +50,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
         fallback={
           <Notice>
             <Text variant="inherit">
-              <Trans>Waiting for the creator to create a game.</Trans>
+              <Trans>Waiting for the host to set up a game.</Trans>
             </Text>
           </Notice>
         }

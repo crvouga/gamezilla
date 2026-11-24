@@ -7,7 +7,7 @@ import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -171,10 +171,10 @@ export function FrameConnectionView(props: {
 }): JSX.Element {
   return (
     // No connection comes and goes: it floats with the screen's alerts.
-    <ToastStack placement="top">
+    <ToastStack placement="above-actions">
       <Show when={props.connection !== 'online'}>
         <Notice
-          tone={props.connection === 'needed' ? 'warning' : undefined}
+          tone="warning"
           icon={WifiOffIcon}
           dataSet={{ testid: 'custom-game-connection-needed' }}
         >
@@ -231,43 +231,53 @@ export function FrameErrorView(props: {
   );
 }
 
-/** What a participant is told during play: a draw offer, an absent opponent. */
+/**
+ * A draw offered, said on the command bar's status line beside the answer
+ * it waits for (Accept, Decline): a decision stays in view until it is
+ * made, never only in an alert that can be closed.
+ */
+export function FrameDrawOfferLine(props: {
+  readonly play: FramePlay;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  return (
+    <P
+      variant="bodyBold"
+      align="center"
+      role="status"
+      testId="custom-game-draw-offer"
+    >
+      <Show
+        when={props.play.canAnswerDraw}
+        fallback={<Trans>A draw is offered. Waiting for an answer.</Trans>}
+      >
+        <Show
+          when={props.play.drawOfferer}
+          fallback={<Trans>You are offered a draw.</Trans>}
+        >
+          {(offerer) => (
+            <>
+              <FramePersonName
+                person={offerer().person}
+                plainName={offerer().plainName}
+                people={props.people}
+              />{' '}
+              <Trans>offers a draw.</Trans>
+            </>
+          )}
+        </Show>
+      </Show>
+    </P>
+  );
+}
+
+/** What a participant is told during play that comes and goes: an absent opponent. */
 export function FramePlayNoticesView(props: {
   readonly play: FramePlay;
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
   return (
     <>
-      <Show when={props.play.drawOffered}>
-        {/* A decision the game waits for: an info banner in body weight,
-            not a quiet note. */}
-        <Notice tone={props.play.canAnswerDraw ? 'info' : 'neutral'}>
-          <Text variant="bodyBold" role="status">
-            <Show
-              when={props.play.canAnswerDraw}
-              fallback={
-                <Trans>A draw is offered. Waiting for an answer.</Trans>
-              }
-            >
-              <Show
-                when={props.play.drawOfferer}
-                fallback={<Trans>You are offered a draw.</Trans>}
-              >
-                {(offerer) => (
-                  <>
-                    <FramePersonName
-                      person={offerer().person}
-                      plainName={offerer().plainName}
-                      people={props.people}
-                    />{' '}
-                    <Trans>offers a draw.</Trans>
-                  </>
-                )}
-              </Show>
-            </Show>
-          </Text>
-        </Notice>
-      </Show>
       <Show when={props.play.away}>
         {(away) => (
           <StackVertical gap="md" testId="custom-game-away">

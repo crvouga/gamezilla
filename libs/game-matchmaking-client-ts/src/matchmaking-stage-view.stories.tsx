@@ -109,7 +109,16 @@ export const Watching: Story = {
 };
 
 /** Offline: commands wait for the connection; an accepted game stays here. */
-export const Offline: Story = { args: { online: false } };
+export const Offline: Story = {
+  args: { online: false },
+  // Moves wait for the connection: the board takes none, and the line says
+  // when the turn comes back.
+  render: (args) =>
+    renderStory({
+      offline: true,
+      announcement: { title: "Your move, once you're back online." },
+    })(args),
+};
 
 /** A move was refused: the reason sits above the board. */
 export const CommandRefused: Story = {

@@ -166,6 +166,7 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
           denial={props.commandDenial}
           error={props.error}
           online={props.online}
+          searching={props.stage === 'searching'}
         />
       );
     },

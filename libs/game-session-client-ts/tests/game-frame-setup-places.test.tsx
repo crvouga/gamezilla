@@ -52,7 +52,7 @@ describe('before a game', () => {
     );
     expect(shown('custom-game-create')).toBe(false);
     expect(
-      screen.getByText('Waiting for the creator to create a game.')
+      screen.getByText('Waiting for the host to set up a game.')
     ).toBeTruthy();
   });
 });

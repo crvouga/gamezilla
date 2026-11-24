@@ -8,7 +8,7 @@ import type { JSX } from 'solid-js';
 export function SpacesNeedConnectionNotice(): JSX.Element {
   return (
     <Notice
-      tone="error"
+      tone="warning"
       icon={WifiOffIcon}
       dataSet={{ testid: Handles.spacesNeedConnection }}
     >

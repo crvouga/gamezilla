@@ -80,7 +80,7 @@
 }
 /* What a guest only sees: no card edge to press, the games on the canvas. */
 [data-role="guest"] .tile[aria-disabled="true"] {
-  border-color: transparent;
+  border-style: dashed;
   background: var(--ui-color-surface-muted);
 }
 .art {

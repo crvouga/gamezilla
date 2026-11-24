@@ -21,6 +21,7 @@ import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOverlay } from './game-frame-overlay-view';
 import {
   FrameConnectionView,
+  FrameDrawOfferLine,
   FrameErrorView,
   FrameFactsView,
   FramePlayNoticesView,
@@ -392,7 +393,14 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           // their board keeps the players' full width and place.
           <Show
             when={props.phase === 'active' && props.viewerSide === null}
-            fallback={<PlayLine {...props} />}
+            fallback={
+              <Show
+                when={props.play.drawOffered}
+                fallback={<PlayLine {...props} />}
+              >
+                <FrameDrawOfferLine play={props.play} people={props.people} />
+              </Show>
+            }
           >
             <P
               variant="caption"

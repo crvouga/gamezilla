@@ -80,10 +80,7 @@ export function FrameConfirmDialog(props: {
                   </Trans>
                 }
               >
-                <Trans>
-                  The game ends for everyone, with no result. Its moves stay in
-                  the space's history.
-                </Trans>
+                <Trans>The game ends for everyone, with no result.</Trans>
               </Show>
             }
             cancelLabel={

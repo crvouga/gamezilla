@@ -16,6 +16,8 @@ export function MultiplayerNotices(props: {
   readonly denial: DenialView | undefined;
   readonly error: string | null;
   readonly online: boolean;
+  /** A search is running: a refusal then is about stopping it. */
+  readonly searching?: boolean | undefined;
 }): JSX.Element {
   return (
     <>
@@ -27,16 +29,34 @@ export function MultiplayerNotices(props: {
       <ToastStack>
         <Show when={props.error}>
           {(error) => (
-            <ErrorState
-              variant="compact"
-              title={<Trans>That didn't go through</Trans>}
-              body={error()}
-              dataSet={{ testid: 'multiplayer-error' }}
-            />
+            <Show
+              when={props.searching === true}
+              fallback={
+                <ErrorState
+                  variant="compact"
+                  title={<Trans>That didn't go through</Trans>}
+                  body={error()}
+                  dataSet={{ testid: 'multiplayer-error' }}
+                />
+              }
+            >
+              <ErrorState
+                variant="compact"
+                title={<Trans>Couldn't stop the search</Trans>}
+                body={
+                  <Trans>
+                    You're still looking for an opponent. Press Stop to try
+                    again.
+                  </Trans>
+                }
+                dataSet={{ testid: 'multiplayer-error' }}
+              />
+            </Show>
           )}
         </Show>
         <Show when={!props.online}>
           <Notice
+            tone="warning"
             icon={WifiOffIcon}
             dataSet={{ testid: 'multiplayer-offline' }}
           >

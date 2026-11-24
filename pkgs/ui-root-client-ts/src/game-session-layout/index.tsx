@@ -247,7 +247,7 @@ export function GameSessionLayout(props: GameSessionLayoutProps): JSX.Element {
           the page's own rows, centred with a centred stage. */}
       <Show when={props.fixedStage === true}>
         <ToastStack
-          placement="top"
+          placement="above-commands"
           dataSet={{ component: 'GameSessionNotices' }}
         >
           {props.notices}
