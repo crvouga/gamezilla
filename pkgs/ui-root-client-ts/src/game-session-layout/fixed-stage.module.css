@@ -165,7 +165,10 @@
        side, given back outside so the bar keeps its size. */
     padding: var(--ui-space-1);
     margin: calc(var(--ui-space-1) * -1);
-    width: calc(100% + 2 * var(--ui-space-1));
+    /* Stretched by the column, not sized: the negative margins then widen
+       it equally on both sides and the commands stay centred. */
+    align-self: stretch;
+    width: auto;
   }
   /* Each command at least as wide as its words: a label is never cut. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {

@@ -98,7 +98,9 @@ export function MultiplayerOfflineLine(): JSX.Element {
       lines={2}
       testId="multiplayer-offline"
     >
-      <Trans>You're offline. Moves wait for the connection.</Trans>
+      <Trans>
+        You're offline. You can move again once the connection returns.
+      </Trans>
     </P>
   );
 }

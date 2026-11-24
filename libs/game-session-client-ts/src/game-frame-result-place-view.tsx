@@ -60,7 +60,15 @@ function NextActions(props: Props): JSX.Element {
             fallback={
               <>
                 <GameActionButton
-                  title={<Trans>Rematch</Trans>}
+                  // After a refusal the same button says it tries again.
+                  title={
+                    <Show
+                      when={props.error !== ''}
+                      fallback={<Trans>Rematch</Trans>}
+                    >
+                      <Trans>Retry rematch</Trans>
+                    </Show>
+                  }
                   variant="solid"
                   dataSet={{ testid: 'custom-game-rematch' }}
                   operation={() => props.onChoose({ operation: 'rematch' })}

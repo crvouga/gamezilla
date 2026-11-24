@@ -328,7 +328,9 @@ export function FrameStageConditionLine(props: {
           lines={2}
           testId="custom-game-connection-needed"
         >
-          <Trans>You're offline. Moves wait for the connection.</Trans>
+          <Trans>
+            You're offline. You can move again once the connection returns.
+          </Trans>
         </P>
       </Match>
       <Match when={props.play.away}>
