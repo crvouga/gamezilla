@@ -252,9 +252,14 @@ Then(
 Then('{actor} is not waiting for an opponent', (w, actor: string) =>
   notWaiting(w, actor)
 );
+// A guest's search refused past today's allowance offers signing in.
 Then('{actor} is invited to sign in', async (w, actor: string) => {
   expect(
-    await w.s.read(multiplayerText, actor, 'multiplayer-access-denial')
+    await w.s.read(
+      multiplayerText,
+      actingDevice(w, actor),
+      'multiplayer-command-denial'
+    )
   ).toContain('Sign in');
 });
 Then(

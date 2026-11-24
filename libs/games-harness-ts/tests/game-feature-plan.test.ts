@@ -58,12 +58,12 @@ test('the five features in release part 113 retain all 138 cases across bounded 
   expect(previousCases).toBe(138);
   expect(previousCases).toBeGreaterThan(PART_LOAD);
   const inventory = packageSpecInventory(PACKAGE, packageSpecs(PACKAGE, ROOT));
-  const units = inventory(186);
-  const parts = partsOf(units, 186);
+  const units = inventory(190);
+  const parts = partsOf(units, 190);
   // Includes every pinned game history for each enrolled variant, and
   // secret-choices' twelve files weighed by their measured nightly cost.
-  expect(units.reduce((sum, unit) => sum + unit.weight, 0)).toBe(5838);
-  expect(partLoad(units).load).toBe(5386);
+  expect(units.reduce((sum, unit) => sum + unit.weight, 0)).toBe(5947);
+  expect(partLoad(units).load).toBe(5495);
   expect(
     parts
       .flat()

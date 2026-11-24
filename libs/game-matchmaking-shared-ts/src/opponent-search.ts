@@ -1,12 +1,9 @@
-import { requireLimitInMutation } from '@libs/permissions-shared-ts/mutation-permission';
+import { requireMatchedGameLimitsInMutation } from '@libs/permissions-shared-ts/matched-game-allowance';
 import {
   readMutationPermissionSnapshot,
   requireInMutationSnapshot,
 } from '@libs/permissions-shared-ts/mutation-permission-snapshot';
-import {
-  LIMIT,
-  PERMISSION,
-} from '@libs/permissions-shared-ts/permission-catalog';
+import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { asKeywordRecord } from '@pkgs/keyword-shared-ts/keyword';
 import { SearchCommands } from '@pkgs/matchmaking-sql-shared-ts/search-commands';
 import { Outbox } from '@pkgs/outbox-shared-ts/outbox';
@@ -100,18 +97,17 @@ export async function beginOpponentSearch(
     requireTurnGames(ctx.env)
   );
   await reconcileLiveGames(ctx, input.requestId);
+  const games = new MultiplayerGameRepository(ctx.tx);
   const checkLimit = async () =>
-    requireLimitInMutation(
-      ctx,
-      LIMIT.unfinishedMultiplayerGames,
-      await new MultiplayerGameRepository(ctx.tx).unfinishedCount(
-        ctx.env.actorId
-      )
-    );
+    requireMatchedGameLimitsInMutation(ctx, {
+      unfinished: await games.unfinishedCount(ctx.env.actorId),
+      startedAt: await games.begunAt(ctx.env.actorId),
+    });
   const serverNow = ctx.env.serverNow;
-  // The server alone decides the unfinished game limit: its refusal stays
-  // with the device, which then offers the way back to the unfinished game
-  // (a screen asks the same decision before it sends).
+  // The server alone decides the unfinished game limit and the daily matched
+  // game limit, from every matched game the person started: their refusal
+  // stays with the device, which then offers the way back to the unfinished
+  // game or invites a guest to sign in.
   if (serverNow === undefined) return;
   const now = () => serverNow().getTime();
   const rating = await new MultiplayerRatingRepository(ctx.tx).read(

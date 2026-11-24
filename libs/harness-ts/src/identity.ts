@@ -4,6 +4,8 @@
  * server, so it answers the same at every fidelity — including a localhost
  * stack, where each actor's own database lives inside their browser.
  */
+
+import { accountMutationEnv } from '@libs/auth-shared-ts/account-mutation-env';
 import {
   LAST_LOCAL_ACCOUNT_ID_KEY,
   SESSION_TOKEN_KEY,
@@ -12,6 +14,7 @@ import { HARNESS_AUTH_SECRET } from '@libs/sub-shared-ts/harness-constants';
 import { hashAuthSecret } from '@pkgs/auth-inhouse-shared-ts/token-hash';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import type { MutationEnv } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
 import { harnessIdpEmail } from './idp';
@@ -180,4 +183,57 @@ export async function signedInAccountOf(
       ? row.expires_at.getTime()
       : Date.parse(String(row.expires_at));
   return expires > s.harness.clock.now() ? row.user_id : null;
+}
+
+/** Who a person plays as on the server: an account, or their guest identity. */
+export type PlayerIdentity = {
+  readonly actorId: string;
+  readonly accountId: string | null;
+  readonly isAnon: boolean;
+};
+
+/**
+ * The identity the server sees for `actorId`'s device: their account while
+ * signed in, otherwise the device's own guest identity; `null` before the
+ * app has one.
+ */
+export async function playerIdentityOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<PlayerIdentity | null> {
+  const account = await signedInAccountOf(s, actorId);
+  if (account !== null)
+    return { actorId: account, accountId: account, isAnon: false };
+  const guest = await deviceMemberIdOf(s, actorId);
+  return guest === null
+    ? null
+    : { actorId: guest, accountId: null, isAnon: true };
+}
+
+/** The id the server stores `actorId`'s play under (account or guest). */
+export async function playerIdOf(
+  s: ProductHarness,
+  actorId: string
+): Promise<string | null> {
+  return (await playerIdentityOf(s, actorId))?.actorId ?? null;
+}
+
+/** A server-trusted subject that plays as the account `accountId`. */
+export function accountPlayer(accountId: string): PlayerIdentity {
+  return { actorId: accountId, accountId, isAnon: false };
+}
+
+/**
+ * The mutation env a server use case runs with for `player`: their account,
+ * or, for a guest, their guest identity, so permissions decide for a guest.
+ */
+export function playerMutationEnv(
+  player: PlayerIdentity,
+  ports: Parameters<typeof accountMutationEnv>[1]
+): MutationEnv {
+  return {
+    ...accountMutationEnv(player.actorId, ports),
+    accountId: player.accountId,
+    isAnon: player.isAnon,
+  };
 }

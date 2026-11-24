@@ -9,7 +9,7 @@ import { OPPONENT_SEARCH_RADIUS } from '@libs/game-matchmaking-shared-ts/search-
 import type { MultiplayerRatingPool } from '@libs/game-matchmaking-shared-ts/time-control';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MutationEnv } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { multiplayerFixture } from './multiplayer-fixtures-core';
@@ -113,7 +113,7 @@ async function formMatchOf(
   if (first === undefined) throw new Error('A group requires participants');
   {
     const people = await Promise.all(
-      pair.map((person) => signedInAccountOf(s, person))
+      pair.map((person) => playerIdOf(s, person))
     );
     for (let waited = 0; waited <= LONGEST_RANGE_WAIT_MS; waited += 1000) {
       let formed: readonly string[] = [];

@@ -31,7 +31,7 @@ import { otherDevice } from './other-device';
 import type { Actor } from './parameter-types';
 import { focusActor, openAccount } from './shell-actions';
 import type { HarnessWorld } from './spec-world';
-import { remember, signedInAccountKey } from './spec-world';
+import { remember, rememberGuest, signedInAccountKey } from './spec-world';
 
 const SECOND_MS = 1_000;
 
@@ -95,12 +95,15 @@ Given('{actor} and {actor} are signed in', async (w, a: Actor, b: Actor) => {
 });
 
 Given('{actor} is a guest', async (w, actor: Actor) => {
+  rememberGuest(w, actor);
   await w.s.apply(focusActor, actor);
 });
 
 Given(
   '{actor} and {actor} are guests',
   async (w, first: Actor, second: Actor) => {
+    rememberGuest(w, first);
+    rememberGuest(w, second);
     await w.s.apply(focusActor, first);
     await w.s.apply(focusActor, second);
     await w.s.apply(focusActor, first);

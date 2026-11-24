@@ -2,7 +2,7 @@ import { acceptGameMatch } from '@libs/game-matchmaking-shared-ts/match-handoff'
 import { OpponentRequested } from '@libs/game-matchmaking-shared-ts/opponent-requested';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { accountIdOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import { authorizeAppMutation } from '@libs/permissions-shared-ts/authorize-app-mutation';
 import type { MatchFormation } from '@pkgs/matchmaking-sql-shared-ts/match-pass';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared-ts/search-read';
@@ -115,13 +115,13 @@ function receiveMatch(
 
 /** Translate people and accepted references only; never select opponents. */
 export async function multiplayerMatchFact(
-  s: Parameters<typeof accountIdOf>[0],
+  s: Parameters<typeof playerIdOf>[0],
   matchId: string,
   people: readonly string[]
 ): Promise<MatchFormation> {
   const participants = [];
   for (const actor of people) {
-    const ownerId = await accountIdOf(s, actor);
+    const ownerId = await playerIdOf(s, actor);
     if (ownerId === null) throw new Error(`Missing ${actor}'s account`);
     const current = await readCurrent(
       s.harness.serverSql.sqlClient,

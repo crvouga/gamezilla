@@ -47,7 +47,7 @@ describe('catalog resolution under the shipped policy', () => {
     }
   });
 
-  test('every catalogued action is allowed at zero use, only anonymous rated is limited', () => {
+  test('every catalogued action is allowed at zero use, only anonymous quotas are limited', () => {
     for (const facts of FIXTURES.slice(0, 3)) {
       const subject = resolveSubject(DEFAULT_PERMISSION_POLICY, facts);
       for (const action of Object.values(ACTION)) {
@@ -61,8 +61,8 @@ describe('catalog resolution under the shipped policy', () => {
         expect(decision.policyVersion).toBe(
           DEFAULT_PERMISSION_POLICY.version ?? ''
         );
-        const limited =
-          action === ACTION.puzzleRatedSolve && facts['auth'] === 'anonymous';
+        // Guests have a daily allowance of rated puzzles and matched games.
+        const limited = facts['auth'] === 'anonymous';
         expect(decision.remaining !== undefined).toBe(limited);
       }
     }

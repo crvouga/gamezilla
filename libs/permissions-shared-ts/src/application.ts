@@ -22,6 +22,7 @@ import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 import type { Subject } from '@pkgs/permissions-shared-ts/subject';
 import { grantKeyOf } from './capabilities';
 import { unitsSince } from './ledger-time';
+import { decideMatchedGameAllowance } from './matched-game-allowance';
 import type { CaseInput } from './people';
 import {
   CASE_NOW_MS,
@@ -38,11 +39,13 @@ import { startedEntries } from './puzzle-ledger';
 import {
   ACCESS_REASONS,
   answerOnly,
+  DAILY_MATCHED_GAME_LIMIT_REASONS,
   DAILY_PUZZLE_LIMIT_REASONS,
   HOSTING_LIMIT_REASONS,
   tableAnswer,
 } from './reasons';
 import { resolveSpaceRoles } from './space-roles';
+import { startedMatchedGameTimes } from './started-matched-games';
 import type { AppPolicy } from './world';
 
 type Active = PolicyVersion<AppPolicyKey, AppLimit>;
@@ -131,6 +134,25 @@ export function dailyPuzzleLimitApplicationLayer(
       return tableAnswer(
         decideQuota(active, subject, quota, { used, nowMs: CASE_NOW_MS }),
         DAILY_PUZZLE_LIMIT_REASONS
+      );
+    },
+  };
+}
+
+/** `daily-matched-game-limit`: one more matched game, counted in today's window. */
+export function dailyMatchedGameLimitApplicationLayer(
+  policy: AppPolicy = DEFAULT_PERMISSION_POLICY
+): DecisionLayer {
+  return {
+    observes: ['answer', 'reason'],
+    decide: (input) => {
+      const active = activePolicy(policy);
+      return tableAnswer(
+        decideMatchedGameAllowance(active, subjectOf(active, input), {
+          startedAt: startedMatchedGameTimes(input, CASE_NOW_MS),
+          nowMs: CASE_NOW_MS,
+        }),
+        DAILY_MATCHED_GAME_LIMIT_REASONS
       );
     },
   };

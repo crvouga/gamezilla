@@ -1282,6 +1282,18 @@
     },
     "test:spec:185": {
       "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:186": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:187": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:188": {
+      "inputs": ["$TURBO_EXTENDS$"]
+    },
+    "test:spec:189": {
+      "inputs": ["$TURBO_EXTENDS$"]
     }
   }
 }

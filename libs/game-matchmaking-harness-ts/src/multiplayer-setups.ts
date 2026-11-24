@@ -8,7 +8,7 @@ import { saveMultiplayerHands } from '@libs/game-matchmaking-shared-ts/multiplay
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { HarnessComposition } from '@libs/harness-ts/composition';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { signedInAccountOf } from '@libs/harness-ts/identity';
+import { playerIdOf } from '@libs/harness-ts/identity';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { multiplayerFixture } from './multiplayer-fixtures-core';
 import { multiplayerSpaceId } from './multiplayer-spaces';
@@ -82,8 +82,8 @@ export const chooseKnownSetups = scenarioAction({
   act: async (s, people: readonly string[]) => {
     const lookup = known.get(s.harness.composition);
     for (const actor of people) {
-      // A person signed out, or whose account is deleted, has no game to ready.
-      if ((await signedInAccountOf(s, actor)) === null) continue;
+      // A device with no one to play as (an account deleted) has no game to ready.
+      if ((await playerIdOf(s, actor)) === null) continue;
       await dealKnownHands(s, actor);
       if (lookup === undefined) continue;
       const spaceId = await multiplayerSpaceId(s, actor);

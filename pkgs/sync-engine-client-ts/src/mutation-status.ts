@@ -50,25 +50,50 @@ export type MutationVerdict =
       readonly status: 'rejected';
       readonly code: string;
       readonly message: string;
+      /** What the refusal carried for the device (e.g. a permission decision). */
+      readonly meta?: Readonly<Record<string, unknown>> | undefined;
     };
+
+/** A stored rejection's meta, as the refusal sent it; anything else is none. */
+function parsedMeta(
+  meta: unknown
+): Readonly<Record<string, unknown>> | undefined {
+  if (meta === null || meta === undefined) return undefined;
+  if (typeof meta === 'object') return meta as Record<string, unknown>;
+  if (typeof meta !== 'string') return undefined;
+  try {
+    const value: unknown = JSON.parse(meta);
+    return typeof value === 'object' && value !== null
+      ? (value as Record<string, unknown>)
+      : undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 /** {@link mutationStatus} plus the rejection's code and message. */
 export async function mutationVerdict(
   db: Pick<SqlClient, 'query'>,
   mutationId: string
 ): Promise<MutationVerdict> {
-  const rejections = await db.query(sql<{ code: string; message: string }>`
-    SELECT code, message FROM sync_engine_write_rejections
+  const rejections = await db.query(sql<{
+    code: string;
+    message: string;
+    meta: unknown;
+  }>`
+    SELECT code, message, meta FROM sync_engine_write_rejections
     WHERE mutation_id = ${mutationId}
       AND deleted_at IS NULL
     LIMIT 1
   `);
   const rejection = rejections[0];
   if (rejection !== undefined) {
+    const meta = parsedMeta(rejection.meta);
     return {
       status: 'rejected',
       code: rejection.code,
       message: rejection.message,
+      ...(meta === undefined ? {} : { meta }),
     };
   }
   const status = await mutationStatus(db, mutationId);

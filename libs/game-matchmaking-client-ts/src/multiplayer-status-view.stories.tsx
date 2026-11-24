@@ -1,5 +1,5 @@
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { MatchmakingScreenView } from './matchmaking-screen-view';
 import {
@@ -30,18 +30,16 @@ export const Loading: Story = {};
 /** A watcher in a space whose host has no game: the way back is one press. */
 export const Unavailable: Story = { args: { stage: 'unavailable' } };
 
-/** Someone who may not watch this space's game sees the way forward. */
+/** Someone outside this space may not watch its game: nothing unlocks it. */
 export const Denied: Story = {
   args: {
     stage: 'denied',
     denial: {
       icon: KeyRoundIcon,
-      title: 'Sign in to find an opponent',
-      body: 'Matched games are rated and need an account.',
-      action: { label: 'Sign in', onPress: fn() },
+      title: 'Not available',
       dataSet: {
         testid: 'multiplayer-access-denial',
-        reason: 'requires_account',
+        reason: 'not_granted',
       },
     },
   },

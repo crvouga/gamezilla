@@ -3,8 +3,8 @@ import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import type { JourneyHost, JourneyWorld } from './journey-types';
 import {
   establishMultiplayerSearch,
-  expectMultiplayerInvitation,
   expectMultiplayerLoss,
+  expectMultiplayerWaiting,
   expectMultiplayerWin,
   expectNoMultiplayerGame,
   expectSharedMultiplayerGame,
@@ -93,11 +93,8 @@ When(
 Then('{actor} sees the accepted multiplayer result', (w, actor: Actor) =>
   device(w.journey, actor)('expectMultiplayerWin', expectMultiplayerWin)
 );
-Then('{actor} is invited to sign in', (w, actor: Actor) =>
-  device(w.journey, actor)(
-    'expectMultiplayerInvitation',
-    expectMultiplayerInvitation
-  )
+Then('{actor} is finding a multiplayer chess opponent', (w, actor: Actor) =>
+  device(w.journey, actor)('expectMultiplayerWaiting', expectMultiplayerWaiting)
 );
 Then('{actor} has no multiplayer chess game', (w, actor: Actor) =>
   device(w.journey, actor)('expectNoMultiplayerGame', expectNoMultiplayerGame)

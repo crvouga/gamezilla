@@ -7,6 +7,7 @@ import type {
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import {
+  type MatchedGamesLeftView,
   MatchmakingHomeView,
   type MultiplayerFindChoice,
 } from './matchmaking-home-view';
@@ -73,6 +74,8 @@ export type MatchmakingScreenViewProps = {
   readonly returnTo?: UnfinishedGame['kind'] | undefined;
   /** Goes back to that game's board. */
   readonly onReturn?: (() => void) | undefined;
+  /** Today's matched games left, once few are, with the way to unlimited. */
+  readonly gamesLeft?: MatchedGamesLeftView | undefined;
   /** The search under way; set in the `searching` stage. */
   readonly search: MultiplayerSearchView | null;
   readonly onStop: () => Promise<void>;
@@ -194,6 +197,7 @@ function FindPlace(props: Props): JSX.Element {
       onFind={props.onFind}
       returnTo={props.returnTo}
       onReturn={props.onReturn}
+      gamesLeft={props.gamesLeft}
     />
   );
 }

@@ -243,6 +243,7 @@ export const STORY_PARAMETERS = {
       'place',
       'denial',
       'commandDenial',
+      'gamesLeft',
       'find',
       'search',
       'ratings',

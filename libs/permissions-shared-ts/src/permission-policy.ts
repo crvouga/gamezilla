@@ -10,7 +10,7 @@ import type {
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-10-23.1';
+export const PERMISSION_POLICY_VERSION = '2026-11-23.1';
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -20,6 +20,25 @@ const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
  */
 const ANONYMOUS_RATED: QuotaGrant = {
   limit: 20,
+  window: 'day',
+  resetBoundary: 'utcMidnight',
+};
+
+/**
+ * How many matched games a guest may begin per UTC day, across every game
+ * offering them (`specs/games/daily-matched-game-limit.dmn`): enough to feel
+ * the product before the invitation to sign in. Accounts have no such limit.
+ */
+export const GUEST_MATCHED_GAMES_PER_DAY = 10;
+
+/**
+ * A guest is told how many matched games remain today only once this many or
+ * fewer do, so a guest with plenty left is never nagged.
+ */
+export const MATCHED_GAMES_LEFT_SHOWN_AT = 3;
+
+const ANONYMOUS_MATCHED: QuotaGrant = {
+  limit: GUEST_MATCHED_GAMES_PER_DAY,
   window: 'day',
   resetBoundary: 'utcMidnight',
 };
@@ -37,12 +56,6 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.profileExportData,
   PERMISSION.billingSubscribe,
   PERMISSION.billingManage,
-  PERMISSION.matchmakingUse,
-  PERMISSION.matchmakingView,
-  PERMISSION.matchmakingStop,
-  PERMISSION.matchmakingChangeRange,
-  PERMISSION.gameMultiplayerPlay,
-  PERMISSION.gameMultiplayerResign,
   PERMISSION.puzzlesCustomizeFeed,
   PERMISSION.puzzlesManage,
 ];
@@ -73,6 +86,16 @@ const PRIVACY_UNLOCK = {
   },
 } as const;
 
+/** Finding an opponent and playing the matched game: guests and accounts alike. */
+const MATCHMAKING_PERMISSIONS: readonly AppPermission[] = [
+  PERMISSION.matchmakingUse,
+  PERMISSION.matchmakingView,
+  PERMISSION.matchmakingStop,
+  PERMISSION.matchmakingChangeRange,
+  PERMISSION.gameMultiplayerPlay,
+  PERMISSION.gameMultiplayerResign,
+];
+
 const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.friendsUse,
   PERMISSION.peopleSearch,
@@ -80,12 +103,7 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
   PERMISSION.profileDeleteAccount,
   PERMISSION.profileExportData,
   PERMISSION.billingManage,
-  PERMISSION.matchmakingUse,
-  PERMISSION.matchmakingView,
-  PERMISSION.matchmakingStop,
-  PERMISSION.matchmakingChangeRange,
-  PERMISSION.gameMultiplayerPlay,
-  PERMISSION.gameMultiplayerResign,
+  ...MATCHMAKING_PERMISSIONS,
   PERMISSION.puzzlesPlay,
   PERMISSION.puzzlesCustomizeFeed,
   PERMISSION.spacesCreate,
@@ -98,10 +116,10 @@ const ACCOUNT_PERMISSIONS: readonly AppPermission[] = [
  * are off). Guests and free accounts host one live space at a
  * time, Plus members any number (`spaces:hosted`, decided with `decideLimit`
  * against the live spaces the actor hosts; reaching it invites to Plus). The
- * only quota is the anonymous rated-puzzle quota;
- * because quotas merge to the maximum, `puzzle.rated.solve` lives on the
- * fact-matched roles (anonymous: 20/day, accounts: unlimited), never on the
- * baseline. Plan roles are listed explicitly — no inheritance — and their
+ * quotas are the anonymous rated-puzzle and matched-game quotas; because
+ * quotas merge to the maximum, `puzzle.rated.solve` and `game.matched.start`
+ * live on the fact-matched roles (anonymous: 20/day and 10/day, accounts:
+ * unlimited), never on the baseline. Plan roles are listed explicitly — no inheritance — and their
  * `when` predicates are exclusive. Both list `billing:subscribe`: a paid
  * account whose membership ended keeps paid access through grace and may
  * start again at once. While a membership is live (it still renews) a second
@@ -133,12 +151,16 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         PERMISSION.puzzlesPlay,
         PERMISSION.spacesCreate,
         PERMISSION.spacesJoin,
+        ...MATCHMAKING_PERMISSIONS,
       ],
       limits: {
         [LIMIT.hostedSpaces]: 1,
         [LIMIT.unfinishedMultiplayerGames]: 1,
       },
-      quotas: { [ACTION.puzzleRatedSolve]: ANONYMOUS_RATED },
+      quotas: {
+        [ACTION.puzzleRatedSolve]: ANONYMOUS_RATED,
+        [ACTION.matchedGameStart]: ANONYMOUS_MATCHED,
+      },
     },
     [ROLE.planFree]: {
       when: { auth: 'verified', membership: 'none' },
@@ -147,7 +169,10 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         [LIMIT.hostedSpaces]: 1,
         [LIMIT.unfinishedMultiplayerGames]: 1,
       },
-      quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
+      quotas: {
+        [ACTION.puzzleRatedSolve]: UNLIMITED,
+        [ACTION.matchedGameStart]: UNLIMITED,
+      },
     },
     [ROLE.planPaid]: {
       when: { auth: 'verified', membership: 'active' },
@@ -156,7 +181,10 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         [LIMIT.hostedSpaces]: null,
         [LIMIT.unfinishedMultiplayerGames]: 1,
       },
-      quotas: { [ACTION.puzzleRatedSolve]: UNLIMITED },
+      quotas: {
+        [ACTION.puzzleRatedSolve]: UNLIMITED,
+        [ACTION.matchedGameStart]: UNLIMITED,
+      },
     },
     [ROLE.puzzleManager]: {
       when: { accountId: [] },
@@ -249,12 +277,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [PERMISSION.billingManage]: SIGN_UP_UNLOCK,
     [PERMISSION.profileDeleteAccount]: PRIVACY_UNLOCK,
     [PERMISSION.profileExportData]: PRIVACY_UNLOCK,
-    [PERMISSION.matchmakingUse]: SIGN_UP_UNLOCK,
-    [PERMISSION.matchmakingView]: SIGN_UP_UNLOCK,
-    [PERMISSION.matchmakingStop]: SIGN_UP_UNLOCK,
-    [PERMISSION.matchmakingChangeRange]: SIGN_UP_UNLOCK,
-    [PERMISSION.gameMultiplayerPlay]: SIGN_UP_UNLOCK,
-    [PERMISSION.gameMultiplayerResign]: SIGN_UP_UNLOCK,
     [LIMIT.unfinishedMultiplayerGames]: {
       limit_reached: { titleKey: 'unlock.multiplayer.finish.title' },
       // A participant of an active Custom Game finishes it first.
@@ -271,6 +293,15 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         titleKey: 'unlock.hosted-spaces.title',
         bodyKey: 'unlock.hosted-spaces.body',
         ctaTarget: 'billing',
+      },
+    },
+    [ACTION.matchedGameStart]: {
+      quota_exhausted: {
+        titleKey: 'unlock.matched.keep-playing.title',
+        bodyKey: 'unlock.matched.keep-playing.body',
+        // Only guests have a matched game allowance: signing in lifts it.
+        ctaTarget: 'signup',
+        secondaryCta: 'wait_for_reset',
       },
     },
     [ACTION.puzzleRatedSolve]: {

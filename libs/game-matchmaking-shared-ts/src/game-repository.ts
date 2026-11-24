@@ -29,6 +29,19 @@ function pairColourBalance(
   return row.white_id === ownerId ? 1 : row.black_id === ownerId ? -1 : 0;
 }
 
+/**
+ * When the person's matched games that got under way began: every seat, any
+ * game, an abort before it was under way left out. The device reads the same
+ * from its synced copy, so both count the daily matched game limit alike.
+ */
+export function begunGamesSql(ownerId: string) {
+  return sql<{
+    created_at: unknown;
+  }>`SELECT created_at FROM chess_multiplayer_games
+    WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId})
+      AND outcome <> ${'aborted'} AND deleted_at IS NULL`;
+}
+
 export class MultiplayerGameRepository {
   constructor(private readonly tx: SqlTx) {}
 
@@ -38,6 +51,16 @@ export class MultiplayerGameRepository {
     }>`SELECT id FROM chess_multiplayer_games
       WHERE (white_id = ${ownerId} OR black_id = ${ownerId} OR red_id = ${ownerId} OR blue_id = ${ownerId}) AND outcome = 'ongoing' AND deleted_at IS NULL`);
     return rows.length;
+  }
+
+  /**
+   * When each matched game the person sat in began, in every game, over or
+   * not, leaving out one aborted before it was under way: the daily matched
+   * game limit counts today's.
+   */
+  async begunAt(ownerId: string): Promise<readonly unknown[]> {
+    const rows = await this.tx.query(begunGamesSql(ownerId));
+    return rows.map((row) => row.created_at);
   }
 
   /** Read the complete candidate roster's history while its owner locks are held. */

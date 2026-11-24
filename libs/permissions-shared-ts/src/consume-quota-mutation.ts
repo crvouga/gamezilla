@@ -5,7 +5,7 @@ import type { MutationDb } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { MutationError } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { z } from 'zod';
 import { evaluateQuota } from './evaluate-quota';
-import { QUOTA_ACTIONS } from './permission-catalog';
+import { LEDGER_QUOTA_ACTIONS } from './permission-catalog';
 import type { AccessIdentity } from './read-access';
 
 /** Max key length: attempt / run ids, never payloads. */
@@ -14,7 +14,7 @@ const MAX_KEY_LENGTH = 200;
 export const consumeQuotaArgs = z.object({
   /** Ledger row id minted by the caller so local and server rows agree. */
   id: z.string().min(1).max(MAX_KEY_LENGTH),
-  quota: z.enum(QUOTA_ACTIONS),
+  quota: z.enum(LEDGER_QUOTA_ACTIONS),
   idempotencyKey: z.string().min(1).max(MAX_KEY_LENGTH),
   amount: z.number().int().min(1).max(100).default(1),
 });
