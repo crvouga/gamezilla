@@ -20,6 +20,11 @@ type StartProps = {
    * it is the thing to do next, in place of a readiness they cannot give.
    */
   readonly onArrange?: (() => void) | undefined;
+  /**
+   * No connection: Start says what pressing it does now, so the timing
+   * stays in view after the notice is dismissed.
+   */
+  readonly offline?: boolean | undefined;
 };
 
 /** The viewer cannot get ready until their private setup is complete. */
@@ -77,7 +82,14 @@ function StartButton(props: StartProps): JSX.Element {
   return (
     <Show when={props.start.canStart && !mustGetReady(props.start)}>
       <GameActionButton
-        title={<Trans>Start game</Trans>}
+        title={
+          <Show
+            when={props.offline === true}
+            fallback={<Trans>Start game</Trans>}
+          >
+            <Trans>Start when back online</Trans>
+          </Show>
+        }
         dataSet={{ testid: 'custom-game-start' }}
         variant="solid"
         size="lg"

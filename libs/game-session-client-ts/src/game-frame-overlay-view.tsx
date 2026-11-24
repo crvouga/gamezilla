@@ -121,7 +121,12 @@ function eyebrow(tone: GameResultCardProps['tone']): string {
  * someone has no Rematch of their own.
  */
 function outcomeCaption(props: Props): string | undefined {
-  const reason = props.result === null ? '' : (props.status?.description ?? '');
+  // A draw's own headline says it; the bare "Game drawn." is not repeated.
+  const said =
+    frameResultTone(props.result) === 'drawn' &&
+    /^game drawn\.?$/i.test(props.status?.description?.trim() ?? '');
+  const reason =
+    props.result === null || said ? '' : (props.status?.description ?? '');
   const note = props.result?.note ?? '';
   const caption = [reason, note].filter((part) => part !== '').join(' ');
   return caption === '' ? undefined : caption;

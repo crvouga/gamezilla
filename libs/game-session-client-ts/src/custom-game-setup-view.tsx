@@ -417,6 +417,7 @@ export function CustomGameSetupPlace(
           }
           onChoose={props.onChoose}
           onReady={props.onReady}
+          offline={props.connection === 'needed'}
           onArrange={
             props.setup.privateSetup === null
               ? undefined
