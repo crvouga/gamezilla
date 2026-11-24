@@ -1,0 +1,4 @@
+{
+  "summary": "Root lint failed with 80 errors on vendored pstack skill scripts: biome.json excluded .agents/skills/{poteto-mode,statechart}/scripts, but .claude/skills links to every skill and Biome followed the links, linting the same third-party files under their .claude/skills path. Fixed by excluding .claude/skills (every entry is a link into .agents/skills, linted at its own path).",
+  "regressionTest": "libs/tools-harness-ts/scripts/biome-scope-slices.test.ts"
+}

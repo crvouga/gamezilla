@@ -107,11 +107,14 @@ export const openPuzzleByTheme = scenarioAction({
     theme: ChessPuzzleTheme,
     puzzleId: string
   ) => {
-    await Promise.resolve(openPuzzleFeedSettings.act(s, actorId));
-    await Promise.resolve(
-      setPuzzleFeedTheme.act(s, actorId, CHESS_GAME_ID, theme)
-    );
-    await Promise.resolve(closePuzzleFeedSettings.act(s, actorId));
+    // regression: named-puzzle-already-on-board
+    if ((await readPuzzleOnBoard(s, actorId)) !== puzzleId) {
+      await Promise.resolve(openPuzzleFeedSettings.act(s, actorId));
+      await Promise.resolve(
+        setPuzzleFeedTheme.act(s, actorId, CHESS_GAME_ID, theme)
+      );
+      await Promise.resolve(closePuzzleFeedSettings.act(s, actorId));
+    }
     await expectPlayReady(s, actorId);
     await pollUntil(
       s,

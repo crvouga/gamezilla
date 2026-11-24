@@ -15,12 +15,17 @@ test('sign-out waits for the dismissed success surface to release the screen', a
       isVisible: async () =>
         id === Handles.authSignOutModal
           ? modalVisible
-          : id === Handles.accountSignIn && signedOut,
+          : (id === Handles.accountSignIn || id === Handles.authSignOutDone) &&
+            signedOut,
       tap: async () => {
         if (id === Handles.authSignOutConfirm) signedOut = true;
         if (id === Handles.authSignOutDone) dismissed = true;
       },
-      wait: async (state: string) => {
+      wait: async (
+        state: string,
+        options?: { visibleOr?: readonly string[] }
+      ) => {
+        if (options?.visibleOr?.includes(Handles.authSignOutDone)) return;
         if (id !== Handles.authSignOutModal || state !== 'hidden') return;
         expect(dismissed).toBe(true);
         waiting.resolve();
@@ -42,5 +47,30 @@ test('sign-out waits for the dismissed success surface to release the screen', a
     closing.resolve();
     await operation;
   }
+  expect(modalVisible).toBe(false);
+});
+
+test('the signed-out screen can replace the pending confirmation', async () => {
+  // regression: sign-out-dialog-replaced-during-submit
+  let modalVisible = true;
+  const driver = {
+    get: (id: string) => ({
+      isVisible: async () => id === Handles.authSignOutModal && modalVisible,
+      tap: async () => {
+        expect(id).not.toBe(Handles.authSignOutDone);
+      },
+      wait: async (
+        state: string,
+        options?: { visibleOr?: readonly string[] }
+      ) => {
+        if (id === Handles.authSignOutModal && modalVisible) {
+          expect(state).toBe('hidden');
+          expect(options?.visibleOr).toEqual([Handles.authSignOutDone]);
+          modalVisible = false;
+        }
+      },
+    }),
+  } as unknown as Driver;
+  await logOutThroughUi(driver);
   expect(modalVisible).toBe(false);
 });

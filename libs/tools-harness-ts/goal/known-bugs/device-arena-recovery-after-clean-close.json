@@ -1,0 +1,4 @@
+{
+  "summary": "A second practice arena arrangement used the checkpoint anchor from before the device closed, so the recovered arena omitted the three trails surrounding Ember.",
+  "regressionTest": "specs/light-cycles/light-cycles-bots-and-modes.feature"
+}

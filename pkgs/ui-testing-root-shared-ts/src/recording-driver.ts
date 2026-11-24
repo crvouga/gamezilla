@@ -35,8 +35,8 @@ function describeWait(
   if (isWaitTextCondition(state)) {
     return `${state.exact === false ? 'contains' : 'text'} ${JSON.stringify(state.text)}`;
   }
-  if (state === 'visible' && options?.visibleOr !== undefined)
-    return `visible or ${JSON.stringify(options.visibleOr)}`;
+  if (state !== 'enabled' && options?.visibleOr !== undefined)
+    return `${state} or visible ${JSON.stringify(options.visibleOr)}`;
   return state;
 }
 

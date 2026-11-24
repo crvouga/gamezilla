@@ -1,0 +1,4 @@
+{
+  "summary": "With 01Xbe already on the board, selecting its theme again removed the only matching unseen puzzle from the feed.",
+  "regressionTest": "specs/chess/puzzle-refusals.feature"
+}

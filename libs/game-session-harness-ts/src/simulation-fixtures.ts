@@ -89,14 +89,26 @@ type Recovery = Parameters<typeof RecoverSimulation.is>[0];
 /** A saved live game holding `arrange(position)`, or null when `arrange` passes it by. */
 function rearranged(
   payload: Recovery,
-  arrange: (position: string) => string | null
+  arrange: (position: string) => string | null,
+  closedDevice = false
 ): Recovery | null {
   if (!RecoverSimulation.is(payload)) return null;
   const recovery = payload.payload;
   const position = arrange(recovery.checkpoint.position);
   if (position === null) return null;
+  const anchor = parsed(recovery.source);
+  if (anchor === null || typeof anchor !== 'object') return null;
+  // A clean device shutdown commits the projected frame to the durable room.
+  const source = closedDevice
+    ? JSON.stringify({
+        ...anchor,
+        position: recovery.checkpoint.position,
+        execution: recovery.checkpoint.execution,
+      })
+    : recovery.source;
   return RecoverSimulation({
     ...recovery,
+    source,
     checkpoint: { ...recovery.checkpoint, position },
   });
 }
@@ -122,7 +134,7 @@ function rewriteDeviceRecord(
       readonly payload?: Recovery;
     } | null;
     if (checkpoint?.payload === undefined) continue;
-    const payload = rearranged(checkpoint.payload, arrange);
+    const payload = rearranged(checkpoint.payload, arrange, true);
     if (payload === null) continue;
     const next = { ...checkpoint, payload };
     return JSON.stringify({

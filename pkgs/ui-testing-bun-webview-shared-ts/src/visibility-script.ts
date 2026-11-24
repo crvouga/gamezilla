@@ -1,5 +1,8 @@
 /** Check alternate landing controls with one page evaluation. */
-export function visibilityScript(selectors: readonly string[]): string {
+export function visibilityScript(
+  selectors: readonly string[],
+  state: 'visible' | 'hidden' = 'visible'
+): string {
   return `(function(){
     function visible(el) {
       const s = getComputedStyle(el);
@@ -12,9 +15,10 @@ export function visibilityScript(selectors: readonly string[]): string {
       return el instanceof HTMLInputElement && (el.type === 'radio' || el.type === 'checkbox') &&
         Array.from(el.labels ?? []).some(visible);
     }
-    return ${JSON.stringify(selectors)}.some(function(selector) {
+    return ${JSON.stringify(selectors)}.some(function(selector, index) {
       const el = document.querySelector(selector);
-      return el !== null && visible(el);
+      const shown = el !== null && visible(el);
+      return index === 0 && ${state === 'hidden'} ? !shown : shown;
     });
   })()`;
 }

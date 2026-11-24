@@ -116,12 +116,12 @@ describe('Trans', () => {
     mount(french(), () => (
       <p data-testid="terms">
         <Trans id="terms">
-          Read <a href="/terms">the terms</a> of {{ site: 'Gamezilla' }}
+          Read <a href="/terms">the terms</a> of {{ site: 'Example' }}
         </Trans>
       </p>
     ));
     const terms = screen.getByTestId('terms');
-    expect(terms).toHaveTextContent('Lisez les conditions de Gamezilla');
+    expect(terms).toHaveTextContent('Lisez les conditions de Example');
     const link = terms.querySelector('a');
     expect(link).toHaveAttribute('href', '/terms');
     expect(link).toHaveTextContent('les conditions');
@@ -131,12 +131,12 @@ describe('Trans', () => {
     mount(english(), () => (
       <p data-testid="terms">
         <Trans id="terms">
-          Read <a href="/terms">the terms</a> of {{ site: 'Gamezilla' }}
+          Read <a href="/terms">the terms</a> of {{ site: 'Example' }}
         </Trans>
       </p>
     ));
     const terms = screen.getByTestId('terms');
-    expect(terms).toHaveTextContent('Read the terms of Gamezilla');
+    expect(terms).toHaveTextContent('Read the terms of Example');
     expect(terms.querySelector('a')).toHaveTextContent('the terms');
   });
 

@@ -83,6 +83,8 @@ export const placeLightCyclesArena = scenarioAction({
   name: 'placeLightCyclesArena',
   act: async (s, change: Partial<LightCyclesArenaPlan>) => {
     await startedLightCycles(s);
+    if (plans.has(s) && lightCyclesLineup(s).practice)
+      await takeNextStep.act(s);
     const plan = merged(plans.get(s) ?? EMPTY_ARENA_PLAN, change);
     plans.set(s, plan);
     const direct = Object.keys(plan.placed).some((name) => ridByBot(s, name));

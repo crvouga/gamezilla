@@ -18,7 +18,11 @@ export async function signOut(ui: Driver): Promise<void> {
   await tap(ui, Handles.accountSignOut);
   await tap(ui, Handles.authSignOutConfirm);
   await expectVisible(ui, Handles.accountSignIn);
-  if (await ui.get(Handles.authSignOutModal).isVisible())
+  await ui.get(Handles.authSignOutModal).wait('hidden', {
+    visibleOr: [Handles.authSignOutDone],
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+  if (await ui.get(Handles.authSignOutDone).isVisible())
     await tap(ui, Handles.authSignOutDone);
   await ui.get(Handles.authSignOutModal).wait('hidden', {
     timeoutMs: JOURNEY_WAIT_MS,

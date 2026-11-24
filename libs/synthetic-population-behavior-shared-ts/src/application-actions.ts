@@ -147,7 +147,10 @@ export async function logOutThroughUi(driver: Driver): Promise<void> {
   await driver.get(Handles.accountSignOut).tap();
   await driver.get(Handles.authSignOutConfirm).tap();
   await driver.get(Handles.accountSignIn).wait('visible');
-  if (await driver.get(Handles.authSignOutModal).isVisible())
+  await driver.get(Handles.authSignOutModal).wait('hidden', {
+    visibleOr: [Handles.authSignOutDone],
+  });
+  if (await driver.get(Handles.authSignOutDone).isVisible())
     await driver.get(Handles.authSignOutDone).tap();
   await driver.get(Handles.authSignOutModal).wait('hidden');
 }
