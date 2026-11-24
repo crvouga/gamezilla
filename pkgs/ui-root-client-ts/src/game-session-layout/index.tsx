@@ -75,6 +75,11 @@ export type GameSessionLayoutProps = {
    */
   sheet?: JSX.Element | undefined;
   /**
+   * Quieter ways on from the outcome (other options, ratings), under the
+   * dialog's commands so the next game's command comes first.
+   */
+  sheetFooter?: JSX.Element | undefined;
+  /**
    * The way from a phone's one line of moves to all of them (`All moves`),
    * at the line's end. A wide window shows every move beside the board.
    */
@@ -134,6 +139,7 @@ function SessionControls(props: GameSessionLayoutProps): JSX.Element {
         <GameResultDialog
           state={dialog}
           outcome={outcome.content()}
+          footer={props.sheetFooter}
           alerts={<Show when={dialog.open()}>{alerts()}</Show>}
           actions={
             <Show when={dialog.open()}>

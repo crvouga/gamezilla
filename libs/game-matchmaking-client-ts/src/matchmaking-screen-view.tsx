@@ -170,6 +170,7 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
           error={props.error}
           online={props.online}
           searching={props.stage === 'searching'}
+          docked={props.place.screen === 'home' && props.returnTo === undefined}
           playing={props.stage === 'playing' && props.place.screen === 'stage'}
         />
       );
@@ -198,6 +199,7 @@ function FindPlace(props: Props): JSX.Element {
       goal={props.goal}
       find={props.find}
       findRefused={props.commandDenial !== undefined || !props.online}
+      offline={!props.online}
       ratings={props.ratings}
       onOpen={props.onOpen}
       onFind={props.onFind}

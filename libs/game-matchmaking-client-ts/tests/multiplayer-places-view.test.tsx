@@ -532,7 +532,7 @@ describe('the result', () => {
     view.set({ result: { tone: 'neutral', aborted: true, title: 'Aborted.' } });
     expect(text()).toContain('No result');
     view.set({ result: { tone: 'neutral', title: 'alice won.' } });
-    expect(text()).toContain('Game over');
+    expect(text()).toContain('Final result');
   });
 
   test('Back from the ratings returns to where they were opened from', () => {

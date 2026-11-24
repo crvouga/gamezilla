@@ -23,6 +23,8 @@ export function MultiplayerNotices(props: {
    * search says it in its own card).
    */
   readonly playing?: boolean | undefined;
+  /** The home's dock says no connection over Find an opponent instead. */
+  readonly docked?: boolean | undefined;
 }): JSX.Element {
   return (
     <>
@@ -61,7 +63,10 @@ export function MultiplayerNotices(props: {
         </Show>
         <Show
           when={
-            !props.online && props.playing !== true && props.searching !== true
+            !props.online &&
+            props.playing !== true &&
+            props.searching !== true &&
+            props.docked !== true
           }
         >
           <Notice

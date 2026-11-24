@@ -57,6 +57,8 @@ export function GameResultDialog(props: {
   readonly alerts?: JSX.Element | undefined;
   /** The next actions, moved here from the bar while the dialog is open. */
   readonly actions: JSX.Element;
+  /** Quieter ways on (other options, ratings), under the commands. */
+  readonly footer?: JSX.Element | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   return (
@@ -72,6 +74,7 @@ export function GameResultDialog(props: {
         {props.outcome}
         {props.alerts}
         <div class={styles['actions']}>{props.actions}</div>
+        {props.footer}
       </div>
     </ResponsiveSurface>
   );

@@ -137,7 +137,11 @@ export function MultiplayerWaiting(props: {
         </Show>
       }
       elapsed={
+        // Held while offline: the time searched so far, not a running count.
         <>
+          <Show when={props.offline === true}>
+            <Trans>Searched</Trans>{' '}
+          </Show>
           <Text variant="inherit" testId="multiplayer-waiting-seconds">
             {props.search.seconds}
           </Text>{' '}

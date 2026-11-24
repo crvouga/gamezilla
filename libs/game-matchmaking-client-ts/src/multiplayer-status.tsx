@@ -205,7 +205,22 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
   const turnName = useShownName(() => props.game.turn);
   return (
     <>
-      <Trans>Watching multiplayer {presentation(props.game.fen).name()}.</Trans>
+      {/* Once the game is over the result leads with who won; that it was
+          watched is for a listener, who cannot see the seats. */}
+      <Show
+        when={props.game.outcome === 'ongoing'}
+        fallback={
+          <VisuallyHidden>
+            <Trans>
+              Watching multiplayer {presentation(props.game.fen).name()}.
+            </Trans>
+          </VisuallyHidden>
+        }
+      >
+        <Trans>
+          Watching multiplayer {presentation(props.game.fen).name()}.
+        </Trans>
+      </Show>
       <Show
         when={turnStatus()}
         fallback={
@@ -243,11 +258,16 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
         )}
       >
         {' '}
-        <Trans>{props.winnerName} won the multiplayer game.</Trans>
+        <Trans>
+          {props.winnerName} won the
+          <VisuallyHidden> multiplayer</VisuallyHidden> game.
+        </Trans>
       </Show>
       <Show when={props.game.outcome === 'draw'}>
         {' '}
-        <Trans>The multiplayer game is drawn.</Trans>
+        <Trans>
+          The<VisuallyHidden> multiplayer</VisuallyHidden> game is drawn.
+        </Trans>
       </Show>
     </>
   );
@@ -364,10 +384,16 @@ function Offers(props: StatusProps): JSX.Element {
   return (
     <>
       <Show when={offeredToMe(props.game.draw_offer_by)}>
-        <Trans>{drawName()} offered you a multiplayer draw.</Trans>{' '}
+        <Trans>
+          {drawName()} offered you a
+          <VisuallyHidden> multiplayer</VisuallyHidden> draw.
+        </Trans>{' '}
       </Show>
       <Show when={offeredToMe(props.game.rematch_offer_by)}>
-        <Trans>{rematchName()} offered you a multiplayer rematch.</Trans>{' '}
+        <Trans>
+          {rematchName()} offered you a
+          <VisuallyHidden> multiplayer</VisuallyHidden> rematch.
+        </Trans>{' '}
       </Show>
     </>
   );

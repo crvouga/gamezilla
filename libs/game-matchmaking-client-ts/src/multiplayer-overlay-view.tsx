@@ -72,7 +72,8 @@ function headline(result: MultiplayerResultShown): string {
   if (result.tone === 'won') return t`Victory`;
   if (result.tone === 'lost') return t`Defeat`;
   if (result.tone === 'drawn') return t`Draw`;
-  return t`Game over`;
+  // Not "Game over": the dialog's own title already says that.
+  return t`Final result`;
 }
 
 function VersusCard(

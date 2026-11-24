@@ -32,7 +32,6 @@ import {
   FrameBoardSeatView,
   FrameNearSeatView,
   FrameOthersView,
-  tableShowsTurn,
 } from './game-frame-table-view';
 import type { FramePlaySeat, FrameTable } from './game-frame-view-types';
 
@@ -108,16 +107,16 @@ function realTime(props: Props): boolean {
 }
 
 /**
- * Whether the line about the game is for a listener only, because the
- * screen already says it: the seat to move says the plain `<Side> to
- * move.` itself, and a real-time game's default line only repeats the hint
- * under its arena.
+ * Whether the line about the game is for a listener only: a real-time
+ * game's default line only repeats the hint under its arena. A turn game's
+ * line stays in view on the status band over the commands, so the band is
+ * never a blank strip and says whose turn it is right by the commands.
  */
-function lineSpokenOnly(props: Props, compact: boolean): boolean {
+function lineSpokenOnly(props: Props): boolean {
   const status = props.status;
   if (status === null || !status.plainTurn || status.sending) return false;
   if (status.tone !== 'neutral') return false;
-  return realTime(props) || tableShowsTurn(props.table, compact);
+  return realTime(props);
 }
 
 /**
@@ -127,12 +126,11 @@ function lineSpokenOnly(props: Props, compact: boolean): boolean {
  * stay one unit that fits the window.
  */
 function PlayLine(props: Props): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <FrameStatusView
       status={props.status}
       arena={realTime(props)}
-      spokenOnly={lineSpokenOnly(props, mode() !== 'wide')}
+      spokenOnly={lineSpokenOnly(props)}
     />
   );
 }

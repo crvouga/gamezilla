@@ -6,7 +6,7 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { JSX } from 'solid-js';
-import { createMemo, Show } from 'solid-js';
+import { children, createMemo, Show } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';
 
@@ -95,25 +95,31 @@ export function SpaceShareAddPeopleView(
     const person = props.candidates.find((candidate) => candidate.id === id);
     if (person !== undefined) props.onPick(person);
   };
+  // Search refused (sign in first): its prompt takes the field's place, so
+  // nothing looks usable that is not.
+  const denied = children(() => props.searchDenied);
+  const searchAllowed = (): boolean =>
+    !denied.toArray().some((node) => node !== null && node !== undefined);
   return (
     <StackVertical gap="sm">
-      <Combobox
-        label={t`Add people`}
-        surfaceTitle={<Trans>Add people</Trans>}
-        options={options()}
-        onValueChange={onValueChange}
-        query={props.query}
-        onQueryChange={(query) => props.onQueryChange(query)}
-        filterOption={() => true}
-        placeholder={t`Search by username`}
-        searchPlaceholder={t`Search by username`}
-        loading={props.searching && options().length === 0}
-        disabled={props.addition.status === 'loading'}
-        emptyMessage={emptyMessage()}
-        triggerDataSet={{ testid: Handles.spaceAddTrigger }}
-        searchDataSet={{ testid: Handles.spaceAddQuery }}
-      />
-      {props.searchDenied}
+      <Show when={searchAllowed()} fallback={denied()}>
+        <Combobox
+          label={t`Add people`}
+          surfaceTitle={<Trans>Add people</Trans>}
+          options={options()}
+          onValueChange={onValueChange}
+          query={props.query}
+          onQueryChange={(query) => props.onQueryChange(query)}
+          filterOption={() => true}
+          placeholder={t`Search by username`}
+          searchPlaceholder={t`Search by username`}
+          loading={props.searching && options().length === 0}
+          disabled={props.addition.status === 'loading'}
+          emptyMessage={emptyMessage()}
+          triggerDataSet={{ testid: Handles.spaceAddTrigger }}
+          searchDataSet={{ testid: Handles.spaceAddQuery }}
+        />
+      </Show>
       <SpaceAdditionState addition={props.addition} onRetry={props.onRetry} />
     </StackVertical>
   );

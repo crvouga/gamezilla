@@ -255,6 +255,14 @@
  * the same width, four as two rows of two, never three and a stray one.
  */
 @container game-column (min-width: 880px) {
+  /* The status line keeps one band over the commands in every state, so a
+     line that comes (stopped, offline, a draw offered) never moves them. */
+  .status {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 44px;
+  }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));

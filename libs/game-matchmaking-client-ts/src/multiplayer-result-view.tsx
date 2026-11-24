@@ -169,14 +169,16 @@ function Onward(props: ResultProps): JSX.Element {
           dataSet={{ testid: 'multiplayer-open-find' }}
         />
       </Show>
-      <Button
-        title={<Trans>Your ratings</Trans>}
-        variant="ghost"
-        intent="neutral"
-        size="sm"
-        onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
-        dataSet={{ testid: 'multiplayer-open-ratings' }}
-      />
+      <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
+        <Button
+          title={<Trans>Your ratings</Trans>}
+          variant="ghost"
+          intent="neutral"
+          size="sm"
+          onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
+          dataSet={{ testid: 'multiplayer-open-ratings' }}
+        />
+      </Show>
     </StackHorizontal>
   );
 }
@@ -198,11 +200,9 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         fixedStage
         // The card lies over the stage's foot (heading the rail beside a
         // wide board), so the final board keeps the live board's place.
-        sheet={
-          <MultiplayerResultCard result={props.result}>
-            <Onward {...props} />
-          </MultiplayerResultCard>
-        }
+        sheet={<MultiplayerResultCard result={props.result} />}
+        // Other options and ratings come after the next game's commands.
+        sheetFooter={<Onward {...props} />}
         actions={
           <GameActionBar aria-label={t`What next`} items={[]} width="content">
             <Show when={props.game.rematch === 'answer'}>

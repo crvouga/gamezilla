@@ -50,6 +50,11 @@ type FindProps = MultiplayerPlaceFrame & {
    * notice says why and how to go on, and the command waits, held back.
    */
   readonly findRefused?: boolean | undefined;
+  /**
+   * No connection: said on the dock's status line, right over the held
+   * command it explains, never in a card that can be dismissed.
+   */
+  readonly offline?: boolean | undefined;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
@@ -247,7 +252,24 @@ function FindAbout(props: Pick<FindProps, 'onOpen'>): JSX.Element {
 function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
-    <GameLobbyDock>
+    <GameLobbyDock
+      status={
+        <Show when={props.offline === true}>
+          <P
+            variant="caption"
+            tone="warning"
+            align="center"
+            role="status"
+            lines={2}
+            testId="multiplayer-offline"
+          >
+            <Trans>
+              You're offline. Find an opponent comes back with the connection.
+            </Trans>
+          </P>
+        </Show>
+      }
+    >
       <GameActionButton
         title={
           <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
