@@ -29,7 +29,17 @@ export function MultiplayerNotices(props: {
   return (
     <>
       <Show when={props.denial}>
-        {(denied) => <DenialSurfaceView denial={denied()} />}
+        {(denied) => (
+          // On the home its way forward is the dock's command, so the
+          // notice says why without a second button.
+          <DenialSurfaceView
+            denial={
+              props.docked === true
+                ? { ...denied(), action: undefined }
+                : denied()
+            }
+          />
+        )}
       </Show>
       {/* A refusal stands where the command is; what comes and goes (a
           refused command, no connection) floats over the screen. */}

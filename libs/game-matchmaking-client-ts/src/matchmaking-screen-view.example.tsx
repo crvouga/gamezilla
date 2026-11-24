@@ -215,7 +215,13 @@ function StoryStage(props: {
           }
           tagsPlacement="inline"
           active={props.active}
-          turnLabel={props.watching === true ? 'To move' : 'Your move'}
+          turnLabel={
+            props.watching === true
+              ? 'To move'
+              : props.offline === true
+                ? 'Your turn when online'
+                : 'Your move'
+          }
           trailing={
             <GameClock label="Red" value="3:47" active={props.active} />
           }

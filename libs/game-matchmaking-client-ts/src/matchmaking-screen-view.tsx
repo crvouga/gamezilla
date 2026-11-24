@@ -200,6 +200,7 @@ function FindPlace(props: Props): JSX.Element {
       find={props.find}
       findRefused={props.commandDenial !== undefined || !props.online}
       offline={!props.online}
+      forward={props.online ? props.commandDenial?.action : undefined}
       ratings={props.ratings}
       onOpen={props.onOpen}
       onFind={props.onFind}

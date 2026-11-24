@@ -183,6 +183,7 @@ function BoardStage(
           own={nearSide() === props.ownSide}
           near
           viewer={props.viewer}
+          connected={props.connected}
         />
       }
     >

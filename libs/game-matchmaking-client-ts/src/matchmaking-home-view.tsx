@@ -1,6 +1,7 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Plural, Trans } from '@lingui/solid/macro';
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import {
   GameLobbyDock,
@@ -55,6 +56,14 @@ type FindProps = MultiplayerPlaceFrame & {
    * command it explains, never in a card that can be dismissed.
    */
   readonly offline?: boolean | undefined;
+  /**
+   * The way past a refusal (Sign in, once a guest's games are used): it
+   * takes the dock's place, the one filled command, instead of a Find
+   * that cannot be pressed.
+   */
+  readonly forward?:
+    | { readonly label: string; readonly onPress: () => void }
+    | undefined;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
@@ -270,29 +279,42 @@ function FindDock(props: FindProps): JSX.Element {
         </Show>
       }
     >
-      <GameActionButton
-        title={
-          <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
-            <Trans>Find players</Trans>
-          </Show>
-        }
-        successLabel={
-          <Show
-            when={many()}
-            fallback={<Trans>Opponent search accepted</Trans>}
-          >
-            <Trans>Player search accepted</Trans>
-          </Show>
-        }
-        operation={() =>
-          props.onFind(props.find.timed ? props.find.timeControl : undefined)
-        }
-        variant="solid"
-        size="lg"
-        fullWidth
-        disabled={props.findRefused === true}
-        dataSet={{ testid: 'multiplayer-find' }}
-      />
+      <Show when={props.forward} keyed>
+        {(forward) => (
+          <Button
+            title={forward.label}
+            size="lg"
+            fullWidth
+            onClick={() => forward.onPress()}
+            dataSet={{ testid: 'multiplayer-find-forward' }}
+          />
+        )}
+      </Show>
+      <Show when={props.forward === undefined}>
+        <GameActionButton
+          title={
+            <Show when={many()} fallback={<Trans>Find an opponent</Trans>}>
+              <Trans>Find players</Trans>
+            </Show>
+          }
+          successLabel={
+            <Show
+              when={many()}
+              fallback={<Trans>Opponent search accepted</Trans>}
+            >
+              <Trans>Player search accepted</Trans>
+            </Show>
+          }
+          operation={() =>
+            props.onFind(props.find.timed ? props.find.timeControl : undefined)
+          }
+          variant="solid"
+          size="lg"
+          fullWidth
+          disabled={props.findRefused === true}
+          dataSet={{ testid: 'multiplayer-find' }}
+        />
+      </Show>
     </GameLobbyDock>
   );
 }

@@ -93,6 +93,8 @@ export function MultiplayerSeat(props: {
   readonly own: boolean;
   readonly near: boolean;
   readonly viewer: MultiplayerViewer;
+  /** No connection: the person's own turn waits for it, and says so. */
+  readonly connected?: boolean | undefined;
 }): JSX.Element {
   const presentation = useGamePresentation();
   const frame = () => presentation(props.game.fen).frame;
@@ -145,7 +147,12 @@ export function MultiplayerSeat(props: {
           when={profileId() === props.viewer.myId}
           fallback={<Trans>To move</Trans>}
         >
-          <Trans>Your move</Trans>
+          <Show
+            when={props.connected !== false}
+            fallback={<Trans>Your turn when online</Trans>}
+          >
+            <Trans>Your move</Trans>
+          </Show>
         </Show>
       }
       trailing={
