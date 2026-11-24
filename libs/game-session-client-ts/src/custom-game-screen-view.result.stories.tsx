@@ -166,7 +166,12 @@ export const ConnectionNeeded: Story = { args: { connection: 'needed' } };
 
 /** A refused rematch says why, with every way forward still there. */
 export const RematchRefused: Story = {
-  args: { error: 'Only the host may start the rematch.' },
+  // The host's rematch, refused on the way: why, over the dialog, with
+  // Rematch still the way to try again.
+  args: {
+    error:
+      "The rematch didn't reach the space. Check your connection and try again.",
+  },
 };
 
 /** Review moves opens the moves place at the start of the game. */

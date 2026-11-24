@@ -48,6 +48,11 @@ export function RenameSpaceModalView(
         autocapitalize="words"
         dataSet={{ testid: Handles.spaceRenameInput }}
       />
+      <Show when={!props.refused && props.value.trim() === ''}>
+        <P variant="caption" tone="secondary">
+          <Trans>Leave it empty to name the space after its host.</Trans>
+        </P>
+      </Show>
       <Show when={props.refused}>
         <P
           variant="caption"

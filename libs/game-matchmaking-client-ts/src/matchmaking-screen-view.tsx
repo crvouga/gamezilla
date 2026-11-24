@@ -192,7 +192,7 @@ function FindPlace(props: Props): JSX.Element {
       title={props.title}
       goal={props.goal}
       find={props.find}
-      findRefused={props.commandDenial !== undefined}
+      findRefused={props.commandDenial !== undefined || !props.online}
       ratings={props.ratings}
       onOpen={props.onOpen}
       onFind={props.onFind}

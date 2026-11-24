@@ -23,6 +23,10 @@
   .stack[data-placement="bottom"] {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
   }
+  /* Over a tab bar and a floating command (a lobby's New space). */
+  .stack[data-placement="above-actions"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 176px);
+  }
 }
 /* A wide window: the bottom corner of the page, clear of the sidebar, the
    titles and the board. */
@@ -43,8 +47,13 @@
   box-shadow: var(--ui-shadow-float);
   pointer-events: auto;
 }
-.item > :first-child {
-  padding-inline-end: var(--ui-space-8);
+/* The alert's own tinted card is the toast: it fills it to the corners,
+   with room for the close button over its end. */
+.item > :not(.close) {
+  width: 100%;
+  margin: 0;
+  border-radius: inherit;
+  padding-inline-end: var(--ui-space-10);
 }
 .close {
   position: absolute;

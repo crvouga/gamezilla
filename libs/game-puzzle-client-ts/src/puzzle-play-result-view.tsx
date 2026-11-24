@@ -26,6 +26,15 @@ import { PuzzleSummaryCard } from './puzzle-summary-card';
 function ResultTitle(props: PuzzleStageScreenViewProps): JSX.Element {
   return (
     <Switch fallback={<Trans>Puzzle skipped</Trans>}>
+      {/* Found only after a wrong move: one outcome, said once. */}
+      <Match
+        when={
+          props.status === 'solved' &&
+          props.result.completion?.outcome === 'failed'
+        }
+      >
+        <Trans>Solved after a wrong move</Trans>
+      </Match>
       <Match when={props.status === 'solved'}>
         <Text variant="inherit" tone="success">
           <Trans>Puzzle solved!</Trans>
@@ -50,9 +59,7 @@ function ResultCaption(props: PuzzleStageScreenViewProps): JSX.Element {
           props.result.completion?.outcome === 'failed'
         }
       >
-        <Trans>
-          Solved after a wrong move, so the attempt counts as failed.
-        </Trans>
+        <Trans>This attempt counts as failed.</Trans>
       </Match>
       <Match when={props.status === 'solved'}>
         <Trans>You found every move of the line.</Trans>

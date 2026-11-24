@@ -65,7 +65,7 @@ function RetryButton(props: {
   return (
     <Button
       title={<Trans>Retry</Trans>}
-      intent={prominent() ? 'danger' : 'neutral'}
+      intent={prominent() ? 'primary' : 'neutral'}
       variant={prominent() ? 'solid' : 'outline'}
       icon={RotateCcwIcon}
       disabled={props.slot.type === 'action' && props.slot.disabled}

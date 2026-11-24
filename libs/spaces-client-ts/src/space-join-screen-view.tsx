@@ -11,7 +11,6 @@ import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Gamepad2Icon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
-import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
@@ -275,6 +274,8 @@ function SpaceJoinLiveBody(props: {
   readonly space: SpaceCardData | null;
   readonly checkingHost: boolean;
   readonly needsConnection: boolean;
+  /** An earlier join was not confirmed: the page says so by Check again. */
+  readonly joinPending: boolean;
 }): JSX.Element {
   return (
     <StackVertical gap="lg">
@@ -288,18 +289,30 @@ function SpaceJoinLiveBody(props: {
         fallback={
           <P tone="secondary">
             <Show
-              when={props.needsConnection}
+              when={!props.joinPending}
               fallback={
-                <Trans>
-                  Join to play together. You'll go straight to whatever the
-                  space is doing.
-                </Trans>
+                <Text variant="inherit" testId={Handles.spaceJoinNotConfirmed}>
+                  <Trans>
+                    Your join isn't confirmed yet. Check again to see whether
+                    you're in.
+                  </Trans>
+                </Text>
               }
             >
-              <Trans>
-                Once you're back online, try again to join where the space is
-                now.
-              </Trans>
+              <Show
+                when={props.needsConnection}
+                fallback={
+                  <Trans>
+                    Join to play together. You'll go straight to whatever the
+                    space is doing.
+                  </Trans>
+                }
+              >
+                <Trans>
+                  Once you're back online, try again to join where the space is
+                  now.
+                </Trans>
+              </Show>
             </Show>
           </P>
         }
@@ -355,6 +368,7 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
           space={props.space}
           checkingHost={props.connection === 'loading'}
           needsConnection={props.needsConnection}
+          joinPending={props.joinPending}
         />
       </Match>
     </Switch>
@@ -389,17 +403,6 @@ export function SpaceJoinScreenView(
         <ToastStack>
           <Show when={props.needsConnection && props.status !== 'offline'}>
             <SpacesNeedConnectionNotice />
-          </Show>
-          <Show when={props.joinPending && props.status === 'live'}>
-            <Notice
-              tone="warning"
-              dataSet={{ testid: Handles.spaceJoinNotConfirmed }}
-            >
-              <Trans>
-                Your join wasn't confirmed yet. Check again to see whether
-                you're in.
-              </Trans>
-            </Notice>
           </Show>
           <Show
             when={

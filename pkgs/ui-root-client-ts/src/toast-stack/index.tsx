@@ -29,9 +29,10 @@ export type ToastStackProps = {
    * Where the stack floats on a phone: `bottom` (default), above the
    * screen's own bottom chrome, clear of a page's title and its content's
    * head; `top`, under the top bar, where the bottom holds a game's
-   * commands. A wide window always uses the page's bottom corner.
+   * commands; `above-actions`, above a tab bar and a floating command (a
+   * lobby's New space). A wide window always uses the page's bottom corner.
    */
-  placement?: 'top' | 'bottom' | undefined;
+  placement?: 'top' | 'bottom' | 'above-actions' | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
 

@@ -8,6 +8,7 @@ import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import { FramePersonName } from './game-frame-people';
@@ -169,41 +170,46 @@ export function FrameConnectionView(props: {
   readonly beforeGame?: boolean | undefined;
 }): JSX.Element {
   return (
-    <Show when={props.connection !== 'online'}>
-      <Notice
-        tone={props.connection === 'needed' ? 'warning' : undefined}
-        icon={WifiOffIcon}
-        dataSet={{ testid: 'custom-game-connection-needed' }}
-      >
-        <Text variant="inherit" role="status">
-          <Switch
-            fallback={
-              <Trans>
-                You are offline. Moves and the dimmed commands come back when
-                the connection returns.
-              </Trans>
-            }
-          >
-            <Match
-              when={props.beforeGame === true && props.connection === 'needed'}
+    // No connection comes and goes: it floats with the screen's alerts.
+    <ToastStack placement="top">
+      <Show when={props.connection !== 'online'}>
+        <Notice
+          tone={props.connection === 'needed' ? 'warning' : undefined}
+          icon={WifiOffIcon}
+          dataSet={{ testid: 'custom-game-connection-needed' }}
+        >
+          <Text variant="inherit" role="status">
+            <Switch
+              fallback={
+                <Trans>
+                  You're offline. Moves wait for the connection; anything else
+                  you choose now is sent when it returns.
+                </Trans>
+              }
             >
-              <Trans>
-                You are offline. A game you start now begins when the connection
-                returns.
-              </Trans>
-            </Match>
-            <Match when={props.connection === 'waiting'}>
-              <Trans>
-                Your move will be played when the connection returns.
-              </Trans>
-            </Match>
-            <Match when={props.connection === 'offline-local'}>
-              <Trans>You are offline. Your local game can continue.</Trans>
-            </Match>
-          </Switch>
-        </Text>
-      </Notice>
-    </Show>
+              <Match
+                when={
+                  props.beforeGame === true && props.connection === 'needed'
+                }
+              >
+                <Trans>
+                  You are offline. A game you start now begins when the
+                  connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.connection === 'waiting'}>
+                <Trans>
+                  Your move will be played when the connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.connection === 'offline-local'}>
+                <Trans>You are offline. Your local game can continue.</Trans>
+              </Match>
+            </Switch>
+          </Text>
+        </Notice>
+      </Show>
+    </ToastStack>
   );
 }
 

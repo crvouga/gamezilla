@@ -207,9 +207,10 @@ function StoryStage(props: {
           swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
           tags={
-            props.watching === true ? undefined : (
-              <Badge intent="neutral" label="You play Red" />
-            )
+            <Badge
+              intent="neutral"
+              label={props.watching === true ? 'Plays Red' : 'You play Red'}
+            />
           }
           tagsPlacement="inline"
           active={props.active}
