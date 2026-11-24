@@ -1,4 +1,4 @@
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 
 /** Geometry is checked before any userEvent can scroll an element into view. */
 export async function expectBoardFirst(
@@ -37,16 +37,21 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   await expect(rematch.getBoundingClientRect().bottom).toBeLessThan(
     view.innerHeight
   );
-  // Since #379 the result card may sit under the board; its next action
-  // stays in the first view and never covers the board.
-  const action = rematch.getBoundingClientRect();
-  const square = board.getBoundingClientRect();
-  await expect(
-    action.bottom <= square.top ||
-      action.top >= square.bottom ||
-      action.right <= square.left ||
-      action.left >= square.right
-  ).toBe(true);
+  // The ending is a dialog over the final board, with the next actions in
+  // it; closing it gives the whole final position back, unmoved.
+  const dialog = canvas.getByRole('dialog', { name: 'Game over' });
+  await expect(dialog.contains(headline)).toBe(true);
+  await expect(dialog.contains(rematch)).toBe(true);
+  const before = board.getBoundingClientRect();
+  await userEvent.click(canvas.getByTestId('game-result-close'));
+  const after = board.getBoundingClientRect();
+  await expect([after.top, after.left, after.width, after.height]).toEqual([
+    before.top,
+    before.left,
+    before.width,
+    before.height,
+  ]);
+  await userEvent.click(canvas.getByTestId('game-show-result'));
   await expect(canvas.getAllByTestId('custom-game-rematch')).toHaveLength(1);
   await expect(canvas.getAllByTestId('custom-game-history-stats')).toHaveLength(
     1

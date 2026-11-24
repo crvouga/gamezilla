@@ -281,8 +281,9 @@ export const ChoiceRetried: Story = {};
 export const Stopped: Story = {
   args: { stopped: true, onReopen: fn() },
   play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('custom-game-reopen'));
+    // The stopped game is told in the alerts that float over the screen.
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await page.findByTestId('custom-game-reopen'));
     await expect(args.onReopen).toHaveBeenCalled();
   },
 };
