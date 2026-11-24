@@ -55,6 +55,7 @@
         "@pkgs/llm-root-server-ts#src",
         "@pkgs/logger-shared-ts#src",
         "@pkgs/object-store-node-fs-server-ts#src",
+        "@pkgs/observability-aggregate-server-ts#src",
         "@pkgs/observability-root-server-ts#src",
         "@pkgs/observability-root-shared-ts#src",
         "@pkgs/postgres-local-shared-ts#src",

@@ -43,6 +43,12 @@ const base = Bun.TOML.parse(
   readFileSync(join(import.meta.dirname, '../wrangler.toml'), 'utf8')
 ) as WranglerConfig;
 
+/** The step that creates the deployment's single metrics writer. */
+const METRIC_AGGREGATE = {
+  tag: 'v4-app-metric-aggregate',
+  new_sqlite_classes: ['MetricAggregateDurableObject'],
+};
+
 describe('wrangler.toml', () => {
   test('replica endpoints follow its declared hosts regardless of copied vars', () => {
     assertProperty(
@@ -146,7 +152,8 @@ describe('wrangler.toml', () => {
     const rendered = renderWranglerConfig(base, dev, {
       roomMigrations: migrations,
     });
-    expect(rendered['migrations']).toEqual(migrations);
+    // The room history is rendered whole; later steps follow it.
+    expect(rendered['migrations']).toEqual([...migrations, METRIC_AGGREGATE]);
     expect(migrations[1]).toEqual({
       tag: ROOM_ARCHIVE_TAG,
       renamed_classes: [{ from: ROOM_CLASS, to: ROOM_ARCHIVE_CLASS }],
@@ -216,8 +223,36 @@ describe('wrangler.toml', () => {
             name: 'ROOM',
             class_name: 'RoomServerDurableObject',
           },
+          {
+            name: 'METRIC_AGGREGATE',
+            class_name: 'MetricAggregateDurableObject',
+          },
         ],
       });
+    }
+  });
+
+  test('every environment creates the single metrics writer after the room history, whatever that history is', () => {
+    const created = METRIC_AGGREGATE;
+    for (const env of Object.values(ENV_FILES)) {
+      const histories = [env.worker.name, env.worker.transfer_rooms_from].map(
+        (script) =>
+          roomMigrations(env, [
+            { id: 'existing-rooms', script: script ?? '', class: ROOM_CLASS },
+          ])
+      );
+      for (const history of histories) {
+        const rendered = renderWranglerConfig(base, env, {
+          roomMigrations: history,
+        })['migrations'] as readonly { tag: string }[];
+        expect(rendered.at(-1)).toEqual(created);
+        expect(rendered.map((migration) => migration.tag)).toEqual([
+          ROOM_MIGRATION_TAG,
+          ROOM_ARCHIVE_TAG,
+          ROOM_TRANSFER_TAG,
+          created.tag,
+        ]);
+      }
     }
   });
 

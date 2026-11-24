@@ -45,8 +45,7 @@ import {
  *
  * - `label`: on each point. Grafana Cloud copies the resource's
  *   `deployment.environment.name` onto every point it ingests over OTLP, so
- *   a query never joins `target_info`, which only the isolates still running
- *   carry and so loses everything an ended isolate counted.
+ *   a query never joins `target_info` or names the writer.
  * - `job-suffix`: in the job name (`api-ready-prd`), for Synthetic
  *   Monitoring, whose own labels are not on every tenant's points.
  */

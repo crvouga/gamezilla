@@ -21,6 +21,12 @@ run_worker_first = ["/api", "/api/*"]
 name = "ROOM"
 class_name = "RoomServerDurableObject"
 
+# The single metrics writer: every isolate hands it what it counted, and it
+# alone exports, so stored series do not multiply by isolate.
+[[durable_objects.bindings]]
+name = "METRIC_AGGREGATE"
+class_name = "MetricAggregateDurableObject"
+
 # Fresh/local environments create rooms. Release replaces this initial
 # migration with a transfer when an existing room namespace needs adopting.
 [[migrations]]
@@ -33,6 +39,10 @@ tag = "v2-app-room-archive"
 
 [[migrations]]
 tag = "v3-app-room-transfer"
+
+[[migrations]]
+tag = "v4-app-metric-aggregate"
+new_sqlite_classes = ["MetricAggregateDurableObject"]
 
 [triggers]
 # Replace the stalled production registration without changing its cadence.

@@ -10,6 +10,15 @@ export type RoomNamespace = {
   get(id: object): { fetch: (request: Request) => Promise<Response> };
 };
 
+/**
+ * The deployment's single metrics writer: every isolate hands it what it
+ * counted, so stored series do not multiply by isolate.
+ */
+export type MetricAggregateNamespace = {
+  idFromName(name: string): object;
+  get(id: object): { fetch: (request: Request) => Promise<Response> };
+};
+
 /** The part of Cloudflare's `Hyperdrive` binding the Worker reads. */
 export type HyperdriveBinding = {
   readonly connectionString: string;
@@ -71,6 +80,8 @@ export type ApiWorkerEnv = {
   /** A simulated GitHub's address; unset wherever GitHub itself is meant. */
   FEEDBACK_GITHUB_API_ORIGIN?: string;
   ROOM?: RoomNamespace;
+  /** Absent in the localhost stack, whose API processes export directly. */
+  METRIC_AGGREGATE?: MetricAggregateNamespace;
   /**
    * Hyperdrive in front of the environment's Postgres (rendered by
    * `@libs/infra/public/wrangler` from OpenTofu's config id). Absent in
@@ -81,6 +92,7 @@ export type ApiWorkerEnv = {
   [key: string]:
     | string
     | RoomNamespace
+    | MetricAggregateNamespace
     | HyperdriveBinding
     | WorkerAssets
     | undefined;

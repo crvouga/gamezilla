@@ -24,9 +24,9 @@ export const METRIC_DIMENSION_KEYS = [
  * Where the SDK cuts every histogram, in the instrument's own unit (seconds
  * for durations). A latency objective can only count "at most X" when X is
  * one of these, so the runtime and the objectives read the same list.
- * Every bound is one more stored series per label combination per writer
- * (every Worker isolate is a writer), so the list holds only the bounds an
- * objective reads: 0.25 to 2.5 s for requests, 5 and 10 s for bug reports.
+ * Every bound is one more stored series per label combination per writer,
+ * so the list holds only the bounds an objective reads: 0.25 to 2.5 s for
+ * requests, 5 and 10 s for bug reports.
  */
 export const HISTOGRAM_BOUNDARIES: readonly number[] = [
   0.25, 0.5, 1, 2.5, 5, 10,
@@ -48,9 +48,8 @@ export type MetricContract = {
   readonly dimensions: Readonly<Record<string, readonly string[]>>;
   /**
    * Stamp every point with the runtime's `deployment.environment.name`, so an
-   * alert selects the environment on the series itself. A Worker isolate's
-   * resource information goes stale shortly after the isolate ends, so a
-   * resource join loses whatever an ended isolate counted.
+   * alert selects the environment on the series itself, without a join on
+   * the writer's resource information.
    */
   readonly environmentScoped?: boolean;
 };
