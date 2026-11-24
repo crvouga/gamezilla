@@ -1,0 +1,4 @@
+{
+  "summary": "The daily rhythm scenario waited fifteen real minutes to observe a Synthetic User remaining offline. The fixture now executes every scheduled heartbeat at its simulated time through the worker endpoints, checking the initial state and every beat through the deadline.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/worker-observation-window.test.ts"
+}

@@ -27,6 +27,7 @@ import {
 } from './population-worker';
 import { givenSyntheticUser } from './synthetic-user-fixtures';
 import { syntheticPersonaOf } from './synthetic-user-reads';
+import { workerNow } from './worker-clock';
 
 const HOUR_MS = 60 * 60_000;
 /** Long enough after a day ends for whatever it leaves to finish. */
@@ -57,7 +58,7 @@ export async function syntheticUserOnline(
   return (
     row.worker_id !== null &&
     row.lease_until !== null &&
-    new Date(row.lease_until).getTime() > s.harness.clock.now()
+    new Date(row.lease_until).getTime() > workerNow(s.harness.clock)
   );
 }
 
@@ -66,7 +67,7 @@ export async function syntheticUsersOnline(s: ProductHarness): Promise<number> {
   const rows = await s.harness.serverSql.sqlClient.query(
     sql<{
       id: string;
-    }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${new Date(s.harness.clock.now()).toISOString()} AND deleted_at IS NULL`
+    }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${new Date(workerNow(s.harness.clock)).toISOString()} AND deleted_at IS NULL`
   );
   return rows.length;
 }
@@ -171,7 +172,7 @@ export const givenNotOnline = scenarioAction({
     const { id, persona } = await nameOfflineSyntheticUser(s, name);
     await writePersona(s, id, {
       ...persona,
-      dailySchedule: soonestSchedule(s.harness.clock.now()),
+      dailySchedule: soonestSchedule(workerNow(s.harness.clock)),
     });
     runDeployedWorker(s, true);
   },
@@ -188,7 +189,7 @@ async function beginDayNow(s: ProductHarness, id: string) {
   const persona = parsePersona(typeof raw === 'string' ? JSON.parse(raw) : raw);
   if (persona === null) throw new Error('That Synthetic User has no persona');
   const zone = persona.dailySchedule.timeZone;
-  const hour = Math.floor(localHourAt(zone, s.harness.clock.now()));
+  const hour = Math.floor(localHourAt(zone, workerNow(s.harness.clock)));
   await writePersona(s, id, {
     ...persona,
     dailySchedule: {
@@ -232,7 +233,7 @@ async function offScheduleExcept(s: ProductHarness, named: readonly string[]) {
     );
     if (persona === null) continue;
     const zone = persona.dailySchedule.timeZone;
-    const hour = Math.floor(localHourAt(zone, s.harness.clock.now()));
+    const hour = Math.floor(localHourAt(zone, workerNow(s.harness.clock)));
     await writePersona(s, row.id, {
       ...persona,
       dailySchedule: {
@@ -294,7 +295,7 @@ export const givenSyntheticUsersOnlineAmong = scenarioAction({
       await db.query(
         sql<{
           id: string;
-        }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${new Date(s.harness.clock.now()).toISOString()} AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`
+        }>`SELECT id FROM population_users WHERE worker_id IS NOT NULL AND lease_until > ${new Date(workerNow(s.harness.clock)).toISOString()} AND deleted_at IS NULL ORDER BY created_at, id LIMIT 1`
       )
     )[0];
     if (row === undefined)
@@ -318,7 +319,7 @@ export const givenClosedAfterDay = scenarioAction({
     if (persona === null) throw new Error(`${name} has no persona`);
     await writePersona(s, row.id, {
       ...persona,
-      dailySchedule: soonestSchedule(s.harness.clock.now()),
+      dailySchedule: soonestSchedule(workerNow(s.harness.clock)),
     });
     await carryOnSyntheticUsers(s, {
       maxMs: DAY_END_MS,
@@ -335,7 +336,7 @@ export const dailyScheduleBegins = scenarioAction({
   act: async (s, name: string) => {
     const persona = await syntheticPersonaOf(s, name);
     if (persona === null) throw new Error(`${name} has no persona`);
-    const now = s.harness.clock.now();
+    const now = workerNow(s.harness.clock);
     if (onSchedule(persona.dailySchedule, now)) return;
     if (!s.session.caps.has('virtualTime')) {
       await beginDayNow(s, (await rowOf(s, name)).id);
@@ -360,7 +361,7 @@ export const dailyScheduleEnds = scenarioAction({
     const persona = await syntheticPersonaOf(s, name);
     if (persona === null) throw new Error(`${name} has no persona`);
     const zone = persona.dailySchedule.timeZone;
-    const hour = Math.floor(localHourAt(zone, s.harness.clock.now()));
+    const hour = Math.floor(localHourAt(zone, workerNow(s.harness.clock)));
     await writePersona(s, row.id, {
       ...persona,
       dailySchedule: {
