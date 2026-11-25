@@ -350,8 +350,6 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
             court = element;
           }}
           class={styles['court']}
-          data-held-first={String(input.held().includes('first'))}
-          data-held-second={String(input.held().includes('second'))}
           data-interactive={String(
             props.enabled && props.controlled.length > 0
           )}

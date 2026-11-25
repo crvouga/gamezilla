@@ -1,7 +1,7 @@
 import { definePrimitive } from '@ui-sdk/core';
 import { createParts } from '@ui-sdk/solid/primitive';
 
-import { createRenderEffect, createSignal, onSettled, untrack } from 'solid-js';
+import { createRenderEffect, onSettled, untrack } from 'solid-js';
 
 export type CourtSide = 'first' | 'second';
 export type CourtControls = {
@@ -15,7 +15,7 @@ export type CourtControls = {
 /** Raw device events end here; consumers receive normalized directions and court fractions. */
 export function paddleCourtInput(props: CourtControls) {
   const pointers = new Map<number, CourtSide>();
-  const [held, setHeld] = createSignal<readonly CourtSide[]>([]);
+  let heldCourt: HTMLElement | undefined;
   const keyboard = paddleCourtKeyboard(props);
   const target = (
     event: PointerEvent,
@@ -31,14 +31,15 @@ export function paddleCourtInput(props: CourtControls) {
   };
   const release = (sides: readonly CourtSide[] = props.controlled) => {
     for (const side of sides) props.onDirection(side, 0);
+    for (const side of pointers.values())
+      heldCourt?.setAttribute(`data-held-${side}`, 'false');
     pointers.clear();
-    setHeld([]);
+    heldCourt = undefined;
     keyboard.release();
     props.onRelease();
   };
 
   return {
-    held,
     keyDown: (event: KeyboardEvent) => keyboard.key(event, true),
     keyUp: (event: KeyboardEvent) => keyboard.key(event, false),
     release,
@@ -59,7 +60,8 @@ export function paddleCourtInput(props: CourtControls) {
             : 'second';
       if ([...pointers.values()].includes(side)) return;
       pointers.set(event.pointerId, side);
-      setHeld([...pointers.values()]);
+      heldCourt = element;
+      element.setAttribute(`data-held-${side}`, 'true');
       element.setPointerCapture(event.pointerId);
       element.focus();
       target(event, element, side);
@@ -73,7 +75,8 @@ export function paddleCourtInput(props: CourtControls) {
       const side = pointers.get(event.pointerId);
       pointers.delete(event.pointerId);
       if (side !== undefined) {
-        setHeld([...pointers.values()]);
+        heldCourt?.setAttribute(`data-held-${side}`, 'false');
+        if (pointers.size === 0) heldCourt = undefined;
         props.onDirection(side, 0);
       }
     },
