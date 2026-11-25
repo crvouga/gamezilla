@@ -154,10 +154,13 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
           </Show>
           <Show when={props.stat}>
             {(stat) => (
-              <GameSeatStatInline
-                stat={stat()}
-                active={props.active === true}
-              />
+              <>
+                {' '}
+                <GameSeatStatInline
+                  stat={stat()}
+                  active={props.active === true}
+                />
+              </>
             )}
           </Show>
           <Show when={props.state}>

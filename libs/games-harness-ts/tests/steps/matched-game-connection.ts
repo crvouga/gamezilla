@@ -51,9 +51,12 @@ export async function deviceOffline(w: HarnessWorld, actor: string) {
   await w.s.apply(openFindingAnOpponentIfAny, actor, gameOf(w).shared.id);
   await rememberLastKnownBoard(w, actor);
   await w.s.apply(setMultiplayerConnection, actor, false);
-  await w.s.until((s) => multiplayerText(s, actor, 'multiplayer-offline'), {
-    pred: (shown) => shown !== null,
-  });
+  await w.s.until(
+    async (s) =>
+      (await multiplayerText(s, actor, 'multiplayer-offline')) ??
+      (await multiplayerText(s, actor, 'multiplayer-waiting-offline')),
+    { pred: (shown) => shown !== null }
+  );
 }
 
 /** `actor`'s device still shows the board it held when it went offline. */

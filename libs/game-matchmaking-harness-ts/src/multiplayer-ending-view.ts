@@ -9,7 +9,10 @@ export async function multiplayerEndingView(s: ProductHarness, actor: string) {
   const ui = await actorUi(s, actor);
   const board = ui.get('multiplayer-game');
   const outcome = await board.attribute('data-outcome');
-  const announcement = (await ui.get('multiplayer-announcement').text()) ?? '';
+  const announcement =
+    outcome === 'ongoing'
+      ? ''
+      : ((await ui.get('multiplayer-announcement').text()) ?? '');
   let result = 'missing';
   if (outcome === 'ongoing') result = 'unfinished';
   if (outcome === 'aborted' && announcement.includes('aborted'))
