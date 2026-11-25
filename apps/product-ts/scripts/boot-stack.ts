@@ -20,6 +20,7 @@ import {
 } from '@crvouga/mockingbird-service-stripe/server';
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared-ts/plus-membership-offer';
 import { NAMESPACE } from '@libs/product-identity-shared-ts/product-identity';
+import { STACK_BILLING_TEST_KEY } from '@libs/sub-shared-ts/harness-constants';
 import type { Denial } from '@pkgs/aedes-server-ts/start';
 import { MEMBERSHIP_PROVIDER_MODULES } from '@pkgs/billing-providers-server-ts/billing-providers';
 import { membershipCallbackPath } from '@pkgs/billing-root-shared-ts/providers';
@@ -65,7 +66,6 @@ import {
 } from './synthetic-population-sidecars';
 
 const REPO_ROOT = join(import.meta.dir, '../../..');
-const BILLING_SECRET_KEY = 'sk_test_localhost_stack';
 /**
  * The product web app. This is Vite itself: the package
  * `dev` script is this stack, so the web child must not call it.
@@ -115,10 +115,10 @@ export async function startBillingProvider(args: {
   const server = await createStripeServer({
     port: args.port,
     sqlite: mockingbirdSqliteFile(join(args.dataDir, 'billing.sqlite')),
-    accounts: [{ id: 'acct_localhost_stack', keys: [BILLING_SECRET_KEY] }],
+    accounts: [{ id: 'acct_localhost_stack', keys: [STACK_BILLING_TEST_KEY] }],
   });
   const bindings: Readonly<Record<string, string>> = {
-    [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
+    [StripeSecretKeys.secretKey]: STACK_BILLING_TEST_KEY,
     [StripeBindingKeys.apiOrigin]: server.url,
   };
   await STRIPE_MEMBERSHIP_PROVIDER.reconcile?.({
@@ -208,7 +208,7 @@ function startApiNode(args: {
           )
         ),
         BILLING_PROVIDER: STRIPE_PROVIDER,
-        [StripeSecretKeys.secretKey]: BILLING_SECRET_KEY,
+        [StripeSecretKeys.secretKey]: STACK_BILLING_TEST_KEY,
         [StripeSecretKeys.webhookSecret]: args.billing.webhookSecret,
         [StripeBindingKeys.apiOrigin]: args.billing.origin,
         WEB_CLIENT_ORIGIN: args.webOrigin ?? '',

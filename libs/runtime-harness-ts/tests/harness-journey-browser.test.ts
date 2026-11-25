@@ -8,6 +8,7 @@ test('a native stack exposes browser observation with trusted provider and callb
   const browser = harnessJourneyBrowser({
     http: {
       kind: 'stack',
+      billingOrigin: 'http://127.0.0.1:34310',
       origin: 'http://127.0.0.1:34305',
       idpOrigins: {
         google: 'http://127.0.0.1:34307',

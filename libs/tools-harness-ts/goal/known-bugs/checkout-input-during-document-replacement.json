@@ -1,0 +1,4 @@
+{
+  "summary": "The native checkout driver tried to type Stripe's card into a document being replaced, then consulted an in-process tab to decide whether the person returned from paying.",
+  "regressionTest": "libs/billing-harness-ts/tests/checkout-navigation.test.ts"
+}

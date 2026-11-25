@@ -1,6 +1,7 @@
 import type { HarnessCheckpointSqlFormat } from '@pkgs/harness-console-shared-ts/checkpoint';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client-ts/multi-app-solid-dom-session';
+import type Stripe from 'stripe';
 import type { HarnessSql } from './sql-types';
 
 export const HARNESS_START_MS = Date.parse('2024-06-01T00:00:00.000Z');
@@ -33,6 +34,7 @@ export type ProductHttp =
   | {
       readonly kind: 'stack';
       readonly origin: string;
+      readonly billingOrigin: string;
       /** The stack's simulated Google and Apple, each on its own origin. */
       readonly idpOrigins: { readonly google: string; readonly apple: string };
       /**
@@ -44,6 +46,8 @@ export type ProductHttp =
     };
 
 export type ProductExtra = {
+  /** The provider serving hosted checkout on the separately booted stack. */
+  readonly stackStripe?: Stripe;
   readonly checkpointSqlFormat?: HarnessCheckpointSqlFormat;
   readonly serverEvents?: PubSub;
   readonly sql: HarnessSql;
