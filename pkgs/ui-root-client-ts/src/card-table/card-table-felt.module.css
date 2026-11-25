@@ -73,7 +73,7 @@
 .salon [data-pass-tray] {
   background: var(--ui-color-game-hearts-canvas);
   border-radius: var(--ui-radius-control);
-  padding: var(--ui-space-1);
+  padding-inline: var(--ui-space-1);
 }
 .salon button[aria-pressed="true"]::before {
   content: "✓" / "";
