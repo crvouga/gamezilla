@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For } from 'solid-js';
 import styles from './direction-pad.module.css';
 
@@ -73,7 +74,7 @@ function PadButton(props: {
       props.pad.onDirection(props.heading);
   };
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['button']}
       data-heading={props.heading}
@@ -100,7 +101,7 @@ function PadButton(props: {
           transform={`rotate(${ROTATION[props.heading]})`}
         />
       </svg>
-    </button>
+    </SdkButton>
   );
 }
 

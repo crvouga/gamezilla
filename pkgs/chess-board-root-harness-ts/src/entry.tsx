@@ -13,8 +13,8 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
+import { renderApplication } from '@pkgs/ui-root-client-ts/render-application';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { render } from '@solidjs/web';
 import { createRoot, createSignal, Show } from 'solid-js';
 import { ChessBoardBenchPage } from './chess-board-bench-page';
 import { installMotionPreference } from './motion-preference';
@@ -46,7 +46,7 @@ function exampleMotion() {
   };
 }
 function mount(container: HTMLElement, benchmark = false) {
-  return render(
+  return renderApplication(
     () => (
       <I18nProvider i18n={i18n}>
         <ClockProvider clock={clock} timers={timers}>

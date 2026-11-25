@@ -1,9 +1,13 @@
 /** @jsxImportSource @solidjs/web */
 
-import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
 import { createSignal, Show, untrack } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 
@@ -22,15 +26,15 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
     untrack(() => props.defaultOpen ?? false)
   );
   return (
-    <div
+    <Disclosure
+      open={isOpen()}
+      onOpenChange={setIsOpen}
       class="box"
       {...dataAttrs({ component: 'Collapsible', ...props.dataSet })}
     >
-      <button
+      <CollapsibleTrigger
         class="clickable clickableTint flex-row items-center gap-2 py-2"
         type="button"
-        aria-expanded={ariaBoolean(isOpen())}
-        onClick={() => setIsOpen((v) => !v)}
       >
         <Show
           when={props.renderIcon}
@@ -48,10 +52,10 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
           {(render) => <>{render()(isOpen())}</>}
         </Show>
         <p class="text textBodyBold">{props.title}</p>
-      </button>
-      <Show when={isOpen()}>
-        <div class="box ml-6 mb-2">{props.children}</div>
-      </Show>
-    </div>
+      </CollapsibleTrigger>
+      <CollapsiblePanel class="box ml-6 mb-2">
+        {props.children}
+      </CollapsiblePanel>
+    </Disclosure>
   );
 }

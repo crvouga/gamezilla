@@ -4,6 +4,7 @@ import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { GameSeatSwatch } from '../game-seat-swatch/index';
@@ -109,7 +110,7 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
     ].join(', ');
   let face: HTMLElement | undefined;
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       aria-label={said()}
@@ -153,7 +154,7 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
         {words.name(props.person)}
       </span>
       <DataLine data={data()} on={turn()} />
-    </button>
+    </SdkButton>
   );
 }
 
@@ -161,7 +162,7 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
 function InviteCell(props: { onInvite: () => void }): JSX.Element {
   const { t } = useLingui();
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       aria-label={t`Invite`}
@@ -180,7 +181,7 @@ function InviteCell(props: { onInvite: () => void }): JSX.Element {
         <Trans>Invite</Trans>
       </span>
       <span class={`text textLabel ${styles['data']}`} />
-    </button>
+    </SdkButton>
   );
 }
 

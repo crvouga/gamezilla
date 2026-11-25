@@ -127,14 +127,14 @@ export function RiderHead(props: {
       data-heading={props.rider.heading}
       data-next={props.rider.next ?? props.rider.heading}
       data-alive={String(props.rider.alive)}
-      data-controlled={String(props.rider.controlled)}
+      data-controlled={String(props.rider.controlSlot !== null)}
       data-mark={props.rider.mark}
       data-trail-count={props.trailCount}
       data-scale={props.scale ?? 1}
       transform={`translate(${props.rider.x + 0.5} ${props.rider.y + 0.5}) scale(${props.scale ?? 1})`}
     >
       <title>{props.rider.label}</title>
-      <Show when={props.rider.controlled}>
+      <Show when={props.rider.controlSlot !== null}>
         <circle class={styles['ring']} r="1.45" />
       </Show>
       <path

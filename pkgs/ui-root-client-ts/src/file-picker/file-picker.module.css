@@ -1,8 +1,5 @@
-/* One bordered row: the chooser's words as a quiet control, then the
-   chosen file's name. The native input covers the row, unseen, so a press
-   anywhere on it opens the system chooser and the keyboard reaches it. */
 .field {
-  position: relative;
+  cursor: pointer;
   display: flex;
   align-items: center;
   gap: var(--ui-space-3);
@@ -13,23 +10,12 @@
   border-radius: var(--ui-radius-control);
   background: var(--ui-color-surface);
 }
-.input {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-.input:disabled {
-  cursor: not-allowed;
-}
-.field:has(.input:focus-visible) {
+.field:focus-visible {
   border-color: var(--ui-color-focus-ring);
   outline: 1px solid var(--ui-color-focus-ring);
 }
-.field:has(.input:disabled) {
+.field:disabled {
+  cursor: not-allowed;
   opacity: var(--ui-opacity-disabled);
 }
 .choose {

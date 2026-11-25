@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { dismissDialogOutcome } from '@pkgs/ui-testing-root-shared-ts/dismiss-dialog-outcome';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
@@ -344,28 +345,6 @@ export const abandonSignIn = scenarioAction({
 });
 
 /**
- * The dialog ends one of two ways: it offers its outcome to dismiss, or it
- * closes with the signed-in screen it belonged to. Reading it once races the
- * second ending, so follow it until either happens.
- */
-async function dismissSignOutOutcome(
-  s: ProductHarness,
-  ui: Driver
-): Promise<void> {
-  const modal = ui.get(Handles.authSignOutModal);
-  const done = ui.get(Handles.authSignOutDone);
-  const ending = await pollUntil(
-    s,
-    async () => {
-      if (!(await modal.isVisible())) return 'closed';
-      return (await done.isVisible()) ? 'outcome' : null;
-    },
-    { maxMs: WAIT_MS, description: 'the sign-out dialog to settle' }
-  );
-  if (ending === 'outcome') await done.tap({ timeoutMs: WAIT_MS });
-}
-
-/**
  * Confirm sign-out from the account screen.
  *
  * Dismiss the successful outcome before the next account gesture; visible
@@ -378,10 +357,12 @@ export const signOut = scenarioAction({
     await ui.get(Handles.accountSignOut).tap();
     await ui.get(Handles.authSignOutConfirm).tap();
     await ui.get(Handles.accountSignIn).expect.visible({ timeoutMs: WAIT_MS });
-    await dismissSignOutOutcome(s, ui);
-    await ui
-      .get(Handles.authSignOutModal)
-      .wait('hidden', { timeoutMs: WAIT_MS });
+    await dismissDialogOutcome(
+      ui,
+      Handles.authSignOutModal,
+      Handles.authSignOutDone,
+      { timeoutMs: WAIT_MS }
+    );
   },
 });
 

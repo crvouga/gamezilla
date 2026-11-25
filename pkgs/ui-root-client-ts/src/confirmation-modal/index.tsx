@@ -91,6 +91,11 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
       <ModalFooter>
         <ModalButton
           label={props.confirmLabel ?? t`Confirm`}
+          agentConfirm={
+            typeof props.title === 'string'
+              ? props.title
+              : t`Confirm this action`
+          }
           variant={props.variant === 'destructive' ? 'destructive' : 'default'}
           disabled={submitting()}
           onClick={handleConfirm}

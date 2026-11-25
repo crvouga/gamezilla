@@ -1,3 +1,6 @@
+import { definePrimitive } from '@ui-sdk/core';
+import { createParts } from '@ui-sdk/solid/primitive';
+
 export type CourtSide = 'first' | 'second';
 export type CourtControls = {
   readonly controlled: readonly CourtSide[];
@@ -105,3 +108,70 @@ function keySide(
     return controlled.length === 1 ? controlled[0] : 'second';
   return undefined;
 }
+
+type PaddleActions = Pick<
+  CourtControls,
+  'controlled' | 'enabled' | 'onDirection' | 'onTarget'
+>;
+
+function requirePaddle(options: PaddleActions, side: unknown): CourtSide {
+  if (
+    !options.enabled ||
+    (side !== 'first' && side !== 'second') ||
+    !options.controlled.includes(side)
+  )
+    throw new Error('Choose a paddle controlled by this device.');
+  return side;
+}
+
+const courtState = (options: PaddleActions) => ({
+  disabled: !options.enabled || options.controlled.length === 0,
+});
+
+const court = definePrimitive({
+  name: 'paddle-court',
+  options: {
+    controlled: 'value',
+    enabled: 'boolean',
+    onDirection: 'callback',
+    onTarget: 'callback',
+  },
+  state: courtState,
+  sync: courtState,
+  api: (context) => ({
+    paddles: () =>
+      context
+        .options()
+        .controlled.map((side) => ({ value: side, label: side })),
+    moveUp(side: unknown) {
+      const options = context.options();
+      options.onDirection(requirePaddle(options, side), -1);
+    },
+    moveDown(side: unknown) {
+      const options = context.options();
+      options.onDirection(requirePaddle(options, side), 1);
+    },
+    stop(side: unknown) {
+      const options = context.options();
+      options.onDirection(requirePaddle(options, side), 0);
+    },
+    setTargetFraction(side: unknown, fraction: unknown) {
+      const options = context.options();
+      if (
+        typeof fraction !== 'number' ||
+        !Number.isFinite(fraction) ||
+        fraction < 0 ||
+        fraction > 1
+      )
+        throw new Error('Choose a position from 0 (top) to 1 (bottom).');
+      options.onTarget(requirePaddle(options, side), fraction);
+    },
+  }),
+  agent: {
+    actions: ['moveUp', 'moveDown', 'stop', 'setTargetFraction'],
+    items: (api) => api.paddles(),
+  },
+  slots: (slot) => ({ root: slot({}) }),
+});
+
+export const { Root: CourtSurface } = createParts(court, { root: 'div' });

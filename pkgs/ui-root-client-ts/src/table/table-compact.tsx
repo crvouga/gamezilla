@@ -3,6 +3,7 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createUniqueId, For, Show } from 'solid-js';
 import { ChipGroup } from '../chip-group/index';
 import { IconButton } from '../icon-button/index';
@@ -10,7 +11,6 @@ import { ChevronDownIcon, ChevronUpIcon } from '../icons';
 import { spaced } from '../layout-classes';
 import {
   nextSort,
-  onRowKeyDown,
   PRESSABLE_ROW,
   rowTestId,
   type TableColumn,
@@ -70,16 +70,13 @@ function CompactRow<R>(props: {
           </div>
         }
       >
-        <div
+        <SdkButton
           class={spaced(['box px-ui-lg py-ui-md min-h-11', PRESSABLE_ROW])}
-          role="button"
-          tabindex={0}
           aria-label={props.table.rowLabel?.(props.row)}
           onClick={press}
-          onKeyDown={(event) => onRowKeyDown(event, press)}
         >
           <CompactFields columns={props.table.columns} row={props.row} />
-        </div>
+        </SdkButton>
       </Show>
     </li>
   );

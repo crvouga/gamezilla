@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import {
@@ -245,13 +246,13 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
           }
         >
           {(press) => (
-            <button
+            <SdkButton
               type="button"
               class={`clickable clickableTint rounded-control ${styles['playerPress']}`}
               onClick={() => press()()}
             >
               <PlayerIdentity {...props} />
-            </button>
+            </SdkButton>
           )}
         </Show>
         <Show when={props.stat}>

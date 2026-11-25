@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   createEffect,
   createMemo,
@@ -10,7 +11,7 @@ import {
   untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
-import { createPathGridPointer } from '../path-grid-pointer';
+import { createPathGridPointer, TraceSurface } from '../path-grid-pointer';
 import type { PathGridBoardProps, PathGridEndpoint } from '../path-grid-types';
 import styles from './path-grid-board.module.css';
 
@@ -51,7 +52,7 @@ function PathCell(props: {
   // Only a cell whose description changed is rewritten during a drawing.
   const label = createMemo(() => props.board.cellLabel(props.index));
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       data-cell={props.index}
@@ -98,7 +99,7 @@ function PathCell(props: {
           );
         }}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -177,8 +178,11 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
     if (props.disabled !== true) props.onNavigate?.(next);
   };
   return (
-    <div
-      ref={root}
+    <TraceSurface
+      board={props}
+      ref={(element) => {
+        root = element;
+      }}
       class={styles['board']}
       data-theme="dark"
       role="group"
@@ -213,6 +217,6 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
           />
         )}
       </For>
-    </div>
+    </TraceSurface>
   );
 }

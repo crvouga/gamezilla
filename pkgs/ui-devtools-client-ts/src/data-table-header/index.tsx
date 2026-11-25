@@ -9,6 +9,7 @@ import type {
 import { Checkbox } from '@pkgs/ui-root-client-ts/checkbox';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import styles from '../data-table/data-table.module.css';
 
@@ -117,7 +118,7 @@ function HeaderCell<T>(props: {
           </div>
         }
       >
-        <button
+        <SdkButton
           class="clickable min-h-10 flex-row items-center w-full"
           type="button"
           style={{
@@ -127,7 +128,7 @@ function HeaderCell<T>(props: {
           onClick={() => props.onToggleSort(props.column.id)}
         >
           {text()}
-        </button>
+        </SdkButton>
       </Show>
     </th>
   );

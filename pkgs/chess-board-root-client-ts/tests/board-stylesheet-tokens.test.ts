@@ -58,7 +58,7 @@ test('open keyboard help floats over the board in a short landscape window', () 
     board
   );
   const landscape = board.slice(query?.index ?? board.length);
-  const rule = /keyboardHelp\[open\] > :last-child\s*\{([^}]*)\}/.exec(
+  const rule = /keyboardHelp\[data-open\] > :last-child\s*\{([^}]*)\}/.exec(
     landscape
   )?.[1];
   expect(rule).toContain('position: absolute');

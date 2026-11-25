@@ -92,6 +92,7 @@ export function ModalFooter(props: ModalFooterProps): JSX.Element {
 export type ModalButtonVariant = 'default' | 'cancel' | 'destructive';
 
 export type ModalButtonProps = {
+  agentConfirm?: string | undefined;
   label: JSX.Element;
   /** `default` → solid primary, `destructive` → solid danger, `cancel` → ghost neutral. */
   variant?: ModalButtonVariant | undefined;
@@ -116,6 +117,7 @@ export function ModalButton(props: ModalButtonProps): JSX.Element {
   return (
     <Button
       title={props.label}
+      agentConfirm={props.agentConfirm}
       intent={face().intent}
       variant={face().variant}
       size="md"

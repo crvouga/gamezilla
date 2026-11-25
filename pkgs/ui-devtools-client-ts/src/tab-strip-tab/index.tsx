@@ -11,6 +11,8 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { TabsTab } from '@ui-sdk/solid/tabs';
 import { Show } from 'solid-js';
 import styles from '../tab-strip/tab-strip.module.css';
 import type { TabStripItem } from '../tab-strip-types';
@@ -25,7 +27,6 @@ export type TabStripTabProps = {
   /** When true, keep a fixed separator gutter (opacity follows `separatorVisible`). */
   readonly reserveSeparatorBefore: boolean;
   readonly separatorVisible: boolean;
-  readonly onSelect: (id: string) => void;
   readonly ref?: ((el: HTMLElement) => void) | undefined;
   /** DOM id of the tab, for `aria-controls` / `aria-labelledby` wiring. */
   readonly tabId?: string | undefined;
@@ -75,7 +76,8 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         />
       </Show>
       <div class={shellClass(props.active)} style={shellStyle(closable())}>
-        <button
+        <TabsTab
+          value={props.item.id}
           class={[
             'clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent',
             { clickableTint: !props.active },
@@ -88,11 +90,8 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
             'padding-right': `${closable() ? 2 : 10}px`,
           }}
           id={props.tabId}
-          role="tab"
-          aria-selected={props.active ? 'true' : 'false'}
           aria-keyshortcuts={closable() ? 'Delete' : undefined}
           tabindex={props.active ? 0 : -1}
-          onClick={() => props.onSelect(props.item.id)}
         >
           <Show when={props.item.icon}>
             <Icon
@@ -101,20 +100,20 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
             />
           </Show>
           <span class={labelClass()}>{props.item.label}</span>
-        </button>
+        </TabsTab>
         <Show when={closable()}>
-          <button
+          <SdkButton
             class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-6 h-6 ${styles['close'] ?? ''}`}
             data-component="TabStripClose"
             data-id={props.item.id}
             type="button"
-            aria-label={t`Close`}
+            aria-label={t`Close ${props.item.label}`}
             aria-describedby={props.tabId}
             tabindex={-1}
             onClick={() => props.item.onClose?.()}
           >
             <XIcon size={12} color="textSecondary" />
-          </button>
+          </SdkButton>
         </Show>
         <Show when={props.active}>
           <div

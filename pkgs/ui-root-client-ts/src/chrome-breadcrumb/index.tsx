@@ -4,6 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 
@@ -125,7 +126,7 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
                 }
               >
                 {(onClick) => (
-                  <button
+                  <SdkButton
                     type="button"
                     role="link"
                     class="clickable clickableTint box flex-row items-center gap-2 min-w-0 shrink h-10 px-2 -mx-2 rounded-control"
@@ -134,7 +135,7 @@ export function ChromeBreadcrumb(props: ChromeBreadcrumbProps): JSX.Element {
                     onClick={() => onClick()()}
                   >
                     <CrumbBody crumb={crumb} size={size()} current={false} />
-                  </button>
+                  </SdkButton>
                 )}
               </Show>
             </li>

@@ -12,6 +12,7 @@ import {
 } from '@pkgs/chess-board-root-shared-ts/chess-board-bench';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { JSX } from '@solidjs/web';
 import { createSignal, For, Show } from 'solid-js';
 
@@ -75,15 +76,9 @@ function BenchToolbar(props: {
 }): JSX.Element {
   return (
     <div class="flex flex-wrap gap-2">
-      <button type="button" onClick={() => props.onScrub()}>
-        Scrub 200 plies
-      </button>
-      <button type="button" onClick={() => props.onMountTwenty()}>
-        Mount 20 boards
-      </button>
-      <button type="button" onClick={() => props.onReset()}>
-        Reset
-      </button>
+      <Button title="Scrub 200 plies" onClick={() => props.onScrub()} />
+      <Button title="Mount 20 boards" onClick={() => props.onMountTwenty()} />
+      <Button title="Reset" onClick={() => props.onReset()} />
     </div>
   );
 }

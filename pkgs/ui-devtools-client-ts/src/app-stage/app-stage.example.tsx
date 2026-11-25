@@ -5,6 +5,7 @@ import {
   type AppStageView,
 } from '@pkgs/ui-devtools-client-ts/app-stage';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createSignal, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
@@ -18,13 +19,13 @@ function Screen(props: {
     <div class="box flex-1 gap-3 p-4">
       <h2 class="text textHeading">{props.name}</h2>
       <p class="text textBody text-text-secondary">{props.note}</p>
-      <button
+      <SdkButton
         type="button"
         class="self-start"
         onClick={() => setCount(count() + 1)}
       >
         {`${props.name} kept its state: ${String(count())}`}
-      </button>
+      </SdkButton>
     </div>
   );
 }

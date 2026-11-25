@@ -3,6 +3,7 @@
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import type { DataSetProps } from '../data-set-binding';
 import { bindDataSet } from '../data-set-binding';
@@ -16,6 +17,7 @@ import {
   spaced,
 } from '../layout-classes';
 import type { Align, Direction, FlexItemProps, Justify } from '../layout-props';
+import { LinkHost } from '../link-host';
 import type { SpacingProps } from '../space-classes';
 import { spacingClass } from '../space-classes';
 
@@ -112,9 +114,10 @@ function PressableLink(props: PressableProps): JSX.Element {
   const targets = bindElementTargets(props);
   const dataSet = bindDataSet(props);
   return (
-    <a
+    <LinkHost
       ref={[targets, dataSet]}
       class={pressableClass(props)}
+      disabled={props.disabled === true}
       href={props.disabled === true ? undefined : props.href}
       id={props.id}
       data-testid={props.testId}
@@ -137,7 +140,7 @@ function PressableLink(props: PressableProps): JSX.Element {
       aria-haspopup={props['aria-haspopup']}
     >
       {props.children}
-    </a>
+    </LinkHost>
   );
 }
 
@@ -145,7 +148,7 @@ function PressableButton(props: PressableProps): JSX.Element {
   const targets = bindElementTargets(props);
   const dataSet = bindDataSet(props);
   return (
-    <button
+    <SdkButton
       ref={[targets, dataSet]}
       class={pressableClass(props)}
       type={props.type ?? 'button'}
@@ -173,7 +176,7 @@ function PressableButton(props: PressableProps): JSX.Element {
       aria-haspopup={props['aria-haspopup']}
     >
       {props.children}
-    </button>
+    </SdkButton>
   );
 }
 

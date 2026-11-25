@@ -8,6 +8,7 @@ import {
   rovingTabStop,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createUniqueId, For } from 'solid-js';
 import board from '../cell-grid-board/cell-grid-board.module.css';
 import type {
@@ -145,7 +146,7 @@ export function CellGridPalette<K extends string = string>(
       >
         <For each={props.items}>
           {(item) => (
-            <button
+            <SdkButton
               type="button"
               class={[
                 `clickable ${styles['tool']}`,
@@ -166,7 +167,7 @@ export function CellGridPalette<K extends string = string>(
               <span class={`text textCaption ${styles['name']}`}>
                 {item.label}
               </span>
-            </button>
+            </SdkButton>
           )}
         </For>
       </div>

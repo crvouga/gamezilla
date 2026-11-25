@@ -17,6 +17,7 @@ import type {
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createEffect, Show, untrack } from 'solid-js';
 import { CheckIcon } from '../icons';
 import { VirtualList } from '../virtual-list/index';
@@ -51,7 +52,7 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
   onPick: () => void;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       class={[
         'clickable clickableTint w-full flex-row items-center gap-3 py-3 px-4 text-left',
         { 'bg-tint-subtle': props.highlighted },
@@ -71,7 +72,7 @@ function DefaultOptionRow<T extends ComboboxValue>(props: {
       <Show when={props.selected}>
         <CheckIcon size={18} color="tint" />
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 

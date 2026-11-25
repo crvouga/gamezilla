@@ -16,7 +16,8 @@
     "./stories/**/*.ts",
     "./storybook/**/*.ts",
     "./storybook/**/*.tsx",
-    "./scripts/**/*.ts"
+    "./scripts/**/*.ts",
+    "./vite.config.mts"
   ],
   "exclude": ["node_modules"]
 }

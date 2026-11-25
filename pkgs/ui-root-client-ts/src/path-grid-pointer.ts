@@ -1,3 +1,5 @@
+import { definePrimitive } from '@ui-sdk/core';
+import { createParts } from '@ui-sdk/solid/primitive';
 import type {
   PathGridBoardProps,
   PathGridTraceCancellation,
@@ -126,3 +128,76 @@ export function createPathGridPointer(
     },
   };
 }
+
+function traceState(options: { board: PathGridBoardProps }) {
+  return {
+    disabled: options.board.disabled === true,
+    available: !!options.board.onTraceStart,
+  };
+}
+
+function pathCells(board: PathGridBoardProps) {
+  return Array.from({ length: board.rows * board.columns }, (_, index) => ({
+    value: String(index),
+    label: board.cellLabel(index),
+    index,
+  }));
+}
+
+const trace = definePrimitive({
+  name: 'path-grid',
+  options: { board: 'value' },
+  state: traceState,
+  sync: traceState,
+  api: (context) => {
+    function writable() {
+      const board = context.options().board;
+      if (board.disabled || !board.onTraceStart)
+        throw new Error('This path is read-only.');
+      return board;
+    }
+    function index(board: PathGridBoardProps, value: unknown) {
+      const cell = pathCells(board).find(
+        (cell) =>
+          cell.value === value || cell.index === value || cell.label === value
+      );
+      if (!cell) throw new Error('Choose a cell on the current board.');
+      return cell.index;
+    }
+    return {
+      cells: () => pathCells(context.options().board),
+      beginPath(value: unknown) {
+        const board = writable();
+        board.onTraceStart?.(index(board, value));
+      },
+      extendPath(value: unknown) {
+        const board = writable();
+        board.onTraceMove?.(index(board, value));
+      },
+      finishPath() {
+        writable().onTraceEnd?.();
+      },
+      cancelPath() {
+        writable().onTraceCancel?.('interrupted');
+      },
+      clearPathAt(value: unknown) {
+        const board = writable();
+        if (!board.onCellKey?.('Delete', index(board, value)))
+          throw new Error('This board does not clear paths.');
+      },
+    };
+  },
+  agent: {
+    actions: [
+      'beginPath',
+      'extendPath',
+      'finishPath',
+      'cancelPath',
+      'clearPathAt',
+    ],
+    items: (api) => api.cells(),
+    shown: (state) => state.available,
+  },
+  slots: (slot) => ({ root: slot({}) }),
+});
+export const { Root: TraceSurface } = createParts(trace, { root: 'div' });

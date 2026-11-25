@@ -1,7 +1,7 @@
 /** Check alternate landing controls with one page evaluation. */
 export function visibilityScript(
   selectors: readonly string[],
-  state: 'visible' | 'hidden' = 'visible'
+  primary: 'visible' | 'hidden' = 'visible'
 ): string {
   return `(function(){
     function visible(el) {
@@ -18,7 +18,7 @@ export function visibilityScript(
     return ${JSON.stringify(selectors)}.some(function(selector, index) {
       const el = document.querySelector(selector);
       const shown = el !== null && visible(el);
-      return index === 0 && ${state === 'hidden'} ? !shown : shown;
+      return index === 0 && ${primary === 'hidden'} ? !shown : shown;
     });
   })()`;
 }

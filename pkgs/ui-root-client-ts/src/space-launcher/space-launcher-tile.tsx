@@ -2,6 +2,7 @@
 
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Match, Switch } from 'solid-js';
 import { Badge } from '../badge/index';
 import { GameTile } from '../game-tile/index';
@@ -110,7 +111,7 @@ export function SpaceLauncherTile(props: {
     return props.onPress;
   };
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['tile']}
       data-game={props.game.key}
@@ -131,6 +132,6 @@ export function SpaceLauncherTile(props: {
         looking={props.looking}
         hostName={props.hostName}
       />
-    </button>
+    </SdkButton>
   );
 }

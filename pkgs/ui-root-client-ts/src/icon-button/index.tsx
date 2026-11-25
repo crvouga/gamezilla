@@ -6,6 +6,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { children, Show } from 'solid-js';
 import { OnColorProvider } from '../on-color-context/index';
 import { useThemeTokens } from '../theme-context/index';
@@ -161,7 +162,7 @@ function IconButtonFace(
   };
 
   return (
-    <button
+    <SdkButton
       class={[
         `clickable clickableTint ${hitBoxClass()}`,
         {
@@ -217,7 +218,7 @@ function IconButtonFace(
           </OnColorProvider>
         </Show>
       </div>
-    </button>
+    </SdkButton>
   );
 }
 

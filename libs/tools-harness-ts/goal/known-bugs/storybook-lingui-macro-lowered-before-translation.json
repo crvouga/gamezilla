@@ -1,0 +1,4 @@
+{
+  "summary": "The Storybook preset compiled Solid JSX before Lingui could bind Trans. Opening a game with the Unrated fact or a puzzle stage threw a ReferenceError.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook-lingui-build.test.ts"
+}

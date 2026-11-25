@@ -6,7 +6,13 @@ import {
   nextRovingIndex,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
 import type { JSX } from '@solidjs/web';
-import { createSignal, createUniqueId, For, Show } from 'solid-js';
+import {
+  Tabs as SdkTabs,
+  TabsList,
+  TabsPanel,
+  TabsTab,
+} from '@ui-sdk/solid/tabs';
+import { createSignal, For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import { spaced } from '../layout-classes';
 import { useLayoutMode } from '../use-layout-mode';
@@ -150,7 +156,6 @@ function onTabKeyDown(tab: HTMLElement, event: KeyboardEvent): void {
 export function Tabs<V extends string = string>(
   props: TabsProps<V>
 ): JSX.Element {
-  const base = `tabs-${createUniqueId()}`;
   const mode = useLayoutMode();
   const [own, setOwn] = createSignal<V | undefined>();
   const selected = (): V | undefined =>
@@ -163,42 +168,42 @@ export function Tabs<V extends string = string>(
   const variant = (): TabsVariant => props.variant ?? 'underline';
   const equal = (): boolean =>
     variant() === 'underline' && mode() === 'compact';
-  const tabId = (index: number): string => `${base}-tab-${index}`;
-  const panelId = (index: number): string => `${base}-panel-${index}`;
   return (
-    <div
+    <SdkTabs<V>
+      value={selected() ?? null}
+      onValueChange={(value) => {
+        if (value !== null) select(value);
+      }}
+      aria-label={props['aria-label']}
+      aria-labelledby={props['aria-labelledby']}
       class="box"
       data-testid={props.testId}
       data-component={componentId('Tabs')}
       data-variant={variant()}
     >
-      <div
+      <TabsList
         class={LOOK[variant()].list}
-        role="tablist"
         aria-orientation="horizontal"
         aria-label={props['aria-label']}
         aria-labelledby={props['aria-labelledby']}
       >
         <For each={props.items}>
-          {(item, index) => {
+          {(item) => {
             const isSelected = (): boolean => item.value === selected();
             return (
-              <button
-                type="button"
+              <TabsTab
+                value={item.value}
                 class={tabClass(variant(), isSelected(), equal())}
-                id={tabId(index())}
                 data-testid={
                   props.testId === undefined
                     ? undefined
                     : `${props.testId}-${item.value}`
                 }
                 data-component={componentId('Tab')}
-                role="tab"
-                aria-selected={isSelected() ? 'true' : 'false'}
-                aria-controls={panelId(index())}
-                tabindex={isSelected() ? 0 : -1}
                 disabled={item.disabled === true}
-                onClick={() => select(item.value)}
+                render={(attrs) => (
+                  <button {...attrs} disabled={item.disabled === true} />
+                )}
                 onKeyDown={(event) => onTabKeyDown(event.currentTarget, event)}
               >
                 <span class="text textLabel whitespace-nowrap">
@@ -218,33 +223,31 @@ export function Tabs<V extends string = string>(
                 <Show when={variant() === 'underline'}>
                   <UnderlineRule selected={isSelected()} />
                 </Show>
-              </button>
+              </TabsTab>
             );
           }}
         </For>
-      </div>
+      </TabsList>
       <For each={props.items}>
-        {(item, index) => (
-          <div
+        {(item) => (
+          <TabsPanel
+            keepMounted
+            value={item.value}
             class={spaced([
               'box focus-visible:outline-2 focus-visible:outline-focus-ring focus-visible:outline-offset-2',
               item.value === selected() ? undefined : 'hidden',
             ])}
-            id={panelId(index())}
             data-component={componentId('TabPanel')}
-            role="tabpanel"
-            aria-labelledby={tabId(index())}
             tabindex={0}
-            hidden={item.value !== selected()}
           >
             <Show
               when={props.keepMounted === true || item.value === selected()}
             >
               {props.children?.(item.value)}
             </Show>
-          </div>
+          </TabsPanel>
         )}
       </For>
-    </div>
+    </SdkTabs>
   );
 }

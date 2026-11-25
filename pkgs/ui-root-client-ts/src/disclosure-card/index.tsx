@@ -1,10 +1,14 @@
 /** @jsxImportSource @solidjs/web */
 
-import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createSignal, createUniqueId, Show, untrack } from 'solid-js';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
+import { createSignal, Show, untrack } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
 import styles from './disclosure-card.module.css';
 
@@ -36,20 +40,18 @@ export function DisclosureCard(props: DisclosureCardProps): JSX.Element {
   const [open, setOpen] = createSignal(
     untrack(() => props.defaultOpen === true)
   );
-  const id = createUniqueId();
   return (
-    <section
+    <Disclosure
+      open={open()}
+      onOpenChange={setOpen}
+      render={(attrs) => <section {...attrs} />}
       class={`${styles['card']} rounded-card border border-border bg-surface`}
-      data-open={String(open())}
       {...dataAttrs({ component: 'DisclosureCard', ...props.dataSet })}
     >
-      <button
+      <CollapsibleTrigger
         type="button"
         class={styles['trigger']}
-        aria-expanded={ariaBoolean(open())}
-        aria-controls={id}
         data-testid={props.toggleTestId}
-        onClick={() => setOpen(!open())}
       >
         <span class={styles['heading']}>
           <span class="text textNavigationTitle">{props.title}</span>
@@ -66,12 +68,10 @@ export function DisclosureCard(props: DisclosureCardProps): JSX.Element {
         >
           <ChevronDownIcon size={20} />
         </span>
-      </button>
-      <Show when={open()}>
-        <div id={id} class={styles['body']}>
-          {props.children}
-        </div>
-      </Show>
-    </section>
+      </CollapsibleTrigger>
+      <CollapsiblePanel class={styles['body']}>
+        {props.children}
+      </CollapsiblePanel>
+    </Disclosure>
   );
 }

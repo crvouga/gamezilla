@@ -1,7 +1,12 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createSignal, createUniqueId, Show } from 'solid-js';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
+import { createSignal } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ChevronDownIcon } from '../icons';
 
@@ -17,19 +22,17 @@ export function GameDisclosure(props: {
   dataSet?: ComponentDataSet;
 }): JSX.Element {
   const [open, setOpen] = createSignal(false);
-  const id = createUniqueId();
   return (
-    <div
+    <Disclosure
+      open={open()}
+      onOpenChange={setOpen}
       class={styles['disclosure']}
       data-rule={String(props.rule !== false)}
       {...dataAttrs({ component: 'GameDisclosure' })}
     >
-      <button
+      <CollapsibleTrigger
         type="button"
         class={`${styles['disclosureTrigger']} text textLabel`}
-        aria-expanded={open() ? 'true' : 'false'}
-        aria-controls={id}
-        onClick={() => setOpen(!open())}
         {...dataAttrs({ component: 'GameDisclosureTrigger', ...props.dataSet })}
       >
         {props.title}
@@ -40,12 +43,10 @@ export function GameDisclosure(props: {
         >
           <ChevronDownIcon size={18} />
         </span>
-      </button>
-      <Show when={open()}>
-        <div id={id} class={styles['disclosureBody']}>
-          {props.children}
-        </div>
-      </Show>
-    </div>
+      </CollapsibleTrigger>
+      <CollapsiblePanel class={styles['disclosureBody']}>
+        {props.children}
+      </CollapsiblePanel>
+    </Disclosure>
   );
 }

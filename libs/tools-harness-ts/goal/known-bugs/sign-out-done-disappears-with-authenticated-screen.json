@@ -1,0 +1,4 @@
+{
+  "summary": "Signing out could wait for a Done button after the signed-in screen and its pending dialog had already unmounted.",
+  "regressionTest": "pkgs/ui-testing-solid-dom-client-ts/tests/alternate-visibility.test.tsx"
+}

@@ -96,8 +96,8 @@ async function nextSolutionUci(s: ProductHarness, actorId: string) {
 }
 
 /**
- * Narrow the feed to `theme` (a theme only `puzzleId` carries) and wait
- * until that puzzle is on the board and the solver may move.
+ * Put the named puzzle on the board. If it is already there, saving a
+ * narrower feed would ask for its replacement and exclude that very puzzle.
  */
 export const openPuzzleByTheme = scenarioAction({
   name: 'openPuzzleByTheme',
@@ -107,14 +107,15 @@ export const openPuzzleByTheme = scenarioAction({
     theme: ChessPuzzleTheme,
     puzzleId: string
   ) => {
-    // regression: named-puzzle-already-on-board
-    if ((await readPuzzleOnBoard(s, actorId)) !== puzzleId) {
-      await Promise.resolve(openPuzzleFeedSettings.act(s, actorId));
-      await Promise.resolve(
-        setPuzzleFeedTheme.act(s, actorId, CHESS_GAME_ID, theme)
-      );
-      await Promise.resolve(closePuzzleFeedSettings.act(s, actorId));
+    if ((await readPuzzleOnBoard(s, actorId)) === puzzleId) {
+      await waitSolverCanMove(s, actorId);
+      return;
     }
+    await Promise.resolve(openPuzzleFeedSettings.act(s, actorId));
+    await Promise.resolve(
+      setPuzzleFeedTheme.act(s, actorId, CHESS_GAME_ID, theme)
+    );
+    await Promise.resolve(closePuzzleFeedSettings.act(s, actorId));
     await expectPlayReady(s, actorId);
     await pollUntil(
       s,

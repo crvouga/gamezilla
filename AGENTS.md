@@ -157,7 +157,13 @@ mobile and native app surfaces.
 `@pkgs/ui` is the only design-system surface: every component, prop type,
 hook and theme helper is in-house under `pkgs/ui-root-client-ts/src/*`,
 re-exported from individual module exports (`import { Button }
-from '@pkgs/ui-root-client-ts/button'`). No adapter layer, no third-party UI library.
+from '@pkgs/ui-root-client-ts/button'`). Interaction primitives use ui-sdk inside the design system.
+
+Before using ui-sdk, follow the [ui-sdk skill](.agents/skills/ui-sdk/SKILL.md)
+if installed and read `node_modules/@ui-sdk/solid/docs/llms.txt` in the owning
+workspace package. To build a new component, also search
+`node_modules/@ui-sdk/solid/docs/core.md` by heading and read `rendering.md`
+beside it.
 
 **How it looks** is decided once, in
 [`pkgs/ui-root-client-ts/README.md`](pkgs/ui-root-client-ts/README.md): the
