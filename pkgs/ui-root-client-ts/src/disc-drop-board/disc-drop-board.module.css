@@ -48,6 +48,7 @@
   }
 }
 .board {
+  position: relative;
   display: grid;
   grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
   width: 100%;
@@ -416,16 +417,24 @@
 .viewport[data-aiming="true"] .drop:not([data-disc="0"]) .number {
   transform: translateY(var(--ui-space-hairline));
 }
+/* The keyboard guidance already reserves this space below the rack. */
 .inspect {
+  position: absolute;
+  inset-block-end: var(--ui-space-1);
   grid-column: 1 / -1;
   justify-self: center;
-  min-height: var(--ui-space-8);
+  min-height: var(--ui-space-6);
   padding-inline: var(--ui-space-3);
   color: var(--ui-color-text);
   background: var(--ui-color-background);
   border: var(--ui-space-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-full);
   cursor: pointer;
+}
+
+.board[data-keyboard-help="true"][data-inspecting="false"] .inspect,
+.board[data-inspecting="true"] .keyboardHelp {
+  visibility: hidden;
 }
 
 .viewport[data-aiming="true"] .drop[data-disc="1"] .number {
