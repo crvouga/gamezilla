@@ -1,0 +1,4 @@
+{
+  "summary": "Asking the chess harness for 01Xbe while it was already on the board excluded it from its only matching theme and emptied the feed.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/puzzle-catalog-regression.test.ts"
+}
