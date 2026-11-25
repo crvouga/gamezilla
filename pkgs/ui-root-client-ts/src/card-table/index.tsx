@@ -16,6 +16,7 @@ import {
 import { Button } from '../button/index';
 import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
+import hearts from './hearts-table.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
 import { CardTableContext } from './table-context';
@@ -65,6 +66,8 @@ export type CardTableSeat = {
 
 export type CardTableHandCard = CardTableCard & {
   /** Whether the rules allow this card now. */
+  readonly pointMark?: string | undefined;
+  readonly pointLabel?: string | undefined;
   readonly enabled: boolean;
   /** Whether it is chosen, while cards are chosen (`null` when a card acts at once). */
   readonly selected: boolean | null;
@@ -85,6 +88,7 @@ export type CardTableAction = {
 
 export type CardTableProps = {
   readonly label: string;
+  readonly appearance?: 'hearts';
   /** Disclosure label for the player table while passing on short phones. */
   readonly tableSummary?: string | undefined;
   readonly testId: string;
@@ -175,6 +179,7 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
   return (
     <section
       class={styles['seat']}
+      data-winner={String(seat().won !== undefined)}
       data-trick={String(props.trick)}
       data-player={String(seat().player !== undefined)}
       data-position={seat().position}
@@ -331,6 +336,9 @@ function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
   return (
     <>
       <CardFace card={props.card} />
+      <Show when={props.card.pointMark}>
+        {(mark) => <span class={hearts['points']} aria-hidden="true">{mark()}</span>}
+      </Show>
       <Show when={props.card.refusal}>
         <span class={state['unavailable']} aria-hidden="true">
           ×
@@ -429,7 +437,7 @@ function Hand(
                   data-suit={card().suit}
                   data-testid={props.cardTestId(id)}
                   data-card={id}
-                  aria-label={spokenName(card())}
+                  aria-label={[spokenName(card()), card().pointLabel].filter(Boolean).join(', ')}
                   aria-pressed={ariaBoolean(card().selected ?? undefined)}
                   aria-disabled={ariaBoolean(!card().enabled)}
                   aria-describedby={props.reasonId(
@@ -476,7 +484,7 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
   return (
     <div class={styles['pass']} aria-hidden="true">
       <span class={styles['passLabel']}>{props.pass.label}</span>
-      <span class={styles['passPlaces']}>
+      <span class={styles['passPlaces']} data-pass-tray="">
         <For keyed={false} each={places()}>
           {(card) => (
             <span class={styles['slot']} data-filled={String(card() !== null)}>
@@ -629,7 +637,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
   };
   return (
     <div
-      class={styles['root']}
+      class={[styles['root'], { [hearts['salon'] ?? '']: props.appearance === 'hearts' }]}
       data-testid={props.testId}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
     >
@@ -640,6 +648,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
       >
         <div
           class={[styles['table'], { [felt['felt'] ?? '']: true }]}
+          data-table-felt=""
           role="group"
           aria-label={props.label}
         >

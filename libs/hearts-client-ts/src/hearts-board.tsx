@@ -206,6 +206,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
   const awaitingHand = () => props.interactive && props.hand === null;
   return (
     <CardTable
+      appearance="hearts"
       label={t`Hearts table`}
       tableSummary={t`Players and scores`}
       testId={props.testId}

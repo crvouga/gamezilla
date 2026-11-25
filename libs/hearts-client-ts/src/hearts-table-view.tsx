@@ -1,5 +1,6 @@
 import {
   type Card,
+  cardPoints,
   parseCards,
   suitOf,
 } from '@libs/hearts-shared-ts/hearts-cards';
@@ -281,28 +282,30 @@ export function handCards(
   const passed = parseCards(board.commitment ?? '') ?? [];
   const chosen = board.commitment === null ? selected : passed;
   const seat = seatOfSide(board.orientation);
+  const myTurn = position?.phase === 'play' && seatToPlay(position) === seat;
   const refusal = (card: Card): string | undefined => {
-    if (position?.phase !== 'play') return undefined;
+    if (!myTurn || position === null) return undefined;
     // Not this seat's turn: the hand waits as a whole (`heartsWaiting`),
     // no card is refused by a rule.
-    if (seatToPlay(position) !== seat) return undefined;
     const reason = cardRefusal(position, seat, held, card);
     return reason === null ? undefined : heartsRefusal(reason);
   };
-  return [...held]
-    .sort(
-      (a, b) =>
-        Number(refusal(a) !== undefined) - Number(refusal(b) !== undefined)
-    )
+  return held
     .map((card) => {
       const reason = refusal(card);
+      const points = cardPoints(card);
       return {
         ...tableCard(card),
+        pointMark: points > 0 ? `+${points}` : undefined,
+        pointLabel: points > 0
+          ? plural(points, { one: '# penalty point', other: '# penalty points' })
+          : undefined,
         enabled: passing
           ? board.interactive && board.commitment === null
           : board.interactive && reason === undefined,
         selected: passing ? chosen.includes(card) : null,
         refusal: reason,
       };
-    });
+    })
+    .sort((a, b) => Number(a.refusal !== undefined) - Number(b.refusal !== undefined));
 }

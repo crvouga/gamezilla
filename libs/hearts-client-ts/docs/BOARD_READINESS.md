@@ -43,3 +43,8 @@ full verification and both independent reviewer verdicts remain required.
 
 Immutable rounds, uploaded screenshots/videos, measurements and check outcomes
 belong to pull request #288, not this note.
+
+Penalty cards in the hand show their value before the player chooses. The
+card's accessible name includes the penalty points, alongside its rank and suit.
+A check marks each selected pass card, including when motion is reduced.
+The trick winner's seat carries the same accent as the labelled winning card.
