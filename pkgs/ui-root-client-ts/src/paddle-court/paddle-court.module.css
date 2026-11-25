@@ -123,7 +123,8 @@
   cursor: grabbing;
 }
 .stage:has(.half[data-side="first"] :focus-visible) .paddle[data-side="first"],
-.stage:has(.half[data-side="second"] :focus-visible) .paddle[data-side="second"] {
+.stage:has(.half[data-side="second"] :focus-visible)
+  .paddle[data-side="second"] {
   stroke: var(--ui-color-game-pong-accent);
 }
 /* Each paddle in its player's color, as their swatch beside their name. */
