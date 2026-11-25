@@ -86,14 +86,9 @@
 .body [data-component="GameStandings"]:not(:has(> :nth-child(3))) {
   display: none;
 }
-/* A phone docks the card at the top, over the game's info, so the final
-   board under it stays in view. */
+/* A phone keeps the card short: tighter gaps and rows, and the places to
+   go next (other options, ratings) as one slim row of small quiet buttons. */
 @media (max-width: 767px) {
-  /* Under the top bar, over the game's info. */
-  :global([data-component="GameResultDialog"]) > div:last-child {
-    justify-content: flex-start;
-    padding: 56px var(--ui-space-4) 0;
-  }
   .body {
     gap: var(--ui-space-3);
   }
@@ -101,23 +96,8 @@
     min-height: 40px;
     padding-block: 0;
   }
-  /* Places to go next (other options, ratings) stay on the phone too, as
-     one slim row of small quiet buttons, so the card still ends above the
-     board. */
   .body [data-testid="multiplayer-onward"] {
     margin-block: calc(var(--ui-space-2) * -1);
-  }
-}
-/* A wide window docks the card over the stage's side column, beside the
-   board, never over it: the final position stays whole in view. */
-@media (min-width: 1024px) {
-  :global([data-component="GameResultDialog"]) > div:last-child {
-    justify-content: flex-start;
-    padding: 120px 40px 40px;
-  }
-  :global([data-component="GameResultDialog"])
-    :global([data-component="ModalContent"]) {
-    align-self: flex-end;
   }
 }
 /* No title row: the close button floats in the card's corner, level with
