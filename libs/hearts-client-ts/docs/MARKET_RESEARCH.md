@@ -1,4 +1,4 @@
-# Reading a Hearts trick on a phone
+# Hearts board market research
 
 Show the penalty points in the completed-trick message beside the player's name and winning card. A player who sees “North took the trick with the jack of hearts” can identify the winner but still has to count the hearts to understand what North took. Hearts Card Classic shows that count on the trick. Coppercod's review shows why the four cards and their seats are worth preserving when displaying the result.
 
@@ -39,8 +39,12 @@ These are publisher-supplied phone images, linked from their original hosts. Cop
 | Who took the trick? | Figure 2 preserves seat positions when reviewing an earlier trick. Its numbered review and arrows let a reader distinguish past play from the live table behind it. No winner is named in the image. | In Figure 5 the jack sits next to Isabella. Ownership can be inferred from its position and rank. A player looking only at the central heart sees the cost but no name. |
 | What did this trick cost? | The rules call the numbers in front of each hand game scores. Figure 2 labels players and displays their totals, but gives no explicit point change for the reviewed trick. | Figure 5 gives the trick's four points directly, even at landscape phone width. Distinguishing the other numbers requires more context than this frame supplies. |
 
-## Change for our board
+## Decisions and verification · 2026-11-25
 
-The [current board message](../src/hearts-table-view.tsx) already names the taker and winning card. Each seat also reports deal points. Extend that same visible and spoken message with the penalty value of the four captured cards. For the hand in Figure 5 it could read “Isabella took the trick with the jack of hearts and leads. This trick added 4 deal points.” Keep the four cards visible so a player can check the count. This uses the existing message area in portrait and avoids covering a rank as the central heart does in Figure 5.
+The board keeps each played card beside its owner. The winning seat shows the points captured in this trick alongside its deal and match totals. The board announces those points with the taker and winning card. This preserves Coppercod’s seat-relative arrangement and answers the question addressed by Hearts Card Classic’s central point marker. A queen-bearing trick and a zero-point trick have automated examples. The queen story shows all four cards and distinguishes the 13 points taken from West’s match score of 20. [Board presentation](../src/hearts-table-view.tsx) · [Queen-bearing example](../tests/deal-points-label.test.tsx)
 
-An automated example can distinguish the three quantities. Give the taker an existing match score and nonzero points earlier in the deal. After the four-heart trick, the result should say 4 deal points for this trick, the seat should show its updated deal total, and the match score should retain its value until the deal is scored. Also cover a zero-point trick and a trick containing the queen of spades. This is a proposed improvement. The screenshots establish how competitors present information, without establishing usability outcomes for our players.
+The hand retains separate, non-overlapping targets. A player can tap a card, activate it by keyboard, or drag it onto the felt, as suggested by Hearts Card Classic’s drop instruction. Pinch and pan apply to the felt so the hand stays at a fixed size during inspection. The hosted gesture journeys exercise interrupted pickups and the same accepted move on phone and desktop. The automated passing comparison uses the same three selected cards at both viewport sizes. [Passing evidence](https://github.com/crvouga/gamezilla/pull/580#issuecomment-7159551935) · [Gesture journeys](../../../pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/gestures/integration.checks.ts) · [Current verification and clips](https://github.com/crvouga/gamezilla/pull/580)
+
+## Outstanding questions
+
+Can a first-time player discover drag-to-felt from the pickup and drop cues? Do players distinguish points from this trick from points accumulated this deal at a glance? The screenshots and automated journeys establish the information and interactions available. Answering those questions requires evidence from people playing.
