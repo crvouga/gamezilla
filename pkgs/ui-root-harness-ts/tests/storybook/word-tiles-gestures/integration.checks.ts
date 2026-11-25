@@ -8,6 +8,8 @@ import {
 } from '../word-tiles/evidence';
 import { retainEvidence } from '../word-tiles/retained-evidence';
 
+import { measureGestures, saveGestures } from './gesture-evidence';
+
 test.use({ video: 'on', trace: 'on' });
 test.beforeEach(async ({ page }) => observeInput(page));
 test.afterEach(async ({ page }, info) => recordEvidence(page, info));
@@ -51,6 +53,11 @@ test.describe('desktop', () => {
     page,
   }, info) => {
     await openStory(page, 'four-player-match', 'light');
+    await measureGestures(page);
+    await retainEvidence(info, 'opening-board.png', {
+      body: await viewport(page).screenshot(),
+      contentType: 'image/png',
+    });
     const anchor = await point(centerCell(page));
     const before = await centerCell(page).boundingBox();
     await page.mouse.move(anchor.x, anchor.y);
@@ -61,9 +68,11 @@ test.describe('desktop', () => {
       .poll(async () => (await centerCell(page).boundingBox())?.width ?? 0)
       .toBeGreaterThan((before?.width ?? 0) * 1.2);
     expect(await squareAt(page, anchor)).toBe('h8');
+    const prior = await point(centerCell(page));
     await page.mouse.down();
     await page.mouse.move(anchor.x + 40, anchor.y + 30, { steps: 6 });
     await page.mouse.up();
+    expect((await point(centerCell(page))).x - prior.x).toBeGreaterThan(20);
     await expect(
       page.locator('[data-state="tentative"][data-cell]')
     ).toHaveCount(0);
@@ -89,6 +98,7 @@ test.describe('desktop', () => {
         await expect(centerCell(page)).toHaveAttribute('data-state', 'empty');
     }
     await assertPlacement(page);
+    await saveGestures(page, info);
     await page.getByRole('button', { name: 'Fit board', exact: true }).click();
     await expect
       .poll(async () => (await centerCell(page).boundingBox())?.width)
@@ -105,6 +115,11 @@ test.describe('phone', () => {
     page,
   }, info) => {
     await openStory(page, 'four-player-match', 'light');
+    await measureGestures(page);
+    await retainEvidence(info, 'opening-board.png', {
+      body: await viewport(page).screenshot(),
+      contentType: 'image/png',
+    });
     const cdp = await page.context().newCDPSession(page);
     type Finger = { x: number; y: number; id: number };
     const touch = (
@@ -125,9 +140,11 @@ test.describe('phone', () => {
       .poll(async () => (await centerCell(page).boundingBox())?.width ?? 0)
       .toBeGreaterThan((first?.width ?? 0) * 1.2);
     expect(await squareAt(page, anchor)).toBe('h8');
+    const prior = await point(centerCell(page));
     await touch('touchStart', finger(1, 0));
     await touch('touchMove', finger(1, 30, 20));
     await touch('touchEnd');
+    expect((await point(centerCell(page))).x - prior.x).toBeGreaterThan(15);
     const src = { ...(await point(rackTile(page))), id: 1 };
     const dest = { ...(await point(centerCell(page))), id: 1 };
     await markEvidencePhase(page, 'gesture-drag');
@@ -150,6 +167,7 @@ test.describe('phone', () => {
         await expect(centerCell(page)).toHaveAttribute('data-state', 'empty');
     }
     await assertPlacement(page);
+    await saveGestures(page, info);
     await expect(centerCell(page).locator('span').first()).toHaveCSS(
       'animation-name',
       'none'
@@ -160,5 +178,43 @@ test.describe('phone', () => {
     });
     await page.getByRole('button', { name: 'Fit board', exact: true }).tap();
     await expect(viewport(page)).toHaveAttribute('data-enlarged', 'false');
+  });
+});
+
+test('storybook integration: word-tiles gesture assigned blank remains marked after commit', async ({
+  page,
+}, info) => {
+  await openStory(page, 'three-player-match', 'light');
+  const board = page.getByTestId('custom-game-board');
+  const blank = centerCell(page);
+  for (const [tile, square] of [
+    ['11', 'g8'],
+    ['98', 'h8'],
+    ['82', 'i8'],
+  ]) {
+    await page.getByTestId(`custom-game-board-rack-${tile}`).click();
+    await page.getByTestId(`custom-game-board-cell-${square}`).click();
+    if (tile === '98')
+      await page.getByTestId('custom-game-board-blank-A').click();
+  }
+  await expect(blank).toHaveAttribute('data-state', 'tentative');
+  await expect(blank.getByText('A', { exact: true })).toHaveCSS(
+    'text-decoration-line',
+    'underline'
+  );
+  await page.getByTestId('custom-game-board-submit').click();
+  await expect(blank).toHaveAttribute('data-state', 'committed');
+  await expect(blank).toHaveAccessibleName('A 0, h8, blank played as A');
+  await expect(blank.getByText('A', { exact: true })).toHaveCSS(
+    'text-decoration-line',
+    'underline'
+  );
+  await expect(board.getByText('C', { exact: true })).toHaveCSS(
+    'text-decoration-line',
+    'none'
+  );
+  await retainEvidence(info, 'committed-blank.png', {
+    body: await viewport(page).screenshot(),
+    contentType: 'image/png',
   });
 });
