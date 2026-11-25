@@ -45,12 +45,16 @@ export function SpacePersonAvatar(props: {
 function BotLabel(props: { readonly person: SpacePerson }): JSX.Element {
   return (
     <Show when={props.person.bot}>
-      <Badge
-        label={<Trans>Bot</Trans>}
-        intent="neutral"
-        size="sm"
-        dataSet={{ testid: `account-automation-${props.person.id}` }}
-      />
+      {/* A badge keeps to its row's top edge; its own row centres it on
+          the name's line. */}
+      <StackHorizontal align="center">
+        <Badge
+          label={<Trans>Bot</Trans>}
+          intent="neutral"
+          size="sm"
+          dataSet={{ testid: `account-automation-${props.person.id}` }}
+        />
+      </StackHorizontal>
     </Show>
   );
 }

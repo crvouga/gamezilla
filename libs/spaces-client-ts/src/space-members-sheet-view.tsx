@@ -111,13 +111,15 @@ function rosterRow(
           />
         )}
         <Show when={member.idle}>
-          <Badge
-            label={<Trans>Idle</Trans>}
-            intent="neutral"
-            tone="subtle"
-            size="sm"
-            dataSet={{ testid: Handles.spaceMemberIdle(id) }}
-          />
+          <StackHorizontal align="center">
+            <Badge
+              label={<Trans>Idle</Trans>}
+              intent="neutral"
+              tone="subtle"
+              size="sm"
+              dataSet={{ testid: Handles.spaceMemberIdle(id) }}
+            />
+          </StackHorizontal>
         </Show>
       </StackHorizontal>
     ),

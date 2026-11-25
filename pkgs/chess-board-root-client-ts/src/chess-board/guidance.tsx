@@ -67,9 +67,11 @@ export function ChessBoardGuidance(props: {
         <Show
           when={!(game().isCheckmate || game().isStalemate)}
           fallback={
-            <P variant="caption" tone="secondary">
-              <Trans>Final position.</Trans>
-            </P>
+            <Show when={full()}>
+              <P variant="caption" tone="secondary">
+                <Trans>Final position.</Trans>
+              </P>
+            </Show>
           }
         >
           <Show when={full()}>
