@@ -47,6 +47,11 @@
   .seat[data-position="right"] {
     width: 100%;
   }
+  /* What the table is doing wraps in the middle rather than narrowing the
+     side seats until a name is cut short. */
+  .table > .center {
+    max-width: min(16rem, 36cqw);
+  }
   /* Where the pass goes wraps over its places rather than widening the
      middle at the side seats' cost. */
   .pass {

@@ -125,3 +125,44 @@ test('CAT/TOE board locator announces its visible Find a square label', () => {
     'Find a square on the board'
   );
 });
+
+/** Run `body` as a phone, whose view tools wait behind Board tools. */
+function asPhone(body: () => void): void {
+  const original = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: () => ({
+      matches: true,
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  });
+  try {
+    body();
+  } finally {
+    if (original) Object.defineProperty(window, 'matchMedia', original);
+    else Reflect.deleteProperty(window, 'matchMedia');
+  }
+}
+
+// regression: word-tiles-board-tools-focus-after-locator
+test('dismissing Board tools after its locator hands focus back to the Board tools button', () => {
+  asPhone(() => {
+    const view = renderMap();
+    const button = view.getByRole('button', {
+      name: 'Board tools: zoom and find a square',
+    });
+    button.focus();
+    fireEvent.click(button);
+    const find = view.getByRole('button', { name: 'Find a square' });
+    find.focus();
+    fireEvent.click(find);
+    fireEvent.keyDown(view.getByTestId('map-fixture-map-cell-h8'), {
+      key: 'Escape',
+    });
+    expect(document.activeElement).toBe(find);
+    fireEvent.keyDown(find, { key: 'Escape' });
+    expect(view.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(button);
+  });
+});

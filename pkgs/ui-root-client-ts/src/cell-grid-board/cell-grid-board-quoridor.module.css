@@ -18,21 +18,95 @@
     margin-inline: auto;
   }
 }
-/* Beside the record rail (a desktop window) the seats share one row above
-   the board, and under it are only the tools, the picker, the wall
-   confirmation and the status (about 360px with the title above). At
-   1440x900 the board then fills its column with 44px squares instead of
-   stopping at the phone measure, and the frame's own height bound on the
-   column still caps it. */
+/* Beside the record rail (a desktop window) the frame's title and the
+   seats stand above the board, and under it only the tools and one row
+   of the picker beside the guidance or a proposed wall's Place and Cancel
+   (about 300px in all, the column's own height bound). A slim frame and
+   rank labels' column give the squares the board's width, so in a
+   1280x800 window the board fills its column with 44px squares and every
+   control is in the first view. */
 @container game-column (min-width: 880px) {
   .board[data-fill="true"][data-board-theme="quoridor"] {
-    --chrome: 360px;
+    --chrome: 300px;
+    grid-template-columns:
+      minmax(1rem, 0.35fr)
+      repeat(var(--cell-grid-columns), minmax(0, 1fr));
+    padding-inline: var(--ui-space-1);
   }
 }
+
+/* The seats over a Quoridor board stand a small step from it, and a
+   bigger table's chips are as slim as their two lines, so the board has
+   the room for its squares and every control under it. */
+[data-game-fixed="true"]
+[data-game-board-stage]:has(.board[data-board-theme="quoridor"]) {
+  gap: var(--ui-space-1);
+}
+[data-game-fixed="true"]
+  [data-game-board-stage]:has(.board[data-board-theme="quoridor"])
+  [data-component="GamePlayerRail"] {
+  gap: var(--ui-space-1);
+}
+[data-game-fixed="true"]
+  [data-game-board-stage]:has(.board[data-board-theme="quoridor"])
+  [data-component="GamePlayerChip"]
+  > * {
+  padding-block: 0;
+}
+[data-game-fixed="true"]
+  [data-game-board-stage]:has(.board[data-board-theme="quoridor"])
+  [data-component="GamePlayerChip"]
+  > *
+  > :last-child {
+  gap: 0;
+}
+
+/* Under the board: the tools, the picker, then one row for the guidance.
+   A proposed wall's Place and Cancel take that row; the guidance would
+   only repeat the picker's wall and the buttons there, so it stays the
+   board's description and live status for assistive technology alone,
+   and proposing a wall never needs a row of its own. */
+:has(> .board[data-board-theme="quoridor"]):has(
+  > [data-component="QuoridorWallConfirmation"]
+) > [role="status"] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+/* Beside a wide board, while the picker shows (a player to move), that
+   row stands beside the picker. */
+@container game-column (min-width: 880px) {
+  :has(> .board[data-board-theme="quoridor"]):has(> [data-component="Select"]) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: center;
+    column-gap: var(--ui-space-3);
+  }
+  :has(> .board[data-board-theme="quoridor"]):has(> [data-component="Select"])
+    > * {
+    grid-column: 1 / -1;
+  }
+  :has(> .board[data-board-theme="quoridor"]):has(> [data-component="Select"])
+    > [data-component="Select"] {
+    grid-row: 3;
+    grid-column: 1;
+  }
+  :has(> .board[data-board-theme="quoridor"]):has(> [data-component="Select"])
+    > :is([role="status"], [data-component="QuoridorWallConfirmation"]) {
+    grid-row: 3;
+    grid-column: 2;
+  }
+}
+
 /* A phone's fixed stage holds the board's box still: the board spans the
    screen's whole width like every game's board, out past the inset its
    tools and picker keep (`--game-board-workspace-inset`), and the box
-   scrolls for what does not fit. */
+   scrolls for what does not fit. The seats stand right under the status
+   line and the box runs down to the commands (the bar draws its own
+   rule). */
 @media (max-width: 767px) {
   [data-game-fixed="true"]
     [data-board-workspace="true"]
@@ -42,36 +116,32 @@
     max-width: none;
     margin-inline: 0;
   }
-}
-
-/* Under the board on a phone: the tools, the target picker and the status
-   line, with the stack's gaps between them. A proposed wall's Place and
-   Cancel come under these and scroll into view. */
-@media (max-width: 767px) {
   [data-game-fixed="true"]
     [data-board-workspace="true"]
     > [data-game-board]:has(> * > * > .board[data-board-theme="quoridor"]) {
     container: quoridor-room / size;
   }
+  [data-game-fixed="true"]
+    [data-game-slot="stage"]
+    > [data-game-board-stage]:has(.board[data-board-theme="quoridor"]) {
+    padding-block: 0;
+  }
 }
 /* Where the seats above leave the box short (four seats in two rows), the
-   board gives up just enough width that its tools and picker stay whole
-   above the commands, instead of the picker sliding under them. The
-   allowance is fixed, so proposing a wall never resizes the board. */
+   board gives up just enough width that its tools, picker and the
+   guidance's row (or Place and Cancel) stay whole above the commands,
+   instead of sliding under them. The board is shorter than it is wide by
+   at least 0.5rem (its file labels' row is 0.75rem, its rank labels'
+   column at least 1.25rem). The allowance is fixed, so proposing a wall
+   never resizes the board. */
 @container quoridor-room (min-height: 0) {
   [data-game-fixed="true"]
     [data-board-workspace="true"]
     .board[data-fill="true"][data-board-theme="quoridor"] {
-    --under: calc(
-      var(--ui-control-size-md) *
-      2 +
-      1.5rem +
-      var(--ui-space-1) *
-      3
-    );
+    --under: calc(var(--ui-control-size-md) * 3 + var(--ui-space-1) * 3);
     width: min(
       calc(100% + 2 * var(--game-board-workspace-inset, 0px)),
-      calc(100cqb - var(--under))
+      calc(100cqb - var(--under) + 0.5rem)
     );
   }
 }

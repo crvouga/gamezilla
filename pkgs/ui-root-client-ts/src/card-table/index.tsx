@@ -699,7 +699,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
             {(pass) => <PassArea pass={pass()} />}
           </Show>
           <p
-            class={styles['center']}
+            class={[styles['center'], compass['center']]}
             data-spoken-only={String(props.centerSpokenOnly === true)}
             aria-live="polite"
             data-testid={`${props.testId}-center`}

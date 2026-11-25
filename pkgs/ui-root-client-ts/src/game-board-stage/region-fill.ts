@@ -1,7 +1,6 @@
 import { BREAKPOINT_MIN_TABLET } from '@pkgs/ui-root-shared-ts/breakpoints';
 import { spacing } from '@pkgs/ui-root-shared-ts/scale';
 import { type Accessor, createEffect, createSignal } from 'solid-js';
-import { createFrameResizeObserver } from '../observe-element-resize';
 import { belowStage, contentTop, layoutTargets } from './viewport-fit';
 
 /** Under this the region keeps a usable size and the page scrolls instead. */
@@ -51,7 +50,15 @@ export function createBoardRegionFill(
         setRoom(Math.max(SMALLEST_REGION, Math.floor(left)));
       };
       read();
-      const observer = createFrameResizeObserver(view, read);
+      // Read in the same frame the rows above change (a seat band that
+      // settles into two rows on its first layout), never a frame late:
+      // the room depends only on what lies above the box, so setting it
+      // never re-triggers this observer and the box never overflows the
+      // window for a frame.
+      const observer =
+        typeof ResizeObserver === 'undefined'
+          ? undefined
+          : new ResizeObserver(() => read());
       for (const target of layoutTargets(box)) observer?.observe(target);
       view.addEventListener('resize', read);
       view.visualViewport?.addEventListener('resize', read);

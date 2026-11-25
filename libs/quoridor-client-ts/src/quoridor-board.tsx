@@ -321,7 +321,12 @@ function WallConfirmation(props: {
     });
   });
   return (
-    <StackHorizontal gap="sm" wrap scrollTarget={reveal.target}>
+    <StackHorizontal
+      gap="sm"
+      wrap
+      scrollTarget={reveal.target}
+      dataSet={{ component: 'QuoridorWallConfirmation' }}
+    >
       <Button
         title={t`Place wall`}
         disabled={!props.enabled}
