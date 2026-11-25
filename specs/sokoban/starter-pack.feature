@@ -39,3 +39,12 @@ Feature: Play the Sokoban starter pack
       Given Bob has completed the first starter puzzle on his offline phone
       When Bob's phone is back online
       Then Bob's tablet shows the first starter puzzle completed
+
+  Rule: A move that could not be saved can be tried again from the kept position
+
+    Scenario: Retrying the first step saves it once
+      Given Bob is playing the first starter puzzle
+      When Bob steps right but his device cannot save the move
+      Then Bob sees that his previous position is still saved
+      When Bob retries the move after his device can save again
+      Then Bob sees one saved step to the right
