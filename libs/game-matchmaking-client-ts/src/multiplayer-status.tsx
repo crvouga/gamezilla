@@ -79,36 +79,41 @@ function useFrameTurnStatus(props: StatusProps): () => string | null {
       : null;
 }
 
-/** How a finished game reads to a person who played it. */
+/**
+ * How a finished game reads to a person who played it: short and in the
+ * past tense, with no full stop to see, as a custom game's result says it.
+ * A listener, who cannot see the screen, hears it is the multiplayer game.
+ */
 function PlayerResult(props: StatusProps): JSX.Element {
   const won = () => props.game.outcome === ownSide(props);
   return (
     <Switch>
       <Match when={props.game.outcome === 'aborted'}>
         <Trans>
-          The <VisuallyHidden>multiplayer </VisuallyHidden>game was aborted.
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game was aborted
+          <VisuallyHidden>.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={props.game.outcome === 'draw'}>
         <Trans>
-          The <VisuallyHidden>multiplayer </VisuallyHidden>game is drawn.
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game was drawn
+          <VisuallyHidden>.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={won()}>
         <Trans>
-          You won<VisuallyHidden> the multiplayer game</VisuallyHidden>.
+          You won<VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={multiplayerSides(props.game).length > 2}>
         <Trans>
           {props.winnerName} won
-          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+          <VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={!won()}>
         <Trans>
-          Your opponent won
-          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+          You lost<VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Match>
     </Switch>
@@ -259,14 +264,15 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
       >
         {' '}
         <Trans>
-          {props.winnerName} won the
-          <VisuallyHidden> multiplayer</VisuallyHidden> game.
+          {props.winnerName} won
+          <VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Show>
       <Show when={props.game.outcome === 'draw'}>
         {' '}
         <Trans>
-          The<VisuallyHidden> multiplayer</VisuallyHidden> game is drawn.
+          The<VisuallyHidden> multiplayer</VisuallyHidden> game was drawn
+          <VisuallyHidden>.</VisuallyHidden>
         </Trans>
       </Show>
     </>
@@ -325,6 +331,9 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
       </Match>
       <Match when={props.game.reason === 'agreement'}>
         <Trans>Drawn by agreement.</Trans>
+      </Match>
+      <Match when={props.game.reason === 'abort'}>
+        <Trans>Nobody won; the game was stopped before it was under way.</Trans>
       </Match>
       <Match when={props.game.reason === 'first move missed'}>
         <Trans>The first move wasn't made in time.</Trans>
@@ -440,7 +449,7 @@ export function MultiplayerRatingChange(props: StatusProps): JSX.Element {
 /** Whether {@link MultiplayerStatusDetail} has anything to say. */
 export function multiplayerStatusHasDetail(props: StatusProps): boolean {
   const game = props.game;
-  if (game.outcome !== 'ongoing' && game.reason !== 'abort') return true;
+  if (game.outcome !== 'ongoing') return true;
   if (!props.viewer.participant) return false;
   const offered = (by: string | null) =>
     Boolean(

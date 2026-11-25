@@ -226,32 +226,51 @@ function stripKey(root: HTMLElement): HTMLElement | null {
   const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
   if (key === null || getComputedStyle(key).position !== 'sticky') return null;
   // The table's word sticks to its top, not its start: not a strip's key.
-  return getComputedStyle(root).flexDirection === 'row' ? key : null;
+  return getComputedStyle(root).flexDirection.startsWith('row') ? key : null;
 }
 
 /**
  * The turns start flush past the key: a turn the key would cut is scrolled
- * past whole, when the line has room to scroll on.
+ * past whole, when the line has room to scroll on. Settled once: the turn
+ * after it then starts at the key's edge, which is not a cut, so running
+ * again (each resize) never scrolls one more turn away.
  */
 function alignPastKey(root: HTMLElement): void {
   const key = stripKey(root);
   if (key === null) return;
   const edge = keyEdge(root, 0);
-  const cut = [...root.querySelectorAll<HTMLElement>('li')].find((turn) => {
+  const keyRight = key.getBoundingClientRect().right;
+  const turns = [...root.querySelectorAll<HTMLElement>('li')];
+  // A turn starting within a pixel of the edge is whole: scroll offsets
+  // round to whole pixels.
+  const at = turns.findIndex((turn) => {
     const box = turn.getBoundingClientRect();
-    return box.left < edge && box.right > key.getBoundingClientRect().right;
+    return box.left < edge - 1 && box.right > keyRight;
   });
+  const cut = turns[at];
   if (cut === undefined) return;
-  // Scrolled until its far edge meets the key's: the next turn starts the
-  // line's gap past it.
-  const past = Math.ceil(
-    cut.getBoundingClientRect().right - key.getBoundingClientRect().right
-  );
+  // Scrolled until the next turn starts at the key's edge (past its rule
+  // and fade), or the cut turn's far edge meets the key's at the line's end.
+  const next = turns[at + 1];
+  const past = (): number =>
+    Math.ceil(
+      next === undefined
+        ? cut.getBoundingClientRect().right - keyRight
+        : next.getBoundingClientRect().left - edge
+    );
+  const needed = past();
+  if (needed <= 0) return;
   // At the line's end there is room made after the latest turn to scroll
-  // on into, so the gap is at the end, never beside the key.
-  const room = root.scrollWidth - root.clientWidth - root.scrollLeft;
-  if (room < past) root.style.setProperty('--strip-end', `${past - room}px`);
-  root.scrollLeft += past;
+  // on into, so the gap is at the end, never beside the key. A line laid
+  // out from its far end rests there (its offset 0, earlier turns at
+  // negative offsets) and moves its turns over by the room made itself.
+  const reversed = getComputedStyle(root).flexDirection === 'row-reverse';
+  const room = reversed
+    ? -root.scrollLeft
+    : root.scrollWidth - root.clientWidth - root.scrollLeft;
+  if (room < needed)
+    root.style.setProperty('--strip-end', `${needed - room}px`);
+  root.scrollLeft += past();
 }
 
 /** Where the moves start showing: past a key held at the line's start. */

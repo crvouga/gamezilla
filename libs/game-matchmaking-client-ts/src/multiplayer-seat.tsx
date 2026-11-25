@@ -132,7 +132,7 @@ export function MultiplayerSeat(props: {
       }
       swatch={frameSwatch(frame().seats.look(props.side))}
       swatchLabel={gameSideLabel(props.position, props.side)}
-      tagsPlacement="inline"
+      tagsPlacement="line"
       stat={frame().seats.stat(props.position, props.side)}
       state={
         frame().seats.out(props.position, props.side)
@@ -160,12 +160,12 @@ export function MultiplayerSeat(props: {
           </For>
         </>
       }
+      // The person's own turn is the status line's "Your turn." above the
+      // board; their seat marks it by its tint and edge alone, so the two
+      // never say it twice. Anyone else's seat says they are to move.
       turnLabel={
-        <Show
-          when={profileId() === props.viewer.myId}
-          fallback={<Trans>To move</Trans>}
-        >
-          <Trans>Your move</Trans>
+        <Show when={profileId() !== props.viewer.myId}>
+          <Trans>To move</Trans>
         </Show>
       }
       trailing={

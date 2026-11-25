@@ -4,7 +4,8 @@
  * short, never squeezed to nothing or broken a letter a line. The tags sit
  * after it while the strip has the room; on a narrow strip (a phone's seat
  * beside its clock) they always take a line of their own under the name, so
- * the seat is the same height whoever is to move.
+ * the seat is the same height whoever is to move. A `line` seat
+ * (`tagsPlacement="line"`) keeps them on the name's line at every width.
  */
 .identity {
   container: seat-identity / inline-size;
@@ -41,5 +42,15 @@
 @container seat-identity (max-width: 240px) {
   .line > .tags {
     flex-basis: 100%;
+  }
+}
+/* `line`: the name's line never wraps; the name is cut short before a
+   tag drops under it. */
+.line.keep {
+  flex-wrap: nowrap;
+}
+@container seat-identity (max-width: 240px) {
+  .line.keep > .tags {
+    flex-basis: auto;
   }
 }

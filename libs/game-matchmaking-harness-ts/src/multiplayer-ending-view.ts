@@ -16,7 +16,8 @@ export async function multiplayerEndingView(s: ProductHarness, actor: string) {
     result = 'aborted';
   if (
     (outcome === 'white' || outcome === 'black') &&
-    announcement.includes('won')
+    // The winner reads "You won", the other side "You lost".
+    /\b(won|lost)\b/.test(announcement)
   ) {
     for (const seatId of ['multiplayer-seat-near', 'multiplayer-seat-far']) {
       const seat = ui.get(seatId);

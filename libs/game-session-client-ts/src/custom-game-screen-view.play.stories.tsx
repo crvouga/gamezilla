@@ -130,7 +130,10 @@ export const Timed: Story = {
   },
 };
 
-/** Playing a bot: the opponent's seat shows the bot and its level. */
+/**
+ * Playing a bot: the opponent's seat shows the bot and its level. A draw
+ * needs two people, so no draw is offered.
+ */
 export const AgainstBot: Story = {
   args: {
     status: status({
@@ -141,6 +144,8 @@ export const AgainstBot: Story = {
       near: playSeat(AVERY, { deciding: true }),
       others: [playSeat(BOT)],
     },
+    // A bot answers no draw offer: only Resign and Game menu are offered.
+    play: { ...FRAME_NO_PLAY, canResign: true },
   },
 };
 

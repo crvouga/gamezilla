@@ -107,10 +107,25 @@ function FrameVersusOverlay(
   );
 }
 
-function eyebrow(tone: GameResultCardProps['tone']): string {
+/** Every seat shares first place: a draw, whoever reads it. */
+function drawn(result: Props['result']): boolean {
+  const standings = result?.standings ?? [];
+  return (
+    standings.length > 1 && standings.every((standing) => standing.place === 1)
+  );
+}
+
+/**
+ * Over the headline, one word for how the game went, as a matched game's
+ * result says it: Victory, Defeat, Draw or Cancelled.
+ */
+function eyebrow(props: Props): string | undefined {
+  if (props.phase === 'cancelled') return t`Cancelled`;
+  if (props.result === null) return undefined;
+  const tone = frameResultTone(props.result);
   if (tone === 'won') return t`Victory`;
   if (tone === 'lost') return t`Defeat`;
-  if (tone === 'drawn') return t`Draw`;
+  if (drawn(props.result)) return t`Draw`;
   // Not "Game over": the dialog's own title already says that.
   return t`Final result`;
 }
@@ -133,15 +148,21 @@ function scoreLine(result: Props['result']): string {
   return t`${name(first)} ${first.score}, ${name(second)} ${second.score}.`;
 }
 
+/** Why the game ended: a cancelled game's, a draw's cause, else the status line's. */
+function outcomeReason(props: Props): string {
+  if (props.phase === 'cancelled')
+    return t`Nobody won; the game was stopped before it finished.`;
+  if (props.result === null) return '';
+  const description = props.status?.description ?? '';
+  if (!drawn(props.result)) return description;
+  // The headline says it was drawn; the bare "Game drawn." is not repeated.
+  if (props.result.reason) return props.result.reason;
+  return /^game drawn\.?$/i.test(description.trim()) ? '' : description;
+}
+
 function outcomeCaption(props: Props): string | undefined {
-  // A draw's own headline says it; the bare "Game drawn." is not repeated.
-  const said =
-    frameResultTone(props.result) === 'drawn' &&
-    /^game drawn\.?$/i.test(props.status?.description?.trim() ?? '');
-  const reason =
-    props.result === null || said ? '' : (props.status?.description ?? '');
   const note = props.result?.note ?? '';
-  const caption = [reason, scoreLine(props.result), note]
+  const caption = [outcomeReason(props), scoreLine(props.result), note]
     .filter((part) => part !== '')
     .join(' ');
   return caption === '' ? undefined : caption;
@@ -154,17 +175,16 @@ function outcomeCaption(props: Props): string | undefined {
  */
 export function FrameOutcomeCard(props: Props): JSX.Element {
   const tone = () => frameResultTone(props.result);
+  // Past tense, no full stop, as a matched game's result headline.
   const title = (): string =>
-    props.result?.headline ?? props.status?.description ?? t`Game finished`;
-  // A headline that is already the result word (`Draw`) is not said twice.
-  const word = (): string | undefined =>
-    props.result === null || eyebrow(tone()) === title()
-      ? undefined
-      : eyebrow(tone());
+    props.result?.headline ??
+    (props.phase === 'cancelled'
+      ? t`The game was cancelled`
+      : (props.status?.description ?? t`Game finished`));
   return (
     <GameResultCard
       tone={tone()}
-      eyebrow={word()}
+      eyebrow={eyebrow(props)}
       title={title()}
       caption={outcomeCaption(props)}
       titleDataSet={{ testid: 'custom-game-result-headline' }}

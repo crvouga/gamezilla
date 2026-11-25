@@ -46,7 +46,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
               choices={choices}
               id="custom-game-offer"
               leading={<CheckCheckIcon size={24} />}
-              title={<Trans>Offer a draw</Trans>}
+              title={<Trans>Offer draw</Trans>}
               caption={
                 <Show when={props.play.offerAgainLater}>
                   <Trans>You may offer again after your next move.</Trans>

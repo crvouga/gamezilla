@@ -43,9 +43,13 @@ export type GamePlayerBarProps = {
    * `below` (default): the tags on a line under the name. `inline`: on the
    * name's own line, after it, for a list of strips (the players beside an
    * arena) where a short tag (`You`) must not make one strip taller than
-   * the rest: the line never wraps, a long name is cut short instead.
+   * the rest: the line never wraps, a long name is cut short instead; on
+   * a narrow strip the tags take a line of their own under the name.
+   * `line`: on the name's line at every width, even a phone's narrow strip
+   * beside its clock, the name cut short first, so a seat with a tag is
+   * one line like a seat without.
    */
-  tagsPlacement?: 'below' | 'inline' | undefined;
+  tagsPlacement?: 'below' | 'inline' | 'line' | undefined;
   /** The name as plain words: the tooltip when a long name is cut short. */
   plainName?: string | undefined;
   /** The seat's figure at the far edge (score, walls). */
@@ -106,6 +110,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   // never grows a row when it comes or goes and the board never moves.
   const inline = (): boolean =>
     props.tagsPlacement === 'inline' ||
+    props.tagsPlacement === 'line' ||
     (!tags.present() && props.state !== undefined && props.state !== null);
   const facts = (): boolean =>
     tags.present() || (props.state !== undefined && props.state !== null);
@@ -143,7 +148,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         {/* One line: the swatch, the name (cut short when long, its whole
             self in the tooltip and to a listener) and the turn; the tags
             follow it when they are inline and the strip has the room. */}
-        <span class={line['line']}>
+        <span
+          class={line['line']}
+          classList={{ [line['keep'] ?? '']: props.tagsPlacement === 'line' }}
+        >
           <span class={line['who']}>
             <Show when={props.swatch}>
               {(look) => (

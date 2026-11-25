@@ -25,7 +25,7 @@ function caption(reason: string, intent: BadgeIntent, change: string) {
 
 const WON = {
   tone: 'won',
-  title: 'You won.',
+  title: 'You won',
   ...caption('By resignation.', 'success', '+8'),
 } as const;
 
@@ -56,7 +56,7 @@ export const RematchOffered: Story = {
     renderStory({
       result: {
         tone: 'lost',
-        title: 'Your opponent won.',
+        title: 'You lost',
         ...caption(
           'By resignation. Bob offered you a rematch.',
           'destructive',
@@ -73,7 +73,7 @@ export const Drawn: Story = {
     renderStory({
       result: {
         tone: 'drawn',
-        title: 'The game is drawn.',
+        title: 'The game was drawn',
         ...caption('Drawn by agreement.', 'neutral', '0'),
       },
     })(args),
@@ -86,7 +86,7 @@ export const Aborted: Story = {
       result: {
         tone: 'neutral',
         aborted: true,
-        title: 'The game was aborted.',
+        title: 'The game was aborted',
         caption: "The first move wasn't made in time.",
       },
     })(args),
@@ -101,7 +101,7 @@ export const Watching: Story = {
       result: {
         tone: 'neutral',
         // As the screen says it: who won first, the watching for a listener.
-        title: 'alice won the game.',
+        title: 'alice won',
         caption: 'By resignation.',
       },
     })(args),

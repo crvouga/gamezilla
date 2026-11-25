@@ -52,3 +52,25 @@ test('a long name beside the turn and an inline tag keeps one line and a floor o
   expect(who?.textContent).toBe(`${name}Your move`);
   expect(who?.nextElementSibling?.textContent).toBe('You play White');
 });
+
+// regression: phone matched seat with its colour tag two lines tall
+test("a 'line' seat keeps its tag on the name's line at every width", () => {
+  expect(rule(LINE_CSS, '.line.keep')).toContain('flex-wrap: nowrap');
+  expect(LINE_CSS).toContain('.line.keep > .tags {\n    flex-basis: auto;');
+  renderUi(
+    () => (
+      <GamePlayerBar
+        name={<span>alice</span>}
+        plainName="alice"
+        tags={<Badge intent="neutral" label="You play Red" />}
+        tagsPlacement="line"
+        active
+      />
+    ),
+    { width: 390, height: 844 }
+  );
+  const who = screen.getByTitle('alice').parentElement;
+  const line = who?.parentElement;
+  expect(line?.className).toContain('keep');
+  expect(who?.nextElementSibling?.textContent).toBe('You play Red');
+});

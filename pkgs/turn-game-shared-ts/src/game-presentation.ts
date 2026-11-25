@@ -45,6 +45,12 @@ export type GameBoardProps = {
    */
   readonly committed: readonly GameSide[];
   readonly commitment: string | null;
+  /**
+   * A draw offered to the viewer waits for their answer. Their move still
+   * declines it, so the board stays playable, but a board that prompts the
+   * next move says the answer comes first rather than only to move.
+   */
+  readonly drawToAnswer?: boolean | undefined;
 };
 /** A side arranging its private setup: the game's own setup board. */
 export type GameSetupBoardProps = {

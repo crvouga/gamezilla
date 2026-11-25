@@ -207,7 +207,11 @@
 @media (max-width: 767px) {
   [data-game-fixed="true"] [data-game-slot="rail"] .list[data-layout="table"] {
     flex: 1 1 0;
-    flex-direction: row;
+    /* Laid out from its far end, so the line rests on its latest turn:
+       at first, and whenever it starts over (moved in the page as a sheet
+       or dialog opens over the stage), before any script runs. Every
+       child is ordered back to its place, left to right. */
+    flex-direction: row-reverse;
     align-items: center;
     gap: var(--ui-space-3);
     max-height: none;
@@ -222,13 +226,24 @@
       var(--ui-color-text) var(--ui-space-10)
     );
   }
+  /* What leads the turns (earlier moves not listed) sits between the key
+     and the turns. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    > :not(.turns, .heading) {
+    order: 1;
+  }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]
     .turns {
     display: flex;
     flex-direction: row;
-    /* The line itself scrolls sideways; its turns never clip. */
+    /* Whole, never squeezed: the line itself scrolls sideways; its turns
+       never clip. A short line keeps its room after its latest turn. */
+    flex: none;
+    margin-inline-end: auto;
     overflow: visible;
     gap: var(--ui-space-2);
   }
@@ -285,14 +300,16 @@
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]:has(> .heading) {
-    padding-inline-start: 0;
-    /* The latest turn ends clear of the far edge's fade, whole. */
-    --strip-room: var(--ui-space-6);
+    /* The latest turn ends just clear of the far edge's fade (the turns'
+       gap and a little room), whole: room on a phone for the latest two
+       turns past the key, not one. */
+    padding-inline: 0;
+    --strip-room: var(--ui-space-1);
     /* More past the far edge shows as a fade there, not a cut. */
     mask-image: linear-gradient(
       to left,
       transparent 0,
-      var(--ui-color-text) var(--ui-space-6)
+      var(--ui-color-text) var(--ui-space-3)
     );
   }
   [data-game-fixed="true"]
@@ -302,12 +319,15 @@
     position: sticky;
     inset-inline-start: 0;
     z-index: 1;
-    order: -1;
+    /* Last from the far end: the line's start. */
+    order: 2;
     flex: none;
     align-self: stretch;
     display: flex;
     align-items: center;
-    padding-inline: var(--ui-space-2) var(--ui-space-3);
+    /* Its word starts where the player bars' content does (their edge
+       and inner room), not against the screen's edge. */
+    padding-inline: var(--ui-space-3);
     border-inline-end: 1px solid var(--ui-color-text-secondary);
     background: var(--ui-color-background);
   }
@@ -328,8 +348,8 @@
     position: absolute;
     inset-block: 0;
     inset-inline-start: 100%;
-    /* As wide as the line's gap: a move shown starts past it. */
-    width: var(--ui-space-3);
+    /* As wide as the turns' gap: a move shown starts past it. */
+    width: var(--ui-space-2);
     background: linear-gradient(
       to right,
       var(--ui-color-background),

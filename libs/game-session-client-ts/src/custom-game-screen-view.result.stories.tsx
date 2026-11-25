@@ -110,7 +110,8 @@ export const Draw: Story = {
     status: status({ description: 'Game drawn.', emphasis: 'neutral' }),
     record: record(DRAWN_MOVES.map((column) => String(column + 1))),
     result: {
-      headline: 'Draw',
+      headline: 'The game was drawn',
+      reason: "Drawn by the game's own rules.",
       note: null,
       scoreLabel: null,
       standings: [STANDINGS[0], { ...STANDINGS[1], place: 1 }],
@@ -134,7 +135,7 @@ export const WatcherSeesResult: Story = {
     },
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
-      headline: 'morgan wins',
+      headline: 'morgan won',
       note: 'Host starts the rematch.',
       scoreLabel: null,
       standings: [

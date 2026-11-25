@@ -276,7 +276,7 @@ function shotJourney(
       await expect(cell).toHaveAccessibleName(outcome);
       if (wins)
         await expect(
-          canvas.getByText('You win', { exact: true })
+          canvas.getByText('You won', { exact: true })
         ).toBeVisible();
       await expect(
         canvas.getByTestId('custom-game-board-target-e6')

@@ -311,7 +311,7 @@ export const ReachTheHill: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-action-e5')
     ).not.toHaveTextContent('★');
-    await expect(await canvas.findByText('avery wins')).toBeVisible();
+    await expect(await canvas.findByText('avery won')).toBeVisible();
     await expect(
       canvas.queryByTestId('custom-game-board-tools')
     ).not.toBeInTheDocument();

@@ -550,9 +550,12 @@ describe('the result place', () => {
       result: null,
       status: status({ description: 'Game cancelled.', emphasis: 'neutral' }),
     }));
-    expect(
-      screen.getByTestId('custom-game-result-headline').textContent
-    ).toContain('Game cancelled.');
+    expect(screen.getByTestId('custom-game-result-headline').textContent).toBe(
+      'The game was cancelled'
+    );
+    const outcome = screen.getByTestId('custom-game-outcome').textContent;
+    expect(outcome).toContain('Cancelled');
+    expect(outcome).toContain('Nobody won; the game was stopped');
     expect(shown('custom-game-new')).toBe(true);
   });
 });

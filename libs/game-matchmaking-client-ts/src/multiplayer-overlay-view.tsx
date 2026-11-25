@@ -50,6 +50,8 @@ export type MultiplayerResultShown = {
   readonly tone: GameResultCardProps['tone'];
   /** The game was aborted: there is no result. */
   readonly aborted?: boolean | undefined;
+  /** The game was drawn, whoever reads it (a watcher's tone is neutral). */
+  readonly drawn?: boolean | undefined;
   /** Who won, in a sentence. */
   readonly title: JSX.Element;
   /** Why, and an offered rematch. */
@@ -69,12 +71,15 @@ type OverlayProps = {
   readonly children?: JSX.Element | undefined;
 };
 
-/** Over the card's headline, one word: how the game went for the person. */
+/**
+ * Over the card's headline, one word: how the game went for the person,
+ * as a custom game's result says it (Victory, Defeat, Draw, Aborted).
+ */
 function headline(result: MultiplayerResultShown): string {
-  if (result.aborted === true) return t`No result`;
+  if (result.aborted === true) return t`Aborted`;
   if (result.tone === 'won') return t`Victory`;
   if (result.tone === 'lost') return t`Defeat`;
-  if (result.tone === 'drawn') return t`Draw`;
+  if (result.tone === 'drawn' || result.drawn === true) return t`Draw`;
   // Not "Game over": the dialog's own title already says that.
   return t`Final result`;
 }

@@ -22,5 +22,5 @@ test('a host clears the space name and the space is named after them again', asy
   const shown = await s.until((h) => spaceNameShown(h, 'alice'), {
     pred: (title) => title !== null && title !== 'Friday puzzles',
   });
-  expect(shown?.endsWith("'s space")).toBe(true);
+  expect(shown?.endsWith('’s space')).toBe(true);
 }, 60_000);

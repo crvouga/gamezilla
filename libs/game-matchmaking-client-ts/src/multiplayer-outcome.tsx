@@ -109,6 +109,7 @@ export function multiplayerResultShown(
   return {
     tone: multiplayerResultTone(game, multiplayerSideOf(game, myId)),
     aborted: game.outcome === 'aborted',
+    drawn: game.outcome === 'draw',
     title: <ResultTitle game={game} myId={myId} />,
     caption: detailed ? <ResultCaption game={game} myId={myId} /> : undefined,
     rating: <ResultRating game={game} myId={myId} />,

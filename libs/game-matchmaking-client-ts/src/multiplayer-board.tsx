@@ -93,28 +93,25 @@ function gameMark(
   };
 }
 
+type StageProps = BoardProps & {
+  readonly viewer: MultiplayerViewer;
+  /** The person's own side; White's for a watcher. */
+  readonly ownSide: MultiplayerSide;
+  readonly canMove: boolean;
+  readonly simulation: ReturnType<typeof useMatchedSimulation>;
+};
+
 /**
- * The board and the two seats around it, as this device shows them: seen
- * from the person's own side until they flip it, and on the current
- * position until they review an earlier one, which no piece can be moved on.
+ * What the game's board is given, read live. A draw offered to the person
+ * waits for their answer (`drawToAnswer`), though their move declines it.
  */
-function BoardStage(
-  props: BoardProps & {
-    readonly viewer: MultiplayerViewer;
-    /** The person's own side; White's for a watcher. */
-    readonly ownSide: MultiplayerSide;
-    readonly canMove: boolean;
-    readonly simulation: ReturnType<typeof useMatchedSimulation>;
-  }
-): JSX.Element {
-  const shown = () =>
-    props.simulation.position() ?? props.view.earlier()?.fen ?? props.game.fen;
+function useStageBoardProps(
+  props: StageProps,
+  nearSide: () => MultiplayerSide
+): GameFrameBoardProps {
   const sounds = useSoundsPreference();
   const presentation = useGamePresentation();
-  // The side nearest the person: their own, until they flip the board.
-  const nearSide = (): MultiplayerSide =>
-    props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
-  const board: GameFrameBoardProps = {
+  return {
     get position() {
       return (
         props.simulation.position() ??
@@ -148,6 +145,13 @@ function BoardStage(
     },
     committed: [],
     commitment: null,
+    get drawToAnswer() {
+      return (
+        props.canMove &&
+        Boolean(props.game.draw_offer_by) &&
+        props.game.draw_offer_by !== props.myId
+      );
+    },
     get viewer() {
       return multiplayerSideOf(props.game, props.myId);
     },
@@ -162,6 +166,21 @@ function BoardStage(
       void props.onMove(action);
     },
   };
+}
+
+/**
+ * The board and the two seats around it, as this device shows them: seen
+ * from the person's own side until they flip it, and on the current
+ * position until they review an earlier one, which no piece can be moved on.
+ */
+function BoardStage(props: StageProps): JSX.Element {
+  const shown = () =>
+    props.simulation.position() ?? props.view.earlier()?.fen ?? props.game.fen;
+  // The side nearest the person: their own, until they flip the board.
+  const nearSide = (): MultiplayerSide =>
+    props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
+  const board = useStageBoardProps(props, nearSide);
+  const presentation = useGamePresentation();
   return (
     <GameBoardStage
       overlay={props.overlay}

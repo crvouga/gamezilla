@@ -126,25 +126,23 @@ describe('the game-over headline', () => {
     viewer: GameSide | null
   ) => frameHeadlineText(frameHeadline(standings, viewer), nameOf, 'en');
 
-  test('a seated winner reads "You win", a seated loser of two "You lost"', () => {
+  test('a seated winner reads "You won", a seated loser of two "You lost"', () => {
     const standings = standingsFromWinner('black', twoSeats);
-    expect(text(standings, 'black')).toBe('You win');
+    expect(text(standings, 'black')).toBe('You won');
     expect(text(standings, 'white')).toBe('You lost');
   });
 
   test('a watcher reads who won, by name', () => {
-    expect(text(standingsFromWinner('white', twoSeats), null)).toBe(
-      'Erin wins'
-    );
+    expect(text(standingsFromWinner('white', twoSeats), null)).toBe('Erin won');
     expect(text(standingsFromWinner(['white', 'red'], GAME_SIDES), null)).toBe(
-      'Erin and Robin win'
+      'Erin and Robin won'
     );
   });
 
   test('a draw is a draw for everyone', () => {
     const standings = standingsFromWinner('draw', twoSeats);
-    expect(text(standings, 'white')).toBe('Draw');
-    expect(text(standings, null)).toBe('Draw');
+    expect(text(standings, 'white')).toBe('The game was drawn');
+    expect(text(standings, null)).toBe('The game was drawn');
   });
 
   test('a seated player placed third at a scored table', () => {

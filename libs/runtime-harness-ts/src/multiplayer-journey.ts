@@ -266,7 +266,7 @@ export async function expectMultiplayerWin(ui: Driver): Promise<void> {
 }
 
 export async function expectMultiplayerLoss(ui: Driver): Promise<void> {
-  await ui.get('multiplayer-announcement').expect.text('Your opponent won', {
+  await ui.get('multiplayer-announcement').expect.text('You lost', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });

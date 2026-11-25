@@ -48,7 +48,7 @@ function space(
 ): SpaceCardData {
   return {
     spaceId: `5bace000-0000-4000-8000-0000000000${suffix}`,
-    title: `${host.name}'s space`,
+    title: `${host.name}’s space`,
     host,
     hostUsername: host.name,
     badge: 'live',

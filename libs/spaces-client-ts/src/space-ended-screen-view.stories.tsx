@@ -23,7 +23,7 @@ export const Ended: Story = {};
 
 /** The host's profile is not on this device: the title alone. */
 export const UnknownHost: Story = {
-  args: { title: "avery's space", hostName: '' },
+  args: { title: 'avery’s space', hostName: '' },
 };
 
 /** Long titles and host names wrap in the body and truncate in the crumb. */

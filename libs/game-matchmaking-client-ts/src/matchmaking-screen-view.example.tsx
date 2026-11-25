@@ -220,13 +220,15 @@ function StoryStage(props: {
               />
             </>
           }
-          tagsPlacement="inline"
+          tagsPlacement="line"
           // As the app's seat: an offer waiting for an answer takes the
           // call to act from the turn.
           active={
             props.active && props.offline !== true && props.answering !== true
           }
-          turnLabel={props.watching === true ? 'To move' : 'Your move'}
+          // The person's own turn is the status line's "Your turn.": as
+          // the app's seat, only a watcher's seat says it in words.
+          turnLabel={props.watching === true ? 'To move' : undefined}
           trailing={
             <GameClock
               label="Red"
@@ -241,6 +243,13 @@ function StoryStage(props: {
         moves={drops()}
         interactive={
           props.active && props.watching !== true && props.offline !== true
+        }
+        // A move still declines the offer, so the board stays playable,
+        // but the answer is asked for first, as the app's board says.
+        prompt={
+          props.answering === true
+            ? 'Answer the draw offer, or drop a disc to play on'
+            : undefined
         }
       />
     </GameBoardStage>

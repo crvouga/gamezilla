@@ -103,8 +103,15 @@ export function onBoard(moves: readonly number[]) {
             !args.table.near.standIn
           }
           winning={moves === WON_MOVES ? WON_LINE : undefined}
-          // The line under the board says where to choose: no second prompt.
-          prompt={args.table.near?.choosing === true ? '' : undefined}
+          // The line under the board says where to choose: no second
+          // prompt. A draw offered to the viewer is answered first.
+          prompt={
+            args.table.near?.choosing === true
+              ? ''
+              : args.play.canAnswerDraw
+                ? 'Answer the draw offer, or drop a disc to play on'
+                : undefined
+          }
         />
       }
     />

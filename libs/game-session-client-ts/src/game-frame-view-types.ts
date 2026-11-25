@@ -281,6 +281,11 @@ export type FrameStanding = {
 /** The game-over result under the final board. */
 export type FrameResult = {
   readonly headline: string;
+  /**
+   * Why a draw was drawn (`Drawn by agreement.`), said under its headline;
+   * a win's reason is the status line's own sentence.
+   */
+  readonly reason?: string | null | undefined;
   readonly note: string | null;
   readonly scoreLabel: string | null;
   readonly standings: readonly FrameStanding[];

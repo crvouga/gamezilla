@@ -224,9 +224,9 @@ function tableResult(
     .map((standing) => standing.side);
   const names = winners.map((side) => HOLDERS[side].name).join(' and ');
   const headline = (): string => {
-    if (winners.length === props.sides.length) return 'Draw';
-    if (viewer !== null && winners.includes(viewer)) return 'You win';
-    return `${names} ${winners.length === 1 ? 'wins' : 'win'}`;
+    if (winners.length === props.sides.length) return 'The game was drawn';
+    if (viewer !== null && winners.includes(viewer)) return 'You won';
+    return `${names} won`;
   };
   return {
     headline: headline(),

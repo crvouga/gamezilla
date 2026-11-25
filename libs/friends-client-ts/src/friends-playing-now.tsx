@@ -66,7 +66,7 @@ export function useRoomTitle(room: () => PlayingRoom): () => string {
     const own = room().title;
     if (own !== null) return own;
     const host = room().friends[0]?.hosting === true ? names()[0] : undefined;
-    return host === undefined ? t`A space` : t`${host}'s space`;
+    return host === undefined ? t`A space` : t`${host}’s space`;
   };
 }
 

@@ -132,7 +132,7 @@ for (const width of [390, 1440]) {
   }) => {
     await openGame(page, 'screens-games-light-cycles-stage--finished', width);
     await expect(
-      page.getByRole('heading', { name: 'jordan_plays wins', exact: true })
+      page.getByRole('heading', { name: 'jordan_plays won', exact: true })
     ).toBeVisible();
     await expect(
       page.getByRole('button', { name: 'Rematch', exact: true })
@@ -169,7 +169,7 @@ test('storybook integration: literal finished Light Cycles keeps next steps with
 }) => {
   await openGame(page, 'screens-games-light-cycles-stage--finished', 390);
   await expect(
-    page.getByRole('heading', { name: 'jordan_plays wins', exact: true })
+    page.getByRole('heading', { name: 'jordan_plays won', exact: true })
   ).toBeVisible();
   await expect(
     page.getByRole('button', { name: 'Rematch', exact: true })

@@ -20,6 +20,7 @@ export function ConnectFourGameBoard(props: GameBoardProps): JSX.Element {
     <ConnectFourBoard
       position={props.position}
       interactive={props.interactive}
+      drawToAnswer={props.drawToAnswer === true}
       testId={props.testId}
       onDrop={(column) => props.onAction(String(column))}
     />
@@ -62,7 +63,7 @@ export const connectFourPresentation: GameClientPresentation = {
   endingDescription: (reason) => {
     const descriptions: Readonly<Record<string, string>> = {
       'four in a row': t`Four in a row.`,
-      'full board': t`The board is full. Game drawn.`,
+      'full board': t`The board is full.`,
     };
     return descriptions[reason];
   },

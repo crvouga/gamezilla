@@ -523,17 +523,24 @@ describe('the result', () => {
       stage: 'finished',
       props: {
         game: FINISHED,
-        result: { tone: 'lost', title: 'Your opponent won.' },
+        result: { tone: 'lost', title: 'You lost' },
       },
     });
     const text = () =>
       screen.getByTestId('multiplayer-announcement').textContent;
     expect(text()).toContain('Defeat');
-    view.set({ result: { tone: 'drawn', title: 'Drawn.' } });
+    view.set({ result: { tone: 'drawn', title: 'The game was drawn' } });
     expect(text()).toContain('Draw');
-    view.set({ result: { tone: 'neutral', aborted: true, title: 'Aborted.' } });
-    expect(text()).toContain('No result');
-    view.set({ result: { tone: 'neutral', title: 'alice won.' } });
+    view.set({
+      result: { tone: 'neutral', aborted: true, title: 'The game was aborted' },
+    });
+    expect(text()).toContain('Aborted');
+    // A watcher's draw is a draw too, though it is neither theirs to win nor lose.
+    view.set({
+      result: { tone: 'neutral', drawn: true, title: 'The game was drawn' },
+    });
+    expect(text()).toContain('Draw');
+    view.set({ result: { tone: 'neutral', title: 'alice won' } });
     expect(text()).toContain('Final result');
   });
 

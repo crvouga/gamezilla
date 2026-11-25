@@ -67,7 +67,7 @@ export function useSpaceDisplayTitle(
       })
     );
     if (parts.kind === 'host') {
-      return t`${parts.hostName}'s space`;
+      return t`${parts.hostName}’s space`;
     }
     return t`Space`;
   });

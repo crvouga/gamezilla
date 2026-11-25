@@ -148,7 +148,7 @@ test('private setup and terminal outcomes retain their match headline', () => {
   expect(view.getByText('Fire at a square.')).toBeInTheDocument();
   setGame({ ...MATCH, outcome: 'black', reason: 'resignation' });
   expect(view.getByTestId('multiplayer-announcement')).toHaveTextContent(
-    'Your opponent won the multiplayer game.'
+    'You lost the multiplayer game.'
   );
   expect(view.queryByText('Fire at a square.')).toBeNull();
   setGame({ ...MATCH, outcome: 'aborted' });

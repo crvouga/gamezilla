@@ -172,7 +172,7 @@ for (const sample of [
   { story: 'stage--stopped', says: 'The game stopped' },
   { story: 'stage-moves--earlier-move', says: 'Move 3 of 8, Red circle' },
   { story: 'stage-moves--earlier-game', says: 'An earlier game, after move 3' },
-  { story: 'result--you-win', says: 'You win' },
+  { story: 'result--you-win', says: 'You won' },
 ])
   for (const width of [390, 1440])
     test(`storybook integration: ${sample.story} says its actual state at ${width}`, async ({
@@ -294,7 +294,7 @@ test('storybook integration: literal drawn geometry has no winning line', async 
     'true'
   );
   await expect(page.getByTestId('custom-game-result-headline')).toContainText(
-    'Draw'
+    'The game was drawn'
   );
   const board = page.getByTestId('custom-game-board');
   await expect(board).toHaveAttribute('data-won', 'false');

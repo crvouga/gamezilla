@@ -72,17 +72,18 @@ export function seatShowsTurn(seat: FramePlaySeat | null | undefined): boolean {
   return seat !== null && seat !== undefined && seat.deciding && !seat.choosing;
 }
 
-/** The words inside the seat to move: the viewer's own, or someone else's. */
+/**
+ * The words inside someone else's seat to move. The viewer's own turn is
+ * the status line's "Your turn." above the board: their seat marks it by
+ * its tint and edge alone, so the two never say it twice.
+ */
 function SeatTurnLabel(props: {
   readonly seat: FramePlaySeat;
   readonly viewerSide?: string | null | undefined;
 }): JSX.Element {
   return (
-    <Show
-      when={props.seat.side === props.viewerSide}
-      fallback={<Trans>To move</Trans>}
-    >
-      <Trans>Your move</Trans>
+    <Show when={props.seat.side !== props.viewerSide}>
+      <Trans>To move</Trans>
     </Show>
   );
 }

@@ -7,9 +7,26 @@ import { t } from '@lingui/core/macro';
 import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
 import { createMemo, type JSX } from 'solid-js';
 
+/**
+ * The line under the board. A finished board keeps its prompt line's room
+ * (empty), so the board never resizes or moves when the game ends. A draw
+ * offered to the person is answered first, though their move declines it.
+ */
+function boardPrompt(
+  finished: boolean,
+  interactive: boolean,
+  drawToAnswer: boolean
+): string {
+  if (finished || !interactive) return '';
+  return drawToAnswer
+    ? t`Answer the draw offer, or drop a disc to play on`
+    : t`Pick a column to drop your disc`;
+}
+
 export function ConnectFourBoard(props: {
   position: string;
   interactive: boolean;
+  drawToAnswer?: boolean;
   testId: string;
   onDrop: (column: number) => void;
 }): JSX.Element {
@@ -35,15 +52,11 @@ export function ConnectFourBoard(props: {
       interactive={props.interactive && game().result === 0}
       finished={game().result !== 0}
       label={t`Connect Four board, seven columns and six rows`}
-      prompt={
-        // A finished board keeps its prompt line's room (empty), so the
-        // board never resizes or moves when the game ends.
-        game().result !== 0
-          ? ''
-          : props.interactive
-            ? t`Pick a column to drop your disc`
-            : ''
-      }
+      prompt={boardPrompt(
+        game().result !== 0,
+        props.interactive,
+        props.drawToAnswer === true
+      )}
       previewPrompt={(column) => t`Drop in column ${column + 1}`}
       fullColumnPrompt={(column) =>
         t`Column ${column + 1} is full. Choose another column.`

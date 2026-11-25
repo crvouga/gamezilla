@@ -55,10 +55,12 @@ function SpaceMemberBadges(props: {
       <Show when={props.member.isHost}>
         <HostBadge size="sm" />
       </Show>
+      {/* A fact like Host beside it, in the neutral tag's full-ink text:
+          small green on its pale green wash read too faint. */}
       <Show when={props.member.isThisTab}>
         <Badge
           label={<Trans>This device</Trans>}
-          intent="success"
+          intent="neutral"
           tone="subtle"
           size="sm"
         />
