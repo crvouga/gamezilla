@@ -219,7 +219,13 @@ function GridCell(props: {
       }}
     >
       <span class={styles['glyph']} aria-hidden="true">
-        <Show when={props.board.boardTheme === 'sokoban' && warehouseIdentity(cell()?.identity)} fallback={cell()?.glyph ?? ''}>
+        <Show
+          when={
+            props.board.boardTheme === 'sokoban' &&
+            warehouseIdentity(cell()?.identity)
+          }
+          fallback={cell()?.glyph ?? ''}
+        >
           {(tone) => <WarehousePiece tone={tone()} />}
         </Show>
       </span>

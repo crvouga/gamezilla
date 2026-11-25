@@ -194,9 +194,14 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
               }}
             >
               {/* The token fills most of its tile, its glyph inside it. */}
-              <span class={styles['token']}><Show when={props.boardTheme === 'warehouse'} fallback={piece().glyph}>
+              <span class={styles['token']}>
+                <Show
+                  when={props.boardTheme === 'warehouse'}
+                  fallback={piece().glyph}
+                >
                   <WarehousePiece tone={piece().tone} />
-                </Show></span>
+                </Show>
+              </span>
             </span>
           )}
         </For>

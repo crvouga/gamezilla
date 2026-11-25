@@ -86,7 +86,14 @@ function Swatch(props: {
         data-identity={props.item.identity}
       >
         <span class={`${board['glyph']} ${styles['swatchGlyph']}`}>
-          <Show when={props.boardTheme === 'sokoban' && props.item.glyph !== '−' && warehouseIdentity(props.item.identity)} fallback={props.item.glyph ?? ''}>
+          <Show
+            when={
+              props.boardTheme === 'sokoban' &&
+              props.item.glyph !== '−' &&
+              warehouseIdentity(props.item.identity)
+            }
+            fallback={props.item.glyph ?? ''}
+          >
             {(tone) => <WarehousePiece tone={tone()} />}
           </Show>
         </span>

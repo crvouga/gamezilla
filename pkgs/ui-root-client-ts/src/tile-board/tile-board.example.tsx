@@ -46,7 +46,7 @@ export default function TileBoardExample(): JSX.Element {
   return (
     <ExampleRoot>
       <TileBoard
-          boardTheme="warehouse"
+        boardTheme="warehouse"
         label="Example room. Use the arrow keys to move."
         testId="example-tile-board"
         columns={COLUMNS}

@@ -6,31 +6,37 @@
   overflow: hidden;
   pointer-events: none;
 }
-.ink, .uniform {
+.ink,
+.uniform {
   fill: var(--ui-color-game-sokoban-canvas);
 }
-.face, .brace {
+.face,
+.brace {
   fill: var(--ui-color-game-sokoban-ink);
 }
 .helmet {
   fill: var(--ui-color-game-sokoban-accent);
 }
-.helmet, .brace {
+.helmet,
+.brace {
   stroke: var(--ui-color-game-sokoban-canvas);
   stroke-width: 2;
   stroke-linejoin: round;
 }
-.wood, .grain {
+.wood,
+.grain {
   fill: var(--ui-color-game-sokoban-canvas);
   opacity: 0.2;
 }
-.grain, .line {
+.grain,
+.line {
   fill: none;
   stroke: var(--ui-color-game-sokoban-canvas);
   stroke-width: 2;
   stroke-linecap: round;
 }
-.check, .straps {
+.check,
+.straps {
   fill: none;
   stroke: var(--ui-color-game-sokoban-two);
   stroke-width: 4;
