@@ -16,7 +16,6 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
@@ -156,35 +155,21 @@ function LabeledGlyph(props: {
 }
 
 /**
- * The glyphs and the one wide command. On a phone they share one row, the
- * wide command centred on the glyphs; a desktop panel is narrower, so the
- * wide command takes the panel's width and the glyphs sit under it, and
- * its words are never cut.
+ * The glyphs and the one wide command, one layout at every width: the wide
+ * command takes the column's width, its words never cut, and the captioned
+ * glyphs spread under it.
  */
 function ResultCommandLayout(props: {
   readonly glyphs: JSX.Element;
   readonly wide: JSX.Element;
 }): JSX.Element {
-  const mode = useLayoutMode();
   return (
-    <Show
-      when={mode() === 'wide'}
-      fallback={
-        <StackHorizontal gap="md" align="center">
-          {props.glyphs}
-          <StackVertical grow justify="center">
-            {props.wide}
-          </StackVertical>
-        </StackHorizontal>
-      }
-    >
-      <StackVertical gap="sm">
-        {props.wide}
-        <StackHorizontal gap="md" align="center" justify="evenly">
-          {props.glyphs}
-        </StackHorizontal>
-      </StackVertical>
-    </Show>
+    <StackVertical gap="sm">
+      {props.wide}
+      <StackHorizontal gap="md" align="center" justify="evenly">
+        {props.glyphs}
+      </StackHorizontal>
+    </StackVertical>
   );
 }
 

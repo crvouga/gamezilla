@@ -9,7 +9,8 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
@@ -159,30 +160,26 @@ function Review(props: ResultProps): JSX.Element {
  * commands that answer the game carry its weight.
  */
 function Onward(props: ResultProps): JSX.Element {
+  // Destinations, not answers to the game: rows with a chevron, the
+  // dialog's width, each a full tap target.
   return (
-    <StackHorizontal gap="sm">
-      <Show when={props.game.newOpponent}>
-        <Button
-          title={<Trans>Game options</Trans>}
-          aria-label={t`New game: choose what to play for next`}
-          variant="ghost"
-          intent="neutral"
-          size="sm"
-          onClick={() => props.onOpen({ screen: 'home' })}
-          dataSet={{ testid: 'multiplayer-open-find' }}
-        />
-      </Show>
-      <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
-        <Button
+    <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
+      <MenuSection>
+        <Show when={props.game.newOpponent}>
+          <MenuRow
+            title={<Trans>Game options</Trans>}
+            caption={<Trans>Another clock or game</Trans>}
+            onClick={() => props.onOpen({ screen: 'home' })}
+            dataSet={{ testid: 'multiplayer-open-find' }}
+          />
+        </Show>
+        <MenuRow
           title={<Trans>Your ratings</Trans>}
-          variant="ghost"
-          intent="neutral"
-          size="sm"
           onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
           dataSet={{ testid: 'multiplayer-open-ratings' }}
         />
-      </Show>
-    </StackHorizontal>
+      </MenuSection>
+    </Show>
   );
 }
 
