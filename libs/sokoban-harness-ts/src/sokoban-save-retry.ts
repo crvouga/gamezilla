@@ -1,3 +1,4 @@
+import { contentClient } from '@libs/game-puzzle-harness-ts/content-actions';
 import { refusePositionSave } from '@libs/game-puzzle-harness-ts/refuse-position-save';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
@@ -8,7 +9,7 @@ export const stepRightWithoutSaving = defineAction({
   name: 'stepRightWithoutSaving',
   act: async (s: SokobanHarness, device: string) => {
     const view = playView(s, device);
-    const restore = await refusePositionSave(s, device);
+    const restore = await refusePositionSave(contentClient(s, device).db);
     try {
       fireEvent.keyDown(view.getByTestId('sokoban-board'), {
         key: 'ArrowRight',
