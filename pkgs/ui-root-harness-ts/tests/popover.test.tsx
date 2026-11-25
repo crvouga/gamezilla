@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { Popover } from '@pkgs/ui-root-client-ts/popover';
@@ -6,8 +6,9 @@ import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 function Harness(props: {
@@ -116,6 +117,7 @@ describe('Popover', () => {
     ));
     expect(screen.getByRole('dialog', { name: 'Owned' })).toBeTruthy();
     setOpen(false);
+    flush();
     expect(screen.queryByRole('dialog', { name: 'Owned' })).toBeNull();
   });
 });

@@ -19,9 +19,16 @@ function isOnline(state: NetworkState): boolean {
 /** True unless the network port reports the device offline. */
 export function createNetworkOnline(): Accessor<boolean> {
   const network = useNetworkStatePort();
-  const [online, setOnline] = createSignal(true);
-  const unsubscribe = network.subscribe((state) => setOnline(isOnline(state)));
-  onCleanup(unsubscribe);
+  // A port may report its current state as it is subscribed to, which is
+  // while this owner is still being set up: that report seeds the signal,
+  // and only the ones after it are written.
+  let seed = true;
+  let report = (next: boolean): void => {
+    seed = next;
+  };
+  onCleanup(network.subscribe((state) => report(isOnline(state))));
+  const [online, setOnline] = createSignal(seed);
+  report = setOnline;
   return online;
 }
 

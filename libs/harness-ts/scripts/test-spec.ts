@@ -2,11 +2,11 @@
 // @io-wall-ok — CLI: one package's spec suite (`test:spec`), run from its root.
 /**
  * Every package's `test:spec` is this script, so every subsystem suite runs
- * under the same compile contract, preloads, timeout and reporting:
+ * under the same compile contract, preloads and timeout:
  *
  *   "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts"
  *
- * It wipes the package's report bucket (`.cache/harness-report`), turns every
+ * It wipes the package's output bucket (`.cache/harness-report`), turns every
  * spec of the domains the package's `specDomains` lists into a `bun test`
  * stub under `.cache/spec/` — each Gherkin feature (`specs/<domain>/*.feature`,
  * run through `tests/steps/index.ts`), each Quint model
@@ -15,10 +15,8 @@
  * `*.openslo.yaml`, checked through `tests/{dmn,alloy,openslo}/index.ts`;
  * see `spec-verify-kinds.ts`) — runs `bun test --parallel` over those stubs plus `tests/harness` (or the
  * paths given) with a JUnit report written into the bucket, and exits with
- * the runner's status. Every harness writes its step timeline into the bucket and
- * every model its traces, and turbo caches the bucket with the verdict, so
- * `bun verify` publishes the last run of this exact code; every step also
- * records its UI frames.
+ * the runner's status. Conformance evidence, observability traces and model
+ * traces land in the same bucket, and turbo caches it with the verdict.
  *
  *   test:spec                                        everything
  *   test:spec specs/friends/friend-remove.feature    one feature (repo-relative)
@@ -33,7 +31,7 @@
  * package's `specParts`), so one package's suite spreads over several CI
  * shards instead of setting the whole run's wall time. {@link partOf} splits
  * by weight read from the specs alone, so every part — on any machine —
- * computes the same split. Each part owns its report bucket and stub dir
+ * computes the same split. Each part owns its output bucket and stub dir
  * (`.cache/harness-report/part-<k>`, `.cache/spec/part-<k>`); an unsplit run
  * uses `all`.
  */
@@ -44,13 +42,11 @@ import {
   existsSync,
   mkdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
-import { parseJunit } from '@crvouga/atlas/reports/junit';
+import { parseJunit } from '@libs/harness-ts/junit-cases';
 import { PRODUCT_HARNESS_TIMEOUT_MS } from '@libs/harness-ts/product-harness-timeout';
-import { REPORT_COMPLETION, REPORT_READY } from '@libs/harness-ts/report-ready';
 import { testFailureSpans } from '@libs/harness-ts/test-failure-spans';
 import { wallClock } from '@pkgs/clock-shared-ts/wall';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -66,7 +62,6 @@ import {
   readReplayPlans,
   replayPlanFor,
 } from './replay-plans';
-import { completedOrigin, reportOrigin } from './report-origin';
 import type { Part, SpecUnit } from './spec-parts';
 import { partOf } from './spec-parts';
 import {
@@ -84,7 +79,7 @@ const REPO_ROOT = resolve(import.meta.dir, '../../..');
 const TEST_PACKAGE_NAME = process.env['npm_package_name'] ?? 'unknown';
 const TEST_SERVICE_NAME = `${TEST_PACKAGE_NAME}-spec`;
 
-/** Repo-relative path with `/` separators on every host (report identity). */
+/** Repo-relative path with `/` separators on every host (spec identity). */
 function repoPath(path: string): string {
   return slashPath(relative(REPO_ROOT, path));
 }
@@ -218,10 +213,6 @@ function writeStubs(units: readonly SpecUnit[]): readonly string[] {
         featureUri,
         stepsEntry: STEPS_ENTRY,
         bridge: gherkinBridge,
-        reportBridge: Bun.resolveSync(
-          '@pkgs/gherkin-server-ts/wall-reports-env',
-          import.meta.dir
-        ),
         slice,
         reportDir: REPORT_DIR,
       })
@@ -300,13 +291,6 @@ const BUCKET = cli.part === undefined ? 'all' : `part-${cli.part.index}`;
 const REPORT_DIR = join(PACKAGE_DIR, '.cache/harness-report', BUCKET);
 const SPEC_STUB_DIR = join(PACKAGE_DIR, '.cache/spec', BUCKET);
 const JUNIT_PATH = join(REPORT_DIR, 'junit.xml');
-const ORIGIN = reportOrigin(REPO_ROOT);
-const ACTIVE_REPORT = join(
-  REPO_ROOT,
-  '.cache/local-reports/active',
-  // A package on another drive than the checkout is `D:/...`: no `:` in a name.
-  `${repoPath(PACKAGE_DIR).replace(/[/:]/g, '--')}-${BUCKET}.json`
-);
 removeTree(REPORT_DIR);
 mkdirSync(REPORT_DIR, { recursive: true });
 
@@ -325,20 +309,8 @@ if (scope.length === 0) {
   console.error(
     `test-spec: nothing to run in ${TEST_PACKAGE_NAME}/${BUCKET}; remove the empty part or fix its spec scope`
   );
-  finishReport(1);
   process.exit(1);
 }
-
-mkdirSync(join(REPO_ROOT, '.cache/local-reports/active'), { recursive: true });
-writeFileSync(
-  ACTIVE_REPORT,
-  JSON.stringify({
-    packageDir: slashPath(relative(REPO_ROOT, PACKAGE_DIR)),
-    bucket: BUCKET,
-    startedAtMs: wallClock.now(),
-    plannedChecks: stubs.length,
-  })
-);
 
 const result = spawnSync(
   'bun',
@@ -358,7 +330,7 @@ const result = spawnSync(
     '--timeout',
     String(PRODUCT_HARNESS_TIMEOUT_MS),
     // One product world per worker (~2GB). The ceiling follows CPUs and RAM;
-    // VERIFY_TEST_CONCURRENCY can only lower it. Frames still go to the report.
+    // VERIFY_TEST_CONCURRENCY can only lower it.
     // A stack-serial package's scenarios share state no run can partition.
     `--parallel=${String(
       specWorkers(
@@ -392,28 +364,8 @@ try {
 } catch (cause) {
   console.error(`test-spec: could not append failure traces: ${String(cause)}`);
 }
-finishReport(result.status ?? 1);
 
 process.exit(result.status ?? 1);
-
-function finishReport(status: number): void {
-  writeFileSync(
-    join(REPORT_DIR, 'origin.json'),
-    JSON.stringify(completedOrigin(ORIGIN, reportOrigin(REPO_ROOT)))
-  );
-  writeFileSync(
-    join(REPORT_DIR, REPORT_COMPLETION),
-    JSON.stringify({
-      status,
-      completedAtMs: wallClock.now(),
-      ...(process.env['ATLAS_REPORT_ATTEMPT_ID'] === undefined
-        ? {}
-        : { attemptId: process.env['ATLAS_REPORT_ATTEMPT_ID'] }),
-    })
-  );
-  rmSync(ACTIVE_REPORT, { force: true });
-  console.log(REPORT_READY);
-}
 
 function appendFailureTraces(): void {
   if (!existsSync(JUNIT_PATH)) return;

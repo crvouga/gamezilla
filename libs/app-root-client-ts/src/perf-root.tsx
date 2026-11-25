@@ -1,5 +1,5 @@
 import { createWallPerfSampler } from './wall';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Wires preference + sampler under the app shell. The HUD banner portals into
  * `AppFrame`'s `DismissibleBannerPortalProvider` (full-bleed hosts) so it
@@ -9,7 +9,8 @@ import { createWallPerfSampler } from './wall';
 
 import type { PerfSampler } from '@libs/app-root-shared-ts/types';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
-import { type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 import {
   PerfHudPreferenceProvider,
   usePerfHudPreference,

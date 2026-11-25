@@ -5,7 +5,7 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { decidePrivacyExportOwner } from '@libs/permissions-shared-ts/privacy-permission';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createEffect, createMemo, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createMemo } from 'solid-js';
 import { exportDownloadable } from './privacy-dates';
 import type { ExportDownloadState } from './privacy-export-state';
 import type { AccountPrivacyRow } from './use-account-privacy';
@@ -35,14 +35,16 @@ export function useExportDownload(
       ? ownerId()
       : null
   );
-  createEffect(() => {
-    const accountId = downloadAccount();
-    if (accountId === null) return;
-    const subscription = engine.subscribeQuery('downloadPersonalDataExport', {
-      accountId,
-    });
-    onCleanup(() => subscription.unsubscribe());
-  });
+  createEffect(
+    () => downloadAccount(),
+    (accountId) => {
+      if (accountId === null) return;
+      const subscription = engine.subscribeQuery('downloadPersonalDataExport', {
+        accountId,
+      });
+      return () => subscription.unsubscribe();
+    }
+  );
   return createMemo((): ExportDownloadState => {
     if (decision().reason === 'restricted') return { kind: 'ownerDenied' };
     const current = row();

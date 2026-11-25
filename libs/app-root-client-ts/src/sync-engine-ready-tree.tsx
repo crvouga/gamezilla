@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Provider tree mounted once the identity-scoped engine is ready. Loaded
  * lazily by `sync-engine-boot.tsx` (with the engine) because
@@ -22,7 +22,8 @@ import {
   SyncEngineProvider,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 import { AppClientConfig } from './app-client-config';
 import { AppSignInCapabilities } from './app-sign-in-capabilities';
 import { useAppSubs } from './app-subs-context';

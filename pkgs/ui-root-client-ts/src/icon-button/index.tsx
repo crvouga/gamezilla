@@ -1,11 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
-import { children, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { children, Show } from 'solid-js';
 import { OnColorProvider } from '../on-color-context/index';
 import { useThemeTokens } from '../theme-context/index';
 import type { TooltipPlacement } from '../tooltip/index';
@@ -160,11 +162,13 @@ function IconButtonFace(
   };
 
   return (
-    <button
-      class={`clickable clickableTint ${hitBoxClass()}`}
-      classList={{
-        'opacity-disabled cursor-not-allowed': props.disabled === true,
-      }}
+    <SdkButton
+      class={[
+        `clickable clickableTint ${hitBoxClass()}`,
+        {
+          'opacity-disabled cursor-not-allowed': props.disabled === true,
+        },
+      ]}
       {...dataAttrs({
         component: 'IconButton',
         variant: props.variant ?? 'icon',
@@ -174,8 +178,16 @@ function IconButtonFace(
       onClick={handleClick}
       disabled={props.disabled === true}
       aria-label={resolveAriaLabel(label(), props['aria-label'])}
-      aria-haspopup={props['aria-haspopup']}
-      aria-expanded={props['aria-expanded']}
+      aria-haspopup={
+        props['aria-haspopup'] === undefined
+          ? undefined
+          : `${props['aria-haspopup']}`
+      }
+      aria-expanded={
+        props['aria-expanded'] === undefined
+          ? undefined
+          : `${props['aria-expanded']}`
+      }
       aria-describedby={
         tooltip !== null && props.tooltipMode !== 'none'
           ? tooltip.id
@@ -206,7 +218,7 @@ function IconButtonFace(
           </OnColorProvider>
         </Show>
       </div>
-    </button>
+    </SdkButton>
   );
 }
 

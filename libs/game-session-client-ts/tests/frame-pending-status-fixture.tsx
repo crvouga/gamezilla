@@ -15,7 +15,8 @@ import { boardOnly, fixedPlayers } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
 
 /** Deferred model boundary: exercises production status derivation, not transport. */
 export function pendingFrameModel() {
@@ -53,19 +54,35 @@ export function pendingFrameModel() {
     setConnected(state === 'online');
     setWaiting(state === 'waiting');
     setCanSubmit(state !== 'needed');
+    flush();
   };
   const submit = async (completion: Promise<void>) => {
     setError('');
     setSubmitting(true);
+    flush();
     try {
       await completion;
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : 'Refused');
     } finally {
       setSubmitting(false);
+      flush();
     }
   };
-  return { initial, model, setCurrent, setMySide, setConnection, submit };
+  return {
+    initial,
+    model,
+    setCurrent: (game: CustomGame) => {
+      setCurrent(game);
+      flush();
+    },
+    setMySide: (side: CustomGameSide | null) => {
+      setMySide(side);
+      flush();
+    },
+    setConnection,
+    submit,
+  };
 }
 
 const engine = {

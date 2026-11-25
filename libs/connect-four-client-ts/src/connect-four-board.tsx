@@ -5,7 +5,8 @@ import {
 } from '@libs/connect-four-shared-ts/connect-four';
 import { t } from '@lingui/core/macro';
 import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 
 /**
  * The line under the board. A finished board keeps its prompt line's room

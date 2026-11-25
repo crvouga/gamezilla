@@ -29,12 +29,12 @@
     "@libs/spaces-client-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/device-client-ts": "workspace:*",
     "@pkgs/keyword-shared-ts": "workspace:*",
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/message-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/room-root-client-ts": "workspace:*",
@@ -47,6 +47,7 @@
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

@@ -1,6 +1,6 @@
 import { battleshipGameShared } from '@libs/battleship-shared-ts/battleship-game';
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { battleshipPresentation } from './battleship-presentation';
 
 export const battleshipGameClient = defineGameClient({

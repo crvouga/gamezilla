@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
 import { SURFACE_STACK_BASE } from '@pkgs/ui-root-shared-ts/constants';
@@ -7,17 +7,15 @@ import type {
   SurfaceStackStore,
 } from '@pkgs/ui-root-shared-ts/surface-stack-store';
 import { createSurfaceStackStore } from '@pkgs/ui-root-shared-ts/surface-stack-store';
+import { type JSX, Portal } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
-  createEffect,
+  createRenderEffect,
   createSignal,
-  type JSX,
-  onCleanup,
   Show,
   useContext,
 } from 'solid-js';
-import { Portal } from 'solid-js/web';
 import type { PortalHostFrame } from '../portal-host-frame';
 import { createHostFrame, ZERO_PORTAL_HOST_FRAME } from '../portal-host-frame';
 
@@ -53,7 +51,7 @@ export function SurfaceStackProvider(
     frame: createHostFrame(root),
   };
   return (
-    <SurfaceStackContext.Provider value={api}>
+    <SurfaceStackContext value={api}>
       <div
         class="box flex-1 min-w-0 w-full max-w-full relative"
         data-component="SurfaceStackRoot"
@@ -62,14 +60,13 @@ export function SurfaceStackProvider(
       >
         {props.children}
         <div
-          class="box absolute inset-0"
-          classList={{ boxNone: true }}
+          class={['box absolute inset-0', { boxNone: true }]}
           data-component="SurfaceStackHost"
           style={{ 'z-index': SURFACE_STACK_BASE }}
           ref={setHost}
         />
       </div>
-    </SurfaceStackContext.Provider>
+    </SurfaceStackContext>
   );
 }
 
@@ -123,17 +120,25 @@ export function useSurfaceStackSlot(
   visible: Accessor<boolean>
 ): SurfaceStackSlotState {
   const api = useSurfaceStackOptional();
-  createEffect(() => {
-    if (!visible()) return;
-    if (api === null) {
-      throw new Error(
-        'useSurfaceStackSlot: SurfaceStackProvider missing — wrap with AppUiPortals'
-      );
+  // Registered while the surface renders: its place in the stack (`isTop`,
+  // z-index) is known before any effect runs, so a focus trap is active
+  // before the content inside it takes focus.
+  createRenderEffect(
+    () => {
+      if (!visible()) return undefined;
+      if (api === null) {
+        throw new Error(
+          'useSurfaceStackSlot: SurfaceStackProvider missing — wrap with AppUiPortals'
+        );
+      }
+      return { store: api.store, id: readId(id) };
+    },
+    (shown) => {
+      if (shown === undefined) return undefined;
+      shown.store.register(shown.id);
+      return () => shown.store.unregister(shown.id);
     }
-    const current = readId(id);
-    api.store.register(current);
-    onCleanup(() => api.store.unregister(current));
-  });
+  );
   const isTop = useIsTopSurface(id);
   return {
     isTop: () => visible() && isTop(),
@@ -163,8 +168,7 @@ export function SurfaceStackSlot(props: SurfaceStackSlotProps): JSX.Element {
       {(host) => (
         <Portal mount={host()}>
           <div
-            class="box absolute inset-0"
-            classList={{ boxNone: true }}
+            class={['box absolute inset-0', { boxNone: true }]}
             data-component="SurfaceStackLayer"
             data-surface={props.id}
             style={{ 'z-index': slot.zIndex() }}

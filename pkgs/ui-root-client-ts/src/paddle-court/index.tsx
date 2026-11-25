@@ -1,9 +1,11 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, Index, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
 import {
   type CourtControls,
   type CourtSide,
+  CourtSurface,
   paddleCourtInput,
 } from '../paddle-court-input';
 import { useCourtInputLifecycle } from './input-lifecycle';
@@ -223,6 +225,56 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
   );
 }
 
+function CourtDrawing(props: PaddleCourtProps): JSX.Element {
+  return (
+    <svg
+      class={styles['drawing']}
+      data-testid={`${props.testId}-drawing`}
+      viewBox={`0 0 ${props.width} ${props.height}`}
+      aria-hidden="true"
+    >
+      <DragLanes {...props} />
+      <path
+        class={styles['line']}
+        d={`M ${props.width / 2} 0 V ${props.height}`}
+      />
+      <circle
+        class={styles['ring']}
+        cx={props.width / 2}
+        cy={props.height / 2}
+        r={props.height * 0.14}
+      />
+      <For keyed={false} each={props.paddles}>
+        {(paddle) => (
+          <rect
+            class={styles['paddle']}
+            data-side={paddle().side}
+            data-color={paddle().color}
+            data-testid={`${props.testId}-${paddle().side}-paddle`}
+            data-controlled={String(props.controlled.includes(paddle().side))}
+            x={paddle().x - (paddle().width * PADDLE_DRAWN_SCALE) / 2}
+            y={paddle().y - paddle().height / 2}
+            width={paddle().width * PADDLE_DRAWN_SCALE}
+            height={paddle().height}
+          />
+        )}
+      </For>
+      <circle
+        class={styles['ball']}
+        data-testid={`${props.testId}-ball`}
+        // The ball as the game plays it (court units), apart from how
+        // large it is drawn: what a reader of the court relies on.
+        data-ball-x={props.ball.x}
+        data-ball-y={props.ball.y}
+        data-ball-size={props.ball.size}
+        cx={props.ball.x}
+        cy={props.ball.y}
+        r={(props.ball.size * BALL_DRAWN_SCALE) / 2}
+      />
+    </svg>
+  );
+}
+
 /**
  * Geometric play surface under its scoreboard (each side's points large
  * at its own end, `score`, with who plays it beside them, `sideLabels`):
@@ -231,7 +283,6 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
  * each such half its own slider (`halfControl`).
  * Resizing changes its viewBox projection, never the court coordinates.
  */
-/* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-operated court uses the ARIA application role; the adjacent native sliders provide equivalent controls outside application mode. */
 export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
   const input = paddleCourtInput(props);
   let court: HTMLDivElement | undefined;
@@ -254,15 +305,23 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
     >
       <Scoreboard {...props} />
       <div class={styles['stage']}>
-        <div
-          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
-          ref={court}
+        <CourtSurface
+          controlled={props.controlled}
+          enabled={props.enabled}
+          onTarget={props.onTarget}
+          onDirection={props.onDirection}
+          ref={(element) => {
+            court = element;
+          }}
           class={styles['court']}
-          data-interactive={props.enabled && props.controlled.length > 0}
+          data-interactive={String(
+            props.enabled && props.controlled.length > 0
+          )}
+          {...dataAttrs({ component: 'PaddleCourt', testid: props.testId })}
           role="application"
           aria-label={props.label}
           aria-describedby={props.instructionsId}
-          tabIndex={props.enabled && props.controlled.length > 0 ? 0 : -1}
+          tabindex={props.enabled && props.controlled.length > 0 ? 0 : -1}
           onKeyDown={input.keyDown}
           onKeyUp={input.keyUp}
           onBlur={() => input.release()}
@@ -272,53 +331,9 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           onPointerCancel={input.pointerUp}
           onLostPointerCapture={input.pointerUp}
         >
-          <svg
-            class={styles['drawing']}
-            data-testid={`${props.testId}-drawing`}
-            viewBox={`0 0 ${props.width} ${props.height}`}
-            aria-hidden="true"
-          >
-            <DragLanes {...props} />
-            <path
-              class={styles['line']}
-              d={`M ${props.width / 2} 0 V ${props.height}`}
-            />
-            <circle
-              class={styles['ring']}
-              cx={props.width / 2}
-              cy={props.height / 2}
-              r={props.height * 0.14}
-            />
-            <Index each={props.paddles}>
-              {(paddle) => (
-                <rect
-                  class={styles['paddle']}
-                  data-side={paddle().side}
-                  data-color={paddle().color}
-                  data-testid={`${props.testId}-${paddle().side}-paddle`}
-                  data-controlled={props.controlled.includes(paddle().side)}
-                  x={paddle().x - (paddle().width * PADDLE_DRAWN_SCALE) / 2}
-                  y={paddle().y - paddle().height / 2}
-                  width={paddle().width * PADDLE_DRAWN_SCALE}
-                  height={paddle().height}
-                />
-              )}
-            </Index>
-            <circle
-              class={styles['ball']}
-              data-testid={`${props.testId}-ball`}
-              // The ball as the game plays it (court units), apart from how
-              // large it is drawn: what a reader of the court relies on.
-              data-ball-x={props.ball.x}
-              data-ball-y={props.ball.y}
-              data-ball-size={props.ball.size}
-              cx={props.ball.x}
-              cy={props.ball.y}
-              r={(props.ball.size * BALL_DRAWN_SCALE) / 2}
-            />
-          </svg>
+          <CourtDrawing {...props} />
           <CourtFeedback {...props} />
-        </div>
+        </CourtSurface>
         <HalfControls {...props} />
       </div>
     </div>

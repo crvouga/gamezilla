@@ -42,16 +42,14 @@ const CHESS_SPEC_SYSTEM = gameSystem('chess', [CHESS_HARNESS_GAME], {
 });
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(CHESS_SYSTEM, testId, options);
+  return openSystemHarness(CHESS_SYSTEM, options);
 }
 
 /** {@link openHarness} for the chess scenarios (see {@link CHESS_SPEC_SYSTEM}). */
 export function openSpecHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openGameHarness(CHESS_SPEC_SYSTEM, testId, options);
+  return openGameHarness(CHESS_SPEC_SYSTEM, options);
 }

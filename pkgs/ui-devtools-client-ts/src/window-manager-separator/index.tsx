@@ -1,22 +1,24 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The divider between two windows: drag it, or focus it and use the arrows.
  * It is a WAI-ARIA window splitter, so its position is a value assistive
  * technology reads and sets.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { WindowSeparatorFrame } from '@pkgs/ui-devtools-shared-ts/window-layout-geometry';
 import {
   WINDOW_SEPARATOR_KEYSHORTCUTS,
   windowSeparatorKeyCommand,
 } from '@pkgs/ui-devtools-shared-ts/window-layout-keyboard';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import styles from '../window-manager/window-manager.module.css';
 import { useWindowManager } from '../window-manager-context';
 import { captureWindowPointer } from '../window-manager-drag';
 import { WINDOW_GAP } from '../window-manager-types';
+import { WindowSplitter } from './window-splitter';
 
 export type WindowManagerSeparatorProps = {
   readonly frame: WindowSeparatorFrame;
@@ -56,13 +58,16 @@ export function WindowManagerSeparator(
   const row = (): boolean => props.frame.direction === 'row';
   const along = (event: PointerEvent): number =>
     row() ? event.clientX : event.clientY;
-  const resize = (delta: number): void =>
+  const resize = (value: number): void => {
+    const delta = (value - props.frame.value) / 100;
+    if (delta === 0) return;
     api.dispatch({
       type: 'resize',
       split: props.frame.split,
       index: props.frame.index,
       delta,
     });
+  };
   const onMove = (event: PointerEvent): void => {
     const held = grip();
     const box = api.bounds();
@@ -71,16 +76,17 @@ export function WindowManagerSeparator(
     const extent = size * props.frame.extent;
     if (extent <= 0) return;
     const wanted = held.value + ((along(event) - held.at) / extent) * 100;
-    const delta = (wanted - props.frame.value) / 100;
-    if (delta !== 0) resize(delta);
+    resize(wanted);
   };
   return (
-    <div
-      class={`box absolute z-2 touch-none ${styles['separator'] ?? ''}`}
-      classList={{
-        'cursor-col-resize': row(),
-        'cursor-row-resize': !row(),
-      }}
+    <WindowSplitter
+      class={[
+        `box absolute z-2 touch-none ${styles['separator'] ?? ''}`,
+        {
+          'cursor-col-resize': row(),
+          'cursor-row-resize': !row(),
+        },
+      ]}
       data-component={componentId('WindowManagerSeparator')}
       {...dataAttrs({
         'window-part': 'separator',
@@ -89,15 +95,14 @@ export function WindowManagerSeparator(
         active: String(grip() !== null),
       })}
       style={separatorStyle(props.frame)}
-      role="separator"
-      tabIndex={0}
+      value={props.frame.value}
+      min={props.frame.min}
+      max={props.frame.max}
+      onValueChange={resize}
       aria-label={
         row() ? t`Resize windows left and right` : t`Resize windows up and down`
       }
       aria-orientation={row() ? 'vertical' : 'horizontal'}
-      aria-valuenow={props.frame.value}
-      aria-valuemin={props.frame.min}
-      aria-valuemax={props.frame.max}
       aria-keyshortcuts={WINDOW_SEPARATOR_KEYSHORTCUTS}
       onPointerDown={(event) => {
         if (event.button !== 0) return;

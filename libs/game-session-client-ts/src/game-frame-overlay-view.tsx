@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { StageOverlayPhase } from '@pkgs/turn-game-client-ts/stage-overlay';
 import {
   GAME_VERSUS_AVATAR_SIZE,
@@ -8,7 +8,8 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
 import { FrameResultView } from './game-frame-result-view';

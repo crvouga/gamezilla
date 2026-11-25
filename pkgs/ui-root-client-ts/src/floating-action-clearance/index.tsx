@@ -1,15 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { controlSize } from '@pkgs/ui-root-shared-ts/sizes';
-import {
-  type Accessor,
-  createContext,
-  type JSX,
-  Show,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, Show, useContext } from 'solid-js';
 
 /** The FAB's inset from the body's bottom-end corner (px), above any bar. */
 export const FLOATING_ACTION_MARGIN = 16;
@@ -44,9 +39,9 @@ export function FloatingActionClearanceProvider(props: {
 }): JSX.Element {
   const clearance = (): number => props.clearance;
   return (
-    <FloatingActionClearanceContext.Provider value={clearance}>
+    <FloatingActionClearanceContext value={clearance}>
       {props.children}
-    </FloatingActionClearanceContext.Provider>
+    </FloatingActionClearanceContext>
   );
 }
 

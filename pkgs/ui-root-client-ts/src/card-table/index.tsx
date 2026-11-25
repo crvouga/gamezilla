@@ -1,18 +1,20 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   createEffect,
   createMemo,
   createSignal,
   For,
-  Index,
-  type JSX,
-  on,
   Show,
+  untrack,
 } from 'solid-js';
 import { Button } from '../button/index';
+import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
@@ -188,9 +190,9 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
         {seat().player}
       </Show>
       <span class={styles['facts']}>
-        <Index each={seat().facts}>
+        <For keyed={false} each={seat().facts}>
           {(fact) => <span class={styles['fact']}>{fact()}</span>}
-        </Index>
+        </For>
         <Show when={seat().status}>
           {(status) => (
             <span
@@ -218,7 +220,7 @@ function Trick(props: {
 }): JSX.Element {
   return (
     <div class={styles['trick']} data-trick={String(props.trick)}>
-      <Index each={props.seats}>
+      <For keyed={false} each={props.seats}>
         {(seat) => (
           <span
             class={styles['slot']}
@@ -253,7 +255,7 @@ function Trick(props: {
             </Show>
           </span>
         )}
-      </Index>
+      </For>
     </div>
   );
 }
@@ -355,21 +357,20 @@ function createHandFocus(
   // rather than falling out of the hand, unless it went elsewhere first.
   let played = false;
   createEffect(
-    on(
-      ids,
-      () => {
-        const at = Math.min(current(), Math.max(0, ids().length - 1));
-        setCurrent(at);
-        const active = row()?.ownerDocument.activeElement;
-        const lost =
-          active === null ||
-          active === undefined ||
-          active === row()?.ownerDocument.body;
-        if (played && lost) buttons()[at]?.focus();
-        played = false;
-      },
-      { defer: true }
-    )
+    // The hand alone starts this over; where the person was is only read.
+    () => ({ last: ids().length - 1, was: untrack(current) }),
+    ({ last, was }) => {
+      const at = Math.min(was, Math.max(0, last));
+      setCurrent(at);
+      const active = row()?.ownerDocument.activeElement;
+      const lost =
+        active === null ||
+        active === undefined ||
+        active === row()?.ownerDocument.body;
+      if (played && lost) moveFocus(buttons()[at]);
+      played = false;
+    },
+    { defer: true }
   );
   const move = (event: KeyboardEvent, at: number): void => {
     const step = MOVES[event.key];
@@ -420,7 +421,7 @@ function Hand(
           <Show when={byId().get(id)}>
             {(card) => (
               <>
-                <button
+                <SdkButton
                   type="button"
                   class={styles['card']}
                   style={handCardStyle(index(), suits())}
@@ -429,13 +430,13 @@ function Hand(
                   data-testid={props.cardTestId(id)}
                   data-card={id}
                   aria-label={spokenName(card())}
-                  aria-pressed={card().selected ?? undefined}
-                  aria-disabled={!card().enabled}
+                  aria-pressed={ariaBoolean(card().selected ?? undefined)}
+                  aria-disabled={ariaBoolean(!card().enabled)}
                   aria-describedby={props.reasonId(
                     card().refusal ?? props.handWaiting ?? ''
                   )}
                   title={card().refusal ?? props.handWaiting}
-                  tabIndex={index() === focus.current() ? 0 : -1}
+                  tabindex={index() === focus.current() ? 0 : -1}
                   onFocus={() => focus.setCurrent(index())}
                   onKeyDown={(event) => focus.move(event, index())}
                   onClick={() => {
@@ -449,7 +450,7 @@ function Hand(
                   }}
                 >
                   <HandCardFace card={card()} />
-                </button>
+                </SdkButton>
               </>
             )}
           </Show>
@@ -476,7 +477,7 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
     <div class={styles['pass']} aria-hidden="true">
       <span class={styles['passLabel']}>{props.pass.label}</span>
       <span class={styles['passPlaces']}>
-        <Index each={places()}>
+        <For keyed={false} each={places()}>
           {(card) => (
             <span class={styles['slot']} data-filled={String(card() !== null)}>
               <Show when={card()}>
@@ -488,7 +489,7 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
               </Show>
             </span>
           )}
-        </Index>
+        </For>
       </span>
     </div>
   );
@@ -610,7 +611,11 @@ export function CardTable(props: CardTableProps): JSX.Element {
     () => new Map(props.seats.map((seat) => [seat.testId, seat]))
   );
   // Why the last card pressed was refused, until the table moves on.
-  const [refusal, setRefusal] = createSignal('');
+  const [refusal, setRefusal] = createSignal(() => {
+    // Read only so that a table that moves on starts over.
+    void props.center;
+    return '';
+  });
   const reasons = createMemo(() => [
     ...new Set(
       props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
@@ -622,18 +627,11 @@ export function CardTable(props: CardTableProps): JSX.Element {
     const index = reasons().indexOf(reason);
     return index < 0 ? undefined : `${props.testId}-reason-${index}`;
   };
-  createEffect(
-    on(
-      () => props.center,
-      () => setRefusal(''),
-      { defer: true }
-    )
-  );
   return (
     <div
       class={styles['root']}
-      {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
       data-testid={props.testId}
+      {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
     >
       <CardTableContext
         passing={props.pass !== undefined && props.trick !== true}
@@ -641,8 +639,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
         testId={props.testId}
       >
         <div
-          class={styles['table']}
-          classList={{ [felt['felt'] ?? '']: true }}
+          class={[styles['table'], { [felt['felt'] ?? '']: true }]}
           role="group"
           aria-label={props.label}
         >

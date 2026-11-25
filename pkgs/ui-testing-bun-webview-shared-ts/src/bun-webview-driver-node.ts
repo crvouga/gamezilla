@@ -268,7 +268,10 @@ export class BunWebviewDriverNode implements DriverNode {
     try {
       await waitUntil(
         async () => {
-          if (state === 'visible' && options?.visibleOr !== undefined) {
+          if (
+            (state === 'visible' || state === 'hidden') &&
+            options?.visibleOr !== undefined
+          ) {
             const parent = this.path.slice(0, -1);
             const paths = [
               this.path,
@@ -276,7 +279,9 @@ export class BunWebviewDriverNode implements DriverNode {
             ];
             const selectors = paths.map(cssPath);
             const view = await this.host.resolveView(selectors.join(', '));
-            return (await view.evaluate(visibilityScript(selectors))) === true;
+            return (
+              (await view.evaluate(visibilityScript(selectors, state))) === true
+            );
           }
           if (isWaitTextCondition(state)) {
             const text = await this.text().catch(() => null);

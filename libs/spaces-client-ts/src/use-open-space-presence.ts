@@ -16,8 +16,7 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import type { Accessor } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import { type PresencePerson, presencePeople } from './presence-people';
 import { useSpaceOpenRoomEntry } from './space-open-rooms-store';
 import { useOwnSpaceActivity } from './use-own-space-activity';
@@ -30,8 +29,10 @@ export type OpenSpacePresence = {
 };
 
 /** Presence and idle for one open space, from the room this device holds. */
-export function useOpenSpacePresence(spaceId: string): OpenSpacePresence {
-  const entry = useSpaceOpenRoomEntry(() => spaceId);
+export function useOpenSpacePresence(
+  spaceId: Accessor<string>
+): OpenSpacePresence {
+  const entry = useSpaceOpenRoomEntry(spaceId);
   const room = () => entry()?.room ?? null;
   const roster = createRoomRoster(room);
   const snapshot = createRoomSnapshot(room);
@@ -40,7 +41,7 @@ export function useOpenSpacePresence(spaceId: string): OpenSpacePresence {
   const host = createQuery(
     () => sql<{ readonly host_member_id: string | null }>`
       SELECT host_member_id FROM spaces
-      WHERE id = ${spaceId} AND deleted_at IS NULL
+      WHERE id = ${spaceId()} AND deleted_at IS NULL
       LIMIT 1
     `
   );

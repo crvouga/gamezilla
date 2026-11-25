@@ -9,14 +9,12 @@ import {
   writeFileSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { reportTask } from '@libs/harness-ts/report-ready';
 import { writeHostKey } from './package-hosts';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import { turboChildEnv, writePlatformCacheKey } from './turbo-ci-run';
 import { readLatestRunSummary, SLOW_RUNNER_MULTIPLIER } from './verify-budget';
 import { packShardEvidence } from './verify-evidence-pack';
 import { preserveInterruptedModels } from './verify-interrupted-models';
-import { preserveInterruptedReports } from './verify-interrupted-reports';
 import { copyModelEvidence } from './verify-model-evidence';
 import { packPlan } from './verify-plan-transfer';
 import { activeProfile } from './verify-profile';
@@ -186,7 +184,6 @@ function transferEvidence(
   try {
     // The `release` profile keeps no report: a failure is read from the job log.
     if (activeProfile(env).reports) {
-      preserveInterruptedReports(ROOT, results);
       preserveFailedReports(results);
     }
     packEvidence(index, failed);
@@ -234,13 +231,8 @@ function preserveFailedReports(results: readonly Result[]): void {
         join(DIRECTORY, 'failed-reports', modelPath)
       );
     }
-    const report = reportTask(result.taskId);
-    if (!report) continue;
-    const relative = join(
-      report.packageDir,
-      '.cache/harness-report',
-      report.bucket
-    );
+    const relative = specBucket(result.taskId);
+    if (relative === null) continue;
     if (existsSync(join(ROOT, relative)))
       cpSync(
         join(ROOT, relative),
@@ -248,6 +240,19 @@ function preserveFailedReports(results: readonly Result[]): void {
         { recursive: true }
       );
   }
+}
+
+/** The output bucket of a spec part (`test:spec:<k>`), root-relative. */
+function specBucket(taskId: string): string | null {
+  const match = /^@(apps|libs|pkgs)\/([a-z0-9-]+)#test:spec:(\d+)$/.exec(
+    taskId
+  );
+  if (match === null) return null;
+  return join(
+    `${match[1]}/${match[2]}`,
+    '.cache/harness-report',
+    `part-${match[3]}`
+  );
 }
 
 if (import.meta.main) process.exit(await runShard(Number(process.argv[2])));

@@ -8,8 +8,9 @@ export function CancellationFeedbackExample(props: {
   readonly fail?: boolean;
   readonly saved?: CancellationFeedback;
 }) {
+  // Seeded from the story's args, and reseeded when a control changes them.
   const [saved, setSaved] = createSignal<CancellationFeedback | null>(
-    props.saved ?? null
+    () => props.saved ?? null
   );
   return (
     <CancellationFeedbackForm

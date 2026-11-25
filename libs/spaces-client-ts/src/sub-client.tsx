@@ -2,7 +2,7 @@ import SessionProvider from './session-provider';
 import SpaceScreen from './space';
 import { SpaceMiniplayer } from './space-miniplayer';
 import SpacesScreen from './spaces';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What spaces contributes to a client app: the lobby and space screens, the
  * Spaces tab, the miniplayer dock, and the providers a space needs — the game
@@ -13,9 +13,9 @@ import SpacesScreen from './spaces';
 import type { SubClient } from '@libs/sub-client-ts/client';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { GameRegistry } from './games-provider';
 import { AppGamesProvider } from './games-provider';
 import {
@@ -43,11 +43,11 @@ export function createSpacesClient(options: {
     // before a remount is still waited on by the room that opens after it.
     const admissions = createSpaceAdmissionsInFlight();
     return (
-      <SpaceAdmissionsInFlightContext.Provider value={admissions}>
+      <SpaceAdmissionsInFlightContext value={admissions}>
         <AppGamesProvider registry={options.registry}>
           {props.children}
         </AppGamesProvider>
-      </SpaceAdmissionsInFlightContext.Provider>
+      </SpaceAdmissionsInFlightContext>
     );
   }
   return defineSubClient({

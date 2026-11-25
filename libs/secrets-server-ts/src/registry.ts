@@ -28,7 +28,6 @@ import {
 } from '@libs/secrets-shared-ts/pubsub-emqx-secrets';
 import { IOT_SECRETS } from '@libs/secrets-shared-ts/pubsub-iot-secrets';
 import { RAILWAY_TOKEN } from '@libs/secrets-shared-ts/railway-token';
-import { REPORTS_SECRETS } from '@libs/secrets-shared-ts/reports-credentials';
 import type { Secret } from '@libs/secrets-shared-ts/secret';
 import { SHARED_DATA_SECRETS } from '@libs/secrets-shared-ts/shared-data-credentials';
 import { POPULATION_WORKER_TOKEN } from '@libs/secrets-shared-ts/synthetic-population-secrets';
@@ -84,7 +83,6 @@ export const SECRETS: readonly Secret[] = [
   S3_BUCKET,
   S3_ENDPOINT,
   S3_REGION,
-  ...REPORTS_SECRETS,
   ...SHARED_DATA_SECRETS,
   ELEVEN_LABS_API_KEY,
   GRAFANA_CLOUD_API_TOKEN,

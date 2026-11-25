@@ -13,7 +13,6 @@ test('a fresh world starts with alice and bob signed in and friends', async () =
   await run.apply(
     defineAction({
       name: 'friendsSeedTest.pin',
-      report: false,
       act: (s: ProductHarness) => {
         surface = s;
       },

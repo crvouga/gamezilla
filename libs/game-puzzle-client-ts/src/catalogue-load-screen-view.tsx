@@ -1,14 +1,14 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { placeBehind } from '@pkgs/turn-game-client-ts/screen-places';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import type { ScreenBaseBreadcrumb } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { type Component, createSignal, Match, Show, Switch } from 'solid-js';
 import type {
   CatalogueLoadCopy,
   CatalogueLoadJob,
@@ -53,12 +53,11 @@ export type CatalogueLoadScreenViewProps = {
 };
 
 /** The place's own name, when it is not the loader's hub. */
-function placeTitle(props: CatalogueLoadScreenViewProps): JSX.Element {
-  return props.place.screen === 'source' ? (
-    props.copy.sourceName
-  ) : (
-    <Dynamic component={props.copy.title} />
-  );
+function placeTitle(
+  props: CatalogueLoadScreenViewProps,
+  Title: Component
+): JSX.Element {
+  return props.place.screen === 'source' ? props.copy.sourceName : <Title />;
 }
 
 /**
@@ -67,16 +66,17 @@ function placeTitle(props: CatalogueLoadScreenViewProps): JSX.Element {
  */
 function routedTrail(
   props: CatalogueLoadScreenViewProps,
-  frame: Extract<CatalogueLoadFrameView, { kind: 'routed' }>
+  frame: Extract<CatalogueLoadFrameView, { kind: 'routed' }>,
+  Title: Component
 ): readonly ScreenBaseBreadcrumb[] {
-  const title = <Dynamic component={props.copy.title} />;
+  const title = <Title />;
   const behind = placeBehind(CATALOGUE_LOAD_PLACES, props.stage, props.place);
   return behind === null
     ? [frame.parent, { name: title }]
     : [
         frame.parent,
         { name: title, onClick: frame.onBack },
-        { name: placeTitle(props) },
+        { name: placeTitle(props, Title) },
       ];
 }
 
@@ -85,13 +85,15 @@ function CatalogueLoadFrame(
   props: CatalogueLoadScreenViewProps & { children: JSX.Element }
 ): JSX.Element {
   const routed = () => (props.frame.kind === 'routed' ? props.frame : null);
+  const Title = dynamic(() => props.copy.title);
+  const Subtitle = dynamic(() => props.copy.subtitle);
   return (
     <Show
       when={routed()}
       fallback={
         <EmbeddedScreen
           screenId="puzzles-import"
-          title={placeTitle(props)}
+          title={placeTitle(props, Title)}
           subtitle={
             // What the loader is for, until a file is saved; then the hub's
             // own status says where it stands.
@@ -100,7 +102,7 @@ function CatalogueLoadFrame(
               props.source.status === 'missing' ||
               props.source.status === 'chosen'
             ) ? undefined : (
-              <Dynamic component={props.copy.subtitle} />
+              <Subtitle />
             )
           }
         >
@@ -112,7 +114,7 @@ function CatalogueLoadFrame(
         <ContentScreen
           screenId="puzzles-import"
           width="menu"
-          breadcrumbs={routedTrail(props, frame())}
+          breadcrumbs={routedTrail(props, frame(), Title)}
         >
           {props.children}
         </ContentScreen>

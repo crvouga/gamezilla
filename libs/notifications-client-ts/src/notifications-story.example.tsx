@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Story fixtures for the inbox: deterministic notifications dated against
  * the Storybook virtual clock (2023-11-14T22:13:20Z), and the default card
@@ -11,7 +11,7 @@ import type {
 } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { notificationCardTestId } from '@libs/notifications-shared-ts/notification-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import { NotificationCardDefault } from './notification-card-default';
 

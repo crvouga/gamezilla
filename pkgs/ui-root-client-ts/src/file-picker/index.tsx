@@ -1,10 +1,20 @@
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import {
   type ComponentDataSet,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { fileInput } from '@ui-sdk/core/file-input';
+import { createParts } from '@ui-sdk/solid/primitive';
+import { createUniqueId, Show } from 'solid-js';
 import { FileIcon } from '../icons';
 import styles from './file-picker.module.css';
+
+const FileParts = createParts(fileInput, {
+  root: 'div',
+  input: 'input',
+  trigger: 'button',
+});
 
 export type FilePickerProps = {
   label: JSX.Element;
@@ -36,29 +46,26 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
   const labelId = createUniqueId();
   const hintId = createUniqueId();
   return (
-    <label
+    <FileParts.Root
+      disabled={props.disabled === true}
+      aria-labelledby={labelId}
+      onValueChange={(files) => props.onSelect(files[0] ?? null)}
       class="box gap-2"
-      aria-disabled={props.disabled ?? false}
+      aria-disabled={ariaBoolean(props.disabled ?? false)}
       {...dataAttrs({ component: 'FilePicker', ...props.dataSet })}
     >
+      <FileParts.Input accept={props.accept} />
       <span id={labelId} class="text textLabel">
         {props.label}
       </span>
-      <span
-        class={styles['field']}
-        classList={{ [styles['empty'] ?? '']: props.fileName === null }}
+      <FileParts.Trigger
+        aria-labelledby={labelId}
+        aria-describedby={props.hint === undefined ? undefined : hintId}
+        class={[
+          styles['field'],
+          { [styles['empty'] ?? '']: props.fileName === null },
+        ]}
       >
-        <input
-          type="file"
-          accept={props.accept}
-          disabled={props.disabled}
-          class={styles['input']}
-          aria-labelledby={labelId}
-          aria-describedby={props.hint === undefined ? undefined : hintId}
-          onChange={(event) =>
-            props.onSelect(event.currentTarget.files?.[0] ?? null)
-          }
-        />
         <span class={styles['choose']} aria-hidden="true">
           {props.chooseLabel}
         </span>
@@ -76,12 +83,12 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
             {props.fileName ?? props.emptyLabel}
           </span>
         </span>
-      </span>
+      </FileParts.Trigger>
       <Show when={props.hint !== undefined}>
         <span id={hintId} class="text textCaption">
           {props.hint}
         </span>
       </Show>
-    </label>
+    </FileParts.Root>
   );
 }

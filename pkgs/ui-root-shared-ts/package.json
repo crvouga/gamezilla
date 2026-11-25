@@ -25,6 +25,7 @@
     "@pkgs/i18n-shared-ts": "workspace:*",
     "@pkgs/keyword-shared-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

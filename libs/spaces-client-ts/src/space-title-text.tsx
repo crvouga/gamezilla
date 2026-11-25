@@ -1,7 +1,7 @@
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { TextLines } from '@pkgs/ui-root-client-ts/text-classes';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { useSpaceDisplayTitle } from './use-space-display-title';
 
 export type SpaceTitleTextProps = {

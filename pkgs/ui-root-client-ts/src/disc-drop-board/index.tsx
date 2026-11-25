@@ -1,11 +1,11 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
   For,
-  type JSX,
   Show,
 } from 'solid-js';
 import { useGameBoardPreview } from '../game-board-stage/board-preview';
@@ -101,14 +101,14 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
     event.preventDefault();
     root?.querySelector<HTMLButtonElement>(`[data-column="${next}"]`)?.focus();
   };
-  createFinishReveal(() =>
-    props.finished === true && !thumbnail() ? root : undefined
+  createFinishReveal(
+    () => props.finished === true && !thumbnail(),
+    () => root
   );
   return (
     <div
       ref={root}
       class={styles['board']}
-      {...dataAttrs({ component: 'DiscDropBoard' })}
       role="group"
       aria-label={props.label}
       aria-describedby={describedBy(
@@ -120,6 +120,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       data-cells={JSON.stringify(props.cells)}
       data-won={String(props.winning.length > 0)}
       data-keyboard-help={String(keyboard())}
+      {...dataAttrs({ component: 'DiscDropBoard' })}
       style={{ '--disc-columns': props.columns }}
     >
       <Show when={promptLine()}>
@@ -203,10 +204,11 @@ function createColumnFocus(clearPreview: () => void) {
 
 /** Once the game is over, bring the whole board into view, minimally. */
 function createFinishReveal(
-  finishedBoard: () => HTMLElement | undefined
+  finished: () => boolean,
+  board: () => HTMLElement | undefined
 ): void {
-  createEffect(() => {
-    finishedBoard()?.scrollIntoView({ block: 'nearest' });
+  createEffect(finished, (over) => {
+    if (over) board()?.scrollIntoView({ block: 'nearest' });
   });
 }
 

@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { GameOptionField } from '../game-option-field/index';
 import { GameTile } from '../game-tile/index';
@@ -62,7 +63,7 @@ function GameCard(props: { game: SpaceGame; role: SpaceRole }): JSX.Element {
         </div>
       </div>
       <Show when={props.game.setup.settings.length > 0}>
-        <div class={styles['settings']} data-read-only={readOnly()}>
+        <div class={styles['settings']} data-read-only={String(readOnly())}>
           <For each={props.game.setup.settings}>
             {(field) => (
               <GameOptionField

@@ -4,7 +4,7 @@ import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const fleet =
@@ -92,10 +92,12 @@ test('a refreshed game record preserves the selected target when its position is
   fireEvent.click(byTestId('refresh-area-9'));
   fireEvent.click(byTestId('refresh-aim-f10'));
   setRecord({ position, syncKey: 0 });
+  flush();
   expect(byTestId('refresh-fire').textContent).toContain('Fire at F10');
   fireEvent.click(byTestId('refresh-fire'));
   expect(actions).toEqual(['f10']);
   setRecord({ position, syncKey: 1 });
+  flush();
   expect(byTestId('refresh-fire').textContent).toContain(
     'Choose a cell in F9–J10'
   );

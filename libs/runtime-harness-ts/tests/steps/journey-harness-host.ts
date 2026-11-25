@@ -30,8 +30,6 @@ const GUEST = 'guest';
 
 const journeyGestures = scenarioAction({
   name: 'journeyGestures',
-  describe: (_actorId: string, name: string, _gestures: JourneyGestures) =>
-    name,
   act: async (s, actorId: string, _name: string, gestures: JourneyGestures) => {
     await gestures(await actorUi(s, actorId));
   },

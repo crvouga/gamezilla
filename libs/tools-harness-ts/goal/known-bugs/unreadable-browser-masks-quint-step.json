@@ -1,0 +1,4 @@
+{
+  "summary": "A failed browser read during Quint world cleanup hid the action and step that first broke the billing trace.",
+  "regressionTest": "pkgs/quint-shared-ts/tests/replay-abandoned.test.ts"
+}

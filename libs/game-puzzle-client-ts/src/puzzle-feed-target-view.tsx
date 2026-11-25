@@ -10,7 +10,7 @@ import {
 } from '@libs/game-puzzle-shared-ts/feed-config';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -18,7 +18,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { NumberStepper } from '@pkgs/ui-root-client-ts/number-stepper';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 
 /** The custom target moves in steps of this many rating points. */

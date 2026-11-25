@@ -9,7 +9,8 @@ import { endSpaceMutation } from '@libs/spaces-shared-ts/end-space-mutation';
 import { leaveSpaceMutation } from '@libs/spaces-shared-ts/leave-space-mutation';
 import { removeSpaceUserMutation } from '@libs/spaces-shared-ts/remove-space-user-mutation';
 import { renameSpaceMutation } from '@libs/spaces-shared-ts/rename-space-mutation';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** Changes made in a space, told inside that space. */
 const IN_SPACE_CHANGES: readonly string[] = [

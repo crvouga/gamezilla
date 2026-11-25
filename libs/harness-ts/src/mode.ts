@@ -17,16 +17,6 @@ export type OpenHarnessOptions = {
    * random paths through one composition gives each its own.
    */
   readonly seed?: number;
-  /**
-   * How the report names this run, when the caller knows better than the
-   * stack does (a Gherkin scenario, a Quint trace): its title and the spec
-   * file and line it comes from.
-   */
-  readonly report?: {
-    readonly title: string;
-    readonly sourceFile: string;
-    readonly sourceLine?: number;
-  };
 };
 
 export function resolveHarnessMode(options?: OpenHarnessOptions): HarnessMode {

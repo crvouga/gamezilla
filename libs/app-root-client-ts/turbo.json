@@ -33,6 +33,7 @@
         "@pkgs/kv-root-client-ts#src",
         "@pkgs/kv-root-shared-ts#src",
         "@pkgs/kv-web-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/llm-root-client-ts#src",
         "@pkgs/logger-client-ts#src",
         "@pkgs/logger-shared-ts#src",

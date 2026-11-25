@@ -4,7 +4,8 @@ import type {
   SpaceGamePlay,
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import {
   SpaceExampleFrame,
   type SpaceExampleSpies,

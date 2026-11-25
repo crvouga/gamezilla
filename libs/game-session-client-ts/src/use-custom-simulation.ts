@@ -1,7 +1,10 @@
 import type { CustomGameChoice } from '@libs/game-session-shared-ts/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
 import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
-import { useSpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
+import {
+  type SpaceOpenRoomEntry,
+  useSpaceOpenRoomEntry,
+} from '@libs/spaces-client-ts/space-open-rooms-store';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useClock, useTimers } from '@pkgs/clock-client-ts/solid';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
@@ -13,7 +16,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
   untrack,
 } from 'solid-js';
 import { connectCustomSimulation } from './custom-simulation-session';
@@ -41,15 +43,7 @@ export function useCustomSimulation(
   const [attempt, setAttempt] = createSignal(0);
   let connection: ReturnType<typeof connectCustomSimulation> | null = null;
   const key = useSimulationKey(current, myId);
-  createEffect(() => {
-    attempt();
-    const room = entry()?.room;
-    const id = key();
-    setPosition(null);
-    setError(false);
-    setSteering({});
-    setElsewhere(false);
-    if (room === undefined || id === '') return;
+  const connect = (room: SpaceOpenRoomEntry['room']): (() => void) => {
     const next = connectCustomSimulation({
       room,
       game: untrack(current)!,
@@ -71,32 +65,31 @@ export function useCustomSimulation(
       },
     });
     connection = next;
-    onCleanup(() => {
+    return () => {
       next.dispose();
       if (connection === next) connection = null;
-    });
-  });
+    };
+  };
+  createEffect(
+    () => ({ attempt: attempt(), room: entry()?.room, id: key() }),
+    (now) => {
+      setPosition(null);
+      setError(false);
+      setSteering({});
+      setElsewhere(false);
+      if (now.room === undefined || now.id === '') return;
+      return connect(now.room);
+    }
+  );
   const sides = useSteeredSides(current, myId, allowed, {
     steering,
     elsewhere,
     clientId: () => entry()?.clientId,
   });
-  const controls = createMemo<GameSimulationControls>(() => {
-    const claim = connection?.claim;
-    // Handlers keep the sides these controls offer: a board releasing its
-    // input while it is disposed must not read (and so rerun) the tree.
-    const here = sides.here();
-    return {
-      paused: paused(),
-      stale: stale(),
-      sides: here,
-      elsewhere: sides.elsewhere(),
-      ...(claim === undefined || elsewhere() ? {} : { claim }),
-      onInput: (side, input) => {
-        if (here.includes(side)) connection?.replica.control(side, input);
-      },
-      onRelease: () => connection?.replica.release(),
-    };
+  const controls = useSimulationControls(() => connection, sides, {
+    paused,
+    stale,
+    elsewhere,
   });
   return {
     position,
@@ -111,6 +104,35 @@ export function useCustomSimulation(
 }
 
 type Steering = Readonly<Record<string, string>>;
+
+/** What the board may do with the running execution, on this device. */
+function useSimulationControls(
+  connection: () => ReturnType<typeof connectCustomSimulation> | null,
+  sides: ReturnType<typeof useSteeredSides>,
+  state: {
+    readonly paused: Accessor<boolean>;
+    readonly stale: Accessor<boolean>;
+    readonly elsewhere: Accessor<boolean>;
+  }
+): Accessor<GameSimulationControls> {
+  return createMemo<GameSimulationControls>(() => {
+    const claim = connection()?.claim;
+    // Handlers keep the sides these controls offer: a board releasing its
+    // input while it is disposed must not read (and so rerun) the tree.
+    const here = sides.here();
+    return {
+      paused: state.paused(),
+      stale: state.stale(),
+      sides: here,
+      elsewhere: sides.elsewhere(),
+      ...(claim === undefined || state.elsewhere() ? {} : { claim }),
+      onInput: (side, input) => {
+        if (here.includes(side)) connection()?.replica.control(side, input);
+      },
+      onRelease: () => connection()?.replica.release(),
+    };
+  });
+}
 
 /** Which live execution the screen shows: '' while none runs. */
 function useSimulationKey(

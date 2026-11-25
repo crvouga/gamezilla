@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { directionClass, flexContainerClass, spaced } from '../layout-classes';
 import type { Align, Direction, Justify, RegionRole } from '../layout-props';
 import type { Responsive } from '../responsive';
@@ -88,7 +88,11 @@ export function Layer(props: LayerProps): JSX.Element {
       data-inset={props.inset}
       role={props.role}
       aria-label={props['aria-label']}
-      aria-hidden={props['aria-hidden']}
+      aria-hidden={
+        props['aria-hidden'] === undefined
+          ? undefined
+          : `${props['aria-hidden']}`
+      }
     >
       {props.children}
     </div>

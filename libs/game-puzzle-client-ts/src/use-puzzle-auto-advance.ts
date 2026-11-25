@@ -17,9 +17,6 @@ export function usePuzzleAutoAdvance(args: {
 }): void {
   const timers = useTimers();
   const [config] = usePuzzleFeedConfig();
-  const prevRef: { current: PuzzlePlayStatus | 'loading' | null } = {
-    current: null,
-  };
   let pending: ReturnType<typeof timers.setTimeout> | null = null;
   const cancel = (): void => {
     if (pending === null) return;
@@ -28,21 +25,25 @@ export function usePuzzleAutoAdvance(args: {
   };
   onCleanup(cancel);
 
-  createEffect(() => {
-    const status = args.status();
-    const prev = prevRef.current;
-    prevRef.current = status;
-    if (status !== PUZZLE_PLAY_STATUS.solved) {
+  createEffect(
+    () => ({
+      status: args.status(),
+      canDrive: args.canDrive(),
+      delayMs: puzzleAutoAdvanceDelayMs(config().autoAdvance),
+    }),
+    (now, before) => {
+      if (now.status !== PUZZLE_PLAY_STATUS.solved) {
+        cancel();
+        return;
+      }
+      if (before?.status !== PUZZLE_PLAY_STATUS.solving || !now.canDrive)
+        return;
+      if (now.delayMs === null) return;
       cancel();
-      return;
+      pending = timers.setTimeout(() => {
+        pending = null;
+        args.onNext();
+      }, now.delayMs);
     }
-    if (prev !== PUZZLE_PLAY_STATUS.solving || !args.canDrive()) return;
-    const delayMs = puzzleAutoAdvanceDelayMs(config().autoAdvance);
-    if (delayMs === null) return;
-    cancel();
-    pending = timers.setTimeout(() => {
-      pending = null;
-      args.onNext();
-    }, delayMs);
-  });
+  );
 }

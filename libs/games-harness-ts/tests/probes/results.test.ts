@@ -47,7 +47,7 @@ test('a game whose ending move loses for its mover keeps every law', () => {
 const SYSTEM = gameSystem('misere-tally', [MISERE_TALLY_GAME]);
 
 test('a custom game credits the side the rules name, not the side that moved last', async () => {
-  await using s = await openGameHarness(SYSTEM, 'misere-tally-probe');
+  await using s = await openGameHarness(SYSTEM);
   const victory = MISERE_TALLY_GAME.fixtures.firstSideVictory;
   await s.apply(establishCustomGame, 'misere-tally', {
     moves: victory.slice(0, -1),

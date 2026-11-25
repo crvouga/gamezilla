@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Solid root for one harness actor: the product `App` in embedded mode (memory
  * router, no document shortcuts) so many actors share one document, with the
  * actor's web browser drawn over it while a page is open.
  *
- * The `MemoryHistory` is created once per actor and owned by the caller,
+ * The memory history is created once per actor and owned by the caller,
  * outside the component: the multi-actor session unmounts a parked actor's
  * tree and remounts it on focus, and the route must survive that round trip.
  * It is also how the actor opens a link (`HarnessActor.openLink`).
@@ -16,8 +16,9 @@ import type {
 } from '@libs/app-root-client-ts/create-client';
 import { KeyboardShortcutScope } from '@pkgs/ui-root-client-ts/keyboard-shortcut-scope';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
-import type { MemoryHistory } from '@solidjs/router';
-import type { Component, JSX } from 'solid-js';
+import type { MemoryHistoryAdapter } from '@solidjs/router';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 import type { HarnessBrowser } from './browser';
 
 import { HarnessBrowserSheet } from './browser-sheet';
@@ -44,7 +45,7 @@ export function harnessActorApp(args: {
 export function solidActorRoot(args: {
   readonly live: Client;
   readonly browser: HarnessBrowser;
-  readonly history: MemoryHistory;
+  readonly history: MemoryHistoryAdapter;
   readonly viewport: { width: number; height: number };
   readonly shortcutsActive: () => boolean;
 }): () => JSX.Element {

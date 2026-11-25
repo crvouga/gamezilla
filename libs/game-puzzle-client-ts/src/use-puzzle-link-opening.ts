@@ -22,8 +22,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  on,
-  onCleanup,
   untrack,
 } from 'solid-js';
 import { usePuzzleInteractions } from './puzzle-play-queries';
@@ -155,11 +153,11 @@ export function usePuzzleLinkOpening(
 
   // Latched: a later re-query must not open the link a second time.
   const localReady = createMemo<boolean>(
-    (was) => was || (hosted.ready() && attempts.ready()),
-    false
+    (was) => was === true || (hosted.ready() && attempts.ready())
   );
   createEffect(
-    on([puzzleId, localReady, tries], ([id, ready]) => {
+    () => [puzzleId(), localReady(), tries()] as const,
+    ([id, ready]) => {
       if (id.length === 0) {
         setOpening({ kind: 'unavailable' });
         return;
@@ -167,16 +165,18 @@ export function usePuzzleLinkOpening(
       if (!ready) return;
       let live = true;
       const held: { unsubscribe: () => void }[] = [];
-      onCleanup(() => {
+      void untrack(() =>
+        open(
+          id,
+          () => live,
+          (handle) => held.push(handle)
+        )
+      );
+      return () => {
         live = false;
         for (const handle of held) handle.unsubscribe();
-      });
-      void open(
-        id,
-        () => live,
-        (handle) => held.push(handle)
-      );
-    })
+      };
+    }
   );
   return { opening, retry: () => setTries((count) => count + 1) };
 }

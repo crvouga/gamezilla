@@ -1,20 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssGap, cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { BUTTON_SIZES, type ButtonSize } from '../button-parts/index';
 import type { IconComponent } from '../create-icon/index';
@@ -23,6 +16,7 @@ import type { StateBlockVariant } from '../state-block/index';
 import { StateBlock, StateBlockIcon } from '../state-block/index';
 
 export type ErrorStateRetry = {
+  agentConfirm?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
   label?: JSX.Element | undefined;
   onClick: () => void;
@@ -95,10 +89,10 @@ function ErrorCopyButton(props: {
   const { t } = useLingui();
   const timers = useTimers();
   const [copied, setCopied] = createSignal(false);
-  createEffect(() => {
-    if (!copied()) return;
+  createEffect(copied, (isCopied) => {
+    if (!isCopied) return undefined;
     const id = timers.setTimeout(() => setCopied(false), ERROR_COPIED_RESET_MS);
-    onCleanup(() => timers.clearTimeout(id));
+    return () => timers.clearTimeout(id);
   });
   const onCopy = async (): Promise<void> => {
     try {
@@ -140,13 +134,15 @@ function ErrorActionRow(props: {
 }): JSX.Element {
   return (
     <div
-      class="box flex-row flex-wrap items-center gap-2"
-      classList={{
-        'justify-center': props.align === 'center',
-        'justify-start': props.align === 'start',
-        'mt-2': props.flush !== true && props.align === 'center',
-        'mt-1': props.flush !== true && props.align === 'start',
-      }}
+      class={[
+        'box flex-row flex-wrap items-center gap-2',
+        {
+          'justify-center': props.align === 'center',
+          'justify-start': props.align === 'start',
+          'mt-2': props.flush !== true && props.align === 'center',
+          'mt-1': props.flush !== true && props.align === 'start',
+        },
+      ]}
     >
       {props.children}
     </div>
@@ -154,6 +150,7 @@ function ErrorActionRow(props: {
 }
 
 function PrimaryRecovery(props: {
+  agentConfirm?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
   label: JSX.Element;
   onClick: () => void;
@@ -162,6 +159,7 @@ function PrimaryRecovery(props: {
   return (
     <Button
       dataSet={props.dataSet}
+      agentConfirm={props.agentConfirm}
       title={props.label}
       intent="primary"
       size={props.size}
@@ -206,6 +204,7 @@ function SpecifiedErrorActions(props: ErrorActionProps): JSX.Element {
         <Show when={props.retry?.label !== undefined}>
           <PrimaryRecovery
             dataSet={props.retry?.dataSet}
+            agentConfirm={props.retry?.agentConfirm}
             label={props.retry?.label ?? ''}
             onClick={() => props.retry?.onClick()}
             size={props.size}
@@ -238,6 +237,7 @@ function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
           {(retry) => (
             <PrimaryRecovery
               dataSet={retry().dataSet}
+              agentConfirm={retry().agentConfirm}
               label={retry().label ?? t`Retry`}
               onClick={() => retry().onClick()}
               size={props.size}
@@ -304,6 +304,7 @@ function ErrorStateFill(props: ErrorStateProps): JSX.Element {
 }
 
 function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
+  const StateIcon = dynamic(() => props.icon ?? XIcon);
   return (
     <div
       class="box flex-row items-start gap-3 px-4 py-3 bg-destructive-surface rounded-control"
@@ -311,11 +312,7 @@ function ErrorStateCompact(props: ErrorStateProps): JSX.Element {
       role="alert"
     >
       <div class="box h-6 shrink-0 justify-center">
-        <Dynamic
-          component={props.icon ?? XIcon}
-          size={iconSize.md}
-          color="destructive"
-        />
+        <StateIcon size={iconSize.md} color="destructive" />
       </div>
       <div class="box flex-1 min-w-0 gap-1">
         <p class="text textBodyBold text-destructive">{props.title}</p>
@@ -379,6 +376,7 @@ function ErrorStateBand(props: ErrorStateProps): JSX.Element {
 }
 
 function BandMessage(props: ErrorStateProps): JSX.Element {
+  const StateIcon = dynamic(() => props.icon ?? XIcon);
   return (
     <div
       class="box w-full min-h-0 items-center gap-2 overflow-hidden"
@@ -390,11 +388,7 @@ function BandMessage(props: ErrorStateProps): JSX.Element {
         overflow: 'hidden',
       }}
     >
-      <Dynamic
-        component={props.icon ?? XIcon}
-        size={iconSize.md}
-        color="destructive"
-      />
+      <StateIcon size={iconSize.md} color="destructive" />
       <p class="text textBodyBold text-center line-clamp-2 w-full">
         {props.title}
       </p>

@@ -1,9 +1,10 @@
 import type { PuzzleGameLogEntry } from '@libs/game-puzzle-shared-ts/stats';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ListChecksIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import { PuzzleGameLogRow } from './puzzle-game-log-row';
 
 export type PuzzleGameLogProps = {

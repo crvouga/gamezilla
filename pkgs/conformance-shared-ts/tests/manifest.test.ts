@@ -23,8 +23,6 @@ product:
 conformance:
   behavior: required
   decisions: required
-  dynamics: required
-  structure: required
   objectives: required
   accessibility: required
 environments:
@@ -133,13 +131,13 @@ release gates: [lint]
     const found = issues(
       manifestText((m) => {
         const conformance = section(m, 'conformance');
-        conformance['structure'] = 'optional';
+        conformance['decisions'] = 'optional';
         delete conformance['objectives'];
         conformance['grammar'] = 'required';
       })
     );
     expect(found).toContain(
-      'conformance.structure: must be "required", not "optional"'
+      'conformance.decisions: must be "required", not "optional"'
     );
     expect(found).toContain('conformance.objectives: is missing');
     expect(

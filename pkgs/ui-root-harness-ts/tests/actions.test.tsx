@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
@@ -88,6 +88,26 @@ describe('SegmentedControl', () => {
 });
 
 describe('NumberStepper', () => {
+  test('Numberlink board-size controls point at their own dimension', () => {
+    // regression: number-stepper-controls-missing-value
+    const props = { value: 5, min: 2, max: 20, onChange: mock() };
+    renderUi(() => (
+      <>
+        <NumberStepper {...props} label="Columns" />
+        <NumberStepper {...props} label="Rows" />
+      </>
+    ));
+    for (const dimension of ['Columns', 'Rows']) {
+      const spin = screen.getByRole('spinbutton', { name: dimension });
+      expect(spin.id).not.toBe('');
+      expect(document.getElementById(spin.id) === spin).toBe(true);
+      for (const action of ['Increase', 'Decrease'])
+        expect(
+          screen.getByRole('button', { name: `${action} ${dimension}` })
+        ).toHaveAttribute('aria-controls', spin.id);
+    }
+  });
+
   test('spinbutton aria + increment/decrement clamp', () => {
     renderUi(() => {
       const [v, setV] = createSignal(9);

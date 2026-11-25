@@ -14,7 +14,7 @@ import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
 import type { GameModeOption } from '@libs/spaces-shared-ts/game';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import {
   useLocalSearchParams,
@@ -22,9 +22,8 @@ import {
 } from '@pkgs/ui-root-client-ts/app-router';
 import { FadeSwitch } from '@pkgs/ui-root-client-ts/fade-switch';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
-import { createEffect, createMemo, Show, untrack } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createEffect, createMemo, Show } from 'solid-js';
 import type { GameClient } from './game-client';
 import { GameHomeScreenView } from './game-home-screen-view';
 import { gameChoices, type Offers, sharedScreens } from './game-menu-choices';
@@ -42,12 +41,14 @@ function GameChoices(props: {
   const { t } = useLingui();
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
   const choices = createMemo(() =>
-    gameChoices(props.game, props.offers).map((choice) => ({
-      screen: choice.screen,
-      title: <Dynamic component={choice.title} />,
-      caption: <Dynamic component={choice.caption} />,
-    }))
+    gameChoices(props.game, props.offers).map((choice) => {
+      const Title = choice.title;
+      const Caption = choice.caption;
+      return { screen: choice.screen, title: <Title />, caption: <Caption /> };
+    })
   );
+  const Subtitle = dynamic(() => props.game.subtitle);
+  const Instructions = dynamic(() => props.game.instructions);
   return (
     <>
       {/* Back names where it goes: the space's list of games, or the menu. */}
@@ -60,11 +61,9 @@ function GameChoices(props: {
       <GameHomeScreenView
         title={props.game.title}
         tile={props.game.tile}
-        subtitle={<Dynamic component={props.game.subtitle} />}
+        subtitle={<Subtitle />}
         instructions={
-          props.game.instructions === undefined ? undefined : (
-            <Dynamic component={props.game.instructions} />
-          )
+          props.game.instructions === undefined ? undefined : <Instructions />
         }
         choices={choices()}
         onChoose={(screen) => props.navigation.show(screen)}
@@ -91,17 +90,29 @@ function useOpenLinkedMultiplayer(
 ): void {
   const params = useLocalSearchParams<{ multiplayer?: string | undefined }>();
   const router = useRouter();
-  const { spaceId } = useSpaceSessionUi();
-  const isHost = useSpaceCan(spaceId, PERMISSION.spacesSelectGame);
+  const session = useSpaceSessionUi();
+  const isHost = useSpaceCan(
+    () => session.spaceId,
+    PERMISSION.spacesSelectGame
+  );
   let opened = false;
-  createEffect(() => {
-    if (params()[LINKED_MULTIPLAYER_PARAM] === undefined) return;
-    if (!offered() || !isHost() || opened) return;
-    opened = true;
-    if (untrack(navigation.screen) !== SHARED_GAME_SCREEN.matchmakingHome)
-      navigation.show(SHARED_GAME_SCREEN.matchmakingHome);
-    router.replace(spaceDetailHref(spaceId));
-  });
+  createEffect(
+    () => ({
+      linked:
+        params()[LINKED_MULTIPLAYER_PARAM] !== undefined &&
+        offered() &&
+        isHost(),
+      spaceId: session.spaceId,
+      screen: navigation.screen(),
+    }),
+    ({ linked, spaceId, screen }) => {
+      if (!linked || opened) return;
+      opened = true;
+      if (screen !== SHARED_GAME_SCREEN.matchmakingHome)
+        navigation.show(SHARED_GAME_SCREEN.matchmakingHome);
+      router.replace(spaceDetailHref(spaceId));
+    }
+  );
 }
 
 /**
@@ -160,7 +171,7 @@ export function GameMenu(props: {
       onChooseMode={props.onChooseMode}
     />
   );
-  const shown = createMemo(() => screens().get(navigation.screen()) ?? choices);
+  const Shown = dynamic(() => screens().get(navigation.screen()) ?? choices);
   return (
     <GameFrame game={props.game}>
       <CustomGameSeatsNote />
@@ -170,7 +181,7 @@ export function GameMenu(props: {
         {/* A Back from a screen the choices open names them by the game. */}
         <GameChoicesName name={props.game.title}>
           <FadeSwitch stateKey={navigation.screen()}>
-            <Dynamic component={shown()} />
+            <Shown />
           </FadeSwitch>
         </GameChoicesName>
       </StackVertical>

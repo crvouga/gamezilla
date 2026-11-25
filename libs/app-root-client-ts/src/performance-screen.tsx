@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more/performance` — toggles the perf HUD top banner (`PerfRoot`) and
  * shows the live sampler metrics while it is on.
  */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { usePerfHudPreference } from './perf-hud-preference';
 import { createPerfSnapshot } from './perf-sampler-context';
 import { PerformanceSettingsScreenView } from './performance-screen-view';

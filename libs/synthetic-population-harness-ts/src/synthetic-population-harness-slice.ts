@@ -6,6 +6,7 @@ import { syntheticPopulationSignInMail } from '@libs/synthetic-population-server
 import { SYNTHETIC_POPULATION_SERVER } from '@libs/synthetic-population-server-ts/sub-server';
 import { SYNTHETIC_POPULATION_SUB } from '@libs/synthetic-population-shared-ts/sub';
 import { retireEarlierPopulation } from './population-baseline';
+import { workerNow } from './worker-clock';
 
 export const SYNTHETIC_POPULATION_HARNESS_SLICE: HarnessSlice = {
   name: 'synthetic-population',
@@ -13,7 +14,14 @@ export const SYNTHETIC_POPULATION_HARNESS_SLICE: HarnessSlice = {
   client: createSyntheticPopulationClient({
     games: HARNESS_GAMES.map((game) => game.client),
   }),
-  server: () => SYNTHETIC_POPULATION_SERVER,
+  server: () => ({
+    ...SYNTHETIC_POPULATION_SERVER,
+    routes: (ctx) =>
+      SYNTHETIC_POPULATION_SERVER.routes!({
+        ...ctx,
+        clock: { now: () => workerNow(ctx.clock) },
+      }),
+  }),
   // A scenario sees exactly the Synthetic Population it builds, also on a
   // stack an earlier scenario already populated.
   beforeScenario: (s) =>

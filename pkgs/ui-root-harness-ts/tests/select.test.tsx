@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';
@@ -14,8 +14,9 @@ import {
 } from '@pkgs/ui-root-shared-ts/select-logic';
 import type { SelectOption } from '@pkgs/ui-root-shared-ts/select-types';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import { createSignal, type JSX } from 'solid-js';
+import { createSignal } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const FRUIT: SelectOption[] = [
@@ -112,6 +113,36 @@ describe('PickerSection', () => {
 });
 
 describe('Select', () => {
+  test('the ship picker opens after the mouse press completes on a phone', () => {
+    // regression: battleship-picker-scrim-intercepts-click
+    const [ship, chooseShip] = createSignal('carrier');
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <Select
+            label="Ship to place"
+            value={ship()}
+            onValueChange={chooseShip}
+            options={[
+              { value: 'carrier', label: 'Carrier' },
+              { value: 'destroyer', label: 'Destroyer' },
+            ]}
+          />
+        </SurfaceStackProvider>
+      ),
+      { width: 390, height: 757 }
+    );
+    const trigger = screen.getByRole('button', { name: 'Ship to place' });
+    fireEvent.pointerDown(trigger, { button: 0, pointerType: 'mouse' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.pointerUp(trigger, { button: 0, pointerType: 'mouse' });
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(screen.getByRole('option', { name: 'Destroyer' }));
+    expect(trigger).toHaveTextContent('Destroyer');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
   test('trigger shows the selected label and listbox popup semantics', () => {
     renderUi(() => <Harness />);
     const trigger = screen.getByRole('button', { name: 'Fruit' });

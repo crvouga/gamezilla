@@ -1,12 +1,13 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,

@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type {
   ComboboxOption,
   ComboboxValue,
 } from '@pkgs/ui-root-shared-ts/combobox-types';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { Chip } from '../chip/index';
 
 export type ComboboxChipsProps<T extends ComboboxValue> = {

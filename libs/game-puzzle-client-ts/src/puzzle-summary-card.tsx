@@ -1,8 +1,9 @@
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { PuzzleRatingDelta } from './puzzle-rating-delta';
 
 function SummaryMeta(props: { completion: PuzzleCompletion }): JSX.Element {

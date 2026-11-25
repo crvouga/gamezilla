@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Pointer input, one event at a time, and what each event costs in DOM
  * writes. The hot paths — hovering and dragging — must stay out of the

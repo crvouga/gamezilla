@@ -14,7 +14,7 @@ import {
   isDailyTimeControl,
   timeControlOf,
 } from '@libs/game-matchmaking-shared-ts/time-control';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -26,7 +26,8 @@ import type {
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { MultiplayerViewer } from './multiplayer-seat';
 import { timeLeftWords } from './multiplayer-time-left';
 import { timeControlText } from './time-control-name';

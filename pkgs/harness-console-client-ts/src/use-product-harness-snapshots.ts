@@ -14,11 +14,11 @@ export function useProductHarnessSnapshots(
   const [busy, setBusy] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
 
-  const refresh = async () => {
+  const load = async (current: ProductHarnessSession) => {
     try {
-      const list = await session().listSnapshots();
+      const list = await current.listSnapshots();
       setSnaps(list);
-      await session().refreshSnapshotPaletteCommands();
+      await current.refreshSnapshotPaletteCommands();
       setError(null);
       return list;
     } catch (err) {
@@ -27,9 +27,10 @@ export function useProductHarnessSnapshots(
     }
   };
 
-  createEffect(() => {
-    session();
-    void refresh();
+  const refresh = () => load(session());
+
+  createEffect(session, (current) => {
+    void load(current);
   });
 
   const run = async <T>(op: () => Promise<T>): Promise<T> => {

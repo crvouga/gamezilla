@@ -1,0 +1,4 @@
+{
+  "summary": "Leaving the avatar editor immediately after Saved could ask to discard the avatar because the profile query still held the previous seed while the local write had already committed.",
+  "regressionTest": "libs/profile-client-ts/tests/avatar-draft.test.ts"
+}

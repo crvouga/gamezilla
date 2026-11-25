@@ -3,8 +3,8 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { SESSION_EXTERNAL_USER_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSecureStorageItemOptional } from '@pkgs/secure-storage-root-client-ts/solid';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
-import type { JSX, ParentProps } from 'solid-js';
-import { createEffect } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, type ParentProps } from 'solid-js';
 
 import { ProfileEnsurer } from './ensure-profile';
 
@@ -21,18 +21,19 @@ function ProfileEntityBootstrap(): JSX.Element {
   const mutationClient = useMutationClient();
   const authClient = useAuthClientPort();
 
-  createEffect(() => {
-    const id = myId();
-    if (id.length === 0) return;
+  createEffect(
     // The bridge writes the provider identity only after the account is ready.
     // An earlier anonymous bootstrap must leave the signup handoff pending.
-    const externalId = externalUserItem.value();
-    void new ProfileEnsurer(mutationClient, authClient)
-      .ensure(typeof externalId === 'string' ? externalId : null)
-      .catch(() => {
-        // Best-effort: re-asserted on the next identity change.
-      });
-  });
+    () => ({ id: myId(), externalId: externalUserItem.value() }),
+    ({ id, externalId }) => {
+      if (id.length === 0) return;
+      void new ProfileEnsurer(mutationClient, authClient)
+        .ensure(typeof externalId === 'string' ? externalId : null)
+        .catch(() => {
+          // Best-effort: re-asserted on the next identity change.
+        });
+    }
+  );
 
   return null;
 }

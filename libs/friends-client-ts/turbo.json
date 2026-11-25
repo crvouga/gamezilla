@@ -30,13 +30,6 @@
         "$TURBO_ROOT$/specs/spaces/**"
       ]
     },
-    "verify:models": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/friends/*.qnt",
-        "$TURBO_ROOT$/specs/spaces/*.qnt"
-      ]
-    },
     "test:spec:4": {
       "inputs": [
         "$TURBO_EXTENDS$",
@@ -477,6 +470,7 @@
         "@libs/test-ids-shared-ts#src",
         "@libs/user-search-shared-ts#src",
         "@pkgs/http-client-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/sounds-client-ts#src",
         "@pkgs/sounds-shared-ts#src",
         "@pkgs/sql-root-shared-ts#src",

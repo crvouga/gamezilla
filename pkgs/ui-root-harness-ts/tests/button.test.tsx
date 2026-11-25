@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { BackIconButton } from '@pkgs/ui-root-client-ts/back-icon-button';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CloseIconButton } from '@pkgs/ui-root-client-ts/close-icon-button';
@@ -21,8 +21,8 @@ import type { OverflowMenuRenderProps } from '@pkgs/ui-root-client-ts/overflow-m
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import type { JSX } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 // regression: ui-translated-icon-label-unnamed

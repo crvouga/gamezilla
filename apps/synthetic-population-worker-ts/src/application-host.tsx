@@ -10,7 +10,7 @@ import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transpo
 import { globalHttpFetch } from '@pkgs/http-client-shared-ts/global';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
-import { createMemoryHistory } from '@solidjs/router';
+import { memoryHistory } from '@solidjs/router';
 import { type RecordingInput, recordedUi } from './recorded-ui';
 
 export async function createApplicationHost(
@@ -47,7 +47,7 @@ export async function createApplicationHost(
     loadApp: async () => APP,
     offlineController: offline,
   });
-  const history = createMemoryHistory();
+  const history = memoryHistory();
   const raw = createSolidDomDriver({
     clock: env.clock,
     document,

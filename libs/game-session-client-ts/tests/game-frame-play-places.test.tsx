@@ -4,6 +4,7 @@ import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
 import type { StageOverlayEvent } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup, fireEvent, screen, within } from '@solidjs/testing-library';
+import { untrack } from 'solid-js';
 import {
   frameProps,
   mountFrame,
@@ -319,8 +320,9 @@ describe('the play place', () => {
     const Seated = () => {
       const lend = useGameTableSeat();
       const player = lend?.('black');
-      expect(player?.name).toBe('jordan');
-      expect(lend?.('blue').name).toBeNull();
+      // A seat's name follows the table; the test looks once, as it mounts.
+      expect(untrack(() => player?.name)).toBe('jordan');
+      expect(untrack(() => lend?.('blue').name)).toBeNull();
       return <>{player?.content}</>;
     };
     mountFrame(() => ({

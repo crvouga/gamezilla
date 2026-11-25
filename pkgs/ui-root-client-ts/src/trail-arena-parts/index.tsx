@@ -1,4 +1,5 @@
-import { createMemo, For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Match, Show, Switch } from 'solid-js';
 import styles from '../trail-arena/trail-arena.module.css';
 import { headingRotation, type TrailShape } from '../trail-arena-geometry';
 import type {
@@ -125,15 +126,15 @@ export function RiderHead(props: {
       data-y={props.rider.y}
       data-heading={props.rider.heading}
       data-next={props.rider.next ?? props.rider.heading}
-      data-alive={props.rider.alive}
-      data-controlled={props.rider.controlled}
+      data-alive={String(props.rider.alive)}
+      data-controlled={String(props.rider.controlSlot !== null)}
       data-mark={props.rider.mark}
       data-trail-count={props.trailCount}
       data-scale={props.scale ?? 1}
       transform={`translate(${props.rider.x + 0.5} ${props.rider.y + 0.5}) scale(${props.scale ?? 1})`}
     >
       <title>{props.rider.label}</title>
-      <Show when={props.rider.controlled}>
+      <Show when={props.rider.controlSlot !== null}>
         <circle class={styles['ring']} r="1.45" />
       </Show>
       <path
@@ -210,7 +211,7 @@ export function ArenaOverlay(props: {
       role="status"
       aria-live="polite"
       data-testid={`${props.testId}-overlay`}
-      data-open={props.overlay !== undefined}
+      data-open={String(props.overlay !== undefined)}
     >
       <Show when={props.overlay}>
         {(overlay) => (

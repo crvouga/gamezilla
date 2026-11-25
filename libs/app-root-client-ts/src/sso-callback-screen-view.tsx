@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * `/sso-callback`, presentational: the one state a person sees while a hosted

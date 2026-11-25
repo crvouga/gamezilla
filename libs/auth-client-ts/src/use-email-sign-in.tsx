@@ -4,9 +4,9 @@
  * (`.tsx` so the Lingui macro is compiled by the Solid/Babel pipeline.)
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { type Accessor, createEffect, createSignal, on } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { useAuthClientPort } from './auth-client-provider';
 import { authFlowErrorMessage } from './auth-flow-messages';
 
@@ -29,11 +29,13 @@ export function useEmailSignIn(params: EmailSignInParams) {
   const [link, setLink] = createSignal('');
   const addressValid = () => /^\S+@\S+$/.test(address().trim());
   const request = useMutationButton({
-    labels: {
-      idle: t`Email me a link`,
-      loading: t`Sending…`,
-      success: t`Sent`,
-      error: t`Try again`,
+    get labels() {
+      return {
+        idle: t`Email me a link`,
+        loading: t`Sending…`,
+        success: t`Sent`,
+        error: t`Try again`,
+      };
     },
     get disabled() {
       return !addressValid();
@@ -60,11 +62,12 @@ export function useEmailSignIn(params: EmailSignInParams) {
     setStep('address');
   };
   createEffect(
-    on(params.visible, (visible) => {
+    () => params.visible(),
+    (visible) => {
       if (!visible) return;
       setAddress('');
       changeAddress();
-    })
+    }
   );
   const signIn = () => {
     const pasted = link().trim();

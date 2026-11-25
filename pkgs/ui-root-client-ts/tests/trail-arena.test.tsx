@@ -6,7 +6,8 @@ import {
   type TrailRider,
 } from '@pkgs/ui-root-client-ts/trail-arena';
 import { cleanup, fireEvent, render } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createAgent } from '@ui-sdk/solid/agent';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -17,7 +18,7 @@ const CELLS = ['000...', '0...1.', '......', '1.....'].join('');
 
 function rider(
   index: 0 | 1 | 2 | 3,
-  controlled: boolean,
+  controlSlot: 0 | 1 | null,
   alive = true
 ): TrailRider {
   return {
@@ -27,7 +28,7 @@ function rider(
     heading: index === 0 ? 'right' : 'left',
     alive,
     mark: 'CENV'.charAt(index),
-    controlled,
+    controlSlot,
     label: `Rider ${index}`,
   };
 }
@@ -61,7 +62,7 @@ function arena(options: {
 }
 
 test('riders, trails and crashes expose their state as data attributes', () => {
-  const view = arena({ riders: [rider(0, true), rider(1, false, false)] });
+  const view = arena({ riders: [rider(0, 0), rider(1, null, false)] });
   expect(view.element.dataset['component']).toBe('TrailArena');
   expect(view.element.dataset['testid']).toBe('arena');
   const first = view.getByTestId('arena-rider-0');
@@ -85,7 +86,7 @@ test('riders, trails and crashes expose their state as data attributes', () => {
 });
 
 test('the viewBox is fixed in cells and each rider has its own trail pattern', () => {
-  const view = arena({ riders: [rider(0, false)] });
+  const view = arena({ riders: [rider(0, null)] });
   const svg = view.getByTestId('arena-drawing');
   expect(svg.getAttribute('viewBox')).toBe('-1.5 -1.5 9 7');
   expect(svg.getAttribute('aria-hidden')).toBe('true');
@@ -100,7 +101,7 @@ test('the viewBox is fixed in cells and each rider has its own trail pattern', (
 });
 
 test('a single steered rider takes both arrows and WASD, and repeats are ignored', () => {
-  const view = arena({ riders: [rider(0, false), rider(1, true)] });
+  const view = arena({ riders: [rider(0, null), rider(1, 0)] });
   expect(view.element.tabIndex).toBe(0);
   const up = fireEvent.keyDown(view.element, { key: 'ArrowUp' });
   fireEvent.keyDown(view.element, { key: 'a' });
@@ -116,7 +117,7 @@ test('a single steered rider takes both arrows and WASD, and repeats are ignored
 });
 
 test('two riders on one keyboard: arrows steer slot 0 and WASD steers slot 1', () => {
-  const view = arena({ riders: [rider(0, true), rider(1, true)] });
+  const view = arena({ riders: [rider(0, 0), rider(1, 1)] });
   fireEvent.keyDown(view.element, { key: 'ArrowLeft' });
   fireEvent.keyDown(view.element, { key: 'W' });
   fireEvent.keyDown(view.element, { key: 'd' });
@@ -132,7 +133,7 @@ test('two riders on one keyboard: arrows steer slot 0 and WASD steers slot 1', (
 });
 
 test('a swipe steers the rider on its side once it travels far enough', () => {
-  const view = arena({ riders: [rider(0, true), rider(1, true)] });
+  const view = arena({ riders: [rider(0, 0), rider(1, 1)] });
   view.element.getBoundingClientRect = () => ({
     x: 0,
     y: 0,
@@ -190,8 +191,8 @@ test('a swipe steers the rider on its side once it travels far enough', () => {
 
 test('a watched or disabled arena cannot be focused, steered or capture scrolling', () => {
   for (const view of [
-    arena({ riders: [rider(0, false), rider(1, false)] }),
-    arena({ riders: [rider(0, true)], enabled: false }),
+    arena({ riders: [rider(0, null), rider(1, null)] }),
+    arena({ riders: [rider(0, 0)], enabled: false }),
   ]) {
     const handled = fireEvent.keyDown(view.element, { key: 'ArrowUp' });
     fireEvent.pointerDown(view.element, {
@@ -222,7 +223,7 @@ test('the arena is named and described, and the overlay is announced in place', 
       width={WIDTH}
       height={HEIGHT}
       cells={CELLS}
-      riders={[rider(0, true)]}
+      riders={[rider(0, 0)]}
       crashes={[]}
       overlay={overlay()}
       enabled={true}
@@ -237,8 +238,10 @@ test('the arena is named and described, and the overlay is announced in place', 
   const status = view.getByRole('status');
   expect(status.textContent).toBe('');
   setOverlay({ title: '3', detail: 'Round 2' });
+  flush();
   expect(status.textContent).toBe('3Round 2');
   setOverlay({ title: 'Comet wins the round' });
+  flush();
   expect(status.textContent).toBe('Comet wins the round');
   expect(view.getByTestId('arena-overlay').dataset['open']).toBe('true');
 });
@@ -247,7 +250,7 @@ test('the arena is named and described, and the overlay is announced in place', 
 test("a crash badge sits beside the crashed rider's letter, never over it", () => {
   for (const heads of ['regular', 'large'] as const) {
     const view = arena({
-      riders: [rider(0, true), rider(1, false, false)],
+      riders: [rider(0, 0), rider(1, null, false)],
       heads,
     });
     const centre = (testId: string) => {
@@ -275,4 +278,22 @@ test("a crash badge sits beside the crashed rider's letter, never over it", () =
     expect(clearance).toBeGreaterThan(0.65 * scale);
     view.unmount();
   }
+});
+
+test('the agent steers each living local rider by name even when its input slot comes first', async () => {
+  const view = arena({
+    riders: [rider(0, 1), rider(1, 0), rider(2, null), rider(3, null, false)],
+  });
+  const agent = createAgent();
+  const turn = (choice: string) =>
+    agent.act({
+      steps: [{ ref: 'Light cycles arena', action: 'steer', args: [choice] }],
+    });
+  expect((await turn('Rider 1 left')).error?.message).toBeUndefined();
+  expect((await turn('Rider 0 down')).error?.message).toBeUndefined();
+  expect((await turn('Rider 2 left')).error).toBeDefined();
+  expect(view.directions).toEqual([
+    ['left', 0],
+    ['down', 1],
+  ]);
 });

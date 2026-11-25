@@ -1,5 +1,6 @@
 import { SuggestionList } from '@pkgs/ui-root-client-ts/suggestion-list';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 
 import type { CompletionResult } from './sql-completion';
 

@@ -1,7 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Promotion picker stacked on the destination file. */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type {
   BoardOrientation,
@@ -10,10 +9,13 @@ import type {
   PieceColor,
   Square,
 } from '@pkgs/chess-board-core-shared-ts/types';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createEffect, For, type JSX, onMount, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { For, onSettled, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
 
@@ -73,7 +75,7 @@ function CancelChip(props: {
   readonly onCancel: () => void;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint items-center justify-center text textBodyBold w-full min-h-11"
       style={{
         'background-color': props.theme.promotion.cancel,
@@ -85,7 +87,7 @@ function CancelChip(props: {
       onClick={() => props.onCancel()}
     >
       <Trans>Cancel</Trans>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -98,13 +100,13 @@ function PromotionChoice(props: {
 }): JSX.Element {
   const { t } = useLingui();
   let button: HTMLButtonElement | undefined;
-  onMount(() => {
+  onSettled(() => {
     if (props.kind === 'q') button?.focus();
   });
   const name = () =>
     ({ q: t`Queen`, r: t`Rook`, b: t`Bishop`, n: t`Knight` })[props.kind];
   return (
-    <button
+    <SdkButton
       ref={button}
       class="clickable clickableTint flex-row items-center gap-2 px-2 w-full min-h-11"
       style={{
@@ -122,7 +124,7 @@ function PromotionChoice(props: {
         aria-hidden="true"
       />
       <span class="text textCaption text-board-card-ink">{name()}</span>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -144,7 +146,9 @@ function PromotionStack(props: {
   // A board taller than a short landscape view can open its choices below
   // the fold: reveal them at once, so every choice is visible on opening.
   const reveal = createScrollTarget();
-  createEffect(() => reveal.scrollIntoView({ behavior: 'instant' }));
+  onSettled(() => {
+    reveal.scrollIntoView({ behavior: 'instant' });
+  });
   return (
     <div
       class="box absolute flex-col max-h-full overflow-y-auto"
@@ -201,8 +205,10 @@ export function ChessBoardPromotion(
       // select a square or capture the pointer away from these buttons. The
       // board listens natively on its host, so these must be native too
       // (delegated handlers would run after the host's).
-      on:pointerdown={(e) => e.stopPropagation()}
-      on:contextmenu={(e) => e.preventDefault()}
+      ref={(el) => {
+        el.addEventListener('pointerdown', (e) => e.stopPropagation());
+        el.addEventListener('contextmenu', (e) => e.preventDefault());
+      }}
       onClick={() => props.onCancel()}
       onKeyDown={(e) => {
         e.stopPropagation();

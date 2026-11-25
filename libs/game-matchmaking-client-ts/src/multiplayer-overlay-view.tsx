@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   StageOverlay,
   StageOverlayEvent,
@@ -12,7 +12,8 @@ import {
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { MultiplayerStage } from './multiplayer-places';
 
 /**

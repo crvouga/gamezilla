@@ -1,6 +1,7 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { RemoveSpacePersonModal } from './remove-space-person-modal';
 import type { SpacePerson } from './space-person-view';
 import { SpaceShareAddPeople } from './space-share-add-people';
@@ -30,10 +31,10 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
     () => props.spaceId,
     PERMISSION.spacesManageMembers
   );
-  const { entries, isLoading } = useSpaceUserEntries(props.spaceId);
+  const { entries, isLoading } = useSpaceUserEntries(() => props.spaceId);
   const people = useSpacePeople(() => entries().map((e) => e.userId));
   const listedIds = createMemo(() => new Set(entries().map((e) => e.userId)));
-  const host = useSpaceHostMembershipDisplay(props.spaceId);
+  const host = useSpaceHostMembershipDisplay(() => props.spaceId);
   const [removing, setRemoving] = createSignal<SpacePerson | null>(null);
 
   return (

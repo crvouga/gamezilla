@@ -1,12 +1,13 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { GameLobbyScreen } from '@pkgs/ui-root-client-ts/game-lobby';
 import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, Show } from 'solid-js';
 import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import {
   FrameConnectionView,

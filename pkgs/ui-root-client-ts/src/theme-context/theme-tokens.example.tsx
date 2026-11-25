@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -16,7 +16,8 @@ import type {
   ElevationLevel,
 } from '@pkgs/ui-root-shared-ts/scale';
 import { borderRadius, spacing } from '@pkgs/ui-root-shared-ts/scale';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

@@ -14,7 +14,7 @@ import { openHarness } from './open-app-harness';
 
 // regression: settings-navigation-assumes-compact-back
 test('tablet settings keep preferences without a compact back button', async () => {
-  await using s = await openHarness('tablet-settings-navigation');
+  await using s = await openHarness();
   await s.apply(changeAvailableSpace, 'alice', 1180, 820);
   await s.apply(saveLayoutPreferences, 'alice');
   const before = await s.read(layoutPlaceAndPreferences, 'alice');

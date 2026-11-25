@@ -12,6 +12,7 @@ test('an immediate assignment completes the ordinary search without requiring a 
     (id) => id === 'multiplayer-game' && requests() === 1
   );
   const s = {
+    session: { scheduler: { virtual: true } },
     actors: new Map([['alice', { ui }]]),
   } as unknown as ProductHarness;
   await Promise.resolve(requestGameOpponent.act(s, 'alice', '2+1'));

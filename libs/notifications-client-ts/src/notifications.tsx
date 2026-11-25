@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { NotificationsScreen } from './notifications-screen';
 
 export default function NotificationsRoute(): JSX.Element {

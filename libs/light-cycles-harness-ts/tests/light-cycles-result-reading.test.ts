@@ -8,12 +8,13 @@ import {
 import {
   endCountdown,
   reachRoundCountdown,
+  winRound,
 } from '@libs/light-cycles-harness-ts/light-cycles-riding-actions';
 import { openHarness } from './open-light-cycles-harness';
 
 // regression: light-cycles-result-read-from-empty-overlay
 test('seed 1 reads Nova winning round three after Alice and Bob sit out', async () => {
-  await using s = await openHarness('light-cycles-result-reading', { seed: 1 });
+  await using s = await openHarness({ seed: 1 });
   await s.apply(establishLightCyclesGame, {
     count: 3,
     riders: { Comet: 'alice', Ember: 'bob', Nova: 'carol' },
@@ -31,4 +32,18 @@ test('seed 1 reads Nova winning round three after Alice and Bob sit out', async 
       shown.length === 1 && shown[0]!.startsWith('Nova wins the round.'),
   });
   expect(banners[0]).toStartWith('Nova wins the round.');
+}, 60_000);
+
+// regression: light-cycles-win-round-after-countdown
+test('Comet can win the first Duel round when the countdown has already ended', async () => {
+  await using s = await openHarness({ seed: 1 });
+  await s.apply(establishLightCyclesGame, {
+    count: 2,
+    riders: { Comet: 'alice', Ember: 'bob' },
+  });
+  await s.apply(endCountdown);
+  await s.apply(winRound, 'Comet', 1);
+  const arena = await s.read(arenaShown);
+  expect(arena).toMatchObject({ round: 1, phase: 'round-over' });
+  expect(arena.riders.find((rider) => rider.name === 'Comet')?.score).toBe(1);
 }, 60_000);

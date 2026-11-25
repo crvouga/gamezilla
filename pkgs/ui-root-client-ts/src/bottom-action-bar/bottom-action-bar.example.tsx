@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { BottomActionBar } from '@pkgs/ui-root-client-ts/bottom-action-bar';
 import type { BottomActionBarItem } from '@pkgs/ui-root-client-ts/bottom-action-bar-types';
@@ -9,7 +9,7 @@ import {
   SettingsIcon,
   ShareIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

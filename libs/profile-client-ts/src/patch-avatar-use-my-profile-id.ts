@@ -1,6 +1,5 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
-import type { Accessor } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 /**
  * Profile entity id for the current session: account id when signed in,

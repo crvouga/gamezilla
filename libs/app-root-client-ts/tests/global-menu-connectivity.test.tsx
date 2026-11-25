@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The account menu's Connectivity row as a listener hears it. */
 
 import { describe, expect, test } from 'bun:test';

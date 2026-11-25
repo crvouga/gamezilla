@@ -111,8 +111,8 @@ describe('development client startup', () => {
     const icons = source('pkgs/ui-root-client-ts/src/icons.ts');
 
     expect(main).not.toMatch(/['"][^'"\n]*harness[^'"\n]*['"]/);
-    expect(icons).not.toMatch(/from ['"]lucide-solid['"]/);
-    expect(icons).toContain("from 'lucide-solid/icons/activity'");
+    expect(icons).not.toMatch(/from ['"]lucide['"]/);
+    expect(icons).toContain("from 'lucide/dist/esm/icons/activity.mjs'");
   });
 
   test('keeps all-dialect and incubating barrels off the boot path', () => {

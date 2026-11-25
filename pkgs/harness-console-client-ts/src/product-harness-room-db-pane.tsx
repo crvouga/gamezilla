@@ -5,13 +5,12 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
+import { createLiveReading, subscribeWithPolling } from './live-reading';
+
+/** How often a node is read again without being told it changed. */
+const POLL_MS = 500;
 
 /**
  * Room state / event-log inspector (in-memory storage, not SQL).
@@ -21,18 +20,12 @@ export function ProductHarnessRoomDbPane(props: {
   readonly subscribe: (listener: () => void) => () => void;
 }) {
   const timers = useTimers();
-  const [snap, setSnap] = createSignal(props.room.inspect());
-
-  createEffect(() => {
-    const { room, subscribe } = props;
-    const refresh = () => setSnap(room.inspect());
-    refresh();
-    const unsub = subscribe(refresh);
-    const handle = timers.setInterval(refresh, 500);
-    onCleanup(() => {
-      unsub();
-      timers.clearInterval(handle);
-    });
+  const snap = createLiveReading(() => {
+    const room = props.room;
+    return {
+      read: () => room.inspect(),
+      subscribe: subscribeWithPolling(props.subscribe, timers, POLL_MS),
+    };
   });
 
   return (

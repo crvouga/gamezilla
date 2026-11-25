@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `mountApplication` -- how an app entry point puts its root component on
  * the page. It loads the design-system stylesheet and fonts, finds the mount element,
@@ -20,8 +20,8 @@
 
 import '../fonts';
 import '../application.css';
-import type { JSX } from 'solid-js';
-import { render } from 'solid-js/web';
+import type { JSX } from '@solidjs/web';
+import { renderApplication } from '../render-application';
 
 export type MountOptions = {
   /** `id` of the mount element in the host page. Default `root`. */
@@ -49,7 +49,7 @@ export function mountApplication(
     throw new Error(`mountApplication: no #${rootId} element on the page`);
   }
   host.replaceChildren();
-  const dispose = render(root, host);
+  const dispose = renderApplication(root, host);
   const onPageHide = options.onPageHide;
   if (onPageHide === undefined) return dispose;
   window.addEventListener('pagehide', onPageHide);

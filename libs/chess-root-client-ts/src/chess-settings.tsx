@@ -1,7 +1,7 @@
 import { chessCatalogueLoad } from '@libs/chess-puzzle-client-ts/chess-catalogue-load';
 import type { GameSettings } from '@libs/game-menu-client-ts/game-settings';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 
 /**
  * Chess's settings, as data the platform draws: the developer tools, which

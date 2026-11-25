@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
@@ -65,6 +65,7 @@ describe('MutationModal', () => {
     expect(screen.getByText('Everyone will leave.')).toBeInTheDocument();
     const submit = screen.getByTestId('submit');
     expect(submit).toHaveAttribute('data-intent', 'danger');
+    expect(submit).toHaveAttribute('data-agent-confirm', 'End space');
     expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
 
     fireEvent.click(submit);
@@ -129,7 +130,12 @@ describe('MutationModal', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
     expect(onClose).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByRole('button', { name: 'Retry now' }));
+    const retry = screen.getByRole('button', { name: 'Retry now' });
+    expect(retry).toHaveAttribute('data-agent-confirm', 'Save');
+    expect(screen.getByRole('button', { name: 'Cancel' })).not.toHaveAttribute(
+      'data-agent-confirm'
+    );
+    fireEvent.click(retry);
     expect(operation).toHaveBeenCalledTimes(2);
     expect(await screen.findByText('Renamed')).toBeInTheDocument();
   });

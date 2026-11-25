@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Passthrough bottom-sheet host: `open` gates children in place (no portal,
  * no backdrop, no focus trap). `supportsSheetPresentation: false` makes
@@ -10,7 +10,8 @@ import type {
   BottomSheetHost,
   BottomSheetHostSheetProps,
 } from '@pkgs/ui-root-shared-ts/bottom-sheet-host-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 function PassthroughSheet(props: BottomSheetHostSheetProps): JSX.Element {
   return <Show when={props.open}>{props.children}</Show>;

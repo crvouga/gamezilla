@@ -9,12 +9,11 @@ import type { PuzzleContent } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { createPuzzleContentCatalog } from '@pkgs/turn-game-shared-ts/puzzle-content-catalog';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
-  createEffect,
   createMemo,
   createSignal,
-  type JSX,
   Match,
   Show,
   Switch,
@@ -155,19 +154,17 @@ export function ContentExperience(props: {
       pages,
     })
   );
-  const [started, setStarted] = createSignal(false);
-  const fetching = () =>
-    !ready() && engine.status().online && engine.status().lastError === null;
-  createEffect(() => {
-    if (
+  const started = createMemo<boolean>(
+    (was) =>
+      was === true ||
       ready() ||
       content.library().documents.length > 0 ||
       play.library().attempts.length > 0 ||
       !engine.status().online ||
       engine.status().lastError !== null
-    )
-      setStarted(true);
-  });
+  );
+  const fetching = () =>
+    !ready() && engine.status().online && engine.status().lastError === null;
   const catalog = createMemo(() =>
     createPuzzleContentCatalog([
       { id: props.gameId, puzzleContent: props.content },
@@ -208,13 +205,14 @@ export function ContentExperience(props: {
             onPress={nav.back}
             atLibrary={nav.place().screen === 'library'}
           />
-          <ContentConnectionStatus loading={started() && fetching()} />
-          <Show
-            when={started() && !content.isLoading() && !play.isLoading()}
-            fallback={<LoadingState />}
-          >
-            <ContentScreen subject={nav.subject()} />
-          </Show>
+          <ContentConnectionStatus loading={started() && fetching()}>
+            <Show
+              when={started() && !content.isLoading() && !play.isLoading()}
+              fallback={<LoadingState />}
+            >
+              <ContentScreen subject={nav.subject()} />
+            </Show>
+          </ContentConnectionStatus>
         </ContentPlaceProvider>
       </ContentLibraryProvider>
     </ContentGameProvider>

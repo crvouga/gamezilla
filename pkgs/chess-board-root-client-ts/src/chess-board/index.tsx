@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useTheme } from '@pkgs/ui-root-client-ts/theme-context';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { createBoardController } from '../chess-board-controller';
 import { ChessBoardFrame } from '../chess-board-frame/index';
 import { ChessBoardView } from '../chess-board-view/index';

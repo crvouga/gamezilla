@@ -5,7 +5,8 @@ import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { Toolbar } from '@pkgs/ui-root-client-ts/toolbar';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 
 import type { SqlDialect } from './sql-dialect';
 

@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useLogger } from '@pkgs/logger-client-ts/solid';
-import { createEffect, createSignal, type JSX, on, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
 import { PwaUpdatePromptBannerView } from './pwa-update-prompt-view';
 import type { PwaUpdatePrompt } from './register-service-worker';
@@ -14,17 +15,15 @@ export function PwaUpdatePromptBanner(): JSX.Element {
   const log = useLogger('pwa');
   const { offline } = useOfflinePreference();
   const [prompt, setPrompt] = createSignal<PwaUpdatePrompt | null>(null);
-  let detach = (): void => undefined;
   createEffect(
-    on(offline, (closed) => {
-      detach();
-      detach = (): void => undefined;
+    () => offline(),
+    (closed) => {
       setPrompt(null);
       if (closed) {
         void unregisterServiceWorker();
         return;
       }
-      detach = registerServiceWorker({
+      return registerServiceWorker({
         networkAllowed: () => !offline(),
         onUpdateAvailable: (next) => setPrompt(() => next),
         onRegisterError: (error) =>
@@ -32,9 +31,8 @@ export function PwaUpdatePromptBanner(): JSX.Element {
             error: error instanceof Error ? error.message : String(error),
           }),
       });
-    })
+    }
   );
-  onCleanup(() => detach());
 
   return (
     <PwaUpdatePromptBannerView

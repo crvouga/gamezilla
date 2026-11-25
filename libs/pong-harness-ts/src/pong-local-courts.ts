@@ -1,7 +1,12 @@
-import { ensureActor, scenarioAction } from '@libs/harness-ts/actor-ui';
+import {
+  actorUi,
+  ensureActor,
+  scenarioAction,
+} from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { pongLocalView } from './pong-local-view';
-import { pongSharedView } from './pong-shared-view';
+import { pongPaddlePlace } from './pong-shared-view';
+import { PONG_BOARD } from './pong-view';
 
 export const prepareLocalPongViewer = scenarioAction({
   name: 'prepareLocalPongViewer',
@@ -18,14 +23,16 @@ export async function pongLocalCourts(s: ProductHarness) {
   const paddlePlace = new Map<string, string>();
   for (const person of ['alice', 'carol']) {
     const local = person === 'alice' ? alice : await pongLocalView(s, person);
-    const court = await pongSharedView(s, person);
+    const playing = local.localStage === 'playing';
     gameShown.set(person, local.gameShown);
-    controlledPaddles.set(person, new Set(court.controlledPaddles));
+    controlledPaddles.set(person, new Set(local.controlledPaddles));
     paddlePlace.set(
       person,
-      local.localStage === 'playing'
-        ? (court.paddlePlace.get('left') ?? 'not shown')
-        : 'not playing'
+      !playing
+        ? 'not playing'
+        : (await (await actorUi(s, person)).get(PONG_BOARD).isVisible())
+          ? await pongPaddlePlace(s, person, 'left', PONG_BOARD)
+          : 'not shown'
     );
   }
   return {

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { MultiplayerSeat } from '@libs/game-matchmaking-client-ts/multiplayer-seat';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import {
   frameFixture,
   MATCH,
@@ -43,6 +43,7 @@ test('matched seats retain wall counts and sunk-ship facts in the displayed posi
   expect(view.getByText('Patrol boat sunk')).toBeInTheDocument();
   expect(view.getByText('Out')).toBeInTheDocument();
   setPosition('fixture:review');
+  flush();
   expect(view.getByText('10')).toBeInTheDocument();
   expect(view.queryByText('Patrol boat sunk')).toBeNull();
   expect(view.queryByText('Out')).toBeNull();
@@ -76,6 +77,7 @@ test('seat statistics follow changing displayed values independently of board or
       expect(view.getByText('black walls')).toBeInTheDocument();
       expect(view.getByText(String(walls))).toBeInTheDocument();
       setPosition(String(walls + 1));
+      flush();
       expect(view.getByText(String(walls + 1))).toBeInTheDocument();
       view.unmount();
     })

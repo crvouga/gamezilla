@@ -5,7 +5,7 @@ import {
   sameCell,
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   CellGridBoard,
   type CellGridCell,
@@ -18,7 +18,8 @@ import { EditorWorkbench } from '@pkgs/ui-root-client-ts/editor-workbench';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { cellOf, squareLabel } from './sokoban-board-view';
 import { SokobanSizeControls } from './sokoban-size-controls';
 import {

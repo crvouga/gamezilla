@@ -5,7 +5,7 @@
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import { createRenderEffect, onCleanup } from 'solid-js';
+import { createRenderEffect, onCleanup, untrack } from 'solid-js';
 
 export type DataSetProps = {
   /**
@@ -15,22 +15,53 @@ export type DataSetProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
+const NO_DATA_SET = (): void => undefined;
+
+function attributesOf(
+  set: ComponentDataSet | undefined
+): ReadonlyMap<string, string> {
+  const attributes = new Map<string, string>();
+  if (set === undefined) return attributes;
+  for (const [key, value] of Object.entries(set)) {
+    attributes.set(`data-${key}`, value);
+  }
+  return attributes;
+}
+
 /**
- * Write `host.dataSet` onto `element`, following it as it changes. Call
- * from the host's `ref`. A host written without `dataSet` pays nothing.
+ * A `ref` callback that writes `host.dataSet` onto the host's element,
+ * following it as it changes. Call in the component body
+ * (`ref={bindDataSet(props)}`): a ref callback owns nothing, so the effect
+ * that follows the set is created here. A host written without `dataSet`
+ * pays nothing.
  */
-export function bindDataSet(element: HTMLElement, host: DataSetProps): void {
-  if (!('dataSet' in host)) return;
-  createRenderEffect(() => {
-    const set = host.dataSet;
-    if (set === undefined) return;
-    const names = Object.keys(set).map((key) => `data-${key}`);
-    for (const [index, value] of Object.values(set).entries()) {
-      const name = names[index];
-      if (name !== undefined) element.setAttribute(name, value);
+export function bindDataSet(
+  host: DataSetProps
+): (element: HTMLElement) => void {
+  // Whether a host was written with `dataSet` is its shape, read once.
+  if (!untrack(() => 'dataSet' in host)) return NO_DATA_SET;
+  let element: HTMLElement | undefined;
+  let wanted: ReadonlyMap<string, string> = new Map();
+  let written: ReadonlyMap<string, string> = new Map();
+  const sync = (): void => {
+    const target = element;
+    if (target === undefined) return;
+    for (const name of written.keys()) {
+      if (!wanted.has(name)) target.removeAttribute(name);
     }
-    onCleanup(() => {
-      for (const name of names) element.removeAttribute(name);
-    });
+    for (const [name, value] of wanted) target.setAttribute(name, value);
+    written = wanted;
+  };
+  createRenderEffect(() => {
+    wanted = attributesOf(host.dataSet);
+    return wanted;
+  }, sync);
+  onCleanup(() => {
+    wanted = new Map();
+    sync();
   });
+  return (target) => {
+    element = target;
+    sync();
+  };
 }

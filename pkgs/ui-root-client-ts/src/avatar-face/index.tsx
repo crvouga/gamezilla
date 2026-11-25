@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
-import { type JSX, Match, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { AvatarFallback, AvatarImage } from '@ui-sdk/solid/avatar';
+import { Match, Show, Switch } from 'solid-js';
 import styles from '../avatar/avatar.module.css';
 import type { IconComponent } from '../create-icon/index';
 import { BotIcon } from '../icons';
@@ -49,54 +50,49 @@ function glyphSize(size: number): number {
 export function AvatarFace(props: AvatarFaceProps): JSX.Element {
   const icon = (): IconComponent | undefined =>
     props.bot ? BotIcon : props.icon;
+  const Glyph = dynamic(icon);
+  const image = (): string | undefined => {
+    if (props.bot) return undefined;
+    return props.svg === undefined ? props.uri : svgToDataUri(props.svg);
+  };
   return (
-    <Switch fallback={<PersonPlaceholder fill={props.placeholderFill} />}>
-      <Match when={props.bot ? undefined : props.svg}>
-        {(svg) => (
-          <img
+    <>
+      <Show when={image()}>
+        {(src) => (
+          <AvatarImage
             class={styles['image']}
-            src={svgToDataUri(svg())}
+            src={src()}
             alt=""
             width={props.size}
             height={props.size}
-            draggable={false}
+            draggable={props.svg === undefined ? undefined : 'false'}
           />
         )}
-      </Match>
-      <Match when={props.bot ? undefined : props.uri}>
-        {(uri) => (
-          <img
-            class={styles['image']}
-            src={uri()}
-            alt=""
-            width={props.size}
-            height={props.size}
-          />
-        )}
-      </Match>
-      <Match when={props.bot ? undefined : props.initials}>
-        {(initials) => (
-          <span
-            class="text font-semibold"
-            aria-hidden="true"
-            style={{
-              color: props.color,
-              'font-size': `${Math.round(props.size * 0.4)}px`,
-            }}
-          >
-            {initials().slice(0, 2)}
-          </span>
-        )}
-      </Match>
-      <Match when={icon()}>
-        {(glyph) => (
-          <Dynamic
-            component={glyph()}
-            size={glyphSize(props.size)}
-            color={props.color}
-          />
-        )}
-      </Match>
-    </Switch>
+      </Show>
+      <AvatarFallback
+        class="box size-full items-center justify-center"
+        aria-hidden="true"
+      >
+        <Switch fallback={<PersonPlaceholder fill={props.placeholderFill} />}>
+          <Match when={props.bot ? undefined : props.initials}>
+            {(initials) => (
+              <span
+                class="text font-semibold"
+                aria-hidden="true"
+                style={{
+                  color: props.color,
+                  'font-size': `${Math.round(props.size * 0.4)}px`,
+                }}
+              >
+                {initials().slice(0, 2)}
+              </span>
+            )}
+          </Match>
+          <Match when={icon()}>
+            <Glyph size={glyphSize(props.size)} color={props.color} />
+          </Match>
+        </Switch>
+      </AvatarFallback>
+    </>
   );
 }

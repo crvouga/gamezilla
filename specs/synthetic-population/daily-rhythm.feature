@@ -9,6 +9,7 @@ Feature: Synthetic Users keep a daily rhythm
     Background:
       Given the desired synthetic population is 3
 
+    @regression:synthetic-schedule-waits-for-wall-hour
     Scenario: A Synthetic User comes online now as its daily schedule begins
       Given 2 Synthetic Users are online now
       And the Synthetic User "Cedar" is not online now

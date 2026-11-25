@@ -3,8 +3,8 @@
  * Read by `design-vocabulary.ts` for the `product` profile.
  *
  * A screen that writes `<div>`, `<button>` or `<p>` re-implements a layout
- * box, a control or a text role, and a screen that passes `class`,
- * `classList` or `style` restyles one. Both drift from every other screen,
+ * box, a control or a text role, and a screen that passes `class` or
+ * `style` restyles one. Both drift from every other screen,
  * so neither is something product code may write: layout is `Stack*` /
  * `Grid` props, text is `P` / `Text` / `H1`–`H6`, painting is `Surface` or a
  * component variant. A need the components cannot express becomes a new
@@ -22,7 +22,7 @@ export type CompositionSource = {
 };
 
 /** Attributes that restyle a component from the outside. */
-const RESTYLING_ATTRIBUTES = new Set(['class', 'classList', 'style']);
+const RESTYLING_ATTRIBUTES = new Set(['class', 'style']);
 
 function tagName(node: ts.JsxTagNameExpression): string | undefined {
   return ts.isIdentifier(node) ? node.text : undefined;

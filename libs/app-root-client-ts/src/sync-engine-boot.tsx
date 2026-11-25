@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Opens local SQLite for the active `users.id` and exposes the sync engine +
  * mutation client.
@@ -13,7 +13,8 @@
  * blank white screen.
  */
 
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import { LocalDatabaseBootErrorScreen } from './boot-error-screen';
 import { BootLoadingShell } from './boot-loading-shell';
 import { IdentityBootPending } from './identity-boot-pending';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * On-color context -- propagates a contrast-safe foreground set down the tree.
  *
@@ -12,16 +12,11 @@
 
 import type { OnColorSet } from '@pkgs/ui-root-shared-ts/contrast';
 import { bestOnColor } from '@pkgs/ui-root-shared-ts/contrast';
-import {
-  type Accessor,
-  createContext,
-  createMemo,
-  type JSX,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, createMemo, useContext } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 
-const OnColorContext = createContext<Accessor<OnColorSet | null>>();
+const OnColorContext = createContext<Accessor<OnColorSet | null> | null>(null);
 
 /** Current contrast-safe foreground set (reactive). */
 export function useOnColor(): Accessor<OnColorSet> {
@@ -32,7 +27,7 @@ export function useOnColor(): Accessor<OnColorSet> {
     fgMuted: tokens.colors.textSecondary,
     icon: tokens.colors.icon,
   };
-  if (ctx === undefined) return () => fallback;
+  if (ctx === null) return () => fallback;
   return () => ctx() ?? fallback;
 }
 
@@ -59,9 +54,9 @@ function onColorCssVars(set: OnColorSet | null): JSX.CSSProperties {
  */
 export function OnColorReset(props: { children: JSX.Element }): JSX.Element {
   return (
-    <OnColorContext.Provider value={() => null}>
+    <OnColorContext value={() => null}>
       <div style={onColorCssVars(null)}>{props.children}</div>
-    </OnColorContext.Provider>
+    </OnColorContext>
   );
 }
 
@@ -91,8 +86,8 @@ export function OnColorProvider(props: OnColorProviderProps): JSX.Element {
     return null;
   });
   return (
-    <OnColorContext.Provider value={resolved}>
+    <OnColorContext value={resolved}>
       <div style={onColorCssVars(resolved())}>{props.children}</div>
-    </OnColorContext.Provider>
+    </OnColorContext>
   );
 }

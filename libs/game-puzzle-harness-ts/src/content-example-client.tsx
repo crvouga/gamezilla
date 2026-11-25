@@ -14,7 +14,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { examplePuzzleContent } from './example-app-rules';
 
 function CountingEditor(props: PuzzleEditorProps): JSX.Element {
@@ -22,7 +22,7 @@ function CountingEditor(props: PuzzleEditorProps): JSX.Element {
     <TextInput
       label="Target"
       value={props.definition.slice(7)}
-      maxLength={1}
+      maxlength={1}
       disabled={props.disabled}
       onChangeText={(value) => props.onChange(`target:${value}`)}
     />

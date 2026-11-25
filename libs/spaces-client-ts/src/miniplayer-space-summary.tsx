@@ -1,7 +1,7 @@
-import { Plural } from '@lingui/solid/macro';
+import { Plural } from '@pkgs/lingui-solid-client-ts/macro';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { SpaceHostNameText } from './space-host-name-text';
 import { SpaceMark } from './space-mark';
@@ -20,7 +20,7 @@ export type MiniplayerSpaceSummaryProps = {
 export function MiniplayerSpaceSummary(
   props: MiniplayerSpaceSummaryProps
 ): JSX.Element {
-  const count = useSpaceMemberCount(props.spaceId);
+  const count = useSpaceMemberCount(() => props.spaceId);
   return (
     <StackHorizontal grow align="center" gap="md">
       <SpaceMark spaceId={props.spaceId} />

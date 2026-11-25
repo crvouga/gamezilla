@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { bindDataSet } from '../data-set-binding';
 import type { ElementTargetProps } from '../element-targets';
 import { bindElementTargets } from '../element-targets';
@@ -68,12 +68,11 @@ function gridClass(grid: GridProps): string {
  * ```
  */
 export function Grid(props: GridProps): JSX.Element {
+  const targets = bindElementTargets(props);
+  const dataSet = bindDataSet(props);
   return (
     <div
-      ref={(element) => {
-        bindElementTargets(element, props);
-        bindDataSet(element, props);
-      }}
+      ref={[targets, dataSet]}
       class={gridClass(props)}
       id={props.id}
       data-testid={props.testId}
@@ -83,9 +82,19 @@ export function Grid(props: GridProps): JSX.Element {
       aria-labelledby={props['aria-labelledby']}
       aria-describedby={props['aria-describedby']}
       aria-live={props['aria-live']}
-      aria-atomic={props['aria-atomic']}
-      aria-busy={props['aria-busy']}
-      aria-hidden={props['aria-hidden']}
+      aria-atomic={
+        props['aria-atomic'] === undefined
+          ? undefined
+          : `${props['aria-atomic']}`
+      }
+      aria-busy={
+        props['aria-busy'] === undefined ? undefined : `${props['aria-busy']}`
+      }
+      aria-hidden={
+        props['aria-hidden'] === undefined
+          ? undefined
+          : `${props['aria-hidden']}`
+      }
       inert={props.inert === true ? true : undefined}
       hidden={props.hidden === true ? true : undefined}
     >

@@ -7,7 +7,8 @@ import type {
 } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { CustomGamePlace } from './custom-game-places';
 import { CustomGameSetupPlace } from './custom-game-setup-view';
 import { CustomGameStagePlace } from './custom-game-stage-view';

@@ -215,7 +215,7 @@ describe('Verify Nightly workflow', () => {
       'gate',
       ...Object.keys(NIGHTLY_SUITES),
     ]);
-    expect(nightlyGroupNames('visual')).toEqual(['gate', 'visual']);
+    expect(nightlyGroupNames('visual')).toEqual(['visual']);
     expect(nightlyGroupNames('random')).toEqual(['random']);
     expect(() => nightlyGroupNames('unknown')).toThrow('Unknown nightly group');
     const needs = {
@@ -365,7 +365,6 @@ describe('the gate', () => {
     expect(verifyAggregatorTasks('verify', gate)).toEqual(gate);
     for (const slow of [
       'test:spec:0',
-      'verify:models',
       'test:contract',
       ...RELEASE_JOURNEY_TASKS,
       'verify:board-contract',

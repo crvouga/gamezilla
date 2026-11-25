@@ -1,4 +1,5 @@
-import { createContext, createSignal, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, createSignal, useContext } from 'solid-js';
 
 import { EndSpaceConfirmModal } from './end-space-confirm-modal';
 import { useEndSpace } from './use-end-space';
@@ -44,7 +45,7 @@ export function EndSpaceModalProvider(props: {
   const modals: EndSpaceModals = { requestEndSpace };
 
   return (
-    <Ctx.Provider value={modals}>
+    <Ctx value={modals}>
       {props.children}
       <EndSpaceConfirmModal
         visible={pending() !== null}
@@ -53,7 +54,7 @@ export function EndSpaceModalProvider(props: {
         spaceName={space().title || undefined}
         onSuccess={() => pending()?.onSuccess?.()}
       />
-    </Ctx.Provider>
+    </Ctx>
   );
 }
 

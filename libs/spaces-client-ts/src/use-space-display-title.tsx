@@ -7,7 +7,7 @@ import {
 import { useProfileRow } from '@libs/profile-client-ts/public-use-profile-row';
 import { resolveSpaceFallbackTitleParts } from '@libs/spaces-shared-ts/resolve-space-fallback-title-parts';
 import { resolveSpaceTitleUsername } from '@libs/spaces-shared-ts/resolve-space-title-username';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { type Accessor, createMemo } from 'solid-js';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Landmarks -- `Nav`, `Main`, `Section`, `Article`, `Aside`, `Header`,
  * `Footer`. Each adds the element's meaning and nothing else: it renders
@@ -30,7 +30,7 @@
  */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type LandmarkProps = {
   children?: JSX.Element | undefined;

@@ -43,7 +43,7 @@ export type ProductHarnessActorView =
         readonly history?: ProductHarnessMemoryHistory;
       }>;
       /**
-       * Owned outside keyed remounts so MemoryRouter location survives
+       * Owned outside keyed remounts so the embedded router's location survives
        * `snapshotEpoch` remounts; seeded from client Kv on spawn.
        */
       readonly history: ProductHarnessMemoryHistory;
@@ -54,8 +54,8 @@ export type ProductHarnessActorView =
     };
 
 /**
- * Structural match for `@solidjs/router` `MemoryHistory` — kept here so the
- * console never imports the router package.
+ * The part of a `@solidjs/router` memory history an embedded App drives —
+ * kept structural so the console never imports the router package.
  */
 export type ProductHarnessMemoryHistory = {
   readonly get: () => string;

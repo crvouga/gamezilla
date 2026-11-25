@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
@@ -8,7 +8,8 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import type { TooltipPlacement } from '@pkgs/ui-root-client-ts/tooltip';
 import { Tooltip } from '@pkgs/ui-root-client-ts/tooltip';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

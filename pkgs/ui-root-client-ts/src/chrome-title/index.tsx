@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** `navigationTitle` (18) in a compact bar, `subtitle` (21) in a wide one. */
 export type ChromeTitleSize = 'navigationTitle' | 'subtitle';

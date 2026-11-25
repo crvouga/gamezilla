@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { JsonView } from '@pkgs/ui-devtools-client-ts/json-view';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import { createAgent } from '@ui-sdk/solid/agent';
 import { renderUi } from './render';
 
 const VALUE = {
@@ -89,4 +90,25 @@ describe('JsonView', () => {
     expect(expandedButtons()).toHaveLength(0);
     expect(screen.getByRole('button', { name: 'Expand all' })).toBeDisabled();
   });
+});
+
+test('an agent inspects JSON values and opens a branch by its path', async () => {
+  renderUi(() => <JsonView value={VALUE} label="Payload" />);
+  const agent = createAgent();
+  const tree = agent.snapshot().find((entry) => entry.label === 'Payload');
+  expect(tree?.component).toBe('tree');
+  expect(tree?.items).toContainEqual({
+    value: '$.name',
+    label: '"name": "Ada"',
+  });
+  const opened = await agent.act({
+    steps: [{ ref: 'Payload', action: 'expand', args: ['$.nested'] }],
+  });
+  expect(opened.error?.message).toBeUndefined();
+  expect(screen.getByText('"deep":')).toBeInTheDocument();
+  const closed = await agent.act({
+    steps: [{ ref: 'JSON actions', action: 'press', args: ['Collapse all'] }],
+  });
+  expect(closed.error?.message).toBeUndefined();
+  expect(screen.queryByText('"nested":')).toBeNull();
 });

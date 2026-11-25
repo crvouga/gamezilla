@@ -7,7 +7,8 @@ import {
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { TurnGamesProvider } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createComponent, createRoot, createSignal } from 'solid-js';
+import { render } from '@solidjs/web';
+import { createComponent, createSignal, flush } from 'solid-js';
 import { COUNTING_RACE_GAME } from '../reference-game/counting-race-game';
 import { SOLO_COUNT_GAME } from './solo-count-game';
 
@@ -39,29 +40,55 @@ function openReview(initial: number | null = 2, probe: ReviewCase = SOLO_CASE) {
       },
     },
   ]);
-  return createRoot((dispose) => {
-    const [solveIdx, seek] = createSignal<number | null>(initial);
-    let model: PuzzleReviewBoardModel | undefined;
-    createComponent(TurnGamesProvider, {
-      rules,
-      presentations: [],
-      get children() {
-        return createComponent(PuzzleGameProvider, {
-          gameId: registered.rules.id,
-          client,
-          get children() {
-            model = usePuzzleReviewBoard(probe.position, probe.moves, {
-              solveIdx,
-              seek,
-            });
-            return null;
-          },
-        });
+  const [solveIdx, setSolveIdx] = createSignal<number | null>(initial);
+  const seek = (next: number | null): void => {
+    setSolveIdx(next);
+    flush();
+  };
+  let model: PuzzleReviewBoardModel | undefined;
+  // Providers render their children when mounted, so the probe is mounted.
+  const dispose = render(
+    () =>
+      createComponent(TurnGamesProvider, {
+        rules,
+        presentations: [],
+        get children() {
+          return createComponent(PuzzleGameProvider, {
+            gameId: registered.rules.id,
+            client,
+            get children() {
+              model = usePuzzleReviewBoard(probe.position, probe.moves, {
+                solveIdx,
+                seek: setSolveIdx,
+              });
+              return null;
+            },
+          });
+        },
+      }),
+    document.createElement('div')
+  );
+  flush();
+  if (model === undefined) throw new Error('Review controller did not mount');
+  const mounted = model;
+  return {
+    model: {
+      ...mounted,
+      onNavigate: (
+        ...args: Parameters<PuzzleReviewBoardModel['onNavigate']>
+      ) => {
+        mounted.onNavigate(...args);
+        flush();
       },
-    });
-    if (model === undefined) throw new Error('Review controller did not mount');
-    return { model, seek, solveIdx, dispose };
-  });
+      onSeek: (...args: Parameters<PuzzleReviewBoardModel['onSeek']>) => {
+        mounted.onSeek(...args);
+        flush();
+      },
+    },
+    seek,
+    solveIdx,
+    dispose,
+  };
 }
 
 // regression: solo-puzzle-review-cursor-zero-unset

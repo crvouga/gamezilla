@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Modal building blocks: `ModalHeader` (names the dialog in `textSubtitle`),
  * `ModalBody` (copy in secondary `textBody`), `ModalFooter` (actions) and
@@ -7,7 +7,8 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { Button } from '../button/index';
 import type { ButtonIntent, ButtonVariant } from '../button-face';
 import { useModalTitleId } from '../modal-title-id/index';
@@ -73,12 +74,14 @@ export function ModalFooter(props: ModalFooterProps): JSX.Element {
   const mode = useLayoutMode();
   return (
     <div
-      class="box gap-2 mt-2"
-      classList={{
-        'flex-col items-stretch': mode() !== 'wide',
-        'flex-row-reverse flex-wrap items-center justify-start':
-          mode() === 'wide',
-      }}
+      class={[
+        'box gap-2 mt-2',
+        {
+          'flex-col items-stretch': mode() !== 'wide',
+          'flex-row-reverse flex-wrap items-center justify-start':
+            mode() === 'wide',
+        },
+      ]}
       {...dataAttrs({ component: 'ModalFooter', ...props.dataSet })}
     >
       {props.children}
@@ -89,6 +92,7 @@ export function ModalFooter(props: ModalFooterProps): JSX.Element {
 export type ModalButtonVariant = 'default' | 'cancel' | 'destructive';
 
 export type ModalButtonProps = {
+  agentConfirm?: string | undefined;
   label: JSX.Element;
   /** `default` → solid primary, `destructive` → solid danger, `cancel` → ghost neutral. */
   variant?: ModalButtonVariant | undefined;
@@ -113,6 +117,7 @@ export function ModalButton(props: ModalButtonProps): JSX.Element {
   return (
     <Button
       title={props.label}
+      agentConfirm={props.agentConfirm}
       intent={face().intent}
       variant={face().variant}
       size="md"

@@ -1,6 +1,5 @@
 import { defineProperty } from '@pkgs/harness-root-shared-ts/define-property';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
-import { defineSnapshot } from '@pkgs/harness-root-shared-ts/define-snapshot';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { noErrorBoundary } from '@pkgs/ui-testing-root-shared-ts/observations';
@@ -13,7 +12,6 @@ import {
   spawnActor,
   uiOp,
 } from './actions';
-import { captureActorScreenshots } from './actor-screenshots';
 import { describeWhereabouts } from './actor-whereabouts';
 import { bunWebviewRuntime } from './bun-webview';
 import type { HarnessComposition } from './composition';
@@ -26,39 +24,12 @@ import { anyActor } from './observations';
 import type { ProductExtra, ProductUi } from './ports';
 import { captureSnapshot } from './probes';
 import { atConfiguredGoogleHandoff } from './provider-handoff';
-import { harnessReportTopology } from './report-topology';
 import { productServerActions } from './server-actions';
 import { SHELL_SCENARIO_ACTIONS } from './shell-scenario-actions';
-import { inlineLocalImageSources } from './snapshot-local-images';
-import { wallLocalImageDataUri } from './wall-local-images';
 import { wireProductRuntime } from './wire-product-runtime';
 
 function extraOf(session: { readonly ports: object }): ProductExtra {
   return session.ports as ProductExtra;
-}
-
-/** Recorded frames carry their bundled images, never a machine-local path. */
-function selfContained(html: string): string {
-  return inlineLocalImageSources(html, wallLocalImageDataUri);
-}
-
-async function captureActorHtml(
-  s: ProductHarness
-): Promise<Record<string, string> | null> {
-  const extra = extraOf(s.session);
-  if (extra.ui.kind === 'solid-dom' && extra.ui.session !== undefined) {
-    const snapshots = await extra.ui.session.snapshotAllActors();
-    if (snapshots.size === 0) return null;
-    return Object.fromEntries(
-      [...snapshots].map(([id, html]) => [id, selfContained(html)])
-    );
-  }
-  const map: Record<string, string> = {};
-  for (const [id, handle] of s.actors) {
-    const html = await handle.ui.snapshotHtml();
-    if (html != null && html.trim() !== '') map[id] = selfContained(html);
-  }
-  return Object.keys(map).length > 0 ? map : null;
 }
 
 export const noErrorBoundaryAnyActor = defineProperty(
@@ -174,29 +145,14 @@ export function defineProductSystem(
       ...SHELL_SCENARIO_ACTIONS,
       ...(composition.actions ?? []),
     ],
-    snapshots: [
-      defineSnapshot({
-        name: 'screen',
-        media: 'png',
-        capture: (s) =>
-          captureActorScreenshots(s.actors, extraOf(s.session).ui),
-      }),
-      defineSnapshot({
-        name: 'html',
-        media: 'html',
-        capture: async (s) => captureActorHtml(s),
-      }),
-      defineSnapshot({
-        name: 'topology',
-        capture: (s) => harnessReportTopology(s),
-      }),
-    ],
     async create(session) {
       const extra = extraOf(session);
       const harness = await createHarness(session, {
         ...options,
         composition,
         serverSql: extra.sql,
+        clientConfigOwner:
+          extra.http.kind === 'stack' ? 'external' : 'this-server',
         ...(extra.serverEvents === undefined
           ? {}
           : { serverEvents: extra.serverEvents }),
@@ -209,7 +165,7 @@ export function defineProductSystem(
       const surface = createProductHarness(session, harness);
       await composition.beforeScenario?.(surface);
       // Default actor runtime so `system.explore` / `spawnActor` work without
-      // openHarness. openHarness may replace this with a recording-aware wrapper.
+      // openHarness. openHarness replaces it to add snapshot restore and teardown.
       wireProductRuntime(surface);
       surface.session.onDispose(() => surface.runtime.disposeResources());
       return surface;

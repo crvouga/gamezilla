@@ -11,7 +11,7 @@ import {
   renderGameTable,
 } from '@libs/game-session-client-ts/game-frame-table.example';
 import { TWO_PLAYER_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createSignal, mergeProps } from 'solid-js';
+import { createSignal, merge } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
@@ -183,7 +183,7 @@ export const FullBoardDraw: Story = {
 /** Real rule transitions keep the board, seats and move record in sync. */
 const interactiveRender: NonNullable<typeof meta.render> = (args, context) => {
   const [game, setGame] = createSignal(decodeConnectFour(args.position));
-  const board = mergeProps(args, {
+  const board = merge(args, {
     get position() {
       return encodeConnectFour(game());
     },

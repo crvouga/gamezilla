@@ -1,6 +1,6 @@
 import type { SpaceModule } from '@libs/spaces-shared-ts/space-module';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SpaceRoomModule = SpaceModule;
 

@@ -18,7 +18,7 @@ import type {
   AudioPlaybackPort,
   AudioPlayerHandle,
 } from '@pkgs/sounds-shared-ts/ports';
-import { type Accessor, createEffect, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, onCleanup, untrack } from 'solid-js';
 
 const BOARD_SOUND_KEYS = [
   'move',
@@ -83,6 +83,9 @@ export function createChessBoardSounds(
   if (existing === undefined) banks.set(port, bank);
   bank.boards += 1;
   let closed = false;
+  // A sound is asked for by gestures, timers and effects alike: each asks
+  // whether sound is on at that moment.
+  const audible = (): boolean => !closed && untrack(enabled);
   const owner = Symbol('board-audio');
   const players = Object.fromEntries(
     BOARD_SOUND_KEYS.map((key) => [
@@ -93,7 +96,7 @@ export function createChessBoardSounds(
           if (bank.owners.get(key) === owner) bank.players[key].pause();
         },
         play: () => {
-          if (closed || !enabled()) return;
+          if (!audible()) return;
           bank.owners.set(key, owner);
           void bank.players[key].play();
         },
@@ -115,8 +118,8 @@ export function createChessBoardSounds(
     }
   };
   if (existing === undefined) warmBank(bank, handleList);
-  createEffect(() => {
-    if (!enabled()) cancel();
+  createEffect(enabled, (on) => {
+    if (!on) cancel();
   });
   onCleanup(() => {
     closed = true;
@@ -124,7 +127,7 @@ export function createChessBoardSounds(
     releaseBank(port, bank);
   });
   const play = (key: BoardSoundKey): void => {
-    if (!closed && enabled()) handles[key].play();
+    if (audible()) handles[key].play();
   };
   return {
     cancel,

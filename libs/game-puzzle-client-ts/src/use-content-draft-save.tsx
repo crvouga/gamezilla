@@ -4,11 +4,40 @@ import {
   contentBody,
 } from '@libs/game-puzzle-shared-ts/content-types';
 import { savePuzzleContentDraftMutation } from '@libs/game-puzzle-shared-ts/save-content-draft-mutation';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { usePendingOperation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import { createSignal, onCleanup, untrack } from 'solid-js';
+
+type KeptDraft = {
+  body: ContentBody;
+  draftId: string;
+  dirty: boolean;
+};
+
+/**
+ * The working copy as the screen shows it (signals) beside the same values
+ * as last set (`kept`): the saving loop reads straight after a change,
+ * before the signals show it.
+ */
+function createKeptDraft(seed: ContentDraft) {
+  const kept: KeptDraft = {
+    body: contentBody(seed),
+    draftId: seed.id,
+    dirty: false,
+  };
+  const [body, setBody] = createSignal<ContentBody>(kept.body);
+  const [draftId, setDraftId] = createSignal(kept.draftId);
+  const [dirty, setDirty] = createSignal(kept.dirty);
+  const keep = (next: Partial<KeptDraft>): void => {
+    Object.assign(kept, next);
+    setBody(kept.body);
+    setDraftId(kept.draftId);
+    setDirty(kept.dirty);
+  };
+  return { body, draftId, dirty, kept, keep };
+}
 
 /**
  * Serial saves coalesce edits and retain the local body when persistence
@@ -22,10 +51,8 @@ export function useContentDraftSave(
   const mutations = useMutationClient();
   const createId = useCreateId();
   const seed = untrack(initial);
-  const [body, setBody] = createSignal<ContentBody>(contentBody(seed));
-  const [draftId, setDraftId] = createSignal(seed.id);
+  const { body, draftId, dirty, kept, keep } = createKeptDraft(seed);
   const [saving, setSaving] = createSignal(false);
-  const [dirty, setDirty] = createSignal(false);
   const [error, setError] = createSignal<string | null>(null);
   let active: Promise<void> | null = null;
   // A confirmed departure abandons the edits in flight; editing again in a
@@ -36,9 +63,9 @@ export function useContentDraftSave(
     setSaving(true);
     setError(null);
     try {
-      while (dirty() && !abandoned && !disposed) {
-        const value = body();
-        const parentId = draftId();
+      while (kept.dirty && !abandoned && !disposed) {
+        const value = kept.body;
+        const parentId = kept.draftId;
         const nextId = createId();
         const result = await mutations.mutate(savePuzzleContentDraftMutation, {
           documentId: seed.document_id,
@@ -52,8 +79,7 @@ export function useContentDraftSave(
               t`The draft could not be saved. Try saving again.`
           );
         onSaved(parentId, nextId);
-        setDraftId(nextId);
-        setDirty(body() !== value);
+        keep({ draftId: nextId, dirty: kept.body !== value });
       }
     } catch (failure) {
       setError(
@@ -67,21 +93,18 @@ export function useContentDraftSave(
     }
   };
   const save = (): Promise<void> => {
-    if (!dirty()) return active ?? Promise.resolve();
+    if (!kept.dirty) return active ?? Promise.resolve();
     active ??= drain();
     return active;
   };
   const change = (next: ContentBody): void => {
-    if (JSON.stringify(next) === JSON.stringify(body())) return;
-    setBody(next);
-    setDirty(true);
+    if (JSON.stringify(next) === JSON.stringify(kept.body)) return;
+    keep({ body: next, dirty: true });
     abandoned = false;
     void save();
   };
   const adopt = (draft: ContentDraft): void => {
-    setBody(contentBody(draft));
-    setDraftId(draft.id);
-    setDirty(false);
+    keep({ body: contentBody(draft), draftId: draft.id, dirty: false });
     setError(null);
   };
   usePendingOperation(

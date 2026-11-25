@@ -1,16 +1,14 @@
 /**
  * The one example app every `@pkgs/harness-root-shared-ts` test drives (README.md
  * § "One example app per package"): a counter and a small key-value store
- * shared by two clients. It uses every capability the framework offers —
- * sampled and guarded actions, a pool-excluded action that fails, a
- * property, and JSON, HTML and PNG snapshots — so a test that needs a
+ * store. It uses every capability the framework offers —
+ * sampled and guarded actions and a property — so a test that needs a
  * variation configures it (extra `properties`) instead of forking it.
  */
 
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineProperty } from '@pkgs/harness-root-shared-ts/define-property';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
-import { defineSnapshot } from '@pkgs/harness-root-shared-ts/define-snapshot';
 import type { System } from '@pkgs/harness-root-shared-ts/define-system';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import type { CatalogProperty } from '@pkgs/harness-root-shared-ts/effect';
@@ -19,11 +17,7 @@ import { virtualTimeRuntime } from '@pkgs/harness-root-shared-ts/virtual-time-ru
 export type ExampleApp = {
   n: number;
   values: Record<string, string>;
-  readonly clients: readonly string[];
 };
-
-/** Four bytes of a PNG header: the `screen` snapshot's whole image. */
-export const EXAMPLE_PNG = new Uint8Array([137, 80, 78, 71]);
 
 export const inc = defineAction({
   name: 'inc',
@@ -58,16 +52,6 @@ export const put = defineAction({
   },
 });
 
-/** Always throws; kept out of random walks, applied only on purpose. */
-export const boom = defineAction({
-  name: 'boom',
-  pool: false,
-  describe: (who: string) => `explode ${who}`,
-  act: (_s: ExampleApp, _who: string) => {
-    throw new Error('kaboom');
-  },
-});
-
 const nonNegative = defineProperty({
   name: 'nonNegative',
   check: (s: ExampleApp) => {
@@ -76,14 +60,11 @@ const nonNegative = defineProperty({
 });
 
 export function exampleApp(
-  options: {
-    readonly properties?: readonly CatalogProperty<ExampleApp>[];
-    readonly onCapture?: () => void;
-  } = {}
+  options: { readonly properties?: readonly CatalogProperty<ExampleApp>[] } = {}
 ): System<ExampleApp> {
   return defineSystem({
     name: 'example-app',
-    create: (): ExampleApp => ({ n: 0, values: {}, clients: ['alice', 'bob'] }),
+    create: (): ExampleApp => ({ n: 0, values: {} }),
     runtimes: [
       defineRuntime({
         default: true,
@@ -91,32 +72,7 @@ export function exampleApp(
         create: () => virtualTimeRuntime(),
       }),
     ],
-    actions: [inc, dec, put, boom],
+    actions: [inc, dec, put],
     properties: [nonNegative, ...(options.properties ?? [])],
-    snapshots: [
-      defineSnapshot({
-        name: 'store',
-        capture: (s: ExampleApp) => {
-          options.onCapture?.();
-          return { ...s.values };
-        },
-      }),
-      defineSnapshot({
-        name: 'html',
-        media: 'html',
-        capture: (s: ExampleApp) =>
-          Object.fromEntries(
-            s.clients.map((id) => [
-              id,
-              `<html><body>${id}:${s.values['x'] ?? ''}</body></html>`,
-            ])
-          ),
-      }),
-      defineSnapshot({
-        name: 'screen',
-        media: 'png',
-        capture: () => EXAMPLE_PNG,
-      }),
-    ],
   });
 }

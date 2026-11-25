@@ -1,13 +1,13 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { CurrentBadge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
-import { Index, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar, SpacePersonName } from './space-person-view';
@@ -104,14 +104,14 @@ function SpaceGuestNames(props: {
     <StackHorizontal align="center" gap="xs">
       <StackVertical shrink>
         <P variant="caption" lines={1}>
-          <Index each={named()}>
+          <For keyed={false} each={named()}>
             {(guest, index) => (
               <>
                 {index > 0 ? ', ' : null}
                 <SpacePersonName person={guest()} variant="caption" />
               </>
             )}
-          </Index>
+          </For>
         </P>
       </StackVertical>
       <Show when={more() > 0}>
@@ -145,11 +145,11 @@ export function SpaceGuestsView(props: {
           maxVisible={GUEST_AVATAR_MAX_VISIBLE}
           ringColor="surface"
         >
-          <Index each={props.guests}>
+          <For keyed={false} each={props.guests}>
             {(guest) => (
               <SpacePersonAvatar person={guest()} size={GUEST_AVATAR_SIZE} />
             )}
-          </Index>
+          </For>
         </AvatarGroup>
         <SpaceGuestNames guests={props.guests} />
       </StackVertical>
@@ -261,11 +261,11 @@ function SpaceCardGuests(props: {
         maxVisible={ROW_GUEST_FACES_SHOWN}
         ringColor="surface"
       >
-        <Index each={props.guests}>
+        <For keyed={false} each={props.guests}>
           {(guest) => (
             <SpacePersonAvatar person={guest()} size={ROW_GUEST_FACE_SIZE} />
           )}
-        </Index>
+        </For>
       </AvatarGroup>
     </Show>
   );

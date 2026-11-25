@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
-import { createEffect, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { radiusClass, spaced } from '../layout-classes';
 
 /** Frame shape, width over height. */
@@ -90,13 +91,15 @@ function pictureClass(image: ImageProps, state: ImageLoadState): string {
  * ```
  */
 export function Image(props: ImageProps): JSX.Element {
-  const [state, setState] = createSignal<ImageLoadState>('loading');
-  createEffect(
-    on(
-      () => props.src,
-      () => setState('loading'),
-      { defer: true }
-    )
+  // Every new file starts over from `loading`. A file the document already
+  // holds can report `load` or `error` while `src` is being set, inside the
+  // render that sets it, so the write is allowed there.
+  const [state, setState] = createSignal(
+    (): ImageLoadState => {
+      void props.src;
+      return 'loading';
+    },
+    { ownedWrite: true }
   );
   return (
     <div

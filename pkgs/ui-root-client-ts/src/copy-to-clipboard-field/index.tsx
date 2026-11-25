@@ -1,17 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createEffect, createSignal, Show } from 'solid-js';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 
 export const DEFAULT_COPIED_RESET_MS = 2000;
@@ -58,14 +54,15 @@ export function CopyToClipboardField(
   const copiedLabel = (): LocalizedString =>
     props.copiedLabel ?? t`Copied to clipboard`;
 
-  createEffect(() => {
-    if (!copied()) return;
-    const id = timers.setTimeout(
-      () => setCopied(false),
-      props.copiedResetMs ?? DEFAULT_COPIED_RESET_MS
-    );
-    onCleanup(() => timers.clearTimeout(id));
-  });
+  createEffect(
+    () =>
+      copied() ? (props.copiedResetMs ?? DEFAULT_COPIED_RESET_MS) : undefined,
+    (resetMs) => {
+      if (resetMs === undefined) return undefined;
+      const id = timers.setTimeout(() => setCopied(false), resetMs);
+      return () => timers.clearTimeout(id);
+    }
+  );
 
   const onCopy = async (): Promise<void> => {
     try {
@@ -84,13 +81,13 @@ export function CopyToClipboardField(
       <Show when={props.label !== undefined}>
         <label class="text textLabel">{props.label}</label>
       </Show>
-      <button
+      <SdkButton
         class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-3 px-3 text-left"
+        data-copied={String(copied())}
         {...dataAttrs({
           component: 'CopyToClipboardTrigger',
           ...props.triggerDataSet,
         })}
-        data-copied={String(copied())}
         type="button"
         aria-label={copied() ? copiedLabel() : t`Copy to clipboard`}
         onClick={() => {
@@ -99,11 +96,13 @@ export function CopyToClipboardField(
       >
         <div class="box flex-1 min-w-0">
           <p
-            class="text"
-            classList={{
-              'select-none': props.selectable === false,
-              'select-text': props.selectable !== false,
-            }}
+            class={[
+              'text',
+              {
+                'select-none': props.selectable === false,
+                'select-text': props.selectable !== false,
+              },
+            ]}
           >
             {props.value}
           </p>
@@ -116,7 +115,7 @@ export function CopyToClipboardField(
             <CircleCheckIcon size={ICON_SIZE} color="tint" />
           </Show>
         </div>
-      </button>
+      </SdkButton>
       <div class="box min-h-5" role="status" aria-live="polite">
         <Show
           when={copied()}

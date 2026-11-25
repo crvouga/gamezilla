@@ -1,11 +1,15 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { arraysEqualAsSets } from '@pkgs/ui-root-shared-ts/arrays-equal-as-sets';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
-import { createSignal, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Checkbox } from '@ui-sdk/solid/checkbox';
+import { Toggle } from '@ui-sdk/solid/toggle';
+import { createSignal, For, Show } from 'solid-js';
 import { TextInput } from '../text-input/index';
 
 const DEFAULT_HEX = /^[0-9a-fA-F]{6}$/;
@@ -57,15 +61,14 @@ export function toggleSwatch(value: readonly string[], hex: string): string[] {
 
 function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
   return (
-    <button
+    <Toggle
       class="clickable clickableTint px-3 py-2 rounded-sm border bg-surface"
       data-component="SwatchRandom"
-      type="button"
       style={{
         'border-color': props.isRandom ? colorVar('tint') : colorVar('border'),
       }}
-      onClick={() => props.onClick()}
-      aria-pressed={props.isRandom}
+      onPressedChange={() => props.onClick()}
+      pressed={props.isRandom}
     >
       <p
         class="text textCaption text-text"
@@ -73,7 +76,7 @@ function RandomChip(props: { isRandom: boolean; onClick: () => void }) {
       >
         {<Trans>Random</Trans>}
       </p>
-    </button>
+    </Toggle>
   );
 }
 
@@ -87,7 +90,7 @@ function DefaultSwatch(props: {
   const isTrans = (): boolean =>
     props.hex.toLowerCase() === props.transparentToken.toLowerCase();
   return (
-    <button
+    <Checkbox
       class="clickable clickableTint w-9 h-9 rounded-full border-2 overflow-hidden"
       data-component="Swatch"
       data-hex={props.hex}
@@ -96,15 +99,14 @@ function DefaultSwatch(props: {
         'border-color': props.active ? colorVar('tint') : colorVar('border'),
         'background-color': isTrans() ? 'transparent' : `#${props.hex}`,
       }}
-      onClick={() => props.onClick()}
-      role="checkbox"
-      aria-checked={props.active}
+      onCheckedChange={() => props.onClick()}
+      checked={props.active}
       aria-label={isTrans() ? t`Transparent` : t`Color ${props.hex}`}
     >
       <Show when={isTrans()}>
         <div class="box flex-1 bg-border opacity-35" />
       </Show>
-    </button>
+    </Checkbox>
   );
 }
 
@@ -162,17 +164,17 @@ function CustomHexInput(props: {
             aria-label={t`Custom hex color`}
             autocapitalize="off"
             autocorrect="off"
-            maxLength={6}
+            maxlength={6}
           />
         </div>
-        <button
+        <SdkButton
           class="clickable clickableTint py-2 px-3"
           data-component="SwatchAddHex"
           type="button"
           onClick={addHex}
         >
           <label class="text textLabel text-tint">{<Trans>Add</Trans>}</label>
-        </button>
+        </SdkButton>
       </div>
     </div>
   );

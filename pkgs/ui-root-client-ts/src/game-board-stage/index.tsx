@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import precision from '../game-screen/game-precision.module.css';
 import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
@@ -58,28 +59,30 @@ export function GameBoardStage(props: {
   const own = createScreenSlot(() => props.own);
   const overlay = createScreenSlot(() => props.overlay);
   const preview = (): boolean => props.preview === true;
-  let root: HTMLDivElement | undefined;
+  const [root, setRoot] = createSignal<HTMLDivElement>();
   const square = (): boolean => props.viewportFit === 'square' && !preview();
-  const limit = createViewportSquareFit(() => root, square);
+  const limit = createViewportSquareFit(root, square);
   const [surface, setSurface] = createSignal<HTMLDivElement>();
-  const room = createStageRoomFit(() => root, surface);
+  const room = createStageRoomFit(root, surface);
   // A fixed stage sits in the middle of its room, and stays there.
-  const centre = createStageCentre(() => root, surface);
+  const centre = createStageCentre(root, surface);
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();
-    const cell = root?.parentElement;
+    const cell = root()?.parentElement;
     return limit !== undefined && !!cell && limit < cell.clientWidth - 1;
   };
   return (
     <div
-      ref={root}
-      class={`${styles['boardStage']} ${precision['board']}`}
-      classList={{
-        [boardAlign['start'] ?? '']: props.align === 'start',
-        [fit['squareStage'] ?? '']: square(),
-      }}
-      data-preview={props.preview === true}
+      ref={setRoot}
+      class={[
+        `${styles['boardStage']} ${precision['board']}`,
+        {
+          [boardAlign['start'] ?? '']: props.align === 'start',
+          [fit['squareStage'] ?? '']: square(),
+        },
+      ]}
+      data-preview={String(props.preview === true)}
       data-viewport-fit={props.viewportFit}
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,
@@ -98,16 +101,18 @@ export function GameBoardStage(props: {
       <Show when={own.present()}>{own.content()}</Show>
       <div
         ref={setSurface}
-        class={styles['board']}
+        class={[
+          styles['board'],
+          {
+            [fit['squareBoard'] ?? '']: square(),
+            relative: overlay.present(),
+          },
+        ]}
         data-game-board
-        classList={{
-          [fit['squareBoard'] ?? '']: square(),
-          relative: overlay.present(),
-        }}
       >
-        <GameBoardPreviewContext.Provider value={preview}>
+        <GameBoardPreviewContext value={preview}>
           {props.children}
-        </GameBoardPreviewContext.Provider>
+        </GameBoardPreviewContext>
         <Show when={overlay.present()}>
           <GameStageOverlayFrame>{overlay.content()}</GameStageOverlayFrame>
         </Show>

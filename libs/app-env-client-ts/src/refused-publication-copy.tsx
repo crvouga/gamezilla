@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 
 function publicationIssue(meta: string | null): string | null {
   if (meta === null) return null;

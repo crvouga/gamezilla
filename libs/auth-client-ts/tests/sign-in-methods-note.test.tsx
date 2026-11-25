@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** What Remove does is said inside the sign-in methods card, as its last row. */
 
 import { afterEach, expect, test } from 'bun:test';

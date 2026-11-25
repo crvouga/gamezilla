@@ -117,10 +117,9 @@ Then(
   "{actor}'s account deletion is acknowledged with its completion deadline",
   async (w, actor: Actor) => {
     await w.s.apply(openPrivacy, actor);
-    const outcome = await w.s.read(
-      privacyText,
-      actor,
-      'privacy-deletion-outcome'
+    const outcome = await w.s.until(
+      (s) => privacyText(s, actor, 'privacy-deletion-outcome'),
+      { pred: (text) => text !== null }
     );
     expect(outcome).toContain('complete by');
     // regression: privacy-dates-raw-iso

@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening a one-point match immediately after the serve could consume enough live play to award a point before the score was read. Restore the game's address on reopen and read the scoreboard without sampling unrelated geometry.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-menu.test.ts"
+}

@@ -5,7 +5,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
 } from 'solid-js';
 import type { SchemaRow } from './sql-schema-query';
 import {
@@ -27,7 +26,7 @@ export type SchemaIndex = {
 };
 
 export function useSchemaIndex(args: {
-  readonly sqlClient: SqlClient;
+  readonly sqlClient: Accessor<SqlClient>;
   readonly active: Accessor<boolean>;
   readonly reloadToken?: Accessor<number>;
   readonly subscribeDomainWake?: Accessor<SchemaWakeSubscribe | undefined>;
@@ -48,15 +47,14 @@ export function useSchemaIndex(args: {
   let gen = 0;
   const reload = reloadToken ?? (() => 0);
 
-  const refresh = (): void => {
-    if (!active()) return;
+  const load = (client: SqlClient): void => {
     const my = ++gen;
     setStatus((prev) => (prev === 'ready' ? prev : 'loading'));
     void (async () => {
       try {
-        const nextTables = await listProductHarnessTables(sqlClient);
+        const nextTables = await listProductHarnessTables(client);
         const cols = await loadColumnNamesByTable(
-          sqlClient,
+          client,
           nextTables.map((t) => t.name)
         );
         if (my !== gen) return;
@@ -72,26 +70,32 @@ export function useSchemaIndex(args: {
     })();
   };
 
-  createEffect(() => {
-    if (!active()) return;
-    void reload();
-    refresh();
-  });
+  const refresh = (): void => {
+    if (active()) load(sqlClient());
+  };
 
-  createEffect(() => {
-    const subscribe =
-      subscribeDomainWake === undefined ? undefined : subscribeDomainWake();
-    if (!active() || subscribe === undefined) return;
-    let handle: unknown = null;
-    const unsub = subscribe(() => {
-      if (handle != null) timers.clearTimeout(handle);
-      handle = timers.setTimeout(() => refresh(), 50);
-    });
-    onCleanup(() => {
-      unsub();
-      if (handle != null) timers.clearTimeout(handle);
-    });
-  });
+  createEffect(
+    () => (active() ? { token: reload(), client: sqlClient() } : null),
+    (wanted) => {
+      if (wanted !== null) load(wanted.client);
+    }
+  );
+
+  createEffect(
+    () => (active() ? subscribeDomainWake?.() : undefined),
+    (subscribe) => {
+      if (subscribe === undefined) return;
+      let handle: unknown = null;
+      const unsub = subscribe(() => {
+        if (handle != null) timers.clearTimeout(handle);
+        handle = timers.setTimeout(() => refresh(), 50);
+      });
+      return () => {
+        unsub();
+        if (handle != null) timers.clearTimeout(handle);
+      };
+    }
+  );
 
   const allColumns = createMemo(() => uniqueColumns(columnsByTable()));
 

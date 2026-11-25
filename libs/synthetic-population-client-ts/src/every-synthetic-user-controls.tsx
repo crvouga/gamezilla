@@ -1,9 +1,10 @@
 import { DenialModalView } from '@libs/permissions-client-ts/denial-modal-view';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { SyntheticPopulationBulkCommand } from '@libs/synthetic-population-shared-ts/config';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** A command for every Synthetic User at once. */
 export type EveryCommand = SyntheticPopulationBulkCommand['command'];

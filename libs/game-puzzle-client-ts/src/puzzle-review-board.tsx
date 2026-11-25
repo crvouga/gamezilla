@@ -6,8 +6,8 @@ import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { BoardFit } from '@pkgs/ui-root-client-ts/board-fit';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-shortcuts';
-import { type JSX, onCleanup, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createMemo, onCleanup, Show } from 'solid-js';
 import type { PuzzleBoardMarks } from './puzzle-client';
 import { usePuzzleGame } from './puzzle-game-context';
 import { PuzzleMoveHistory } from './puzzle-move-history';
@@ -29,11 +29,11 @@ function ReviewBoardSurface(props: {
 }): JSX.Element {
   const sounds = useSoundsPreference();
   const { client } = usePuzzleGame();
+  const Board = dynamic(() => client.Board);
   const model = props.model;
   return (
     <Show when={model.ready()} fallback={<LoadingState size="lg" />}>
-      <Dynamic
-        component={client.Board}
+      <Board
         mode="review"
         testId="chess-puzzle-review-board"
         size={props.size}
@@ -56,19 +56,38 @@ function ReviewBoardSurface(props: {
   );
 }
 
+type ReviewedPuzzle = { readonly fen: string; readonly moves: string };
+
+/** A review is of one puzzle: another puzzle is another board. */
 export function PuzzleReviewBoard(props: {
   fen: string;
   moves: string;
   cursor: PuzzleReviewCursor;
 }): JSX.Element {
-  const model = usePuzzleReviewBoard(props.fen, props.moves, props.cursor);
+  const puzzle = createMemo(
+    (): ReviewedPuzzle => ({ fen: props.fen, moves: props.moves }),
+    { equals: (a, b) => a.fen === b.fen && a.moves === b.moves }
+  );
+  return (
+    <Show when={puzzle()} keyed>
+      {(reviewed) => <PuzzleReview puzzle={reviewed} cursor={props.cursor} />}
+    </Show>
+  );
+}
+
+function PuzzleReview(props: {
+  puzzle: ReviewedPuzzle;
+  cursor: PuzzleReviewCursor;
+}): JSX.Element {
+  const { fen, moves } = props.puzzle;
+  const model = usePuzzleReviewBoard(fen, moves, props.cursor);
   const writing = usePuzzleMoveWriting();
   onCleanup(
     registerFeedbackContext({
       name: 'chess-puzzle-review',
       collect: () => ({
-        initialPosition: props.fen,
-        solutionMoves: props.moves,
+        initialPosition: fen,
+        solutionMoves: moves,
         displayPosition: model.displayPosition(),
         solveIndex: model.solveIdx(),
         orientation: model.orientation(),

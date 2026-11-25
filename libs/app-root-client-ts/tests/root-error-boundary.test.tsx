@@ -1,9 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, spyOn, test } from 'bun:test';
 import { AppThemeProvider } from '@libs/app-root-client-ts/app-theme-provider';
 import { RootErrorBoundary } from '@libs/app-root-client-ts/root-error-boundary';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { type Tracer, trace } from '@opentelemetry/api';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -11,10 +10,12 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { createRecordingClipboard } from '@pkgs/device-shared-ts/clipboard';
 import { createMotionPreference } from '@pkgs/device-shared-ts/motion-preference';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { TestViewportProvider } from '@pkgs/ui-root-client-ts/test-viewport';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import { cleanup, fireEvent, render, screen } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
 
 const FAILURE =
   'useAuthModals: AuthModalsProvider missing — wrap with AppProviders';
@@ -66,6 +67,7 @@ test.each(['light', 'dark'] as const)(
   (scheme) => {
     const view = mountCrash();
     view.setTheme(scheme);
+    flush();
     const alert = screen.getByRole('alert');
     const root = alert.closest('[data-component="RootErrorBoundary"]');
     expect(root?.closest('[data-theme]')?.getAttribute('data-theme')).toBe(
@@ -96,6 +98,7 @@ test('copies diagnostic text and releases its feedback timer when recovered', as
   const view = mountCrash();
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(view.clipboard.last()).toBe(
     `Something went wrong\n\n${FAILURE}\n\nVersion: 1.0.0`
   );
@@ -107,6 +110,7 @@ test('copies diagnostic text and releases its feedback timer when recovered', as
   ).toContain('Copy error');
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(view.harness.clock.pendingOneShotCount()).toBe(1);
   view.setBroken(false);
   fireEvent.click(screen.getByRole('button', { name: 'Try again' }));
@@ -124,11 +128,13 @@ test('a denied clipboard write keeps recovery usable and shows a retryable error
   });
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(screen.getByRole('status').textContent).toContain('Couldn’t copy');
   expect(screen.queryByText('Copied')).toBeNull();
   expect(view.harness.clock.pendingOneShotCount()).toBe(0);
   fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
   await Promise.resolve();
+  flush();
   expect(attempts).toBe(2);
   expect(screen.getByRole('button', { name: 'Copied' })).toBeTruthy();
 });
@@ -174,6 +180,7 @@ test('a screen that crashes again on Try again still offers a way to Spaces', ()
   expect(view.departures).toHaveLength(1);
   view.setBroken(false);
   view.departures[0]?.();
+  flush();
   expect(screen.getByText('Recovered screen')).toBeTruthy();
 });
 
@@ -200,6 +207,8 @@ test('the crash reference is visible and the copied text carries it without the 
     expect(reference.closest('details')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Copy error' }));
     await Promise.resolve();
+    flush();
+    flush();
     expect(view.clipboard.last()).toBe(
       `Something went wrong\n\n${FAILURE}\n\nReference: ${TRACE_ID}\n\nVersion: 1.0.0`
     );

@@ -16,7 +16,7 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
   });
   const driver = new BunWebviewDriver({
     view,
-    baseUrl: options.webOrigin,
+    baseUrl: options.initialUrl,
     ...(options.actorId === undefined ? {} : { actorId: options.actorId }),
     popupOptions: { backend, dataStore: options.dataStore },
     timers: wallTimers,

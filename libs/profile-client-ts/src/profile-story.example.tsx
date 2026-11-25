@@ -7,7 +7,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
 import type { ProfileIdentity } from './profile-screen-view';
 

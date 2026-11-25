@@ -1,7 +1,7 @@
 import { afterEach, expect, test } from 'bun:test';
 import { PaddleCourt } from '@pkgs/ui-root-client-ts/paddle-court';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 afterEach(cleanup);
@@ -32,6 +32,7 @@ test('Pong position updates retain paddle elements while repainting geometry', (
   const right = view.getByTestId('pong-second-paddle');
   for (let frame = 1; frame <= 120; frame++) {
     setY(400 + frame);
+    flush();
     expect(view.getByTestId('pong-first-paddle') === left).toBe(true);
     expect(view.getByTestId('pong-second-paddle') === right).toBe(true);
     expect(left.getAttribute('y')).toBe(String(328 + frame));

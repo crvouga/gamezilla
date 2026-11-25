@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AccountAutomationBadge } from './account-automation-badge';
 import { useProfileColumn } from './use-profile-column';
 import { useSyncedProfiles } from './use-synced-profiles';

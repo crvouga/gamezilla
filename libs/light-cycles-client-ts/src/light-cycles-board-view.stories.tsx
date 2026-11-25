@@ -16,7 +16,7 @@ import {
 import { createLightCyclesStep } from '@libs/light-cycles-shared-ts/light-cycles-step';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createMemo } from 'solid-js';
+import { createMemo, flush } from 'solid-js';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { LightCyclesBoardView } from './light-cycles-board-view';
@@ -178,10 +178,11 @@ export const Unreadable: Story = {
 function interactiveRender(
   count: 2 | 3 | 4,
   sides: readonly GameSide[],
-  ready?: (journey: LightCyclesJourney) => void
+  ready?: (journey: LightCyclesJourney) => void,
+  initially?: { readonly stale: boolean }
 ) {
   return ((args, context) => {
-    const journey = createLightCyclesJourney(count);
+    const journey = createLightCyclesJourney(count, initially);
     ready?.(journey);
     const codec = lightCyclesPositionCodec(count);
     const position = createMemo(() => codec.encode(journey.state()));
@@ -319,6 +320,7 @@ function collisionJourney(): Story {
       await userEvent.keyboard('{ArrowDown}');
       await expect(rider).toHaveAttribute('data-y', String(before + 1));
       journey.advance(17);
+      flush();
       await expect(
         canvas.getByTestId('custom-game-board-status')
       ).toHaveAttribute('data-steering', 'crashed');
@@ -339,6 +341,7 @@ function collisionJourney(): Story {
         ).toBeDisabled();
       }
       journey.advance(13);
+      flush();
       await expect(
         canvas.getByTestId('custom-game-board-round')
       ).toHaveAttribute('data-phase', 'round-over');
@@ -349,6 +352,7 @@ function collisionJourney(): Story {
         canvas.getByTestId('custom-game-board-arena-overlay')
       ).toHaveAttribute('data-open', 'false');
       journey.advance(60);
+      flush();
       await expect(
         canvas.getByTestId('custom-game-board-round')
       ).toHaveAttribute('data-round', '2');
@@ -367,10 +371,14 @@ export const CollisionThroughNextRound = collisionJourney();
 function recoveryJourney(): Story {
   let journey: LightCyclesJourney;
   return {
-    render: interactiveRender(3, ['white'], (value) => {
-      journey = value;
-      journey.setStale(true);
-    }),
+    render: interactiveRender(
+      3,
+      ['white'],
+      (value) => {
+        journey = value;
+      },
+      { stale: true }
+    ),
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement);
       const arena = canvas.getByTestId('custom-game-board-arena');
@@ -381,6 +389,7 @@ function recoveryJourney(): Story {
       await expect(rider).toHaveAttribute('data-y', before);
       await expect(arena).toHaveAttribute('data-interactive', 'false');
       journey.setStale(false);
+      flush();
       await expect(arena).toHaveAttribute('data-interactive', 'true');
       await userEvent.click(arena);
       await userEvent.keyboard('{ArrowUp}');

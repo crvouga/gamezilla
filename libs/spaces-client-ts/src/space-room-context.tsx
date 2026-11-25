@@ -1,13 +1,12 @@
 import { SPACE_ROOM_MODULE_NAME } from '@libs/spaces-shared-ts/space-room-module-name';
 import type { AnyRoomClient } from '@pkgs/room-root-client-ts/room-clients-context';
 import { RoomClientsProvider } from '@pkgs/room-root-client-ts/room-clients-context';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createEffect,
   createMemo,
-  type JSX,
-  onCleanup,
   useContext,
 } from 'solid-js';
 import {
@@ -37,6 +36,14 @@ export function useSpaceRoomClientId(): Accessor<string | null> {
   return () => (ctx === null ? null : ctx.clientId);
 }
 
+/**
+ * Whether a {@link SpaceRoomProvider} is mounted above: where a hook stands
+ * in the tree, which never changes for its lifetime.
+ */
+export function useHasSpaceRoomSession(): boolean {
+  return useContext(SpaceRoomSessionContext) !== null;
+}
+
 /** Space id for the detail session (null outside {@link SpaceRoomProvider}). */
 export function useSpaceRoomSessionId(): Accessor<string | null> {
   const ctx = useContext(SpaceRoomSessionContext);
@@ -52,9 +59,7 @@ export function SpaceRoomProvider(props: SpaceRoomProviderProps): JSX.Element {
   const spaceId = createMemo(() => resolveId(props.spaceId));
   const entry = useSpaceOpenRoomEntry(spaceId);
   const rooms = useSpaceOpenRooms();
-  createEffect(() => {
-    onCleanup(rooms.view(spaceId()));
-  });
+  createEffect(spaceId, (id) => rooms.view(id));
   const roomMap = createMemo((): ReadonlyMap<string, AnyRoomClient> | null => {
     const current = entry();
     if (current === null) return null;
@@ -71,10 +76,10 @@ export function SpaceRoomProvider(props: SpaceRoomProviderProps): JSX.Element {
     },
   };
   return (
-    <SpaceRoomSessionContext.Provider value={session}>
+    <SpaceRoomSessionContext value={session}>
       <RoomClientsProvider rooms={roomMap()}>
         {props.children}
       </RoomClientsProvider>
-    </SpaceRoomSessionContext.Provider>
+    </SpaceRoomSessionContext>
   );
 }

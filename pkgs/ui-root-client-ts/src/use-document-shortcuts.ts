@@ -1,6 +1,6 @@
 import type { WebKeyboardEventLike } from '@pkgs/ui-root-shared-ts/match';
 import { toWebKeyboardEventLike } from '@pkgs/ui-root-shared-ts/match';
-import { type Accessor, createEffect, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createMemo } from 'solid-js';
 import { useKeyboardShortcutScopeOptional } from './keyboard-shortcut-scope/index';
 
 export function useKeyboardShortcutsEnabled(
@@ -20,14 +20,14 @@ export function useDocumentShortcuts(options: {
   readonly onKeyDown: (ev: WebKeyboardEventLike) => boolean | undefined;
 }): void {
   const active = useKeyboardShortcutsEnabled(options.enabled);
-  createEffect(() => {
-    if (!active() || typeof document === 'undefined') return;
+  createEffect(createMemo(active), (isActive) => {
+    if (!isActive || typeof document === 'undefined') return undefined;
     const listener = (ev: KeyboardEvent) => {
       if (options.onKeyDown(toWebKeyboardEventLike(ev)) === true) {
         ev.preventDefault();
       }
     };
     document.addEventListener('keydown', listener, true);
-    onCleanup(() => document.removeEventListener('keydown', listener, true));
+    return () => document.removeEventListener('keydown', listener, true);
   });
 }

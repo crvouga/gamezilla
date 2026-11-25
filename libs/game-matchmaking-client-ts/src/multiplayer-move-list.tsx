@@ -1,11 +1,12 @@
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   GameMoveList,
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import type { MultiplayerMovesShown } from './multiplayer-game-view';
 
 type ListProps = {

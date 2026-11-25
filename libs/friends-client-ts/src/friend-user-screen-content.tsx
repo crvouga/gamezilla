@@ -3,14 +3,14 @@ import type {
   FriendProfile,
   FriendshipStatus,
 } from '@libs/friends-shared-ts/friends-types';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { UserIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 import { FriendActionPillsForStatus } from './friend-action-pills-by-status';
 import { FriendProfileHeader } from './friend-profile-header';

@@ -5,7 +5,8 @@ import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import type { FocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { Index, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { type QuoridorTool, quoridorBoundary } from './quoridor-board-cells';
 
 /** The same tools in every host, directly beside the working board. */
@@ -21,7 +22,7 @@ export function QuoridorBoardTools(props: {
       wrap
       dataSet={{ testid: `${props.testId}-tools` }}
     >
-      <Index each={props.actions}>
+      <For keyed={false} each={props.actions}>
         {(action) => (
           <Button
             title={action().id === 'mode-move' ? t`Move` : action().label}
@@ -38,7 +39,7 @@ export function QuoridorBoardTools(props: {
             onClick={action().run}
           />
         )}
-      </Index>
+      </For>
     </StackHorizontal>
   );
 }

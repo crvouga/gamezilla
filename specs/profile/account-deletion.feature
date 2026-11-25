@@ -5,6 +5,7 @@ Feature: Permanently delete an account
 
   Rule: Deletion requires a recently proven account and an explicit confirmation
 
+    @regression:deletion-receipt-after-browser-navigation
     Scenario: Confirming deletion withdraws the account from use
       Given Alice has a recently proven account
       And Alice has reviewed the consequences of account deletion
@@ -43,6 +44,7 @@ Feature: Permanently delete an account
       When Alice asks for account deletion
       Then Alice is asked to sign in because deletion needs an account
 
+    @regression:offline-privacy-navigation-reloads-auth
     Scenario: An offline confirmation never queues a deletion for later
       Given Alice has a recently proven account
       And Alice is offline

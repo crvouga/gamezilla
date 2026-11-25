@@ -6,6 +6,7 @@ import {
   savedPuzzleSourceSchema,
 } from '@libs/chess-puzzle-shared-ts/puzzle-source';
 import { useHttpClient } from '@pkgs/http-client-client-ts/solid';
+import { untrack } from 'solid-js';
 
 export class PuzzleSourceRequestError extends Error {
   constructor(
@@ -22,15 +23,14 @@ export function usePuzzleManagementApi() {
   const auth = useClientRequestAuth();
   const http = useHttpClient();
   const request = async (suffix: string, init: RequestInit) => {
+    // A request carries the credentials held as it is sent, whether a press
+    // or an effect sends it.
+    const credentials = untrack(() =>
+      clientAuthHeaders(auth, { requireAccountIdForBearer: true })
+    );
     const response = await http.fetch(
       `${config.getApiUrl().replace(/\/$/, '')}/api/puzzle-management/source${suffix}`,
-      {
-        ...init,
-        headers: {
-          ...clientAuthHeaders(auth, { requireAccountIdForBearer: true }),
-          ...init.headers,
-        },
-      }
+      { ...init, headers: { ...credentials, ...init.headers } }
     );
     if (!response.ok) {
       const detail = await response.text();

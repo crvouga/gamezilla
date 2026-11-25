@@ -12,7 +12,7 @@ import { openHarness } from './open-profile-harness';
 
 // regression: overdue-export-retry-requires-fresh-proof
 test('an overdue export offers fresh proof and can be requested again after sign-in', async () => {
-  await using s = await openHarness('overdue-export-proof');
+  await using s = await openHarness();
   await s.apply(proveAccount, 'alice');
   await s.apply(askForExport, 'alice');
   await s.apply(privacyTimePasses, 24 * 3_600_000, false);

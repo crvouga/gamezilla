@@ -3,7 +3,7 @@ import { SpacesLobbyView } from '@libs/spaces-client-ts/spaces-lobby-view';
 import { useSpacesLobby } from '@libs/spaces-client-ts/use-spaces-lobby';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { SecureStorageStoreProvider } from '@pkgs/secure-storage-root-client-ts/solid';
 import { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
@@ -14,6 +14,7 @@ import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { render, screen } from '@solidjs/testing-library';
 import fc from 'fast-check';
+import { flush } from 'solid-js';
 
 /** Which of the lobby's local reads a watch is. */
 type LobbyRead = 'hosted' | 'list' | 'other';
@@ -94,6 +95,7 @@ function mountLobby() {
   ): void => {
     reads[read] = { rows, hydrated: true };
     for (const listener of listeners) listener();
+    flush();
   };
   return {
     dispose: () => view.unmount(),

@@ -1,10 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import type { IconComponent } from '../create-icon/index';
 
 export type StateBlockVariant = 'fill' | 'compact';
@@ -51,13 +50,15 @@ export function StateBlock(props: StateBlockProps): JSX.Element {
   const centered = (): boolean => (props.align ?? 'center') === 'center';
   return (
     <div
-      class="box w-full"
-      classList={{
-        'items-center justify-center px-4': centered(),
-        'items-start justify-start': !centered(),
-        'flex-1 py-12': isFill() && centered(),
-        'py-8': !(isFill() && centered()),
-      }}
+      class={[
+        'box w-full',
+        {
+          'items-center justify-center px-4': centered(),
+          'items-start justify-start': !centered(),
+          'flex-1 py-12': isFill() && centered(),
+          'py-8': !(isFill() && centered()),
+        },
+      ]}
       {...dataAttrs({
         component: 'StateBlock',
         variant: props.variant ?? 'fill',
@@ -67,11 +68,13 @@ export function StateBlock(props: StateBlockProps): JSX.Element {
       role={props.role}
     >
       <div
-        class="box w-full max-w-ui-prose gap-2"
-        classList={{
-          'items-center justify-center text-center': centered(),
-          'items-start text-left': !centered(),
-        }}
+        class={[
+          'box w-full max-w-ui-prose gap-2',
+          {
+            'items-center justify-center text-center': centered(),
+            'items-start text-left': !centered(),
+          },
+        ]}
       >
         {props.children}
       </div>
@@ -100,14 +103,16 @@ export type StateBlockIconProps = {
  */
 export function StateBlockIcon(props: StateBlockIconProps): JSX.Element {
   const isFill = (): boolean => (props.variant ?? 'fill') === 'fill';
+  const Icon = dynamic(() => props.icon);
   return (
     <div
-      class="box shrink-0 items-center justify-center rounded-full border border-solid border-border"
-      classList={{ 'size-24 mb-2': isFill(), 'size-16 mb-1': !isFill() }}
+      class={[
+        'box shrink-0 items-center justify-center rounded-full border border-solid border-border',
+        { 'size-24 mb-2': isFill(), 'size-16 mb-1': !isFill() },
+      ]}
       data-component="StateBlockIcon"
     >
-      <Dynamic
-        component={props.icon}
+      <Icon
         size={isFill() ? iconSize['2xl'] : iconSize.xl}
         strokeWidth={DISC_STROKE_WIDTH}
         color={TONE_COLOR[props.tone ?? 'neutral']}
@@ -124,11 +129,13 @@ export function StateBlockActions(props: {
 }): JSX.Element {
   return (
     <div
-      class="box mt-2 flex-row flex-wrap items-center gap-2"
-      classList={{
-        'justify-center': (props.align ?? 'center') === 'center',
-        'justify-start': props.align === 'start',
-      }}
+      class={[
+        'box mt-2 flex-row flex-wrap items-center gap-2',
+        {
+          'justify-center': (props.align ?? 'center') === 'center',
+          'justify-start': props.align === 'start',
+        },
+      ]}
     >
       {props.children}
     </div>

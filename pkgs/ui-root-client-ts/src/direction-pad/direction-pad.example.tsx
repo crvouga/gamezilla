@@ -2,7 +2,7 @@ import {
   DirectionPad,
   type DirectionPadProps,
 } from '@pkgs/ui-root-client-ts/direction-pad';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';

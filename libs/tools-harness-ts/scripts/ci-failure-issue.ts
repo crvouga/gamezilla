@@ -37,15 +37,19 @@ export function checkedIssueOutput(result: {
 export type IssueAction =
   | { readonly kind: 'create' }
   | { readonly kind: 'update'; readonly issue: string }
-  | { readonly kind: 'close'; readonly issue: string }
+  | { readonly kind: 'close'; readonly issues: readonly string[] }
   | { readonly kind: 'none' };
 
 /** What a run does to the workflow's issue, from its verdict and the open issue. */
-export function issueAction(red: boolean, open: string | null): IssueAction {
-  if (red && open === null) return { kind: 'create' };
-  if (red && open !== null) return { kind: 'update', issue: open };
-  if (open !== null) return { kind: 'close', issue: open };
-  return { kind: 'none' };
+export function issueAction(
+  red: boolean,
+  open: readonly string[]
+): IssueAction {
+  const current = open[0];
+  if (current === undefined) return { kind: red ? 'create' : 'none' };
+  return red
+    ? { kind: 'update', issue: current }
+    : { kind: 'close', issues: open };
 }
 
 const HISTORY = /<!-- ci-failure red-since=(\S+) red-runs=(\d+) -->/;
@@ -184,19 +188,26 @@ export function fileFailureIssue(input: {
   readonly owner: string;
   readonly runUrl: string;
 }): IssueAction {
-  const open =
-    openFailureIssues(input.repository).find(
-      (issue) => issue.title === input.title
-    ) ?? null;
-  const action = issueAction(input.red, open?.number ?? null);
-  const body = withRedHistory(input.markdown, open?.body ?? null, input.runUrl);
+  const open = openFailureIssues(input.repository).filter(
+    (issue) => issue.title === input.title
+  );
+  const action = issueAction(
+    input.red,
+    open.map((issue) => issue.number)
+  );
+  const body = withRedHistory(
+    input.markdown,
+    open[0]?.body ?? null,
+    input.runUrl
+  );
   if (action.kind === 'create') {
     ensureLabel(input.repository);
     createFailureIssue({ ...input, body });
   } else if (action.kind === 'update') {
     updateFailureIssue(input.repository, action.issue, body);
   } else if (action.kind === 'close') {
-    closeFailureIssue(input.repository, action.issue, input.markdown);
+    for (const issue of action.issues)
+      closeFailureIssue(input.repository, issue, input.markdown);
   }
   return action;
 }

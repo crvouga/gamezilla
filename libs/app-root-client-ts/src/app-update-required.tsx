@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Top banner when the product no longer accepts this version of the app
  * (sync `upgrade_required`): the person is asked to update instead of being
@@ -7,7 +7,8 @@
  */
 
 import { reloadApp } from '@libs/app-root-shared-ts/reload-app';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { AppUpdateRequiredBannerView } from './app-update-required-view';
 import { useSyncStatus } from './sync-status-context';
 

@@ -1,11 +1,7 @@
 import { t } from '@lingui/core/macro';
-import {
-  createEffect,
-  createSignal,
-  type JSX,
-  onCleanup,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createEffect, createSignal, onSettled, Show } from 'solid-js';
 import { observeElementResize } from '../observe-element-resize';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { P } from '../text/index';
@@ -27,24 +23,26 @@ export function WordTileOverview(props: {
 }): JSX.Element {
   const [open, setOpen] = createSignal(false);
   const [box, setBox] = createSignal({ x: 0, y: 0, width: 1, height: 1 });
-  createEffect(() => {
-    const viewport = props.viewport();
-    if (!viewport) return;
-    const read = () =>
-      setBox({
-        x: viewport.scrollLeft / Math.max(1, viewport.scrollWidth),
-        y: viewport.scrollTop / Math.max(1, viewport.scrollHeight),
-        width: viewport.clientWidth / Math.max(1, viewport.scrollWidth),
-        height: viewport.clientHeight / Math.max(1, viewport.scrollHeight),
-      });
-    read();
-    viewport.addEventListener('scroll', read);
-    const stop = observeElementResize(viewport, read);
-    onCleanup(() => {
-      viewport.removeEventListener('scroll', read);
-      stop();
-    });
-  });
+  createEffect(
+    () => props.viewport(),
+    (viewport) => {
+      if (!viewport) return undefined;
+      const read = () =>
+        setBox({
+          x: viewport.scrollLeft / Math.max(1, viewport.scrollWidth),
+          y: viewport.scrollTop / Math.max(1, viewport.scrollHeight),
+          width: viewport.clientWidth / Math.max(1, viewport.scrollWidth),
+          height: viewport.clientHeight / Math.max(1, viewport.scrollHeight),
+        });
+      read();
+      viewport.addEventListener('scroll', read);
+      const stop = observeElementResize(viewport, read);
+      return () => {
+        viewport.removeEventListener('scroll', read);
+        stop();
+      };
+    }
+  );
   return (
     <div class={styles['context']} data-overview>
       <WordTileRegions
@@ -56,12 +54,12 @@ export function WordTileOverview(props: {
       <div class={styles['tools']}>
         <div class={styles['commands']}>
           {props.controls}
-          <button
+          <SdkButton
             type="button"
             class={styles['locator']}
             aria-haspopup="dialog"
             onClick={() => setOpen(true)}
-          >{t`Find a square`}</button>
+          >{t`Find a square`}</SdkButton>
         </div>
         <P variant="caption">{t`View an area`}</P>
         <P variant="caption" testId={`${props.board.testId}-square-details`}>
@@ -79,7 +77,11 @@ export function WordTileOverview(props: {
           <P>{t`Choose a square to view on the enlarged board. This does not place a tile.`}</P>
           {props.locator((id) => {
             setOpen(false);
-            props.onLocate(id);
+            // The square takes focus once the surface has closed and let go
+            // of it.
+            onSettled(() => {
+              props.onLocate(id);
+            });
           })}
         </ResponsiveSurface>
       </Show>

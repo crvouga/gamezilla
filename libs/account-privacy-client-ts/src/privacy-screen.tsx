@@ -1,7 +1,7 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useParams } from '@solidjs/router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { usePrivacyActionAccess } from './privacy-action-access';
 import { PrivacyScreenView } from './privacy-screen-view';
 import { useAccountDeletion } from './use-account-deletion';

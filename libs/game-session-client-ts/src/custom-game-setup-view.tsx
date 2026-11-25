@@ -1,4 +1,4 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -16,7 +16,8 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { For, Index, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import {
   FrameHolderAvatar,
@@ -472,9 +473,9 @@ export function CustomGameSetupPlace(
         }
         dataSet={{ testid: 'custom-game-setup-seats' }}
       >
-        <Index each={props.setup.seats}>
+        <For keyed={false} each={props.setup.seats}>
           {(seat) => <SeatRow {...props} seat={seat()} />}
-        </Index>
+        </For>
       </MenuSection>
       <AgreedRows {...props} />
       {/* Calling the game off: last on the page, quiet, and it asks first. */}

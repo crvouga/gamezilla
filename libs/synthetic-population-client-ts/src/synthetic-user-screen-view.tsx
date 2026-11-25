@@ -1,6 +1,6 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { Inspection } from '@libs/synthetic-population-shared-ts/inspection';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import {
@@ -16,7 +16,8 @@ import type {
   ScreenBaseAction,
   ScreenBaseBreadcrumb,
 } from '@pkgs/ui-root-client-ts/screen-base-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { SyntheticUserDetail } from './synthetic-population-api';
 import { SyntheticPopulationDenial } from './synthetic-population-denial';
 import { panelCrumbs, useRefreshAction } from './synthetic-population-frame';

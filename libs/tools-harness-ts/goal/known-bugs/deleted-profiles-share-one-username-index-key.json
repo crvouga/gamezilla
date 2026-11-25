@@ -1,0 +1,4 @@
+{
+  "summary": "Profiles served to another device redacted every deleted account's normalized username to the same empty string. Receiving a second tombstone then violated the unique profile username index and prevented the device from applying the snapshot.",
+  "regressionTest": "libs/profile-shared-ts/tests/deleted-profile-read.test.ts"
+}

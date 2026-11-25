@@ -26,6 +26,7 @@
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

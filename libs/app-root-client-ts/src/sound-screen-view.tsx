@@ -1,14 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Volume2Icon, VolumeXIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Switch } from '@pkgs/ui-root-client-ts/switch';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
 
 const ROW_ICON_SIZE = 20;
 
@@ -27,6 +26,7 @@ export function SoundSettingsScreenView(
   props: SoundSettingsScreenViewProps
 ): JSX.Element {
   const { t } = useLingui();
+  const SoundIcon = dynamic(() => (props.muted ? VolumeXIcon : Volume2Icon));
   return (
     <MenuScreen
       screenId="sound"
@@ -47,13 +47,7 @@ export function SoundSettingsScreenView(
         <MenuRow
           title={t`Sound effects`}
           caption={props.muted ? t`Muted` : t`On`}
-          leading={
-            <Dynamic
-              component={props.muted ? VolumeXIcon : Volume2Icon}
-              size={ROW_ICON_SIZE}
-              color="icon"
-            />
-          }
+          leading={<SoundIcon size={ROW_ICON_SIZE} color="icon" />}
           trailing={
             <Switch
               value={!props.muted}

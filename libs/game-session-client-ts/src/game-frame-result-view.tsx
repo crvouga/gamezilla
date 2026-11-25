@@ -5,7 +5,8 @@ import {
   GameStandings,
 } from '@pkgs/ui-root-client-ts/game-result';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { FrameHolderAvatar } from './game-frame-people';
 import type { FramePeople, FrameResult } from './game-frame-view-types';
 

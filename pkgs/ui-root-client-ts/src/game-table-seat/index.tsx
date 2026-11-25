@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createContext, type JSX, Show, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createContext, Show, useContext } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import { createScreenSlot } from '../screen-slot';
@@ -88,13 +90,13 @@ export function GameTableSeat(props: GameTableSeatProps): JSX.Element {
         }
       >
         {(press) => (
-          <button
+          <SdkButton
             type="button"
             class={`clickable ${styles['face']}`}
             onClick={() => press()()}
           >
             <SeatFace {...props} />
-          </button>
+          </SdkButton>
         )}
       </Show>
     </div>
@@ -120,7 +122,7 @@ export type GameTablePlayer = {
 
 type SeatLender = (side: string) => GameTablePlayer;
 
-const GameTableSeatsContext = createContext<SeatLender | undefined>();
+const GameTableSeatsContext = createContext<SeatLender | null>(null);
 
 /**
  * Lends the board inside it the person in each seat, by the seat's side,
@@ -132,13 +134,11 @@ export function GameTableSeats(props: {
 }): JSX.Element {
   const lend: SeatLender = (side) => props.seat(side);
   return (
-    <GameTableSeatsContext.Provider value={lend}>
-      {props.children}
-    </GameTableSeatsContext.Provider>
+    <GameTableSeatsContext value={lend}>{props.children}</GameTableSeatsContext>
   );
 }
 
 /** The person in each seat, when a host lends them; `undefined` otherwise. */
 export function useGameTableSeat(): SeatLender | undefined {
-  return useContext(GameTableSeatsContext);
+  return useContext(GameTableSeatsContext) ?? undefined;
 }

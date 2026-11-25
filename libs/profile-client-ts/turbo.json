@@ -8,9 +8,6 @@
     "test:spec:1": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
     },
-    "verify:models": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/*.qnt"]
-    },
     "test:spec:2": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/profile/**"]
     },
@@ -82,6 +79,7 @@
         "@libs/sub-client-ts#src",
         "@libs/test-ids-shared-ts#src",
         "@pkgs/clock-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/secure-storage-root-client-ts#src",
         "@pkgs/solid-context-client-ts#src",
         "@pkgs/sync-engine-client-ts#src",

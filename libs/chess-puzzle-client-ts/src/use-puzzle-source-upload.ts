@@ -18,14 +18,17 @@ export function usePuzzleSourceUpload(
   const [uploadProgress, setUploadProgress] = createSignal(0);
   let controller: AbortController | undefined;
   usePendingOperation(uploading, () => controller?.abort());
-  createEffect(() => {
-    if (!connection.status().online && uploading())
-      controller?.abort(
-        new Error(
-          'The Lichess file could not finish saving without a connection.'
-        )
-      );
-  });
+  createEffect(
+    () => !connection.status().online && uploading(),
+    (cutOff) => {
+      if (cutOff)
+        controller?.abort(
+          new Error(
+            'The Lichess file could not finish saving without a connection.'
+          )
+        );
+    }
+  );
   onCleanup(() => controller?.abort());
   const save = async (): Promise<void> => {
     if (!connection.status().online)

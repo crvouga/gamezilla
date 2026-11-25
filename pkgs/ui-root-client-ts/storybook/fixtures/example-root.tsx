@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { spaced } from '@pkgs/ui-root-client-ts/layout-classes';
 import { spacingClass } from '@pkgs/ui-root-client-ts/space-classes';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { SpaceToken } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** Floor on the example height: `sm` 200, `md` 360, `lg` 400. */
 export type ExampleRootMinHeight = 'sm' | 'md' | 'lg';

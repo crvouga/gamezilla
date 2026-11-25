@@ -8,12 +8,12 @@ import { useSpaceRoomSelector } from './use-space-room-selector';
  * Empty when the space room is not connected — ACL is not presence.
  */
 export function useSpaceGuestMembershipIds(
-  spaceId: string
+  spaceId: Accessor<string>
 ): Accessor<readonly string[]> {
   const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);
   const seats = useSpaceRoomSelector(SpaceMembersRoomAttr.seats.from);
   return createMemo(() => {
-    if (spaceId.length === 0) return [];
+    if (spaceId().length === 0) return [];
     const host = hostMemberId();
     return Object.keys(seats())
       .filter((id) => id !== host)

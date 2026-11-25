@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import { ActionBarIconButton } from '../action-bar-icon-button/index';
 import { ActionBarLabeledControl } from '../action-bar-labeled-control/index';
 import type {
@@ -76,6 +77,8 @@ export function ActionBarOverflowTrigger(props: {
   buttonSize: number;
   onOpen: () => void;
   setTrigger: (el: HTMLElement) => void;
+  /** Reports the trigger's box to the bar's width budget. */
+  track: () => (el: HTMLElement) => void;
   open: boolean;
   overflowTrigger?: ActionBarOverflowTriggerSpec;
   showInlineLabels?: boolean | undefined;
@@ -96,7 +99,7 @@ export function ActionBarOverflowTrigger(props: {
     <div
       class="box"
       {...dataAttrs({ component: 'ActionBarOverflowTrigger' })}
-      ref={props.setTrigger}
+      ref={[props.setTrigger, props.track()]}
     >
       <Switch
         fallback={
@@ -177,8 +180,11 @@ function ActionBarInlineItem(props: {
   );
 }
 
-/** Reports a rendered inline element's box to the bar's width budget. */
-export type ActionBarTrack = (id: string, el: HTMLElement) => void;
+/**
+ * The `ref` callback that reports a rendered inline element's box to the
+ * bar's width budget.
+ */
+export type ActionBarTrack = (id: string) => (el: HTMLElement) => void;
 
 export function ActionBarIconItems(props: {
   items: readonly ActionBarItem[];
@@ -192,7 +198,7 @@ export function ActionBarIconItems(props: {
   return (
     <For each={props.items}>
       {(item) => (
-        <div class="box" ref={(el) => props.track(item.id, el)}>
+        <div class="box" ref={props.track(item.id)}>
           <ActionBarInlineItem
             item={item}
             buttonSize={props.buttonSize}
@@ -212,7 +218,7 @@ export function ActionBarTextItems(props: {
   return (
     <For each={props.actions}>
       {(action) => (
-        <div class="box" ref={(el) => props.track(action.id, el)}>
+        <div class="box" ref={props.track(action.id)}>
           <Button
             title={action.label}
             onClick={action.onClick}

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
@@ -6,7 +6,7 @@ import type { TabItem } from '@pkgs/ui-root-client-ts/tabs';
 import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
 import { screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const ITEMS: readonly TabItem[] = [
@@ -107,6 +107,7 @@ describe('Tabs', () => {
     ));
     expect(panelText()).toBe('friends panel');
     setValue('about');
+    flush();
     expect(panelText()).toBe('about panel');
     await user.click(screen.getByRole('tab', { name: /Games/ }));
     expect(screen.getByRole('tab', { name: /Games/ })).toHaveAttribute(

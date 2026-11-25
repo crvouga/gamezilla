@@ -1,0 +1,4 @@
+{
+  "summary": "The Sokoban rules decoded and re-encoded all 400 terrain squares for every move, completion check and statistics read on the same board. Two walking moves from H2 on the maximum board parsed its unchanged definition five times.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-board-decode-work.test.tsx"
+}

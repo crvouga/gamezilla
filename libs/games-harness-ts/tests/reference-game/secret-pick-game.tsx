@@ -33,7 +33,9 @@ import {
   type TurnGameCapabilities,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { For, type JSX } from 'solid-js';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import {
   SECRET_PICK_BOTS,
   SECRET_PICK_RULES,
@@ -52,14 +54,14 @@ function Board(props: GameBoardProps): JSX.Element {
     >
       <For each={SECRET_PICK_RULES.legal(props.position)}>
         {(guess) => (
-          <button
+          <Pressable
             type="button"
-            data-testid={`${props.testId}-${guess}`}
+            testId={`${props.testId}-${guess}`}
             disabled={!props.interactive}
-            onClick={() => props.onAction(guess)}
+            onPress={() => props.onAction(guess)}
           >
             {guess}
-          </button>
+          </Pressable>
         )}
       </For>
     </div>
@@ -72,15 +74,15 @@ function SetupBoard(props: GameSetupBoardProps): JSX.Element {
     <div data-testid={props.testId} data-setup={props.setup}>
       <For each={SECRETS}>
         {(secret) => (
-          <button
+          <Pressable
             type="button"
-            data-testid={`${props.testId}-${secret}`}
+            testId={`${props.testId}-${secret}`}
             disabled={props.locked}
-            aria-pressed={props.setup === secret}
-            onClick={() => props.onChange(secret)}
+            pressed={props.setup === secret}
+            onPress={() => props.onChange(secret)}
           >
             {secret}
-          </button>
+          </Pressable>
         )}
       </For>
     </div>

@@ -16,6 +16,7 @@ import { acknowledgeWriteRejectionMutation } from '@pkgs/sync-engine-shared-ts/a
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -52,6 +53,7 @@ function refusalsEngine(initial: readonly WriteRefusal[]) {
   const set = (next: readonly WriteRefusal[]): void => {
     rows = next;
     for (const listener of listeners) listener();
+    flush();
   };
   return { engine, set };
 }
@@ -84,7 +86,7 @@ function renderNotices(engine: SyncEngine) {
         fixedLayout={{ width: 390, height: 844 }}
       >
         <SyncEngineProvider value={engine}>
-          <MutationClientContext.Provider value={client}>
+          <MutationClientContext value={client}>
             <StackVertical testId="place-space">
               <RefusedChangeNotice
                 mutations={[
@@ -98,7 +100,7 @@ function renderNotices(engine: SyncEngine) {
             <StackVertical testId="place-sync">
               <OtherRefusedChanges />
             </StackVertical>
-          </MutationClientContext.Provider>
+          </MutationClientContext>
         </SyncEngineProvider>
       </ThemeProvider>
     </ClockProvider>

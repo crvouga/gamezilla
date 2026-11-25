@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -15,8 +15,8 @@ import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import type { JSX } from 'solid-js';
-import { Index, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
 import {
   SpaceBadgeView,
@@ -77,9 +77,15 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
         if (props.joinPending) return t`Check again`;
         return props.needsConnection ? t`Try joining again` : t`Join space`;
       },
-      loading: t`Joining…`,
-      success: t`Joined`,
-      error: t`Couldn't join`,
+      get loading() {
+        return t`Joining…`;
+      },
+      get success() {
+        return t`Joined`;
+      },
+      get error() {
+        return t`Couldn't join`;
+      },
     },
     get disabled() {
       return props.joinDisabled;
@@ -215,11 +221,11 @@ function SpaceJoinWhoIsHere(props: {
             maxVisible={JOIN_FACES_SHOWN}
             ringColor="surface"
           >
-            <Index each={props.guests}>
+            <For keyed={false} each={props.guests}>
               {(guest) => (
                 <SpacePersonAvatar person={guest()} size={JOIN_FACE_SIZE} />
               )}
-            </Index>
+            </For>
           </AvatarGroup>
           <JoinGuestsLine guests={props.guests} viewerId={props.viewerId} />
         </StackVertical>

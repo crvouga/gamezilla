@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AVATAR_SIZES, Avatar } from '@pkgs/ui-root-client-ts/avatar';
@@ -15,7 +15,7 @@ import { SoundIndicator } from '@pkgs/ui-root-client-ts/sound-indicator';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { cssOf, renderUi } from './render';
 
 function byComponent(name: string): HTMLElement {
@@ -204,11 +204,13 @@ describe('SoundIndicator', () => {
       'idle'
     );
     renderUi(() => <SoundIndicator state={state()} />);
-    const status = screen.getByRole('status');
+    const status = screen.getByRole('status', { name: 'Sound on' });
     const idleLabel = status.getAttribute('aria-label');
     setState('muted');
+    flush();
     expect(status.getAttribute('aria-label')).not.toBe(idleLabel);
     setState('playing');
+    flush();
     expect(status.querySelector('svg')).not.toBeNull();
   });
 });
@@ -253,6 +255,7 @@ describe('useRelativeTimeLabel', () => {
     clock.set(3 * 3_600_000);
     expect(screen.getByTestId('l')).toHaveTextContent('3h ago');
     setAt(new Date(0).toISOString());
+    flush();
     clock.set(2 * 86_400_000);
     expect(screen.getByTestId('l')).toHaveTextContent('2d ago');
   });

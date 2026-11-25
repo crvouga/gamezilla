@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Label } from '@ui-sdk/solid/label';
+import { Show } from 'solid-js';
 import { spaced } from '../layout-classes';
 import { toneClass } from '../text-classes';
 
@@ -44,7 +46,7 @@ export type FieldLabelProps = {
  */
 export function FieldLabel(props: FieldLabelProps): JSX.Element {
   return (
-    <label
+    <Label
       class={spaced([
         'text textLabel flex flex-row items-baseline gap-ui-xs',
         toneClass(props.tone),
@@ -63,6 +65,6 @@ export function FieldLabel(props: FieldLabelProps): JSX.Element {
       <Show when={props.hint !== undefined && props.hint !== null}>
         <span class="textCaption">{props.hint}</span>
       </Show>
-    </label>
+    </Label>
   );
 }

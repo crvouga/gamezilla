@@ -22,11 +22,14 @@
   },
   "dependencies": {
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
     "@pkgs/async-root-client-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/ui-devtools-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
+    "@ui-sdk/core": "catalog:",
+    "@ui-sdk/solid": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

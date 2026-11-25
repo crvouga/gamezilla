@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The Account screen's danger zone is compact, one line per choice, and the
  * screen's section copy says plainly what each section holds.

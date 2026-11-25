@@ -56,7 +56,13 @@ import { createInMemorySyncEngine } from '@pkgs/sync-engine-harness-ts/in-memory
 import type { MutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { createHarnessIds } from '@pkgs/uuid-shared-ts/seeded-create-id';
-import { createComponent, createRoot, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import {
+  children,
+  createComponent,
+  createRenderEffect,
+  createRoot,
+} from 'solid-js';
 
 /** What the probe hands back once mounted: how to read the case's answer. */
 export type ClientProbe = () => DecisionOutput | Promise<DecisionOutput>;
@@ -174,42 +180,46 @@ function mount(
     return null;
   };
   const dispose = createRoot((disposeRoot) => {
-    createComponent(SecureStorageStoreProvider, {
-      value: device.store,
-      get children() {
-        return createComponent(SyncEngineProvider, {
-          value: device.engine,
-          get children() {
-            return createComponent(ClockProvider, {
-              clock,
-              timers,
-              get children() {
-                return createComponent(IdProvider, {
-                  createId: ids.createId,
-                  random: ids.random,
-                  get children() {
-                    return createComponent(MutationClientProvider, {
-                      registry: device.options.mutations ?? {},
-                      env: c.env,
-                      ids: { clientId: 'conformance-client' },
-                      createId: ids.createId,
-                      get children() {
-                        return createComponent(AuthClientProvider, {
-                          port: caseAuthClient(c),
-                          get children() {
-                            return createComponent(probe, {});
-                          },
-                        });
-                      },
-                    });
-                  },
-                });
-              },
-            });
-          },
-        });
-      },
-    });
+    // A provider renders what is under it only while its output is observed.
+    const rendered = children(() =>
+      createComponent(SecureStorageStoreProvider, {
+        value: device.store,
+        get children() {
+          return createComponent(SyncEngineProvider, {
+            value: device.engine,
+            get children() {
+              return createComponent(ClockProvider, {
+                clock,
+                timers,
+                get children() {
+                  return createComponent(IdProvider, {
+                    createId: ids.createId,
+                    random: ids.random,
+                    get children() {
+                      return createComponent(MutationClientProvider, {
+                        registry: device.options.mutations ?? {},
+                        env: c.env,
+                        ids: { clientId: 'conformance-client' },
+                        createId: ids.createId,
+                        get children() {
+                          return createComponent(AuthClientProvider, {
+                            port: caseAuthClient(c),
+                            get children() {
+                              return createComponent(probe, {});
+                            },
+                          });
+                        },
+                      });
+                    },
+                  });
+                },
+              });
+            },
+          });
+        },
+      })
+    );
+    createRenderEffect(rendered, () => undefined);
     return disposeRoot;
   });
   if (read === null) throw new Error('conformance: the probe never mounted');

@@ -1,0 +1,4 @@
+{
+  "summary": "Opening a screen place returned the stored place instead of nothing, so an effect that opened one handed it back as its cleanup and halted every update on the puzzle screens.",
+  "regressionTest": "pkgs/turn-game-client-ts/tests/use-screen-place.test.ts"
+}

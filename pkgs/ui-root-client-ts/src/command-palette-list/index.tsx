@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createEffect, For, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, For, Show } from 'solid-js';
 import type { PaletteRow } from '../command-palette-filter';
 import { CommandPaletteRow } from '../command-palette-row/index';
 import { CommandPaletteSection } from '../command-palette-section/index';
@@ -53,13 +54,15 @@ export function CommandPaletteList(
     ];
     return row?.kind === 'item' ? row.command.id : undefined;
   };
-  createEffect(
-    on(selectedCommandId, (id) => {
-      if (id !== undefined) {
-        scrollRowIntoView(hostEl, commandPaletteRowId(props.listboxId, id));
-      }
-    })
-  );
+  const selectedRowId = (): string | undefined => {
+    const id = selectedCommandId();
+    return id === undefined
+      ? undefined
+      : commandPaletteRowId(props.listboxId, id);
+  };
+  createEffect(selectedRowId, (rowId) => {
+    if (rowId !== undefined) scrollRowIntoView(hostEl, rowId);
+  });
   return (
     <ScrollView maxHeight="md">
       <div

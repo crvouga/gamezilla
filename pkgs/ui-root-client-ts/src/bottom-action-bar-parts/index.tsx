@@ -1,12 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Slots for `BottomActionBar`: tab-style icon+caption action and a contained
  * `Button`.
  */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type {
   BottomActionBarActionItem,
   BottomActionBarButtonItem,
@@ -22,6 +23,7 @@ export function BottomActionBarAction(props: {
 }): JSX.Element {
   const disabled = (): boolean => props.item.disabled === true;
   const selected = (): boolean => props.item.selected === true;
+  const ItemIcon = dynamic(() => props.item.icon);
   // An enabled action reads in full ink; a disabled one steps down to the
   // secondary ink, never faded, so it still reads at text contrast.
   const iconColor = (): string => {
@@ -32,7 +34,7 @@ export function BottomActionBarAction(props: {
     props.item['aria-label'] ??
     (typeof props.item.label === 'string' ? props.item.label : undefined);
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint flex-1 rounded-control items-center justify-center min-w-0 min-h-11 py-1 gap-1"
       {...dataAttrs({
         component: 'BottomActionBarAction',
@@ -42,25 +44,26 @@ export function BottomActionBarAction(props: {
       onClick={() => props.item.onClick()}
       disabled={disabled()}
       aria-label={ariaLabel()}
-      aria-pressed={props.item.selected === undefined ? undefined : selected()}
+      aria-pressed={ariaBoolean(props.item.selected)}
     >
-      <Dynamic
-        component={props.item.icon}
+      <ItemIcon
         size={ICON_SIZE}
         strokeWidth={ICON_STROKE_WIDTH}
         color={iconColor()}
       />
       <p
-        class="text textFootnote line-clamp-1 text-center w-full"
-        classList={{
-          'text-tint': selected(),
-          'text-text': !selected() && !disabled(),
-          'text-text-secondary': !selected() && disabled(),
-        }}
+        class={[
+          'text textFootnote line-clamp-1 text-center w-full',
+          {
+            'text-tint': selected(),
+            'text-text': !selected() && !disabled(),
+            'text-text-secondary': !selected() && disabled(),
+          },
+        ]}
       >
         {props.item.label}
       </p>
-    </button>
+    </SdkButton>
   );
 }
 

@@ -20,7 +20,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
   untrack,
 } from 'solid-js';
 import type { CreateSpaceRoomResult } from './create-space-room';
@@ -243,6 +242,8 @@ async function waitForSpaceAdmission(
 export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
   room: Accessor<SpaceRoom | null>;
   transport: Accessor<ClientTransport | null>;
+  /** Whether the open room was opened for the present bootstrap. */
+  roomIsCurrent: () => boolean;
 } {
   const { bootstrap, configService, kv, sessionToken, getFreshToken } = args;
   const [room, setRoom] = createSignal<SpaceRoom | null>(null);
@@ -297,13 +298,14 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
     return normalizeSessionToken(fresh ?? sessionToken());
   };
 
-  createEffect(() => {
-    const key = bootstrapKey();
+  // Keyed only on bootstrapKey: one live socket per open space identity.
+  // Token refresh flows through accessors on reconnect.
+  createEffect(bootstrapKey, (key) => {
     if (key === null) {
       tearDown();
       return;
     }
-    const stop = beginOpenSpaceRoom({
+    return beginOpenSpaceRoom({
       bootstrap: untrack(() => bootstrap())!,
       bootstrapKey: key,
       configService,
@@ -322,10 +324,13 @@ export function useSpaceRoomConnection(args: UseSpaceRoomConnectionArgs): {
       openingKeyRef,
       tearDown,
     });
-    // Intentionally keyed only on bootstrapKey: one live socket per open
-    // space identity. Token refresh flows through accessors on reconnect.
-    onCleanup(stop);
   });
 
-  return { room, transport };
+  // The identity is known a step before the effect above replaces the room:
+  // a command issued in between must not go to the room being closed.
+  const roomIsCurrent = (): boolean =>
+    connectedKeyRef.current !== null &&
+    connectedKeyRef.current === untrack(bootstrapKey);
+
+  return { room, transport, roomIsCurrent };
 }

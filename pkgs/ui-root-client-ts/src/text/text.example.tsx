@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
@@ -9,7 +9,8 @@ import type {
   TextWrap,
 } from '@pkgs/ui-root-client-ts/text-classes';
 import { COLOR_TONES } from '@pkgs/ui-root-shared-ts/token-names';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -47,8 +48,10 @@ function Tones(): JSX.Element {
       <For each={COLOR_TONES}>
         {(tone) => (
           <div
-            class="box rounded-sm"
-            classList={{ 'bg-tint-active': tone === 'on-primary' }}
+            class={[
+              'box rounded-sm',
+              { 'bg-tint-active': tone === 'on-primary' },
+            ]}
           >
             <P variant="label" tone={tone}>
               {tone}

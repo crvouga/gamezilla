@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Minimal theme root stays mounted when the sub/provider tree crashes. */
 
 import type { MotionPreferencePort } from '@pkgs/device-shared-ts/motion-preference';
@@ -11,7 +11,8 @@ import {
   useThemePreference,
 } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { ColorScheme } from '@pkgs/ui-root-shared-ts/colors-types';
-import { createSignal, type JSX, onCleanup, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onCleanup, untrack } from 'solid-js';
 
 /** The scheme `index.html` painted before the app loaded, when it set one. */
 function paintedScheme(): ColorScheme | undefined {

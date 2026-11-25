@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Layer } from '@pkgs/ui-root-client-ts/layer';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * The one boot loading state: shown while identity binds or local SQLite

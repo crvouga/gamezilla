@@ -1,5 +1,5 @@
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** One panel a window manager can show: a tab and the content behind it. */
 export type WindowPanel = {

@@ -1,8 +1,28 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Toggle } from '@ui-sdk/solid/toggle';
+import { Show } from 'solid-js';
+
+export const CHIP_CLASS =
+  'clickable clickableTint hitTarget chip self-start flex-row items-center justify-center gap-2';
+
+export function ChipFace(props: {
+  label: JSX.Element;
+  startIcon?: JSX.Element;
+}) {
+  return (
+    <>
+      <Show when={props.startIcon !== undefined}>
+        <div class="box h-4 items-center justify-center">{props.startIcon}</div>
+      </Show>
+      <span class="text textLabel line-clamp-1">{props.label}</span>
+    </>
+  );
+}
 
 export type ChipProps = {
   label: JSX.Element;
@@ -43,22 +63,19 @@ export function Chip(props: ChipProps): JSX.Element {
   const selected = (): boolean => props.selected === true;
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
-    <button
-      class="clickable clickableTint hitTarget chip self-start flex-row items-center justify-center gap-2"
+    <Toggle
+      class={CHIP_CLASS}
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
-      type="button"
+      pressed={selected()}
       role={role()}
-      aria-pressed={role() === 'button' ? selected() : undefined}
-      aria-checked={role() === 'radio' ? selected() : undefined}
-      tabIndex={props.tabStop === false ? -1 : undefined}
-      onClick={() => props.onClick?.()}
+      aria-pressed={role() === 'button' ? ariaBoolean(selected()) : undefined}
+      aria-checked={role() === 'radio' ? ariaBoolean(selected()) : undefined}
+      tabindex={props.tabStop === false ? -1 : undefined}
+      onPressedChange={() => props.onClick?.()}
       onKeyDown={(event) => props.onKeyDown?.(event)}
       disabled={props.disabled === true}
     >
-      <Show when={props.startIcon !== undefined}>
-        <div class="box h-4 items-center justify-center">{props.startIcon}</div>
-      </Show>
-      <span class="text textLabel line-clamp-1">{props.label}</span>
-    </button>
+      <ChipFace label={props.label} startIcon={props.startIcon} />
+    </Toggle>
   );
 }

@@ -51,7 +51,7 @@ export function writeReleaseStubs(
   return writeFeatureStubs(
     RELEASE_ENVIRONMENT,
     specs,
-    { ...dirs, timelineReports: true },
+    dirs,
     join(packageDir, 'tests/steps/release-index.ts')
   );
 }

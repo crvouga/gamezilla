@@ -25,7 +25,7 @@ than restating it.
 
 - **Access is decided only by `@libs/permissions`.** Sub gates, usage limits, upsells and "sign in to…" prompts all come from a permission decision: `useCan` / `useDecision` / `usePermissions` on the client, `requireInMutation` / `decideInMutation` in mutation bodies, `requirePermission` in server routes. What a denial unlocks is policy config (`unlockRefs`), rendered by `DenialSurface` or run by `useUnlock` — never a sub's own branch. No product code outside auth, billing and permissions reads `isAnon` / `isSignedIn`, imports `@libs/auth/public/access-facts`, queries `is_anon` / `billing_subscriptions`, or names a role or plan (`@libs/permissions/root/access-model` is for tests and the policy root only). The shell chrome shows identity, never a tier. Account-only actions deny anonymous subjects through a policy restriction (`reason: 'requires_account'`). CI: `import-access-facts.grit`, `import-access-model.grit`, `no-access-state-vocabulary.grit`, `no-tier-vocabulary*.grit`.
 
-- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness-ts`, `@apps/product-ts`, `-harness` packages, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness-root-shared-ts` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness-root-shared-ts/README.md`](pkgs/harness-root-shared-ts/README.md)); reports go object store → Atlas: CI publishes to the shared reports store, and the standalone Atlas explorer renders it — no reports screen, command, or API in the product app or harness. Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
+- **All nondeterministic I/O is injected.** Product runtime (`apps/*`, `libs/*`, `pkgs/*`, scripts included) never calls bare `Date.now`, zero-arg `new Date()`, `performance.now`, `setTimeout` / `setInterval`, `fetch`, `crypto.randomUUID`, `Math.random` or `crypto.getRandomValues`. Inject `Clock` / `Timers` (`@pkgs/clock`), HTTP (`@pkgs/http-client`) and `createId` / `random` (`@pkgs/uuid`) from composition roots (`createClient(env)` / `createServer(env)` / `createRoomServer(env)` / `createHarness`, wall adapters at process entry), via Solid context (`ClockProvider` / `useClock` / `useTimers` / `useHttpClient` / `useCreateId`) or constructor/param — never a silent wall fallback, never an `Io` bag. `Session` / Runtime are harness-only (`@libs/harness-ts`, `@apps/product-ts`, `-harness` packages, tests); product envs receive unpacked ports. Do not reintroduce `resolveNow` / `resolveTimers` / `resolveCreateId` / `resolveRandom` / `resolveClock`, `cryptoCreateId` or `mathRandom`. Wall implementations only in tests or entry-shaped files marked `// @io-wall-ok` (`no-bare-io.grit`). File content I/O goes through an injected `@pkgs/object-store` (wall `node:fs` only in `@io-wall-ok` adapters); process I/O stays on `@pkgs/os`. SQL never mints time or ids: no `DEFAULT now()`, `gen_random_uuid()`, `randomblob`, `strftime('now')`, `datetime('now')` or bare `now()` in DML. Scenario authoring lives only in `@pkgs/harness-root-shared-ts` (`defineSystem` / `defineAction` / `defineProperty`, run by `system.run` / `system.explore` / `system.replay`; no package-local world openers or DSLs; guide: [`pkgs/harness-root-shared-ts/README.md`](pkgs/harness-root-shared-ts/README.md)). Gotchas (floats, key order, locale, `hash(state)`, LWW): [`README.md`](README.md#correctness-machinery).
 
 - **One naming convention.** Markdown docs are `SCREAMING_SNAKE_CASE.md`; every other file and directory is `lower-kebab-case` with a lowercase extension chain. The repo briefing is `README.md`. A package may keep its own `README.md` and `<pkg>/docs/`. `docs/` at the repo root holds the generated (gitignored) step-catalog index. Tool-mandated names are the only exemptions, listed in `NAMING_EXEMPT` (`libs/tools-harness-ts/naming/naming-rules.ts`). Verify: `bun run lint:naming`; fix: `bun run naming:fix` (dry run) then `--write`, which also rewrites every reference.
 
@@ -43,7 +43,6 @@ than restating it.
 
 - **Concurrent worktrees never share a hot file.** Many agents work at once, so nothing they routinely add to is one shared file. A register is a directory with one file per entry (`libs/tools-harness-ts/goal/known-bugs/<bug-id>.json`); a list of local modules is discovered from the filesystem (`tests/<kind>/index.ts` loads every `*.steps.ts` / `*.binding.ts`); output derived from sources (step catalogs, the Lingui catalog `messages.po` and its compiled `messages.ts`) is gitignored and written by `bun install` (`postinstall` → `bun run generate`), never committed; numbers measured from the workspace (the CI load in `docs/CI_REQUIREMENTS.md`) are printed by their script, not pasted into a document. A derived file that has to stay committed (`bun.lock`, the Biome scope slices) gets a rule in `libs/tools-harness-ts/scripts/generated-conflicts.ts`, so `bun run git-sync` rebuilds it on a merge conflict instead of anyone merging it by hand.
 
-- **Atlas is an npm dependency, never a copy.** `@crvouga/atlas` installs from npm through the root `catalog`: no submodule, vendored copy, `git` / `file:` dependency or patch. Import only its documented paths (`@crvouga/atlas`, `/spec`, `/schema`, `/reports/<module>`, …) and run its `atlas` / `atlas-visualizer` commands. A bug or gap in Atlas is an issue at [crvouga/atlas](https://github.com/crvouga/atlas/blob/main/docs/reporting-issues.md), never a fix made from here; a workaround in our code is named in that issue and removed when the release that fixes it lands. Upgrade by raising the catalog entry in a commit of its own. Guide: [dogfooding](https://github.com/crvouga/atlas/blob/main/docs/dogfooding.md).
 
 - **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release runs the blocking safety gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
@@ -69,7 +68,7 @@ than restating it.
 
 - **Domain rows are soft-delete only.** Removal sets managed `deleted_at`, never `DELETE FROM` a domain table (mutation `tx` rejects it: `NO_HARD_DELETE`). `defineQuery` snapshots include tombstones; UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows verbatim and rebases pending `sync_engine_mutations` on top — no absence GC. Unsubscribe / denied only clears `sync_engine_scope_meta`. Framework tables (`sync_engine_*`) may hard-delete.
 
-- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `classList` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
+- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
 
 - **Three-layer DI.** Only `SqlClient` and the injected ports are long-lived. Use-case classes take `(db, ports)` and open transactions for writes (reads pass `db` as `SqlTx`). Repositories / services / publishers / handlers take `SqlTx` (`Pick` of `query` / `run`) plus ports and are constructed on demand inside the use case. Factory functions `(tx, ports) => …` are the wiring escape hatch; no `*Container` or registry classes (`no-di-container.grit`). `defineMutation` / `defineQuery` handlers and Solid hooks stay as they are.
 
@@ -115,6 +114,29 @@ Codex reads and `.claude/skills` links for Claude Code. Update them with
 `bunx skills update`, never by hand. Repo-wide lint rules stay Biome plugins
 (`libs/tools-harness-ts/biome-plugins/*.grit`), not ast-grep rules.
 
+## pstack
+
+[pstack](https://github.com/cursor/plugins/tree/main/pstack) is installed as
+project skills in `.agents/skills` (Codex, Cursor, Gemini CLI, OpenCode,
+Copilot), linked from `.claude/skills` for Claude Code, and recorded in
+`skills-lock.json`. Start rigorous work with `/poteto-mode` (playbooks, then
+the other skills as steps need them); `/poteto-help` routes a question to the
+right skill. Its Claude Code subagents are `.claude/agents/poteto-agent.md`
+and `.claude/agents/comment-sicko.md`; its guide and harness adapters are in
+`.agents/docs/`.
+
+- pstack skills use Cursor names (`Task`, `AskQuestion`, `generalPurpose`,
+  Cursor model slugs). Outside Cursor, read
+  [`.agents/docs/harness/claude-code.md`](.agents/docs/harness/claude-code.md)
+  once per session and map those names to your harness's equivalents. Here
+  `<pstack>` is `.agents`, and skills and subagents carry no `pstack:` prefix
+  (`/poteto-mode`, `poteto-agent`).
+- This repository's rules win over a pstack playbook: verification, PR flow
+  and merge are as stated above.
+- Update with `bunx skills update <skill>…`, never by hand; when a skill gains
+  files that fail `lint:naming` or Biome, add it to `NAMING_EXEMPT` and the
+  Biome excludes, as for the other third-party skills.
+
 ## Debugging
 
 Bug reports people send become GitHub issues, each linking its full report;
@@ -135,7 +157,13 @@ mobile and native app surfaces.
 `@pkgs/ui` is the only design-system surface: every component, prop type,
 hook and theme helper is in-house under `pkgs/ui-root-client-ts/src/*`,
 re-exported from individual module exports (`import { Button }
-from '@pkgs/ui-root-client-ts/button'`). No adapter layer, no third-party UI library.
+from '@pkgs/ui-root-client-ts/button'`). Interaction primitives use ui-sdk inside the design system.
+
+Before using ui-sdk, follow the [ui-sdk skill](.agents/skills/ui-sdk/SKILL.md)
+if installed and read `node_modules/@ui-sdk/solid/docs/llms.txt` in the owning
+workspace package. To build a new component, also search
+`node_modules/@ui-sdk/solid/docs/core.md` by heading and read `rendering.md`
+beside it.
 
 **How it looks** is decided once, in
 [`pkgs/ui-root-client-ts/README.md`](pkgs/ui-root-client-ts/README.md): the
@@ -150,7 +178,7 @@ a screen.
 
 **Adding a component:** `pkgs/ui-root-client-ts/src/<name>/index.tsx`, exported through the
 package's `./*` mapping; closed, typed props (token names and variants,
-never `class` / `style`); style with `class` / `classList` / `style`
+never `class` / `style`); style with `class` / `style`
 internally; set `data-*` on the root via `dataAttrs({ component:
 '<PascalName>', ... })`; colocate CSF stories, fixtures and component styles in the same slice, showing meaningful variants,
 states and interactions, and a harness test.
@@ -188,6 +216,17 @@ Components run once; reactivity is tracking, not re-rendering.
   props.userId)`), or remount with `<Show when={id} keyed>`.
 - No JS `switch` in a component (`no-switch-in-component.grit`); use
   `<Switch>` / `<Match>`.
+- Effects are split: `createEffect(compute, apply)`. `compute` tracks and
+  returns values; `apply` does the side effect and returns its cleanup.
+- Never write a signal or store in a component body, a memo or an effect's
+  `compute`; derive instead (`createMemo`, `createSignal(() => props.x)`).
+  Writes belong in handlers, `apply`, `onSettled` and async callbacks.
+- Writes are batched: a read sees the new value after the microtask flush.
+  Tests call `flush()` after a direct write; DOM events and virtual-clock
+  timers flush on their own.
+- Native attributes are attributes: `aria-*` and other enumerated
+  attributes take string tokens, names are lower-case (`tabindex`), and
+  conditional classes go in `class={[...]}`.
 
 Lint: oxlint (`oxlint.config.mts`, eslint-plugin-solid, type-aware via
 oxlint-tsgolint) runs the full Solid set on
@@ -246,7 +285,7 @@ Four workflows, one contract each. Details:
   `nightly` replays every trace at five times the budget), the time budgets,
   and whether reports are kept. The nightly-only
   suites are existing tasks (fresh-seed property runs, determinism fuzz,
-  mutants, real-browser stack runs, UI quality, coverage, benchmarks). Never
+  mutants, real-browser stack runs, coverage, benchmarks). Never
   write a test that exists only for one profile.
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`

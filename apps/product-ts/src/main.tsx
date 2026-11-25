@@ -19,8 +19,9 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { type JSX, onCleanup } from 'solid-js';
-import { render } from 'solid-js/web';
+import { renderApplication } from '@pkgs/ui-root-client-ts/render-application';
+import type { JSX } from '@solidjs/web';
+import { onCleanup } from 'solid-js';
 import './polyfill-entry';
 import './styles.css';
 
@@ -58,4 +59,5 @@ function AppBoot(): JSX.Element {
 }
 
 root.replaceChildren();
-render(() => <AppBoot />, root);
+const dispose = renderApplication(() => <AppBoot />, root);
+if (import.meta.hot) import.meta.hot.dispose(dispose);

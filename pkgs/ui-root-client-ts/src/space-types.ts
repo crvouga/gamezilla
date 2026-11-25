@@ -7,7 +7,7 @@
  * never asks which game it is: a game fills the slots of a `SpaceGame`.
  */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { AvatarSeatColor } from './avatar/index';
 import type { IconComponent } from './create-icon/index';
 import type { GameOptionFieldProps } from './game-option-field/index';

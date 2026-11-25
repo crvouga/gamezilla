@@ -13,7 +13,7 @@ import { t } from '@lingui/core/macro';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
 import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   clockLabel,
   dailyClockParts,

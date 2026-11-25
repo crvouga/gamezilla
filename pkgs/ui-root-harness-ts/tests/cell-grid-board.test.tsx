@@ -10,7 +10,7 @@ import {
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import CellGridBoardExample from '../../ui-root-client-ts/src/cell-grid-board/cell-grid-board.example';
 
 function example() {
@@ -83,6 +83,7 @@ test('barriers and previews update without remounting the focused pawn cell', ()
         : cell
     )
   );
+  flush();
   expect(document.activeElement).toBe(first);
   expect(first.getAttribute('aria-disabled')).toBe('true');
   expect(first.getAttribute('data-edge-top')).toBe('true');
@@ -163,6 +164,7 @@ test('each cell is a named button with a hidden glyph; only enabled cells activa
       enabled: false,
     },
   ]);
+  flush();
   // The same node updates in place, so focus is never lost to a remount.
   expect(at('small-cell-b1')).toBe(second);
   expect(second?.getAttribute('data-tone')).toBe('alert');

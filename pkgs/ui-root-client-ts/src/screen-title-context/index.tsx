@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { shouldShowTopBarTitle } from '@pkgs/ui-root-shared-ts/screen-title-reveal';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createSignal,
-  type JSX,
   useContext,
 } from 'solid-js';
 
@@ -32,9 +32,7 @@ export function ScreenTitleProvider(
     setScrollY: (y) => setShowInTopBar(shouldShowTopBarTitle(y)),
   };
   return (
-    <ScreenTitleContext.Provider value={value}>
-      {props.children}
-    </ScreenTitleContext.Provider>
+    <ScreenTitleContext value={value}>{props.children}</ScreenTitleContext>
   );
 }
 

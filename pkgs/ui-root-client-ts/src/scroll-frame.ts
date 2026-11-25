@@ -7,7 +7,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { SurfaceTone } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { ContentEdgePadding } from './content-edge-padding/index';
 import { resolveFlushEdgeStyles } from './content-edge-padding/index';
 import { flexItemClass, spaced, surfaceClass } from './layout-classes';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { MAX_DESCRIPTION_LENGTH } from '@pkgs/feedback-shared-ts/bug-report';
 import { asLocalized } from '@pkgs/i18n-shared-ts/localized-string';

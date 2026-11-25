@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { HighlightSegment } from '@pkgs/ui-root-shared-ts/code-editor-highlight';
 import {
@@ -17,14 +17,9 @@ import type {
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { spacingScale } from '@pkgs/ui-root-shared-ts/scale';
-import {
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Show,
-  splitProps,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Textarea } from '@ui-sdk/solid/textarea';
+import { createMemo, createSignal, For, Show } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 import { useDocumentShortcuts } from '../use-document-shortcuts';
 import styles from './code-editor.module.css';
@@ -83,11 +78,12 @@ type FieldProps = Pick<
   | 'onChangeText'
   | 'onSelectionChange'
   | 'placeholder'
-  | 'autoFocus'
   | 'editable'
   | 'aria-label'
   | 'ref'
 > & {
+  /** `CodeEditorProps.autoFocus`. */
+  focusOnMount: boolean | undefined;
   style: JSX.CSSProperties;
   onFocusChange: (focused: boolean) => void;
 };
@@ -97,24 +93,27 @@ function EditorField(props: FieldProps): JSX.Element {
     props.onSelectionChange?.(readSelection(el));
   };
   return (
-    <textarea
+    <Textarea
       ref={props.ref}
       class={styles['field']}
       style={props.style}
       value={props.value}
-      readOnly={props.editable === false}
-      autofocus={props.autoFocus}
+      readonly={props.editable === false}
+      autofocus={props.focusOnMount}
       autocapitalize="off"
       autocomplete="off"
       autocorrect="off"
-      spellcheck={false}
+      spellcheck="false"
       placeholder={props.placeholder}
       aria-label={props['aria-label']}
-      onInput={(event) => {
-        props.onChangeText(event.currentTarget.value);
-        emitSelection(event.currentTarget);
-      }}
-      onSelect={(event) => emitSelection(event.currentTarget)}
+      onValueChange={(value) => props.onChangeText(value)}
+      onInput={(event) => emitSelection(event.currentTarget)}
+      render={(attrs) => (
+        <textarea
+          {...attrs}
+          onSelect={(event) => emitSelection(event.currentTarget)}
+        />
+      )}
       onKeyUp={(event) => emitSelection(event.currentTarget)}
       onClick={(event) => emitSelection(event.currentTarget)}
       onFocus={() => props.onFocusChange(true)}
@@ -139,16 +138,6 @@ function EditorField(props: FieldProps): JSX.Element {
 export function CodeEditor(props: CodeEditorProps): JSX.Element {
   const tokens = useThemeTokens();
   const [focused, setFocused] = createSignal(false);
-  const [field] = splitProps(props, [
-    'value',
-    'onChangeText',
-    'onSelectionChange',
-    'placeholder',
-    'autoFocus',
-    'editable',
-    'aria-label',
-    'ref',
-  ]);
   const segments = createMemo(() =>
     buildHighlightSegments(props.value, props.tokenize(props.value))
   );
@@ -167,8 +156,7 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
 
   return (
     <div
-      class="box gap-1"
-      classList={{ [String(props.class)]: true }}
+      class={['box gap-1', { [String(props.class)]: true }]}
       {...dataAttrs({ component: 'CodeEditor', ...props.dataSet })}
       style={props.style}
     >
@@ -181,7 +169,18 @@ export function CodeEditor(props: CodeEditorProps): JSX.Element {
         }}
       >
         <HighlightMirror segments={segments()} style={layer()} />
-        <EditorField {...field} style={layer()} onFocusChange={setFocused} />
+        <EditorField
+          ref={props.ref}
+          value={props.value}
+          onChangeText={props.onChangeText}
+          onSelectionChange={props.onSelectionChange}
+          placeholder={props.placeholder}
+          focusOnMount={props.autoFocus}
+          editable={props.editable}
+          aria-label={props['aria-label']}
+          style={layer()}
+          onFocusChange={setFocused}
+        />
       </div>
       <Show when={props.trailing}>{props.trailing}</Show>
     </div>

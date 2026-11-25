@@ -46,7 +46,6 @@ test('a game offering only puzzles keeps every law and is bound for rules and pu
   });
   const specifications = inheritedSpecifications(GAME);
   expect(specifications).toContain('specs/games/puzzle-play.feature');
-  expect(specifications).toContain('specs/games/puzzle-attempt.qnt');
   for (const uri of specifications)
     expect(capabilitiesOf(sharedSpecificationNeeds(uri))).toEqual(['puzzles']);
   const suites = await inheritedCodeSuites(GAME);
@@ -60,7 +59,7 @@ test('a game offering only puzzles keeps every law and is bound for rules and pu
 const SYSTEM = gameSystem('puzzle-only', [GAME], { knownPuzzles: true });
 
 test('a space offers a puzzle-only game exactly its puzzles, played on the shared puzzle screen', async () => {
-  await using s = await openGameHarness(SYSTEM, 'puzzle-only-probe');
+  await using s = await openGameHarness(SYSTEM);
   await s.apply(createSpace, 'alice');
   await s.apply(openGamePuzzles, 'alice', GAME.shared.id);
   await s.apply(solveKnownPuzzle, 'alice', GAME.shared.id);

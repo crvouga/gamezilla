@@ -131,7 +131,7 @@ jobs:
       pull-requests: read # keep branches that have an open pull request
       id-token: write # mint the OIDC token Infisical and AWS trust
     concurrency:
-      group: reports-cleanup
+      group: branch-maintenance
       cancel-in-progress: false
     strategy:
       matrix:
@@ -154,8 +154,8 @@ jobs:
           secrets-environment: ${{ matrix.env }}
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      - name: Remove unused branches and stale reports
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/harness-ts/scripts/report-cleanup.ts --apply --branches
+      - name: Remove unused branches
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/harness-ts/scripts/branch-maintenance.ts --apply
 
   health-matrix:
     name: health:matrix

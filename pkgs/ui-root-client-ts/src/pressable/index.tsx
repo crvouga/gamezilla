@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Show } from 'solid-js';
 import type { DataSetProps } from '../data-set-binding';
 import { bindDataSet } from '../data-set-binding';
 import type { ElementTargetProps } from '../element-targets';
@@ -15,6 +17,7 @@ import {
   spaced,
 } from '../layout-classes';
 import type { Align, Direction, FlexItemProps, Justify } from '../layout-props';
+import { LinkHost } from '../link-host';
 import type { SpacingProps } from '../space-classes';
 import { spacingClass } from '../space-classes';
 
@@ -92,9 +95,9 @@ function pressableClass(region: PressableProps): string {
 
 function ariaCurrent(
   region: PressableProps
-): PressableCurrent | true | undefined {
+): PressableCurrent | 'true' | undefined {
   if (region.current !== undefined) return region.current;
-  return region.selected === true ? true : undefined;
+  return region.selected === true ? 'true' : undefined;
 }
 
 /** A click the browser should keep: new tab, new window, download. */
@@ -118,63 +121,72 @@ function PressableLink(props: PressableProps): JSX.Element {
     event.preventDefault();
     props.onPress();
   };
+  const targets = bindElementTargets(props);
+  const dataSet = bindDataSet(props);
   return (
-    <a
-      ref={(element) => {
-        bindElementTargets(element, props);
-        bindDataSet(element, props);
-      }}
+    <LinkHost
+      ref={[targets, dataSet]}
       class={pressableClass(props)}
+      disabled={props.disabled === true}
       href={props.disabled === true ? undefined : props.href}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Pressable')}
-      tabIndex={props.tabStop === false ? -1 : undefined}
+      tabindex={props.tabStop === false ? -1 : undefined}
       onClick={onClick}
       onFocus={() => props.onFocusChange?.(true)}
       onBlur={() => props.onFocusChange?.(false)}
-      aria-disabled={props.disabled === true ? true : undefined}
+      aria-disabled={props.disabled === true ? 'true' : undefined}
       aria-current={ariaCurrent(props)}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
       aria-describedby={props['aria-describedby']}
-      aria-expanded={props['aria-expanded']}
+      aria-expanded={
+        props['aria-expanded'] === undefined
+          ? undefined
+          : `${props['aria-expanded']}`
+      }
       aria-controls={props['aria-controls']}
       aria-haspopup={props['aria-haspopup']}
     >
       {props.children}
-    </a>
+    </LinkHost>
   );
 }
 
 function PressableButton(props: PressableProps): JSX.Element {
+  const targets = bindElementTargets(props);
+  const dataSet = bindDataSet(props);
   return (
-    <button
-      ref={(element) => {
-        bindElementTargets(element, props);
-        bindDataSet(element, props);
-      }}
+    <SdkButton
+      ref={[targets, dataSet]}
       class={pressableClass(props)}
       type={props.type ?? 'button'}
       disabled={props.disabled === true}
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Pressable')}
-      tabIndex={props.tabStop === false ? -1 : undefined}
+      tabindex={props.tabStop === false ? -1 : undefined}
       onClick={() => props.onPress?.()}
       onFocus={() => props.onFocusChange?.(true)}
       onBlur={() => props.onFocusChange?.(false)}
-      aria-pressed={props.pressed}
+      aria-pressed={
+        props.pressed === undefined ? undefined : `${props.pressed}`
+      }
       aria-current={ariaCurrent(props)}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
       aria-describedby={props['aria-describedby']}
-      aria-expanded={props['aria-expanded']}
+      aria-expanded={
+        props['aria-expanded'] === undefined
+          ? undefined
+          : `${props['aria-expanded']}`
+      }
       aria-controls={props['aria-controls']}
       aria-haspopup={props['aria-haspopup']}
     >
       {props.children}
-    </button>
+    </SdkButton>
   );
 }
 

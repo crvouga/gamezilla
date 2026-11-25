@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AppStage } from '@pkgs/ui-devtools-client-ts/app-stage';
 import { fireEvent, screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createAgent } from '@ui-sdk/solid/agent';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 function mount(start = 'alice') {
@@ -43,14 +44,53 @@ describe('AppStage', () => {
     expect(mounts).toEqual({ alice: 1, bob: 1 });
 
     setShown('logs');
+    flush();
     expect(shownViews()).toEqual(['logs']);
     expect(mounts).toEqual({ alice: 1, bob: 1, logs: 1 });
 
     // Back and forth mounts nothing a second time.
     setShown('bob');
+    flush();
     setShown('logs');
+    flush();
     expect(mounts).toEqual({ alice: 1, bob: 1, logs: 1 });
     expect(screen.getByText('alice app')).toBeInTheDocument();
+  });
+
+  test('an agent can press the device switcher once', async () => {
+    const { onTap } = mount();
+    const result = await createAgent().act({
+      steps: [{ ref: 'Next device', action: 'press' }],
+    });
+    expect(result.ok).toBe(true);
+    expect(onTap).toHaveBeenCalledTimes(1);
+  });
+
+  test('an agent can park the switcher on either edge without changing devices', async () => {
+    const { onTap, handle } = mount();
+    const agent = createAgent();
+    const move = (edge: string, percentFromTop: number) =>
+      agent.act({
+        steps: [
+          {
+            ref: 'Next device',
+            action: 'moveToEdge',
+            args: [edge, percentFromTop],
+          },
+        ],
+      });
+    expect((await move('left', 30)).ok).toBe(true);
+    expect(handle.style.left).toBe('10px');
+    const switcher = agent
+      .snapshot()
+      .find((component) => component.label === 'Next device');
+    expect(switcher?.['side']).toBe('left');
+    expect(switcher?.['percentFromTop']).toBe(30);
+    expect((await move('right', 80)).ok).toBe(true);
+    expect(handle.style.right).toBe('10px');
+    expect((await move('left', 120)).ok).toBe(false);
+    expect(handle.style.right).toBe('10px');
+    expect(onTap).not.toHaveBeenCalled();
   });
 
   test('a press switches, however long it is held: it is a switcher and nothing else', () => {

@@ -18,9 +18,7 @@ forEveryGame(
   (game) => {
     // regression: cancelled-history-invents-bot
     test('a cancelled game with an unfilled place records no invented bot or result', async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-cancelled-history`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         second: 'open',
         active: false,

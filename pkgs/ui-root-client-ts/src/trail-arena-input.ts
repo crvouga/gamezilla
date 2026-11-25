@@ -1,3 +1,5 @@
+import { definePrimitive } from '@ui-sdk/core';
+import { createParts } from '@ui-sdk/solid/primitive';
 import { createEffect } from 'solid-js';
 import type {
   TrailControls,
@@ -30,7 +32,7 @@ const SWIPE_DISTANCE = 24;
 /** How many local riders this device steers: none, one or two. */
 export function controlledSlots(controls: TrailControls): number {
   let count = 0;
-  for (const rider of controls.riders) if (rider.controlled) count++;
+  for (const rider of controls.riders) if (rider.controlSlot !== null) count++;
   return Math.min(count, 2);
 }
 
@@ -66,14 +68,17 @@ export function trailArenaInput(props: TrailControls) {
   // A held finger belongs to the control session in which it began. A
   // reconnect, round break or ownership change requires a fresh gesture.
   let previousSession = '';
-  createEffect(() => {
-    const session = `${props.enabled}:${props.riders
-      .filter((rider) => rider.controlled)
-      .map((rider) => rider.index)
-      .join(',')}`;
-    if (session !== previousSession) swipes.clear();
-    previousSession = session;
-  });
+  createEffect(
+    () =>
+      `${props.enabled}:${props.riders
+        .filter((rider) => rider.controlSlot !== null)
+        .map((rider) => `${rider.index}:${rider.controlSlot}`)
+        .join(',')}`,
+    (session) => {
+      if (session !== previousSession) swipes.clear();
+      previousSession = session;
+    }
+  );
   const keyDown = (event: KeyboardEvent) => {
     const slots = controlledSlots(props);
     if (
@@ -128,3 +133,44 @@ export function trailArenaInput(props: TrailControls) {
   };
   return { keyDown, pointerDown, pointerMove, pointerUp };
 }
+
+function steeringChoices(options: TrailControls) {
+  return options.riders.flatMap((rider) => {
+    const slot = rider.controlSlot;
+    if (slot === null || !rider.alive || !options.enabled) return [];
+    return Object.values(ARROWS).map((heading) => ({
+      value: `${rider.index}-${heading}`,
+      label: `${rider.label} ${heading}`,
+      heading,
+      slot,
+    }));
+  });
+}
+
+const arenaState = (options: TrailControls) => ({
+  disabled:
+    !options.enabled ||
+    !options.riders.some((rider) => rider.controlSlot !== null && rider.alive),
+});
+
+const arena = definePrimitive({
+  name: 'trail-arena',
+  options: { riders: 'value', enabled: 'boolean', onDirection: 'callback' },
+  state: arenaState,
+  sync: arenaState,
+  api: (context) => ({
+    choices: () => steeringChoices(context.options()),
+    steer(choice: unknown) {
+      const options = context.options();
+      const turn = steeringChoices(options).find(
+        ({ value, label }) => choice === value || choice === label
+      );
+      if (!turn) throw new Error('Choose an available rider and direction.');
+      options.onDirection(turn.heading, turn.slot);
+    },
+  }),
+  agent: { actions: ['steer'], items: (api) => api.choices(), closed: true },
+  slots: (slot) => ({ root: slot({}) }),
+});
+
+export const { Root: ArenaSurface } = createParts(arena, { root: 'div' });

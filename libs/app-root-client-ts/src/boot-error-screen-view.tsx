@@ -1,14 +1,15 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { BugIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { createSignal, type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Match, Switch } from 'solid-js';
 
 /**
  * Why the local database could not start: it hung past the watchdog

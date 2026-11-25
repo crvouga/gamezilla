@@ -1,4 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { dismissDialogOutcome } from '@pkgs/ui-testing-root-shared-ts/dismiss-dialog-outcome';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 export async function openAccount(driver: Driver): Promise<void> {
@@ -147,7 +148,9 @@ export async function logOutThroughUi(driver: Driver): Promise<void> {
   await driver.get(Handles.accountSignOut).tap();
   await driver.get(Handles.authSignOutConfirm).tap();
   await driver.get(Handles.accountSignIn).wait('visible');
-  if (await driver.get(Handles.authSignOutModal).isVisible())
-    await driver.get(Handles.authSignOutDone).tap();
-  await driver.get(Handles.authSignOutModal).wait('hidden');
+  await dismissDialogOutcome(
+    driver,
+    Handles.authSignOutModal,
+    Handles.authSignOutDone
+  );
 }

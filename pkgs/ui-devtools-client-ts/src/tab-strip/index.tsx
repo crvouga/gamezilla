@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `TabStrip` -- browser / IDE folder-tab chrome for shell and console.
  *
@@ -11,19 +11,22 @@
  * while focus is inside the `tablist`.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-shortcuts';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Tabs, TabsList } from '@ui-sdk/solid/tabs';
 import {
   createEffect,
   createUniqueId,
-  Index,
-  type JSX,
-  on,
+  For,
+  onSettled,
   Show,
+  untrack,
 } from 'solid-js';
 import { handleTabStripKeyDown } from '../tab-strip-keyboard';
 import { TAB_MIN_HEIGHT, TabStripTab } from '../tab-strip-tab/index';
@@ -44,6 +47,9 @@ export type TabStripProps = {
   readonly 'aria-label'?: string | undefined;
   readonly dataSet?: ComponentDataSet | undefined;
 };
+
+/** The cell element that shows the item with this id, when there is one. */
+type TabCellLookup = (id: string) => HTMLElement | undefined;
 
 /** Roving arrow-key navigation inside the tablist (WAI-ARIA tabs pattern). */
 function tablistArrowKey(
@@ -67,7 +73,7 @@ function tablistArrowKey(
 function moveTabFocus(
   ev: KeyboardEvent,
   props: TabStripProps,
-  tabEls: ReadonlyMap<string, HTMLElement>
+  cellOf: TabCellLookup
 ): void {
   if (ev.key === 'Delete') {
     const item = props.items.find((entry) => entry.id === props.selectedId);
@@ -75,37 +81,41 @@ function moveTabFocus(
     ev.preventDefault();
     const host = ev.currentTarget;
     item.onClose();
-    if (props.items.some((entry) => entry.id === item.id)) return;
-    if (host instanceof HTMLElement)
-      host
-        .querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
-        ?.focus();
+    // The caller's answer shows once its update has been applied: the tab is
+    // gone, or it is still there because the close is pending.
+    onSettled(() => {
+      // One look at the items the caller settled on, not a subscription.
+      const items = untrack(() => props.items);
+      if (items.some((entry) => entry.id === item.id)) return;
+      if (host instanceof HTMLElement)
+        host
+          .querySelector<HTMLElement>('[role="tab"][aria-selected="true"]')
+          ?.focus();
+    });
     return;
   }
   const next = tablistArrowKey(ev.key, props.items, props.selectedId);
   if (next === null) return;
   ev.preventDefault();
   props.onSelect(next);
-  tabEls.get(next)?.querySelector<HTMLElement>('[role="tab"]')?.focus();
+  cellOf(next)?.querySelector<HTMLElement>('[role="tab"]')?.focus();
 }
 
 function useSelectedTabVisibility(
   props: TabStripProps,
-  tabEls: ReadonlyMap<string, HTMLElement>
+  cellOf: TabCellLookup
 ): void {
   // Keep the selected tab in view when selection changes.
   createEffect(
-    on(
-      () => props.selectedId,
-      (id) => {
-        if (id === null) return;
-        const el = tabEls.get(id);
-        if (el !== undefined && typeof el.scrollIntoView === 'function') {
-          el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-        }
-      },
-      { defer: true }
-    )
+    () => props.selectedId,
+    (id) => {
+      if (id === null) return;
+      const el = cellOf(id);
+      if (el !== undefined && typeof el.scrollIntoView === 'function') {
+        el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      }
+    },
+    { defer: true }
   );
 }
 
@@ -117,9 +127,8 @@ function TabListOwner(props: {
 }): JSX.Element {
   return (
     <Show when={props.items.length > 0}>
-      <div
+      <TabsList
         class="sr-only"
-        role="tablist"
         aria-label={props.label}
         aria-owns={props.items
           .map((item) => `${props.idBase}-${item.id}`)
@@ -133,7 +142,12 @@ function TabListOwner(props: {
 export function TabStrip(props: TabStripProps): JSX.Element {
   const { t } = useLingui();
   const idBase = `ui-tab-${createUniqueId()}`;
-  const tabEls = new Map<string, HTMLElement>();
+  // Cells are kept by position: a cell stays in place while the item it
+  // shows changes, so an id is resolved to its position at the time of use
+  // (a read of the items as they are then, from handlers and effects).
+  const cells: HTMLElement[] = [];
+  const cellOf: TabCellLookup = (id) =>
+    cells[untrack(() => props.items).findIndex((item) => item.id === id)];
 
   useDocumentShortcuts({
     enabled: () => props.keyboardScope === true,
@@ -146,14 +160,19 @@ export function TabStrip(props: TabStripProps): JSX.Element {
       }),
   });
 
-  useSelectedTabVisibility(props, tabEls);
+  useSelectedTabVisibility(props, cellOf);
 
   const showStandaloneAdd = (): boolean =>
     props.onAdd !== undefined &&
     (props.trailing === undefined || props.trailing === null);
 
   return (
-    <div
+    <Tabs
+      value={props.selectedId}
+      onValueChange={(value) => {
+        if (value !== null) props.onSelect(value);
+      }}
+      aria-label={props['aria-label'] ?? t`Tabs`}
       class="box grow-0 shrink-0 flex-row items-end gap-2 px-2 pt-1 pb-0 border-b border-border bg-surface-muted"
       {...dataAttrs({ component: 'TabStrip', ...props.dataSet })}
       style={{ height: `${TAB_MIN_HEIGHT + 4}px` }}
@@ -180,9 +199,9 @@ export function TabStrip(props: TabStripProps): JSX.Element {
         align="end"
         gap="xs"
         tabIndex={-1}
-        onKeyDown={(ev) => moveTabFocus(ev, props, tabEls)}
+        onKeyDown={(ev) => moveTabFocus(ev, props, cellOf)}
       >
-        <Index each={props.items}>
+        <For keyed={false} each={props.items}>
           {(item, index) => {
             const active = (): boolean => item().id === props.selectedId;
             const prevActive = (): boolean =>
@@ -193,13 +212,14 @@ export function TabStrip(props: TabStripProps): JSX.Element {
                 active={active()}
                 reserveSeparatorBefore={index > 0}
                 separatorVisible={index > 0 && !active() && !prevActive()}
-                onSelect={props.onSelect}
                 tabId={`${idBase}-${item().id}`}
-                ref={(el) => tabEls.set(item().id, el)}
+                ref={(el) => {
+                  cells[index] = el;
+                }}
               />
             );
           }}
-        </Index>
+        </For>
       </ScrollView>
       <Show when={props.trailing !== undefined && props.trailing !== null}>
         <div
@@ -210,7 +230,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
         </div>
       </Show>
       <Show when={showStandaloneAdd()}>
-        <button
+        <SdkButton
           class="clickable clickableTint px-2 py-1 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
           data-component="TabStripAdd"
           type="button"
@@ -219,8 +239,8 @@ export function TabStrip(props: TabStripProps): JSX.Element {
           onClick={() => props.onAdd?.()}
         >
           <PlusIcon size={15} color="textSecondary" />
-        </button>
+        </SdkButton>
       </Show>
-    </div>
+    </Tabs>
   );
 }

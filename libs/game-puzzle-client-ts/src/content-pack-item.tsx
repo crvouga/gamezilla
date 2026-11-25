@@ -1,8 +1,8 @@
 import { workingContentDraft } from '@libs/game-puzzle-shared-ts/content-library';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { useLingui } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 import { ContentPackItemRow } from './content-pack-editor-view';

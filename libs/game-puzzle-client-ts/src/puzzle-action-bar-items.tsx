@@ -1,14 +1,15 @@
 import type { PuzzleActionBarSlot } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import type { HintStage } from '@libs/game-puzzle-shared-ts/hint-stage';
 import type { SolveStatus } from '@libs/game-puzzle-shared-ts/solve-status';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   ChevronRightIcon,
   LightbulbIcon,
   RotateCcwIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 
 export type PuzzleActionBarModel = {
   status: SolveStatus;

@@ -4,7 +4,7 @@ import {
   type StageOverlayTimers,
   useStageOverlay,
 } from '@pkgs/turn-game-client-ts/use-stage-overlay';
-import { createRoot, createSignal } from 'solid-js';
+import { createRoot, createSignal, flush } from 'solid-js';
 
 /** Timers a test fires by hand. */
 function handTimers(): StageOverlayTimers & { fire: () => number } {
@@ -41,10 +41,12 @@ test('a game this device watched begin counts down from three to its board', asy
   }));
   expect(control.overlay()).toEqual({ kind: 'none' });
   setPhase('play');
+  flush();
   const seen: unknown[] = [control.overlay()];
   for (let second = 0; second < 3; second += 1) {
     await Promise.resolve();
     expect(timers.fire()).toBe(1);
+    flush();
     seen.push(control.overlay());
   }
   expect(seen).toEqual([
@@ -61,11 +63,12 @@ test('a game this device watched begin counts down from three to its board', asy
 
 test('a game opened while it is played shows its board at once', () => {
   const timers = handTimers();
-  mounted((dispose) => {
-    const control = useStageOverlay(() => 'play', timers);
-    expect(control.overlay()).toEqual({ kind: 'none' });
-    dispose();
-  });
+  const { control, dispose } = mounted((dispose) => ({
+    control: useStageOverlay(() => 'play', timers),
+    dispose,
+  }));
+  expect(control.overlay()).toEqual({ kind: 'none' });
+  dispose();
 });
 
 test('a game still being read and then found in play shows its board at once', async () => {
@@ -106,12 +109,16 @@ test('the end of the game shows the result, which closes and reopens; setting up
     dispose,
   }));
   setPhase('over');
+  flush();
   expect(control.overlay()).toEqual({ kind: 'outcome' });
   control.send({ type: 'dismiss' });
+  flush();
   expect(control.overlay()).toEqual({ kind: 'board' });
   control.send({ type: 'show' });
+  flush();
   expect(control.overlay()).toEqual({ kind: 'outcome' });
   setPhase('setup');
+  flush();
   expect(control.overlay()).toEqual({ kind: 'none' });
   dispose();
 });

@@ -321,9 +321,5 @@ function objectStoreEnv(endpoint: string | null): Record<string, string> {
     S3_BUCKET,
     S3_REGION,
     S3_ENDPOINT: endpoint,
-    REPORTS_BUCKET: S3_BUCKET,
-    REPORTS_ENDPOINT: endpoint,
-    REPORTS_ACCESS_KEY_ID: S3_ACCESS_KEY_ID,
-    REPORTS_SECRET_ACCESS_KEY: S3_SECRET_ACCESS_KEY,
   };
 }

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The solver's turn and the line played so far, said where the eye lands. */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -7,7 +7,7 @@ import { PuzzleStatusHeader } from '@libs/game-puzzle-client-ts/puzzle-status-he
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 afterEach(cleanup);
 

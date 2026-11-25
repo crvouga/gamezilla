@@ -2,12 +2,6 @@
   "$schema": "https://turborepo.com/schema.json",
   "extends": ["//"],
   "tasks": {
-    "verify:models": {
-      "inputs": [
-        "$TURBO_EXTENDS$",
-        "$TURBO_ROOT$/specs/synthetic-population/*.qnt"
-      ]
-    },
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
@@ -30,6 +24,7 @@
         "@libs/synthetic-population-server-ts#src",
         "@libs/synthetic-population-shared-ts#src",
         "@libs/test-ids-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
         "@pkgs/sql-client-root-shared-ts#src",
         "@pkgs/sql-root-shared-ts#src",
         "@pkgs/sync-engine-server-ts#src"

@@ -1,11 +1,12 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   StageOverlay,
   StageOverlayEvent,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import {
   type MatchedGamesLeftView,
   MatchmakingHomeView,

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { afterEach, expect, test } from 'bun:test';
 import { AppThemeProvider } from '@libs/app-root-client-ts/app-theme-provider';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';

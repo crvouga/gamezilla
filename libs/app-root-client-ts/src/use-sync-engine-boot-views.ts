@@ -14,11 +14,14 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
+  untrack,
 } from 'solid-js';
 import { useAppData } from './app-subs-context';
 import { BOOT_STUCK_MESSAGE } from './boot-error-screen';
-import type { ReadySyncEngine } from './create-sync-engine-boot-state';
+import type {
+  ReadySyncEngine,
+  SyncEngineBootAttempt,
+} from './create-sync-engine-boot-state';
 import { createSyncEngineBootState } from './create-sync-engine-boot-state';
 import { useLocalIdentity } from './identity-context';
 import { originAvailabilityFor } from './origin-availability-for-env';
@@ -32,9 +35,9 @@ import { originAvailabilityFor } from './origin-availability-for-env';
 const BOOT_STUCK_MS = 30_000;
 
 /** Opens SQLite as soon as an identity is bound: nothing else gates it. */
-function useSyncBootPromise(args: {
+function useSyncBootAttempt(args: {
   readonly userId: Accessor<string>;
-}): Accessor<Promise<ReadySyncEngine>> {
+}): Accessor<SyncEngineBootAttempt> {
   const env = useClientEnv();
   const loadApp = useAppData();
   const pool = useSyncEnginePool();
@@ -43,16 +46,18 @@ function useSyncBootPromise(args: {
   const log = useLogger('sync-engine-boot');
   const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
+  // The engine asks who it is acting for at the moment of each request,
+  // from wherever it is called: a snapshot, never a subscription.
   const auth: SyncClientAuth = {
-    getAccountId: () => identity.userId(),
-    getDeviceId: () => identity.deviceId(),
-    getSessionToken: () => identity.sessionToken(),
+    getAccountId: () => untrack(identity.userId),
+    getDeviceId: () => untrack(identity.deviceId),
+    getSessionToken: () => untrack(identity.sessionToken),
   };
   const databaseName = createMemo(() =>
     env.resolveDatabaseName({ userId: args.userId() })
   );
 
-  return createMemo<Promise<ReadySyncEngine>>(() => {
+  return createMemo<SyncEngineBootAttempt>(() => {
     const engine = pool.getOrCreate({
       loadApp,
       openSqlClient: (openArgs) => env.openSqlClient(openArgs),
@@ -84,21 +89,24 @@ function useSyncBootPromise(args: {
           }
         : {}),
     });
-    return Promise.all([engine, pool.mutationRegistry(), loadApp()]).then(
-      ([resolved, registry, app]) => {
-        // Connecting starts background sync. Whatever goes wrong there shows
-        // in the engine's status; it never keeps the app from opening.
-        void traceBrowserStartup('client.sync.connect', () =>
-          resolved.connect()
-        ).catch((error: unknown) =>
-          log.error('sync engine connect failed', {
-            error: error instanceof Error ? error.message : String(error),
-          })
-        );
-        exposeLocalSqlForTests(resolved.db);
-        return { engine: resolved, registry, turnGames: app.turnGames };
-      }
-    );
+    const ready: Promise<ReadySyncEngine> = Promise.all([
+      engine,
+      pool.mutationRegistry(),
+      loadApp(),
+    ]).then(([resolved, registry, app]) => {
+      // Connecting starts background sync. Whatever goes wrong there shows
+      // in the engine's status; it never keeps the app from opening.
+      void traceBrowserStartup('client.sync.connect', () =>
+        resolved.connect()
+      ).catch((error: unknown) =>
+        log.error('sync engine connect failed', {
+          error: error instanceof Error ? error.message : String(error),
+        })
+      );
+      exposeLocalSqlForTests(resolved.db);
+      return { engine: resolved, registry, turnGames: app.turnGames };
+    });
+    return { ready };
   });
 }
 
@@ -117,25 +125,25 @@ export function useSyncEngineBootViews(args: {
 }): SyncEngineBootViews {
   const timers = useTimers();
   const log = useLogger('sync-engine-boot');
-  const bootPromise = useSyncBootPromise({ userId: args.userId });
+  const attempt = useSyncBootAttempt({ userId: args.userId });
 
   const boot = createSyncEngineBootState({
-    boot: bootPromise,
+    boot: attempt,
     warm: () => null,
     onError: (error) =>
       log.error('local database boot failed', { error: error.message }),
   });
 
   const [stuck, setStuck] = createSignal(false);
-  createEffect(() => {
-    if (boot().phase !== 'loading') {
+  createEffect(
+    () => boot().phase,
+    (phase) => {
       setStuck(false);
-      return;
+      if (phase !== 'loading') return;
+      const id = timers.setTimeout(() => setStuck(true), BOOT_STUCK_MS);
+      return () => timers.clearTimeout(id);
     }
-    setStuck(false);
-    const id = timers.setTimeout(() => setStuck(true), BOOT_STUCK_MS);
-    onCleanup(() => timers.clearTimeout(id));
-  });
+  );
 
   return {
     bootError: () => {

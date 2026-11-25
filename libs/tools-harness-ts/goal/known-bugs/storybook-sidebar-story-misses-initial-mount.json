@@ -1,0 +1,4 @@
+{
+  "summary": "The desktop sidebar story first requested its content after the viewport was measured. Storybook had already finished mounting and the rail was empty. The product story shell now creates the story during mount and attaches it when the desktop rail appears.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/shell/integration.checks.ts"
+}

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { DataTable } from '@pkgs/ui-devtools-client-ts/data-table';
 import { createMemoryPageLoader } from '@pkgs/ui-devtools-shared-ts/create-memory-page-loader';
@@ -8,7 +8,8 @@ import type {
 } from '@pkgs/ui-devtools-shared-ts/data-table-types';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import { Trash2Icon } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 type DemoRow = {

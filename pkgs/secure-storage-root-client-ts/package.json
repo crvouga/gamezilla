@@ -17,6 +17,7 @@
   "dependencies": {
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

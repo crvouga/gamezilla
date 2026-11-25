@@ -9,7 +9,8 @@ import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush, Show } from 'solid-js';
 import GameArenaExample from '../../ui-root-client-ts/src/game-board-stage/game-arena.example';
 
 function requiredAttribute(element: Element, name: string): string {
@@ -78,6 +79,7 @@ test('focus and pointer previews identify the landing cell; navigation wraps and
   fireEvent.pointerEnter(second);
   expect(board.getAttribute('data-preview-cell')).toBe('1');
   view.setInteractive(false);
+  flush();
   expect(second.getAttribute('aria-disabled')).toBe('true');
   expect(board.getAttribute('data-preview-cell')).toBe('-1');
   fireEvent.click(second);
@@ -126,6 +128,7 @@ test('the board says what to do and marks where the disc would land', () => {
   // A board that takes no drop has no prompt to read, but keeps the
   // element so the board never changes shape.
   view.setInteractive(false);
+  flush();
   expect(board.hasAttribute('aria-describedby')).toBe(false);
   expect(board.querySelector('[data-testid$="-prompt"]')).not.toBeNull();
   view.unmount();

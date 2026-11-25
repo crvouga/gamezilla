@@ -1,6 +1,5 @@
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
 import type { CustomGameScreenModel } from './use-custom-game-screen';
 
 /**
@@ -21,22 +20,17 @@ export function CustomGameSetupBoard(props: {
       mine !== null && (props.model.current()?.ready.includes(mine) ?? false);
     return ready || !props.model.connected();
   };
+  const SetupBoard = dynamic(() => {
+    const game = props.model.current();
+    return game === null ? undefined : presentation(game.fen).SetupBoard;
+  });
   return (
-    <Show when={props.model.current()}>
-      {(game) => (
-        <Show when={presentation(game().fen).SetupBoard}>
-          {(Board) => (
-            <Dynamic
-              component={Board()}
-              setup={setup().draft()}
-              side={side() ?? 'white'}
-              locked={locked()}
-              onChange={(next: string) => setup().arrange(next)}
-              testId="custom-game-setup"
-            />
-          )}
-        </Show>
-      )}
-    </Show>
+    <SetupBoard
+      setup={setup().draft()}
+      side={side() ?? 'white'}
+      locked={locked()}
+      onChange={(next: string) => setup().arrange(next)}
+      testId="custom-game-setup"
+    />
   );
 }

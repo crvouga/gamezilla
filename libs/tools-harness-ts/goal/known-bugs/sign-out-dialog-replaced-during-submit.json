@@ -1,0 +1,4 @@
+{
+  "summary": "Signing out replaced the session while the confirmation dialog was still loading. The synthetic user and critical journey waited for a Done button on the removed dialog.",
+  "regressionTest": "libs/synthetic-population-behavior-shared-ts/tests/sign-out-modal.test.ts"
+}

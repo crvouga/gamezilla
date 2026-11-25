@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { expect, test } from 'bun:test';
 import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';

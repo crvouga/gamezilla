@@ -76,6 +76,16 @@ test('one browser wait accepts a visible alternate in the same locator scope', a
   expect(await ui.get('panel').get('game-menu').isVisible()).toBe(false);
 });
 
+test.each([
+  '<div data-testid="modal"><button data-testid="done">Done</button></div>',
+  '<button data-testid="sign-in">Sign in</button>',
+])('a dialog can close or offer Done in the webview', async (html) => {
+  document.body.innerHTML = html;
+  await driver()
+    .get('modal')
+    .wait('hidden', { visibleOr: ['done'], timeoutMs: 50 });
+});
+
 describe('BunWebviewDriver text of non-field nodes', () => {
   test('a button reads as its label, not its empty value', async () => {
     document.body.innerHTML =

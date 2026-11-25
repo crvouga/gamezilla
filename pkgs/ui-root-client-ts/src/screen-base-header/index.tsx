@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { ActionBar } from '../action-bar/index';
 import { useActionBarChrome } from '../action-bar-chrome';
 import { BackIconButton } from '../back-icon-button/index';
@@ -64,7 +65,7 @@ function HeaderLeading(props: {
       <Show when={props.showBack}>
         {/* Pulled into the edge so the chevron, not its hit area, lines up
             with the 16px page edge. */}
-        <div class="box" classList={{ '-ml-2': props.leading === undefined }}>
+        <div class={['box', { '-ml-2': props.leading === undefined }]}>
           <BackIconButton
             size={Math.max(chrome().buttonSize, MIN_BACK_BUTTON_SIZE)}
             onClick={() => props.onBack()}

@@ -25,16 +25,17 @@
     "@libs/profile-shared-ts": "workspace:*",
     "@libs/sub-client-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/solid-context-client-ts": "workspace:*",
     "@pkgs/sounds-client-ts": "workspace:*",
     "@pkgs/sounds-shared-ts": "workspace:*",
     "@pkgs/sync-engine-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

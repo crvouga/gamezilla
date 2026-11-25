@@ -5,7 +5,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 /** The attempt on its board, with "Progress" opening where it stands. */
 function fixture(initial: 'panel' | 'board' | undefined) {
@@ -83,8 +83,10 @@ test('other puzzle consumers retain panel figures by default and explicit choice
       'Connected pairs'
     );
     setPlacement('board');
+    flush();
     expect(view.queryByTestId('puzzle-attempt-figures') === null).toBe(true);
     setPlacement('panel');
+    flush();
     expect(view.getByTestId('puzzle-attempt-figures').textContent).toContain(
       '2'
     );

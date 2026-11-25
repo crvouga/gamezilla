@@ -1,7 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComboboxKeyEvent } from '@pkgs/ui-root-shared-ts/combobox-key-nav';
 import type {
   ComboboxOption,
@@ -10,7 +10,8 @@ import type {
 } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { VirtualListViewport } from '@pkgs/ui-root-shared-ts/virtual-list-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ComboboxList, comboboxOptionId } from '../combobox-list/index';
 import { ComboboxSearch } from '../combobox-search/index';
 import { ErrorState } from '../error-state/index';

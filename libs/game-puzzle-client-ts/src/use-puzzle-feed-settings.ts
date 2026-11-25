@@ -8,14 +8,7 @@ import {
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  type Accessor,
-  createComputed,
-  createMemo,
-  createSignal,
-  on,
-  untrack,
-} from 'solid-js';
+import { type Accessor, createMemo, createSignal, untrack } from 'solid-js';
 import { usePuzzleFeedState } from './puzzle-feed-context';
 import { usePuzzleGame } from './puzzle-game-context';
 import type {
@@ -39,34 +32,42 @@ function createFeedSettingsDraft(args: {
   readonly ready: Accessor<boolean>;
 }): {
   readonly draft: Accessor<PuzzleFeedConfig>;
-  readonly setDraft: (next: PuzzleFeedConfig) => void;
+  readonly editDraft: (patch: Partial<PuzzleFeedConfig>) => void;
   /** What the feed serves from, as it stood when the settings were entered. */
   readonly entered: Accessor<string | null>;
 } {
-  const [draft, setDraft] = createSignal(untrack(args.saved));
-  const [entered, setEntered] = createSignal<string | null>(null);
-  // An edit made here is kept even if the saved settings are read again.
-  let edited = false;
-  createComputed(
-    on([args.editing, args.ready], ([editing]) => {
-      if (!editing) {
-        setEntered(null);
-        edited = false;
-        return;
-      }
-      if (edited) return;
-      const saved = untrack(args.saved);
-      setDraft(saved);
-      setEntered(puzzleFeedConfigFingerprint(saved));
-    })
-  );
+  type Copy = {
+    readonly config: PuzzleFeedConfig;
+    readonly entered: string | null;
+    readonly edited: boolean;
+  };
+  const [copy, setCopy] = createSignal<Copy>((before) => {
+    const editing = args.editing();
+    args.ready();
+    if (!editing)
+      return {
+        config: before?.config ?? untrack(args.saved),
+        entered: null,
+        edited: false,
+      };
+    // An edit made here is kept even if the saved settings are read again.
+    if (before?.edited === true) return before;
+    const saved = untrack(args.saved);
+    return {
+      config: saved,
+      entered: puzzleFeedConfigFingerprint(saved),
+      edited: false,
+    };
+  });
   return {
-    draft,
-    setDraft: (next) => {
-      edited = true;
-      setDraft(next);
-    },
-    entered,
+    draft: createMemo(() => copy().config),
+    editDraft: (patch) =>
+      setCopy((before) => ({
+        ...before,
+        config: { ...before.config, ...patch },
+        edited: true,
+      })),
+    entered: createMemo(() => copy().entered),
   };
 }
 
@@ -95,7 +96,7 @@ export function usePuzzleFeedSettings(args: {
     },
     testId: Handles.chessPuzzleFeedLocked,
   });
-  const { draft, setDraft, entered } = createFeedSettingsDraft({
+  const { draft, editDraft, entered } = createFeedSettingsDraft({
     saved,
     editing: args.editing,
     ready: feed.configReady,
@@ -127,7 +128,7 @@ export function usePuzzleFeedSettings(args: {
     matched: pool.matched(),
     total: pool.total(),
     themes: client.themes ?? null,
-    onChange: (patch) => setDraft({ ...draft(), ...patch }),
+    onChange: editDraft,
     onDone,
   }));
 }

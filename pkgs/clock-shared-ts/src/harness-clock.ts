@@ -27,6 +27,20 @@ export type HarnessClockBundle = {
   readonly timers: Timers;
 };
 
+let taskCheckpoint: (() => void) | undefined;
+
+/**
+ * A real event loop drains its microtasks after every timer callback, and UI
+ * runtimes apply their queued updates there. Virtual time fires callbacks
+ * back to back, so a host that renders registers that drain here (the DOM
+ * test preload does) and each fired timer is followed by it.
+ */
+export function setHarnessTaskCheckpoint(
+  checkpoint: (() => void) | undefined
+): void {
+  taskCheckpoint = checkpoint;
+}
+
 /** Virtual clock + timers for simulation (no wall `Date` / `setTimeout`). */
 export function createHarnessClock(
   args: CreateHarnessClockArgs = {}
@@ -48,6 +62,7 @@ export function createHarnessClock(
         due.at = now + due.intervalMs;
       }
       due.fn();
+      taskCheckpoint?.();
     }
   };
 

@@ -23,10 +23,9 @@ const PROFILE_SYSTEM = defineProductSystem(
 );
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(PROFILE_SYSTEM, testId, options);
+  return openSystemHarness(PROFILE_SYSTEM, options);
 }
 
 /** Privacy traces control export worker completion and use sessions valid for their whole retention experiment. */
@@ -48,10 +47,9 @@ const PROFILE_QUINT_SYSTEM = defineProductSystem({
 });
 
 export function openQuintHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(PROFILE_QUINT_SYSTEM, testId, options);
+  return openSystemHarness(PROFILE_QUINT_SYSTEM, options);
 }
 
 import { createAccountPrivacyServer } from '@libs/account-privacy-server-ts/sub-server';

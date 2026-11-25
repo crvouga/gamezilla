@@ -4,13 +4,10 @@
  * alive — people use their apps at the same time, so a parked actor keeps its
  * room connections, subscriptions and screen state — but only the focused
  * actor's container is attached under the session host, so queries, taps and
- * layout see one phone at a time. Parked actors keep their last non-blank
- * snapshot HTML for reports.
+ * layout see one phone at a time.
  */
 
-import type { SerializeDomHtmlOptions } from '@pkgs/ui-testing-solid-dom-shared-ts/serialize-dom-html';
-import { isBlankSnapshotHtml } from '@pkgs/ui-testing-solid-dom-shared-ts/serialize-dom-html';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { LayoutProvider } from './dom-layout';
 import type { SolidMount } from './mount-solid-app';
 import { mountSolidRoot } from './mount-solid-app';
@@ -33,8 +30,6 @@ export type MultiAppSolidDomSessionOptions = {
 /** {@link SolidDomRenderedApp} from a multi-actor session — always focusable. */
 export type FocusedRenderedApp = SolidDomRenderedApp;
 
-export type SnapshotAllActorsOptions = SerializeDomHtmlOptions;
-
 export type MultiAppSolidDomSession = {
   /** Mount or remount an actor; returns a scoped {@link FocusedRenderedApp}. */
   mountActor(actorId: string, component: () => JSX.Element): FocusedRenderedApp;
@@ -42,13 +37,6 @@ export type MultiAppSolidDomSession = {
   unmountActor(actorId: string): void;
   /** Detach the active actor from the DOM; its app keeps running. */
   clearFocus(): void;
-  /**
-   * Snapshot every registered actor. The active actor is captured in place;
-   * parked actors reuse their last cached HTML so the active tree stays put.
-   */
-  snapshotAllActors(
-    options?: SnapshotAllActorsOptions
-  ): Promise<ReadonlyMap<string, string>>;
   /** Currently focused actor id, if any. */
   activeActorId(): string | undefined;
   /** Unmount everything and clear all actors. */
@@ -60,11 +48,8 @@ type ActorRecord = {
   readonly facade: FocusedRenderedApp;
 };
 
-type FocusMode = 'activate' | 'snapshot';
-
 class SessionCore {
   readonly actors = new Map<string, ActorRecord>();
-  readonly snapshotCache = new Map<string, string>();
   /** Live Solid roots, attached or parked. */
   private readonly mounts = new Map<string, SolidMount>();
   readonly document: Document;
@@ -95,18 +80,14 @@ class SessionCore {
     return record;
   }
 
-  focus(actorId: string, mode: FocusMode): void {
+  focus(actorId: string): void {
     const record = this.requireActor(actorId);
     if (this.active === actorId) return;
     if (this.active !== undefined) {
-      const blurred = this.active;
-      if (mode === 'activate') {
-        this.cacheSnapshot(blurred);
-        this.options.onActorBlur?.(blurred);
-      }
+      this.options.onActorBlur?.(this.active);
       this.detachActive();
     }
-    if (mode === 'activate') this.options.onActorFocus?.(actorId);
+    this.options.onActorFocus?.(actorId);
     this.attach(actorId, record);
   }
 
@@ -132,23 +113,6 @@ class SessionCore {
 
   disposeAll(): void {
     for (const actorId of [...this.mounts.keys()]) this.disposeActor(actorId);
-  }
-
-  /** Cache the active actor's HTML unless the live tree is a blank shell. */
-  cacheSnapshot(actorId: string, options?: SnapshotAllActorsOptions): void {
-    const html = this.actors.get(actorId)?.facade.snapshotHtml(options);
-    if (html !== undefined && !isBlankSnapshotHtml(html)) {
-      this.snapshotCache.set(actorId, html);
-    }
-  }
-
-  /** Fresh non-blank HTML wins; else the cached copy; else nothing. */
-  rememberSnapshot(
-    actorId: string,
-    options: SnapshotAllActorsOptions
-  ): string | undefined {
-    this.cacheSnapshot(actorId, options);
-    return this.snapshotCache.get(actorId);
   }
 
   removeHostIfEmpty(): void {
@@ -190,36 +154,11 @@ function createActorFacade(
   return createSolidDomRenderedApp({
     document: core.document,
     container: () => core.containerOf(actorId),
-    activate: () => core.focus(actorId, 'activate'),
+    activate: () => core.focus(actorId),
     layoutProvider: core.options.layoutProvider,
     user: core.user,
     unmount,
   });
-}
-
-function snapshotAll(
-  core: SessionCore,
-  options: SnapshotAllActorsOptions
-): ReadonlyMap<string, string> {
-  const out = new Map<string, string>();
-  const prior = core.activeId();
-  if (prior !== undefined) {
-    const html = core.rememberSnapshot(prior, options);
-    if (html !== undefined) out.set(prior, html);
-  }
-  for (const actorId of core.actors.keys()) {
-    if (actorId === prior) continue;
-    const cached = core.snapshotCache.get(actorId);
-    if (cached !== undefined) {
-      out.set(actorId, cached);
-      continue;
-    }
-    if (prior !== undefined) continue;
-    core.focus(actorId, 'snapshot');
-    const html = core.rememberSnapshot(actorId, options);
-    if (html !== undefined) out.set(actorId, html);
-  }
-  return out;
 }
 
 export function createMultiAppSolidDomSession(
@@ -232,7 +171,7 @@ export function createMultiAppSolidDomSession(
       if (existing !== undefined) {
         existing.component = component;
         core.remount(actorId, existing);
-        core.focus(actorId, 'activate');
+        core.focus(actorId);
         return existing.facade;
       }
       const record: ActorRecord = {
@@ -242,28 +181,21 @@ export function createMultiAppSolidDomSession(
         ),
       };
       core.actors.set(actorId, record);
-      core.focus(actorId, 'activate');
+      core.focus(actorId);
       return record.facade;
     },
     unmountActor(actorId) {
       if (!core.actors.delete(actorId)) return;
-      core.snapshotCache.delete(actorId);
       core.disposeActor(actorId);
       core.removeHostIfEmpty();
     },
     clearFocus() {
-      const active = core.activeId();
-      if (active === undefined) return;
-      core.cacheSnapshot(active);
       core.detachActive();
     },
-    snapshotAllActors: (snapshotOptions = {}) =>
-      Promise.resolve(snapshotAll(core, snapshotOptions)),
     activeActorId: () => core.activeId(),
     dispose() {
       core.disposeAll();
       core.actors.clear();
-      core.snapshotCache.clear();
       core.removeHostIfEmpty();
     },
   };

@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { FilterBar } from '@pkgs/ui-root-client-ts/filter-bar';
 import { createSignal } from 'solid-js';

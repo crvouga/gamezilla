@@ -1,8 +1,9 @@
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
 

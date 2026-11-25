@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Top banner after this device's sign-in ended without the person asking
  * here: signed out everywhere from another device, or lapsed. It says so,
@@ -7,9 +7,10 @@
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { DismissibleBanner } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { useSignInModal } from './auth-modals-provider';
 import { useSignedOutNotice } from './signed-out-notice';
 

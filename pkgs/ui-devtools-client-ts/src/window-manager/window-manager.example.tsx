@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { WindowManager } from '@pkgs/ui-devtools-client-ts/window-manager';
 import type { WindowPanel } from '@pkgs/ui-devtools-client-ts/window-manager-types';
@@ -19,7 +19,9 @@ import {
   ScrollTextIcon,
   TerminalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createSignal, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 
 /** Named starting arrangements of the six demo panels. */
@@ -139,7 +141,7 @@ function DemoContent(props: { readonly demo: Demo }): JSX.Element {
     <div class="box flex-1 gap-3 p-4">
       <p class="text textLabel text-text">{props.demo.title}</p>
       <p class="text textBody text-text-secondary">{props.demo.body}</p>
-      <button
+      <SdkButton
         type="button"
         class="clickable clickableTint self-start px-3 py-2 rounded-control border border-solid border-border"
         onClick={() => setCount((value) => value + 1)}
@@ -147,7 +149,7 @@ function DemoContent(props: { readonly demo: Demo }): JSX.Element {
         <span class="text textBody text-text">
           {`${props.demo.title} kept its state: ${String(count())}`}
         </span>
-      </button>
+      </SdkButton>
     </div>
   );
 }

@@ -18,6 +18,7 @@
         "@pkgs/collab-root-shared-ts#src",
         "@pkgs/device-client-ts#src",
         "@pkgs/feedback-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/logger-client-ts#src",
         "@pkgs/permissions-shared-ts#src",
         "@pkgs/room-root-client-ts#src",

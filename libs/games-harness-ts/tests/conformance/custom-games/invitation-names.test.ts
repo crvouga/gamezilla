@@ -23,9 +23,7 @@ forEveryGame(
   (game) => {
     // regression: custom-game-member-names-unsynced
     test('a guest invited from the link sees the host’s name on the invitation', async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-custom-game-member-names`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(createSpace, 'alice');
       const link = await s.read(readSpaceLink, 'alice');
       if (link === null) throw new Error('alice has no space link');

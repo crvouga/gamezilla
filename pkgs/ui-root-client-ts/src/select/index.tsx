@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { filterSelectOptions } from '@pkgs/ui-root-shared-ts/select-logic';
 import type {
@@ -8,17 +9,18 @@ import type {
   SelectProps,
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
+import type { JSX } from '@solidjs/web';
 import {
   createMemo,
   createSignal,
   createUniqueId,
-  type JSX,
-  onMount,
+  onSettled,
   Show,
 } from 'solid-js';
 import { ErrorState } from '../error-state/index';
 import { SearchIcon } from '../icons';
 import { LoadingState } from '../loading-state/index';
+import { pickerItems, SelectParts } from '../picker-parts';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { SelectOptions } from '../select-options/index';
 import { SelectLabel, SelectTrigger } from '../select-trigger/index';
@@ -48,6 +50,37 @@ type SelectBodyProps<T extends SelectValue> = SelectProps<T> & {
   listboxLabel: string | undefined;
 };
 
+/** The filter box above the options; it takes focus when it appears. */
+function SelectSearch(props: {
+  query: string;
+  onQuery: (next: string) => void;
+  label: LocalizedString;
+  listboxId: string;
+}): JSX.Element {
+  let input: HTMLInputElement | undefined;
+  // The search box owns initial focus (after the surface's trap).
+  onSettled(() => {
+    input?.focus();
+  });
+  return (
+    <TextInput
+      ref={(el) => {
+        input = el;
+      }}
+      type="search"
+      value={props.query}
+      onChangeText={(next) => props.onQuery(next)}
+      placeholder={props.label}
+      aria-label={props.label}
+      aria-controls={props.listboxId}
+      autocorrect="off"
+      autocapitalize="none"
+      startAdornment={<SearchIcon size={18} />}
+      dataSet={{ component: 'SelectSearch' }}
+    />
+  );
+}
+
 function SelectSurfaceBody<T extends SelectValue>(
   props: SelectBodyProps<T>
 ): JSX.Element {
@@ -66,21 +99,11 @@ function SelectSurfaceBody<T extends SelectValue>(
     >
       <div class="box gap-2">
         <Show when={searchable()}>
-          <TextInput
-            ref={(el) => {
-              // The search box owns initial focus (after the surface's trap).
-              onMount(() => el.focus());
-            }}
-            type="search"
-            value={query()}
-            onChangeText={setQuery}
-            placeholder={props.searchPlaceholder ?? t`Search…`}
-            aria-label={props.searchPlaceholder ?? t`Search…`}
-            aria-controls={props.listboxId}
-            autocorrect="off"
-            autocapitalize="none"
-            startAdornment={<SearchIcon size={18} />}
-            dataSet={{ component: 'SelectSearch' }}
+          <SelectSearch
+            query={query()}
+            onQuery={setQuery}
+            label={props.searchPlaceholder ?? t`Search…`}
+            listboxId={props.listboxId}
           />
         </Show>
         <Show when={hasError()}>
@@ -135,39 +158,63 @@ export function Select<T extends SelectValue = string>(
     setOpen(false);
   };
   return (
-    <div class="box" {...dataAttrs({ component: 'Select', ...props.dataSet })}>
-      <Show when={props.label !== undefined}>
-        <SelectLabel label={props.label} />
-      </Show>
-      <SelectTrigger
-        selected={selected()}
-        placeholder={props.placeholder ?? t`Select…`}
-        disabled={props.disabled === true}
-        size={props.size ?? 'md'}
-        open={open()}
-        onClick={() => setOpen(true)}
-        aria-label={name()}
-        dataSet={props.triggerDataSet}
-      />
-      <ResponsiveSurface
-        visible={open()}
-        onClose={() => setOpen(false)}
-        title={title()}
-        label={name()}
-        scroll={false}
+    <SelectParts.Root<T>
+      items={pickerItems(props.options, props.loading === true)}
+      disabled={props.disabled === true}
+      value={props.value}
+      open={open()}
+      onOpenChange={(next) => setOpen(next)}
+      onValueChange={(value) => {
+        if (
+          value !== null &&
+          !props.loading &&
+          !props.disabled &&
+          props.options.some(
+            (option) => option.value === value && !option.disabled
+          )
+        )
+          handlePick(value);
+      }}
+    >
+      <div
+        class="box"
+        {...dataAttrs({ component: 'Select', ...props.dataSet })}
       >
-        <Show
-          when={props.surfaceExtra !== undefined && props.surfaceExtra !== null}
-        >
-          <div class="box mb-2">{props.surfaceExtra}</div>
+        <Show when={props.label !== undefined}>
+          <SelectLabel label={props.label} />
         </Show>
-        <SelectSurfaceBody
-          {...props}
-          onPick={handlePick}
+        <SelectTrigger
+          selected={selected()}
+          placeholder={props.placeholder ?? t`Select…`}
+          disabled={props.disabled === true}
+          size={props.size ?? 'md'}
+          open={open()}
           listboxId={listboxId}
-          listboxLabel={name()}
+          aria-label={name()}
+          dataSet={props.triggerDataSet}
         />
-      </ResponsiveSurface>
-    </div>
+        <ResponsiveSurface
+          visible={open()}
+          onClose={() => setOpen(false)}
+          title={title()}
+          label={name()}
+          scroll={false}
+        >
+          <Show
+            when={
+              props.surfaceExtra !== undefined && props.surfaceExtra !== null
+            }
+          >
+            <div class="box mb-2">{props.surfaceExtra}</div>
+          </Show>
+          <SelectSurfaceBody
+            {...props}
+            onPick={handlePick}
+            listboxId={listboxId}
+            listboxLabel={name()}
+          />
+        </ResponsiveSurface>
+      </div>
+    </SelectParts.Root>
   );
 }

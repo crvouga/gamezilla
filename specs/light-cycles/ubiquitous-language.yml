@@ -37,7 +37,6 @@ terms:
       finding players. A mode's number of riders never changes during a game;
       anyone who arrives once every rider is taken watches.
     forms: [modes]
-    model: [mode]
 
   - term: arena
     definition: >-
@@ -51,7 +50,6 @@ terms:
       1 on the left to 40 on the right; rows run from 1 at the top to 28 at
       the bottom.
     forms: [cells, column, columns, row, rows, empty cell]
-    model: [Cell]
 
   - term: starting cell
     definition: >-
@@ -73,7 +71,6 @@ terms:
       pattern, never by its colour alone. Only the rider's own person steers
       it, and that person keeps their rider for the whole game.
     forms: [riders, rider's, riders', ride, rides, ridden by, seat order]
-    model: [riders, riderCell]
 
   - term: Comet
     definition: The first rider, marked C.
@@ -104,14 +101,12 @@ terms:
       arena until the round ends, even after its rider crashes. Each
       rider's trail has its own pattern.
     forms: [trails, trail's, light trail, trail pattern]
-    model: [trail]
 
   - term: direction
     definition: >-
       Which way a rider is heading: up, down, left or right. A rider never
       goes diagonally.
     forms: [directions, heading, heads, up, down, left, right]
-    model: [heading]
 
   - term: step
     definition: >-
@@ -119,7 +114,6 @@ terms:
       or in the direction it was just steered. Riders take 10 steps every
       second, and a riding rider never stops between them.
     forms: [steps, next step, next steps, moves, move, moving]
-    model: [ridersStep, nextStep]
 
   - term: riding
     definition: >-
@@ -127,7 +121,6 @@ terms:
       again from the next round, whatever happened in this one, unless its
       person is away.
     forms: [still riding, ride again, rides again]
-    model: [riding]
 
   - term: steer
     definition: >-
@@ -137,7 +130,6 @@ terms:
       steers before the game starts, while a round result shows, a rider
       that has crashed or a rider in a finished game.
     forms: [steers, steered, steering]
-    model: [steer]
 
   - term: turn
     definition: >-
@@ -147,7 +139,6 @@ terms:
       step after the other; a third quick turn before the first takes effect
       is ignored. A turn never carries into another round.
     forms: [turns, turned, turning, quick turn, quick turns, waiting turn]
-    model: [lateTurn]
 
   - term: direction pad
     definition: >-
@@ -163,7 +154,6 @@ terms:
       no rider is favoured. A crashed rider stays on the last cell it
       reached, and its trail stays on the arena until the round ends.
     forms: [crashes, crashed, crashing]
-    model: [crashed]
 
   - term: round
     definition: >-
@@ -172,14 +162,12 @@ terms:
       round's result then shows for 2 seconds before the next round's
       countdown.
     forms: [rounds, round's, first round, second round, third round, next round]
-    model: [roundNumber, roundStage]
 
   - term: countdown
     definition: >-
       The 3 seconds before a round's riding begins. Every rider waits on its
       starting cell until the countdown ends.
     forms: [counting down, countdown ends, waits, wait]
-    model: [countdownEnds]
 
   - term: round result
     definition: >-
@@ -187,7 +175,6 @@ terms:
       seconds after the round ends. Then the arena is cleared and every
       rider rides again in the next round.
     forms: [round results]
-    model: [roundWinner]
 
   - term: end
     definition: >-
@@ -202,7 +189,6 @@ terms:
       round ends. A round scores once, and a finished round never scores
       again.
     forms: [round wins, wins the round, won the round]
-    model: [roundWins]
 
   - term: drawn round
     definition: >-
@@ -221,7 +207,6 @@ terms:
       The round wins that win the Light Cycles game: 3, unless the custom
       game's creator chooses from 1 to 9 before it starts. A game found by
       finding players uses 3.
-    model: [targetScore]
 
   - term: last round
     definition: >-
@@ -236,7 +221,6 @@ terms:
       wins the Light Cycles game for its person. Everyone sees the winning
       rider with its person.
     forms: [win, winner, wins the game, wins a game, wins the Light Cycles game, won the Light Cycles game]
-    model: [gameWinner]
 
   - term: drawn game
     definition: >-
@@ -256,7 +240,6 @@ terms:
       A Light Cycles game with a victory or a drawn game. Nobody steers in
       it, no round starts, and its score never changes.
     forms: [finish, finishes, unfinished]
-    model: [gameStage]
 
   - term: called off
     definition: >-
@@ -383,4 +366,3 @@ terms:
       seconds, and an away person's time away grows. Once a game is finished
       or called off, time passing changes nothing.
     forms: [second passes, seconds have passed]
-    model: [secondsPass, ridersStep, countdownEnds, resultEnds]

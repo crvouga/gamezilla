@@ -1,11 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import type { IconComponent } from '../create-icon/index';
+import { LinkHost } from '../link-host';
 
 export type TabBarItem = {
   /** Stable key for the destination. */
@@ -53,11 +55,11 @@ function isModifiedClick(event: MouseEvent): boolean {
 }
 
 function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
+  const Icon = dynamic(() => props.item.icon);
   return (
     <>
       <span class="box relative items-center justify-center">
-        <Dynamic
-          component={props.item.icon}
+        <Icon
           size={ICON_SIZE}
           strokeWidth={props.item.current ? STROKE_CURRENT : STROKE_DEFAULT}
           color={props.item.current ? 'tint' : 'textSecondary'}
@@ -81,11 +83,13 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
         data-slot="label"
       >
         <span
-          class="text textFootnote line-clamp-1 max-w-full transition-colors"
-          classList={{
-            'text-tint font-semibold': props.item.current,
-            'text-text-secondary': !props.item.current,
-          }}
+          class={[
+            'text textFootnote line-clamp-1 max-w-full transition-colors',
+            {
+              'text-tint font-semibold': props.item.current,
+              'text-text-secondary': !props.item.current,
+            },
+          ]}
         >
           {props.item.label}
         </span>
@@ -102,7 +106,7 @@ function TabBarLink(props: { item: TabBarItem; href: string }): JSX.Element {
     press();
   };
   return (
-    <a
+    <LinkHost
       class={ITEM_CLASS}
       {...dataAttrs({ component: 'TabBarItem', ...props.item.dataSet })}
       href={props.href}
@@ -111,13 +115,13 @@ function TabBarLink(props: { item: TabBarItem; href: string }): JSX.Element {
       onClick={onClick}
     >
       <TabBarItemFace item={props.item} />
-    </a>
+    </LinkHost>
   );
 }
 
 function TabBarButton(props: { item: TabBarItem }): JSX.Element {
   return (
-    <button
+    <SdkButton
       class={ITEM_CLASS}
       {...dataAttrs({ component: 'TabBarItem', ...props.item.dataSet })}
       type="button"
@@ -126,7 +130,7 @@ function TabBarButton(props: { item: TabBarItem }): JSX.Element {
       onClick={() => props.item.onPress?.()}
     >
       <TabBarItemFace item={props.item} />
-    </button>
+    </SdkButton>
   );
 }
 

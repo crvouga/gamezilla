@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** The tab bar as a listener hears it. */
 
 import { describe, expect, test } from 'bun:test';
@@ -12,7 +12,7 @@ import {
 import { auditTree, formatFailure } from '@pkgs/a11y-shared-ts/audit';
 import { SettingsIcon, UserIcon } from '@pkgs/ui-root-client-ts/icons';
 import { screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { renderChrome } from './render-chrome';
 
 const TABS = [

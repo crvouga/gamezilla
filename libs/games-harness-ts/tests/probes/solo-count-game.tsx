@@ -27,7 +27,8 @@ import type {
   PuzzlesCapability,
 } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createEffect, For, on } from 'solid-js';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
+import { createEffect, For, untrack } from 'solid-js';
 import { countRules } from './count-rules';
 import { probeAutomation, probePresentation } from './probe-parts';
 
@@ -54,15 +55,14 @@ function PuzzleBoard(props: PuzzleBoardProps) {
     end: createAudioPlayer(SOUNDS.end),
   });
   createEffect(
-    on(
-      () => props.position,
-      (position, before) => {
-        if (!props.sound || position === before) return;
-        handles.move.play();
-        if (position === 'solo-count:7w') handles.end.play();
-      },
-      { defer: true }
-    )
+    () => props.position,
+    (position, before) => {
+      // Read when the position changes: turning sounds on replays nothing.
+      if (!untrack(() => props.sound) || position === before) return;
+      handles.move.play();
+      if (position === 'solo-count:7w') handles.end.play();
+    },
+    { defer: true }
   );
   const mark = (cell: string) =>
     [
@@ -90,14 +90,14 @@ function PuzzleBoard(props: PuzzleBoardProps) {
       </ol>
       <For each={['one', 'two', 'three', 'stay', 'four']}>
         {(action) => (
-          <button
+          <Pressable
             type="button"
-            data-testid={`${props.testId}-${action}`}
+            testId={`${props.testId}-${action}`}
             disabled={!props.interactive || props.mode !== 'play'}
-            onClick={() => props.onAction(action)}
+            onPress={() => props.onAction(action)}
           >
             {action}
-          </button>
+          </Pressable>
         )}
       </For>
     </div>

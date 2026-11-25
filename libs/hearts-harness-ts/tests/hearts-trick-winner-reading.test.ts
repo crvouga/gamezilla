@@ -16,7 +16,7 @@ import { openHarness } from './open-hearts-harness';
 
 // regression: hearts-trick-winner-seat-name-mismatch
 test('seed 1 identifies Carol in North as the diamond trick winner after South plays JD', async () => {
-  await using s = await openHarness('hearts-trick-winner-reading', { seed: 1 });
+  await using s = await openHarness({ seed: 1 });
   await s.apply(establishHearts, {
     line: lineAt(WEST_LEADS_FOURTH_TABLE, 'north and east played'),
   });

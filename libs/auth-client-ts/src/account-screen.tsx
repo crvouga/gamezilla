@@ -1,5 +1,5 @@
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { useHasAuthSession } from './access-facts';
 import { AccountScreenView } from './account-screen-view';
 import { useSignInModal, useSignOutModal } from './auth-modals-provider';

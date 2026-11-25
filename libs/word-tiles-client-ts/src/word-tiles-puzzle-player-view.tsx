@@ -17,13 +17,13 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  on,
   Show,
+  untrack,
 } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import {
@@ -90,11 +90,15 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
   const ids = createMemo(() => rackTileIds(props.puzzle.rack));
   const hand = () => ids().join(',');
   const base = () => encodePosition(framePosition(props.puzzle));
+  // The first candidate is made once; later frames and racks rebase it.
   const [candidate, setCandidate] = createSignal<Candidate>(
-    newCandidate(base(), hand())
+    untrack(() => newCandidate(base(), hand()))
   );
   createEffect(
-    on([base, hand], () => setCandidate((c) => rebase(c, base(), hand())))
+    () => [base(), hand()] as const,
+    ([frame, rack]) => {
+      setCandidate((c) => rebase(c, frame, rack));
+    }
   );
   const preview = createMemo(() =>
     previewCandidate(framePosition(props.puzzle), candidate(), props.lexicon)
@@ -112,11 +116,11 @@ function createPuzzleBoard(props: PuzzleBoardProps) {
     return { ...position, board: board.join('') };
   });
   createEffect(
-    on(
-      () => props.state,
-      () => setCandidate(recallAll),
-      { defer: true }
-    )
+    () => props.state,
+    () => {
+      setCandidate(recallAll);
+    },
+    { defer: true }
   );
   // Memoized: each square reads the list (see the game board).
   const cells = createMemo(() =>

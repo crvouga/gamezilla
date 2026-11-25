@@ -1,12 +1,15 @@
-/** @jsxImportSource solid-js */
-import { type Accessor, createContext, type JSX, useContext } from 'solid-js';
+/** @jsxImportSource @solidjs/web */
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, useContext } from 'solid-js';
 
 /**
  * Ambient gate for document-level keyboard shortcuts.
  * `undefined` = no gate (standalone). Hosts set `active` so only one sibling
  * subtree owns shortcuts at a time.
  */
-const KeyboardShortcutScopeContext = createContext<Accessor<boolean>>();
+const KeyboardShortcutScopeContext = createContext<Accessor<boolean> | null>(
+  null
+);
 
 export function KeyboardShortcutScope(props: {
   readonly active: boolean;
@@ -14,9 +17,9 @@ export function KeyboardShortcutScope(props: {
 }): JSX.Element {
   const active: Accessor<boolean> = () => props.active;
   return (
-    <KeyboardShortcutScopeContext.Provider value={active}>
+    <KeyboardShortcutScopeContext value={active}>
       {props.children}
-    </KeyboardShortcutScopeContext.Provider>
+    </KeyboardShortcutScopeContext>
   );
 }
 
@@ -24,5 +27,5 @@ export function KeyboardShortcutScope(props: {
 export function useKeyboardShortcutScopeOptional():
   | Accessor<boolean>
   | undefined {
-  return useContext(KeyboardShortcutScopeContext);
+  return useContext(KeyboardShortcutScopeContext) ?? undefined;
 }

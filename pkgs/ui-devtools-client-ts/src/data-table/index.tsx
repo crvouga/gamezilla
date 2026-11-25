@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   pageSelectionState,
   setPageKeysSelected,
@@ -8,7 +8,8 @@ import {
 } from '@pkgs/ui-devtools-shared-ts/data-table-selection';
 import type { DataTableProps } from '@pkgs/ui-devtools-shared-ts/data-table-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { createDataTablePageCache } from '../create-data-table-page-cache';
 import type { DataTableSelectionHeader } from '../data-table-header/index';
 import { DataTableHeader } from '../data-table-header/index';

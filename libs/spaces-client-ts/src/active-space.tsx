@@ -1,6 +1,6 @@
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ActiveSpaceBody } from './active-space-body';
 import { useRequestEndSpace } from './end-space-modal-provider';
 import { useRequestLeaveSpace } from './leave-space-modal-provider';

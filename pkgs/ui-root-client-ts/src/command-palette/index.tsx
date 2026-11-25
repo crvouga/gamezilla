@@ -1,18 +1,19 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   clampPaletteSelection,
   nextPaletteSelection,
 } from '@pkgs/ui-root-shared-ts/command-palette-keyboard';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { MODAL_CONTENT_MARGIN_STEP } from '@pkgs/ui-root-shared-ts/modal-size';
+import type { JSX } from '@solidjs/web';
+import { command } from '@ui-sdk/core/command';
+import { createParts } from '@ui-sdk/solid/primitive';
 import {
   createEffect,
   createMemo,
   createUniqueId,
-  type JSX,
-  on,
   Show,
   untrack,
 } from 'solid-js';
@@ -30,7 +31,12 @@ import { useCommandRegistry } from '../command-registry-context/index';
 import { ModalContent } from '../modal-content/index';
 import { ModalRoot } from '../modal-root/index';
 import { ProgressBar } from '../progress-bar/index';
+import { isCommandEnabled } from '../types';
 
+const { Root: Command, Status: CommandStatus } = createParts(command, {
+  root: 'div',
+  status: 'div',
+});
 const TOP_INSET_STEP = 12;
 
 export type CommandPaletteProps = {
@@ -57,15 +63,13 @@ function createPaletteModel(
     buildPaletteRows(reg.commands(), reg.query(), reg.historyIds())
   );
   const items = createMemo(() => selectableRows(rows().rows));
-  // Reset selection when the query changes; clamp when the row set shrinks.
-  createEffect(on(reg.query, () => reg.setSelectedIndex(0), { defer: true }));
+  // Clamp the selection when the row set shrinks (a new query resets it in
+  // the registry itself).
   createEffect(
-    on(
-      () => rows().selectableCount,
-      (count) => {
-        reg.setSelectedIndex((prev) => clampPaletteSelection(prev, count));
-      }
-    )
+    () => rows().selectableCount,
+    (count) => {
+      reg.setSelectedIndex((prev) => clampPaletteSelection(prev, count));
+    }
   );
   const activeId = (): string | undefined => {
     const item = items()[reg.selectedIndex()];
@@ -106,8 +110,28 @@ function PaletteCard(props: {
   const reg = untrack(() => props.reg);
   const model = untrack(() => props.model);
   const running = (): boolean => reg.runningId() !== null;
+  const { t } = useLingui();
+  const commands = createMemo(() =>
+    model.items().map(({ command }) => ({
+      value: command.id,
+      label: command.title,
+      disabled: running() || !isCommandEnabled(command),
+    }))
+  );
   return (
-    <div
+    <Command
+      items={commands()}
+      aria-label={t`Available commands`}
+      query={reg.query()}
+      onQueryChange={reg.setQuery}
+      value={commands()[reg.selectedIndex()]?.value ?? null}
+      onValueChange={(value) => {
+        const index = commands().findIndex((item) => item.value === value);
+        if (index >= 0) reg.setSelectedIndex(index);
+      }}
+      filter={false}
+      autoHighlight={false}
+      onAction={(id) => (running() ? undefined : reg.invoke(id))}
       class="box rounded-sheet border border-border overflow-hidden bg-surface-overlay"
       data-component="CommandPaletteCard"
     >
@@ -142,8 +166,11 @@ function PaletteCard(props: {
           }}
         />
       </Show>
+      <CommandStatus class="sr-only">
+        {reg.query() === '' ? '' : t`Matching commands: ${commands().length}`}
+      </CommandStatus>
       <CommandPaletteHint legend={props.footerLegend} />
-    </div>
+    </Command>
   );
 }
 
@@ -175,8 +202,10 @@ export function CommandPalette(props: CommandPaletteProps): JSX.Element {
           onClick={() => reg.close()}
         />
         <div
-          class="box absolute inset-0 items-center justify-start"
-          classList={{ boxNone: true }}
+          class={[
+            'box absolute inset-0 items-center justify-start',
+            { boxNone: true },
+          ]}
           style={{
             'padding-top': `${TOP_INSET_STEP * 4}px`,
             'padding-left': `${MODAL_CONTENT_MARGIN_STEP * 4}px`,

@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const fleet =
@@ -37,6 +37,7 @@ test('J10 submission shows a busy action until the existing refusal reset permit
   fireEvent.click(byTestId('feedback-fire'));
   expect(actions).toEqual(['j10']);
   reset(1);
+  flush();
   expect(byTestId('feedback-fire').hasAttribute('aria-busy')).toBe(false);
   expect(byTestId('feedback-fire').textContent).toContain(
     'Choose a cell in F9–J10'

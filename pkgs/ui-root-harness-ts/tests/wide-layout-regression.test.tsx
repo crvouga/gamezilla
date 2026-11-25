@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * One canvas and one leading edge on wide layouts: the frame paints the
  * `background` tone edge to edge, every screen starts at the frame column's
@@ -20,7 +20,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { SCREEN_MAX_WIDTH } from '@pkgs/ui-root-client-ts/screen-measure';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { mustQuery, renderUi } from './render';
 
 const WIDE = { width: 1440, height: 900 };

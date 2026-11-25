@@ -45,8 +45,8 @@ be declared ([`README.md`](../../README.md#repository)).
 const SYSTEM = defineProductSystem(
   composeHarnessSlices('friends', [PROFILE_HARNESS_SLICE, FRIENDS_HARNESS_SLICE, BILLING_HARNESS_SLICE])
 );
-export const openHarness = (testId: string, options?: OpenHarnessOptions) =>
-  openSystemHarness(SYSTEM, testId, options);
+export const openHarness = (options?: OpenHarnessOptions) =>
+  openSystemHarness(SYSTEM, options);
 ```
 
 Each sub exports its slice (manifest, client, server, actions, reads,
@@ -63,9 +63,9 @@ the population tables identity reads) and folds in production's order. Run one p
 | `in-process` (default) | `inProcessRuntime({ composition })` | Solid DOM (`@pkgs/ui-testing-solid-dom` in happy-dom under bun:test; embedded `App` in product-harness) | Seeded mockingbird-postgres + mockingbird-sqlite; in-process Hono `fetch`; caps include `partition` |
 | `bun-webview` | `bunWebviewRuntime({ composition })` — registered on every product system | `Bun.WebView` per actor | Seed SQL + model network by default; `HARNESS_MODE=real` uses Mockingbird Postgres + Mockingbird S3/EMQX (booted by the app that registers `registerRealStackBooter` — `@apps/product-ts`'s `test:max` preload) and no `partition` cap; `HARNESS_MODE=stack` attaches to a separately booted [localhost stack](../../README.md#laptop) |
 
-Open a run with `openHarness(system, testId, options)` from
+Open a run with `openHarness(system, options)` from
 `@libs/harness-ts/open-harness/open-harness` — `system.run({ seed, runtime })` plus
-snapshot restore and the reporter. The product harness runs
+snapshot restore. The product harness runs
 `@libs/runtime/harness/app-composition`'s `APP_SYSTEM` the same way. An actor
 opens an app link with `HarnessActor.openLink(path)` and reports its route with
 `currentPath()` — how a guest with only a space's link gets in.
@@ -92,7 +92,7 @@ Auth actions: `signInWithGoogle` / `signInWithApple` / `signInWithProviderAs`,
 `appleRevokesApp` / `appleDeletesAccount`.
 
 **Authoring** — scenarios are Gherkin steps and Quint bindings over the
-package's `openHarness(testId)`; code tests import `describe` / `test` from
+package's `openHarness()`; code tests import `describe` / `test` from
 `bun:test` and call it directly. Drive UI with named `defineAction`s from the
 harness and the subs' `harness/*` (`s.apply(signInWithGoogle, 'alice')`).
 Standing properties (`noErrorBoundary`, …) run after every checkpoint. Do not
@@ -153,7 +153,7 @@ billing screen keeps Subscribe hidden while the grace window still grants
 access). `advanceBillingClock(ms)` is the virtual-time escape hatch; the
 grace-window rule itself is unit-proven in `@libs/permissions`.
 
-**System snapshots** — `openHarness(id, { snapshot: '<id>' })` restores a
+**System snapshots** — `openHarness({ snapshot: '<id>' })` restores a
 committed fixture from the running package's `fixtures/snapshots/<id>.json`
 (portable logical dump: server/client SQL rows + client KV + rooms + clock). A stale `localSchemaVersion` fails restore.
 
@@ -163,7 +163,7 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
   **once** per composition into its seed; each `openHarness` clones that seed
   instead of re-running DDL. UI runs on **virtual
   time**: `@pkgs/bun-test-solid-client-ts/preload` installs a happy-dom document and
-  compiles workspace `.tsx` with `babel-preset-solid` + the Lingui macro
+  compiles workspace `.tsx` with `@solidjs/babel-plugin` + the Lingui macro
   (`@libs/harness-ts/preload` narrows it to a phone viewport) (CSS modules → class-name proxies, media assets → paths);
   `bun test` runs with `--conditions=browser --conditions=development` so Solid
   resolves to its browser dev build. Each actor is one `MultiAppSolidDomSession`
@@ -180,18 +180,10 @@ committed fixture from the running package's `fixtures/snapshots/<id>.json`
   (`apps/product-ts/scripts/serve-max-web.ts`), and does not enable `partition`. Snapshot auth KV
   is injected per actor WebView before hydrate.
 
-**Reports** — every harness writes its `report.json` (Gherkin and Quint
-steps, the harness calls and UI ops under them, outcomes, drawn traces) into
-`<pkg>/.cache/harness-report`, the `test:spec` turbo `outputs`; every
-`bun verify` publishes every bucket to the shared reports store, per
-commit, where the standalone Atlas explorer reads it
-([`specs/README.md`](../../specs/README.md#workflow)). Failed JUnit
-testcases also become `test.failure` spans under
-`.cache/harness-report/traces/` for `bun obs test`
-([`README.md`](../../README.md#correctness-machinery)). Capture is owned by
-the packages: `defineProductSystem` declares `defineSnapshot`s (`html` per
-actor, `topology`), `openHarness` wraps each actor's driver in
-`recordingDriver`, and `TestViewportProvider` sizes the 390×844 actor frame.
-The DOM preload and report stylesheet both use
+**Evidence** — each spec part writes into its own bucket,
+`<pkg>/.cache/harness-report/<part>/`, the `test:spec` turbo `outputs`: JUnit
+output, conformance evidence under `evidence/`, model evidence under `models/`,
+and observability traces under `traces/` for `bun obs test`
+([`README.md`](../../README.md#correctness-machinery)). The DOM preload uses
 `@pkgs/bun-test-solid-client-ts/css-module` to isolate CSS module selectors with portable
 names. Reused local names such as `cell` and `content` cannot cross components.

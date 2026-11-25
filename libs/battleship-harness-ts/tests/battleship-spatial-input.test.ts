@@ -18,7 +18,7 @@ import { openHarness } from './open-battleship-harness';
 // Its lineup opens a whole product world (4.5–5.0 s under coverage); it runs
 // under the product-harness wall clock the harness preload sets.
 test('the setup adapter attempts Carrier at G1 through the visible precision controls', async () => {
-  await using s = await openHarness('battleship-inert-overview-g1');
+  await using s = await openHarness();
   await s.apply(establishBattleship, { ready: false, active: false });
   await s.apply(
     placeBattleshipShip,
@@ -36,7 +36,7 @@ test('the setup adapter attempts Carrier at G1 through the visible precision con
 // regression: battleship-locked-spatial-picker-harness
 // Literal model prefix: arranged fleet, Bob loses connection, rotates Carrier.
 test('a disconnected ready fleet does not open a disabled ship picker', async () => {
-  await using s = await openHarness('battleship-locked-carrier');
+  await using s = await openHarness();
   await s.apply(establishBattleship, { ready: true, active: false });
   await s.apply(showFleetSetup, 'bob');
   const before = (await s.read(battleshipView, 'bob')).setup;

@@ -1,14 +1,12 @@
 /**
- * Ensures `t` / `useLingui().t` are typed as {@link LocalizedString} for
- * branded props. Import this module from the UI package entry so dependents
- * resolve the augmentation.
+ * Ensures the core `t` macro is typed as {@link LocalizedString} for branded
+ * props (`useLingui().t` already is). Import this module from the UI package
+ * entry so dependents resolve the augmentation.
  */
 
-import type { I18n, MessageDescriptor } from '@lingui/core';
+import type { MessageDescriptor } from '@lingui/core';
 import type {} from '@lingui/core/macro';
-import type {} from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
-import type { Accessor } from 'solid-js';
 
 declare module '@lingui/core/macro' {
   export function t(
@@ -16,11 +14,4 @@ declare module '@lingui/core/macro' {
     ...values: unknown[]
   ): LocalizedString;
   export function t(descriptor: MessageDescriptor): LocalizedString;
-}
-
-declare module '@lingui/solid/macro' {
-  export function useLingui(): {
-    t: (strings: TemplateStringsArray, ...values: unknown[]) => LocalizedString;
-    i18n: Accessor<I18n>;
-  };
 }

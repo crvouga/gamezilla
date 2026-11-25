@@ -14,7 +14,8 @@ import {
   WordTileWorkbench,
   WordTileWorkspace,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import { wordTilesActions } from './word-tiles-actions';
 import { assignBlank, pressCell, pressTile } from './word-tiles-candidate';

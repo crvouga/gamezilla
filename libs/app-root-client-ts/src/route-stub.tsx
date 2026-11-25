@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Placeholder screen for routes whose Solid port has not landed yet, and the
  * `*` not-found screen. A real `ScreenBase` so header chrome, breadcrumbs and
@@ -6,7 +6,7 @@
  */
 
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   RouteStubScreenView,
   type RouteStubScreenViewProps,

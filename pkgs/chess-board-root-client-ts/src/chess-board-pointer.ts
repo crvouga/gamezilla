@@ -37,7 +37,7 @@ import type {
   PieceDrag,
 } from '@pkgs/chess-board-root-shared-ts/piece-drag';
 import type { PointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
-import { type Accessor, batch } from 'solid-js';
+import { type Accessor, flush } from 'solid-js';
 import type { UserShapes } from './chess-board-user-shapes';
 
 export type BoardPointerArgs = {
@@ -110,7 +110,7 @@ export class BoardPointer {
       return;
     }
     const moved = this.dragMoved();
-    batch(() => this.args.session.cancel());
+    this.args.session.cancel();
     this.releaseDrag(moved, box);
   }
 
@@ -161,12 +161,10 @@ export class BoardPointer {
     this.args.userShapes.clear();
     this.startPress(e, { pointerId: e.pointerId, button: 'primary', touch });
     const square = this.squareOf(e);
-    // One reactive flush: a pick-up publishes the interaction state more
-    // than once (drag, selection, targets). Safe to batch — a press never
-    // plays a move, so the parent's `onMove` cannot run inside the batch.
-    batch(() =>
-      this.args.session.down(square, e.clientX, e.clientY, e.pointerType)
-    );
+    this.args.session.down(square, e.clientX, e.clientY, e.pointerType);
+    // Settle now: a pick-up interrupts a position still arriving, and that
+    // must land before the drag takes hold of the piece below.
+    flush();
     if (square !== null) {
       this.args.setCursor(square);
       this.focusSquare(square, touch);
@@ -180,7 +178,7 @@ export class BoardPointer {
   }
 
   private downSecondary(e: PointerEvent): void {
-    batch(() => this.args.actions.cancelAll());
+    this.args.actions.cancelAll();
     if (!this.args.enableUserArrows()) return;
     const square = this.squareOf(e);
     if (square === null) return;
@@ -252,15 +250,10 @@ export class BoardPointer {
       return;
     }
     const moved = this.dragMoved();
-    const st = this.args.session.state();
-    if (st.kind === 'drag' && !moved) {
-      // A tap on the piece itself (deselect / select): no move can result,
-      // so one flush. A release that may play a move is never batched — the
-      // parent's `onMove` must run with its own effects, not inside ours.
-      batch(() => this.args.session.up(square));
-    } else {
-      this.args.session.up(square);
-    }
+    this.args.session.up(square);
+    // Settle now: a drop that plays a move gives the piece its new resting
+    // place, and the release below slides it there from under the pointer.
+    flush();
     this.releaseDrag(moved, box);
   };
 

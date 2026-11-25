@@ -2,7 +2,7 @@ import type {
   SokobanBoard,
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
-import { Plural, Trans, useLingui } from '@lingui/solid/macro';
+import { Plural, Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -11,7 +11,8 @@ import {
   type TileBoardDirection,
   type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import {
   type BoardWindow,
   followAxis,

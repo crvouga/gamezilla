@@ -133,6 +133,26 @@ function gh(args: readonly string[]): Buffer {
   return result.stdout;
 }
 
+/** Retry a read-only GitHub ZIP transfer when its gateway is temporarily unavailable. */
+export async function readArtifactZip(
+  read: () => Buffer,
+  sleep: (ms: number) => Promise<unknown> = Bun.sleep
+): Promise<Buffer> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return read();
+    } catch (error) {
+      if (
+        attempt >= 3 ||
+        !(error instanceof Error) ||
+        !/\bHTTP (?:502|503|504)\b/.test(error.message)
+      )
+        throw error;
+      await sleep(1000 * 2 ** attempt);
+    }
+  }
+}
+
 /** `GITHUB_REPOSITORY` in CI, else `gh`'s own resolution of this checkout. */
 function repository(env: Readonly<Record<string, string | undefined>>): string {
   return (
@@ -167,7 +187,9 @@ export function githubArtifactsApi(
         const zip = join(scratch, 'artifact.zip');
         writeFileSync(
           zip,
-          gh(['api', `repos/${repo}/actions/artifacts/${String(id)}/zip`])
+          await readArtifactZip(() =>
+            gh(['api', `repos/${repo}/actions/artifacts/${String(id)}/zip`])
+          )
         );
         const unzip = spawnSync('unzip', ['-q', '-o', zip, '-d', directory], {
           stdio: 'inherit',

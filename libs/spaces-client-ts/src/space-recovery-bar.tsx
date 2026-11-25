@@ -1,5 +1,5 @@
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * The bottom bar of a space screen that cannot go on (ended, unreachable,

@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { RemoveSpacePersonModalView } from './remove-space-person-modal-view';
 import type { SpacePerson } from './space-person-view';
 import { useRemoveSpaceUser } from './use-remove-space-user';

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Media / AI backends: object store, LLM, TTS. Each context always mounts —
  * when the API lacks the vendor secrets the calls fail soft (503), so
@@ -13,7 +13,7 @@ import { useKv } from '@pkgs/kv-root-client-ts/solid';
 import { LlmContextProvider } from '@pkgs/llm-root-client-ts/solid';
 import { ObjectStoreProvider } from '@pkgs/object-store-root-client-ts/solid';
 import { TtsProvider } from '@pkgs/tts-root-client-ts/solid';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 function AppLlm(props: { readonly children: JSX.Element }): JSX.Element {
   const env = useClientEnv();

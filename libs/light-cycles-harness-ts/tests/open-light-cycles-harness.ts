@@ -18,8 +18,7 @@ const LIGHT_CYCLES_SYSTEM = gameSystem('light-cycles', [
 ]);
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openGameHarness(LIGHT_CYCLES_SYSTEM, testId, options);
+  return openGameHarness(LIGHT_CYCLES_SYSTEM, options);
 }

@@ -24,14 +24,12 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
-  batch,
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  onCleanup,
   untrack,
 } from 'solid-js';
 
@@ -98,31 +96,29 @@ function useDebouncedSearchQuery(
   // What is searched for. A space after the name (a phone's keyboard adds one
   // with every suggestion it completes) is the same search, not a new one.
   const wanted = createMemo(() => query().trim());
-  createEffect(() => {
-    const trimmed = wanted();
-    if (!canSearch() || trimmed.length === 0) {
-      setDebouncedQuery('');
-      setAwaitingSync(false);
-      return;
-    }
+  createEffect(
+    () => ({ trimmed: wanted(), allowed: canSearch() }),
+    ({ trimmed, allowed }) => {
+      if (!allowed || trimmed.length === 0) {
+        setDebouncedQuery('');
+        setAwaitingSync(false);
+        return;
+      }
 
-    const handle = timers.setTimeout(() => {
-      // The in-flight flag lands with the query. A render in between would
-      // show the previous person, or nobody, before this search is sent.
-      // Only a search that goes out is awaited. Typing on and back to the
-      // name already being searched sends nothing, so nothing would ever
-      // answer it and the screen would say "Searching…" for good.
-      if (untrack(debouncedQuery) === trimmed) return;
-      batch(() => {
+      const handle = timers.setTimeout(() => {
+        // The in-flight flag lands with the query. A render in between would
+        // show the previous person, or nobody, before this search is sent.
+        // Only a search that goes out is awaited. Typing on and back to the
+        // name already being searched sends nothing, so nothing would ever
+        // answer it and the screen would say "Searching…" for good.
+        if (untrack(debouncedQuery) === trimmed) return;
         setDebouncedQuery(trimmed);
         setAwaitingSync(true);
-      });
-    }, USER_SEARCH_DEBOUNCE_MS);
+      }, USER_SEARCH_DEBOUNCE_MS);
 
-    onCleanup(() => {
-      timers.clearTimeout(handle);
-    });
-  });
+      return () => timers.clearTimeout(handle);
+    }
+  );
 
   return debouncedQuery;
 }
@@ -144,39 +140,41 @@ export function useDebouncedUserSearchEffect(
     setAwaitingSync
   );
 
-  createEffect(() => {
-    const initialQuery = debouncedQuery();
-    setRateLimited(false);
-    if (!canSearch() || initialQuery.length === 0) {
-      setAwaitingSync(false);
-      return;
-    }
-
-    let cancelled = false;
-    setAwaitingSync(true);
-    const sub = sync.subscribeQuery(
-      'searchProfiles',
-      {
-        query: initialQuery,
-      },
-      {
-        onQueryNotice: (notice) => {
-          if (!cancelled)
-            setRateLimited(notice?.code === 'people_search_rate_limited');
-        },
+  createEffect(
+    () => ({ initialQuery: debouncedQuery(), allowed: canSearch() }),
+    ({ initialQuery, allowed }) => {
+      setRateLimited(false);
+      if (!allowed || initialQuery.length === 0) {
+        setAwaitingSync(false);
+        return;
       }
-    );
-    void sub.waitForFirstSync().then(() => {
-      if (cancelled) return;
-      setAwaitingSync(false);
-      onCompleted?.(initialQuery);
-    });
 
-    onCleanup(() => {
-      cancelled = true;
-      sub.unsubscribe();
-    });
-  });
+      let cancelled = false;
+      setAwaitingSync(true);
+      const sub = sync.subscribeQuery(
+        'searchProfiles',
+        {
+          query: initialQuery,
+        },
+        {
+          onQueryNotice: (notice) => {
+            if (!cancelled)
+              setRateLimited(notice?.code === 'people_search_rate_limited');
+          },
+        }
+      );
+      void sub.waitForFirstSync().then(() => {
+        if (cancelled) return;
+        setAwaitingSync(false);
+        onCompleted?.(initialQuery);
+      });
+
+      return () => {
+        cancelled = true;
+        sub.unsubscribe();
+      };
+    }
+  );
 
   const local = createQuery(() => searchHitsSql(myId(), debouncedQuery()));
   const rows = local.rows;

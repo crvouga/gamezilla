@@ -1,6 +1,6 @@
 import type { PuzzlePlayStatus } from '@libs/game-puzzle-shared-ts/play-attr';
 import { PUZZLE_PLAY_STATUS } from '@libs/game-puzzle-shared-ts/play-attr';
-import { type Accessor, createEffect } from 'solid-js';
+import { type Accessor, createEffect, untrack } from 'solid-js';
 import { usePuzzleFeedback } from './use-puzzle-feedback';
 import { usePuzzleStatusFeedback } from './use-puzzle-status-feedback';
 
@@ -11,12 +11,8 @@ export function usePuzzlePlayerEffects(args: {
   status: Accessor<PuzzlePlayStatus | 'loading'>;
 }): void {
   const feedback = usePuzzleFeedback();
-  const prevSolveIdxRef: { current: number | null } = { current: null };
-
-  createEffect(() => {
-    void args.puzzleId();
-    prevSolveIdxRef.current = null;
-  });
+  // The step last seen on this puzzle; another puzzle starts from none.
+  let seenSolveIdx: number | null = null;
 
   usePuzzleStatusFeedback({
     puzzleId: args.puzzleId,
@@ -24,18 +20,22 @@ export function usePuzzlePlayerEffects(args: {
     feedback,
   });
 
-  createEffect(() => {
-    const solveIdx = args.solveIdx();
-    const status = args.status();
-    if (
-      status !== PUZZLE_PLAY_STATUS.solving ||
-      prevSolveIdxRef.current === null ||
-      solveIdx <= prevSolveIdxRef.current
-    ) {
-      prevSolveIdxRef.current = solveIdx;
-      return;
+  createEffect(
+    () => ({
+      puzzleId: args.puzzleId(),
+      solveIdx: args.solveIdx(),
+      status: args.status(),
+    }),
+    (now, before) => {
+      if (before?.puzzleId !== now.puzzleId) seenSolveIdx = null;
+      if (before?.solveIdx === now.solveIdx && before.status === now.status)
+        return;
+      const advanced =
+        now.status === PUZZLE_PLAY_STATUS.solving &&
+        seenSolveIdx !== null &&
+        now.solveIdx > seenSolveIdx;
+      seenSolveIdx = now.solveIdx;
+      if (advanced) untrack(() => feedback.onCorrectMove());
     }
-    feedback.onCorrectMove();
-    prevSolveIdxRef.current = solveIdx;
-  });
+  );
 }

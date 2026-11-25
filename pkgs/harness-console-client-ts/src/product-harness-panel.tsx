@@ -4,6 +4,7 @@ import {
 } from '@pkgs/harness-console-shared-ts/debugger-views';
 import type {
   ProductHarnessActor,
+  ProductHarnessActorView,
   ProductHarnessLoadBalancerNode,
   ProductHarnessPubSubNode,
   ProductHarnessRoomNode,
@@ -13,8 +14,8 @@ import type {
 import { EmbeddedFrame } from '@pkgs/ui-root-client-ts/embedded-frame';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
-import { type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import type { PaneNavPatch, PaneNavValue } from './debugger-chrome';
 import { ProductHarnessCommandsPane } from './product-harness-commands-pane';
 import { ProductHarnessLoadBalancerPane } from './product-harness-lb-pane';
@@ -44,6 +45,14 @@ function NodePanel(props: { readonly children: JSX.Element }) {
   );
 }
 
+/** The product's own `App`, whichever the actor's view names. */
+function ActorApp(props: {
+  readonly view: Extract<ProductHarnessActorView, { kind: 'solid' }>;
+}) {
+  const App = dynamic(() => props.view.App);
+  return <App embedded={true} history={props.view.history} />;
+}
+
 function ActorView(props: { readonly actor: ProductHarnessActor }) {
   return (
     <Switch>
@@ -57,11 +66,7 @@ function ActorView(props: { readonly actor: ProductHarnessActor }) {
           // `history` is owned by the session actor so the MemoryRouter
           // location survives `snapshotEpoch` remounts.
           <EmbeddedFrame title={props.actor.id}>
-            <Dynamic
-              component={view().App}
-              embedded={true}
-              history={view().history}
-            />
+            <ActorApp view={view()} />
           </EmbeddedFrame>
         )}
       </Match>

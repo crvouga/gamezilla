@@ -1,7 +1,7 @@
 /**
  * Reads what one component module's markup says: the `data-component`
  * names it sets, its roles and ARIA attributes, the DOM events it handles,
- * the `classList` branches that are its states, the keys it compares
+ * the conditional `class` entries that are its states, the keys it compares
  * against, and the defaults it falls back to.
  */
 import ts from 'typescript';
@@ -69,7 +69,7 @@ type Collector = {
   domEvents: AttributeFact[];
   dataAttributes: AttributeFact[];
   tabIndex: AttributeFact[];
-  classListStates: AttributeFact[];
+  classStates: AttributeFact[];
   classes: Set<string>;
   testIds: Set<string>;
   keys: Set<string>;
@@ -86,7 +86,7 @@ function emptyCollector(): Collector {
     domEvents: [],
     dataAttributes: [],
     tabIndex: [],
-    classListStates: [],
+    classStates: [],
     classes: new Set(),
     testIds: new Set(),
     keys: new Set(),
@@ -139,17 +139,25 @@ function addClasses(into: Set<string>, texts: readonly string[]): void {
   }
 }
 
-function classListStates(node: ts.JsxAttribute): AttributeFact[] {
+/** The conditional entries of `class={{ … }}` or `class={[…, { … }]}`. */
+function classStates(node: ts.JsxAttribute): AttributeFact[] {
   const init = node.initializer;
   if (init === undefined || !ts.isJsxExpression(init)) return [];
-  const object = init.expression;
-  if (object === undefined || !ts.isObjectLiteralExpression(object)) return [];
+  const value = init.expression;
+  if (value === undefined) return [];
+  const objects = ts.isArrayLiteralExpression(value)
+    ? value.elements.filter(ts.isObjectLiteralExpression)
+    : ts.isObjectLiteralExpression(value)
+      ? [value]
+      : [];
   const element = tagName(node);
-  return object.properties.flatMap((p) => {
-    if (!ts.isPropertyAssignment(p)) return [];
-    const name = ts.isStringLiteral(p.name) ? p.name.text : p.name.getText();
-    return [{ element, name, value: oneLine(p.initializer.getText()) }];
-  });
+  return objects.flatMap((object) =>
+    object.properties.flatMap((p) => {
+      if (!ts.isPropertyAssignment(p)) return [];
+      const name = ts.isStringLiteral(p.name) ? p.name.text : p.name.getText();
+      return [{ element, name, value: oneLine(p.initializer.getText()) }];
+    })
+  );
 }
 
 /** `dataSet={{ … }}` handed to a component. */
@@ -179,14 +187,8 @@ function onAttribute(node: ts.JsxAttribute, c: Collector): void {
     c.aria.push(fact);
   } else if (name === 'tabIndex' || name === 'tabindex') {
     c.tabIndex.push(fact);
-  } else if (name === 'classList') {
-    const states = classListStates(node);
-    c.classListStates.push(...states);
-    addClasses(
-      c.classes,
-      states.map((state) => state.name)
-    );
   } else if (name === 'class' && node.initializer !== undefined) {
+    c.classStates.push(...classStates(node));
     addClasses(c.classes, stringsIn(node.initializer));
   } else if (name === 'dataSet') {
     onDataSetAttribute(node, element, c);
@@ -199,7 +201,6 @@ function onAttribute(node: ts.JsxAttribute, c: Collector): void {
   }
 }
 
-/** Document key listeners and `mergeProps` defaults. */
 /** The JSX element a `{...dataAttrs(…)}` spread lands on. */
 function spreadTarget(node: ts.Node): string {
   const spread = node.parent;
@@ -256,7 +257,7 @@ function onCall(node: ts.CallExpression, c: Collector): void {
   ) {
     c.globalKeyListeners += 1;
   }
-  if (callee === 'mergeProps' && first !== undefined && second !== undefined) {
+  if (callee === 'merge' && first !== undefined && second !== undefined) {
     if (ts.isObjectLiteralExpression(first)) {
       for (const p of first.properties) {
         if (ts.isPropertyAssignment(p)) {
@@ -333,7 +334,7 @@ export function readMarkup(source: ts.SourceFile): MarkupFact {
     domEvents: c.domEvents,
     dataAttributes: c.dataAttributes,
     tabIndex: c.tabIndex,
-    classListStates: c.classListStates,
+    classStates: c.classStates,
     classes: sorted(c.classes),
     testIds: sorted(c.testIds),
     keys: sorted(c.keys),

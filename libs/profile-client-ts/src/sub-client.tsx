@@ -3,7 +3,7 @@ import ProfileAvatarScreen from './profile-avatar';
 import ProfileEditScreen from './profile-edit';
 import ProfileHandleScreen from './profile-handle';
 import SessionProvider from './session-provider';
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What profile contributes to a client app: the profile tab and the screens
  * that edit a person's name and face, the profile row provider, and the
@@ -12,7 +12,7 @@ import SessionProvider from './session-provider';
 
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { UserIcon } from '@pkgs/ui-root-client-ts/icons';
 
 /** Read inside the tab memo, so the label follows the active locale. */

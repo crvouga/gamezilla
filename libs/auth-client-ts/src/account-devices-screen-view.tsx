@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Plural, Trans, useLingui } from '@lingui/solid/macro';
+import { Plural, Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ClipboardCopy } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { CopyToClipboardField } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
@@ -9,7 +9,7 @@ import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { For, Match, Switch } from 'solid-js';
 import { AccountDeviceMenuRow } from './account-device-menu-row';
 import type { AccountDeviceView } from './account-device-view';

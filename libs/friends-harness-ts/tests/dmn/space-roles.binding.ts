@@ -13,8 +13,8 @@
  *   read from the synced space rows (the space open on the device).
  */
 
+import { spaceRolesApplicationLayer } from '@libs/permissions-harness-ts/application';
 import { clientGatingLayer } from '@libs/permissions-harness-ts/client';
-import { spaceRolesApplicationLayer } from '@libs/permissions-shared-ts/application';
 import { grantKeyOf } from '@libs/permissions-shared-ts/capabilities';
 import { capabilityOf } from '@libs/permissions-shared-ts/people';
 import type { ServerOperation } from '@libs/permissions-shared-ts/server';

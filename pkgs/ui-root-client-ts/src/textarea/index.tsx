@@ -1,7 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, createUniqueId, type JSX, on, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Textarea as SdkTextarea } from '@ui-sdk/solid/textarea';
+import { createEffect, createUniqueId, Show } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
 
@@ -31,12 +33,6 @@ export type TextareaProps = {
   /** Rendered as `data-testid`. */
   testId?: string | undefined;
 };
-
-/** Height to fit the text; a dynamic value classes cannot express. */
-function fitHeight(element: HTMLTextAreaElement): void {
-  element.style.height = 'auto';
-  element.style.height = `${element.scrollHeight}px`;
-}
 
 function TextareaCount(props: {
   id: string;
@@ -81,6 +77,15 @@ export function Textarea(props: TextareaProps): JSX.Element {
   const field = useFormField();
   const countId = `textarea-count-${createUniqueId()}`;
   let element: HTMLTextAreaElement | undefined;
+  createEffect(
+    () => [props.value, props.autoGrow] as const,
+    ([, autoGrow]) => {
+      if (autoGrow && element) {
+        element.style.height = 'auto';
+        element.style.height = `${element.scrollHeight}px`;
+      }
+    }
+  );
   const counted = (): boolean =>
     props.showCount === true && props.maxLength !== undefined;
   const invalid = (): boolean =>
@@ -92,19 +97,11 @@ export function Textarea(props: TextareaProps): JSX.Element {
     ]);
     return ids === '' ? undefined : ids;
   };
-  createEffect(
-    on(
-      () => [props.value, props.autoGrow] as const,
-      ([, autoGrow]) => {
-        if (autoGrow === true && element !== undefined) fitHeight(element);
-      }
-    )
-  );
   return (
     <div class="box gap-ui-xs" data-component={componentId('Textarea')}>
-      <textarea
-        ref={(el) => {
-          element = el;
+      <SdkTextarea
+        ref={(input) => {
+          element = input;
         }}
         class={spaced([
           'input inputTextarea text textBody px-ui-lg py-ui-sm',
@@ -115,16 +112,16 @@ export function Textarea(props: TextareaProps): JSX.Element {
         name={props.name}
         rows={props.rows ?? 3}
         value={props.value}
-        maxLength={props.maxLength}
+        maxlength={props.maxLength}
         placeholder={props.placeholder}
         disabled={props.disabled === true}
-        readOnly={props.readOnly === true}
+        readonly={props.readOnly === true}
         required={props.required === true || field?.required === true}
         data-testid={props.testId}
         aria-label={props['aria-label']}
         aria-describedby={describedBy()}
-        aria-invalid={invalid() ? true : undefined}
-        onInput={(event) => props.onValueChange(event.currentTarget.value)}
+        aria-invalid={invalid() ? 'true' : undefined}
+        onValueChange={(value) => props.onValueChange(value)}
       />
       <Show when={counted() ? props.maxLength : undefined} keyed>
         {(max) => (

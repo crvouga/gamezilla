@@ -1,7 +1,7 @@
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import { AvatarRefusedChangeNotice } from './avatar-refused-change-notice';
 import { useProfileRow } from './claim-username-use-profile-row';

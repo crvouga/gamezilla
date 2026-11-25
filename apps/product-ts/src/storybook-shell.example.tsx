@@ -8,7 +8,8 @@ import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
 import { AppFrameChromeProvider } from '@pkgs/ui-root-client-ts/app-frame-chrome';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { children, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import { type StoryRoute, storyRoute } from './storybook-route';
 
@@ -61,7 +62,9 @@ function StoryFrame(props: {
   readonly asRail: boolean;
   readonly route: StoryRoute;
 }): JSX.Element {
-  const screen = children(() => props.story());
+  // Storybook supplies the story during mount. A desktop rail can be
+  // attached later, after the theme measures its viewport.
+  const screen = untrack(() => props.story());
   return (
     <Show
       when={props.asRail}
@@ -77,11 +80,11 @@ function StoryFrame(props: {
             />
           }
         >
-          <RouteBody route={props.route}>{screen()}</RouteBody>
+          <RouteBody route={props.route}>{screen}</RouteBody>
         </AppFrame>
       }
     >
-      <AppFrame rail={screen()}>{null}</AppFrame>
+      <AppFrame rail={screen}>{null}</AppFrame>
     </Show>
   );
 }

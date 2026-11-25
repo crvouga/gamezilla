@@ -38,7 +38,7 @@ test('a solo continuation has one movement sound and an opponent continuation ha
 
 // regression: solver-only-first-correct-feedback
 test('the first solo action from zero advances once and plays its correct-move cue', async () => {
-  await using s = await openGameHarness(SYSTEM, 'solo-first-feedback');
+  await using s = await openGameHarness(SYSTEM);
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');
   await s.apply(configureSounds, 'alice', true);

@@ -1,9 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import type { SpaceToken } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { openSpaceDetail } from './space-routes';
 

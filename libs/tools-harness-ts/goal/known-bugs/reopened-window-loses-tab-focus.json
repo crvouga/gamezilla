@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening a panel returned focus to the menu trigger. Its focus event dispatched an unchanged layout and consumed the pending tab focus before the reopened tab was mounted.",
+  "regressionTest": "pkgs/ui-devtools-client-ts/tests/window-manager.test.tsx"
+}

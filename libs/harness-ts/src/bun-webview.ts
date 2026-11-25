@@ -1,9 +1,12 @@
+import { STACK_BILLING_TEST_KEY } from '@libs/sub-shared-ts/harness-constants';
+import { createStripeClient } from '@pkgs/billing-stripe-server-ts/stripe-membership';
 import { realTimeRuntime } from '@pkgs/harness-root-shared-ts/real-time-runtime';
 import type {
   Ports,
   Runtime,
   Session,
 } from '@pkgs/harness-root-shared-ts/runtime-types';
+import { globalHttpFetch } from '@pkgs/http-client-shared-ts/global';
 import { createLogger } from '@pkgs/logger-shared-ts/logger';
 import { createAedesPubSub } from '@pkgs/pubsub-aedes-shared-ts/create-aedes-pubsub';
 import type { HarnessComposition } from './composition';
@@ -78,7 +81,12 @@ async function openStackExtra(
 ): Promise<
   Pick<
     ProductExtra,
-    'sql' | 'ui' | 'http' | 'serverEvents' | 'checkpointSqlFormat'
+    | 'sql'
+    | 'ui'
+    | 'http'
+    | 'serverEvents'
+    | 'checkpointSqlFormat'
+    | 'stackStripe'
   >
 > {
   const { readStackAddresses } = await import('./stack-manifest');
@@ -109,17 +117,21 @@ async function openStackExtra(
   process.env['VITE_API_URL'] = addresses.apiOrigin;
   return {
     serverEvents,
+    stackStripe: createStripeClient(STACK_BILLING_TEST_KEY, {
+      origin: addresses.billingOrigin,
+      fetch: globalHttpFetch,
+    }),
     checkpointSqlFormat: 'logical',
     sql: postgresHandle(await bootHarnessPostgres(addresses.databaseUrl)),
     ui: {
       kind: 'bun-webview' as const,
       webOrigin: addresses.webOrigin,
-      captureScreenshots: process.env['JOURNEY_CAPTURE_STEPS'] === '1',
     },
     http: {
       kind: 'stack' as const,
       origin: addresses.apiOrigin,
       idpOrigins: addresses.idpOrigins,
+      billingOrigin: addresses.billingOrigin,
       accountTag,
     },
   };
@@ -159,7 +171,6 @@ export function bunWebviewRuntime(
       ui: {
         kind: 'bun-webview' as const,
         webOrigin,
-        captureScreenshots: process.env['JOURNEY_CAPTURE_STEPS'] === '1',
       },
       http: { kind: 'localhost' as const, origin: apiOrigin },
       drainServerHttp: { current: () => Promise.resolve() },

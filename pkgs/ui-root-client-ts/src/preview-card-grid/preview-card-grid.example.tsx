@@ -1,4 +1,5 @@
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { Badge } from '../badge/index';
 import { PreviewThumbnail } from '../preview-thumbnail/index';

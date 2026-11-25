@@ -3,6 +3,14 @@
 The design system: every component, type role, surface and color the product
 paints. Screens compose it and arrange it; they never paint around it.
 
+## Browser agents
+
+The browser entry points register ui-sdk’s `snapshot`, `query`, and `act`
+tools with WebMCP before rendering. Agents use a control’s accessible name or
+the ref from a snapshot. A marked confirmation leaves the final action to the
+person in the app. Game moves and editor changes go through the same callbacks
+as keyboard and pointer input.
+
 ## The look: calm chrome, one accent, expressive games
 
 Application chrome is quiet slate in both schemes: ink-blue charcoal and soft

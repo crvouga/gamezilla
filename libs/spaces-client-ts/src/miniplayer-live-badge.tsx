@@ -1,6 +1,6 @@
 import { LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * "Live" tag on a miniplayer row (its entries are always live), centered on

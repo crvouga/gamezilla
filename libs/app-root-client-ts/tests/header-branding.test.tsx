@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { AppHeaderIslandView } from '@libs/app-root-client-ts/app-header-island-view';
 import { PRODUCT_NAME } from '@libs/product-identity-shared-ts/product-identity';

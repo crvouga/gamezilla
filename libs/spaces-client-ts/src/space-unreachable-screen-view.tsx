@@ -1,9 +1,9 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { SpaceRecoveryBar } from './space-recovery-bar';
 
 export type SpaceUnreachableScreenViewProps = {

@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ScreenBase } from '@pkgs/ui-root-client-ts/screen-base';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type ClientSqlScreenViewProps = {
   /** The SQL notebook over this device's local database. */

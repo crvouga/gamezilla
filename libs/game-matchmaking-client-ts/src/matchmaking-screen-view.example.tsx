@@ -19,7 +19,8 @@ import { GAME_VERSUS_AVATAR_SIZE } from '@pkgs/ui-root-client-ts/game-stage-over
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { createRenderEffect, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, Show } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
   MatchmakingScreenView,
@@ -374,9 +375,13 @@ export function StoryPlaces(props: MatchmakingScreenViewProps): JSX.Element {
   const [chosen, setChosen] = createSignal<string | null>(null);
   // The story's overlay answers a press as the app's does; the count is
   // held still, so a story is one moment.
-  const [overlay, setOverlay] = createSignal<StageOverlay>(props.overlay);
-  createRenderEffect(() => setOverlay(props.overlay));
-  createRenderEffect(() => nav.open(props.place));
+  const [overlay, setOverlay] = createSignal<StageOverlay>(() => props.overlay);
+  createEffect(
+    () => props.place,
+    (place) => {
+      nav.open(place);
+    }
+  );
   return (
     <MatchmakingScreenView
       {...props}

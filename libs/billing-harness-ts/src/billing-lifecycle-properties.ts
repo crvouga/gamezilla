@@ -18,7 +18,7 @@ import {
 import { PLUS_MEMBERSHIP_OFFER } from '@libs/billing-shared-ts/plus-membership-offer';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness-ts/identity';
-import { actorIds, partitioned } from '@libs/harness-ts/observations';
+import { actorIds } from '@libs/harness-ts/observations';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared-ts/membership-status';
 import { defineProperty } from '@pkgs/harness-root-shared-ts/define-property';
 import type { CheckpointAction } from '@pkgs/harness-root-shared-ts/effect';
@@ -28,6 +28,7 @@ import { readLastSyncedAtMs } from '@pkgs/sync-engine-client-ts/last-synced';
 import {
   BILLING_PAYER,
   BILLING_SECOND_DEVICE,
+  billingDeviceOffline,
   billingStimulus,
 } from './billing-lifecycle-stimuli';
 import { subscriptionsEverywhere } from './billing-provider-driver';
@@ -162,10 +163,6 @@ export const billingOneLiveMembership = defineProperty({
   },
 });
 
-function offline(s: ProductHarness, actorId: string): boolean {
-  return partitioned(s).some((pair) => pair.split('|').includes(actorId));
-}
-
 export const billingDevicesConverge = defineProperty({
   name: 'billingDevicesConverge',
   check: async (
@@ -177,7 +174,12 @@ export const billingDevicesConverge = defineProperty({
     for (const actorId of actorIds(s)) {
       const accountId = await deviceAccount(s, actorId);
       const local = actorLocalSql(s, actorId);
-      if (accountId === null || local === null || offline(s, actorId)) continue;
+      if (
+        accountId === null ||
+        local === null ||
+        (await billingDeviceOffline(s, actorId))
+      )
+        continue;
       const server = canonical(
         await rowsIn(s.harness.serverSql.sqlClient, accountId)
       );

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Square layer over the checker background: translucent washes (selection,
  * check, premoves, last move), legal-move hints, parent cell highlights and
@@ -24,7 +24,8 @@ import {
   cellTransform,
 } from '@pkgs/chess-board-root-shared-ts/board-units';
 import { bumpChessBoardRender } from '@pkgs/chess-board-root-shared-ts/render-counts';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, For, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
 

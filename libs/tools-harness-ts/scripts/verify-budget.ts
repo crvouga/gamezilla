@@ -40,32 +40,6 @@ export const TASK_BUDGET_SECONDS: Readonly<Record<string, number>> = {
   '@pkgs/db-indexes-postgres#test:contract': 600,
   '@pkgs/kv-postgres#test:contract': 600,
   '@pkgs/object-store-s3#test:contract': 600,
-  // `matching.qnt` pairUp (phase 4) measured about 200 s; the overlapped
-  // proof measured 358 s as one task on a 12-core laptop. The two tasks
-  // keep that budget until a cold run on the warm runner remeasures them.
-  // Twelve serial phase tasks would add up past the run deadline, because
-  // one solver slot runs them one at a time.
-  '@pkgs/matchmaking-root-harness-ts#verify:models:0': 480,
-  '@pkgs/matchmaking-root-harness-ts#verify:models:1': 480,
-  // The matched-game proof retains every original clause and the two-step bound.
-  // Bundled time-control and move-count clauses exceeded their task allowance.
-  // Verify each property separately, retaining the existing 420-second allowance.
-  ...Object.fromEntries(
-    Array.from({ length: 16 }, (_, index) => [
-      `@libs/games-harness-ts#verify:models:10:${String(index)}`,
-      420,
-    ])
-  ),
-  // The eleven symbolic models used to share one task. Release 38446818279
-  // killed that task at 840 s on a 2-core runner (Verify concurrency 1) before
-  // it finished. Each part keeps that same allowance for one model; the
-  // fair-recovery part also runs the two temporal verifications.
-  ...Object.fromEntries(
-    Array.from({ length: 11 }, (_, index) => [
-      `@apps/product-ts#test:contract:${String(index)}`,
-      420,
-    ])
-  ),
   // Every @synthetic feature and specs/journeys/ scenario, one feature file per
   // process in parallel; the journeys feature dominates — seven journeys in
   // a real browser on production latency, one fresh device each, the
@@ -201,10 +175,9 @@ export function gateExitCode(input: {
   readonly deadlineHit: boolean;
   readonly signal: NodeJS.Signals | null;
   readonly code: number | null;
-  readonly published: boolean;
 }): number {
   if (input.deadlineHit || input.signal !== null) return 124;
-  return input.published ? (input.code ?? 1) : 1;
+  return input.code ?? 1;
 }
 
 type SummaryTask = {

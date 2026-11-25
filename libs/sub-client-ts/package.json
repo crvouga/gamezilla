@@ -18,6 +18,7 @@
     "@libs/sub-shared-ts": "workspace:*",
     "@pkgs/assert-root-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

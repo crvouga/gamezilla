@@ -8,7 +8,8 @@ import {
   type GameResultOverlayProps,
   GameVersusOverlay,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import { DiscDropBoardExample } from '../../storybook/fixtures/disc-drop-board-example';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 

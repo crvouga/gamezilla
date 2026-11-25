@@ -1,7 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { SoundIndicator } from '@pkgs/ui-root-client-ts/sound-indicator';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const TINT_OVERRIDES = {
@@ -47,14 +49,14 @@ export default function SoundIndicatorExample(): JSX.Element {
       <StaticRows />
 
       <p class="text textCaption">{'Click to toggle mute'}</p>
-      <button
+      <SdkButton
         class="clickable clickableTint self-start min-w-11 min-h-11"
         type="button"
         onClick={() => setTappedMuted((m) => !m)}
         aria-label={tappedMuted() ? 'Unmute' : 'Mute'}
       >
         <SoundIndicator state={tappedMuted() ? 'muted' : 'playing'} size={20} />
-      </button>
+      </SdkButton>
     </ExampleRoot>
   );
 }

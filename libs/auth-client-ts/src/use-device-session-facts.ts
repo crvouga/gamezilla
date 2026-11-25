@@ -1,7 +1,6 @@
 import { SESSION_EXPIRES_AT_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { createSecureStorageItem } from '@pkgs/secure-storage-root-client-ts/solid';
-import type { Accessor } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import { useHasAuthSession } from './access-facts';
 import type { DeviceSessionFacts } from './account-device-view';
 import { useMyDeviceId } from './use-current-user';

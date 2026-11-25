@@ -2,7 +2,7 @@ import { formatPuzzleClock } from '@libs/game-puzzle-shared-ts/puzzle-clock';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
 /** Elapsed solve time for the live attempt (`m:ss`), frozen once terminal. */

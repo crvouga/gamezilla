@@ -2,7 +2,7 @@ import {
   type Accessor,
   createContext,
   createEffect,
-  onCleanup,
+  createMemo,
   useContext,
 } from 'solid-js';
 import {
@@ -11,13 +11,16 @@ import {
   type PendingOperation,
 } from './pending-navigation-state';
 
-export const PendingNavigationContext = createContext<PendingNavigation>();
+export const PendingNavigationContext = createContext<PendingNavigation | null>(
+  null
+);
 
 type OperationScope = Pick<
   PendingNavigation,
   'blocked' | 'register' | 'pendingOperations'
 >;
-export const PendingOperationScopeContext = createContext<OperationScope>();
+export const PendingOperationScopeContext =
+  createContext<OperationScope | null>(null);
 
 /** A dismissible surface only guards work owned by its content. */
 export function createPendingOperationScope(): OperationScope {
@@ -38,7 +41,7 @@ export function createPendingOperationScope(): OperationScope {
 }
 
 export function usePendingNavigation(): PendingNavigation | undefined {
-  return useContext(PendingNavigationContext);
+  return useContext(PendingNavigationContext) ?? undefined;
 }
 
 /** Protect cancellable work until it settles or the person confirms leaving. */
@@ -48,10 +51,14 @@ export function usePendingOperation(
 ): void {
   const navigation = usePendingNavigation();
   const scope = useContext(PendingOperationScopeContext);
-  createEffect(() => {
-    if (!pending()) return;
-    if (navigation) onCleanup(navigation.register({ pending, cancel }));
-    if (scope) onCleanup(scope.register({ pending, cancel }));
+  createEffect(createMemo(pending), (isPending) => {
+    if (!isPending) return undefined;
+    const leaveNavigation = navigation?.register({ pending, cancel });
+    const leaveScope = scope?.register({ pending, cancel });
+    return () => {
+      leaveNavigation?.();
+      leaveScope?.();
+    };
   });
 }
 

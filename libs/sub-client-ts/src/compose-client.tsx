@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The client half of the fold: a set of {@link SubClient}s becomes one
  * route table, one tab bar and two nested provider components.
@@ -11,7 +11,8 @@
 
 import { flattenSubs } from '@libs/sub-shared-ts/flatten';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
-import type { Component, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Component } from 'solid-js';
 
 import type { SubClient, SubProvider, SubRoute, SubTab } from './client';
 

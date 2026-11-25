@@ -1,10 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * What a window manager draws besides its windows: the panels themselves,
  * the preview of a drop, and the empty state.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { windowOfPanel } from '@pkgs/ui-devtools-shared-ts/window-layout';
 import type {
   WindowFrame,
@@ -12,7 +12,8 @@ import type {
 } from '@pkgs/ui-devtools-shared-ts/window-layout-geometry';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show, untrack } from 'solid-js';
 import { useWindowManager } from '../window-manager-context';
 import { WINDOW_GAP, WINDOW_TAB_BAR_HEIGHT } from '../window-manager-types';
 
@@ -54,8 +55,10 @@ export function WindowManagerPanelHost(
   const content = untrack(() => api.panel(props.panelId)?.content());
   return (
     <div
-      class="box absolute z-0 overflow-hidden bg-background rounded-bl-control rounded-br-control"
-      classList={{ hidden: rect() === undefined }}
+      class={[
+        'box absolute z-0 overflow-hidden bg-background rounded-bl-control rounded-br-control',
+        { hidden: rect() === undefined },
+      ]}
       data-component={componentId('WindowManagerPanel')}
       {...dataAttrs({
         'window-part': 'panel',
@@ -67,7 +70,7 @@ export function WindowManagerPanelHost(
       id={api.panelId(props.panelId)}
       role="tabpanel"
       aria-labelledby={api.tabId(props.panelId)}
-      tabIndex={-1}
+      tabindex={-1}
       onPointerDown={focus}
       onFocusIn={focus}
     >

@@ -7,7 +7,10 @@ import {
   openProfileEdit,
   setUsername,
 } from '@libs/profile-harness-ts/profile-actions';
-import { readProfileTabUsername } from '@libs/profile-harness-ts/profile-ui-reads';
+import {
+  nameEveryoneSeesOf,
+  readProfileTabUsername,
+} from '@libs/profile-harness-ts/profile-ui-reads';
 import { searchUsername } from '@libs/search-harness-ts/search-actions';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
 import { addFriend } from './friends-actions';
@@ -43,8 +46,16 @@ export async function setupFriendRequest(
   from: string,
   to: string
 ): Promise<void> {
-  await prepareNamedFriend(harness, from);
-  await prepareNamedFriend(harness, to);
+  for (const actor of [from, to]) {
+    await prepareNamedFriend(harness, actor);
+    const username = await harness.read(actorUsernameOf, actor);
+    // The app accepts its local rename before search and inbox cards can
+    // see it. Both read the shared profile by the time the request is sent.
+    await harness.until((s) => nameEveryoneSeesOf(s, actor), {
+      pred: (sharedName) => sharedName === username,
+      maxMs: 10_000,
+    });
+  }
   await harness.apply(searchUsername, from, to);
   await harness.apply(addFriend, from, to);
   await harness.until((s) => pendingRequestStored(s, from, to));

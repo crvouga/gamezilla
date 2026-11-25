@@ -25,15 +25,19 @@ export function CustomGameSeatsNote(): null {
   const sync = useSyncEngine();
   const client = useMutationClient();
   let noted = '';
-  createEffect(() => {
-    const id = spaceId();
-    if (!id || !synced() || !sync.status().online) return;
-    const note = customGameSeatsNote(id, games());
-    if (note === null) return;
-    const key = JSON.stringify(note);
-    if (key === noted) return;
-    noted = key;
-    void client.mutate(noteCustomGameSeatsMutation, note);
-  });
+  createEffect(
+    () => {
+      const id = spaceId();
+      if (!id || !synced() || !sync.status().online) return null;
+      return customGameSeatsNote(id, games());
+    },
+    (note) => {
+      if (note === null) return;
+      const key = JSON.stringify(note);
+      if (key === noted) return;
+      noted = key;
+      void client.mutate(noteCustomGameSeatsMutation, note);
+    }
+  );
   return null;
 }

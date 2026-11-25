@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A time-dependent value re-reads itself at the instant it changes, with one
  * timer and no polling.

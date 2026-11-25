@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import {
   CUSTOM_GAME_CONTENT,
+  findingAnOpponentHandles,
   findingAnOpponentStep,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -55,4 +56,23 @@ test('a space held on a custom game under way is as far as finding an opponent g
       false
     )
   ).toBe(Handles.navBack);
+});
+
+// regression: finding-opponent-leaves-loading-space
+test('a new device stays in the space while its games load under the Back button', () => {
+  expect(findingAnOpponentHandles(GAME)).toContain(Handles.spaceLoading);
+  const loading = new Set([Handles.navBack, Handles.spaceLoading]);
+  expect(findingAnOpponentStep(loading, GAME, false)).toBeNull();
+});
+
+// regression: finding-opponent-leaves-join-preview
+test('a second device waits in the join preview and enters when Join appears', () => {
+  const preview = new Set<string>([Handles.spaceJoinPrompt, Handles.navBack]);
+  expect(findingAnOpponentHandles(GAME)).toContain(Handles.spaceJoinPrompt);
+  expect(findingAnOpponentHandles(GAME)).toContain(Handles.spaceJoin);
+  expect(findingAnOpponentStep(preview, GAME, false)).toBeNull();
+  preview.add(Handles.spaceJoin);
+  expect(findingAnOpponentStep(preview, GAME, false)).toBe(Handles.spaceJoin);
+  preview.add(Handles.spaceNotFound);
+  expect(findingAnOpponentStep(preview, GAME, false)).toBe('nowhere');
 });

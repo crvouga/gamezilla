@@ -30,6 +30,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "@solidjs/testing-library": "catalog:",
+    "@solidjs/web": "catalog:",
     "@types/bun": "catalog:",
     "@types/pg": "catalog:",
     "@typescript/native": "catalog:",

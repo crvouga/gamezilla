@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   applyWindowLayoutCommand,
@@ -21,14 +21,13 @@ import {
   componentDataAttrs,
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
   For,
-  type JSX,
-  on,
   Show,
 } from 'solid-js';
 import {
@@ -45,6 +44,7 @@ import { WindowManagerSeparator } from '../window-manager-separator/index';
 import { useWindowManagerText } from '../window-manager-text';
 import type { WindowPanel } from '../window-manager-types';
 import { WindowManagerWindow } from '../window-manager-window/index';
+import { WindowWorkspace } from './workspace';
 
 export type WindowManagerProps = {
   /**
@@ -109,13 +109,13 @@ function createWindowManagerApi(
     wanted = null;
     if (tab?.isConnected === true) tab.focus();
   };
-  createEffect(on(elements.layout, focusTab, { defer: true }));
+  createEffect(elements.layout, focusTab, { defer: true });
   const dispatch: WindowManagerApi['dispatch'] = (command, options) => {
     const before = elements.layout();
     const next = applyWindowLayoutCommand(before, command);
     if (options?.focus === true) wanted = focusAfter(next, command);
     if (sameLayout(before, next)) {
-      focusTab();
+      if (options?.focus === true) focusTab();
       return;
     }
     const title =
@@ -256,8 +256,11 @@ export function WindowManager(props: WindowManagerProps): JSX.Element {
       .filter((id) => windowOfPanel(layout(), id) !== null)
   );
   return (
-    <WindowManagerContext.Provider value={api}>
-      <div
+    <WindowManagerContext value={api}>
+      <WindowWorkspace
+        manager={api}
+        layout={layout()}
+        compact={api.compact()}
         ref={(element) => {
           root = element;
         }}
@@ -305,7 +308,7 @@ export function WindowManager(props: WindowManagerProps): JSX.Element {
         <VisuallyHidden role="status" aria-live="polite">
           {said()}
         </VisuallyHidden>
-      </div>
-    </WindowManagerContext.Provider>
+      </WindowWorkspace>
+    </WindowManagerContext>
   );
 }

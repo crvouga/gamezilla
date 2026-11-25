@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The closed layout primitives: token props in, classes out, and nothing a
  * caller could use to paint around them.
@@ -24,7 +24,7 @@ import {
 } from '@pkgs/ui-root-shared-ts/token-names';
 import { surfaceToneColor } from '@pkgs/ui-root-shared-ts/tones';
 import { render } from '@solidjs/testing-library';
-import { createSignal, For } from 'solid-js';
+import { createSignal, For, flush } from 'solid-js';
 
 function classes(testId: string): readonly string[] {
   const element = document.querySelector(`[data-testid="${testId}"]`);
@@ -144,6 +144,7 @@ describe('Stack', () => {
     ));
     expect(classes('r')).toEqual(['box', 'gap-ui-xs']);
     setWide(true);
+    flush();
     expect(classes('r')).toEqual(['box', 'gap-ui-xl', 'hidden']);
     expect(
       document.querySelector('[data-testid="r"]')?.hasAttribute('hidden')

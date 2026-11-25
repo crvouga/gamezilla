@@ -29,6 +29,7 @@ import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
 import { textMatches } from './dom-text';
 import type { WaitPump } from './dom-wait';
 import { waitForDom } from './dom-wait';
+import { dispatchSettled } from './settle';
 
 /** What a node needs from its driver: the app port, waiting inputs, focus. */
 export type SolidDomNodeHost = {
@@ -112,7 +113,7 @@ export class SolidDomDriverNode implements DriverNode {
       configurable: true,
       value: [selected],
     });
-    input.dispatchEvent(new Event('change', { bubbles: true }));
+    dispatchSettled(input, new Event('change', { bubbles: true }));
   }
 
   async key(key: DriverKey): Promise<void> {
@@ -146,7 +147,7 @@ export class SolidDomDriverNode implements DriverNode {
     await this.waitUntil(
       () =>
         this.matchesState(state) ||
-        (state === 'visible' &&
+        (state !== 'enabled' &&
           (options?.visibleOr ?? []).some((id) =>
             new SolidDomDriverNode(this.host, [
               ...this.path.slice(0, -1),

@@ -30,7 +30,7 @@ const SYSTEM = gameSystem('watcher-own-stats', [SOLO_COUNT_GAME], {
 
 // regression: puzzle-stats-unreachable-from-a-guest-space
 test("a watcher in an offline host's space reaches their own puzzle stats", async () => {
-  await using s = await openGameHarness(SYSTEM, 'watcher-own-stats');
+  await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(returnToTabs, 'alice');

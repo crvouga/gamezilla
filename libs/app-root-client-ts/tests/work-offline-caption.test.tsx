@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** What the Settings Work offline row tells a person about playing with others. */
 
 import { afterEach, expect, test } from 'bun:test';

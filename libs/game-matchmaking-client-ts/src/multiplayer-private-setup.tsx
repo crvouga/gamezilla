@@ -1,7 +1,7 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { awaitingSetups } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerSides } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
@@ -9,8 +9,8 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import type { MultiplayerPrivateSetup } from './use-multiplayer-private-setup';
 
 /**
@@ -30,6 +30,7 @@ export function MultiplayerPrivateSetupPanel(props: {
   const side = () => props.setup.side() ?? 'white';
   const allReady = () =>
     multiplayerSides(props.game).every((which) => props.setup.ready(which));
+  const SetupBoard = dynamic(() => presentation(props.game.fen).SetupBoard);
   return (
     <Show when={props.setup.has() && awaitingSetups(props.game)}>
       <GameSection
@@ -42,16 +43,13 @@ export function MultiplayerPrivateSetupPanel(props: {
       >
         <Show when={props.setup.choosing()}>
           <Show when={presentation(props.game.fen).SetupBoard}>
-            {(Board) => (
-              <Dynamic
-                component={Board()}
-                setup={props.setup.draft()}
-                side={side()}
-                locked={offline()}
-                onChange={(next: string) => props.setup.arrange(next)}
-                testId="multiplayer-setup"
-              />
-            )}
+            <SetupBoard
+              setup={props.setup.draft()}
+              side={side()}
+              locked={offline()}
+              onChange={(next: string) => props.setup.arrange(next)}
+              testId="multiplayer-setup"
+            />
           </Show>
           <GameActions>
             <GameActionButton

@@ -6,14 +6,15 @@ import { liveWatchPath } from '@libs/observatory-shared-ts/observatory-routes';
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import { createLiveRead } from '@pkgs/async-root-client-ts/live-read';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { enumKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { createEffect, createResource, createSignal, type JSX } from 'solid-js';
-import { type OnlineNowEntryView, useObservatoryApi } from './observatory-api';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
+import { useObservatoryApi } from './observatory-api';
 import { OnlineNowScreenView } from './online-now-screen-view';
-import { resourceValue } from './resource-value';
 import {
   PRESENCE_CHANGES,
   useObservatoryUpdates,
@@ -49,31 +50,26 @@ function OnlineNowContent(): JSX.Element {
     onHydrated: () => setFilterKnown(true),
   });
   const [search, setSearch] = createSignal('');
-  const [list, { refetch }] = createResource(
+  // The last list read stays in view when a later read fails.
+  const list = createLiveRead(
     () => (filterKnown() ? filter() : undefined),
     (value) => api.onlineNow(value)
   );
-  // The last list read stays in view when a later read fails.
-  const [shown, setShown] = createSignal<readonly OnlineNowEntryView[]>();
-  createEffect(() => {
-    const entries = resourceValue(list)?.entries;
-    if (entries !== undefined) setShown(entries);
-  });
-  useObservatoryUpdates(() => refetch(), PRESENCE_CHANGES);
-  useRefreshWithoutUpdates(() => refetch(), REFRESH_MS);
+  useObservatoryUpdates(list.reread, PRESENCE_CHANGES);
+  useRefreshWithoutUpdates(list.reread, REFRESH_MS);
   return (
     <OnlineNowScreenView
       filter={filter()}
       search={search()}
-      entries={shown()}
-      loading={list.loading}
-      failed={Boolean(list.error)}
+      entries={list.shown()?.entries}
+      loading={list.loading()}
+      failed={list.failed()}
       canWatch={watch()}
       onFilterChange={(next) => setFilter(next)}
       onSearchChange={setSearch}
       onWatch={(id) => router.push(liveWatchPath(id))}
       onRetry={() => {
-        void refetch();
+        void list.reread();
       }}
     />
   );

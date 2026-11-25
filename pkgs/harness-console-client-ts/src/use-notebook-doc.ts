@@ -1,7 +1,7 @@
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { Timers } from '@pkgs/clock-shared-ts/types';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import type { SqlNotebookDoc } from './notebook-doc';
 import { createEmptyNotebook } from './notebook-doc';
 import type { NotebookStore } from './notebook-store';
@@ -36,39 +36,41 @@ export function useNotebookDoc(args: {
   });
   const saveHandle: { current: unknown } = { current: null };
 
-  createEffect(() => {
-    if (!active()) return;
-    const id = nodeId();
-    const dialectValue = dialect();
-    let cancelled = false;
-    onCleanup(() => {
-      cancelled = true;
-    });
-    setState({ status: 'loading' });
-    void (async () => {
-      try {
-        const loaded = await store.load(id);
-        if (cancelled) return;
-        if (loaded !== null) {
-          setState({ status: 'ready', doc: loaded });
-          return;
+  createEffect(
+    () => (active() ? { id: nodeId(), dialectValue: dialect() } : null),
+    (wanted) => {
+      if (wanted === null) return;
+      const { id, dialectValue } = wanted;
+      let cancelled = false;
+      setState({ status: 'loading' });
+      void (async () => {
+        try {
+          const loaded = await store.load(id);
+          if (cancelled) return;
+          if (loaded !== null) {
+            setState({ status: 'ready', doc: loaded });
+            return;
+          }
+          const doc = createEmptyNotebook({
+            nodeId: id,
+            cellId: createId(),
+            starterSql: starterSqlForDialect(dialectValue),
+          });
+          setState({ status: 'ready', doc });
+          await store.save(doc);
+        } catch (err) {
+          if (cancelled) return;
+          setState({
+            status: 'error',
+            message: err instanceof Error ? err.message : String(err),
+          });
         }
-        const doc = createEmptyNotebook({
-          nodeId: id,
-          cellId: createId(),
-          starterSql: starterSqlForDialect(dialectValue),
-        });
-        setState({ status: 'ready', doc });
-        await store.save(doc);
-      } catch (err) {
-        if (cancelled) return;
-        setState({
-          status: 'error',
-          message: err instanceof Error ? err.message : String(err),
-        });
-      }
-    })();
-  });
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+  );
 
   const setDoc: NotebookDocSetter = (updater) => {
     setState((prev) => {

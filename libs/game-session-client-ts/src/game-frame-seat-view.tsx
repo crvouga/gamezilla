@@ -1,5 +1,5 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   BotIcon,
@@ -12,7 +12,8 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
-import { For, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Match, Show, Switch } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import {
   createFrameChoices,

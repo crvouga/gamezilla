@@ -3,9 +3,10 @@ import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { DEFAULT_SYNTHETIC_POPULATION_CONFIG } from '@libs/synthetic-population-shared-ts/config';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
-import { createEffect, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect } from 'solid-js';
 import { useSyntheticPopulationApi } from './synthetic-population-api';
 import {
   toConfigurationDraft,
@@ -21,18 +22,20 @@ function SettingsContent(): JSX.Element {
   const draft = useSyntheticPopulationConfiguration();
   const population = useSyntheticPopulationOverview();
   // The form starts from the saved settings once; later reads keep the typing.
-  createEffect(() => {
-    const saved = population.shown()?.config;
-    if (saved !== undefined) draft.initialize(saved);
-  });
+  createEffect(
+    () => population.shown()?.config,
+    (saved) => {
+      if (saved !== undefined) draft.initialize(saved);
+    }
+  );
   const candidate = () => draft.candidate(population.shown()?.config);
   return (
     <SyntheticPopulationSettingsScreenView
       ready={population.shown() !== undefined}
-      loading={population.overview.loading}
-      failed={Boolean(population.overview.error)}
+      loading={population.loading()}
+      failed={population.failed()}
       onRetry={() => {
-        void population.refetch();
+        void population.reread();
       }}
       fields={draft.fields()}
       canSave={candidate() !== null}
@@ -42,7 +45,7 @@ function SettingsContent(): JSX.Element {
         if (value === null)
           throw new Error(t`Enter a valid desired synthetic population.`);
         await api.configure(value);
-        await population.refetch();
+        await population.reread();
       }}
       onCancel={() => router.push(SYNTHETIC_USERS_PATH)}
     />

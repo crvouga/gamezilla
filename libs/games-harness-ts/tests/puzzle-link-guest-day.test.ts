@@ -39,7 +39,7 @@ const KNOWN = theKnownPuzzle(SOLO_COUNT_GAME).record.id;
 
 // regression: puzzle-guest-day-plays-linked-puzzle
 test('a guest who has played 18 Solo count puzzles today opens the link to the known puzzle as a first attempt', async () => {
-  await using s = await openGameHarness(SYSTEM, 'puzzle-link-guest-day');
+  await using s = await openGameHarness(SYSTEM);
   await s.apply(createSpace, 'bob');
   await s.apply(startUnnamedPuzzle, 'bob', GAME_ID);
   expect(await s.read(readPuzzleOnBoard, 'bob')).not.toBe(KNOWN);

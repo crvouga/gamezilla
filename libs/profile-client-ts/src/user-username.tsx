@@ -3,7 +3,7 @@ import type {
   TextLines,
 } from '@pkgs/ui-root-client-ts/text-classes';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { useProfileColumn } from './use-profile-column';
 import { type UsernameRole, UserUsernameView } from './user-username-view';

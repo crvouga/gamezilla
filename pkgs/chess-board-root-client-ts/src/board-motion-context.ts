@@ -11,11 +11,9 @@ import type {
 import { isLowEndDevice } from '@pkgs/chess-board-root-shared-ts/board-motion';
 import { createContext, createSignal, onCleanup, useContext } from 'solid-js';
 
-const BoardMotionContext = createContext<BoardMotionEnvironment | undefined>(
-  undefined
-);
+const BoardMotionContext = createContext<BoardMotionEnvironment | null>(null);
 
-export const BoardMotionProvider = BoardMotionContext.Provider;
+export const BoardMotionProvider = BoardMotionContext;
 
 /** Slide easing: fast start, gentle landing (reads as responsive). */
 const SLIDE_EASING = 'cubic-bezier(0.25, 0.8, 0.25, 1)';

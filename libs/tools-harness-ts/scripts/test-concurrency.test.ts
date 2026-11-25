@@ -8,7 +8,7 @@ import fc from 'fast-check';
 import { localVerifyEnv } from './local-verify-queue';
 
 // regression: local-verify-product-contract-concurrency
-test('product model and rendering contracts respect local test concurrency', async () => {
+test('product unit shards respect local test concurrency', async () => {
   const manifest = JSON.parse(
     readFileSync(
       join(import.meta.dirname, '../../../apps/product-ts/package.json'),
@@ -17,24 +17,15 @@ test('product model and rendering contracts respect local test concurrency', asy
   ) as {
     scripts: Record<string, string>;
   };
-  const parts = Object.entries(manifest.scripts).filter(([name]) =>
-    /^test:contract:\d+$/.test(name)
+  // regression: retired-model-tasks-in-coverage
+  const shards = Object.entries(manifest.scripts).filter(
+    ([name]) => name === 'test' || /^test:unit:\d+$/.test(name)
   );
-  expect(parts.length).toBeGreaterThan(0);
-  const commands = [
-    ...parts.map(([, script]) => script),
-    manifest.scripts['test:contract:render']!,
-  ];
-  for (const [, script] of parts) {
-    expect(script).toContain('tests/quint/model-checks.test.ts');
-    expect(script).not.toContain('ui-quality-render');
-  }
-  expect(commands.at(-1)).toContain('tests/ui-quality-render.contract.test.ts');
-  for (const command of commands) {
+  expect(shards.some(([name]) => name === 'test')).toBe(true);
+  for (const [, command] of shards)
     expect(command).toContain(
-      '--max-concurrency=$(bun ../../pkgs/os-server-ts/src/test-concurrency.ts 2)'
+      '--max-concurrency=$(bun ../../pkgs/os-server-ts/src/test-concurrency.ts)'
     );
-  }
   const cli = join(
     import.meta.dirname,
     '../../../pkgs/os-server-ts/src/test-concurrency.ts'

@@ -2,7 +2,7 @@ import { afterEach, expect, test } from 'bun:test';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { TrailArena } from '@pkgs/ui-root-client-ts/trail-arena';
 import { cleanup } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -32,5 +32,6 @@ test('touch ownership stays outside the drawing and disappears when shared steer
     drawing.compareDocumentPosition(labels) & Node.DOCUMENT_POSITION_FOLLOWING
   ).not.toBe(0);
   setShared(false);
+  flush();
   expect(view.queryByTestId('arena-touch-regions')).toBeNull();
 });

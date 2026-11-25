@@ -9,7 +9,8 @@ import { puzzleResultAnnouncement } from '@libs/game-puzzle-shared-ts/puzzle-res
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import type { PuzzleAttempt } from './puzzle-client';
 
 function ratingWords(delta: number, after: number): string {

@@ -14,6 +14,7 @@ test('native realms authenticate, mutate profiles and inspect their own complete
   // regression: synthetic-population-event-context-encoded
   // regression: synthetic-population-gameplay-requires-development-probe
   // regression: synthetic-native-realms-incompatible-game-pools
+  // regression: synthetic-users-stall-before-matched-game-allowance-query
   const backend = await runtimeBackend(2);
   const sessions: ManagedSession[] = [];
   try {

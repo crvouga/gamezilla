@@ -71,6 +71,11 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
       outage_tolerant: true,
     },
     {
+      context: 'Analyze (java-kotlin)',
+      integration_id: 15368,
+      outage_tolerant: true,
+    },
+    {
       context: 'Analyze (javascript-typescript)',
       integration_id: 15368,
       outage_tolerant: true,

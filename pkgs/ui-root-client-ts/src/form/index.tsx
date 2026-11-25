@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { SpaceToken } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { spaced } from '../layout-classes';
 import type { Responsive } from '../responsive';
 import { spacingClass } from '../space-classes';
@@ -60,7 +60,7 @@ export function Form(props: FormProps): JSX.Element {
       id={props.id}
       data-testid={props.testId}
       data-component={componentId('Form')}
-      noValidate={props.noValidate === true}
+      novalidate={props.noValidate === true}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
       aria-describedby={props['aria-describedby']}

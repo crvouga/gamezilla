@@ -3,8 +3,6 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./committed-specs": "./scripts/committed-specs.ts",
-    "./report-origin": "./scripts/report-origin.ts",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",
@@ -22,7 +20,6 @@
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload"
   },
   "dependencies": {
-    "@crvouga/atlas": "catalog:",
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@crvouga/mockingbird-service-openai": "catalog:",
     "@crvouga/mockingbird-service-s3": "catalog:",
@@ -87,7 +84,6 @@
     "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
-    "@pkgs/secret-provider-shared-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
     "@pkgs/secure-storage-root-shared-ts": "workspace:*",
     "@pkgs/secure-storage-web-client-ts": "workspace:*",
@@ -109,6 +105,8 @@
     "@pkgs/ui-testing-solid-dom-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
+    "@ui-sdk/solid": "catalog:",
     "hono": "catalog:",
     "solid-js": "catalog:",
     "stripe": "catalog:"

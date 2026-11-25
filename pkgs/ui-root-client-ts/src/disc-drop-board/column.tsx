@@ -1,4 +1,7 @@
-import { createMemo, createUniqueId, For, type JSX, Show } from 'solid-js';
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import styles from './disc-drop-board.module.css';
 import type { DiscDropBoardProps } from './index';
 
@@ -102,9 +105,9 @@ export function Column(props: {
     props.target % props.board.columns === props.column;
   return (
     <>
-      <button
+      <SdkButton
         aria-describedby={descriptionId}
-        tabIndex={props.tabStop ? 0 : -1}
+        tabindex={props.tabStop ? 0 : -1}
         aria-keyshortcuts={
           props.board.interactive
             ? 'ArrowLeft ArrowRight Home End Enter Space'
@@ -115,7 +118,7 @@ export function Column(props: {
         data-column={props.column}
         data-testid={props.board.columnTestId(props.column)}
         aria-label={props.board.columnLabel(props.column, occupied(), full())}
-        aria-disabled={!props.board.interactive || full()}
+        aria-disabled={ariaBoolean(!props.board.interactive || full())}
         data-full={String(full())}
         data-previewed={String(previewed())}
         onPointerEnter={() => props.preview(props.column)}
@@ -148,7 +151,7 @@ export function Column(props: {
             />
           )}
         </For>
-      </button>
+      </SdkButton>
       <span id={descriptionId} class={styles['hidden']}>
         {rows()
           .map((row) =>

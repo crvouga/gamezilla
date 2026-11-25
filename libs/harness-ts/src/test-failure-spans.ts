@@ -1,6 +1,6 @@
-import type { JunitCase } from '@crvouga/atlas/reports/junit';
 import { ATTR } from '@pkgs/observability-root-shared-ts/attributes';
 import type { NarrateSpan } from '@pkgs/observability-root-shared-ts/narrate';
+import type { JunitCase } from './junit-cases';
 
 export type TestFailureSpanOptions = {
   readonly buildSha: string;

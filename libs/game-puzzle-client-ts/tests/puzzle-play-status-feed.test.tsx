@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** What the feed's status and settings screens show in each of their states. */
 
 import { afterEach, expect, test } from 'bun:test';

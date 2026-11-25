@@ -12,6 +12,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { runScopedCreateId } from '@libs/harness-ts/run-scope';
 import { reconcileCheckpoint } from '@libs/synthetic-population-shared-ts/config';
 import { fixtureWorkerRpc } from './fixture-worker-rpc';
+import { duringWorkerWindow, workerNow } from './worker-clock';
 
 const BEAT_MS = 5_000;
 
@@ -19,6 +20,8 @@ type Lease = { userId: string; workerId: string; generation: number };
 type Worker = {
   readonly id: string;
   claiming: boolean;
+  observing: boolean;
+  running: Promise<void> | null;
   readonly held: Map<string, Lease>;
   /** Held Synthetic Users in an ongoing game: they finish it before leaving. */
   readonly playing: Set<string>;
@@ -111,20 +114,20 @@ function workerOf(s: ProductHarness): Worker {
   const worker: Worker = {
     id: runScopedCreateId(s)(),
     claiming: false,
+    observing: false,
+    running: null,
     held: new Map(),
     playing: new Set(),
     unreachable: new Set(),
   };
   workers.set(s, worker);
   const timers = s.harness.server.timers;
-  let beating = false;
   const interval = timers.setInterval(() => {
-    if (beating) return;
-    beating = true;
-    void beat(s, worker)
+    if (worker.running !== null || worker.observing) return;
+    worker.running = beat(s, worker)
       .catch(() => undefined)
       .finally(() => {
-        beating = false;
+        worker.running = null;
       });
   }, BEAT_MS);
   const dispose = s.runtime.disposeResources.bind(s.runtime);
@@ -133,6 +136,34 @@ function workerOf(s: ProductHarness): Worker {
     await dispose();
   };
   return worker;
+}
+
+/**
+ * Observe each real claim and renewal at its scheduled time, including the
+ * initial state and the endpoint. Only the fixture worker's clock advances.
+ */
+export async function observeWorkerBeats(
+  s: ProductHarness,
+  durationMs: number,
+  observe: () => Promise<void>
+): Promise<void> {
+  const worker = workerOf(s);
+  worker.observing = true;
+  try {
+    await worker.running;
+    await duringWorkerWindow(s.harness.clock, async (clock) => {
+      const end = clock.now() + durationMs;
+      await observe();
+      while (clock.now() < end) {
+        const step = Math.min(BEAT_MS, end - clock.now());
+        clock.advance(step);
+        if (step === BEAT_MS) await beat(s, worker);
+        await observe();
+      }
+    });
+  } finally {
+    worker.observing = false;
+  }
 }
 
 /** The deployed worker runs from now on; `claiming`, it also brings Synthetic Users online. */
@@ -151,7 +182,7 @@ async function report(
     json: {
       ...lease,
       checkpoint: {
-        ...reconcileCheckpoint(null, s.harness.clock.now(), lease.userId),
+        ...reconcileCheckpoint(null, workerNow(s.harness.clock), lease.userId),
         activity,
       },
       version: 'spec',

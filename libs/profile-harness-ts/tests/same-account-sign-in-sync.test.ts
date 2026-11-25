@@ -10,9 +10,7 @@ import { openHarness } from './open-profile-harness';
 
 // regression: same-account-sign-in-keeps-guest-snapshots
 test('upgrading a guest in place refreshes its sign-in method snapshot', async () => {
-  await using s = await openHarness(
-    'same-account-sign-in-keeps-guest-snapshots'
-  );
+  await using s = await openHarness();
   await s.apply(focusActor, 'alice');
   const guest = await s.read(deviceMemberIdOf, 'alice');
   if (guest === null) throw new Error('The guest has no local account');

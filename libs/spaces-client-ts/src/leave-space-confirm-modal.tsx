@@ -1,11 +1,11 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import type { JSX } from 'solid-js';
-import { createEffect, createSignal, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, Show, untrack } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
@@ -20,21 +20,50 @@ export type LeaveSpaceConfirmModalProps = {
   spaceName?: string | undefined;
 };
 
+/** The question, naming the space when its name is known. */
+function LeaveSpaceTitle(props: {
+  readonly asHost: boolean;
+  readonly spaceName: string | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.asHost}
+      fallback={
+        <Show
+          when={props.spaceName}
+          fallback={<Trans>Leave this space?</Trans>}
+        >
+          {(name) => <Trans>Leave {name()}?</Trans>}
+        </Show>
+      }
+    >
+      <Show when={props.spaceName} fallback={<Trans>End this space?</Trans>}>
+        {(name) => <Trans>End {name()}?</Trans>}
+      </Show>
+    </Show>
+  );
+}
+
 /** Confirm-leave shell (space-agnostic; action wiring lives at the call site). */
 export function LeaveSpaceConfirmModal(
   props: LeaveSpaceConfirmModalProps
 ): JSX.Element {
   const engine = useOptionalSoundEngine();
   const [confirmedAsHost, setConfirmedAsHost] = createSignal<boolean>();
-  createEffect(() => {
-    if (!props.visible) setConfirmedAsHost(undefined);
-  });
+  createEffect(
+    () => props.visible,
+    (visible) => {
+      if (!visible) setConfirmedAsHost(undefined);
+    }
+  );
   const operation = (): Promise<void> => {
     setConfirmedAsHost(props.asHost ?? false);
     return props.operation();
   };
   const onPhaseChange = (transition: MutationStateTransition): void => {
-    const current = engine?.();
+    // The phase change is the event: the engine is looked up once, when it
+    // arrives.
+    const current = untrack(() => engine?.());
     if (current === undefined) return;
     if (transition.to === 'success') {
       current.play(Sounds.social.roomLeft);
@@ -45,76 +74,61 @@ export function LeaveSpaceConfirmModal(
   const onSuccess = (): void => {
     props.onSuccess?.();
   };
+  const asHost = () => confirmedAsHost() ?? props.asHost ?? false;
   return (
-    <Show
-      when={confirmedAsHost() ?? props.asHost ?? false}
-      fallback={
-        <MutationModal
-          visible={props.visible}
-          onClose={props.onClose}
-          title={
-            <Show
-              when={props.spaceName}
-              fallback={<Trans>Leave this space?</Trans>}
-            >
-              {(name) => <Trans>Leave {name()}?</Trans>}
-            </Show>
-          }
-          message={
-            <Trans>
-              You'll leave on all your devices. You can join again while the
-              space is live.
-            </Trans>
-          }
-          submitLabel={<Trans>Leave space</Trans>}
-          variant="destructive"
-          operation={operation}
-          onSuccess={onSuccess}
-          onPhaseChange={onPhaseChange}
-          loadingLabel={<Trans>Leaving…</Trans>}
-          successTitle={<Trans>You left the space</Trans>}
-          successBody={
-            <Trans>
-              You can join again from Spaces or the link while it's live.
-            </Trans>
-          }
-          errorTitle={<Trans>Couldn't leave space</Trans>}
-          stackId="leave-space-confirm"
-          submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
-          dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
-        />
-      }
-    >
-      <MutationModal
-        visible={props.visible}
-        onClose={props.onClose}
-        title={
-          <Show
-            when={props.spaceName}
-            fallback={<Trans>End this space?</Trans>}
-          >
-            {(name) => <Trans>End {name()}?</Trans>}
-          </Show>
-        }
-        message={
+    <MutationModal
+      visible={props.visible}
+      onClose={props.onClose}
+      title={<LeaveSpaceTitle asHost={asHost()} spaceName={props.spaceName} />}
+      message={
+        asHost() ? (
           <Trans>
             Everyone in it leaves and the space closes for good. This can't be
             undone.
           </Trans>
-        }
-        submitLabel={<Trans>End space</Trans>}
-        variant="destructive"
-        operation={operation}
-        onSuccess={onSuccess}
-        onPhaseChange={onPhaseChange}
-        loadingLabel={<Trans>Ending space…</Trans>}
-        successTitle={<Trans>Space ended</Trans>}
-        successBody={<Trans>Everyone in it is back in Spaces.</Trans>}
-        errorTitle={<Trans>Couldn't end space</Trans>}
-        stackId="leave-space-confirm-as-host"
-        submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
-        dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
-      />
-    </Show>
+        ) : (
+          <Trans>
+            You'll leave on all your devices. You can join again while the space
+            is live.
+          </Trans>
+        )
+      }
+      submitLabel={
+        asHost() ? <Trans>End space</Trans> : <Trans>Leave space</Trans>
+      }
+      variant="destructive"
+      operation={operation}
+      onSuccess={onSuccess}
+      onPhaseChange={onPhaseChange}
+      loadingLabel={
+        asHost() ? <Trans>Ending space…</Trans> : <Trans>Leaving…</Trans>
+      }
+      successTitle={
+        asHost() ? (
+          <Trans>Space ended</Trans>
+        ) : (
+          <Trans>You left the space</Trans>
+        )
+      }
+      successBody={
+        asHost() ? (
+          <Trans>Everyone in it is back in Spaces.</Trans>
+        ) : (
+          <Trans>
+            You can join again from Spaces or the link while it's live.
+          </Trans>
+        )
+      }
+      errorTitle={
+        asHost() ? (
+          <Trans>Couldn't end space</Trans>
+        ) : (
+          <Trans>Couldn't leave space</Trans>
+        )
+      }
+      stackId="leave-space-confirm"
+      submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
+      dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
+    />
   );
 }

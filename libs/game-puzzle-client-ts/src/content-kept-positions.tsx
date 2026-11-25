@@ -1,19 +1,13 @@
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { choosePuzzleContinuationMutation } from '@libs/game-puzzle-shared-ts/choose-attempt-position-mutation';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  type Accessor,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, createSignal, For, Show } from 'solid-js';
 import { useContentLibraryState } from './content-library-context';
 import { ContentLoadMore } from './content-load-more';
 import { byContentId } from './use-content-pages';

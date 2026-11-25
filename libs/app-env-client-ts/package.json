@@ -22,7 +22,6 @@
     "@libs/product-identity-shared-ts": "workspace:*",
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
-    "@lingui/solid": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@pkgs/auth-root-shared-ts": "workspace:*",
     "@pkgs/clock-client-ts": "workspace:*",
@@ -32,6 +31,7 @@
     "@pkgs/http-client-client-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
     "@pkgs/observability-root-client-ts": "workspace:*",
@@ -52,6 +52,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

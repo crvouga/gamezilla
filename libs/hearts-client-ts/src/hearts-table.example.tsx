@@ -6,7 +6,8 @@ import { cardLabel } from '@libs/hearts-shared-ts/hearts-cards';
 import { decodeHearts } from '@libs/hearts-shared-ts/hearts-position';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { GAME_SIDES } from '@pkgs/turn-game-shared-ts/game-rules';
-import { type JSX, mergeProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { merge } from 'solid-js';
 import { heartsPresentation } from './hearts-presentation';
 
 /** The cards played so far this deal, as the app's move list writes them. */
@@ -24,7 +25,7 @@ export function heartsTableStory(
   table: GameTableStory,
   position: () => string
 ): GameTableStory {
-  return mergeProps({ seatedMoves: false }, table, {
+  return merge({ seatedMoves: false }, table, {
     get moves() {
       return table.moves ?? heartsMoves(position());
     },

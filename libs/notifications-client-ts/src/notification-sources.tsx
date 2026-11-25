@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Where notifications come from.
  *
@@ -15,7 +15,8 @@
 
 import type { NotificationProvider } from '@libs/notifications-shared-ts/notification-provider';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import { type Accessor, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo } from 'solid-js';
 
 const NotificationSourcesContext = defineContext<
   Accessor<readonly NotificationProvider[]>

@@ -1,7 +1,8 @@
 import type { PuzzleActionBarSlot } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import { buildPuzzleActionBarPlan } from '@libs/game-puzzle-shared-ts/action-bar-plan';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import {
   type PuzzleActionBarModel,
   PuzzleActionButton,

@@ -1,14 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  type Accessor,
-  createSignal,
-  createUniqueId,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { type Accessor, createSignal, createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ChevronDownIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
@@ -47,10 +43,10 @@ export function SeatOptionsToggle(props: {
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       type="button"
       class={`${seat['seatToggle']} clickable clickableTint rounded-full`}
-      aria-expanded={props.state.open()}
+      aria-expanded={props.state.open() ? 'true' : 'false'}
       aria-controls={props.state.id}
       onClick={() => props.state.toggle()}
       {...dataAttrs({ component: 'GamePlayerOptionsToggle', ...props.dataSet })}
@@ -60,12 +56,12 @@ export function SeatOptionsToggle(props: {
       </span>
       <span
         class={`${styles['chevron']} ${seat['seatToggleChevron']}`}
-        data-open={props.state.open()}
+        data-open={String(props.state.open())}
         aria-hidden="true"
       >
         <ChevronDownIcon size={16} />
       </span>
-    </button>
+    </SdkButton>
   );
 }
 

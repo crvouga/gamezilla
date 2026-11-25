@@ -1,7 +1,8 @@
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import type { NotificationProvider } from '@libs/notifications-shared-ts/notification-provider';
-import { createComponent, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createComponent } from 'solid-js';
 
 import { FriendAcceptedNotificationCard } from './friend-accepted-notification-card';
 import { FriendRequestNotificationCard } from './friend-request-notification-card';

@@ -1,17 +1,16 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, expect, test } from 'bun:test';
 import { setupI18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { HarnessHome } from '@pkgs/harness-console-client-ts/harness-home';
 import { harnessPanels } from '@pkgs/harness-console-shared-ts/harness-windows';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import type { JSX } from 'solid-js';
-import { render } from 'solid-js/web';
+import { type JSX, render } from '@solidjs/web';
 
 let dispose: (() => void) | null = null;
 afterEach(() => {

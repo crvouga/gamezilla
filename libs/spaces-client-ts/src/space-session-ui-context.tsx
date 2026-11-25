@@ -1,4 +1,5 @@
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 
 export type SpaceSessionUiValue = {
   readonly spaceId: string;
@@ -19,9 +20,9 @@ export function SpaceSessionUiProvider(
   props: SpaceSessionUiProviderProps
 ): JSX.Element {
   return (
-    <SpaceSessionUiContext.Provider value={props.value}>
+    <SpaceSessionUiContext value={props.value}>
       {props.children}
-    </SpaceSessionUiContext.Provider>
+    </SpaceSessionUiContext>
   );
 }
 

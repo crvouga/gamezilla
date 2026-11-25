@@ -1,11 +1,11 @@
 /** "Sign out of all devices": every session the account holds ends. */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { LogOutIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const ROW_ICON_SIZE = 20;
 

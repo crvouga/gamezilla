@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * App-wide command palette commands available in the shell: navigation,
  * appearance, and the performance HUD toggle. Space / UI-components /
@@ -9,8 +9,8 @@
  * the palette opens via `mod+k` / `mod+shift+p` from `CommandRegistryProvider`.
  */
 
-import { useLingui } from '@lingui/solid/macro';
 import { bugReportCommand } from '@pkgs/feedback-client-ts/request-bug-report';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import {
   GaugeIcon,
@@ -21,7 +21,7 @@ import {
 import { useRegisterCommands } from '@pkgs/ui-root-client-ts/register-command';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Command } from '@pkgs/ui-root-client-ts/types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { useOfflinePreference } from './offline-preference';
 import { usePerfHudPreference } from './perf-hud-preference';

@@ -1,5 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { ContentScreen } from '../content-screen/index';
 import type { ScreenBaseProps } from '../screen-base-types';

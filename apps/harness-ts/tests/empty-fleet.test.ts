@@ -37,7 +37,6 @@ test('with every server removed a request fails as one to a missing server, unti
   await run.apply(
     defineAction({
       name: 'emptyFleetTest.pin',
-      report: false,
       act: (s: ProductHarness) => {
         surface = s;
       },

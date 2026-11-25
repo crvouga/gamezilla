@@ -1,5 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
+
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 
 /**
  * Rectangular ActionBar control: icon/avatar + under-caption as one button.
@@ -11,7 +13,8 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { untrack } from 'solid-js';
 
 const MIN_HIT_TARGET = 44;
 
@@ -56,7 +59,7 @@ export function ActionBarLabeledControl(
     untrack(() => props.onClick)();
   };
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint rounded-control items-center justify-center py-1 gap-1"
       {...dataAttrs({ component: 'ActionBarLabeledControl', ...props.dataSet })}
       type="button"
@@ -78,6 +81,6 @@ export function ActionBarLabeledControl(
         {props.children}
       </div>
       <ActionBarInlineCaption caption={props.caption} />
-    </button>
+    </SdkButton>
   );
 }

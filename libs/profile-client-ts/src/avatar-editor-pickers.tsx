@@ -5,14 +5,14 @@ import {
   styleLabel,
 } from '@libs/profile-shared-ts/dicebear-styles';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Combobox } from '@pkgs/ui-root-client-ts/combobox';
 import { ShuffleIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MultiSelectSwatchGrid } from '@pkgs/ui-root-client-ts/multi-select-swatch-grid';
 import { PickerSection } from '@pkgs/ui-root-client-ts/picker-section';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import type { AvatarColorField, AvatarEnumField } from './avatar-editor-fields';
 import { buildThumbnailEnumOptions, humanizeOptionKey } from './option-helpers';

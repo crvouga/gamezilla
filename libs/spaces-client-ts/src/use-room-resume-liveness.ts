@@ -1,5 +1,5 @@
 import type { ClientTransport } from '@pkgs/room-root-shared-ts/transport';
-import { type Accessor, createEffect, onCleanup } from 'solid-js';
+import { type Accessor, createEffect } from 'solid-js';
 
 /**
  * When the tab returns to the foreground, probe the room WebSocket so a
@@ -9,8 +9,7 @@ import { type Accessor, createEffect, onCleanup } from 'solid-js';
 export function useRoomResumeLiveness(
   transport: Accessor<ClientTransport | null>
 ): void {
-  createEffect(() => {
-    const current = transport();
+  createEffect(transport, (current) => {
     if (current === null) return;
     const probe = current.probeLiveness?.bind(current);
     if (probe === undefined) return;
@@ -22,9 +21,9 @@ export function useRoomResumeLiveness(
     };
     document.addEventListener('visibilitychange', onVisible);
     window.addEventListener('focus', onFocus);
-    onCleanup(() => {
+    return () => {
       document.removeEventListener('visibilitychange', onVisible);
       window.removeEventListener('focus', onFocus);
-    });
+    };
   });
 }

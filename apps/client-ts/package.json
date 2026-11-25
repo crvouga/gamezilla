@@ -29,6 +29,7 @@
     "@pkgs/polyfill-shared-ts": "workspace:*",
     "@pkgs/tailwind-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {
@@ -53,13 +54,13 @@
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
+    "@solidjs/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "rollup-plugin-visualizer": "catalog:",
     "typescript": "catalog:",
     "vite": "catalog:",
-    "vite-plugin-solid": "catalog:",
     "workbox-build": "catalog:"
   },
   "category": "client",

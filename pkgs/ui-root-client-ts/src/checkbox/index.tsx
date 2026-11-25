@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Checkbox as SdkCheckbox } from '@ui-sdk/solid/checkbox';
+import { Show } from 'solid-js';
 
 export type CheckboxProps = {
   /** Current selection; the parent owns and updates this value. */
@@ -62,19 +64,19 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
   const indeterminate = () => props.indeterminate ?? false;
   const filled = () => props.checked || indeterminate();
   return (
-    <button
-      class="clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11"
-      classList={{
-        'min-w-11 justify-center': props.label === undefined,
-        'opacity-disabled cursor-not-allowed': props.disabled === true,
-      }}
+    <SdkCheckbox
+      class={[
+        'clickable clickableTint rounded-sm flex-row items-center gap-3 min-h-11',
+        {
+          'min-w-11 justify-center': props.label === undefined,
+          'opacity-disabled cursor-not-allowed': props.disabled === true,
+        },
+      ]}
       {...dataAttrs({ component: 'Checkbox', ...props.dataSet })}
-      type="button"
-      role="checkbox"
-      aria-checked={indeterminate() ? 'mixed' : props.checked}
+      checked={indeterminate() ? 'indeterminate' : props.checked}
       aria-label={props['aria-label']}
-      disabled={props.disabled}
-      onClick={() => props.onToggle(indeterminate() ? true : !props.checked)}
+      disabled={props.disabled === true}
+      onCheckedChange={(checked) => props.onToggle(checked === true)}
     >
       <span
         class="checkboxBox flex size-5 shrink-0 rounded-sm items-center justify-center"
@@ -87,6 +89,6 @@ export function Checkbox(props: CheckboxProps): JSX.Element {
       <Show when={props.label !== undefined}>
         <p class="text textBody">{props.label}</p>
       </Show>
-    </button>
+    </SdkCheckbox>
   );
 }

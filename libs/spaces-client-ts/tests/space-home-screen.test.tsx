@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/space/:id` before a game is picked is the catalogue's choosing screen:
  * the space's stage template with the launcher, wired to the registered

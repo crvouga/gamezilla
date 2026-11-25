@@ -12,14 +12,13 @@ import {
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createEffect,
   createSignal,
-  type JSX,
   Show,
-  untrack,
   useContext,
 } from 'solid-js';
 
@@ -125,35 +124,37 @@ function HostingCollapse(props: {
   const routeId = useSpaceRouteId();
   const collapsing = { current: false };
 
-  createEffect(() => {
-    const online = engine.status().online;
-    const ids = spaces.ids();
-    const decision = over();
-    if (
-      collapsing.current ||
-      !online ||
-      hosted.isLoading() ||
-      spaces.isLoading() ||
-      decision.allowed ||
-      ids.length < 2
-    )
-      return;
-    const keep = ids[0];
-    const drop = spacesFromAnotherDevice(spaces.rows());
-    if (keep === undefined || drop.length === 0) return;
-    collapsing.current = true;
-    void collapseExtraSpaces({
-      drop,
-      keep,
-      decision,
-      note: props.note,
-      mutate: (spaceId) => mutationClient.mutate(endSpaceMutation, { spaceId }),
-      routeId: routeId(),
-      openKept: (spaceId) => openSpaceDetail(router, spaceId),
-    }).finally(() => {
-      collapsing.current = false;
-    });
-  });
+  createEffect(
+    () => {
+      const online = engine.status().online;
+      const ids = spaces.ids();
+      const decision = over();
+      if (
+        !online ||
+        hosted.isLoading() ||
+        spaces.isLoading() ||
+        decision.allowed ||
+        ids.length < 2
+      )
+        return null;
+      const keep = ids[0];
+      const drop = spacesFromAnotherDevice(spaces.rows());
+      if (keep === undefined || drop.length === 0) return null;
+      return { keep, drop, decision, note: props.note, routeId: routeId() };
+    },
+    (plan) => {
+      if (plan === null || collapsing.current) return;
+      collapsing.current = true;
+      void collapseExtraSpaces({
+        ...plan,
+        mutate: (spaceId) =>
+          mutationClient.mutate(endSpaceMutation, { spaceId }),
+        openKept: (spaceId) => openSpaceDetail(router, spaceId),
+      }).finally(() => {
+        collapsing.current = false;
+      });
+    }
+  );
 
   return null;
 }
@@ -165,17 +166,21 @@ export function HostingAccount(props: {
   const spaces = useHostedSpaceIds();
   const [decision, setDecision] = createSignal<Decision | null>(null);
   const [showing, setShowing] = createSignal(false);
+  // Whether an invitation stands, known at once to callers that write it
+  // from effects, before the signal settles.
+  let standing = false;
   const offer = (next: Decision): void => {
+    standing = true;
     setDecision(next);
     setShowing(true);
   };
   const note = (next: Decision): void => {
-    // Read without tracking: callers run inside effects that must not
-    // subscribe to the invitation they are writing.
-    if (untrack(decision) === null) setShowing(true);
+    if (!standing) setShowing(true);
+    standing = true;
     setDecision(next);
   };
   const clear = (): void => {
+    standing = false;
     setDecision(null);
     setShowing(false);
   };
@@ -186,7 +191,7 @@ export function HostingAccount(props: {
   const api: HostingInviteApi = { decision, offer, note, clear };
 
   return (
-    <HostingInviteContext.Provider value={api}>
+    <HostingInviteContext value={api}>
       <HostingCollapse note={note} />
       <SpaceProbe testId={Handles.spacesHostedProbe}>
         {spaces.ids().join('\n')}
@@ -202,6 +207,6 @@ export function HostingAccount(props: {
         )}
       </Show>
       {props.children}
-    </HostingInviteContext.Provider>
+    </HostingInviteContext>
   );
 }

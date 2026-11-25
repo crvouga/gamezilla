@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import { ServerIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StatusIconSlot } from '@pkgs/ui-root-client-ts/status-icon-slot';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import type { ConnectionCause } from './connection-cause';
 import {
   createConnectionCause,

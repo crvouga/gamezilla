@@ -16,7 +16,7 @@ import { harnessJourneyHost } from './steps/journey-harness-host';
 // Same product-harness contract as libs/harness-ts/scripts/test-spec.ts.
 // Exercise the completion adapter against the existing app's real review controls.
 test('the Hill party returns a real reviewed board to the live position', async () => {
-  await using s = await openHarness('hill-party-reviewed-position');
+  await using s = await openHarness();
   const base = harnessJourneyHost({ s });
   let reviewed = false;
   const host: JourneyHost = {

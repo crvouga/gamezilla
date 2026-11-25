@@ -1,0 +1,4 @@
+{
+  "summary": "The page-wide accessibility announcer and the space action bar both expose live status. The waiting-message test queried the whole page and failed when both were mounted.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/space.test.tsx"
+}

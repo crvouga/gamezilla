@@ -1,9 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
 
 export type CardElement = 'div' | 'section' | 'main' | 'article';
 
@@ -33,15 +32,15 @@ export type CardProps = {
  * ```
  */
 export function Card(props: CardProps): JSX.Element {
+  const Tag = dynamic(() => props.as ?? 'section');
   return (
-    <Dynamic
-      component={props.as ?? 'section'}
+    <Tag
       id={props.id}
-      tabIndex={props.tabIndex}
+      tabindex={props.tabIndex}
       class="box gap-4 rounded-card border border-border bg-surface px-5 py-6 outline-none sm:px-8 sm:pt-8 sm:pb-7"
       {...dataAttrs({ component: 'Card', ...props.dataSet })}
     >
       {props.children}
-    </Dynamic>
+    </Tag>
   );
 }

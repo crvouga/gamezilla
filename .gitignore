@@ -106,7 +106,6 @@ turbo-host-key.json
 
 # Verify artifacts (reports, traces, videos)
 /check/
-**/atlas-runs/
 **/test-results/
 **/blob-report/
 /.data/
@@ -155,7 +154,6 @@ libs/app-root-shared-ts/locales/*/messages.ts
 # Extracted from the source macros by `bun run i18n:compile` (postinstall);
 # committing it made every pull request that adds copy conflict here.
 libs/app-root-shared-ts/locales/*/messages.po
-apps/product-ts/scripts/ui-quality/sources.json
 
 # Graphify: the knowledge graph, and the project skill the pinned release
 # writes (`bun run graphify:install`)

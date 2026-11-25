@@ -1,10 +1,11 @@
 import type { ContentBody } from '@libs/game-puzzle-shared-ts/content-types';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { type JSX, Match, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Switch } from 'solid-js';
 import type { ContentAuthorScreenViewProps } from './content-author-screen-view';
 import type { ContentBuilderStanding } from './content-builder-standing';
 import { publicationCopyLabel } from './content-publication-copy-view';

@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import {
   type GamePlayerState,
@@ -99,8 +101,10 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
   return (
     <>
       <span
-        class={`box shrink-0 ${styles['chipAvatar']}`}
-        classList={{ 'opacity-disabled': out() }}
+        class={[
+          `box shrink-0 ${styles['chipAvatar']}`,
+          { 'opacity-disabled': out() },
+        ]}
         aria-hidden="true"
       >
         <Show
@@ -114,8 +118,10 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
         class={`box flex-1 min-w-0 items-start gap-1 ${styles['chipText']}`}
       >
         <span
-          class={`text textLabel min-w-0 max-w-full ${styles['chipName']}`}
-          classList={{ 'text-on-primary-soft': props.active === true }}
+          class={[
+            `text textLabel min-w-0 max-w-full ${styles['chipName']}`,
+            { 'text-on-primary-soft': props.active === true },
+          ]}
           title={props.name}
         >
           {props.nameContent ?? props.name}
@@ -160,30 +166,29 @@ export function GamePlayerChip(props: GamePlayerChipProps): JSX.Element {
       class="box min-w-0 flex-1"
       role={props.placeTestId === undefined ? 'listitem' : undefined}
       aria-current={active() ? 'step' : undefined}
-      {...dataAttrs({ component: 'GamePlayerChip', ...props.dataSet })}
       data-active={active() ? 'true' : 'false'}
       data-state={props.state?.kind}
+      {...dataAttrs({ component: 'GamePlayerChip', ...props.dataSet })}
     >
       <Show
         when={props.onPress}
         fallback={
-          <div
-            class={`box ${CHIP_FRAME} ${styles['chipFrame']}`}
-            classList={look()}
-          >
+          <div class={[`box ${CHIP_FRAME} ${styles['chipFrame']}`, look()]}>
             <ChipFace {...props} />
           </div>
         }
       >
         {(press) => (
-          <button
+          <SdkButton
             type="button"
-            class={`clickable clickableTint ${CHIP_FRAME} ${styles['chipFrame']}`}
-            classList={look()}
+            class={[
+              `clickable clickableTint ${CHIP_FRAME} ${styles['chipFrame']}`,
+              look(),
+            ]}
             onClick={() => press()()}
           >
             <ChipFace {...props} />
-          </button>
+          </SdkButton>
         )}
       </Show>
     </div>

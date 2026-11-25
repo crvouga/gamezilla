@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
-import { useLingui } from '@lingui/solid/macro';
+/** @jsxImportSource @solidjs/web */
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CodeEditor } from '@pkgs/ui-root-client-ts/code-editor';
 import type {
   CodeToken,
   CodeTokenKind,
 } from '@pkgs/ui-root-shared-ts/code-editor-types';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

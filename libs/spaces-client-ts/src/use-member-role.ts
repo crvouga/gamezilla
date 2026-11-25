@@ -3,7 +3,7 @@ import { type Accessor, createMemo } from 'solid-js';
 import { SpaceField, useSpaceColumn } from './use-space-column';
 
 export function useMemberRole(
-  spaceId: string,
+  spaceId: Accessor<string>,
   profileId: string
 ): Accessor<'host' | 'guest' | null> {
   const hostMemberId = useSpaceColumn(spaceId, SpaceField.hostMemberId);

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * `/more/server-status` — Connection in Settings. Says whether the app is
  * connected, and if not whether that is the person's choice, their device,
@@ -9,7 +9,7 @@
 
 import { APP_VERSION } from '@libs/app-root-shared-ts/app-metadata';
 import { useOptionalOriginAvailability } from '@pkgs/http-client-client-ts/solid';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createConnectionCause } from './connection-copy';
 import { ConnectionScreenView } from './connection-screen-view';
 import { useSyncStatus } from './sync-status-context';

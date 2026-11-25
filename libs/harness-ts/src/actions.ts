@@ -2,10 +2,7 @@ import { originAvailabilityFor } from '@libs/app-root-client-ts/origin-availabil
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { UiOp } from '@pkgs/ui-testing-root-shared-ts/ui-op';
-import {
-  describeUiOp,
-  performUiOp,
-} from '@pkgs/ui-testing-root-shared-ts/ui-op';
+import { performUiOp } from '@pkgs/ui-testing-root-shared-ts/ui-op';
 import { ensureActor, pollUntil } from './actor-ui';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
@@ -35,16 +32,8 @@ export const restartApp = defineAction({
   name: 'restartApp',
   pool: false,
   act: async (s: ProductHarness, id: string) => {
-    // The in-process app reopens where it was (its saved route); a browser
-    // tab reopens on its address the same way.
-    const browser = productExtra(s).ui.kind === 'bun-webview';
-    const path = browser ? await s.actors.get(id)?.currentPath() : undefined;
     await s.runtime.restartActor(id);
     await ensureActor(s, id);
-    if (path !== undefined && path !== '/') {
-      await s.actors.get(id)?.openLink(path);
-      await s.session.waitForIdle();
-    }
   },
 });
 
@@ -202,11 +191,10 @@ export const letTimePass = defineAction({
   },
 });
 
-/** Replay / report of a concrete UI op. */
+/** Replay of a concrete UI op. */
 export const uiOp = defineAction({
   name: 'uiOp',
   pool: false,
-  describe: (op: UiOp) => describeUiOp(op),
   act: async (s: ProductHarness, op: UiOp) => {
     const handle = s.actors.get(op.actorId);
     if (handle === undefined) return;

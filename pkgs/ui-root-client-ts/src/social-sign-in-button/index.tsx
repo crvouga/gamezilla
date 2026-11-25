@@ -1,11 +1,13 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import './google-font.css';
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { BrandIcon } from '../brand-icon/index';
 import type {
   SocialProviderSpec,
@@ -154,7 +156,7 @@ export function SocialSignInButton(
       : (props.label ?? defaultLabel());
 
   return (
-    <button
+    <SdkButton
       class={`clickable clickableOpacity ${buttonClass()}`}
       {...dataAttrs({
         component: 'SocialSignInButton',
@@ -165,7 +167,7 @@ export function SocialSignInButton(
       onClick={() => props.onClick()}
       disabled={isDisabled()}
       aria-label={defaultLabel()}
-      aria-busy={loading() ? true : undefined}
+      aria-busy={loading() ? 'true' : undefined}
       aria-describedby={props['aria-describedby']}
       style={buttonStyle({
         palette: palette(),
@@ -187,6 +189,6 @@ export function SocialSignInButton(
       >
         {visibleLabel()}
       </p>
-    </button>
+    </SdkButton>
   );
 }

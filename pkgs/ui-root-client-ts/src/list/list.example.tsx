@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge, HostBadge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
@@ -11,7 +11,7 @@ import { List, ListItem } from '@pkgs/ui-root-client-ts/list';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';

@@ -4,6 +4,7 @@ import {
   SIGN_IN_PENDING_KEY,
 } from '@libs/auth-shared-ts/auth-storage-keys';
 import { cleanup } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 import { signInLifecycleFixture } from './sign-in-lifecycle-fixture';
 
 afterEach(cleanup);
@@ -12,6 +13,7 @@ afterEach(cleanup);
 test('a hydrated guest during callback exchange stays loading until its account is ready', async () => {
   const fixture = await signInLifecycleFixture();
   fixture.publish({ isHydrated: true, session: null, error: null });
+  flush();
   expect(fixture.lifecycle.phase()).toBe('loading');
   expect(fixture.store.getValue(SIGN_IN_PENDING_KEY)).not.toBeNull();
   fixture.publish({
@@ -25,6 +27,7 @@ test('a hydrated guest during callback exchange stays loading until its account 
     },
     error: null,
   });
+  flush();
   expect(fixture.lifecycle.phase()).toBe('loading');
   await fixture.store.write(SESSION_TOKEN_KEY, 'ready-alice-session');
   expect(fixture.lifecycle.phase()).toBe('success');
@@ -34,6 +37,7 @@ test('a resumed callback failure still explains the failure and clears pending',
   const fixture = await signInLifecycleFixture();
   const error = new Error('Provider declined sign-in');
   fixture.publish({ isHydrated: true, session: null, error });
+  flush();
   expect(fixture.lifecycle.phase()).toBe('error');
   expect(fixture.lifecycle.error()).toBe(error);
   expect(fixture.store.getValue(SIGN_IN_PENDING_KEY)).toBeNull();
@@ -42,6 +46,7 @@ test('a resumed callback failure still explains the failure and clears pending',
 test('an abandoned callback still reaches its existing bounded recovery state', async () => {
   const fixture = await signInLifecycleFixture();
   fixture.publish({ isHydrated: true, session: null, error: null });
+  flush();
   fixture.time.clock.advance(12_000);
   expect(fixture.lifecycle.phase()).toBe('error');
   expect(fixture.lifecycle.error()?.message).toBe(

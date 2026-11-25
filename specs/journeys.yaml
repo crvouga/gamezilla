@@ -488,7 +488,6 @@ journeys:
     - 'Inbox: Inbox'
     gherkin:
     - specs/friends/friend-request-inbox.feature
-    - specs/system/notifications.qnt
     tour: true
   A guest starts multiplayer search:
     description: A guest finds an opponent without an account and is waiting for one.

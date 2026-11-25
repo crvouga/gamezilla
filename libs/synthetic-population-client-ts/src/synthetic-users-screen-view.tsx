@@ -1,5 +1,5 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import {
   DataTable,
@@ -7,7 +7,8 @@ import {
   type DataTablePaging,
 } from '@pkgs/ui-root-client-ts/data-table';
 import { PauseIcon, PlayIcon } from '@pkgs/ui-root-client-ts/icons';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import {
   type EveryCommand,
   EverySyntheticUserDialogs,

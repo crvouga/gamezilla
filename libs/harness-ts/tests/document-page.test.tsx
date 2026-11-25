@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Vendor pages (Stripe checkout, OAuth screens) keep their stylesheet on the
  * page wrapper, scoped so a report snapshot paints it and the app does not
@@ -6,7 +6,7 @@
  */
 import { describe, expect, test } from 'bun:test';
 import { DocumentPage } from '@libs/harness-ts/document-page-view';
-import { render } from 'solid-js/web';
+import { render } from '@solidjs/web';
 
 const PAGE = [
   '<html><head><style>',

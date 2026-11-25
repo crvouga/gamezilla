@@ -9,8 +9,7 @@ import { type Accessor, createMemo } from 'solid-js';
 export function useOfflineSince(): Accessor<number | null> {
   const sync = useSyncEngine();
   const clock = useClock();
-  return createMemo<number | null>(
-    (since) => (sync.status().online ? null : (since ?? clock.now())),
-    null
+  return createMemo<number | null>((since) =>
+    sync.status().online ? null : (since ?? clock.now())
   );
 }

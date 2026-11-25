@@ -1,8 +1,8 @@
 import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
-  type JSX,
   type ParentProps,
   untrack,
   useContext,
@@ -30,9 +30,9 @@ export function GamesRegistryProvider(
   // Registry is composition-root configuration: read once, not tracked.
   const value = untrack(() => props.value);
   return (
-    <GamesRegistryContext.Provider value={() => value}>
+    <GamesRegistryContext value={() => value}>
       {props.children}
-    </GamesRegistryContext.Provider>
+    </GamesRegistryContext>
   );
 }
 

@@ -7,7 +7,7 @@
  */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { ButtonIntent, ButtonVariant } from './button-face';
 import type { IconComponent } from './create-icon/index';
 

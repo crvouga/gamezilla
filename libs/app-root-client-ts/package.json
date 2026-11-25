@@ -28,7 +28,6 @@
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@pkgs/auth-inhouse-client-ts": "workspace:*",
     "@pkgs/auth-inhouse-shared-ts": "workspace:*",
@@ -47,6 +46,7 @@
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",
     "@pkgs/kv-web-client-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/llm-root-client-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
@@ -79,6 +79,7 @@
     "@pkgs/uuid-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
     "@solidjs/router": "catalog:",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:",
     "web-vitals": "catalog:",
     "workbox-window": "catalog:"

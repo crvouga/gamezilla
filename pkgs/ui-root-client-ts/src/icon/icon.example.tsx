@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Icon } from '@pkgs/ui-root-client-ts/icon';
@@ -9,7 +9,8 @@ import {
   COLOR_TONES,
   ICON_SIZE_TOKENS,
 } from '@pkgs/ui-root-shared-ts/token-names';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
@@ -40,8 +41,10 @@ export default function IconExample(): JSX.Element {
               {(tone) => (
                 <StackVertical gap="xs" align="center">
                   <div
-                    class="box rounded-sm p-1"
-                    classList={{ 'bg-tint-active': tone === 'on-primary' }}
+                    class={[
+                      'box rounded-sm p-1',
+                      { 'bg-tint-active': tone === 'on-primary' },
+                    ]}
                   >
                     <Icon icon={BellIcon} tone={tone} />
                   </div>

@@ -9,7 +9,8 @@ import {
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createMemo, createSignal, type JSX, onCleanup } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, onCleanup } from 'solid-js';
 import { createPongLiveInputs } from './pong-live-inputs.example';
 
 /**
@@ -29,7 +30,9 @@ export function PongLiveRally(props: {
   const step = createPongStep(config);
   const tickMs = 1000 / config.tickRate;
   // A served ball crossing toward the right paddle, mid-court.
-  const [state, setState] = createSignal<PongState>({
+  // The rally as last stepped: a frame steps from this, never from a signal
+  // read back before it has settled.
+  let rally: PongState = {
     ...initialPongState(config, () => 0),
     phase: 'playing',
     countdown: 0,
@@ -40,7 +43,8 @@ export function PongLiveRally(props: {
       vy: config.ballSpeed * 0.6,
     },
     feedback: { walls: 0, paddles: 0, points: 0, serves: 1 },
-  });
+  };
+  const [state, setState] = createSignal<PongState>(rally);
   const held = createPongLiveInputs();
   let tick = 0;
   let frame: number | undefined;
@@ -61,12 +65,15 @@ export function PongLiveRally(props: {
     last = now;
     // Every tick owed since the last frame, then one paint: the court is
     // drawn once per frame, as a player's screen shows it.
-    let next = state();
+    let next = rally;
     while (owed >= tickMs && next.phase !== 'completed') {
       owed -= tickMs;
       next = advance(next);
     }
-    if (next !== state()) setState(next);
+    if (next !== rally) {
+      rally = next;
+      setState(next);
+    }
     frame = next.phase === 'completed' ? undefined : requestAnimationFrame(run);
   };
   const start = () => {

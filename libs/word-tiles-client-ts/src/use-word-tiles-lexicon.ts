@@ -3,7 +3,7 @@ import {
   loadedLexicon,
   loadLexicon,
 } from '@libs/word-tiles-shared-ts/word-tiles-lexicon';
-import { type Accessor, createEffect, createSignal, on } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 
 export type LexiconState =
   | { readonly status: 'loading' }
@@ -19,7 +19,8 @@ export function useWordTilesLexicon(key: Accessor<string>) {
   const [state, setState] = createSignal<LexiconState>({ status: 'loading' });
   const [attempt, setAttempt] = createSignal(0);
   createEffect(
-    on([key, attempt], ([wanted]) => {
+    () => [key(), attempt()] as const,
+    ([wanted]) => {
       const ready = loadedLexicon(wanted);
       if (ready !== null) {
         setState({ status: 'ready', lexicon: ready });
@@ -38,7 +39,7 @@ export function useWordTilesLexicon(key: Accessor<string>) {
             });
         }
       );
-    })
+    }
   );
   return { state, retry: () => setAttempt((n) => n + 1) };
 }

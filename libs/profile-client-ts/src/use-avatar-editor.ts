@@ -1,8 +1,6 @@
 import { useDeviceId } from '@libs/auth-client-ts/use-device-id';
-import type { AvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import {
   AvatarSeedGenerator,
-  configsEqual,
   createDefaultAvatarConfig,
   parseAvatarConfig,
   resolveAvatarSeed,
@@ -13,8 +11,13 @@ import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useRandom } from '@pkgs/uuid-client-ts/solid';
-import type { Accessor } from 'solid-js';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import {
+  type Accessor,
+  createEffect,
+  createMemo,
+  createSignal,
+} from 'solid-js';
+import { createAvatarDraft } from './avatar-draft';
 import type { AvatarEditorScreenViewProps } from './avatar-editor-screen-view';
 import { useMyProfileId } from './patch-avatar-use-my-profile-id';
 import { useProfileRow } from './patch-avatar-use-profile-row';
@@ -40,46 +43,20 @@ function usePersistedConfig() {
   return { seedFallback, profileId, persisted, ready };
 }
 
-function useDraftSync(args: {
-  persisted: Accessor<AvatarConfig>;
-  ready: Accessor<boolean>;
-}) {
-  const [draft, setDraft] = createSignal<AvatarConfig>(args.persisted());
-  const bootstrappedRef = { current: false };
-  const lastPersistedRef = { current: null as AvatarConfig | null };
-
-  createEffect(() => {
-    const persisted = args.persisted();
-    if (!args.ready()) return;
-    const prev = lastPersistedRef.current;
-    if (!bootstrappedRef.current || prev === null) {
-      setDraft(persisted);
-      lastPersistedRef.current = persisted;
-      bootstrappedRef.current = true;
-      return;
-    }
-    if (!configsEqual(prev, persisted)) {
-      setDraft((current) =>
-        configsEqual(current, prev) ? persisted : current
-      );
-      lastPersistedRef.current = persisted;
-    }
-  });
-
-  return { draft, setDraft };
-}
-
 const COPIED_HOLD_MS = 2000;
 
 /** The copy button's confirmation, held for a moment after each copy. */
 function useSeedCopy(seed: Accessor<string>) {
   const timers = useTimers();
   const [copied, setCopied] = createSignal(false);
-  createEffect(() => {
-    if (!copied()) return;
-    const id = timers.setTimeout(() => setCopied(false), COPIED_HOLD_MS);
-    onCleanup(() => timers.clearTimeout(id));
-  });
+  createEffect(
+    () => copied(),
+    (isCopied) => {
+      if (!isCopied) return;
+      const id = timers.setTimeout(() => setCopied(false), COPIED_HOLD_MS);
+      return () => timers.clearTimeout(id);
+    }
+  );
   const copy = () => {
     void navigator.clipboard.writeText(seed()).then(() => setCopied(true));
   };
@@ -108,21 +85,6 @@ function useDiscardActions(dirty: Accessor<boolean>) {
   };
 }
 
-function useSaveAction(args: {
-  draft: Accessor<AvatarConfig>;
-  profileId: Accessor<string | null>;
-}) {
-  const mutationClient = useMutationClient();
-  return async () => {
-    const profileId = args.profileId();
-    if (profileId === null) return;
-    const result = await mutationClient.mutate(patchAvatarMutation, {
-      avatarConfig: serializeAvatarConfig(args.draft()),
-    });
-    if (!result.ok) throw new Error(result.failures[0]?.message);
-  };
-}
-
 /**
  * The avatar editor's state and effects as `AvatarEditorScreenView` props:
  * the draft seeded from the saved avatar, the discard guard, the seed
@@ -130,17 +92,23 @@ function useSaveAction(args: {
  */
 export function useAvatarEditor(): Omit<AvatarEditorScreenViewProps, 'notice'> {
   const { seedFallback, profileId, persisted, ready } = usePersistedConfig();
-  const { draft, setDraft } = useDraftSync({ persisted, ready });
-  const dirty = createMemo(
-    () => ready() && !configsEqual(draft(), persisted())
-  );
+  const mutationClient = useMutationClient();
+  const { draft, setDraft, dirty, save } = createAvatarDraft({
+    persisted,
+    ready,
+    async write(config) {
+      const result = await mutationClient.mutate(patchAvatarMutation, {
+        avatarConfig: serializeAvatarConfig(config),
+      });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
+    },
+  });
   const effectiveSeed = createMemo(() =>
     resolveAvatarSeed(draft(), seedFallback())
   );
   const random = useRandom();
   const discard = useDiscardActions(dirty);
   const seedCopy = useSeedCopy(effectiveSeed);
-  const save = useSaveAction({ draft, profileId });
   return {
     get status() {
       return ready() ? 'ready' : 'loading';
@@ -170,6 +138,8 @@ export function useAvatarEditor(): Omit<AvatarEditorScreenViewProps, 'notice'> {
     onBack: discard.onBack,
     onConfirmDiscard: discard.onConfirmDiscard,
     onKeepEditing: discard.onKeepEditing,
-    onSave: save,
+    onSave: async () => {
+      if (profileId() !== null) await save();
+    },
   };
 }

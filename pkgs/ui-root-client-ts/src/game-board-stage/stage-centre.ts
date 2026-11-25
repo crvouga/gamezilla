@@ -1,4 +1,4 @@
-import { type Accessor, createEffect, createSignal, onCleanup } from 'solid-js';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { createFrameResizeObserver } from '../observe-element-resize';
 
 /** What the stage's centring is measured from. */
@@ -68,41 +68,42 @@ export function createStageCentre(
   board: Accessor<HTMLElement | undefined>
 ): Accessor<number | undefined> {
   const [offset, setOffset] = createSignal<number>();
-  createEffect(() => {
-    const stage = root();
-    const surface = board();
-    const cell = stage?.parentElement;
-    const view = stage?.ownerDocument.defaultView;
-    if (!stage || !surface || !cell || !view) return;
-    const held = heldIn(stage.ownerDocument);
-    const read = () => {
-      const fixed = view
-        .getComputedStyle(cell)
-        .getPropertyValue('--game-stage-room');
-      if (fixed.trim() !== '1') {
-        setOffset(undefined);
-        return;
-      }
-      setOffset(
-        stageCentreOffset(
-          held,
-          {
-            width: cell.clientWidth,
-            height: cell.clientHeight,
-            boardWidth: surface.offsetWidth,
-          },
-          stage.offsetHeight
-        )
-      );
-    };
-    read();
-    const observer = createFrameResizeObserver(view, read);
-    for (const target of [cell, stage, surface]) observer?.observe(target);
-    view.addEventListener('resize', read);
-    onCleanup(() => {
-      observer?.disconnect();
-      view.removeEventListener('resize', read);
-    });
-  });
+  createEffect(
+    () => [root(), board()] as const,
+    ([stage, surface]) => {
+      const cell = stage?.parentElement;
+      const view = stage?.ownerDocument.defaultView;
+      if (!stage || !surface || !cell || !view) return undefined;
+      const held = heldIn(stage.ownerDocument);
+      const read = () => {
+        const fixed = view
+          .getComputedStyle(cell)
+          .getPropertyValue('--game-stage-room');
+        if (fixed.trim() !== '1') {
+          setOffset(undefined);
+          return;
+        }
+        setOffset(
+          stageCentreOffset(
+            held,
+            {
+              width: cell.clientWidth,
+              height: cell.clientHeight,
+              boardWidth: surface.offsetWidth,
+            },
+            stage.offsetHeight
+          )
+        );
+      };
+      read();
+      const observer = createFrameResizeObserver(view, read);
+      for (const target of [cell, stage, surface]) observer?.observe(target);
+      view.addEventListener('resize', read);
+      return () => {
+        observer?.disconnect();
+        view.removeEventListener('resize', read);
+      };
+    }
+  );
   return offset;
 }

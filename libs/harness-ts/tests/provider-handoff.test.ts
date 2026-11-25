@@ -25,7 +25,10 @@ test('Apple form-post in a script-running browser submits only once', async () =
     }),
   } as unknown as Driver;
   const s = {
-    session: { ports: { ui: { kind: 'bun-webview' } } },
+    session: {
+      ports: { ui: { kind: 'bun-webview' } },
+      scheduler: { virtual: true },
+    },
   } as unknown as ProductHarness;
   await completeProviderSignIn({
     s,

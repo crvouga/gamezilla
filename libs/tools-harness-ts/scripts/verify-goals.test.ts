@@ -122,7 +122,7 @@ describe('validateRegister', () => {
       ['pkgs/a/tests/a.test.ts', '// regression: marked'],
       ['pkgs/a/tests/b.test.ts', 'no marker'],
       ['specs/chess/play.feature', '@regression:tagged'],
-      ['vendor/atlas/tests/c.test.ts', 'no marker'],
+      ['vendor/upstream/tests/c.test.ts', 'no marker'],
     ]);
     expect(
       validateRegister({
@@ -130,12 +130,12 @@ describe('validateRegister', () => {
           bug('marked', 'pkgs/a/tests/a.test.ts'),
           bug('unmarked', 'pkgs/a/tests/b.test.ts'),
           bug('tagged', 'specs/chess/play.feature'),
-          bug('vendored', 'vendor/atlas/tests/c.test.ts'),
+          bug('vendored', 'vendor/upstream/tests/c.test.ts'),
         ],
         read: (path) => proofs.get(path) ?? null,
       })
     ).toEqual([
-      'known-bugs:vendored: vendor/atlas/tests/c.test.ts does not contain marker "regression: vendored"',
+      'known-bugs:vendored: vendor/upstream/tests/c.test.ts does not contain marker "regression: vendored"',
       'known-bugs:unmarked: pkgs/a/tests/b.test.ts does not contain marker "regression: unmarked"',
     ]);
   });

@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { CatalogDetail } from '@pkgs/ui-root-client-ts/catalog-detail';
 import { CatalogList } from '@pkgs/ui-root-client-ts/catalog-list';
 import type { CatalogItem } from '@pkgs/ui-root-shared-ts/catalog-item';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const DEMO_ITEMS: readonly CatalogItem[] = [

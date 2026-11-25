@@ -2,14 +2,12 @@
 
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { getConfig } from '@lingui/conf';
 import {
   DEFAULT_WORKSPACE_SCOPES,
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
 import tailwindcss from '@tailwindcss/vite';
 import type { StorybookConfig } from 'storybook-solidjs-vite';
-import solid from 'vite-plugin-solid';
 import { configureDocgen } from './docgen';
 import { previewAnnotations } from './entrypoints';
 
@@ -56,39 +54,20 @@ const config: StorybookConfig = {
         configureDocgen(plugin, storyDirectories);
     }
     config.plugins = [
-      ...(config.plugins ?? []).filter(
-        (plugin) =>
-          !(
-            plugin &&
-            typeof plugin === 'object' &&
-            'name' in plugin &&
-            plugin.name === 'solid'
-          )
-      ),
+      ...(config.plugins ?? []),
       workspaceExportsResolver({
         repoRoot: root,
         scopes: DEFAULT_WORKSPACE_SCOPES,
       }),
       tailwindcss(),
-      solid({
-        babel: {
-          plugins: [
-            [
-              '@lingui/babel-plugin-lingui-macro',
-              {
-                descriptorFields: 'all',
-                linguiConfig: getConfig({
-                  configPath: resolve(root, 'lingui.solid.config.ts'),
-                }),
-              },
-            ],
-          ],
-        },
-      }),
     ];
+    config.optimizeDeps = {
+      ...config.optimizeDeps,
+      exclude: [...(config.optimizeDeps?.exclude ?? []), '@ui-sdk/core'],
+    };
     config.resolve = {
       ...config.resolve,
-      dedupe: ['solid-js', '@lingui/core', '@lingui/solid'],
+      dedupe: ['solid-js', '@solidjs/web', '@lingui/core'],
     };
     config.define = {
       ...config.define,

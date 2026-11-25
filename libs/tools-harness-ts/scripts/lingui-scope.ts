@@ -46,9 +46,12 @@ export const LINGUI_CATALOG_SOURCES = [
   'pkgs/ui-root-client-ts/src',
 ] as const;
 
-/** A Lingui macro import: the only thing the extractor reads. */
+/**
+ * A Lingui macro import: the only thing the extractor reads. A type-only
+ * import names the macros' types and compiles to nothing.
+ */
 export const LINGUI_MACRO_IMPORT =
-  /from\s+['"]@lingui\/(?:core|solid)\/macro['"]/;
+  /^import\s+(?!type\b)[^;]*?from\s+['"](?:@lingui\/core|@pkgs\/lingui-solid-client-ts)\/macro['"]/m;
 
 /** Test files never reach the catalog (`lingui.config.ts` excludes them). */
 const TEST_FILE = /(^|\/)(?:tests|stories)\/|\.test\.tsx?$/;

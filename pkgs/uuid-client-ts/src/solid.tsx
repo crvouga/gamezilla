@@ -1,7 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import type { CreateId, Random } from '@pkgs/uuid-shared-ts/create-id';
-import type { JSX, ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { ParentProps } from 'solid-js';
 
 export type IdContextValue = {
   readonly createId: CreateId;

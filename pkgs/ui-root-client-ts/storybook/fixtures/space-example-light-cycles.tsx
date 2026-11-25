@@ -1,4 +1,5 @@
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import type { AvatarSeatColor } from '../../src/avatar/index';
 import type { GameOptionFieldProps } from '../../src/game-option-field/index';
 import type { GameSeatColor } from '../../src/game-seat-swatch/index';
@@ -82,8 +83,12 @@ function Arena(props: { viewer: 0 | 1; riding: boolean }): JSX.Element {
         height={28}
         cells={paintCells(['4,22 4,10 14,10 14,6', '35,5 35,18 24,18 24,22'])}
         riders={[
-          rider(0, [14, 5], 'up', { controlled: props.viewer === 0 }),
-          rider(1, [23, 22], 'left', { controlled: props.viewer === 1 }),
+          rider(0, [14, 5], 'up', {
+            controlSlot: props.viewer === 0 ? 0 : null,
+          }),
+          rider(1, [23, 22], 'left', {
+            controlSlot: props.viewer === 1 ? 0 : null,
+          }),
         ]}
         crashes={[]}
         enabled={props.riding}

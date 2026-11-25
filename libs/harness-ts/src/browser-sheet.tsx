@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * The actor's web browser, drawn as a sheet over the app — how an in-app
  * browser (the sign-in window, a hosted billing page) looks on a phone.
@@ -14,8 +14,9 @@
  * the light DOM still paints Stripe and the sign-in screens as designed.
  */
 
-import { type JSX, Match, onCleanup, onMount, Show, Switch } from 'solid-js';
-import { render } from 'solid-js/web';
+import { type JSX, render } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Match, onSettled, Show, Switch } from 'solid-js';
 import type {
   HarnessBrowser,
   HarnessBrowserPage,
@@ -92,10 +93,9 @@ function ShadowPage(props: {
   readonly children: () => JSX.Element;
 }): JSX.Element {
   let host!: HTMLDivElement;
-  onMount(() => {
+  onSettled(() => {
     const root = host.attachShadow({ mode: 'open' });
-    const dispose = render(() => props.children(), root);
-    onCleanup(dispose);
+    return render(() => props.children(), root);
   });
   return <div class="min-h-full" ref={host} />;
 }
@@ -106,13 +106,11 @@ function Sheet(props: {
   readonly isolateStyles: boolean;
 }): JSX.Element {
   let body!: HTMLDivElement;
-  onMount(() => {
-    onCleanup(
-      interceptLinks(
-        body,
-        () => props.browser.address() ?? props.tab.page.url,
-        (url) => props.browser.navigate(url)
-      )
+  onSettled(() => {
+    return interceptLinks(
+      body,
+      () => props.browser.address() ?? props.tab.page.url,
+      (url) => props.browser.navigate(url)
     );
   });
   const host = (): string => {
@@ -128,7 +126,7 @@ function Sheet(props: {
       data-testid={HARNESS_BROWSER_TEST_IDS.sheet}
     >
       <div class="flex h-11 shrink-0 items-center gap-2 border-system-text/10 border-b bg-system-canvas px-2">
-        <button
+        <SdkButton
           aria-label="Close"
           class="flex size-8 items-center justify-center rounded-full text-lg leading-none hover:bg-system-text/10"
           data-testid={HARNESS_BROWSER_TEST_IDS.close}
@@ -136,7 +134,7 @@ function Sheet(props: {
           type="button"
         >
           ×
-        </button>
+        </SdkButton>
         <span
           class="min-w-0 flex-1 truncate rounded-full bg-system-text/5 px-3 py-1 text-center text-xs opacity-70"
           data-testid={HARNESS_BROWSER_TEST_IDS.address}

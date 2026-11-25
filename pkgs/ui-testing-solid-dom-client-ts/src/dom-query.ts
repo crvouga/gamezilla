@@ -1,5 +1,5 @@
 /**
- * `data-testid` lookups scoped to one actor. Portals (`solid-js/web`
+ * `data-testid` lookups scoped to one actor. Portals (`@solidjs/web`
  * `<Portal>`) may mount outside the actor container, so a miss inside the
  * container falls back to the whole document minus other actors' containers.
  */

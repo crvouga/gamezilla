@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
@@ -8,7 +8,7 @@ import {
   type GameMoveListEntry,
 } from '@pkgs/ui-root-client-ts/game-move-list';
 import { fireEvent, screen, within } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
 const MOVES: readonly GameMoveListEntry[] = ['e4', 'e5', 'Nf3'].map(
@@ -93,6 +93,7 @@ describe('GameMoveList', () => {
     );
     expect(screen.queryByTestId('move-1')).toBeNull();
     setCurrent(2);
+    flush();
     expect(screen.getByTestId('move-1').textContent).toBe('e4');
     expect(screen.getByTestId('move-2')).toHaveAttribute(
       'aria-current',
@@ -101,6 +102,7 @@ describe('GameMoveList', () => {
     expect(screen.queryByTestId('move-3')).toBeNull();
     // The opening position shows the first turn, nothing marked.
     setCurrent(0);
+    flush();
     expect(screen.getByTestId('move-1')).not.toHaveAttribute('aria-current');
   });
 

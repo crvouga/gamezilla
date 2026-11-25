@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
+import { dismissDialogOutcome } from '@pkgs/ui-testing-root-shared-ts/dismiss-dialog-outcome';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 import { actorUi, pollUntil, scenarioAction } from './actor-ui';
@@ -356,11 +357,12 @@ export const signOut = scenarioAction({
     await ui.get(Handles.accountSignOut).tap();
     await ui.get(Handles.authSignOutConfirm).tap();
     await ui.get(Handles.accountSignIn).expect.visible({ timeoutMs: WAIT_MS });
-    if (await ui.get(Handles.authSignOutModal).isVisible())
-      await ui.get(Handles.authSignOutDone).tap({ timeoutMs: WAIT_MS });
-    await ui
-      .get(Handles.authSignOutModal)
-      .wait('hidden', { timeoutMs: WAIT_MS });
+    await dismissDialogOutcome(
+      ui,
+      Handles.authSignOutModal,
+      Handles.authSignOutDone,
+      { timeoutMs: WAIT_MS }
+    );
   },
 });
 

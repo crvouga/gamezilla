@@ -2,7 +2,7 @@ import {
   MonogramTile,
   type MonogramTileSize,
 } from '@pkgs/ui-root-client-ts/monogram-tile';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { useSpaceDisplayTitle } from './use-space-display-title';
 
 export type SpaceMarkViewProps = {

@@ -1,8 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import { createMeasure } from '../measure';
 import styles from './board-fit.module.css';
@@ -67,16 +68,14 @@ export function BoardFit(props: BoardFitProps): JSX.Element {
   const frame = createMeasure();
   // A frame that collapses for a moment (hidden, mid-layout) keeps the last
   // square instead of unmounting the board.
-  const size = createMemo((previous: number) => {
+  const size = createMemo<number>((previous) => {
     const next = boardFitSize(frame.width(), frame.height());
-    return next > 0 ? next : previous;
-  }, 0);
+    return next > 0 ? next : (previous ?? 0);
+  });
   const bounded = (): boolean => props.height === 'bounded';
   const measured = (
     <div
-      ref={(element) => {
-        bindElementTargets(element, { measureTarget: frame.target });
-      }}
+      ref={bindElementTargets({ measureTarget: frame.target })}
       class="box flex-1 min-h-0 min-w-0 self-stretch items-center justify-center overflow-hidden"
       data-testid={props.testId}
       onPointerDown={(event) => props.pointer?.onPointerDown?.(event)}

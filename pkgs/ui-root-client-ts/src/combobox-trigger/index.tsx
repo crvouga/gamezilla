@@ -1,17 +1,20 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type {
   ComboboxOption,
   ComboboxValue,
 } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ComboboxChips } from '../combobox-chips/index';
 import { IconButton } from '../icon-button/index';
 import { ChevronDownIcon, XIcon } from '../icons';
+import { ComboboxParts } from '../picker-parts';
 
 /**
  * Field row for {@link Combobox}: selected chips (multi), the opener button
@@ -19,7 +22,11 @@ import { ChevronDownIcon, XIcon } from '../icons';
  * control for multi-select. Every interactive part is a sibling `<button>`.
  */
 export function ComboboxLabel(props: { label: JSX.Element }): JSX.Element {
-  return <p class="text textCaption mb-1 text-text-secondary">{props.label}</p>;
+  return (
+    <ComboboxParts.Label class="text textCaption mb-1 text-text-secondary">
+      {props.label}
+    </ComboboxParts.Label>
+  );
 }
 
 export type ComboboxTriggerProps<T extends ComboboxValue> = {
@@ -30,7 +37,6 @@ export type ComboboxTriggerProps<T extends ComboboxValue> = {
   disabled: boolean;
   open: boolean;
   listboxId: string;
-  onOpen: () => void;
   /** Multi-select only: clear every value. */
   onClear: (() => void) | undefined;
   onRemove: (value: T) => void;
@@ -48,11 +54,13 @@ function SingleSummary<T extends ComboboxValue>(props: {
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <label
-        class="text textBody line-clamp-1 flex-1 min-w-0"
-        classList={{
-          'text-text': props.selected !== undefined,
-          'text-text-secondary': props.selected === undefined,
-        }}
+        class={[
+          'text textBody line-clamp-1 flex-1 min-w-0',
+          {
+            'text-text': props.selected !== undefined,
+            'text-text-secondary': props.selected === undefined,
+          },
+        ]}
       >
         {props.selected?.label ?? props.placeholder}
       </label>
@@ -69,8 +77,10 @@ export function ComboboxTrigger<T extends ComboboxValue>(
   const showClear = (): boolean => props.onClear !== undefined && hasChips();
   return (
     <div
-      class="input box flex-row items-center gap-2"
-      classList={{ 'ps-2': hasChips(), 'opacity-disabled': props.disabled }}
+      class={[
+        'input box flex-row items-center gap-2',
+        { 'ps-2': hasChips(), 'opacity-disabled': props.disabled },
+      ]}
       data-component="ComboboxField"
     >
       <Show when={hasChips()}>
@@ -80,17 +90,25 @@ export function ComboboxTrigger<T extends ComboboxValue>(
           disabled={props.disabled}
         />
       </Show>
-      <button
+      <ComboboxParts.Trigger
+        render={(part) => (
+          <button
+            {...part}
+            role="combobox"
+            aria-expanded={ariaBoolean(props.open)}
+            tabindex={0}
+            aria-controls={props.listboxId}
+          />
+        )}
         class="clickable clickableTint flex-1 min-w-0 min-h-ui-control-md flex-row items-center gap-3 px-4 py-2 rounded-control text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
         role="combobox"
-        aria-expanded={props.open}
+        aria-expanded={ariaBoolean(props.open)}
         aria-controls={props.listboxId}
         aria-haspopup="listbox"
         aria-label={props['aria-label']}
         disabled={props.disabled}
-        onClick={() => props.onOpen()}
       >
         <Show
           when={props.multiple}
@@ -106,7 +124,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
           </label>
         </Show>
         <ChevronDownIcon size={20} color="icon" />
-      </button>
+      </ComboboxParts.Trigger>
       <Show when={showClear()}>
         <div class="box pr-1">
           <IconButton

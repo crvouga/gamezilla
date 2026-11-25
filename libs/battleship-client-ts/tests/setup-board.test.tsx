@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { expect, test } from 'bun:test';
 import { BattleshipSetupBoard } from '@libs/battleship-client-ts/battleship-setup-board';
 import { acceptFleet } from '@libs/battleship-shared-ts/battleship-fleet';

@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
@@ -96,7 +97,7 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         ref={root}
         class={`${styles['puzzle']} ${own['root']}`}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
-        data-square={ratio() === 1}
+        data-square={String(ratio() === 1)}
         data-board-sizing={props.boardSizing ?? 'fit'}
         {...dataAttrs({
           component: 'PuzzleScreen',

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
@@ -7,7 +7,7 @@ import {
   StepTrack,
   type StepTrackStep,
 } from '@pkgs/ui-root-client-ts/step-track';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 const NAMES = { done: 'Done', current: 'Next', upcoming: 'Locked' };
@@ -62,6 +62,7 @@ describe('StepTrack', () => {
     ));
     const button = mustQuery('[data-component="StepTrack"] button');
     setState('done');
+    flush();
     expect(mustQuery('[data-component="StepTrack"] button')).toBe(button);
     expect(
       mustQuery('[data-component="StepTrack"] li').getAttribute('data-state')

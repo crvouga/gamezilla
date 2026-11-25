@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback, ButtonIntent } from '../button-face';
 import { buttonInteraction, MUTATION_FEEDBACK_ICONS } from '../button-face';
 import type { IconComponent } from '../create-icon/index';
@@ -65,6 +66,12 @@ function FabContent(props: {
     fabLabelForPhase(props.phase, props.labels);
   const showText = (): boolean =>
     props.labels.label !== undefined && text() !== undefined;
+  const IdleIcon = dynamic(() => props.icon);
+  const FeedbackIcon = dynamic(() =>
+    props.phase === 'success'
+      ? MUTATION_FEEDBACK_ICONS.success
+      : MUTATION_FEEDBACK_ICONS.error
+  );
   return (
     <>
       <Switch>
@@ -72,17 +79,10 @@ function FabContent(props: {
           <Spinner decorative color="current" />
         </Match>
         <Match when={props.phase === 'success' || props.phase === 'error'}>
-          <Dynamic
-            component={
-              props.phase === 'success'
-                ? MUTATION_FEEDBACK_ICONS.success
-                : MUTATION_FEEDBACK_ICONS.error
-            }
-            size={FAB_ICON_SIZE}
-          />
+          <FeedbackIcon size={FAB_ICON_SIZE} />
         </Match>
         <Match when={props.phase === 'idle'}>
-          <Dynamic component={props.icon} size={FAB_ICON_SIZE} />
+          <IdleIcon size={FAB_ICON_SIZE} />
         </Match>
       </Switch>
       <Show when={showText()}>
@@ -123,7 +123,7 @@ export function FloatingActionButton(
     })
   );
   return (
-    <button
+    <SdkButton
       class={`clickable clickableTint fab ${FAB_CLASS}`}
       {...dataAttrs({
         component: 'FloatingActionButton',
@@ -136,7 +136,7 @@ export function FloatingActionButton(
       type="button"
       onClick={() => state().handleClick?.()}
       disabled={state().nonInteractive}
-      aria-busy={state().phase === 'loading' ? true : undefined}
+      aria-busy={state().phase === 'loading' ? 'true' : undefined}
       aria-label={props['aria-label']}
     >
       <div class="box relative z-1 flex-row items-center gap-2">
@@ -159,6 +159,6 @@ export function FloatingActionButton(
           }}
         />
       </div>
-    </button>
+    </SdkButton>
   );
 }

@@ -10,7 +10,7 @@ import { openHarness } from './open-friends-harness';
 
 test('a host clears the space name and the space is named after them again', async () => {
   // regression: space-rename-clear-name
-  await using s = await openHarness('space-rename-clear-name');
+  await using s = await openHarness();
   await setupFriendsPair(s, 'alice', 'bob');
   await s.apply(focusActor, 'alice');
   await s.apply(createSpace, 'alice');

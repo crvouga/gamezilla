@@ -12,7 +12,8 @@ import {
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import { createMemo, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createSignal, Show } from 'solid-js';
 import { COLUMN_LABELS, ROW_LABELS } from './battleship-copy';
 
 function regionDescriptions(cells: readonly CellGridCell[]): readonly string[] {

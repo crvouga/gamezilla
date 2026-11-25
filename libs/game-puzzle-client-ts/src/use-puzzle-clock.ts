@@ -9,7 +9,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
 } from 'solid-js';
 
 const TICK_MS = 250;
@@ -30,18 +29,21 @@ export function usePuzzleClock(args: {
 } {
   const clock = useClock();
   const timers = useTimers();
-  const [nowMs, setNowMs] = createSignal(clock.now());
   const running = createMemo(
     () =>
       isPuzzleClockRunning(args.status()) &&
       args.startedAtMs() !== null &&
       args.endedAtMs() === null
   );
-  createEffect(() => {
-    setNowMs(clock.now());
-    if (!running()) return;
+  // The clock is read again whenever the stopwatch starts or stops.
+  const [nowMs, setNowMs] = createSignal((): number => {
+    running();
+    return clock.now();
+  });
+  createEffect(running, (ticking) => {
+    if (!ticking) return;
     const handle = timers.setInterval(() => setNowMs(clock.now()), TICK_MS);
-    onCleanup(() => timers.clearInterval(handle));
+    return () => timers.clearInterval(handle);
   });
   return {
     elapsedMs: createMemo(() =>

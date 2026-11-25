@@ -1,9 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { For, Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { GameSeatSwatch } from '../game-seat-swatch/index';
 import { PlusIcon } from '../icons';
@@ -69,7 +71,7 @@ function DataLine(props: {
   return (
     <span
       class={`text textLabel ${styles['data']}`}
-      data-on={props.on}
+      data-on={String(props.on)}
       aria-hidden="true"
     >
       <Show when={props.data?.swatch}>
@@ -108,24 +110,24 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
     ].join(', ');
   let face: HTMLElement | undefined;
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       aria-label={said()}
       title={said()}
       aria-haspopup="menu"
-      aria-expanded={props.expanded === true}
+      aria-expanded={props.expanded === true ? 'true' : 'false'}
       onClick={(event) => props.onPress(face ?? event.currentTarget)}
+      data-person={props.person.id}
+      data-kind={props.person.kind}
+      data-host={props.person.host === true ? 'true' : undefined}
+      data-status={status()}
       {...dataAttrs(
         spaceDataSet(
           { component: 'SpacePersonCell', ...props.dataSet },
           props.person.testId
         )
       )}
-      data-person={props.person.id}
-      data-kind={props.person.kind}
-      data-host={props.person.host === true ? 'true' : undefined}
-      data-status={status()}
     >
       <span
         class={styles['face']}
@@ -146,13 +148,13 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
       </span>
       <span
         class={`text textCaption ${styles['name']}`}
-        data-quiet={props.person.kind === 'openSeat'}
+        data-quiet={String(props.person.kind === 'openSeat')}
         aria-hidden="true"
       >
         {words.name(props.person)}
       </span>
       <DataLine data={data()} on={turn()} />
-    </button>
+    </SdkButton>
   );
 }
 
@@ -160,7 +162,7 @@ export function SpacePersonCell(props: SpacePersonCellProps): JSX.Element {
 function InviteCell(props: { onInvite: () => void }): JSX.Element {
   const { t } = useLingui();
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       aria-label={t`Invite`}
@@ -179,7 +181,7 @@ function InviteCell(props: { onInvite: () => void }): JSX.Element {
         <Trans>Invite</Trans>
       </span>
       <span class={`text textLabel ${styles['data']}`} />
-    </button>
+    </SdkButton>
   );
 }
 

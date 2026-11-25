@@ -18,9 +18,10 @@
  */
 
 import { partition, restoreNetwork } from '@libs/harness-ts/actions';
-import type { ProductHarness } from '@libs/harness-ts/harness';
+import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
 import { accountIdOf } from '@libs/harness-ts/identity';
 import { partitioned } from '@libs/harness-ts/observations';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 
 import { checkoutPlusAtProvider, subscribeToPlus } from './billing-actions';
@@ -29,6 +30,7 @@ import {
   customerOf,
   driveProvider,
   membershipProviderOf,
+  membershipStripe,
   providerSubscriptions,
 } from './billing-provider-driver';
 
@@ -67,17 +69,28 @@ async function providerView(s: ProductHarness): Promise<ProviderView> {
   } catch {
     return none; // Never checked out: the provider knows no customer yet.
   }
-  const latest = (await providerSubscriptions(customer, provider))[0];
+  const latest = (
+    await providerSubscriptions(customer, membershipStripe(s, provider))
+  )[0];
   return {
     status: latest?.status ?? null,
     cancelAtPeriodEnd: latest?.cancel_at_period_end ?? false,
   };
 }
 
-function secondDeviceOffline(s: ProductHarness): boolean {
-  return partitioned(s).some((pair) =>
-    pair.split('|').includes(BILLING_SECOND_DEVICE)
-  );
+export async function billingDeviceOffline(
+  s: ProductHarness,
+  actor: string
+): Promise<boolean> {
+  if (productExtra(s).ui.kind === 'bun-webview') {
+    return (
+      (await s.actors
+        .get(actor)
+        ?.ui.get(Handles.statusWorkOffline)
+        .isVisible()) === true
+    );
+  }
+  return partitioned(s).some((pair) => pair.split('|').includes(actor));
 }
 
 /** What a tester could do at the provider right now, plus the network toggles. */
@@ -96,9 +109,14 @@ export async function legalStimuli(
     out.push('payment_recovered', 'payment_retries_exhausted', 'cancel_now');
   }
   if (view.status !== null && ENDED.has(view.status)) out.push('resubscribe');
-  if (s.session.caps.has('partition')) {
+  if (
+    s.session.caps.has('partition') ||
+    productExtra(s).ui.kind === 'bun-webview'
+  ) {
     out.push(
-      secondDeviceOffline(s) ? 'second_device_online' : 'second_device_offline'
+      (await billingDeviceOffline(s, BILLING_SECOND_DEVICE))
+        ? 'second_device_online'
+        : 'second_device_offline'
     );
   }
   return out;

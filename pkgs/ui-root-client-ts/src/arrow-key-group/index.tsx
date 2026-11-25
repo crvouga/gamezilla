@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { SpaceToken } from '@pkgs/ui-root-shared-ts/token-names';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { spacingClass } from '../space-classes';
 
 export type ArrowKeyGroupProps = {
@@ -51,7 +51,7 @@ export function ArrowKeyGroup(props: ArrowKeyGroupProps): JSX.Element {
       class={`box min-w-0 rounded-control ${spacingClass({ gap: props.gap ?? 'lg' })}`}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the group itself takes focus so the arrow keys reach it
-      tabIndex={0}
+      tabindex={0}
       aria-label={props['aria-label']}
       onKeyDown={onKeyDown}
       data-testid={props.testId}

@@ -42,8 +42,7 @@ const FRIENDS_SYSTEM = defineProductSystem(
 );
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(FRIENDS_SYSTEM, testId, options);
+  return openSystemHarness(FRIENDS_SYSTEM, options);
 }

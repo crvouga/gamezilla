@@ -1,15 +1,16 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { collectTabbable } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
+import type { JSX } from '@solidjs/web';
+import { PopoverContent, Popover as SdkPopover } from '@ui-sdk/solid/popover';
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
-  type JSX,
-  onCleanup,
+  onSettled,
   Show,
   untrack,
 } from 'solid-js';
@@ -73,9 +74,8 @@ function usePopoverLifecycle(args: {
   anchor: () => HTMLElement | undefined;
   close: (reason: CloseReason) => void;
 }): void {
-  createEffect(() => {
-    const panel = args.panel();
-    if (panel === undefined) return;
+  createEffect(args.panel, (panel) => {
+    if (panel === undefined) return undefined;
     (collectTabbable(panel)[0] ?? panel).focus();
     const onPointerDown = (event: PointerEvent): void => {
       if (contains(panel, event.target)) return;
@@ -84,10 +84,10 @@ function usePopoverLifecycle(args: {
     };
     document.addEventListener('pointerdown', onPointerDown, true);
     const unsubscribe = pushEscapeDismissHandler(() => args.close('escape'));
-    onCleanup(() => {
+    return () => {
       document.removeEventListener('pointerdown', onPointerDown, true);
       unsubscribe();
-    });
+    };
   });
 }
 
@@ -105,11 +105,11 @@ function PopoverPanel(props: {
   const layout = useThemeLayout();
   const [height, setHeight] = createSignal(0);
   let panel: HTMLDivElement | undefined;
-  createEffect(() => {
-    if (panel === undefined) return;
+  onSettled(() => {
+    if (panel === undefined) return undefined;
     setHeight(panel.getBoundingClientRect().height);
     props.ref(panel);
-    onCleanup(() => props.ref(undefined));
+    return () => props.ref(undefined);
   });
   const viewport = () => {
     const host = hostFrame();
@@ -132,7 +132,10 @@ function PopoverPanel(props: {
   return (
     <div class="box absolute inset-0 boxNone">
       <OnColorReset>
-        <div
+        <PopoverContent
+          inline
+          initialFocus="none"
+          finalFocus="none"
           ref={(el) => {
             panel = el;
           }}
@@ -145,12 +148,11 @@ function PopoverPanel(props: {
           id={props.id}
           data-testid={props.testId}
           data-component={componentId('Popover')}
-          role="dialog"
           aria-label={props.label}
-          tabIndex={-1}
+          tabindex={-1}
         >
           {props.children}
-        </div>
+        </PopoverContent>
       </OnColorReset>
     </div>
   );
@@ -195,6 +197,7 @@ function PopoverPanel(props: {
 export function Popover(props: PopoverProps): JSX.Element {
   const id = `popover-${createUniqueId()}`;
   const hostFrame = useSurfaceStackHostFrame();
+  // Its own state starts where the caller's `open` stood at the first render.
   const [own, setOwn] = createSignal(untrack(() => props.open ?? false));
   const [panel, setPanel] = createSignal<HTMLElement | undefined>();
   const [anchor, setAnchor] = createSignal<HTMLElement | undefined>();
@@ -228,7 +231,12 @@ export function Popover(props: PopoverProps): JSX.Element {
     },
   };
   return (
-    <>
+    <SdkPopover
+      open={open()}
+      modal={false}
+      dismissible={false}
+      onOpenChange={(next) => (next ? setOpen(true) : close('trigger'))}
+    >
       <span
         ref={setAnchor}
         class="inline-flex self-start"
@@ -253,6 +261,6 @@ export function Popover(props: PopoverProps): JSX.Element {
           </SurfaceStackSlot>
         )}
       </Show>
-    </>
+    </SdkPopover>
   );
 }

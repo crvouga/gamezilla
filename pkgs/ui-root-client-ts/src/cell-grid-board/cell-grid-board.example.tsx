@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   CellGridBoard,
@@ -6,7 +6,8 @@ import {
   type CellGridTone,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { PairedPanels } from '@pkgs/ui-root-client-ts/paired-panels';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const COLUMNS = ['A', 'B', 'C', 'D', 'E'];

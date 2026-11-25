@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Per-provider visual + copy specs for `SocialSignInButton`.
  *

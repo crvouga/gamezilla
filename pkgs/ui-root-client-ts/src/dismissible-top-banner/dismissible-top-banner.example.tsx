@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { DismissibleBannerTone } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
@@ -6,7 +6,8 @@ import {
   DismissibleBanner,
   DismissibleBannerPortalProvider,
 } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const SCHEMES = ['light', 'dark'] as const;

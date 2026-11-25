@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { MoveStrip } from '@pkgs/ui-root-client-ts/move-strip';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { Code, P } from '@pkgs/ui-root-client-ts/text';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

@@ -19,6 +19,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { paidCheckoutReturnUrl } from '@pkgs/billing-root-shared-ts/checkout-return';
 import {
   BILLING_WAIT_MS,
+  backOnBilling,
   payOnCheckoutPage,
   pressBillingButton,
   STRIPE_PAGE,
@@ -124,17 +125,7 @@ export const subscribeToPlus = scenarioAction({
   act: async (s, actorId: string) => {
     await pressBillingButton(s, actorId, 'subscribe');
     await payOnCheckoutPage(s, actorId);
-    // The paid checkout sends the person back to the billing screen.
-    await pollUntil(
-      s,
-      () =>
-        Promise.resolve(
-          s.harness.browser(actorId).address() === null ? true : null
-        ),
-      { maxMs: WAIT_MS, description: 'back in the app from checkout' }
-    );
-    const ui = await actorUi(s, actorId);
-    await ui.get(Handles.billingScreen).expect.visible({ timeoutMs: WAIT_MS });
+    await backOnBilling(s, actorId);
     if (paymentConfirmationsHeld(s)) return;
     await pollUntil(
       s,

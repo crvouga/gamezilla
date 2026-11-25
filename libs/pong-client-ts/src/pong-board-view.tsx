@@ -6,7 +6,7 @@ import {
   type PongState,
 } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameFrameSeat } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameBoardProps,
@@ -27,10 +27,11 @@ import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
+import type { JSX } from '@solidjs/web';
 import {
   createMemo,
+  createSignal,
   createUniqueId,
-  type JSX,
   Match,
   Show,
   Switch,
@@ -89,6 +90,16 @@ function PaddleSlider(props: {
   testId: string;
 }): JSX.Element {
   const mode = useLayoutMode();
+  // The thumb stands where the paddle is, and where the person last put it
+  // until the paddle next moves: their input is the slider's own value, so
+  // nothing writes the paddle's place back over it meanwhile.
+  const paddle = createMemo(
+    () =>
+      (props.state.paddles[props.side === 'white' ? 'left' : 'right'].y /
+        config.height) *
+      1000
+  );
+  const [thumb, setThumb] = createSignal(() => paddle());
   return (
     <Show
       when={
@@ -106,22 +117,19 @@ function PaddleSlider(props: {
           min={0}
           max={1000}
           step={20}
-          value={
-            (props.state.paddles[props.side === 'white' ? 'left' : 'right'].y /
-              config.height) *
-            1000
-          }
+          value={thumb()}
           disabled={
             controls().paused ||
             controls().stale ||
             props.state.phase === 'completed'
           }
-          onInput={(target) =>
+          onInput={(target) => {
+            setThumb(target);
             controls().onInput(props.side, {
               kind: 'target',
               target: target / 1000,
-            })
-          }
+            });
+          }}
           dataSet={{ testid: `${props.testId}-${props.side}-control` }}
         />
       )}
@@ -322,7 +330,6 @@ function useCourtStatus(props: {
         servingToward: props.state.servingToward,
       };
     },
-    undefined,
     { equals: sameStatusInput }
   );
   const status = createMemo(() =>

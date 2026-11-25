@@ -1,5 +1,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { For } from 'solid-js';
 import styles from './tile-rack.module.css';
 
 export type TileRackTile = {
@@ -36,14 +38,14 @@ export function TileRack(props: TileRackProps): JSX.Element {
     <div class={styles['frame']}>
       <div
         class={styles['rack']}
-        {...dataAttrs({ component: 'TileRack' })}
         role="group"
         aria-label={props.label}
         data-testid={props.testId}
+        {...dataAttrs({ component: 'TileRack' })}
       >
         <For each={props.tiles}>
           {(tile) => (
-            <button
+            <SdkButton
               type="button"
               class={styles['tile']}
               data-testid={
@@ -51,9 +53,9 @@ export function TileRack(props: TileRackProps): JSX.Element {
               }
               data-selected={String(tile.selected)}
               data-placed={String(tile.placed)}
-              aria-pressed={tile.selected}
+              aria-pressed={tile.selected ? 'true' : 'false'}
               aria-label={tile.label}
-              aria-disabled={!tile.enabled}
+              aria-disabled={tile.enabled ? 'false' : 'true'}
               onClick={() => {
                 if (tile.enabled) props.onActivate(tile.id);
               }}
@@ -64,7 +66,7 @@ export function TileRack(props: TileRackProps): JSX.Element {
               <span class={styles['points']} aria-hidden="true">
                 {tile.placed ? '' : tile.points}
               </span>
-            </button>
+            </SdkButton>
           )}
         </For>
       </div>

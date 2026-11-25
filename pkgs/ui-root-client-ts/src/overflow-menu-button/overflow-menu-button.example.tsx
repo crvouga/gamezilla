@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 
@@ -10,7 +10,7 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import type { OverflowMenuAction } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const DEMO_ACTIONS: readonly OverflowMenuAction[] = [

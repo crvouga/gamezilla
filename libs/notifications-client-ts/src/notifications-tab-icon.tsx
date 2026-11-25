@@ -1,8 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { BadgedIcon } from '@pkgs/ui-root-client-ts/badged-icon';
 import type { IconProps } from '@pkgs/ui-root-client-ts/create-icon';
 import { BellIcon } from '@pkgs/ui-root-client-ts/icons';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 import { useNotificationsUnreadCountChrome } from './notifications-unread-count-chrome';
 

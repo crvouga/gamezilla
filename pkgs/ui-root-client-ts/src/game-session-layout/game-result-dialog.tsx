@@ -1,14 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  type Accessor,
-  createEffect,
-  createSignal,
-  type JSX,
-  on,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { Button } from '../button/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import styles from './game-result-dialog.module.css';
@@ -29,11 +24,9 @@ export function createGameResultDialog(
   present: Accessor<boolean>
 ): GameResultDialogState {
   const [dismissed, setDismissed] = createSignal(false);
-  createEffect(
-    on(present, (now) => {
-      if (!now) setDismissed(false);
-    })
-  );
+  createEffect(present, (now) => {
+    if (!now) setDismissed(false);
+  });
   return {
     open: () => present() && !dismissed(),
     close: () => setDismissed(true),

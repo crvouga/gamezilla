@@ -29,9 +29,9 @@
     "@libs/spaces-client-ts": "workspace:*",
     "@libs/spaces-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
-    "@lingui/solid": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/room-root-client-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
@@ -43,6 +43,7 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/uuid-client-ts": "workspace:*",
     "@pkgs/uuid-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

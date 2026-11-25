@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Slots on the profile screen that another bounded context fills.
  *
@@ -12,7 +12,7 @@
  */
 
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type ProfileScreenSlots = {
   /** The friends panel's row to the friends list, with their faces. */

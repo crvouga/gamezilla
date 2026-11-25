@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * A person's own profile says who they are with facts this device knows,
  * beside a small picture: never a hero-sized face echoing the header's.

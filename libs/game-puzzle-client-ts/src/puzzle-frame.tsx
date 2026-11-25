@@ -1,7 +1,7 @@
 import { LINKED_PUZZLE_PARAM } from '@libs/game-puzzle-shared-ts/puzzle-link';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useLocalSearchParams } from '@pkgs/ui-root-client-ts/app-router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createEffect, untrack } from 'solid-js';
 import type { GamePuzzlesClient } from './puzzle-client';
 import { PuzzleFeedProvider } from './puzzle-feed-provider';
@@ -16,11 +16,15 @@ function LinkedPuzzle(): JSX.Element {
   const params = useLocalSearchParams<{ puzzle?: string | undefined }>();
   const isDriver = useIsPuzzleDriver();
   const gameScreen = useGameScreen();
-  createEffect(() => {
-    if (params()[LINKED_PUZZLE_PARAM] === undefined || !isDriver()) return;
-    if (gameScreen.screen() === PUZZLE_SCREEN.puzzle) return;
-    untrack(() => gameScreen.show(PUZZLE_SCREEN.puzzle));
-  });
+  createEffect(
+    () =>
+      params()[LINKED_PUZZLE_PARAM] !== undefined &&
+      isDriver() &&
+      gameScreen.screen() !== PUZZLE_SCREEN.puzzle,
+    (elsewhere) => {
+      if (elsewhere) untrack(() => gameScreen.show(PUZZLE_SCREEN.puzzle));
+    }
+  );
   return null;
 }
 

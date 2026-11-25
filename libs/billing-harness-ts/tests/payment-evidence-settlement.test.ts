@@ -121,7 +121,7 @@ test(
   'a captured payment waits for its own durable evidence after delivery recovers',
   async () => {
     // regression: membership-payment-evidence-settlement
-    await using s = await openHarness('delayed-payment-evidence');
+    await using s = await openHarness();
     const accountId = await payer(s);
     await s.apply(makeMembershipPayment, accountId);
     expect(
@@ -159,7 +159,7 @@ test(
   'a real payment first settled by the cancellation consumer retains its expiry and telemetry',
   async () => {
     // regression: expired-payment-evidence-replay
-    await using s = await openHarness('captured-consumer-payment-evidence');
+    await using s = await openHarness();
     const accountId = await payer(s);
     await s.apply(proveAccount, 'alice');
     await s.apply(holdPaymentConfirmations);
@@ -224,7 +224,7 @@ test(
   'replayed real charge callbacks acknowledge erased payment evidence without restoring it',
   async () => {
     // regression: expired-payment-evidence-replay
-    await using s = await openHarness('expired-payment-evidence-replay');
+    await using s = await openHarness();
     const accountId = await payer(s);
     await s.apply(makeMembershipPayment, accountId);
     const capture: CapturedPayment = {

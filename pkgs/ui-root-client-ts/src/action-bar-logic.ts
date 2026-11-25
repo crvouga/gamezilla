@@ -4,7 +4,7 @@
  * actions. No Solid imports at runtime (types only) so it unit-tests bare.
  */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { IconComponent } from './create-icon/index';
 
 export type ActionBarAlign = 'start' | 'end';

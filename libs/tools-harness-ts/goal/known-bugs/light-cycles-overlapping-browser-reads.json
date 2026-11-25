@@ -1,0 +1,4 @@
+{
+  "summary": "Reading the Light Cycles round and connection attributes concurrently sent multiple evaluate calls to the same native WebView and failed the riding scenarios.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-countdown-reading.test.ts"
+}

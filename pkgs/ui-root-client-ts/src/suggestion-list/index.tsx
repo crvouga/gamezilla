@@ -1,7 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createUniqueId, For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 
 export type SuggestionItem = {
@@ -31,14 +33,16 @@ function SuggestionRow(props: {
   onHover: () => void;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       type="button"
       role="option"
       id={props.id}
-      tabIndex={-1}
-      aria-selected={props.highlighted}
-      class="clickable clickableTint flex-row items-center gap-ui-sm px-ui-sm py-ui-xs text-start"
-      classList={{ 'bg-tint-subtle': props.highlighted }}
+      tabindex={-1}
+      aria-selected={props.highlighted ? 'true' : 'false'}
+      class={[
+        'clickable clickableTint flex-row items-center gap-ui-sm px-ui-sm py-ui-xs text-start',
+        { 'bg-tint-subtle': props.highlighted },
+      ]}
       onPointerDown={(event) => event.preventDefault()}
       onPointerEnter={() => props.onHover()}
       onClick={() => props.onPick()}
@@ -49,7 +53,7 @@ function SuggestionRow(props: {
       <Show when={props.item.detail}>
         {(detail) => <Badge label={detail()} intent="neutral" size="sm" />}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 

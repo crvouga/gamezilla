@@ -9,13 +9,7 @@ import {
   useSyncEngineInstance,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  onCleanup,
-  untrack,
-} from 'solid-js';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import { usePuzzleSourceUpload } from './use-puzzle-source-upload';
 import { usePuzzleStop } from './use-puzzle-stop';
 import { useSavedPuzzleSource } from './use-saved-puzzle-source';
@@ -47,8 +41,8 @@ export function usePuzzleImport() {
     () => decision().allowed && connection.status().online
   );
   const sourceUpload = usePuzzleSourceUpload(source.setSource);
-  createEffect(() => {
-    if (source.source() !== null) sourceUpload.setFile(null);
+  createEffect(source.source, (saved) => {
+    if (saved !== null) sourceUpload.setFile(null);
   });
   const query = createQuery(
     () =>
@@ -92,20 +86,20 @@ function useImportSubscription(allowed: () => boolean) {
   const sync = useSyncEngineInstance();
   const [ready, setReady] = createSignal(false);
   const enabled = createMemo(allowed);
-  createEffect(() => {
+  createEffect(enabled, (on) => {
     setReady(false);
-    if (!enabled()) return;
-    const held = untrack(() =>
-      sync.subscribeQueries([{ name: 'chessPuzzleImport', params: {} }])
-    );
+    if (!on) return;
+    const held = sync.subscribeQueries([
+      { name: 'chessPuzzleImport', params: {} },
+    ]);
     let alive = true;
     void held.ready.then((ok) => {
       if (alive) setReady(ok);
     });
-    onCleanup(() => {
+    return () => {
       alive = false;
       held.unsubscribe();
-    });
+    };
   });
   return ready;
 }

@@ -1,7 +1,7 @@
 import type { FriendProfile } from '@libs/friends-shared-ts/friends-types';
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type FriendProfileAvatarProps = {
   readonly profile: FriendProfile;

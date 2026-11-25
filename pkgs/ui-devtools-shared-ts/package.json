@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

@@ -1,11 +1,12 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import type { Kv } from '@pkgs/kv-root-shared-ts/interface';
 import { HttpLlmProvider } from '@pkgs/llm-root-shared-ts/http-llm-provider';
 import { LlmProviderWithKvCache } from '@pkgs/llm-root-shared-ts/llm-cache';
 import type { LlmProvider } from '@pkgs/llm-root-shared-ts/llm-provider';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import { type JSX, type ParentProps, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type ParentProps, untrack } from 'solid-js';
 
 const LlmContext = defineContext<LlmProvider>('Llm');
 

@@ -2,7 +2,7 @@ import type {
   NumberlinkDefinition,
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 
 /** One stable recovery control, regardless of how many paths are drawn. */

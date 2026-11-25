@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { Form } from '@pkgs/ui-root-client-ts/form';
@@ -7,7 +7,7 @@ import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { Textarea } from '@pkgs/ui-root-client-ts/textarea';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 describe('Form', () => {
@@ -84,6 +84,7 @@ describe('FormField', () => {
     expect(area).not.toHaveAttribute('aria-invalid');
     expect(screen.queryByRole('alert')).toBeNull();
     setError('Write less.');
+    flush();
     expect(area).toHaveAttribute('aria-invalid', 'true');
     expect(area.className).toMatch(/\binputError\b/);
     expect(area).toHaveAccessibleDescription('Optional. Write less.');
@@ -156,6 +157,7 @@ describe('Textarea', () => {
     const area = screen.getByRole('textbox', { name: 'Grow' });
     expect(area.className).toMatch(/\bresize-none\b/);
     setText('a\nb\nc');
+    flush();
     expect(area.style.height).toMatch(/px$/);
   });
 });

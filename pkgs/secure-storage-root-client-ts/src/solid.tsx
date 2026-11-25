@@ -1,10 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { SecureStorage } from '@pkgs/secure-storage-root-shared-ts/interface';
 import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
 import { createSubscriptionSignal } from '@pkgs/solid-context-client-ts/subscription-signal';
-import { type Accessor, type JSX, onCleanup, type ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, onCleanup, type ParentProps } from 'solid-js';
 
 const SecureStorageContext = defineContext<SecureStorage>('SecureStorage');
 

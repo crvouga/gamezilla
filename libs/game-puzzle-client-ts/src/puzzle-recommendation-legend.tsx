@@ -1,13 +1,14 @@
 import type { PuzzleRecommendationEntry } from '@libs/game-puzzle-shared-ts/recommendations';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { StatusDot } from '@pkgs/ui-root-client-ts/status-dot';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, For, Show } from 'solid-js';
 
 /** A suggestion's chip label: the cells it names, e.g. `e2→e4`. */
 function suggestionLabel(entry: PuzzleRecommendationEntry): string {

@@ -14,7 +14,7 @@ import {
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
-import type { ComponentProps, JSX } from 'solid-js';
+import type { ComponentProps, JSX } from '@solidjs/web';
 
 const UCI = /^([a-h][1-8])([a-h][1-8])[qrbn]?$/;
 

@@ -4,7 +4,7 @@ import type { FrameStatus } from '@libs/game-session-client-ts/game-frame-view-t
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { screen } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 test('an empty arena status preserves its announcement without painting a pill', () => {
   // regression: arena-empty-status-pill
@@ -28,6 +28,7 @@ test('an empty arena status preserves its announcement without painting a pill',
   expect(words()).toHaveTextContent('Left: Avery. Right: Jordan.');
   expect(words().closest('[data-spoken-only="true"]')).not.toBeNull();
   setSending(true);
+  flush();
   expect(words()).toHaveTextContent('Sending choice…');
   expect(words().closest('[data-spoken-only="true"]')).toBeNull();
 });

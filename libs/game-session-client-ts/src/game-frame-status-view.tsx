@@ -1,5 +1,5 @@
 import { plural, t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameFact, GameFacts } from '@pkgs/ui-root-client-ts/game-facts';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
@@ -9,7 +9,8 @@ import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Match, Show, Switch } from 'solid-js';
 import { FramePersonName } from './game-frame-people';
 import type {
   FrameConnection,

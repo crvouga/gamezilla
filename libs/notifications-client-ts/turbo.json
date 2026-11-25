@@ -17,6 +17,7 @@
         "@pkgs/clock-client-ts#src",
         "@pkgs/http-client-client-ts#src",
         "@pkgs/http-client-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/solid-context-client-ts#src",
         "@pkgs/sounds-client-ts#src",
         "@pkgs/sounds-shared-ts#src",

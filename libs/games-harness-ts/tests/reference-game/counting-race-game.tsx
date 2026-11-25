@@ -58,7 +58,9 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { createEffect, For, type JSX, on } from 'solid-js';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
+import type { JSX } from '@solidjs/web';
+import { createEffect, For, untrack } from 'solid-js';
 
 /**
  * Seven, the length of the victory every custom-game model follows
@@ -234,17 +236,17 @@ function RaceButtons(props: {
   return (
     <For each={ACTIONS}>
       {(action) => (
-        <button
+        <Pressable
           type="button"
-          data-testid={`${props.testId}-${action}`}
+          testId={`${props.testId}-${action}`}
           disabled={
             !props.interactive ||
             (props.refuses && !legal(props.position).includes(action))
           }
-          onClick={() => props.onAction(action)}
+          onPress={() => props.onAction(action)}
         >
           Count {COUNT_WORDS[action]} from {parse(props.position)?.count}
-        </button>
+        </Pressable>
       )}
     </For>
   );
@@ -267,14 +269,14 @@ function WaitingSideButtons(props: {
   return (
     <For each={['advance', 'leap'] as const}>
       {(action) => (
-        <button
+        <Pressable
           type="button"
-          data-testid={`${props.testId}-${waiting() ?? ''}-${action}`}
+          testId={`${props.testId}-${waiting() ?? ''}-${action}`}
           disabled={!props.interactive || waiting() === null}
-          onClick={() => props.onAction(`${waiting() ?? ''}-${action}`)}
+          onPress={() => props.onAction(`${waiting() ?? ''}-${action}`)}
         >
           {waiting()} counts {COUNT_WORDS[action]}
-        </button>
+        </Pressable>
       )}
     </For>
   );
@@ -321,15 +323,14 @@ function useCountSounds(props: PuzzleBoardProps): void {
     finish: createAudioPlayer(COUNTING_RACE_SOUNDS.finish),
   });
   createEffect(
-    on(
-      () => props.position,
-      (position, before) => {
-        if (!props.sound || position === before) return;
-        handles.count.play();
-        if (parse(position)?.count === FINISH) handles.finish.play();
-      },
-      { defer: true }
-    )
+    () => props.position,
+    (position, before) => {
+      // Read when the position changes: turning sounds on replays nothing.
+      if (!untrack(() => props.sound) || position === before) return;
+      handles.count.play();
+      if (parse(position)?.count === FINISH) handles.finish.play();
+    },
+    { defer: true }
   );
 }
 

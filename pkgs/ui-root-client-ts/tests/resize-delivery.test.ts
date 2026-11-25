@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { attachElement } from '@pkgs/ui-root-client-ts/element-handle';
 import { createMeasure } from '@pkgs/ui-root-client-ts/measure';
-import { createRoot } from 'solid-js';
+import { createRoot, flush } from 'solid-js';
 
 // regression: resize-observer-synchronous-layout-write
 test('measurement publishes outside resize delivery and cancels a pending update on disposal', () => {
@@ -35,10 +35,10 @@ test('measurement publishes outside resize delivery and cancels a pending update
     element.getBoundingClientRect = () => new DOMRect(0, 0, width, 80);
     const measure = createRoot((stop) => {
       dispose = stop;
-      const result = createMeasure();
-      attachElement(result.target, element);
-      return result;
+      return createMeasure();
     });
+    attachElement(measure.target, element);
+    flush();
     expect(measure.width()).toBe(100);
     width = 240;
     deliver([], {} as ResizeObserver);
@@ -50,6 +50,7 @@ test('measurement publishes outside resize delivery and cancels a pending update
       frames.delete(id);
       callback(0);
     }
+    flush();
     expect(measure.width()).toBe(320);
     deliver([], {} as ResizeObserver);
     dispose();

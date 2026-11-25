@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type {
   LogEntry,
@@ -7,11 +7,11 @@ import type {
   RoomEvent,
   RoomState,
 } from '@pkgs/room-root-shared-ts/types';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
   createMemo,
-  type JSX,
   type ParentProps,
   useContext,
 } from 'solid-js';
@@ -54,9 +54,7 @@ export function RoomClientsProvider(
     () => props.rooms ?? EMPTY_REGISTRY
   );
   return (
-    <RoomClientsContext.Provider value={registry}>
-      {props.children}
-    </RoomClientsContext.Provider>
+    <RoomClientsContext value={registry}>{props.children}</RoomClientsContext>
   );
 }
 

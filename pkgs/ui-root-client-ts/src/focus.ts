@@ -18,6 +18,7 @@
 
 import type { ElementHandle } from './element-handle';
 import { createElementHandle } from './element-handle';
+import { dropFocus, moveFocus } from './move-focus';
 
 export type FocusTarget = ElementHandle<'focus'>;
 
@@ -42,13 +43,13 @@ export function createFocusTarget(): FocusHandle {
   return {
     target: source.handle,
     focus(options) {
-      const element = source.element();
+      const element = source.current();
       if (element === undefined) return false;
-      element.focus({ preventScroll: options?.preventScroll === true });
+      moveFocus(element, { preventScroll: options?.preventScroll === true });
       return true;
     },
     blur() {
-      source.element()?.blur();
+      dropFocus(source.current());
     },
     mounted: () => source.element() !== undefined,
   };

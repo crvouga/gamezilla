@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, For, Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { Badge } from '../badge/index';
 import { formatOrdinal } from '../game-ordinal';
@@ -107,12 +108,16 @@ function StandingRow(props: {
       data-testid={props.row.testId}
     >
       <div
-        class="box flex-row items-center gap-3 px-4 py-2 min-h-14"
-        classList={{ 'bg-tint-subtle': you() }}
+        class={[
+          'box flex-row items-center gap-3 px-4 py-2 min-h-14',
+          { 'bg-tint-subtle': you() },
+        ]}
       >
         <span
-          class="text textLabel textNumeral shrink-0 min-w-10"
-          classList={{ 'text-on-primary-soft': you() }}
+          class={[
+            'text textLabel textNumeral shrink-0 min-w-10',
+            { 'text-on-primary-soft': you() },
+          ]}
         >
           {props.row.ordinal ?? formatOrdinal(props.row.place, i18n().locale)}
         </span>
@@ -125,8 +130,10 @@ function StandingRow(props: {
           </Show>
         </span>
         <span
-          class="text textLabel flex-1 min-w-0 truncate"
-          classList={{ 'text-on-primary-soft': you() }}
+          class={[
+            'text textLabel flex-1 min-w-0 truncate',
+            { 'text-on-primary-soft': you() },
+          ]}
         >
           {props.row.name}
         </span>

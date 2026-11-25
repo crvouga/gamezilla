@@ -1,6 +1,7 @@
 import type { AppPolicyKey } from '@libs/permissions-shared-ts/permission-catalog';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { GatedView } from './gated-view';
 import { usePermissions } from './use-permissions';
 

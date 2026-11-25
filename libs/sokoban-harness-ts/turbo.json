@@ -5,9 +5,6 @@
     "test:spec:0": {
       "inputs": ["$TURBO_EXTENDS$"]
     },
-    "verify:models": {
-      "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/specs/sokoban/*.qnt"]
-    },
     "src": {
       "dependsOn": [
         "@libs/game-puzzle-harness-ts#src",

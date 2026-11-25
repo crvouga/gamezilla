@@ -6,7 +6,7 @@ import type {
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { sameCell } from '@libs/numberlink-shared-ts/numberlink-types';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { PathGridTraceCancellation } from '@pkgs/ui-root-client-ts/path-grid-board';
 import {
   type Accessor,
@@ -127,28 +127,45 @@ function createDrawingFeedback(
 
 /** A new puzzle, saved state or availability abandons any drawing in progress. */
 function cancelOnNewInput(ports: DrawingPorts, cancel: () => void): void {
-  createEffect(() => {
-    void ports.definition();
-    void ports.state();
-    void ports.disabled();
-    cancel();
-  });
+  createEffect(
+    () => [ports.definition(), ports.state(), ports.disabled()] as const,
+    () => {
+      cancel();
+    }
+  );
+}
+
+/**
+ * The drawing, shown as a signal and read as last set: several steps of one
+ * gesture can land in the same event, before the signal shows the first.
+ */
+function createGesture() {
+  const [shown, setShown] = createSignal<NumberlinkAction | null>(null);
+  let last: NumberlinkAction | null = null;
+  return {
+    shown,
+    last: () => last,
+    set: (next: NumberlinkAction | null): void => {
+      last = next;
+      setShown(next);
+    },
+  };
 }
 
 /** A drawing is provisional until it finishes; only the game rules can accept its cells. */
 export function createNumberlinkDrawing(ports: DrawingPorts) {
   const { t } = useLingui();
-  const [gesture, setGesture] = createSignal<NumberlinkAction | null>(null);
+  const drawing = createGesture();
   const [error, setError] = createSignal<string | null>(null);
   let refused = false;
   const cell = (index: number): Cell => cellAt(index, ports.definition().width);
   const cancel = (): void => {
-    setGesture(null);
+    drawing.set(null);
     refused = false;
   };
-  const status = createDrawingFeedback(gesture, cancel);
+  const status = createDrawingFeedback(drawing.last, cancel);
   cancelOnNewInput(ports, cancel);
-  const preview = createMemo(() => previewDrawing(ports, gesture()));
+  const preview = createMemo(() => previewDrawing(ports, drawing.shown()));
   const begin = (index: number): void => {
     if (ports.disabled()) return;
     const action = initialDrawing(ports, cell(index));
@@ -159,10 +176,10 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     refused = false;
     setError(null);
     status.clear();
-    setGesture(action);
+    drawing.set(action);
   };
   const extend = (index: number): void => {
-    const current = gesture();
+    const current = drawing.last();
     if (current === null || ports.disabled()) return;
     const at = cell(index);
     const visited = current.cells.findIndex((entry) => sameCell(entry, at));
@@ -180,16 +197,16 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     setError(
       next.valid ? null : (next.issues[0]?.message ?? t`Draw the path again.`)
     );
-    if (next.valid) setGesture(action);
+    if (next.valid) drawing.set(action);
   };
   const finish = (): void => {
-    const action = gesture();
+    const action = drawing.last();
     if (action !== null && !refused && !ports.disabled())
       ports.onAction(action);
     cancel();
   };
   const activate = (index: number): void => {
-    if (gesture() === null) begin(index);
+    if (drawing.last() === null) begin(index);
     else {
       extend(index);
       finish();
@@ -201,7 +218,7 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     clearError: () => setError(null),
   });
   return {
-    gesture,
+    gesture: drawing.shown,
     error,
     feedback: status.feedback,
     preview,

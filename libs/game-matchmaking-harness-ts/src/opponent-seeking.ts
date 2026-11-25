@@ -126,6 +126,9 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
   return [
     ...FINDING_SURFACES,
     ...NOWHERE_TO_FIND,
+    Handles.spaceLoading,
+    Handles.spaceJoinPrompt,
+    Handles.spaceJoin,
     CUSTOM_GAME_CONTENT,
     Handles.gameChoice('multiplayer'),
     Handles.gameMenu(gameId),
@@ -146,10 +149,15 @@ export function findingAnOpponentStep(
   gameId: string,
   whereverItCan: boolean
 ): 'arrived' | 'nowhere' | string | null {
+  if (visible.has(Handles.spaceLoading)) return null;
   if (FINDING_SURFACES.some((surface) => visible.has(surface)))
     return 'arrived';
   if (NOWHERE_TO_FIND.some((surface) => visible.has(surface)))
     return whereverItCan ? 'arrived' : 'nowhere';
+  // A second device enters through the join preview. Its Back leaves the
+  // space entirely, including while the host's session is reopening.
+  if (visible.has(Handles.spaceJoinPrompt))
+    return visible.has(Handles.spaceJoin) ? Handles.spaceJoin : null;
   // The space stays on a custom game under way: its board is as far as it goes.
   if (visible.has(CUSTOM_GAME_CONTENT) && !visible.has(Handles.navBack))
     return 'arrived';
@@ -194,7 +202,7 @@ async function reachFindingAnOpponent(
         visible.has(MULTIPLAYER_SCREEN) &&
         (await ui.get(MULTIPLAYER_SCREEN).attribute('data-stage')) === 'loading'
       )
-        visible.delete(MULTIPLAYER_SCREEN);
+        return null;
       const step = findingAnOpponentStep(visible, family, whereverItCan);
       if (step === 'arrived') return true;
       if (step === 'nowhere')
@@ -216,6 +224,7 @@ async function reachFindingAnOpponent(
       maxMs: 15_000,
       stepMs: 1,
       description: `${actor} opens finding an opponent`,
+      actor,
     }
   );
 }

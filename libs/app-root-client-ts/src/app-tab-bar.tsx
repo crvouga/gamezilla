@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Compact bottom tab bar over whichever tabs the composed subs contributed,
  * in their declared order. Each tab hands its spec to `onSelect`; the one
  * matching `pathname` is the current page.
  */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { AppTabBarView } from './app-tab-bar-view';
 import type { AppTabSpec } from './app-tabs';
 import { useAppTabs } from './app-tabs';

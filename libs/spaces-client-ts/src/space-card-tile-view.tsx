@@ -4,8 +4,8 @@ import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
-import { Index, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { For, Show } from 'solid-js';
 import {
   SpaceCardActionLabel,
   type SpaceCardData,
@@ -35,11 +35,11 @@ function SpaceTileGuests(props: {
           maxVisible={GUEST_AVATAR_MAX_VISIBLE}
           ringColor="surface"
         >
-          <Index each={spaceCardOthers(props.space)}>
+          <For keyed={false} each={spaceCardOthers(props.space)}>
             {(guest) => (
               <SpacePersonAvatar person={guest()} size={GUEST_AVATAR_SIZE} />
             )}
-          </Index>
+          </For>
         </AvatarGroup>
       </Show>
       <StackVertical grow shrink>

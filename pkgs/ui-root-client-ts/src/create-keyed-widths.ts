@@ -7,14 +7,15 @@ import { createFrameResizeObserver } from './observe-element-resize';
  * is reported as unknown.
  */
 
-import { createSignal, onCleanup, onMount } from 'solid-js';
+import { createSignal, onCleanup, onSettled } from 'solid-js';
 
 export type KeyedWidths = {
   /**
-   * Track `el` under `key` until the calling owner is cleaned up. Call it from
-   * a `ref` inside a component, so the first read waits for the mount.
+   * A `ref` callback that tracks its element under `key` until the calling
+   * owner is cleaned up. Call it in a component body or a list row
+   * (`ref={widths.track(key)}`): the first read waits for the mount.
    */
-  track: (key: string, el: HTMLElement) => void;
+  track: (key: string) => (el: HTMLElement) => void;
   /** Last measured width for `key`, or `undefined` when never measured. */
   width: (key: string) => number | undefined;
 };
@@ -39,20 +40,28 @@ export function createKeyedWidths(): KeyedWidths {
   let observer: ReturnType<typeof createFrameResizeObserver>;
   onCleanup(() => observer?.disconnect());
   return {
-    track: (key, el) => {
-      keys.set(el, key);
-      const view = el.ownerDocument.defaultView;
-      if (observer === undefined && view !== null) {
-        observer = createFrameResizeObserver(view, (entries) => {
-          for (const entry of entries) record(entry.target);
-        });
-      }
-      observer?.observe(el);
-      onMount(() => record(el));
-      onCleanup(() => {
-        observer?.unobserve(el);
-        keys.delete(el);
+    track: (key) => {
+      let tracked: HTMLElement | undefined;
+      onSettled(() => {
+        const el = tracked;
+        if (el === undefined) return undefined;
+        keys.set(el, key);
+        const view = el.ownerDocument.defaultView;
+        if (observer === undefined && view !== null) {
+          observer = createFrameResizeObserver(view, (entries) => {
+            for (const entry of entries) record(entry.target);
+          });
+        }
+        observer?.observe(el);
+        record(el);
+        return () => {
+          observer?.unobserve(el);
+          keys.delete(el);
+        };
       });
+      return (el) => {
+        tracked = el;
+      };
     },
     width: (key) => widths().get(key),
   };

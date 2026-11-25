@@ -15,7 +15,7 @@ import {
 import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export const MATCH: MultiplayerGame = {
   id: 'match',

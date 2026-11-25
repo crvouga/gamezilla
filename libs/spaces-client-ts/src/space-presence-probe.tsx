@@ -1,5 +1,5 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import { SpacePresenceMarkers } from './space-presence-markers';
 import { useOpenSpacePresence } from './use-open-space-presence';
@@ -18,7 +18,7 @@ export function SpacePresenceProbe(): JSX.Element {
 function OpenSpacePresenceMarkers(props: {
   readonly spaceId: string;
 }): JSX.Element {
-  const presence = useOpenSpacePresence(props.spaceId);
+  const presence = useOpenSpacePresence(() => props.spaceId);
   const myId = useMyId();
   return (
     <SpacePresenceMarkers

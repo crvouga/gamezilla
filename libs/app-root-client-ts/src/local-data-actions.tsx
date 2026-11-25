@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { OPFS_WIPE_CHANNEL } from '@libs/app-env-client-ts/open-main-sql-client';
 import { SyncLocalDataActionsContext } from '@libs/auth-client-ts/sync-local-data-actions-context';
@@ -10,7 +10,7 @@ import { useSecureStorageStore } from '@pkgs/secure-storage-root-client-ts/solid
 import type { SecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
 import { runWebOpfsRecoveryAndReload } from '@pkgs/sql-client-sqlite-web-client-ts/recover-in-process';
 import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SyncLocalDataDeps = {
   readonly store: SecureStorageStore;
@@ -55,8 +55,8 @@ export function SyncLocalDataActions(props: {
   };
 
   return (
-    <SyncLocalDataActionsContext.Provider value={actions}>
+    <SyncLocalDataActionsContext value={actions}>
       {props.children}
-    </SyncLocalDataActionsContext.Provider>
+    </SyncLocalDataActionsContext>
   );
 }

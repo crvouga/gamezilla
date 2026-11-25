@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Friends' session tree: the friend-request notification source, the
  * decision-modal state, and the friend bits that fill profile's and search's
@@ -14,7 +14,8 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { ProfileScreenSlotsProvider } from '@libs/profile-client-ts/profile-screen-slots';
 import { SearchResultSlotsProvider } from '@libs/search-client-ts/search-result-slots';
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
-import { createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 
 import { FriendRequestDecisionProvider } from './friend-request-decision-state';
 import { FriendRequestsAside } from './friend-requests-aside';

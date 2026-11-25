@@ -1,9 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createMemo, For, Show } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 import { splitBreadcrumbTrail } from '../screen-base-logic';
 import type { ScreenBaseBreadcrumb } from '../screen-base-types';
@@ -32,7 +34,7 @@ function AncestorCrumb(props: {
   return (
     <Show when={props.onClick} fallback={text()}>
       {(onClick) => (
-        <button
+        <SdkButton
           class="clickable clickableTint rounded-sm px-1 -mx-1 min-h-6 justify-center"
           data-component="ScreenBreadcrumbLink"
           data-testid={props.parent ? 'nav-back' : undefined}
@@ -41,7 +43,7 @@ function AncestorCrumb(props: {
           onClick={() => onClick()()}
         >
           {text()}
-        </button>
+        </SdkButton>
       )}
     </Show>
   );

@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { spaced } from '../layout-classes';
 
 export type TableAlign = 'start' | 'center' | 'end';
@@ -58,14 +58,6 @@ export function rowTestId(
   key: string
 ): string | undefined {
   return testId === undefined ? undefined : `${testId}-${key}`;
-}
-
-/** Enter and Space activate a pressable row, like a button. */
-export function onRowKeyDown(event: KeyboardEvent, press: () => void): void {
-  if (event.key !== 'Enter' && event.key !== ' ') return;
-  if (event.target !== event.currentTarget) return;
-  event.preventDefault();
-  press();
 }
 
 /** The order after choosing `key`: the same column flips, another starts ascending. */

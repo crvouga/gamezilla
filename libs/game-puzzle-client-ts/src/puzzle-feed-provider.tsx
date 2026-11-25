@@ -1,4 +1,5 @@
-import type { JSX, ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { ParentProps } from 'solid-js';
 
 import { PuzzleFeedContext } from './puzzle-feed-context';
 import { createPuzzleFeedConfigState } from './use-puzzle-feed-config';

@@ -1,9 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const SIZES: readonly ModalSize[] = ['small', 'medium', 'large', 'fullWidth'];

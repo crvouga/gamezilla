@@ -1,5 +1,5 @@
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import type { ComponentDataSet } from './component-id';
 import type { VirtualListViewport } from './virtual-list-types';
 

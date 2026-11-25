@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Tells the person, where the change lives, about a change that showed at
  * once on this device and was then refused, so the device undid it (a
@@ -19,14 +19,8 @@ import { useUnheardRefusals } from '@pkgs/sync-engine-client-ts/use-unheard-refu
 import type { WriteRefusal } from '@pkgs/sync-engine-client-ts/write-outcome-reads';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import {
-  type Accessor,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, createSignal, For, Show } from 'solid-js';
 import {
   isRefusedChangeToldInContext,
   useRefusedChangeCopy,

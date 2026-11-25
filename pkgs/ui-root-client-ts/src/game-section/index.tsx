@@ -1,6 +1,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import sizing from './game-actions.module.css';
@@ -44,8 +45,8 @@ export function GameSection(props: {
     <section
       class={`${styles['section']} rounded-card border border-border bg-surface`}
       aria-labelledby={id}
-      data-fill={props.fill === true}
-      data-section-media={media.present()}
+      data-fill={String(props.fill === true)}
+      data-section-media={String(media.present())}
       {...dataAttrs({ component: 'GameSection', ...props.dataSet })}
     >
       <div class="box gap-1" data-section-part="head">

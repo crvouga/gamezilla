@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Publishing reads as one sequence of steps with one next action. */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -16,7 +16,8 @@ import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent, screen, waitFor } from '@solidjs/testing-library';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
@@ -380,6 +381,7 @@ test('pending becomes an edition then an edited draft without duplicate publicat
     screen.queryByText('Ready: publish to share it with everyone who plays.')
   ).toBeNull();
   setState({ kind: 'edition', current: true });
+  flush();
   expect(screen.getByTestId('content-publish')).toHaveTextContent(
     'Publish again'
   );
@@ -390,6 +392,7 @@ test('pending becomes an edition then an edited draft without duplicate publicat
     'Published'
   );
   setState({ kind: 'draft' });
+  flush();
   expect(screen.getByTestId('content-publish')).toHaveTextContent('Publish');
   expect(screen.getAllByTestId('content-view-publication')).toHaveLength(1);
 });
@@ -432,6 +435,7 @@ test('receipt hydration is explicit and does not announce optimistic publication
     'Checking publication'
   );
   setState({ kind: 'pending', connection: 'offline' });
+  flush();
   expect(screen.getByTestId('content-publish')).toBeEnabled();
   expect(screen.getByTestId('content-publication-status')).toHaveTextContent(
     'Waiting for connection'

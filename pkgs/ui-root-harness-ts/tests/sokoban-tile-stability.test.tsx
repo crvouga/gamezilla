@@ -5,7 +5,7 @@ import {
   type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 const INITIAL: readonly TileBoardTile[] = [
   { terrain: 'open', marked: false, label: 'A1: floor, worker' },
@@ -34,6 +34,7 @@ test('moving the worker updates tile descriptions without replacing the grid', (
     { terrain: 'open', marked: false, label: 'A1: floor' },
     { terrain: 'open', marked: true, label: 'B1: goal, worker' },
   ]);
+  flush();
   expect(view.getByTestId('stable-tile-0')).toBe(before[0]);
   expect(view.getByTestId('stable-tile-1')).toBe(before[1]);
   expect(before[0].getAttribute('aria-label')).toBe('A1: floor');

@@ -5,7 +5,7 @@ import {
   PUBLISHED_PAGE_START,
 } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import type { ContentDocument } from '@libs/game-puzzle-shared-ts/content-types';
-import { createRoot } from 'solid-js';
+import { createRoot, flush } from 'solid-js';
 
 const STAMP = Date.parse('2026-11-01T00:00:00.000Z');
 
@@ -26,15 +26,19 @@ function publication(index: number): ContentDocument {
 
 test('Browse asks for its next page after the oldest row of the newest-first window', () => {
   // regression: numberlink-discovery-pages-through-stale-packs
-  createRoot((dispose) => {
-    const rows = Array.from({ length: CONTENT_PAGE_SIZE + 8 }, (_, index) =>
-      publication(index)
-    ).toReversed();
-    const page = createPublishedPage(() => rows);
+  const rows = Array.from({ length: CONTENT_PAGE_SIZE + 8 }, (_, index) =>
+    publication(index)
+  ).toReversed();
+  const { page, dispose } = createRoot((dispose) => ({
+    page: createPublishedPage(() => rows),
+    dispose,
+  }));
+  try {
     expect(page.cursors()).toEqual([PUBLISHED_PAGE_START]);
     expect(page.hasMore()).toBe(true);
     page.more();
     page.more();
+    flush();
     const edge = publication(8);
     expect(page.cursors()).toEqual([
       PUBLISHED_PAGE_START,
@@ -42,6 +46,7 @@ test('Browse asks for its next page after the oldest row of the newest-first win
     ]);
     expect(page.limit()).toBe(CONTENT_PAGE_SIZE * 2);
     expect(page.hasMore()).toBe(false);
+  } finally {
     dispose();
-  });
+  }
 });

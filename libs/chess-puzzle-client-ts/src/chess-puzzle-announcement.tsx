@@ -15,7 +15,8 @@ import type { SolveStatus } from '@libs/game-puzzle-shared-ts/solve-status';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { t } from '@lingui/core/macro';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type Accessor, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo } from 'solid-js';
 
 function sideWord(side: PuzzleSide): string {
   return side === 'white' ? t`White` : t`Black`;

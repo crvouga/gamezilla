@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Email sign-in exists for Synthetic Users alone: a person is never offered it. */
 
 import { afterEach, describe, expect, test } from 'bun:test';
@@ -13,11 +13,11 @@ import { SignInLinkRequiredContent } from '@libs/auth-client-ts/sign-in-link-req
 import { SignInModalBody } from '@libs/auth-client-ts/sign-in-modal-body';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { i18n } from '@lingui/core';
-import { I18nProvider } from '@lingui/solid';
 import type { OauthProviderId } from '@pkgs/auth-root-shared-ts/sign-in-method';
 import { KvImplInMemory } from '@pkgs/kv-root-shared-ts/impl-in-memory';
+import { I18nProvider } from '@pkgs/lingui-solid-client-ts/runtime';
 import { cleanup, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { renderChrome } from './render-chrome';
 
 afterEach(cleanup);

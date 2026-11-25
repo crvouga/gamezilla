@@ -17,16 +17,25 @@ import { useClock } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
   untrack,
 } from 'solid-js';
 import { matchingMultiplayerRoomGame } from './multiplayer-room-game';
 import type { MatchRoomClient } from './use-match-room';
+
+/** Names one run of inputs: a new epoch or input generation is a new run. */
+function executionGeneration(
+  execution: SimulationExecution | undefined
+): string | undefined {
+  return execution === undefined
+    ? undefined
+    : `${execution.epoch}:${execution.inputGeneration}`;
+}
 
 /** Matched play uses its already-open authoritative room, including viewers with no paddle. */
 export function useMatchedSimulation(
@@ -49,48 +58,53 @@ export function useMatchedSimulation(
       ? current().id
       : ''
   );
-  createEffect(() => {
-    const live = room();
-    const id = key();
-    setShown({ position: null, paused: true, stale: true });
-    if (live === null || id === '') return;
-    const definition = rules.simulation(
-      rules.forPosition(untrack(current).fen).id
-    )!;
-    const acceptedRoom = () =>
-      matchingMultiplayerRoomGame(
-        untrack(current),
-        matchRoomGame(live.getSnapshot())
-      );
-    const connection = connectSimulationPresentation({
-      simulation: definition,
-      clock,
-      generation: () => {
-        const execution = acceptedRoom()?.execution;
-        return execution === undefined
-          ? undefined
-          : `${execution.epoch}:${execution.inputGeneration}`;
-      },
-      isReady: () =>
-        untrack(online) &&
-        acceptedRoom() !== null &&
-        RoomMetaAttr.isSynced.from(live.getSnapshot()),
-      send: live.sendSignal.bind(live),
-      subscribeSignal: live.subscribeSignal.bind(live),
-      subscribeRoom: live.subscribe.bind(live),
-      changed: setShown,
-      measure: simulationReplicaMeasures('matched'),
-      framed: simulationFrameMeasures('matched'),
-    });
-    replica = connection.replica;
-    createEffect(() => {
-      if (online()) connection.refresh();
-    });
-    onCleanup(() => {
-      connection.dispose();
-      if (replica === connection.replica) replica = null;
-    });
+  // The connection under way and whether this device is online live outside
+  // the graph: a connection made while online is refreshed once, whichever
+  // of the two effects runs first.
+  let refresh: (() => void) | null = null;
+  let connected = false;
+  createEffect(online, (now) => {
+    connected = now;
+    if (now) refresh?.();
   });
+  createEffect(
+    () => [room(), key()] as const,
+    ([live, id]) => {
+      setShown({ position: null, paused: true, stale: true });
+      if (live === null || id === '') return;
+      const definition = rules.simulation(
+        rules.forPosition(untrack(current).fen).id
+      )!;
+      const acceptedRoom = () =>
+        matchingMultiplayerRoomGame(
+          untrack(current),
+          matchRoomGame(live.getSnapshot())
+        );
+      const connection = connectSimulationPresentation({
+        simulation: definition,
+        clock,
+        generation: () => executionGeneration(acceptedRoom()?.execution),
+        isReady: () =>
+          untrack(online) &&
+          acceptedRoom() !== null &&
+          RoomMetaAttr.isSynced.from(live.getSnapshot()),
+        send: live.sendSignal.bind(live),
+        subscribeSignal: live.subscribeSignal.bind(live),
+        subscribeRoom: live.subscribe.bind(live),
+        changed: setShown,
+        measure: simulationReplicaMeasures('matched'),
+        framed: simulationFrameMeasures('matched'),
+      });
+      replica = connection.replica;
+      refresh = connection.refresh;
+      if (connected) connection.refresh();
+      return () => {
+        connection.dispose();
+        if (replica === connection.replica) replica = null;
+        if (refresh === connection.refresh) refresh = null;
+      };
+    }
+  );
   const sides = createMemo(() =>
     !online() || key() === ''
       ? []

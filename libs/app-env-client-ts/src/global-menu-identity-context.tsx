@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Chrome mounts above the SQLite gate, so the global menu cannot call
  * `createQuery` directly. A boot stub publishes a guest identity outside the
@@ -11,7 +11,8 @@
  */
 
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import { type Accessor, createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal } from 'solid-js';
 
 export type GlobalMenuIdentity = {
   /**

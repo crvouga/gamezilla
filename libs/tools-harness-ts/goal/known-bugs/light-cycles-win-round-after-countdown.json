@@ -1,0 +1,4 @@
+{
+  "summary": "Preparing Comet's first Duel win requested the opening countdown even when the browser already showed that round in progress. The harness played past the requested round and failed the steering refusal scenario before testing its input.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-result-reading.test.ts"
+}

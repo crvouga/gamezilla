@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
 import { AppFrame } from '@pkgs/ui-root-client-ts/app-frame';
@@ -13,8 +13,9 @@ import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtu
 import { TopBar } from '@pkgs/ui-root-client-ts/top-bar';
 import { hrefToPath } from '@pkgs/ui-root-shared-ts/href';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
-import { type JSX, splitProps } from 'solid-js';
+import { omit } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
 
 const COMPACT = { width: 390, height: 800 };
@@ -23,18 +24,14 @@ const WIDE = { width: 1280, height: 900 };
 function Screen(
   props: Partial<ScreenBaseProps> & { body?: JSX.Element | undefined }
 ): JSX.Element {
-  const [local, rest] = splitProps(props, ['body']);
+  const rest = omit(props, 'body');
   return (
     <ScreenBase
       screenId="demo"
       breadcrumbs={[{ name: 'Home', onClick: () => {} }, { name: 'Demo' }]}
       content={({ bodyClass }) => (
-        <div
-          class="box"
-          classList={{ [bodyClass]: true }}
-          data-testid="content"
-        >
-          {local.body ?? <p class="text">{'body'}</p>}
+        <div class={['box', { [bodyClass]: true }]} data-testid="content">
+          {props.body ?? <p class="text">{'body'}</p>}
         </div>
       )}
       {...rest}

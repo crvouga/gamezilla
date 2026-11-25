@@ -10,7 +10,7 @@ import { openSpaceDetail } from '@libs/spaces-client-ts/space-routes';
 import { useLiveSpaceTitles } from '@libs/spaces-client-ts/use-live-space-titles';
 import { useLiveSpacesByPerson } from '@libs/spaces-client-ts/use-live-spaces-by-person';
 import { useOpenSpaceSessionIds } from '@libs/spaces-client-ts/use-open-space-session-ids';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
@@ -18,7 +18,8 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MonogramTile } from '@pkgs/ui-root-client-ts/monogram-tile';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type Accessor, createMemo, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, For, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 
 /** Faces in a room's caption line, beside its words. */

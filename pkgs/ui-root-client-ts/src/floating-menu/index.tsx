@@ -1,17 +1,17 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { nextMenuItemIndex } from '@pkgs/ui-root-shared-ts/floating-menu-keyboard';
+import type { JSX } from '@solidjs/web';
+import { Popover, PopoverContent } from '@ui-sdk/solid/popover';
 import {
   createEffect,
   createMemo,
   createSignal,
   createUniqueId,
   For,
-  type JSX,
-  onCleanup,
   Show,
 } from 'solid-js';
 import type {
@@ -31,6 +31,7 @@ import type {
   FloatingMenuPosition,
 } from '../floating-menu-position';
 import { computeFloatingMenuPosition } from '../floating-menu-position';
+import { moveFocus } from '../move-focus';
 import { OnColorReset } from '../on-color-context/index';
 import type { LayoutRect } from '../portal-host-frame';
 import { measureHostFrame, windowRectToHostLocal } from '../portal-host-frame';
@@ -94,19 +95,19 @@ function useMenuFocus(
   active: () => boolean,
   onClose: () => void
 ): void {
-  createEffect(() => {
+  createEffect(createMemo(active), (isActive) => {
     const el = host();
-    if (!active() || el === undefined) return;
+    if (!isActive || el === undefined) return undefined;
     const previous =
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    (menuItems(el)[0] ?? el).focus();
+    moveFocus(menuItems(el)[0] ?? el);
     const unsubscribe = pushEscapeDismissHandler(onClose);
-    onCleanup(() => {
+    return () => {
       unsubscribe();
-      previous?.focus();
-    });
+      moveFocus(previous);
+    };
   });
 }
 
@@ -153,10 +154,7 @@ function FloatingMenuPanel(props: {
     () => props.active,
     () => props.onClose()
   );
-  const onSelect = (row: FloatingMenuItemRow): void => {
-    row.onClick?.();
-    props.onClose();
-  };
+
   return (
     <div
       class="box absolute z-1"
@@ -168,29 +166,44 @@ function FloatingMenuPanel(props: {
       {...dataAttrs({ component: 'FloatingMenuPanel' })}
     >
       <OnColorReset>
-        <div
-          class="box surfaceEnter rounded-card border border-border py-2 bg-surface-overlay shadow-float"
-          ref={(el) => {
-            hostEl = el;
+        <Popover
+          defaultOpen
+          modal={false}
+          dismissible={false}
+          onOpenChange={(open) => {
+            if (!open && props.active) props.onClose();
           }}
-          role="menu"
-          aria-label={props.label}
-          tabIndex={-1}
-          onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
         >
-          <Show when={props.content.header}>
-            {(header) => <FloatingMenuHeader header={header()} />}
-          </Show>
-          <For each={props.content.rows.map((row) => row.id)}>
-            {(id) => (
-              <StableFloatingMenuRow
-                id={id}
-                rows={props.content.rows}
-                onSelect={onSelect}
-              />
-            )}
-          </For>
-        </div>
+          <PopoverContent
+            inline
+            initialFocus="none"
+            render={(attrs) => <div {...attrs} role="menu" />}
+            finalFocus="none"
+            class="box surfaceEnter rounded-card border border-border py-2 bg-surface-overlay shadow-float"
+            ref={(el) => {
+              hostEl = el;
+            }}
+            aria-label={props.label}
+            tabindex={-1}
+            onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
+          >
+            <Show when={props.content.header}>
+              {(header) => <FloatingMenuHeader header={header()} />}
+            </Show>
+            <For each={props.content.rows.map((row) => row.id)}>
+              {(id) => (
+                <StableFloatingMenuRow
+                  id={id}
+                  rows={props.content.rows}
+                  onSelect={(row) => {
+                    row.onClick?.();
+                    props.onClose();
+                  }}
+                />
+              )}
+            </For>
+          </PopoverContent>
+        </Popover>
         <Show when={props.notice}>
           {(notice) => (
             <p
@@ -233,15 +246,17 @@ export function FloatingMenu(props: FloatingMenuProps): JSX.Element {
   const layout = useThemeLayout();
   // Remeasure when harness layout synthesis updates the trigger box.
   const [layoutEpoch, setLayoutEpoch] = createSignal(0);
-  createEffect(() => {
-    if (!props.open) return;
+  const openAnchor = (): Element | undefined => {
     const anchor = props.anchor;
-    if (!(anchor instanceof Element)) return;
+    return props.open && anchor instanceof Element ? anchor : undefined;
+  };
+  createEffect(openAnchor, (anchor) => {
+    if (anchor === undefined) return undefined;
     const bump = (): void => {
       setLayoutEpoch((n) => n + 1);
     };
     anchor.addEventListener(ELEMENT_LAYOUT_EVENT, bump);
-    onCleanup(() => anchor.removeEventListener(ELEMENT_LAYOUT_EVENT, bump));
+    return () => anchor.removeEventListener(ELEMENT_LAYOUT_EVENT, bump);
   });
   // Measure on open (and when layoutEpoch bumps); a menu that outlives its
   // trigger keeps its last spot until the next open.

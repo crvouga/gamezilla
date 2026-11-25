@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import {
@@ -7,7 +7,8 @@ import {
   type CardTableHandCard,
 } from '@pkgs/ui-root-client-ts/card-table';
 import { GameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const card = (

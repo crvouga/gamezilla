@@ -10,13 +10,8 @@ import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import type { RoomActor, RoomState } from '@pkgs/room-root-shared-ts/types';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  type JSX,
-  onCleanup,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 
 import { useSpaceOpenRoomEntries } from './space-open-rooms-store';
 import { SpaceProbe } from './space-probe';
@@ -95,15 +90,18 @@ export function SpacePresenceProbes(): JSX.Element {
   );
   const [revision, setRevision] = createSignal(0);
 
-  createEffect(() => {
-    const stops: (() => void)[] = [];
-    for (const entry of entries().values()) {
-      stops.push(entry.room.subscribe(() => setRevision((n) => n + 1)));
+  const bump = (): void => {
+    setRevision((n) => n + 1);
+  };
+  createEffect(
+    () => [...entries().values()],
+    (open) => {
+      const stops = open.map((entry) => entry.room.subscribe(bump));
+      return () => {
+        for (const stop of stops) stop();
+      };
     }
-    onCleanup(() => {
-      for (const stop of stops) stop();
-    });
-  });
+  );
 
   const reading = createMemo(() => {
     revision();

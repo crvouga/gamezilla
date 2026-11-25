@@ -1,15 +1,17 @@
 import type { ModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import type { AppModeration } from '@libs/moderation-shared-ts/policy';
-import type { Accessor, JSX, ParentProps } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
+  type Accessor,
   createContext,
   createSignal,
   onCleanup,
+  type ParentProps,
   untrack,
   useContext,
 } from 'solid-js';
 
-const ModerationContext = createContext<Accessor<AppModeration>>();
+const ModerationContext = createContext<Accessor<AppModeration> | null>(null);
 
 /**
  * Puts the device's moderation (`ClientEnv.moderation`) in reach of every
@@ -24,16 +26,14 @@ export function ModerationProvider(
   const [moderation, setModeration] = createSignal(rules.current());
   onCleanup(rules.subscribe(() => setModeration(() => rules.current())));
   return (
-    <ModerationContext.Provider value={moderation}>
-      {props.children}
-    </ModerationContext.Provider>
+    <ModerationContext value={moderation}>{props.children}</ModerationContext>
   );
 }
 
 /** The moderation names and forms are judged by, tracking rule changes. */
 export function useModeration(): Accessor<AppModeration> {
   const moderation = useContext(ModerationContext);
-  if (moderation === undefined) {
+  if (moderation === null) {
     throw new Error('useModeration: no ModerationProvider above this screen');
   }
   return moderation;

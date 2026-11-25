@@ -1,5 +1,8 @@
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createUniqueId, For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createUniqueId, For, Show } from 'solid-js';
 import styles from './battleship-target-layout.module.css';
 
 /** Visible spatial regions over a square ocean; only the enlarged cells commit input. */
@@ -18,7 +21,7 @@ export function BattleshipRegionOverview(props: {
   const descriptionId = createUniqueId();
   return (
     <div
-      data-placement={props.placement === true}
+      data-placement={String(props.placement === true)}
       role="group"
       aria-label={props.label}
       class={styles['navigator']}
@@ -31,7 +34,7 @@ export function BattleshipRegionOverview(props: {
         <div class={styles['regions']} data-testid={`${props.testId}-region`}>
           <For each={props.regions}>
             {(label, index) => (
-              <button
+              <SdkButton
                 type="button"
                 class={styles['region']}
                 aria-label={label}
@@ -41,8 +44,8 @@ export function BattleshipRegionOverview(props: {
                     : undefined
                 }
                 title={label}
-                aria-pressed={props.region === index()}
-                disabled={props.disabled}
+                aria-pressed={ariaBoolean(props.region === index())}
+                disabled={props.disabled === true}
                 data-testid={`${props.testId}-area-${index()}`}
                 onClick={() => props.onRegion(index())}
               >
@@ -53,7 +56,7 @@ export function BattleshipRegionOverview(props: {
                 >
                   {props.descriptions?.[index()]}
                 </span>
-              </button>
+              </SdkButton>
             )}
           </For>
         </div>
@@ -119,7 +122,7 @@ export function BattleshipWholeBoard(props: {
   return (
     <div
       class={styles['whole']}
-      data-finished={props.finished === true}
+      data-finished={String(props.finished === true)}
       {...dataAttrs({ component: 'BattleshipWholeBoard' })}
     >
       {props.children}

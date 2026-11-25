@@ -10,15 +10,12 @@ terms:
   - term: column
     definition: One of seven vertical stacks, numbered one through seven from left to right.
     forms: [columns, full column]
-    model: [Columns]
   - term: drop
     definition: Place one disc in the lowest empty place in a column on your turn.
     forms: [drops, dropping, dropped]
-    model: [drop, drops]
   - term: turn
     definition: The player who may drop the next disc. Red plays first and Yellow follows.
     forms: [turns, Red, Yellow]
-    model: [turn]
   - term: winning alignment
     definition: Four or more consecutive discs of one player, horizontally, vertically or diagonally, without gaps or wrapping around the board.
     forms: [winning alignments]
@@ -39,9 +36,7 @@ terms:
     from: games
   - term: connection
     from: kernel
-    model: [online, loseConnection, connectionReturns]
   - term: board
-    model: [board, Board]
     definition: The seven-column, six-row playing area, with stable column numbers regardless of who is watching.
   - term: keyboard
     from: runtime
@@ -52,4 +47,3 @@ terms:
   - term: end
     definition: Complete this game with its final result.
     forms: [ends, ended, ending]
-    model: [result]

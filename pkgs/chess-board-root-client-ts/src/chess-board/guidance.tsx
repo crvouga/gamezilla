@@ -1,7 +1,13 @@
-import { Trans } from '@lingui/solid/macro';
 import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-board-types';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from '@ui-sdk/solid/collapsible';
+import { Match, Show, Switch } from 'solid-js';
 import type { BoardController } from '../chess-board-controller';
 import styles from './chess-board.module.css';
 
@@ -53,13 +59,17 @@ export function ChessBoardGuidance(props: {
       </Show>
       {/* Keep the board anchored when a wrong move temporarily disables input. */}
       <div
-        class={`box flex-row flex-wrap items-baseline gap-2 ${styles['guidanceRow']}`}
-        classList={{
-          invisible: !props.ctrl.model.interaction().interactive,
-          // Under an edge-to-edge board the help keeps the page's inset.
-          'px-ui-lg': !full(),
-        }}
-        aria-hidden={!props.ctrl.model.interaction().interactive}
+        class={[
+          `box flex-row flex-wrap items-baseline gap-2 ${styles['guidanceRow']}`,
+          {
+            invisible: !props.ctrl.model.interaction().interactive,
+            // Under an edge-to-edge board the help keeps the page's inset.
+            'px-ui-lg': !full(),
+          },
+        ]}
+        aria-hidden={
+          props.ctrl.model.interaction().interactive ? 'false' : 'true'
+        }
         inert={!props.ctrl.model.interaction().interactive}
       >
         {/* A finished position takes no move: the row says so in the
@@ -79,14 +89,18 @@ export function ChessBoardGuidance(props: {
               <Trans>Tap a piece, then a square.</Trans>
             </P>
           </Show>
-          <details class={styles['keyboardHelp']}>
-            <summary class="text textCaption list-item cursor-pointer">
+          <Collapsible class={styles['keyboardHelp']}>
+            <CollapsibleTrigger class="text textCaption list-item cursor-pointer">
               <Trans>Keyboard controls</Trans>
-            </summary>
-            <P variant="caption" tone="secondary">
-              <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
-            </P>
-          </details>
+            </CollapsibleTrigger>
+            <CollapsiblePanel hiddenUntilFound>
+              <P variant="caption" tone="secondary">
+                <Trans>
+                  Arrows to move, Enter to choose, Escape to cancel.
+                </Trans>
+              </P>
+            </CollapsiblePanel>
+          </Collapsible>
         </Show>
       </div>
     </>

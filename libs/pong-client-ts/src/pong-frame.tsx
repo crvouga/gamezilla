@@ -12,7 +12,7 @@ import {
   type GameSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { PongBoard } from './pong-board';
 import { pongStatus } from './pong-board-view';
 

@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Commands that cannot help with unreadable content are not offered. */
 
 import { afterEach, expect, test } from 'bun:test';
@@ -20,7 +20,7 @@ import { MutationClientContext } from '@pkgs/sync-engine-client-ts/mutation-clie
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { IdProvider } from '@pkgs/uuid-client-ts/solid';
 import { cleanup, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 afterEach(cleanup);
 
@@ -49,7 +49,7 @@ function mount(value: ContentGame, ui: () => JSX.Element): void {
         colorScheme="light"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <MutationClientContext.Provider value={{} as MutationClient}>
+        <MutationClientContext value={{} as MutationClient}>
           <IdProvider createId={() => 'id'} random={() => 0.5}>
             <ContentGameProvider value={value}>
               <ContentLibraryProvider value={{} as ContentLibraryState}>
@@ -57,7 +57,7 @@ function mount(value: ContentGame, ui: () => JSX.Element): void {
               </ContentLibraryProvider>
             </ContentGameProvider>
           </IdProvider>
-        </MutationClientContext.Provider>
+        </MutationClientContext>
       </ThemeProvider>
     </ClockProvider>
   ));

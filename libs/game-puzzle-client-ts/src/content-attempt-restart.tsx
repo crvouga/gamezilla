@@ -1,11 +1,12 @@
 import type { ContentAttempt } from '@libs/game-puzzle-shared-ts/attempt-types';
 import { restartPuzzleAttemptMutation } from '@libs/game-puzzle-shared-ts/restart-attempt-mutation';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { type Accessor, createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createSignal, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 
 type RestartRequest = {

@@ -72,7 +72,6 @@ async function pinHarness(s: Run<ProductHarness>): Promise<ProductHarness> {
   let pinned: ProductHarness | null = null;
   const capture = defineAction({
     name: 'bootProductHarness.pinHarness',
-    report: false,
     act: (surface: ProductHarness) => {
       pinned = surface;
     },

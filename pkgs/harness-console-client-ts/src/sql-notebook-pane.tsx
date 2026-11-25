@@ -7,15 +7,14 @@ import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
   For,
-  type JSX,
   Match,
-  onCleanup,
   type Setter,
   Show,
   Switch,
@@ -63,7 +62,7 @@ export function SqlNotebookPane(props: {
   const subscribeDomainWake = () => props.subscribeDomainWake;
   const nb = useNotebookDoc({ nodeId, dialect, active });
   const schema = useSchemaIndex({
-    sqlClient: props.sqlClient,
+    sqlClient: () => props.sqlClient,
     active,
     reloadToken,
     subscribeDomainWake,
@@ -141,7 +140,7 @@ function ReadyNotebook(props: {
 
   useLiveRerun({
     doc: props.doc,
-    sqlClient: props.sqlClient,
+    sqlClient: () => props.sqlClient,
     clock,
     setResults,
     reloadToken: props.reloadToken,
@@ -153,7 +152,7 @@ function ReadyNotebook(props: {
     doc: props.doc,
     setDoc: props.setDoc,
     resetDoc: props.resetDoc,
-    sqlClient: props.sqlClient,
+    sqlClient: () => props.sqlClient,
     clock,
     createId,
     setResults,
@@ -189,7 +188,7 @@ function useNotebookActions(args: {
   readonly doc: Accessor<SqlNotebookDoc>;
   readonly setDoc: NotebookDocSetter;
   readonly resetDoc: () => void;
-  readonly sqlClient: SqlClient;
+  readonly sqlClient: Accessor<SqlClient>;
   readonly clock: { now: () => number };
   readonly createId: () => string;
   readonly setResults: Setter<ResultsMap>;
@@ -211,7 +210,8 @@ function useNotebookActions(args: {
   } = args;
   return {
     toolbar: {
-      onRunAll: () => void runAllCells({ doc, sqlClient, clock, setResults }),
+      onRunAll: () =>
+        void runAllCells({ doc, sqlClient: sqlClient(), clock, setResults }),
       onAddCell: () =>
         setDoc((prev) =>
           addCellAfter({
@@ -338,7 +338,7 @@ function NotebookCells(props: {
 
 function useLiveRerun(args: {
   readonly doc: Accessor<SqlNotebookDoc>;
-  readonly sqlClient: SqlClient;
+  readonly sqlClient: Accessor<SqlClient>;
   readonly clock: { now: () => number };
   readonly setResults: Setter<ResultsMap>;
   readonly reloadToken: Accessor<number>;
@@ -355,12 +355,14 @@ function useLiveRerun(args: {
     subscribeDomainWake,
   } = args;
   const liveCount = createMemo(() => doc().cells.filter((c) => c.live).length);
-  const rerunLive = (): void => {
-    if (!active()) return;
-    for (const cell of doc().cells) {
+  const rerunLive = (
+    client: SqlClient,
+    cells: readonly SqlNotebookCell[]
+  ): void => {
+    for (const cell of cells) {
       if (!cell.live) continue;
       void runSqlCell({
-        execute: (statements) => executeSqlStatements(sqlClient, statements),
+        execute: (statements) => executeSqlStatements(client, statements),
         sql: cell.sql,
         now: () => clock.now(),
       }).then((run) => {
@@ -368,24 +370,32 @@ function useLiveRerun(args: {
       });
     }
   };
+  const live = createMemo(() =>
+    active() ? { client: sqlClient(), cells: doc().cells } : null
+  );
 
-  createEffect(() => {
-    void reloadToken();
-    void doc();
-    rerunLive();
-  });
-
-  createEffect(() => {
-    const subscribe = subscribeDomainWake();
-    if (!active() || subscribe === undefined || liveCount() === 0) {
-      return;
+  createEffect(
+    () => ({ token: reloadToken(), wanted: live() }),
+    ({ wanted }) => {
+      if (wanted !== null) rerunLive(wanted.client, wanted.cells);
     }
-    void doc();
-    const unsub = subscribe(() => {
-      rerunLive();
-    });
-    onCleanup(() => unsub());
-  });
+  );
+
+  createEffect(
+    () => {
+      const subscribe = subscribeDomainWake();
+      const wanted = live();
+      if (wanted === null || subscribe === undefined || liveCount() === 0)
+        return null;
+      return { subscribe, wanted };
+    },
+    (wake) => {
+      if (wake === null) return;
+      return wake.subscribe(() => {
+        rerunLive(wake.wanted.client, wake.wanted.cells);
+      });
+    }
+  );
 }
 
 async function runAllCells(args: {

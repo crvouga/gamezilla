@@ -1,5 +1,5 @@
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import { DeviceAvatar } from './device-avatar';
 import { useProfileColumn } from './use-profile-column';

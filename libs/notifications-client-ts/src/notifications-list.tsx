@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type {
   Notification,
@@ -6,14 +6,15 @@ import type {
   NotificationSection,
 } from '@libs/notifications-shared-ts/notification';
 import { NEEDS_YOU_SECTION_KEY } from '@libs/notifications-shared-ts/notifications-sections';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { H2, H3 } from '@pkgs/ui-root-client-ts/heading';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { VirtualListPanelPlace } from '@pkgs/ui-root-client-ts/virtual-list';
-import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import { NotificationsEmptyState } from './notifications-empty-state';
 
 type NotificationsListProps = {

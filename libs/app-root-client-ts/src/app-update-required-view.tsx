@@ -1,9 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { DismissibleBanner } from '@pkgs/ui-root-client-ts/dismissible-top-banner';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type AppUpdateRequiredBannerViewProps = {
   /** Shown while the product refuses this version and it is not dismissed. */

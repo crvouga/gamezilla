@@ -1,13 +1,9 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createContext,
-  createUniqueId,
-  type JSX,
-  Show,
-  useContext,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Field, FieldError } from '@ui-sdk/solid/field';
+import { createContext, createUniqueId, Show, useContext } from 'solid-js';
 import { FieldLabel } from '../field-label/index';
 import { spaced } from '../layout-classes';
 
@@ -107,11 +103,14 @@ function createControl(props: FormFieldProps): FormFieldControl {
 export function FormField(props: FormFieldProps): JSX.Element {
   const control = createControl(props);
   return (
-    <div
+    <Field
+      invalid={control.invalid}
+      render={(part) => (
+        <div {...part} data-invalid={control.invalid ? 'true' : undefined} />
+      )}
       class="box gap-ui-sm"
       data-testid={props.testId}
       data-component={componentId('FormField')}
-      data-invalid={control.invalid ? 'true' : undefined}
     >
       <FieldLabel
         for={props.group === true ? undefined : control.id}
@@ -121,9 +120,9 @@ export function FormField(props: FormFieldProps): JSX.Element {
       >
         {props.label}
       </FieldLabel>
-      <FormFieldContext.Provider value={control}>
+      <FormFieldContext value={control}>
         {props.children(control)}
-      </FormFieldContext.Provider>
+      </FormFieldContext>
       <Show when={props.help} keyed>
         {(help) => (
           <p
@@ -136,15 +135,15 @@ export function FormField(props: FormFieldProps): JSX.Element {
       </Show>
       <Show when={props.error} keyed>
         {(error) => (
-          <p
+          <FieldError
             class="text textCaption text-destructive"
             id={`${control.id}-error`}
             role="alert"
           >
             {error}
-          </p>
+          </FieldError>
         )}
       </Show>
-    </div>
+    </Field>
   );
 }

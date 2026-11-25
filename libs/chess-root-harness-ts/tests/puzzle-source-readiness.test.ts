@@ -58,7 +58,7 @@ test('saving waits for the source check before selecting and uploading', async (
   const harness = {
     actors: new Map([['alice', { ui }]]),
     session: {
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
       advanceTime: async () => {
         ready = true;
       },

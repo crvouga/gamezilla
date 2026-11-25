@@ -13,8 +13,8 @@
  *   button does), refused locally with the same reason.
  */
 
+import { hostingLimitApplicationLayer } from '@libs/permissions-harness-ts/application';
 import { clientGatingLayer } from '@libs/permissions-harness-ts/client';
-import { hostingLimitApplicationLayer } from '@libs/permissions-shared-ts/application';
 import type { ReasonWords } from '@libs/permissions-shared-ts/reasons';
 import { HOSTING_LIMIT_REASONS } from '@libs/permissions-shared-ts/reasons';
 import {

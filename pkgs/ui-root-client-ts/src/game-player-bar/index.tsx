@@ -1,8 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Show } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import {
   type GamePlayerState,
@@ -116,8 +118,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
     tags.present() || (props.state !== undefined && props.state !== null);
   const tagRow = (): JSX.Element => (
     <span
-      class={styles['playerTags']}
-      classList={{ 'shrink-0': inline(), [line['tags'] ?? '']: inline() }}
+      class={[
+        styles['playerTags'],
+        { 'shrink-0': inline(), [line['tags'] ?? '']: inline() },
+      ]}
       // After the name, the tags never wrap onto a second line.
       style={inline() ? { '--player-tags-wrap': 'nowrap' } : undefined}
     >
@@ -130,8 +134,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   return (
     <>
       <span
-        class={styles['playerAvatar']}
-        classList={{ 'opacity-disabled': props.state?.kind === 'out' }}
+        class={[
+          styles['playerAvatar'],
+          { 'opacity-disabled': props.state?.kind === 'out' },
+        ]}
         aria-hidden="true"
       >
         <Show
@@ -142,15 +148,19 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         </Show>
       </span>
       <span
-        class={styles['playerIdentity']}
-        classList={{ [line['identity'] ?? '']: inline() }}
+        class={[
+          styles['playerIdentity'],
+          { [line['identity'] ?? '']: inline() },
+        ]}
       >
         {/* One line: the swatch, the name (cut short when long, its whole
             self in the tooltip and to a listener) and the turn; the tags
             follow it when they are inline and the strip has the room. */}
         <span
-          class={line['line']}
-          classList={{ [line['keep'] ?? '']: props.tagsPlacement === 'line' }}
+          class={[
+            line['line'],
+            { [line['keep'] ?? '']: props.tagsPlacement === 'line' },
+          ]}
         >
           <span class={line['who']}>
             <Show when={props.swatch}>
@@ -159,8 +169,10 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
               )}
             </Show>
             <span
-              class={`text textLabel ${styles['playerName']} ${line['name']}`}
-              classList={{ 'text-on-primary-soft': props.active === true }}
+              class={[
+                `text textLabel ${styles['playerName']} ${line['name']}`,
+                { 'text-on-primary-soft': props.active === true },
+              ]}
               title={props.plainName}
             >
               {props.name}
@@ -223,16 +235,18 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
     options.present() && props.optionsPlacement === 'below';
   return (
     <section
-      class={`${styles['player']} rounded-card py-1`}
-      classList={{
-        'bg-surface': !active(),
-        'bg-tint-subtle': active(),
-        'px-3': !compact(),
-        'px-1': compact(),
-      }}
+      class={[
+        `${styles['player']} rounded-card py-1`,
+        {
+          'bg-surface': !active(),
+          'bg-tint-subtle': active(),
+          'px-3': !compact(),
+          'px-1': compact(),
+        },
+      ]}
       data-density={compact() ? 'compact' : 'regular'}
       aria-current={active() ? 'step' : undefined}
-      data-active={active()}
+      data-active={String(active())}
       data-state={props.state?.kind}
       {...dataAttrs({ component: 'GamePlayerBar', ...props.dataSet })}
     >
@@ -246,13 +260,13 @@ export function GamePlayerBar(props: GamePlayerBarProps): JSX.Element {
           }
         >
           {(press) => (
-            <button
+            <SdkButton
               type="button"
               class={`clickable clickableTint rounded-control ${styles['playerPress']}`}
               onClick={() => press()()}
             >
               <PlayerIdentity {...props} />
-            </button>
+            </SdkButton>
           )}
         </Show>
         <Show when={props.stat}>

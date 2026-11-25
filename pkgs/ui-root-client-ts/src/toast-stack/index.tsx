@@ -1,20 +1,19 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { t } from '@lingui/core/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { type JSX, Portal } from '@solidjs/web';
 import {
   children,
   createContext,
   createEffect,
   createMemo,
   createSignal,
-  type JSX,
-  on,
   Show,
+  untrack,
   useContext,
 } from 'solid-js';
-import { Portal } from 'solid-js/web';
 import { CloseIconButton } from '../close-icon-button/index';
 import styles from './toast-stack.module.css';
 
@@ -72,9 +71,9 @@ export function ToastStack(props: ToastStackProps): JSX.Element {
   const nested = useContext(InStack);
   return (
     <Show when={!nested} fallback={props.children}>
-      <InStack.Provider value={true}>
+      <InStack value={true}>
         <StackBody {...props} />
-      </InStack.Provider>
+      </InStack>
     </Show>
   );
 }
@@ -88,12 +87,12 @@ function StackBody(props: ToastStackProps): JSX.Element {
   );
   const key = createMemo(() => alertsKey(nodes()));
   const [dismissed, setDismissed] = createSignal<string | null>(null);
-  createEffect(
-    on(key, (now) => {
-      if (now !== dismissed()) setDismissed(null);
-    })
-  );
-  const shown = (): boolean => nodes().length > 0 && dismissed() === null;
+  // A changed alert clears the dismissal; until that write lands, the old
+  // dismissal (a different key) already lets the new alert show.
+  createEffect(key, (now) => {
+    if (now !== untrack(dismissed)) setDismissed(null);
+  });
+  const shown = (): boolean => nodes().length > 0 && dismissed() !== key();
   return (
     <Show when={shown()}>
       <Portal>

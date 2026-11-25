@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { afterEach, describe, expect, it } from 'bun:test';
 import { createClient } from '@libs/app-root-client-ts/create-client';
 import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { createMemoryHistory } from '@solidjs/router';
+import { memoryHistory } from '@solidjs/router';
 import { fireEvent, render, screen, waitFor } from '@solidjs/testing-library';
 
 import type { HarnessClientEnv } from './harness-client-env';
@@ -73,7 +73,7 @@ describe('app composition', () => {
       subs: APP_SUB_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
-    const history = createMemoryHistory();
+    const history = memoryHistory();
 
     const view = render(() => <client.App embedded history={history} />);
 
@@ -120,7 +120,7 @@ describe('app composition', () => {
       subs: APP_SUB_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
-    const history = createMemoryHistory();
+    const history = memoryHistory();
 
     const view = render(() => <client.App embedded history={history} />);
     await harness.session.advanceTime(1_000);
@@ -148,7 +148,7 @@ describe('app composition', () => {
       subs: APP_SUB_CLIENTS,
       loadApp: () => Promise.resolve(APP),
     });
-    const history = createMemoryHistory();
+    const history = memoryHistory();
     const view = render(() => <client.App embedded history={history} />);
     await harness.session.advanceTime(1_000);
     await harness.session.waitForIdle();

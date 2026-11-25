@@ -7,7 +7,7 @@ import {
   quoridorHillGameShared,
 } from '@libs/quoridor-shared-ts/quoridor-game';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { QuoridorBoard } from './quoridor-board';
 import { quoridorFrame } from './quoridor-frame';

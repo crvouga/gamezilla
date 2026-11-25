@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Whether the global menu is drawn at the foot of the wide sidebar. The
  * shell's trailing chrome is one composition shared by every bar; the
@@ -6,7 +6,8 @@
  * there, while the top bars keep the face alone.
  */
 
-import { createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, useContext } from 'solid-js';
 
 const GlobalMenuInSidebarContext = createContext<boolean>(false);
 
@@ -15,9 +16,9 @@ export function GlobalMenuInSidebar(props: {
   readonly children: JSX.Element;
 }): JSX.Element {
   return (
-    <GlobalMenuInSidebarContext.Provider value={true}>
+    <GlobalMenuInSidebarContext value={true}>
       {props.children}
-    </GlobalMenuInSidebarContext.Provider>
+    </GlobalMenuInSidebarContext>
   );
 }
 

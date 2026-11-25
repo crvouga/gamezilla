@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
@@ -13,9 +13,9 @@ import {
   createEffect,
   createSignal,
   createUniqueId,
-  onCleanup,
-  onMount,
+  onSettled,
   Show,
+  untrack,
 } from 'solid-js';
 import { EditorLinkForm } from '../editor-link-form/index';
 import { suggestionKeyHandler } from '../editor-suggestion-key';
@@ -23,16 +23,52 @@ import { EditorSuggestionMenu } from '../editor-suggestion-menu/index';
 import type { EditorSuggestion } from '../editor-suggestions';
 import { applyEditorSuggestion, editorSuggestion } from '../editor-suggestions';
 import { EditorToolbar } from '../editor-toolbar/index';
-import { createMarkdownView } from '../editor-view';
+import { createMarkdownView, DocumentField } from '../editor-view';
 import { cleanMarkdownNode } from '../safe-markdown';
 import styles from './markdown-editor.module.css';
+
+function documentChange(view: EditorView, value: string) {
+  return view.state.tr.replaceWith(
+    0,
+    view.state.doc.content.size,
+    cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
+  );
+}
+
+/** External updates stay outside the local undo history. */
+function replaceDocument(view: EditorView, value: string): void {
+  view.updateState(
+    view.state.apply(documentChange(view, value).setMeta('addToHistory', false))
+  );
+}
+
+/** Points the field at the open suggestion list and its selected row. */
+function describeSuggestions(
+  field: Element,
+  listId: string,
+  selected: number | null
+): void {
+  field.setAttribute('aria-autocomplete', 'list');
+  if (selected === null) {
+    field.removeAttribute('aria-activedescendant');
+    field.removeAttribute('aria-controls');
+    return;
+  }
+  field.setAttribute('aria-controls', listId);
+  field.setAttribute('aria-activedescendant', `${listId}-${selected}`);
+}
+
+type Suggestion = EditorSuggestion | null;
+
+/** Names one suggestion, so a dismissed one stays dismissed. */
+function marked(match: EditorSuggestion): string {
+  return `${match.from}:${match.query}`;
+}
 
 function useEditor(props: MarkdownEditorProps) {
   const clock = useClock();
   const [view, setView] = createSignal<EditorView>();
-  const [suggestion, setSuggestion] = createSignal<EditorSuggestion | null>(
-    null
-  );
+  const [suggestion, setSuggestion] = createSignal<Suggestion>(null);
   const [selected, setSelected] = createSignal(0);
   let lastValue = '';
   let dismissed = '';
@@ -49,12 +85,13 @@ function useEditor(props: MarkdownEditorProps) {
     selected,
     setSelected,
     dismiss: (match) => {
-      dismissed = `${match.from}:${match.query}`;
+      dismissed = marked(match);
       setSuggestion(null);
     },
     submit: () => props.onSubmit?.(),
   });
-  const mount = (host: HTMLElement) => {
+  /** Builds the view in `host`; returns its teardown. */
+  const mount = (host: HTMLElement): (() => void) => {
     const current = createMarkdownView({
       host,
       props,
@@ -67,43 +104,74 @@ function useEditor(props: MarkdownEditorProps) {
         }
         const match = editorSuggestion(next.state, props.commands ?? []);
         if (match?.query !== suggestion()?.query) setSelected(0);
-        setSuggestion(
-          match && `${match.from}:${match.query}` !== dismissed ? match : null
-        );
+        setSuggestion(match && marked(match) !== dismissed ? match : null);
       },
     });
     current.dom.classList.add(styles['editor'] ?? '');
     setView(current);
     setSuggestion(editorSuggestion(current.state, props.commands ?? []));
-    onCleanup(() => current.destroy());
+    return () => current.destroy();
   };
-  createEffect(() => {
-    const current = view();
-    const value = props.value;
-    if (!current) return;
+  const sync = (
+    current: EditorView,
+    value: string,
+    commands: readonly MarkdownEditorCommand[]
+  ): void => {
     current.setProps({ editable: () => !props.disabled });
     if (value === lastValue) return;
     lastValue = value;
-    current.updateState(
-      current.state.apply(
-        current.state.tr
-          .replaceWith(
-            0,
-            current.state.doc.content.size,
-            cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
-          )
-          .setMeta('addToHistory', false)
-      )
-    );
+    replaceDocument(current, value);
     dismissed = '';
-    setSuggestion(editorSuggestion(current.state, props.commands ?? []));
-  });
+    setSuggestion(editorSuggestion(current.state, commands));
+  };
+  createEffect(
+    () => ({
+      current: view(),
+      value: props.value,
+      commands: props.commands ?? [],
+      // What the view's own callbacks read when it is told to update.
+      shown: [
+        props.disabled,
+        props.invalid,
+        props.placeholder,
+        props['aria-label'],
+      ],
+    }),
+    ({ current, value, commands }) => {
+      if (!current) return;
+      // The view reads the props above through its callbacks as it updates.
+      untrack(() => sync(current, value, commands));
+    }
+  );
   const dismiss = () => {
     const match = suggestion();
-    if (match) dismissed = `${match.from}:${match.query}`;
+    if (match) dismissed = marked(match);
     setSuggestion(null);
   };
   return { view, suggestion, selected, choose, mount, dismiss };
+}
+
+function EditorDocument(props: {
+  input: MarkdownEditorProps;
+  editor: ReturnType<typeof useEditor>;
+}) {
+  let host: HTMLDivElement | undefined;
+  onSettled(() => (host ? props.editor.mount(host) : undefined));
+  return (
+    <DocumentField
+      value={props.input.value}
+      disabled={props.input.disabled === true}
+      aria-label={props.input['aria-label']}
+      onValueChange={(value) => {
+        const view = props.editor.view();
+        if (view) view.dispatch(documentChange(view, value));
+      }}
+      ref={(element) => {
+        host = element;
+      }}
+      class="box flex-1 min-h-0 shrink overflow-hidden text-sm leading-relaxed"
+    />
+  );
 }
 
 /**
@@ -114,7 +182,6 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
   const id = `editor-commands-${createUniqueId()}`;
   const [linkOpen, setLinkOpen] = createSignal(false);
   let savedSelection: Selection | undefined;
-  let host: HTMLDivElement | undefined;
   const saveSelection = () => {
     savedSelection = editor.view()?.state.selection;
   };
@@ -127,25 +194,22 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
     view.focus();
     savedSelection = undefined;
   };
-  onMount(() => {
-    if (host) editor.mount(host);
-  });
-  createEffect(() => {
-    if (editor.suggestion())
-      onCleanup(pushEscapeDismissHandler(editor.dismiss));
-  });
-  createEffect(() => {
-    const field = editor.view()?.dom;
-    if (!field) return;
-    field.setAttribute('aria-autocomplete', 'list');
-    if (editor.suggestion()) {
-      field.setAttribute('aria-controls', id);
-      field.setAttribute('aria-activedescendant', `${id}-${editor.selected()}`);
-    } else {
-      field.removeAttribute('aria-activedescendant');
-      field.removeAttribute('aria-controls');
+  createEffect(
+    () => editor.suggestion() !== null,
+    (suggesting) =>
+      suggesting ? pushEscapeDismissHandler(editor.dismiss) : undefined
+  );
+  createEffect(
+    () =>
+      [
+        editor.view()?.dom,
+        editor.suggestion() !== null,
+        editor.selected(),
+      ] as const,
+    ([field, suggesting, selected]) => {
+      if (field) describeSuggestions(field, id, suggesting ? selected : null);
     }
-  });
+  );
   return (
     <div
       class="box flex-1 min-h-0 shrink overflow-hidden"
@@ -180,10 +244,7 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
           }}
         />
       </Show>
-      <div
-        ref={host}
-        class="box flex-1 min-h-0 shrink overflow-hidden text-sm leading-relaxed"
-      />
+      <EditorDocument input={props} editor={editor} />
       <Show when={editor.suggestion()}>
         {(match) => (
           <EditorSuggestionMenu

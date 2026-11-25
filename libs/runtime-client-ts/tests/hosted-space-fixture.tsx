@@ -2,7 +2,8 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createResource, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, onSettled, Show } from 'solid-js';
 
 /** Seed before the product's session queries mount; no open room transport. */
 function HostedSpaceFixture(props: {
@@ -11,7 +12,8 @@ function HostedSpaceFixture(props: {
 }): JSX.Element {
   const engine = useSyncEngine();
   const myId = useMyId();
-  const [ready] = createResource(async () => {
+  const [ready, setReady] = createSignal(false);
+  const seed = async (): Promise<void> => {
     await engine.db.run(sql`
       INSERT INTO spaces (
         id, host_id, host_member_id, host_account_id, visibility,
@@ -21,7 +23,10 @@ function HostedSpaceFixture(props: {
         ${'2026-10-14T09:38:05.000Z'}, ${null}, ${props.recovered}, ${null}
       )
     `);
-    return true;
+    setReady(true);
+  };
+  onSettled(() => {
+    void seed();
   });
   return <Show when={ready()}>{props.children}</Show>;
 }

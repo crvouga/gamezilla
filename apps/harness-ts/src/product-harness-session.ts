@@ -26,7 +26,7 @@ import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
 import { createInMemoryPublishOnlyPubSub } from '@pkgs/pubsub-root-shared-ts/in-memory';
 import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import { notifyChannels } from '@pkgs/sync-engine-server-ts/notify-channels';
-import { createMemoryHistory } from '@solidjs/router';
+import { memoryHistory } from '@solidjs/router';
 import { sessionEmulators } from './notifications-emulator';
 import {
   type Breathe,
@@ -164,7 +164,7 @@ function liveToActor(args: {
 async function createSeededMemoryHistory(
   live: Client
 ): Promise<ProductHarnessMemoryHistory> {
-  const history = createMemoryHistory();
+  const history = memoryHistory();
   const saved = await readEmbeddedHref(live.env.kv);
   if (saved !== null && saved !== history.get()) {
     history.set({ value: saved, replace: true });

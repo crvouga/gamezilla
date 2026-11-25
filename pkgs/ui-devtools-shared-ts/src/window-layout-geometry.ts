@@ -244,7 +244,7 @@ export function windowDropTarget(args: {
 /** The command a drop makes: join a tab bar, or split on an edge. */
 export function windowDropCommand(
   panel: string,
-  target: WindowDropTarget,
+  target: Pick<WindowDropTarget, 'window' | 'zone'>,
   index?: number
 ): WindowLayoutCommand {
   if (target.zone === 'tabs')

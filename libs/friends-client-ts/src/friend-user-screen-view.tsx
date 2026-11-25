@@ -6,11 +6,11 @@ import type {
 import { useModeration } from '@libs/moderation-client-ts/moderation-context';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { ProfileScreenLayout } from '@pkgs/ui-root-client-ts/profile-screen-layout';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import type { FriendRequestOutcome } from './friend-request-feedback-view';
 import { FriendUserDangerModals } from './friend-user-danger-modals';

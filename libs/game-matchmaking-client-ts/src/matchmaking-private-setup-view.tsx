@@ -1,5 +1,5 @@
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { MultiplayerCommandsControl } from './matchmaking-stage-view';
 import type { MultiplayerGameView } from './multiplayer-game-view';
 import {

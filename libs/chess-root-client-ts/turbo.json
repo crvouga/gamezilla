@@ -10,6 +10,7 @@
         "@libs/game-menu-client-ts#src",
         "@libs/permissions-shared-ts#src",
         "@pkgs/chess-board-root-client-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
         "@pkgs/turn-game-shared-ts#src",
         "@pkgs/ui-root-client-ts#src"
       ]

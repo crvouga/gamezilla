@@ -1,11 +1,20 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import {
   collectTabbable,
   nextTabStop,
 } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
-import { createEffect, type JSX, onCleanup, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Dialog, DialogContent } from '@ui-sdk/solid/dialog';
+import {
+  createEffect,
+  createMemo,
+  createRenderEffect,
+  flush,
+  untrack,
+} from 'solid-js';
+import { moveFocus } from '../move-focus';
 
 export type FocusTrapProps = {
   /** When true, trap Tab focus inside the subtree. */
@@ -34,12 +43,6 @@ const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
 
 /**
  * Where focus lands on activate: what asked for it (`autofocus`, a name
- * field), else the first tabbable control that is not the surface's own
- * close button (`data-initial-focus="skip"`), else the dialog itself, so a
- * confirm opens on its content and never on its X.
- */
-/**
- * Where focus lands on activate: what asked for it (`autofocus`, a name
  * field), else the dialog itself, which reads its name to a listener and
  * draws no ring. Tab then reaches the first control, so nothing (the X, a
  * destructive confirm, Copy link) wears a focus ring before anyone has
@@ -49,49 +52,56 @@ function focusInto(host: HTMLElement): void {
   if (host.contains(document.activeElement) && document.activeElement !== host)
     return;
   const asked = host.querySelector('[autofocus]');
-  if (asked instanceof HTMLElement) asked.focus();
-  else host.focus();
+  moveFocus(asked instanceof HTMLElement ? asked : host);
 }
 
 function useTrapLifecycle(props: FocusTrapProps, host: () => HTMLElement) {
-  createEffect(() => {
-    if (!props.active) return;
-    const el = host();
-    const previous =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    // Untracked: moving focus runs other components' focus listeners right
-    // here, and a signal one of them reads must not start this trap over.
-    untrack(() => {
-      if (props.autoFocus ?? true) focusInto(el);
-    });
+  const active = createMemo(() => props.active);
+  // Whether to hand focus back is decided when the trap lets go, from the
+  // value the trap holds then.
+  let returnFocus = true;
+  createRenderEffect(
+    () => props.returnFocus ?? true,
+    (value) => {
+      returnFocus = value;
+    }
+  );
+  createEffect(
+    // Activating starts the trap; `autoFocus` is read as it stands then.
+    () => (active() ? untrack(() => props.autoFocus ?? true) : undefined),
+    (autoFocus) => {
+      if (autoFocus === undefined) return undefined;
+      const el = host();
+      const previous =
+        document.activeElement instanceof HTMLElement
+          ? document.activeElement
+          : null;
+      if (autoFocus) focusInto(el);
 
-    const onKeyDown = (ev: KeyboardEvent) => {
-      if (ev.key !== 'Tab') return;
-      const target = nextTabStop(
-        collectTabbable(el),
-        document.activeElement,
-        ev.shiftKey
-      );
-      if (target === null) return;
-      ev.preventDefault();
-      target.focus();
-    };
-    el.addEventListener('keydown', onKeyDown);
-    onCleanup(() => {
-      el.removeEventListener('keydown', onKeyDown);
-      if (untrack(() => props.returnFocus ?? true) && previous !== null) {
-        previous.focus();
-      }
-    });
-  });
+      const onKeyDown = (ev: KeyboardEvent) => {
+        if (ev.key !== 'Tab') return;
+        const target = nextTabStop(
+          collectTabbable(el),
+          document.activeElement,
+          ev.shiftKey
+        );
+        if (target === null) return;
+        ev.preventDefault();
+        target.focus();
+      };
+      el.addEventListener('keydown', onKeyDown);
+      return () => {
+        el.removeEventListener('keydown', onKeyDown);
+        if (returnFocus) moveFocus(previous);
+      };
+    }
+  );
 
-  createEffect(() => {
-    const onEscape = props.onEscape;
-    if (!props.active || onEscape === undefined) return;
-    onCleanup(pushEscapeDismissHandler(onEscape));
-  });
+  createEffect(
+    () => (active() ? props.onEscape : undefined),
+    (onEscape) =>
+      onEscape === undefined ? undefined : pushEscapeDismissHandler(onEscape)
+  );
 }
 
 /**
@@ -110,19 +120,37 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
   const layoutClass = () =>
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
-    <div
-      class={`box outline-none ${layoutClass()}`}
-      data-component="FocusTrap"
-      ref={(el) => {
-        hostEl = el;
+    <Dialog
+      defaultOpen
+      modal={false}
+      dismissible={false}
+      onOpenChange={(open, details) => {
+        if (open) return;
+        if (!props.active || props.onEscape === undefined) {
+          details.cancel();
+          return;
+        }
+        props.onEscape();
+        flush();
+        if (hostEl?.isConnected) details.cancel();
       }}
-      role="dialog"
-      aria-modal="true"
-      aria-label={props.label}
-      aria-labelledby={props.labelledBy}
-      tabIndex={-1}
     >
-      {props.children}
-    </div>
+      <DialogContent
+        inline
+        initialFocus="none"
+        finalFocus="none"
+        class={`box outline-none ${layoutClass()}`}
+        data-component="FocusTrap"
+        ref={(el) => {
+          hostEl = el;
+        }}
+        aria-modal="true"
+        aria-label={props.label}
+        aria-labelledby={props.labelledBy}
+        tabindex={-1}
+      >
+        {props.children}
+      </DialogContent>
+    </Dialog>
   );
 }

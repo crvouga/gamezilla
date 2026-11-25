@@ -5,7 +5,7 @@
  * an honest generic line; the server's own message is never shown.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useRefusedPublicationCopy } from './refused-publication-copy';
 
 /**

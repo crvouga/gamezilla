@@ -5,28 +5,30 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  onCleanup,
 } from 'solid-js';
 
 export function useContentSubscriptions(
   readRequests: Accessor<readonly SyncEngineQuerySubscriptionSpec[]>
 ): Accessor<boolean> {
   const engine = useSyncEngineInstance();
-  const [ready, setReady] = createSignal(false);
-  const requests = createMemo(readRequests, [], {
+  const requests = createMemo(readRequests, {
     equals: (left, right) => JSON.stringify(left) === JSON.stringify(right),
   });
-  createEffect(() => {
-    setReady(false);
-    const subscription = engine.subscribeQueries(requests());
+  // Other requests are not ready until their own subscription says so.
+  const [ready, setReady] = createSignal((): boolean => {
+    requests();
+    return false;
+  });
+  createEffect(requests, (specs) => {
+    const subscription = engine.subscribeQueries(specs);
     let live = true;
     void subscription.ready.then((value) => {
       if (live) setReady(value);
     });
-    onCleanup(() => {
+    return () => {
       live = false;
       subscription.unsubscribe();
-    });
+    };
   });
   return ready;
 }

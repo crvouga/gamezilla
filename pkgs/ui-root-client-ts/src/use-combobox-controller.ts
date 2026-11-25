@@ -26,8 +26,9 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  on,
 } from 'solid-js';
+
+import { selectedPickerValues } from './picker-parts';
 
 export type ComboboxController<T extends ComboboxValue> = {
   multiple: Accessor<boolean>;
@@ -45,6 +46,7 @@ export type ComboboxController<T extends ComboboxValue> = {
   openSurface: () => void;
   handleClose: () => void;
   handlePick: (next: T) => void;
+  setSelection: (value: T | T[] | null) => void;
   handleClear: () => void;
   removeMultiValue: (value: T) => void;
   onKey: (event: ComboboxKeyEvent) => void;
@@ -80,15 +82,41 @@ function createHighlight(
   query: Accessor<string>,
   count: Accessor<number>
 ) {
-  const [highlightedIndex, setIndex] = createSignal(0);
-  createEffect(on([open, query], () => setIndex(0)));
-  createEffect(
-    on(count, (n) => setIndex((prev) => clampHighlightedIndex(prev, n)))
-  );
+  // Opening, closing or typing puts the highlight back on the first option.
+  const [highlightedIndex, setIndex] = createSignal(() => {
+    open();
+    query();
+    return 0;
+  });
+  createEffect(count, (n) => {
+    setIndex((prev) => clampHighlightedIndex(prev, n));
+  });
   const setHighlightedIndex = (updater: (prev: number) => number): void => {
     setIndex((prev) => clampHighlightedIndex(updater(prev), count()));
   };
   return { highlightedIndex, setHighlightedIndex };
+}
+
+function setPickerSelection<T extends ComboboxValue>(
+  props: ComboboxProps<T>,
+  value: T | T[] | null,
+  pick: (next: T) => void
+): void {
+  if (props.disabled || props.loading || value === null) return;
+  if (isMultipleComboboxProps(props)) {
+    if (!Array.isArray(value)) return;
+    const candidates = [
+      ...props.options,
+      ...(props.value ?? []).map((item) => ({ value: item })),
+    ];
+    const selected = selectedPickerValues(candidates, value);
+    if (selected !== undefined) props.onValueChange(selected);
+  } else if (
+    !Array.isArray(value) &&
+    props.options.some((option) => option.value === value)
+  ) {
+    pick(value);
+  }
 }
 
 function createSelection<T extends ComboboxValue>(props: ComboboxProps<T>) {
@@ -187,6 +215,7 @@ export function useComboboxController<T extends ComboboxValue>(
     openSurface,
     handleClose,
     handlePick,
+    setSelection: (value) => setPickerSelection(props, value, handlePick),
     handleClear,
     removeMultiValue,
     onKey,

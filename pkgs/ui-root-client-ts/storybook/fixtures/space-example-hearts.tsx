@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { AvatarSeatColor } from '@pkgs/ui-root-client-ts/avatar';
 import {
@@ -17,7 +17,7 @@ import type {
   SpacePerson,
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Hearts as a space game: four players, two people and two bots filling

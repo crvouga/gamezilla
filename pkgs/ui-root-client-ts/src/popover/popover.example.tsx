@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { FloatingMenuPlacement } from '@pkgs/ui-root-client-ts/floating-menu-position';
 import type {
@@ -10,7 +10,8 @@ import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { Radio, RadioGroup } from '@pkgs/ui-root-client-ts/radio-group';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import { createSignal, For, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, For } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 

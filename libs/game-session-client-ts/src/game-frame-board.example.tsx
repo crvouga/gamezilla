@@ -9,7 +9,8 @@ import {
   stageOverlayAfter,
   stageOverlayPhaseEvent,
 } from '@pkgs/turn-game-client-ts/stage-overlay';
-import { createComputed, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, untrack } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
 import {
@@ -39,24 +40,24 @@ export function FrameStory(
   const [opened, setOpened] = createSignal<OpenedPlace<
     FramePhase,
     CustomGamePlace
-  > | null>({ stage: props.phase, place: props.place });
+    // The story opens on its own place: read once, then the person moves.
+  > | null>(untrack(() => ({ stage: props.phase, place: props.place })));
   const place = (): CustomGamePlace =>
     placeIn(CUSTOM_GAME_PLACES, props.phase, opened());
-  const [overlay, setOverlay] = createSignal<StageOverlay>(props.overlay);
+  // The story's overlay starts as given: read once, then events move it.
+  const [overlay, setOverlay] = createSignal<StageOverlay>(
+    untrack(() => props.overlay)
+  );
   // The story's phase moves the overlay as the app's does; the count is
   // the story's own (a still card), so no picture depends on time.
-  let seen = overlayPhase(props.phase);
-  createComputed(
-    on(
-      () => overlayPhase(props.phase),
-      (to) => {
-        const event = stageOverlayPhaseEvent(seen, to);
-        seen = to;
-        if (event !== null)
-          setOverlay((state) => stageOverlayAfter(state, event));
-      },
-      { defer: true }
-    )
+  createEffect(
+    () => overlayPhase(props.phase),
+    (to, seen) => {
+      if (seen === undefined) return;
+      const event = stageOverlayPhaseEvent(seen, to);
+      if (event !== null)
+        setOverlay((state) => stageOverlayAfter(state, event));
+    }
   );
   return (
     <CustomGameScreenView
@@ -181,8 +182,9 @@ export function onReview(all: readonly number[]) {
             moves={drops().slice(0, ply())}
             interactive={args.phase === 'active' && live() && ownTurn()}
             onDrop={(column) => {
-              setDrops([...drops(), column]);
-              setPly(drops().length);
+              const played = [...drops(), column];
+              setDrops(played);
+              setPly(played.length);
             }}
           />
         }

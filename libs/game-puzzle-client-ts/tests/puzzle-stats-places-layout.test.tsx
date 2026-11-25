@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Which of the puzzle stats' small screens holds which figure. */
 
 import { afterEach, expect, test } from 'bun:test';

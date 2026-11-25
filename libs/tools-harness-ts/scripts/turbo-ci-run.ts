@@ -51,9 +51,6 @@
  *   prefetches every remote hit, runs turbo over the whole set (hits restore
  *   their outputs, misses run) and `--continue`s past a failing task so every
  *   suite reports.
- * - `--publish-reports`: restore assigned cached spec parts and publish each
- *   completed part from Turbo's structured stream. Uploads have their own
- *   bounded pool, overlap verifications, and must finish before the gate passes.
  */
 
 import { type ChildProcess, spawn } from 'node:child_process';
@@ -78,7 +75,7 @@ import {
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
-import { MAX_MODEL_PARTS, MAX_SPEC_PARTS } from './spec-packages';
+import { MAX_SPEC_PARTS } from './spec-packages';
 import { readTurboTasks } from './turbo-config';
 import type { RunPlan } from './turbo-preflight';
 import {
@@ -89,7 +86,6 @@ import {
   readsRemoteCache,
   resolveRemoteHits,
   restoreEveryHit,
-  restoreSelectedReports,
   wallRemoteHas,
 } from './turbo-preflight';
 import {
@@ -110,9 +106,6 @@ import {
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
-import { completeReports, prepareReports } from './verify-report-lifecycle';
-import { observeReportOutput } from './verify-report-run';
-import type { ReportTaskIdentity } from './verify-report-stream';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEPLOY_AGGREGATOR = '//#deploy';
@@ -160,7 +153,6 @@ export const MAIN_VERIFY_TASKS = [
   '@libs/tools-harness-ts#ci:package-names',
   '@libs/tools-harness-ts#ci:goals',
   '@libs/tools-harness-ts#ci:specs',
-  '@libs/tools-harness-ts#ci:statecharts',
   '@libs/tools-harness-ts#ci:conformance',
   '@libs/tools-harness-ts#ci:spec-ownership',
   ...STORYBOOK_TASKS,
@@ -169,17 +161,10 @@ export const MAIN_VERIFY_TASKS = [
   'test',
   'test:contract',
   'test:contract:render',
-  // One symbolic model per task. The whole product suite outruns one runner.
   ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
   ...Array.from(
     { length: MAX_SPEC_PARTS },
     (_, index) => `test:spec:${String(index)}`
-  ),
-  'verify:models',
-  // The parts of a split models verification (`MAX_MODEL_PARTS` in spec-packages).
-  ...Array.from(
-    { length: MAX_MODEL_PARTS },
-    (_, index) => `verify:models:${String(index)}`
   ),
   'test:unit:1',
   'test:unit:2',
@@ -576,8 +561,7 @@ function exitWithDurations(code: number): never {
 function turboCiFlags(
   cache: string,
   logOrder: string,
-  ui: string | undefined,
-  publishReports: boolean
+  ui: string | undefined
 ): string[] {
   const TURBO_OUTPUT_LOGS =
     process.env['TURBO_OUTPUT_LOGS']?.trim() || 'errors-only';
@@ -591,16 +575,7 @@ function turboCiFlags(
     `--log-order=${logOrder}`,
     ...(ui !== undefined ? [`--ui=${ui}`] : []),
   ] as const;
-  return publishReports
-    ? [
-        ...TURBO_CI_FLAGS.filter(
-          (arg) => !/^--(output-logs|log-order|ui)=/.test(arg)
-        ),
-        '--json',
-        '--output-logs=full',
-        '--continue=dependencies-successful',
-      ]
-    : [...TURBO_CI_FLAGS, ...keepGoingFlags()];
+  return [...TURBO_CI_FLAGS, ...keepGoingFlags()];
 }
 
 /**
@@ -617,9 +592,7 @@ function keepGoingFlags(): readonly string[] {
 function cliTaskArgs(): string[] {
   const args = process.argv
     .slice(2)
-    .filter(
-      (arg) => ![RESTORE_OUTPUTS_FLAG, PUBLISH_REPORTS_FLAG].includes(arg)
-    );
+    .filter((arg) => arg !== RESTORE_OUTPUTS_FLAG);
   if (args.length === 0) {
     console.error(
       'usage: bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts <turbo run args…>'
@@ -641,7 +614,6 @@ async function main(): Promise<void> {
   const ui = resolveUi(process.env);
 
   const restoreOutputs = process.argv.includes(RESTORE_OUTPUTS_FLAG);
-  const publishReports = process.argv.includes(PUBLISH_REPORTS_FLAG);
   const rawTaskArgs = cliTaskArgs();
 
   const mode = resolveRunMode(rawTaskArgs);
@@ -670,47 +642,26 @@ async function main(): Promise<void> {
   const planned = await timed('plan', () =>
     planOrNull(fullRunArgs, cache, env)
   );
-  if (publishReports && planned === null)
-    throw new Error('Verify report publication requires an exact gate plan');
   const restore = restoreOutputs;
-  const { plan, missingReports } = await prepareRunPlan({
-    planned,
-    publishReports,
-    restore,
-    env,
-  });
+  const plan = restore && planned ? restoreEveryHit(planned) : planned;
   if (plan !== null && plan.toExecute.length === 0 && !restore) {
-    if (publishReports)
-      await timed('report-close', () => completeReports(0, env));
     exitWithDurations(finalExitCode({ status: 0, slowRunner, ran: false }));
   }
   if (plan !== null && plan.remoteHits.length > 0) {
     await timed('prefetch', () => prefetchRemoteHits(plan, REPO_ROOT, env));
   }
   const runArgs = turboRunArgs(fullRunArgs, plan, restore);
-  const flags = turboCiFlags(cache, TURBO_LOG_ORDER, ui, publishReports);
+  const flags = turboCiFlags(cache, TURBO_LOG_ORDER, ui);
 
   const stopHeartbeat = startHeartbeat();
   const status = await timed('turbo', () =>
-    runTurbo(
-      [
-        ...runArgs.filter((arg) => !publishReports || arg !== '--continue'),
-        ...flags,
-      ],
-      env,
-      { deadlineSeconds },
-      publishReports
-        ? plan?.tasks.filter((task) => missingReports.includes(task.taskId))
-        : undefined
-    )
+    runTurbo([...runArgs, ...flags], env, { deadlineSeconds })
   );
   stopHeartbeat();
 
   // Reap any esbuild --service workers orphaned by force-exited tasks.
   killOrphanEsbuildServices({ commandIncludes: REPO_ROOT });
-  exitWithDurations(
-    await finishRun({ status, slowRunner, env, publishReports })
-  );
+  exitWithDurations(finalExitCode({ status, slowRunner, ran: true }));
 }
 
 function runDeadlineSeconds(
@@ -755,54 +706,6 @@ function prepareTaskArgs(raw: readonly string[]): string[] {
   return args;
 }
 
-async function prepareRunPlan(args: {
-  readonly planned: RunPlan | null;
-  readonly publishReports: boolean;
-  readonly restore: boolean;
-  readonly env: NodeJS.ProcessEnv;
-}): Promise<{ plan: RunPlan | null; missingReports: readonly string[] }> {
-  if (args.publishReports) {
-    if (args.planned === null)
-      throw new Error('Verify report publication requires an exact gate plan');
-    const missingReports = await timed('report-prepare', () =>
-      prepareReports(args.planned!, args.env)
-    );
-    return {
-      plan: restoreSelectedReports(args.planned, missingReports),
-      missingReports,
-    };
-  }
-  return {
-    plan:
-      args.restore && args.planned
-        ? restoreEveryHit(args.planned)
-        : args.planned,
-    missingReports: [],
-  };
-}
-
-async function finishRun(args: {
-  readonly status: number;
-  readonly slowRunner: boolean;
-  readonly env: NodeJS.ProcessEnv;
-  readonly publishReports: boolean;
-}): Promise<number> {
-  let verdict = finalExitCode({
-    status: args.status,
-    slowRunner: args.slowRunner,
-    ran: true,
-  });
-  if (args.publishReports && args.status !== 124) {
-    try {
-      await timed('report-close', () => completeReports(verdict, args.env));
-    } catch (error) {
-      console.error(error);
-      verdict = 1;
-    }
-  }
-  return verdict;
-}
-
 /**
  * What turbo runs once the plan is in: only the misses (their `dependsOn`
  * closure comes along with the same hashes), or — restoring outputs — the
@@ -819,7 +722,6 @@ function turboRunArgs(
 }
 
 const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
-const PUBLISH_REPORTS_FLAG = '--publish-reports';
 
 /**
  * Default commands verify the portable packages, matching CI. Native reference
@@ -985,14 +887,10 @@ function killTree(child: ChildProcess, signal: NodeJS.Signals): void {
  */
 function armDeadline(
   child: ChildProcess,
-  deadlineSeconds: number,
-  stopReports: () => void
+  deadlineSeconds: number
 ): { readonly disarm: () => void; readonly deadlineHit: () => boolean } {
   let deadlineHit = false;
-  const forward = (signal: NodeJS.Signals) => () => {
-    stopReports();
-    killTree(child, signal);
-  };
+  const forward = (signal: NodeJS.Signals) => () => killTree(child, signal);
   const onInt = forward('SIGINT');
   const onTerm = forward('SIGTERM');
   process.on('SIGINT', onInt);
@@ -1022,7 +920,6 @@ function armDeadline(
               'libs/tools-harness-ts/scripts/verify-budget.ts with the measurement.'
           );
           killTree(child, 'SIGKILL');
-          stopReports();
         },
         deadlineSeconds * 1000 + DEADLINE_FLUSH_MS
       )
@@ -1042,48 +939,29 @@ function armDeadline(
 function runTurbo(
   args: readonly string[],
   env: NodeJS.ProcessEnv,
-  options: RunTurboOptions,
-  reportTasks?: readonly ReportTaskIdentity[]
+  options: RunTurboOptions
 ): Promise<number> {
   const child = spawn('turbo', args, {
-    stdio:
-      reportTasks === undefined ? 'inherit' : ['inherit', 'pipe', 'inherit'],
+    stdio: 'inherit',
     env,
     // A process group to kill on POSIX; on Windows a detached child gets a
     // console of its own, and `killProcessTree` walks the tree instead.
     detached: process.platform !== 'win32',
     windowsHide: true,
   });
-  const uploads = new AbortController();
-  const deadline = armDeadline(child, options.deadlineSeconds, () =>
-    uploads.abort()
-  );
-  const reports =
-    reportTasks === undefined
-      ? Promise.resolve()
-      : observeReportOutput(child, reportTasks, env, uploads.signal);
-  // Observe upload errors immediately; return a failed verdict after every upload settles.
-  const publication = reports.then(
-    () => true,
-    (error: unknown) => {
-      console.error(error);
-      return false;
-    }
-  );
+  const deadline = armDeadline(child, options.deadlineSeconds);
   return new Promise<number>((resolve) => {
     child.on('error', () => {
       deadline.disarm();
       resolve(1);
     });
-    child.on('close', async (code, signal) => {
-      const published = await publication;
+    child.on('close', (code, signal) => {
       deadline.disarm();
       resolve(
         gateExitCode({
           deadlineHit: deadline.deadlineHit(),
           signal,
           code,
-          published,
         })
       );
     });

@@ -3,7 +3,7 @@ import type {
   CancellationReason,
 } from '@libs/billing-shared-ts/cancellation-feedback';
 import { CANCELLATION_COMMENT_LIMIT } from '@libs/billing-shared-ts/cancellation-feedback';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { FormField } from '@pkgs/ui-root-client-ts/form-field';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
@@ -12,7 +12,8 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { Textarea } from '@pkgs/ui-root-client-ts/textarea';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
-import { createEffect, createSignal, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createSignal, Show, untrack } from 'solid-js';
 
 export type CancellationFeedbackFormProps = {
   readonly saved: CancellationFeedback | null;
@@ -29,27 +30,35 @@ export function CancellationFeedbackForm(
   const [reason, setReason] = createSignal<CancellationReason>('');
   const [comment, setComment] = createSignal('');
   const [dirty, setDirty] = createSignal(false);
-  createEffect(() => {
-    const saved = props.saved;
-    if (saved === null || untrack(dirty)) return;
-    setReason(saved.reason);
-    setComment(saved.comment);
-  });
+  createEffect(
+    () => props.saved,
+    (saved) => {
+      // An answer being edited is kept; only a newly saved one is adopted.
+      if (saved === null || untrack(dirty)) return;
+      setReason(saved.reason);
+      setComment(saved.comment);
+    }
+  );
   const save = useMutationButton({
     operation: async () => {
       await props.onSave({ reason: reason(), comment: comment() });
       setDirty(false);
     },
-    labels: {
-      idle: t`Save feedback`,
-      loading: t`Saving…`,
-      success: t`Saved`,
-      error: t`Try saving again`,
+    get labels() {
+      return {
+        idle: t`Save feedback`,
+        loading: t`Saving…`,
+        success: t`Saved`,
+        error: t`Try saving again`,
+      };
     },
   });
-  createEffect(() => {
-    if (props.delivery === 'rejected') save.reset();
-  });
+  createEffect(
+    () => props.delivery === 'rejected',
+    (rejected) => {
+      if (rejected) save.reset();
+    }
+  );
   return (
     <StackVertical gap="md" testId="billing-cancellation-feedback">
       <H2>

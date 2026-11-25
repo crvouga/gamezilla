@@ -1,11 +1,9 @@
 /**
- * Report-aware {@link Driver}: every user-intent op (`tap`, `input`,
- * `expect.*`, …) becomes one report step with its selector + press hit, so a
- * run's timeline reads like the test script and each UI step carries a frame
- * with the gesture target encoded for the HTML viewer.
+ * A {@link Driver} that hands every user-intent op (`tap`, `input`,
+ * `expect.*`, …) to a {@link StepRecorder} with its title and selector, so
+ * the recorder can log, time or veto what the driver was asked to do.
  */
 
-import type { ReportStepHit } from '@crvouga/atlas/reports/report-types';
 import type {
   AssertionOptions,
   Driver,
@@ -22,12 +20,10 @@ import { isWaitTextCondition } from './driver';
 import { formatTestIdPath } from './format';
 import { hasInventory } from './inventory';
 import type { DriverKey } from './keys';
-import type { StepRecorder } from './step-recorder';
+import type { StepMeta, StepRecorder } from './step-recorder';
 
 export type RecordingDriverOptions = {
   readonly recorder: StepRecorder;
-  /** Actor label attached to every step (multi-actor harnesses). */
-  readonly actorId?: string;
 };
 
 type Ctx = RecordingDriverOptions & { readonly path: readonly string[] };
@@ -39,8 +35,8 @@ function describeWait(
   if (isWaitTextCondition(state)) {
     return `${state.exact === false ? 'contains' : 'text'} ${JSON.stringify(state.text)}`;
   }
-  if (state === 'visible' && options?.visibleOr !== undefined)
-    return `visible or ${JSON.stringify(options.visibleOr)}`;
+  if (state !== 'enabled' && options?.visibleOr !== undefined)
+    return `${state} or visible ${JSON.stringify(options.visibleOr)}`;
   return state;
 }
 
@@ -48,65 +44,19 @@ function ratio(p: TapPosition): string {
   return `${p.xRatio.toFixed(2)},${p.yRatio.toFixed(2)}`;
 }
 
-type StepInfo = {
-  readonly kind: 'ui' | 'expect';
-  readonly title: string;
-  readonly detail?: string;
-  readonly point?: TapPosition;
-};
+type StepInfo = Omit<StepMeta, 'selector'>;
 
-function hitFrom(path: readonly string[], point?: TapPosition): ReportStepHit {
-  return {
-    path: [...path],
-    ...(point !== undefined
-      ? { point: { xRatio: point.xRatio, yRatio: point.yRatio } }
-      : {}),
-  };
-}
-
-function stepWithHit<T>(
-  ctx: Ctx,
-  info: StepInfo,
-  fn: () => Promise<T>
-): Promise<T> {
-  const hit = hitFrom(ctx.path, info.point);
+function step<T>(ctx: Ctx, info: StepInfo, fn: () => Promise<T>): Promise<T> {
   return ctx.recorder.record(
-    {
-      kind: info.kind,
-      title: info.title,
-      selector: formatTestIdPath(ctx.path),
-      hit,
-      // Capture while the target is still mounted (before tap navigates).
-      ...(info.kind === 'ui' ? { snapshotBefore: true } : {}),
-      ...(ctx.actorId !== undefined ? { actorId: ctx.actorId } : {}),
-      ...(info.detail !== undefined ? { detail: info.detail } : {}),
-    },
+    { ...info, selector: formatTestIdPath(ctx.path) },
     fn
   );
 }
 
-function stepExpect<T>(
-  ctx: Ctx,
-  info: StepInfo,
-  fn: () => Promise<T>
-): Promise<T> {
-  return ctx.recorder.record(
-    {
-      kind: info.kind,
-      title: info.title,
-      selector: formatTestIdPath(ctx.path),
-      ...(ctx.actorId !== undefined ? { actorId: ctx.actorId } : {}),
-      ...(info.detail !== undefined ? { detail: info.detail } : {}),
-    },
-    fn
-  );
-}
-
-const ui = (title: string, detail?: string, point?: TapPosition): StepInfo => ({
+const ui = (title: string, detail?: string): StepInfo => ({
   kind: 'ui',
   title,
   ...(detail !== undefined ? { detail } : {}),
-  ...(point !== undefined ? { point } : {}),
 });
 const check = (title: string, detail?: string): StepInfo => ({
   kind: 'expect',
@@ -117,18 +67,14 @@ const check = (title: string, detail?: string): StepInfo => ({
 function recordingExpect(node: DriverNode, ctx: Ctx): DriverNode['expect'] {
   return {
     visible: (options?: AssertionOptions) =>
-      stepExpect(ctx, check('expect visible'), () =>
-        node.expect.visible(options)
-      ),
+      step(ctx, check('expect visible'), () => node.expect.visible(options)),
     hidden: (options?: AssertionOptions) =>
-      stepExpect(ctx, check('expect hidden'), () =>
-        node.expect.hidden(options)
-      ),
+      step(ctx, check('expect hidden'), () => node.expect.hidden(options)),
     text: (
       expected: string,
       options?: AssertionOptions & { exact?: boolean }
     ) =>
-      stepExpect(
+      step(
         ctx,
         check(
           `expect text ${JSON.stringify(expected)}`,
@@ -148,41 +94,32 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
     get: (testId: string) =>
       recordingNode(node.get(testId), { ...ctx, path: [...ctx.path, testId] }),
     tap: (options?: UiWaitOptions) =>
-      stepWithHit(ctx, ui('tap'), () => node.tap(options)),
+      step(ctx, ui('tap'), () => node.tap(options)),
     tapAt: (position: TapPosition, options?: GestureOptions) =>
-      stepWithHit(
-        ctx,
-        ui(gestureTitle('tapAt', options), ratio(position), position),
-        () => node.tapAt(position, options)
+      step(ctx, ui(gestureTitle('tapAt', options), ratio(position)), () =>
+        node.tapAt(position, options)
       ),
     drag: (from: TapPosition, to: TapPosition, options?: GestureOptions) =>
-      stepWithHit(
+      step(
         ctx,
-        ui(
-          gestureTitle('drag', options),
-          `${ratio(from)} → ${ratio(to)}`,
-          from
-        ),
+        ui(gestureTitle('drag', options), `${ratio(from)} → ${ratio(to)}`),
         () => node.drag(from, to, options)
       ),
     layout: () => node.layout(),
     input: (text: string, options?: UiWaitOptions) =>
-      stepWithHit(ctx, ui(`input ${JSON.stringify(text)}`), () =>
+      step(ctx, ui(`input ${JSON.stringify(text)}`), () =>
         node.input(text, options)
       ),
-    clear: () => stepWithHit(ctx, ui('clear'), () => node.clear()),
+    clear: () => step(ctx, ui('clear'), () => node.clear()),
     selectFile: (file) =>
-      stepWithHit(ctx, ui(`select file ${file.name}`), () =>
-        node.selectFile(file)
-      ),
-    key: (key: DriverKey) =>
-      stepWithHit(ctx, ui(`key ${key}`), () => node.key(key)),
+      step(ctx, ui(`select file ${file.name}`), () => node.selectFile(file)),
+    key: (key: DriverKey) => step(ctx, ui(`key ${key}`), () => node.key(key)),
     scroll: (direction: ScrollDirection, amount?: number) =>
-      stepWithHit(ctx, ui(`scroll ${direction}`), () =>
+      step(ctx, ui(`scroll ${direction}`), () =>
         node.scroll(direction, amount)
       ),
     wait: (state: WaitState | WaitTextCondition, options?: DriverWaitOptions) =>
-      stepExpect(ctx, check(`wait ${describeWait(state, options)}`), () =>
+      step(ctx, check(`wait ${describeWait(state, options)}`), () =>
         node.wait(state, options)
       ),
     expect: recordingExpect(node, ctx),
@@ -193,7 +130,7 @@ function recordingNode(node: DriverNode, ctx: Ctx): DriverNode {
 }
 
 /**
- * Wrap a driver so its ops record report steps. Reads (`isVisible`, `text`,
+ * Wrap a driver so its ops go through the recorder. Reads (`isVisible`, `text`,
  * `layout`, `snapshotHtml`) pass through unrecorded; explore `inventory`
  * is forwarded when the underlying driver supports it.
  */
@@ -209,7 +146,7 @@ export function recordingDriver(
     get: (testId: string) =>
       recordingNode(driver.get(testId), rootCtx([testId])),
     key: (key: DriverKey) =>
-      stepExpect(rootCtx([]), ui(`key ${key}`), () => driver.key(key)),
+      step(rootCtx([]), ui(`key ${key}`), () => driver.key(key)),
     snapshotHtml: (snapshotOptions) => driver.snapshotHtml(snapshotOptions),
   };
   if (hasInventory(driver)) {

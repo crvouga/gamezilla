@@ -69,7 +69,6 @@ const driver = createSolidDomDriver({
   },
 });
 
-await session.snapshotAllActors({ stylesheetHref });
 session.activeActorId();
 session.clearFocus();
 session.unmountActor(actorId);

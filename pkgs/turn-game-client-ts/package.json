@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },
   "devDependencies": {

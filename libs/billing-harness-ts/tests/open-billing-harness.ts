@@ -21,8 +21,7 @@ const BILLING_SYSTEM = defineProductSystem(
 );
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openSystemHarness(BILLING_SYSTEM, testId, options);
+  return openSystemHarness(BILLING_SYSTEM, options);
 }

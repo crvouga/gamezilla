@@ -31,9 +31,7 @@ async function gameReadyTime(game: HarnessGame, endMs: number) {
   const rules = createTurnGames([game.shared.registration]);
   const turns =
     rules.turnsForPosition(rules.forControl(choice).initial()) !== undefined;
-  await using s = await openConformanceHarness(
-    `matched-game-ready-objective-${game.shared.id}`
-  );
+  await using s = await openConformanceHarness();
   for (const actor of ['alice', 'bob']) {
     await s.apply(signInWithGoogle, actor);
     await s.apply(givenGameSpace, actor);

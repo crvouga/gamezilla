@@ -6,7 +6,8 @@
  */
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
-import { createSignal, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
 import type { ContentAttemptPlace } from './content-places';
 import type { PuzzleContentFrame } from './puzzle-content-client';

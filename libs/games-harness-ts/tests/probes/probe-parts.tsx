@@ -21,7 +21,9 @@ import {
   type GameSide,
   gameSides,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { For, type JSX } from 'solid-js';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
+import type { JSX } from '@solidjs/web';
+import { For } from 'solid-js';
 
 /** What a board and a puzzle board are both given. */
 type BoardProps = {
@@ -38,14 +40,14 @@ export function buttonBoard(rules: GameRules) {
       <div data-testid={props.testId} data-position={props.position}>
         <For each={rules.legal(props.position)}>
           {(action) => (
-            <button
+            <Pressable
               type="button"
-              data-testid={`${props.testId}-${action}`}
+              testId={`${props.testId}-${action}`}
               disabled={!props.interactive}
-              onClick={() => props.onAction(action)}
+              onPress={() => props.onAction(action)}
             >
               {action}
-            </button>
+            </Pressable>
           )}
         </For>
       </div>

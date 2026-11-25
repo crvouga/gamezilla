@@ -1,0 +1,4 @@
+{
+  "summary": "A billing browser trace could not take the phone offline or bring it back because the lifecycle only inspected in-process network partitions.",
+  "regressionTest": "libs/billing-harness-ts/tests/stack-trial.test.ts"
+}

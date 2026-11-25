@@ -4,7 +4,7 @@ import {
 } from '@libs/app-env-client-ts/client-env-context';
 import { AuthBridge } from '@libs/auth-client-ts/auth-bridge';
 import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { LocalIdentityProvider } from './identity-context';
 
 export function AppAuthProvider(props: {

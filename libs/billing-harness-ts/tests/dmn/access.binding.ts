@@ -17,8 +17,8 @@
  */
 
 import { BILLING_TABLES } from '@libs/billing-shared-ts/tables';
+import { accessApplicationLayer } from '@libs/permissions-harness-ts/application';
 import { accessClientLayer } from '@libs/permissions-harness-ts/client-layers';
-import { accessApplicationLayer } from '@libs/permissions-shared-ts/application';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import {
   queryGuardOperation,

@@ -1,5 +1,8 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { slider } from '@ui-sdk/core/slider';
+import { usePrimitive } from '@ui-sdk/solid/primitive';
+import { omit } from 'solid-js';
 import styles from './range-control.module.css';
 
 export type RangeControlProps = {
@@ -35,9 +38,22 @@ export type RangeControlProps = {
 
 /** Native keyboard and pointer seeking with the shared control size and palette. */
 export function RangeControl(props: RangeControlProps) {
+  const control = usePrimitive(slider, () => ({
+    value: props.value,
+    min: props.min,
+    max: Math.max(props.min, props.max),
+    step: props.step ?? 1,
+    orientation: props.orientation ?? 'horizontal',
+    disabled: props.disabled === true,
+    onValueChange: (value) => {
+      if (typeof value === 'number') props.onInput(value);
+    },
+    onValueCommit: () => props.onCommit?.(),
+  }));
+  const native = omit(control.slot('root'), 'role');
   return (
     <input
-      {...dataAttrs({ component: 'RangeControl', ...props.dataSet })}
+      {...native}
       class={
         props.orientation === 'vertical'
           ? `box accent-tint bg-transparent cursor-pointer ${styles['vertical']}`
@@ -50,6 +66,7 @@ export function RangeControl(props: RangeControlProps) {
           ? 'true'
           : undefined
       }
+      {...dataAttrs({ component: 'RangeControl', ...props.dataSet })}
       type="range"
       aria-label={props.label}
       aria-valuetext={props.valueText}

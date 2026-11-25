@@ -1,17 +1,10 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  For,
-  type JSX,
-  on,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
 import { useAppFrameGlobalStatus } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
 import { createElementWidth } from '../create-element-width';
@@ -296,9 +289,10 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
   // The title's whole width, however much of it shows now.
   const [titleWidth, setTitleWidth] = createSignal(0);
   createEffect(
-    on([heading, title, rowWidth], ([node]) => {
+    () => [heading(), title(), rowWidth()] as const,
+    ([node]) => {
       if (node !== null) setTitleWidth(node.scrollWidth);
-    })
+    }
   );
   // The title comes first: actions are buttons only in the room it leaves
   // (a very long one keeps most of the row and is then cut short). Back
@@ -397,9 +391,9 @@ export function SpaceShell(props: SpaceShellProps): JSX.Element {
   return (
     <div
       class={styles['shell']}
-      {...dataAttrs({ component: 'SpaceShell', ...props.dataSet })}
       data-role={props.role}
       data-layout={mode()}
+      {...dataAttrs({ component: 'SpaceShell', ...props.dataSet })}
     >
       <ActionsRow {...props} />
       {/* A notice comes and goes (a refused change, the host away): it

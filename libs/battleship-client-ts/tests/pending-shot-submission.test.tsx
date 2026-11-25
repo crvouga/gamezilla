@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { BattleshipBoard } from '@libs/battleship-client-ts/battleship-board';
 import { encodeBattleshipPosition } from '@libs/battleship-shared-ts/battleship-position';
 import { fireEvent } from '@solidjs/testing-library';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const fleet =
@@ -45,6 +45,7 @@ test('while the frame submits J10 the busy Fire stays and the cells are not offe
   // A refusal resets the aim through the existing resync; play resumes.
   setInteractive(true);
   reset(1);
+  flush();
   expect(byTestId('sending-fire').hasAttribute('aria-busy')).toBe(false);
   expect(byTestId('sending-fire').textContent).toContain('Choose a cell in');
 });

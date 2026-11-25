@@ -3,7 +3,8 @@
  * its small screens' stories starts from it, with stand-ins for the smart
  * widgets it takes as slots. Production never imports this module.
  */
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { fn } from 'storybook/test';
 import {
   ContentAuthorCopiesListView,

@@ -35,11 +35,13 @@ export type WindowManagerApi = {
   readonly menuActions: Accessor<readonly OverflowMenuAction[]>;
 };
 
-export const WindowManagerContext = createContext<WindowManagerApi>();
+export const WindowManagerContext = createContext<WindowManagerApi | null>(
+  null
+);
 
 export function useWindowManager(): WindowManagerApi {
   const api = useContext(WindowManagerContext);
-  if (api === undefined)
+  if (api === null)
     throw new Error('Window manager parts render inside a WindowManager');
   return api;
 }

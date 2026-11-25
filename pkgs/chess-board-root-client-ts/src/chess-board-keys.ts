@@ -5,6 +5,7 @@
  * and every premove.
  */
 
+import { isSquare } from '@pkgs/chess-board-core-shared-ts/geometry';
 import type {
   BoardOrientation,
   Square,
@@ -14,7 +15,7 @@ import {
   moveCursor,
 } from '@pkgs/chess-board-root-shared-ts/keyboard-nav';
 import type { PointerSession } from '@pkgs/chess-board-root-shared-ts/pointer-session';
-import { type Accessor, batch } from 'solid-js';
+import type { Accessor } from 'solid-js';
 
 export type BoardKeysArgs = {
   readonly host: Accessor<HTMLElement | undefined>;
@@ -32,13 +33,30 @@ function focusSquare(host: HTMLElement | undefined, square: Square): void {
   host?.querySelector<HTMLElement>(`[data-square="${square}"]`)?.focus();
 }
 
+/**
+ * The square a key acts on: the one holding focus when the key is pressed.
+ * A key can follow the focus that moved there before the cursor has caught
+ * up with it, so the pressed square is read from the event; the cursor
+ * answers only for a key pressed on the board itself.
+ */
+function keySquare(event: KeyboardEvent, cursor: Square): Square {
+  const target = event.target;
+  if (!(target instanceof Element)) return cursor;
+  const square = target
+    .closest<HTMLElement>('[data-square]')
+    ?.getAttribute('data-square');
+  return typeof square === 'string' && isSquare(square) ? square : cursor;
+}
+
 export function createBoardKeyHandler(
   args: BoardKeysArgs
 ): (event: KeyboardEvent) => void {
   return (event) => {
+    // regression: board-key-in-the-same-turn-as-focus
+    const at = keySquare(event, args.cursor());
     if (isArrowKey(event.key)) {
       event.preventDefault();
-      const next = moveCursor(args.cursor(), event.key, args.orientation());
+      const next = moveCursor(at, event.key, args.orientation());
       if (next === null) return;
       args.setCursor(next);
       focusSquare(args.host(), next);
@@ -47,14 +65,12 @@ export function createBoardKeyHandler(
     if (event.key === 'Enter' || event.key === ' ') {
       event.preventDefault();
       args.clearAnnotations();
-      // Not batched: Enter on a target plays a move, and the parent's
-      // `onMove` must run with its own effects, not inside a board batch.
-      args.session.down(args.cursor());
-      args.session.up(args.cursor());
+      args.session.down(at);
+      args.session.up(at);
       return;
     }
     if (event.key === 'Escape') {
-      batch(args.cancel);
+      args.cancel();
     }
   };
 }

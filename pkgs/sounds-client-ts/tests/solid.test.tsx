@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
@@ -15,7 +15,7 @@ import {
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
 import { resolveWebAudioSource } from '@pkgs/sounds-shared-ts/web-audio-playback-port';
 import { render, screen } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 function Shell(props: { readonly children: JSX.Element }): JSX.Element {
   const { clock, timers } = createHarnessClock();

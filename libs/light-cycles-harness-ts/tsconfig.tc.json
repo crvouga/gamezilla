@@ -2,11 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "jsx": "preserve",
-    "jsxImportSource": "solid-js"
+    "jsxImportSource": "@solidjs/web"
   },
   "include": [
     "../../pkgs/ts-reset-shared-ts/src/ts-reset.ts",
     "../../pkgs/ui-root-client-ts/src/css-modules.d.ts",
+    "../../pkgs/ui-root-client-ts/src/lucide-icons.d.ts",
     "../../pkgs/ui-root-client-ts/src/lingui-augmentation.ts",
     "../../pkgs/bun-test-solid-client-ts/src/jest-dom.d.ts",
     "../app-root-shared-ts/src/vite-env.d.ts",

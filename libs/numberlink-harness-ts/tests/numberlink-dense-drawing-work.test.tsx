@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import { NumberlinkBoard } from '@libs/numberlink-client-ts/numberlink-board';
 import { DENSE_NUMBERLINK } from '@libs/numberlink-client-ts/numberlink-extremes.example';
 import type { NumberlinkState } from '@libs/numberlink-shared-ts/numberlink-types';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { renderNumberlink } from './numberlink-client-fixture';
 
 function rowPath(row: number, length: number) {
@@ -36,6 +36,7 @@ test('extending a path on the densest board rewrites only the cell it adds', () 
       attributeFilter: ['aria-label'],
     });
     setState({ paths: [...finished, rowPath(0, 6)] });
+    flush();
     const relabelled = observer
       .takeRecords()
       .filter((record) => record.type === 'attributes')

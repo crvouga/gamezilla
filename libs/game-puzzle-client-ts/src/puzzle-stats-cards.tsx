@@ -1,9 +1,9 @@
 import type { PuzzleStats } from '@libs/game-puzzle-shared-ts/stats';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /** A total, named by test id on the §15 P0 figures so scenarios can read it. */
 function StatValue(props: { value: string; testId?: string }): JSX.Element {

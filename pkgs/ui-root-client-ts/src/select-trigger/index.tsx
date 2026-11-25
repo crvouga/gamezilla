@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -8,8 +8,10 @@ import type {
   SelectSize,
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { omit, Show } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
+import { SelectParts } from '../picker-parts';
 
 export type SelectTriggerProps<T extends SelectValue> = {
   selected: SelectOption<T> | undefined;
@@ -17,7 +19,7 @@ export type SelectTriggerProps<T extends SelectValue> = {
   disabled: boolean;
   size: SelectSize;
   open: boolean;
-  onClick: () => void;
+  listboxId: string;
   'aria-label': string | undefined;
   /** DOM `data-*` identifiers for the trigger button. */
   dataSet?: ComponentDataSet | undefined;
@@ -31,7 +33,11 @@ export type SelectTriggerProps<T extends SelectValue> = {
  * real `<button>` with `aria-haspopup="listbox"` / `aria-expanded`.
  */
 export function SelectLabel(props: { label: JSX.Element }): JSX.Element {
-  return <p class="text textCaption mb-1 text-text-secondary">{props.label}</p>;
+  return (
+    <SelectParts.Label class="text textCaption mb-1 text-text-secondary">
+      {props.label}
+    </SelectParts.Label>
+  );
 }
 
 function triggerClass(compact: boolean): string {
@@ -47,31 +53,46 @@ export function SelectTrigger<T extends SelectValue>(
   const compact = (): boolean => props.size === 'sm';
   const hasSelection = (): boolean => props.selected !== undefined;
   return (
-    <button
+    <SelectParts.Trigger
+      onPointerDown={(event) => {
+        // The modal covers the trigger. Open on click so the release still lands on it.
+        if (event.button === 0 && event.pointerType === 'mouse')
+          event.preventDefault();
+      }}
+      render={(part) => {
+        const native = omit(part, 'role');
+        return (
+          <button
+            {...native}
+            aria-controls={props.open ? props.listboxId : undefined}
+          />
+        );
+      }}
       class={triggerClass(compact())}
       {...dataAttrs({ component: 'SelectTrigger', ...props.dataSet })}
       type="button"
-      onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-haspopup="listbox"
-      aria-expanded={props.open}
+      aria-expanded={props.open ? 'true' : 'false'}
       aria-label={props['aria-label']}
     >
       <Show when={props.selected?.preview !== undefined}>
         <div class="box shrink-0">{props.selected?.preview}</div>
       </Show>
       <p
-        class="text line-clamp-1 flex-1 min-w-0 shrink"
-        classList={{
-          textFootnote: compact(),
-          textBody: !compact(),
-          'text-text': hasSelection(),
-          'text-text-secondary': !hasSelection(),
-        }}
+        class={[
+          'text line-clamp-1 flex-1 min-w-0 shrink',
+          {
+            textFootnote: compact(),
+            textBody: !compact(),
+            'text-text': hasSelection(),
+            'text-text-secondary': !hasSelection(),
+          },
+        ]}
       >
         {props.selected?.label ?? props.placeholder}
       </p>
       <ChevronDownIcon size={compact() ? 16 : 20} color="icon" />
-    </button>
+    </SelectParts.Trigger>
   );
 }

@@ -1,14 +1,12 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  createMemo,
-  createUniqueId,
-  For,
-  Index,
-  type JSX,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import { trailShapes } from '../trail-arena-geometry';
-import { controlledSlots, trailArenaInput } from '../trail-arena-input';
+import {
+  ArenaSurface,
+  controlledSlots,
+  trailArenaInput,
+} from '../trail-arena-input';
 import {
   ArenaOverlay,
   ArenaPatterns,
@@ -43,13 +41,20 @@ const MARGIN = 1.5;
  */
 export const LARGE_HEAD_SCALE = 1.4;
 
+/** The drawing's box, grown by the room around the walls on every side. */
+function drawingStyle(width: number): JSX.CSSProperties {
+  return {
+    width: `${((width + 2 * MARGIN) / width) * 100}%`,
+    margin: `-${(MARGIN / width) * 100}%`,
+  };
+}
+
 /**
  * A grid arena of light trails. Coordinates are cells: the viewBox is fixed
  * by the grid size, so resizing scales the drawing and never moves a cell.
  * Each rider index has its own colour token and its own trail pattern;
  * every trail is one merged path, so the cost follows the riders, not the cells.
  */
-/* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-steered arena uses the ARIA application role; the direction pad provides equivalent buttons outside application mode. */
 export function TrailArena(props: TrailArenaProps): JSX.Element {
   const arenaId = `trail-arena-${createUniqueId()}`;
   const input = trailArenaInput(props);
@@ -59,21 +64,24 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   const interactive = () => props.enabled && controlledSlots(props) > 0;
   const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   return (
-    <div
-      {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
+    <ArenaSurface
+      enabled={props.enabled}
+      riders={props.riders}
+      onDirection={props.onDirection}
       class={styles['arena']}
       // Its shape, so a room shorter than the arena is wide narrows it to
       // fit whole (both riders in view) instead of running off the bottom.
       style={{ '--arena-aspect': String(props.width / props.height) }}
-      data-interactive={interactive()}
-      data-dimmed={props.dimmed === true}
+      data-interactive={String(interactive())}
+      data-dimmed={String(props.dimmed === true)}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
+      {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       role="application"
       aria-label={props.label}
       aria-describedby={props.instructionsId}
-      tabIndex={interactive() ? 0 : -1}
+      tabindex={interactive() ? 0 : -1}
       onKeyDown={input.keyDown}
       onPointerDown={input.pointerDown}
       onPointerMove={input.pointerMove}
@@ -86,10 +94,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
         // The room around the walls hangs outside the arena's box, so the
         // walls sit flush with the column and only a head at the edge
         // reaches past them.
-        style={{
-          width: `${((props.width + 2 * MARGIN) / props.width) * 100}%`,
-          margin: `-${(MARGIN / props.width) * 100}%`,
-        }}
+        style={drawingStyle(props.width)}
         data-testid={`${props.testId}-drawing`}
         viewBox={`${-MARGIN} ${-MARGIN} ${props.width + 2 * MARGIN} ${props.height + 2 * MARGIN}`}
         preserveAspectRatio="xMidYMid meet"
@@ -142,7 +147,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       </svg>
       <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
-    </div>
+    </ArenaSurface>
   );
 }
 
@@ -156,7 +161,7 @@ function Markers(props: {
 }): JSX.Element {
   return (
     <>
-      <Index each={props.riders}>
+      <For keyed={false} each={props.riders}>
         {(rider) => (
           <RiderHead
             rider={rider()}
@@ -165,8 +170,8 @@ function Markers(props: {
             testId={props.testId}
           />
         )}
-      </Index>
-      <Index each={props.crashes}>
+      </For>
+      <For keyed={false} each={props.crashes}>
         {(crash) => (
           <CrashMarker
             crash={crash()}
@@ -174,7 +179,7 @@ function Markers(props: {
             testId={props.testId}
           />
         )}
-      </Index>
+      </For>
     </>
   );
 }

@@ -16,7 +16,7 @@ import { openHarness } from './open-friends-harness';
 
 test('a person who joins by link sees the host-based name follow the host', async () => {
   // regression: space-link-host-profile-missing
-  await using s = await openHarness('space-link-host-profile-missing');
+  await using s = await openHarness();
   await s.apply(createSpace, 'alice');
   const link = await s.read(readSpaceLink, 'alice');
   if (link === null) throw new Error('Alice did not create a space');

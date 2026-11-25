@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** A lobby card: a title over one line of who hosts the space and who is in it. */
 
 import { afterEach, expect, test } from 'bun:test';

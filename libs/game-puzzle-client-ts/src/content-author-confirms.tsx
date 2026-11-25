@@ -1,4 +1,4 @@
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ContentCopyConfirm } from './content-author-copies-list';
 import { ContentPackRemoval } from './content-pack-items';
 import { ContentWithdrawConfirm } from './content-withdraw';

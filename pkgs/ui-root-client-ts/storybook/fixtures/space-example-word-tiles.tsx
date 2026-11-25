@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { AvatarSeatColor } from '@pkgs/ui-root-client-ts/avatar';
 import type {
@@ -16,7 +16,7 @@ import {
   type WordTileSquare,
 } from '@pkgs/ui-root-client-ts/word-tile-board';
 import { WordTileWorkspace } from '@pkgs/ui-root-client-ts/word-tile-workbench';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Which moment of a Word Tiles game the example shows: the viewer's turn

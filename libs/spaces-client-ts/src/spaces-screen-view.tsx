@@ -1,10 +1,10 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
 import type { SpacesLobbyStatus } from './spaces-lobby-view';

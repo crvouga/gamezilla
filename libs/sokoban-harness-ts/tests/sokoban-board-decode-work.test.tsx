@@ -6,7 +6,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { createSignal } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 // regression: sokoban-move-reparses-unchanged-board
 test('the first left move on the solved maximum board does not parse its terrain again', () => {
@@ -49,16 +49,52 @@ test('the first left move on the solved maximum board does not parse its terrain
     expect(boardReads).toBe(1);
     boardReads = 0;
     setState(states[2]!);
+    flush();
     expect(view.getByTestId('sokoban-counts').getAttribute('data-moves')).toBe(
       '3'
     );
     expect(boardReads).toBe(0);
     setDefinition('{}');
+    flush();
     expect(view.queryByTestId('sokoban-unreadable')).not.toBeNull();
     setDefinition(MAXIMUM_BOARD);
+    flush();
     expect(view.queryByTestId('sokoban-unreadable')).toBeNull();
     expect(boardReads).toBe(1);
   } finally {
     observed.mockRestore();
   }
+});
+
+// regression: sokoban-rules-reparse-maximum-board
+test('walking on the maximum board reuses its validated terrain across rules calls', () => {
+  const rules = sokobanPuzzleContent.rules;
+  const initial = rules.initial(MAXIMUM_BOARD);
+  if (!initial.accepted) throw new Error('Invalid maximum board');
+  let state = initial.state;
+  for (let index = 0; index < 6; index++) {
+    const pushed = rules.apply(MAXIMUM_BOARD, state, 'r');
+    if (!pushed.accepted) throw new Error('Invalid approach to H2');
+    state = pushed.state;
+  }
+
+  const observed = spyOn(JSON, 'parse');
+  try {
+    for (const action of ['l', 'r']) {
+      const next = rules.apply(MAXIMUM_BOARD, state, action);
+      if (!next.accepted) throw new Error('Worker could not walk');
+      state = next.state;
+      expect(rules.complete(MAXIMUM_BOARD, state)).toBe(false);
+    }
+    expect(sokobanPuzzleContent.statistics?.(MAXIMUM_BOARD, state)).toEqual({
+      moves: 8,
+      pushes: 6,
+    });
+    expect(
+      observed.mock.calls.filter(([text]) => text === MAXIMUM_BOARD)
+    ).toHaveLength(0);
+  } finally {
+    observed.mockRestore();
+  }
+  expect(rules.apply('{}', state, 'l').accepted).toBe(false);
 });

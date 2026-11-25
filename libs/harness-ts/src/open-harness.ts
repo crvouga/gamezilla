@@ -4,7 +4,6 @@
  */
 
 import type { Client } from '@libs/app-root-client-ts/create-client';
-import { monotonicClock, wallClock } from '@pkgs/clock-shared-ts/wall';
 import type { HarnessSystemSnapshot } from '@pkgs/harness-console-shared-ts/system-snapshot';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Run } from '@pkgs/harness-root-shared-ts/run-types';
@@ -22,8 +21,6 @@ import {
   ensureNodeLocalStoragePolyfill,
 } from './node-local-storage-polyfill';
 import type { ProductHostName } from './ports';
-import type { TestCallSite } from './report';
-import { getReportStore, HARNESS_REPORT_RUN_ID, testCallSite } from './report';
 import { readHarnessSystemSnapshot } from './snapshot-fixture';
 import type { HarnessSql } from './sql-types';
 import { stackRunSeed } from './stack-manifest';
@@ -63,7 +60,6 @@ async function pinHarness(s: Run<ProductHarness>): Promise<ProductHarness> {
   const pin: { current: ProductHarness | null } = { current: null };
   const capture = defineAction({
     name: 'openHarness.pinHarness',
-    report: false,
     act: (surf: ProductHarness) => {
       pin.current = surf;
     },
@@ -75,26 +71,9 @@ async function pinHarness(s: Run<ProductHarness>): Promise<ProductHarness> {
   return pin.current;
 }
 
-/**
- * The report key for a test: its spec file's name, then the id the test
- * chose. Parallel workers share one bucket, so two specs that happen to pick
- * the same id must not overwrite each other's report.
- */
-function reportTestId(testId: string, callSite: TestCallSite | null): string {
-  if (callSite === null) return testId;
-  const file = callSite.sourceFile.split('/').pop() ?? '';
-  const stem = file.replace(/\.test\.[cm]?[jt]sx?$/, '');
-  return stem.length > 0 ? `${stem}.${testId}` : testId;
-}
-
-/**
- * Open a reported product harness. Every run writes its report into the
- * package's `.cache/harness-report`, UI frames included; `bun verify` publishes
- * every package's bucket for Atlas.
- */
+/** Open a product harness on the host its mode selects. */
 export async function openHarness(
   system: ProductSystem,
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
   ensureNodeLocalStoragePolyfill();
@@ -102,26 +81,9 @@ export async function openHarness(
   if (mode !== 'fast') {
     process.env['HARNESS_MODE'] = mode;
   }
-  const named = options?.report;
-  const callSite: TestCallSite | null =
-    named !== undefined
-      ? {
-          sourceFile: named.sourceFile,
-          sourceLine: named.sourceLine ?? 1,
-        }
-      : testCallSite(new Error().stack);
   const s = await system.run({
     seed: options?.seed ?? (mode === 'stack' ? stackRunSeed() : 1),
     runtime: resolveHostName(options),
-    report: {
-      store: getReportStore(),
-      runId: HARNESS_REPORT_RUN_ID,
-      testId: named !== undefined ? testId : reportTestId(testId, callSite),
-      now: () => wallClock.now(),
-      performance: { clock: monotonicClock, slowStepMs: 50 },
-      ...(named !== undefined ? { title: named.title } : {}),
-      ...(callSite ?? {}),
-    },
   });
   const surface = await pinHarness(s);
   const snapshot =
@@ -136,10 +98,9 @@ export async function openHarness(
   if (extra.http.kind === 'localhost') {
     httpListener = await listenHarnessHttpServer(surface.harness);
   }
-  // Replace create()-default runtime with report / snapshot / HTTP extras.
+  // Replace create()-default runtime with snapshot / HTTP extras.
   wireProductRuntime(surface, {
     ...(snapshot !== undefined ? { snapshot } : {}),
-    recorder: { record: (meta, fn) => s.record(meta, fn) },
     onDispose: async () => {
       if (httpListener !== null) {
         await httpListener.stop();

@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   DATA_TABLE_ROW_HEIGHT,
   DATA_TABLE_SELECTION_COL_WIDTH,
@@ -12,7 +12,9 @@ import type {
 } from '@pkgs/ui-devtools-shared-ts/data-table-types';
 import { Checkbox } from '@pkgs/ui-root-client-ts/checkbox';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { For, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { For, Show } from 'solid-js';
 import styles from '../data-table/data-table.module.css';
 
 export type DataTableRowSelection = {
@@ -51,7 +53,7 @@ export function DataTableCellContent<T>(props: {
         </p>
       }
     >
-      {(cell) => cell()(props.row)}
+      {(cell) => <>{cell()(props.row)}</>}
     </Show>
   );
 }
@@ -84,15 +86,15 @@ function DataTableCell<T>(props: {
         }
       >
         {(onClick) => (
-          <button
+          <SdkButton
             class="clickable"
             type="button"
             style={inner()}
             onClick={() => onClick()()}
-            tabIndex={props.tabbable ? 0 : -1}
+            tabindex={props.tabbable ? 0 : -1}
           >
             <DataTableCellContent column={props.column} row={props.row} />
-          </button>
+          </SdkButton>
         )}
       </Show>
     </td>
@@ -106,11 +108,15 @@ function DataTableCell<T>(props: {
  */
 export function DataTableRow<T>(props: DataTableRowProps<T>): JSX.Element {
   const { t } = useLingui();
+  const selected = (): 'true' | 'false' | undefined => {
+    if (!props.selection) return undefined;
+    return props.selection.selected ? 'true' : 'false';
+  };
   return (
     <tr
       class={`${styles['bodyRow']} ${styles[props.density]}`}
       data-row-key={props.rowKey}
-      aria-selected={props.selection ? props.selection.selected : undefined}
+      aria-selected={selected()}
     >
       <Show when={props.selection}>
         {(selection) => (

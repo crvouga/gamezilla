@@ -1,4 +1,4 @@
-import { createRenderEffect, onCleanup, onMount, untrack } from 'solid-js';
+import { createRenderEffect, onSettled, untrack } from 'solid-js';
 import type { CourtControls, CourtSide } from '../paddle-court-input';
 
 const PADDLE_KEYS = new Set(['arrowup', 'arrowdown', 'w', 's']);
@@ -9,17 +9,18 @@ export function useCourtInputLifecycle(
   release: (sides?: readonly CourtSide[]) => void,
   court: () => HTMLElement | undefined
 ): void {
-  let previous = { enabled: props.enabled, sides: [...props.controlled] };
-  createRenderEffect(() => {
-    const next = { enabled: props.enabled, sides: [...props.controlled] };
-    if (
-      previous.enabled &&
-      (!next.enabled || previous.sides.join() !== next.sides.join())
-    )
-      untrack(() => release(previous.sides));
-    previous = next;
-  });
-  onMount(() => {
+  createRenderEffect(
+    () => ({ enabled: props.enabled, sides: [...props.controlled] }),
+    (next, previous) => {
+      if (
+        previous?.enabled === true &&
+        (!next.enabled || previous.sides.join() !== next.sides.join())
+      )
+        // The host's handlers are called, not followed.
+        untrack(() => release(previous.sides));
+    }
+  );
+  onSettled(() => {
     const blur = () => release();
     const visibility = () => {
       if (document.visibilityState === 'hidden') release();
@@ -54,10 +55,10 @@ export function useCourtInputLifecycle(
     window.addEventListener('blur', blur);
     document.addEventListener('visibilitychange', visibility);
     document.addEventListener('keydown', enter);
-    onCleanup(() => {
+    return () => {
       window.removeEventListener('blur', blur);
       document.removeEventListener('visibilitychange', visibility);
       document.removeEventListener('keydown', enter);
-    });
+    };
   });
 }

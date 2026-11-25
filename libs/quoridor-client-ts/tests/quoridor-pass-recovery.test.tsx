@@ -10,7 +10,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const BLOCKED_HILL = [
   'e2',

@@ -1,5 +1,8 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
+
+import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 
 /**
  * `CommandPaletteRow` -- one command inside the palette listbox: icon,
@@ -10,7 +13,8 @@ import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 import type { MatchRange } from '@pkgs/ui-root-shared-ts/fuzzy-match';
 import { fuzzyMatch } from '@pkgs/ui-root-shared-ts/fuzzy-match';
-import { createMemo, type JSX, Show } from 'solid-js';
+import { dynamic, type JSX } from '@solidjs/web';
+import { createMemo, Show } from 'solid-js';
 import { CommandPaletteKbd } from '../command-palette-kbd/index';
 import type { IconComponent } from '../create-icon/index';
 import { HighlightedText } from '../highlighted-text/index';
@@ -34,12 +38,10 @@ export type CommandPaletteRowProps = {
 };
 
 function RowIcon(props: { icon: IconComponent | undefined }): JSX.Element {
+  const Icon = dynamic(() => props.icon);
   return (
     <Show when={props.icon} fallback={<div class="box w-5" />}>
-      {(icon) => {
-        const Icon = icon();
-        return <Icon size={18} color="icon" />;
-      }}
+      <Icon size={18} color="icon" />
     </Show>
   );
 }
@@ -67,11 +69,13 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
   const shortcut = (): string | undefined =>
     normalizeShortcut(props.command.shortcut)?.keys;
   return (
-    <button
-      class="clickable clickableTint py-2 px-3 gap-1 text-left border-l-3 border-l-transparent"
-      classList={{
-        'bg-tint-subtle border-l-tint': props.selected,
-      }}
+    <SdkButton
+      class={[
+        'clickable clickableTint py-2 px-3 gap-1 text-left border-l-3 border-l-transparent',
+        {
+          'bg-tint-subtle border-l-tint': props.selected,
+        },
+      ]}
       data-component="CommandPaletteRow"
       type="button"
       style={{
@@ -80,9 +84,9 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
       }}
       id={props.id}
       role="option"
-      aria-selected={props.selected}
-      aria-disabled={disabled() ? true : undefined}
-      tabIndex={-1}
+      aria-selected={ariaBoolean(props.selected)}
+      aria-disabled={disabled() ? 'true' : undefined}
+      tabindex={-1}
       disabled={disabled()}
       onClick={() => props.onSelect()}
       onMouseEnter={() => props.onHover?.()}
@@ -112,6 +116,6 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
           </p>
         )}
       </Show>
-    </button>
+    </SdkButton>
   );
 }

@@ -1,7 +1,8 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
 import { derivePuzzleRatingChange } from '@libs/game-puzzle-shared-ts/rating-change';
-import { type Accessor, createMemo, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createMemo, Show } from 'solid-js';
 import { usePuzzleInteractions } from './puzzle-play-queries';
 import type {
   PuzzleResultModel,
@@ -80,12 +81,12 @@ function RatingFeedback(props: {
 export function PuzzleResultFeedback(props: {
   readonly model: PuzzlePlayerChromeModel;
 }): JSX.Element {
-  const enabled = createMemo((wasSolving: boolean) => {
+  const enabled = createMemo<boolean>((wasSolving) => {
     const status = props.model.status();
     return status === 'loading' || status === 'idle'
       ? false
-      : status === 'solving' || wasSolving;
-  }, false);
+      : status === 'solving' || wasSolving === true;
+  });
   return (
     <Show when={props.model.completion()}>
       {(current) => <RatingFeedback completion={current} enabled={enabled} />}

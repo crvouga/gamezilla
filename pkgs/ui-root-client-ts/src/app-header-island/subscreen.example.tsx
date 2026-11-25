@@ -1,4 +1,5 @@
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { AppFrame } from '../app-frame/index';
 import { AppFrameChromeProvider } from '../app-frame-chrome/index';

@@ -57,7 +57,7 @@ function statsSurface(entryScreen: string, gameId: string) {
         if (screen === 'loading' || screen === 'join') screen = 'games';
       },
       waitForIdle: async () => undefined,
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
     },
   } as unknown as ProductHarness;
   return { harness, taps, statsVisible: () => visible(Handles.chessStatsElo) };

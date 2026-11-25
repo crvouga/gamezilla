@@ -1,12 +1,12 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@lingui/solid/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Combobox } from '@pkgs/ui-root-client-ts/combobox';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { children, createMemo, Show } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';

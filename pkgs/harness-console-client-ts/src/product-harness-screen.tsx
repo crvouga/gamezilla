@@ -19,13 +19,13 @@ import { RegisterCommand } from '@pkgs/ui-root-client-ts/register-command';
 import { Surface } from '@pkgs/ui-root-client-ts/surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { useCommandPalette } from '@pkgs/ui-root-client-ts/use-command-palette';
+import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   type Component,
   createMemo,
   createSignal,
   For,
-  type JSX,
   Match,
   onCleanup,
   Show,

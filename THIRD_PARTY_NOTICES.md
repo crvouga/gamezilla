@@ -11,6 +11,8 @@ vendored: each keeps its license in its own package (`node_modules`).
 | Material | Notice |
 | --- | --- |
 | `frontend-design` agent skill (Apache-2.0) | [`.agents/skills/frontend-design/LICENSE.txt`](.agents/skills/frontend-design/LICENSE.txt) |
+| ui-sdk agent skill (vercel-labs/ui, Apache-2.0) | [Apache License, Version 2.0](#apache-license-version-20) |
+| pstack agent skills, subagents and docs (MIT, cursor/plugins) | [`.agents/docs/LICENSE`](.agents/docs/LICENSE) |
 | Sound effects (CC0 1.0) | [`pkgs/sounds-shared-ts/docs/LICENSES.md`](pkgs/sounds-shared-ts/docs/LICENSES.md) |
 | Chess piece artwork (Colin M.L. Burnett) | [`pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md`](pkgs/chess-board-root-harness-ts/docs/PIECE_LICENSES.md) |
 | UIClip-derived model assets, ONNX Runtime, Sharp, FFmpeg | [`pkgs/ui-quality-check-server-ts/NOTICE.md`](pkgs/ui-quality-check-server-ts/NOTICE.md), [`MODEL.md`](pkgs/ui-quality-check-server-ts/MODEL.md) |

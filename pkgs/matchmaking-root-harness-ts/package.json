@@ -11,7 +11,6 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "prepare:spec": "bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --parallel=1 --timeout 120000 tests",
     "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
@@ -22,9 +21,7 @@
     "test:spec:4": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 4/8",
     "test:spec:5": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 5/8",
     "test:spec:6": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 6/8",
-    "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/8",
-    "verify:models:0": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --phase 4/12",
-    "verify:models:1": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --phase 0-3,5-11/12"
+    "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/8"
   },
   "dependencies": {
     "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -43,22 +40,14 @@
     "hono": "catalog:"
   },
   "devDependencies": {
-    "@pkgs/alloy-shared-ts": "workspace:*",
     "@pkgs/fs-server-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
-    "@pkgs/quint-server-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },
   "category": "harness",
   "language": "typescript",
-  "proofGroups": [
-    "4",
-    "0-3,5-11"
-  ],
-  "proofParts": 12,
   "specDomains": [
     "matchmaking"
   ],

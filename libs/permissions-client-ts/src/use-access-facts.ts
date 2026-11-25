@@ -61,7 +61,7 @@ export function useAccessFacts(): Accessor<Facts> {
     }),
     accessFactsChangeAtMs
   );
-  return createMemo(() => resolveAccessFacts(inputs()), undefined, {
+  return createMemo(() => resolveAccessFacts(inputs()), {
     equals: sameFacts,
   });
 }

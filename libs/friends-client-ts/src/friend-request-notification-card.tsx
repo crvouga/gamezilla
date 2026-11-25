@@ -2,8 +2,8 @@ import { NotificationCardDefault } from '@libs/notifications-client-ts/notificat
 import type { Notification } from '@libs/notifications-shared-ts/notification';
 import type { NotificationCardActions } from '@libs/notifications-shared-ts/notification-action';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
-import type { JSX } from 'solid-js';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, Show } from 'solid-js';
 import { FriendProfileAvatar } from './friend-profile-avatar';
 import { FriendRequestDecisionModal } from './friend-request-decision-modal';

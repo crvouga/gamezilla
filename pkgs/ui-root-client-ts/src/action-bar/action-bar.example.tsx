@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import { ActionBar } from '@pkgs/ui-root-client-ts/action-bar';
 import { useActionBarChrome } from '@pkgs/ui-root-client-ts/action-bar-chrome';
@@ -10,7 +10,8 @@ import {
 } from '@pkgs/ui-root-client-ts/icons';
 import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
-import { createSignal, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 const BASE_ITEMS: readonly ActionBarItem[] = [

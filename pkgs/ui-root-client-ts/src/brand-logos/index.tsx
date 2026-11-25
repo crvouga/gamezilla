@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 const googleMark = new URL('./google-g.png', import.meta.url).href;
 
@@ -16,7 +16,7 @@ export function GoogleBrandLogo(props: BrandIconSvgProps): JSX.Element {
       width={props.size}
       height={props.size}
       alt=""
-      draggable={false}
+      draggable="false"
     />
   );
 }

@@ -2,11 +2,11 @@ import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import type { PongState } from '@libs/pong-shared-ts/pong-state';
 import { useOptionalSoundEngine } from '@pkgs/sounds-client-ts/solid';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type { JSX } from '@solidjs/web';
 import {
   createEffect,
   createMemo,
   createRenderEffect,
-  type JSX,
   onCleanup,
   untrack,
 } from 'solid-js';
@@ -25,8 +25,8 @@ function usePongInputRelease(
   current: () => GameSimulationControls | undefined
 ): void {
   let controls: GameSimulationControls | undefined;
-  createRenderEffect(() => {
-    controls = current();
+  createRenderEffect(current, (value) => {
+    controls = value;
   });
   onCleanup(() =>
     untrack(() => {
@@ -44,20 +44,22 @@ function usePongSounds(
   const engine = useOptionalSoundEngine();
   let previous: PongState['feedback'] | null = null;
   const feedback = createMemo(() => state()?.feedback);
-  createEffect(() => {
-    const current = feedback();
-    if (current === undefined) return;
-    if (previous !== null && enabled()) {
-      const sound =
-        current.points > previous.points
-          ? 'gameplay.scoreIncrease'
-          : current.paddles > previous.paddles
-            ? 'gameplay.move'
-            : current.walls > previous.walls
-              ? 'gameplay.place'
-              : null;
-      if (sound !== null) engine?.().play(sound);
+  createEffect(
+    () => [feedback(), enabled(), engine?.()] as const,
+    ([current, audible, sounds]) => {
+      if (current === undefined) return;
+      if (previous !== null && audible) {
+        const sound =
+          current.points > previous.points
+            ? 'gameplay.scoreIncrease'
+            : current.paddles > previous.paddles
+              ? 'gameplay.move'
+              : current.walls > previous.walls
+                ? 'gameplay.place'
+                : null;
+        if (sound !== null) sounds?.play(sound);
+      }
+      previous = current;
     }
-    previous = current;
-  });
+  );
 }

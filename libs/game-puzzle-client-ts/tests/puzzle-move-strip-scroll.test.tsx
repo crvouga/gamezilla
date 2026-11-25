@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /** Revealing the selected move scrolls the move strip, never the page. */
 
 import { afterEach, expect, test } from 'bun:test';

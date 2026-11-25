@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Production-capable performance HUD as a thin top banner (FPS / INP / long
  * tasks). Portals into the in-flow banner host so it pushes app content.
@@ -12,7 +12,8 @@ import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
-import { createSignal, type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createSignal, Show } from 'solid-js';
 import { usePerfHudPreference } from './perf-hud-preference';
 import { createPerfSnapshot } from './perf-sampler-context';
 

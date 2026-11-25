@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { type Accessor, createContext, type JSX, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, createContext, useContext } from 'solid-js';
 
 /**
  * How {@link MenuSection}s lay out: `stacked` (label over rows, the default
@@ -23,9 +24,9 @@ export function MenuSectionLayoutProvider(props: {
   // still follows the layout as the screen resizes.
   const layout: Accessor<MenuSectionLayout> = () => props.layout();
   return (
-    <MenuSectionLayoutContext.Provider value={layout}>
+    <MenuSectionLayoutContext value={layout}>
       {props.children}
-    </MenuSectionLayoutContext.Provider>
+    </MenuSectionLayoutContext>
   );
 }
 

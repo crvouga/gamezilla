@@ -1,6 +1,7 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { createContext, type JSX, untrack, useContext } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createContext, untrack, useContext } from 'solid-js';
 
 const MutationSuccessHoldContext = createContext<number | null>(null);
 
@@ -20,9 +21,9 @@ export function MutationSuccessHoldProvider(
   // Static composition-root config: read once by design.
   const holdMs = untrack(() => props.successHoldMs);
   return (
-    <MutationSuccessHoldContext.Provider value={holdMs}>
+    <MutationSuccessHoldContext value={holdMs}>
       {props.children}
-    </MutationSuccessHoldContext.Provider>
+    </MutationSuccessHoldContext>
   );
 }
 

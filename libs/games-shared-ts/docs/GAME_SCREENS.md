@@ -225,9 +225,8 @@ places with `@libs/game-session-harness-ts/custom-game-places`.
 
 The stage is `multiplayerStageOf` over the game and the search: an
 unfinished game comes before a waiting search, and a search before a
-finished game. Its names follow the product statechart's (`#Multiplayer:
-Choosing a time control` is `idle`, `Finding an opponent` is `searching`,
-`Playing multiplayer` is `playing`, `Finished multiplayer` is `finished`).
+finished game. Its names are `idle` (choosing a time control), `searching`
+(finding an opponent), `playing` and `finished`.
 
 `home` and `searching` are the same lobby as a custom game's: the mode card
 (Ranked match, the game, how it is won, the players, the clock in words),

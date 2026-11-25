@@ -1,8 +1,14 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, type JSX, Show, untrack } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
+import { createSignal, Show, untrack } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 
 export type CollapsibleProps = {
@@ -15,19 +21,20 @@ export type CollapsibleProps = {
 
 /** `Collapsible` -- disclosure row that toggles its body (`aria-expanded`). */
 export function Collapsible(props: CollapsibleProps): JSX.Element {
+  // `defaultOpen` seeds the state once; the row owns it from then on.
   const [isOpen, setIsOpen] = createSignal(
     untrack(() => props.defaultOpen ?? false)
   );
   return (
-    <div
+    <Disclosure
+      open={isOpen()}
+      onOpenChange={setIsOpen}
       class="box"
       {...dataAttrs({ component: 'Collapsible', ...props.dataSet })}
     >
-      <button
+      <CollapsibleTrigger
         class="clickable clickableTint flex-row items-center gap-2 py-2"
         type="button"
-        aria-expanded={isOpen()}
-        onClick={() => setIsOpen((v) => !v)}
       >
         <Show
           when={props.renderIcon}
@@ -42,13 +49,13 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
             </span>
           }
         >
-          {(render) => render()(isOpen())}
+          {(render) => <>{render()(isOpen())}</>}
         </Show>
         <p class="text textBodyBold">{props.title}</p>
-      </button>
-      <Show when={isOpen()}>
-        <div class="box ml-6 mb-2">{props.children}</div>
-      </Show>
-    </div>
+      </CollapsibleTrigger>
+      <CollapsiblePanel class="box ml-6 mb-2">
+        {props.children}
+      </CollapsiblePanel>
+    </Disclosure>
   );
 }

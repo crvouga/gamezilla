@@ -126,7 +126,7 @@ export function createScrollTarget(): ScrollHandle {
   return {
     target: source.handle,
     scrollIntoView(options) {
-      const element = source.element();
+      const element = source.current();
       if (element === undefined) return false;
       if (options?.scope === 'scroller') {
         revealInScroller(element, options);

@@ -8,7 +8,7 @@ import { useCan, useDecision } from '@libs/permissions-client-ts/use-can';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useParams } from '@solidjs/router';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import {
   type SyntheticUserDestination,
   SyntheticUserScreenView,
@@ -32,14 +32,14 @@ function SyntheticUserContent(): JSX.Element {
   const replay = useCan(PERMISSION.syntheticPopulationReplay);
   return (
     <SyntheticUserScreenView
-      loading={user.record.loading}
-      failed={Boolean(user.record.error)}
+      loading={user.loading()}
+      failed={user.failed()}
       user={user.shown()}
       snapshot={user.snapshot()}
       canControl={control()}
       canReplay={replay()}
       onRefresh={() => {
-        void user.refetch();
+        void user.reread();
       }}
       onCommand={user.command}
       onOpen={(destination) => router.push(DESTINATIONS[destination](id()))}

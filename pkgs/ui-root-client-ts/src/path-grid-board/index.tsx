@@ -1,17 +1,17 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   createEffect,
   createMemo,
   createSignal,
   For,
-  Index,
-  type JSX,
   onCleanup,
   Show,
   untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
-import { createPathGridPointer } from '../path-grid-pointer';
+import { createPathGridPointer, TraceSurface } from '../path-grid-pointer';
 import type { PathGridBoardProps, PathGridEndpoint } from '../path-grid-types';
 import styles from './path-grid-board.module.css';
 
@@ -52,20 +52,20 @@ function PathCell(props: {
   // Only a cell whose description changed is rewritten during a drawing.
   const label = createMemo(() => props.board.cellLabel(props.index));
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       data-cell={props.index}
       data-testid={`${props.board.testId}-cell-${props.index}`}
       data-tone={props.endpoint?.tone}
-      data-connected={props.endpoint?.connected === true}
-      data-selected={props.index === props.board.selectedCell}
+      data-connected={String(props.endpoint?.connected === true)}
+      data-selected={String(props.index === props.board.selectedCell)}
       aria-current={
         props.index === props.board.selectedCell ? 'true' : undefined
       }
       aria-label={label()}
-      aria-disabled={props.board.disabled === true}
-      tabIndex={props.focusable ? 0 : -1}
+      aria-disabled={props.board.disabled === true ? 'true' : 'false'}
+      tabindex={props.focusable ? 0 : -1}
       onFocus={() => props.onFocus()}
       onKeyDown={(event) => props.onKey(event)}
       onClick={(event) => {
@@ -99,7 +99,7 @@ function PathCell(props: {
           );
         }}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -111,14 +111,14 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
       aria-hidden="true"
     >
       {/* By position, so a growing path updates its node in place. */}
-      <Index each={props.board.lines}>
+      <For keyed={false} each={props.board.lines}>
         {(line) => (
           <polyline
             class={styles['line']}
             data-path={line().id}
             data-tone={line().tone}
-            data-connected={line().connected}
-            data-provisional={line().provisional === true}
+            data-connected={String(line().connected)}
+            data-provisional={String(line().provisional === true)}
             points={line()
               .cells.map(
                 (cell) =>
@@ -127,7 +127,7 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
               .join(' ')}
           />
         )}
-      </Index>
+      </For>
     </svg>
   );
 }
@@ -152,13 +152,14 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   );
   let root: HTMLDivElement | undefined;
   const pointer = createPathGridPointer(props, () => root);
-  createEffect(() => {
-    void props.columns;
-    void props.rows;
-    void props.disabled;
-    pointer.cancel();
-    if (untrack(focus) >= props.columns * props.rows) setFocus(0);
-  });
+  createEffect(
+    () => [props.columns, props.rows, props.disabled] as const,
+    ([columns, rows]) => {
+      // The host's cancel handler is called, not followed.
+      untrack(() => pointer.cancel());
+      setFocus((cell) => (cell >= columns * rows ? 0 : cell));
+    }
+  );
   onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {
     setInput('keyboard');
@@ -177,17 +178,22 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
     if (props.disabled !== true) props.onNavigate?.(next);
   };
   return (
-    <div
-      ref={root}
+    <TraceSurface
+      board={props}
+      ref={(element) => {
+        root = element;
+      }}
       class={styles['board']}
       data-theme="dark"
-      {...dataAttrs({ component: 'PathGridBoard' })}
       role="group"
       aria-label={props.label}
       aria-describedby={props.describedBy}
       data-testid={props.testId}
-      data-tracing={props.disabled !== true && props.onTraceStart !== undefined}
+      data-tracing={String(
+        props.disabled !== true && props.onTraceStart !== undefined
+      )}
       data-input={input()}
+      {...dataAttrs({ component: 'PathGridBoard' })}
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
       onPointerDown={(event) => {
         setInput('pointer');
@@ -211,6 +217,6 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
           />
         )}
       </For>
-    </div>
+    </TraceSurface>
   );
 }

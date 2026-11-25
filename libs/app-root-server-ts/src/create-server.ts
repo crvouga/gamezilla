@@ -274,7 +274,7 @@ function mountAuthHandler(
 function createServerRouter(args: {
   readonly env: ServerEnv;
   readonly auth: AuthProvider;
-  readonly desiredClientConfig: DesiredClientConfig;
+  readonly desiredClientConfig: DesiredClientConfig | null;
   readonly servers: ComposedSubServers;
   readonly tts: Awaited<ReturnType<typeof createTtsAppForServer>>;
   readonly llm: Awaited<ReturnType<typeof createLlmAppForServer>>;
@@ -338,6 +338,8 @@ function createServerRouter(args: {
 }
 
 export type CreateServerArgs = {
+  /** A server attached to another deployment reads the client configuration it owns. */
+  readonly clientConfigOwner?: 'this-server' | 'external';
   readonly rooms?: import('@pkgs/room-root-shared-ts/room-service').RoomServicePort;
   /** The folded sub set sync serves: schema, queries, topics, mutations. */
   readonly app: ComposedSubs;
@@ -401,17 +403,20 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
   ]);
 
   registerAccountDeletionConsumers(args.servers.outboxConsumers, auth.server);
-  const desiredClientConfig = await buildDesiredClientConfig({
-    secretStore: env.secrets,
-    auth,
-    billingConfigured: billing !== null,
-    ttsConfigured: tts.configured,
-    llmConfigured: llm.configured,
-    puzzleManagerAccountIds: env.puzzleManagerAccountIds ?? [],
-    syntheticPopulationOperatorAccountIds:
-      env.syntheticPopulationOperatorAccountIds ?? [],
-    ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
-  });
+  const desiredClientConfig =
+    args.clientConfigOwner === 'external'
+      ? null
+      : await buildDesiredClientConfig({
+          secretStore: env.secrets,
+          auth,
+          billingConfigured: billing !== null,
+          ttsConfigured: tts.configured,
+          llmConfigured: llm.configured,
+          puzzleManagerAccountIds: env.puzzleManagerAccountIds ?? [],
+          syntheticPopulationOperatorAccountIds:
+            env.syntheticPopulationOperatorAccountIds ?? [],
+          ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
+        });
 
   return new Hono().route(
     API_PATH_PREFIX,

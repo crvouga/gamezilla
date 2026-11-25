@@ -1,8 +1,7 @@
 import { sendFriendRequestMutation } from '@libs/friends-shared-ts/send-friend-request-mutation';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useMutationFeedback } from '@pkgs/sync-engine-client-ts/use-mutation-feedback';
-import type { Accessor } from 'solid-js';
-import { createMemo } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 import type { FriendRequestOutcome } from './friend-request-feedback-view';
 
 /**

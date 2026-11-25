@@ -12,8 +12,7 @@ const CONNECT_FOUR_SYSTEM = gameSystem('connect-four', [
 ]);
 
 export function openHarness(
-  testId: string,
   options?: OpenHarnessOptions
 ): Promise<OpenHarness> {
-  return openGameHarness(CONNECT_FOUR_SYSTEM, testId, options);
+  return openGameHarness(CONNECT_FOUR_SYSTEM, options);
 }

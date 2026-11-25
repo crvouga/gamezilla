@@ -1,7 +1,5 @@
 import type { RuntimeDef } from './define-runtime';
 import { isRuntimeDef } from './define-runtime';
-import type { CatalogSnapshot } from './define-snapshot';
-import { isSnapshot } from './define-snapshot';
 import type { CatalogAction, CatalogProperty } from './effect';
 import { isAction, isProperty } from './effect';
 import type { SystemRegistry, SystemRuntimeEntry } from './registry';
@@ -88,7 +86,6 @@ export function buildRegistry<S>(def: {
   readonly runtimes: readonly RuntimeDef[];
   readonly actions?: readonly CatalogAction<S>[];
   readonly properties?: readonly CatalogProperty<S>[];
-  readonly snapshots?: readonly CatalogSnapshot<S>[];
 }): SystemRegistry<S> {
   const systemName = def.name;
   const { runtimeEntries, defaultRuntimeName } = collectRuntimes(
@@ -110,13 +107,6 @@ export function buildRegistry<S>(def: {
       items: def.properties,
       isItem: isProperty,
     }) as CatalogProperty<S>[],
-    snapshots: collectNamed({
-      systemName,
-      kind: 'snapshot',
-      typeName: 'Snapshot (from defineSnapshot)',
-      items: def.snapshots,
-      isItem: isSnapshot,
-    }) as CatalogSnapshot<S>[],
     runtimeEntries,
     defaultRuntimeName,
   };

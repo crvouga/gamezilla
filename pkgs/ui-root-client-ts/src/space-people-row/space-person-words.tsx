@@ -1,4 +1,4 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   SpacePerson,
   SpacePersonData,

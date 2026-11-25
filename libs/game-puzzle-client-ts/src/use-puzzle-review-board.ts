@@ -12,8 +12,7 @@ import {
 import { lineActions, lineLength } from '@libs/game-puzzle-shared-ts/step';
 import { puzzleLineLayout } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { Accessor } from 'solid-js';
-import { createMemo, createSignal } from 'solid-js';
+import { type Accessor, createMemo, createSignal } from 'solid-js';
 import { usePuzzleGame } from './puzzle-game-context';
 
 export type PuzzleReviewBoardModel = {

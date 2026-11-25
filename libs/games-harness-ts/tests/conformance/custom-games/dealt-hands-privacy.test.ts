@@ -47,9 +47,7 @@ forEveryGame(
     if (!isTurnHarnessGame(game))
       throw new Error(`${game.label} has no turn fixtures`);
     test('each person receives their own hand alone; a watcher none; nobody the hidden state', async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-dealt-hands-delivery`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         watchers: ['carol'],
       });
@@ -82,9 +80,7 @@ forEveryGame(
     }, 240_000);
 
     test("practising against a bot, the creator's device holds the deal; a watcher receives none of it", async () => {
-      await using s = await openConformanceHarness(
-        `${game.shared.id}-dealt-hands-practice`
-      );
+      await using s = await openConformanceHarness();
       await s.apply(establishCustomGame, game.shared.id, {
         second: 'bot',
         watchers: ['carol'],

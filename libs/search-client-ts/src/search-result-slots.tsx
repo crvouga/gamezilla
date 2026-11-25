@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * Slots on the people-search results that another bounded context fills.
  *
@@ -13,7 +13,7 @@
 
 import type { UserSearchResult } from '@libs/user-search-shared-ts/user-search-types';
 import { defineContext } from '@pkgs/solid-context-client-ts/define-context';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 export type SearchResultSlots = {
   /**

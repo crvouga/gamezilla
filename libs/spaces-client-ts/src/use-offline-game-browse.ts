@@ -4,7 +4,7 @@ import { SelectGame } from '@libs/spaces-shared-ts/games';
 import { useLogger } from '@pkgs/logger-client-ts/solid';
 import { useSecureStorageStore } from '@pkgs/secure-storage-root-client-ts/solid';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { createEffect, createMemo, createSignal, onCleanup } from 'solid-js';
+import { createEffect, createMemo, createSignal, untrack } from 'solid-js';
 import { useSpaceRoomSessionId } from './space-room-context';
 import { useSpaceRoomDispatch } from './use-space-room-selector';
 
@@ -34,46 +34,51 @@ export function useOfflineGameBrowse(
   );
   const [local, setLocal] = createSignal<LocalBrowse>({ kind: 'room' });
   const [ready, setReady] = createSignal(false);
-  createEffect(() => {
-    const current = key();
+  createEffect(key, (current) => {
     const refresh = () => {
       setReady(store.isHydrated(current));
       setLocal(readBrowse(store.getValue(current)));
     };
     const unsubscribe = store.subscribe(current, refresh);
     refresh();
-    onCleanup(unsubscribe);
     void store.hydrate(current).catch((error: unknown) => {
       log.error('Offline game choice could not be read', { error });
       if (key() === current) setReady(true);
     });
+    return unsubscribe;
   });
   const choose = (choice: LocalBrowse): void => {
     setLocal(choice);
     const value =
       choice.kind === 'game' ? choice.game : choice.kind === 'list' ? '' : null;
-    void store.write(key(), value).catch((error: unknown) => {
+    // The choice is saved under whichever space shows when it is made.
+    void store.write(untrack(key), value).catch((error: unknown) => {
       log.error('Offline game choice could not be saved', { error });
     });
   };
   let promoting = false;
-  createEffect(() => {
-    const choice = local();
-    const online = engine.status().online;
-    const selected = selectedGame();
-    if (!ready() || !online || choice.kind === 'room') {
-      promoting = false;
-      return;
+  createEffect(
+    () => ({
+      choice: local(),
+      online: engine.status().online,
+      selected: selectedGame(),
+      ready: ready(),
+    }),
+    (now) => {
+      if (!now.ready || !now.online || now.choice.kind === 'room') {
+        promoting = false;
+        return;
+      }
+      const game = now.choice.kind === 'list' ? null : now.choice.game;
+      if (now.selected === game) {
+        choose({ kind: 'room' });
+        return;
+      }
+      if (promoting) return;
+      promoting = true;
+      dispatch(SelectGame({ game }));
     }
-    const game = choice.kind === 'list' ? null : choice.game;
-    if (selected === game) {
-      choose({ kind: 'room' });
-      return;
-    }
-    if (promoting) return;
-    promoting = true;
-    dispatch(SelectGame({ game }));
-  });
+  );
   return {
     shownGame: () => {
       const choice = local();

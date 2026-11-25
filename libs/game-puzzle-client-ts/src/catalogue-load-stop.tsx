@@ -1,6 +1,7 @@
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
-import { createEffect, createSignal, type JSX, on } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { createEffect, createMemo, createSignal } from 'solid-js';
 import type { CatalogueLoadJobStatus } from './catalogue-load-places';
 import type { CatalogueLoadStopKind } from './catalogue-load-view';
 
@@ -25,22 +26,20 @@ export type CatalogueLoadStopProps = {
 export function CatalogueLoadStop(props: CatalogueLoadStopProps): JSX.Element {
   const { t } = useLingui();
   // What was asked last: the dialog keeps its words while it closes.
-  const [kind, setKind] = createSignal<CatalogueLoadStopKind>('loading');
-  const [submitted, setSubmitted] = createSignal(false);
-  createEffect(
-    on(
-      () => props.asked,
-      (asked) => {
-        if (asked === null) return;
-        setKind(asked);
-        setSubmitted(false);
-      }
-    )
+  const kind = createMemo<CatalogueLoadStopKind>(
+    (last) => props.asked ?? last ?? 'loading'
   );
-  createEffect(() => {
-    if (props.asked === 'saving' && !submitted() && !props.uploading)
-      props.onClose();
+  // Each question starts unconfirmed.
+  const [submitted, setSubmitted] = createSignal((): boolean => {
+    props.asked;
+    return false;
   });
+  createEffect(
+    () => props.asked === 'saving' && !submitted() && !props.uploading,
+    (endedUnconfirmed) => {
+      if (endedUnconfirmed) props.onClose();
+    }
+  );
   const saving = (): boolean => kind() === 'saving';
   const stopped = (): string => {
     if (saving()) return t`Upload stopped`;

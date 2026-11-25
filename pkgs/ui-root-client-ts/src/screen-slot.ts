@@ -1,4 +1,5 @@
-import { type Accessor, children, createMemo, type JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { type Accessor, children, createMemo } from 'solid-js';
 
 /** Resolve lazy Solid children once and distinguish actual content from empty branches. */
 export function createScreenSlot(read: Accessor<JSX.Element>) {

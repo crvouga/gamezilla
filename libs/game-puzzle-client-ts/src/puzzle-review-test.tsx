@@ -1,5 +1,6 @@
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import type { Accessor, JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import type { Accessor } from 'solid-js';
 import { PUZZLE_TEST_ENABLED } from './puzzle-test-enabled';
 
 export type PuzzleReviewTestProps = {

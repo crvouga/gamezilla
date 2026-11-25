@@ -1,5 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 import { ScreenBase } from '../screen-base/index';
 import type { ScreenBaseProps } from '../screen-base-types';
 import styles from '../screen-layouts.module.css';
@@ -50,8 +51,10 @@ export function CollectionScreen(props: CollectionScreenProps): JSX.Element {
       dataSet={{ component: 'CollectionScreen', ...props.dataSet }}
       content={() => (
         <div
-          class={styles['collectionSplit']}
-          classList={{ [styles['collectionSplitAside'] ?? '']: !!aside() }}
+          class={[
+            styles['collectionSplit'],
+            { [styles['collectionSplitAside'] ?? '']: !!aside() },
+          ]}
         >
           <div class={styles['collection']}>
             <Show when={controls.present()}>

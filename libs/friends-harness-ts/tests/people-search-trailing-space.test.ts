@@ -23,7 +23,6 @@ const typeSpaceAfterName = scenarioAction({
 
 const searchScreen = scenarioAction({
   name: 'peopleSearchTrailingSpace.read',
-  report: false,
   act: async (s, actorId: string, into: Record<string, boolean>) => {
     const ui = await actorUi(s, actorId);
     into['searching'] = await ui.get(Handles.searchLoading).isVisible();
@@ -33,7 +32,7 @@ const searchScreen = scenarioAction({
 
 // regression: people-search-trailing-space-searches-forever
 test('a space typed after the name leaves the person found, not searched for again', async () => {
-  await using s = await openHarness('people-search-trailing-space');
+  await using s = await openHarness();
   await prepareNamedFriend(s, 'alice');
   await prepareNamedFriend(s, 'bob');
   await s.apply(searchUsername, 'alice', 'bob');

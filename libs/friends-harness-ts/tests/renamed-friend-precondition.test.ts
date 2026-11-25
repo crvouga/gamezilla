@@ -11,7 +11,7 @@ import { openHarness } from './open-friends-harness';
 
 // regression: renamed-friend-precondition
 test('a friends-list precondition recognizes Bob after his rename', async () => {
-  await using s = await openHarness('renamed-friend-precondition');
+  await using s = await openHarness();
   await setupFriendsPair(s);
   await s.apply(openProfileEdit, 'bob');
   await s.apply(setUsername, 'bob', 'chess_cheater');

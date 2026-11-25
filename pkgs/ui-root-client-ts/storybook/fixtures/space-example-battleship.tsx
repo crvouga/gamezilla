@@ -1,4 +1,4 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
 import {
   BattleshipTargetHeader,
@@ -19,7 +19,7 @@ import type {
 } from '@pkgs/ui-root-client-ts/space-types';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Which moment of one fixed mid-game the fixture shows: the viewer's shot

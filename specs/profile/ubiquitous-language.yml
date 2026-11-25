@@ -19,7 +19,6 @@ terms:
       observed from their use of the app as well as what they supplied.
     forms: [personal data's]
     published: true
-    model: [retained, invRetentionDeadline]
 
   - term: account deletion
     definition: >-
@@ -29,7 +28,6 @@ terms:
       starts afresh instead of recovering the deleted account.
     forms: [delete their account, deletes their account, deleted account, deleted accounts, confirms account deletion, account deletion has been confirmed, confirmed deletion]
     published: true
-    model: [AccountDeletion, Active, Deleting, Deleted, deletion, profilesShown, confirmDeletion, AccountDeletionConfirmed, invDeletedProfileHidden, invDeletedAccessEnds]
 
   - term: personal-data export
     definition: >-
@@ -39,7 +37,6 @@ terms:
       becomes ready. It never contains another person's private data.
     forms: [personal-data exports, export, exports, export's]
     published: true
-    model: [PersonalDataExport, NoExport, Preparing, Ready, Expired, ExportFailed, exports, requestExport, exportReady, exportFails, downloadExport, invDeletedExportUnavailable, invExportLifetime]
 
   - term: retention
     definition: >-
@@ -58,7 +55,6 @@ terms:
       proof again when those 10 minutes are over.
     forms: [recently proven accounts]
     published: true
-    model: [proveAccount]
 
   # Published language
 
@@ -79,7 +75,6 @@ terms:
       account, unless it is an address match for one they already have.
     forms: [accounts, account's]
     avoid: [user account, login, app account]
-    model: [account, accountOf, accountCount, Account]
     published: true
 
   - term: sign in
@@ -89,7 +84,6 @@ terms:
       person signing back in gets their account's profile back.
     forms: [signs in, signed in, signing in, sign-in, sign-ins, signed-in]
     avoid: [log in, logs in, logged in, logging in, sign up, signs up]
-    model: [signIn, signedIn, showsSignedIn, SignedIn]
     published: true
 
   - term: sign out
@@ -98,7 +92,6 @@ terms:
       connection; the person's other devices stay signed in.
     forms: [signs out, signed out, signing out]
     avoid: [log out, logs out, logged out, logout]
-    model: [signOut, SignedOut]
     published: true
 
   - term: sign-in method
@@ -108,7 +101,6 @@ terms:
       keeps at least one.
     forms: [sign-in methods]
     avoid: [way in, ways in, way to sign in, login method, auth method]
-    model: [SignInMethod, signInMethods, signInMethodsShown, signInMethodOf]
     published: true
 
   - term: username
@@ -121,7 +113,6 @@ terms:
       connection returns. Until then, other people keep the last shared name.
     forms: [usernames, username's]
     avoid: [handle, display name, nickname, screen name]
-    model: [username, usernameOnDevice, Username]
     published: true
 
   - term: avatar
@@ -130,7 +121,6 @@ terms:
       seed. Every newcomer starts with one of their own.
     forms: [avatars, avatar's]
     avoid: [profile picture, profile photo, profile image]
-    model: [Avatar, avatar]
     published: true
 
   - term: profile
@@ -139,7 +129,6 @@ terms:
       with their account to every device they sign in on.
     forms: [profiles, profile's]
     avoid: [user profile]
-    model: [Profile, profile]
     published: true
 
   # Signing in and out
@@ -153,7 +142,6 @@ terms:
       had not shared yet are not kept, and it says so.
     forms: [signs out everywhere, signed out everywhere, signing out everywhere]
     avoid: [end sessions, revoke sessions, log out everywhere]
-    model: [signOutEverywhere]
 
   - term: abandon signing in
     definition: >-
@@ -162,7 +150,6 @@ terms:
       ready.
     forms: [abandons signing in, abandoned signing in, abandoning signing in]
     avoid: [cancel sign-in]
-    model: [abandonSignIn]
 
   - term: the devices on an account
     definition: >-
@@ -194,14 +181,12 @@ terms:
       most one account in the app.
     forms: [outside accounts]
     avoid: [identity, provider account, third-party account, external account]
-    model: [OutsideAccount, signsInto]
 
   - term: Google account
     definition: >-
       A person's own account with Google, outside the app. Signing in with
       Google uses it.
     forms: [Google accounts]
-    model: [GoogleAccount]
 
   - term: Apple account
     definition: >-
@@ -210,7 +195,6 @@ terms:
       stop using Sign in with Apple for the app, or delete it; either of the
       last two signs them out of the app.
     forms: [Apple accounts]
-    model: [AppleAccount]
 
   - term: Sign in with Apple
     definition: >-
@@ -226,7 +210,6 @@ terms:
       and the person is told it belongs to another account.
     forms: [connects Apple, connected Apple, connect that Apple account, connects Google]
     avoid: [link an account, linked account]
-    model: [connectSignInMethod]
 
   - term: remove a sign-in method
     definition: >-
@@ -234,7 +217,6 @@ terms:
       cannot be removed.
     forms: [removes Apple, remove Apple, remove Google, removes Google, can be removed, cannot be removed]
     avoid: [unlink]
-    model: [removeSignInMethod]
 
   - term: the same address
     definition: >-
@@ -242,7 +224,6 @@ terms:
       address. Google or Apple tells the app whether an address is verified.
     forms: [same address]
     avoid: [same email]
-    model: [sameAddress]
 
   - term: hidden address
     definition: >-
@@ -264,7 +245,6 @@ terms:
       by confirming it with the other sign-in method; keeping the accounts
       separate starts a new account.
     forms: [address matches, account match, confirms the match, asked to prove the account match, asked to prove an unverified address match]
-    model: [addressMatch]
 
   # Usernames and avatars
 
@@ -279,7 +259,6 @@ terms:
     definition: >-
       Change one's own username ("Alice renames themselves to @alice_w").
     forms: [renames themselves, renamed themselves, renaming themselves, rename oneself]
-    model: [rename, renameTwice]
     published: true
 
   - term: username change
@@ -292,7 +271,6 @@ terms:
       shared username returns. Once the result shows, they can right away
       make another one.
     forms: [username changes]
-    model: [UsernameChangeResult, lastUsernameChange, NoUsernameChange, UsernameSaved, UsernameChanged]
 
   - term: refused username change
     definition: >-
@@ -305,7 +283,6 @@ terms:
       shared username. A refused choice does not count as a change.
     forms: [refused username changes, username change is refused, username change refused]
     avoid: [rejected, invalid username]
-    model: [UsernameTaken, ChangedRecently, NotAllowed]
 
   - term: not allowed
     definition: >-
@@ -316,7 +293,6 @@ terms:
       such as Scunthorpe, is allowed. These standing rules never change; the
       team can also stop allowing other names on top of them.
     avoid: [banned, blocked, censored, moderated, inappropriate]
-    model: [ALWAYS_REFUSED]
 
   - term: no longer allowed
     definition: >-
@@ -327,7 +303,6 @@ terms:
       applying its known rules. Saving a name the device knows is not
       allowed is refused.
     avoid: [banned, flagged, censored, moderated]
-    model: [_notAllowed]
     published: true
 
   - term: stop allowing
@@ -341,7 +316,6 @@ terms:
       nothing.
     forms: [stops allowing, stopped allowing, has stopped allowing]
     avoid: [ban, block a name]
-    model: [stopAllowing]
     published: true
 
   - term: start allowing
@@ -352,7 +326,6 @@ terms:
       stopped allowing can be allowed again: what the standing rules refuse
       stays not allowed.
     forms: [starts allowing, started allowing]
-    model: [startAllowing]
     published: true
 
   - term: stand-in name
@@ -363,7 +336,6 @@ terms:
       they rename themselves.
     forms: [stand-in names]
     avoid: [alias, placeholder name, fake name, hidden name]
-    model: [STAND_INS]
     published: true
 
   - term: draft
@@ -392,7 +364,6 @@ terms:
       product hears about: a person signed in, signed out, or changed their
       username.
     forms: [identity events]
-    model: [IdentityEvent]
 
   - term: lose the connection
     definition: >-
@@ -401,7 +372,6 @@ terms:
       in and connecting or removing a sign-in method need a connection.
       Once back online, the device shows what everyone else sees again.
     forms: [loses the connection, lost the connection, loses their connection]
-    model: [offline, loseConnection, reconnect, connectionReturns]
 
   - term: asked to sign in
     definition: >-

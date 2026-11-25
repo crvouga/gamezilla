@@ -1,12 +1,14 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import ArrowUpRight from 'lucide-solid/icons/arrow-up-right';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import ArrowUpRight from 'lucide/dist/esm/icons/arrow-up-right.mjs';
+import { Show } from 'solid-js';
 import { createIcon } from '../create-icon/index';
 import { Icon } from '../icon/index';
 import { spaced } from '../layout-classes';
+import { LinkHost } from '../link-host';
 import { VisuallyHidden } from '../visually-hidden/index';
 
 const ArrowUpRightIcon = createIcon(ArrowUpRight);
@@ -96,7 +98,7 @@ function isModifiedClick(event: MouseEvent): boolean {
 export function TextLink(props: TextLinkProps): JSX.Element {
   const external = (): boolean => props.external === true;
   return (
-    <a
+    <LinkHost
       class={linkClass(props)}
       href={props.href}
       target={external() ? '_blank' : undefined}
@@ -121,6 +123,6 @@ export function TextLink(props: TextLinkProps): JSX.Element {
           <Trans>(opens in a new tab)</Trans>
         </VisuallyHidden>
       </Show>
-    </a>
+    </LinkHost>
   );
 }

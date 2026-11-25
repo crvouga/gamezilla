@@ -47,7 +47,6 @@ const EXACT_TASKS = new Set([
   'ci:workspace-lifecycle',
   'ci:goals',
   'ci:specs',
-  'ci:statecharts',
   'ci:conformance',
   'ci:spec-ownership',
 ]);

@@ -1,12 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  children,
-  createSignal,
-  type JSX,
-  onCleanup,
-  onMount,
-  Show,
-} from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { children, createSignal, onSettled, Show } from 'solid-js';
 import { observeElementResize } from '../observe-element-resize';
 import styles from './word-tile-workspace.module.css';
 
@@ -45,9 +39,9 @@ export function WordTileWorkspace(props: {
   const board = children(() => (
     <div class={styles['board']}>{props.board}</div>
   ));
-  onMount(() => {
+  onSettled(() => {
     const element = root;
-    if (!element) return;
+    if (!element) return undefined;
     const rem =
       Number.parseFloat(
         getComputedStyle(element.ownerDocument.documentElement).fontSize
@@ -57,14 +51,14 @@ export function WordTileWorkspace(props: {
     };
     // Measured before the first paint, then on every resize.
     read();
-    onCleanup(observeElementResize(element, read));
+    return observeElementResize(element, read);
   });
   return (
     <div
       ref={root}
       class={styles['layout']}
       data-layout={wide() ? 'wide' : 'stacked'}
-      data-finished={props.finished === true}
+      data-finished={String(props.finished === true)}
       {...dataAttrs({ component: 'WordTileWorkspace' })}
     >
       <Show

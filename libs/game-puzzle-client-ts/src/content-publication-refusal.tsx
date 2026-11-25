@@ -1,8 +1,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { WriteRefusal } from '@pkgs/sync-engine-client-ts/write-outcome-reads';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 
 /**
  * Why the server refused a publication, in local words, by its first

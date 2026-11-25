@@ -39,7 +39,7 @@ before merging, dispatch the whole gate on the branch: `gh workflow run verify-p
 | --- | --- |
 | Verify PR: PR opened/reopened/synchronized against main, manual, reusable call | `verify:start` builds a content-addressed plan and shared prerequisites; independent misses run in duration-balanced shards; `verify:end` aggregates every expected verdict. A pull request plans `PR_TASKS`; a manual dispatch or a reusable call plans the whole catalog. No path filter can strand the required status. New PR pushes cancel superseded runs. |
 | Release: main push or manual dispatch | Run the whole gate, critical production-build journeys included, on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
-| Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently; visual waits only for its required corpus. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
+| Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
 | Health: hourly at minute 17 or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
 
 `verify:end` remains the required status. The main ruleset (verified PRs, not required to be up to date), SHA-pinned
@@ -75,7 +75,7 @@ Among the gate, these checks are why Release must block a deploy rather than wai
 | Check | Why it cannot reasonably wait |
 | --- | --- |
 | Package `tc`, `lint`, root lint, `ci:syncpack` | Compilation, structural safety rules (including access boundaries), task-runner integrity and workspace dependency consistency. Turbo deduplicates lint's typecheck prerequisites. |
-| `ci:i18n`, `ci:specs`, `ci:statecharts` | Repository consistency: the committed Lingui catalog matches the source copy, every spec stays in its context's language, and every contract has an owning chart. Left to nightly they merged green and kept every later night red; Release now stops on them and files the issue. |
+| `ci:i18n`, `ci:specs` | Repository consistency: the committed Lingui catalog matches the source copy, and every spec stays in its context's language. Left to nightly they merged green and kept every later night red; Release now stops on them and files the issue. |
 | `verify:actionlint`, `verify:workflow-security`, `verify:secrets` | Broken workflow syntax, unsafe automation permissions/triggers and committed credentials. Secret scanning remains tied to the immutable Git range. |
 | `ci:audit` | Release reports current dependency advisories without blocking a deploy on a registry that moved; nightly enforces them. Existing Dependabot alerts/security updates remain. |
 | Permissions library/shared/harness and auth provider/root harness unit tests | Access-control and authentication failures can expose data immediately. These run the same assertions as nightly, not alternate implementations. |
@@ -95,7 +95,7 @@ must succeed before production; a tag is published only after production health 
 
 Nightly runs the whole gate above at deeper budgets, and adds groups outside the gate:
 fresh-seed property runs, deterministic fuzz, database-index mutation testing,
-real-browser stack integration, UI quality, Storybook browser/MCP verification,
+real-browser stack integration, Storybook browser/MCP verification,
 coverage, room/sync/Pong benchmarks and SQL performance checks.
 
 Nightly keeps all drawn Quint traces, five times the pinned property budget, reports,

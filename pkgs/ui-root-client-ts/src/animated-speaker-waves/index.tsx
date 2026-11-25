@@ -1,6 +1,6 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import styles from '../sound-indicator/sound-indicator.module.css';
 
 const VIEW_BOX = '0 0 640 512';

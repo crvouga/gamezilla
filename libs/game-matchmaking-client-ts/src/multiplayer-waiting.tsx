@@ -1,10 +1,11 @@
-import { Trans } from '@lingui/solid/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
-import { type JSX, Show } from 'solid-js';
+import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 /** A search under way, as the person sees it. */
 export type MultiplayerSearchView = {

@@ -1,11 +1,11 @@
-/** @jsxImportSource solid-js */
+/** @jsxImportSource @solidjs/web */
 /**
  * One tab of a window: selects its panel on click, drags to another window,
  * and answers the layout keys. The tab and its close control are sibling
  * buttons in one shell, as in `TabStrip`.
  */
 
-import { useLingui } from '@lingui/solid/macro';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { windowPanels } from '@pkgs/ui-devtools-shared-ts/window-layout';
 import {
   WINDOW_TAB_KEYSHORTCUTS,
@@ -14,8 +14,9 @@ import {
 } from '@pkgs/ui-devtools-shared-ts/window-layout-keyboard';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createEffect, type JSX, Show } from 'solid-js';
-import { Dynamic } from 'solid-js/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createEffect, Show, untrack } from 'solid-js';
 import styles from '../tab-strip/tab-strip.module.css';
 import {
   useWindowManager,
@@ -75,8 +76,8 @@ function createKeepInView(
   active: () => boolean
 ): (element: HTMLElement) => void {
   let shell: HTMLElement | undefined;
-  createEffect(() => {
-    if (active())
+  createEffect(active, (isActive) => {
+    if (isActive)
       shell?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
   });
   return (element) => {
@@ -92,11 +93,11 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
   const dragging = (): boolean => api.drag.state()?.panel === props.panel.id;
   const title = (): string => props.panel.title;
   const setShell = createKeepInView(() => props.active);
+  const Icon = dynamic(() => props.panel.icon);
   return (
     <div
       ref={setShell}
-      class={shellClass(props.active)}
-      classList={{ 'touch-none': !api.compact() }}
+      class={[shellClass(props.active), { 'touch-none': !api.compact() }]}
       data-component={componentId('WindowManagerTabShell')}
       style={{
         height: `${WINDOW_TAB_HEIGHT}px`,
@@ -113,10 +114,19 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
           aria-hidden="true"
         />
       </Show>
-      <button
-        ref={(element) => api.registerTab(props.panel.id, element)}
-        class="clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent"
-        classList={{ clickableTint: !props.active }}
+      <SdkButton
+        ref={(element) =>
+          // A tab is created for one panel: its bar is keyed by the panel id,
+          // so the id read once here never goes stale.
+          api.registerTab(
+            untrack(() => props.panel.id),
+            element
+          )
+        }
+        class={[
+          'clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent',
+          { clickableTint: !props.active },
+        ]}
         data-component={componentId('WindowManagerTab')}
         {...dataAttrs({
           'window-part': 'tab',
@@ -130,11 +140,11 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
         }}
         id={api.tabId(props.panel.id)}
         role="tab"
-        aria-selected={props.active}
+        aria-selected={props.active ? 'true' : 'false'}
         aria-controls={api.panelId(props.panel.id)}
         aria-describedby={api.hintId}
         aria-keyshortcuts={WINDOW_TAB_KEYSHORTCUTS}
-        tabIndex={props.active ? 0 : -1}
+        tabindex={props.active ? 0 : -1}
         onClick={() => {
           if (api.drag.consumeClick()) return;
           api.dispatch({ type: 'select', panel: props.panel.id });
@@ -142,36 +152,35 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
         onKeyDown={(event) => onTabKeyDown(event, api, props.panel)}
       >
         <Show when={props.panel.icon}>
-          {(icon) => (
-            <Dynamic
-              component={icon()}
-              size={14}
-              color={props.active ? 'tabIconSelected' : 'tabIconDefault'}
-            />
-          )}
+          <Icon
+            size={14}
+            color={props.active ? 'tabIconSelected' : 'tabIconDefault'}
+          />
         </Show>
         <span
-          class="text line-clamp-1 shrink pointer-events-none"
-          classList={{
-            'textLabel text-text': props.active,
-            'textBody text-text-secondary': !props.active,
-          }}
+          class={[
+            'text line-clamp-1 shrink pointer-events-none',
+            {
+              'textLabel text-text': props.active,
+              'textBody text-text-secondary': !props.active,
+            },
+          ]}
         >
           {title()}
         </span>
-      </button>
+      </SdkButton>
       <Show when={closable()}>
-        <button
+        <SdkButton
           class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-6 h-6 ${styles['close'] ?? ''}`}
           data-component={componentId('WindowManagerTabClose')}
           {...dataAttrs({ 'window-part': 'close', 'panel-id': props.panel.id })}
           type="button"
           aria-label={t`Close ${title()}`}
-          tabIndex={-1}
+          tabindex={-1}
           onClick={() => api.dispatch({ type: 'close', panel: props.panel.id })}
         >
           <XIcon size={12} color="textSecondary" />
-        </button>
+        </SdkButton>
       </Show>
     </div>
   );

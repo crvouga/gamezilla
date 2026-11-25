@@ -17,7 +17,6 @@ terms:
       Sharing again replaces their earlier answer. Other people cannot see
       it. Cancellation never depends on giving an answer.
     forms: [share cancellation feedback, shares cancellation feedback, shared cancellation feedback]
-    model: [Feedback, shareCancellationFeedback, feedback, feedbackAtTeam]
 
   - term: payment record
     definition: >-
@@ -65,7 +64,6 @@ terms:
       live and through grace after that; a refund takes it away at once.
       Without it a person has free access.
     avoid: [tier, billing tier, entitlement, premium access]
-    model: [accessOn, BillingEvent, PaidAccessStarted, PaidAccessEnded]
     published: true
 
   # --- Billing's own language ---------------------------------------------
@@ -85,7 +83,6 @@ terms:
       keeps what it last knew.
     forms: [memberships, membership's, Plus membership]
     avoid: [subscription, plan record]
-    model: [Membership, memberships, membershipsOnPhone]
 
   - term: membership status
     definition: >-
@@ -93,14 +90,12 @@ terms:
       current (active), its last payment failed and is still being put right
       (delinquent), or over (ended).
     forms: [membership statuses, trialing, delinquent]
-    model: [MembershipStatus, membershipStatus]
 
   - term: live membership
     definition: >-
       A membership that is trialing or active. Nobody has two at once: the
       billing plans never offer a second one on top of a live one.
     forms: [live memberships, live one]
-    model: [isLive]
 
   - term: subscribe
     definition: >-
@@ -109,7 +104,6 @@ terms:
       person whose membership ended may subscribe again.
     forms: [subscribes, subscribed, subscribing, subscribe again]
     avoid: [purchase, buy, sign up, upgrade]
-    model: [subscribe, resubscribe]
 
   - term: checkout
     definition: >-
@@ -128,7 +122,6 @@ terms:
       Subscribing there needs a connection, and it says so.
     avoid: [pricing page, paywall, plans screen]
     published: true
-    model: [viewBillingPlans]
 
   - term: asked to sign in before subscribing
     definition: >-
@@ -141,7 +134,6 @@ terms:
       plan. A Plus member may switch between them in the billing portal.
     forms: [Plus plans, monthly plan, yearly plan]
     avoid: [billing interval, interval, billing cycle]
-    model: [Plan, switchPlan]
 
   - term: current plan
     definition: >-
@@ -154,7 +146,6 @@ terms:
       The first 7 days of a new membership, which are not charged.
       When it ends the membership becomes active on its first paid renewal.
     forms: [free trials, trial, trials, trial's, trial has ended, free trial has ended, free trial ends, days left in the free trial]
-    model: [trialEnds]
 
   - term: billing period
     definition: >-
@@ -162,7 +153,6 @@ terms:
       the free trial, a month, or a year. At its period end the membership
       renews, or ends if it is set to end at the period end.
     forms: [billing periods, period end, period ends, billing period ends, billing period has ended, billing period has run out, period has ended]
-    model: [periodEnd]
 
   - term: renewal
     definition: >-
@@ -171,14 +161,12 @@ terms:
       leaves the membership active and moves its renewal date later; a
       declined one leaves it delinquent.
     forms: [renewals, renewal date, renewal dates]
-    model: [renew]
 
   - term: Plus credit
     definition: >-
       Money a Plus member has left over from switching Plus plans, which pays
       their next renewals before their card is charged. It is never below
       nothing.
-    model: [credit]
     published: true
 
   - term: card
@@ -187,7 +175,6 @@ terms:
       example once it has expired, and then cannot pay a renewal; a new card
       can.
     forms: [cards, new card, expired card, card has expired, declined card]
-    model: [cardDeclines]
 
   - term: failed payment
     definition: >-
@@ -196,14 +183,12 @@ terms:
       payment provider tries the card again for a while, and the Plus member
       may pay with a new card.
     forms: [failed payments, payment fails, payment failed, payment has failed]
-    model: [paymentFailed]
 
   - term: recovered payment
     definition: >-
       A failed payment later paid, when the payment provider tries the card
       again or with a new card: the membership is active again.
     forms: [payment recovers, payment recovered]
-    model: [paymentRecovered]
 
   - term: give up on a payment
     definition: >-
@@ -211,7 +196,6 @@ terms:
       its last try at the card also fails. The membership ends.
     forms: [gives up on, gave up on, gives up on the payment]
     avoid: [last retry, gives up retrying, exhausted retries, dunning]
-    model: [paymentRetriesExhausted]
 
   - term: grace
     definition: >-
@@ -220,14 +204,12 @@ terms:
       also keeps paid access for 7 days. A refund has no grace.
     forms: [offline grace, days pass]
     avoid: [grace window, buffer]
-    model: [endCanceledPeriod, daysPass]
 
   - term: refund
     definition: >-
       A Plus member's payment given back to them. The membership ends at
       once and paid access goes with it, with no grace.
     forms: [refunds, refunded]
-    model: [refund]
 
   - term: billing portal
     definition: >-
@@ -242,7 +224,6 @@ terms:
       - manage their membership
       - billing portal is the first payment provider's
       - billing portal is the second payment provider's
-    model: [billingPortalAt]
     avoid: [customer portal, account page, dashboard]
 
   - term: cancel
@@ -252,14 +233,12 @@ terms:
       access, until then.
     forms: [cancels, canceled, canceling, set to end at the period end]
     avoid: [unsubscribe, cancelled, cancelling]
-    model: [cancel, canceled]
 
   - term: renew in the billing portal
     definition: >-
       A Plus member taking back a cancel before the period end: the
       membership is no longer set to end and carries on as it was.
     forms: [renews the membership in the billing portal, renewing in the portal]
-    model: [renewInBillingPortal]
 
   - term: end of a membership
     definition: >-
@@ -295,7 +274,6 @@ terms:
     definition: >-
       Ending a membership at once rather than at the period end.
     forms: [canceled immediately, canceling now]
-    model: [cancelImmediately]
 
   - term: payment provider
     definition: >-
@@ -305,7 +283,6 @@ terms:
       which one new memberships start at, and each keeps looking after the
       memberships that started there.
     forms: [payment providers, both payment providers, the provider, provider, provider's]
-    model: [PaymentProvider]
 
   - term: first payment provider
     definition: >-
@@ -335,7 +312,6 @@ terms:
       - switched back to the first payment provider
       - new memberships start at
     avoid: [migrate, migration, cut over]
-    model: [switchPaymentProvider, newMembershipsAt]
 
   - term: real payments
     definition: >-

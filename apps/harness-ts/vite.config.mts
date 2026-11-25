@@ -9,9 +9,9 @@ import {
   workspaceExportsResolver,
 } from '@pkgs/vite-workspace-resolver-server-ts/vite-workspace-resolver';
 import { workspaceWatchOptions } from '@pkgs/vite-workspace-resolver-server-ts/workspace-watch';
+import solid from '@solidjs/vite-plugin';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig, type PluginOption } from 'vite';
-import solid from 'vite-plugin-solid';
 
 const harnessDir = import.meta.dirname;
 const repoRoot = resolve(harnessDir, '../..');
@@ -79,7 +79,7 @@ export default defineConfig(({ mode }) => {
       format: 'es',
     },
     optimizeDeps: {
-      exclude: ['@sqlite.org/sqlite-wasm'],
+      exclude: ['@sqlite.org/sqlite-wasm', '@ui-sdk/core'],
     },
   };
 });

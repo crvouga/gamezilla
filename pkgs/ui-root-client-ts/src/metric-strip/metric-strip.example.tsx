@@ -1,5 +1,5 @@
-/** @jsxImportSource solid-js */
-import { useLingui } from '@lingui/solid/macro';
+/** @jsxImportSource @solidjs/web */
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { formatCompactNumber } from '@pkgs/ui-root-client-ts/compact-number';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
@@ -7,7 +7,7 @@ import { EyeIcon, UsersIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { StatPill } from '@pkgs/ui-root-client-ts/stat-pill';
-import type { JSX } from 'solid-js';
+import type { JSX } from '@solidjs/web';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { ExampleSection } from '../../storybook/fixtures/example-section';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';

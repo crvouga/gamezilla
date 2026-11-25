@@ -3,8 +3,7 @@ import {
   IDLE_AFTER_MS,
 } from '@libs/spaces-shared-ts/space-activity';
 import { createTimedValue } from '@pkgs/clock-client-ts/solid';
-import type { Accessor } from 'solid-js';
-import { createEffect, createSignal } from 'solid-js';
+import { type Accessor, createMemo } from 'solid-js';
 
 /** A rejected room update does not undo the activity on this device. */
 export function useOwnSpaceActivity(
@@ -12,11 +11,10 @@ export function useOwnSpaceActivity(
   activity: Accessor<ActivityMap>,
   online: Accessor<boolean>
 ) {
-  const [latest, setLatest] = createSignal<{ clientId: string; at: number }>();
-  createEffect(() => {
-    const id = clientId();
-    const at = id === undefined ? undefined : activity()[id];
-    setLatest((previous) => {
+  const latest = createMemo<{ clientId: string; at: number } | undefined>(
+    (previous) => {
+      const id = clientId();
+      const at = id === undefined ? undefined : activity()[id];
       if (id === undefined || at === undefined) {
         return previous?.clientId === id ? previous : undefined;
       }
@@ -24,8 +22,8 @@ export function useOwnSpaceActivity(
         clientId: id,
         at: Math.max(at, previous?.clientId === id ? previous.at : at),
       };
-    });
-  });
+    }
+  );
   const idle = createTimedValue(
     (now) =>
       online() && latest() !== undefined && now - latest()!.at >= IDLE_AFTER_MS,
