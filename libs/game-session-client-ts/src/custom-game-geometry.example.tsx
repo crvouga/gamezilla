@@ -23,8 +23,10 @@ export async function expectBoardFirst(
   );
   await expect(box.left).toBeGreaterThanOrEqual(0);
   await expect(box.right).toBeLessThanOrEqual(view.innerWidth);
+  // Every seat and the status line read above the board (the owner's stage
+  // order), and the board still starts in the first screen's upper half.
   await expect(box.top).toBeLessThan(
-    terminal ? 440 : view.innerWidth < 880 ? 320 : 220
+    terminal ? 440 : view.innerWidth < 880 ? 380 : 280
   );
   return { canvas, view, board };
 }
