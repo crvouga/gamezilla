@@ -292,6 +292,8 @@ function SpaceMenuAction(
           fallback={
             <IconButton
               label={t`Space menu`}
+              tooltipPlacement="left"
+              tooltip="default"
               aria-label={t`Space menu`}
               aria-haspopup="menu"
               aria-expanded={menu.open()}

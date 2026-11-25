@@ -10,7 +10,6 @@ import { NumberStepper } from '@pkgs/ui-root-client-ts/number-stepper';
 import { SegmentedControl } from '@pkgs/ui-root-client-ts/segmented-control';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
 import type { JSX } from '@solidjs/web';
@@ -85,9 +84,6 @@ function PairPlacement(props: {
         onValueChange={props.editor.setSelected}
       />
       <Show when={props.editor.pair()}>
-        <P variant="label">
-          <Trans>Endpoint to move</Trans>
-        </P>
         <SegmentedControl
           aria-label={t`Endpoint to move`}
           dataSet={{ testid: 'numberlink-move' }}
@@ -221,12 +217,6 @@ export function NumberlinkEditorView(
                     : cell.y * board().width + cell.x;
                 })()}
               />
-              <P variant="caption" tone="secondary">
-                <Trans>
-                  Choose a pair and which endpoint to move, then choose an empty
-                  cell. Every pair has a label as well as a color.
-                </Trans>
-              </P>
               <Show when={editor.error()}>
                 {(error) => <Notice tone="error">{error()}</Notice>}
               </Show>

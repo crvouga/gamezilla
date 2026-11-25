@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink editor repeats placement guidance around the board.",
+  "regressionTest": "libs/numberlink-harness-ts/tests/numberlink-editor-selection.test.tsx"
+}
