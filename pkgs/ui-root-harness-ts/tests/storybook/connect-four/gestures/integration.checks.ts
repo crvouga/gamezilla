@@ -54,6 +54,8 @@ async function input(page: Page, touch: boolean) {
 async function slide(page: Page, info: TestInfo, touch: boolean) {
   const driver = await input(page, touch);
   const before = await board(page).getAttribute('data-cells');
+  const played = board(page).locator('[data-cell]:not([data-disc="0"])');
+  const count = await played.count();
   await driver.start(await center(page, 2));
   await expect(board(page)).toHaveAttribute('data-preview-cell', '1');
   await driver.move(await center(page, 4));
@@ -66,8 +68,7 @@ async function slide(page: Page, info: TestInfo, touch: boolean) {
     '1'
   );
   const after = await board(page).getAttribute('data-cells');
-  const cells = (value: string | null): number[] => JSON.parse(value ?? '[]');
-  expect(cells(after).filter((v, i) => v !== cells(before)[i])).toHaveLength(1);
+  await expect(played).toHaveCount(count + 1);
   await capture(page, info, 'placed');
   return { driver, after };
 }
