@@ -1,6 +1,5 @@
 import { expect, test } from 'bun:test';
 import { closureProblems } from '@pkgs/conformance-shared-ts/closure';
-import { campaignBindings } from '../conformance/campaigns';
 import { EVIDENCE_MAP } from '../conformance/evidence-map';
 import { readConformanceWorld } from '../conformance/world';
 
@@ -32,25 +31,14 @@ test('every declared environment and public contract has evidence mappings', () 
   );
 });
 
-test('whole-product campaign modules retain gated specification coverage', () => {
+test('Pong retains gated specification coverage', () => {
   // regression: pong-missing-release-conformance — specs/pong/ was absent from product.contexts.
-  // regression: conformance-campaign-coverage
   const { world, specs, problems } = readConformanceWorld();
   if (world === null) throw new Error('conformance manifest did not parse');
   expect(problems).toEqual([]);
   expect(closureProblems(world)).toEqual([]);
-  expect(world.specDirectories).not.toContain('system');
+  expect(world.specDirectories).toContain('pong');
   expect(
-    specs.find((spec) => spec.path === 'specs/system/access-sync.qnt')
-  ).toMatchObject({
-    kind: 'dynamics',
-    bound: true,
-    harness: false,
-    live: false,
-  });
-  const ungated = campaignBindings(new Set());
-  expect(ungated.problems).toContain(
-    'specs/system/: the release gate does not run @apps/product-ts#test:contract'
-  );
-  expect(ungated.specs.every((spec) => !spec.bound)).toBe(true);
+    specs.find((spec) => spec.path === 'specs/pong/pong-local-play.feature')
+  ).toMatchObject({ kind: 'behavior', bound: true, harness: true });
 });

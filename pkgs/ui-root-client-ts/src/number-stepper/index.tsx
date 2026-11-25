@@ -79,6 +79,7 @@ function StepperGlyph(props: { plus: boolean }): JSX.Element {
 }
 
 function StepperButton(props: {
+  controlId: string;
   disabled: boolean;
   'aria-label': string;
   'aria-describedby': string | undefined;
@@ -90,6 +91,7 @@ function StepperButton(props: {
   );
   return (
     <Step
+      render={(part) => <button {...part} aria-controls={props.controlId} />}
       class={[
         'clickable clickableTint size-11 shrink-0 items-center justify-center rounded-full border border-outline text-text',
         { 'cursor-not-allowed': props.disabled },
@@ -161,6 +163,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
   const { t } = useLingui();
   const model = useStepperModel(props);
   const controller = createNumberInputController();
+  const controlId = `stepper-value-${createUniqueId()}`;
   const reasonId = `stepper-bound-${createUniqueId()}`;
   const describedBy = (at: 'min' | 'max'): string | undefined =>
     model.bound() === at ? reasonId : undefined;
@@ -188,6 +191,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
       <span class="text textLabel flex-1">{props.label}</span>
       <div class="box flex-row items-center gap-2">
         <StepperButton
+          controlId={controlId}
           disabled={model.off() || props.value <= props.min}
           aria-label={t`Decrease ${props.label}`}
           aria-describedby={describedBy('min')}
@@ -197,6 +201,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
         <div
           class="text textStat min-w-12 text-center"
           role="spinbutton"
+          id={controlId}
           data-testid={testId('value')}
           tabindex={model.off() ? -1 : 0}
           aria-label={props.label}
@@ -220,6 +225,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           {String(props.value)}
         </div>
         <StepperButton
+          controlId={controlId}
           disabled={model.off() || props.value >= props.max}
           aria-label={t`Increase ${props.label}`}
           aria-describedby={describedBy('max')}
