@@ -4,9 +4,10 @@ import { Combobox } from '@pkgs/ui-root-client-ts/combobox';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { ComboboxOption } from '@pkgs/ui-root-shared-ts/combobox-types';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Show } from 'solid-js';
+import { children, createMemo, Show } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';
 
@@ -14,7 +15,12 @@ import { SpacePersonAvatar } from './space-person-view';
 export type SpaceAddition =
   | { readonly status: 'idle' | 'loading' }
   | { readonly status: 'success'; readonly name: string }
-  | { readonly status: 'error'; readonly message: string };
+  | {
+      readonly status: 'error';
+      readonly message: string;
+      /** Who the refused addition was for, so Try again names them. */
+      readonly name?: string | undefined;
+    };
 
 /** A person the search offers, with the handle typed text matches. */
 export type SpaceAddCandidate = SpacePerson & {
@@ -41,33 +47,43 @@ function SpaceAdditionState(props: {
   readonly addition: SpaceAddition;
   readonly onRetry: () => void;
 }): JSX.Element {
+  const { t } = useLingui();
   const success = () =>
     props.addition.status === 'success' ? props.addition : null;
   const failure = () =>
     props.addition.status === 'error' ? props.addition : null;
+  // A done add comes and goes: it floats over the sheet, and the person's
+  // row in the list is the lasting record. A refused one is the search
+  // field's own result: it stays under the field, with Try again, inside the
+  // dialog where the person is working.
   return (
     <>
-      <Show when={success()}>
-        {(added) => (
-          <SuccessState
-            variant="compact"
-            title={<Trans>{added().name} added</Trans>}
-            body={
-              <Trans>
-                They can find this space in their lobby and choose Join.
-              </Trans>
-            }
-            dataSet={{ testid: Handles.spaceAddSuccess }}
-          />
-        )}
-      </Show>
+      <ToastStack placement="dialog">
+        <Show when={success()}>
+          {(added) => (
+            <SuccessState
+              variant="compact"
+              title={<Trans>{added().name} added</Trans>}
+              dataSet={{ testid: Handles.spaceAddSuccess }}
+            />
+          )}
+        </Show>
+      </ToastStack>
       <Show when={failure()}>
         {(error) => (
           <ErrorState
             variant="compact"
-            title={<Trans>Couldn't add person</Trans>}
+            title={
+              <Show
+                when={error().name}
+                fallback={<Trans>Couldn't add person</Trans>}
+              >
+                {(name) => <Trans>Couldn't add {name()}</Trans>}
+              </Show>
+            }
             body={error().message}
-            retry={{ onClick: () => props.onRetry() }}
+            // Worded as every other way to try again in the app.
+            retry={{ label: t`Try again`, onClick: () => props.onRetry() }}
           />
         )}
       </Show>
@@ -97,25 +113,31 @@ export function SpaceShareAddPeopleView(
     const person = props.candidates.find((candidate) => candidate.id === id);
     if (person !== undefined) props.onPick(person);
   };
+  // Search refused (sign in first): its prompt takes the field's place, so
+  // nothing looks usable that is not.
+  const denied = children(() => props.searchDenied);
+  const searchAllowed = (): boolean =>
+    !denied.toArray().some((node) => node !== null && node !== undefined);
   return (
     <StackVertical gap="sm">
-      <Combobox
-        label={t`Add people`}
-        surfaceTitle={<Trans>Add people</Trans>}
-        options={options()}
-        onValueChange={onValueChange}
-        query={props.query}
-        onQueryChange={(query) => props.onQueryChange(query)}
-        filterOption={() => true}
-        placeholder={t`Search by username`}
-        searchPlaceholder={t`Search by username`}
-        loading={props.searching && options().length === 0}
-        disabled={props.addition.status === 'loading'}
-        emptyMessage={emptyMessage()}
-        triggerDataSet={{ testid: Handles.spaceAddTrigger }}
-        searchDataSet={{ testid: Handles.spaceAddQuery }}
-      />
-      {props.searchDenied}
+      <Show when={searchAllowed()} fallback={denied()}>
+        <Combobox
+          label={t`Add people`}
+          surfaceTitle={<Trans>Add people</Trans>}
+          options={options()}
+          onValueChange={onValueChange}
+          query={props.query}
+          onQueryChange={(query) => props.onQueryChange(query)}
+          filterOption={() => true}
+          placeholder={t`Search by username`}
+          searchPlaceholder={t`Search by username`}
+          loading={props.searching && options().length === 0}
+          disabled={props.addition.status === 'loading'}
+          emptyMessage={emptyMessage()}
+          triggerDataSet={{ testid: Handles.spaceAddTrigger }}
+          searchDataSet={{ testid: Handles.spaceAddQuery }}
+        />
+      </Show>
       <SpaceAdditionState addition={props.addition} onRetry={props.onRetry} />
     </StackVertical>
   );

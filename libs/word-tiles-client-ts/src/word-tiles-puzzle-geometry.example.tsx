@@ -1,5 +1,6 @@
 import { expect, within } from 'storybook/test';
 import { assertClear } from './word-tiles-geometry.example';
+import { boardViewButton } from './word-tiles-view.example';
 
 /** Native geometry before a locator click can scroll the context into view. */
 export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
@@ -29,12 +30,17 @@ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
     for (const button of within(regions).getAllByRole('button'))
       await assertClear(button);
     await assertClear(canvas.getByRole('button', { name: 'Find a square' }));
+  } else {
+    // A phone keeps the overview and Find a square behind one Board tools button.
+    const view = boardViewButton(canvasElement);
+    if (view) await assertClear(view);
   }
   const bounds = viewport.getBoundingClientRect();
   const rack = canvas
     .getByTestId('word-tiles-puzzle-rack')
     .getBoundingClientRect();
-  await expect(bounds.top).toBeGreaterThanOrEqual(rack.bottom);
+  // The board comes first, then the rack and actions under it.
+  await expect(rack.top).toBeGreaterThanOrEqual(bounds.bottom);
   await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
   // Seven 44px targets let the player read a rack-length placement at once.
   await expect(bounds.width).toBeGreaterThanOrEqual(7 * 44);

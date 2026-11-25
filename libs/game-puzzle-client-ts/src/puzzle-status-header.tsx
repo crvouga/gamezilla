@@ -59,6 +59,16 @@ export type PuzzleStatusHeaderProps = {
    * says so in the success colour instead of the plain accent.
    */
   correct?: boolean | undefined;
+  /**
+   * Solved only after a wrong move: the line leads with that, in the
+   * failed mark, never a plain "Solved" over a failed attempt.
+   */
+  solvedLate?: boolean | undefined;
+  /**
+   * A wrong move with Retry still open: the line says what happened, not
+   * that the attempt is over ("Failed" waits for the result).
+   */
+  retryOpen?: boolean | undefined;
   /** Right-aligned slot, e.g. the puzzle clock. */
   trailing?: JSX.Element;
 };
@@ -78,7 +88,13 @@ export function PuzzleStatusHeader(
       testId="chess-puzzle-status-row"
     >
       <Show when={!props.solutionShown}>
-        <PuzzleStatusIcon kind={props.kind} />
+        <PuzzleStatusIcon
+          kind={
+            props.solvedLate === true && props.kind === 'solved'
+              ? 'failed'
+              : props.kind
+          }
+        />
       </Show>
       <StackVertical grow>
         <P variant="label" lines={3} testId="chess-puzzle-status-label">
@@ -91,6 +107,12 @@ export function PuzzleStatusHeader(
             fallback={
               props.solutionShown ? (
                 <Trans>Solution shown</Trans>
+              ) : props.solvedLate === true && props.kind === 'solved' ? (
+                // The recorded result leads; the result below says the
+                // solution came after a wrong move.
+                <Trans>Failed</Trans>
+              ) : props.retryOpen === true && props.kind === 'failed' ? (
+                <Trans>Wrong move</Trans>
               ) : (
                 statusLabel(props.kind)
               )

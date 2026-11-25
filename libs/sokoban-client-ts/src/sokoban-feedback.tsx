@@ -1,8 +1,10 @@
 import type { SokobanPosition } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
@@ -57,9 +59,6 @@ function Message(props: {
   readonly wide: boolean;
   readonly onReturnToLibrary: (() => void) | undefined;
 }): JSX.Element {
-  const words = useSokobanWords();
-  const refusal = () =>
-    props.feedback?.kind === 'refusal' ? props.feedback : undefined;
   return (
     <Switch>
       <Match when={props.feedback?.kind === 'overflow'}>
@@ -72,19 +71,6 @@ function Message(props: {
         >
           <Trans>Not added: four moves waiting.</Trans>
         </P>
-      </Match>
-      <Match when={refusal()}>
-        {(refused) => (
-          <P
-            role="status"
-            variant="label"
-            tone="warning"
-            lines={props.wide ? undefined : 2}
-            dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
-          >
-            {words.refusal(refused().code, refused().message)}
-          </P>
-        )}
       </Match>
       <Match when={props.feedback?.kind === 'saving'}>
         <P
@@ -105,7 +91,38 @@ function Message(props: {
 }
 
 /**
- * Counts, then one line beside the pad: how to move, or what just happened.
+ * A refused move's reason (the way is blocked, a crate cannot move): an
+ * alert floating over the screen until the next move, so neither the board
+ * nor the pad ever moves for it.
+ */
+function SokobanRefusal(props: {
+  readonly feedback: SokobanFeedback;
+}): JSX.Element {
+  const words = useSokobanWords();
+  const refusal = () =>
+    props.feedback?.kind === 'refusal' ? props.feedback : undefined;
+  return (
+    <ToastStack placement="bottom">
+      <Show when={refusal()}>
+        {(refused) => (
+          <Notice tone="warning">
+            <P
+              role="status"
+              variant="label"
+              dataSet={{ testid: 'sokoban-refusal', code: refused().code }}
+            >
+              {words.refusal(refused().code, refused().message)}
+            </P>
+          </Notice>
+        )}
+      </Show>
+    </ToastStack>
+  );
+}
+
+/**
+ * Counts, then one line beside the pad: how to move, or what just happened
+ * (a refused move is told in the alerts instead).
  * Feedback replaces the hint in place and is never taller than the pad, so
  * it never pushes the controls.
  */
@@ -160,8 +177,9 @@ export function SokobanStatus(props: {
           {t`Pushes ${props.position.pushes}`}
         </Text>
       </P>
+      <SokobanRefusal feedback={props.feedback} />
       <Show
-        when={props.feedback}
+        when={props.feedback?.kind === 'refusal' ? null : props.feedback}
         fallback={
           <P
             id={props.help}

@@ -29,7 +29,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 const WON = {
-  title: 'You won the multiplayer game.',
+  title: 'You won the game.',
   detail: 'By resignation.',
 };
 

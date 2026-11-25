@@ -52,7 +52,7 @@ describe('before a game', () => {
     );
     expect(shown('custom-game-create')).toBe(false);
     expect(
-      screen.getByText('Waiting for the creator to create a game.')
+      screen.getByText('Waiting for the host to set up a game.')
     ).toBeTruthy();
   });
 });
@@ -508,17 +508,24 @@ describe('the confirmation', () => {
             )
       );
       fireEvent.click(view.getByTestId(`custom-game-${operation}`));
-      expect(view.queryByRole('dialog')).not.toBeNull();
+      // The confirmation opens (over the game's menu sheet, for resign).
+      expect(
+        view.getByTestId(`custom-game-${operation}-confirm`)
+      ).toBeInTheDocument();
       fireEvent.click(view.getByTestId(`custom-game-${operation}-confirm`));
-      // The place that asked is gone; the dialog is not.
+      // The place that asked is gone; the confirm is not.
       expect(view.queryByTestId(`custom-game-${operation}`)).toBeNull();
-      expect(view.queryByRole('dialog')).not.toBeNull();
+      expect(view.queryAllByRole('dialog').length).toBeGreaterThan(0);
       acknowledge();
       const done = await view.findByTestId(`custom-game-${operation}-done`);
       expect(view.getByText('Game finished')).toBeInTheDocument();
       fireEvent.click(done);
-      expect(view.queryByRole('dialog')).toBeNull();
-      expect(view.getByTestId('custom-game-result-headline')).toBeTruthy();
+      expect(view.queryByTestId(`custom-game-${operation}-done`)).toBeNull();
+      // The ended game's outcome is its own dialog over the final board.
+      const outcome = view.getByRole('dialog', { name: 'Game over' });
+      expect(
+        outcome.contains(view.getByTestId('custom-game-result-headline'))
+      ).toBe(true);
     }
   );
 });

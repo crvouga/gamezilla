@@ -23,6 +23,12 @@ export type SpeechBubbleProps = {
    * Defaults to `2`.
    */
   numberOfLines?: number | undefined;
+  /**
+   * The bubble never grows past `numberOfLines`: longer words are cut short
+   * on screen (a listener still hears them whole), so what sits under the
+   * bubble (a board) never moves when the words change.
+   */
+  fixedHeight?: boolean | undefined;
   /** When `true` and no text is available, renders the typing dots. Defaults to `false`. */
   loading?: boolean | undefined;
 };
@@ -56,6 +62,9 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
           'padding-left': `${BUBBLE_PADDING_HORIZONTAL}px`,
           'padding-right': `${BUBBLE_PADDING_HORIZONTAL}px`,
           'min-height': `${bubbleHeight()}px`,
+          ...(props.fixedHeight === true
+            ? { height: `${bubbleHeight()}px` }
+            : {}),
         }}
       >
         {props.header}
@@ -70,6 +79,14 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
               style={{
                 'line-height': `${BUBBLE_LINE_HEIGHT}px`,
                 'overflow-wrap': 'anywhere',
+                ...(props.fixedHeight === true
+                  ? {
+                      display: '-webkit-box',
+                      '-webkit-box-orient': 'vertical',
+                      '-webkit-line-clamp': String(lines()),
+                      overflow: 'hidden',
+                    }
+                  : {}),
               }}
             >
               {props.text}

@@ -17,14 +17,11 @@ import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
-function mount(child: () => JSX.Element) {
+function mount(child: () => JSX.Element, width = 390) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 844 }}>
         <StaticAppRouterProvider
           router={{
             push: () => undefined,
@@ -44,6 +41,7 @@ function Join(props: {
   status: SpaceJoinStatus;
   connection: SpaceJoinConnection;
   needsConnection: boolean;
+  joinPending?: boolean;
 }) {
   return (
     <SpaceJoinScreenView
@@ -53,11 +51,12 @@ function Join(props: {
       needsConnection={props.needsConnection}
       space={JOINED_SPACE}
       canLeave={false}
-      joinPending={false}
+      joinPending={props.joinPending === true}
       joinDisabled={false}
       onJoin={() => Promise.resolve()}
       onLeave={() => undefined}
       onBackToSpaces={() => undefined}
+      onRetry={() => Promise.resolve()}
     />
   );
 }
@@ -85,7 +84,63 @@ test('an offline invitation explains the connection requirement once', () => {
   const view = mount(() => (
     <Join status="offline" connection="offline" needsConnection />
   ));
+  // Said once, as the screen's own state with the way back, never a
+  // banner over an empty page.
+  expect(
+    view.container.querySelectorAll('[data-testid="spaces-need-connection"]')
+  ).toHaveLength(1);
   expect(
     view.container.querySelectorAll('[data-component="Notice"]')
-  ).toHaveLength(1);
+  ).toHaveLength(0);
+  expect(view.container.textContent).toContain('Back to Spaces');
+});
+
+// regression: space-recovery-title-on-another-axis
+test('a join that cannot go on heads its centred message with the screen title, once', () => {
+  const states: readonly SpaceJoinStatus[] = [
+    'loading',
+    'unavailable',
+    'missing',
+    'offline',
+  ];
+  for (const width of [390, 1280]) {
+    for (const status of states) {
+      const view = mount(
+        () => (
+          <Join status={status} connection="offline" needsConnection={false} />
+        ),
+        width
+      );
+      const headings = view.container.querySelectorAll('h1');
+      expect(headings).toHaveLength(1);
+      const heading = headings[0];
+      expect(
+        heading?.closest('[data-component="SpaceRecoveryState"]')
+      ).not.toBeNull();
+      const title = heading?.textContent ?? '';
+      expect(view.container.textContent?.split(title)).toHaveLength(2);
+      cleanup();
+    }
+  }
+});
+
+// regression: space-unconfirmed-join-inline
+test('an unanswered join floats beside the check action and clears when confirmed', () => {
+  const [pending, setPending] = createSignal(true);
+  mount(() => (
+    <Join
+      status="live"
+      connection="ready"
+      needsConnection={false}
+      joinPending={pending()}
+    />
+  ));
+  const notice = screen.getByTestId(Handles.spaceJoinNotConfirmed);
+  expect(notice.closest('[data-component="ToastStack"]')).not.toBeNull();
+  expect(screen.getByTestId(Handles.spaceJoin).textContent).toContain(
+    "Check if I'm in"
+  );
+  setPending(false);
+  flush();
+  expect(screen.queryByTestId(Handles.spaceJoinNotConfirmed)).toBeNull();
 });

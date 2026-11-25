@@ -159,7 +159,9 @@ test('passing is available through more actions', () => {
 });
 
 // regression: word-tiles-separated-turn-controls
-test('CAT editing and exchange share the rack work area before the grid', () => {
+// The board reads first, then the rack and its actions under it (the
+// stage's order: board, then what is done about it).
+test('CAT editing and exchange share the rack work area after the grid', () => {
   const { view } = board('11,0,82,98,25,77,69');
   const work = view
     .getByTestId('wt-submit')
@@ -175,7 +177,7 @@ test('CAT editing and exchange share the rack work area before the grid', () => 
   ]) {
     expect(work?.contains(view.getByTestId(`wt-${action}`))).toBe(true);
   }
-  expect(work?.compareDocumentPosition(view.getByTestId('wt'))).toBe(4);
+  expect(work?.compareDocumentPosition(view.getByTestId('wt'))).toBe(2);
 });
 
 // regression: word-tiles-unreadable-no-recovery

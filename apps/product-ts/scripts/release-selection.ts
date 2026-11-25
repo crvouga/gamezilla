@@ -1,4 +1,4 @@
-import { sep } from 'node:path';
+import { resolve, sep } from 'node:path';
 import { allSpecs, type Environment, hostSkips } from './health';
 
 /** The localhost stack: no deployment, and no request records kept. */
@@ -15,7 +15,11 @@ export const RELEASE_ENVIRONMENT: Environment = {
  * that says why, so none can reach the deploy unchecked without being named.
  */
 export function releaseSpecs(): readonly string[] {
-  return allSpecs().filter((path) => {
+  const disposable = resolve(
+    import.meta.dir,
+    '../../../specs/runtime/reopen-sokoban-position.feature'
+  );
+  return [...allSpecs(), disposable].filter((path) => {
     if (!path.endsWith('.feature')) return false;
     const uri = path
       .slice(path.indexOf(`${sep}specs${sep}`) + 1)

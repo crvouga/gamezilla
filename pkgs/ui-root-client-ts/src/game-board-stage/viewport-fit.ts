@@ -5,7 +5,7 @@ import { type Accessor, createEffect, createSignal } from 'solid-js';
 import { createFrameResizeObserver } from '../observe-element-resize';
 
 /** Scroll changes the view, not the stage's original height budget. */
-function contentTop(stage: HTMLElement): number {
+export function contentTop(stage: HTMLElement): number {
   let top = stage.getBoundingClientRect().top;
   for (let parent = stage.parentElement; parent; parent = parent.parentElement)
     top += parent.scrollTop;
@@ -18,7 +18,7 @@ function contentTop(stage: HTMLElement): number {
  * (a wide rail, wherever its rows fall) shares none of its columns and is
  * not counted.
  */
-function belowStage(stage: HTMLElement, rect: DOMRect): number {
+export function belowStage(stage: HTMLElement, rect: DOMRect): number {
   const cell = stage.parentElement;
   const layout = cell?.parentElement;
   if (!cell || !layout) return 0;
@@ -37,7 +37,7 @@ function belowStage(stage: HTMLElement, rect: DOMRect): number {
 }
 
 /** Ancestor/sibling resizes include banners and chrome preceding the stage. */
-function layoutTargets(stage: HTMLElement): ReadonlySet<Element> {
+export function layoutTargets(stage: HTMLElement): ReadonlySet<Element> {
   const targets = new Set<Element>();
   for (let node: Element | null = stage; node; node = node.parentElement) {
     targets.add(node);
@@ -59,12 +59,14 @@ function layoutTargets(stage: HTMLElement): ReadonlySet<Element> {
  */
 export function createViewportSquareFit(
   root: Accessor<HTMLElement | undefined>,
-  enabled: Accessor<boolean>
+  enabled: Accessor<boolean>,
+  region?: Accessor<HTMLElement | undefined>,
+  content?: Accessor<HTMLElement | undefined>
 ): Accessor<number | undefined> {
   const [limit, setLimit] = createSignal<number>();
   createEffect(
-    () => [enabled(), root()] as const,
-    ([on, stage]) => {
+    () => [enabled(), root(), region?.(), content?.()] as const,
+    ([on, stage, regionBox, drawnBoard]) => {
       if (!on) {
         setLimit(undefined);
         return undefined;
@@ -77,7 +79,12 @@ export function createViewportSquareFit(
           setLimit(undefined);
           return;
         }
-        const chrome = Math.max(0, rect.height - rect.width);
+        // The board's box may be held taller than the board it holds (a
+        // fixed region): the chrome is the stage less that box, with the
+        // board's own lines under its square (its height past its width).
+        const box = regionBox?.offsetHeight ?? 0;
+        const drawn = drawnBoard?.offsetHeight ?? 0;
+        const chrome = Math.max(0, rect.height - box + drawn - rect.width);
         const height = view.visualViewport?.height ?? view.innerHeight;
         const below = belowStage(stage, rect);
         const available =

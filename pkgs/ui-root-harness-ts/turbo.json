@@ -84,7 +84,11 @@
     "storybook:test": {
       "dependsOn": ["storybook:build"],
       "cache": false,
-      "passThroughEnv": ["STORYBOOK_TEST_PORT"]
+      "passThroughEnv": [
+        "STORYBOOK_TEST_PORT",
+        "STORYBOOK_PATTERN",
+        "GITHUB_SHA"
+      ]
     },
     "storybook:video:install": {
       "cache": false

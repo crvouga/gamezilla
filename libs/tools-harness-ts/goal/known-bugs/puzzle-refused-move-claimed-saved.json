@@ -1,0 +1,4 @@
+{
+  "summary": "After a refused puzzle move the stage reported progress saved alongside Retry. Both attempt screens now identify the previous position as saved.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-attempt-layout.test.tsx"
+}

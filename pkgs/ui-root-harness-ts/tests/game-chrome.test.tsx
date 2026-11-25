@@ -28,7 +28,9 @@ describe('Game chrome', () => {
     expect(document.querySelector('[data-testid="nav-back"]')).toBeNull();
   });
 
-  test('the others sit above the board, then the turn, then your own strip', () => {
+  // Every stage reads top to bottom: what is said about the game (the
+  // others, the turn, your own strip), then the board, then only commands.
+  test('the others, then the turn, then your own strip, all above the board', () => {
     renderUi(() => (
       <GameBoardStage
         others={<GamePlayerBar name="Atlas" dataSet={{ testid: 'far' }} />}
@@ -40,9 +42,9 @@ describe('Game chrome', () => {
     ));
     const order = [...mustQuery('[data-component="GameBoardStage"]').children];
     expect(order[0]).toBe(screen.getByTestId('far'));
-    expect(order[1]?.contains(screen.getByTestId('board'))).toBe(true);
-    expect(order[2]).toBe(mustQuery('[data-component="GameTurnPill"]'));
-    expect(order[3]).toBe(screen.getByTestId('near'));
+    expect(order[1]).toBe(mustQuery('[data-component="GameTurnPill"]'));
+    expect(order[2]).toBe(screen.getByTestId('near'));
+    expect(order[3]?.contains(screen.getByTestId('board'))).toBe(true);
   });
 
   test('a stage without seats or a turn is the board alone', () => {

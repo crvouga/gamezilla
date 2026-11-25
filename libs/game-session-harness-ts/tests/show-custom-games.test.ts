@@ -1,8 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import {
-  SHARED_SCREEN_MARK,
-  showCustomGames,
-} from '@libs/game-session-harness-ts/game-navigation';
+import { showCustomGames } from '@libs/game-session-harness-ts/game-navigation';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 /**
@@ -14,7 +11,7 @@ function menuThatMovesOn() {
   let moved = false;
   const shown = (handle: string): boolean =>
     moved
-      ? handle === SHARED_SCREEN_MARK['custom-game']
+      ? handle === 'custom-game-content'
       : handle === Handles.gameMenu('some-game');
   const node = (handle: string) => ({
     isVisible: () => Promise.resolve(shown(handle)),
@@ -38,6 +35,7 @@ function menuThatMovesOn() {
 }
 
 describe('reaching the custom games of a space', () => {
+  // regression: custom-game-navigation-offline-or-watching
   // regression: space-menu-moves-on-before-tap
   test('a menu that moves on before the tap lands is looked at again', async () => {
     await expect(

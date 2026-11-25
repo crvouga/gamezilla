@@ -51,6 +51,12 @@ export type GameMoveListProps = {
    */
   heading?: string | undefined;
   /**
+   * The key a `table` laid out as one line over a phone's board shows in
+   * place of `heading` (`Moves`): the line holds whole moves, not columns.
+   * Each move then says its word in its own name (`Move 9 · column 7`).
+   */
+  stripKey?: string | undefined;
+  /**
    * `turn` only: the shown turn's number in words (`Move 4`), so a strip
    * under a phone's board never leaves a bare number beside the moves.
    */
@@ -132,6 +138,7 @@ function MoveButton(props: {
         data-current={String(props.current)}
         aria-current={props.current ? 'step' : undefined}
         aria-label={props.move.accessibleName}
+        title={props.move.accessibleName}
         data-testid={props.move.testId}
         onClick={() => props.onSelect(props.move.ply)}
       >
@@ -187,6 +194,20 @@ function hideCutByKey(root: HTMLElement): void {
 }
 
 /**
+ * A one-line strip with turns past its far edge says so (`data-more-after`),
+ * so that edge fades the turn it cuts instead of cutting it square. A line
+ * laid out from its far end rests there (offset 0, earlier turns at
+ * negative offsets).
+ */
+function markMoreAfter(root: HTMLElement): void {
+  const reversed = getComputedStyle(root).flexDirection === 'row-reverse';
+  const after = reversed
+    ? -root.scrollLeft
+    : root.scrollWidth - root.clientWidth - root.scrollLeft;
+  root.dataset['moreAfter'] = String(after > 1);
+}
+
+/**
  * A table's rows show whole from the top: a row cut at the top is scrolled
  * past, with room made under the last row when the rows end there.
  */
@@ -219,32 +240,51 @@ function stripKey(root: HTMLElement): HTMLElement | null {
   const key = root.querySelector<HTMLElement>(`:scope > .${styles['heading']}`);
   if (key === null || getComputedStyle(key).position !== 'sticky') return null;
   // The table's word sticks to its top, not its start: not a strip's key.
-  return getComputedStyle(root).flexDirection === 'row' ? key : null;
+  return getComputedStyle(root).flexDirection.startsWith('row') ? key : null;
 }
 
 /**
  * The turns start flush past the key: a turn the key would cut is scrolled
- * past whole, when the line has room to scroll on.
+ * past whole, when the line has room to scroll on. Settled once: the turn
+ * after it then starts at the key's edge, which is not a cut, so running
+ * again (each resize) never scrolls one more turn away.
  */
 function alignPastKey(root: HTMLElement): void {
   const key = stripKey(root);
   if (key === null) return;
   const edge = keyEdge(root, 0);
-  const cut = [...root.querySelectorAll<HTMLElement>('li')].find((turn) => {
+  const keyRight = key.getBoundingClientRect().right;
+  const turns = [...root.querySelectorAll<HTMLElement>('li')];
+  // A turn starting within a pixel of the edge is whole: scroll offsets
+  // round to whole pixels.
+  const at = turns.findIndex((turn) => {
     const box = turn.getBoundingClientRect();
-    return box.left < edge && box.right > key.getBoundingClientRect().right;
+    return box.left < edge - 1 && box.right > keyRight;
   });
+  const cut = turns[at];
   if (cut === undefined) return;
-  // Scrolled until its far edge meets the key's: the next turn starts the
-  // line's gap past it.
-  const past = Math.ceil(
-    cut.getBoundingClientRect().right - key.getBoundingClientRect().right
-  );
+  // Scrolled until the next turn starts at the key's edge (past its rule
+  // and fade), or the cut turn's far edge meets the key's at the line's end.
+  const next = turns[at + 1];
+  const past = (): number =>
+    Math.ceil(
+      next === undefined
+        ? cut.getBoundingClientRect().right - keyRight
+        : next.getBoundingClientRect().left - edge
+    );
+  const needed = past();
+  if (needed <= 0) return;
   // At the line's end there is room made after the latest turn to scroll
-  // on into, so the gap is at the end, never beside the key.
-  const room = root.scrollWidth - root.clientWidth - root.scrollLeft;
-  if (room < past) root.style.setProperty('--strip-end', `${past - room}px`);
-  root.scrollLeft += past;
+  // on into, so the gap is at the end, never beside the key. A line laid
+  // out from its far end rests there (its offset 0, earlier turns at
+  // negative offsets) and moves its turns over by the room made itself.
+  const reversed = getComputedStyle(root).flexDirection === 'row-reverse';
+  const room = reversed
+    ? -root.scrollLeft
+    : root.scrollWidth - root.clientWidth - root.scrollLeft;
+  if (room < needed)
+    root.style.setProperty('--strip-end', `${needed - room}px`);
+  root.scrollLeft += past();
 }
 
 /** Where the moves start showing: past a key held at the line's start. */
@@ -315,6 +355,32 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
   );
 }
 
+/**
+ * A table's word for its moves (`Column`), over its move columns; laid out
+ * as one line over a phone's board, the line's key (`Moves`) instead.
+ */
+function TableHeading(props: GameMoveListProps): JSX.Element {
+  return (
+    <Show when={props.layout === 'table' && props.heading}>
+      {(heading) => (
+        <span
+          class={`${styles['heading']} text textCaption`}
+          aria-hidden="true"
+        >
+          <Show when={props.stripKey} fallback={heading()}>
+            {(key) => (
+              <>
+                <span class={styles['tableWord']}>{heading()}</span>
+                <span class={styles['stripWord']}>{key()}</span>
+              </>
+            )}
+          </Show>
+        </span>
+      )}
+    </Show>
+  );
+}
+
 /** The listed turns themselves. */
 function TurnList(props: GameMoveListProps): JSX.Element {
   const turns = createMemo(() => {
@@ -334,6 +400,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
     scrollMarkedIntoView(root);
     alignPastKey(root);
     hideCutByKey(root);
+    markMoreAfter(root);
   };
   createEffect(
     () => [props.layout, props.current, turns()] as const,
@@ -350,7 +417,9 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       ref={root}
       class={styles['list']}
       onScroll={() => {
-        if (props.layout === 'table' && root !== undefined) hideCutByKey(root);
+        if (props.layout !== 'table' || root === undefined) return;
+        hideCutByKey(root);
+        markMoreAfter(root);
       }}
       data-layout={props.layout}
       data-many-seats={String(columns() > 2)}
@@ -360,16 +429,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
     >
       {props.leading}
-      <Show when={props.layout === 'table' && props.heading}>
-        {(heading) => (
-          <span
-            class={`${styles['heading']} text textCaption`}
-            aria-hidden="true"
-          >
-            {heading()}
-          </span>
-        )}
-      </Show>
+      <TableHeading {...props} />
       <ol class={styles['turns']} aria-label={props['aria-label']}>
         {/* By position, not by object: a move appended updates its own
             turn, never the whole list. */}

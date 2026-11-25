@@ -1,7 +1,11 @@
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SpaceHomeScreenView } from './space-home-screen-view';
-import { StorySpaceFrame } from './space-screen-chrome-story.example';
+import {
+  STORY_SPACE_CHROME,
+  StorySpaceFrame,
+} from './space-screen-chrome-story.example';
 import { GAMES } from './spaces-story.example';
 
 const meta = {
@@ -41,5 +45,25 @@ export const SelectGame: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('game-menu-example-cards'));
     await expect(args.onSelectGame).toHaveBeenCalledWith('example-cards');
+  },
+};
+
+/** J6: who is here is the top bar's first button, at every width. */
+export const OpenPeople: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId(Handles.spaceMembersButton)
+    );
+    await expect(STORY_SPACE_CHROME.menu[0]?.onPress).toHaveBeenCalled();
+  },
+};
+
+/** J5: Share is the top bar's second button, at every width. */
+export const OpenShare: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId(Handles.spaceShare));
+    await expect(STORY_SPACE_CHROME.menu[1]?.onPress).toHaveBeenCalled();
   },
 };

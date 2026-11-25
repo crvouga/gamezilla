@@ -182,6 +182,10 @@
   min-height: 0;
   border-radius: 50%;
   background: var(--disc-hole);
+  /* An empty hole's edge in the board's muted ink, so the grid reads at
+     3:1 against the board, not only its dark fill (about 1.4:1). A disc
+     covers it. */
+  box-shadow: inset 0 0 0 2px var(--ui-color-text-secondary);
   overflow: visible;
   /* The mark scales with the cell, so a small board's disc holds it whole. */
   container-type: inline-size;

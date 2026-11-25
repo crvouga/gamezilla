@@ -10,43 +10,12 @@ import {
   ModalHeader,
 } from '@pkgs/ui-root-client-ts/modal-parts';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { ResponsiveSurfaceHeader } from '@pkgs/ui-root-client-ts/responsive-surface-header';
-import { BottomSheetPanel } from '@pkgs/ui-root-client-ts/web-bottom-sheet';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 
 const noop = (): void => undefined;
-
-/** Height of the in-place phone frame the sheet anatomy is drawn in (px). */
-const SHEET_FRAME_MAX_HEIGHT = 432;
-
-/** An open bottom sheet drawn in place over a page, in both schemes. */
-function SheetAnatomy(): JSX.Element {
-  return (
-    <SchemePreview>
-      <div class="box relative h-120 w-full max-w-96 overflow-hidden rounded-card bg-background">
-        <div class="box gap-2 p-4">
-          <p class="text textHeading">{'Friday chess'}</p>
-          <p class="text textBody text-text-secondary">
-            {'The page behind the sheet, dimmed by the scrim.'}
-          </p>
-        </div>
-        <div class="box absolute inset-0 bg-scrim" aria-hidden="true" />
-        <BottomSheetPanel maxHeight={SHEET_FRAME_MAX_HEIGHT}>
-          <div class="box gap-3 px-4 pt-4 pb-6">
-            <ResponsiveSurfaceHeader title="Game options" onClose={noop} />
-            <p class="text textBody text-text-secondary">
-              {'Pick a time control. You can change it before the game starts.'}
-            </p>
-            <Button title="Start game" onClick={noop} fullWidth />
-          </div>
-        </BottomSheetPanel>
-      </div>
-    </SchemePreview>
-  );
-}
 
 /** The dialog drawn in place, so both schemes show its anatomy. */
 function DialogAnatomy(): JSX.Element {
@@ -80,7 +49,7 @@ function DialogAnatomy(): JSX.Element {
 }
 
 type OpenModal =
-  | 'sheet'
+  | 'options'
   | 'dialog'
   | 'default'
   | 'destructive'
@@ -97,11 +66,9 @@ export default function ModalExample(): JSX.Element {
     <ExampleRoot>
       <p class="text textCaption">
         {
-          'Sheet: a bottom sheet on phones (raised fill, 20px top radius, grab handle, float shadow, safe-area inset) and a centered dialog on wide layouts. Dialog: always centered, 20px radius. Both sit on the scrim, trap focus, return it to the opener, and close on Escape or a scrim tap.'
+          'Every modal is centered on the screen, vertically and horizontally, at every width: raised fill, 20px radius, float shadow. On phones it takes the whole width inside a 16px margin; long content scrolls inside it. It sits on the scrim, traps focus, returns it to the opener, and closes on Escape or a scrim tap.'
         }
       </p>
-      <p class="text textSectionLabel">{'Sheet, open'}</p>
-      <SheetAnatomy />
       <p class="text textSectionLabel">{'Dialog, open'}</p>
       <p class="text textCaption">
         {
@@ -111,7 +78,7 @@ export default function ModalExample(): JSX.Element {
       <DialogAnatomy />
       <p class="text textSectionLabel">{'Try them'}</p>
       <div class="box flex-col gap-2">
-        <Button title="Open sheet" onClick={() => setOpen('sheet')} />
+        <Button title="Open options" onClick={() => setOpen('options')} />
         <Button
           title="Open dialog"
           intent="neutral"
@@ -136,7 +103,7 @@ export default function ModalExample(): JSX.Element {
       </div>
 
       <ResponsiveSurface
-        visible={open() === 'sheet'}
+        visible={open() === 'options'}
         onClose={close}
         title="Game options"
       >

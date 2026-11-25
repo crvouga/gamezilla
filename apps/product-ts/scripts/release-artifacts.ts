@@ -1,6 +1,7 @@
 // @io-wall-ok — release CLI preparation owns its generated feature stubs.
 import { cpSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
+import { readEvidence } from '@pkgs/conformance-server-ts/evidence-store';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { writeFeatureStubs } from './health';
 import { RELEASE_ENVIRONMENT } from './release-selection';
@@ -46,6 +47,7 @@ export function writeReleaseStubs(
   specs: readonly string[],
   dirs: ReturnType<typeof releaseArtifacts>
 ): readonly string[] {
+  removeTree(dirs.reportDir);
   removeTree(dirs.stubDir);
   mkdirSync(dirs.stubDir, { recursive: true });
   return writeFeatureStubs(
@@ -54,6 +56,21 @@ export function writeReleaseStubs(
     dirs,
     join(packageDir, 'tests/steps/release-index.ts')
   );
+}
+
+export function printReleaseScenarioPasses(
+  reportDir: string,
+  commit: string
+): void {
+  for (const record of readEvidence(reportDir).records) {
+    for (const result of record.obligations) {
+      if (result.layer === 'release' && result.status === 'pass') {
+        console.log(
+          `production-browser PASS ${commit} ${record.specUri} ${result.id}`
+        );
+      }
+    }
+  }
 }
 
 /** A finished part removes only its own files; nightly retains its evidence. */

@@ -15,6 +15,7 @@ import { useCheckConnection } from './use-check-connection';
 import { useJoinSpace } from './use-join-space';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceCardData } from './use-space-card-data';
+import { useKnownSpaceTitle } from './use-space-display-title';
 import { useSpaceHostConnection } from './use-space-host-connection';
 import { useSpaceJoinSnapshot } from './use-space-join-snapshot';
 
@@ -59,6 +60,15 @@ function useJoinAction(spaceId: () => string, onOffline: () => void) {
   };
 }
 
+/** Offline: asks the server again; rejects while it still cannot reach it. */
+function useRetryConnection(): () => Promise<void> {
+  const { t } = useLingui();
+  const checkConnection = useCheckConnection();
+  return async () => {
+    if (!(await checkConnection())) throw new Error(t`You're still offline.`);
+  };
+}
+
 /** `/space/:id` for a space the viewer is not in: wires `SpaceJoinScreenView`. */
 export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
   const nav = useBreadcrumbNav();
@@ -69,6 +79,8 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
   const [joinOffline, setJoinOffline] = createSignal(false);
   const connection = useSpaceHostConnection();
   const space = useSpaceCardData(() => props.spaceId);
+  const title = useKnownSpaceTitle(() => props.spaceId);
+  const retry = useRetryConnection();
   const canLeave = useSpaceCan(() => props.spaceId, PERMISSION.spacesLeave);
   const requestLeave = useRequestLeaveSpace();
   const join = useJoinAction(
@@ -82,7 +94,7 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
       fallback={<SpaceEndedScreen spaceId={props.spaceId} />}
     >
       <SpaceJoinScreenView
-        title={space().title}
+        title={title()}
         status={snapshot().status as SpaceJoinStatus}
         connection={connection()}
         needsConnection={joinOffline() || connection() === 'offline'}
@@ -94,6 +106,7 @@ export function SpaceJoinPrompt(props: SpaceJoinPromptProps): JSX.Element {
         onJoinPhaseChange={join.onPhaseChange}
         onLeave={() => requestLeave(props.spaceId)}
         onBackToSpaces={nav('/')}
+        onRetry={retry}
       />
     </Show>
   );

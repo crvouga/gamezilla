@@ -5,7 +5,8 @@ import {
   readPuzzleState,
   stepThroughPuzzleLine,
 } from '@libs/game-session-harness-ts/puzzle-screen';
-import { Then, When } from '@libs/harness-ts/define';
+import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 
 When(
@@ -33,5 +34,31 @@ When(
   '{actor} tries to show the solution from that earlier position',
   async (w, actor: Actor) => {
     await w.s.apply(attemptHostPuzzleCommand, actor, actor, 'show-line');
+  }
+);
+
+const returnFromEarlierBoard = scenarioAction({
+  name: 'returnFromEarlierBoard',
+  act: async (s, actor: Actor) => {
+    const ui = await actorUi(s, actor);
+    await ui.get('chess-puzzle-line-close').tap();
+    await ui.get('chess-puzzle-return-live').tap();
+    await ui
+      .get('chess-puzzle-return-live')
+      .expect.hidden({ timeoutMs: 20000 });
+  },
+});
+
+When(
+  '{actor} returns from the earlier board to the latest move',
+  async (w, actor: Actor) => {
+    await w.s.apply(returnFromEarlierBoard, actor);
+  }
+);
+
+Given(
+  '{actor} has returned from the earlier board to the latest move',
+  async (w, actor: Actor) => {
+    await w.s.apply(returnFromEarlierBoard, actor);
   }
 );

@@ -1,0 +1,87 @@
+/* Alerts that come and go float over the screen in one stack, never in
+   the page's flow: nothing under them moves when one appears or clears.
+   Above every dialog's scrim (the overlay layer), so an alert about a
+   dialog's own choice is never dimmed behind it. */
+.stack {
+  position: fixed;
+  z-index: var(--ui-layer-overlay);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  pointer-events: none;
+}
+/* A phone: the screen's width less its gutters, clear of the top bar, or
+   above the bottom chrome (a footer's command, the tab bar). */
+@media (max-width: 767px) {
+  .stack {
+    left: var(--ui-space-4);
+    right: var(--ui-space-4);
+  }
+  .stack:is([data-placement="top"], [data-placement="dialog"]) {
+    top: calc(env(safe-area-inset-top, 0px) + 60px);
+  }
+  .stack[data-placement="bottom"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+  }
+  /* Over a game's command bar (its status line and commands). */
+  .stack[data-placement="above-commands"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 136px);
+  }
+  /* Over a tab bar and a floating command (a lobby's New space), or a
+     lobby's docked commands. */
+  .stack[data-placement="above-actions"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 176px);
+  }
+}
+/* A wide window: the bottom corner of the page, clear of the sidebar, the
+   titles and the board. */
+@media (min-width: 768px) {
+  .stack {
+    right: var(--ui-space-6);
+    bottom: var(--ui-space-6);
+    width: min(400px, calc(100vw - 2 * var(--ui-space-6)));
+  }
+  .stack[data-placement="dialog"] {
+    width: fit-content;
+    max-width: min(400px, 40vw);
+  }
+  /* An alert that would cover a game's status or commands in the bottom
+     corner stands at the top corner instead, under the space's bar. */
+  .stack[data-placement="top"] {
+    top: calc(var(--ui-space-6) + 56px);
+    bottom: auto;
+  }
+}
+/* Each alert is its own floating card: opaque, raised with the one float
+   shadow, and dismissible as a whole by the stack's own close. */
+.item {
+  position: relative;
+  overflow: hidden;
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-background);
+  box-shadow: var(--ui-shadow-float);
+  pointer-events: auto;
+}
+/* The alert's own tinted card is the toast: it fills it to the corners,
+   whatever wraps it, with room for the close button over its end. */
+.item > :not(.close) {
+  width: 100%;
+  margin: 0;
+}
+.item :is([data-component="Notice"], [data-component="ErrorState"]) {
+  align-self: stretch;
+  width: 100%;
+  border-radius: 0;
+  padding-inline-end: var(--ui-space-12);
+}
+.close {
+  position: absolute;
+  top: var(--ui-space-1);
+  right: var(--ui-space-1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .item {
+    animation: ui-dialog-enter var(--ui-duration-normal)
+      var(--ui-easing-standard) both;
+  }
+}

@@ -59,8 +59,21 @@ export async function narrowWorkspace(
     body: await page.screenshot(),
     contentType: 'image/png',
   });
+  // The view tools wait behind one Board tools button under the board.
+  const view = page.getByRole('button', {
+    name: 'Board tools: zoom and find a square',
+    exact: true,
+  });
+  await reachable(view);
+  await view.click();
   await reachable(
-    page.getByRole('button', { name: 'Find a square', exact: true })
+    page
+      .getByRole('dialog', { name: 'Board tools' })
+      .getByRole('button', { name: 'Find a square', exact: true })
+  );
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Board tools' })).toHaveCount(
+    0
   );
   await reachable(page.getByTestId('custom-game-board-more'));
   await rackTargets(page, info, 'initial', 7);
@@ -111,7 +124,7 @@ async function rackTargets(
   });
 }
 
-/** The opening phone layout needs no scrolling: one rack row, then the whole board. */
+/** The opening phone layout needs no scrolling: the whole board, then one rack row. */
 export async function narrowOpeningFits(
   page: Page,
   info: TestInfo,

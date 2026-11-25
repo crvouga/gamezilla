@@ -7,21 +7,18 @@
   min-width: 0;
   min-height: 0;
 }
-/* What is about to be played: the mode's own wash, so the head of the
-   lobby reads as the game and not as one more list section. */
+/* What is about to be played: a quiet card at the head of the lobby, on
+   the surface like every panel (flat: hairline, no wash), so the choices
+   under it lead. */
 .mode {
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-4);
   min-width: 0;
-  padding: var(--ui-space-5) var(--ui-space-4) var(--ui-space-4);
+  padding: var(--ui-space-4);
   border: 1px solid var(--ui-color-border);
-  border-radius: var(--ui-radius-lg);
-  background: linear-gradient(
-    135deg,
-    var(--ui-color-tint-subtle) 0%,
-    var(--ui-color-surface) 72%
-  );
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
 }
 .modeWords {
   display: flex;
@@ -30,10 +27,8 @@
   min-width: 0;
 }
 .eyebrow {
-  color: var(--ui-color-tint);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  color: var(--ui-color-text-secondary);
+  font-weight: 600;
 }
 .summary {
   color: var(--ui-color-text-secondary);
@@ -80,6 +75,10 @@
 }
 .dock[data-inset="true"] {
   padding-inline: var(--ui-space-4);
+}
+/* On desktop the dock's column starts where the lobby's does. */
+.dock[data-inset="false"] {
+  justify-content: flex-start;
 }
 .dockColumn {
   display: flex;

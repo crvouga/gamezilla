@@ -4,9 +4,15 @@ import { SOKOBAN_PLAY_ACTIONS } from './sokoban-play';
 import { SOKOBAN_PLAY_MODEL_ACTIONS } from './sokoban-play-model';
 import { SOKOBAN_PROOF_ACTIONS } from './sokoban-proof';
 import { SOKOBAN_PROOF_MODEL_ACTIONS } from './sokoban-proof-model';
+import {
+  retryPositionSave,
+  stepRightWithoutSaving,
+} from './sokoban-save-retry';
 import { SOKOBAN_STARTER_ACTIONS } from './sokoban-starter';
 
 export const SOKOBAN_ACTIONS = [
+  retryPositionSave,
+  stepRightWithoutSaving,
   ...SOKOBAN_PLAY_ACTIONS,
   ...SOKOBAN_BUILDING_ACTIONS,
   ...SOKOBAN_PROOF_ACTIONS,

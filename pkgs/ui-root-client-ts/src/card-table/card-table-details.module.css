@@ -1,0 +1,255 @@
+/*
+ * The table is a compass at every width: North across the top, West and
+ * East either side of the trick, the viewer across the bottom, each played
+ * card on its owner's side of the middle, so who led and whose card won
+ * reads at a glance. The felt keeps one height in every phase (passing,
+ * playing, watching, game over); the middle row takes what the seats
+ * leave, so nothing on the table moves as the game goes on. These classes
+ * sit beside the layout module's own on the same elements.
+ */
+.table[role="group"] {
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  gap: var(--ui-space-2);
+  min-height: 16rem;
+}
+/* Room either side of the top and bottom cards for `Took it`. */
+.trick[data-trick] {
+  column-gap: var(--ui-space-3);
+  padding-block: 0;
+}
+/* North and South lie along their edge: the person beside their facts. */
+.seat[data-position="top"],
+.seat[data-position="bottom"] {
+  flex-direction: row;
+  justify-content: center;
+}
+.seat[data-player="true"][data-position="top"],
+.seat[data-player="true"][data-position="bottom"] {
+  gap: var(--ui-space-3);
+  padding: var(--ui-space-1) var(--ui-space-3);
+}
+.seat[data-position="top"] > :first-child,
+.seat[data-position="bottom"] > :first-child,
+.seat[data-position="top"] .facts,
+.seat[data-position="bottom"] .facts {
+  flex: 1 1 0;
+  min-width: 0;
+}
+.seat[data-position="top"] .facts,
+.seat[data-position="bottom"] .facts {
+  flex-direction: column;
+  align-items: flex-start;
+}
+.seat[data-position="left"],
+.seat[data-position="right"] {
+  width: 100%;
+  align-self: stretch;
+  justify-content: center;
+}
+/* What the table is doing wraps in the middle rather than narrowing the
+   side seats until a name is cut short. */
+.table > .center {
+  max-width: min(16rem, 36cqw);
+  overflow-wrap: anywhere;
+}
+/* Where the pass goes wraps over its places rather than widening the
+   middle at the side seats' cost. */
+.pass {
+  max-width: calc(3 * var(--card-w) + 2 * var(--ui-space-1) + 1rem);
+}
+.pass .passLabel {
+  white-space: normal;
+  text-align: center;
+}
+/* A phone's side seats are narrow: a compact plate, its facts one under
+   another (the seat's own container query), the trick's cards between. */
+@container card-table not (min-width: 26rem) {
+  .table[role="group"] {
+    box-sizing: border-box;
+    height: 16rem;
+    --card-w: 36px;
+    row-gap: var(--ui-space-1);
+    padding-block: var(--ui-space-1);
+  }
+  .seat[data-player="true"][data-position="left"],
+  .seat[data-player="true"][data-position="right"] {
+    padding: var(--ui-space-1);
+  }
+}
+@container card-table (min-width: 26rem) {
+  .table[role="group"] {
+    --card-w: clamp(44px, 10cqw, 56px);
+    gap: var(--ui-space-2) var(--ui-space-3);
+    min-height: 20rem;
+  }
+  .pass {
+    max-width: calc(3 * var(--card-w) + 2 * var(--ui-space-1) + 2rem);
+  }
+}
+
+/* The felt takes the table's colours; the hand under it sits on the page
+   and keeps the app's, so a chosen card wears the app's selection ring. */
+.felt {
+  --ui-color-background: var(--ui-color-game-hearts-canvas);
+  --color-background: var(--ui-color-background);
+  --ui-color-surface: var(--ui-color-game-hearts-surface);
+  --color-surface: var(--ui-color-surface);
+  --ui-color-surface-muted: var(--ui-color-game-hearts-surface);
+  --color-surface-muted: var(--ui-color-surface-muted);
+  --ui-color-surface-sunken: var(--ui-color-game-hearts-surface);
+  --color-surface-sunken: var(--ui-color-surface-sunken);
+  --ui-color-surface-elevated: var(--ui-color-game-hearts-surface);
+  --color-surface-elevated: var(--ui-color-surface-elevated);
+  --ui-color-text: var(--ui-color-game-hearts-ink);
+  --color-text: var(--ui-color-text);
+  --ui-color-text-secondary: var(--ui-color-game-hearts-muted);
+  --color-text-secondary: var(--ui-color-text-secondary);
+  --ui-color-border: var(--ui-color-game-hearts-surface);
+  --color-border: var(--ui-color-border);
+  --ui-color-outline: var(--ui-color-game-hearts-muted);
+  --color-outline: var(--ui-color-outline);
+  --ui-color-tint: var(--ui-color-game-hearts-accent);
+  --color-tint: var(--ui-color-tint);
+  --ui-color-tint-active: var(--ui-color-game-hearts-accent);
+  --color-tint-active: var(--ui-color-tint-active);
+  --ui-color-tint-subtle: var(--ui-color-game-hearts-surface);
+  --color-tint-subtle: var(--ui-color-tint-subtle);
+  --ui-color-focus-ring: var(--ui-color-game-hearts-accent);
+  --color-focus-ring: var(--ui-color-focus-ring);
+  --ui-color-destructive: var(--ui-color-game-hearts-one);
+  --color-destructive: var(--ui-color-destructive);
+  --ui-color-warning: var(--ui-color-game-hearts-two);
+  --color-warning: var(--ui-color-warning);
+  --ui-color-success: var(--ui-color-game-hearts-accent);
+  --color-success: var(--ui-color-success);
+  --ui-color-info: var(--ui-color-game-hearts-accent);
+  --color-info: var(--ui-color-info);
+  --ui-color-on-destructive: var(--ui-color-game-hearts-canvas);
+  --color-on-destructive: var(--ui-color-on-destructive);
+  --ui-color-on-warning: var(--ui-color-game-hearts-canvas);
+  --color-on-warning: var(--ui-color-on-warning);
+  --ui-color-on-info: var(--ui-color-game-hearts-canvas);
+  --color-on-info: var(--ui-color-on-info);
+}
+
+/* The table's passing states, kept beside the table's own layout: the
+   trick just taken, and a hand waiting for the person's turn. Cards are
+   found by their data attributes, as the layout module owns their class. */
+
+/* The trick just taken: the winning card is outlined and labelled in words
+   until the next card is played. */
+[data-won="true"] > span[data-card] {
+  outline: 3px solid var(--ui-color-game-hearts-accent);
+  outline-offset: 2px;
+}
+/* `Took it` sits off the card, clear of its outline (3px, 2px out) by a
+   step: under it beside a phone's seat; on a wide table, in the trick's
+   free corner on the side away from the middle. */
+.won {
+  --won-gap: calc(5px + var(--ui-space-1));
+  position: absolute;
+  top: calc(100% + var(--won-gap));
+  left: 50%;
+  translate: -50% 0;
+  width: max-content;
+  padding-inline: var(--ui-space-1);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-game-hearts-accent);
+  color: var(--ui-color-board-card-ink);
+  font-size: var(--ui-font-size-xs);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+}
+/* Beside a phone's seat the card that took the trick rises half its tag,
+   so card and tag sit together inside the seat's row. */
+@container card-table not (min-width: 26rem) {
+  span[data-won="true"]:has(> .won) {
+    margin-block-end: calc(
+      1.4 *
+      var(--ui-font-size-xs) +
+      5px +
+      var(--ui-space-1)
+    );
+  }
+}
+/* A wide table's trick is a cross: the top and bottom cards' tags sit to
+   their right, the side cards' above them, each in a corner nothing uses. */
+@container card-table (min-width: 26rem) {
+  [data-position="top"] > .won,
+  [data-position="bottom"] > .won {
+    left: calc(100% + var(--won-gap));
+    translate: none;
+  }
+  [data-position="top"] > .won {
+    top: 0;
+  }
+  [data-position="bottom"] > .won {
+    top: auto;
+    bottom: 0;
+  }
+  [data-position="left"] > .won,
+  [data-position="right"] > .won {
+    top: auto;
+    bottom: calc(100% + var(--won-gap));
+  }
+}
+
+/* Not the person's turn: the hand is inactive as a whole, said once above
+   it, rather than every card marked as refused. */
+[data-waiting="true"] > button[data-card] {
+  opacity: 0.8;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+/*
+ * Under the table: the hand (two rows kept, `--hand-h`, which the hand
+ * takes as its least height), the action, and the guidance (room for two
+ * lines kept under them, so any spare room falls at the tray's foot). The tray keeps that height in every
+ * phase, hand or none, so nothing on the board moves.
+ */
+.tray {
+  /* A row of seven cards, as the hand sizes them: at most 72px wide. */
+  --hand-card: min(72px, (100cqw - 8 * var(--ui-space-1)) / 7);
+  --guide-h: calc(3 * var(--ui-font-size-sm));
+  --hand-h: calc(
+    var(--ui-space-3) +
+    var(--ui-space-1) +
+    var(--ui-space-3) +
+    var(--hand-card) *
+    2.8
+  );
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  min-height: calc(
+    var(--guide-h) +
+    var(--hand-h) +
+    2.75rem +
+    var(--ui-space-2) *
+    2
+  );
+}
+/* Three rows of five square cards in a narrow hand, whatever the count. */
+@container card-table (max-width: 21.25rem) {
+  .tray {
+    --hand-card: min(48px, (100cqw - 6 * var(--ui-space-1)) / 5);
+    --hand-h: calc(
+      var(--ui-space-3) +
+      var(--ui-space-1) +
+      var(--ui-space-3) *
+      2 +
+      var(--hand-card) *
+      3
+    );
+  }
+}
+.guide {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--ui-space-1);
+  min-height: var(--guide-h);
+}

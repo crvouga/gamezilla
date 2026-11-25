@@ -99,6 +99,11 @@ export const RetryChange: Story = {
   ...ChangeFailed,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByTestId('content-position-save-status')
+    ).toHaveTextContent(
+      'Your previous position is still saved on this device.'
+    );
     await userEvent.click(
       await canvas.findByRole('button', { name: /retry/i })
     );

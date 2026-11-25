@@ -262,13 +262,27 @@ Then('{actor} is invited to sign in', async (w, actor: string) => {
     )
   ).toBe(true);
 });
+// regression: matchmaking-offline-search-notice
 Then(
   '{actor} is told finding an opponent needs a connection',
   async (w, actor: string) => {
     const device = actingDevice(w, actor);
-    expect(
-      await w.s.read(multiplayerText, device, 'multiplayer-offline')
-    ).toContain('need a connection');
+    const searchNotice = await w.s.read(
+      multiplayerText,
+      device,
+      'multiplayer-waiting-offline'
+    );
+    if (searchNotice !== null) {
+      expect(searchNotice).toContain(
+        'Reconnect to see its progress or stop it'
+      );
+    } else {
+      expect(
+        await w.s.read(multiplayerText, device, 'multiplayer-offline')
+      ).toMatch(
+        /offline.*(?:Find an opponent comes back with the connection|Matchmaking picks up where it was when the connection returns)/i
+      );
+    }
     // Losing the connection alone shows the banner. A command that was
     // attempted from that device must also have an offline refusal.
     if ((await w.s.read(multiplayerCommandReply, device)) !== null)

@@ -46,12 +46,11 @@ export type GameBoardProps = {
   readonly committed: readonly GameSide[];
   readonly commitment: string | null;
   /**
-   * Keep the room the board's status line takes in every position, the
-   * finished one included, so a replay stepping into and out of the final
-   * position never resizes the board. Absent: a finished board takes that
-   * room back, as at the end of a live game.
+   * A draw offered to the viewer waits for their answer. Their move still
+   * declines it, so the board stays playable, but a board that prompts the
+   * next move says the answer comes first rather than only to move.
    */
-  readonly steadyStatus?: boolean | undefined;
+  readonly drawToAnswer?: boolean | undefined;
 };
 /** A side arranging its private setup: the game's own setup board. */
 export type GameSetupBoardProps = {
@@ -80,6 +79,13 @@ export type GamePresentation<View = unknown> = {
   /** What the shared frame around the board shows of the game, as data. */
   readonly frame: GameFrame<View>;
   readonly endingDescription: (reason: string) => string | undefined;
+  /**
+   * Why the game's own rules drew the finished game in `position`, in one
+   * sentence read from that final position (`The board filled up without
+   * four in a row.`), for a result stored without its cause. Absent, or
+   * `undefined` where the position does not show the cause.
+   */
+  readonly rulesDrawDescription?: (position: string) => string | undefined;
   readonly timeoutDrawDescription?: (flagged: GameSide) => string;
   readonly endingLabel: (reason: string) => string;
   /**

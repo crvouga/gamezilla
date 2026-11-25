@@ -94,6 +94,28 @@ export const YourTurn: Story = {
 export const EarlyGame: Story = {
   args: { position: ITALIAN, lastAction: 'f8c5' },
   parameters: { table: { turn: 'white', moves: ITALIAN_MOVES } },
+  play: async ({ canvasElement }) => {
+    // regression: chess-early-game-side-marks
+    const canvas = within(canvasElement);
+    for (const [name, side, mark] of [
+      ['Bc4', 'White', '○'],
+      ['Bc5', 'Black', '●'],
+    ] as const) {
+      const move = canvas.getByRole('button', {
+        name: new RegExp(name + ', ' + side),
+      });
+      await expect(move.previousElementSibling).toHaveTextContent(mark);
+      const swatch = canvas.getByRole('img', { name: side });
+      await expect(swatch).toHaveTextContent(mark);
+      const player = swatch.nextElementSibling;
+      if (!player) throw new Error('Missing player beside side marker');
+      const ink = document.createRange();
+      ink.selectNodeContents(swatch);
+      await expect(ink.getBoundingClientRect().right).toBeLessThan(
+        player.getBoundingClientRect().left
+      );
+    }
+  },
 };
 
 /** Black's side, board turned, while White decides. */

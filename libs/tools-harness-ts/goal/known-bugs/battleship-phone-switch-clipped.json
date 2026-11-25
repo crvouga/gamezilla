@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the whole Battleship board reached the screen edges and the bottom bar clipped the fleet switch.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/layout/integration.checks.ts"
+}

@@ -106,14 +106,26 @@ export const GuestAllowanceUsed: Story = {
     ...TIMED,
     commandDenial: {
       icon: ClockIcon,
-      title: 'Sign in to keep playing',
-      body: 'Accounts play unlimited matched games and keep their rating. As a guest, new free games start at midnight UTC.',
+      title: "You've used today's free games",
+      body: 'Sign in to keep playing: accounts play unlimited matched games and keep their rating. Or come back after midnight UTC for new free games.',
       action: { label: 'Sign in', onPress: fn() },
       dataSet: {
         testid: 'multiplayer-command-denial',
         reason: 'quota_exhausted',
       },
     },
+  },
+};
+
+/** J13: the dock's Sign in is the way back to ranked play. */
+export const GuestAllowanceSignIn: Story = {
+  args: GuestAllowanceUsed.args ?? {},
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      await canvas.findByTestId('multiplayer-find-forward')
+    );
+    await expect(args.commandDenial?.action?.onPress).toHaveBeenCalledTimes(1);
   },
 };
 

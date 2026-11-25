@@ -9,6 +9,8 @@ import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { chessAutomation } from './chess-automation';
 
+export { chessPositionDraw } from '@libs/chess-rules-shared-ts/chess-rules';
+
 /**
  * Chess offers every shared capability, puzzles included. Its clock and
  * puzzle namespaces are the unprefixed one, the established identity of

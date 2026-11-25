@@ -39,7 +39,7 @@ const square = (width: number) => (width - 16 - 9 * 2) / 9.6;
 // squares (34px at a phone-height frame), short of the 440px board and
 // 44px squares its wall journeys need; Classic and King of the Hill alike.
 test('beside the rail, a 1440x900 window gives the Quoridor board 44px squares', () => {
-  const cells = read('cell-grid-board/cell-grid-board.module.css');
+  const cells = read('cell-grid-board/cell-grid-board-quoridor.module.css');
   const desktop = block(cells, '@container game-column (min-width: 880px)');
   expect(desktop).toContain('[data-board-theme="quoridor"]');
   const chrome = px(/--chrome: (\d+)px;/.exec(desktop)?.[1]);

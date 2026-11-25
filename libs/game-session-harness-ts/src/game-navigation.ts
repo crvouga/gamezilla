@@ -12,7 +12,7 @@ import { showCustomGameHome } from './custom-game-places';
 
 /** What each shared screen shows first, so a person can tell it is open. */
 export const SHARED_SCREEN_MARK = {
-  'custom-game': 'custom-game-status',
+  'custom-game': 'custom-game-content',
   // regression: puzzle-stats-unreachable-from-a-finished-matched-game
   // Finding an opponent is a set of small places; the result after a game
   // carries no Find control, only the mark every place shares.
@@ -151,7 +151,12 @@ export async function showCustomGames(
         await tapWhileShown(ui.get(gameTile(s, gameId)));
       return null;
     },
-    { maxMs: 15_000, stepMs: 1, description: `${actor} reaches custom games` }
+    {
+      maxMs: 15_000,
+      stepMs: 1,
+      actor,
+      description: `${actor} reaches custom games`,
+    }
   );
 }
 

@@ -47,6 +47,27 @@ type Story = StoryObj<typeof meta>;
 /** The viewer won: the headline is theirs, Rematch is the one filled command, then the final board and the standings. */
 export const YouWin: Story = {};
 
+/**
+ * J12: the ending is a dialog; Rematch in it starts the next game, and
+ * closing it gives back the whole final board with the commands in the bar.
+ */
+export const RematchFromDialog: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole('dialog', { name: 'Game over' });
+    await userEvent.click(
+      await within(dialog).findByTestId('custom-game-rematch')
+    );
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+    await userEvent.click(canvas.getByTestId('game-result-close'));
+    await expect(
+      canvas.queryByRole('dialog', { name: 'Game over' })
+    ).toBeNull();
+    await expect(canvas.getByTestId('custom-game-rematch')).toBeVisible();
+    await expect(canvas.getByTestId('game-show-result')).toBeVisible();
+  },
+};
+
 /** The viewer lost at a scored table: their place, everyone's points, and that the host starts the rematch. */
 export const YouPlacedSecond: Story = {
   args: {
@@ -89,7 +110,8 @@ export const Draw: Story = {
     status: status({ description: 'Game drawn.', emphasis: 'neutral' }),
     record: record(DRAWN_MOVES.map((column) => String(column + 1))),
     result: {
-      headline: 'Draw',
+      headline: 'The game was drawn',
+      reason: 'The board filled up without four in a row.',
       note: null,
       scoreLabel: null,
       standings: [STANDINGS[0], { ...STANDINGS[1], place: 1 }],
@@ -113,7 +135,7 @@ export const WatcherSeesResult: Story = {
     },
     next: { plays: false, canCreate: false, reviewable: true },
     result: {
-      headline: 'morgan wins',
+      headline: 'morgan won',
       note: 'Host starts the rematch.',
       scoreLabel: null,
       standings: [
@@ -140,12 +162,46 @@ export const Cancelled: Story = {
   },
 };
 
-/** Offline once the game is over: a rematch needs the connection, and the notice says so. */
+/** Offline once the game is over: the dialog says Rematch is sent when the connection returns, right above it. */
 export const ConnectionNeeded: Story = { args: { connection: 'needed' } };
 
-/** A refused rematch says why, with every way forward still there. */
+/** J12 offline: the notice sits in the Game over dialog, and Rematch under it still asks. */
+export const RematchOffline: Story = {
+  args: { connection: 'needed' },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole('dialog', { name: 'Game over' });
+    await expect(
+      within(dialog).getByTestId('custom-game-connection-needed')
+    ).toBeVisible();
+    const rematch = within(dialog).getByTestId('custom-game-rematch');
+    await expect(rematch).toBeVisible();
+    await userEvent.click(rematch);
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+  },
+};
+
+/** The host's rematch, refused on the way. */
+const REMATCH_REFUSAL =
+  "The rematch didn't reach the space. Check your connection and try again.";
+
 export const RematchRefused: Story = {
-  args: { error: 'Only the host may start the rematch.' },
+  // Why, over the dialog, with Rematch still the way to try again.
+  args: { error: REMATCH_REFUSAL },
+};
+
+/** J12 recovery: after a refused rematch, Rematch in the dialog tries again. */
+export const RematchRetry: Story = {
+  args: { error: REMATCH_REFUSAL },
+  // J12 recovery: the refusal is said in the Game over dialog, over its
+  // commands, and Rematch there tries again.
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const dialog = await canvas.findByRole('dialog', { name: 'Game over' });
+    await expect(within(dialog).getByTestId('custom-game-error')).toBeVisible();
+    await userEvent.click(within(dialog).getByTestId('custom-game-rematch'));
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+  },
 };
 
 /** Review moves opens the moves place at the start of the game. */

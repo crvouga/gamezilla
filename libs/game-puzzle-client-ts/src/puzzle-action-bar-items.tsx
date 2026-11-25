@@ -59,6 +59,7 @@ function HintButton(props: {
 function RetryButton(props: {
   slot: Slot<'retry'>;
   onRetry: () => void;
+  fullWidth?: boolean | undefined;
 }): JSX.Element {
   // After a wrong move retrying is the thing to do; once the puzzle is
   // over it is the quieter second choice beside Next.
@@ -66,9 +67,10 @@ function RetryButton(props: {
   return (
     <Button
       title={<Trans>Retry</Trans>}
-      intent={prominent() ? 'danger' : 'neutral'}
+      intent={prominent() ? 'primary' : 'neutral'}
       variant={prominent() ? 'solid' : 'outline'}
       icon={RotateCcwIcon}
+      fullWidth={props.fullWidth}
       disabled={props.slot.type === 'action' && props.slot.disabled}
       onClick={() => props.onRetry()}
       dataSet={{ testid: 'chess-puzzle-action-retry' }}
@@ -80,6 +82,8 @@ function RetryButton(props: {
 export function PuzzleActionButton(props: {
   slot: Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
   model: PuzzleActionBarModel;
+  /** The one thing to do now, on a row of its own. */
+  fullWidth?: boolean | undefined;
 }): JSX.Element {
   return (
     <Switch>
@@ -99,6 +103,7 @@ export function PuzzleActionButton(props: {
             intent="neutral"
             variant="outline"
             icon={LightbulbIcon}
+            fullWidth={props.fullWidth}
             disabled={slot.type === 'action' && slot.disabled}
             onClick={() => props.model.onSolution()}
             dataSet={{ testid: 'chess-puzzle-action-solution' }}
@@ -106,7 +111,13 @@ export function PuzzleActionButton(props: {
         )}
       </Match>
       <Match when={props.slot.id === 'retry' && props.slot} keyed>
-        {(slot) => <RetryButton slot={slot} onRetry={props.model.onRetry} />}
+        {(slot) => (
+          <RetryButton
+            slot={slot}
+            onRetry={props.model.onRetry}
+            fullWidth={props.fullWidth}
+          />
+        )}
       </Match>
       <Match when={props.slot.id === 'next'}>
         <Button
@@ -125,12 +136,20 @@ export function PuzzleActionButton(props: {
 export function PuzzleSkipButton(props: {
   disabled: boolean;
   onSkip: () => void;
+  fullWidth?: boolean | undefined;
+  size?: 'sm' | undefined;
+  /** Share a row equally with its neighbours. */
+  flex?: number | undefined;
 }): JSX.Element {
   return (
     <Button
       title={<Trans>Skip puzzle</Trans>}
       intent="neutral"
-      variant="ghost"
+      // A quiet bordered button: its edge lines up with the column's.
+      variant="outline"
+      size={props.size}
+      flex={props.flex}
+      fullWidth={props.fullWidth}
       disabled={props.disabled}
       onClick={() => props.onSkip()}
       dataSet={{ testid: 'chess-puzzle-action-skip' }}

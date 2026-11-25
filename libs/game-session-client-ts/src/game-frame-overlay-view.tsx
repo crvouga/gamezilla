@@ -8,7 +8,6 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
@@ -109,11 +108,27 @@ function FrameVersusOverlay(
   );
 }
 
-function eyebrow(tone: GameResultCardProps['tone']): string {
+/** Every seat shares first place: a draw, whoever reads it. */
+function drawn(result: Props['result']): boolean {
+  const standings = result?.standings ?? [];
+  return (
+    standings.length > 1 && standings.every((standing) => standing.place === 1)
+  );
+}
+
+/**
+ * Over the headline, one word for how the game went, as a matched game's
+ * result says it: Victory, Defeat, Draw or Cancelled.
+ */
+function eyebrow(props: Props): string | undefined {
+  if (props.phase === 'cancelled') return t`Cancelled`;
+  if (props.result === null) return undefined;
+  const tone = frameResultTone(props.result);
   if (tone === 'won') return t`Victory`;
   if (tone === 'lost') return t`Defeat`;
-  if (tone === 'drawn') return t`Draw`;
-  return t`Game over`;
+  if (drawn(props.result)) return t`Draw`;
+  // Not "Game over": the dialog's own title already says that.
+  return t`Final result`;
 }
 
 /**
@@ -121,10 +136,36 @@ function eyebrow(tone: GameResultCardProps['tone']): string {
  * then the game's note (`Host starts the rematch.`), which says why
  * someone has no Rematch of their own.
  */
+/**
+ * Two players' scores in the result's own sentence ("You 19, jordan 26."),
+ * so a phone's short card says them without the standings rows.
+ */
+function scoreLine(result: Props['result']): string {
+  const rows = result?.standings ?? [];
+  const [first, second] = rows;
+  if (rows.length !== 2 || !first || !second) return '';
+  if (first.score === null || second.score === null) return '';
+  const name = (row: typeof first): string => (row.you ? t`You` : row.name);
+  return t`${name(first)} ${first.score}, ${name(second)} ${second.score}.`;
+}
+
+/** Why the game ended: a cancelled game's, a draw's cause, else the status line's. */
+function outcomeReason(props: Props): string {
+  if (props.phase === 'cancelled')
+    return t`Nobody won; the game was stopped before it finished.`;
+  if (props.result === null) return '';
+  const description = props.status?.description ?? '';
+  if (!drawn(props.result)) return description;
+  // The headline says it was drawn; the bare "Game drawn." is not repeated.
+  if (props.result.reason) return props.result.reason;
+  return /^game drawn\.?$/i.test(description.trim()) ? '' : description;
+}
+
 function outcomeCaption(props: Props): string | undefined {
-  const reason = props.result === null ? '' : (props.status?.description ?? '');
   const note = props.result?.note ?? '';
-  const caption = [reason, note].filter((part) => part !== '').join(' ');
+  const caption = [outcomeReason(props), scoreLine(props.result), note]
+    .filter((part) => part !== '')
+    .join(' ');
   return caption === '' ? undefined : caption;
 }
 
@@ -135,18 +176,18 @@ function outcomeCaption(props: Props): string | undefined {
  */
 export function FrameOutcomeCard(props: Props): JSX.Element {
   const tone = () => frameResultTone(props.result);
-  const mode = useLayoutMode();
+  // Past tense, no full stop, as a matched game's result headline.
+  const title = (): string =>
+    props.result?.headline ??
+    (props.phase === 'cancelled'
+      ? t`The game was cancelled`
+      : (props.status?.description ?? t`Game finished`));
   return (
     <GameResultCard
       tone={tone()}
-      eyebrow={props.result === null ? undefined : eyebrow(tone())}
-      title={
-        props.result?.headline ?? props.status?.description ?? t`Game finished`
-      }
+      eyebrow={eyebrow(props)}
+      title={title()}
       caption={outcomeCaption(props)}
-      detailsLabel={
-        props.result === null || mode() === 'wide' ? undefined : t`Standings`
-      }
       titleDataSet={{ testid: 'custom-game-result-headline' }}
       dataSet={{ testid: 'custom-game-outcome' }}
     >
