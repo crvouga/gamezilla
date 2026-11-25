@@ -153,8 +153,6 @@
     "@pkgs/permissions-shared-ts": "workspace:*",
     "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
-    "@pkgs/quint-server-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/secret-store-shared-ts": "workspace:*",
     "@pkgs/sql-client-postgres-server-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",

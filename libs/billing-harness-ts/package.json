@@ -57,7 +57,6 @@
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
     "@pkgs/outbox-shared-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
