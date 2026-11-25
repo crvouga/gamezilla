@@ -315,11 +315,8 @@
   }
 }
 
-/* Once the fitted board reaches its full width, leave spare height below
-   the rack. The square details and feedback occupy one line each. */
-.layout[data-fill="true"][data-layout="wide"]:has(
-  .board [data-enlarged="false"]
-):not(:has(.board [data-enlarged="true"])) {
+/* Keep the rack close and give the view controls the same anchor in both views. */
+.layout[data-fill="true"][data-layout="wide"] {
   max-height: calc(28rem + var(--ui-space-6) + 1lh + 3rem + var(--ui-space-2));
   row-gap: 0;
 }
