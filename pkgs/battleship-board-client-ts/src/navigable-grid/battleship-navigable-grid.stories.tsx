@@ -3,6 +3,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BattleshipNavigableGrid } from './index';
 
 const meta = {
+  id: 'organisms-games-battleship-navigable-grid',
   title: 'Organisms/Games/Battleship/Navigable grid',
   component: BattleshipNavigableGrid,
   args: {

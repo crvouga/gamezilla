@@ -15,6 +15,11 @@ type GridProps = CellGridBoardProps & {
   passive?: boolean;
   pickup?: ((cell: string) => ShipDrag | undefined) | undefined;
 };
+/**
+ * Displays a Battleship fleet or targeting grid. At fit, a ship can be dragged
+ * from any segment. Pinching zooms around the contact midpoint and dragging
+ * pans the magnified grid. The passive overview stays at fit.
+ */
 export function BattleshipNavigableGrid(props: GridProps) {
   return (
     <Show when={!props.passive} fallback={<CellGridBoard {...props} />}>
