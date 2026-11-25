@@ -1,3 +1,4 @@
+import { decodeConnectFour } from '@libs/connect-four-shared-ts/connect-four';
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import { t } from '@lingui/core/macro';
 import {
@@ -26,6 +27,18 @@ export function ConnectFourGameBoard(props: GameBoardProps): JSX.Element {
     />
   );
 }
+/** A full board without four in a row, as every result names that draw. */
+const fullBoard = () => t`The board filled up without four in a row.`;
+
+/** Whether `position` is the full board the rules draw. */
+function filledUp(position: string): boolean {
+  try {
+    return decodeConnectFour(position).result === 3;
+  } catch {
+    return false;
+  }
+}
+
 export const connectFourPresentation: GameClientPresentation = {
   canFlip: false,
   name: () => t`Connect Four`,
@@ -63,10 +76,12 @@ export const connectFourPresentation: GameClientPresentation = {
   endingDescription: (reason) => {
     const descriptions: Readonly<Record<string, string>> = {
       'four in a row': t`Four in a row.`,
-      'full board': t`The board is full.`,
+      'full board': fullBoard(),
     };
     return descriptions[reason];
   },
+  rulesDrawDescription: (position) =>
+    filledUp(position) ? fullBoard() : undefined,
   timeoutDrawDescription: (side) => {
     const flagged = side === 'white' ? t`Red circle` : t`Yellow diamond`;
     return t`${flagged} ran out of time, but the other side cannot win.`;

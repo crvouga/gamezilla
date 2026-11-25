@@ -3,16 +3,19 @@ import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import type { PongState } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
 import {
-  boardOnly,
   fixedPlayers,
   type GameFrame,
+  type GameFrameBoardProps,
+  type GameFrameBoardSession,
   standingsByScore,
 } from '@pkgs/turn-game-shared-ts/game-frame';
+import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from '@solidjs/web';
+import { createMemo } from 'solid-js';
 import { PongBoard } from './pong-board';
 import { pongStatus } from './pong-board-view';
 
@@ -41,6 +44,32 @@ function points(position: string, side: GameSide): number {
 /** The points that win the game in `position`. */
 function target(position: string): number {
   return readPosition(position)?.targetScore ?? PONG_CONFIG.targetScore;
+}
+
+/**
+ * The stage's line while this device's paddles cannot move: what holds
+ * play up and when it goes on, in place of how to move a paddle. `null`
+ * once input is back (or for a watcher, or a finished game), so the turn
+ * line's instructions return.
+ */
+export function pongHeldLine(
+  position: string,
+  controls: GameSimulationControls | undefined
+): string | null {
+  if (controls === undefined || (!controls.stale && !controls.paused))
+    return null;
+  if (readPosition(position)?.phase === 'completed') return null;
+  return controls.stale
+    ? t`Reconnecting. Your paddle moves again when the game returns.`
+    : t`Paused while a player returns.`;
+}
+
+/** The court, and the stage's line while play is held up. */
+function pongBoard(
+  props: GameFrameBoardProps
+): GameFrameBoardSession<JSX.Element> {
+  const line = createMemo(() => pongHeldLine(props.position, props.simulation));
+  return { Board: () => PongBoard(props), actions: () => [], line };
 }
 
 /**
@@ -75,9 +104,10 @@ export const pongFrame: GameFrame<JSX.Element> = {
     facts: () => [],
     out: () => false,
   },
-  createBoard: boardOnly(PongBoard),
+  createBoard: pongBoard,
   // The court owns the serve's count and interruptions; the line says how
-  // to play, and the result once the game is over.
+  // to play (`pongHeldLine` takes it while the paddles cannot move), and
+  // the result once the game is over.
   turnStatus: (position, viewer) => {
     const state = readPosition(position);
     if (state === null) return null;

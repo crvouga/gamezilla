@@ -215,10 +215,11 @@ function StoryStage(props: {
               <Show when={props.offline === true}>
                 <Badge intent="warning" label="Offline" />
               </Show>
-              <Badge
-                intent="neutral"
-                label={props.watching === true ? 'Plays Red' : 'You play Red'}
-              />
+              {/* As the app's seat: the player's own colour in words; a
+                  watcher reads a seat's side from its swatch alone. */}
+              <Show when={props.watching !== true}>
+                <Badge intent="neutral" label="You play Red" />
+              </Show>
             </>
           }
           tagsPlacement="line"

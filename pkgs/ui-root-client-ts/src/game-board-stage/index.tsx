@@ -54,6 +54,14 @@ export function GameBoardStage(props: {
    * its centre. Absent: centred.
    */
   align?: 'start' | undefined;
+  /**
+   * The board is a workspace that lays itself out (Word Tiles' rack, board
+   * and view controls; Quoridor's board with its wall tools): never
+   * narrowed to fit its room. A fixed stage gives it the same box as any
+   * board, insets it from the screen's edges like the seats over it, and
+   * it scrolls inside its box when taller (`data-board-workspace`).
+   */
+  workspace?: boolean | undefined;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const others = createScreenSlot(() => props.others);
@@ -68,7 +76,10 @@ export function GameBoardStage(props: {
   const [surface, setSurface] = createSignal<HTMLDivElement>();
   const [content, setContent] = createSignal<HTMLDivElement>();
   const limit = createViewportSquareFit(root, square, surface, content);
-  const room = createStageRoomFit(root, surface, content);
+  const workspace = (): boolean => props.workspace === true;
+  const room = createStageRoomFit(root, surface, () =>
+    workspace() ? undefined : content()
+  );
   // A fixed stage sits in the middle of its room, and stays there.
   const centre = createStageCentre(root, surface);
   // The window's height left under the region's top, for a layout that
@@ -102,6 +113,7 @@ export function GameBoardStage(props: {
       }}
       data-game-board-stage
       data-board-narrowed={narrowed() ? 'true' : undefined}
+      data-board-workspace={workspace() ? 'true' : undefined}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
       {/* Who plays and whose turn it is read over the board, the person's

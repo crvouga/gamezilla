@@ -13,6 +13,7 @@ import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
+import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
@@ -21,6 +22,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  onSettled,
   Show,
 } from 'solid-js';
 import {
@@ -271,14 +273,26 @@ export function QuoridorBoard(props: GameBoardProps): JSX.Element {
   return createQuoridorBoard(props).Board();
 }
 
+/**
+ * Place wall and Cancel, under the tools. The board's box may scroll (a
+ * phone's fixed view): a wall just proposed brings them into its view.
+ */
 function WallConfirmation(props: {
   testId: string;
   enabled: boolean;
   cancel: () => void;
   commit: () => void;
 }): JSX.Element {
+  const reveal = createScrollTarget();
+  onSettled(() => {
+    reveal.scrollIntoView({
+      behavior: 'instant',
+      block: 'nearest',
+      scope: 'scroller',
+    });
+  });
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal gap="sm" wrap scrollTarget={reveal.target}>
       <Button
         title={t`Place wall`}
         disabled={!props.enabled}

@@ -176,6 +176,7 @@ export function FrameStage(props: Props): JSX.Element {
     <GameBoardStage
       viewportFit={props.boardFit}
       align={props.boardAlign}
+      workspace={props.boardWorkspace}
       dataSet={{
         ...props.boardState,
         testid: 'custom-game-public',
@@ -416,7 +417,7 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
         notices={<FrameErrorView text={props.error} />}
         boardFocus
         actionsBeside
-        fixedStage={props.boardWorkspace !== true}
+        fixedStage
         status={
           // Someone watching is told so on the bar's own status line, so
           // their board keeps the players' full width and place.

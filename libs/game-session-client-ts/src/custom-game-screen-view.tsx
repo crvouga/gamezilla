@@ -89,8 +89,8 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   /** Where the board sits on one column (`GameFrame.boardAlign`); absent: centred. */
   readonly boardAlign?: 'start' | undefined;
   /**
-   * The board is its own workspace (`GameFrame.boardWorkspace`): a phone
-   * keeps the page flowing around it instead of the fixed view.
+   * The board is its own workspace (`GameFrame.boardWorkspace`): the
+   * fixed view holds its box like any board's but never narrows it.
    */
   readonly boardWorkspace?: boolean | undefined;
   readonly people?: FramePeople | undefined;

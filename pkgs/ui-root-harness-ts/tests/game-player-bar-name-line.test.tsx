@@ -55,7 +55,10 @@ test('a long name beside the turn and an inline tag keeps one line and a floor o
 
 // regression: phone matched seat with its colour tag two lines tall
 test("a 'line' seat keeps its tag on the name's line at every width", () => {
-  expect(rule(LINE_CSS, '.line.keep')).toContain('flex-wrap: nowrap');
+  // One tag-high line: whatever wraps off it is out of view, never a row.
+  const keep = rule(LINE_CSS, '.line.keep');
+  expect(keep).toContain('height: var(--ui-space-6)');
+  expect(keep).toContain('overflow: hidden');
   expect(LINE_CSS).toContain('.line.keep > .tags {\n    flex-basis: auto;');
   renderUi(
     () => (
@@ -73,4 +76,33 @@ test("a 'line' seat keeps its tag on the name's line at every width", () => {
   const line = who?.parentElement;
   expect(line?.className).toContain('keep');
   expect(who?.nextElementSibling?.textContent).toBe('You play Red');
+});
+
+// regression: phone watching seat cut a five-letter name to "ali…"
+test("a 'line' seat gives its name the room first: the turn's words follow the name and give way", () => {
+  const keep = rule(LINE_CSS, '.line.keep');
+  // The turn and the tags wrap off the one line rather than squeeze the
+  // name, the line's first item.
+  expect(keep).toContain('flex-wrap: wrap');
+  renderUi(
+    () => (
+      <GamePlayerBar
+        name={<span>alice</span>}
+        plainName="alice"
+        swatch={{ color: 'disc-one', mark: '●' }}
+        swatchLabel="Red"
+        tagsPlacement="line"
+        active
+        turnLabel="To move"
+      />
+    ),
+    { width: 390, height: 844 }
+  );
+  const who = screen.getByTitle('alice').parentElement;
+  // The name's own group holds only the swatch and the name.
+  expect(who?.textContent).toBe('●alice');
+  const turn = who?.nextElementSibling;
+  expect(turn?.getAttribute('data-component')).toBe('GamePlayerTurn');
+  expect(turn?.textContent).toBe('To move');
+  expect(who?.parentElement?.className).toContain('keep');
 });

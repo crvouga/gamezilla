@@ -154,7 +154,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
         }
         boardFocus
         actionsBeside
-        fixedStage={props.boardWorkspace !== true}
+        fixedStage
         // The card says how the game ended over the stage's foot (heading
         // the rail beside a wide board), so the final board keeps the live
         // board's place; a listener hears it from the frame's own line.

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { pongFrame } from '@libs/pong-client-ts/pong-frame';
+import { pongFrame, pongHeldLine } from '@libs/pong-client-ts/pong-frame';
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import { initialPongState } from '@libs/pong-shared-ts/pong-state';
@@ -66,4 +66,30 @@ test("Pong's points to win beside its name, and how to play in the stage's one l
       () => null
     )
   ).toBe('Drag or use the arrow keys to move your paddle.');
+});
+
+// regression: pong-reconnecting-instructions — while reconnecting, the
+// stage's line told the player to drag or use the arrow keys though the
+// court said "Reconnecting…" and the paddle could not move. While play is
+// held up the line says what is happening and when play goes on; the
+// instructions return once input is back.
+test("Pong's line says why play is held up, and the instructions return after", () => {
+  const position = pongPositionCodec.encode(
+    initialPongState(pongConfig(), () => 0)
+  );
+  const controls = {
+    paused: false,
+    stale: false,
+    sides: ['white'] as const,
+    onInput: () => {},
+    onRelease: () => {},
+  };
+  expect(pongHeldLine(position, { ...controls, stale: true })).toBe(
+    'Reconnecting. Your paddle moves again when the game returns.'
+  );
+  expect(pongHeldLine(position, { ...controls, paused: true })).toBe(
+    'Paused while a player returns.'
+  );
+  expect(pongHeldLine(position, controls)).toBeNull();
+  expect(pongHeldLine(position, undefined)).toBeNull();
 });

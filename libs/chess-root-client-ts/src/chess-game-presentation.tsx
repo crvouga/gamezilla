@@ -1,4 +1,5 @@
 import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
+import { chessPositionDraw } from '@libs/chess-sub-shared-ts/chess-game';
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
@@ -15,6 +16,18 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { ComponentProps, JSX } from '@solidjs/web';
+
+/** How a chess game ended, by the reason its rules give. */
+function chessEnding(reason: string): string | undefined {
+  const descriptions: Readonly<Record<string, string>> = {
+    checkmate: t`By checkmate.`,
+    stalemate: t`By stalemate.`,
+    'insufficient material': t`Neither side can checkmate.`,
+    repetition: t`By repetition.`,
+    'fifty moves': t`By the fifty-move rule.`,
+  };
+  return descriptions[reason];
+}
 
 const UCI = /^([a-h][1-8])([a-h][1-8])[qrbn]?$/;
 
@@ -81,15 +94,10 @@ export const chessPresentation: GameClientPresentation = {
       standings: standingsFromWinner(winner, TWO_PLAYER_SIDES),
     }),
   },
-  endingDescription: (reason) => {
-    const descriptions: Readonly<Record<string, string>> = {
-      checkmate: t`By checkmate.`,
-      stalemate: t`By stalemate.`,
-      'insufficient material': t`Neither side can checkmate.`,
-      repetition: t`By repetition.`,
-      'fifty moves': t`By the fifty-move rule.`,
-    };
-    return descriptions[reason];
+  endingDescription: chessEnding,
+  rulesDrawDescription: (position) => {
+    const reason = chessPositionDraw(position);
+    return reason === null ? undefined : chessEnding(reason);
   },
   timeoutDrawDescription: (side) => {
     const flagged = side === 'white' ? t`White` : t`Black`;

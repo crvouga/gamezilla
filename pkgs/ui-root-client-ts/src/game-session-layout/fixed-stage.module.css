@@ -120,6 +120,17 @@
   .fixed [data-game-board] > [data-game-board-content] {
     max-width: min(100%, var(--game-board-room, 100%));
   }
+  /* A board that is its own workspace (Word Tiles' rack, board and view
+     controls; Quoridor's board and wall tools) is never narrowed: it keeps
+     the seats' inset, so a rack or a tool never meets the screen's edge,
+     and scrolls inside its box when taller. */
+  .fixed
+    [data-board-workspace="true"]
+    > [data-game-board]
+    > [data-game-board-content] {
+    box-sizing: border-box;
+    padding-inline: var(--ui-space-2);
+  }
   /* A board narrowed to fit stands clear of the edges, so it and what lies
      over it take the card's corners. */
   .fixed

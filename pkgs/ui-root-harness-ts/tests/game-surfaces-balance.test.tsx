@@ -116,7 +116,11 @@ describe('game surfaces', () => {
   // its name while the other two chips kept one line. Every chip is the
   // same two lines: its name, then its swatch, figure and short facts on
   // wrapping facts, with no avatar to push them apart.
-  test('three players on a phone share a row with wrapping facts', () => {
+  // The seat band keeps one height whoever sits at the table: on a phone
+  // every seat is one chip in a single row that scrolls sideways when the
+  // table is wider than the phone, so a third or fourth player never
+  // pushes the board down.
+  test('players on a phone share one scrolling row, each chip one line of facts', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -124,19 +128,16 @@ describe('game surfaces', () => {
     const phone = css.slice(
       css.indexOf('@container game-column (max-width: 879px)')
     );
-    expect(phone).toMatch(
-      /\.playerRail:has\(> :nth-child\(3\):last-child\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
+    const rail = phone.slice(phone.indexOf('.playerRail {'));
+    expect(rail.slice(0, rail.indexOf('}'))).toMatch(
+      /grid-auto-flow: column;[\s\S]*overflow-x: auto;/
     );
-    const frame = phone.slice(phone.indexOf('.chipFrame {'));
-    expect(frame.slice(0, frame.indexOf('}'))).toMatch(
-      /display: grid;\s*grid-template-columns: minmax\(0, 1fr\);\s*grid-template-rows: auto auto;/
-    );
-    expect(phone).toMatch(/\.chipText \{\s*display: contents;/);
-    expect(phone).toMatch(/\.chipAvatar \{\s*display: none;/);
-    const facts = phone.slice(phone.indexOf('.chipFacts {'));
-    expect(facts.slice(0, facts.indexOf('}'))).toMatch(
-      /flex-wrap: wrap;[\s\S]*white-space: normal;/
-    );
+    expect(
+      rule(
+        'game-player-rail/game-player-rail.module.css',
+        '  .playerRail .chipFacts'
+      )
+    ).toMatch(/flex-wrap: nowrap;/);
   });
 
   // regression: battleship-phone-targets-small — on a phone each of the
@@ -336,12 +337,13 @@ describe('game surfaces', () => {
     const frame = source.slice(source.indexOf('const CHIP_FRAME ='));
     expect(frame.slice(0, frame.indexOf(';'))).toMatch(/\bflex-1'/);
     expect(source).toMatch(/class="box min-w-0 flex-1"\s*role=/);
+    // One line of facts per chip, so no chip's lines can stand taller.
     expect(
       rule(
         'game-player-rail/game-player-rail.module.css',
-        '  .playerRail:has(> :nth-child(3):last-child) .chipFrame'
+        '  .playerRail .chipFacts'
       )
-    ).toMatch(/align-content:\s*start;/);
+    ).toMatch(/flex-wrap: nowrap;/);
   });
 
   // regression: setup-players-card-stretched — wide, the board preview's

@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameResultSummary } from '@pkgs/turn-game-shared-ts/game-frame';
+import type { GamePresentation } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameWinner } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type Accessor, createMemo } from 'solid-js';
 import { useSeatNames } from './custom-game-status';
@@ -28,17 +29,24 @@ export function customGameWinner(game: CustomGame): GameWinner | null {
 
 /**
  * Why a drawn game was drawn, under its headline ("The game was drawn"):
- * the cause the game records, else the game's own rules; `null` for a
- * game that was not drawn.
+ * the cause the game records, else the rule its final position shows
+ * (`presentation.rulesDrawDescription`), else the game's own rules; `null`
+ * for a game that was not drawn.
  */
-export function customGameDrawReason(game: CustomGame): string | null {
+export function customGameDrawReason(
+  game: CustomGame,
+  presentation?: Pick<GamePresentation, 'rulesDrawDescription'>
+): string | null {
   if (game.status !== 'completed' || game.outcome !== 'draw') return null;
   if (game.outcomeReason === 'timeout')
     return t`Drawn because a participant ran out of time.`;
   if (game.outcomeReason === 'participant withdrew')
     return t`Drawn because a participant withdrew.`;
   if (game.outcomeReason === 'agreement') return t`Drawn by agreement.`;
-  return t`Drawn by the game's own rules.`;
+  return (
+    presentation?.rulesDrawDescription?.(game.fen) ??
+    t`Drawn by the game's own rules.`
+  );
 }
 
 /** The finished game's standings, from the game's own `frame.result`. */
@@ -63,6 +71,7 @@ export function useFrameResult(
   model: CustomGameScreenModel
 ): Accessor<FrameResult | null> {
   const { i18n } = useLingui();
+  const presentation = useGamePresentation();
   const summary = useResultSummary(model);
   const names = useSeatNames(model);
   const readiness = customGameRematchReadiness(model.current);
@@ -77,7 +86,7 @@ export function useFrameResult(
         nameOf,
         i18n().locale
       ),
-      reason: customGameDrawReason(game),
+      reason: customGameDrawReason(game, presentation(game.fen)),
       // Only someone who may not start the rematch needs telling who does.
       note: model.canCreate() ? null : readiness.note(),
       scoreLabel: result.scoreLabel,

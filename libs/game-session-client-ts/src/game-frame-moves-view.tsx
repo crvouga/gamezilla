@@ -437,7 +437,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
         // every move beside the board.
         boardFocus
         actionsBeside
-        fixedStage={props.boardWorkspace !== true}
+        fixedStage
         status={
           <>
             <RecordSteps {...props} />
@@ -485,6 +485,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
         <GameBoardStage
           viewportFit={props.boardFit}
           align={props.boardAlign}
+          workspace={props.boardWorkspace}
           dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
           turn={<ReviewingLine record={props.record} />}
         >

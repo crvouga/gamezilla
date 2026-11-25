@@ -79,6 +79,13 @@ export type GamePresentation<View = unknown> = {
   /** What the shared frame around the board shows of the game, as data. */
   readonly frame: GameFrame<View>;
   readonly endingDescription: (reason: string) => string | undefined;
+  /**
+   * Why the game's own rules drew the finished game in `position`, in one
+   * sentence read from that final position (`The board filled up without
+   * four in a row.`), for a result stored without its cause. Absent, or
+   * `undefined` where the position does not show the cause.
+   */
+  readonly rulesDrawDescription?: (position: string) => string | undefined;
   readonly timeoutDrawDescription?: (flagged: GameSide) => string;
   readonly endingLabel: (reason: string) => string;
   /**
