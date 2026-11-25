@@ -2,7 +2,8 @@
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { definePrimitive } from '@ui-sdk/core';
+import { createParts } from '@ui-sdk/solid/primitive';
 import { Show } from 'solid-js';
 
 /** `auto` wraps the content; `window` is a fixed-size window. */
@@ -16,8 +17,46 @@ export type FloatingPanelDrag = {
   readonly down: (event: PointerEvent) => void;
   readonly move: (event: PointerEvent) => void;
   readonly up: (event: PointerEvent) => void;
-  readonly key: (event: KeyboardEvent) => void;
+  readonly nudge: (direction: 'up' | 'right' | 'down' | 'left') => void;
 };
+
+type PanelDirection = Parameters<FloatingPanelDrag['nudge']>[0];
+const directions = new Map<string, PanelDirection>([
+  ['ArrowUp', 'up'],
+  ['ArrowRight', 'right'],
+  ['ArrowDown', 'down'],
+  ['ArrowLeft', 'left'],
+]);
+function dragState(options: { drag?: FloatingPanelDrag | undefined }) {
+  return { disabled: !options.drag };
+}
+const dragHandle = definePrimitive({
+  name: 'floating-panel-handle',
+  options: { drag: 'value' },
+  state: dragState,
+  sync: dragState,
+  api: (context) => ({
+    nudge(choice: unknown) {
+      const direction = [...directions.values()].find(
+        (value) => value === choice
+      );
+      const drag = context.options().drag;
+      if (!drag || !direction)
+        throw new Error('Choose up, right, down, or left to move this panel.');
+      drag.nudge(direction);
+    },
+    directions: () =>
+      [...directions.values()].map((value) => ({ value, label: value })),
+  }),
+  agent: {
+    actions: ['nudge'],
+    items: (api) => api.directions(),
+    closed: true,
+    shown: (state) => !state.disabled,
+  },
+  slots: (slot) => ({ root: slot({}) }),
+});
+const { Root: PanelHandle } = createParts(dragHandle, { root: 'button' });
 
 export type FloatingPanelProps = {
   /** Accessible name of the panel. */
@@ -137,7 +176,9 @@ export function FloatingPanelHeader(
       class="box flex-row items-center gap-ui-sm border-b border-border px-ui-lg py-ui-md"
       data-component={componentId('FloatingPanelHeader')}
     >
-      <SdkButton
+      <PanelHandle
+        drag={props.drag}
+        disabled={!props.drag}
         type="button"
         class="text textBodyBold flex-1 min-w-0 text-start cursor-grab touch-none inline-flex items-center gap-ui-sm"
         aria-label={props.handleLabel}
@@ -145,7 +186,13 @@ export function FloatingPanelHeader(
         onPointerMove={(event) => props.drag?.move(event)}
         onPointerUp={(event) => props.drag?.up(event)}
         onPointerCancel={(event) => props.drag?.up(event)}
-        onKeyDown={(event) => props.drag?.key(event)}
+        onKeyDown={(event) => {
+          const direction = directions.get(event.key);
+          if (!direction || event.altKey || event.metaKey || event.ctrlKey)
+            return;
+          event.preventDefault();
+          props.drag?.nudge(direction);
+        }}
         data-testid={props.handleTestId}
         data-component={componentId('FloatingPanelHandle')}
       >
@@ -153,7 +200,7 @@ export function FloatingPanelHeader(
           {'⠿'}
         </span>
         {props.title}
-      </SdkButton>
+      </PanelHandle>
       {props.trailing}
     </div>
   );

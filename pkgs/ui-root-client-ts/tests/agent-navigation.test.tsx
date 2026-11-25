@@ -2,12 +2,13 @@
 import { expect, test } from 'bun:test';
 import { Collapsible } from '@pkgs/ui-root-client-ts/collapsible';
 import { FloatingMenu } from '@pkgs/ui-root-client-ts/floating-menu';
+import { FloatingPanelHeader } from '@pkgs/ui-root-client-ts/floating-panel';
 import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { Tabs } from '@pkgs/ui-root-client-ts/tabs';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { render } from '@solidjs/testing-library';
+import { fireEvent, render } from '@solidjs/testing-library';
 import { createAgent } from '@ui-sdk/solid/agent';
 import { createSignal, Show } from 'solid-js';
 
@@ -100,4 +101,28 @@ test('an agent can run a named command in the open account menu', async () => {
   expect(result.error?.message).toBeUndefined();
   expect(settings).toBe(1);
   expect(view.queryByRole('menu')).toBeNull();
+});
+
+test('the floating panel moves from its handle by keyboard and by agent', async () => {
+  const moves: string[] = [];
+  const view = render(() => (
+    <FloatingPanelHeader
+      title="Preview"
+      handleLabel="Move preview"
+      drag={{
+        down() {},
+        move() {},
+        up() {},
+        nudge: (direction) => moves.push(direction),
+      }}
+    />
+  ));
+  const result = await createAgent().act({
+    steps: [{ ref: 'Move preview', action: 'nudge', args: ['down'] }],
+  });
+  expect(result.error?.message).toBeUndefined();
+  fireEvent.keyDown(view.getByRole('button', { name: 'Move preview' }), {
+    key: 'ArrowLeft',
+  });
+  expect(moves).toEqual(['down', 'left']);
 });
