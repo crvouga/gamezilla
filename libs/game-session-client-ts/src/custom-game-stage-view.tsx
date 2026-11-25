@@ -417,7 +417,16 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
         // board does not move when it appears or clears.
         // A refused choice is an event: it floats in the alerts. What holds
         // the game up stays on the status line below.
-        notices={<FrameErrorView text={props.error} />}
+        notices={
+          <>
+            <Show when={props.connection === 'offline-local'}>
+              <P variant="caption" role="status">
+                <Trans>You're offline. Your local game can continue.</Trans>
+              </P>
+            </Show>
+            <FrameErrorView text={props.error} />
+          </>
+        }
         boardFocus
         actionsBeside
         fixedStage

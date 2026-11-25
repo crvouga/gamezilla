@@ -51,12 +51,14 @@ const over = (place: CustomGamePlace = { screen: 'result' }) =>
     },
   });
 
+// regression: offline-local-game-connection-state-missing
 // regression: offline-local-chess-turn-hidden
 test('White can see their turn in an offline local game against a bot', () => {
   mountFrame(() => frameProps({ connection: 'offline-local' }), 390);
   expect(screen.getByTestId('custom-game-status').textContent).toContain(
     'Your turn.'
   );
+  expect(screen.getByText(/Your local game can continue/)).toBeDefined();
   expect(shown('custom-game-connection-needed')).toBe(false);
 });
 

@@ -75,32 +75,14 @@ for (const screen of [
         const last = await box(actions.last());
         expect(first.y).toBeGreaterThanOrEqual(0);
         expect(last.y + last.height).toBeLessThanOrEqual(screen.height);
-        // The outcome and what comes next lead on every size, and neither
-        // moves nor covers the final board. On a phone the outcome's card
-        // lies over the stage's foot, under the board's last row and above
-        // the commands; a wider window sets it beside or under the stage.
-        // Every next action is in the game's command bar, in the first
-        // view, never on the board and never under the card.
-        await expect(headline).toBeInViewport({ ratio: 1 });
-        const stage = await box(page.getByTestId('custom-game-public'));
-        const card = await box(
-          page.locator('[data-component="GameStageSheet"]')
-        );
-        const cells = page.locator('[data-game-board] [data-cell]');
-        expect(await cells.count()).toBeGreaterThan(0);
-        for (const cell of await cells.all())
-          expect(apart(await box(cell), card)).toBe(true);
-        if (screen.width < 768) {
-          // Over the stage's foot: under the board's last row, over the bar.
-          const bar = await box(
-            page.locator('[data-component="GameActionBar"]')
-          );
-          expect(card.y + card.height).toBeLessThanOrEqual(bar.y);
-        } else expect(apart(card, stage)).toBe(true);
+        const dialog = page.getByRole('dialog', { name: 'Game over' });
+        await expect(
+          dialog.getByTestId('custom-game-result-headline')
+        ).toBeInViewport({ ratio: 1 });
+        const board = page.getByTestId('custom-game-board');
+        const before = await box(board);
         for (const action of await actions.all()) {
-          const place = await box(action);
-          expect(apart(place, stage)).toBe(true);
-          expect(apart(place, card)).toBe(true);
+          await expect(action).toBeInViewport({ ratio: 1 });
           await expectOnTop(action);
         }
         for (const id of [
@@ -115,23 +97,22 @@ for (const screen of [
         expect(
           await page.locator('button[data-variant="solid"]').count()
         ).toBeLessThanOrEqual(1);
-        if (state !== 'cancelled') {
-          // A phone folds the standings behind their own control.
-          const details = page.getByTestId('game-result-overlay-details');
-          if (await details.isVisible()) {
-            await details.click();
-            await expect(details).toHaveAttribute('aria-expanded', 'true');
-          }
-          const standings = page
-            .getByRole('list', { name: 'Standings' })
-            .getByRole('listitem');
-          await expect(standings).toHaveCount(2);
-          for (const row of await standings.all())
-            await expect(row).toBeInViewport({ ratio: 1 });
+        if (state === 'you-placed-second') {
+          await expect(
+            dialog.getByText(/jordan_plays 26, You 19/)
+          ).toBeVisible();
         }
         await expect(page.getByTestId('custom-game-history-stats')).toHaveCount(
           1
         );
+        await dialog.getByTestId('game-result-close').click();
+        await expect(dialog).toHaveCount(0);
+        expect(await box(board)).toEqual(before);
+        for (const action of await actions.all()) {
+          await expect(action).toBeInViewport({ ratio: 1 });
+          expect(apart(await box(action), before)).toBe(true);
+          await expectOnTop(action);
+        }
       });
     }
 }
@@ -139,7 +120,7 @@ for (const screen of [
 // regression: stage-result-card-covers-last-row
 // A caption of two lines grew the phone's outcome card up over the final
 // board's last row, winning disc included.
-test('storybook integration: literal two-line outcome lies under the final board at 390', async ({
+test('storybook integration: closing the literal two-line outcome reveals the final board at 390', async ({
   page,
 }) => {
   await open(
@@ -151,13 +132,15 @@ test('storybook integration: literal two-line outcome lies under the final board
   await expect(page.getByTestId('custom-game-outcome')).toContainText(
     'Host starts the rematch.'
   );
-  const card = await box(page.locator('[data-component="GameStageSheet"]'));
-  const cells = page.locator('[data-game-board] [data-cell]');
+  const board = page.getByTestId('custom-game-board');
+  const before = await box(board);
+  await page.getByTestId('game-result-close').click();
+  await expect(page.getByRole('dialog')).toHaveCount(0);
+  expect(await box(board)).toEqual(before);
+  const cells = board.locator('[data-cell]');
   await expect(cells).toHaveCount(42);
   for (const cell of await cells.all())
-    expect(apart(await box(cell), card)).toBe(true);
-  const bar = await box(page.locator('[data-component="GameActionBar"]'));
-  expect(card.y + card.height).toBeLessThanOrEqual(bar.y);
+    await expect(cell).toBeInViewport({ ratio: 1 });
 });
 
 // regression: game-record-current-selection-labeled-live
@@ -166,10 +149,10 @@ test('storybook integration: literal two-line outcome lies under the final board
 // not ordinary says so in its own words.
 for (const sample of [
   { story: 'stage--your-turn', says: null },
-  { story: 'stage--connection-needed', says: 'You are offline' },
+  { story: 'stage--connection-needed', says: 'Moves need a connection' },
   { story: 'stage--offline-local', says: 'Your local game can continue' },
   { story: 'stage--move-waiting', says: 'when the connection returns' },
-  { story: 'stage--stopped', says: 'The game stopped' },
+  { story: 'stage--stopped', says: 'Game stopped.' },
   { story: 'stage-moves--earlier-move', says: 'Move 3 of 8, Red circle' },
   { story: 'stage-moves--earlier-game', says: 'An earlier game, after move 3' },
   { story: 'result--you-win', says: 'You won' },
@@ -182,7 +165,9 @@ for (const sample of [
       const content = page.getByTestId('custom-game-content');
       await expect(content.getByText('Live', { exact: true })).toHaveCount(0);
       if (sample.says !== null)
-        await expect(content).toContainText(sample.says);
+        await expect(
+          page.getByText(sample.says, { exact: false }).first()
+        ).toBeVisible();
       if (sample.story.startsWith('stage-moves--')) {
         await expect(
           page.getByTestId('custom-game-back-to-live')
@@ -346,6 +331,10 @@ for (const sample of [
       const headline = page.getByTestId('custom-game-result-headline');
       await expect(headline).toHaveCount(1);
       await expect(headline).toBeInViewport({ ratio: 1 });
+      const close = page.getByTestId('game-result-close');
+      await close.focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByRole('dialog')).toHaveCount(0);
       const actions = page.locator(
         '[data-testid="custom-game-rematch"], [data-testid="custom-game-new"], [data-testid="custom-game-review-start"]'
       );

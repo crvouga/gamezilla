@@ -382,7 +382,15 @@ export function FrameStageConditionLine(props: {
           lines={2}
           testId="custom-game-connection-needed"
         >
-          <Trans>Offline. Your move waits for the connection.</Trans>
+          <Switch
+            fallback={<Trans>You're offline. Moves need a connection.</Trans>}
+          >
+            <Match when={props.connection === 'waiting'}>
+              <Trans>
+                Your move will be played when the connection returns.
+              </Trans>
+            </Match>
+          </Switch>
         </P>
       </Match>
       <Match when={props.play.away}>
@@ -426,8 +434,8 @@ export function frameStageHeldUp(props: {
 }): boolean {
   return (
     props.stopped ||
-    props.connection === 'waiting' ||
     props.connection === 'needed' ||
+    props.connection === 'waiting' ||
     props.play.away !== null
   );
 }
