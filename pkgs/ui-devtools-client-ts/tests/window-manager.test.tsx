@@ -14,6 +14,7 @@ import { parseWindowLayout } from '@pkgs/ui-devtools-shared-ts/window-layout-cod
 import { OverlayPortalProvider } from '@pkgs/ui-root-client-ts/overlay-portal';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import { createAgent } from '@ui-sdk/solid/agent';
 import { createSignal } from 'solid-js';
 import { renderUi } from './render';
 
@@ -195,6 +196,19 @@ describe('WindowManager', () => {
     expect(screen.getByRole('group', { name: /^Window 1 of 1/ })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Restore windows' }));
     expect(layout().maximized).toBeNull();
+  });
+
+  test('an agent can resize adjacent windows within the divider limits', async () => {
+    mount({ direction: 'row', children: [['a'], ['b']] });
+    const agent = createAgent();
+    const resize = (value: number) =>
+      agent.act({
+        steps: [{ ref: 'Resize windows left and right', action: 'setValue', args: [value] }],
+      });
+    expect((await resize(65)).ok).toBe(true);
+    expect(screen.getByRole('separator')).toHaveAttribute('aria-valuenow', '65');
+    expect((await resize(99)).ok).toBe(false);
+    expect(screen.getByRole('separator')).toHaveAttribute('aria-valuenow', '65');
   });
 
   test('a divider is a window splitter the arrows resize', () => {

@@ -10,6 +10,7 @@ import type {
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
 import type { JSX } from '@solidjs/web';
+import { SelectParts, pickerItems } from '../picker-parts';
 import {
   createMemo,
   createSignal,
@@ -157,6 +158,14 @@ export function Select<T extends SelectValue = string>(
     setOpen(false);
   };
   return (
+    <SelectParts.Root<T>
+      items={pickerItems(props.options, props.loading === true)}
+      disabled={props.disabled === true}
+      value={props.value}
+      open={open()}
+      onOpenChange={(next) => setOpen(next)}
+      onValueChange={(value) => { if (value !== null && !props.loading && !props.disabled && props.options.some((option) => option.value === value && !option.disabled)) handlePick(value); }}
+    >
     <div class="box" {...dataAttrs({ component: 'Select', ...props.dataSet })}>
       <Show when={props.label !== undefined}>
         <SelectLabel label={props.label} />
@@ -167,7 +176,6 @@ export function Select<T extends SelectValue = string>(
         disabled={props.disabled === true}
         size={props.size ?? 'md'}
         open={open()}
-        onClick={() => setOpen(true)}
         aria-label={name()}
         dataSet={props.triggerDataSet}
       />
@@ -191,5 +199,6 @@ export function Select<T extends SelectValue = string>(
         />
       </ResponsiveSurface>
     </div>
+    </SelectParts.Root>
   );
 }

@@ -7,6 +7,7 @@ import type {
 } from '@pkgs/ui-root-shared-ts/combobox-types';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { ComboboxParts, pickerItems } from '../picker-parts';
 import { createUniqueId, Show } from 'solid-js';
 import { ComboboxBody } from '../combobox-body/index';
 import { ComboboxLabel, ComboboxTrigger } from '../combobox-trigger/index';
@@ -49,6 +50,21 @@ export function Combobox<T extends ComboboxValue = string>(
   const name = (): string | undefined =>
     accessibleName(props['aria-label'], props.label);
   return (
+    <ComboboxParts.Root<T, boolean>
+      items={pickerItems(props.options, props.loading === true)}
+      multiple={c.multiple()}
+      value={c.multiple() ? [...c.multiValues()] : c.singleValue()}
+      disabled={props.disabled === true}
+      query={c.query()}
+      open={c.open()}
+      onOpenChange={(next) => next ? c.openSurface() : c.handleClose()}
+      onValueChange={(value) => {
+        if (props.disabled || props.loading) return;
+        if (props.selectionMode === 'multiple') {
+          if (Array.isArray(value)) props.onValueChange(value);
+        } else if (value !== null && !Array.isArray(value) && props.options.some((option) => option.value === value)) c.handlePick(value);
+      }}
+    >
     <div
       class="box"
       {...dataAttrs({ component: 'Combobox', ...props.dataSet })}
@@ -64,7 +80,6 @@ export function Combobox<T extends ComboboxValue = string>(
         disabled={props.disabled === true}
         open={c.open()}
         listboxId={listboxId}
-        onOpen={c.openSurface}
         onClear={c.multiple() ? c.handleClear : undefined}
         onRemove={c.removeMultiValue}
         aria-label={name()}
@@ -102,5 +117,6 @@ export function Combobox<T extends ComboboxValue = string>(
         />
       </ResponsiveSurface>
     </div>
+    </ComboboxParts.Root>
   );
 }

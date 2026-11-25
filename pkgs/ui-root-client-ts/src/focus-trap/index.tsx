@@ -11,6 +11,7 @@ import {
   createEffect,
   createMemo,
   createRenderEffect,
+  flush,
   untrack,
 } from 'solid-js';
 import { moveFocus } from '../move-focus';
@@ -111,11 +112,18 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
     <Dialog
-      open
+      defaultOpen
       modal={false}
       dismissible={false}
-      onOpenChange={(open) => {
-        if (!open && props.active) props.onEscape?.();
+      onOpenChange={(open, details) => {
+        if (open) return;
+        if (!props.active || props.onEscape === undefined) {
+          details.cancel();
+          return;
+        }
+        props.onEscape();
+        flush();
+        if (hostEl?.isConnected) details.cancel();
       }}
     >
     <DialogContent

@@ -192,7 +192,10 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
       })}
       // The press and the drag are both the pointer's; the click a pointer
       // also makes would switch a second time.
-      onClick={(event) => event.preventDefault()}
+      onClick={(event, details) => {
+        event.preventDefault();
+        if (details.source === 'agent') props.onTap();
+      }}
       onPointerDown={gesture.onPointerDown}
       onPointerMove={gesture.onPointerMove}
       onPointerUp={gesture.onPointerUp}

@@ -168,7 +168,7 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
       aria-label={props.label}
       disabled={model.off()}
       controller={controller}
-      onValueChange={(value) => { if (value !== null) props.onChange(value); }}
+      onValueChange={(value, details) => { if (model.off()) details.cancel(); else if (value !== null) props.onChange(value); }}
       class={[
         'box flex-row items-center justify-between gap-3 py-1',
         { 'opacity-disabled': model.off() },

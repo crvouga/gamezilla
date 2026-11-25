@@ -3,6 +3,7 @@
 import { describe, expect, mock, test } from 'bun:test';
 import { AppStage } from '@pkgs/ui-devtools-client-ts/app-stage';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import { createAgent } from '@ui-sdk/solid/agent';
 import { createSignal, flush } from 'solid-js';
 import { renderUi } from './render';
 
@@ -54,6 +55,15 @@ describe('AppStage', () => {
     flush();
     expect(mounts).toEqual({ alice: 1, bob: 1, logs: 1 });
     expect(screen.getByText('alice app')).toBeInTheDocument();
+  });
+
+  test('an agent can press the device switcher once', async () => {
+    const { onTap } = mount();
+    const result = await createAgent().act({
+      steps: [{ ref: 'Next device', action: 'press' }],
+    });
+    expect(result.ok).toBe(true);
+    expect(onTap).toHaveBeenCalledTimes(1);
   });
 
   test('a press switches, however long it is held: it is a switcher and nothing else', () => {

@@ -2,6 +2,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
+import { useTileBoardActions } from './actions';
 import styles from './tile-board.module.css';
 
 /** `solid` blocks, `open` is walkable ground, `none` is no part of the board. */
@@ -132,9 +133,11 @@ function createTileBoardInput(props: TileBoardProps) {
  */
 export function TileBoard(props: TileBoardProps): JSX.Element {
   const input = createTileBoardInput(props);
+  const actions = useTileBoardActions(props);
   return (
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
+      {...actions}
       class={styles['board']}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it

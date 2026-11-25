@@ -2435,6 +2435,7 @@
         "@pkgs/uuid-shared-ts": "workspace:*",
         "@solidjs/router": "catalog:",
         "@solidjs/web": "catalog:",
+        "@ui-sdk/solid": "catalog:",
         "hono": "catalog:",
         "solid-js": "catalog:",
         "stripe": "catalog:",
