@@ -215,10 +215,10 @@ type Handlers = {
 };
 function listen(h: Handlers) {
   const options = { capture: true, signal: h.signal };
-  h.win.addEventListener('pointerdown', h.down, options);
-  h.win.addEventListener('pointermove', h.move, options);
-  h.win.addEventListener('pointerup', h.up, options);
-  h.win.addEventListener('pointercancel', h.cancel, options);
+  h.root.ownerDocument.addEventListener('pointerdown', h.down, options);
+  h.root.ownerDocument.addEventListener('pointermove', h.move, options);
+  h.root.ownerDocument.addEventListener('pointerup', h.up, options);
+  h.root.ownerDocument.addEventListener('pointercancel', h.cancel, options);
   h.root.addEventListener(
     'lostpointercapture',
     (e) => {
