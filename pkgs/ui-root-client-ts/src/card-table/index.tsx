@@ -18,7 +18,6 @@ import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
-import hearts from './hearts-table.module.css';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -337,7 +336,7 @@ function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
       <CardFace card={props.card} />
       <Show when={props.card.points?.mark}>
         {(mark) => (
-          <span class={hearts['points']} aria-hidden="true">
+          <span class={felt['points']} aria-hidden="true">
             {mark()}
           </span>
         )}
@@ -644,7 +643,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
     <div
       class={[
         styles['root'],
-        { [hearts['salon'] ?? '']: props.appearance === 'hearts' },
+        { [felt['salon'] ?? '']: props.appearance === 'hearts' },
       ]}
       data-testid={props.testId}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
