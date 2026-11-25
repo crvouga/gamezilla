@@ -54,7 +54,11 @@ export function ChessBoardGuidance(props: {
       {/* Keep the board anchored when a wrong move temporarily disables input. */}
       <div
         class={`box flex-row flex-wrap items-baseline gap-2 ${styles['guidanceRow']}`}
-        classList={{ invisible: !props.ctrl.model.interaction().interactive }}
+        classList={{
+          invisible: !props.ctrl.model.interaction().interactive,
+          // Under an edge-to-edge board the help keeps the page's inset.
+          'px-ui-lg': !full(),
+        }}
         aria-hidden={!props.ctrl.model.interaction().interactive}
         inert={!props.ctrl.model.interaction().interactive}
       >
