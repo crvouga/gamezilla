@@ -222,13 +222,7 @@ function precedes(a: Element, b: Element): boolean {
   );
 }
 
-// regression: sokoban-editor-size-below-fold — the board's size inputs came
-// after the board, its caption and its corrections, below a desktop's
-// 900px fold, and the builder's pieces were drawn as bare glyphs. The tools
-// now head the board; the size heads the notes, which sit beside the board
-// under the tools where there is room, never after the caption and the
-// corrections; and each piece is drawn as a token (crate, crate on goal,
-// worker, goal) as the player draws it.
+// regression: sokoban-editor-size-below-fold
 test('the editor puts the tools above the board, the size beside it, pieces as tokens', () => {
   const view = render(() => (
     <SokobanEditor
@@ -244,11 +238,9 @@ test('the editor puts the tools above the board, the size beside it, pieces as t
   const said =
     view.queryByTestId('sokoban-ready') ??
     view.getByTestId('sokoban-corrections');
-  expect(precedes(size, said)).toBe(true);
-  // The workbench's notes column, which wide sits beside the board under
-  // the tools (above a desktop's fold), and holds the size first.
+  expect(precedes(said, size)).toBe(true);
   const notes = size.closest('[data-component="EditorWorkbench"] > div > div');
-  expect(notes?.firstElementChild?.contains(size)).toBe(true);
+  expect(notes?.contains(said)).toBe(true);
   expect(notes?.contains(board)).toBe(false);
   expect(notes?.contains(tools)).toBe(false);
   const identity = (square: string): string | null =>

@@ -6,6 +6,7 @@ import {
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
   type CellGridCell,
@@ -194,17 +195,25 @@ function Board(props: {
 
 /** The shared builder owns saving, undo, validation, playtesting and publication. */
 export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
+  const { t } = useLingui();
   const editor = useSokobanEditor(props);
   return (
     <Show
       when={editor.board()}
       fallback={
-        <Notice tone="error">
-          <Trans>
-            This board cannot be opened. Choose an earlier saved draft to keep
-            building.
-          </Trans>
-        </Notice>
+        <StackVertical gap="sm" align="start">
+          <Notice tone="error">
+            <Trans>This board cannot be opened.</Trans>
+          </Notice>
+          <Show when={props.onChooseCopy}>
+            {(choose) => (
+              <Button
+                title={t`Choose saved draft`}
+                onClick={() => choose()()}
+              />
+            )}
+          </Show>
+        </StackVertical>
       }
     >
       {(board) => (
