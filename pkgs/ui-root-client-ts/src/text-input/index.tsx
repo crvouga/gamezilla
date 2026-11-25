@@ -7,6 +7,7 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Input } from '@ui-sdk/solid/input';
 import { createUniqueId, omit, Show } from 'solid-js';
 import { bindElementTargets } from '../element-targets';
 import type { FocusTarget } from '../focus';
@@ -131,7 +132,7 @@ function Field(props: {
     submit();
   };
   return (
-    <input
+    <Input
       ref={(element) => {
         props.targets(element);
         props.input.ref?.(element);
@@ -151,7 +152,7 @@ function Field(props: {
       placeholder={props.input.placeholder}
       aria-label={props.input['aria-label']}
       aria-invalid={props.hasError ? 'true' : undefined}
-      onInput={(event) => props.input.onChangeText(event.currentTarget.value)}
+      onValueChange={(value) => props.input.onChangeText(value)}
       onKeyDown={onKeyDown}
       {...componentDataAttrs('TextInputField', undefined)}
       {...props.rest}

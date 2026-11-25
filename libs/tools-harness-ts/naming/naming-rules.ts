@@ -53,6 +53,7 @@ export const NAMING_EXEMPT = {
     '.superset/attachments/',
     // Third-party skill sources, kept as published.
     '.agents/skills/impeccable/',
+    '.agents/skills/ui-sdk/',
     '.agents/skills/ui-ux-pro-max/',
     '.agents/skills/ast-grep/',
     // pstack (cursor/plugins): the skills whose files keep upstream names,

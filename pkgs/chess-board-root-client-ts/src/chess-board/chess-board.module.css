@@ -413,7 +413,7 @@
   .keyboardHelp {
     position: relative;
   }
-  .keyboardHelp[open] > :last-child {
+  .keyboardHelp[data-open] > :last-child {
     position: absolute;
     bottom: 100%;
     left: 0;

@@ -18,6 +18,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { spacingScale } from '@pkgs/ui-root-shared-ts/scale';
 import type { JSX } from '@solidjs/web';
+import { Textarea } from '@ui-sdk/solid/textarea';
 import { createMemo, createSignal, For, Show } from 'solid-js';
 import { useThemeTokens } from '../theme-context/index';
 import { useDocumentShortcuts } from '../use-document-shortcuts';
@@ -92,7 +93,7 @@ function EditorField(props: FieldProps): JSX.Element {
     props.onSelectionChange?.(readSelection(el));
   };
   return (
-    <textarea
+    <Textarea
       ref={props.ref}
       class={styles['field']}
       style={props.style}
@@ -105,11 +106,14 @@ function EditorField(props: FieldProps): JSX.Element {
       spellcheck="false"
       placeholder={props.placeholder}
       aria-label={props['aria-label']}
-      onInput={(event) => {
-        props.onChangeText(event.currentTarget.value);
-        emitSelection(event.currentTarget);
-      }}
-      onSelect={(event) => emitSelection(event.currentTarget)}
+      onValueChange={(value) => props.onChangeText(value)}
+      onInput={(event) => emitSelection(event.currentTarget)}
+      render={(attrs) => (
+        <textarea
+          {...attrs}
+          onSelect={(event) => emitSelection(event.currentTarget)}
+        />
+      )}
       onKeyUp={(event) => emitSelection(event.currentTarget)}
       onClick={(event) => emitSelection(event.currentTarget)}
       onFocus={() => props.onFocusChange(true)}

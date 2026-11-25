@@ -7,7 +7,7 @@ import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
-import { screen } from '@solidjs/testing-library';
+import { screen, within } from '@solidjs/testing-library';
 import { mustQuery, renderUi } from './render';
 
 describe('Game chrome', () => {
@@ -74,8 +74,8 @@ describe('Game chrome', () => {
         dataSet={{ testid: 'words' }}
       />
     ));
-    const words = screen.getByRole('status');
-    expect(words).toBe(screen.getByTestId('words'));
+    const words = screen.getByTestId('words');
+    expect(words).toHaveRole('status');
     expect(words).toHaveAttribute('aria-live', 'polite');
     expect(words).toHaveTextContent('Your turn.Make your first move');
     expect(words.contains(screen.getByTestId('fact'))).toBe(false);
@@ -101,8 +101,10 @@ describe('Game chrome', () => {
   });
 
   test('a turn pill that is not live is no status region', () => {
-    renderUi(() => <GameTurnPill title="Erin to move." tone="success" />);
-    expect(screen.queryByRole('status')).toBeNull();
+    const { container } = renderUi(() => (
+      <GameTurnPill title="Erin to move." tone="success" />
+    ));
+    expect(within(container).queryByRole('status')).toBeNull();
     const pill = mustQuery('[data-component="GameTurnPill"]');
     expect(pill).toHaveAttribute('data-emphasis', 'neutral');
     expect(pill).toHaveAttribute('data-tone', 'success');

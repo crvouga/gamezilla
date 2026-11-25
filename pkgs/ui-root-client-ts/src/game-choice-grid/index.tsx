@@ -1,6 +1,8 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { radioGroup } from '@ui-sdk/core/radio';
+import { usePrimitive } from '@ui-sdk/solid/primitive';
 import { createUniqueId, For, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 
@@ -20,13 +22,23 @@ export function GameChoiceGrid(props: {
   disabled?: boolean;
 }): JSX.Element {
   const name = createUniqueId();
+  const group = usePrimitive(radioGroup, () => ({
+    name,
+    disabled: props.disabled === true,
+    value: props.value,
+    onValueChange: (next) => {
+      if (next !== null) props.onChange(next);
+    },
+  }));
   return (
     <fieldset
+      {...group.slot('group')}
+      aria-labelledby={name}
       class={styles['choices']}
       disabled={props.disabled}
       {...dataAttrs({ component: 'GameChoiceGrid' })}
     >
-      <legend class={`${styles['meta']} text textFootnote`}>
+      <legend id={name} class={`${styles['meta']} text textFootnote`}>
         {props.label}
       </legend>
       <div class={styles['choiceGrid']}>
@@ -37,12 +49,12 @@ export function GameChoiceGrid(props: {
               data-selected={String(props.value === choice.value)}
             >
               <input
+                {...group.slot('root', () => ({ value: choice.value }))}
                 class={styles['choiceInput']}
                 type="radio"
                 name={name}
                 value={choice.value}
                 checked={props.value === choice.value}
-                onChange={() => props.onChange(choice.value)}
                 {...dataAttrs({ component: 'GameChoice', ...choice.dataSet })}
               />
               <span class={`${styles['choiceTitle']} text textLabel`}>

@@ -149,6 +149,10 @@ export function MutationError(props: {
           }
           retry={{
             dataSet: props.ids.submitDataSet,
+            agentConfirm:
+              typeof props.labels.submitLabel === 'string'
+                ? props.labels.submitLabel
+                : t`Confirm this action`,
             label: unknown()
               ? t`Check again`
               : (props.labels.retryLabel ?? t`Try again`),
@@ -191,6 +195,11 @@ export function MutationIdle(props: {
       <ModalFooter>
         <ModalButton
           label={props.labels.submitLabel}
+          agentConfirm={
+            typeof props.labels.submitLabel === 'string'
+              ? props.labels.submitLabel
+              : t`Confirm this action`
+          }
           variant={props.destructive ? 'destructive' : 'default'}
           disabled={props.submitDisabled}
           onClick={() => props.onRun()}

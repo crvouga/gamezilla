@@ -5,8 +5,7 @@ export type TrailHeading = 'up' | 'right' | 'down' | 'left';
 export type TrailRiderIndex = 0 | 1 | 2 | 3;
 
 /**
- * A locally controlled rider, counted in rider order among the controlled
- * ones: slot 0 steers with the arrow keys, slot 1 with WASD.
+ * A locally controlled rider’s input slot: slot 0 steers with the arrow keys, slot 1 with WASD.
  */
 export type TrailSlot = 0 | 1;
 
@@ -23,7 +22,7 @@ export type TrailRider = {
   /** One letter drawn on the head. */
   readonly mark: string;
   /** Steered from this device. */
-  readonly controlled: boolean;
+  readonly controlSlot: TrailSlot | null;
   /** The rider's name, shown as the head's tooltip. */
   readonly label: string;
 };

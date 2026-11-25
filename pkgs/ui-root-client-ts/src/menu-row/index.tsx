@@ -4,8 +4,10 @@ import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Match, Show, Switch } from 'solid-js';
 import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon } from '../icons';
+import { LinkHost } from '../link-host';
 import type { TextLines } from '../text-classes';
 import { textStyleClass } from '../text-classes';
 import styles from './menu-row.module.css';
@@ -198,11 +200,17 @@ function MenuRowLink(
   props: MenuRowProps & MenuRowPart & { href: string }
 ): JSX.Element {
   return (
-    <a
+    <LinkHost
       class={`clickable clickableTint ${rowClass(props.selected === true)}`}
       {...partAttrs(props.part, props.dataSet)}
-      href={props.href}
+      href={props.disabled ? undefined : props.href}
+      disabled={props.disabled === true}
+      aria-disabled={props.disabled ? 'true' : undefined}
       onClick={(event) => {
+        if (props.disabled) {
+          event.preventDefault();
+          return;
+        }
         if (props.onClick === undefined) return;
         event.preventDefault();
         props.onClick();
@@ -211,7 +219,7 @@ function MenuRowLink(
       aria-current={props.selected === true ? 'page' : undefined}
     >
       <MenuRowBody {...props} interactive />
-    </a>
+    </LinkHost>
   );
 }
 
@@ -230,7 +238,7 @@ function partAttrs(
 
 function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
   return (
-    <button
+    <SdkButton
       class={[
         `clickable clickableTint ${rowClass(props.selected === true)}`,
         { 'opacity-disabled': props.disabled === true },
@@ -248,7 +256,7 @@ function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
       }
     >
       <MenuRowBody {...props} interactive />
-    </button>
+    </SdkButton>
   );
 }
 

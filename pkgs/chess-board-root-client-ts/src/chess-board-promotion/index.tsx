@@ -14,6 +14,7 @@ import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, onSettled, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';
@@ -74,7 +75,7 @@ function CancelChip(props: {
   readonly onCancel: () => void;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint items-center justify-center text textBodyBold w-full min-h-11"
       style={{
         'background-color': props.theme.promotion.cancel,
@@ -86,7 +87,7 @@ function CancelChip(props: {
       onClick={() => props.onCancel()}
     >
       <Trans>Cancel</Trans>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -105,7 +106,7 @@ function PromotionChoice(props: {
   const name = () =>
     ({ q: t`Queen`, r: t`Rook`, b: t`Bishop`, n: t`Knight` })[props.kind];
   return (
-    <button
+    <SdkButton
       ref={button}
       class="clickable clickableTint flex-row items-center gap-2 px-2 w-full min-h-11"
       style={{
@@ -123,7 +124,7 @@ function PromotionChoice(props: {
         aria-hidden="true"
       />
       <span class="text textCaption text-board-card-ink">{name()}</span>
-    </button>
+    </SdkButton>
   );
 }
 

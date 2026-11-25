@@ -18,6 +18,7 @@ import styles from '../window-manager/window-manager.module.css';
 import { useWindowManager } from '../window-manager-context';
 import { captureWindowPointer } from '../window-manager-drag';
 import { WINDOW_GAP } from '../window-manager-types';
+import { WindowSplitter } from './window-splitter';
 
 export type WindowManagerSeparatorProps = {
   readonly frame: WindowSeparatorFrame;
@@ -57,13 +58,16 @@ export function WindowManagerSeparator(
   const row = (): boolean => props.frame.direction === 'row';
   const along = (event: PointerEvent): number =>
     row() ? event.clientX : event.clientY;
-  const resize = (delta: number): void =>
+  const resize = (value: number): void => {
+    const delta = (value - props.frame.value) / 100;
+    if (delta === 0) return;
     api.dispatch({
       type: 'resize',
       split: props.frame.split,
       index: props.frame.index,
       delta,
     });
+  };
   const onMove = (event: PointerEvent): void => {
     const held = grip();
     const box = api.bounds();
@@ -72,11 +76,10 @@ export function WindowManagerSeparator(
     const extent = size * props.frame.extent;
     if (extent <= 0) return;
     const wanted = held.value + ((along(event) - held.at) / extent) * 100;
-    const delta = (wanted - props.frame.value) / 100;
-    if (delta !== 0) resize(delta);
+    resize(wanted);
   };
   return (
-    <div
+    <WindowSplitter
       class={[
         `box absolute z-2 touch-none ${styles['separator'] ?? ''}`,
         {
@@ -92,15 +95,14 @@ export function WindowManagerSeparator(
         active: String(grip() !== null),
       })}
       style={separatorStyle(props.frame)}
-      role="separator"
-      tabindex={0}
+      value={props.frame.value}
+      min={props.frame.min}
+      max={props.frame.max}
+      onValueChange={resize}
       aria-label={
         row() ? t`Resize windows left and right` : t`Resize windows up and down`
       }
       aria-orientation={row() ? 'vertical' : 'horizontal'}
-      aria-valuenow={props.frame.value}
-      aria-valuemin={props.frame.min}
-      aria-valuemax={props.frame.max}
       aria-keyshortcuts={WINDOW_SEPARATOR_KEYSHORTCUTS}
       onPointerDown={(event) => {
         if (event.button !== 0) return;

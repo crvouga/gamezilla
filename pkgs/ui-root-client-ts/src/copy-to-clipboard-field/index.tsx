@@ -6,6 +6,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createEffect, createSignal, Show } from 'solid-js';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 
@@ -80,7 +81,7 @@ export function CopyToClipboardField(
       <Show when={props.label !== undefined}>
         <label class="text textLabel">{props.label}</label>
       </Show>
-      <button
+      <SdkButton
         class="clickable clickableOpacity flex-row items-center gap-2 border border-outline rounded-control bg-surface-muted py-3 px-3 text-left"
         data-copied={String(copied())}
         {...dataAttrs({
@@ -114,7 +115,7 @@ export function CopyToClipboardField(
             <CircleCheckIcon size={ICON_SIZE} color="tint" />
           </Show>
         </div>
-      </button>
+      </SdkButton>
       <div class="box min-h-5" role="status" aria-live="polite">
         <Show
           when={copied()}

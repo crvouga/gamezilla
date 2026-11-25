@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import { ChevronRightIcon, CircleCheckIcon } from '../icons';
@@ -258,7 +259,7 @@ export function MainMenuItemRow(props: {
       }
     >
       {(onClick) => (
-        <button
+        <SdkButton
           class="clickable clickableTint items-stretch"
           {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
           type="button"
@@ -271,7 +272,7 @@ export function MainMenuItemRow(props: {
             interactive={interactive()}
             layout={props.layout ?? 'row'}
           />
-        </button>
+        </SdkButton>
       )}
     </Show>
   );

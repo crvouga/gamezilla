@@ -5,6 +5,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { nextMenuItemIndex } from '@pkgs/ui-root-shared-ts/floating-menu-keyboard';
 import type { JSX } from '@solidjs/web';
+import { Popover, PopoverContent } from '@ui-sdk/solid/popover';
 import {
   createEffect,
   createMemo,
@@ -153,10 +154,7 @@ function FloatingMenuPanel(props: {
     () => props.active,
     () => props.onClose()
   );
-  const onSelect = (row: FloatingMenuItemRow): void => {
-    row.onClick?.();
-    props.onClose();
-  };
+
   return (
     <div
       class="box absolute z-1"
@@ -168,29 +166,44 @@ function FloatingMenuPanel(props: {
       {...dataAttrs({ component: 'FloatingMenuPanel' })}
     >
       <OnColorReset>
-        <div
-          class="box surfaceEnter rounded-card border border-border py-2 bg-surface-overlay shadow-float"
-          ref={(el) => {
-            hostEl = el;
+        <Popover
+          defaultOpen
+          modal={false}
+          dismissible={false}
+          onOpenChange={(open) => {
+            if (!open && props.active) props.onClose();
           }}
-          role="menu"
-          aria-label={props.label}
-          tabindex={-1}
-          onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
         >
-          <Show when={props.content.header}>
-            {(header) => <FloatingMenuHeader header={header()} />}
-          </Show>
-          <For each={props.content.rows.map((row) => row.id)}>
-            {(id) => (
-              <StableFloatingMenuRow
-                id={id}
-                rows={props.content.rows}
-                onSelect={onSelect}
-              />
-            )}
-          </For>
-        </div>
+          <PopoverContent
+            inline
+            initialFocus="none"
+            render={(attrs) => <div {...attrs} role="menu" />}
+            finalFocus="none"
+            class="box surfaceEnter rounded-card border border-border py-2 bg-surface-overlay shadow-float"
+            ref={(el) => {
+              hostEl = el;
+            }}
+            aria-label={props.label}
+            tabindex={-1}
+            onKeyDown={(ev) => onMenuKeyDown(ev.currentTarget, ev)}
+          >
+            <Show when={props.content.header}>
+              {(header) => <FloatingMenuHeader header={header()} />}
+            </Show>
+            <For each={props.content.rows.map((row) => row.id)}>
+              {(id) => (
+                <StableFloatingMenuRow
+                  id={id}
+                  rows={props.content.rows}
+                  onSelect={(row) => {
+                    row.onClick?.();
+                    props.onClose();
+                  }}
+                />
+              )}
+            </For>
+          </PopoverContent>
+        </Popover>
         <Show when={props.notice}>
           {(notice) => (
             <p

@@ -96,7 +96,7 @@ export default defineConfig(({ mode }) => {
       format: 'es',
     },
     optimizeDeps: {
-      exclude: ['@sqlite.org/sqlite-wasm'],
+      exclude: ['@sqlite.org/sqlite-wasm', '@ui-sdk/core'],
     },
     build: {
       target: 'es2022',

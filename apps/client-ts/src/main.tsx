@@ -20,7 +20,7 @@ import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
-import { render } from '@solidjs/web';
+import { renderApplication } from '@pkgs/ui-root-client-ts/render-application';
 
 // Before anything runs a `using`: the native shell's web view is Safari's.
 polyfillDisposal();
@@ -54,4 +54,5 @@ window.addEventListener('pagehide', () => {
 });
 
 root.replaceChildren();
-render(() => <client.App />, root);
+const dispose = renderApplication(() => <client.App />, root);
+if (import.meta.hot) import.meta.hot.dispose(dispose);

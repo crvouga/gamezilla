@@ -147,7 +147,7 @@ export class SolidDomDriverNode implements DriverNode {
     await this.waitUntil(
       () =>
         this.matchesState(state) ||
-        (state === 'visible' &&
+        (state !== 'enabled' &&
           (options?.visibleOr ?? []).some((id) =>
             new SolidDomDriverNode(this.host, [
               ...this.path.slice(0, -1),

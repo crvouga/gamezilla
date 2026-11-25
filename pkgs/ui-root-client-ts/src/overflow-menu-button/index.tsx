@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
@@ -219,7 +220,7 @@ function TriggerFace(props: {
         </IconButton>
       }
     >
-      <button
+      <SdkButton
         class="clickable clickableTint rounded-full overflow-hidden"
         {...dataAttrs(props.dataSet)}
         type="button"
@@ -229,7 +230,7 @@ function TriggerFace(props: {
         aria-expanded={props.menu.open() ? 'true' : 'false'}
       >
         {props.trigger}
-      </button>
+      </SdkButton>
     </Show>
   );
 }

@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { fireEvent, screen } from '@solidjs/testing-library';
 import { mountBoard } from './board-fixture';
 
 // regression: chess-square-fit-contract-proof-missing
@@ -43,17 +44,17 @@ test('puzzle guidance follows the board, and expanding it retains the same board
   });
   try {
     const frame = board.host.closest('[data-component="ChessBoardFrame"]');
-    const help = frame?.parentElement?.querySelector('details');
-    if (!frame || !help)
-      throw new Error('Missing puzzle frame or keyboard help');
+    const help = screen.getByRole('button', { name: 'Keyboard controls' });
+    if (!frame) throw new Error('Missing puzzle frame or keyboard help');
     expect(
       frame.compareDocumentPosition(help) & Node.DOCUMENT_POSITION_FOLLOWING
     ).not.toBe(0);
-    help.open = true;
+    fireEvent.click(help);
+    expect(help.getAttribute('aria-expanded')).toBe('true');
     expect(board.host.closest('[data-component="ChessBoardFrame"]')).toBe(
       frame
     );
-    expect(help.textContent).toContain(
+    expect(screen.getByText(/Escape to cancel/).textContent).toContain(
       'Arrows to move, Enter to choose, Escape to cancel.'
     );
     expect(board.host.querySelectorAll('button[data-square]').length).toBe(64);

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { screen } from '@solidjs/testing-library';
+import { fireEvent, screen } from '@solidjs/testing-library';
 import { mountBoard } from './board-fixture';
 
 // regression: chess-check-and-side-guidance
@@ -46,10 +46,11 @@ test('a finished position names checkmate or stalemate, never plain check', () =
 test('touch guidance keeps keyboard grammar behind a discoverable disclosure', () => {
   const board = mountBoard({ showGuidance: true, interactive: true });
   expect(screen.getByText('Tap a piece, then a square.')).toBeTruthy();
-  const summary = screen.getByText('Keyboard controls');
-  const disclosure = summary.closest('details');
-  expect(disclosure?.open).toBe(false);
-  expect(disclosure?.textContent).toContain('Escape to cancel.');
+  const trigger = screen.getByRole('button', { name: 'Keyboard controls' });
+  expect(trigger.getAttribute('aria-expanded')).toBe('false');
+  fireEvent.click(trigger);
+  expect(trigger.getAttribute('aria-expanded')).toBe('true');
+  expect(screen.getByText(/Escape to cancel/)).toBeVisible();
   board.unmount();
 });
 
@@ -63,13 +64,13 @@ test('before placement keeps keyboard guidance ahead of the same playable board'
   });
   try {
     const frame = board.host.closest('[data-component="ChessBoardFrame"]');
-    const help = frame?.parentElement?.querySelector('details');
-    if (!frame || !help)
-      throw new Error('Missing board frame or keyboard help');
+    const help = screen.getByRole('button', { name: 'Keyboard controls' });
+    if (!frame) throw new Error('Missing board frame or keyboard help');
     expect(
       frame.compareDocumentPosition(help) & Node.DOCUMENT_POSITION_PRECEDING
     ).not.toBe(0);
-    help.open = true;
+    fireEvent.click(help);
+    expect(help.getAttribute('aria-expanded')).toBe('true');
     expect(board.host.closest('[data-component="ChessBoardFrame"]')).toBe(
       frame
     );

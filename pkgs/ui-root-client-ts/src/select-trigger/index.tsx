@@ -9,8 +9,9 @@ import type {
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
 import type { JSX } from '@solidjs/web';
-import { Show } from 'solid-js';
+import { omit, Show } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
+import { SelectParts } from '../picker-parts';
 
 export type SelectTriggerProps<T extends SelectValue> = {
   selected: SelectOption<T> | undefined;
@@ -18,7 +19,7 @@ export type SelectTriggerProps<T extends SelectValue> = {
   disabled: boolean;
   size: SelectSize;
   open: boolean;
-  onClick: () => void;
+  listboxId: string;
   'aria-label': string | undefined;
   /** DOM `data-*` identifiers for the trigger button. */
   dataSet?: ComponentDataSet | undefined;
@@ -32,7 +33,11 @@ export type SelectTriggerProps<T extends SelectValue> = {
  * real `<button>` with `aria-haspopup="listbox"` / `aria-expanded`.
  */
 export function SelectLabel(props: { label: JSX.Element }): JSX.Element {
-  return <p class="text textCaption mb-1 text-text-secondary">{props.label}</p>;
+  return (
+    <SelectParts.Label class="text textCaption mb-1 text-text-secondary">
+      {props.label}
+    </SelectParts.Label>
+  );
 }
 
 function triggerClass(compact: boolean): string {
@@ -48,11 +53,19 @@ export function SelectTrigger<T extends SelectValue>(
   const compact = (): boolean => props.size === 'sm';
   const hasSelection = (): boolean => props.selected !== undefined;
   return (
-    <button
+    <SelectParts.Trigger
+      render={(part) => {
+        const native = omit(part, 'role');
+        return (
+          <button
+            {...native}
+            aria-controls={props.open ? props.listboxId : undefined}
+          />
+        );
+      }}
       class={triggerClass(compact())}
       {...dataAttrs({ component: 'SelectTrigger', ...props.dataSet })}
       type="button"
-      onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-haspopup="listbox"
       aria-expanded={props.open ? 'true' : 'false'}
@@ -75,6 +88,6 @@ export function SelectTrigger<T extends SelectValue>(
         {props.selected?.label ?? props.placeholder}
       </p>
       <ChevronDownIcon size={compact() ? 16 : 20} color="icon" />
-    </button>
+    </SelectParts.Trigger>
   );
 }

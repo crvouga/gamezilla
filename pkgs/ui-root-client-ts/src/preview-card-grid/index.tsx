@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createUniqueId, Show } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 import styles from './preview-card-grid.module.css';
@@ -82,7 +83,7 @@ export type PreviewCardProps = {
 export function PreviewCard(props: PreviewCardProps): JSX.Element {
   return (
     <li class={styles['item']}>
-      <button
+      <SdkButton
         type="button"
         class={`clickable clickableTint ${styles['card']}`}
         aria-label={props['aria-label']}
@@ -109,7 +110,7 @@ export function PreviewCard(props: PreviewCardProps): JSX.Element {
         <span class={styles['chevron']} aria-hidden="true">
           <ChevronRightIcon size={20} color="icon" />
         </span>
-      </button>
+      </SdkButton>
     </li>
   );
 }

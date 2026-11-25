@@ -60,14 +60,6 @@ export function rowTestId(
   return testId === undefined ? undefined : `${testId}-${key}`;
 }
 
-/** Enter and Space activate a pressable row, like a button. */
-export function onRowKeyDown(event: KeyboardEvent, press: () => void): void {
-  if (event.key !== 'Enter' && event.key !== ' ') return;
-  if (event.target !== event.currentTarget) return;
-  event.preventDefault();
-  press();
-}
-
 /** The order after choosing `key`: the same column flips, another starts ascending. */
 export function nextSort(
   current: TableSort | undefined,

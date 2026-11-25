@@ -9,6 +9,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { speakingAvatarSvg } from '@pkgs/ui-root-shared-ts/speaking-avatar-svg';
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
@@ -111,7 +112,7 @@ function AvatarHead(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <button
+    <SdkButton
       class="clickable relative self-center"
       type="button"
       onClick={() => props.onToggle()}
@@ -129,7 +130,7 @@ function AvatarHead(props: {
           mutedColor="textSecondary"
         />
       </div>
-    </button>
+    </SdkButton>
   );
 }
 

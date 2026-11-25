@@ -13,7 +13,7 @@ import {
   CopyIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
-import { fireEvent, screen } from '@solidjs/testing-library';
+import { fireEvent, screen, within } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
 import { createSignal } from 'solid-js';
@@ -166,9 +166,11 @@ describe('ContextMenu', () => {
   });
 
   test('a notice shows under the items and is said aloud', () => {
-    renderUi(() => <Harness notice="Press Ctrl+V instead." />);
+    const { container } = renderUi(() => (
+      <Harness notice="Press Ctrl+V instead." />
+    ));
     openFrom('field');
-    expect(screen.getByRole('status').textContent).toBe(
+    expect(within(container).getByRole('status').textContent).toBe(
       'Press Ctrl+V instead.'
     );
     expect(mustQuery('[data-component="FloatingMenuNotice"]').textContent).toBe(

@@ -15,6 +15,7 @@
  */
 
 import { type JSX, render } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Match, onSettled, Show, Switch } from 'solid-js';
 import type {
   HarnessBrowser,
@@ -125,7 +126,7 @@ function Sheet(props: {
       data-testid={HARNESS_BROWSER_TEST_IDS.sheet}
     >
       <div class="flex h-11 shrink-0 items-center gap-2 border-system-text/10 border-b bg-system-canvas px-2">
-        <button
+        <SdkButton
           aria-label="Close"
           class="flex size-8 items-center justify-center rounded-full text-lg leading-none hover:bg-system-text/10"
           data-testid={HARNESS_BROWSER_TEST_IDS.close}
@@ -133,7 +134,7 @@ function Sheet(props: {
           type="button"
         >
           ×
-        </button>
+        </SdkButton>
         <span
           class="min-w-0 flex-1 truncate rounded-full bg-system-text/5 px-3 py-1 text-center text-xs opacity-70"
           data-testid={HARNESS_BROWSER_TEST_IDS.address}

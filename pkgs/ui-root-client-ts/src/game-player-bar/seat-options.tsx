@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, createSignal, createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ChevronDownIcon } from '../icons';
@@ -42,7 +43,7 @@ export function SeatOptionsToggle(props: {
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       type="button"
       class={`${seat['seatToggle']} clickable clickableTint rounded-full`}
       aria-expanded={props.state.open() ? 'true' : 'false'}
@@ -60,7 +61,7 @@ export function SeatOptionsToggle(props: {
       >
         <ChevronDownIcon size={16} />
       </span>
-    </button>
+    </SdkButton>
   );
 }
 

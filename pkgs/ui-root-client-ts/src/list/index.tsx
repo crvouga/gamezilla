@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, For, children as resolveChildren, Show } from 'solid-js';
 
 export type ListProps = {
@@ -122,7 +123,7 @@ export function ListItem(props: ListItemProps): JSX.Element {
       }
     >
       {(onClick) => (
-        <button
+        <SdkButton
           class={`clickable clickableTint items-stretch w-full ${selectedClass(props.selected === true)}`}
           {...dataAttrs({ component: 'ListItem', ...props.dataSet })}
           type="button"
@@ -130,7 +131,7 @@ export function ListItem(props: ListItemProps): JSX.Element {
           aria-pressed={props.selected === true ? 'true' : undefined}
         >
           {content()}
-        </button>
+        </SdkButton>
       )}
     </Show>
   );

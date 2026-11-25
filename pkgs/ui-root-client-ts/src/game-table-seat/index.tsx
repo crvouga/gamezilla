@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createContext, Show, useContext } from 'solid-js';
 import { Avatar } from '../avatar/index';
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
@@ -89,13 +90,13 @@ export function GameTableSeat(props: GameTableSeatProps): JSX.Element {
         }
       >
         {(press) => (
-          <button
+          <SdkButton
             type="button"
             class={`clickable ${styles['face']}`}
             onClick={() => press()()}
           >
             <SeatFace {...props} />
-          </button>
+          </SdkButton>
         )}
       </Show>
     </div>

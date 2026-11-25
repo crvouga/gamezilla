@@ -6,10 +6,12 @@ import {
   nextTabStop,
 } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
 import type { JSX } from '@solidjs/web';
+import { Dialog, DialogContent } from '@ui-sdk/solid/dialog';
 import {
   createEffect,
   createMemo,
   createRenderEffect,
+  flush,
   untrack,
 } from 'solid-js';
 import { moveFocus } from '../move-focus';
@@ -109,19 +111,37 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
   const layoutClass = () =>
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
-    <div
-      class={`box ${layoutClass()}`}
-      data-component="FocusTrap"
-      ref={(el) => {
-        hostEl = el;
+    <Dialog
+      defaultOpen
+      modal={false}
+      dismissible={false}
+      onOpenChange={(open, details) => {
+        if (open) return;
+        if (!props.active || props.onEscape === undefined) {
+          details.cancel();
+          return;
+        }
+        props.onEscape();
+        flush();
+        if (hostEl?.isConnected) details.cancel();
       }}
-      role="dialog"
-      aria-modal="true"
-      aria-label={props.label}
-      aria-labelledby={props.labelledBy}
-      tabindex={-1}
     >
-      {props.children}
-    </div>
+      <DialogContent
+        inline
+        initialFocus="none"
+        finalFocus="none"
+        class={`box ${layoutClass()}`}
+        data-component="FocusTrap"
+        ref={(el) => {
+          hostEl = el;
+        }}
+        aria-modal="true"
+        aria-label={props.label}
+        aria-labelledby={props.labelledBy}
+        tabindex={-1}
+      >
+        {props.children}
+      </DialogContent>
+    </Dialog>
   );
 }

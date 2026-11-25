@@ -8,6 +8,7 @@ import { Show } from 'solid-js';
 import { createIcon } from '../create-icon/index';
 import { Icon } from '../icon/index';
 import { spaced } from '../layout-classes';
+import { LinkHost } from '../link-host';
 import { VisuallyHidden } from '../visually-hidden/index';
 
 const ArrowUpRightIcon = createIcon(ArrowUpRight);
@@ -97,7 +98,7 @@ function isModifiedClick(event: MouseEvent): boolean {
 export function TextLink(props: TextLinkProps): JSX.Element {
   const external = (): boolean => props.external === true;
   return (
-    <a
+    <LinkHost
       class={linkClass(props)}
       href={props.href}
       target={external() ? '_blank' : undefined}
@@ -122,6 +123,6 @@ export function TextLink(props: TextLinkProps): JSX.Element {
           <Trans>(opens in a new tab)</Trans>
         </VisuallyHidden>
       </Show>
-    </a>
+    </LinkHost>
   );
 }

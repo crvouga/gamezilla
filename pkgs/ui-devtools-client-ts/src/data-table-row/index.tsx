@@ -13,6 +13,7 @@ import type {
 import { Checkbox } from '@pkgs/ui-root-client-ts/checkbox';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import styles from '../data-table/data-table.module.css';
 
@@ -85,7 +86,7 @@ function DataTableCell<T>(props: {
         }
       >
         {(onClick) => (
-          <button
+          <SdkButton
             class="clickable"
             type="button"
             style={inner()}
@@ -93,7 +94,7 @@ function DataTableCell<T>(props: {
             tabindex={props.tabbable ? 0 : -1}
           >
             <DataTableCellContent column={props.column} row={props.row} />
-          </button>
+          </SdkButton>
         )}
       </Show>
     </td>

@@ -20,7 +20,8 @@
 
 import '../fonts';
 import '../application.css';
-import { type JSX, render } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
+import { renderApplication } from '../render-application';
 
 export type MountOptions = {
   /** `id` of the mount element in the host page. Default `root`. */
@@ -48,7 +49,7 @@ export function mountApplication(
     throw new Error(`mountApplication: no #${rootId} element on the page`);
   }
   host.replaceChildren();
-  const dispose = render(root, host);
+  const dispose = renderApplication(root, host);
   const onPageHide = options.onPageHide;
   if (onPageHide === undefined) return dispose;
   window.addEventListener('pagehide', onPageHide);

@@ -9,6 +9,7 @@ import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
 import styles from '../app-stage/app-stage.module.css';
+import { type StagePosition, StageSwitcher } from './stage-switcher';
 
 /** The button's diameter, in px. */
 export const APP_STAGE_HANDLE_SIZE = 44;
@@ -17,13 +18,6 @@ const EDGE = 10;
 /** How far a press may wander and still be a tap, in px. */
 const TAP_SLOP = 8;
 type Point = { readonly x: number; readonly y: number };
-
-/** Where the button rests: against a side, some way down it. */
-type Rest = {
-  readonly side: 'left' | 'right';
-  /** The top of the button, as a share of the room it can move in. */
-  readonly down: number;
-};
 
 type Press = {
   readonly pointer: number;
@@ -34,13 +28,15 @@ type Press = {
 };
 
 /** Clear of the app's tab bar and its floating action, where a thumb reaches. */
-const START: Rest = { side: 'right', down: 0.62 };
+const START: StagePosition = { side: 'right', down: 0.62 };
 
 function clamp(value: number, low: number, high: number): number {
   return Math.min(Math.max(value, low), Math.max(low, high));
 }
 
 type Place = {
+  readonly position: () => StagePosition;
+  readonly move: (position: StagePosition) => void;
   readonly dragging: () => boolean;
   readonly style: () => JSX.CSSProperties;
   /** Follow the pointer, which grabbed the button at `grab`. */
@@ -51,7 +47,7 @@ type Place = {
 
 /** Where the button is: at rest against a side, or under the pointer. */
 function createPlace(button: () => HTMLButtonElement | undefined): Place {
-  const [rest, setRest] = createSignal<Rest>(START);
+  const [rest, setRest] = createSignal<StagePosition>(START);
   const [dragged, setDragged] = createSignal<Point | null>(null);
   const room = (): { readonly width: number; readonly height: number } => {
     // The stage itself: the handle is its direct child.
@@ -62,7 +58,13 @@ function createPlace(button: () => HTMLButtonElement | undefined): Place {
     };
   };
   const size = `${String(APP_STAGE_HANDLE_SIZE)}px`;
+  const move = (position: StagePosition): void => {
+    setRest(position);
+    setDragged(null);
+  };
   return {
+    position: rest,
+    move,
     dragging: () => dragged() !== null,
     drag: (event, grab) => {
       const parent = button()?.parentElement?.getBoundingClientRect();
@@ -77,11 +79,10 @@ function createPlace(button: () => HTMLButtonElement | undefined): Place {
       const at = dragged();
       if (at === null) return;
       const { width, height } = room();
-      setRest({
+      move({
         side: at.x < width / 2 ? 'left' : 'right',
         down: height <= 0 ? START.down : clamp(at.y / height, 0, 1),
       });
-      setDragged(null);
     },
     style: () => {
       const at = dragged();
@@ -176,7 +177,15 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
     if (!event.repeat) props.onTap();
   };
   return (
-    <button
+    <StageSwitcher
+      side={place.position().side}
+      percentFromTop={place.position().down * 100}
+      onMove={place.move}
+      onPress={(_, details) => {
+        // Pointer and keyboard gestures already handle the switch.
+        if (details.source === 'agent' || details.source === 'virtual')
+          props.onTap();
+      }}
       ref={(element) => {
         button = element;
       }}
@@ -189,9 +198,6 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
         'stage-part': 'handle',
         dragging: String(place.dragging()),
       })}
-      // The press and the drag are both the pointer's; the click a pointer
-      // also makes would switch a second time.
-      onClick={(event) => event.preventDefault()}
       onPointerDown={gesture.onPointerDown}
       onPointerMove={gesture.onPointerMove}
       onPointerUp={gesture.onPointerUp}
@@ -199,6 +205,6 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
       onKeyDown={onKeyDown}
     >
       <ArrowLeftRightIcon size={18} color="icon" />
-    </button>
+    </StageSwitcher>
   );
 }

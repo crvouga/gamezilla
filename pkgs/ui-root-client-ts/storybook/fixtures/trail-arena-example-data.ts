@@ -56,7 +56,7 @@ export function rider(
   index: TrailRiderIndex,
   at: Point,
   heading: TrailHeading,
-  options: { alive?: boolean; controlled?: boolean } = {}
+  options: { alive?: boolean; controlSlot?: TrailSlot | null } = {}
 ): TrailRider {
   return {
     index,
@@ -65,7 +65,7 @@ export function rider(
     heading,
     alive: options.alive ?? true,
     mark: NAMES[index].charAt(0),
-    controlled: options.controlled ?? false,
+    controlSlot: options.controlSlot ?? null,
     label: NAMES[index],
   };
 }
@@ -99,7 +99,7 @@ export function stepRound(
   heading: TrailHeading,
   slot: TrailSlot
 ): ExampleRound {
-  const steered = round.riders.filter((r) => r.controlled)[slot];
+  const steered = round.riders.find((r) => r.controlSlot === slot);
   if (steered === undefined || !steered.alive) return round;
   const turn = heading === REVERSE[steered.heading] ? steered.heading : heading;
   const x = steered.x + STEP[turn][0];

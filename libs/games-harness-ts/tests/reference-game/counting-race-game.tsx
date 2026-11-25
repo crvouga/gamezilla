@@ -58,6 +58,7 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import type { JSX } from '@solidjs/web';
 import { createEffect, For, untrack } from 'solid-js';
 
@@ -235,17 +236,17 @@ function RaceButtons(props: {
   return (
     <For each={ACTIONS}>
       {(action) => (
-        <button
+        <Pressable
           type="button"
-          data-testid={`${props.testId}-${action}`}
+          testId={`${props.testId}-${action}`}
           disabled={
             !props.interactive ||
             (props.refuses && !legal(props.position).includes(action))
           }
-          onClick={() => props.onAction(action)}
+          onPress={() => props.onAction(action)}
         >
           Count {COUNT_WORDS[action]} from {parse(props.position)?.count}
-        </button>
+        </Pressable>
       )}
     </For>
   );
@@ -268,14 +269,14 @@ function WaitingSideButtons(props: {
   return (
     <For each={['advance', 'leap'] as const}>
       {(action) => (
-        <button
+        <Pressable
           type="button"
-          data-testid={`${props.testId}-${waiting() ?? ''}-${action}`}
+          testId={`${props.testId}-${waiting() ?? ''}-${action}`}
           disabled={!props.interactive || waiting() === null}
-          onClick={() => props.onAction(`${waiting() ?? ''}-${action}`)}
+          onPress={() => props.onAction(`${waiting() ?? ''}-${action}`)}
         >
           {waiting()} counts {COUNT_WORDS[action]}
-        </button>
+        </Pressable>
       )}
     </For>
   );

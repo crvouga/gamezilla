@@ -26,8 +26,8 @@ function freshDuel(controlled: 1 | 2): ExampleRound {
   return {
     cells: paintCells(['6,14 9,14', '33,14 30,14']),
     riders: [
-      rider(0, [10, 14], 'right', { controlled: true }),
-      rider(1, [29, 14], 'left', { controlled: controlled === 2 }),
+      rider(0, [10, 14], 'right', { controlSlot: 0 }),
+      rider(1, [29, 14], 'left', { controlSlot: controlled === 2 ? 1 : null }),
     ],
     crashes: [],
   };
@@ -47,7 +47,8 @@ function SteeredArena(props: {
       <P id={props.helpId}>{props.help}</P>
       <TrailArena
         touchRegions={
-          round().riders.filter((rider) => rider.controlled).length === 2
+          round().riders.filter((rider) => rider.controlSlot !== null)
+            .length === 2
             ? ['Left rider · WASD', 'Right rider · arrows']
             : undefined
         }
@@ -123,7 +124,7 @@ function WatchedArenas(): JSX.Element {
           height={HEIGHT}
           cells={QUAD_CELLS}
           riders={[
-            rider(0, [7, 4], 'right', { controlled: true }),
+            rider(0, [7, 4], 'right', { controlSlot: 0 }),
             rider(1, [32, 23], 'left'),
             rider(2, [4, 20], 'up'),
             rider(3, [35, 7], 'down'),
@@ -143,7 +144,7 @@ function WatchedArenas(): JSX.Element {
           height={HEIGHT}
           cells={RESULT_CELLS}
           riders={[
-            rider(0, [25, 16], 'down', { controlled: true }),
+            rider(0, [25, 16], 'down', { controlSlot: 0 }),
             rider(1, [14, 21], 'up', { alive: false }),
             rider(2, [4, 22], 'down', { alive: false }),
             rider(3, [30, 3], 'down', { alive: false }),

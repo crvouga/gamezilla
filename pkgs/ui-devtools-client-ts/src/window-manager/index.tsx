@@ -44,6 +44,7 @@ import { WindowManagerSeparator } from '../window-manager-separator/index';
 import { useWindowManagerText } from '../window-manager-text';
 import type { WindowPanel } from '../window-manager-types';
 import { WindowManagerWindow } from '../window-manager-window/index';
+import { WindowWorkspace } from './workspace';
 
 export type WindowManagerProps = {
   /**
@@ -256,7 +257,10 @@ export function WindowManager(props: WindowManagerProps): JSX.Element {
   );
   return (
     <WindowManagerContext value={api}>
-      <div
+      <WindowWorkspace
+        manager={api}
+        layout={layout()}
+        compact={api.compact()}
         ref={(element) => {
           root = element;
         }}
@@ -304,7 +308,7 @@ export function WindowManager(props: WindowManagerProps): JSX.Element {
         <VisuallyHidden role="status" aria-live="polite">
           {said()}
         </VisuallyHidden>
-      </div>
+      </WindowWorkspace>
     </WindowManagerContext>
   );
 }
