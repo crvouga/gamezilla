@@ -1,14 +1,17 @@
-import { t } from '@lingui/core/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
+import {
+  CellGridBoard,
+  type CellGridBoardProps,
+} from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { createSignal, onCleanup, Show } from 'solid-js';
-import { Button } from '../button';
-import { CellGridBoard, type CellGridBoardProps } from '../cell-grid-board';
 import { bindGrid } from './bind';
 import { FIT } from './camera';
 import type { ShipDrag } from './contact';
 import styles from './surface.module.css';
 
 type GridProps = CellGridBoardProps & {
+  fitLabel: string;
   passive?: boolean;
   pickup?: ((cell: string) => ShipDrag | undefined) | undefined;
 };
@@ -62,7 +65,7 @@ function InteractiveGrid(props: GridProps) {
       </div>
       <Show when={view().scale > 1}>
         <Button
-          title={t`Fit board`}
+          title={props.fitLabel}
           size="sm"
           variant="outline"
           onClick={() => setView(FIT)}

@@ -1,5 +1,5 @@
 import { t } from '@lingui/core/macro';
-import { BattleshipNavigableGrid } from '@pkgs/ui-root-client-ts/battleship-navigable-grid';
+import { BattleshipNavigableGrid } from '@pkgs/battleship-board-client-ts/navigable-grid';
 import {
   BattleshipRegionOverview,
   BattleshipTargetHeader,
@@ -82,6 +82,7 @@ function WholeWaters(props: {
       </BattleshipTargetHeader>
       <BattleshipWholeBoard finished={props.finished}>
         <BattleshipNavigableGrid
+          fitLabel={t`Fit board`}
           battleshipSurface="target"
           fill
           label={props.label}
@@ -183,6 +184,7 @@ export function BattleshipTargetGrid(props: {
           working={
             <StackVertical gap="xs" align="center" width="full">
               <BattleshipNavigableGrid
+                fitLabel={t`Fit board`}
                 battleshipSurface="target"
                 label={t`Precise aim`}
                 testId={`${props.testId}-aim-grid`}

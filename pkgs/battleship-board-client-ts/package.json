@@ -1,0 +1,28 @@
+{
+  "name": "@pkgs/battleship-board-client-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./navigable-grid": "./src/navigable-grid/index.tsx"
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
+  },
+  "dependencies": {
+    "@pkgs/ui-root-client-ts": "workspace:*",
+    "@pkgs/ui-root-shared-ts": "workspace:*",
+    "@solidjs/web": "catalog:",
+    "solid-js": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@typescript/native": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
+    "typescript": "catalog:"
+  },
+  "category": "client",
+  "game": "battleship",
+  "language": "typescript"
+}

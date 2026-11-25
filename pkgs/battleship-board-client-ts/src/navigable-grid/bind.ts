@@ -1,4 +1,4 @@
-import { observeElementResize } from '../observe-element-resize';
+import { observeElementResize } from '@pkgs/ui-root-client-ts/observe-element-resize';
 import { type Camera, FIT, moveCamera, type Point } from './camera';
 import { contactGesture, type ShipDrag } from './contact';
 

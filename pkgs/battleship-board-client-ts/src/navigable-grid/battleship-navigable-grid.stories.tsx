@@ -6,6 +6,7 @@ const meta = {
   title: 'Organisms/Games/Battleship/Navigable grid',
   component: BattleshipNavigableGrid,
   args: {
+    fitLabel: 'Fit board',
     label: 'Target waters',
     testId: 'waters',
     battleshipSurface: 'target',

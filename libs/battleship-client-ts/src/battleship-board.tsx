@@ -6,12 +6,12 @@ import {
   readBattleshipPosition,
 } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
+import { BattleshipNavigableGrid } from '@pkgs/battleship-board-client-ts/navigable-grid';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSide,
   requireTwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { BattleshipNavigableGrid } from '@pkgs/ui-root-client-ts/battleship-navigable-grid';
 import {
   BattleshipTargetHeader,
   BattleshipWholeBoard,
@@ -67,6 +67,7 @@ function BoardPanel(props: {
       </Show>
       <BattleshipWholeBoard finished={props.finished}>
         <BattleshipNavigableGrid
+          fitLabel={t`Fit board`}
           battleshipSurface={props.heading === null ? 'fleet' : 'target'}
           fill
           label={props.label}

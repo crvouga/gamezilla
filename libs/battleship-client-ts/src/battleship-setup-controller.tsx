@@ -45,6 +45,7 @@ export type SetupController = {
   readonly choose: (ship: ShipId) => void;
   readonly place: (cell: string) => void;
   readonly rotate: () => void;
+  readonly rotateKey: (key: string) => boolean;
   readonly remove: () => void;
   readonly preview: (cell: string | null) => void;
 };
@@ -221,6 +222,11 @@ export function createSetupController(
   );
   return {
     ...actions,
+    rotateKey: (key) => {
+      if (key.toLowerCase() !== 'r') return false;
+      actions.rotate();
+      return true;
+    },
     pickup: (cell) =>
       props.locked
         ? undefined

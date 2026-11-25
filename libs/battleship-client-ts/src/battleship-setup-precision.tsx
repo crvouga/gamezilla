@@ -1,6 +1,6 @@
 import { isShipId, SHIPS } from '@libs/battleship-shared-ts/battleship-board';
 import { t } from '@lingui/core/macro';
-import { BattleshipNavigableGrid } from '@pkgs/ui-root-client-ts/battleship-navigable-grid';
+import { BattleshipNavigableGrid } from '@pkgs/battleship-board-client-ts/navigable-grid';
 import { BattleshipPlacementLayout } from '@pkgs/ui-root-client-ts/battleship-placement-layout';
 import { BattleshipRegionOverview } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -160,6 +160,7 @@ export function SetupPrecision(props: {
           }
           working={
             <BattleshipNavigableGrid
+              fitLabel={t`Fit board`}
               pickup={props.setup.pickup}
               battleshipSurface="fleet"
               label={
@@ -176,11 +177,7 @@ export function SetupPrecision(props: {
               cells={region.cells()}
               onActivate={props.setup.place}
               onPreview={props.setup.preview}
-              onCellKey={(key) => {
-                if (key !== 'r' && key !== 'R') return false;
-                props.setup.rotate();
-                return true;
-              }}
+              onCellKey={props.setup.rotateKey}
             />
           }
         />
