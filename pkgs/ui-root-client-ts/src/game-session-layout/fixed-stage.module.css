@@ -205,7 +205,12 @@
   /* The replay's line of moves fades out at its end edge, so a move cut
      by the edge reads as more to scroll to, not as a broken chip. */
   .strip [data-testid="game-history-review-moves"] {
-    mask-image: linear-gradient(to left, transparent, #000 40px);
+    /* A mask reads only alpha: any opaque token is the visible part. */
+    mask-image: linear-gradient(
+      to left,
+      transparent,
+      var(--ui-color-text) 40px
+    );
   }
   .fixed:has([data-testid="game-history-review-forward"])
     [data-game-slot="stage"],

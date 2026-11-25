@@ -51,18 +51,14 @@ function groundRoom(scale: number): number {
 }
 
 /**
- * The arena's shape for its stylesheet: `--arena-aspect` and `--arena-fit`
- * the whole drawing's width over its height (walls and the room around
- * them), so a room shorter than the arena is wide narrows it until the
- * whole drawing fits instead of running off the bottom. Nothing hangs
- * outside the arena's box (`--arena-bleed` 0).
+ * The arena's shape for its stylesheet: `--arena-fit` is the whole
+ * drawing's width over its height (walls and the room around them), so a
+ * room shorter than the arena is wide narrows it until the whole drawing
+ * fits instead of running off the bottom. Nothing hangs outside its box.
  */
 function arenaShape(width: number, height: number, room: number) {
-  const aspect = String((width + 2 * room) / (height + 2 * room));
   return {
-    '--arena-aspect': aspect,
-    '--arena-fit': aspect,
-    '--arena-bleed': '0',
+    '--arena-fit': String((width + 2 * room) / (height + 2 * room)),
   } satisfies JSX.CSSProperties;
 }
 
@@ -81,7 +77,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   const interactive = () => props.enabled && controlledSlots(props) > 0;
   const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   const ground = () => groundRoom(headScale());
-  const room = () => ground() + WALL_ROOM;
+  const room = () => Math.round((ground() + WALL_ROOM) * 100) / 100;
   return (
     <ArenaSurface
       enabled={props.enabled}
@@ -128,7 +124,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
         <Show when={props.touchRegions}>
           <path
             class={styles['touchDivider']}
-            d={`M ${props.width / 2} 0 V ${props.height}`}
+            d={`M ${props.width / 2} ${-ground()} V ${props.height + ground()}`}
           />
         </Show>
         <For each={TRAIL_RIDER_INDICES}>
@@ -164,9 +160,9 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
 }
 
 /**
- * The arena's own ground and its dotted floor, inside its walls and
- * rounded as they are, so no square corner shows past them: the walls are
- * its one frame, with no second card around them.
+ * The arena's own ground, filling its walls (a head's reach around the
+ * grid) and rounded as they are, and its dotted floor on the grid the
+ * riders ride: the walls are its one frame, with no second card around it.
  */
 function Ground(props: {
   arenaId: string;

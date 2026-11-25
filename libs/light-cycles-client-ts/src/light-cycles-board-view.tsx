@@ -8,6 +8,7 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
+import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -131,6 +132,37 @@ function SteeringHint(props: {
         </Show>
       </Show>
     </VisuallyHidden>
+  );
+}
+
+/**
+ * The keys at a glance, under a wide screen's arena (where no pad is
+ * drawn), for a device that steers a rider: the arrow keys or W, A, S and
+ * D; two riders on one keyboard, each rider's own keys. It shows for the
+ * whole game, so the arena above never moves; a listener also has the
+ * full words (`SteeringHint`).
+ */
+function SteeringKeys(props: {
+  sides: readonly GameSide[];
+  testId: string;
+}): JSX.Element {
+  const arrows = ['←', '↑', '→', '↓'];
+  const letters = ['W', 'A', 'S', 'D'];
+  return (
+    <KeyHints
+      hints={
+        props.sides.length > 1
+          ? [
+              { keys: arrows, label: riderName(props.sides[0]!) },
+              { keys: letters, label: riderName(props.sides[1]!) },
+            ]
+          : [
+              { keys: arrows, label: t`or` },
+              { keys: letters, label: t`steer` },
+            ]
+      }
+      testId={`${props.testId}-steering-keys`}
+    />
   );
 }
 
@@ -299,6 +331,9 @@ function Arena(props: {
       {/* A phone's thumb pad sits right under the arena, where the thumb
           is. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
+      <Show when={mode() === 'wide' && controlled().length > 0}>
+        <SteeringKeys sides={controlled()} testId={props.board.testId} />
+      </Show>
       <Show when={canSteerHere()}>
         <SteeringHint id={instructionsId} sides={controlled()} />
       </Show>

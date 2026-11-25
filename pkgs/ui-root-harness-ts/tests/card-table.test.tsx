@@ -315,9 +315,11 @@ test("a phone's table pairs compact named seat rows with their trick cards", () 
   expect(rule(phone, '.seat[data-player="true"] .facts {')).toMatch(
     /flex-direction:\s*row;/
   );
+  // Turn order around the 2×2: the player on your left above you, the one
+  // across beside them, the one on your right beside you.
   for (const [index, positions] of [
-    ['top', 'right'],
-    ['left', 'bottom'],
+    ['left', 'top'],
+    ['bottom', 'right'],
   ].entries()) {
     const selectors = positions
       .flatMap((position) => [
@@ -333,13 +335,10 @@ test("a phone's table pairs compact named seat rows with their trick cards", () 
   );
   expect(rule(phone, '.slot[data-position] {')).toContain('grid-column: 2;');
   expect(
-    rule(phone, '.seat[data-trick="true"][data-position="right"],')
+    rule(phone, '.seat[data-trick="true"][data-position="top"],')
   ).toContain('grid-column: 4;');
   expect(
-    rule(
-      phone,
-      '.slot[data-position="right"],\n  .slot[data-position="bottom"] {'
-    )
+    rule(phone, '.slot[data-position="top"],\n  .slot[data-position="right"] {')
   ).toContain('grid-column: 5;');
   example();
   for (const position of ['top', 'left', 'right', 'bottom']) {
