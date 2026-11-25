@@ -476,3 +476,10 @@
     background: var(--ui-color-surface);
   }
 }
+
+/* The help line is one height whether it holds the keyboard disclosure
+   (its chevron) or a finished position's sentence, so the board's frame
+   never changes height when a puzzle ends. */
+.guidanceRow {
+  min-height: 24px;
+}
