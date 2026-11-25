@@ -287,6 +287,25 @@ function WideResultCommand(
 }
 
 /**
+ * The rating the finished puzzle made, in the one line over the board.
+ */
+export function PuzzleResultInfo(
+  props: PuzzleStageScreenViewProps
+): JSX.Element {
+  return (
+    <Show when={props.result.completion} keyed>
+      {(completion) => (
+        <PuzzleSummaryCard
+          completion={completion}
+          displayRating={props.result.displayRating}
+          provisional={props.result.provisional}
+        />
+      )}
+    </Show>
+  );
+}
+
+/**
  * The `result` place, under the board that keeps the puzzle's last move:
  * how it went (solved, the solution shown, skipped), the rating it made,
  * and what next. The status line over the board carries the coach's words
@@ -319,15 +338,6 @@ export function PuzzleResultSummary(
       <ResultCommands {...props} />
       {/* The numbers read from the column's start, as the commands do. */}
       <StackVertical gap="md" align="start">
-        <Show when={props.result.completion} keyed>
-          {(completion) => (
-            <PuzzleSummaryCard
-              completion={completion}
-              displayRating={props.result.displayRating}
-              provisional={props.result.provisional}
-            />
-          )}
-        </Show>
         <ResultFacts {...props} />
       </StackVertical>
     </StackVertical>

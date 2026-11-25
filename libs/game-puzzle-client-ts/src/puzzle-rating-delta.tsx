@@ -1,7 +1,7 @@
 import { formatPuzzleRating } from '@libs/game-puzzle-shared-ts/rating';
 import { Trans } from '@lingui/solid/macro';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { ColorTone } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from 'solid-js';
@@ -29,33 +29,31 @@ function deltaTone(props: PuzzleRatingDeltaProps): ColorTone {
 }
 
 export function PuzzleRatingDelta(props: PuzzleRatingDeltaProps): JSX.Element {
+  // One line: what the number is, the rating, and what this puzzle did to
+  // it, so it fits the fixed row over the board.
   return (
-    // One tight block from the column's start: what the number is, then
-    // the rating and what this puzzle did to it on one line.
-    <StackVertical gap="xs">
+    <StackHorizontal align="baseline" gap="sm">
       <P variant="caption" tone="secondary">
-        <Trans>Your puzzle rating</Trans>
+        <Trans>Your rating</Trans>
       </P>
-      <StackHorizontal align="baseline" gap="sm" wrap>
-        <H3 size="heading" numeral testId="chess-puzzle-summary-rating">
-          {formatPuzzleRating({
-            rating: props.displayRating,
-            provisional: props.provisional,
-          })}
-        </H3>
-        <P
-          variant="bodyBold"
-          numeral
-          tone={deltaTone(props)}
-          testId="chess-puzzle-summary-delta"
-        >
-          {props.rated ? (
-            formatSignedDelta(props.delta)
-          ) : (
-            <Trans>Unrated · already played</Trans>
-          )}
-        </P>
-      </StackHorizontal>
-    </StackVertical>
+      <H3 size="label" numeral testId="chess-puzzle-summary-rating">
+        {formatPuzzleRating({
+          rating: props.displayRating,
+          provisional: props.provisional,
+        })}
+      </H3>
+      <P
+        variant="bodyBold"
+        numeral
+        tone={deltaTone(props)}
+        testId="chess-puzzle-summary-delta"
+      >
+        {props.rated ? (
+          formatSignedDelta(props.delta)
+        ) : (
+          <Trans>Unrated · already played</Trans>
+        )}
+      </P>
+    </StackHorizontal>
   );
 }

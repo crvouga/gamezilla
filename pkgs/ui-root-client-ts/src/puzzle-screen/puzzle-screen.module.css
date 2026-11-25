@@ -22,3 +22,15 @@
     padding-inline: 0;
   }
 }
+
+/* The puzzle's one line of state under the coaching: one fixed height,
+   empty or full, so the board under it never moves. */
+.info {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 48px;
+  min-width: 0;
+  padding-inline: var(--ui-space-lg);
+  overflow: hidden;
+}

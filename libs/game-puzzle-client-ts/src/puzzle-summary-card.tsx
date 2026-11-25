@@ -1,7 +1,7 @@
 import type { PuzzleCompletion } from '@libs/game-puzzle-shared-ts/completion';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Show } from 'solid-js';
 import { PuzzleRatingDelta } from './puzzle-rating-delta';
 
@@ -27,7 +27,7 @@ export type PuzzleSummaryCardProps = {
 /** The rating a finished puzzle made, and the streak it kept. */
 export function PuzzleSummaryCard(props: PuzzleSummaryCardProps): JSX.Element {
   return (
-    <StackVertical gap="sm" align="start" self="stretch">
+    <StackHorizontal align="center" gap="md">
       <PuzzleRatingDelta
         ratingBefore={props.completion.ratingBefore}
         ratingAfter={props.completion.ratingAfter}
@@ -37,6 +37,6 @@ export function PuzzleSummaryCard(props: PuzzleSummaryCardProps): JSX.Element {
         provisional={props.provisional}
       />
       <SummaryMeta completion={props.completion} />
-    </StackVertical>
+    </StackHorizontal>
   );
 }

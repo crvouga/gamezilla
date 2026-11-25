@@ -66,6 +66,10 @@ export function GameResultDialog(props: {
       visible={props.state.open()}
       onClose={() => props.state.close()}
       title={t`Game over`}
+      // A centred card, docked over the game's info at the top on a phone,
+      // never a bottom sheet over the board: the final position stays in
+      // view under the result.
+      presentation="modal"
       size="small"
       closeDataSet={{ testid: 'game-result-close' }}
       dataSet={{ component: 'GameResultDialog' }}

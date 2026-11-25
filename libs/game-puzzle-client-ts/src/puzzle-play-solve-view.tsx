@@ -86,18 +86,14 @@ export function PuzzleSolveActions(
  * The line so far as one quiet strip of moves, read not pressed, and the
  * one control that opens the screen where it is stepped through.
  */
-function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
+export function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
   const { t } = useLingui();
   const hasPlies = (): boolean => props.line.plies.length > 0;
   return (
-    <StackHorizontal
-      align="center"
-      gap="sm"
-      paddingX="lg"
-      testId="chess-puzzle-moves"
-    >
+    // One line, the latest move in view, in the fixed row over the board.
+    <StackHorizontal align="center" gap="sm" grow testId="chess-puzzle-moves">
       <StackVertical grow>
-        <MoveStrip testId="chess-puzzle-move-history" overflow="wrap">
+        <MoveStrip testId="chess-puzzle-move-history" overflow="scroll">
           <Show when={hasPlies()}>
             <For each={props.line.plies}>
               {(ply) => (
@@ -124,15 +120,14 @@ function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
 }
 
 /**
- * The `play` place's line: the moves so far and, for the solver, the one
- * row to the puzzle settings.
+ * Under the `play` place's commands: for the solver, the one row to the
+ * puzzle settings. The moves so far read over the board (`CompactLine`).
  */
 export function PuzzleSolveLine(
   props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
     <StackVertical gap="md">
-      <CompactLine {...props} />
       <Show when={!props.spectator}>
         <StackVertical paddingX="lg">
           <MenuSection>

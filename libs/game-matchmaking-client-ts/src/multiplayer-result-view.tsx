@@ -168,7 +168,6 @@ function Onward(props: ResultProps): JSX.Element {
         <Show when={props.game.newOpponent}>
           <MenuRow
             title={<Trans>Game options</Trans>}
-            caption={<Trans>Another clock or game</Trans>}
             onClick={() => props.onOpen({ screen: 'home' })}
             dataSet={{ testid: 'multiplayer-open-find' }}
           />

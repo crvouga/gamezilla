@@ -14,6 +14,8 @@ export type PuzzleBoardFrameProps = {
   readonly view: PuzzleStageScreenViewProps;
   /** Above the status line (a watcher's allowance). */
   readonly lead?: JSX.Element;
+  /** The puzzle's state in one line, over the board under the coaching. */
+  readonly info?: JSX.Element;
   /** What is done about the puzzle, under the board. */
   readonly actions?: JSX.Element;
   /** The line played, and what follows it. */
@@ -58,6 +60,7 @@ export function PuzzleBoardFrame(props: PuzzleBoardFrameProps): JSX.Element {
           <PuzzleStatusLine {...props.view} />
         </>
       }
+      info={props.info ?? true}
       legend={props.view.legend}
       actions={props.actions}
       timeline={props.timeline}

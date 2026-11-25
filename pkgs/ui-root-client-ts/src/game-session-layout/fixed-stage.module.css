@@ -99,9 +99,12 @@
     content: "";
     flex: 1 1 0;
   }
+  /* The seats sit right under the status line and the board right under
+     them, from the top of the room: the spare room falls under the board,
+     over the commands, never as a gap in the game's info. */
   .fixed [data-game-slot="stage"] > [data-game-board-stage] {
     flex: none;
-    margin-top: var(--game-stage-offset, 0px);
+    margin-top: 0;
     max-width: none;
     padding-block: var(--ui-space-2);
     gap: var(--ui-space-2);
@@ -142,6 +145,12 @@
   /* The bar's height is its commands' row plus its padding, whether the
      commands are in it or held in the Game over dialog (a placeholder as
      tall as the row): the board above never moves. */
+  /* A replay's band is its step controls: commands, under the board. */
+  .fixed
+    [data-game-slot="controls"]
+    > .status:has([data-testid="game-history-review-forward"]) {
+    order: 1;
+  }
   .fixed [data-game-slot="controls"] > :not(.status) {
     position: relative;
     order: 1;
