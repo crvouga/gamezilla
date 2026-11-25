@@ -137,6 +137,28 @@ test('storybook integration: battleship finished game keeps the switch and own s
       info
     );
     await settleMotion(page);
+    // regression: battleship-phone-switch-clipped
+    const board = page.locator(
+      '[data-shown="true"] [data-component="CellGridBoard"]'
+    );
+    const boardBox = await board.boundingBox();
+    if (!boardBox) throw new Error('Missing finished fleet board');
+    expect(boardBox.x).toBeGreaterThanOrEqual(12);
+    expect(boardBox.x + boardBox.width).toBeLessThanOrEqual(378);
+    const segments = page
+      .getByTestId('custom-game-board-view')
+      .getByRole('radio');
+    await expect(segments).toHaveCount(2);
+    for (const button of await segments.all()) {
+      expect(
+        await button.evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          return node.contains(
+            document.elementFromPoint(box.x + box.width / 2, box.bottom - 1)
+          );
+        })
+      ).toBe(true);
+    }
     const layout = await captureBattleLayout(page, info);
     for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
       const box = await page.getByTestId(id).boundingBox();

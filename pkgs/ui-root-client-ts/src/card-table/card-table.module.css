@@ -211,28 +211,25 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-/* A wider table is a compass (`card-table-compass.module.css`). */
-@container (min-width: 26rem) {
-  /* While cards are passed the middle holds where they go and, when the
-     table draws it, what the table is doing: one above the other, never
-     one over the other. */
-  .table:has(> .pass) {
-    grid-template-areas:
-      "top top top"
-      "left pass right"
-      "bottom bottom bottom";
-  }
-  .table:has(> .pass):has(> .center[data-spoken-only="false"]) {
-    grid-template-areas:
-      "top top top"
-      "left pass right"
-      "left center right"
-      "bottom bottom bottom";
-    grid-template-rows: auto minmax(0, 1fr) auto auto;
-  }
-  .table > .pass {
-    grid-area: pass;
-  }
+/* The table is a compass (`card-table-compass.module.css`). While cards
+   are passed the middle holds where they go and, when the table draws it,
+   what the table is doing: one above the other, never one over the other. */
+.table:has(> .pass) {
+  grid-template-areas:
+    "top top top"
+    "left pass right"
+    "bottom bottom bottom";
+}
+.table:has(> .pass):has(> .center[data-spoken-only="false"]) {
+  grid-template-areas:
+    "top top top"
+    "left pass right"
+    "left center right"
+    "bottom bottom bottom";
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+}
+.table > .pass {
+  grid-area: pass;
 }
 /*
  * A card as a card prints it, at the width its row gives it (`--card-w`,
@@ -472,98 +469,6 @@ button.card:focus-visible {
 @media (prefers-reduced-motion: reduce) {
   .card {
     transition: none;
-  }
-}
-
-/* Two player/card pairs per row, each trick place beside its owner, in
-   the table's turn order: the viewer bottom left, their left above them,
-   across beside that, their right beside the viewer, as on a wide table. */
-@container card-table not (min-width: 26rem) {
-  .table {
-    /* One height in every phase: room for the pass row while passing. */
-    min-height: 16rem;
-    grid-template-columns: minmax(0, 1fr) var(--card-w) var(--ui-space-2) minmax(
-        0,
-        1fr
-      ) var(--card-w);
-    grid-template-areas: none;
-    gap: var(--ui-space-1);
-  }
-  .seat[data-position] {
-    grid-column: 1 / 3;
-    width: 100%;
-    max-width: none;
-    align-self: stretch;
-    justify-content: center;
-    padding: var(--ui-space-1);
-  }
-  .seat[data-position="top"],
-  .seat[data-position="right"] {
-    grid-column: 4 / 6;
-  }
-  .seat[data-trick="true"] {
-    grid-column: 1;
-  }
-  .seat[data-trick="true"][data-position="top"],
-  .seat[data-trick="true"][data-position="right"] {
-    grid-column: 4;
-  }
-  .seat[data-position="left"],
-  .slot[data-position="left"],
-  .seat[data-position="top"],
-  .slot[data-position="top"] {
-    grid-row: 1;
-  }
-  .seat[data-position="bottom"],
-  .slot[data-position="bottom"],
-  .seat[data-position="right"],
-  .slot[data-position="right"] {
-    grid-row: 2;
-  }
-  .seat[data-player="true"][data-position] {
-    max-width: none;
-    gap: var(--ui-space-1);
-  }
-  .seat[data-player="true"] > :first-child {
-    width: 100%;
-    min-width: 0;
-  }
-  .seat[data-player="true"] .facts {
-    flex-direction: row;
-    align-items: center;
-  }
-  .trick[data-trick="true"] {
-    display: contents;
-  }
-  .slot[data-position] {
-    grid-column: 2;
-  }
-  .slot[data-position="top"],
-  .slot[data-position="right"] {
-    grid-column: 5;
-  }
-  .pass,
-  .center {
-    grid-column: 1 / -1;
-    grid-row: 3;
-  }
-  .pass {
-    flex-direction: row;
-    padding-top: var(--ui-space-1);
-  }
-  /* What the table is doing goes under where the cards are passed, never
-     over it. */
-  .table:has(> .pass) > .center {
-    grid-row: 4;
-  }
-  .center {
-    max-width: 100%;
-    overflow-wrap: anywhere;
-  }
-  /* The felt runs to the screen's edge; the count chosen and the pass
-     button keep to the screen's gutter. */
-  .action {
-    padding-inline: var(--ui-space-3);
   }
 }
 

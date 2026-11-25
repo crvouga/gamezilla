@@ -94,15 +94,17 @@ export async function checkInitialHeartsDeal(canvas: HTMLElement) {
   );
 }
 
-/** A phone's named player and played card occupy the same row. */
-export function assertHeartsSeatRow(seat: Bounds, slot: Bounds) {
-  if (
-    slot.left < seat.right ||
-    slot.left - seat.right > 8 ||
-    slot.top >= seat.bottom ||
-    slot.bottom <= seat.top
-  )
-    throw new Error('Hearts trick card is not beside its named player');
+/** Each card faces its owner across the corresponding edge of the trick. */
+export function assertHeartsSeatRow(seat: Bounds, slot: Bounds, side: string) {
+  const horizontal = slot.left < seat.right && slot.right > seat.left;
+  const vertical = slot.top < seat.bottom && slot.bottom > seat.top;
+  const aligned =
+    (side === 'top' && horizontal && seat.bottom <= slot.top) ||
+    (side === 'bottom' && horizontal && slot.bottom <= seat.top) ||
+    (side === 'left' && vertical && seat.right <= slot.left) ||
+    (side === 'right' && vertical && slot.right <= seat.left);
+  if (!aligned)
+    throw new Error('Hearts trick card is not facing its named player');
 }
 
 export function checkHeartsSeatRows(canvas: HTMLElement) {
@@ -111,9 +113,6 @@ export function checkHeartsSeatRows(canvas: HTMLElement) {
   );
   const context = board?.querySelector<HTMLElement>('[role="group"]');
   if (!board || !context) throw new Error('Missing Hearts table');
-  // A wide table is a compass: each card on its owner's side of the trick.
-  const view = board.ownerDocument.defaultView;
-  if (view?.getComputedStyle(context).gridTemplateAreas !== 'none') return;
   assertHeartsContextBounds(context.getBoundingClientRect());
   for (const seat of board.querySelectorAll('section[data-position]')) {
     const slot = board.querySelector(
@@ -122,7 +121,8 @@ export function checkHeartsSeatRows(canvas: HTMLElement) {
     if (!slot) throw new Error('Missing named trick place');
     assertHeartsSeatRow(
       seat.getBoundingClientRect(),
-      slot.getBoundingClientRect()
+      slot.getBoundingClientRect(),
+      seat.getAttribute('data-position') ?? ''
     );
   }
 }

@@ -138,13 +138,18 @@
    own seat below, bounds a whole board; a phone's width bounds it first. */
 .whole {
   width: 100%;
-  max-inline-size: min(100%, calc(100dvh - 25rem));
+  --whole-board-room: 25rem;
+  max-inline-size: min(100%, calc(100dvh - var(--whole-board-room)));
   margin-inline: auto;
 }
-/* Finished, the result sits above the boards; the board leaves room for it,
-   so the switch and the own seat still show under the board. That room
-   includes the record's place line (`Finished`), which reads above its
-   move row once the game is not live. */
 .whole[data-finished="true"] {
-  max-inline-size: min(100%, calc(100dvh - 36rem));
+  --whole-board-room: 36rem;
+}
+@media (max-width: 639px) {
+  .whole {
+    max-inline-size: min(
+      calc(100% - 2 * var(--ui-space-3)),
+      max(10rem, calc(100dvh - var(--whole-board-room) - 3rem))
+    );
+  }
 }
