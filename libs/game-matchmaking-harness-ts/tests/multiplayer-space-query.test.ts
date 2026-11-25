@@ -47,7 +47,7 @@ test('the multiplayer space snapshot passes server SQL enforcement and includes 
           id: 'opponent',
           deleted_at: TOMBSTONE,
           username: '',
-          username_norm: '',
+          username_norm: null,
           avatar_config: null,
         }),
       ]);

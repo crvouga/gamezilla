@@ -34,6 +34,7 @@ export type ProductHttp =
       readonly kind: 'stack';
       readonly origin: string;
       /** The stack's simulated Google and Apple, each on its own origin. */
+      readonly billingOrigin: string;
       readonly idpOrigins: { readonly google: string; readonly apple: string };
       /**
        * A stack outlives one run, so each run brings its own people: actor

@@ -1,0 +1,4 @@
+{
+  "summary": "Browser trace 12 at seed 0x67932 saw the first point during a reopen immediately after the serve. Restore the tab at its game address and read only the scoreboard while observing the model, so observation does not sample unrelated live geometry.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-scoring.binding.ts"
+}

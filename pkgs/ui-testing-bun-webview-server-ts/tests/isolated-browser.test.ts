@@ -37,7 +37,7 @@ test('each fresh Alice device owns a process; reopening keeps only its own profi
     return child.process;
   };
   const first = {
-    webOrigin: 'http://127.0.0.1:34305',
+    initialUrl: 'http://127.0.0.1:34305',
     actorId: 'alice',
     dataStore: { directory: '/devices/first-alice' },
   };
@@ -74,7 +74,7 @@ test('the isolated native facade retains resize and screenshot bytes', async () 
   const child = worker();
   const process = createIsolatedBrowserProcess(() => child.process);
   const browser = await process.open({
-    webOrigin: 'http://localhost',
+    initialUrl: 'http://localhost',
     dataStore: { directory: '/device' },
   });
   await browser.view.resize(768, 1024);
@@ -125,7 +125,7 @@ test('a missing element in the browser process is still an ElementNotFoundError'
   };
   const process = createIsolatedBrowserProcess(() => child.process);
   const browser = await process.open({
-    webOrigin: 'http://localhost',
+    initialUrl: 'http://localhost',
     dataStore: { directory: '/device' },
   });
   const missing = await browser.driver

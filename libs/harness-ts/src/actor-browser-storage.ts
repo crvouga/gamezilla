@@ -2,6 +2,8 @@
 import { createIsolatedBrowserProcess } from '@pkgs/ui-testing-bun-webview-server-ts/wall-io';
 /** Browser devices retain cookies and local SQLite across application restarts. */
 export type ActorBrowserStorage = {
+  /** Address of the tab when this device was last closed. */
+  reopenPath?: string;
   readonly browser: ReturnType<typeof createIsolatedBrowserProcess>;
   readonly dataStore: { readonly directory: string };
   readonly cleanup: () => Promise<void>;

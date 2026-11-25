@@ -6,16 +6,28 @@ import {
   winPongPoint,
 } from '@libs/pong-harness-ts/pong-actions';
 import { pongMoveListOffered } from '@libs/pong-harness-ts/pong-controls-view';
-import { type PongPaddle, pongView } from '@libs/pong-harness-ts/pong-view';
+import {
+  type PongPaddle,
+  pongScoreboard,
+} from '@libs/pong-harness-ts/pong-view';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import scoringAfterLongRally from './fixtures/pong-scoring-after-long-rally.itf.json';
 import scoringAfterReopen from './fixtures/pong-scoring-after-repeated-reopen.itf.json';
+import reopenAfterServe from './fixtures/pong-scoring-reopen-after-serve.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'pong-scoring',
   traces: 16,
   maxSteps: 12,
   regressions: [
+    {
+      // regression: pong-scoring-reopen-after-serve
+      id: 'pong-scoring-reopen-after-serve',
+      title:
+        'Reopening immediately after the serve preserves the one-point match',
+      seed: '0x67932',
+      itf: reopenAfterServe,
+    },
     {
       // regression: pong-scoring-after-long-rally
       id: 'pong-scoring-after-long-rally',
@@ -43,7 +55,7 @@ bindQuintModel<QuintHarnessWorld>({
     reopenApp: (w) => w.s.apply(restartApp, 'alice'),
   },
   observe: async (w) => {
-    const view = await w.quiet.read(pongView);
+    const view = await w.quiet.read(pongScoreboard);
     return {
       score: new Map([
         ['left', view.score.left],

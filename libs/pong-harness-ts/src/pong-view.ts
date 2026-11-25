@@ -22,8 +22,8 @@ export async function pongView(s: ProductHarness, actor = 'alice') {
   return readPongCourt(await actorUi(s, actor), PONG_BOARD);
 }
 
-/** The same visible court reader serves local specs and whole-product journeys. */
-export async function readPongCourt(ui: Driver, board: string) {
+/** Read the scoreboard without sampling ball and paddle positions during live play. */
+export async function readPongScoreboard(ui: Driver, board: string) {
   // The court's status carries what it says as data, so readers never
   // depend on its words; during live play only the spoken summary shows.
   const status = ui.get(`${board}-status`);
@@ -38,6 +38,23 @@ export async function readPongCourt(ui: Driver, board: string) {
   const shown = await status.attribute('data-winner');
   const winner: PongPaddle | null =
     shown === 'left' || shown === 'right' ? shown : null;
+  return {
+    score: {
+      left: trailingNumber(await ui.get(`${board}-score-left`).text()),
+      right: trailingNumber(await ui.get(`${board}-score-right`).text()),
+    },
+    targetScore: trailingNumber(await ui.get(`${board}-target`).text()),
+    stage,
+    winner,
+  };
+}
+
+export async function pongScoreboard(s: ProductHarness, actor = 'alice') {
+  return readPongScoreboard(await actorUi(s, actor), PONG_BOARD);
+}
+
+export async function readPongCourt(ui: Driver, board: string) {
+  const scoreboard = await readPongScoreboard(ui, board);
   // The ball as the game plays it (court units), not as it is drawn.
   const ball = ui.get(`${board}-ball`);
   const radius = Number(await ball.attribute('data-ball-size')) / 2;
@@ -47,13 +64,7 @@ export async function readPongCourt(ui: Driver, board: string) {
   if (bounds?.length !== 4 || !bounds.every(Number.isFinite))
     throw new Error('No visible Pong court bounds');
   return {
-    score: {
-      left: trailingNumber(await ui.get(`${board}-score-left`).text()),
-      right: trailingNumber(await ui.get(`${board}-score-right`).text()),
-    },
-    targetScore: trailingNumber(await ui.get(`${board}-target`).text()),
-    stage,
-    winner,
+    ...scoreboard,
     ball: {
       x: Number(await ball.attribute('data-ball-x')),
       y: Number(await ball.attribute('data-ball-y')),
@@ -85,16 +96,16 @@ export async function pongPoints(
   s: ProductHarness,
   person: string
 ): Promise<number> {
-  return (await pongView(s)).score[person === 'alice' ? 'left' : 'right'];
+  return (await pongScoreboard(s)).score[person === 'alice' ? 'left' : 'right'];
 }
 
 export async function pongVictor(s: ProductHarness): Promise<string | null> {
-  const winner = (await pongView(s)).winner;
+  const winner = (await pongScoreboard(s)).winner;
   return winner === null ? null : winner === 'left' ? 'alice' : 'bob';
 }
 
 export async function pongStageShown(s: ProductHarness): Promise<string> {
-  const stage = (await pongView(s)).stage;
+  const stage = (await pongScoreboard(s)).stage;
   return stage === 'countdown'
     ? 'counting down'
     : stage === 'playing'

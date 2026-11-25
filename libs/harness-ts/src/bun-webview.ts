@@ -119,6 +119,7 @@ async function openStackExtra(
       kind: 'stack' as const,
       origin: addresses.apiOrigin,
       idpOrigins: addresses.idpOrigins,
+      billingOrigin: addresses.billingOrigin,
       accountTag,
     },
   };

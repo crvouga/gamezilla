@@ -119,13 +119,13 @@ async function launchWebview(
 ) {
   const webOrigin = args.ui.webOrigin;
   // Each actor is its own device: its own on-disk storage (cookies, OPFS
-  // for the app's SQLite), shared with the popups it opens. No URL here:
-  // the driver's `launch` navigates and awaits the load.
+  // for the app's SQLite), shared with its popups. A reopened tab loads
+  // its saved address on its first navigation.
   if (args.browserStorage === undefined)
     throw new Error('Browser devices require persistent device storage');
-  const { dataStore } = args.browserStorage;
+  const { dataStore, reopenPath } = args.browserStorage;
   const browser = await args.browserStorage.browser.open({
-    webOrigin,
+    initialUrl: webOrigin + (reopenPath ?? '/'),
     actorId: args.id,
     dataStore,
   });
@@ -147,7 +147,9 @@ async function launchWebview(
   const closeResources = browser.close;
   const openLink = (path: string) => view.navigate(`${webOrigin}${path}`);
   const currentPath = async () =>
-    String(await view.evaluate('location.pathname + location.search'));
+    String(
+      await view.evaluate('location.pathname + location.search + location.hash')
+    );
   const setViewport = (size: { width: number; height: number }) =>
     view.resize(size.width, size.height);
   await raw.launch();
@@ -164,7 +166,7 @@ async function launchWebview(
     raw,
     localSql,
     browser: createBrowserNavigation({
-      readUrl: async () => String(await view.evaluate('location.href')),
+      readUrl: view.loadedUrl,
       clock: wallClock,
       timers: wallTimers,
     }),
