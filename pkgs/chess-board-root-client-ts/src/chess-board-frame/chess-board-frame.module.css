@@ -11,7 +11,9 @@
    both sides, as the seats over it do, so neither the squares' rim nor a
    rank label meets the screen's edge. */
 @media (max-width: 767px) {
-  [data-game-fixed="true"] .host {
+  [data-game-fixed="true"]
+    [data-game-board-stage]:not([data-board-narrowed="true"])
+    .host {
     padding-inline: var(--ui-space-2);
   }
 }

@@ -177,6 +177,18 @@ const sizes = [
   { width: 844, height: 390 },
 ] as const;
 
+// regression: chess-320-framed-board-input
+test('chess keeps a playable surface inside the 320px phone frame', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await openChessStory(page, 'screens-games-chess-board--opening', 'light');
+  const width = await page
+    .locator('[data-component="ChessBoard"]')
+    .evaluate((board) => board.clientWidth);
+  expect(width).toBeGreaterThanOrEqual(196);
+});
+
 for (const { width, height } of sizes) {
   for (const theme of ['light', 'dark']) {
     test.describe(`chess ${width} ${theme}`, () => {

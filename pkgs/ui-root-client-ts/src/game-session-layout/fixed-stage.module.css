@@ -140,7 +140,10 @@
     > [data-game-board-content] {
     /* Named, so a workspace may take a part of it (a board) out to the
        box's edges past the inset. */
-    --game-board-workspace-inset: var(--ui-space-2);
+    --game-board-workspace-inset: var(
+      --game-workspace-inset,
+      var(--ui-space-2)
+    );
     box-sizing: border-box;
     padding-inline: var(--game-board-workspace-inset);
   }
@@ -329,6 +332,16 @@
   .strip > section > [data-section-part],
   .strip > section > :not([data-component="GameMoveList"], p) {
     display: none;
+  }
+}
+@media (max-width: 767px) {
+  .fixed [data-board-workspace]:has([data-component="WordTileWorkspace"]) {
+    --game-workspace-inset: var(--ui-space-4);
+  }
+}
+@media (max-width: 359px) {
+  .fixed [data-board-workspace]:has([data-component="WordTileWorkspace"]) {
+    --game-workspace-inset: var(--ui-space-1);
   }
 }
 /* A short phone gives the board the room its gaps took. */

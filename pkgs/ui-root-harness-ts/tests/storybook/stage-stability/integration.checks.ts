@@ -85,8 +85,8 @@ async function switchTo(page: Page, storyId: string): Promise<void> {
 
 // regression: stage-board-pushed-by-notice
 // On a 390px phone the connection notice was a row above the board, so the
-// board dropped (up to 110px) when it appeared. Notices now lie over the
-// commands: the board keeps its place while one shows.
+// board dropped (up to 110px) when it appeared. The command bar's status
+// line reports the lost connection while the board keeps its place.
 test('storybook integration: stage stability 390 keeps the board in place when a notice appears', async ({
   page,
 }) => {
@@ -95,11 +95,18 @@ test('storybook integration: stage stability 390 keeps the board in place when a
     '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
   );
   await ready(page);
-  await expect(page.getByRole('region', { name: 'Alerts' })).toHaveCount(0);
+  await expect(page.getByTestId('custom-game-connection-needed')).toHaveCount(
+    0
+  );
   const before = await boardRect(page);
   expect(before).toMatchObject({ x: 0, width: 390 });
   await switchTo(page, 'screens-custom-games-stage--connection-needed');
-  await expect(page.getByRole('region', { name: 'Alerts' })).toBeVisible();
+  await expect(page.getByTestId('custom-game-connection-needed')).toBeVisible();
+  await expect(
+    page
+      .getByRole('status')
+      .filter({ hasText: 'Your move waits for the connection' })
+  ).toBeVisible();
   expect(await boardRect(page)).toEqual(before);
 });
 

@@ -190,6 +190,20 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
   expect(after?.y).toBe(before?.y);
 });
 
+// regression: word-tiles-320-submit-covered
+test('word-tiles leaves the submit button above Game menu at 320px', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await openStory(page, 'opening', 'light');
+  const submit = await page
+    .getByTestId('custom-game-board-submit')
+    .boundingBox();
+  const menu = await page.getByTestId('custom-game-commands').boundingBox();
+  if (!submit || !menu) throw new Error('Missing a game control');
+  expect(submit.y + submit.height).toBeLessThanOrEqual(menu.y);
+});
+
 // regression: word-tiles-390-edge-inset
 // regression: word-tiles-fixed-stage-full-bleed
 test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at 320', async ({
@@ -206,7 +220,7 @@ test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at
 
 // regression: word-tiles-desktop-rack-under-opponent
 // regression: word-tiles-desktop-board-bounded-by-window-height
-test('storybook integration: word-tiles desktop rack sits under a larger board beside the own seat', async ({
+test('storybook integration: word-tiles desktop keeps the own seat above the board and the rack directly below it', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -225,8 +239,10 @@ test('storybook integration: word-tiles desktop rack sits under a larger board b
   // 28rem fitted board, up from 23rem before the overhaul.
   expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
-  expect(seat.top).toBeGreaterThanOrEqual(rack.bottom);
-  expect(seat.top - rack.bottom).toBeLessThanOrEqual(48);
+  expect(board.top).toBeGreaterThanOrEqual(seat.bottom);
+  expect(board.top - seat.bottom).toBeLessThanOrEqual(48);
+  expect(rack.top - board.bottom).toBeLessThanOrEqual(48);
+  expect(rack.bottom).toBeLessThanOrEqual(900);
   expect(seat.bottom).toBeLessThanOrEqual(900);
 });
 
