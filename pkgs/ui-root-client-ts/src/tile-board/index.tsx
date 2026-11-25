@@ -155,7 +155,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
       {...actions}
-      ref={props.bindPointerInput}
+      ref={(board) => props.bindPointerInput?.(board)}
       title={props.inputDescription}
       aria-details={props.inputDescription ? instructionsId : undefined}
       class={styles['board']}
