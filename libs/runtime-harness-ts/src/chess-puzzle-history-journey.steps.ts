@@ -1,5 +1,5 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { squareCenter } from '@pkgs/chess-board-core-shared-ts/geometry';
+import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type { Square } from '@pkgs/chess-board-core-shared-ts/types';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
@@ -13,19 +13,17 @@ When('they open the shared four-move mate-in-two chess puzzle', async (w) => {
   await w.journey.act('openMateInTwo', expectPuzzlePlayable);
 });
 
-// Black solves this position. A unit board gives the driver's pointer ratios.
-function blackSquare(square: Square) {
-  const { x, y } = squareCenter(square, 1, 'black');
-  return { xRatio: x, yRatio: y };
-}
-
 function playMove(from: Square, to: Square) {
   return (w: JourneyWorld) =>
     w.journey.act(`play-${from}-${to}`, async (ui) => {
       await expectVisible(ui, 'chess-puzzle-your-move');
-      await ui
-        .get(Handles.chessPuzzleBoard)
-        .drag(blackSquare(from), blackSquare(to));
+      for (const square of [from, to]) {
+        const cell = ui.get(
+          chessBoardSquareTestId(Handles.chessPuzzleBoard, square)
+        );
+        await cell.wait('enabled', { timeoutMs: JOURNEY_WAIT_MS });
+        await cell.key('enter');
+      }
     });
 }
 
