@@ -155,10 +155,9 @@
   stroke-linejoin: round;
 }
 .next {
-  fill: none;
-  stroke: var(--rider-color);
-  stroke-width: 0.16;
-  stroke-dasharray: 0.2 0.14;
+  fill: var(--ui-color-text);
+  stroke: var(--ui-color-background);
+  stroke-width: 0.08;
   stroke-linejoin: round;
 }
 .disc {
@@ -264,4 +263,22 @@
 }
 .touchRegions > span + span {
   border-left: var(--ui-space-hairline) solid var(--ui-color-outline);
+}
+
+.arena:not([data-zoom="1"]) {
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .next,
+  .crashBadge {
+    animation: signal-arrival var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+}
+@keyframes signal-arrival {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
 }

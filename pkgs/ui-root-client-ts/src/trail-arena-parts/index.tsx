@@ -118,7 +118,7 @@ export function TrailPath(props: {
   );
 }
 
-/** A rider's head: its letter on a disc, a nose toward its heading, a ring when steered here. */
+/** The chassis shows the current heading. A detached chevron shows the queued turn. */
 export function RiderHead(props: {
   rider: TrailRider;
   trailCount: number;
@@ -167,7 +167,8 @@ export function RiderHead(props: {
       >
         <path
           class={styles['next']}
-          d="M-0.56 -0.74L0 -1.6L0.56 -0.74Z"
+          data-turn-preview={props.rider.next}
+          d="M-0.62 -1.12L0 -1.76L0.62 -1.12L0.44 -0.96L0 -1.4L-0.44 -0.96Z"
           transform={`rotate(${headingRotation(props.rider.next ?? props.rider.heading)})`}
         />
       </Show>

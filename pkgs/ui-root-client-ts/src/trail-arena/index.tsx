@@ -1,12 +1,14 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createMemo, createUniqueId, For, Show } from 'solid-js';
+import { createMemo, createSignal, createUniqueId, For, Show } from 'solid-js';
 import { trailShapes } from '../trail-arena-geometry';
 import {
   ArenaSurface,
   controlledSlots,
   trailArenaInput,
 } from '../trail-arena-input';
+import { FIT } from '../trail-arena-inspection/camera';
+import { ArenaInspection } from '../trail-arena-inspection/index';
 import {
   ArenaOverlay,
   ArenaPatterns,
@@ -49,12 +51,19 @@ export const LARGE_HEAD_SCALE = 1.4;
  */
 export function TrailArena(props: TrailArenaProps): JSX.Element {
   const arenaId = `trail-arena-${createUniqueId()}`;
+  let drawing!: SVGSVGElement;
+  const [camera, setCamera] = createSignal(FIT);
+  const extent = () => ({
+    width: props.width + 2 * MARGIN,
+    height: props.height + 2 * MARGIN,
+  });
+  const viewBox = () => {
+    const { x, y, zoom } = camera();
+    const { width, height } = extent();
+    return `${x * width - MARGIN} ${y * height - MARGIN} ${width / zoom} ${height / zoom}`;
+  };
   const input = trailArenaInput(props);
-  const shapes = createMemo(() =>
-    trailShapes(props.cells, props.width, props.height)
-  );
   const interactive = () => props.enabled && controlledSlots(props) > 0;
-  const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   return (
     <ArenaSurface
       enabled={props.enabled}
@@ -63,6 +72,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       class={styles['arena']}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
+      data-zoom={camera().zoom}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
@@ -79,6 +89,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       onLostPointerCapture={input.pointerUp}
     >
       <svg
+        ref={drawing}
         class={styles['drawing']}
         // The room around the walls hangs outside the arena's box, so the
         // walls sit flush with the column and only a head at the edge
@@ -88,58 +99,76 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
           margin: `-${(MARGIN / props.width) * 100}%`,
         }}
         data-testid={`${props.testId}-drawing`}
-        viewBox={`${-MARGIN} ${-MARGIN} ${props.width + 2 * MARGIN} ${props.height + 2 * MARGIN}`}
+        viewBox={viewBox()}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
-        <ArenaPatterns arenaId={arenaId} indices={TRAIL_RIDER_INDICES} />
-        {/* The arena's own ground, inside its walls: the walls are its one
-            frame, with no second card around them. */}
-        <rect
-          class={styles['ground']}
-          width={props.width}
-          height={props.height}
-          rx="0.5"
-        />
-        <rect
-          class={styles['floor']}
-          width={props.width}
-          height={props.height}
-          fill={`url(#${arenaId}-grid)`}
-        />
-        <Show when={props.touchRegions}>
-          <path
-            class={styles['touchDivider']}
-            d={`M ${props.width / 2} 0 V ${props.height}`}
-          />
-        </Show>
-        <For each={TRAIL_RIDER_INDICES}>
-          {(index) => (
-            <TrailPath
-              arenaId={arenaId}
-              index={index}
-              shape={() => shapes()[index]}
-              testId={props.testId}
-            />
-          )}
-        </For>
-        <rect
-          class={styles['wall']}
-          width={props.width}
-          height={props.height}
-          rx="0.5"
-        />
-        <Markers
-          riders={props.riders}
-          crashes={props.crashes}
-          counts={(index) => shapes()[index]?.count ?? 0}
-          scale={headScale()}
-          testId={props.testId}
-        />
+        <ArenaField board={props} arenaId={arenaId} />
       </svg>
+      <Show when={props.inspectable && !interactive()}>
+        <ArenaInspection
+          drawing={() => drawing}
+          camera={camera()}
+          paint={setCamera}
+        />
+      </Show>
       <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
     </ArenaSurface>
+  );
+}
+
+function ArenaField(props: { board: TrailArenaProps; arenaId: string }) {
+  const shapes = createMemo(() =>
+    trailShapes(props.board.cells, props.board.width, props.board.height)
+  );
+  return (
+    <>
+      <ArenaPatterns arenaId={props.arenaId} indices={TRAIL_RIDER_INDICES} />
+      {/* The arena's own ground, inside its walls: the walls are its one
+            frame, with no second card around them. */}
+      <rect
+        class={styles['ground']}
+        width={props.board.width}
+        height={props.board.height}
+        rx="0.5"
+      />
+      <rect
+        class={styles['floor']}
+        width={props.board.width}
+        height={props.board.height}
+        fill={`url(#${props.arenaId}-grid)`}
+      />
+      <Show when={props.board.touchRegions}>
+        <path
+          class={styles['touchDivider']}
+          d={`M ${props.board.width / 2} 0 V ${props.board.height}`}
+        />
+      </Show>
+      <For each={TRAIL_RIDER_INDICES}>
+        {(index) => (
+          <TrailPath
+            arenaId={props.arenaId}
+            index={index}
+            shape={() => shapes()[index]}
+            testId={props.board.testId}
+          />
+        )}
+      </For>
+      <rect
+        class={styles['wall']}
+        width={props.board.width}
+        height={props.board.height}
+        rx="0.5"
+      />
+      <Markers
+        riders={props.board.riders}
+        crashes={props.board.crashes}
+        counts={(index) => shapes()[index]?.count ?? 0}
+        scale={props.board.heads === 'large' ? LARGE_HEAD_SCALE : 1}
+        testId={props.board.testId}
+      />
+    </>
   );
 }
 

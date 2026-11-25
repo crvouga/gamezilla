@@ -46,6 +46,8 @@ export type TrailControls = {
 };
 
 export type TrailArenaProps = TrailControls & {
+  /** A spectator can inspect the live arena without taking a rider. */
+  readonly inspectable?: boolean | undefined;
   /** Left and right touch ownership, in spatial order. Labels sit outside the trails. */
   readonly touchRegions?: readonly [string, string] | undefined;
   /** Columns of cells. */
