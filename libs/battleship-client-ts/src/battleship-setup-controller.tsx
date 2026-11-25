@@ -77,6 +77,7 @@ function previewCells(
     preview.cells.includes(cell.id)
       ? {
           ...cell,
+          tone: preview.valid ? cell.tone : 'alert',
           glyph: preview.valid ? cell.glyph || GLYPHS.fits : GLYPHS.refused,
           emphasis: preview.valid ? 'preview' : 'refused',
           previewEdges: hullEdges(preview.cells, cell.id),
@@ -120,7 +121,23 @@ function placementInstruction(
   const name = shipName(selected);
   const length = shipLength(selected);
   const direction = orientationName(orientation);
-  return t`${name}: ${length} cells ${direction}. Tap its bow cell or drag to preview placement.`;
+  return t`${name}: ${length} cells ${direction}. Tap its first cell to place it or drag to preview placement.`;
+}
+
+/** Why the spot under the pointer is refused, said where guidance is. */
+function previewRefusal(
+  draft: Draft,
+  ship: ShipId | null,
+  bow: string | null,
+  orientation: Orientation
+): string | null {
+  if (ship === null || bow === null) return null;
+  const outcome = placeInDraft(draft, ship, { bow, orientation });
+  if (outcome.ok) return null;
+  const reason = refusalText(ship, outcome.refusal);
+  return outcome.refusal.kind === 'overlap'
+    ? t`${reason} That spot is taken: choose another bow cell or rotate.`
+    : t`${reason} Choose another bow cell or rotate.`;
 }
 
 /** Commits an accepted change; a refused one only says why. */
@@ -255,7 +272,10 @@ export function createSetupController(
     refusal,
     cells,
     status,
-    instruction: () => placementInstruction(selected(), orientation()),
+    instruction: () =>
+      (!drag() && placing()?.valid === false
+        ? previewRefusal(draft(), selected(), hovered(), orientation())
+        : null) ?? placementInstruction(selected(), orientation()),
     preview: setHovered,
   };
 }

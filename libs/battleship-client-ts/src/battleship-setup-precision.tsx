@@ -5,7 +5,7 @@ import { BattleshipPlacementLayout } from '@pkgs/ui-root-client-ts/battleship-pl
 import { BattleshipRegionOverview } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Select } from '@pkgs/ui-root-client-ts/select';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Stack, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, Show } from 'solid-js';
@@ -100,95 +100,147 @@ function createRegion(setup: () => SetupController) {
   return { area, setArea, left, top, cells };
 }
 
-/** A magnified bow picker; placement still validates against the full fleet. */
-export function SetupPrecision(props: {
+function regionLabel(area: string): string {
+  return regionOptions().find((option) => option.value === area)?.label ?? '';
+}
+
+type PrecisionProps = {
   setup: SetupController;
   locked: boolean;
   testId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   overview: JSX.Element;
+  /** The fleet's progress line; beside the board when it is not enlarged. */
+  progress: JSX.Element;
+  /** The ship choices, shown only beside the full board. */
+  choices: JSX.Element;
   commands: JSX.Element;
   feedback: JSX.Element;
-}): JSX.Element {
-  const region = createRegion(() => props.setup);
+};
+
+function EnlargeToggle(props: PrecisionProps): JSX.Element {
   return (
-    <StackVertical gap="sm" width="full" align="center">
-      <Show
-        when={props.open}
-        fallback={
-          <StackVertical gap="sm" align="center">
+    <Button
+      title={props.open ? t`Show full board` : t`Enlarge board`}
+      variant="outline"
+      intent="neutral"
+      onClick={() => props.onOpenChange(!props.open)}
+      dataSet={{ testid: `${props.testId}-enlarge` }}
+    />
+  );
+}
+
+/**
+ * The full board: from a wide screen the fleet's choices sit beside the
+ * board, so every row and the way to enlarge stay above the fold.
+ */
+function FullBoard(props: PrecisionProps): JSX.Element {
+  return (
+    <Stack
+      direction={{ base: 'vertical', lg: 'horizontal' }}
+      gap="lg"
+      justify="center"
+      width="full"
+    >
+      <Show when={!props.locked}>
+        {/* Centred above the board when stacked, top-aligned beside it. */}
+        <StackVertical align="center">
+          <StackVertical gap="sm" align="start" maxWidth="form">
+            {props.progress}
+            {props.choices}
             {props.commands}
             {props.feedback}
-            {props.overview}
           </StackVertical>
-        }
-      >
-        <BattleshipPlacementLayout
-          inspection={props.locked}
-          overviewLabel={
-            props.locked ? t`Inspect your fleet` : t`Choose region`
-          }
-          overview={
-            <BattleshipRegionOverview
-              overview={props.overview}
-              placement
-              label={t`Fleet overview`}
-              region={['nw', 'ne', 'sw', 'se'].indexOf(region.area())}
-              regions={regionOptions().map((option) => option.label)}
-              onRegion={(index) =>
-                region.setArea(['nw', 'ne', 'sw', 'se'][index] ?? 'nw')
-              }
-              testId={props.testId}
-            />
-          }
-          feedback={props.feedback}
-          commands={props.commands}
-          controls={
-            <SetupShipPicker
-              setup={props.setup}
-              locked={props.locked}
-              testId={props.testId}
-            />
-          }
-          region={
-            <P variant="label" testId={`${props.testId}-region-heading`}>
-              {props.locked
-                ? t`Inspect ${regionOptions().find((option) => option.value === region.area())?.label ?? ''}`
-                : t`Place in ${regionOptions().find((option) => option.value === region.area())?.label ?? ''}`}
-            </P>
-          }
-          working={
-            <BattleshipNavigableGrid
-              fitLabel={t`Fit board`}
-              pickup={props.setup.pickup}
-              battleshipSurface="fleet"
-              label={
-                props.locked
-                  ? t`Enlarged fleet inspection`
-                  : t`Enlarged bow placement`
-              }
-              testId={`${props.testId}-precision`}
-              columnLabels={COLUMN_LABELS.slice(
-                region.left(),
-                region.left() + 5
-              )}
-              rowLabels={ROW_LABELS.slice(region.top(), region.top() + 5)}
-              cells={region.cells()}
-              onActivate={props.setup.place}
-              onPreview={props.setup.preview}
-              onCellKey={props.setup.rotateKey}
-            />
-          }
-        />
+        </StackVertical>
       </Show>
-      <Button
-        title={props.open ? t`Show full board` : t`Enlarge board`}
-        variant="ghost"
-        intent="neutral"
-        onClick={() => props.onOpenChange(!props.open)}
-        dataSet={{ testid: `${props.testId}-enlarge` }}
+      <StackVertical gap="sm" align="center" width="full" shrink>
+        {props.overview}
+        <EnlargeToggle {...props} />
+      </StackVertical>
+    </Stack>
+  );
+}
+
+type Region = ReturnType<typeof createRegion>;
+
+/** A magnified bow picker; placement still validates against the full fleet. */
+function EnlargedBoard(
+  props: PrecisionProps & { region: Region }
+): JSX.Element {
+  return (
+    <StackVertical gap="sm" width="full" align="center">
+      {props.progress}
+      <BattleshipPlacementLayout
+        inspection={props.locked}
+        overviewLabel={props.locked ? t`Inspect your fleet` : t`Choose region`}
+        overview={
+          <BattleshipRegionOverview
+            overview={props.overview}
+            placement
+            label={t`Fleet overview`}
+            region={['nw', 'ne', 'sw', 'se'].indexOf(props.region.area())}
+            regions={regionOptions().map((option) => option.label)}
+            onRegion={(index) =>
+              props.region.setArea(['nw', 'ne', 'sw', 'se'][index] ?? 'nw')
+            }
+            testId={props.testId}
+          />
+        }
+        feedback={props.feedback}
+        commands={props.commands}
+        controls={
+          <SetupShipPicker
+            setup={props.setup}
+            locked={props.locked}
+            testId={props.testId}
+          />
+        }
+        region={
+          <P variant="label" testId={`${props.testId}-region-heading`}>
+            {props.locked
+              ? t`Inspect ${regionLabel(props.region.area())}`
+              : t`Place in ${regionLabel(props.region.area())}`}
+          </P>
+        }
+        working={
+          <BattleshipNavigableGrid
+            fitLabel={t`Fit board`}
+            pickup={props.setup.pickup}
+            battleshipSurface="fleet"
+            label={
+              props.locked
+                ? t`Enlarged fleet inspection`
+                : t`Enlarged bow placement`
+            }
+            testId={`${props.testId}-precision`}
+            columnLabels={COLUMN_LABELS.slice(
+              props.region.left(),
+              props.region.left() + 5
+            )}
+            rowLabels={ROW_LABELS.slice(
+              props.region.top(),
+              props.region.top() + 5
+            )}
+            cells={props.region.cells()}
+            onActivate={props.setup.place}
+            onPreview={props.setup.preview}
+            onCellKey={props.setup.rotateKey}
+          />
+        }
       />
+      <EnlargeToggle {...props} />
     </StackVertical>
+  );
+}
+
+/** The full board, or its magnified bow picker once enlarged. */
+export function SetupPrecision(props: PrecisionProps): JSX.Element {
+  // The region chosen lasts while the board is shown full and enlarged again.
+  const region = createRegion(() => props.setup);
+  return (
+    <Show when={props.open} fallback={<FullBoard {...props} />}>
+      <EnlargedBoard {...props} region={region} />
+    </Show>
   );
 }

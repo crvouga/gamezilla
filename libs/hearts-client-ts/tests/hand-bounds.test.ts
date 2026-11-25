@@ -90,15 +90,21 @@ test('a phone trick card belongs beside its player, not a separate compass', () 
     width: 40,
     height: 56,
   };
-  expect(() => assertHeartsSeatRow(seat, compass)).toThrow('named player');
+  expect(() => assertHeartsSeatRow(seat, compass, 'left')).toThrow(
+    'named player'
+  );
   expect(() =>
-    assertHeartsSeatRow(seat, {
-      ...compass,
-      left: 200,
-      right: 240,
-      top: 180,
-      bottom: 236,
-    })
+    assertHeartsSeatRow(
+      seat,
+      {
+        ...compass,
+        left: 200,
+        right: 240,
+        top: 180,
+        bottom: 236,
+      },
+      'left'
+    )
   ).not.toThrow();
 });
 

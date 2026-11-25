@@ -2,6 +2,7 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { SpeakingAvatar } from '@pkgs/ui-root-client-ts/speaking-avatar';
 import { SpectatorIndicator } from '@pkgs/ui-root-client-ts/spectator-indicator';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { PuzzleClockLabel } from './puzzle-clock-label';
@@ -61,6 +62,10 @@ export function PuzzleStatusLine(
   props: PuzzleStageScreenViewProps
 ): JSX.Element {
   const handles = () => props.coach.handles;
+  // On a phone the coach sits over the board: its bubble keeps one height
+  // whatever it says, so the board under it never moves.
+  const mode = useLayoutMode();
+  const compact = (): boolean => mode() === 'compact';
   return (
     <SpeakingAvatar
       message={props.coach.message}
@@ -77,10 +82,16 @@ export function PuzzleStatusLine(
           solutionShown={props.status === 'revealed'}
           solverSide={props.solverSide ?? null}
           correct={props.correct}
+          retryOpen={props.status === 'wrong'}
+          solvedLate={
+            props.status === 'solved' &&
+            props.result.completion?.outcome === 'failed'
+          }
           trailing={<StatusLineTrailing {...props} />}
         />
       }
       numberOfLines={2}
+      fixedHeight={compact()}
       avatarSize={AVATAR_SIZE}
     />
   );

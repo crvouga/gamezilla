@@ -521,16 +521,8 @@
   max-height: none;
   overflow: visible;
 }
+/* Phone order; the coach-first rows are in `puzzle-screen.module.css`. */
 @container puzzle-frame (width < 880px) {
-  .puzzle[data-board-sizing="width"] > .title {
-    order: 0;
-  }
-  .puzzle[data-board-sizing="width"] > .well {
-    order: 1;
-  }
-  .puzzle[data-board-sizing="width"] > .header {
-    order: 2;
-  }
   .puzzle[data-board-sizing="width"] > .legend {
     order: 3;
   }

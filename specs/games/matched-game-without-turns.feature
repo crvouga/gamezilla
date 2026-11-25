@@ -161,6 +161,7 @@ Feature: Abort or resign a matched game without turns
         | Alice  | Bob      |
         | Bob    | Alice    |
 
+    @regression:matchmaking-offline-unfinished-result
     Scenario Outline: An offline person keeps the unfinished game after the opponent resigns without turns
       Given <person>'s phone was offline when <opponent> resigned the matched game after it was under way
       When <person> opens finding an opponent

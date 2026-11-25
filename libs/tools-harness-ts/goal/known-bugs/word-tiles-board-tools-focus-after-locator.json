@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone, closing the Word Tiles Board tools dialog after opening and dismissing Find a square inside it dropped focus to the page instead of handing it back to the Board tools button.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
+}

@@ -1,8 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+import {
+  GAME_PLAYER_COMPACT_AVATAR_SIZE,
+  GamePlayerBar,
+} from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import {
   type GameSeatLook,
@@ -28,12 +33,15 @@ import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-short
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import type { JSX } from '@solidjs/web';
 import { createMemo, For, Match, Show, Switch } from 'solid-js';
+import { FramePersonAvatar } from './game-frame-people';
+import { OwnSeatMark } from './game-frame-seat-tags';
 import type { FramePeople } from './game-frame-view-types';
 import {
   type GameHistoryOutcome,
   type GameHistoryPlayer,
   HistoryPlayers,
 } from './game-history-screen-view';
+import { ReplayMoveStrip } from './game-replay-move-strip';
 
 /** One player of the replayed game, with the seat they played. */
 export type GameReplayPlayer = GameHistoryPlayer & {
@@ -190,6 +198,8 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
     },
   });
   const keyboard = useHoverCapable();
+  // Key hints are for a keyboard beside a wide window, never a phone's bar.
+  const phone = createMediaQuery(PHONE_QUERY);
   return (
     <Show when={last() > 0} fallback={<ShownPosition {...props} />}>
       <StackVertical gap="xs" align="stretch">
@@ -249,7 +259,7 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
             </IconButton>
           </StackHorizontal>
         </StackHorizontal>
-        <Show when={keyboard()}>
+        <Show when={keyboard() && !phone()}>
           <KeyHints
             hints={[
               { keys: ['←', '→'], label: t`step` },
@@ -262,9 +272,72 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
+/** A replayed player's picture, as their seat shows it at the table. */
+function ReplayAvatar(props: {
+  readonly player: GameReplayPlayer;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  const size = GAME_PLAYER_COMPACT_AVATAR_SIZE;
+  return (
+    <Switch fallback={<Avatar size={size} />}>
+      <Match when={props.player.bot}>
+        <Avatar size={size} kind="bot" />
+      </Match>
+      <Match when={props.player.person !== ''}>
+        <FramePersonAvatar
+          person={props.player.person}
+          plainName={props.player.plainName}
+          size={size}
+          people={props.people}
+        />
+      </Match>
+    </Switch>
+  );
+}
+
 /**
- * Players beside their seat's colour, the winner marked in words: as at the
- * table, the others over the board and the viewer under it (a watched
+ * One player as the stage's seat strip shows them: picture, seat colour,
+ * name, `You` for the viewer, and `Winner` at the final position.
+ */
+function ReplaySeat(
+  props: GameReplayScreenViewProps & { readonly player: GameReplayPlayer }
+): JSX.Element {
+  const won = () =>
+    props.ply === props.moves.length &&
+    props.player.winner &&
+    props.players.some((p) => !p.winner);
+  return (
+    <GamePlayerBar
+      density="compact"
+      name={
+        <HistoryPlayers
+          players={[props.player]}
+          played={false}
+          people={props.people}
+        />
+      }
+      plainName={props.player.plainName}
+      avatar={<ReplayAvatar player={props.player} people={props.people} />}
+      swatch={props.player.swatch}
+      swatchLabel={props.player.sideLabel}
+      nameTag={
+        <Show when={props.player.you}>
+          <OwnSeatMark />
+        </Show>
+      }
+      tags={
+        <Show when={won()}>
+          <Badge intent="success" label={<Trans>Winner</Trans>} />
+        </Show>
+      }
+      tagsPlacement="line"
+    />
+  );
+}
+
+/**
+ * Players in the stage's seat strips, the winner marked in words: as at
+ * the table, the others over the board and the viewer under it (a watched
  * game: the first seat over, the rest under).
  */
 function ReplayPlayers(
@@ -281,54 +354,20 @@ function ReplayPlayers(
     );
   });
   return (
-    <StackHorizontal
-      align="center"
-      gap="md"
-      wrap
+    <StackVertical
+      gap="xs"
+      align="stretch"
       testId={`game-history-review-players-${props.place}`}
     >
       <For each={shown()}>
-        {(player) => (
-          <StackHorizontal align="center" gap="xs">
-            <Show when={player.swatch}>
-              {(look) => (
-                <GameSeatSwatch look={look()} label={player.sideLabel} />
-              )}
-            </Show>
-            <P variant="label">
-              <HistoryPlayers
-                players={[player]}
-                played={false}
-                people={props.people}
-              />
-              <Show when={player.you}>
-                {' '}
-                <Trans>(you)</Trans>
-              </Show>
-            </P>
-            <Show
-              when={
-                props.ply === props.moves.length &&
-                player.winner &&
-                props.players.some((p) => !p.winner)
-              }
-            >
-              <Badge size="sm" intent="success" label={<Trans>Winner</Trans>} />
-            </Show>
-          </StackHorizontal>
-        )}
+        {(player) => <ReplaySeat {...props} player={player} />}
       </For>
-    </StackHorizontal>
+    </StackVertical>
   );
 }
 
-/**
- * Moves shown at once, a page holding the shown move: eight, or under a
- * phone's board six when the game runs longer, so a page and its two range
- * buttons keep to two rows.
- */
-const PHONE_PAGE = 6;
-const WIDE_PAGE = 8;
+/** Moves shown at once beside a wide board, a page holding the shown move. */
+const PAGE = 8;
 
 /** Beside a wide board, the same page of numbered moves in its own card. */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
@@ -349,25 +388,16 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
 }
 
 /**
- * Under a phone's board: the page of moves holding the shown one, each a
- * whole chip with its number, its seat's swatch and the move ("3 ● 4"),
- * the shown move filled. A header says which moves the page holds and
- * turns the page when the game is longer than one; a page keeps its
- * height, so the board never moves.
+ * The page of moves holding the shown one, each a whole chip with its
+ * number, its seat's swatch and the move ("3 ● 4"), the shown move filled.
+ * A header says which moves the page holds and turns the page when the
+ * game is longer than one.
  */
 function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
   // The page holding the shown move; the start shows the first page.
-  const phone = createMediaQuery(PHONE_QUERY);
-  // A short game is one page wherever it is shown.
-  const size = () =>
-    phone() && props.moves.length > WIDE_PAGE ? PHONE_PAGE : WIDE_PAGE;
-  const page = createMemo(() =>
-    Math.floor(Math.max(0, props.ply - 1) / size())
-  );
-  // A phone's page of a long game holds two-digit moves: three across.
-  const columns = () => (size() === PHONE_PAGE ? 3 : 4);
-  const first = () => page() * size() + 1;
-  const last = () => Math.min(first() + size() - 1, props.moves.length);
+  const page = createMemo(() => Math.floor(Math.max(0, props.ply - 1) / PAGE));
+  const first = () => page() * PAGE + 1;
+  const last = () => Math.min(first() + PAGE - 1, props.moves.length);
   const shown = createMemo(() =>
     props.moves
       .slice(first() - 1, last())
@@ -389,7 +419,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Trans>number, player and {props.moveHeading.toLowerCase()}</Trans>
           </Show>
         </P>
-        <Grid columns={columns()} gap="xs" testId="game-history-review-moves">
+        <Grid columns={4} gap="xs" testId="game-history-review-moves">
           <For each={shown()}>
             {(entry) => (
               <Button
@@ -425,7 +455,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
               <Button
                 title={
                   <Trans>
-                    Moves {first() - size()}–{first() - 1}
+                    Moves {first() - PAGE}–{first() - 1}
                   </Trans>
                 }
                 size="sm"
@@ -444,7 +474,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
                 title={
                   <Trans>
                     Moves {last() + 1}–
-                    {Math.min(last() + size(), props.moves.length)}
+                    {Math.min(last() + PAGE, props.moves.length)}
                   </Trans>
                 }
                 size="sm"
@@ -486,8 +516,8 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
 export function GameReplayScreenView(
   props: GameReplayScreenViewProps
 ): JSX.Element {
-  // A phone's one fixed view (`fixedStage`) pages its moves under the
-  // board; a wide screen lists them all in the rail beside it.
+  // A phone's one fixed view (`fixedStage`) lines its moves up over the
+  // board; a wide screen pages them in the rail beside it.
   const phone = createMediaQuery(PHONE_QUERY);
   const opponents = createMemo(() =>
     props.outcome === null
@@ -522,21 +552,14 @@ export function GameReplayScreenView(
         fixedStage
         status={<ReplaySteps {...props} />}
         aside={
-          <Show when={!phone()}>
+          <Show when={!phone()} fallback={<ReplayMoveStrip {...props} />}>
             <ReplayMoves {...props} />
           </Show>
         }
       >
         <GameBoardStage
           others={<ReplayPlayers {...props} place="over" />}
-          own={
-            <StackVertical gap="sm" align="stretch">
-              <ReplayPlayers {...props} place="under" />
-              <Show when={phone()}>
-                <ReplayMovesPage {...props} />
-              </Show>
-            </StackVertical>
-          }
+          own={<ReplayPlayers {...props} place="under" />}
         >
           {props.board}
         </GameBoardStage>

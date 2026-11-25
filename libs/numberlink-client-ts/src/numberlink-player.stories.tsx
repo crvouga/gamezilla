@@ -13,7 +13,7 @@ import {
   LONG_LABEL_NUMBERLINK,
 } from './numberlink-extremes.example';
 import { numberlinkGeometry } from './numberlink-geometry.example';
-import { NumberlinkPlayer } from './numberlink-player';
+import { NumberlinkPlayer, NumberlinkSupport } from './numberlink-player';
 import {
   FIVE_BY_FIVE,
   PATH_1,
@@ -26,6 +26,22 @@ import { recoverWithPointer } from './numberlink-pointer-recovery.example';
 /** Progress with `paths` drawn. */
 function progress(paths: typeof SOLUTION): string {
   return JSON.stringify({ paths });
+}
+
+/** Whether saved progress holds a path, so Undo has a move to take back. */
+function hasPaths(state: string): boolean {
+  try {
+    const progress: unknown = JSON.parse(state);
+    return (
+      typeof progress === 'object' &&
+      progress !== null &&
+      'paths' in progress &&
+      Array.isArray(progress.paths) &&
+      progress.paths.length > 0
+    );
+  } catch {
+    return false;
+  }
 }
 
 /** The game's own figures for the attempt, as the app's panel shows them. */
@@ -61,9 +77,11 @@ const meta = {
         args.definition,
         args.state
       )}
+      played={hasPaths(args.state)}
       figures={figures(args.definition, args.state)}
       figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={<NumberlinkPlayer {...args} />}
+      support={<NumberlinkSupport {...args} />}
     />
   ),
   parameters: { appRouter: true, controls: { exclude: ['onAction'] } },
@@ -153,6 +171,12 @@ export const Solved: Story = {
             state={next() ? progress([]) : args.state}
           />
         }
+        support={
+          <NumberlinkSupport
+            {...args}
+            state={next() ? progress([]) : args.state}
+          />
+        }
       />
     );
   },
@@ -209,24 +233,28 @@ function DrawPathsAttempt(props: {
   const [state, setState] = createSignal(
     progress(untrack(() => props.saved) ?? [])
   );
+  const onAction = (action: string) => {
+    const next = numberlinkPuzzleContent.rules.apply(
+      props.args.definition,
+      state(),
+      action
+    );
+    if (!next.accepted) throw new Error('Story gesture was refused');
+    setState(next.state);
+  };
   return (
     <StoryPackAttempt
       puzzle={props.puzzle}
       figures={figures(props.args.definition, state())}
       figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={
-        <NumberlinkPlayer
+        <NumberlinkPlayer {...props.args} state={state()} onAction={onAction} />
+      }
+      support={
+        <NumberlinkSupport
           {...props.args}
           state={state()}
-          onAction={(action) => {
-            const next = numberlinkPuzzleContent.rules.apply(
-              props.args.definition,
-              state(),
-              action
-            );
-            if (!next.accepted) throw new Error('Story gesture was refused');
-            setState(next.state);
-          }}
+          onAction={onAction}
         />
       }
     />
@@ -339,9 +367,14 @@ export const DrawingHelp: Story = {
     await userEvent.click(
       canvas.getByRole('button', { name: 'Drawing and keyboard help' })
     );
-    await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
+    const help = within(
+      await within(document.body).findByRole('dialog', {
+        name: 'Drawing and keyboard help',
+      })
+    );
+    await expect(help.getByTestId('numberlink-key-hints')).toBeVisible();
     await expect(
-      canvas.getByText(/Start again at an endpoint to redraw/)
+      help.getByText(/Start again at an endpoint to redraw/)
     ).toBeVisible();
   },
 };

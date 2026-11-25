@@ -32,7 +32,11 @@ export function FloatingTooltip(props: {
       let left = rect.left + (rect.width - size.width) / 2;
       if (placement.endsWith('-start')) left = rect.left;
       if (placement.endsWith('-end')) left = rect.right - size.width;
-      const top = above ? rect.top - size.height - 6 : rect.bottom + 6;
+      let top = above ? rect.top - size.height - 6 : rect.bottom + 6;
+      if (placement === 'left') {
+        left = rect.left - size.width - 8;
+        top = rect.top + (rect.height - size.height) / 2;
+      }
       setPosition({
         left: `${Math.max(8, Math.min(left, window.innerWidth - size.width - 8))}px`,
         top: `${Math.max(8, Math.min(top, window.innerHeight - size.height - 8))}px`,

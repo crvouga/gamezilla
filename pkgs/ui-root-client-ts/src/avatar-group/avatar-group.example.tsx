@@ -2,10 +2,10 @@
 
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
-import { sampleAvatarSvg } from '@pkgs/ui-root-client-ts/avatar-sample-svg';
 import { useThemeTokens } from '@pkgs/ui-root-client-ts/theme-context';
 import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
+import { sampleAvatarSvg } from '../../storybook/fixtures/avatar-sample-svg';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

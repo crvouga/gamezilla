@@ -135,6 +135,31 @@ function useAttemptStanding(props: {
   return { rulesChanged, unreadable, progress, figures };
 }
 
+/** The game's quieter aids beside its player, on the same saved position. */
+function AttemptSupport(props: {
+  attempt: ContentAttempt;
+  source: ContentBody;
+  state: string | undefined;
+  disabled: boolean;
+  onAction: (action: string) => void;
+}): JSX.Element {
+  const game = useContentGame();
+  const Support = dynamic(() => game.client.Support);
+  return (
+    <Show when={props.state}>
+      {(state) => (
+        <Support
+          definition={props.source.definition}
+          state={state()}
+          disabled={props.disabled}
+          onAction={props.onAction}
+          context={puzzlePlayContext(props.attempt)}
+        />
+      )}
+    </Show>
+  );
+}
+
 /** One attempt on its small screens, wired to its saved positions and changes. */
 function AttemptBody(props: {
   attempt: ContentAttempt;
@@ -181,6 +206,15 @@ function AttemptBody(props: {
             />
           )}
         </Show>
+      }
+      support={
+        <AttemptSupport
+          attempt={props.attempt}
+          source={props.source}
+          state={progress()?.state}
+          disabled={writer.pending() || rulesChanged()}
+          onAction={(action) => writer.execute({ kind: 'play', action })}
+        />
       }
       wayOn={
         <ContentAttemptNext

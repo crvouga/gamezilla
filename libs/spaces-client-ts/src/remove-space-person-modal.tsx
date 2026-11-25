@@ -1,9 +1,13 @@
+import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from '@solidjs/web';
-import { RemoveSpacePersonModalView } from './remove-space-person-modal-view';
+import { removeSpacePersonCopy } from './remove-space-person-step';
 import type { SpacePerson } from './space-person-view';
 import { useRemoveSpaceUser } from './use-remove-space-user';
 
-/** Wires {@link RemoveSpacePersonModalView} to the remove-person write. */
+/**
+ * Remove from the People list, which closes first: the same confirm as
+ * Share's Remove step, as its own dialog since nothing sits under it.
+ */
 export function RemoveSpacePersonModal(props: {
   readonly spaceId: string;
   readonly person: SpacePerson;
@@ -11,10 +15,16 @@ export function RemoveSpacePersonModal(props: {
 }): JSX.Element {
   const remove = useRemoveSpaceUser();
   return (
-    <RemoveSpacePersonModalView
-      name={props.person.name}
-      onClose={props.onClose}
-      operation={() => remove(props.spaceId, props.person.id)}
+    <MutationModal
+      visible
+      stackId="remove-space-person"
+      {...removeSpacePersonCopy({
+        get name() {
+          return props.person.name;
+        },
+        onClose: () => props.onClose(),
+        operation: () => remove(props.spaceId, props.person.id),
+      })}
     />
   );
 }

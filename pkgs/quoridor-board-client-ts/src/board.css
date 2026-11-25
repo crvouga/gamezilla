@@ -67,6 +67,7 @@
 }
 
 [data-quoridor-surface] {
+  flex-shrink: 0;
   position: relative;
   overflow: clip;
   clip-path: inset(0 var(--board-right, 0px) 0 var(--board-left, 0px));

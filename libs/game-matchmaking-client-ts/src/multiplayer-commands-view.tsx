@@ -2,7 +2,9 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
@@ -10,10 +12,7 @@ import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
 } from './multiplayer-game-view';
-import {
-  MultiplayerMenuPlace,
-  type MultiplayerPlaceFrame,
-} from './multiplayer-place-frame';
+import type { MultiplayerPlaceFrame } from './multiplayer-place-frame';
 import type { MultiplayerPlace } from './multiplayer-places';
 
 type CommandsProps = MultiplayerPlaceFrame & {
@@ -140,37 +139,47 @@ export function MultiplayerCommandsView(props: CommandsProps): JSX.Element {
   const reviewable = () =>
     props.stage === 'playing' && props.game.moves !== null;
   return (
-    <MultiplayerMenuPlace {...props} title={<Trans>Game menu</Trans>}>
-      <Show
-        when={
-          props.game.draw === 'offer' ||
-          props.game.flip !== null ||
-          reviewable()
-        }
-      >
-        <MenuSection>
-          <Show when={props.game.draw === 'offer'}>
-            <MenuRow
-              title={
-                <Trans>
-                  Offer a<VisuallyHidden> multiplayer</VisuallyHidden> draw
-                </Trans>
-              }
-              trailing={
-                draw.sending() ? (
-                  <Spinner size="sm" label={t`Sending`} />
-                ) : undefined
-              }
-              hideChevron
-              disabled={draw.sending()}
-              onClick={() => draw.send(props.commands.offerDraw)}
-              dataSet={{ testid: 'multiplayer-offer-draw' }}
-            />
-          </Show>
-          <BoardRows {...props} busy={draw.sending()} />
-        </MenuSection>
-      </Show>
-      <LeaveRows {...props} busy={draw.sending()} />
-    </MultiplayerMenuPlace>
+    // A few commands make a sheet over the stage, never a page of their
+    // own: the board stays in view behind it, and closing it is back.
+    <ResponsiveSurface
+      visible
+      onClose={() => props.onBack()}
+      title={<Trans>Game menu</Trans>}
+      size="small"
+      dataSet={{ screen: 'matchmaking-stage-menu' }}
+    >
+      <StackVertical gap="md">
+        <Show
+          when={
+            props.game.draw === 'offer' ||
+            props.game.flip !== null ||
+            reviewable()
+          }
+        >
+          <MenuSection>
+            <Show when={props.game.draw === 'offer'}>
+              <MenuRow
+                title={
+                  <Trans>
+                    Offer a<VisuallyHidden> multiplayer</VisuallyHidden> draw
+                  </Trans>
+                }
+                trailing={
+                  draw.sending() ? (
+                    <Spinner size="sm" label={t`Sending`} />
+                  ) : undefined
+                }
+                hideChevron
+                disabled={draw.sending()}
+                onClick={() => draw.send(props.commands.offerDraw)}
+                dataSet={{ testid: 'multiplayer-offer-draw' }}
+              />
+            </Show>
+            <BoardRows {...props} busy={draw.sending()} />
+          </MenuSection>
+        </Show>
+        <LeaveRows {...props} busy={draw.sending()} />
+      </StackVertical>
+    </ResponsiveSurface>
   );
 }

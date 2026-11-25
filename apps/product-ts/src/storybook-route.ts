@@ -8,7 +8,41 @@ export type StoryRoute = {
    * space. A screen is under exactly one frame, as in the product.
    */
   readonly spaceBody: false | 'shell' | 'story';
+  /**
+   * What the space's top bar is titled with inside the space, as the
+   * product titles it: the game the screen belongs to.
+   */
+  readonly spaceTitle?: string | undefined;
 };
+
+/** The game a family names (`screens-games-<game>-…`), as its menu names it. */
+const STORY_GAME_TITLES: readonly (readonly [string, string])[] = [
+  ['battleship', 'Battleship'],
+  ['chess', 'Chess'],
+  ['connect-four', 'Connect Four'],
+  ['hearts', 'Hearts'],
+  ['light-cycles', 'Light Cycles'],
+  ['numberlink', 'Numberlink'],
+  ['pong', 'Pong'],
+  ['quoridor', 'Quoridor'],
+  ['sokoban', 'Sokoban'],
+  ['word-tiles', 'Word Tiles'],
+];
+
+/**
+ * The game each framed screen belongs to, by its story family: a game's
+ * own stories its name, puzzles chess, puzzle packs their own name (their
+ * fixtures belong to no one game), and the shared frame's stories Connect
+ * Four, the game they show.
+ */
+function storySpaceTitle(family: string): string {
+  if (family.startsWith('screens-puzzles')) return 'Chess';
+  if (family.startsWith('screens-puzzle-packs')) return 'Puzzle packs';
+  const game = STORY_GAME_TITLES.find(([slug]) =>
+    family.startsWith(`screens-games-${slug}`)
+  );
+  return game?.[1] ?? 'Connect Four';
+}
 
 const TAB_ROUTES: Readonly<Record<string, string>> = {
   'screens-spaces-home': '/',
@@ -45,6 +79,17 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
   'screens-matchmaking-link': '/chess/multiplayer',
   'screens-puzzles-link': '/chess/puzzle/story-puzzle',
   'screens-puzzles-import-routed': '/more/puzzles',
+  // A space's own pages and sheets live under its route, so the Spaces tab
+  // stays the active one, as it does in the product.
+  'screens-space-join': '/space/story-room',
+  'screens-space-ended': '/space/story-room',
+  'screens-space-unreachable': '/space/story-room',
+  'screens-space-end': '/space/story-room',
+  'screens-space-leave': '/space/story-room',
+  'screens-spaces-members': '/space/story-room',
+  'screens-spaces-remove-person': '/space/story-room',
+  'screens-spaces-rename': '/space/story-room',
+  'screens-spaces-share': '/space/story-room',
   'screens-admin-user-observatory': '/admin/observatory',
   'screens-admin-online-now': '/admin/observatory/online',
   'screens-admin-synthetic-population': '/admin/observatory/synthetic-users',
@@ -67,12 +112,11 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
 };
 
 // These views are mounted under SpaceScreenFrame in the product; the story
-// shell frames them the same way. Link screens are outside a space.
+// shell frames them the same way. Link screens are outside a space. Every
+// `screens-games-<game>-…` family is a game's own screen in a space, so the
+// shell frames each one by its prefix, including families added later.
+const SPACE_BODY_PREFIX = 'screens-games-';
 const SPACE_BODIES = new Set([
-  'screens-games-battleship-board',
-  'screens-games-battleship-setup',
-  'screens-games-chess-board',
-  'screens-games-connect-four-board',
   'screens-matchmaking-stage-menu',
   'screens-matchmaking-home',
   'screens-matchmaking-guide',
@@ -95,32 +139,18 @@ const SPACE_BODIES = new Set([
   'screens-custom-games-setup-clock',
   'screens-custom-games-private-setup',
   'screens-custom-games-stage',
+  'screens-custom-games-stage-board-priority',
   'screens-custom-games-stage-menu',
   'screens-custom-games-stage-moves',
   'screens-custom-games-result',
   'screens-history-games',
   'screens-history-replay',
-  'screens-games-hearts-board',
-  'screens-games-light-cycles-stage',
-  'screens-games-light-cycles-stage-variants',
-  'screens-games-numberlink-editor',
-  'screens-games-numberlink-puzzle',
-  'screens-games-numberlink-preview',
-  'screens-games-pong-stage',
-  'screens-games-quoridor-hill',
-  'screens-games-quoridor-classic',
-  'screens-games-sokoban-editor',
-  'screens-games-sokoban-puzzle',
-  'screens-games-sokoban-preview',
-  'screens-games-word-tiles-board',
-  'screens-games-word-tiles-editor',
-  'screens-games-word-tiles-puzzle',
-  'screens-games-word-tiles-puzzle-preview',
   'screens-puzzles-import',
   'screens-puzzles-import-source',
   'screens-puzzles-import-status',
-  'screens-games-chess-puzzle',
   'screens-puzzles-stage',
+  'screens-puzzles-result',
+  'screens-puzzles-home',
   'screens-puzzle-packs-stage',
   'screens-puzzle-packs-stage-progress',
   'screens-puzzle-packs-builder',
@@ -154,8 +184,13 @@ export function storyRoute(id: string, override?: StoryRoute): StoryRoute {
   if (tab !== undefined) return { pathname: tab, tab: true, spaceBody: false };
   if (SELF_FRAMED_SPACE_BODIES.has(family))
     return { pathname: '/space/story-room', tab: false, spaceBody: 'story' };
-  if (SPACE_BODIES.has(family))
-    return { pathname: '/space/story-room', tab: false, spaceBody: 'shell' };
+  if (SPACE_BODIES.has(family) || family.startsWith(SPACE_BODY_PREFIX))
+    return {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: storySpaceTitle(family),
+    };
   // Isolated overlays and templates have no current product destination.
   return {
     pathname: STACK_ROUTES[family] ?? '/not-found',

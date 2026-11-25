@@ -69,12 +69,40 @@ export async function checkCatStatusGeometry(
   await assertClear(status);
 }
 
+/** The next frame of `element`'s window. */
+function nextFrame(element: HTMLElement): Promise<void> {
+  const view = element.ownerDocument.defaultView;
+  return new Promise((resolve) => {
+    if (view) view.requestAnimationFrame(() => resolve());
+    else resolve();
+  });
+}
+
+/**
+ * Wait until `element`'s box holds still for two frames. A wide game first
+ * lays its seats out as a phone's rail, then, once its width is measured,
+ * as rows over the board; the board's box takes the room those rows leave
+ * a frame later. The initial layout judged is the one that settles.
+ */
+async function settledLayout(element: HTMLElement): Promise<void> {
+  let last = '';
+  let still = 0;
+  for (let frame = 0; frame < 30 && still < 2; frame += 1) {
+    const box = element.getBoundingClientRect();
+    const now = [box.top, box.bottom, box.left, box.right].join();
+    still = now === last ? still + 1 : 0;
+    last = now;
+    await nextFrame(element);
+  }
+}
+
 /** Native initial layout, before any input can scroll the task into view. */
 export async function checkInitialWordWorkspace(
   canvasElement: HTMLElement
 ): Promise<void> {
   // regression: word-tiles-phone-action-overload
   const canvas = within(canvasElement);
+  await settledLayout(canvas.getByTestId('custom-game-board-rack'));
   const primary = canvas.getByTestId('custom-game-board-submit');
   const more = canvas.getByRole('button', { name: 'More actions' });
   await expect(more).toHaveAttribute('aria-expanded', 'false');

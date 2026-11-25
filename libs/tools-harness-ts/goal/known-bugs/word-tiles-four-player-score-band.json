@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×844 four match identities and scores took two chip rows before placement.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

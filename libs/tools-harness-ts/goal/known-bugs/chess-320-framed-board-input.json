@@ -1,0 +1,4 @@
+{
+  "summary": "At 320 by 640 the fixed chess stage narrowed to 200px, then the phone gutters and border reduced the playing surface to 180px. Selection, promotion and keyboard help were disabled.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

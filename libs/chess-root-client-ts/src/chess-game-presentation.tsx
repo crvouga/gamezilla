@@ -1,4 +1,5 @@
 import { BOARD_THEME } from '@libs/chess-root-shared-ts/board-theme';
+import { chessPositionDraw } from '@libs/chess-sub-shared-ts/chess-game';
 import type { GameClientPresentation } from '@libs/game-menu-client-ts/game-client';
 import { t } from '@lingui/core/macro';
 import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
@@ -13,8 +14,19 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { ComponentProps, JSX } from '@solidjs/web';
+
+/** How a chess game ended, by the reason its rules give. */
+function chessEnding(reason: string): string | undefined {
+  const descriptions: Readonly<Record<string, string>> = {
+    checkmate: t`By checkmate.`,
+    stalemate: t`By stalemate.`,
+    'insufficient material': t`Neither side can checkmate.`,
+    repetition: t`By repetition.`,
+    'fifty moves': t`By the fifty-move rule.`,
+  };
+  return descriptions[reason];
+}
 
 const UCI = /^([a-h][1-8])([a-h][1-8])[qrbn]?$/;
 
@@ -32,11 +44,11 @@ export function chessMoveSquares(
 /**
  * Chess as every game screen mounts it: the shared chess board in the
  * game's theme, a move sent as its from and to squares and any promotion.
- * A phone-sized board reads its coordinates outside the squares
- * (`ChessBoardFrame`), larger than a corner holds.
+ * A board reads its coordinates outside the squares (`ChessBoardFrame`),
+ * larger than a corner holds, its ranks at the same end edge on a phone
+ * and a wide screen, so the squares start under the screen's title.
  */
 export function ChessGameBoard(props: GameBoardProps): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <ChessBoard
       theme={BOARD_THEME}
@@ -50,7 +62,7 @@ export function ChessGameBoard(props: GameBoardProps): JSX.Element {
       autoPromoteQueen={false}
       showCoordinates
       showGuidance
-      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
+      coordinatePlacement="outside-end"
       highlightLastMove
       highlightLegalMoves
       onMove={(move) =>
@@ -72,8 +84,8 @@ export const chessPresentation: GameClientPresentation = {
     boardFit: 'square',
     players: fixedPlayers(2),
     options: [],
-    // White and Black are the pieces' own colors: a king says which.
-    seats: lookOnlySeats((side) => ({ mark: side === 'white' ? '♔' : '♚' })),
+    // Open and filled circles identify the mover independently of the piece.
+    seats: lookOnlySeats((side) => ({ mark: side === 'white' ? '○' : '●' })),
     createBoard: boardOnly(ChessGameBoard),
     turnStatus: () => null,
     result: (_position, winner) => ({
@@ -81,15 +93,10 @@ export const chessPresentation: GameClientPresentation = {
       standings: standingsFromWinner(winner, TWO_PLAYER_SIDES),
     }),
   },
-  endingDescription: (reason) => {
-    const descriptions: Readonly<Record<string, string>> = {
-      checkmate: t`By checkmate.`,
-      stalemate: t`By stalemate.`,
-      'insufficient material': t`Neither side can checkmate.`,
-      repetition: t`By repetition.`,
-      'fifty moves': t`By the fifty-move rule.`,
-    };
-    return descriptions[reason];
+  endingDescription: chessEnding,
+  rulesDrawDescription: (position) => {
+    const reason = chessPositionDraw(position);
+    return reason === null ? undefined : chessEnding(reason);
   },
   timeoutDrawDescription: (side) => {
     const flagged = side === 'white' ? t`White` : t`Black`;

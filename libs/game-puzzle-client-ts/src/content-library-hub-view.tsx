@@ -5,9 +5,14 @@ import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
-import { ContentProgressLine } from './content-library-card';
+import {
+  type ContentLibraryProgress,
+  ContentProgressLine,
+} from './content-library-card';
 import { ContentThumbnail } from './content-thumbnail';
 import type { PuzzlePacksHomeScreenViewProps } from './puzzle-packs-home-screen-view';
 
@@ -66,6 +71,23 @@ function PlayRows(props: { view: View }): JSX.Element {
   );
 }
 
+/** A starter pack's line, then where the person stands with it. */
+function PackCaption(props: {
+  description: string;
+  progress: ContentLibraryProgress | undefined;
+}): JSX.Element {
+  return (
+    <StackVertical>
+      <Show when={props.description}>
+        <Text variant="inherit">{props.description}</Text>
+      </Show>
+      <Show when={props.progress}>
+        {(progress) => <ContentProgressLine progress={progress()} />}
+      </Show>
+    </StackVertical>
+  );
+}
+
 /** Packs the game ships: available to everyone, with or without a connection. */
 function StarterPacks(props: { view: View }): JSX.Element {
   return (
@@ -83,12 +105,17 @@ function StarterPacks(props: { view: View }): JSX.Element {
                 />
               }
               title={pack.title}
-              caption={pack.description || undefined}
-              value={
-                pack.progress === undefined ||
-                pack.progress.total === 0 ? undefined : (
-                  <ContentProgressLine progress={pack.progress} />
-                )
+              // How far along the pack is reads under its name, so the
+              // name keeps the row's whole width.
+              caption={
+                <PackCaption
+                  description={pack.description}
+                  progress={
+                    pack.progress === undefined || pack.progress.total === 0
+                      ? undefined
+                      : pack.progress
+                  }
+                />
               }
               disabled={creating(props.view)}
               onClick={() => props.view.onOpenEdition(pack.id)}

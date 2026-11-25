@@ -1,6 +1,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import type { JSX } from '@solidjs/web';
@@ -39,26 +40,43 @@ export function RenameSpaceModalView(
       cancelDataSet={{ testid: Handles.spaceRenameCancel }}
       dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
     >
-      <TextInput
-        label={<Trans>Space name</Trans>}
-        value={props.value}
-        onChangeText={(next) => props.onChangeValue(next)}
-        invalid={props.refused}
-        placeholder={t`Give your space a name`}
-        autofocus
-        autocapitalize="words"
-        dataSet={{ testid: Handles.spaceRenameInput }}
-      />
-      <Show when={props.refused}>
-        <P
-          variant="caption"
-          tone="destructive"
-          role="alert"
-          testId={Handles.spaceRenameNotAllowed}
-        >
-          <Trans>That space name is not allowed</Trans>
-        </P>
-      </Show>
+      {/* The field and what is said about it, a breath apart. */}
+      <StackVertical gap="sm">
+        <TextInput
+          label={<Trans>Space name</Trans>}
+          value={props.value}
+          onChangeText={(next) => props.onChangeValue(next)}
+          invalid={props.refused}
+          placeholder={t`Give your space a name`}
+          autofocus
+          autocapitalize="words"
+          dataSet={{ testid: Handles.spaceRenameInput }}
+        />
+        {/* How to go back to the host's name, said whether or not a name
+            is in the field, so the dialog keeps one height as it fills. */}
+        <Show when={!props.refused}>
+          <P variant="caption" tone="secondary">
+            <Show
+              when={props.value.trim() === ''}
+              fallback={
+                <Trans>Clear it to name the space after its host.</Trans>
+              }
+            >
+              <Trans>Leave it empty to name the space after its host.</Trans>
+            </Show>
+          </P>
+        </Show>
+        <Show when={props.refused}>
+          <P
+            variant="caption"
+            tone="destructive"
+            role="alert"
+            testId={Handles.spaceRenameNotAllowed}
+          >
+            <Trans>That name isn't allowed. Try a different one.</Trans>
+          </P>
+        </Show>
+      </StackVertical>
     </MutationModal>
   );
 }

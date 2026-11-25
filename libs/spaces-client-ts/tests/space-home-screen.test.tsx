@@ -135,9 +135,10 @@ test('the screen is the catalogue template and launcher, in one shell', () => {
     container.querySelectorAll('[data-component="SpaceLauncher"]')
   ).toHaveLength(1);
   expect(screen.getAllByTestId(Handles.spaceTitle)).toHaveLength(1);
-  // The bar says what this screen is, not which space it is in.
+  // On the space's home the bar names the space, so everyone in it knows
+  // where they are; the stage says what is happening (a game is chosen).
   expect(screen.getByTestId(Handles.spaceTitle).textContent).toBe(
-    'Choose game'
+    'Friday game night'
   );
   // The old list is gone: no menu rows, no second heading for the games.
   expect(
@@ -237,7 +238,7 @@ test('Share is one of the space\u2019s actions and opens the share sheet', () =>
 // regression: space-seats-explained-twice
 // regression: game-list-watch-rule-unclear
 // regression: space-game-list-repeats-spectator-rule
-test('each tile says only how many play; nothing says who watches twice', () => {
+test('each tile says how many play and how many watch, once', () => {
   const container = mount({ role: 'host', people: [you(AVERY), ...GUESTS] });
   const text = container.textContent ?? '';
   expect(text).toContain('Pick a game for 5 players');
@@ -246,11 +247,30 @@ test('each tile says only how many play; nothing says who watches twice', () => 
     (game) => screen.getByTestId(Handles.gameMenu(game.id)).textContent ?? ''
   );
   expect(marks).toEqual([
-    'ChessUp to 2',
-    'HeartsUp to 4',
-    'Light CyclesUp to 4',
-    'NumberlinkSolo',
+    'Chess2 players · 3 watching',
+    'Hearts4 players · 1 watching',
+    'Light Cycles4 players · 1 watching',
+    'NumberlinkSolo · 4 watching',
   ]);
+});
+
+// regression: guest-waiting-counts-another-room
+test('a waiting guest reads every game\u2019s count as the host\u2019s tile says it', () => {
+  const room = (role: SpaceRole): string[] => {
+    const [guest, ...rest] = GUESTS.slice(0, 2);
+    if (guest === undefined) throw new Error('a guest is needed');
+    const people =
+      role === 'host'
+        ? [you(AVERY), guest, ...rest]
+        : [AVERY, you(guest), ...rest];
+    mount({ role, people });
+    const marks = GAMES.map(
+      (game) => screen.getByTestId(Handles.gameMenu(game.id)).textContent ?? ''
+    );
+    cleanup();
+    return marks;
+  };
+  expect(room('guest')).toEqual(room('host'));
 });
 
 test('each registered game becomes one launcher tile with its harness handle', () => {

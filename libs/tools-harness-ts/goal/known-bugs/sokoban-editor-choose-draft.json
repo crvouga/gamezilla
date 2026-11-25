@@ -1,0 +1,4 @@
+{
+  "summary": "The unreadable Sokoban editor directed builders to a saved draft without offering the draft chooser.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-editor-choose-draft.test.tsx"
+}

@@ -8,13 +8,13 @@ import type { JSX } from '@solidjs/web';
 export function SpacesNeedConnectionNotice(): JSX.Element {
   return (
     <Notice
-      tone="error"
+      tone="warning"
       icon={WifiOffIcon}
       dataSet={{ testid: Handles.spacesNeedConnection }}
     >
       <Trans>
-        Joining someone else's space needs a connection. Your own spaces work
-        offline.
+        Joining someone else's space needs a connection. Your own spaces still
+        work offline.
       </Trans>
     </Notice>
   );

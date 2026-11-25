@@ -56,10 +56,10 @@ test('storybook integration: screens-space-home--host-choosing has exactly one r
   page,
 }) => {
   await open(page, 'screens-space-home--host-choosing', 390);
-  // One top bar, which says what the screen is and is the space's alone:
+  // One top bar, which names the space on its home and is the space's alone:
   // the app's account menu stays outside a space.
   await expect(page.getByTestId('space-title')).toHaveCount(1);
-  await expect(page.getByTestId('space-title')).toHaveText('Choose game');
+  await expect(page.getByTestId('space-title')).toHaveText('Friday game night');
   const bar = page.locator('[data-space-row="actions"]');
   await expect(bar).toHaveCount(1);
   await expect(
@@ -79,4 +79,25 @@ test('storybook integration: a stack route keeps its header without bottom tabs'
   await open(page, 'screens-settings-appearance--system', 390);
   await expect(page.getByRole('heading', { name: 'Appearance' })).toBeVisible();
   await expect(page.locator('[data-component="AppTabBar"]')).toHaveCount(0);
+});
+
+// regression: space-menu-tooltip-obscures-choosing-heading
+test('a focused Space menu keeps the choosing heading clear on a phone', async ({
+  page,
+}) => {
+  await open(page, 'space-choosing--screen', 390);
+  await page.keyboard.press('Tab');
+  const menu = page.getByRole('button', { name: 'Space menu' });
+  await menu.focus();
+  await expect(menu).toBeFocused();
+  const tip = page.getByRole('tooltip').filter({ hasText: 'Space menu' });
+  await expect(tip).toBeVisible();
+  const bubble = await tip.boundingBox();
+  const heading = await page
+    .getByRole('heading', { name: /is choosing a game/i })
+    .boundingBox();
+  if (!bubble || !heading) throw new Error('Missing tooltip or heading');
+  expect(bubble.y + bubble.height).toBeLessThanOrEqual(heading.y);
+  await menu.press('Enter');
+  await expect(page.getByRole('menu', { name: 'Space menu' })).toBeVisible();
 });

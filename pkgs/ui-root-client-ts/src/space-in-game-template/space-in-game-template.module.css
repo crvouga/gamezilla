@@ -1,5 +1,6 @@
 /* In game the board is the main event: one slim status line, the board
-   edge to edge filling the room left, and the action bar by the thumbs. */
+   edge to edge filling the room left, and the action bar docked at the
+   bottom by the thumbs, at every width. */
 .stage {
   display: flex;
   flex: 1;
@@ -35,17 +36,42 @@
   flex-direction: column;
   min-width: 0;
   min-height: 0;
+  /* Its room is a size a board can fit itself to (`cqh`). */
+  container-type: size;
   overflow-x: hidden;
   overflow-y: auto;
 }
-/* The action bar: always there, always this height. */
+/* A board shorter than its room sits right under the status line, as on
+   every game's stage, its room's rest below it by the action bar; a
+   taller one scrolls from its top. */
+.board > * {
+  margin-block: 0 auto;
+}
+/* A board in its own shape (an arena) fits whole in the room between the
+   status line and the bar, inside the side gutter: as wide as the room,
+   or narrower when the room is short (the arena sizes itself from its
+   room's height), centred both ways in the room so a tall phone leaves
+   even space above and below it, never under the bar. The room it hangs
+   past its walls, for heads at the edge, fits in that space. */
+.board:has(> [data-board-sizing="width"]) {
+  padding-inline: var(--ui-space-4);
+  overflow: hidden;
+}
+.board > [data-board-sizing="width"] {
+  /* The arena sizes itself with its bleed counted, so the room left
+     above and below is at least that bleed whichever bound is tight. */
+  margin-block: auto;
+}
+/* The action bar: always there, always this height, above the home
+   indicator. */
 .bar {
   display: flex;
   flex: none;
   align-items: center;
   gap: var(--ui-space-2);
-  height: 88px;
-  padding: var(--ui-space-3) var(--ui-space-4) var(--ui-space-5);
+  height: calc(88px + env(safe-area-inset-bottom, 0px));
+  padding: var(--ui-space-3) var(--ui-space-4)
+    calc(var(--ui-space-5) + env(safe-area-inset-bottom, 0px));
   border-top: 1px solid var(--ui-color-border);
 }
 .bar > * {

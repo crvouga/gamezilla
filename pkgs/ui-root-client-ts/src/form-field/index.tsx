@@ -108,7 +108,7 @@ export function FormField(props: FormFieldProps): JSX.Element {
       render={(part) => (
         <div {...part} data-invalid={control.invalid ? 'true' : undefined} />
       )}
-      class="box gap-ui-xs"
+      class="box gap-ui-sm"
       data-testid={props.testId}
       data-component={componentId('FormField')}
     >

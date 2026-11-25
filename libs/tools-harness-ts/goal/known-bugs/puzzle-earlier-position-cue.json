@@ -1,0 +1,4 @@
+{
+  "summary": "Returning from the move line to an earlier puzzle position left its explanation and return action below the board and solving controls.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-play-places-layout.test.tsx"
+}

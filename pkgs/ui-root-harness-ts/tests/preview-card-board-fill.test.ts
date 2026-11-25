@@ -41,7 +41,9 @@ test("a card's board fills its picture: the whole area, fitted to its height", (
   expect(tiles).toMatch(/var\(--board-fit-tile-max, 2\.75rem\)/);
   expect(tiles).toMatch(/max-width:\s*calc\(\s*var\(--board-fit-block-size\)/);
   const paths = css('path-grid-board/path-grid-board.module.css');
-  expect(paths).toMatch(/max-width:\s*calc\(\s*var\(--board-fit-block-size\)/);
+  expect(paths).toMatch(
+    /max-width:\s*calc\(\s*var\(--board-fit-block-size,[^;]+?\)\s*\*\s*var\(--path-columns\)\s*\/\s*var\(--path-rows\)\s*\);/
+  );
 
   const grid = css('preview-card-grid/preview-card-grid.module.css');
   const wide = grid.indexOf('@container preview-card-grid (min-width: 640px)');
