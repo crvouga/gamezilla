@@ -1,4 +1,4 @@
-import { createSignal, onCleanup } from 'solid-js';
+import { createSignal, onSettled } from 'solid-js';
 
 type Point = { x: number; y: number };
 type Contact = { at: Point; felt: boolean };
@@ -108,7 +108,9 @@ class TableContacts {
     const pair = contactsOnFelt(this.contacts);
     contact.at = point(e);
     const next = contactsOnFelt(this.contacts);
-    const rect = this.viewport()?.getBoundingClientRect();
+    const rect = contact.felt
+      ? this.viewport()?.getBoundingClientRect()
+      : undefined;
     if (rect && pair && next) {
       const span = distance(pair.a, pair.b);
       if (span > 0)
@@ -140,7 +142,10 @@ class TableContacts {
   up(e: PointerEvent) {
     if (!this.contacts.delete(e.pointerId)) return;
     const card = this.pickup?.card;
-    const rect = this.viewport()?.getBoundingClientRect();
+    const rect =
+      card && this.suppress
+        ? this.viewport()?.getBoundingClientRect()
+        : undefined;
     const drop =
       card &&
       this.pickup &&
@@ -245,8 +250,13 @@ function listen(h: Handlers) {
 export function createHeartsInput() {
   const camera = lens();
   let root: HTMLElement | undefined;
-  const controller = new AbortController();
-  onCleanup(() => controller.abort());
+  onSettled(() => {
+    if (!root) return undefined;
+    const controller = new AbortController();
+    tableInput(root, camera, controller.signal);
+    root.addEventListener('keydown', keys, { signal: controller.signal });
+    return () => controller.abort();
+  });
   function toggle() {
     if (camera.view().scale > 1) {
       camera.reset();
@@ -293,8 +303,6 @@ export function createHeartsInput() {
     toggle,
     bind: (element: HTMLElement) => {
       root = element;
-      tableInput(element, camera, controller.signal);
-      element.addEventListener('keydown', keys, { signal: controller.signal });
     },
   };
 }

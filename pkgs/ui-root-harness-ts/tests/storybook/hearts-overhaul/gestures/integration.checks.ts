@@ -22,6 +22,7 @@ async function touch(page: Page) {
   ) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
 }
 
+// regression: hearts-table-inspection-at-fit
 async function inspect(page: Page, phone: boolean) {
   const frame = page.locator('[data-hearts-viewport]');
   const c = await center(frame);

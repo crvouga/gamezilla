@@ -1,0 +1,4 @@
+{
+  "summary": "Pinching the felt at 390×844 or using a trackpad pinch at 1440×900 left the table at fit and never offered Fit table.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/gestures/integration.checks.ts"
+}
