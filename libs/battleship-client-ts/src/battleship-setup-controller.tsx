@@ -49,7 +49,6 @@ export type SetupController = {
 type SetupView = {
   readonly draft: Draft;
   readonly selected: ShipId | null;
-  readonly preview: PlacementPreview | null;
   readonly enabled: boolean;
 };
 type SetupState = {
@@ -66,30 +65,32 @@ type SetupActions = Pick<
   'choose' | 'place' | 'rotate' | 'remove'
 >;
 
-function setupGlyph(
-  occupied: boolean,
-  previewed: boolean,
-  valid: boolean
-): string {
-  if (previewed && !valid) return GLYPHS.refused;
-  if (occupied) return GLYPHS.ship;
-  if (!previewed) return '';
-  return valid ? GLYPHS.fits : GLYPHS.refused;
+function previewCells(
+  cells: readonly CellGridCell[],
+  preview: PlacementPreview | null
+): readonly CellGridCell[] {
+  if (!preview) return cells;
+  return cells.map((cell) =>
+    preview.cells.includes(cell.id)
+      ? {
+          ...cell,
+          glyph: preview.valid ? cell.glyph || GLYPHS.fits : GLYPHS.refused,
+          emphasis: preview.valid ? 'preview' : 'refused',
+          previewEdges: hullEdges(preview.cells, cell.id),
+        }
+      : cell
+  );
 }
 function setupCell(cell: string, view: SetupView): CellGridCell {
   const label = cellLabel(cell);
   const occupant = draftShipAt(view.draft, cell);
-  const previewed = view.preview?.cells.includes(cell) === true;
-  const valid = view.preview?.valid === true;
   const name = occupant === null ? '' : shipName(occupant.ship);
   return {
     id: cell,
-    glyph: setupGlyph(occupant !== null, previewed, valid),
+    glyph: occupant ? GLYPHS.ship : '',
     tone: occupant === null ? 'open' : 'occupied',
     edges: occupant ? hullEdges(occupant.cells, cell) : undefined,
-    previewEdges: previewed && view.preview ? hullEdges(view.preview.cells, cell) : undefined,
     outlined: occupant !== null && occupant.ship === view.selected,
-    emphasis: previewed ? (valid ? 'preview' : 'refused') : 'none',
     enabled: view.enabled,
     label: occupant === null ? t`${label}: open water` : t`${label}: ${name}`,
   };
@@ -182,7 +183,9 @@ export function createSetupController(
   const [orientation, setOrientation] = createSignal<Orientation>('h');
   const [hovered, setHovered] = createSignal<string | null>(null);
   const [refusal, setRefusal] = createSignal<string | null>(null);
-  const selected = createMemo(() => chosen() ?? unplacedShips(draft())[0] ?? null);
+  const selected = createMemo(
+    () => chosen() ?? unplacedShips(draft())[0] ?? null
+  );
   const placing = createMemo(() => {
     const ship = selected();
     const bow = hovered();
@@ -198,16 +201,16 @@ export function createSetupController(
     setOrientation,
     setRefusal,
   });
-  const cells = createMemo(() =>
+  const chart = createMemo(() =>
     CELLS.map((cell) =>
       setupCell(cell, {
         draft: draft(),
         selected: selected(),
-        preview: placing(),
         enabled: !props.locked && selected() !== null,
       })
     )
   );
+  const cells = createMemo(() => previewCells(chart(), placing()));
   const status = createMemo(() =>
     statusText(draft(), selected(), orientation())
   );

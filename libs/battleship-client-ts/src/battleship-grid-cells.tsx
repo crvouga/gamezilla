@@ -92,9 +92,13 @@ function openCell(cell: string, grid: ShotGrid): CellGridCell {
 export function shotGridCells(grid: ShotGrid): readonly CellGridCell[] {
   const shots = new Map(grid.shots.map((shot) => [shot.cell, shot]));
   const sunk = sunkShipCells(grid.shots);
-  const wrecks = new Map([...sunk].flatMap(([ship, cells]) =>
-    cells.map((cell) => [cell, { ship, edges: hullEdges(cells, cell) }] as const)
-  ));
+  const wrecks = new Map(
+    [...sunk].flatMap(([ship, cells]) =>
+      cells.map(
+        (cell) => [cell, { ship, edges: hullEdges(cells, cell) }] as const
+      )
+    )
+  );
   const recent = latest(grid.shots);
   return CELLS.map((cell) => {
     const shot = shots.get(cell);
@@ -171,7 +175,10 @@ export function fleetGridCells(
     const view =
       ship === null
         ? ownWaterCell(cell, fired.has(cell))
-        : { ...ownShipCell(cell, ship, hits), edges: hullEdges(ship.cells, cell) };
+        : {
+            ...ownShipCell(cell, ship, hits),
+            edges: hullEdges(ship.cells, cell),
+          };
     return withRecent(view, cell === recent);
   });
 }

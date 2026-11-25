@@ -87,24 +87,34 @@
   color: var(--color-background);
   outline-color: var(--color-background);
 }
-.board[data-battleship-surface] .cell:is([data-tone="occupied"], [data-tone="critical"], [data-tone="alert"]) {
+.board[data-battleship-surface]
+  .cell:is(
+    [data-tone="occupied"],
+    [data-tone="critical"],
+    [data-tone="alert"]
+  ) {
   --hull-end: var(--ui-radius-card);
   --bow-left: 0;
   --bow-right: 0;
   --stern-left: 0;
   --stern-right: 0;
-  border-radius: var(--bow-left) var(--bow-right) var(--stern-right) var(--stern-left);
+  border-radius: var(--bow-left) var(--bow-right) var(--stern-right)
+    var(--stern-left);
 }
-.board[data-battleship-surface] .cell[data-edge-top="true"][data-edge-left="true"] {
+.board[data-battleship-surface]
+  .cell[data-edge-top="true"][data-edge-left="true"] {
   --bow-left: var(--hull-end);
 }
-.board[data-battleship-surface] .cell[data-edge-top="true"][data-edge-right="true"] {
+.board[data-battleship-surface]
+  .cell[data-edge-top="true"][data-edge-right="true"] {
   --bow-right: var(--hull-end);
 }
-.board[data-battleship-surface] .cell[data-edge-bottom="true"][data-edge-left="true"] {
+.board[data-battleship-surface]
+  .cell[data-edge-bottom="true"][data-edge-left="true"] {
   --stern-left: var(--hull-end);
 }
-.board[data-battleship-surface] .cell[data-edge-bottom="true"][data-edge-right="true"] {
+.board[data-battleship-surface]
+  .cell[data-edge-bottom="true"][data-edge-right="true"] {
   --stern-right: var(--hull-end);
 }
 .board[data-battleship-surface="fleet"] .cell[data-tone="occupied"] {
