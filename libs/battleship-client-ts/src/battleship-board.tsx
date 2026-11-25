@@ -170,6 +170,18 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
   );
 }
 
+function markAim(
+  cells: readonly CellGridCell[],
+  target: string | null
+): readonly CellGridCell[] {
+  if (target === null) return cells;
+  return cells.map((cell) =>
+    cell.id === target
+      ? { ...cell, emphasis: 'preview', glyph: GLYPHS.aiming }
+      : cell
+  );
+}
+
 function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
   const battle = createMemo(
     () =>
@@ -214,17 +226,9 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
       aiming: aim.aiming(),
     })
   );
-  const aimCells = createMemo(() => {
-    const cells = targetCells();
-    const target = selected();
-    if (target === null || aim.aiming() !== null) return cells;
-    return cells.map(
-      (cell): CellGridCell =>
-        cell.id === target
-          ? { ...cell, emphasis: 'preview', glyph: GLYPHS.aiming }
-          : cell
-    );
-  });
+  const aimCells = createMemo(() =>
+    markAim(targetCells(), aim.aiming() === null ? selected() : null)
+  );
   const confirming = () =>
     (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
