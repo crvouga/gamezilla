@@ -1,0 +1,4 @@
+{
+  "summary": "Reopening a browser tab first loaded the home document and then navigated to the saved game, giving a live game two boots during one reopen.",
+  "regressionTest": "libs/harness-ts/tests/browser-reopen-route.test.ts"
+}

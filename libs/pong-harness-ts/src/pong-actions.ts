@@ -3,7 +3,12 @@ import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-u
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { pongGuidance } from './pong-guidance';
-import { PONG_BOARD, type PongPaddle, pongView } from './pong-view';
+import {
+  PONG_BOARD,
+  type PongPaddle,
+  pongScoreboard,
+  pongView,
+} from './pong-view';
 
 /** Alice and the second local person share one device; no second account is invented. */
 export const establishLocalPong = scenarioAction({
@@ -39,7 +44,7 @@ async function countdown(s: ProductHarness): Promise<void> {
   await pollUntil(
     s,
     async () => {
-      const stage = (await pongView(s)).stage;
+      const stage = (await pongScoreboard(s)).stage;
       if (stage === 'playing') return true;
       if (stage === 'countdown') await positionPaddles(s, 500, 500);
       return null;
