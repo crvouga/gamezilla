@@ -178,6 +178,7 @@
   stroke-width: 12;
 }
 .line {
+  stroke-dasharray: none;
   fill: none;
   stroke: var(--path-color);
   stroke-width: 20;
