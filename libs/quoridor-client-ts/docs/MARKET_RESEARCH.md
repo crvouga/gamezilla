@@ -1,4 +1,4 @@
-# How three playable Quoridor boards show a turn
+# Quoridor board market research
 
 A player chooses between two kinds of space on a flat Quoridor board. A pawn lands **inside a square**. A wall occupies **the gap between squares** and spans two of them. Three independently published games illustrate different ways to make that choice. The captions describe the publishers' images. Interaction details come from their instructions. All three sources and their images were accessed on November 25, 2026.
 
@@ -26,14 +26,19 @@ The letters and adjacent names connect pawns to people. The colored perimeter co
 
 The white bars make orientation and span visible without reference to pawn color. The publisher documents a separate preview and commit step for the **terminal version**. Arrow keys choose a destination. Brackets identify the candidate square, and green or red indicates validity. Enter commits the move. Tab switches to fence mode, arrow keys position the fence, Space rotates it, and Enter places it. This lets the player correct an orientation before spending a fence. The instructions give no explicit cancel command. They name the opposite edge as the objective for each player. The recording does not establish how the web version handles touch. [Publisher's recording and terminal controls](https://github.com/ringtailsoftware/zoridor/tree/960df4f73236654226bf8fad1f578d379c6b23a8) · [Playable web version](https://ringtailsoftware.github.io/zoridor/)
 
-## Board-only opportunities for production Storybook
+## Decisions and verification
 
-None of the three cited sources documents a center-hill objective. The Hill proposal below comes from the production game's own winning position. These are proposed automated checks, with existing production stories as entry points.
+Reviewed November 25, 2026. The comparison informed three choices for Classic and Hill.
 
-| Board decision | What the story should prove |
-| --- | --- |
-| Give a pawn, a legal destination and keyboard focus distinct marks inside a cell. | In Classic's `PawnIdentityAndKeyboard`, move focus to a destination. Check that focus alone leaves both pawns in place. Activate the destination and check the new occupant's identity and the vacated square. |
-| Show the whole candidate wall before committing. Let the player change their mind at the same anchor. | In Classic's `RotateWallPreview`, rotate at a fixed anchor and check the two gaps covered in each orientation. In `KeyboardWallCancellation`, cancel and check that the preview disappears, the turn stays with the player and the wall count stays the same. In `PlaceAWall`, commit and check that exactly one wall is spent. |
-| Give a goal its own shape, distinct from a fence or a move marker. | In Classic's `ReachOppositeEdge`, put a wall near the goal and check that the winning cell remains identifiable. In Hill's `ReachTheHill`, check that e5 identifies both the hill and a legal destination before the move, then shows the winning pawn after activation. Exercise both at phone width, where the marks share the least space. |
+| Player task | Decision on our board | Evidence |
+| --- | --- | --- |
+| Find a pawn and choose a destination. | Keep the pawn's seat-specific shape visible and mark legal destinations with open rings. Keyboard focus has its own outline. The gesture candidate adds a pawn drag that lands on a legal square. | The Classic pawn identity and keyboard story passed in the first hosted round. The opening captures show the pawn and rings at their native board sizes. |
+| Try a wall without spending it. | Let the player select a square as an anchor and see both gaps the proposed wall spans. Rotation keeps that anchor. A separate confirmation spends the wall. The gesture candidate lets a finger slide the preview between anchors. | The first hosted round exercised horizontal and vertical proposals, refusal, cancellation and placement. The matched clips show native rotation and cancellation. |
+| Tell a destination from a wall. | Classic marks the goal row with a finish stripe. Hill marks e5 with a star and contours that remain beneath the winning pawn. The Hill objective comes from our own rules. | The hosted Classic and Hill journeys reached their respective goals. Opening screenshots show the two objective treatments on desktop and phone. |
 
-[Classic production stories](../src/quoridor-board.stories.tsx) · [King of the Hill production stories](../src/quoridor-board-hill.stories.tsx)
+[Matched board-only screenshots and wall-editing clips](https://github.com/crvouga/gamezilla/pull/582#issuecomment-7159242344) · [Hosted Classic and Hill checks](https://github.com/crvouga/gamezilla/actions/runs/45589092120/job/139118252086) · [Classic production stories](../src/quoridor-board.stories.tsx) · [Hill production stories](../src/quoridor-board-hill.stories.tsx)
+
+## Open questions
+
+- Does the four-square highlight make a wall's anchor clear while a fingertip covers the gap? The published competitor screenshots show the wall after placement. They do not answer this touch question.
+- Can a player interrupt a drag to inspect the board, pan around a magnified position, and resume without making a move? The gesture candidate has hosted checks for pinch anchoring, transformed targets, cancellation, pawn landing and reduced motion. Its first capture stopped during tooling verification, before those checks ran. [Gesture evidence run](https://github.com/crvouga/gamezilla/actions/runs/45593299027)
