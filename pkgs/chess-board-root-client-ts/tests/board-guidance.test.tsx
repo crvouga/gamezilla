@@ -79,3 +79,18 @@ test('before placement keeps keyboard guidance ahead of the same playable board'
     board.unmount();
   }
 });
+
+// regression: chess-guidance-detail-contract-proof-missing
+test('keyboard detail keeps only the keyboard disclosure, the coach says the rest', () => {
+  const board = mountBoard({
+    showGuidance: true,
+    interactive: true,
+    guidanceDetail: 'keyboard',
+  });
+  expect(screen.queryByText(/White pieces at the bottom/)).toBeNull();
+  expect(screen.queryByText('Tap a piece, then a square.')).toBeNull();
+  expect(
+    screen.getByRole('button', { name: 'Keyboard controls' })
+  ).toBeTruthy();
+  board.unmount();
+});
