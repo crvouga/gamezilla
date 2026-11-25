@@ -82,7 +82,10 @@
 
 /* Two players: the headline already says who won, so the standings stay
    for a bigger table, and the card stays short over the final board. */
-.body [data-component="GameStandings"]:not(:has(> :nth-child(3))) {
+.body
+[data-component="GameStandings"]:not(:has(> :nth-child(3))):not(
+  :has(:global(.textStat))
+) {
   display: none;
 }
 /* A phone docks the card at the top, over the game's info, so the final
@@ -91,5 +94,17 @@
   :global([data-component="GameResultDialog"]) > div:last-child {
     justify-content: flex-start;
     padding-top: 56px;
+  }
+}
+/* A wide window docks the card over the stage's side column, beside the
+   board, never over it: the final position stays whole in view. */
+@media (min-width: 1024px) {
+  :global([data-component="GameResultDialog"]) > div:last-child {
+    justify-content: flex-start;
+    padding: 120px 40px 40px;
+  }
+  :global([data-component="GameResultDialog"])
+    :global([data-component="ModalContent"]) {
+    align-self: flex-end;
   }
 }

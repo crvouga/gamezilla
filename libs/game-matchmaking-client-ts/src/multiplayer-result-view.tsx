@@ -9,8 +9,8 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { type JSX, Show } from 'solid-js';
 import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
@@ -160,24 +160,32 @@ function Review(props: ResultProps): JSX.Element {
  * commands that answer the game carry its weight.
  */
 function Onward(props: ResultProps): JSX.Element {
-  // Destinations, not answers to the game: rows with a chevron, the
-  // dialog's width, each a full tap target.
+  // Destinations, not answers to the game: one row of two quiet buttons
+  // with a chevron, each a full tap target, so the card stays short.
   return (
     <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
-      <MenuSection>
+      <StackHorizontal gap="sm">
         <Show when={props.game.newOpponent}>
-          <MenuRow
+          <Button
             title={<Trans>Game options</Trans>}
+            variant="ghost"
+            intent="neutral"
+            flex={1}
+            endIcon={<ChevronRightIcon />}
             onClick={() => props.onOpen({ screen: 'home' })}
             dataSet={{ testid: 'multiplayer-open-find' }}
           />
         </Show>
-        <MenuRow
+        <Button
           title={<Trans>Your ratings</Trans>}
+          variant="ghost"
+          intent="neutral"
+          flex={1}
+          endIcon={<ChevronRightIcon />}
           onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
           dataSet={{ testid: 'multiplayer-open-ratings' }}
         />
-      </MenuSection>
+      </StackHorizontal>
     </Show>
   );
 }

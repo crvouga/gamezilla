@@ -32,5 +32,7 @@
   height: 48px;
   min-width: 0;
   padding-inline: var(--ui-space-lg);
-  overflow: hidden;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
 }

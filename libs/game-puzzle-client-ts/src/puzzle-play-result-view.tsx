@@ -83,7 +83,7 @@ function ResultFacts(props: PuzzleStageScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
   return (
-    <StackHorizontal wrap gap="sm">
+    <StackHorizontal gap="sm">
       <Show when={props.result.puzzleRating > 0}>
         <PuzzleRatingBadge
           rating={props.result.puzzleRating}
@@ -293,15 +293,20 @@ export function PuzzleResultInfo(
   props: PuzzleStageScreenViewProps
 ): JSX.Element {
   return (
-    <Show when={props.result.completion} keyed>
-      {(completion) => (
-        <PuzzleSummaryCard
-          completion={completion}
-          displayRating={props.result.displayRating}
-          provisional={props.result.provisional}
-        />
-      )}
-    </Show>
+    // The rating the puzzle made first, then the puzzle's own facts, one
+    // line that scrolls sideways when it runs long.
+    <StackHorizontal align="center" gap="md">
+      <Show when={props.result.completion} keyed>
+        {(completion) => (
+          <PuzzleSummaryCard
+            completion={completion}
+            displayRating={props.result.displayRating}
+            provisional={props.result.provisional}
+          />
+        )}
+      </Show>
+      <ResultFacts {...props} />
+    </StackHorizontal>
   );
 }
 
@@ -336,10 +341,6 @@ export function PuzzleResultSummary(
       {/* What next comes straight after how it went, so on a phone Next
           puzzle is in view without scrolling; the numbers follow. */}
       <ResultCommands {...props} />
-      {/* The numbers read from the column's start, as the commands do. */}
-      <StackVertical gap="md" align="start">
-        <ResultFacts {...props} />
-      </StackVertical>
     </StackVertical>
   );
 }
