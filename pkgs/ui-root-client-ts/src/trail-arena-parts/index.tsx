@@ -64,12 +64,21 @@ export function ArenaPatterns(props: {
   return (
     <defs>
       <pattern
-        id={`${props.arenaId}-grid`}
+        id={`${props.arenaId}-cells`}
         width="1"
         height="1"
         patternUnits="userSpaceOnUse"
       >
-        <circle class={styles['gridDot']} r="0.08" />
+        <circle class={styles['gridDot']} cx="0.5" cy="0.5" r="0.09" />
+      </pattern>
+      <pattern
+        id={`${props.arenaId}-grid`}
+        width="4"
+        height="4"
+        patternUnits="userSpaceOnUse"
+      >
+        <rect width="4" height="4" fill={`url(#${props.arenaId}-cells)`} />
+        <path class={styles['datum']} d="M0.5 0.2v0.6M0.2 0.5h0.6" />
       </pattern>
       <For each={props.indices}>
         {(index) => (
@@ -137,11 +146,18 @@ export function RiderHead(props: {
       <Show when={props.rider.controlSlot !== null}>
         <circle class={styles['ring']} r="1.45" />
       </Show>
-      <path
-        class={styles['nose']}
-        d="M-0.56 -0.74L0 -1.6L0.56 -0.74Z"
-        transform={`rotate(${headingRotation(props.rider.heading)})`}
-      />
+      <Show
+        when={props.rider.alive}
+        fallback={<circle class={styles['disc']} r="1" />}
+      >
+        <g transform={`rotate(${headingRotation(props.rider.heading)})`}>
+          <path
+            class={styles['chassis']}
+            d="M0 -1.6L0.62 -1.02Q0.86 -0.8 0.86 -0.42V0.35L1.04 0.65V1.08H0.52L0.34 0.85H-0.34L-0.52 1.08H-1.04V0.65L-0.86 0.35V-0.42Q-0.86 -0.8 -0.62 -1.02Z"
+          />
+          <path class={styles['visor']} d="M-0.42 -0.85L0 -1.22L0.42 -0.85" />
+        </g>
+      </Show>
       <Show
         when={
           props.rider.alive &&
@@ -155,7 +171,6 @@ export function RiderHead(props: {
           transform={`rotate(${headingRotation(props.rider.next ?? props.rider.heading)})`}
         />
       </Show>
-      <circle class={styles['disc']} r="1" />
       <text class={styles['mark']} dy="0.07">
         {props.rider.mark}
       </text>

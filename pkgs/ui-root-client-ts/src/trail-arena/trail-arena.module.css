@@ -102,6 +102,12 @@
 .gridDot {
   fill: var(--ui-color-border);
 }
+.datum {
+  fill: none;
+  stroke: var(--ui-color-outline);
+  stroke-width: 0.1;
+  opacity: 0.5;
+}
 .wall {
   fill: none;
   stroke: var(--ui-color-outline);
@@ -133,12 +139,19 @@
 .ring {
   fill: none;
   stroke: var(--ui-color-text);
-  stroke-width: 0.18;
+  stroke-width: 0.14;
+  stroke-dasharray: 1.8 0.48;
 }
-.nose {
+.chassis {
   fill: var(--rider-color);
   stroke: var(--ui-color-background);
   stroke-width: 0.1;
+  stroke-linejoin: round;
+}
+.visor {
+  fill: none;
+  stroke: var(--ui-color-background);
+  stroke-width: 0.16;
   stroke-linejoin: round;
 }
 .next {
@@ -173,7 +186,7 @@
 .head[data-alive="false"] .mark {
   fill: var(--rider-color);
 }
-.head[data-alive="false"] .nose {
+.head[data-alive="false"] .chassis {
   display: none;
 }
 

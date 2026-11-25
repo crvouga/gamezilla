@@ -18,10 +18,11 @@ import { LightCyclesBoardView } from './light-cycles-board-view';
 import {
   lightCyclesDuelClient,
   lightCyclesQuadClient,
+  lightCyclesTrioClient,
 } from './light-cycles-game-client';
 
 /** Reach a mode's countdown or opening trails through its production simulation. */
-function position(riders: 2 | 4, ticks: number): string {
+function position(riders: 2 | 3 | 4, ticks: number): string {
   const config = lightCyclesConfig();
   const step = createLightCyclesStep(config);
   let state = initialLightCyclesState(config, LIGHT_CYCLES_SEATS[riders]);
@@ -36,8 +37,12 @@ function position(riders: 2 | 4, ticks: number): string {
 }
 
 /** Each variant supplies its actual title, seats and frame around the silent board. */
-function renderMode(riders: 2 | 4) {
-  const client = riders === 2 ? lightCyclesDuelClient : lightCyclesQuadClient;
+function renderMode(riders: 2 | 3 | 4) {
+  const client = {
+    2: lightCyclesDuelClient,
+    3: lightCyclesTrioClient,
+    4: lightCyclesQuadClient,
+  }[riders];
   const presentation = client.presentation;
   return (
     args: GameBoardProps,
@@ -47,7 +52,7 @@ function renderMode(riders: 2 | 4) {
 
 const meta = {
   id: 'screens-games-light-cycles-stage-variants',
-  title: 'Screens/Space/Boards/Light Cycles/Stage duel and quad',
+  title: 'Screens/Space/Boards/Light Cycles/Stage variants',
   component: LightCyclesBoardView,
   tags: ['autodocs'],
   render: (args, context) => renderMode(2)(args, context),
@@ -79,6 +84,12 @@ export const DuelRiding: Story = {};
 export const DuelWatching: Story = {
   args: { simulation: undefined },
   parameters: { table: { viewer: null } },
+};
+
+/** Three riders share the same arena with their own seat identities. */
+export const TrioRiding: Story = {
+  render: (args, context) => renderMode(3)(args, context),
+  args: { position: position(3, 120) },
 };
 
 /** Four riders wait at distinct starting cells, with all four seats visible. */
