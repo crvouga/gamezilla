@@ -36,3 +36,27 @@
   overflow-y: hidden;
   white-space: nowrap;
 }
+
+/* Beside the board (a wide window) the line may wrap: nothing under it can
+   move the board there. */
+@container puzzle-frame (min-width: 880px) {
+  .info {
+    height: auto;
+    min-height: 48px;
+    padding-block: var(--ui-space-2);
+    overflow: visible;
+    white-space: normal;
+  }
+  .info,
+  .info * {
+    flex-wrap: wrap;
+  }
+}
+
+/* A phone's line keeps to what fits: the puzzle's themes read beside a
+   wide board only, never cut mid-word here. */
+@container puzzle-frame (width < 880px) {
+  .info [data-testid="chess-puzzle-feed-puzzle-themes"] {
+    display: none;
+  }
+}

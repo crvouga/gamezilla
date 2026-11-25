@@ -164,7 +164,7 @@ function Onward(props: ResultProps): JSX.Element {
   // with a chevron, each a full tap target, so the card stays short.
   return (
     <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
-      <StackHorizontal gap="sm">
+      <StackHorizontal gap="sm" testId="multiplayer-onward">
         <Show when={props.game.newOpponent}>
           <Button
             title={<Trans>Game options</Trans>}

@@ -87,7 +87,7 @@ function ResultFacts(props: PuzzleStageScreenViewProps): JSX.Element {
       <Show when={props.result.puzzleRating > 0}>
         <PuzzleRatingBadge
           rating={props.result.puzzleRating}
-          prefix={t`Puzzle rating`}
+          prefix={t`Puzzle`}
           testId={Handles.chessPuzzleBoardElo}
         />
       </Show>

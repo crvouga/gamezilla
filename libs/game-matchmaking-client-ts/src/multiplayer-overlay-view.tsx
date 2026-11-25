@@ -142,16 +142,18 @@ export function MultiplayerResultCard(props: {
           tone={result().tone}
           // Every outcome opens with its word, a draw's too, as a custom
           // game's result does.
-          eyebrow={headline(result())}
+          // The outcome's word, and what it did to the rating beside it on
+          // the same line, so the card stays short over the board.
+          eyebrow={
+            <StackHorizontal align="center" gap="sm">
+              {headline(result())}
+              {result().rating}
+            </StackHorizontal>
+          }
           title={result().title}
           caption={result().caption}
           dataSet={{ testid: 'multiplayer-announcement' }}
         >
-          {/* The rating change on a row of its own, from the text's edge,
-              never a pill wrapping out of the sentence above. */}
-          <Show when={result().rating}>
-            <StackHorizontal>{result().rating}</StackHorizontal>
-          </Show>
           {props.children}
         </GameResultCard>
       )}

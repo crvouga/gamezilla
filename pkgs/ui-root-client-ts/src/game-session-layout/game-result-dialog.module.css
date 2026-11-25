@@ -93,7 +93,13 @@
 @media (max-width: 767px) {
   :global([data-component="GameResultDialog"]) > div:last-child {
     justify-content: flex-start;
-    padding-top: 56px;
+    padding: 52px var(--ui-space-2) var(--ui-space-2);
+  }
+  /* Places to go next (other options, ratings) wait on the game's home,
+     one step back: the phone card holds only the outcome and its answers,
+     and ends above the board. */
+  .body [data-testid="multiplayer-onward"] {
+    display: none;
   }
 }
 /* A wide window docks the card over the stage's side column, beside the
