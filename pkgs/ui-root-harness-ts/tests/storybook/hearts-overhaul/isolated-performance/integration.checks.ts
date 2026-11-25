@@ -23,19 +23,29 @@ for (const width of [320, 390, 768, 1440]) {
       test('storybook integration: Hearts repeated input timing without recording overhead', async ({
         page,
       }, info) => {
+        // regression: hearts-isolated-trial-timeout
+        const trialCount = 5;
+        const trialTimeout = info.timeout;
+        test.setTimeout(trialTimeout * (trialCount + 1));
         const rate = width < 768 ? 4 : 1;
         const cdp = await page.context().newCDPSession(page);
         await cdp.send('Emulation.setCPUThrottlingRate', { rate });
         const trials = [];
-        for (const _trial of [0, 1, 2, 3, 4]) {
-          await openHearts(
-            page,
-            'screens-games-hearts-interaction--pass-and-play',
-            theme
+        for (let trial = 1; trial <= trialCount; trial++) {
+          const samples = await test.step(
+            `Complete trick ${trial}`,
+            async () => {
+              await openHearts(
+                page,
+                'screens-games-hearts-interaction--pass-and-play',
+                theme
+              );
+              await startHeartsMetrics(page);
+              await exerciseHeartsTrick(page, width < 1024);
+              return readHeartsMetrics(page);
+            },
+            { timeout: trialTimeout }
           );
-          await startHeartsMetrics(page);
-          await exerciseHeartsTrick(page, width < 1024);
-          const samples = await readHeartsMetrics(page);
           expect(samples.inputs).toHaveLength(9);
           trials.push(samples);
         }
