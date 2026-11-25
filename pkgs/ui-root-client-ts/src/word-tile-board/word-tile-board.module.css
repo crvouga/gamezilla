@@ -99,33 +99,13 @@
   box-shadow: inset 0 0 0 4px var(--ui-color-board-card-ink);
   z-index: 1;
 }
-.cell[data-square="DL"] {
-  background: var(--ui-color-game-word-tiles-two);
-  color: var(--ui-color-game-word-tiles-canvas);
-}
-.cell[data-square="TL"] {
-  background: var(--ui-color-info);
-  color: var(--ui-color-on-info);
-}
-.cell[data-square="DW"],
-.cell[data-square="start"] {
-  background: var(--ui-color-game-word-tiles-accent);
-  color: var(--ui-color-game-word-tiles-canvas);
-}
-.cell[data-square="TW"] {
-  background: var(--ui-color-game-word-tiles-one);
-  color: var(--ui-color-game-word-tiles-canvas);
-}
-.square {
-  font-size: var(--ui-font-size-xs);
-  font-weight: 600;
-}
 .cell[data-state="committed"],
 .cell[data-state="recent"],
 .cell[data-state="tentative"] {
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
-  border-color: var(--ui-color-outline);
+  border-color: var(--ui-color-game-word-tiles-muted);
+  border-bottom-width: 2px;
 }
 .cell[data-state="recent"] {
   outline: 2px solid var(--ui-color-text);
@@ -133,7 +113,7 @@
 }
 .cell[data-state="tentative"] {
   background: var(--ui-color-game-word-tiles-accent);
-  border: 2px dashed var(--ui-color-tint);
+  border: 2px dashed var(--ui-color-board-card-ink);
 }
 .letter {
   font-weight: 700;
@@ -246,11 +226,27 @@
   background: var(--ui-color-game-word-tiles-one);
 }
 .square {
-  font-weight: 400;
+  font-weight: 600;
+  font-size: var(--ui-font-size-xs);
+  line-height: 1;
 }
 
 /* The fitted overview leaves room for rack, scores and the enlargement action. */
 .board[data-measure="full"][data-enlarged="false"] {
   max-width: 23rem;
   margin-inline: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .cell[data-state="empty"][aria-disabled="false"]:hover {
+    outline: 2px solid var(--ui-color-game-word-tiles-accent);
+    outline-offset: -2px;
+  }
+}
+
+.board[data-enlarged="true"] .letter {
+  font-size: var(--ui-font-size-lg);
+}
+.board[data-enlarged="true"] .points {
+  right: var(--ui-space-1);
 }

@@ -12,7 +12,8 @@
   gap: 0;
   padding: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-surface-muted);
+  background: var(--ui-color-game-word-tiles-canvas);
+  box-shadow: inset 0 -2px var(--ui-color-game-word-tiles-muted);
 }
 @container (max-width: 20rem) {
   .rack {
@@ -32,19 +33,20 @@
   padding: 0;
   border: none;
   background: transparent;
-  color: var(--ui-color-text);
+  color: var(--ui-color-board-card-ink);
   cursor: pointer;
   touch-action: manipulation;
-  transition: transform 120ms ease;
+  --tile-lift: 0;
 }
 .tile::before {
   content: "";
   position: absolute;
   inset: calc(var(--ui-space-1) / 2);
   z-index: -1;
-  border: 1px solid var(--ui-color-outline);
+  border: 1px solid var(--ui-color-game-word-tiles-muted);
+  border-bottom-width: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-surface-elevated);
+  background: var(--ui-color-board-card-face);
 }
 .tile[aria-disabled="true"] {
   cursor: default;
@@ -54,29 +56,40 @@
   outline-offset: 0;
 }
 .tile[data-selected="true"] {
-  transform: translateY(calc(-1 * var(--ui-space-1)));
+  --tile-lift: calc(-1 * var(--ui-space-1));
 }
 .tile[data-selected="true"]::before {
-  border: 2px solid var(--ui-color-tint);
-  background: var(--ui-color-tint-subtle);
+  background: var(--ui-color-game-word-tiles-accent);
 }
 .tile[data-placed="true"]::before {
   background: transparent;
-  border-style: dashed;
+  border: 1px dashed var(--ui-color-game-word-tiles-muted);
 }
 .letter {
   font-weight: 700;
-  font-size: var(--ui-font-size-lg);
+  font-size: var(--ui-font-size-xl);
+  line-height: 1;
 }
 .points {
   position: absolute;
   right: calc(var(--ui-space-1) * 1.5);
-  bottom: calc(var(--ui-space-1) / 2 + var(--ui-space-hairline));
+  bottom: calc(var(--ui-space-1) * 1.5);
   font-size: var(--ui-font-size-xs);
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-board-card-ink);
+  font-variant-numeric: tabular-nums;
 }
-@media (prefers-reduced-motion: reduce) {
-  .tile {
-    transition: none;
+.tile::before,
+.letter,
+.points {
+  transform: translateY(var(--tile-lift));
+}
+.tile[aria-disabled="false"]:active {
+  --tile-lift: var(--ui-space-hairline);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .tile::before,
+  .letter,
+  .points {
+    transition: transform 120ms ease;
   }
 }
