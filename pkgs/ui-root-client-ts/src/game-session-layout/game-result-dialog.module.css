@@ -91,9 +91,17 @@
 /* A phone docks the card at the top, over the game's info, so the final
    board under it stays in view. */
 @media (max-width: 767px) {
+  /* Under the top bar, over the game's info. */
   :global([data-component="GameResultDialog"]) > div:last-child {
     justify-content: flex-start;
-    padding: 52px var(--ui-space-2) var(--ui-space-2);
+    padding: 56px var(--ui-space-4) 0;
+  }
+  .body {
+    gap: var(--ui-space-3);
+  }
+  .body [data-component="GameStandingRow"] > div {
+    min-height: 40px;
+    padding-block: 0;
   }
   /* Places to go next (other options, ratings) wait on the game's home,
      one step back: the phone card holds only the outcome and its answers,
@@ -113,4 +121,18 @@
     :global([data-component="ModalContent"]) {
     align-self: flex-end;
   }
+}
+/* No title row: the close button floats in the card's corner, level with
+   the outcome's word, and the outcome leads from the card's top. */
+:global([data-component="GameResultDialog"])
+:global([data-component="ModalContent"]) {
+  position: relative;
+}
+:global([data-component="GameResultDialog"])
+  :global([data-component="ResponsiveSurfaceHeader"]) {
+  position: absolute;
+  top: var(--ui-space-3);
+  right: var(--ui-space-3);
+  z-index: 1;
+  margin: 0;
 }

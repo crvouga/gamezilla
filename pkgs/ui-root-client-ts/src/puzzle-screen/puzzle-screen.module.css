@@ -50,6 +50,11 @@
   .info,
   .info * {
     flex-wrap: wrap;
+    min-width: 0;
+  }
+  .info > * {
+    flex: 1 1 100%;
+    row-gap: var(--ui-space-2);
   }
 }
 

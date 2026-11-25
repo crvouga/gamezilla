@@ -65,7 +65,10 @@ export function GameResultDialog(props: {
     <ResponsiveSurface
       visible={props.state.open()}
       onClose={() => props.state.close()}
-      title={t`Game over`}
+      // Named "Game over" for a listener; on screen the outcome's own word
+      // (Victory, Defeat, Draw) leads the card, with no title row over it,
+      // so the card stays short over the final board.
+      label={t`Game over`}
       // A centred card, docked over the game's info at the top on a phone,
       // never a bottom sheet over the board: the final position stays in
       // view under the result.
