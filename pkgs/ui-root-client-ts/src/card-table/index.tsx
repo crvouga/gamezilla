@@ -16,9 +16,9 @@ import {
 import { Button } from '../button/index';
 import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
-import hearts from './hearts-table.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
+import hearts from './hearts-table.module.css';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -65,9 +65,8 @@ export type CardTableSeat = {
 };
 
 export type CardTableHandCard = CardTableCard & {
+  readonly points?: { mark: string; label: string } | undefined;
   /** Whether the rules allow this card now. */
-  readonly pointMark?: string | undefined;
-  readonly pointLabel?: string | undefined;
   readonly enabled: boolean;
   /** Whether it is chosen, while cards are chosen (`null` when a card acts at once). */
   readonly selected: boolean | null;
@@ -336,8 +335,12 @@ function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
   return (
     <>
       <CardFace card={props.card} />
-      <Show when={props.card.pointMark}>
-        {(mark) => <span class={hearts['points']} aria-hidden="true">{mark()}</span>}
+      <Show when={props.card.points?.mark}>
+        {(mark) => (
+          <span class={hearts['points']} aria-hidden="true">
+            {mark()}
+          </span>
+        )}
       </Show>
       <Show when={props.card.refusal}>
         <span class={state['unavailable']} aria-hidden="true">
@@ -437,7 +440,9 @@ function Hand(
                   data-suit={card().suit}
                   data-testid={props.cardTestId(id)}
                   data-card={id}
-                  aria-label={[spokenName(card()), card().pointLabel].filter(Boolean).join(', ')}
+                  aria-label={[spokenName(card()), card().points?.label]
+                    .filter(Boolean)
+                    .join(', ')}
                   aria-pressed={ariaBoolean(card().selected ?? undefined)}
                   aria-disabled={ariaBoolean(!card().enabled)}
                   aria-describedby={props.reasonId(
@@ -637,7 +642,10 @@ export function CardTable(props: CardTableProps): JSX.Element {
   };
   return (
     <div
-      class={[styles['root'], { [hearts['salon'] ?? '']: props.appearance === 'hearts' }]}
+      class={[
+        styles['root'],
+        { [hearts['salon'] ?? '']: props.appearance === 'hearts' },
+      ]}
       data-testid={props.testId}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
     >

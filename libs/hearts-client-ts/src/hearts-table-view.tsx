@@ -296,10 +296,16 @@ export function handCards(
       const points = cardPoints(card);
       return {
         ...tableCard(card),
-        pointMark: points > 0 ? `+${points}` : undefined,
-        pointLabel: points > 0
-          ? plural(points, { one: '# penalty point', other: '# penalty points' })
-          : undefined,
+        points:
+          points > 0
+            ? {
+                mark: `+${points}`,
+                label: plural(points, {
+                  one: '# penalty point',
+                  other: '# penalty points',
+                }),
+              }
+            : undefined,
         enabled: passing
           ? board.interactive && board.commitment === null
           : board.interactive && reason === undefined,
@@ -307,5 +313,8 @@ export function handCards(
         refusal: reason,
       };
     })
-    .sort((a, b) => Number(a.refusal !== undefined) - Number(b.refusal !== undefined));
+    .sort(
+      (a, b) =>
+        Number(a.refusal !== undefined) - Number(b.refusal !== undefined)
+    );
 }
