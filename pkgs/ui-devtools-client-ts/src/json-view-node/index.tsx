@@ -4,11 +4,9 @@
  *
  * The node is responsible for:
  * - Drawing its own header row (chevron + key + type-colored value/summary)
- * - Toggling its expanded state via the parent-supplied callback
  * - Recursing into children when expanded
  */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonPath,
@@ -21,6 +19,7 @@ import {
   entriesOf,
   formatContainerSummary,
   formatLeafPreview,
+  formatPathLabel,
   isContainer,
   stringifyForCopy,
 } from '@pkgs/ui-devtools-shared-ts/json-view-logic';
@@ -28,6 +27,8 @@ import { ChevronRightIcon, CopyIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { TreeGroup, TreeItem, TreeItemLabel } from '@ui-sdk/solid/tree';
 import { createMemo, For, Show } from 'solid-js';
 import styles from '../json-view/json-view.module.css';
 
@@ -60,47 +61,54 @@ export type JsonViewNodeProps = {
   value: unknown;
   path: JsonPath;
   depth: number;
-  isExpanded: (path: JsonPath) => boolean;
-  onToggle: (path: JsonPath) => void;
   /** Per-row copy sink; rows hide their copy button when undefined. */
   copy: JsonViewCopy | undefined;
 };
 
+export function treeItemValue(path: JsonPath): string {
+  return encodeURI(formatPathLabel(path));
+}
+
 export function JsonViewNode(props: JsonViewNodeProps): JSX.Element {
   const kind = createMemo(() => classifyValue(props.value));
   const expandable = () => isContainer(kind());
-  const expanded = () => expandable() && props.isExpanded(props.path);
+  const label = () =>
+    expandable()
+      ? formatPathLabel(props.path)
+      : `${formatPathLabel(props.path)} = ${formatLeafPreview(props.value, kind())}`;
   return (
-    <div
+    <TreeItem
       class="box"
-      role="treeitem"
-      aria-selected="false"
-      aria-expanded={expandable() ? (expanded() ? 'true' : 'false') : undefined}
+      value={treeItemValue(props.path)}
+      branch={expandable()}
+      label={label()}
+      aria-label={label()}
     >
-      <NodeRow
-        nodeKey={props.nodeKey}
-        value={props.value}
-        kind={kind()}
-        depth={props.depth}
-        expandable={expandable()}
-        expanded={expanded()}
-        onToggle={() => {
-          if (expandable()) props.onToggle(props.path);
-        }}
-        copy={props.copy}
-      />
-      <Show when={expanded()}>
-        <NodeChildren
-          value={props.value}
-          kind={kind()}
-          path={props.path}
-          depth={props.depth}
-          isExpanded={props.isExpanded}
-          onToggle={props.onToggle}
-          copy={props.copy}
-        />
-      </Show>
-    </div>
+      {(state) => (
+        <>
+          <NodeRow
+            nodeKey={props.nodeKey}
+            value={props.value}
+            kind={kind()}
+            depth={props.depth}
+            expandable={expandable()}
+            expanded={state.expanded}
+            copy={props.copy}
+          />
+          <Show when={state.expanded && expandable()}>
+            <TreeGroup class="box">
+              <NodeChildren
+                value={props.value}
+                kind={kind()}
+                path={props.path}
+                depth={props.depth}
+                copy={props.copy}
+              />
+            </TreeGroup>
+          </Show>
+        </>
+      )}
+    </TreeItem>
   );
 }
 
@@ -124,7 +132,6 @@ function NodeRow(props: {
   depth: number;
   expandable: boolean;
   expanded: boolean;
-  onToggle: () => void;
   copy: JsonViewCopy | undefined;
 }): JSX.Element {
   const content = () => (
@@ -144,20 +151,19 @@ function NodeRow(props: {
       <Show
         when={props.expandable}
         fallback={
-          <div class="box" style={rowStyle(props.depth)}>
+          <TreeItemLabel class="box" style={rowStyle(props.depth)}>
             {content()}
-          </div>
+          </TreeItemLabel>
         }
       >
-        <SdkButton
+        <TreeItemLabel
+          render={(attrs) => <button {...attrs} type="button" tabindex="-1" />}
           class="clickable text-left"
-          type="button"
           style={rowStyle(props.depth)}
-          onClick={() => props.onToggle()}
           aria-expanded={props.expanded ? 'true' : 'false'}
         >
           {content()}
-        </SdkButton>
+        </TreeItemLabel>
       </Show>
       <Show when={props.copy}>
         {(copy) => <CopyValueButton value={props.value} copy={copy()} />}
@@ -171,13 +177,11 @@ function NodeChildren(props: {
   kind: JsonValueKind;
   path: JsonPath;
   depth: number;
-  isExpanded: (path: JsonPath) => boolean;
-  onToggle: (path: JsonPath) => void;
   copy: JsonViewCopy | undefined;
 }): JSX.Element {
   const entries = createMemo(() => entriesOf(props.value, props.kind));
   return (
-    <div class="box" role="group">
+    <>
       <For each={entries()}>
         {([childKey, childValue]) => (
           <JsonViewNode
@@ -185,8 +189,6 @@ function NodeChildren(props: {
             value={childValue}
             path={[...props.path, childKey]}
             depth={props.depth + 1}
-            isExpanded={props.isExpanded}
-            onToggle={props.onToggle}
             copy={props.copy}
           />
         )}
@@ -203,7 +205,7 @@ function NodeChildren(props: {
           {containerBrackets(props.kind).close}
         </code>
       </div>
-    </div>
+    </>
   );
 }
 

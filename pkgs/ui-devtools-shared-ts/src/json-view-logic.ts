@@ -204,9 +204,10 @@ export function safeStringify(value: unknown, indent = 2): string {
  */
 export function collectAllContainerPaths(
   root: unknown,
-  options: { maxDepth?: number } = {}
+  options: { maxDepth?: number; formatPath?: (path: JsonPath) => string } = {}
 ): string[] {
   const maxDepth = options.maxDepth ?? Infinity;
+  const formatPath = options.formatPath ?? encodePath;
   const out: string[] = [];
   const seen = new WeakSet<object>();
   const visit = (value: unknown, path: JsonPath, depth: number): void => {
@@ -216,7 +217,7 @@ export function collectAllContainerPaths(
       if (seen.has(value)) return;
       seen.add(value);
     }
-    out.push(encodePath(path));
+    out.push(formatPath(path));
     if (depth >= maxDepth) return;
     for (const [k, v] of entriesOf(value, kind)) {
       visit(v, [...path, k], depth + 1);
