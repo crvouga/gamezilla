@@ -56,7 +56,7 @@ export function PuzzleSolveActions(
               intent="neutral"
               variant="outline"
               size="sm"
-              fullWidth
+              flex={1}
               onClick={() => props.onOpen({ screen: 'line' })}
               dataSet={{ testid: 'chess-puzzle-line-open' }}
             />

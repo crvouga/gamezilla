@@ -137,6 +137,8 @@ export function PuzzleSkipButton(props: {
   onSkip: () => void;
   fullWidth?: boolean | undefined;
   size?: 'sm' | undefined;
+  /** Share a row equally with its neighbours. */
+  flex?: number | undefined;
 }): JSX.Element {
   return (
     <Button
@@ -145,6 +147,7 @@ export function PuzzleSkipButton(props: {
       // A quiet bordered button: its edge lines up with the column's.
       variant="outline"
       size={props.size}
+      flex={props.flex}
       fullWidth={props.fullWidth}
       disabled={props.disabled}
       onClick={() => props.onSkip()}

@@ -30,7 +30,7 @@ function SkipRow(props: {
             disabled={slot().disabled}
             onSkip={props.onSkip}
             size="sm"
-            fullWidth
+            flex={1}
           />
         )}
       </Show>
