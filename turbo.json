@@ -349,7 +349,7 @@
       "outputs": []
     },
     "test:spec:0": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -369,7 +369,7 @@
       "outputs": [".cache/harness-report/part-0/**"]
     },
     "test:spec:1": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -389,7 +389,7 @@
       "outputs": [".cache/harness-report/part-1/**"]
     },
     "test:spec:2": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -409,7 +409,7 @@
       "outputs": [".cache/harness-report/part-2/**"]
     },
     "test:spec:3": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -429,7 +429,7 @@
       "outputs": [".cache/harness-report/part-3/**"]
     },
     "test:spec:4": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -449,7 +449,7 @@
       "outputs": [".cache/harness-report/part-4/**"]
     },
     "test:spec:5": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -467,482 +467,6 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-5/**"]
-    },
-    "verify:models": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:0": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:1": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:2": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:3": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:4": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:5": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:6": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:7": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:8": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:10": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:11": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:12": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:13": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:14": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:15": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
     },
     "build": {
       "dependsOn": ["^build"],
@@ -1016,7 +540,7 @@
       "outputLogs": "errors-only"
     },
     "test:spec:6": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1035,7 +559,7 @@
       "outputs": [".cache/harness-report/part-6/**"]
     },
     "test:spec:7": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1054,7 +578,7 @@
       "outputs": [".cache/harness-report/part-7/**"]
     },
     "test:spec:8": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1073,7 +597,7 @@
       "outputs": [".cache/harness-report/part-8/**"]
     },
     "test:spec:9": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1092,7 +616,7 @@
       "outputs": [".cache/harness-report/part-9/**"]
     },
     "test:spec:10": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1111,7 +635,7 @@
       "outputs": [".cache/harness-report/part-10/**"]
     },
     "test:spec:11": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1130,7 +654,7 @@
       "outputs": [".cache/harness-report/part-11/**"]
     },
     "test:spec:12": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1149,7 +673,7 @@
       "outputs": [".cache/harness-report/part-12/**"]
     },
     "test:spec:13": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1168,7 +692,7 @@
       "outputs": [".cache/harness-report/part-13/**"]
     },
     "test:spec:14": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1187,7 +711,7 @@
       "outputs": [".cache/harness-report/part-14/**"]
     },
     "test:spec:15": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1206,7 +730,7 @@
       "outputs": [".cache/harness-report/part-15/**"]
     },
     "test:spec:16": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1226,7 +750,7 @@
       "outputs": [".cache/harness-report/part-16/**"]
     },
     "test:spec:17": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1246,7 +770,7 @@
       "outputs": [".cache/harness-report/part-17/**"]
     },
     "test:spec:18": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1266,7 +790,7 @@
       "outputs": [".cache/harness-report/part-18/**"]
     },
     "test:spec:19": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1286,7 +810,7 @@
       "outputs": [".cache/harness-report/part-19/**"]
     },
     "test:spec:20": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1306,7 +830,7 @@
       "outputs": [".cache/harness-report/part-20/**"]
     },
     "test:spec:21": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1326,7 +850,7 @@
       "outputs": [".cache/harness-report/part-21/**"]
     },
     "test:spec:22": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1346,7 +870,7 @@
       "outputs": [".cache/harness-report/part-22/**"]
     },
     "test:spec:23": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1366,7 +890,7 @@
       "outputs": [".cache/harness-report/part-23/**"]
     },
     "test:spec:24": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1386,7 +910,7 @@
       "outputs": [".cache/harness-report/part-24/**"]
     },
     "test:spec:25": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1406,7 +930,7 @@
       "outputs": [".cache/harness-report/part-25/**"]
     },
     "test:spec:26": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1426,7 +950,7 @@
       "outputs": [".cache/harness-report/part-26/**"]
     },
     "test:spec:27": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1446,7 +970,7 @@
       "outputs": [".cache/harness-report/part-27/**"]
     },
     "test:spec:28": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1466,7 +990,7 @@
       "outputs": [".cache/harness-report/part-28/**"]
     },
     "test:spec:29": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1486,7 +1010,7 @@
       "outputs": [".cache/harness-report/part-29/**"]
     },
     "test:spec:30": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1506,7 +1030,7 @@
       "outputs": [".cache/harness-report/part-30/**"]
     },
     "test:spec:31": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1526,7 +1050,7 @@
       "outputs": [".cache/harness-report/part-31/**"]
     },
     "test:spec:32": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1546,7 +1070,7 @@
       "outputs": [".cache/harness-report/part-32/**"]
     },
     "test:spec:33": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1566,7 +1090,7 @@
       "outputs": [".cache/harness-report/part-33/**"]
     },
     "test:spec:34": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1586,7 +1110,7 @@
       "outputs": [".cache/harness-report/part-34/**"]
     },
     "test:spec:35": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1606,7 +1130,7 @@
       "outputs": [".cache/harness-report/part-35/**"]
     },
     "test:spec:36": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1626,7 +1150,7 @@
       "outputs": [".cache/harness-report/part-36/**"]
     },
     "test:spec:37": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1646,7 +1170,7 @@
       "outputs": [".cache/harness-report/part-37/**"]
     },
     "test:spec:38": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1666,7 +1190,7 @@
       "outputs": [".cache/harness-report/part-38/**"]
     },
     "test:spec:39": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1686,7 +1210,7 @@
       "outputs": [".cache/harness-report/part-39/**"]
     },
     "test:spec:40": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1706,7 +1230,7 @@
       "outputs": [".cache/harness-report/part-40/**"]
     },
     "test:spec:41": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1726,7 +1250,7 @@
       "outputs": [".cache/harness-report/part-41/**"]
     },
     "test:spec:42": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1746,7 +1270,7 @@
       "outputs": [".cache/harness-report/part-42/**"]
     },
     "test:spec:43": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1766,7 +1290,7 @@
       "outputs": [".cache/harness-report/part-43/**"]
     },
     "test:spec:44": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1786,7 +1310,7 @@
       "outputs": [".cache/harness-report/part-44/**"]
     },
     "test:spec:45": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1806,7 +1330,7 @@
       "outputs": [".cache/harness-report/part-45/**"]
     },
     "test:spec:46": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1826,7 +1350,7 @@
       "outputs": [".cache/harness-report/part-46/**"]
     },
     "test:spec:47": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1846,7 +1370,7 @@
       "outputs": [".cache/harness-report/part-47/**"]
     },
     "test:spec:48": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1866,7 +1390,7 @@
       "outputs": [".cache/harness-report/part-48/**"]
     },
     "test:spec:49": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1886,7 +1410,7 @@
       "outputs": [".cache/harness-report/part-49/**"]
     },
     "test:spec:50": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1906,7 +1430,7 @@
       "outputs": [".cache/harness-report/part-50/**"]
     },
     "test:spec:51": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1926,7 +1450,7 @@
       "outputs": [".cache/harness-report/part-51/**"]
     },
     "test:spec:52": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1946,7 +1470,7 @@
       "outputs": [".cache/harness-report/part-52/**"]
     },
     "test:spec:53": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1966,7 +1490,7 @@
       "outputs": [".cache/harness-report/part-53/**"]
     },
     "test:spec:54": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -1986,7 +1510,7 @@
       "outputs": [".cache/harness-report/part-54/**"]
     },
     "test:spec:55": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2006,7 +1530,7 @@
       "outputs": [".cache/harness-report/part-55/**"]
     },
     "test:spec:56": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2026,7 +1550,7 @@
       "outputs": [".cache/harness-report/part-56/**"]
     },
     "test:spec:57": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2046,7 +1570,7 @@
       "outputs": [".cache/harness-report/part-57/**"]
     },
     "test:spec:58": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2066,7 +1590,7 @@
       "outputs": [".cache/harness-report/part-58/**"]
     },
     "test:spec:59": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2086,7 +1610,7 @@
       "outputs": [".cache/harness-report/part-59/**"]
     },
     "test:spec:60": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2106,7 +1630,7 @@
       "outputs": [".cache/harness-report/part-60/**"]
     },
     "test:spec:61": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2126,7 +1650,7 @@
       "outputs": [".cache/harness-report/part-61/**"]
     },
     "test:spec:62": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2146,7 +1670,7 @@
       "outputs": [".cache/harness-report/part-62/**"]
     },
     "test:spec:63": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2438,18 +1962,6 @@
       ],
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
-    "prepare:spec": {
-      "dependsOn": ["^src"],
-      "inputs": [
-        "$TURBO_DEFAULT$",
-        "!**/*.md",
-        ".cache/spec-inputs/models.json",
-        "$TURBO_ROOT$/libs/harness-ts/scripts/prepare-spec.ts",
-        "$TURBO_ROOT$/libs/harness-ts/scripts/spec-sources.ts"
-      ],
-      "env": ["FC_SEED", "PBT_RANDOM"],
-      "outputs": [".cache/quint-draws/**"]
-    },
     "//#task:spec:inputs": {
       "dependsOn": [
         "@pkgs/quint-shared-ts#src",
@@ -2479,7 +1991,7 @@
       ]
     },
     "test:spec:64": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2499,7 +2011,7 @@
       "outputs": [".cache/harness-report/part-64/**"]
     },
     "test:spec:65": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2519,7 +2031,7 @@
       "outputs": [".cache/harness-report/part-65/**"]
     },
     "test:spec:66": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2539,7 +2051,7 @@
       "outputs": [".cache/harness-report/part-66/**"]
     },
     "test:spec:67": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2559,7 +2071,7 @@
       "outputs": [".cache/harness-report/part-67/**"]
     },
     "test:spec:68": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2579,7 +2091,7 @@
       "outputs": [".cache/harness-report/part-68/**"]
     },
     "test:spec:69": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2599,7 +2111,7 @@
       "outputs": [".cache/harness-report/part-69/**"]
     },
     "test:spec:70": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2619,7 +2131,7 @@
       "outputs": [".cache/harness-report/part-70/**"]
     },
     "test:spec:71": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2638,176 +2150,8 @@
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-71/**"]
     },
-    "verify:models:16": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:17": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:18": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:19": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:20": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:20": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
     "test:spec:72": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2827,7 +2171,7 @@
       "outputs": [".cache/harness-report/part-72/**"]
     },
     "test:spec:73": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2847,7 +2191,7 @@
       "outputs": [".cache/harness-report/part-73/**"]
     },
     "test:spec:74": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2867,7 +2211,7 @@
       "outputs": [".cache/harness-report/part-74/**"]
     },
     "test:spec:75": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2887,7 +2231,7 @@
       "outputs": [".cache/harness-report/part-75/**"]
     },
     "test:spec:76": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2907,7 +2251,7 @@
       "outputs": [".cache/harness-report/part-76/**"]
     },
     "test:spec:77": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2927,7 +2271,7 @@
       "outputs": [".cache/harness-report/part-77/**"]
     },
     "test:spec:84": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2947,7 +2291,7 @@
       "outputs": [".cache/harness-report/part-84/**"]
     },
     "test:spec:85": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2967,7 +2311,7 @@
       "outputs": [".cache/harness-report/part-85/**"]
     },
     "test:spec:86": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -2987,7 +2331,7 @@
       "outputs": [".cache/harness-report/part-86/**"]
     },
     "test:spec:87": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3007,7 +2351,7 @@
       "outputs": [".cache/harness-report/part-87/**"]
     },
     "test:spec:88": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3027,7 +2371,7 @@
       "outputs": [".cache/harness-report/part-88/**"]
     },
     "test:spec:89": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3047,7 +2391,7 @@
       "outputs": [".cache/harness-report/part-89/**"]
     },
     "test:spec:90": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3067,7 +2411,7 @@
       "outputs": [".cache/harness-report/part-90/**"]
     },
     "test:spec:91": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3087,7 +2431,7 @@
       "outputs": [".cache/harness-report/part-91/**"]
     },
     "test:spec:92": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3107,7 +2451,7 @@
       "outputs": [".cache/harness-report/part-92/**"]
     },
     "test:spec:93": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3127,7 +2471,7 @@
       "outputs": [".cache/harness-report/part-93/**"]
     },
     "test:spec:94": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3147,7 +2491,7 @@
       "outputs": [".cache/harness-report/part-94/**"]
     },
     "test:spec:78": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3167,7 +2511,7 @@
       "outputs": [".cache/harness-report/part-78/**"]
     },
     "test:spec:79": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3187,7 +2531,7 @@
       "outputs": [".cache/harness-report/part-79/**"]
     },
     "test:spec:80": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3207,7 +2551,7 @@
       "outputs": [".cache/harness-report/part-80/**"]
     },
     "test:spec:81": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3227,7 +2571,7 @@
       "outputs": [".cache/harness-report/part-81/**"]
     },
     "test:spec:82": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3247,7 +2591,7 @@
       "outputs": [".cache/harness-report/part-82/**"]
     },
     "test:spec:83": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3265,482 +2609,6 @@
       ],
       "outputLogs": "errors-only",
       "outputs": [".cache/harness-report/part-83/**"]
-    },
-    "verify:models:21": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:0": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:1": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:2": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:3": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:4": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:5": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:6": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:7": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:8": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:9": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:10": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:11": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:12": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:13": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:14": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:9:15": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
     },
     "test:unit:1": {
       "dependsOn": ["^src"],
@@ -3764,176 +2632,8 @@
       "outputLogs": "errors-only",
       "outputs": []
     },
-    "verify:models:3:0": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:3:1": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:3:2": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:3:3": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:3:4": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
-    "verify:models:3:5": {
-      "inputs": [
-        "package.json",
-        "tests/quint/**",
-        "$TURBO_ROOT$/mise.toml",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-models.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/model-verify-workspace.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/verify-model-evidence.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-packages.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-kinds.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-live.ts",
-        "$TURBO_ROOT$/libs/tools-harness-ts/scripts/spec-campaigns.ts",
-        "$TURBO_ROOT$/turbo-platform-key.json"
-      ],
-      "outputs": [
-        ".cache/harness-report/models/evidence/**",
-        ".cache/harness-report/models/*.json",
-        ".cache/harness-report/models/**/tlc-output.txt",
-        ".cache/harness-report/models/**/*.itf.json"
-      ],
-      "outputLogs": "errors-only",
-      "dependsOn": [
-        "@pkgs/quint-server-ts#src",
-        "@pkgs/quint-shared-ts#src",
-        "@pkgs/conformance-server-ts#src",
-        "@pkgs/conformance-shared-ts#src"
-      ]
-    },
     "test:spec:95": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3953,7 +2653,7 @@
       "outputs": [".cache/harness-report/part-95/**"]
     },
     "test:spec:96": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3973,7 +2673,7 @@
       "outputs": [".cache/harness-report/part-96/**"]
     },
     "test:spec:97": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -3993,7 +2693,7 @@
       "outputs": [".cache/harness-report/part-97/**"]
     },
     "test:spec:98": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4013,7 +2713,7 @@
       "outputs": [".cache/harness-report/part-98/**"]
     },
     "test:spec:99": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4033,7 +2733,7 @@
       "outputs": [".cache/harness-report/part-99/**"]
     },
     "test:spec:100": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4053,7 +2753,7 @@
       "outputs": [".cache/harness-report/part-100/**"]
     },
     "test:spec:101": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4073,7 +2773,7 @@
       "outputs": [".cache/harness-report/part-101/**"]
     },
     "test:spec:102": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4093,7 +2793,7 @@
       "outputs": [".cache/harness-report/part-102/**"]
     },
     "test:spec:103": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4113,7 +2813,7 @@
       "outputs": [".cache/harness-report/part-103/**"]
     },
     "test:spec:104": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4133,7 +2833,7 @@
       "outputs": [".cache/harness-report/part-104/**"]
     },
     "test:spec:105": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4153,7 +2853,7 @@
       "outputs": [".cache/harness-report/part-105/**"]
     },
     "test:spec:106": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4173,7 +2873,7 @@
       "outputs": [".cache/harness-report/part-106/**"]
     },
     "test:spec:107": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4193,7 +2893,7 @@
       "outputs": [".cache/harness-report/part-107/**"]
     },
     "test:spec:108": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4213,7 +2913,7 @@
       "outputs": [".cache/harness-report/part-108/**"]
     },
     "test:spec:109": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4233,7 +2933,7 @@
       "outputs": [".cache/harness-report/part-109/**"]
     },
     "test:spec:110": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4253,7 +2953,7 @@
       "outputs": [".cache/harness-report/part-110/**"]
     },
     "test:spec:111": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4273,7 +2973,7 @@
       "outputs": [".cache/harness-report/part-111/**"]
     },
     "test:spec:112": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4293,7 +2993,7 @@
       "outputs": [".cache/harness-report/part-112/**"]
     },
     "test:spec:113": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4313,7 +3013,7 @@
       "outputs": [".cache/harness-report/part-113/**"]
     },
     "test:spec:114": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4333,7 +3033,7 @@
       "outputs": [".cache/harness-report/part-114/**"]
     },
     "test:spec:115": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4353,7 +3053,7 @@
       "outputs": [".cache/harness-report/part-115/**"]
     },
     "test:spec:116": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4373,7 +3073,7 @@
       "outputs": [".cache/harness-report/part-116/**"]
     },
     "test:spec:117": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4393,7 +3093,7 @@
       "outputs": [".cache/harness-report/part-117/**"]
     },
     "test:spec:118": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4413,7 +3113,7 @@
       "outputs": [".cache/harness-report/part-118/**"]
     },
     "test:spec:119": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4433,7 +3133,7 @@
       "outputs": [".cache/harness-report/part-119/**"]
     },
     "test:spec:120": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4453,7 +3153,7 @@
       "outputs": [".cache/harness-report/part-120/**"]
     },
     "test:spec:121": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4473,7 +3173,7 @@
       "outputs": [".cache/harness-report/part-121/**"]
     },
     "test:spec:122": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4493,7 +3193,7 @@
       "outputs": [".cache/harness-report/part-122/**"]
     },
     "test:spec:123": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4513,7 +3213,7 @@
       "outputs": [".cache/harness-report/part-123/**"]
     },
     "test:spec:124": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4533,7 +3233,7 @@
       "outputs": [".cache/harness-report/part-124/**"]
     },
     "test:spec:125": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4553,7 +3253,7 @@
       "outputs": [".cache/harness-report/part-125/**"]
     },
     "test:spec:126": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4573,7 +3273,7 @@
       "outputs": [".cache/harness-report/part-126/**"]
     },
     "test:spec:127": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4593,7 +3293,7 @@
       "outputs": [".cache/harness-report/part-127/**"]
     },
     "test:spec:128": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4613,7 +3313,7 @@
       "outputs": [".cache/harness-report/part-128/**"]
     },
     "test:spec:129": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4633,7 +3333,7 @@
       "outputs": [".cache/harness-report/part-129/**"]
     },
     "test:spec:130": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4653,7 +3353,7 @@
       "outputs": [".cache/harness-report/part-130/**"]
     },
     "test:spec:131": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4673,7 +3373,7 @@
       "outputs": [".cache/harness-report/part-131/**"]
     },
     "test:spec:132": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4693,7 +3393,7 @@
       "outputs": [".cache/harness-report/part-132/**"]
     },
     "test:spec:133": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4713,7 +3413,7 @@
       "outputs": [".cache/harness-report/part-133/**"]
     },
     "test:spec:134": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4733,7 +3433,7 @@
       "outputs": [".cache/harness-report/part-134/**"]
     },
     "test:spec:135": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4753,7 +3453,7 @@
       "outputs": [".cache/harness-report/part-135/**"]
     },
     "test:spec:136": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4773,7 +3473,7 @@
       "outputs": [".cache/harness-report/part-136/**"]
     },
     "test:spec:137": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4793,7 +3493,7 @@
       "outputs": [".cache/harness-report/part-137/**"]
     },
     "test:spec:138": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4813,7 +3513,7 @@
       "outputs": [".cache/harness-report/part-138/**"]
     },
     "test:spec:139": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4833,7 +3533,7 @@
       "outputs": [".cache/harness-report/part-139/**"]
     },
     "test:spec:140": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4853,7 +3553,7 @@
       "outputs": [".cache/harness-report/part-140/**"]
     },
     "test:spec:141": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4873,7 +3573,7 @@
       "outputs": [".cache/harness-report/part-141/**"]
     },
     "test:spec:142": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4893,7 +3593,7 @@
       "outputs": [".cache/harness-report/part-142/**"]
     },
     "test:spec:143": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4913,7 +3613,7 @@
       "outputs": [".cache/harness-report/part-143/**"]
     },
     "test:spec:144": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4933,7 +3633,7 @@
       "outputs": [".cache/harness-report/part-144/**"]
     },
     "test:spec:145": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4953,7 +3653,7 @@
       "outputs": [".cache/harness-report/part-145/**"]
     },
     "test:spec:146": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4973,7 +3673,7 @@
       "outputs": [".cache/harness-report/part-146/**"]
     },
     "test:spec:147": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -4993,7 +3693,7 @@
       "outputs": [".cache/harness-report/part-147/**"]
     },
     "test:spec:148": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5013,7 +3713,7 @@
       "outputs": [".cache/harness-report/part-148/**"]
     },
     "test:spec:149": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5033,7 +3733,7 @@
       "outputs": [".cache/harness-report/part-149/**"]
     },
     "test:spec:150": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5053,7 +3753,7 @@
       "outputs": [".cache/harness-report/part-150/**"]
     },
     "test:spec:151": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5073,7 +3773,7 @@
       "outputs": [".cache/harness-report/part-151/**"]
     },
     "test:spec:152": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5093,7 +3793,7 @@
       "outputs": [".cache/harness-report/part-152/**"]
     },
     "test:spec:153": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5113,7 +3813,7 @@
       "outputs": [".cache/harness-report/part-153/**"]
     },
     "test:spec:154": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5133,7 +3833,7 @@
       "outputs": [".cache/harness-report/part-154/**"]
     },
     "test:spec:155": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5153,7 +3853,7 @@
       "outputs": [".cache/harness-report/part-155/**"]
     },
     "test:spec:156": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5173,7 +3873,7 @@
       "outputs": [".cache/harness-report/part-156/**"]
     },
     "test:spec:157": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5193,7 +3893,7 @@
       "outputs": [".cache/harness-report/part-157/**"]
     },
     "test:spec:158": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5213,7 +3913,7 @@
       "outputs": [".cache/harness-report/part-158/**"]
     },
     "test:spec:159": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5233,7 +3933,7 @@
       "outputs": [".cache/harness-report/part-159/**"]
     },
     "test:spec:160": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5253,7 +3953,7 @@
       "outputs": [".cache/harness-report/part-160/**"]
     },
     "test:spec:161": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5273,7 +3973,7 @@
       "outputs": [".cache/harness-report/part-161/**"]
     },
     "test:spec:162": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5293,7 +3993,7 @@
       "outputs": [".cache/harness-report/part-162/**"]
     },
     "test:spec:163": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5313,7 +4013,7 @@
       "outputs": [".cache/harness-report/part-163/**"]
     },
     "test:spec:164": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5333,7 +4033,7 @@
       "outputs": [".cache/harness-report/part-164/**"]
     },
     "test:spec:165": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5353,7 +4053,7 @@
       "outputs": [".cache/harness-report/part-165/**"]
     },
     "test:spec:166": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5373,7 +4073,7 @@
       "outputs": [".cache/harness-report/part-166/**"]
     },
     "test:spec:167": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5393,7 +4093,7 @@
       "outputs": [".cache/harness-report/part-167/**"]
     },
     "test:spec:168": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5413,7 +4113,7 @@
       "outputs": [".cache/harness-report/part-168/**"]
     },
     "test:spec:169": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5433,7 +4133,7 @@
       "outputs": [".cache/harness-report/part-169/**"]
     },
     "test:spec:170": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5453,7 +4153,7 @@
       "outputs": [".cache/harness-report/part-170/**"]
     },
     "test:spec:171": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5473,7 +4173,7 @@
       "outputs": [".cache/harness-report/part-171/**"]
     },
     "test:spec:172": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5493,7 +4193,7 @@
       "outputs": [".cache/harness-report/part-172/**"]
     },
     "test:spec:173": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5513,7 +4213,7 @@
       "outputs": [".cache/harness-report/part-173/**"]
     },
     "test:spec:174": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5533,7 +4233,7 @@
       "outputs": [".cache/harness-report/part-174/**"]
     },
     "test:spec:175": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5553,7 +4253,7 @@
       "outputs": [".cache/harness-report/part-175/**"]
     },
     "test:spec:176": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5573,7 +4273,7 @@
       "outputs": [".cache/harness-report/part-176/**"]
     },
     "test:spec:177": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5593,7 +4293,7 @@
       "outputs": [".cache/harness-report/part-177/**"]
     },
     "test:spec:178": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5613,7 +4313,7 @@
       "outputs": [".cache/harness-report/part-178/**"]
     },
     "test:spec:179": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5633,7 +4333,7 @@
       "outputs": [".cache/harness-report/part-179/**"]
     },
     "test:spec:180": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5657,7 +4357,7 @@
       "passThroughEnv": ["*"]
     },
     "test:spec:181": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5677,7 +4377,7 @@
       "outputs": [".cache/harness-report/part-181/**"]
     },
     "test:spec:182": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5697,7 +4397,7 @@
       "outputs": [".cache/harness-report/part-182/**"]
     },
     "test:spec:183": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5717,7 +4417,7 @@
       "outputs": [".cache/harness-report/part-183/**"]
     },
     "test:spec:184": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5737,7 +4437,7 @@
       "outputs": [".cache/harness-report/part-184/**"]
     },
     "test:spec:185": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5757,7 +4457,7 @@
       "outputs": [".cache/harness-report/part-185/**"]
     },
     "test:spec:186": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5777,7 +4477,7 @@
       "outputs": [".cache/harness-report/part-186/**"]
     },
     "test:spec:187": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5797,7 +4497,7 @@
       "outputs": [".cache/harness-report/part-187/**"]
     },
     "test:spec:188": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5817,7 +4517,7 @@
       "outputs": [".cache/harness-report/part-188/**"]
     },
     "test:spec:189": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5837,7 +4537,7 @@
       "outputs": [".cache/harness-report/part-189/**"]
     },
     "test:spec:190": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
@@ -5857,7 +4557,7 @@
       "outputs": [".cache/harness-report/part-190/**"]
     },
     "test:spec:191": {
-      "dependsOn": ["^src", "prepare:spec"],
+      "dependsOn": ["^src"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",

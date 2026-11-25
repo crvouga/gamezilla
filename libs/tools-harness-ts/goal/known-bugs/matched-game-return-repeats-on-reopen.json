@@ -1,4 +1,0 @@
-{
-  "summary": "Returning to an unfinished matched game left the link's request in the device's address. Reopening the app on that device followed it again and put the whole space back on the game's board after its host had taken the space to the game's choices on another device. The link is now spent as it is followed, so reopening the app leaves the space on what it shows.",
-  "regressionTest": "libs/games-harness-ts/tests/quint/unfinished-game-return.binding.ts"
-}

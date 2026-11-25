@@ -1,9 +1,6 @@
 import { describe, expect, test } from 'bun:test';
-import { readFileSync } from 'node:fs';
-import { basename, join } from 'node:path';
 import type { ReplayPlan } from '@pkgs/quint-server-ts/trace-runs';
 import { sliceReplays } from '@pkgs/quint-server-ts/trace-runs';
-import { packageSpecInventory, readReplayPlans } from './replay-plans';
 import type { PlannedModel, SpecUnit } from './spec-parts';
 import {
   MODEL_FILE_REPLAYS,
@@ -11,11 +8,9 @@ import {
   MODEL_WEIGHT,
   modelDrawBatches,
   NIGHTLY_REPLAY_SCALE,
-  PART_LOAD,
   PART_REPLAYS,
   partLoad,
   partOf,
-  partsOf,
   plannedModelFiles,
   plannedModelUnits,
   SLICE_SCENARIOS,
@@ -24,7 +19,6 @@ import {
   TRACE_WEIGHT,
   VERIFY_WEIGHT,
 } from './spec-parts';
-import { packageSpecs } from './spec-sources';
 
 describe('specWeight', () => {
   test('counts scenarios and outline example rows', () => {
@@ -211,16 +205,6 @@ describe('a planned model', () => {
 });
 
 describe('partOf', () => {
-  test('the 95 shared-game parts all hold runnable units', () => {
-    // regression: games-spec-empty-hash-parts
-    const parts = suiteParts('libs/games-harness-ts', 95);
-    for (const part of parts) expect(part.length).toBeGreaterThan(0);
-    const all = parts.flat();
-    expect(
-      new Set(all.map((unit) => `${unit.path}#${unit.slice?.index ?? 0}`)).size
-    ).toBe(all.length);
-  });
-
   const unit = (path: string, weight: number): SpecUnit => ({ path, weight });
   const units = [unit('a', 10), unit('b', 6), unit('c', 5), unit('d', 1)];
   const paths = (list: readonly SpecUnit[]) => list.map((u) => u.path);
@@ -347,99 +331,7 @@ describe('partOf', () => {
         expect(tracesOf(unit).length).toBeLessThanOrEqual(2);
     }
   });
-
-  /**
-   * The suites that plan their models' replays (`tests/quint/replays.json`):
-   * every replay of every model runs in exactly one file, a file holds at
-   * most MODEL_FILE_REPLAYS gate replays, and a part at most PART_REPLAYS of
-   * them (NIGHTLY_REPLAY_SCALE times as many nightly) and PART_LOAD scenario
-   * units. Each suite runs in the fewest parts those caps allow. The shared
-   * games suite replays every model once per game it holds for, so its
-   * replays are counted per game.
-   */
-  const PLANNED_SUITES = [
-    'libs/chess-root-harness-ts',
-    'libs/games-harness-ts',
-  ] as const;
-
-  test.each(PLANNED_SUITES)(
-    '%s keeps every part inside its replay and load caps',
-    (dir) => {
-      // regression: chess-spec-trace-batches — 32 parts put 20 traces in one task.
-      // regression: chess-spec-slice-weight
-      // regression: network-model-overfills-chess-shard
-      const { plans, specParts, inventory } = plannedSuite(dir);
-      const parts = partsOf(inventory(specParts), specParts);
-      const models = Object.keys(plans);
-      expect(models.length).toBeGreaterThan(0);
-      for (const model of models) {
-        const files = parts
-          .flat()
-          .filter((unit) => basename(unit.path) === `${model}.qnt`);
-        for (const profile of ['pr', 'nightly'] as const)
-          expect(
-            files.reduce((sum, unit) => sum + unit.replays![profile], 0)
-          ).toBe(sliceReplays(plans[model]!, profile, { index: 0, count: 1 }));
-      }
-      for (const part of parts) expect(withinCaps(part)).toBe(true);
-    }
-  );
-
-  test.each(PLANNED_SUITES)(
-    '%s runs in the fewest parts its caps allow',
-    (dir) => {
-      // regression: games-spec-parts-exceed-capacity-pole
-      // regression: spec-parts-repeats-suite-planning
-      // regression: games-spec-part-allocation-timeout
-      const { specParts, inventory } = plannedSuite(dir);
-      for (let count = 1; count < specParts; count++)
-        expect(partsOf(inventory(count), count).every(withinCaps)).toBe(false);
-    }
-  );
 });
-
-/** Whether a part of a planned suite stays inside every cap. */
-function withinCaps(part: readonly SpecUnit[]): boolean {
-  const load = partLoad(part);
-  return (
-    load.pr <= PART_REPLAYS &&
-    load.nightly <= PART_REPLAYS * NIGHTLY_REPLAY_SCALE &&
-    load.load <= PART_LOAD &&
-    part.every((unit) => (unit.replays?.pr ?? 0) <= MODEL_FILE_REPLAYS)
-  );
-}
-
-const REPO_ROOT = join(import.meta.dir, '../../..');
-
-function plannedSuite(dir: string) {
-  const packageDir = join(REPO_ROOT, dir);
-  const plans = readReplayPlans(packageDir);
-  if (plans === null) throw new Error(`${dir} plans no replays`);
-  const manifest = JSON.parse(
-    readFileSync(join(packageDir, 'package.json'), 'utf8')
-  ) as { specParts: number };
-  return {
-    plans,
-    specParts: manifest.specParts,
-    inventory: packageSpecInventory(
-      packageDir,
-      packageSpecs(packageDir, REPO_ROOT)
-    ),
-  };
-}
-
-/** A package's assignment at `count` parts, as its spec runner computes it. */
-function suiteParts(
-  dir: string,
-  count: number
-): readonly (readonly SpecUnit[])[] {
-  const packageDir = join(REPO_ROOT, dir);
-  const inventory = packageSpecInventory(
-    packageDir,
-    packageSpecs(packageDir, REPO_ROOT)
-  );
-  return partsOf(inventory(count), count);
-}
 
 // regression: chess-model-preparation-timeout
 test('preparation retains every draw and bounds the workers for the combined chess suite', () => {

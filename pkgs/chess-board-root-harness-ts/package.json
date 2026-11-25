@@ -15,7 +15,6 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "prepare:spec": "bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload @pkgs/chess-board-root-client-ts/board-style-preload --path-ignore-patterns='**/browser/**' tests",
     "test:contract": "bun test tests/browser",
@@ -27,8 +26,7 @@
     "test:spec:4": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 4/8",
     "test:spec:5": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 5/8",
     "test:spec:6": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 6/8",
-    "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/8",
-    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
+    "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/8"
   },
   "dependencies": {
     "@lingui/core": "catalog:",

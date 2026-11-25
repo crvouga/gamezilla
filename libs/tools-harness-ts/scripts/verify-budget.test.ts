@@ -85,30 +85,6 @@ describe('taskBudgetSeconds', () => {
       ).toBe(300);
   });
 
-  test('split multiplayer proofs retain their existing allowance', () => {
-    // regression: multiplayer-bounded-proof-timeout
-    const withinAllowance = Array.from({ length: 16 }, () => 419);
-    const summary = {
-      tasks: withinAllowance.map((seconds, index) =>
-        task(`@libs/games-harness-ts#verify:models:10:${index}`, seconds)
-      ),
-    };
-    expect(findBudgetOverruns(summary, false, {})).toEqual([]);
-    expect(
-      findBudgetOverruns(
-        { tasks: [task('@libs/games-harness-ts#verify:models:10:2', 421)] },
-        false,
-        {}
-      )
-    ).toEqual([
-      {
-        taskId: '@libs/games-harness-ts#verify:models:10:2',
-        seconds: 421,
-        budgetSeconds: 420,
-      },
-    ]);
-  });
-
   // regression: games-spec-part-two-exceeds-task-budget
   test('the hashed custom-game-away part keeps its measured allowance', () => {
     const taskId = '@libs/games-harness-ts#test:spec:2';

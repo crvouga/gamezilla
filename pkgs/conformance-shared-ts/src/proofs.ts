@@ -8,7 +8,10 @@
 import type { ConformanceKind } from './manifest';
 
 /** The kinds of spec file, by what they own (accessibility is a set of behavior specs). */
-export type SpecFileKind = Exclude<ConformanceKind, 'accessibility'>;
+export type SpecFileKind =
+  | Exclude<ConformanceKind, 'accessibility'>
+  | 'dynamics'
+  | 'structure';
 
 export type Proof =
   /** A spec file a package runs against its harness. */

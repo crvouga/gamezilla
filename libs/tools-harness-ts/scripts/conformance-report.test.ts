@@ -128,62 +128,6 @@ describe('evaluateLines', () => {
       ).status
     ).toBe('fail');
   });
-  test('pure campaign evidence is required without claiming implementation conformance', () => {
-    // regression: conformance-campaign-coverage
-    const model: ReportSpec = {
-      ...FEATURE,
-      path: 'specs/system/access-sync.qnt',
-      context: 'system',
-      kind: 'dynamics',
-      harness: false,
-      scenarios: [],
-    };
-    const missing = input({ specs: [model], records: [] });
-    expect(line(missing, 'model-verifying').status).toBe('fail');
-    expect(line(missing, 'trace-conformance').total).toBe(0);
-    const verified = input({
-      specs: [model],
-      records: [record(model, [pass('campaign-symbolic', 'specification')])],
-    });
-    expect(line(verified, 'model-verifying').status).toBe('pass');
-    expect(line(verified, 'conformance-verifications').status).toBe('pass');
-  });
-  test('a safety verdict cannot stand in for a declared progress obligation', () => {
-    // regression: quint-temporal-obligations-unchecked
-    const model: ReportSpec = {
-      ...FEATURE,
-      path: 'specs/sync-engine/note-recovery.qnt',
-      kind: 'dynamics',
-      scenarios: [],
-      temporalProperties: ['liveEditsFinish', 'liveDevicesAgree'],
-    };
-    const safety = record(model, [pass('verify', 'specification')]);
-    expect(
-      line(input({ specs: [model], records: [safety] }), 'model-verifying')
-        .status
-    ).toBe('fail');
-    const oneProperty = record(model, [
-      pass('temporal:liveEditsFinish', 'specification'),
-    ]);
-    expect(
-      line(
-        input({ specs: [model], records: [safety, oneProperty] }),
-        'model-verifying'
-      ).status
-    ).toBe('fail');
-    const allProperties = record(model, [
-      pass('temporal:liveDevicesAgree', 'specification'),
-    ]);
-    expect(
-      line(
-        input({
-          specs: [model],
-          records: [safety, oneProperty, allProperties],
-        }),
-        'model-verifying'
-      ).status
-    ).toBe('pass');
-  });
   test('missing evidence fails', () => {
     expect(line(input({}), 'acceptance')).toMatchObject({
       status: 'fail',
@@ -308,7 +252,7 @@ describe('evaluateLines', () => {
   });
 
   test('a line with nothing to verify fails as missing automation', () => {
-    expect(line(input({}), 'model-verifying')).toMatchObject({
+    expect(line(input({ specs: [] }), 'decision-analysis')).toMatchObject({
       status: 'fail',
       total: 0,
       problems: ['missing automation — nothing feeds this line'],

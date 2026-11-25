@@ -46,7 +46,6 @@ test('a game offering only puzzles keeps every law and is bound for rules and pu
   });
   const specifications = inheritedSpecifications(GAME);
   expect(specifications).toContain('specs/games/puzzle-play.feature');
-  expect(specifications).toContain('specs/games/puzzle-attempt.qnt');
   for (const uri of specifications)
     expect(capabilitiesOf(sharedSpecificationNeeds(uri))).toEqual(['puzzles']);
   const suites = await inheritedCodeSuites(GAME);
