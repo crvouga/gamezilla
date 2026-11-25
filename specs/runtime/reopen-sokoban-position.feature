@@ -4,8 +4,10 @@ Feature: Reopening a Sokoban puzzle after a move could not be saved
 
   Rule: Reopening the same puzzle attempt shows the last saved position
 
-    Scenario: Alice reopens her first starter puzzle after a step could not be saved
+    Scenario: Alice saves her refused step once and reopens her first starter puzzle
       Given Alice is playing the first puzzle of the Sokoban starter pack
       When her device cannot save her first step to the right
       Then Alice is told her previous position is still saved
-      And reopening that attempt shows zero moves and zero pushes
+      When Alice chooses Retry once
+      Then her puzzle shows one move and zero pushes
+      And reopening that attempt shows one move and zero pushes
