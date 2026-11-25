@@ -5,6 +5,8 @@ import {
   type TestInfo,
 } from '@playwright/test';
 
+import { observePreview, savePreviewTime } from './preview-timing';
+
 export async function center(cell: Locator) {
   const box = await cell.boundingBox();
   if (!box) throw new Error('Missing cell');
@@ -43,6 +45,7 @@ export async function dragShip(
   const from = await center(grid.locator('[data-cell="c1"]'));
   const to = await center(grid.locator('[data-cell="c2"]'));
   const input = await touch(page);
+  await observePreview(grid);
   try {
     if (phone) {
       await input.send('touchStart', [from]);
@@ -56,6 +59,7 @@ export async function dragShip(
       'data-emphasis',
       'preview'
     );
+    await savePreviewTime(grid, info);
     await snapshot(grid, info, 'drag-preview');
     if (phone) await input.send('touchEnd', []);
     else await page.mouse.up();

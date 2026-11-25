@@ -36,8 +36,11 @@ export function pickUpShip(
   const offset = hull?.cells.indexOf(origin) ?? 0;
   const delta = orientation === 'h' ? { dc: 1, dr: 0 } : { dc: 0, dr: 1 };
   const bowAt = (cell: string) => offsetCell(cell, delta, -offset);
+  let previous: string | null | undefined;
   return {
     preview(cell) {
+      if (cell === previous) return;
+      previous = cell;
       if (!cell) {
         context.show(null);
         return;

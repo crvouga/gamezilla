@@ -37,7 +37,10 @@ function InteractiveGrid(props: GridProps) {
         ref={(root) => {
           dispose = bindGrid(root, {
             view,
-            setView,
+            setView: (next) => {
+              if (view().scale === 1 && next.scale > 1) props.onPreview?.(null);
+              setView(next);
+            },
             pickup: (cell) => props.pickup?.(cell),
           });
         }}
@@ -51,7 +54,10 @@ function InteractiveGrid(props: GridProps) {
                 : `translate(${view().x}px,${view().y}px) scale(${view().scale})`,
           }}
         >
-          <CellGridBoard {...props} />
+          <CellGridBoard
+            {...props}
+            onPreview={view().scale === 1 ? props.onPreview : undefined}
+          />
         </div>
       </div>
       <Show when={view().scale > 1}>
