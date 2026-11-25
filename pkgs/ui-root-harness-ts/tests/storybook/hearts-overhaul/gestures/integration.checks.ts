@@ -22,10 +22,14 @@ async function touch(page: Page) {
   ) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: points });
 }
 
-// regression: hearts-table-inspection-at-fit
 async function inspect(page: Page, phone: boolean) {
   const frame = page.locator('[data-hearts-viewport]');
   const c = await center(frame);
+  const hit = await frame.evaluate(
+    (el, at) => el.contains(el.ownerDocument.elementFromPoint(at.x, at.y)),
+    c
+  );
+  expect(hit, 'The inspection starts on the visible fitted table').toBe(true);
   if (phone) {
     const send = await touch(page);
     const contacts = (radius: number) =>
@@ -154,4 +158,17 @@ test('Hearts gestures show the queen-bearing trick beside its winner', async ({
     'This trick added 13 deal points.'
   );
   await board.screenshot({ path: info.outputPath('queen-taken.png') });
+});
+
+// regression: hearts-table-inspection-at-fit
+test('Hearts gestures: a 1440px trackpad pinch enlarges the mounted felt', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await openHearts(
+    page,
+    'screens-games-hearts-interaction--pass-and-play',
+    'light'
+  );
+  await inspect(page, false);
 });
