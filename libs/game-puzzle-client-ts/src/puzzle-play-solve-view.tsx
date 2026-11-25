@@ -110,7 +110,7 @@ function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
         <Button
           title={<Trans>Look back</Trans>}
           intent="neutral"
-          variant="ghost"
+          variant="outline"
           size="sm"
           onClick={() => props.onOpen({ screen: 'line' })}
           dataSet={{ testid: 'chess-puzzle-line-open' }}

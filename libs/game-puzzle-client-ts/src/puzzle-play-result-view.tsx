@@ -16,6 +16,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
@@ -155,11 +156,44 @@ function LabeledGlyph(props: {
 }
 
 /**
+ * The glyphs and the one wide command. On a phone they share one row, the
+ * wide command centred on the glyphs; a desktop panel is narrower, so the
+ * wide command takes the panel's width and the glyphs sit under it, and
+ * its words are never cut.
+ */
+function ResultCommandLayout(props: {
+  readonly glyphs: JSX.Element;
+  readonly wide: JSX.Element;
+}): JSX.Element {
+  const mode = useLayoutMode();
+  return (
+    <Show
+      when={mode() === 'wide'}
+      fallback={
+        <StackHorizontal gap="md" align="center">
+          {props.glyphs}
+          <StackVertical grow justify="center">
+            {props.wide}
+          </StackVertical>
+        </StackHorizontal>
+      }
+    >
+      <StackVertical gap="sm">
+        {props.wide}
+        <StackHorizontal gap="md" align="center">
+          {props.glyphs}
+        </StackHorizontal>
+      </StackVertical>
+    </Show>
+  );
+}
+
+/**
  * What to do next, as the solve state allows it
- * (`buildPuzzleActionBarPlan`), in one row with few words: retrying,
- * stepping through the line and sharing are glyphs with one word each,
- * and the one wide, filled command is the next puzzle (retrying, after a
- * failed attempt, when the next puzzle becomes a glyph of its own).
+ * (`buildPuzzleActionBarPlan`), with few words: retrying, stepping through
+ * the line and sharing are glyphs with one word each, and the one wide,
+ * filled command is the next puzzle (retrying, after a failed attempt,
+ * when the next puzzle becomes a glyph of its own).
  */
 function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   const slots = createMemo(() =>
@@ -176,55 +210,19 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
     offers('retry') &&
     props.status === 'solved' &&
     props.result.completion?.outcome === 'failed';
-  const moves = (): JSX.Element => (
-    <LabeledGlyph
-      label={<Trans>Moves</Trans>}
-      icon={ListOrderedIcon}
-      onPress={() => props.onOpen({ screen: 'line' })}
-      testid={Handles.chessPuzzleSummaryClose}
-    />
-  );
-  const share = (): JSX.Element => (
-    <Show when={props.share} keyed>
-      {(link) => (
-        <LabeledGlyph
-          label={<PuzzleShareLabel state={link.state} short />}
-          icon={ShareIcon}
-          onPress={() => link.onShare()}
-          testid={Handles.chessPuzzleShareLink}
-        />
-      )}
-    </Show>
-  );
-  return (
-    <StackHorizontal gap="md" align="center">
+  const glyphs = (): JSX.Element => (
+    <>
       <Show
         when={retryLeads()}
         fallback={
-          <>
-            <Show when={offers('retry')}>
-              <LabeledGlyph
-                label={<Trans>Retry</Trans>}
-                icon={RotateCcwIcon}
-                onPress={() => props.onRetry()}
-                testid={Handles.chessPuzzleActionRetry}
-              />
-            </Show>
-            {moves()}
-            {share()}
-            <Show when={offers('next')}>
-              <StackVertical grow justify="center">
-                <Button
-                  title={<Trans>Next puzzle</Trans>}
-                  size="lg"
-                  fullWidth
-                  endIcon={<ChevronRightIcon />}
-                  onClick={() => props.onNext()}
-                  dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-                />
-              </StackVertical>
-            </Show>
-          </>
+          <Show when={offers('retry')}>
+            <LabeledGlyph
+              label={<Trans>Retry</Trans>}
+              icon={RotateCcwIcon}
+              onPress={() => props.onRetry()}
+              testid={Handles.chessPuzzleActionRetry}
+            />
+          </Show>
         }
       >
         <Show when={offers('next')}>
@@ -235,20 +233,71 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
             testid={Handles.chessPuzzleSummaryNext}
           />
         </Show>
-        {moves()}
-        {share()}
-        <StackVertical grow justify="center">
+      </Show>
+      <LabeledGlyph
+        label={<Trans>Moves</Trans>}
+        icon={ListOrderedIcon}
+        onPress={() => props.onOpen({ screen: 'line' })}
+        testid={Handles.chessPuzzleSummaryClose}
+      />
+      <Show when={props.share} keyed>
+        {(link) => (
+          <LabeledGlyph
+            label={<PuzzleShareLabel state={link.state} short />}
+            icon={ShareIcon}
+            onPress={() => link.onShare()}
+            testid={Handles.chessPuzzleShareLink}
+          />
+        )}
+      </Show>
+    </>
+  );
+  return (
+    <ResultCommandLayout
+      glyphs={glyphs()}
+      wide={
+        <WideResultCommand
+          {...props}
+          retryLeads={retryLeads()}
+          offersNext={offers('next')}
+        />
+      }
+    />
+  );
+}
+
+/** The one wide, filled command: the next puzzle, or Retry when it leads. */
+function WideResultCommand(
+  props: PuzzleStageScreenViewProps & {
+    readonly retryLeads: boolean;
+    readonly offersNext: boolean;
+  }
+): JSX.Element {
+  return (
+    <Show
+      when={props.retryLeads}
+      fallback={
+        <Show when={props.offersNext}>
           <Button
-            title={<Trans>Retry</Trans>}
+            title={<Trans>Next puzzle</Trans>}
             size="lg"
             fullWidth
-            icon={RotateCcwIcon}
-            onClick={() => props.onRetry()}
-            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+            endIcon={<ChevronRightIcon />}
+            onClick={() => props.onNext()}
+            dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
           />
-        </StackVertical>
-      </Show>
-    </StackHorizontal>
+        </Show>
+      }
+    >
+      <Button
+        title={<Trans>Retry</Trans>}
+        size="lg"
+        fullWidth
+        icon={RotateCcwIcon}
+        onClick={() => props.onRetry()}
+        dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+      />
+    </Show>
   );
 }
 

@@ -142,7 +142,8 @@ export function PuzzleSkipButton(props: {
     <Button
       title={<Trans>Skip puzzle</Trans>}
       intent="neutral"
-      variant="ghost"
+      // A quiet bordered button: its edge lines up with the column's.
+      variant="outline"
       size={props.size}
       fullWidth={props.fullWidth}
       disabled={props.disabled}
