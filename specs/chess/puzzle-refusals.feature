@@ -30,5 +30,8 @@ Feature: The Puzzle Assistant explains why nothing happens from an earlier posit
       When Alice returns from the earlier board to the latest move
       Then Alice's board is at move 3 of the line within 20 seconds
       And Alice can move pieces
+
+    Scenario: The solver can finish the puzzle after returning to the latest move
+      Given Alice has returned from the earlier board to the latest move
       When Alice plays the move a2-g2
       Then Alice's puzzle is solved within 20 seconds
