@@ -114,7 +114,7 @@ function createWindowManagerApi(
     const next = applyWindowLayoutCommand(before, command);
     if (options?.focus === true) wanted = focusAfter(next, command);
     if (sameLayout(before, next)) {
-      focusTab();
+      if (options?.focus === true) focusTab();
       return;
     }
     const title =

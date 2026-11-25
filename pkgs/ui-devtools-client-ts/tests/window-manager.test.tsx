@@ -161,6 +161,7 @@ describe('WindowManager', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Panel C moved');
   });
 
+  // regression: reopened-window-loses-tab-focus
   test('Delete closes a panel, the open menu brings it back, unclosable panels stay', () => {
     const { layout, mounts } = mount(['a', 'b', 'd']);
     tab('a').focus();
@@ -176,10 +177,13 @@ describe('WindowManager', () => {
     expect(
       document.querySelector('[data-window-part="close"][data-panel-id="d"]')
     ).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Open a panel' }));
+    const openPanel = screen.getByRole('button', { name: 'Open a panel' });
+    openPanel.focus();
+    fireEvent.click(openPanel);
     fireEvent.click(screen.getByRole('menuitem', { name: 'Panel A' }));
     expect(tabsOf(layout())).toEqual([['b', 'd', 'a']]);
     expect(mounts['a']).toBe(2);
+    expect(document.activeElement?.id).toBe(tab('a').id);
   });
 
   test('the window menu splits, moves, maximizes and restores', () => {
