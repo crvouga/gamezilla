@@ -55,6 +55,8 @@
     "@pkgs/uuid-shared-ts": "workspace:*",
     "@solidjs/router": "catalog:",
     "@solidjs/web": "catalog:",
+    "@ui-sdk/core": "catalog:",
+    "@ui-sdk/solid": "catalog:",
     "solid-js": "catalog:",
     "zod": "catalog:"
   },
