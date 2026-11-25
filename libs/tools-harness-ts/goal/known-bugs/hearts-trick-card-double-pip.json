@@ -1,4 +1,4 @@
 {
   "summary": "A played trick card's small corner pip overlapped its large centre pip, reading as a doubled suit glyph at 1280 and 390; trick cards omit the corner pip.",
-  "regressionTest": "libs/hearts-client-ts/src/hearts-board.stories.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
 }

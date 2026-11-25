@@ -1,4 +1,4 @@
 {
   "summary": "The long ended-space message sat left of center at 1280 by 800.",
-  "regressionTest": "libs/spaces-client-ts/src/space-ended-screen-view.stories.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
 }

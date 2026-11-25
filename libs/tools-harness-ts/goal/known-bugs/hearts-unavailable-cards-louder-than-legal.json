@@ -1,4 +1,4 @@
 {
   "summary": "Following spades on a phone, each unavailable card wore a black ×, a dashed border and a hatched foot, louder than the playable cards; refused cards now only dim and the legal cards carry the hand's strongest edge.",
-  "regressionTest": "libs/hearts-client-ts/src/hearts-board.stories.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
 }
