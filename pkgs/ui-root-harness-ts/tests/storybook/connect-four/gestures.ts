@@ -1,8 +1,7 @@
 // @io-wall-ok — hosted Chromium writes the measured board bounds and evidence.
 import { writeFile } from 'node:fs/promises';
 import { expect, type Page, type TestInfo, test } from '@playwright/test';
-import { openBoard } from '../capture';
-import { boardContext } from '../matrix';
+import { openBoard } from './capture';
 
 type Point = { x: number; y: number };
 const board = (page: Page) => page.getByTestId('custom-game-board');
@@ -154,9 +153,8 @@ async function cancelAim(page: Page, touch: boolean) {
   await expect(cell).toHaveAttribute('data-disc', '1');
   await expect(cell.locator('span')).toHaveCSS('animation-name', 'none');
 }
-for (const width of [390, 1440]) {
+export function defineGestures(width: number) {
   test.describe(`Connect Four rack ${width}`, () => {
-    test.use(boardContext(width));
     test('storybook integration: connect-four canceled aim and keyboard inspection', async ({
       page,
     }) => cancelAim(page, width === 390));
