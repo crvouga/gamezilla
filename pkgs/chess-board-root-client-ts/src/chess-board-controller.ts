@@ -62,6 +62,7 @@ export type BoardController = {
   readonly theme: Accessor<ReturnType<typeof mergeBoardTheme>>;
   readonly userShapes: UserShapes;
   readonly arrows: Accessor<ReturnType<UserShapes['arrows']>>;
+  readonly cancelPress: () => void;
   readonly onKeyDown: (event: KeyboardEvent) => void;
   readonly activateSquare: (square: Square) => void;
   /** A hit-grid square button took focus: the cursor follows it. */
@@ -209,6 +210,7 @@ type Input = {
   readonly setHover: (el: HTMLElement) => void;
   readonly cursor: Accessor<Square>;
   readonly setCursor: (square: Square) => void;
+  readonly cancelPress: () => void;
   readonly onKeyDown: (event: KeyboardEvent) => void;
 };
 
@@ -274,7 +276,13 @@ function createInput(args: {
       parts.model.actions.cancelAll();
     },
   });
-  return { setHover, cursor, setCursor, onKeyDown };
+  return {
+    setHover,
+    cursor,
+    setCursor,
+    onKeyDown,
+    cancelPress: () => pointer.cancelPress(),
+  };
 }
 
 export function createBoardController(args: {
@@ -339,6 +347,7 @@ export function createBoardController(args: {
     userShapes,
     arrows,
     onKeyDown: input.onKeyDown,
+    cancelPress: input.cancelPress,
     activateSquare: (square) => {
       input.setCursor(square);
       userShapes.clear();

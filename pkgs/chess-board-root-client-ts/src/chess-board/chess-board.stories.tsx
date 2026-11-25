@@ -1,4 +1,7 @@
-import { BoardMotionProvider } from '@pkgs/chess-board-root-client-ts/board-motion-context';
+import {
+  BoardMotionProvider,
+  createWallMotionEnvironment,
+} from '@pkgs/chess-board-root-client-ts/board-motion-context';
 import { AudioPlaybackProvider } from '@pkgs/sounds-client-ts/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
 import type { ComponentProps } from '@solidjs/web';
@@ -7,13 +10,7 @@ import { ChessBoard } from './index';
 
 function BoardFixture(props: ComponentProps<typeof ChessBoard>) {
   const audio = createInMemoryAudioPlaybackPort();
-  const motion = {
-    animate: null,
-    prefersReducedMotion: () => true,
-    lowEnd: false,
-    hidden: () => false,
-    paintedTransform: () => '',
-  };
+  const motion = createWallMotionEnvironment();
   return (
     <AudioPlaybackProvider value={audio}>
       <BoardMotionProvider value={motion}>
@@ -42,4 +39,8 @@ export const Endgame: StoryObj<typeof meta> = {
 };
 export const Promotion: StoryObj<typeof meta> = {
   args: { fen: '7k/P7/8/8/8/8/8/7K w - - 0 1' },
+};
+
+export const GesturePlay: StoryObj<typeof meta> = {
+  args: { animations: true },
 };

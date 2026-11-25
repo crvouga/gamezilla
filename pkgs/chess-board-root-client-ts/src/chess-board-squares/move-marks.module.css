@@ -45,11 +45,24 @@
   );
 }
 
-.mark[data-kind="last-move"]::after {
+.mark[data-arrival]::before {
+  position: absolute;
+  pointer-events: none;
   content: "";
   inset: 0 0 auto auto;
-  width: 24%;
+  width: 28%;
   aspect-ratio: 1;
   background: var(--chess-border);
   clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* An open tick at the departure and a solid pennant at the arrival keep the
+   direction readable on a still board. Selection can coexist with arrival. */
+.mark[data-kind="last-move"]:not([data-arrival])::after {
+  content: "";
+  inset: 0 0 auto auto;
+  width: 28%;
+  aspect-ratio: 1;
+  background: var(--chess-border);
+  clip-path: polygon(0 0, 24% 0, 100% 76%, 100% 100%);
 }

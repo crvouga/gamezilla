@@ -353,15 +353,14 @@ describe('gestures', () => {
     const pawn = board.piece('e2');
     board.down({ square: 'e2', pointerType: 'touch' });
     board.move({ square: 'e3', pointerType: 'touch' });
-    const held = pawn.style.transform;
     board.down({ square: 'a6', pointerId: 2, pointerType: 'touch' });
     board.move({ square: 'a6', pointerId: 2, pointerType: 'touch' });
-    expect(pawn.style.transform).toBe(held);
+    expect(pawn.dataset['pieceSquare']).toBe('e2');
     board.up({ square: 'a6', pointerId: 2, pointerType: 'touch' });
     expect(board.moves).toEqual([]);
     board.move({ square: 'e4', pointerType: 'touch' });
     board.up({ square: 'e4', pointerType: 'touch' });
-    expect(board.moves).toEqual(['e2e4']);
+    expect(board.moves).toEqual([]);
   });
 
   // regression: chess-board-arrows-ignore-flip — arrow geometry was computed

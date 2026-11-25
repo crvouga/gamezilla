@@ -93,6 +93,16 @@
 
 .lifted {
   opacity: 0.3;
+  animation: chess-lift min(var(--chess-move-ms), 90ms) ease-out;
+}
+
+@keyframes chess-lift {
+  from {
+    opacity: 0.72;
+  }
+  to {
+    opacity: 0.3;
+  }
 }
 
 /* The dragged piece, in the top layer (or fixed at max z-index): above
@@ -308,11 +318,13 @@
 
 /* Low-end devices and reduced motion: no fades. Slides are governed in
    script by the same policy; this covers the CSS-only effects. */
+.lite .lifted,
 .lite .captureGhost {
   animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .lifted,
   .captureGhost {
     animation: none;
   }
