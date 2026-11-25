@@ -54,6 +54,27 @@ type BoardState = {
 
 type BoardViewProps = GameBoardProps & { readonly state: BoardState };
 
+function createWallPreview(
+  props: BoardViewProps,
+  previewAction: Accessor<string | null>
+) {
+  const targets = createMemo(() =>
+    quoridorBoardCells(
+      props.state.game(),
+      props.state.tool(),
+      props.interactive
+    )
+  );
+  const reason = createMemo(() => {
+    const action = previewAction();
+    return action === null ? null : wallRefusal(props.state.game(), action);
+  });
+  const cells = createMemo(() =>
+    withWallPreview(targets(), previewAction(), reason() !== null)
+  );
+  return { targets, reason, cells };
+}
+
 function createBoardSelection(props: BoardViewProps) {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
@@ -85,16 +106,7 @@ function createBoardSelection(props: BoardViewProps) {
     tool() === 'move'
       ? null
       : `${selected() ?? preview()}${tool()}`;
-  const targets = createMemo(() =>
-    quoridorBoardCells(game(), tool(), props.interactive)
-  );
-  const reason = createMemo(() => {
-    const action = previewAction();
-    return action === null ? null : wallRefusal(game(), action);
-  });
-  const cells = createMemo(() =>
-    withWallPreview(targets(), previewAction(), reason() !== null)
-  );
+  const { targets, reason, cells } = createWallPreview(props, previewAction);
   const message = () => {
     if (game().winner !== null)
       return t`Game finished. Use the game controls to review earlier moves.`;
@@ -131,7 +143,17 @@ function createBoardSelection(props: BoardViewProps) {
     props.state.setTool('move');
     props.onAction(action);
   };
-  return { cells, targets, reason, selected, message, activate, setPreview, cancel, commit };
+  return {
+    cells,
+    targets,
+    reason,
+    selected,
+    message,
+    activate,
+    setPreview,
+    cancel,
+    commit,
+  };
 }
 
 function QuoridorBoardView(props: BoardViewProps): JSX.Element {

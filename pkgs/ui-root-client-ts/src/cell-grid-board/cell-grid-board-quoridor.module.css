@@ -4,7 +4,8 @@
     var(--ui-color-game-quoridor-muted);
 }
 .board [data-tone="occupied"] > span {
-  text-shadow: 0 var(--ui-space-hairline) var(--ui-color-game-quoridor-ink),
+  text-shadow:
+    0 var(--ui-space-hairline) var(--ui-color-game-quoridor-ink),
     0 var(--ui-space-1) var(--ui-color-game-quoridor-muted);
 }
 
@@ -38,7 +39,8 @@
   background-position: center;
 }
 
-.board[data-board-theme="quoridor"] [data-emphasis="preview"]:not(:focus-visible) {
+.board[data-board-theme="quoridor"]
+  [data-emphasis="preview"]:not(:focus-visible) {
   outline: none;
 }
 .board [data-emphasis="preview"]:is(:hover, :focus-visible) > span {
@@ -50,7 +52,8 @@
 }
 
 /* A faint wash groups the four squares on either side of the proposed wall. */
-.board [data-cell]:is(
+.board
+[data-cell]:is(
   [data-preview-edge-top="true"],
   [data-preview-edge-bottom="true"],
   [data-preview-edge-left="true"],

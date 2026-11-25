@@ -49,7 +49,9 @@ export async function expectHillDestinationVisible(canvasElement: HTMLElement) {
   await expect(goal).toHaveAttribute('data-goal', 'true');
   const view = goal.ownerDocument.defaultView;
   if (!view) throw new Error('Hill story has no browser window');
-  await expect(view.getComputedStyle(goal).backgroundImage).toContain('radial-gradient');
+  await expect(view.getComputedStyle(goal).backgroundImage).toContain(
+    'radial-gradient'
+  );
   const bounds = goal.getBoundingClientRect();
   await expect(bounds.width).toBeGreaterThan(0);
   await expect(bounds.height).toBeGreaterThan(0);

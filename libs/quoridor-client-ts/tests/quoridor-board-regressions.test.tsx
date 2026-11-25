@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 import { createQuoridorBoard } from '@libs/quoridor-client-ts/quoridor-board';
-import { quoridorBoardCells, withWallPreview } from '@libs/quoridor-client-ts/quoridor-board-cells';
+import {
+  quoridorBoardCells,
+  withWallPreview,
+} from '@libs/quoridor-client-ts/quoridor-board-cells';
 import { quoridorFrame } from '@libs/quoridor-client-ts/quoridor-frame';
 import {
   encodeQuoridor,
@@ -79,7 +82,11 @@ test('an accepted wall clears its preview instead of reporting an overlap', () =
 test('outside wall anchors never paint a partial wall preview', () => {
   // regression: quoridor-invalid-wall-preview
   for (const preview of ['i8h', 'i9v']) {
-    const cells = withWallPreview(quoridorBoardCells(newQuoridor('hill'), 'h', true), preview, true);
+    const cells = withWallPreview(
+      quoridorBoardCells(newQuoridor('hill'), 'h', true),
+      preview,
+      true
+    );
     expect(cells.every((cell) => cell.previewEdges?.length === 0)).toBe(true);
   }
 });

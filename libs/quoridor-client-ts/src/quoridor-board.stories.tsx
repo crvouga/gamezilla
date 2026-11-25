@@ -353,10 +353,12 @@ export const RotateWallPreview: Story = {
     await expectQuoridorSpatialArea(canvasElement);
     const anchor = canvas.getByTestId('custom-game-board-action-d4h');
     await userEvent.hover(anchor);
-    await expect(canvas.getByTestId('custom-game-board-wall-status')).toHaveTextContent(
-      'Select this square to keep the preview.'
-    );
-    await expect(canvas.queryByTestId('custom-game-board-wall-commit')).toBeNull();
+    await expect(
+      canvas.getByTestId('custom-game-board-wall-status')
+    ).toHaveTextContent('Select this square to keep the preview.');
+    await expect(
+      canvas.queryByTestId('custom-game-board-wall-commit')
+    ).toBeNull();
     await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
     await expectQuoridorWallPreview(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));

@@ -152,8 +152,12 @@ export function withWallPreview(
     const index = anchor + offset;
     const cell = cells[index]!;
     const edge = horizontal
-      ? offset < 0 ? 'bottom' : 'top'
-      : offset === 1 || offset === -8 ? 'left' : 'right';
+      ? offset < 0
+        ? 'bottom'
+        : 'top'
+      : offset === 1 || offset === -8
+        ? 'left'
+        : 'right';
     if (!cell.edges?.includes(edge))
       next[index] = {
         ...cell,

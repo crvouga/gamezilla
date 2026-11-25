@@ -1,6 +1,9 @@
 import { expect, test } from 'bun:test';
 import { createQuoridorBoard } from '@libs/quoridor-client-ts/quoridor-board';
-import { quoridorBoardCells, withWallPreview } from '@libs/quoridor-client-ts/quoridor-board-cells';
+import {
+  quoridorBoardCells,
+  withWallPreview,
+} from '@libs/quoridor-client-ts/quoridor-board-cells';
 import { quoridorTargetOptions } from '@libs/quoridor-client-ts/quoridor-board-tools';
 import {
   quoridorGameClient,
@@ -63,11 +66,7 @@ test('watchers and finished games see no legal-move markers in either variant', 
     const opening = newQuoridor(mode);
     for (const cells of [
       quoridorBoardCells(opening, 'move', false),
-      quoridorBoardCells(
-        replayQuoridor('classic', SOUTH_WINS),
-        'move',
-        true
-      ),
+      quoridorBoardCells(replayQuoridor('classic', SOUTH_WINS), 'move', true),
     ]) {
       expect(cells.filter((cell) => cell.glyph === '○')).toEqual([]);
       expect(cells.filter((cell) => cell.emphasis === 'preview')).toEqual([]);
@@ -170,7 +169,11 @@ test('Cancel and Place wall return focus to the active tool instead of the page'
 // regression: quoridor-refused-wall-hides-its-cause
 test('an overlapping proposal leaves the existing wall drawn where they meet', () => {
   const game = replayQuoridor('classic', ['e5h']);
-  const cells = withWallPreview(quoridorBoardCells(game, 'h', true), 'd5h', true);
+  const cells = withWallPreview(
+    quoridorBoardCells(game, 'h', true),
+    'd5h',
+    true
+  );
   const at = (id: string) => cells.find((cell) => cell.id === id);
   // d5h and e5h share the edge above e5: it stays the committed wall.
   expect(at('e5')?.edges).toContain('top');
