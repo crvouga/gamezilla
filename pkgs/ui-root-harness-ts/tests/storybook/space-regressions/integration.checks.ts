@@ -96,3 +96,19 @@ test('screens-games-chess-board--early-game regression chess-early-game-side-mar
     suffix: '',
   });
 });
+
+// regression: quoridor-hill-camera-viewport
+test('screens-games-quoridor-hill--four-player-round regression quoridor-hill-camera-viewport', async ({
+  page,
+}) => {
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 800],
+  ] as const) {
+    await verifyStoryScenario(
+      page,
+      'screens-games-quoridor-hill--four-player-round',
+      { width, height, theme: 'light', globals: {}, suffix: '' }
+    );
+  }
+});
