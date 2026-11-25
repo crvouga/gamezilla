@@ -1,0 +1,4 @@
+{
+  "summary": "Offline chess against a bot replaced the local player’s turn with a notice that play needed a connection.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-play-places.test.tsx"
+}

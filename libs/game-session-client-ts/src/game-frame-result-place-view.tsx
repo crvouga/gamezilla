@@ -129,7 +129,9 @@ function NextActions(props: Props): JSX.Element {
  * a card that says what happened and every player's finish
  * (`FrameOutcomeCard`), then what to do next in the bar.
  */
-export function FrameResultPlace(props: Props): JSX.Element {
+export function FrameResultPlace(
+  props: Props & { readonly confirming: boolean }
+): JSX.Element {
   return (
     <GameScreen
       screenId="custom-game-result"
@@ -158,7 +160,11 @@ export function FrameResultPlace(props: Props): JSX.Element {
         // The card says how the game ended over the stage's foot (heading
         // the rail beside a wide board), so the final board keeps the live
         // board's place; a listener hears it from the frame's own line.
-        sheet={<FrameOutcomeCard {...props} />}
+        sheet={
+          <Show when={!props.confirming}>
+            <FrameOutcomeCard {...props} />
+          </Show>
+        }
         status={<FrameStatusView status={props.status} spokenOnly />}
         actions={<NextActions {...props} />}
         aside={<FrameMovesCard {...props} listOnly />}

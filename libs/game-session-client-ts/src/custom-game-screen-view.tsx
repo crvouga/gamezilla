@@ -168,7 +168,9 @@ function SetupPlaces(
 }
 
 /** The one place the phase and the device's choice select. */
-function FramePlaces(props: Props): JSX.Element {
+function FramePlaces(
+  props: Props & { readonly confirming: boolean }
+): JSX.Element {
   const screen = () => props.place.screen;
   const over = (): boolean =>
     props.phase === 'completed' || props.phase === 'cancelled';
@@ -194,7 +196,7 @@ function FramePlaces(props: Props): JSX.Element {
         </Show>
       </Match>
       <Match when={over()}>
-        <FrameResultPlace {...props} />
+        <FrameResultPlace {...props} confirming={props.confirming} />
       </Match>
     </Switch>
   );
@@ -221,7 +223,13 @@ export function CustomGameScreenView(
     <>
       <Show
         when={props.denial}
-        fallback={<FramePlaces {...stable} onConfirm={confirm.ask} />}
+        fallback={
+          <FramePlaces
+            {...stable}
+            onConfirm={confirm.ask}
+            confirming={confirm.asked() !== null}
+          />
+        }
       >
         {(denial) => (
           <EmbeddedScreen screenId="custom-game-denied" title={props.title}>

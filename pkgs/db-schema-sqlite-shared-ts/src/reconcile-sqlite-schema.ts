@@ -20,5 +20,21 @@ export async function reconcileSqliteSchema(
   schema: Schema,
   options?: ReconcileSqliteSchemaOptions
 ): Promise<void> {
-  await sqlite(schema, client, options).reconcile();
+  const driver = sqlite(schema, client, options);
+  try {
+    await driver.reconcile();
+  } catch (error) {
+    // A cache wipe can remove a declared table after catalog discovery.
+    // Replan from the surviving rows without wiping the database again.
+    const missing =
+      error instanceof Error
+        ? /no such table: main\.([a-z_][a-z0-9_]*)$/i.exec(error.message)?.[1]
+        : undefined;
+    if (
+      missing === undefined ||
+      !Object.hasOwn(schema._declared.tables, missing)
+    )
+      throw error;
+    await driver.reconcile();
+  }
 }

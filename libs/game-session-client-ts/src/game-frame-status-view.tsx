@@ -371,7 +371,9 @@ export function FrameStageConditionLine(props: {
           <Trans>Game stopped. Reopen it to play on from here.</Trans>
         </P>
       </Match>
-      <Match when={props.connection !== 'online'}>
+      <Match
+        when={props.connection === 'waiting' || props.connection === 'needed'}
+      >
         <P
           variant="caption"
           tone="warning"
@@ -423,7 +425,10 @@ export function frameStageHeldUp(props: {
   readonly play: FramePlay;
 }): boolean {
   return (
-    props.stopped || props.connection !== 'online' || props.play.away !== null
+    props.stopped ||
+    props.connection === 'waiting' ||
+    props.connection === 'needed' ||
+    props.play.away !== null
   );
 }
 

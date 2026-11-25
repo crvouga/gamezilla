@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { endActiveSpace } from '@libs/runtime-harness-ts/journey-gestures';
 import {
   establishMultiplayerSearch,
   expectSharedMultiplayerGame,
@@ -203,6 +204,40 @@ test('the same completed board on both devices is not a newly matched game', asy
   ).rejects.toThrow('no ongoing game');
 });
 
+// regression: battleship-observation-hides-private-setup
+test('reading the shared Battleship board leaves each fleet setup open', async () => {
+  const { ui, taps } = loadingScreen();
+  ui.snapshotHtml = async () =>
+    '<div data-testid="multiplayer-game" data-game-id="fleet" data-outcome="ongoing"></div>';
+  const act = async (
+    _name: string,
+    gestures: (driver: Driver) => Promise<void>
+  ) => gestures(ui);
+  await expectSharedMultiplayerGame(
+    { act, actAsGuest: act, now: async () => 0 },
+    5000
+  );
+  expect(taps).toEqual([]);
+});
+
+// regression: pong-rematch-finishes-during-cleanup
+test('an ongoing rematch can reach its score target as cleanup opens commands', async () => {
+  const { ui } = loadingScreen(true);
+  const get = ui.get.bind(ui);
+  let outcome = 'ongoing';
+  ui.get = (id) => ({
+    ...get(id),
+    attribute: async () => outcome,
+    tap: async () => {
+      expect(id).toBe('multiplayer-open-commands');
+      outcome = 'black';
+      throw new Error('the element is gone');
+    },
+  });
+  await retirePreviousMultiplayer(ui);
+  expect(outcome).toBe('black');
+});
+
 // regression: multiplayer-recovery-given-inherits-pairing-deadline
 test('recovery setup can establish its unfinished game beyond the separate timed pairing assertion', async () => {
   const { ui } = loadingScreen();
@@ -292,28 +327,34 @@ test('cleanup stops a waiting search before ending its space', async () => {
   ]);
 });
 
+// regression: quoridor-result-blocks-space-cleanup
 // regression: connect-four-result-blocks-space-cleanup
-test('the completed game releases the space menu after closing its result', async () => {
-  const { ui, taps } = loadingScreen();
-  let dialog = true;
-  const get = ui.get.bind(ui);
-  ui.get = (id) => ({
-    ...get(id),
-    isVisible: async () =>
-      id === 'game-result-close' ? dialog : id === Handles.spaceEnd && !dialog,
-    tap: async () => {
-      if (id === 'game-result-close') dialog = false;
-      await get(id).tap();
-    },
-  });
-  await endMultiplayerSpace(ui);
-  expect(taps).toEqual([
-    'game-result-close',
-    Handles.spaceEnd,
-    Handles.spaceEndConfirm,
-    Handles.spaceMutationDismiss,
-  ]);
-});
+test.each([endActiveSpace, endMultiplayerSpace])(
+  'the completed game releases the space menu after closing its result',
+  async (endSpace) => {
+    const { ui, taps } = loadingScreen();
+    let dialog = true;
+    const get = ui.get.bind(ui);
+    ui.get = (id) => ({
+      ...get(id),
+      isVisible: async () =>
+        id === 'game-result-close'
+          ? dialog
+          : id === Handles.spaceEnd && !dialog,
+      tap: async () => {
+        if (id === 'game-result-close') dialog = false;
+        await get(id).tap();
+      },
+    });
+    await endSpace(ui);
+    expect(taps).toEqual([
+      'game-result-close',
+      Handles.spaceEnd,
+      Handles.spaceEndConfirm,
+      Handles.spaceMutationDismiss,
+    ]);
+  }
+);
 
 // regression: live-multiplayer-wrong-time-control
 test('a previous 2+1 choice is changed to the requested 5+0 before finding an opponent', async () => {

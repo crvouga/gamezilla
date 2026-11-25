@@ -217,12 +217,7 @@ export async function expectNoMultiplayerGame(ui: Driver): Promise<void> {
 /** Observe the rendered board, rather than a server or local database row. */
 async function shownGameId(ui: Driver, timeoutMs: number): Promise<string> {
   await ui.get('multiplayer-game').expect.visible({ timeoutMs });
-  // A fresh pairing offers Abort, among the game's commands, until either
-  // person has played: a finished game has no commands to open at all.
   await ui.get('multiplayer-open-commands').expect.visible({ timeoutMs });
-  await tap(ui, 'multiplayer-open-commands');
-  await ui.get('multiplayer-abort').expect.visible({ timeoutMs });
-  await pressBackUntilVisible(ui, 'multiplayer-game', JOURNEY_WAIT_MS);
   const html = await ui.snapshotHtml();
   const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
   const id = tag?.match(/data-game-id="([^"]+)"/)?.[1];

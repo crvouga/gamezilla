@@ -1,0 +1,4 @@
+{
+  "summary": "The completed custom Quoridor game covered the space menu during cleanup.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

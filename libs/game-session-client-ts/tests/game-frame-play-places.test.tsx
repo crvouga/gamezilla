@@ -4,7 +4,7 @@ import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
 import type { StageOverlayEvent } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup, fireEvent, screen, within } from '@solidjs/testing-library';
-import { untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
 import {
   frameProps,
   mountFrame,
@@ -50,6 +50,15 @@ const over = (place: CustomGamePlace = { screen: 'result' }) =>
       standings: [],
     },
   });
+
+// regression: offline-local-chess-turn-hidden
+test('White can see their turn in an offline local game against a bot', () => {
+  mountFrame(() => frameProps({ connection: 'offline-local' }), 390);
+  expect(screen.getByTestId('custom-game-status').textContent).toContain(
+    'Your turn.'
+  );
+  expect(shown('custom-game-connection-needed')).toBe(false);
+});
 
 describe('the play place', () => {
   // regression: replay-controls-heavy-live
@@ -98,6 +107,26 @@ describe('the play place', () => {
     fireEvent.click(screen.getByTestId('custom-game-resign-now'));
     expect(chosen).toHaveLength(1);
     expect(view.queryByRole('dialog')).not.toBeNull();
+  });
+
+  // regression: custom-game-result-covers-resign-done
+  test('the result opens after the resigning player dismisses Done', async () => {
+    const [finished, setFinished] = createSignal(false);
+    mountFrame(() =>
+      finished()
+        ? over()
+        : frameProps({
+            onChoose: async () => {
+              setFinished(true);
+            },
+          })
+    );
+    fireEvent.click(screen.getByTestId('custom-game-resign-now'));
+    fireEvent.click(screen.getByTestId('custom-game-resign-confirm'));
+    const done = await screen.findByTestId('custom-game-resign-done');
+    expect(shown('game-result-close')).toBe(false);
+    fireEvent.click(done);
+    expect(await screen.findByTestId('game-result-close')).toBeDefined();
   });
 
   test('someone who may neither offer a draw nor resign is shown neither', () => {

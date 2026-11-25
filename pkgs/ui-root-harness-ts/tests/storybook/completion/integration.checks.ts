@@ -218,6 +218,7 @@ for (const story of [
 
 // regression: completed-game-next-actions-below-board
 // Exercise the frame's actual reactive transition, not only static end-state fixtures.
+// regression: custom-game-result-covers-resign-done
 test('storybook integration: resigning from the game menu keeps one outcome and the confirmation acknowledgment, then the moves and back', async ({
   page,
 }) => {
@@ -231,6 +232,7 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
   await page.getByTestId('custom-game-resign-confirm').click();
   const done = page.getByTestId('custom-game-resign-done');
   await expect(done).toBeVisible();
+  await done.click();
   await expect(page.getByTestId('custom-game-result-headline')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-rematch')).toHaveCount(1);
   await expect(page.getByTestId('custom-game-result-headline')).toContainText(
@@ -240,7 +242,7 @@ test('storybook integration: resigning from the game menu keeps one outcome and 
   await expect(page.getByTestId('custom-game-outcome')).toContainText(
     'You resigned.'
   );
-  await done.click();
+  await page.getByTestId('game-result-close').click();
   await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByTestId('custom-game-review-start').click();
   await expect(page.getByTestId('custom-game-reviewing')).toBeVisible();
