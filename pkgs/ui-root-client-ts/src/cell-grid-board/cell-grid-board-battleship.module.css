@@ -82,7 +82,8 @@
     var(--color-background) 13%
   );
 }
-.board[data-battleship-surface="target"] .cell[data-emphasis="pending"] {
+.board[data-battleship-surface="target"]
+  .cell:is([data-emphasis="preview"], [data-emphasis="pending"]) {
   background: var(--color-tint);
   color: var(--color-background);
   outline-color: var(--color-background);

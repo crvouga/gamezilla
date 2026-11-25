@@ -214,6 +214,17 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
       aiming: aim.aiming(),
     })
   );
+  const aimCells = createMemo(() => {
+    const cells = targetCells();
+    const target = selected();
+    if (target === null || aim.aiming() !== null) return cells;
+    return cells.map(
+      (cell): CellGridCell =>
+        cell.id === target
+          ? { ...cell, emphasis: 'preview', glyph: GLYPHS.aiming }
+          : cell
+    );
+  });
   const confirming = () =>
     (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
@@ -224,11 +235,7 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
         view={view()}
         onView={setView}
         own={ownCells()}
-        target={targetCells().map((cell) =>
-          cell.id === selected() && aim.aiming() === null
-            ? { ...cell, emphasis: 'preview' }
-            : cell
-        )}
+        target={aimCells()}
         onAim={setSelected}
         ships={viewer() !== null}
         inspect={!interactive() && aim.aiming() === null}
