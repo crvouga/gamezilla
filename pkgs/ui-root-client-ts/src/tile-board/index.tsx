@@ -1,7 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { For, Show } from 'solid-js';
+import { createUniqueId, For, Show } from 'solid-js';
 import { useTileBoardActions } from './actions';
 import styles from './tile-board.module.css';
 
@@ -30,6 +30,9 @@ export type TileBoardPiece = {
 };
 export type TileBoardDirection = 'up' | 'down' | 'left' | 'right';
 export type TileBoardProps = {
+  readonly bindPointerInput?: (board: HTMLElement) => void;
+  readonly boardTool?: JSX.Element;
+  readonly inputDescription?: string;
   readonly boardTheme?: 'warehouse';
   readonly label: string;
   readonly testId: string;
@@ -110,14 +113,25 @@ function createTileBoardInput(props: TileBoardProps) {
     if (index !== null) props.onTile?.(index);
   };
   const keyDown = (event: KeyboardEvent): void => {
-    if (!interactive() || props.onDirection === undefined) return;
+    if (
+      event.target !== event.currentTarget ||
+      !interactive() ||
+      props.onDirection === undefined
+    )
+      return;
     const direction = KEYS[event.key];
     if (direction === undefined || event.ctrlKey || event.metaKey) return;
     event.preventDefault();
     props.onDirection(direction);
   };
   const pointerDown = (event: PointerEvent): void => {
-    if (!interactive() || origin !== null || event.button !== 0) return;
+    if (
+      props.bindPointerInput ||
+      !interactive() ||
+      origin !== null ||
+      event.button !== 0
+    )
+      return;
     origin = { x: event.clientX, y: event.clientY, pointerId: event.pointerId };
     (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
   };
@@ -134,12 +148,16 @@ function createTileBoardInput(props: TileBoardProps) {
  * person prefers reduced motion; logic never waits for the glide.
  */
 export function TileBoard(props: TileBoardProps): JSX.Element {
+  const instructionsId = createUniqueId();
   const input = createTileBoardInput(props);
   const actions = useTileBoardActions(props);
   return (
     // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions -- the focused board owns the direction keys that steer it
     <div
       {...actions}
+      ref={props.bindPointerInput}
+      title={props.inputDescription}
+      aria-details={props.inputDescription ? instructionsId : undefined}
       class={styles['board']}
       role="group"
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex -- the board itself takes focus so the direction keys reach it
@@ -163,7 +181,14 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       onPointerCancel={input.cancel}
       onLostPointerCapture={input.cancel}
     >
-      <div class={styles['tiles']}>
+      <Show when={props.inputDescription}>
+        {(help) => (
+          <span id={instructionsId} class="sr-only">
+            {help()}
+          </span>
+        )}
+      </Show>
+      <div class={styles['tiles']} data-board-layer="terrain">
         <For keyed={false} each={props.tiles}>
           {(tile, index) => (
             <span
@@ -181,7 +206,11 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
           )}
         </For>
       </div>
-      <div class={styles['pieces']} aria-hidden="true">
+      <div
+        class={styles['pieces']}
+        data-board-layer="pieces"
+        aria-hidden="true"
+      >
         {/* By position: a piece keeps its element as it moves, so it glides. */}
         <For keyed={false} each={props.pieces}>
           {(piece) => (
@@ -203,6 +232,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
           )}
         </For>
       </div>
+      {props.boardTool}
     </div>
   );
 }

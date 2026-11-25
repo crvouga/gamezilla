@@ -3,6 +3,8 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./fit": "./src/fit.tsx",
+    "./gestures": "./src/gestures.ts",
     "./piece": "./src/piece.tsx"
   },
   "scripts": {
@@ -10,6 +12,7 @@
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json"
   },
   "dependencies": {
+    "@pkgs/ui-root-client-ts": "workspace:*",
     "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
   },

@@ -1,6 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 import type { JSX } from '@solidjs/web';
-import { Match, Switch } from 'solid-js';
+import { Match, Show, Switch } from 'solid-js';
 import styles from './warehouse.module.css';
 
 type Piece = 'actor' | 'object' | 'settled';
@@ -30,19 +30,15 @@ function Cargo(props: { readonly delivered: boolean }): JSX.Element {
     <>
       <path class={styles['wood']} d="M0 22h40v18H0z" />
       <path class={styles['grain']} d="M4 13h32M4 25h32" />
-      <Switch>
-        <Match when={props.delivered}>
-          <path class={styles['ink']} d="M6 8h28v22l-14 7-14-7z" />
-          <path class={styles['check']} d="m12 21 6 6 11-13" />
-        </Match>
-        <Match when={!props.delivered}>
-          <path class={styles['brace']} d="M0 32 32 0h8v8L8 40H0z" />
-          <g class={styles['ink']}>
-            <circle cx="6" cy="34" r="2" />
-            <circle cx="34" cy="6" r="2" />
-          </g>
-        </Match>
-      </Switch>
+      <path class={styles['brace']} d="M0 32 32 0h8v8L8 40H0z" />
+      <g class={styles['ink']}>
+        <circle cx="6" cy="34" r="2" />
+        <circle cx="34" cy="6" r="2" />
+      </g>
+      <Show when={props.delivered}>
+        <circle class={styles['ink']} cx="25" cy="25" r="14" />
+        <path class={styles['check']} d="m17 25 5 5 11-12" />
+      </Show>
     </>
   );
 }

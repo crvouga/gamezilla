@@ -4,5 +4,12 @@
     "jsx": "preserve",
     "jsxImportSource": "@solidjs/web"
   },
-  "include": ["../ui-root-client-ts/src/css-modules.d.ts", "./src/**/*.tsx"]
+  "include": [
+    "../ts-reset-shared-ts/src/ts-reset.ts",
+    "../ui-root-client-ts/src/lingui-augmentation.ts",
+    "../ui-root-client-ts/src/css-modules.d.ts",
+    "../ui-root-client-ts/src/lucide-icons.d.ts",
+    "./src/**/*.tsx",
+    "./src/**/*.ts"
+  ]
 }

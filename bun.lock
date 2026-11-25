@@ -7022,6 +7022,7 @@
       "name": "@pkgs/sokoban-board-client-ts",
       "version": "0.0.0",
       "dependencies": {
+        "@pkgs/ui-root-client-ts": "workspace:*",
         "@solidjs/web": "catalog:",
         "solid-js": "catalog:",
       },
