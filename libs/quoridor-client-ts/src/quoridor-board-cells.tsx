@@ -4,7 +4,6 @@ import {
   type QuoridorWallRefusal,
   quoridorCellName,
   quoridorWall,
-  wallRefusal,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { t } from '@lingui/core/macro';
 import type {
@@ -110,15 +109,10 @@ function isGoal(game: Quoridor, cell: number): boolean {
 export function quoridorBoardCells(
   game: Quoridor,
   tool: QuoridorTool,
-  interactive: boolean,
-  preview: string | null
+  interactive: boolean
 ): readonly CellGridCell[] {
   const legal = pawnMoves(game);
   const goalName = game.mode === 'hill' ? t`, center goal` : t`, goal edge`;
-  const previewWall =
-    preview !== null && quoridorWall(preview) !== null ? preview : null;
-  const refused =
-    previewWall !== null && wallRefusal(game, previewWall) !== null;
   return Array.from({ length: 81 }, (_, index) => {
     const cell = (8 - Math.floor(index / 9)) * 9 + (index % 9);
     const id = quoridorCellName(cell);
@@ -129,28 +123,45 @@ export function quoridorBoardCells(
     const identity = cellIdentity(game, cell, moving);
     const goal = isGoal(game, cell);
     const edges = edgesAt(game.walls, cell);
-    // An overlapping proposal never paints over the wall it collides with.
-    const previewEdges =
-      previewWall === null || tool === 'move'
-        ? []
-        : edgesAt([previewWall], cell).filter((edge) => !edges.includes(edge));
     return {
       ...identity,
       id,
       goal,
       label: `${id}: ${identity.label}${goal ? goalName : ''}${moving ? t`, legal move` : ''}${edges.length > 0 ? t`, wall boundaries: ${edges.join(', ')}` : ''}`,
-      emphasis:
-        previewEdges.length > 0 && refused
-          ? 'refused'
-          : moving
-            ? 'preview'
-            : 'none',
+      emphasis: moving ? 'preview' : 'none',
       enabled:
         interactive && game.winner === null && anchorEnabled(cell, tool, move),
       edges,
-      previewEdges,
+      previewEdges: [],
     };
   });
+}
+
+/** A wall touches four squares. Keep the rest of the position intact on hover. */
+export function withWallPreview(
+  cells: readonly CellGridCell[],
+  action: string | null,
+  refused: boolean
+): readonly CellGridCell[] {
+  const wall = action === null ? null : quoridorWall(action);
+  if (!wall) return cells;
+  const next = [...cells];
+  const anchor = (8 - wall.y) * 9 + wall.x;
+  const horizontal = wall.direction === 'h';
+  for (const offset of [0, 1, -9, -8]) {
+    const index = anchor + offset;
+    const cell = cells[index]!;
+    const edge = horizontal
+      ? offset < 0 ? 'bottom' : 'top'
+      : offset === 1 || offset === -8 ? 'left' : 'right';
+    if (!cell.edges?.includes(edge))
+      next[index] = {
+        ...cell,
+        previewEdges: [edge],
+        emphasis: refused ? 'refused' : 'none',
+      };
+  }
+  return next;
 }
 
 /** Name the anchor edge; the board previews the complete two-square wall. */

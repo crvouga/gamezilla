@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { createQuoridorBoard } from '@libs/quoridor-client-ts/quoridor-board';
-import { quoridorBoardCells } from '@libs/quoridor-client-ts/quoridor-board-cells';
+import { quoridorBoardCells, withWallPreview } from '@libs/quoridor-client-ts/quoridor-board-cells';
 import { quoridorTargetOptions } from '@libs/quoridor-client-ts/quoridor-board-tools';
 import {
   quoridorGameClient,
@@ -62,12 +62,11 @@ test('watchers and finished games see no legal-move markers in either variant', 
   for (const mode of ['classic', 'hill'] as const) {
     const opening = newQuoridor(mode);
     for (const cells of [
-      quoridorBoardCells(opening, 'move', false, null),
+      quoridorBoardCells(opening, 'move', false),
       quoridorBoardCells(
         replayQuoridor('classic', SOUTH_WINS),
         'move',
-        true,
-        null
+        true
       ),
     ]) {
       expect(cells.filter((cell) => cell.glyph === '○')).toEqual([]);
@@ -75,7 +74,7 @@ test('watchers and finished games see no legal-move markers in either variant', 
       expect(cells.some((cell) => /legal move/.test(cell.label))).toBe(false);
     }
     expect(
-      quoridorBoardCells(opening, 'move', true, null).some(
+      quoridorBoardCells(opening, 'move', true).some(
         (cell) => cell.glyph === '○'
       )
     ).toBe(true);
@@ -91,7 +90,7 @@ test('watchers and finished games see no legal-move markers in either variant', 
 test('a finished classic game keeps marking the winner’s goal row', () => {
   const won = replayQuoridor('classic', SOUTH_WINS);
   expect(won.winner).toBe(0);
-  const goals = quoridorBoardCells(won, 'move', false, null)
+  const goals = quoridorBoardCells(won, 'move', false)
     .filter((cell) => cell.goal)
     .map((cell) => cell.id);
   expect(goals).toEqual(['a9', 'b9', 'c9', 'd9', 'e9', 'f9', 'g9', 'h9', 'i9']);
@@ -126,7 +125,7 @@ test('after a wall is placed the next turn starts with the pawn tool', () => {
 
 // regression: quoridor-picker-filter-matches-every-wall
 test('the wall anchor picker filters by coordinate, not by shared label words', () => {
-  const cells = quoridorBoardCells(newQuoridor('classic'), 'h', true, null);
+  const cells = quoridorBoardCells(newQuoridor('classic'), 'h', true);
   const options = quoridorTargetOptions('truth', 'h', cells);
   const matching = (query: string) =>
     options.filter((option) => option.searchText.includes(query));
@@ -171,7 +170,7 @@ test('Cancel and Place wall return focus to the active tool instead of the page'
 // regression: quoridor-refused-wall-hides-its-cause
 test('an overlapping proposal leaves the existing wall drawn where they meet', () => {
   const game = replayQuoridor('classic', ['e5h']);
-  const cells = quoridorBoardCells(game, 'h', true, 'd5h');
+  const cells = withWallPreview(quoridorBoardCells(game, 'h', true), 'd5h', true);
   const at = (id: string) => cells.find((cell) => cell.id === id);
   // d5h and e5h share the edge above e5: it stays the committed wall.
   expect(at('e5')?.edges).toContain('top');

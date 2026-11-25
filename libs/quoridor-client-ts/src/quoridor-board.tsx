@@ -29,6 +29,7 @@ import {
   quoridorBoundary,
   quoridorPlayerName,
   quoridorWallMessage,
+  withWallPreview,
 } from './quoridor-board-cells';
 import {
   QuoridorBoardTools,
@@ -84,10 +85,15 @@ function createBoardSelection(props: BoardViewProps) {
     tool() === 'move'
       ? null
       : `${selected() ?? preview()}${tool()}`;
-  // Memoized: each square reads the list, so computing it inline would
-  // rebuild the whole board once per square on every change.
+  const targets = createMemo(() =>
+    quoridorBoardCells(game(), tool(), props.interactive)
+  );
+  const reason = createMemo(() => {
+    const action = previewAction();
+    return action === null ? null : wallRefusal(game(), action);
+  });
   const cells = createMemo(() =>
-    quoridorBoardCells(game(), tool(), props.interactive, previewAction())
+    withWallPreview(targets(), previewAction(), reason() !== null)
   );
   const message = () => {
     if (game().winner !== null)
@@ -98,7 +104,7 @@ function createBoardSelection(props: BoardViewProps) {
       return t`No legal move or wall. Pass to continue.`;
     const action = previewAction();
     if (action !== null)
-      return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action), game().mode)}`;
+      return `${quoridorBoundary(action)}. ${selected() === null && reason() === null ? t`Select this square to keep the preview.` : quoridorWallMessage(reason(), game().mode)}`;
     // A host refusal explains the last attempt; it outranks standing guidance.
     const refused = props.state.refusal();
     if (refused !== '') return refused;
@@ -118,14 +124,14 @@ function createBoardSelection(props: BoardViewProps) {
   };
   const commit = () => {
     const action = `${selected()}${tool()}`;
-    if (wallRefusal(game(), action) !== null) return;
+    if (selected() === null || reason() !== null) return;
     cancel();
     props.state.setRefusal('');
     // The wall is spent: the next turn starts with the pawn tool.
     props.state.setTool('move');
     props.onAction(action);
   };
-  return { cells, selected, message, activate, setPreview, cancel, commit };
+  return { cells, targets, reason, selected, message, activate, setPreview, cancel, commit };
 }
 
 function QuoridorBoardView(props: BoardViewProps): JSX.Element {
@@ -184,7 +190,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         <QuoridorTargetPicker
           testId={props.testId}
           tool={tool()}
-          cells={selection.cells()}
+          cells={selection.targets()}
           selected={selection.selected()}
           onActivate={selection.activate}
         />
@@ -192,9 +198,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
       <Show when={selection.selected() !== null && props.interactive}>
         <WallConfirmation
           testId={props.testId}
-          enabled={
-            wallRefusal(game(), `${selection.selected()}${tool()}`) === null
-          }
+          enabled={selection.reason() === null}
           cancel={() => {
             selection.cancel();
             setRefocus(true);
@@ -296,8 +300,8 @@ function WallConfirmation(props: {
 }
 
 function toolGuidance(tool: QuoridorTool): string {
-  if (tool === 'move') return t`Move to a marked square.`;
+  if (tool === 'move') return t`Choose a marked destination to move your pawn.`;
   return tool === 'h'
-    ? t`Tap a square: preview a wall above it.`
-    : t`Tap a square: preview a wall to its right.`;
+    ? t`Choose a square. The wall runs above it and the square to its right.`
+    : t`Choose a square. The wall runs beside its right edge and the square above.`;
 }

@@ -101,7 +101,7 @@ test('Classic goal row and Hill center do not use the heavy physical outline', (
   // regression: quoridor-goal-resembles-wall
   for (const mode of ['classic', 'hill'] as const) {
     const game = playQuoridor(newQuoridor(mode), 'd4h')!;
-    const cells = quoridorBoardCells(game, 'move', true, null);
+    const cells = quoridorBoardCells(game, 'move', true);
     const goals = cells.filter((cell) => cell.goal);
     expect(goals).toHaveLength(mode === 'classic' ? 9 : 1);
     expect(goals.every((cell) => cell.outlined === false)).toBe(true);
