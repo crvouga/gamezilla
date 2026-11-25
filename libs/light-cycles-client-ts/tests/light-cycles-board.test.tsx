@@ -371,3 +371,20 @@ test('seat statistics name riders while round context does not repeat the outcom
     board(['white'], state).getByTestId('arena-result').textContent
   ).toBeTruthy();
 });
+
+// regression: light-cycles-next-turn-skipped
+test('the marked and spoken next turn is first in the queue, even if the second returns to the current heading', () => {
+  const state = lightCyclesStart(3, 3);
+  const view = board(['white'], {
+    ...state,
+    riders: state.riders.map((rider) =>
+      rider.seat === 'white' ? { ...rider, turns: ['up', 'right'] } : rider
+    ),
+  });
+  expect(
+    view.getByTestId('arena-arena-rider-0').getAttribute('data-next')
+  ).toBe('up');
+  expect(view.getByTestId('arena-description').textContent).toContain(
+    'Next turn: up.'
+  );
+});

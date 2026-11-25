@@ -3,10 +3,7 @@ import {
   type LightCyclesSeat,
   lightCyclesConfig,
 } from '@libs/light-cycles-shared-ts/light-cycles-config';
-import {
-  type LightCyclesState,
-  plannedHeading,
-} from '@libs/light-cycles-shared-ts/light-cycles-state';
+import type { LightCyclesState } from '@libs/light-cycles-shared-ts/light-cycles-state';
 import { t } from '@lingui/core/macro';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -44,7 +41,7 @@ export function trailRiders(
     x: rider.x,
     y: rider.y,
     heading: rider.heading,
-    next: plannedHeading(rider),
+    next: rider.turns[0] ?? rider.heading,
     alive: rider.alive,
     mark: LIGHT_CYCLES_RIDERS[rider.seat].mark,
     controlSlot:
@@ -146,7 +143,7 @@ export function arenaDescription(
     const parts = [
       t`${name}: column ${column}, row ${row}, heading ${heading}.`,
     ];
-    const next = plannedHeading(rider);
+    const next = rider.turns[0] ?? rider.heading;
     if (next !== rider.heading)
       parts.push(t`Next turn: ${directionText(next)}.`);
     if (controlled.includes(rider.seat))

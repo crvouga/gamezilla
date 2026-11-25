@@ -163,7 +163,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     await page.setViewportSize({ width: 1440, height: 900 });
     const arena = await open(
       page,
-      'screens-games-light-cycles-stage--duel-steering'
+      'screens-games-light-cycles-stage--queued-turn'
     );
     await expect(
       arena.getByRole('application', { name: /Inspect arena/ })
@@ -175,7 +175,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     await page.mouse.down();
     await page.mouse.move(
       rect.x + rect.width / 2,
-      rect.y + rect.height / 2 - 60,
+      rect.y + rect.height / 2 - 30,
       { steps: 8 }
     );
     await page.mouse.up();
@@ -187,5 +187,13 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     expect(animation === 'none').toBe(motion === 'reduce');
     await expect(arena).toHaveAttribute('data-zoom', '1');
     await record(arena, info, 'after-drag');
+    await arena.press('ArrowRight');
+    await expect(preview).toBeVisible();
+    await arena.press('ArrowRight');
+    await expect(
+      arena.getByTestId('custom-game-board-arena-rider-0')
+    ).toHaveAttribute('data-heading', 'up');
+    await expect(arena.locator('[data-turn-preview="right"]')).toBeVisible();
+    await record(arena, info, 'committed');
   });
 }

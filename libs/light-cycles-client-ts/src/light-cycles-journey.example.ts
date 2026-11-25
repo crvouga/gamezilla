@@ -11,7 +11,10 @@ import { createSignal } from 'solid-js';
 /** Virtual simulation time; the production step owns every transition. */
 export function createLightCyclesJourney(
   count: 2 | 3 | 4,
-  initially: { readonly stale: boolean } = { stale: false }
+  initially: {
+    readonly stale: boolean;
+    readonly singleTickInputs?: boolean;
+  } = { stale: false }
 ) {
   const config = lightCyclesConfig();
   const step = createLightCyclesStep(config);
@@ -51,7 +54,11 @@ export function createLightCyclesJourney(
     setStale,
     advance,
     onInput: (side: GameSide, value: unknown) =>
-      advance(config.movementTicks, side, value),
+      advance(
+        initially.singleTickInputs ? 1 : config.movementTicks,
+        side,
+        value
+      ),
   };
 }
 export type LightCyclesJourney = ReturnType<typeof createLightCyclesJourney>;

@@ -179,7 +179,7 @@ function interactiveRender(
   count: 2 | 3 | 4,
   sides: readonly GameSide[],
   ready?: (journey: LightCyclesJourney) => void,
-  initially?: { readonly stale: boolean }
+  initially?: { readonly stale: boolean; readonly singleTickInputs?: boolean }
 ) {
   return ((args, context) => {
     const journey = createLightCyclesJourney(count, initially);
@@ -229,6 +229,15 @@ export const SteerUp: Story = {
     await expect(rider).toHaveAttribute('data-heading', 'up');
     await expect(rider).toHaveAttribute('data-y', String(y - 1));
   },
+};
+
+/** One production tick per input exposes the interval between accepting and taking a turn. */
+export const QueuedTurn: Story = {
+  render: (args, context) =>
+    interactiveRender(2, ['white'], undefined, {
+      stale: false,
+      singleTickInputs: true,
+    })(args, context),
 };
 
 export const DuelSteering: Story = {
