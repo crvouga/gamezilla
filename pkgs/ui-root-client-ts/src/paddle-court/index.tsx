@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
@@ -7,8 +8,9 @@ import {
   type CourtSide,
   CourtSurface,
   paddleCourtInput,
+  useCourtInputLifecycle,
 } from '../paddle-court-input';
-import { useCourtInputLifecycle } from './input-lifecycle';
+import { CourtInspection } from './inspection';
 import styles from './paddle-court.module.css';
 
 export type { CourtSide } from '../paddle-court-input';
@@ -207,7 +209,13 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
           {props.status}
         </div>
       </Show>
-      <Show when={props.enabled && props.touchHint}>
+      <Show
+        when={
+          props.enabled &&
+          (props.touchHint !== undefined ||
+            props.statusData?.stage === 'countdown')
+        }
+      >
         <For each={props.controlled}>
           {(side) => (
             <span
@@ -216,7 +224,15 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
               aria-hidden="true"
               data-testid={`${props.testId}-${side}-gesture`}
             >
-              ↕ {props.touchHint}
+              <Show when={props.statusData?.stage === 'countdown'}>
+                {side === 'first' ? t`Left paddle` : t`Right paddle`}
+                {' · '}
+              </Show>
+              {props.touchHint
+                ? `↕ ${props.touchHint}`
+                : side === 'first' && props.controlled.length === 2
+                  ? 'W / S'
+                  : '↑ / ↓'}
             </span>
           )}
         </For>
@@ -334,6 +350,8 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
             court = element;
           }}
           class={styles['court']}
+          data-held-first={String(input.held().includes('first'))}
+          data-held-second={String(input.held().includes('second'))}
           data-interactive={String(
             props.enabled && props.controlled.length > 0
           )}
@@ -351,7 +369,14 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           onPointerCancel={input.pointerUp}
           onLostPointerCapture={input.pointerUp}
         >
-          <CourtDrawing {...props} />
+          <Show
+            when={props.controlled.length === 0}
+            fallback={<CourtDrawing {...props} />}
+          >
+            <CourtInspection>
+              <CourtDrawing {...props} />
+            </CourtInspection>
+          </Show>
           <CourtFeedback {...props} />
         </CourtSurface>
         <HalfControls {...props} />

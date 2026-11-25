@@ -1,6 +1,8 @@
 import { definePrimitive } from '@ui-sdk/core';
 import { createParts } from '@ui-sdk/solid/primitive';
 
+import { createRenderEffect, createSignal, onSettled, untrack } from 'solid-js';
+
 export type CourtSide = 'first' | 'second';
 export type CourtControls = {
   readonly controlled: readonly CourtSide[];
@@ -13,6 +15,7 @@ export type CourtControls = {
 /** Raw device events end here; consumers receive normalized directions and court fractions. */
 export function paddleCourtInput(props: CourtControls) {
   const pointers = new Map<number, CourtSide>();
+  const [held, setHeld] = createSignal<readonly CourtSide[]>([]);
   const keyboard = paddleCourtKeyboard(props);
   const target = (
     event: PointerEvent,
@@ -29,11 +32,13 @@ export function paddleCourtInput(props: CourtControls) {
   const release = (sides: readonly CourtSide[] = props.controlled) => {
     for (const side of sides) props.onDirection(side, 0);
     pointers.clear();
+    setHeld([]);
     keyboard.release();
     props.onRelease();
   };
 
   return {
+    held,
     keyDown: (event: KeyboardEvent) => keyboard.key(event, true),
     keyUp: (event: KeyboardEvent) => keyboard.key(event, false),
     release,
@@ -52,7 +57,9 @@ export function paddleCourtInput(props: CourtControls) {
           : event.clientX - rect.left < rect.width / 2
             ? 'first'
             : 'second';
+      if ([...pointers.values()].includes(side)) return;
       pointers.set(event.pointerId, side);
+      setHeld([...pointers.values()]);
       element.setPointerCapture(event.pointerId);
       element.focus();
       target(event, element, side);
@@ -65,7 +72,10 @@ export function paddleCourtInput(props: CourtControls) {
     pointerUp: (event: PointerEvent) => {
       const side = pointers.get(event.pointerId);
       pointers.delete(event.pointerId);
-      if (side !== undefined) props.onDirection(side, 0);
+      if (side !== undefined) {
+        setHeld([...pointers.values()]);
+        props.onDirection(side, 0);
+      }
     },
   };
 }
@@ -175,3 +185,65 @@ const court = definePrimitive({
 });
 
 export const { Root: CourtSurface } = createParts(court, { root: 'div' });
+
+const PADDLE_KEYS = new Set(['arrowup', 'arrowdown', 'w', 's']);
+
+/** An interruption ends held input; returning always requires a fresh action. */
+export function useCourtInputLifecycle(
+  props: CourtControls,
+  release: (sides?: readonly CourtSide[]) => void,
+  court: () => HTMLElement | undefined
+): void {
+  createRenderEffect(
+    () => ({ enabled: props.enabled, sides: [...props.controlled] }),
+    (next, previous) => {
+      if (
+        previous?.enabled === true &&
+        (!next.enabled || previous.sides.join() !== next.sides.join())
+      )
+        // The host's handlers are called, not followed.
+        untrack(() => release(previous.sides));
+    }
+  );
+  onSettled(() => {
+    const blur = () => release();
+    const visibility = () => {
+      if (document.visibilityState === 'hidden') release();
+    };
+    // A paddle key pressed while nothing has focus goes to the court, so
+    // play starts without first tabbing to it. Focus anywhere else (a
+    // field, a dialog, a button) keeps its keys.
+    const enter = (event: KeyboardEvent) => {
+      const target = court();
+      const name = event.key.toLowerCase();
+      if (
+        target === undefined ||
+        !props.enabled ||
+        props.controlled.length === 0 ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.altKey ||
+        // Only keys aimed at nothing in particular: the page itself.
+        (event.target !== document.body &&
+          event.target !== document.documentElement) ||
+        !PADDLE_KEYS.has(name) ||
+        // W and S move only the left paddle.
+        ((name === 'w' || name === 's') && !props.controlled.includes('first'))
+      )
+        return;
+      event.preventDefault();
+      target.focus();
+      target.dispatchEvent(
+        new KeyboardEvent('keydown', { key: event.key, bubbles: true })
+      );
+    };
+    window.addEventListener('blur', blur);
+    document.addEventListener('visibilitychange', visibility);
+    document.addEventListener('keydown', enter);
+    return () => {
+      window.removeEventListener('blur', blur);
+      document.removeEventListener('visibilitychange', visibility);
+      document.removeEventListener('keydown', enter);
+    };
+  });
+}

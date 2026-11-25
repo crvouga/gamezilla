@@ -311,3 +311,34 @@
 .gesture[data-side="second"] {
   right: var(--ui-space-3);
 }
+
+.inspectSurface {
+  overflow: hidden;
+}
+.inspectSurface[data-inspecting="true"] {
+  touch-action: none;
+  cursor: grab;
+}
+.inspectSurface[data-inspecting="true"]:active {
+  cursor: grabbing;
+}
+.projection {
+  transform-origin: top left;
+}
+.inspectTools {
+  position: absolute;
+  inset-inline-end: var(--ui-space-2);
+  inset-block-end: var(--ui-space-2);
+  display: flex;
+  gap: var(--ui-space-1);
+}
+.court[data-held-first="true"] .paddle[data-side="first"],
+.court[data-held-second="true"] .paddle[data-side="second"] {
+  stroke: var(--ui-color-game-pong-accent);
+  stroke-width: 4;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .paddle {
+    transition: stroke-width var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+}
