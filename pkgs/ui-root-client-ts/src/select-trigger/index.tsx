@@ -54,6 +54,11 @@ export function SelectTrigger<T extends SelectValue>(
   const hasSelection = (): boolean => props.selected !== undefined;
   return (
     <SelectParts.Trigger
+      onPointerDown={(event) => {
+        // The modal covers the trigger. Open on click so the release still lands on it.
+        if (event.button === 0 && event.pointerType === 'mouse')
+          event.preventDefault();
+      }}
       render={(part) => {
         const native = omit(part, 'role');
         return (

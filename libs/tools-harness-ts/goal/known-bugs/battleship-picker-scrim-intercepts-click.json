@@ -1,0 +1,4 @@
+{
+  "summary": "At 390 by 757 the Battleship ship picker opened its sheet during a mouse press, before the click landed. The backdrop then intercepted the click during private setup.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/select.test.tsx"
+}

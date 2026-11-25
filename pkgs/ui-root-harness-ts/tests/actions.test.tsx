@@ -102,6 +102,12 @@ describe('NumberStepper', () => {
       );
     });
     const spin = screen.getByRole('spinbutton', { name: 'Players' });
+    // regression: number-stepper-controls-missing-value
+    for (const name of ['Increase Players', 'Decrease Players']) {
+      const button = screen.getByRole('button', { name });
+      expect(spin.id).not.toBe('');
+      expect(button).toHaveAttribute('aria-controls', spin.id);
+    }
     expect(spin).toHaveAttribute('aria-valuenow', '9');
     expect(spin).toHaveAttribute('aria-valuemax', '10');
     const inc = screen.getByRole('button', { name: 'Increase Players' });

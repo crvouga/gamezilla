@@ -113,6 +113,23 @@ describe('PickerSection', () => {
 });
 
 describe('Select', () => {
+  test('the ship picker opens after the mouse press completes on a phone', () => {
+    // regression: battleship-picker-scrim-intercepts-click
+    renderUi(() => <Harness label="Ship to place" />, {
+      width: 390,
+      height: 757,
+    });
+    const trigger = screen.getByRole('button', { name: 'Ship to place' });
+    fireEvent.pointerDown(trigger, { button: 0, pointerType: 'mouse' });
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.pointerUp(trigger, { button: 0, pointerType: 'mouse' });
+    fireEvent.click(trigger);
+    expect(trigger).toHaveAttribute('aria-expanded', 'true');
+    fireEvent.click(screen.getByRole('option', { name: 'Apple' }));
+    expect(trigger).toHaveTextContent('Apple');
+    expect(trigger).toHaveAttribute('aria-expanded', 'false');
+  });
+
   test('trigger shows the selected label and listbox popup semantics', () => {
     renderUi(() => <Harness />);
     const trigger = screen.getByRole('button', { name: 'Fruit' });

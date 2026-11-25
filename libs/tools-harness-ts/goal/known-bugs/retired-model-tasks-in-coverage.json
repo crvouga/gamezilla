@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly coverage failed after product model retirement because tooling tests required the removed contract shards and system/access-sync.qnt in production. Exercise product concurrency on its current unit shards and test model tooling against a registered fixture.",
+  "regressionTest": "libs/tools-harness-ts/scripts/test-concurrency.test.ts"
+}
