@@ -1,0 +1,4 @@
+{
+  "summary": "The live invitation badge aligned to the top of the monogram.",
+  "regressionTest": "libs/spaces-client-ts/src/space-join-screen-view.stories.tsx"
+}

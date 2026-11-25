@@ -17,7 +17,7 @@
     left: var(--ui-space-4);
     right: var(--ui-space-4);
   }
-  .stack[data-placement="top"] {
+  .stack:is([data-placement="top"], [data-placement="dialog"]) {
     top: calc(env(safe-area-inset-top, 0px) + 60px);
   }
   .stack[data-placement="bottom"] {
@@ -40,6 +40,10 @@
     right: var(--ui-space-6);
     bottom: var(--ui-space-6);
     width: min(400px, calc(100vw - 2 * var(--ui-space-6)));
+  }
+  .stack[data-placement="dialog"] {
+    width: fit-content;
+    max-width: min(400px, 40vw);
   }
   /* An alert that would cover a game's status or commands in the bottom
      corner stands at the top corner instead, under the space's bar. */

@@ -146,7 +146,9 @@ function WideCanvasBody(props: BodyProps): JSX.Element {
         paddingBottom="xl"
         dataSet={{ component: 'ScreenBodyScroll' }}
       >
-        <div class="box gap-2">{inner}</div>
+        <div class={['box gap-2', { grow: props.measure === 'full' }]}>
+          {inner}
+        </div>
       </ScrollView>
     </Show>
   );

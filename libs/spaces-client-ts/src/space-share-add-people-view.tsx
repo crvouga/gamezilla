@@ -58,7 +58,7 @@ function SpaceAdditionState(props: {
   // dialog where the person is working.
   return (
     <>
-      <ToastStack placement="top">
+      <ToastStack placement="dialog">
         <Show when={success()}>
           {(added) => (
             <SuccessState

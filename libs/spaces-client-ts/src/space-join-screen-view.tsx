@@ -11,6 +11,7 @@ import { Gamepad2Icon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { NameText } from '@pkgs/ui-root-client-ts/name-text';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
@@ -189,8 +190,6 @@ function SpaceJoinStatusTag(props: {
 function SpaceJoinInvitation(props: {
   readonly space: SpaceCardData;
   readonly host: SpaceJoinHost;
-  /** An earlier join was not confirmed: the card says so under the name. */
-  readonly joinPending?: boolean | undefined;
 }): JSX.Element {
   return (
     <Card>
@@ -201,22 +200,14 @@ function SpaceJoinInvitation(props: {
             title={props.space.title}
             size="lg"
           />
-          <StackVertical grow shrink gap="xs">
-            {/* In full: the guest confirms which space they are joining. */}
-            <H2 size="subtitle">{props.space.title}</H2>
-            {/* Where the viewer stands, in the card's own words: they asked
-                to join and the space has not said yes yet. */}
-            <Show when={props.joinPending === true}>
-              <Text
-                variant="bodyBold"
-                tone="warning"
-                testId={Handles.spaceJoinNotConfirmed}
-              >
-                <Trans>Your join isn't confirmed yet</Trans>
-              </Text>
-            </Show>
-          </StackVertical>
-          <SpaceJoinStatusTag space={props.space} host={props.host} />
+          <StackHorizontal grow shrink align="start" gap="sm">
+            <StackVertical grow shrink>
+              <H2 size="subtitle">{props.space.title}</H2>
+            </StackVertical>
+            <StackHorizontal align="center">
+              <SpaceJoinStatusTag space={props.space} host={props.host} />
+            </StackHorizontal>
+          </StackHorizontal>
         </StackHorizontal>
         {/* Who hosts, on a row of the card's full width: a long name wraps
             at its separators over two lines, so the guest confirms whose
@@ -260,25 +251,21 @@ function SpaceJoinLiveBody(props: {
   readonly space: SpaceCardData | null;
   readonly checkingHost: boolean;
   readonly needsConnection: boolean;
-  /** An earlier join was not confirmed: the card and its button say so. */
+  /** An earlier join was not confirmed: the notice and its button say so. */
   readonly joinPending: boolean;
 }): JSX.Element {
   return (
     <StackVertical gap="lg">
       <Show when={props.space}>
         {(space) => (
-          <SpaceJoinInvitation
-            space={space()}
-            host={joinHostState(props)}
-            joinPending={props.joinPending}
-          />
+          <SpaceJoinInvitation space={space()} host={joinHostState(props)} />
         )}
       </Show>
       <Show
         when={props.checkingHost}
         fallback={
           // Needing the connection is said once, in the alert that stays
-          // while it lasts, and a join not confirmed in the card and its
+          // while it lasts, and a join not confirmed in the notice and its
           // button; what joining does is said only when joining can happen.
           <Show when={!props.joinPending && !props.needsConnection}>
             <P tone="secondary">
@@ -404,6 +391,7 @@ export function SpaceJoinScreenView(
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: pageTitle() },
       ]}
+      width={props.status === 'live' ? 'prose' : 'full'}
       titlePlacement={props.status === 'live' ? 'header' : 'content'}
       footer={
         props.status === 'live' ? <SpaceJoinFooter {...props} /> : undefined
@@ -413,6 +401,16 @@ export function SpaceJoinScreenView(
         {/* What comes and goes (no connection, a join not confirmed, the
             host away) floats over the screen, never a row in it. */}
         <ToastStack persistent>
+          <Show when={props.status === 'live' && props.joinPending}>
+            <Notice
+              tone="warning"
+              dataSet={{ testid: Handles.spaceJoinNotConfirmed }}
+            >
+              <Trans>
+                We haven't heard back about your join. Check if you're in.
+              </Trans>
+            </Notice>
+          </Show>
           <Show when={props.needsConnection && props.status !== 'offline'}>
             <SpacesNeedConnectionNotice />
           </Show>

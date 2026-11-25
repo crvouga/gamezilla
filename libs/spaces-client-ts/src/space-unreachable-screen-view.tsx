@@ -32,6 +32,7 @@ export function SpaceUnreachableScreenView(
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: t`Can't reach this space right now` },
       ]}
+      width="full"
       titlePlacement="content"
     >
       <SpaceRecoveryState

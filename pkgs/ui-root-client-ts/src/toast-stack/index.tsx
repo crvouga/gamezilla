@@ -32,7 +32,13 @@ export type ToastStackProps = {
    * lobby's docked commands; `top`, under the top bar. A wide window always
    * uses the page's bottom corner.
    */
-  placement?: 'top' | 'bottom' | 'above-commands' | 'above-actions' | undefined;
+  placement?:
+    | 'dialog'
+    | 'top'
+    | 'bottom'
+    | 'above-commands'
+    | 'above-actions'
+    | undefined;
   /**
    * The alerts last exactly as long as their cause (no connection, the host
    * offline) and are the page's only word on it: no close, so the reason

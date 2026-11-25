@@ -132,6 +132,20 @@ export const Added: Story = {
     withSlots(args, {
       addPeople: () => addPeople({ status: 'success', name: 'morgan' }),
     }),
+  // regression: space-share-toast-covers-close
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const toast = await body.findByRole('region', { name: 'Alerts' });
+    const close = await body.findByTestId(Handles.spaceShareClose);
+    const alertBox = toast.getBoundingClientRect();
+    const closeBox = close.getBoundingClientRect();
+    await expect(
+      alertBox.top >= closeBox.bottom ||
+        alertBox.bottom <= closeBox.top ||
+        alertBox.left >= closeBox.right ||
+        alertBox.right <= closeBox.left
+    ).toBe(true);
+  },
 };
 
 /** An addition was refused: why, with a safe retry. */

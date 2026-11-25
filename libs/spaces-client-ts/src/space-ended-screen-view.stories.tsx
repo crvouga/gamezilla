@@ -33,6 +33,20 @@ export const LongContent: Story = {
       'The extremely long and very descriptive name of a space about board games',
     hostName: LONG_NAME.name,
   },
+  // regression: space-recovery-off-center
+  play: async ({ canvasElement }) => {
+    const title = await within(canvasElement).findByRole('heading', {
+      level: 1,
+    });
+    const pane = title.closest('[data-screen="space-ended"][data-mode="wide"]');
+    if (!pane) return;
+    const frame = pane.getBoundingClientRect();
+    const heading = title.getBoundingClientRect();
+    await expect(
+      Math.abs(heading.left + heading.right - frame.left - frame.right)
+    ).toBeLessThan(3);
+    await expect(heading.top).toBeGreaterThan(frame.top + frame.height / 4);
+  },
 };
 
 /** Back to Spaces leaves the ended space. */

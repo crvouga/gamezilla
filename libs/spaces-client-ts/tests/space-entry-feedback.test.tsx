@@ -41,6 +41,7 @@ function Join(props: {
   status: SpaceJoinStatus;
   connection: SpaceJoinConnection;
   needsConnection: boolean;
+  joinPending?: boolean;
 }) {
   return (
     <SpaceJoinScreenView
@@ -50,7 +51,7 @@ function Join(props: {
       needsConnection={props.needsConnection}
       space={JOINED_SPACE}
       canLeave={false}
-      joinPending={false}
+      joinPending={props.joinPending === true}
       joinDisabled={false}
       onJoin={() => Promise.resolve()}
       onLeave={() => undefined}
@@ -121,4 +122,25 @@ test('a join that cannot go on heads its centred message with the screen title, 
       cleanup();
     }
   }
+});
+
+// regression: space-unconfirmed-join-inline
+test('an unanswered join floats beside the check action and clears when confirmed', () => {
+  const [pending, setPending] = createSignal(true);
+  mount(() => (
+    <Join
+      status="live"
+      connection="ready"
+      needsConnection={false}
+      joinPending={pending()}
+    />
+  ));
+  const notice = screen.getByTestId(Handles.spaceJoinNotConfirmed);
+  expect(notice.closest('[data-component="ToastStack"]')).not.toBeNull();
+  expect(screen.getByTestId(Handles.spaceJoin).textContent).toContain(
+    "Check if I'm in"
+  );
+  setPending(false);
+  flush();
+  expect(screen.queryByTestId(Handles.spaceJoinNotConfirmed)).toBeNull();
 });

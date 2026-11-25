@@ -1,0 +1,4 @@
+{
+  "summary": "Adding Morgan covered the Share dialog corner at 1280 by 800.",
+  "regressionTest": "libs/spaces-client-ts/src/space-share-sheet-view.stories.tsx"
+}

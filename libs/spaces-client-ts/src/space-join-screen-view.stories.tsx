@@ -33,7 +33,20 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A live space with guests: who hosts, who is there, and Join. */
-export const Live: Story = {};
+export const Live: Story = {
+  // regression: space-join-badge-above-title
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const title = await canvas.findByRole('heading', {
+      name: JOINED_SPACE.title,
+    });
+    const badge = canvas.getByText('Live').getBoundingClientRect();
+    const heading = title.getBoundingClientRect();
+    await expect(
+      Math.abs(badge.top + badge.bottom - heading.top - heading.bottom)
+    ).toBeLessThan(4);
+  },
+};
 
 /** A live space nobody has joined yet: no guest section, still Join. */
 export const LiveNoGuests: Story = {

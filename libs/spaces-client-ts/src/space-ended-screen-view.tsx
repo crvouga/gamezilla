@@ -37,6 +37,7 @@ export function SpaceEndedScreenView(
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: <Trans>This space has ended</Trans> },
       ]}
+      width="full"
       titlePlacement="content"
       dataSet={{ testid: Handles.spaceEnded }}
     >
