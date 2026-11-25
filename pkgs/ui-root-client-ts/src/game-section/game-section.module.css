@@ -1,3 +1,10 @@
+/* `GameActions sizing="fill"`: the commands take the column's whole
+   width, as a dock's do. */
+.fill > * {
+  flex: 1 1 0;
+  min-width: 144px;
+}
+
 /* A section and the picture of what it sets up (a board preview), as two
    cards that read as one pair: the picture's card first, so a phone shows
    it above the section; wide, beside the section and as tall as it. */

@@ -2,18 +2,16 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createSignal, Show } from 'solid-js';
-import precision from '../game-screen/game-precision.module.css';
+import precision from '../game-screen/game-screen.module.css';
 import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
-import boardAlign from './board-align.module.css';
 import { GameBoardPreviewContext } from './board-preview';
-import region from './board-region.module.css';
+import componentStyles from './game-board-stage.module.css';
 import { createBoardRegionFill } from './region-fill';
 import { createStageRoomFit } from './room-fit';
 import { createStageCentre } from './stage-centre';
 import { createViewportSquareFit } from './viewport-fit';
-import fit from './viewport-fit.module.css';
 
 export { GameBoardPreviewContext, useGameBoardPreview } from './board-preview';
 
@@ -97,8 +95,8 @@ export function GameBoardStage(props: {
       class={[
         `${styles['boardStage']} ${precision['board']}`,
         {
-          [boardAlign['start'] ?? '']: props.align === 'start',
-          [fit['squareStage'] ?? '']: square(),
+          [componentStyles['start'] ?? '']: props.align === 'start',
+          [componentStyles['squareStage'] ?? '']: square(),
         },
       ]}
       data-preview={String(props.preview === true)}
@@ -159,14 +157,17 @@ function BoardRegion(props: {
     <div
       ref={props.surface}
       class={[
-        `${styles['board']} ${region['region']}`,
-        { [fit['squareBoard'] ?? '']: props.square },
+        `${styles['board']} ${componentStyles['region']}`,
+        { [componentStyles['squareBoard'] ?? '']: props.square },
       ]}
       data-game-board
     >
       <div
         ref={props.content}
-        class={[region['content'], { relative: props.overlay.present() }]}
+        class={[
+          componentStyles['content'],
+          { relative: props.overlay.present() },
+        ]}
         data-game-board-content
       >
         <GameBoardPreviewContext value={props.preview}>

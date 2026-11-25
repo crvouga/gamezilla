@@ -16,7 +16,7 @@ import {
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
-import line from './name-line.module.css';
+import line from './game-player-bar.module.css';
 import { SeatOptions, SeatOptionsToggle, useSeatOptions } from './seat-options';
 
 /** The one avatar size a seat uses, so both seats of a game line up. */
@@ -205,7 +205,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
             </Show>
           </span>
           {/* A `line` seat's turn follows the name, so the name keeps its
-              room first and the turn gives way (name-line.module.css). */}
+              room first and the turn gives way (game-player-bar.module.css). */}
           <Show when={turn() && keep()}>
             <PlayerTurn label={props.turnLabel} />
           </Show>

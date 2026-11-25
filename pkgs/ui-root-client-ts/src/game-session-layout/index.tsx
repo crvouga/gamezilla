@@ -3,7 +3,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { children, Show } from 'solid-js';
 import { Button } from '../button/index';
-import stageAlign from '../game-screen/game-stage-align.module.css';
+import stageAlign from '../game-screen/game-screen.module.css';
 import { GameLayout } from '../game-screen/index';
 import { GameActions } from '../game-section/index';
 import { createScreenSlot } from '../screen-slot';

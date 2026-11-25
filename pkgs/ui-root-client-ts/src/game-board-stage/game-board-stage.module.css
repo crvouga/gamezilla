@@ -1,3 +1,33 @@
+/* Opt-in (`GameBoardStage`'s `align="start"`): when everything stacks in one
+   column, a board narrower than the column starts at its edge, under the
+   game's title, instead of sitting in its middle. Kept apart from
+   game-ui.module.css, which is at its size limit. */
+@container game-column (max-width: 879px) {
+  .start {
+    align-self: flex-start;
+  }
+}
+
+/* The board's region (`data-game-board`) holds the game's content
+   (`data-game-board-content`): a column, the content at its top and
+   centred across it. Anywhere a layout leaves the region's height alone
+   the region is exactly as tall as its content, as the board always was.
+   A layout that holds the board still gives the region a height of its
+   own (fixed-stage.module.css, game-session-layout.module.css): then the
+   region keeps its box in every state and the content scrolls inside it
+   when it is taller. */
+.region {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.content {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  align-self: center;
+}
+
 /* Opt-in square fit (`viewportFit="square"`) in a short landscape window,
    a phone on its side: one column would put the title, the move strip and
    a seat above a board taller than the window. The game column becomes two

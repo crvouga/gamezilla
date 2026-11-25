@@ -11,7 +11,7 @@ import { renderUi } from './render';
 const LINE_CSS = readFileSync(
   join(
     import.meta.dirname,
-    '../../ui-root-client-ts/src/game-player-bar/name-line.module.css'
+    '../../ui-root-client-ts/src/game-player-bar/game-player-bar.module.css'
   ),
   'utf8'
 );

@@ -60,3 +60,250 @@
   background: var(--ui-color-board-card-face);
   color: var(--ui-color-board-card-ink);
 }
+
+.layout {
+  --word-tile-fitted-size: 23rem;
+  --word-tile-fitted-margin: auto;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  min-width: 0;
+}
+.notice,
+.tray,
+.rack,
+.actions,
+.feedback,
+.board {
+  min-width: 0;
+}
+.notice:empty,
+.actions:empty,
+.feedback:empty {
+  display: none;
+}
+/* Outside a held box (a puzzle's page), the stacked board, feedback, rack
+   and actions keep the page's small gap. */
+.layout[data-layout="stacked"]:not([data-fill="true"]) {
+  row-gap: var(--ui-space-2);
+}
+.layout[data-layout="stacked"]:not([data-fill="true"]) .tray {
+  display: grid;
+  gap: var(--ui-space-2);
+}
+
+/* Desktop and tablet: a 28rem fitted board with Fit and Enlarge stacked
+   beside its top (any word-list notice under them), one full-width status
+   line under it, then the rack (seven 3rem tiles) beside the word actions,
+   right above the player's own seat, all on one left edge. Taking the view
+   controls out of the board's column keeps every seat in an 844px window. */
+.layout[data-layout="wide"] {
+  --word-tile-fitted-size: 28rem;
+  --word-tile-fitted-margin: 0;
+  grid-template-columns: 21.5rem minmax(0, 5.5rem) minmax(0, 1fr);
+  grid-template-areas:
+    "board board side"
+    "feedback feedback feedback"
+    "rack actions actions";
+  column-gap: var(--ui-space-4);
+  row-gap: var(--ui-space-2);
+  align-items: start;
+}
+/* A finished game's result sits above the board; the board is for review and
+   gives way so every seat stays in view. */
+.layout[data-layout="wide"][data-finished="true"] {
+  --word-tile-fitted-size: 23rem;
+}
+.layout[data-layout="wide"] .board {
+  grid-area: board;
+  position: relative;
+}
+.layout[data-layout="wide"] .board [data-view-controls] {
+  position: absolute;
+  top: 0;
+  left: calc(100% + var(--ui-space-4));
+  flex-direction: column;
+  align-items: stretch;
+}
+.layout[data-layout="wide"] .notice {
+  grid-area: side;
+  /* Below the two stacked view controls. */
+  margin-top: calc(var(--ui-control-size-md) * 2 + var(--ui-space-4));
+}
+.layout[data-layout="wide"] .feedback {
+  grid-area: feedback;
+}
+.layout[data-layout="wide"] .rack {
+  grid-area: rack;
+}
+.layout[data-layout="wide"] .actions {
+  grid-area: actions;
+  align-self: center;
+}
+
+/* In a board box its host holds still (`data-fill`), the workspace is the
+   box's height and nothing in it scrolls: the rack, actions and feedback
+   take what they need, the board takes the rest (a size container), and
+   the board's squares are sized from that room, fitted or enlarged. Below
+   the least room for a usable board, the box scrolls instead. */
+.layout[data-fill="true"] {
+  --word-tile-board-least: calc(var(--ui-control-size-md) * 6);
+  box-sizing: border-box;
+  height: var(--word-tile-room);
+}
+.layout[data-fill="true"] .board {
+  /* Stretched: a size container's queries read its box, never its content. */
+  align-self: stretch;
+  container-type: size;
+  min-height: var(--word-tile-board-least);
+}
+.layout[data-fill="true"] .board > * {
+  /* The enlarged board's window is the room its whole-board overview
+     (three controls tall) and their gap leave. */
+  --word-tile-enlarged-height: calc(
+    100cqb -
+    var(--ui-control-size-md) *
+    3 -
+    var(--ui-space-1)
+  );
+  --word-tile-enlarged-least: calc(var(--ui-control-size-md) * 3);
+}
+
+/* A phone: the board at the box's top, then the feedback, the rack and the
+   actions under it, at the host's inset, in a tray as tall as a seat's
+   (one status line, a rack of 3rem tiles, a row of actions) whatever the
+   seat holds, so a watcher's board is a player's size at the same place.
+   The board takes the box's whole width (out past the inset its host gives
+   a workspace, `--game-board-workspace-inset`), with its overview and view
+   controls back at the inset. Fitted, the squares are as large as the
+   width, or the height under the view controls and over the square's
+   details, allows. */
+.layout[data-fill="true"][data-layout="stacked"] {
+  display: flex;
+  flex-direction: column;
+}
+.layout[data-fill="true"][data-layout="stacked"] > :not(.board) {
+  flex: none;
+}
+.layout[data-fill="true"][data-layout="stacked"] .tray {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(
+    1lh +
+    3rem +
+    var(--ui-space-1) *
+    2 +
+    var(--ui-control-size-md)
+  );
+}
+.layout[data-fill="true"][data-layout="stacked"] .board {
+  flex: 1 1 0;
+  margin-inline: calc(var(--game-board-workspace-inset, 0px) * -1);
+}
+.layout[data-fill="true"][data-layout="stacked"] .board > * {
+  --word-tile-fitted-size: min(
+    100cqi,
+    100cqb -
+    var(--ui-control-size-md) -
+    var(--ui-space-6)
+  );
+  --word-tile-fitted-margin: auto;
+}
+.layout[data-fill="true"][data-layout="stacked"] .board [data-overview],
+.layout[data-fill="true"][data-layout="stacked"]
+  .board
+  > *
+  > :is(
+    [data-view-controls],
+    [data-view-bar],
+    [data-testid$="-square-details"]
+  ) {
+  padding-inline: var(--game-board-workspace-inset, 0px);
+}
+
+/* A phone keeps its view tools behind one Board tools button in a row under the
+   board (`data-view-menu`), so the board, fitted or enlarged, takes all the
+   room but that row. */
+.layout[data-fill="true"] .board [data-view-menu="true"] {
+  --word-tile-enlarged-height: calc(
+    100cqb -
+    var(--ui-control-size-md) -
+    var(--ui-space-1)
+  );
+  --word-tile-fitted-size: min(
+    100cqi,
+    100cqb -
+    var(--ui-control-size-md) -
+    var(--ui-space-1)
+  );
+}
+/* A full-width phone board's whole-square window sits in the middle. */
+.layout[data-fill="true"]
+  .board
+  [data-view-menu="true"]
+  > [data-enlarged="true"] {
+  align-self: center;
+}
+
+/* Wide: the board at the box's start, as large as the room over the
+   feedback and the rack allows (less a line for the square's details), Fit
+   and Enlarge beside its top in the side column, and the rack beside the
+   word actions on one row under it. */
+.layout[data-fill="true"][data-layout="wide"] {
+  grid-template-columns: 21.5rem minmax(0, 1fr) 10.5rem;
+  /* The status line and the rack's row keep a player's height whatever the
+     seat holds, so a watcher's board is a player's size. */
+  grid-template-rows:
+    minmax(var(--word-tile-board-least), 1fr)
+    minmax(1lh, auto)
+    minmax(calc(3rem + var(--ui-space-1) * 2), auto);
+}
+.layout[data-fill="true"][data-layout="wide"] .board > * {
+  --word-tile-fitted-size: min(100cqi, 100cqb - var(--ui-space-6));
+  --word-tile-fitted-margin: 0;
+  position: relative;
+  width: var(--word-tile-fitted-size);
+}
+/* Enlarged, the whole-board overview (its map, Find a square and the
+   captions) stands in the side column under Fit and Enlarge, so the window
+   takes the board's whole height, cut to whole rows. A word-list notice
+   holds that place, so beside one the overview stays under the board. */
+.layout[data-fill="true"][data-layout="wide"]:not(:has(> .notice:not(:empty)))
+  .board
+  > * {
+  --word-tile-enlarged-height: 100cqb;
+}
+/* Outside a held box (a puzzle's page), the enlarged window keeps the
+   fitted board's height, whole rows, with the overview beside it in the side
+   column (its least 9rem), so the rack and actions under it stay in view. */
+.layout[data-layout="wide"]:not([data-fill="true"]):not(
+    :has(> .notice:not(:empty))
+  )
+  .board
+  > * {
+  --word-tile-enlarged-height: var(--word-tile-fitted-size);
+}
+.layout[data-layout="wide"]:not(:has(> .notice:not(:empty)))
+  .board
+  [data-overview] {
+  position: absolute;
+  /* Below the two stacked view controls, where a notice would stand. */
+  top: calc(var(--ui-control-size-md) * 2 + var(--ui-space-4));
+  left: calc(100% + var(--ui-space-4));
+  flex-direction: column;
+  width: 9rem;
+}
+.layout[data-fill="true"][data-layout="wide"]:not(:has(> .notice:not(:empty)))
+  .board
+  [data-overview] {
+  width: 10.5rem;
+}
+
+/* Beside a wide game's rail the seats stand the stage's usual gap clear of
+   a wide workspace's board (a phone's stage keeps its own). The seats keep
+   the column's width, so four of them stay one row and the board keeps the
+   height to show its enlarged window whole. */
+:global([data-game-board-stage]):has(
+  > [data-game-board] .layout[data-fill="true"][data-layout="wide"]
+) {
+  gap: var(--ui-space-3);
+}

@@ -16,10 +16,7 @@ import {
 import { Button } from '../button/index';
 import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
-import compass from './card-table-compass.module.css';
-import felt from './card-table-felt.module.css';
-import state from './card-table-state.module.css';
-import tray from './card-table-tray.module.css';
+import componentStyles from './card-table-details.module.css';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -176,7 +173,7 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
   const seat = () => props.seat();
   return (
     <section
-      class={[styles['seat'], compass['seat']]}
+      class={[styles['seat'], componentStyles['seat']]}
       data-trick={String(props.trick)}
       data-player={String(seat().player !== undefined)}
       data-position={seat().position}
@@ -191,7 +188,7 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
       >
         {seat().player}
       </Show>
-      <span class={[styles['facts'], compass['facts']]}>
+      <span class={[styles['facts'], componentStyles['facts']]}>
         <For keyed={false} each={seat().facts}>
           {(fact) => <span class={styles['fact']}>{fact()}</span>}
         </For>
@@ -222,7 +219,7 @@ function Trick(props: {
 }): JSX.Element {
   return (
     <div
-      class={[styles['trick'], compass['trick']]}
+      class={[styles['trick'], componentStyles['trick']]}
       data-trick={String(props.trick)}
     >
       <For keyed={false} each={props.seats}>
@@ -253,7 +250,7 @@ function Trick(props: {
             </Show>
             <Show when={seat().played && seat().won}>
               {(won) => (
-                <span class={state['won']} aria-hidden="true">
+                <span class={componentStyles['won']} aria-hidden="true">
                   {won()}
                 </span>
               )}
@@ -466,8 +463,8 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
     );
   });
   return (
-    <div class={[styles['pass'], compass['pass']]} aria-hidden="true">
-      <span class={[styles['passLabel'], compass['passLabel']]}>
+    <div class={[styles['pass'], componentStyles['pass']]} aria-hidden="true">
+      <span class={[styles['passLabel'], componentStyles['passLabel']]}>
         {props.pass.label}
       </span>
       <span class={styles['passPlaces']}>
@@ -594,7 +591,7 @@ function HandTray(props: CardTableProps): JSX.Element {
     return index < 0 ? undefined : `${props.testId}-reason-${index}`;
   };
   return (
-    <div class={tray['tray']}>
+    <div class={componentStyles['tray']}>
       {/* No cards, no hand: a watcher and a finished game get no empty toolbar. */}
       <Show when={props.hand.length > 0}>
         <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
@@ -616,7 +613,7 @@ function HandTray(props: CardTableProps): JSX.Element {
       </Show>
       {/* Under the hand and its action, so the hand sits right under the
           table and the room kept for guidance falls at the tray's foot. */}
-      <div class={tray['guide']}>
+      <div class={componentStyles['guide']}>
         <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
       </div>
     </div>
@@ -680,8 +677,8 @@ export function CardTable(props: CardTableProps): JSX.Element {
         <div
           class={[
             styles['table'],
-            compass['table'],
-            { [felt['felt'] ?? '']: true },
+            componentStyles['table'],
+            { [componentStyles['felt'] ?? '']: true },
           ]}
           role="group"
           aria-label={props.label}
@@ -705,7 +702,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
             {(pass) => <PassArea pass={pass()} />}
           </Show>
           <p
-            class={[styles['center'], compass['center']]}
+            class={[styles['center'], componentStyles['center']]}
             data-spoken-only={String(props.centerSpokenOnly === true)}
             aria-live="polite"
             data-testid={`${props.testId}-center`}

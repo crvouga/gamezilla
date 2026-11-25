@@ -211,7 +211,7 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-/* The table is a compass (`card-table-compass.module.css`). While cards
+/* The table is a compass (`card-table-details.module.css`). While cards
    are passed the middle holds where they go and, when the table draws it,
    what the table is doing: one above the other, never one over the other. */
 .table:has(> .pass) {

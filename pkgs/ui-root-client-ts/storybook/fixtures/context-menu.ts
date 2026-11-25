@@ -1,3 +1,7 @@
+import type {
+  ContextMenuGroup,
+  ContextMenuItem,
+} from '@pkgs/ui-root-client-ts/context-menu';
 import {
   ArrowLeftIcon,
   ArrowRightIcon,
@@ -15,8 +19,7 @@ import {
   SearchIcon,
   TextCursorInputIcon,
   UndoIcon,
-} from '../icons';
-import type { ContextMenuGroup, ContextMenuItem } from './index';
+} from '@pkgs/ui-root-client-ts/icons';
 
 const none = (): void => undefined;
 

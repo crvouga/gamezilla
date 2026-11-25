@@ -8,7 +8,7 @@ import {
   Show,
 } from 'solid-js';
 import { observeElementResize } from '../observe-element-resize';
-import styles from './word-tile-workspace.module.css';
+import styles from './word-tile-workbench.module.css';
 
 /** Wide enough for a 27rem board beside a tools column. */
 const WIDE_REM = 38;

@@ -54,7 +54,7 @@ describe('game surfaces', () => {
     ).toBe(true);
     // Wide, the two cards share one row at one height.
     const css = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     expect(css).toMatch(
@@ -80,14 +80,11 @@ describe('game surfaces', () => {
   // Players card, so the preview, not the players, led the setup. It is a
   // slim row now: a 48px thumbnail beside its label.
   test("a phone's setup picture is a slim row, the thumbnail beside its label", () => {
-    const media = rule(
-      'game-section/game-section-media.module.css',
-      '.sectionMedia'
-    );
+    const media = rule('game-section/game-section.module.css', '.sectionMedia');
     // regression: wide-setup-unbalanced — wide, the card beside the players
     // holds the preview and how the game is played, spaced apart.
     const pairCss = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     const wide = pairCss.slice(
@@ -96,7 +93,7 @@ describe('game surfaces', () => {
     expect(wide).toMatch(/\.sectionMedia \{[^}]*gap: var\(--ui-space-4\);/);
     expect(media).toContain('--game-board-preview-measure: 48px');
     const pair = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     expect(pair).toMatch(
@@ -397,7 +394,7 @@ describe('game surfaces', () => {
   // A compact seat's facts line is a tag's height either way.
   test("a wide setup's preview card is no taller than its players, and seat rows stay level", () => {
     const css = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     const wide = css.slice(
@@ -424,7 +421,7 @@ describe('game surfaces', () => {
     // A phone's preview row: the stage is as wide as its thumbnail, so the
     // line beside it (how the game is played) has the rest of the row.
     const phone = rule(
-      'game-section/game-section-media.module.css',
+      'game-section/game-section.module.css',
       '  .sectionPair .sectionMedia [data-preview="true"]'
     );
     expect(phone).toMatch(/flex:\s*0 0 auto;/);
