@@ -35,7 +35,7 @@ function resultInOwnSpace() {
   return {
     actors: new Map([['alice', { ui: { get: node } }]]),
     session: {
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
       advanceTime: () => Promise.resolve(),
       waitForIdle: () => Promise.resolve(),
     },
