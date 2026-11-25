@@ -1,0 +1,119 @@
+/* The tiles sit in a sand tray. Each pawn casts a short, fixed relief shadow. */
+[data-board-theme="quoridor"][data-fill] {
+  box-shadow: inset 0 0 0 var(--ui-space-hairline)
+    var(--ui-color-game-quoridor-muted);
+}
+[data-board-theme="quoridor"][data-fill] [data-tone="occupied"] > span {
+  text-shadow:
+    0 var(--ui-space-hairline) var(--ui-color-game-quoridor-ink),
+    0 var(--ui-space-1) var(--ui-color-game-quoridor-muted);
+}
+
+/* A finish stripe sits inside the goal tiles, clear of the wall channels. */
+[data-board-theme="quoridor"][data-fill] [data-goal="true"] {
+  background-image: repeating-linear-gradient(
+    135deg,
+    transparent 0 var(--ui-space-1),
+    var(--ui-color-game-quoridor-muted) var(--ui-space-1) var(--ui-space-2)
+  );
+  background-position: center;
+  background-size: 64% var(--ui-space-1);
+  background-repeat: no-repeat;
+}
+[data-board-theme="quoridor"][data-fill]
+  [data-goal="true"][data-tone="occupied"],
+[data-board-theme="quoridor"][data-fill]
+  [data-goal="true"][data-emphasis="preview"] {
+  background-position: center 90%;
+}
+
+/* e5 is a summit only when it is a goal. Contours persist under the winner. */
+[data-board-theme="quoridor"][data-fill] [data-cell="e5"][data-goal="true"] {
+  background-image: radial-gradient(
+    ellipse at center,
+    transparent 51%,
+    var(--ui-color-game-quoridor-muted) 52% 55%,
+    transparent 56% 68%,
+    var(--ui-color-game-quoridor-muted) 69% 72%,
+    transparent 73%
+  );
+  background-size: 100% 100%;
+  background-position: center;
+}
+
+[data-board-theme="quoridor"][data-fill]
+  [data-emphasis="preview"]:not(:focus-visible) {
+  outline: none;
+}
+[data-board-theme="quoridor"][data-fill]
+  [data-emphasis="preview"]:is(:hover, :focus-visible)
+  > span {
+  color: var(--ui-color-game-quoridor-ink);
+}
+[data-board-theme="quoridor"][data-fill] [data-cell]:focus-visible {
+  outline: var(--ui-space-1) solid var(--ui-color-game-quoridor-accent);
+  outline-offset: calc(-1 * var(--ui-space-1));
+}
+
+/* The darker sand groups the two tiles on each side of the proposed wall. */
+[data-board-theme="quoridor"][data-fill]
+[data-cell]:is(
+  [data-preview-edge-top="true"],
+  [data-preview-edge-bottom="true"],
+  [data-preview-edge-left="true"],
+  [data-preview-edge-right="true"]
+) {
+  background-color: var(--ui-color-game-quoridor-surface);
+}
+
+[data-quoridor-surface] {
+  position: relative;
+  overflow: clip;
+  clip-path: inset(0 var(--board-right, 0px) 0 var(--board-left, 0px));
+}
+[data-quoridor-surface] [data-board-theme="quoridor"] {
+  transform-origin: top left;
+  touch-action: none;
+  user-select: none;
+}
+[data-quoridor-surface] [data-zoom-control] {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 0;
+  inset-inline-start: var(--board-left, 0px);
+  display: grid;
+  place-items: center;
+  width: var(--ui-space-6);
+  height: var(--ui-space-6);
+  padding: 0;
+  border-radius: var(--ui-radius-sm);
+  font-weight: bold;
+  color: var(--ui-color-game-quoridor-ink);
+  background: var(--ui-color-game-quoridor-surface);
+  cursor: pointer;
+}
+[data-quoridor-surface]:not([data-zoomed="true"]) [data-zoom-out],
+[data-quoridor-surface][data-zoomed="true"] [data-zoom-in] {
+  display: none;
+}
+[data-quoridor-surface] [data-lifted="true"] {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+[data-quoridor-surface] [data-lifted="true"] > span {
+  transform: translate(var(--lift-x), var(--lift-y)) scale(1.08);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-quoridor-surface] [data-tone="occupied"] > span {
+    animation: quoridor-settle 140ms ease-out;
+  }
+  @keyframes quoridor-settle {
+    from {
+      scale: 1.12;
+    }
+    to {
+      scale: 1;
+    }
+  }
+}

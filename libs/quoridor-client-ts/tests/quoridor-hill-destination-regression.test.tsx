@@ -22,7 +22,7 @@ test('opening Hill turn wording names the center for active, opponent and specta
 
 // regression: quoridor-hill-destination-prominence
 test('the center destination has a star inside its goal mark until a pawn reaches it', () => {
-  const opening = quoridorBoardCells(newQuoridor('hill'), 'move', true, null);
+  const opening = quoridorBoardCells(newQuoridor('hill'), 'move', true);
   const goal = opening.find((cell) => cell.id === 'e5');
   expect(goal?.glyph).toBe('★');
   expect(goal?.label).toContain('Central hill');
@@ -44,7 +44,7 @@ test('the center destination has a star inside its goal mark until a pawn reache
     'i2',
     'e5',
   ]);
-  const occupied = quoridorBoardCells(won, 'move', false, null).find(
+  const occupied = quoridorBoardCells(won, 'move', false).find(
     (cell) => cell.id === 'e5'
   );
   expect(occupied?.glyph).toBe('●');
