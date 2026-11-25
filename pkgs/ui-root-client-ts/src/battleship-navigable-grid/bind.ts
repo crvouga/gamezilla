@@ -1,3 +1,4 @@
+import { observeElementResize } from '../observe-element-resize';
 import { type Camera, FIT, moveCamera, type Point } from './camera';
 import { contactGesture, type ShipDrag } from './contact';
 
@@ -146,12 +147,17 @@ export function bindGrid(root: HTMLElement, ports: GridPorts) {
     },
     opts
   );
+  const stopResize = observeElementResize(root, () => {
+    const at = { x: 0, y: 0 };
+    navigate(at, at, 1);
+  });
   const reset = () => {
     gesture.cancel();
     ports.setView(FIT);
   };
   win.addEventListener('resize', reset, opts);
   return () => {
+    stopResize();
     abort.abort();
     gesture.cancel();
   };

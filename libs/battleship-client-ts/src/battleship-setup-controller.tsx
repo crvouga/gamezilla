@@ -114,7 +114,8 @@ function placementInstruction(
   selected: ShipId | null,
   orientation: Orientation
 ): string {
-  if (selected === null) return t`Drag a ship to move it, or choose it to rotate or remove it.`;
+  if (selected === null)
+    return t`Drag a ship to move it, or choose it to rotate or remove it.`;
   const name = shipName(selected);
   const length = shipLength(selected);
   const direction = orientationName(orientation);

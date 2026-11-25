@@ -89,6 +89,14 @@ for (const viewport of [
       await snapshot(view, info, 'inspection');
       await page.getByRole('button', { name: 'Fit board' }).click();
       await expect(view).toHaveAttribute('data-scale', '1');
+      await page.mouse.move(mid.x, mid.y);
+      await page.keyboard.down('Control');
+      await page.mouse.wheel(0, -120);
+      await page.keyboard.up('Control');
+      await expect(view).not.toHaveAttribute('data-scale', '1');
+      await mark.focus();
+      await page.keyboard.press('0');
+      await expect(view).toHaveAttribute('data-scale', '1');
       await page.emulateMedia({ reducedMotion: 'reduce' });
       await expect(mark.locator('span').first()).toHaveCSS(
         'animation-name',

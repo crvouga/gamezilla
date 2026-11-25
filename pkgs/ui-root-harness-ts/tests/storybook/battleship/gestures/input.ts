@@ -11,6 +11,10 @@ export async function center(cell: Locator) {
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 }
 export async function snapshot(grid: Locator, info: TestInfo, name: string) {
+  await info.attach(name + '-box', {
+    body: JSON.stringify(await grid.boundingBox()),
+    contentType: 'application/json',
+  });
   await info.attach(name, {
     body: await grid.screenshot(),
     contentType: 'image/png',
