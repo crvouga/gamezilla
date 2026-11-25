@@ -148,3 +148,32 @@
 .body > [data-component="GameResultCard"] > :first-child > :first-child > p {
   flex-basis: 100%;
 }
+
+/* Read in order of need: the outcome, the commands (their labels already
+   say a retry), then a notice, the standings and the quieter ways on. A phone card capped above the board
+   scrolls only what comes after the commands, which always show. */
+.body > [data-component="GameResultCard"] {
+  display: contents;
+}
+.body > [data-component="GameResultCard"] > :first-child {
+  order: 0;
+}
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  order: 3;
+}
+.alerts:empty,
+.footer:empty {
+  display: none;
+}
+.actions {
+  order: 2;
+}
+.body > [data-component="GameResultCard"] > :not(:first-child) {
+  order: 4;
+}
+.footer {
+  order: 5;
+}

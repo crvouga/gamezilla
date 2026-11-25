@@ -11,7 +11,13 @@ import {
 } from 'solid-js';
 import { Button } from '../button/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
+import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-result-dialog.module.css';
+
+/** Where the phone card starts (under the top bar) and the gap it keeps over the board. */
+const CARD_TOP_PX = 56 + 8;
+/** The least a capped card keeps, so its commands always show. */
+const MIN_CARD_PX = 240;
 
 /** Whether the outcome's dialog is open, and the ways to close and reopen it. */
 export type GameResultDialogState = {
@@ -61,9 +67,33 @@ export function GameResultDialog(props: {
   readonly footer?: JSX.Element | undefined;
 }): JSX.Element {
   const { t } = useLingui();
+  const mode = useLayoutMode();
+  // On a phone the card ends above the board: its height is capped at the
+  // room between the top bar and the board's top edge (read as it opens),
+  // and a longer card (scores, a notice) scrolls inside it instead.
+  const [room, setRoom] = createSignal<number | undefined>(undefined);
+  createEffect(
+    on(
+      () => props.state.open(),
+      (open) => {
+        if (!open || mode() !== 'compact') {
+          setRoom(undefined);
+          return;
+        }
+        const board = document.querySelector('[data-game-board]');
+        const top = board?.getBoundingClientRect().top;
+        setRoom(
+          top === undefined
+            ? undefined
+            : Math.max(MIN_CARD_PX, top - CARD_TOP_PX)
+        );
+      }
+    )
+  );
   return (
     <ResponsiveSurface
       visible={props.state.open()}
+      maxHeight={room()}
       onClose={() => props.state.close()}
       // Named "Game over" for a listener; on screen the outcome's own word
       // (Victory, Defeat, Draw) leads the card, with no title row over it,
@@ -79,9 +109,9 @@ export function GameResultDialog(props: {
     >
       <div class={styles['body']}>
         {props.outcome}
-        {props.alerts}
+        <div class={styles['alerts']}>{props.alerts}</div>
         <div class={styles['actions']}>{props.actions}</div>
-        {props.footer}
+        <div class={styles['footer']}>{props.footer}</div>
       </div>
     </ResponsiveSurface>
   );
