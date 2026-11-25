@@ -11,6 +11,8 @@ import { squareName } from '../chess-board-hit-grid/index';
 import { InspectionGesture } from './gesture';
 import styles from './inspection.module.css';
 
+/** Magnifies its playable board around the inspection gesture. While magnified,
+ * the surface is inert so reading or panning it cannot submit a move. */
 export function ChessBoardInspection(props: {
   readonly ctrl: BoardController;
   readonly fixed: boolean;
