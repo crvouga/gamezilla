@@ -1,14 +1,13 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, createUniqueId, For, Show } from 'solid-js';
-import { trailShapes } from '../trail-arena-geometry';
+import { FIT, trailShapes } from '../trail-arena-geometry';
 import {
+  ArenaInspection,
   ArenaSurface,
   controlledSlots,
   trailArenaInput,
 } from '../trail-arena-input';
-import { FIT } from '../trail-arena-inspection/camera';
-import { ArenaInspection } from '../trail-arena-inspection/index';
 import {
   ArenaOverlay,
   ArenaPatterns,

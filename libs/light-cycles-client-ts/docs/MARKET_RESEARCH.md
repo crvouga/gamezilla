@@ -58,7 +58,7 @@ These are readings of the pictured states. A single frame gives no measurement o
 | Follow a rider through a crowded area | Retain four trail patterns and upright rider letters. Riders see the entire arena while they steer. Watchers can magnify a corridor around their fingers or trackpad pointer. | The board test covers two fingers becoming one, panning, taking a rider, restoring fit, and requiring a fresh swipe to steer. Hosted phone and desktop scenarios compare the world coordinate under the gesture anchor. |
 | Locate an eliminated rider | The live chassis becomes a broken disc with its letter. A crossed badge marks the crash while the trail remains visible. | The Round 1 Duel, Trio and Quad captures show the board at its original cell scale. The Round 2 sustained scenarios exercise the same production drawing under normal and throttled CPU. |
 
-[Round 1 board captures](https://github.com/crvouga/gamezilla/pull/578#issuecomment-7158913287) · [Round 2 hosted verification](https://github.com/crvouga/gamezilla/actions/runs/45593493438)
+[Round 1 board captures](https://github.com/crvouga/gamezilla/pull/578#issuecomment-7158913287) · [Round 2 decisions and hosted verification history](https://github.com/crvouga/gamezilla/pull/578)
 
 ### Open questions
 

@@ -282,3 +282,21 @@
     opacity: 1;
   }
 }
+
+.inspectionViewport {
+  position: absolute;
+  inset: 0;
+  touch-action: none;
+  cursor: grab;
+}
+.inspectionViewport:active {
+  cursor: grabbing;
+}
+.inspectionViewport:focus-visible {
+  outline: var(--ui-space-hairline) solid var(--ui-color-focus-ring);
+}
+.inspectionTools {
+  position: absolute;
+  inset-block-start: var(--ui-space-1);
+  inset-inline-end: var(--ui-space-1);
+}
