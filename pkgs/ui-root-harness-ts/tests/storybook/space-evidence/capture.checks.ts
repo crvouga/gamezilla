@@ -17,6 +17,7 @@ const boards = new Map(
 );
 const light = new Set([...scope.light, ...scope.interaction, ...boards.keys()]);
 
+// regression: quoridor-hill-camera-viewport
 for (const [width, height] of [
   [390, 844],
   [1280, 800],
