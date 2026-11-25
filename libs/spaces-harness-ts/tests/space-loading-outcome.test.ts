@@ -21,7 +21,7 @@ function linkOpening(loadingPolls: number) {
   return {
     actors: new Map([['bob', { ui }]]),
     session: {
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
       advanceTime: () => {
         polls += 1;
         return Promise.resolve();

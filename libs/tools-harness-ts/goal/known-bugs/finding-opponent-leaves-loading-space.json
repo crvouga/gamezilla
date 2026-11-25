@@ -1,0 +1,4 @@
+{
+  "summary": "Finding an opponent on a second device could take Back out of the space while the device was loading the games it could open.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/finding-an-opponent-arrival.test.ts"
+}

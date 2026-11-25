@@ -1,0 +1,4 @@
+{
+  "summary": "After an offline Sokoban solve, reconnecting changed the height of the connection notices above Pack overview. At 390px wide a tap hit the attempt figures below the button. The connection notices now follow the interactive content.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-connection-status.test.tsx"
+}

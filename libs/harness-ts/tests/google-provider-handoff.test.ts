@@ -6,6 +6,7 @@ import { atConfiguredGoogleHandoff } from '@libs/harness-ts/provider-handoff';
 
 const http: ProductHttp = {
   kind: 'stack',
+  billingOrigin: 'http://127.0.0.1:34310',
   origin: 'http://127.0.0.1:43000',
   idpOrigins: {
     google: 'http://127.0.0.1:44471',

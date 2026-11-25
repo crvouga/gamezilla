@@ -1,0 +1,4 @@
+{
+  "summary": "A browser subscription belonged to the stack’s Stripe account, but the billing lifecycle looked the customer up in its separate in-process Stripe and could not end the trial.",
+  "regressionTest": "libs/billing-harness-ts/tests/stack-trial.test.ts"
+}

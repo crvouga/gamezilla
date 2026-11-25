@@ -1,0 +1,4 @@
+{
+  "summary": "Arranging an already finished local Pong game against Bob could spend the entire setup timeout playing an eleven-point match before the offline recovery scenario began. The fixture now selects a one-point match when the requested starting state is finished and plays through that point.",
+  "regressionTest": "libs/pong-harness-ts/tests/pong-menu.test.ts"
+}

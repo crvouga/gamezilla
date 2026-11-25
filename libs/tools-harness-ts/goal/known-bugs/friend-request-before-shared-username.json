@@ -1,0 +1,4 @@
+{
+  "summary": "Friendship setup searched for Bob or sent the request before the two browser devices uploaded their optimistic username changes. Search could settle on nobody, or the server could name the inbox card with the old sender username, so the deletion and end-a-space scenarios could not reach their starting friendship.",
+  "regressionTest": "libs/friends-harness-ts/tests/named-friend-preparation.test.ts"
+}

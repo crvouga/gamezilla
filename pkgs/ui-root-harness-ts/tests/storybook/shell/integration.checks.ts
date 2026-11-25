@@ -22,6 +22,17 @@ test('storybook integration: the compact lobby keeps the production bottom tabs'
   await expect(page.locator('[data-region="rail"]')).toHaveCount(0);
 });
 
+// regression: storybook-sidebar-story-misses-initial-mount
+test('storybook integration: screens-shell-header-island--sidebar-spaces-current renders the signed-in account in the desktop rail', async ({
+  page,
+}) => {
+  await open(page, 'screens-shell-header-island--sidebar-spaces-current', 1440);
+  const rail = page.locator('[data-region="rail"]');
+  await expect(
+    rail.getByRole('button', { name: '@avery, account menu' })
+  ).toBeVisible();
+});
+
 for (const id of [
   'screens-spaces-home--populated',
   'screens-space-home--host-choosing',

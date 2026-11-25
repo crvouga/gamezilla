@@ -38,7 +38,7 @@ function reconnectRig(previousAt: number, deliveryMs: number) {
           activityAt = returnedAt;
       },
       waitForIdle: async () => {},
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
     },
   } as unknown as ProductHarness;
   return { s, clock };

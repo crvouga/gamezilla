@@ -6,6 +6,7 @@ import {
   readServerPuzzles,
 } from '@libs/chess-puzzle-harness-ts/chess-puzzle-data';
 import { NAMED_PUZZLES } from '@libs/chess-puzzle-harness-ts/puzzle-fixtures';
+import { preparePuzzleModelPool } from '@libs/chess-puzzle-harness-ts/puzzle-model-pool';
 import { CHESS_GAME_ID } from '@libs/chess-root-harness-ts/chess-playable';
 import {
   openPuzzleLink,
@@ -44,6 +45,19 @@ test('an open puzzle pool receives newly ingested rows and retirement tombstones
   );
   expect(retired?.deleted).toBe(true);
 }, 120_000);
+
+// regression: repeated-chess-model-pool-loses-puzzles
+test('repeated puzzle assistant scenarios restore all three puzzles on a shared catalogue', async () => {
+  await using s = await openHarness();
+  await s.apply(preparePuzzleModelPool);
+  await s.apply(retireCataloguePuzzle, '002X3');
+  await s.apply(preparePuzzleModelPool);
+  expect((await s.read(readServerPuzzles)).map((row) => row.id)).toEqual([
+    '002X3',
+    '007mr',
+    '01Xbe',
+  ]);
+});
 
 // regression: chess-named-puzzle-already-on-board
 test('opening the four-move mate already on the board keeps its attempt playable', async () => {

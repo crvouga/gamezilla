@@ -9,7 +9,10 @@
  * shared-state class of bug).
  */
 
-import { createServer } from '@libs/app-root-server-ts/create-server';
+import {
+  type CreateServerArgs,
+  createServer,
+} from '@libs/app-root-server-ts/create-server';
 import type { RoomNamespace } from '@libs/app-root-shared-ts/env';
 import { serveFetch } from '@libs/app-root-shared-ts/serve-fetch';
 import type { ServerEnv } from '@libs/app-root-shared-ts/server-env';
@@ -66,6 +69,7 @@ function nextServerId(taken: ReadonlySet<string>): string {
 }
 
 async function openHarnessServer(args: {
+  clientConfigOwner: NonNullable<CreateServerArgs['clientConfigOwner']>;
   env: ServerEnv;
   composition: HarnessComposition;
   rooms: RoomServicePort;
@@ -77,6 +81,7 @@ async function openHarnessServer(args: {
   );
   const app = await http.run(() =>
     createServer(env, {
+      clientConfigOwner: args.clientConfigOwner,
       rooms: args.rooms,
       app: args.composition.app,
       servers: subServers,
@@ -107,6 +112,9 @@ function createServerNodeFetch(args: {
 }
 
 export function createHarnessServerNodes(args: {
+  readonly clientConfigOwner: NonNullable<
+    CreateServerArgs['clientConfigOwner']
+  >;
   readonly composition: HarnessComposition;
   readonly rooms: RoomServicePort;
   readonly buildEnv: (id: string) => Promise<ServerEnv>;
@@ -142,6 +150,7 @@ export function createHarnessServerNodes(args: {
         throw new Error('createHarness: server disposed');
       }
       const { http, env, subServers, app } = await openHarnessServer({
+        clientConfigOwner: args.clientConfigOwner,
         env: await ensureEnv(instanceId),
         composition: args.composition,
         rooms: args.rooms,

@@ -60,3 +60,6 @@ export function isHarnessBillingOrigin(origin: string): boolean {
 
 /** The test-mode key the harness API's billing adapter calls that provider with. */
 export const HARNESS_BILLING_SECRET_KEY = 'sk_test_harness';
+
+/** The separately booted localhost Stripe account's test-mode key. */
+export const STACK_BILLING_TEST_KEY = 'sk_test_localhost_stack';

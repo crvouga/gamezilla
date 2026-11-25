@@ -10,10 +10,10 @@ import { letTimePass } from '@libs/harness-ts/actions';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { HARNESS_LOAD_BALANCER_ID } from '@libs/harness-ts/load-balancer';
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { membershipStatusOf } from '@pkgs/billing-stripe-shared-ts/membership-status';
 import {
   BILLING_WAIT_MS,
+  backOnBilling,
   payOnCheckoutPage,
   pressBillingButton,
   STRIPE_PAGE,
@@ -57,13 +57,6 @@ export async function newestOpenCheckout(
   });
   const newest = [...open.data].sort((a, b) => b.created - a.created)[0];
   return newest?.id ?? null;
-}
-
-async function backOnBilling(s: ProductHarness, actorId: string) {
-  const ui = await actorUi(s, actorId);
-  await ui
-    .get(Handles.billingScreen)
-    .expect.visible({ timeoutMs: BILLING_WAIT_MS });
 }
 
 /** Press subscribe and wait for the provider's checkout to open. */

@@ -181,6 +181,7 @@ export async function replayTrace(args: ReplayArgs): Promise<string | null> {
   // regression: timed-out-trace-runs-on
   const abandoned = () => args.abandoned?.aborted === true;
   const w = await world.create(ctx);
+  let failure: Error | undefined;
   let at = 0;
   let callsBefore = 0;
   let observedNames: readonly string[] | null = null;
@@ -220,7 +221,7 @@ export async function replayTrace(args: ReplayArgs): Promise<string | null> {
       : await binding.fingerprint(w);
   } catch (cause) {
     if (abandoned()) return null;
-    throw new Error(
+    failure = new Error(
       formatTraceFailure({
         ctx,
         trace,
@@ -230,9 +231,17 @@ export async function replayTrace(args: ReplayArgs): Promise<string | null> {
       }),
       { cause }
     );
+    throw failure;
   } finally {
     await world.dispose(w).catch((error: unknown) => {
-      if (!abandoned()) throw error;
+      if (abandoned()) return;
+      if (failure === undefined) throw error;
+      const detail = error instanceof Error ? error.message : String(error);
+      throw new AggregateError(
+        [failure, error],
+        `${failure.message}\nTrace cleanup also failed: ${detail}`,
+        { cause: failure }
+      );
     });
   }
 }

@@ -30,7 +30,7 @@ function menuThatMovesOn() {
     actors: new Map([['bob', { ui: { get: node } }]]),
     harness: { composition: { app: { turnGames: { games: [] } } } },
     session: {
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
       advanceTime: () => Promise.resolve(),
       waitForIdle: () => Promise.resolve(),
     },

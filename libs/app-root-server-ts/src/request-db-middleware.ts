@@ -72,7 +72,7 @@ export type RequestDbMiddlewareOptions = {
   readonly http: HttpClient;
   readonly createId: CreateId;
   /** Public client_config rows derived from Worker secrets at boot. */
-  readonly desiredClientConfig: DesiredClientConfig;
+  readonly desiredClientConfig: DesiredClientConfig | null;
   readonly openSqlClient: OpenSqlClient;
   readonly skipDatabaseUrlPolicy?: boolean;
   readonly authorizeSession?: (ctx: {
@@ -126,7 +126,7 @@ async function materializeClientConfigIfNeeded(
   options: RequestDbMiddlewareOptions,
   latch: ClientConfigLatch
 ): Promise<void> {
-  if (latch.done) return;
+  if (latch.done || options.desiredClientConfig === null) return;
   // Never share an in-flight Promise across requests — Workers cancels the
   // waiter ("hung and would never generate a response"). Concurrent first
   // requests may both materialize; EnsureClientConfigMaterialized is idempotent.

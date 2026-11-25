@@ -47,6 +47,7 @@ Feature: Ride against bots or find players for a mode
       When the bot steers Ember
       Then Ember's next step is up, down or left
 
+    @regression:device-arena-recovery-after-clean-close
     Scenario: A boxed-in bot rider crashes like any rider
       Given trails cover column 19, row 10, column 20, row 9 and column 20, row 11
       When the riders take their next step

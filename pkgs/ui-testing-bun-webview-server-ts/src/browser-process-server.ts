@@ -14,6 +14,10 @@ async function invoke(
   device: BrowserDevice,
   call: BrowserCall
 ): Promise<unknown> {
+  // Bun updates the native URL when navigation completes. Reading it does
+  // not execute JavaScript in the document the browser is tearing down.
+  if (call.target === 'view' && call.method === 'loadedUrl')
+    return Reflect.get(device.view, 'url');
   if (call.target === 'driver' && call.method === 'close')
     return device.close();
   let target: unknown =

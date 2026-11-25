@@ -30,6 +30,20 @@ function change(result: Validation<SokobanPosition>): PuzzleChange {
     : { accepted: false, issues: result.issues };
 }
 
+// Rule calls for a move share the same terrain. Keep one playable board,
+// privately, so concurrent games can evict it without affecting any result.
+let lastBoard:
+  | { definition: string; checked: { valid: true; value: SokobanBoard } }
+  | undefined;
+
+function readBoard(definition: string): Validation<SokobanBoard> {
+  if (lastBoard && lastBoard.definition === definition)
+    return lastBoard.checked;
+  const checked = validateSokobanDefinition(definition);
+  if (checked.valid) lastBoard = { definition, checked };
+  return checked;
+}
+
 function readPosition(
   definition: string,
   state: string
@@ -37,7 +51,7 @@ function readPosition(
   readonly board: SokobanBoard;
   readonly position: SokobanPosition;
 }> {
-  const board = validateSokobanDefinition(definition);
+  const board = readBoard(definition);
   if (!board.valid) return board;
   const position = decodeSokobanPosition(board.value, state);
   if (!position.valid) return position;
@@ -74,7 +88,7 @@ function validatePublication(
   definition: string,
   evidence?: PuzzleEvidence
 ): PuzzleValidation {
-  const board = validateSokobanDefinition(definition);
+  const board = readBoard(definition);
   if (!board.valid) return board;
   if (evidence !== undefined && complete(definition, evidence.state))
     return { valid: true };
@@ -93,10 +107,9 @@ export const sokobanPuzzleContent: PuzzleContent = {
   rulesVersion: 1,
   history: 'snapshots',
   rules: {
-    validateDefinition: (definition) =>
-      validation(validateSokobanDefinition(definition)),
+    validateDefinition: (definition) => validation(readBoard(definition)),
     initial: (definition) => {
-      const board = validateSokobanDefinition(definition);
+      const board = readBoard(definition);
       return board.valid
         ? change(initialSokobanPosition(board.value))
         : { accepted: false, issues: board.issues };

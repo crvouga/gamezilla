@@ -1,4 +1,5 @@
 import { expect } from 'bun:test';
+import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import {
   dailyScheduleBegins,
@@ -12,10 +13,20 @@ import {
   syntheticUsersOnline,
 } from '@libs/synthetic-population-harness-ts/daily-rhythm-actions';
 import { stayedOnlineToFinish } from '@libs/synthetic-population-harness-ts/live-synthetic-users';
+import { observeWorkerBeats } from '@libs/synthetic-population-harness-ts/population-worker';
 
 const MINUTE_MS = 60_000;
 /** A deployed worker's pace: how often anything about being online changes. */
 const BEAT_MS = 5_000;
+
+const watchKeptAway = scenarioAction({
+  name: 'watchKeptAway',
+  act: async (s, name: string, minutes: number) => {
+    await observeWorkerBeats(s, minutes * MINUTE_MS, async () => {
+      expect(await syntheticUserOnline(s, name)).toBe(false);
+    });
+  },
+});
 
 Given('{int} Synthetic Users are online now', async (w, count: number) => {
   await w.s.apply(givenSyntheticUsersOnline, count);
@@ -74,11 +85,7 @@ Then(
 Then(
   '{string} is still not online now {int} minutes later',
   async (w, name: string, minutes: number) => {
-    await w.s.never((s) => syntheticUserOnline(s, name), {
-      forMs: minutes * MINUTE_MS,
-      stepMs: BEAT_MS,
-      pred: Boolean,
-    });
+    await w.s.apply(watchKeptAway, name, minutes);
   }
 );
 Then(

@@ -57,12 +57,16 @@ test('the five features in release part 113 retain all 138 cases across bounded 
   }
   expect(previousCases).toBe(138);
   expect(previousCases).toBeGreaterThan(PART_LOAD);
-  const inventory = packageSpecInventory(PACKAGE, packageSpecs(PACKAGE, ROOT));
+  // The suite's size changes with every spec; the release part count is what
+  // CI runs, so bound the parts it declares rather than a pinned total.
   const { specParts } = JSON.parse(
     readFileSync(join(PACKAGE, 'package.json'), 'utf8')
-  ) as { specParts: number };
+  ) as { readonly specParts: number };
+  const inventory = packageSpecInventory(PACKAGE, packageSpecs(PACKAGE, ROOT));
   const units = inventory(specParts);
   const parts = partsOf(units, specParts);
+  expect(parts).toHaveLength(specParts);
+  expect(partLoad(units).load).toBeGreaterThan(PART_LOAD);
   expect(
     parts
       .flat()

@@ -6,28 +6,6 @@ import type { ActorCheckpointPort } from './client-checkpoint';
 type View = { evaluate(script: string): Promise<unknown> };
 const HOOK = `globalThis[${JSON.stringify(TEST_LOCAL_SQL_GLOBAL)}]`;
 
-async function writesSettled(view: View): Promise<void> {
-  await waitUntil(
-    async () => {
-      const raw = await view.evaluate(
-        `${HOOK}.query(['SELECT COUNT(*) AS pending FROM sync_engine_mutations WHERE deleted_at IS NULL'], [])`
-      );
-      if (typeof raw !== 'string')
-        throw new Error('Device pending writes unavailable');
-      const rows = JSON.parse(raw) as { pending: unknown }[];
-      const pending = rows[0]?.pending;
-      if (pending === 0 || pending === '0') return true;
-      throw new Error(`Device still has ${String(pending)} pending writes`);
-    },
-    {
-      now: wallClock.now,
-      timers: wallTimers,
-      timeoutMs: 20_000,
-      description: 'checkpoint writes to reach the server',
-    }
-  );
-}
-
 /** The browser's own SQL and durable storage, rather than a headless client. */
 export function webviewCheckpoint(
   view: View,
@@ -43,7 +21,8 @@ export function webviewCheckpoint(
   return {
     async capture() {
       await ready();
-      await writesSettled(view);
+      // The queue is part of the device snapshot, including offline writes.
+      // The later server snapshot retains the verdicts for uploads that raced it.
       const sql = await view.evaluate(`${HOOK}.dump()`);
       if (typeof sql !== 'string')
         throw new Error('Device SQL dump unavailable');

@@ -47,6 +47,31 @@ test('sign-out waits for the dismissed success surface to release the screen', a
   expect(modalVisible).toBe(false);
 });
 
+test('the signed-out screen can replace the pending confirmation', async () => {
+  // regression: sign-out-dialog-replaced-during-submit
+  let modalVisible = true;
+  const driver = {
+    get: (id: string) => ({
+      isVisible: async () => id === Handles.authSignOutModal && modalVisible,
+      tap: async () => {
+        expect(id).not.toBe(Handles.authSignOutDone);
+      },
+      wait: async (
+        state: string,
+        options?: { visibleOr?: readonly string[] }
+      ) => {
+        if (id === Handles.authSignOutModal && modalVisible) {
+          expect(state).toBe('hidden');
+          expect(options?.visibleOr).toEqual([Handles.authSignOutDone]);
+          modalVisible = false;
+        }
+      },
+    }),
+  } as unknown as Driver;
+  await logOutThroughUi(driver);
+  expect(modalVisible).toBe(false);
+});
+
 test.each([true, false])(
   'an unavailable Done button is accepted only if the sign-out dialog closed (%s)',
   async (closedDuringTap) => {

@@ -65,13 +65,15 @@ export function wireProductRuntime(
      */
     async restartActor(id) {
       const existing = entries.get(id);
+      const storage = browserDevices.get(id);
       if (existing !== undefined) {
+        if (storage !== undefined)
+          storage.reopenPath = await existing.handle.currentPath();
         await closeActorEntry(existing);
         entries.delete(id);
       }
       surface.actors.delete(id);
       await surface.harness.dropClient(id);
-      const storage = browserDevices.get(id);
       if (storage !== undefined && damagedBrowserDevices.delete(id)) {
         await damageActorBrowserStorage(storage);
       }

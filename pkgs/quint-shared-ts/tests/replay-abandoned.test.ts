@@ -88,3 +88,37 @@ test('a trace still in time reports its failures as before', async () => {
   });
   await expect(replay).rejects.toThrow('the product broke');
 });
+
+// regression: unreadable-browser-masks-quint-step
+test('an unreadable browser at dispose preserves the billing step that failed', async () => {
+  const input = new Error(
+    'node stripe-mock-card input: The isolated browser did not answer'
+  );
+  const cleanup = new Error('alice at an unreadable page (screen: none)');
+  const replay = replayTrace({
+    ctx: { ...ctx, specUri: 'specs/billing/grace-and-refunds.qnt' },
+    trace: { vars: [], states: [{ action: 'subscribe', picks: {}, vars: {} }] },
+    world: {
+      create: async () => ({}),
+      dispose: async () => {
+        throw cleanup;
+      },
+    },
+    binding: {
+      model: 'grace-and-refunds',
+      actions: {
+        subscribe: async () => {
+          throw input;
+        },
+      },
+      observe: async () => ({}),
+    },
+  });
+  const error = await replay.catch((cause: unknown) => cause);
+  expect(error).toBeInstanceOf(AggregateError);
+  const combined = error as AggregateError;
+  expect(combined.message).toContain(input.message);
+  expect(combined.message).toContain(cleanup.message);
+  expect(combined.errors[0].cause).toBe(input);
+  expect(combined.errors[1]).toBe(cleanup);
+});

@@ -63,6 +63,8 @@ import type { HarnessTeamRules } from './team-rules';
 import { createHarnessTeamRules } from './team-rules';
 
 export type CreateHarnessOptions = {
+  /** The separately running deployment owns public configuration on a shared stack. */
+  readonly clientConfigOwner?: 'this-server' | 'external';
   readonly serverEvents?: PubSub;
   /** Reference data shared by separately booted harness environments. */
   readonly sharedDataStore?: ServerEnv['blob'];
@@ -317,16 +319,12 @@ async function bootHarnessKernel(
     // Webhooks go through the balancer, like any caller's.
     toApi: (node) => loadBalancer.fetchFrom(node),
   });
-  const { roomNode, rooms } = createHarnessRooms({
-    session,
-    composition,
-    seed,
-    timers,
-    serverSql,
-  });
+  const roomPorts = { session, composition, seed, timers, serverSql };
+  const { roomNode, rooms } = createHarnessRooms(roomPorts);
   const disposed = { value: false };
   const serverEgress = createHarnessServerEgress();
   const servers = createHarnessServerNodes({
+    clientConfigOwner: opts.clientConfigOwner ?? 'this-server',
     composition,
     rooms,
     buildEnv: serverEnvBuilder({

@@ -1,0 +1,4 @@
+{
+  "summary": "The maximum Sokoban close view at 320px ran Chromium CPU and timeline profiling during its 4x CPU frame-budget measurement. The strict 20-move trial and the diagnostic CPU and timeline captures now run separately.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-maximum-320/integration.checks.ts"
+}

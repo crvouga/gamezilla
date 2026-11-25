@@ -7,6 +7,7 @@ import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
 export type ContentConnectionStatusViewProps = {
+  readonly children: JSX.Element;
   /** Requested puzzles are still arriving. */
   readonly loading: boolean;
   readonly online: boolean;
@@ -16,8 +17,8 @@ export type ContentConnectionStatusViewProps = {
 };
 
 /**
- * Above every content screen: requested puzzles still arriving, a sync
- * failure with a reconnect, or offline with saved work kept on the device.
+ * Keep the screen controls ahead of notices that appear and disappear as
+ * the connection changes, so reconnecting does not move a tap target.
  */
 export function ContentConnectionStatusView(
   props: ContentConnectionStatusViewProps
@@ -25,6 +26,7 @@ export function ContentConnectionStatusView(
   const { t } = useLingui();
   return (
     <>
+      {props.children}
       <Show when={props.loading}>
         <P
           role="status"

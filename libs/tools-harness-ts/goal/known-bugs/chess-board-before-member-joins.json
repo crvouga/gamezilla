@@ -1,0 +1,4 @@
+{
+  "summary": "The chess board setup could finish following a space link before Bob had joined, leaving the watcher and swapped-side examples stuck outside custom games. Wait for Join and enter the host's selected game.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/custom-game-members.test.ts"
+}

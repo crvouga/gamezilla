@@ -1,0 +1,4 @@
+{
+  "summary": "After the first scenario on a shared catalogue, the chess model fixture retired two of its own three mates. The seed correctly skipped existing IDs, leaving only 01Xbe available when the solver asked for a different puzzle.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/puzzle-catalog-regression.test.ts"
+}

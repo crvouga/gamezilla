@@ -5,7 +5,7 @@ import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, Show, untrack } from 'solid-js';
+import { createEffect, createSignal, untrack } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
@@ -48,61 +48,67 @@ export function LeaveSpaceConfirmModal(
   const onSuccess = (): void => {
     props.onSuccess?.();
   };
+  const asHost = () => confirmedAsHost() ?? props.asHost ?? false;
   return (
-    <Show
-      when={confirmedAsHost() ?? props.asHost ?? false}
-      fallback={
-        <MutationModal
-          visible={props.visible}
-          onClose={props.onClose}
-          title={<Trans>Leave space?</Trans>}
-          message={
-            <Trans>
-              Leave this space on your account. You will leave on every device.
-              You can join again later if the space is still live.
-            </Trans>
-          }
-          submitLabel={<Trans>Leave</Trans>}
-          operation={operation}
-          onSuccess={onSuccess}
-          onPhaseChange={onPhaseChange}
-          loadingLabel={<Trans>Leaving…</Trans>}
-          successTitle={<Trans>You left the space</Trans>}
-          successBody={
-            <Trans>
-              You can rejoin from the invite link if the space is still live.
-            </Trans>
-          }
-          errorTitle={<Trans>Couldn't leave space</Trans>}
-          stackId="leave-space-confirm"
-          submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
-          dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
-        />
+    <MutationModal
+      visible={props.visible}
+      onClose={props.onClose}
+      title={
+        asHost() ? (
+          <Trans>Leave and end the space?</Trans>
+        ) : (
+          <Trans>Leave space?</Trans>
+        )
       }
-    >
-      <MutationModal
-        visible={props.visible}
-        onClose={props.onClose}
-        title={<Trans>Leave and end the space?</Trans>}
-        message={
+      message={
+        asHost() ? (
           <Trans>
             You're the host, so leaving ends the space for everyone. This cannot
             be undone.
           </Trans>
-        }
-        submitLabel={<Trans>Leave and end</Trans>}
-        variant="destructive"
-        operation={operation}
-        onSuccess={onSuccess}
-        onPhaseChange={onPhaseChange}
-        loadingLabel={<Trans>Ending space…</Trans>}
-        successTitle={<Trans>Space ended</Trans>}
-        successBody={<Trans>Everyone can see that the space has ended.</Trans>}
-        errorTitle={<Trans>Couldn't end space</Trans>}
-        stackId="leave-space-confirm-as-host"
-        submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
-        dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
-      />
-    </Show>
+        ) : (
+          <Trans>
+            Leave this space on your account. You will leave on every device.
+            You can join again later if the space is still live.
+          </Trans>
+        )
+      }
+      submitLabel={
+        asHost() ? <Trans>Leave and end</Trans> : <Trans>Leave</Trans>
+      }
+      variant={asHost() ? 'destructive' : 'default'}
+      operation={operation}
+      onSuccess={onSuccess}
+      onPhaseChange={onPhaseChange}
+      loadingLabel={
+        asHost() ? <Trans>Ending space…</Trans> : <Trans>Leaving…</Trans>
+      }
+      successTitle={
+        asHost() ? (
+          <Trans>Space ended</Trans>
+        ) : (
+          <Trans>You left the space</Trans>
+        )
+      }
+      successBody={
+        asHost() ? (
+          <Trans>Everyone can see that the space has ended.</Trans>
+        ) : (
+          <Trans>
+            You can rejoin from the invite link if the space is still live.
+          </Trans>
+        )
+      }
+      errorTitle={
+        asHost() ? (
+          <Trans>Couldn't end space</Trans>
+        ) : (
+          <Trans>Couldn't leave space</Trans>
+        )
+      }
+      stackId="leave-space-confirm"
+      submitDataSet={{ testid: Handles.spaceLeaveConfirm }}
+      dismissDataSet={{ testid: Handles.spaceMutationDismiss }}
+    />
   );
 }

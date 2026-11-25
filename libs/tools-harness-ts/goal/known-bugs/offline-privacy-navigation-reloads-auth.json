@@ -1,0 +1,4 @@
+{
+  "summary": "Opening privacy on a recently signed-in offline device reloaded the entire app and discarded its in-memory proof before the scenario reached confirmation. Signed-in users now follow the privacy link in Account.",
+  "regressionTest": "specs/profile/account-deletion.feature"
+}

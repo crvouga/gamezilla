@@ -1,7 +1,11 @@
 import type { GameRegistration } from '@libs/game-session-shared-ts/game-definition';
 import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
 import { RecoverSimulation } from '@libs/game-session-shared-ts/simulation-recovery';
-import { ensureActor, scenarioAction } from '@libs/harness-ts/actor-ui';
+import {
+  ensureActor,
+  pollUntil,
+  scenarioAction,
+} from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { productExtra } from '@libs/harness-ts/harness';
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
@@ -89,14 +93,26 @@ type Recovery = Parameters<typeof RecoverSimulation.is>[0];
 /** A saved live game holding `arrange(position)`, or null when `arrange` passes it by. */
 function rearranged(
   payload: Recovery,
-  arrange: (position: string) => string | null
+  arrange: (position: string) => string | null,
+  closedDevice = false
 ): Recovery | null {
   if (!RecoverSimulation.is(payload)) return null;
   const recovery = payload.payload;
   const position = arrange(recovery.checkpoint.position);
   if (position === null) return null;
+  const anchor = parsed(recovery.source);
+  if (anchor === null || typeof anchor !== 'object') return null;
+  // A clean device shutdown commits the projected frame to the durable room.
+  const source = closedDevice
+    ? JSON.stringify({
+        ...anchor,
+        position: recovery.checkpoint.position,
+        execution: recovery.checkpoint.execution,
+      })
+    : recovery.source;
   return RecoverSimulation({
     ...recovery,
+    source,
     checkpoint: { ...recovery.checkpoint, position },
   });
 }
@@ -122,7 +138,7 @@ function rewriteDeviceRecord(
       readonly payload?: Recovery;
     } | null;
     if (checkpoint?.payload === undefined) continue;
-    const payload = rearranged(checkpoint.payload, arrange);
+    const payload = rearranged(checkpoint.payload, arrange, true);
     if (payload === null) continue;
     const next = { ...checkpoint, payload };
     return JSON.stringify({
@@ -173,6 +189,8 @@ export const restoreSharedSimulationAt = scenarioAction({
   act: (s, position: string) => restoreSharedSimulation(s, () => position),
 });
 
+const deviceArrangements = new WeakMap<ProductHarness, Map<string, string>>();
+
 /**
  * The same fixture for a game running on one device (practice against
  * bots): the app is closed, the game it saved holds `arrange(position)`,
@@ -187,10 +205,24 @@ export async function restoreDeviceSimulation(
   // regression: stack-saved-game-rewrite
   if (productExtra(s).http.kind === 'stack')
     throw hostLimit("this host cannot rewrite a real browser's saved game");
-  await s.session.waitForIdle();
-  await s.runtime.restartActor(device.actor);
   const prefix = `${s.harness.clientNamespace(device.actor)}.`;
   const storage = globalThis.localStorage;
+  const arranged = deviceArrangements.get(s) ?? new Map<string, string>();
+  deviceArrangements.set(s, arranged);
+  for (const [key, value] of arranged) {
+    if (!key.startsWith(prefix)) continue;
+    await pollUntil(
+      s,
+      async () => (storage.getItem(key) !== value ? true : null),
+      {
+        maxMs: 2000,
+        stepMs: 10,
+        description: 'a fresh device checkpoint after recovery',
+      }
+    );
+  }
+  await s.session.waitForIdle();
+  await s.runtime.restartActor(device.actor);
   let rewritten = false;
   for (let index = 0; index < storage.length; index++) {
     const key = storage.key(index);
@@ -199,6 +231,7 @@ export async function restoreDeviceSimulation(
     const next = rewriteDeviceRecord(storage.getItem(key) ?? '', arrange);
     if (next === null) continue;
     storage.setItem(key, next);
+    arranged.set(key, next);
     rewritten = true;
   }
   if (!rewritten)

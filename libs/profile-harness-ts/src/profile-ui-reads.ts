@@ -1,6 +1,6 @@
-import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { deviceMemberIdOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { standInName, usernameText } from '@libs/moderation-shared-ts/display';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -215,10 +215,7 @@ export async function profileIdOf(
   s: ProductHarness,
   actorId: string
 ): Promise<string | null> {
-  const id = (await s.harness.client(actorId)).secureStorage.getValue(
-    LAST_LOCAL_ACCOUNT_ID_KEY
-  );
-  return typeof id === 'string' && id.length > 0 ? id : null;
+  return (await deviceMemberIdOf(s, actorId)) || null;
 }
 
 /**

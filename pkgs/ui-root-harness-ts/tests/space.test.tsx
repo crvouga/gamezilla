@@ -27,7 +27,7 @@ import type {
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
-import { fireEvent, screen } from '@solidjs/testing-library';
+import { fireEvent, screen, within } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
 /** A variable, not a literal: a literal `role` reads as an ARIA role to jsx-a11y. */
@@ -325,6 +325,7 @@ describe('SpacePeopleRow', () => {
 });
 
 describe('SpaceActionBar', () => {
+  // regression: space-waiting-status-with-page-announcer
   test('one to three actions, or one waiting line', () => {
     const first = renderUi(() => (
       <SpaceActionBar
@@ -336,7 +337,10 @@ describe('SpaceActionBar', () => {
     ).toHaveLength(3);
     first.unmount();
     renderUi(() => <SpaceActionBar actions={[]} waiting="bob is thinking" />);
-    expect(screen.getByRole('status').textContent).toBe('bob is thinking');
+    const actions = screen.getByRole('group', { name: 'Game actions' });
+    expect(within(actions).getByRole('status')).toHaveTextContent(
+      'bob is thinking'
+    );
   });
 });
 

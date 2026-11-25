@@ -5,7 +5,7 @@
  */
 
 import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
-import type { ProductHarness } from '@libs/harness-ts/harness';
+import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { billingButtonEnabled } from './billing-reads';
 
@@ -51,6 +51,33 @@ export const TEST_CARD = {
   zip: '94107',
 } as const;
 
+/** Full-page checkout replaces the actor's document on a native browser. */
+async function waitForBillingOrigin(
+  s: ProductHarness,
+  actorId: string,
+  origin: string
+) {
+  const browser = s.actors.get(actorId)?.browser;
+  await browser?.waitForNavigation(
+    (href) => URL.canParse(href) && new URL(href).origin === origin,
+    BILLING_WAIT_MS
+  );
+}
+
+/** Wait for the provider to hand the person back to the billing screen. */
+export async function backOnBilling(s: ProductHarness, actorId: string) {
+  const host = productExtra(s).ui;
+  if (host.kind === 'bun-webview')
+    await waitForBillingOrigin(s, actorId, host.webOrigin);
+  const ui = await actorUi(s, actorId);
+  await ui
+    .get(STRIPE_PAGE.checkout)
+    .expect.hidden({ timeoutMs: BILLING_WAIT_MS });
+  await ui
+    .get(Handles.billingScreen)
+    .expect.visible({ timeoutMs: BILLING_WAIT_MS });
+}
+
 /**
  * Press one of the billing screen's own buttons once it accepts a press. Each
  * stays disabled on its "Opening…" face for a moment after it opened the
@@ -76,6 +103,9 @@ export async function pressBillingButton(
       which === 'subscribe' ? Handles.billingSubscribe : Handles.billingManage
     )
     .tap({ timeoutMs: BILLING_WAIT_MS });
+  const http = productExtra(s).http;
+  if (http.kind === 'stack')
+    await waitForBillingOrigin(s, actorId, http.billingOrigin);
 }
 
 /** On the provider's open checkout: type the working card and pay. */

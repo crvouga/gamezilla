@@ -6,7 +6,7 @@ import { browserProcessChannel } from './browser-process-channel';
 import { type BrowserCall, remoteBrowserDriver } from './remote-browser-driver';
 
 export type BrowserDeviceOptions = {
-  readonly webOrigin: string;
+  readonly initialUrl: string;
   readonly actorId?: string;
   readonly dataStore: { readonly directory: string };
 };
@@ -39,6 +39,13 @@ async function openBrowserTab<Open>(
     console: channel.consoleLines,
     network: channel.networkLines,
     view: {
+      loadedUrl: () =>
+        rpc<string>({
+          target: 'view',
+          path: [],
+          method: 'loadedUrl',
+          args: [],
+        }),
       navigate: (url: string) =>
         rpc<void>({
           target: 'view',

@@ -1,0 +1,4 @@
+{
+  "summary": "Saving a device checkpoint timed out with sixteen queued mutations. Capturing the durable queue preserves the device's pending work even when it cannot currently upload.",
+  "regressionTest": "libs/harness-ts/tests/client-checkpoint.test.ts"
+}

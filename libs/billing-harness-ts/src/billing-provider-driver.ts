@@ -11,7 +11,8 @@ import type {
   HarnessBillingProvider,
   HarnessBillingProviders,
 } from '@libs/harness-ts/billing';
-import type { ProductHarness } from '@libs/harness-ts/harness';
+import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
+import { HARNESS_FIRST_BILLING_PROVIDER } from '@libs/sub-shared-ts/harness-constants';
 import type Stripe from 'stripe';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
@@ -56,6 +57,16 @@ export function billingProviders(s: ProductHarness): HarnessBillingProviders {
   return providers;
 }
 
+/** Connect readings and stimuli to the Stripe account which served checkout. */
+export function membershipStripe(
+  s: ProductHarness,
+  provider: HarnessBillingProvider
+): Stripe {
+  return provider.id === HARNESS_FIRST_BILLING_PROVIDER
+    ? (productExtra(s).stackStripe ?? provider.stripe)
+    : provider.stripe;
+}
+
 /** The customer the app linked to this account at `provider`, if any. */
 export async function customerAt(
   s: ProductHarness,
@@ -80,7 +91,9 @@ export async function membershipProviderOf(
   for (const provider of providers.all()) {
     const customer = await customerAt(s, accountId, provider);
     if (customer === null) continue;
-    const latest = (await providerSubscriptions(customer, provider))[0];
+    const latest = (
+      await providerSubscriptions(customer, membershipStripe(s, provider))
+    )[0];
     if (latest !== undefined && !ENDED_STATUSES.has(latest.status)) {
       return provider;
     }
@@ -111,9 +124,9 @@ export async function customerOf(
  */
 export async function providerSubscriptions(
   customer: string,
-  provider: HarnessBillingProvider
+  stripe: Stripe
 ): Promise<readonly Stripe.Subscription[]> {
-  const list = await provider.stripe.subscriptions.list({
+  const list = await stripe.subscriptions.list({
     customer,
     status: 'all',
     limit: 100,
@@ -137,7 +150,10 @@ export async function subscriptionsEverywhere(
     if (customer === null) continue;
     found.push({
       provider,
-      subscriptions: await providerSubscriptions(customer, provider),
+      subscriptions: await providerSubscriptions(
+        customer,
+        membershipStripe(s, provider)
+      ),
     });
   }
   return found;
@@ -151,9 +167,7 @@ type At = {
 };
 
 async function latestSubscription(at: At): Promise<Stripe.Subscription> {
-  const subscription = (
-    await providerSubscriptions(at.customer, at.provider)
-  )[0];
+  const subscription = (await providerSubscriptions(at.customer, at.stripe))[0];
   if (subscription === undefined) throw new Error('billing: no subscription');
   return subscription;
 }
@@ -183,16 +197,36 @@ async function useCard(at: At, card: string): Promise<void> {
 
 /** Run the provider's clock — not the app's — to `ms`, and what fell due. */
 async function runProviderClockTo(at: At, ms: number): Promise<void> {
+  if (at.stripe !== at.provider.stripe) {
+    const subscription = await latestSubscription(at);
+    const clock = subscription.test_clock;
+    if (clock === null) {
+      throw new Error(
+        'Advancing time on a shared Stripe account requires a customer test clock'
+      );
+    }
+    await at.stripe.testHelpers.testClocks.advance(
+      typeof clock === 'string' ? clock : clock.id,
+      {
+        frozen_time: Math.floor(ms / 1000),
+      }
+    );
+    return;
+  }
   const ahead = ms - at.provider.now();
   if (ahead > 0) await at.provider.advanceClock(ahead);
 }
 
 /** Past the end of the current period: the renewal (or the ending) runs. */
 async function runOutPeriodAtProvider(at: At): Promise<void> {
-  await runProviderClockTo(
-    at,
-    periodEndMs(await latestSubscription(at)) + 1000
-  );
+  const subscription = await latestSubscription(at);
+  if (at.stripe !== at.provider.stripe && subscription.status === 'trialing') {
+    // End this customer's trial on the shared provider. Advancing its clock
+    // would renew every other scenario's subscriptions too.
+    await at.stripe.subscriptions.update(subscription.id, { trial_end: 'now' });
+    return;
+  }
+  await runProviderClockTo(at, periodEndMs(subscription) + 1000);
 }
 
 type Step = (at: At) => Promise<void>;
@@ -272,7 +306,7 @@ async function atMembershipProvider(
   const provider = await membershipProviderOf(s, accountId);
   return {
     provider,
-    stripe: provider.stripe,
+    stripe: membershipStripe(s, provider),
     customer: await customerOf(s, accountId, provider),
   };
 }

@@ -39,6 +39,7 @@ function screenHarness(
     if (handle === Handles.spaceChromeOverflow && !people) open = true;
   };
   return {
+    session: { scheduler: { virtual: true } },
     actors: new Map([
       [
         'bob',

@@ -2,6 +2,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   customerAt,
   membershipProviderOf,
+  membershipStripe,
   providerSubscriptions,
 } from './billing-provider-driver';
 
@@ -16,16 +17,17 @@ export async function paymentFacts(
   const provider = await membershipProviderOf(s, accountId);
   const customerId = await customerAt(s, accountId, provider);
   if (customerId === null) return { credit: 0, cardDeclines: false };
-  const customer = await provider.stripe.customers.retrieve(customerId);
+  const stripe = membershipStripe(s, provider);
+  const customer = await stripe.customers.retrieve(customerId);
   if (customer.deleted)
     throw new Error('Membership refers to a deleted customer');
-  const [subscription] = await providerSubscriptions(customerId, provider);
+  const [subscription] = await providerSubscriptions(customerId, stripe);
   const method =
     subscription?.default_payment_method ??
     customer.invoice_settings.default_payment_method;
   const paymentMethod =
     typeof method === 'string'
-      ? await provider.stripe.paymentMethods.retrieve(method)
+      ? await stripe.paymentMethods.retrieve(method)
       : method;
   // The failing test card used by the lifecycle stimulus ends in 0341.
   return {

@@ -1,12 +1,14 @@
 import { expect, test } from 'bun:test';
 import { ContentConnectionStatus } from '@libs/game-puzzle-client-ts/content-connection-status';
+import { ContentConnectionStatusView } from '@libs/game-puzzle-client-ts/content-connection-status-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { SyncEngineProvider } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import { INITIAL_SYNC_STATUS } from '@pkgs/sync-engine-client-ts/sync-status';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
-import { flush } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 
 test('a late failed request does not insert another panel above offline authoring', () => {
   // regression: offline-authoring-late-error-layout-shift
@@ -31,7 +33,9 @@ test('a late failed request does not insert another panel above offline authorin
   const view = renderWithI18n(() => (
     <ThemeProvider colorScheme="light">
       <SyncEngineProvider value={engine}>
-        <ContentConnectionStatus loading={false} />
+        <ContentConnectionStatus loading={false}>
+          {null}
+        </ContentConnectionStatus>
       </SyncEngineProvider>
     </ThemeProvider>
   ));
@@ -55,4 +59,44 @@ test('a late failed request does not insert another panel above offline authorin
     view.getByText('Changes have not reached your other devices')
   ).toBeInTheDocument();
   expect(view.getByText('Failed to fetch')).toBeInTheDocument();
+});
+
+// regression: sokoban-reconnect-shifts-pack-overview
+test('reconnecting after the first Sokoban puzzle keeps Pack overview ahead of changing notices', () => {
+  const [online, setOnline] = createSignal(false);
+  const [loading, setLoading] = createSignal(false);
+  const view = renderWithI18n(() => (
+    <ThemeProvider
+      colorScheme="light"
+      fixedLayout={{ width: 390, height: 757 }}
+    >
+      <ContentConnectionStatusView
+        loading={loading()}
+        online={online()}
+        lastError={null}
+        onReconnect={() => {
+          setOnline(true);
+          setLoading(true);
+        }}
+      >
+        <Button
+          title="Pack overview"
+          dataSet={{ testid: 'content-return-pack' }}
+        />
+      </ContentConnectionStatusView>
+    </ThemeProvider>
+  ));
+  const overview = view.getByTestId('content-return-pack');
+  const followsOverview = (notice: HTMLElement) =>
+    overview.compareDocumentPosition(notice) & Node.DOCUMENT_POSITION_FOLLOWING;
+  expect(followsOverview(view.getByTestId('content-offline'))).toBeTruthy();
+  fireEvent.click(view.getByRole('button', { name: 'Reconnect' }));
+  flush();
+  expect(
+    followsOverview(view.getByText('Loading requested puzzles…'))
+  ).toBeTruthy();
+  setLoading(false);
+  flush();
+  expect(view.queryByText('Loading requested puzzles…')).toBeNull();
+  expect(view.getByTestId('content-return-pack')).toBe(overview);
 });

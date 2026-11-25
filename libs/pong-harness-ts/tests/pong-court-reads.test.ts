@@ -1,11 +1,16 @@
 import { expect, test } from 'bun:test';
-import { holdPaddleUnlessFinished } from '@libs/pong-harness-ts/pong-local-actions';
-import { readPongCourt } from '@libs/pong-harness-ts/pong-view';
+import {
+  establishPongLocalStage,
+  holdPaddleUnlessFinished,
+} from '@libs/pong-harness-ts/pong-local-actions';
+import { pongView, readPongCourt } from '@libs/pong-harness-ts/pong-view';
 import type {
   Driver,
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
+
+import { openHarness } from './open-pong-harness';
 
 /** A court as a reopened browser shows it: absent until the board draws. */
 function reopenedCourt(): Driver {
@@ -79,3 +84,10 @@ test('holding a paddle that fails while the game goes on still fails', async () 
     holdPaddleUnlessFinished(takenAwayControl(), '0', async () => false)
   ).rejects.toThrow('custom-game-board-white-control');
 });
+
+// regression: pong-short-match-ends-while-joining
+test('a local bot match starts with the normal target for the spectator join and reopen trace', async () => {
+  await using s = await openHarness({ seed: 0x67932 });
+  await s.apply(establishPongLocalStage, { opponent: 'bot', stage: 'playing' });
+  expect((await s.read(pongView)).targetScore).toBe(11);
+}, 60_000);
