@@ -87,6 +87,28 @@
   width: 100%;
   height: auto;
 }
+.glass {
+  fill: none;
+  pointer-events: none;
+  stroke: var(--ui-color-game-pong-surface);
+}
+
+.rail,
+.service {
+  stroke-width: 2;
+}
+
+.net {
+  stroke-width: 3;
+  stroke-dasharray: 4 8;
+}
+
+.ticks {
+  stroke: var(--ui-color-game-pong-muted);
+  stroke-width: 2;
+  opacity: 0.55;
+}
+
 .paddle,
 .ball {
   fill: currentColor;
