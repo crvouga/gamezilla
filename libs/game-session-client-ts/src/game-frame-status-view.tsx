@@ -197,43 +197,62 @@ export function FrameConnectionNotice(props: {
 }): JSX.Element {
   return (
     <Show when={props.connection !== 'online'}>
-      <Notice
-        tone="warning"
-        icon={WifiOffIcon}
-        dataSet={{ testid: 'custom-game-connection-needed' }}
-      >
-        <Text variant="inherit" role="status">
-          <Switch
-            fallback={
-              <Trans>
-                You're offline. Moves wait for the connection; anything else you
-                choose now is sent when it returns.
-              </Trans>
-            }
+      {/* After the game it is one line over the commands it holds, in the
+          Game over card; during the game, an alert. */}
+      <Show
+        when={props.afterGame !== true}
+        fallback={
+          <P
+            variant="caption"
+            tone="warning"
+            role="status"
+            lines={2}
+            testId="custom-game-connection-needed"
           >
-            <Match when={props.afterGame === true}>
-              <Trans>
-                You're offline. Rematch or New game is sent when the connection
-                returns.
-              </Trans>
-            </Match>
-            <Match when={props.beforeGame === true}>
-              <Trans>
-                You're offline. A game you start now begins when the connection
-                returns.
-              </Trans>
-            </Match>
-            <Match when={props.connection === 'waiting'}>
-              <Trans>
-                Your move will be played when the connection returns.
-              </Trans>
-            </Match>
-            <Match when={props.connection === 'offline-local'}>
-              <Trans>You're offline. Your local game can continue.</Trans>
-            </Match>
-          </Switch>
-        </Text>
-      </Notice>
+            <Trans>
+              Offline. Rematch or New game is sent when you're back.
+            </Trans>
+          </P>
+        }
+      >
+        <Notice
+          tone="warning"
+          icon={WifiOffIcon}
+          dataSet={{ testid: 'custom-game-connection-needed' }}
+        >
+          <Text variant="inherit" role="status">
+            <Switch
+              fallback={
+                <Trans>
+                  You're offline. Moves wait for the connection; anything else
+                  you choose now is sent when it returns.
+                </Trans>
+              }
+            >
+              <Match when={props.afterGame === true}>
+                <Trans>
+                  You're offline. Rematch or New game is sent when the
+                  connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.beforeGame === true}>
+                <Trans>
+                  You're offline. A game you start now begins when the
+                  connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.connection === 'waiting'}>
+                <Trans>
+                  Your move will be played when the connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.connection === 'offline-local'}>
+                <Trans>You're offline. Your local game can continue.</Trans>
+              </Match>
+            </Switch>
+          </Text>
+        </Notice>
+      </Show>
     </Show>
   );
 }

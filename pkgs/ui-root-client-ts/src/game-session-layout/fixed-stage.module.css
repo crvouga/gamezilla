@@ -139,7 +139,7 @@
     align-items: center;
     box-sizing: border-box;
     width: 100%;
-    padding-inline: var(--ui-space-3);
+    padding: var(--ui-space-1) var(--ui-space-3);
     text-align: center;
   }
   /* The bar's height is its commands' row plus its padding, whether the
