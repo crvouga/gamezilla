@@ -66,13 +66,17 @@ export async function lightCyclesRound(s: ProductHarness, actor: string) {
   await bringToFront(s, actor);
   const board = await lightCyclesBoardId(s, actor);
   if (!board) return null;
-  const ui = await actorUi(s, actor);
+  return readRound(await actorUi(s, actor), board);
+}
+
+export async function readRound(
+  ui: { get(id: string): { attribute(name: string): Promise<string | null> } },
+  board: string
+) {
   const shown = ui.get(`${board}-round`);
-  const [round, phase, dimmed] = await Promise.all([
-    shown.attribute('data-round'),
-    shown.attribute('data-phase'),
-    ui.get(`${board}-arena`).attribute('data-dimmed'),
-  ]);
+  const round = await shown.attribute('data-round');
+  const phase = await shown.attribute('data-phase');
+  const dimmed = await ui.get(`${board}-arena`).attribute('data-dimmed');
   return { round: Number(round), phase, live: dimmed !== 'true' };
 }
 
