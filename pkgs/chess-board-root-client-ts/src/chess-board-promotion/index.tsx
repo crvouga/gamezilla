@@ -151,7 +151,7 @@ function PromotionStack(props: {
   });
   return (
     <div
-      class="box absolute flex-col max-h-full overflow-y-auto rounded-md border border-outline shadow-float"
+      class="box absolute flex-col max-h-full overflow-y-auto rounded-md border border-outline"
       role="presentation"
       style={props.layout.style}
       onClick={(e) => e.stopPropagation()}
