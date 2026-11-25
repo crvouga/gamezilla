@@ -6,6 +6,12 @@ import {
 import { gestureMetrics, observeDragFrames } from './metrics';
 import { center, input } from './native';
 
+// Recording options select the Playwright worker; both native viewports share its canvas.
+test.use({
+  video: { mode: 'on', size: { width: 1440, height: 1024 } },
+  trace: 'on',
+});
+
 for (const phone of [true, false]) {
   const viewport = phone
     ? { width: 390, height: 844 }
@@ -14,8 +20,6 @@ for (const phone of [true, false]) {
     test.use({
       viewport,
       hasTouch: phone,
-      video: { mode: 'on', size: viewport },
-      trace: 'on',
       contextOptions: { reducedMotion: 'no-preference' },
     });
     test('quoridor gestures: inspect, drag a wall preview, cancel and move a pawn', async ({
