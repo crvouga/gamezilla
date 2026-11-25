@@ -18,8 +18,8 @@ export function NumberlinkPlacementTarget(props: {
       dataSet={{ testid: 'numberlink-placement-target' }}
     >
       <Trans>
-        Selected: pair {props.pair.label} at {coordinate()}. The dashed outline
-        marks the endpoint to move.
+        Pair {props.pair.label} at {coordinate()}. Choose an empty cell to move
+        it.
       </Trans>
     </P>
   );

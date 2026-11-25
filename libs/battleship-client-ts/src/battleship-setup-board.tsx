@@ -86,6 +86,34 @@ function SetupCommands(props: {
   );
 }
 
+/** The placement's next step, or why the last one was refused. */
+function SetupFeedback(props: {
+  setup: SetupController;
+  testId: string;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.setup.refusal()}
+      fallback={
+        <P variant="caption" testId={`${props.testId}-guidance`}>
+          {props.setup.instruction()}
+        </P>
+      }
+    >
+      {(reason) => (
+        <P
+          variant="caption"
+          tone="destructive"
+          role="alert"
+          testId={`${props.testId}-refusal`}
+        >
+          {reason()} {t`Choose another bow cell or rotate, then try again.`}
+        </P>
+      )}
+    </Show>
+  );
+}
+
 /**
  * Where a side arranges its hidden fleet: choose a ship, turn it, and press
  * the cell for its bow. A placement off the board or over another ship is
@@ -113,33 +141,10 @@ export function BattleshipSetupBoard(
   );
   return (
     <StackVertical gap="md" padding="md" align="center" testId={props.testId}>
-      {/* Locked, the notice below says it once; no second ready line. */}
-      <Show when={!props.locked}>
-        <P
-          id={statusId}
-          variant="label"
-          role="status"
-          aria-live="polite"
-          testId={`${props.testId}-progress`}
-        >
-          {setup.status()}
-        </P>
-      </Show>
       <Show when={props.locked}>
         <Notice dataSet={{ testid: `${props.testId}-locked` }}>
           {t`Your fleet is locked in and can no longer change.`}
         </Notice>
-      </Show>
-      <Show when={!enlarged() && !props.locked}>
-        <GameChoiceGrid
-          label={t`Ships`}
-          choices={shipChoices(setup.draft(), props.testId)}
-          value={setup.selected() ?? ''}
-          onChange={(value) => {
-            if (isShipId(value)) setup.choose(value);
-          }}
-          disabled={props.locked}
-        />
       </Show>
       <SetupPrecision
         setup={setup}
@@ -147,6 +152,31 @@ export function BattleshipSetupBoard(
         testId={props.testId}
         open={enlarged()}
         onOpenChange={setEnlarged}
+        progress={
+          // Locked, the notice above says it once; no second ready line.
+          <Show when={!props.locked}>
+            <P
+              id={statusId}
+              variant="label"
+              role="status"
+              aria-live="polite"
+              testId={`${props.testId}-progress`}
+            >
+              {setup.status()}
+            </P>
+          </Show>
+        }
+        choices={
+          <GameChoiceGrid
+            label={t`Ships`}
+            choices={shipChoices(setup.draft(), props.testId)}
+            value={setup.selected() ?? ''}
+            onChange={(value) => {
+              if (isShipId(value)) setup.choose(value);
+            }}
+            disabled={props.locked}
+          />
+        }
         commands={
           <Show when={!props.locked}>
             <SetupCommands
@@ -158,26 +188,7 @@ export function BattleshipSetupBoard(
         }
         feedback={
           <Show when={!props.locked}>
-            <Show
-              when={setup.refusal()}
-              fallback={
-                <P variant="caption" testId={`${props.testId}-guidance`}>
-                  {setup.instruction()}
-                </P>
-              }
-            >
-              {(reason) => (
-                <P
-                  variant="caption"
-                  tone="destructive"
-                  role="alert"
-                  testId={`${props.testId}-refusal`}
-                >
-                  {reason()}{' '}
-                  {t`Choose another bow cell or rotate, then try again.`}
-                </P>
-              )}
-            </Show>
+            <SetupFeedback setup={setup} testId={props.testId} />
           </Show>
         }
         overview={

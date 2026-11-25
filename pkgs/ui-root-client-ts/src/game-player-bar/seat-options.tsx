@@ -8,7 +8,7 @@ import { type Accessor, createSignal, createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ChevronDownIcon } from '../icons';
 import { createScreenSlot } from '../screen-slot';
-import seat from './seat-options.module.css';
+import seat from './game-player-bar.module.css';
 
 /** A seat's secondary choices and whether they are open. */
 export type SeatOptionsState = {

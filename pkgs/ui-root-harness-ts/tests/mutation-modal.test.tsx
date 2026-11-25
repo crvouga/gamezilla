@@ -10,6 +10,7 @@ import {
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
+import { Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 function mount(args: {
@@ -85,7 +86,11 @@ describe('MutationModal', () => {
     r.clock.advance(1);
     const success = await screen.findByTestId('success');
     expect(success).toHaveAttribute('role', 'status');
-    expect(success).toHaveTextContent('Space ended');
+    // Done, the surface is titled with the outcome, not the question.
+    expect(
+      screen.getByRole('dialog', { name: 'Space ended' })
+    ).toBeInTheDocument();
+    expect(screen.queryByRole('dialog', { name: 'End space?' })).toBeNull();
     expect(success).toHaveTextContent('Everyone is out.');
     expect(phaseBand).toHaveAttribute('data-phase', 'success');
 
@@ -156,6 +161,51 @@ describe('MutationModal', () => {
     expect(screen.getByTestId('field')).toBeInTheDocument();
     expect(screen.queryByText('ignored')).toBeNull();
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
+  });
+
+  // regression: r66 rename-at-confirm-width — a form took a confirmation's
+  // inset on a phone, squeezing its field; only a pure confirm stays narrow.
+  test('on a phone a form takes the full dialog width and a confirm stays inset', () => {
+    const widths: Record<string, string | null> = {};
+    for (const form of [true, false]) {
+      const { unmount } = renderUi(
+        () => (
+          <SurfaceStackProvider>
+            <Show
+              when={form}
+              fallback={
+                <MutationModal
+                  visible
+                  onClose={() => {}}
+                  title="End space?"
+                  message="Everyone leaves."
+                  submitLabel="End space"
+                  operation={() => Promise.resolve()}
+                  successTitle="Ended"
+                />
+              }
+            >
+              <MutationModal
+                visible
+                onClose={() => {}}
+                title="Rename"
+                submitLabel="Save"
+                operation={() => Promise.resolve()}
+                successTitle="Saved"
+              >
+                <span>field</span>
+              </MutationModal>
+            </Show>
+          </SurfaceStackProvider>
+        ),
+        { width: 390, height: 844 }
+      );
+      widths[form ? 'form' : 'confirm'] = mustQuery(
+        '[data-component="ModalContent"]'
+      ).getAttribute('data-size');
+      unmount();
+    }
+    expect(widths).toEqual({ form: 'fullWidth', confirm: 'small' });
   });
 
   test('re-exports the shared lifecycle and resolves surface close per phase', () => {

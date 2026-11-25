@@ -1,0 +1,4 @@
+{
+  "summary": "Offline search scenarios missed the connection guidance on the matchmaking home and open search.",
+  "regressionTest": "specs/games/finding-an-opponent.feature"
+}

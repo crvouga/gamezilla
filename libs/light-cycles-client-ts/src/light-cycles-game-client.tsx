@@ -8,8 +8,19 @@ import {
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LightCyclesBoard } from './light-cycles-board';
+import { decodeLightCycles } from './light-cycles-board-view';
 import { lightCyclesFrame } from './light-cycles-frame';
 import { riderName } from './light-cycles-view';
+
+/** The round limit reached with the lead shared: the rules' only draw. */
+function sharedLead(position: string): string | undefined {
+  const state = decodeLightCycles(position);
+  const result = state?.result;
+  if (state === null || result?.winner !== 'draw') return undefined;
+  return result.reason === 'round limit'
+    ? t`All ${state.round} rounds were played, and the most round wins were shared.`
+    : undefined;
+}
 
 const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
   name,
@@ -25,6 +36,7 @@ const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
       : reason === 'round limit'
         ? t`The 15th round was played; the rider with the most round wins takes the game.`
         : undefined,
+  rulesDrawDescription: sharedLead,
   endingLabel: (reason: string) =>
     reason === 'target score'
       ? t`target score`

@@ -176,7 +176,7 @@ each of its states, opened at phone and desktop width in both themes.
 | | `clock` | Form | The clock, and swapping sides |
 | | `private-setup` | Stage | The person's own private setup, and getting ready with it |
 | `active` | `stage` | Stage | Play the live position |
-| | `commands` | Choice | Offer a draw, resign, cancel, look back |
+| | `commands` | Choice | Offer draw, resign, cancel, look back |
 | | `moves` | Stage | Step through the moves played |
 | `completed`, `cancelled` | `result` | Result | The outcome, the standings, what next |
 | | `moves` | Stage | Step through the moves played |
@@ -214,9 +214,9 @@ places with `@libs/game-session-harness-ts/custom-game-places`.
 | | `guide` | Hub | How finding an opponent works |
 | `searching` | `searching` | Result | Waiting, and stopping |
 | `setup` | `private-setup` | Stage | The person's own private setup before the first move |
-| | `commands` | Choice | Offer a draw, abort, flip the board |
+| | `commands` | Choice | Offer draw, abort, flip the board |
 | `playing` | `stage` | Stage | Play the live position |
-| | `commands` | Choice | Offer a draw, resign, abort, flip the board |
+| | `commands` | Choice | Offer draw, resign, abort, flip the board |
 | | `moves` | Stage | Step through the moves played |
 | `finished` | `result` | Result | The outcome and rating change, rematch or a new opponent |
 | | `moves` | Stage | Step through the moves; copy the game record |

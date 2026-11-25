@@ -27,48 +27,70 @@
   text-overflow: ellipsis;
 }
 
-/* Participant names and counters stay readable within each chip. */
+/* Participant chips share the row; each name and counter is one line,
+   cut short at the chip's edge (the full name is its title), so every
+   chip, and the band of seats over the board, is one height at every
+   table. A phone's row shares its width evenly, so every chip keeps room
+   for its figure; beside a wide board the chips share it by what they
+   hold, so one with a figure and a status (`Points 12`, `Chosen`) takes
+   the room a bare `Out` leaves, and every word it holds reads whole. */
 .participants {
   --game-player-facts-row-gap: 0;
+  container: game-participants / inline-size;
 }
 .participants > [role="list"] {
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
   gap: var(--ui-space-1);
+}
+.participants > [role="list"] > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+@container game-column (min-width: 880px) {
+  .participants > [role="list"] > * {
+    flex-basis: auto;
+  }
+}
+/* Four or more beside a board too narrow for them in one row (a Light
+   Cycles arena) stand in rows of two, every seat the same weight and
+   every name, figure and status whole; a wide board keeps them in one. */
+@container game-participants (max-width: 36rem) {
+  .participants > [role="list"]:has(> :nth-child(4)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+  }
+}
+/* Three in one row need about 29rem for every figure and `Out` whole; a
+   narrower board (a Light Cycles arena beside the rail) stands them in
+   rows of two too, as on a phone. */
+@container game-participants (max-width: 30rem) {
+  .participants > [role="list"]:has(> :nth-child(3)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+  }
 }
 .participants [data-active] :global(.textLabel),
 .participants [data-component="GameSeatStat"] {
-  white-space: normal;
-  overflow-wrap: anywhere;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+/* On a phone: two chips share one row, three or more stand in rows of
+   two, every seat in view (`GamePlayerRail`), the avatar left to the
+   swatch. */
 @container game-column (max-width: 879px) {
-  .participants > [role="list"]:has(> :nth-child(4):last-child) {
+  .participants > [role="list"]:has(> :nth-child(3)) {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .participants
-    > [role="list"]:has(> :nth-child(4):last-child)
-    :global(.textLabel),
-  .participants
-    > [role="list"]:has(> :nth-child(4):last-child)
-    [data-component="GameSeatStat"] {
-    overflow-wrap: normal;
+    grid-auto-flow: row;
   }
   .participants [data-active] > :is(div, button) {
     padding-inline: var(--ui-space-2);
-  }
-  /* Four seats: room above and below each chip's two lines. */
-  .participants
-    > [role="list"]:has(> :nth-child(4):last-child)
-    [data-active]
-    > :is(div, button) {
-    padding-block: var(--ui-space-1);
-  }
-  .participants
-    > [role="list"]:has(> :nth-child(4):last-child)
-    [data-active]
-    > :is(div, button)
-    > span:not([aria-hidden]) {
-    row-gap: 0;
   }
   .participants [data-active] > :is(div, button) > span[aria-hidden="true"] {
     display: none;
@@ -85,21 +107,17 @@
   }
   /* During play the window's height bounds the board too: the window less
      the frame around it (its title and the seats above, about 150px, and
-     the own seat with its actions and a watcher's notice under it, about
-     230px) and the host's own bar, so all of them show in the first view.
-     A game's opt-in square fit only narrows this further. */
+     the own seat under it, about 150px; the commands, the status line and
+     any notice sit in the rail beside) and the host's own bar, so all of
+     them show in the first view. A game's opt-in square fit only narrows
+     this further. */
   .session[data-board-focus="true"]:is(
     [data-phase="active"],
     [data-game-fixed="true"]
-  ) > [data-has-stage="true"][data-has-aside="true"],
-  /* A fixed stage's notices lie over the board's top, outside the grid:
-     they take the same measure, so they never spill over the rail. */
-  .session[data-board-focus="true"][data-game-fixed="true"]:has(
-    > [data-has-stage="true"][data-has-aside="true"]
-  ) > [data-component="GameStageNotices"] {
+  ) > [data-has-stage="true"][data-has-aside="true"] {
     --game-board-measure: clamp(
       320px,
-      calc(100dvh - 380px - var(--ui-host-chrome-block-size, 0px)),
+      calc(100dvh - 300px - var(--ui-host-chrome-block-size, 0px)),
       var(--ui-max-width-prose)
     );
     /* The rail takes what the bounded board leaves, so it sits beside the
@@ -130,6 +148,31 @@
 
 .session[data-board-focus="true"] {
   gap: var(--ui-space-3);
+}
+
+/* Beside its rail a game holds its board still: the board's box takes the
+   window's height left under its top (`--game-board-viewport-room`,
+   measured by `GameBoardStage` from what lies above the box, never from
+   the board), the same in every state of the game and at every table.
+   The board sits at the box's top and scrolls inside it when taller. No
+   page padding under it to scroll for. */
+@container game-column (min-width: 880px) {
+  .session[data-board-focus="true"] {
+    padding-bottom: 0;
+  }
+  .session[data-board-focus="true"]
+    [data-game-board-stage]:not([data-preview="true"])
+    > [data-game-board] {
+    height: var(--game-board-viewport-room, auto);
+    overflow: hidden auto;
+  }
+}
+@media (min-width: 768px) {
+  [data-component="ScrollViewContent"]:has(
+    > [data-component="GameColumn"] > .session[data-board-focus="true"]
+  ) {
+    padding-bottom: var(--ui-space-2);
+  }
 }
 
 /* The rack and precision navigator already separate a compact board's content. */

@@ -123,6 +123,7 @@ test('storybook integration: battleship own seat stays on a phone after the riva
 
 // Finished, the result card sat above a board sized for play, pushing the
 // fleet switch and the own seat below a 390x844 screen.
+// regression: battleship-phone-switch-clipped
 // regression: battleship-finished-board-pushes-seat
 // regression: battleship-finished-board-ignores-place-line
 test('storybook integration: battleship finished game keeps the switch and own seat on a phone', async ({
@@ -136,7 +137,32 @@ test('storybook integration: battleship finished game keeps the switch and own s
       'light',
       info
     );
+    await page
+      .getByRole('dialog', { name: 'Game over' })
+      .getByTestId('game-result-close')
+      .click();
     await settleMotion(page);
+    const board = page.locator(
+      '[data-shown="true"] [data-component="CellGridBoard"]'
+    );
+    const boardBox = await board.boundingBox();
+    if (!boardBox) throw new Error('Missing finished fleet board');
+    expect(boardBox.x).toBeGreaterThanOrEqual(12);
+    expect(boardBox.x + boardBox.width).toBeLessThanOrEqual(378);
+    const segments = page
+      .getByTestId('custom-game-board-view')
+      .getByRole('radio');
+    await expect(segments).toHaveCount(2);
+    for (const button of await segments.all()) {
+      expect(
+        await button.evaluate((node) => {
+          const box = node.getBoundingClientRect();
+          return node.contains(
+            document.elementFromPoint(box.x + box.width / 2, box.bottom - 1)
+          );
+        })
+      ).toBe(true);
+    }
     const layout = await captureBattleLayout(page, info);
     for (const id of ['custom-game-board-view', 'custom-game-seat-near']) {
       const box = await page.getByTestId(id).boundingBox();

@@ -84,6 +84,8 @@ export type PuzzlePackStageScreenViewProps = {
   readonly player?: JSX.Element;
   /** `attempt`: undo / redo and restart. */
   readonly controls?: JSX.Element;
+  /** `attempt`: the player's quieter aids, under its commands. */
+  readonly support?: JSX.Element;
   /**
    * `progress`: the attempt's way on — a pack puzzle's next puzzle and its
    * overview, a playtest's way back to its builder.
@@ -130,7 +132,10 @@ function AttemptAlerts(props: PuzzlePackStageScreenViewProps): JSX.Element {
             variant="compact"
             title={t`Your change was not saved`}
             body={error()}
-            retry={{ onClick: props.onRetryChange }}
+            retry={{
+              onClick: props.onRetryChange,
+              dataSet: { testid: 'content-retry-position' },
+            }}
           />
         )}
       </Show>
@@ -242,6 +247,7 @@ function AttemptStage(props: PuzzlePackStageScreenViewProps): JSX.Element {
           </>
         }
         stageAlign={props.stageAlign}
+        footer={<Show when={!props.unopenable}>{props.support}</Show>}
       >
         <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
           {props.player}

@@ -1,0 +1,4 @@
+{
+  "summary": "Opening a report focuses its named dialog host. The feedback harness looked only inside the backdrop and reported that focus had escaped.",
+  "regressionTest": "specs/feedback/bug-report-accessibility.feature"
+}

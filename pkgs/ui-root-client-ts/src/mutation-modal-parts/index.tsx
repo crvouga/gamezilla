@@ -105,9 +105,10 @@ export function MutationSuccess(props: {
   return (
     <>
       <StateArea>
+        {/* The surface's title already says the outcome; the state says
+            what it means, once. */}
         <SuccessState
-          title={props.labels.successTitle}
-          body={props.labels.successBody}
+          title={props.labels.successBody ?? props.labels.successTitle}
           dataSet={props.ids.successDataSet}
         />
       </StateArea>
@@ -122,10 +123,53 @@ export function MutationSuccess(props: {
   );
 }
 
+/**
+ * A refused form (a rename): the fields stay as typed, the reason sits
+ * under them, and the footer keeps its place with Try again first, so the
+ * person fixes or retries without starting over.
+ */
+function MutationFormError(props: {
+  ids: MutationModalIds;
+  labels: MutationModalLabels;
+  error: Error | null;
+  form: JSX.Element;
+  onRetry: () => void;
+  onClose: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <>
+      <div class="box gap-3 mb-4">
+        {props.form}
+        <ErrorState
+          variant="compact"
+          title={props.labels.errorTitle ?? t`Something went wrong`}
+          body={props.error?.message}
+        />
+      </div>
+      <ModalFooter>
+        <ModalButton
+          label={props.labels.retryLabel ?? t`Try again`}
+          onClick={() => props.onRetry()}
+          dataSet={{ action: 'submit', ...props.ids.submitDataSet }}
+        />
+        <ModalButton
+          label={props.labels.cancelLabel ?? t`Cancel`}
+          variant="cancel"
+          onClick={() => props.onClose()}
+          dataSet={{ action: 'cancel', ...props.ids.cancelDataSet }}
+        />
+      </ModalFooter>
+    </>
+  );
+}
+
 export function MutationError(props: {
   ids: MutationModalIds;
   labels: MutationModalLabels;
   error: Error | null;
+  /** The idle body's fields, kept in place when the outcome is known. */
+  form?: JSX.Element | undefined;
   onRetry: () => void;
   onClose: () => void;
 }): JSX.Element {
@@ -133,7 +177,19 @@ export function MutationError(props: {
   const unknown = (): boolean =>
     props.error instanceof MutationOutcomeUnknownError;
   return (
-    <>
+    <Show
+      when={props.form === undefined || unknown()}
+      fallback={
+        <MutationFormError
+          ids={props.ids}
+          labels={props.labels}
+          error={props.error}
+          form={props.form}
+          onRetry={props.onRetry}
+          onClose={props.onClose}
+        />
+      }
+    >
       <StateArea>
         <ErrorState
           variant="band"
@@ -168,7 +224,7 @@ export function MutationError(props: {
           dataSet={{ action: 'cancel' }}
         />
       </FooterSlot>
-    </>
+    </Show>
   );
 }
 
@@ -176,6 +232,8 @@ export function MutationIdle(props: {
   labels: MutationModalLabels;
   ids: MutationModalIds;
   message: JSX.Element | undefined;
+  /** What the decision is about, on its own line above `message`. */
+  subject?: JSX.Element | undefined;
   /** Custom idle body (form fields); takes precedence over `message`. */
   children: JSX.Element | undefined;
   destructive: boolean;
@@ -188,7 +246,7 @@ export function MutationIdle(props: {
     <>
       <Show
         when={props.children !== undefined}
-        fallback={<ModalBody message={props.message} />}
+        fallback={<ModalBody message={props.message} subject={props.subject} />}
       >
         <div class="box mb-4">{props.children}</div>
       </Show>

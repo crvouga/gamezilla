@@ -3,6 +3,7 @@ import { createContext, createSignal, useContext } from 'solid-js';
 
 import { EndSpaceConfirmModal } from './end-space-confirm-modal';
 import { useEndSpace } from './use-end-space';
+import { useSpaceCardData } from './use-space-card-data';
 
 export type RequestEndSpaceOptions = {
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
@@ -29,6 +30,7 @@ export function EndSpaceModalProvider(props: {
 }): JSX.Element {
   const [pending, setPending] = createSignal<PendingEnd | null>(null);
   const endSpace = useEndSpace();
+  const space = useSpaceCardData(() => pending()?.spaceId ?? '');
 
   const requestEndSpace = (
     spaceId: string,
@@ -49,6 +51,7 @@ export function EndSpaceModalProvider(props: {
         visible={pending() !== null}
         onClose={() => setPending(() => null)}
         operation={() => endSpace(pending()?.spaceId ?? '')}
+        spaceName={space().title || undefined}
         onSuccess={() => pending()?.onSuccess?.()}
       />
     </Ctx>

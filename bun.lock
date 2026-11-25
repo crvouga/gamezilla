@@ -1297,7 +1297,6 @@
         "@pkgs/chess-board-root-client-ts": "workspace:*",
         "@pkgs/lingui-solid-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
-        "@pkgs/ui-root-client-ts": "workspace:*",
         "@solidjs/web": "catalog:",
         "solid-js": "catalog:",
       },

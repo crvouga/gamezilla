@@ -291,6 +291,7 @@ test('a saved completion says it is saved once, in its own notice', () => {
   );
 });
 
+// regression: puzzle-refused-move-claimed-saved
 test('a change that was not saved and rules this app lacks are said on both screens', () => {
   for (const place of ['attempt', 'progress'] as const) {
     let retried = 0;
@@ -302,6 +303,9 @@ test('a change that was not saved and rules this app lacks are said on both scre
         retried += 1;
       },
     });
+    expect(screen.getByTestId('content-position-save-status').textContent).toBe(
+      'Your previous position is still saved on this device.'
+    );
     expect(screen.getByText('Your change was not saved')).toBeDefined();
     expect(screen.getByText('The change was not saved.')).toBeDefined();
     expect(screen.getByTestId('content-attempt-rules-changed')).toBeDefined();

@@ -38,6 +38,17 @@ function squareName(square: WordTileSquare): string {
   }[square];
 }
 
+/** A square's bonus as the short readout says it: `Start · Double word`. */
+function squareTitle(square: WordTileSquare): string {
+  return {
+    DL: t`Double letter`,
+    TL: t`Triple letter`,
+    DW: t`Double word`,
+    TW: t`Triple word`,
+    start: t`Start · Double word`,
+  }[square];
+}
+
 function squareOf(cell: number): WordTileSquare | null {
   if (cell === CENTER_CELL) return 'start';
   return bonusSquareAt(cell);
@@ -67,6 +78,24 @@ function cellLabel(
         ? t`blank played as ${letter}`
         : t`committed`;
   return `${letter} ${points}, ${name}, ${kind}`;
+}
+
+/**
+ * The chosen square's short readout: where it is, then its bonus when empty
+ * (`h8 · Start · Double word`) or the tile on it (`j8 · S 1`).
+ */
+function cellDetail(
+  cell: number,
+  shown: Shown,
+  state: WordTileBoardCell['state']
+): string {
+  const name = cellName(cell);
+  const square = squareOf(cell);
+  if (shown === null)
+    return square === null ? name : `${name} · ${squareTitle(square)}`;
+  const tile = `${name} · ${shown.letter} ${shown.blank ? 0 : letterPoints(shown.letter)}`;
+  if (state === 'tentative') return `${tile} · ${t`Not played yet`}`;
+  return shown.blank ? `${tile} · ${t`Blank`}` : tile;
 }
 
 /** The board as the viewer sees it: committed tiles and their own tentative ones. */
@@ -104,6 +133,7 @@ export function boardCells(
       square: squareOf(cell),
       state,
       label: cellLabel(cell, shown, state),
+      detail: cellDetail(cell, shown, state),
       enabled: editable && committed === '.',
     };
   });

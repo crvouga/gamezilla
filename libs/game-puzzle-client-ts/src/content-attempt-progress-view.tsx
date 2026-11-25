@@ -37,7 +37,12 @@ function AttemptFigures(props: PuzzlePackStageScreenViewProps): JSX.Element {
 
 /** A solved attempt (not a playtest) whose last change is kept. */
 function completionSaved(props: PuzzlePackStageScreenViewProps): boolean {
-  return props.complete && props.playtest !== true && !props.saving;
+  return (
+    props.complete &&
+    props.playtest !== true &&
+    !props.saving &&
+    !props.changeError
+  );
 }
 
 /** Where the last change stands: saved, or still being saved. */
@@ -54,7 +59,9 @@ export function ContentAttemptSaveStatus(
     >
       {props.saving
         ? t`Saving your position…`
-        : t`Progress saved on this device.`}
+        : props.changeError
+          ? t`Your previous position is still saved on this device.`
+          : t`Progress saved on this device.`}
     </P>
   );
 }

@@ -189,6 +189,8 @@ async function enterHostedSpace(ui: Driver): Promise<void> {
 
 /** End the space the person is in and see it ended. */
 export async function endActiveSpace(ui: Driver): Promise<void> {
+  if (await ui.get('game-result-close').isVisible())
+    await tap(ui, 'game-result-close');
   await enterHostedSpace(ui);
   await tap(ui, Handles.spaceEnd);
   await tap(ui, Handles.spaceEndConfirm);

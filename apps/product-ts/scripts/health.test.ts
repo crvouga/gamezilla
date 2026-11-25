@@ -62,6 +62,8 @@ test('the release bundle checks every health journey the localhost stack can run
   const paths = releaseSpecs().map((path) =>
     slashPath(relative(REPO_ROOT, path))
   );
+  expect(paths).toContain('specs/runtime/reopen-sokoban-position.feature');
+  expect(paths).toContain('specs/journeys/chess-puzzle-history.feature');
   expect(paths).toContain('specs/journeys/connect-four-game.feature');
   expect(paths).toContain('specs/journeys/multiplayer-game.feature');
   expect(paths).toContain('specs/journeys/custom-game.feature');

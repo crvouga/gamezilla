@@ -172,16 +172,17 @@ export function coordinateLabelUnits(boardPx: number): number {
 /**
  * Where a label sits in its square, for a label `size` units tall: a file
  * label's right edge and baseline (room left under it for a `g`'s
- * descender), a rank label's left edge and baseline (one cap height down).
+ * descender), a rank label's left edge and baseline (its cap tight to the
+ * corner), so each label keeps to its corner, clear of the piece's figure.
  * The insets keep a glyph's overhang and descent inside the square on
  * every platform.
  */
 function labelPlacement(size: number) {
   return {
     fileInset: 8,
-    fileBaselineInset: 10,
+    fileBaselineInset: 9,
     rankInset: 5,
-    rankBaseline: Math.round(size * 1.12),
+    rankBaseline: Math.round(size * 1.02),
   };
 }
 

@@ -134,7 +134,8 @@ export const screen = {
     find('bug-report-description-full')?.textContent.trim() ===
     DESCRIPTION_FULL,
   keyboardInBugReport: (): boolean =>
-    find('bug-report')?.contains(keyboardOn()) === true,
+    find('bug-report')?.closest('[role="dialog"]')?.contains(keyboardOn()) ===
+    true,
   keyboardOnDescription: (): boolean => keyboardOn() === descriptionField(),
   /** Where the keyboard is, as a listener would hear it (`button "Report a bug"`). */
   keyboardPlace(): string | null {

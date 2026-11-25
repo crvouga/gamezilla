@@ -83,6 +83,7 @@ function PreviewBoard(props: { puzzle: WordTilesPuzzle }): JSX.Element {
   return (
     <StackVertical gap="sm">
       <WordTileBoard
+        measure="compact"
         label={t`Puzzle board, fifteen columns and fifteen rows`}
         testId="word-tiles-puzzle-preview"
         columnLabels={COLUMN_LABELS}

@@ -5,6 +5,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { AvatarSeatColor } from '../avatar/index';
+import styles from './game-seat-swatch.module.css';
 
 /**
  * A seat's paint: a player color (`player1`..`player8`), or the paint of a
@@ -66,6 +67,9 @@ export const GAME_SEAT_PAWN_INKS: Readonly<
   'pawn-three': 'text-game-quoridor-two',
   'pawn-four': 'text-game-quoridor-ink',
 };
+
+/** A chess piece's own glyph (♔..♟), drawn as the piece rather than a letter. */
+const PIECE_GLYPH = /^[\u2654-\u265F]$/u;
 
 function isPawnPaint(
   paint: GameSeatColor | undefined
@@ -154,6 +158,8 @@ export function GameSeatSwatch(props: GameSeatSwatchProps): JSX.Element {
                 'text-game-connect-four-canvas': color() === 'disc-two',
                 'text-game-light-cycles-canvas': trailPaint(),
                 'text-text': color() === undefined,
+                [styles['pieceMark'] ?? '']:
+                  color() === undefined && PIECE_GLYPH.test(mark()),
               },
             ]}
           >

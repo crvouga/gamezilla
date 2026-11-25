@@ -1,0 +1,4 @@
+{
+  "summary": "The starting chess player saw Your turn. while the journey waited for White to move.",
+  "regressionTest": "libs/runtime-harness-ts/tests/custom-game-journey-move.test.ts"
+}

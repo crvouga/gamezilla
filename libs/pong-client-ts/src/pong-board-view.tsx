@@ -16,6 +16,7 @@ import {
   type GameSide,
   requireTwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useOptionalRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import {
   type CourtSide,
@@ -23,7 +24,6 @@ import {
 } from '@pkgs/ui-root-client-ts/paddle-court';
 import { RangeControl } from '@pkgs/ui-root-client-ts/range-control';
 import { Text } from '@pkgs/ui-root-client-ts/text';
-import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -515,24 +515,44 @@ export function pongStatusStage(
  * releases the controls when the court closes.
  */
 export function PongBoardView(props: PongBoardViewProps): JSX.Element {
-  const state = createMemo(() => pongPositionCodec.decode(props.position));
+  // Try again reads the delivered position afresh.
+  const [reading, setReading] = createSignal(0);
+  const state = createMemo(() => {
+    reading();
+    return pongPositionCodec.decode(props.position);
+  });
   return (
     <Show
       when={state()}
-      fallback={
-        <ErrorState
-          variant="compact"
-          title={t`Pong could not be opened`}
-          body={t`Return to your spaces to choose a game. If you're playing, resigning ends this one.`}
-          details={
-            <TextLink href="/" variant="standalone">
-              <Trans>Back to spaces</Trans>
-            </TextLink>
-          }
-        />
-      }
+      fallback={<PongUnreadable retry={() => setReading((n) => n + 1)} />}
     >
       {(game) => <PongScene state={game()} board={props} />}
     </Show>
+  );
+}
+
+/** A court this app cannot read: why, then Try again and the way back. */
+function PongUnreadable(props: { readonly retry: () => void }): JSX.Element {
+  const router = useOptionalRouter();
+  return (
+    <ErrorState
+      variant="compact"
+      title={t`Pong could not be opened`}
+      body={t`Return to your spaces to choose a game. If you're playing, resigning ends this one.`}
+      retry={{
+        label: t`Try again`,
+        onClick: props.retry,
+        dataSet: { testid: 'pong-unreadable-retry' },
+      }}
+      secondary={
+        router === undefined
+          ? undefined
+          : {
+              label: t`Back to Spaces`,
+              onClick: () => router.push('/'),
+              dataSet: { testid: 'pong-unreadable-back' },
+            }
+      }
+    />
   );
 }

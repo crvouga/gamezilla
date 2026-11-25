@@ -69,7 +69,11 @@ export const Handles = {
   spaceLobbyCard: (spaceId: string) => `space-lobby-card-${spaceId}`,
   spaceJoin: 'space-join',
   spaceJoinPrompt: 'space-join-prompt',
+  spaceJoinHostOfflineTag: 'space-join-host-offline-tag',
+  spaceJoinNotConfirmed: 'space-join-not-confirmed',
+  spaceJoinRetry: 'space-join-retry',
   spaceEnded: 'space-ended',
+  spaceEndedBack: 'space-ended-back',
   spaceHostOffline: 'space-host-offline',
   /** One person presence counts, hidden, scoped by member id. */
   spacePerson: (memberId: string) => `space-person-${memberId}`,

@@ -1,0 +1,4 @@
+{
+  "summary": "Reading an unfinished offline board required an ending announcement that only a finished board needs.",
+  "regressionTest": "specs/games/matched-game-without-turns.feature"
+}

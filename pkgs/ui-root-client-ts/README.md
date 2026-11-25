@@ -112,13 +112,15 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
     `Button`, and on the boot screen in `index.html`. A whole-screen wait
     (boot and every `fill` `LoadingState`) shows it at 40px; inline waits at
     24px, and controls at 16px.
-11. **Outcomes are told in context, never in a toast or a top banner.** What
-    became of an action shows where the action lives: the control's own
-    feedback face (`useMutationButton`, `MutationModal`, `FormActionsFooter`)
-    or an inline `Notice` beside the thing it is about (`onDismiss` makes it
-    dismissible). There is no toast, snackbar or top banner for the outcome
-    of an action, and none comes back: `tests/no-toast.test.ts` fails when a
-    toast or snackbar module, export or import appears in this package.
+11. **What comes and goes floats; what a control did stays on it.** An
+    alert about a condition that comes and goes (no connection, the host
+    away, a refused change, a draw offered, an opponent away) is a card in
+    the one `ToastStack`, floating over the top of the screen, never a row
+    in the page's flow: nothing under it (a game board above all) moves when
+    it appears or clears. An outcome that ends a phase (a game over) is a
+    dialog (`GameResultDialog`). What a control did stays on the control
+    (`useMutationButton`, `MutationModal`, `FormActionsFooter`).
+    `ui-root-harness-ts/tests/toast-stack.test.tsx` holds it to the screen.
 
 ## Composition
 

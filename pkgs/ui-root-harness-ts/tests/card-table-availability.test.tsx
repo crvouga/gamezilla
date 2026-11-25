@@ -35,7 +35,11 @@ test('a refused nine of diamonds explains follow suit before activation and neve
   expect(view.getByText(reason, { selector: 'span' })).toBeTruthy();
   const card = view.getByTestId('9D');
   expect(card.title).toBe(reason);
-  expect(card.textContent).toContain('×');
+  // A refused card is only dimmed (no × mark): the reason is its title and
+  // the line above the hand.
+  expect(
+    card.getAttribute('aria-disabled') ?? card.getAttribute('disabled')
+  ).not.toBeNull();
   fireEvent.click(card);
   expect(played).toEqual([]);
   expect(view.getByTestId('availability-refusal').textContent).toBe(reason);

@@ -36,10 +36,19 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
     {
       id: 'people',
       label: 'People in this space',
+      // As the app words it: "People" beside the icon in a wide top bar.
+      shortLabel: 'People',
       icon: UsersIcon,
+      testId: Handles.spaceMembersButton,
       onPress: fn(),
     },
-    { id: 'share', label: 'Share', icon: ShareIcon, onPress: fn() },
+    {
+      id: 'share',
+      label: 'Share',
+      icon: ShareIcon,
+      testId: Handles.spaceShare,
+      onPress: fn(),
+    },
     { id: 'rename', label: 'Rename', icon: SquarePenIcon, onPress: fn() },
     {
       id: 'minimize',
@@ -75,10 +84,16 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
  * it (the default stage shell unless the screen claims its own).
  */
 export function StorySpaceFrame(props: {
+  /** The game the screen belongs to, as the top bar names it. */
+  readonly title?: string | undefined;
   readonly children: JSX.Element;
 }): JSX.Element {
+  const value: SpaceScreenChromeValue = {
+    ...STORY_SPACE_CHROME,
+    title: props.title ?? STORY_SPACE_CHROME.title,
+  };
   return (
-    <SpaceScreenChromeValueProvider value={STORY_SPACE_CHROME}>
+    <SpaceScreenChromeValueProvider value={value}>
       <SpaceScreenFrame>{props.children}</SpaceScreenFrame>
     </SpaceScreenChromeValueProvider>
   );

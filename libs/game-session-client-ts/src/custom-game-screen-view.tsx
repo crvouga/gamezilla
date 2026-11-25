@@ -62,6 +62,8 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly error: string;
   /** The game's own engine stopped; the saved score is kept. */
   readonly stopped: boolean;
+  /** Starts a stopped game again from its saved score. */
+  readonly onReopen?: (() => void) | undefined;
   /** `null` with no game. */
   readonly status: FrameStatus | null;
   /** May create a game (before there is one). */
@@ -87,10 +89,11 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   /** Where the board sits on one column (`GameFrame.boardAlign`); absent: centred. */
   readonly boardAlign?: 'start' | undefined;
   /**
-   * The board is its own workspace (`GameFrame.boardWorkspace`): a phone
-   * keeps the page flowing around it instead of the fixed view.
+   * The board is its own workspace (`GameFrame.boardWorkspace`): the
+   * fixed view holds its box like any board's but never narrows it.
    */
   readonly boardWorkspace?: boolean | undefined;
+  readonly menuMatchCommands?: boolean | undefined;
   readonly people?: FramePeople | undefined;
   /** Every choice about the game, as the room accepts it. */
   readonly onChoose: (input: CustomGameInput) => Promise<void>;
@@ -165,7 +168,9 @@ function SetupPlaces(
 }
 
 /** The one place the phase and the device's choice select. */
-function FramePlaces(props: Props): JSX.Element {
+function FramePlaces(
+  props: Props & { readonly confirming: boolean }
+): JSX.Element {
   const screen = () => props.place.screen;
   const over = (): boolean =>
     props.phase === 'completed' || props.phase === 'cancelled';
@@ -183,14 +188,15 @@ function FramePlaces(props: Props): JSX.Element {
       >
         {(record) => <FrameMovesPlace {...props} record={record()} />}
       </Match>
-      <Match when={props.phase === 'active' && screen() === 'commands'}>
-        <FrameCommandsPlace {...props} />
-      </Match>
       <Match when={props.phase === 'active'}>
+        {/* The game's menu is a sheet over the live stage. */}
         <CustomGameStagePlace {...props} />
+        <Show when={screen() === 'commands'}>
+          <FrameCommandsPlace {...props} />
+        </Show>
       </Match>
       <Match when={over()}>
-        <FrameResultPlace {...props} />
+        <FrameResultPlace {...props} confirming={props.confirming} />
       </Match>
     </Switch>
   );
@@ -217,7 +223,13 @@ export function CustomGameScreenView(
     <>
       <Show
         when={props.denial}
-        fallback={<FramePlaces {...stable} onConfirm={confirm.ask} />}
+        fallback={
+          <FramePlaces
+            {...stable}
+            onConfirm={confirm.ask}
+            confirming={confirm.asked() !== null}
+          />
+        }
       >
         {(denial) => (
           <EmbeddedScreen screenId="custom-game-denied" title={props.title}>
@@ -225,7 +237,11 @@ export function CustomGameScreenView(
           </EmbeddedScreen>
         )}
       </Show>
-      <FrameConfirmDialog confirm={confirm} onChoose={props.onChoose} />
+      <FrameConfirmDialog
+        confirm={confirm}
+        onChoose={props.onChoose}
+        beforeGame={props.phase === 'configuring'}
+      />
     </>
   );
 }

@@ -11,5 +11,5 @@ export async function spaceNamedAfterShown(
   actorId: string,
   hostName: string
 ): Promise<boolean> {
-  return (await spaceNameShown(s, actorId)) === `${hostName}'s space`;
+  return (await spaceNameShown(s, actorId)) === `${hostName}’s space`;
 }

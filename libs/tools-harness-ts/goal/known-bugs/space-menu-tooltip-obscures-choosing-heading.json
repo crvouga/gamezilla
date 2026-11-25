@@ -1,0 +1,4 @@
+{
+  "summary": "Keyboard focus on the Space menu covers the choosing heading on a 390px phone.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/shell/integration.checks.ts"
+}

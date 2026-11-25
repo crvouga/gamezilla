@@ -1,0 +1,4 @@
+{
+  "summary": "After the seventh Connect Four move the result dialog blocked the space menu during cleanup.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

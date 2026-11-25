@@ -224,9 +224,10 @@ test('a board nobody is to move on, or a setup preview, reserves no turn rows', 
       .querySelectorAll(':scope > [aria-hidden="true"] > span')
   ).toHaveLength(1);
   over.unmount();
-  // Someone else to move: the prompt is kept, empty.
+  // Someone else to move: the prompt's line is kept, as tall as a written
+  // one (a no-break space), so the board never moves with the turn.
   const waiting = bareBoard({ prompt: '' });
-  expect(waiting.getByTestId('bare-board-prompt').textContent).toBe('');
+  expect(waiting.getByTestId('bare-board-prompt').textContent).toBe('\u00a0');
   waiting.unmount();
   // A preview while the game is set up draws only its discs, under its label.
   const preview = bareBoard({ prompt: '', preview: true });

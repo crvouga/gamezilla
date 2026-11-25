@@ -1,0 +1,4 @@
+{
+  "summary": "The result dialog covered Done on the successful resignation confirmation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}
