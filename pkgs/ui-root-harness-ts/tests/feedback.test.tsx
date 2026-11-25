@@ -23,7 +23,7 @@ import {
   ACTIVITY_PETALS,
   ACTIVITY_REVOLUTION_MS,
 } from '@pkgs/ui-root-shared-ts/activity-indicator';
-import { fireEvent, screen } from '@solidjs/testing-library';
+import { fireEvent, screen, within } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
 import { createSignal, Show } from 'solid-js';
 import { cssOf, mustQuery, renderUi } from './render';
@@ -158,7 +158,7 @@ function mustParent(el: Element): HTMLElement {
 describe('Spinner', () => {
   test('renders role=status with a live label and twelve petals', () => {
     renderUi(() => <Spinner size="sm" />);
-    const el = screen.getByRole('status');
+    const el = screen.getByRole('status', { name: 'Loading…' });
     expect(el).toHaveAttribute('aria-live', 'polite');
     expect(el).toHaveAttribute('aria-label', 'Loading…');
     expect(el).toHaveAttribute('data-size', 'sm');
@@ -180,8 +180,10 @@ describe('Spinner', () => {
   });
 
   test('a decorative spinner is hidden from assistive tech', () => {
-    renderUi(() => <Spinner decorative color="current" size="lg" />);
-    expect(screen.queryByRole('status')).toBeNull();
+    const { container } = renderUi(() => (
+      <Spinner decorative color="current" size="lg" />
+    ));
+    expect(within(container).queryByRole('status')).toBeNull();
     const el = mustQuery('[data-component="Spinner"]');
     expect(el).toHaveAttribute('aria-hidden', 'true');
     expect(el.classList.contains('size-10')).toBe(true);
@@ -215,7 +217,9 @@ describe('Spinner', () => {
     });
     clock.advance(300);
     fireEvent.click(screen.getByText('add'));
-    const svg = screen.getByRole('status').querySelector('svg');
+    const svg = screen
+      .getByRole('status', { name: 'Loading…' })
+      .querySelector('svg');
     if (svg === null) throw new Error('spinner has no svg');
     expect(cssOf(svg)).toContain(
       `animation-delay:-${300 % SPIN_DURATION_MS}ms`
@@ -276,7 +280,9 @@ describe('State blocks', () => {
 
   test('LoadingState renders spinner + caption', () => {
     renderUi(() => <LoadingState caption="Waiting for metrics…" />);
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(
+      screen.getByRole('status', { name: 'Loading…' })
+    ).toBeInTheDocument();
     expect(screen.getByText('Waiting for metrics…')).toBeInTheDocument();
   });
 
@@ -301,10 +307,10 @@ describe('State blocks', () => {
 
   test('SuccessState renders as a status region with an action', () => {
     const onClick = mock();
-    renderUi(() => (
+    const { container } = renderUi(() => (
       <SuccessState title="Saved" action={{ label: 'Continue', onClick }} />
     ));
-    expect(screen.getByRole('status')).toBeInTheDocument();
+    expect(within(container).getByRole('status')).toHaveTextContent('Saved');
     fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
     expect(onClick).toHaveBeenCalledTimes(1);
   });
@@ -354,7 +360,7 @@ describe('State blocks', () => {
   });
 
   test('loading, empty, error, and success each render their state', () => {
-    renderUi(() => (
+    const { container } = renderUi(() => (
       <>
         <LoadingState caption="Loading spaces…" />
         <EmptyState title="No spaces yet" body="Start one to play." />
@@ -365,7 +371,7 @@ describe('State blocks', () => {
         <SuccessState title="Space saved" />
       </>
     ));
-    expect(screen.getAllByRole('status').length).toBeGreaterThan(0);
+    expect(within(container).getAllByRole('status')).toHaveLength(2);
     expect(screen.getByText('Loading spaces…')).toBeInTheDocument();
     expect(screen.getByText('No spaces yet')).toBeInTheDocument();
     expect(screen.getByRole('alert')).toHaveTextContent(
@@ -483,7 +489,7 @@ describe('DismissibleBanner', () => {
   test('renders into the in-flow portal host, dismisses, and fires the action', () => {
     const onDismiss = mock();
     const onAction = mock();
-    renderUi(() => (
+    const { container } = renderUi(() => (
       <DismissibleBannerPortalProvider>
         <p data-testid="body">{'body'}</p>
         <DismissibleBanner
@@ -495,7 +501,7 @@ describe('DismissibleBanner', () => {
         />
       </DismissibleBannerPortalProvider>
     ));
-    const banner = screen.getByRole('status');
+    const banner = within(container).getByRole('status');
     expect(banner).toHaveTextContent('Update available');
     // Full-bleed sheet; content row is max-width constrained on wide layouts.
     expect(banner.innerHTML).toMatch(/bg-surface[\s"]/);
@@ -517,11 +523,11 @@ describe('DismissibleBanner', () => {
   });
 
   test('is not rendered while hidden', () => {
-    renderUi(() => (
+    const { container } = renderUi(() => (
       <DismissibleBannerPortalProvider>
         <DismissibleBanner visible={false} onDismiss={() => {}} title="x" />
       </DismissibleBannerPortalProvider>
     ));
-    expect(screen.queryByRole('status')).toBeNull();
+    expect(within(container).queryByRole('status')).toBeNull();
   });
 });
