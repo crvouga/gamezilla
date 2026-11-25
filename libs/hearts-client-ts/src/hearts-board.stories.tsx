@@ -486,3 +486,12 @@ export const PassThroughFirstTrick: Story = {
     ).toHaveTextContent('took the trick');
   },
 };
+
+/** The queen is worth thirteen in this trick, distinct from the match score. */
+export const QueenTaken: Story = {
+  args: {
+    position: 'hearts:4:play:10,20,30,40:0:2C3C4C5CQSKSAS2S:-',
+    hand: null,
+    interactive: false,
+  },
+};

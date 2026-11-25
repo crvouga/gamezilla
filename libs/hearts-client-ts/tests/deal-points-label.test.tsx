@@ -25,5 +25,6 @@ test('the queen-bearing trick labels thirteen as deal points beside the cumulati
   const west = byTestId('hearts-seat-black');
   expect(west.textContent).toContain('Score 20');
   expect(west.textContent).toContain('Deal points 13');
+  expect(west.textContent).toContain('This trick +13');
   expect(west.textContent).not.toContain('Taken 13');
 });

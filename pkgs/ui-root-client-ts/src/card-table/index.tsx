@@ -17,7 +17,7 @@ import { Button } from '../button/index';
 import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
 import felt from './card-table-felt.module.css';
-import state from './card-table-state.module.css';
+import { createHeartsInput } from './hearts-input';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -86,7 +86,7 @@ export type CardTableAction = {
 
 export type CardTableProps = {
   readonly label: string;
-  readonly appearance?: 'hearts';
+  readonly hearts?: { zoom: string; fit: string };
   /** Disclosure label for the player table while passing on short phones. */
   readonly tableSummary?: string | undefined;
   readonly testId: string;
@@ -251,7 +251,7 @@ function Trick(props: {
             </Show>
             <Show when={seat().played && seat().won}>
               {(won) => (
-                <span class={state['won']} aria-hidden="true">
+                <span class={felt['won']} aria-hidden="true">
                   {won()}
                 </span>
               )}
@@ -342,7 +342,7 @@ function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
         )}
       </Show>
       <Show when={props.card.refusal}>
-        <span class={state['unavailable']} aria-hidden="true">
+        <span class={felt['unavailable']} aria-hidden="true">
           ×
         </span>
       </Show>
@@ -618,6 +618,7 @@ function HandGuidance(
  * ```
  */
 export function CardTable(props: CardTableProps): JSX.Element {
+  const input = createHeartsInput();
   const seatIds = createMemo(() => props.seats.map((seat) => seat.testId));
   const seatsById = createMemo(
     () => new Map(props.seats.map((seat) => [seat.testId, seat]))
@@ -641,10 +642,10 @@ export function CardTable(props: CardTableProps): JSX.Element {
   };
   return (
     <div
-      class={[
-        styles['root'],
-        { [felt['salon'] ?? '']: props.appearance === 'hearts' },
-      ]}
+      class={[styles['root'], { [felt['salon'] ?? '']: !!props.hearts }]}
+      ref={(element) => {
+        if (props.hearts) input.bind(element);
+      }}
       data-testid={props.testId}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
     >
@@ -654,37 +655,47 @@ export function CardTable(props: CardTableProps): JSX.Element {
         testId={props.testId}
       >
         <div
-          class={[styles['table'], { [felt['felt'] ?? '']: true }]}
-          data-table-felt=""
-          role="group"
-          aria-label={props.label}
+          class={props.hearts ? felt['viewport'] : undefined}
+          data-hearts-viewport={props.hearts ? '' : undefined}
+          style={{
+            '--hearts-pan-x': `${input.view().x * 100}%`,
+            '--hearts-pan-y': `${input.view().y * 100}%`,
+            '--hearts-scale': String(input.view().scale),
+          }}
         >
-          <For each={seatIds()}>
-            {(id) => (
-              <Seat
-                seat={() => {
-                  const seat = seatsById().get(id);
-                  if (!seat) throw new Error('A rendered seat must exist');
-                  return seat;
-                }}
-                trick={props.trick === true}
-              />
-            )}
-          </For>
-          <Show when={props.seats.length > 0}>
-            <Trick seats={props.seats} trick={props.trick === true} />
-          </Show>
-          <Show when={props.trick !== true && props.pass}>
-            {(pass) => <PassArea pass={pass()} />}
-          </Show>
-          <p
-            class={styles['center']}
-            data-spoken-only={String(props.centerSpokenOnly === true)}
-            aria-live="polite"
-            data-testid={`${props.testId}-center`}
+          <div
+            class={[styles['table'], { [felt['felt'] ?? '']: true }]}
+            data-table-felt=""
+            role="group"
+            aria-label={props.label}
           >
-            {props.center}
-          </p>
+            <For each={seatIds()}>
+              {(id) => (
+                <Seat
+                  seat={() => {
+                    const seat = seatsById().get(id);
+                    if (!seat) throw new Error('A rendered seat must exist');
+                    return seat;
+                  }}
+                  trick={props.trick === true}
+                />
+              )}
+            </For>
+            <Show when={props.seats.length > 0}>
+              <Trick seats={props.seats} trick={props.trick === true} />
+            </Show>
+            <Show when={props.trick !== true && props.pass}>
+              {(pass) => <PassArea pass={pass()} />}
+            </Show>
+            <p
+              class={styles['center']}
+              data-spoken-only={String(props.centerSpokenOnly === true)}
+              aria-live="polite"
+              data-testid={`${props.testId}-center`}
+            >
+              {props.center}
+            </p>
+          </div>
         </div>
       </CardTableContext>
       <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
@@ -706,6 +717,18 @@ export function CardTable(props: CardTableProps): JSX.Element {
       </p>
       <Show when={props.action}>
         {(action) => <ActionRow action={action()} />}
+      </Show>
+      <Show when={props.hearts}>
+        {(labels) => (
+          <div data-hearts-navigation="">
+            <Button
+              size="sm"
+              variant="ghost"
+              title={input.view().scale > 1 ? labels().fit : labels().zoom}
+              onClick={input.toggle}
+            />
+          </div>
+        )}
       </Show>
     </div>
   );

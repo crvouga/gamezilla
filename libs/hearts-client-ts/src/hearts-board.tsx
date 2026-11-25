@@ -98,7 +98,8 @@ function boardCenter(
   return tableCenter(
     props,
     props.hand === null ? null : props.orientation,
-    nameOf
+    nameOf,
+    true
   );
 }
 
@@ -213,7 +214,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
   const awaitingHand = () => props.interactive && props.hand === null;
   return (
     <CardTable
-      appearance="hearts"
+      hearts={{ zoom: t`Zoom table`, fit: t`Fit table` }}
       label={t`Hearts table`}
       tableSummary={t`Players and scores`}
       testId={props.testId}
