@@ -39,9 +39,9 @@ import {
 } from 'solid-js';
 import { watchBoardInput } from './board-input-lifecycle';
 import { useBoardMotionEnvironment } from './board-motion-context';
-import figures from './chess-board-pieces/figures.module.css';
 import styles from './chess-board/chess-board.module.css';
 import { createBoardKeyHandler } from './chess-board-keys';
+import figures from './chess-board-pieces/figures.module.css';
 import { BoardPointer } from './chess-board-pointer';
 import { createChessBoardSounds } from './chess-board-sounds';
 import type { UserShapes } from './chess-board-user-shapes';

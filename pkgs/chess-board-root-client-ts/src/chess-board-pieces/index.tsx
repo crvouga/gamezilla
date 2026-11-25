@@ -30,9 +30,9 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import figures from './figures.module.css';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
+import figures from './figures.module.css';
 
 export type PremoveGhost = {
   readonly to: Square;

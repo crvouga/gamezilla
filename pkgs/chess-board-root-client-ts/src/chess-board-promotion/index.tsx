@@ -16,9 +16,8 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, onSettled, Show } from 'solid-js';
-
-import figures from '../chess-board-pieces/figures.module.css';
 import styles from '../chess-board/chess-board.module.css';
+import figures from '../chess-board-pieces/figures.module.css';
 
 type PromotionKind = NonNullable<Move['promotion']>;
 const ORDERED: readonly PromotionKind[] = ['q', 'r', 'b', 'n'];
@@ -152,7 +151,7 @@ function PromotionStack(props: {
   });
   return (
     <div
-      class="box absolute flex-col max-h-full overflow-y-auto rounded-md border border-outline shadow-lg"
+      class="box absolute flex-col max-h-full overflow-y-auto rounded-md border border-outline shadow-float"
       role="presentation"
       style={props.layout.style}
       onClick={(e) => e.stopPropagation()}
