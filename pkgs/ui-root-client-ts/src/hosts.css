@@ -547,18 +547,13 @@
   }
 
   /* Surface motion, only ever in answer to a tap: what floats above content
-     (menus, popovers) fades in and settles 4px in 150ms; sheets rise from
-     the bottom edge, dialogs fade with a slight scale and scrims fade, all
+     (menus, popovers) fades in and settles 4px in 150ms; dialogs (every
+     modal, at every width, centered) fade with a slight scale and scrims fade, all
      in 200ms. The standard ease-out curve, inside the brief's 120-240ms, and
      nothing moves under reduced motion (the media query here, the app
      setting in `skin.css`). */
   .surfaceEnter {
     animation: ui-surface-enter var(--ui-duration-fast)
-      var(--ui-easing-standard) both;
-  }
-
-  .sheetEnter {
-    animation: ui-sheet-enter var(--ui-duration-normal)
       var(--ui-easing-standard) both;
   }
 
@@ -585,12 +580,6 @@
     }
   }
 
-  @keyframes ui-sheet-enter {
-    from {
-      transform: translateY(100%);
-    }
-  }
-
   @keyframes ui-dialog-enter {
     from {
       opacity: 0;
@@ -600,7 +589,6 @@
 
   @media (prefers-reduced-motion: reduce) {
     .surfaceEnter,
-    .sheetEnter,
     .dialogEnter,
     .scrimEnter {
       animation: none;

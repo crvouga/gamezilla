@@ -134,7 +134,7 @@ function rosterRow(
 
 /**
  * People in the space, one row each, with idle / host / you / this-tab
- * badges. A bottom sheet on phones, a centered modal on wider screens.
+ * badges. A modal centered on the screen at every width.
  */
 export function SpaceMembersSheetView(
   props: SpaceMembersSheetViewProps

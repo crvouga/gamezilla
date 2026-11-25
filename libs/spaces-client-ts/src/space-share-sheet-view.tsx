@@ -216,8 +216,8 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
 
 /**
  * Share a space: copy its link, add people (host), and see who has access
- * with the host's Remove action. A bottom sheet on phones, a modal on wider
- * screens.
+ * with the host's Remove action. A modal centered on the screen at every
+ * width; long lists scroll inside it.
  */
 export function SpaceShareSheetView(
   props: SpaceShareSheetViewProps

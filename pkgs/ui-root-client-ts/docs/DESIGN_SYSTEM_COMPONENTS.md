@@ -209,8 +209,7 @@ under every component. They live in
 | Modal | ✅ |
 | ConfirmationModal | 🟡 |
 | MutationModal (pending → success → retryable error) | ✅ |
-| ResponsiveSurface (modal on wide, sheet on narrow) | ✅ |
-| WebBottomSheet | 🟡 |
+| ResponsiveSurface (centered modal at every width) | ✅ |
 | FloatingPanel | ✅ |
 
 ### Forms and editors

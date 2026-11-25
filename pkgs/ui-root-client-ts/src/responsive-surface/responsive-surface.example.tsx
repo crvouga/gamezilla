@@ -18,7 +18,7 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
     <ExampleRoot>
       <p class="text textCaption">
         {
-          'Compact: a bottom sheet on raised paper with a 20px top radius, a grab handle, the float shadow and the safe-area inset. Wide: a centered dialog on the scrim, 20px radius, the float shadow.'
+          'A modal centered on the scrim at every width: raised paper, 20px radius, the float shadow. Compact layouts use the whole width inside a 16px margin; wide layouts use the size bucket. Long content scrolls inside the modal.'
         }
       </p>
       <div class="box flex-col gap-2">
@@ -50,9 +50,7 @@ export default function ResponsiveSurfaceExample(): JSX.Element {
             size={size}
           >
             <p class="text">
-              {
-                'Surface body. Close via X, backdrop click, or swipe down (mobile).'
-              }
+              {'Surface body. Close via X, backdrop click, or Escape.'}
             </p>
           </ResponsiveSurface>
         )}

@@ -91,7 +91,7 @@ export type SpaceActionBarProps = {
  * three controls for this exact moment (at most one primary, destructive
  * ones in the destructive tone), or one line saying what the viewer is
  * waiting for. Past three actions the third control is More, which opens
- * the rest in a sheet. Always present at one height, so the board never
+ * the rest in a centered modal. Always present at one height, so the board never
  * resizes.
  */
 export function SpaceActionBar(props: SpaceActionBarProps): JSX.Element {

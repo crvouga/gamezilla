@@ -29,17 +29,10 @@ export type FocusTrapProps = {
   label?: string | undefined;
   /** Id of the element naming the dialog (`aria-labelledby`, wins over `label`). */
   labelledBy?: string | undefined;
-  /**
-   * - `cover` (default): absolute-fill for full-screen modal backdrops.
-   * - `sheet`: in-flow stretch for bottom sheets; it may shrink and clips
-   *   its content so the sheet's own scroller engages.
-   */
-  layout?: 'cover' | 'sheet' | undefined;
   children?: JSX.Element | undefined;
 };
 
 const COVER_HOST_CLASS = 'absolute inset-0 flex-1';
-const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
 
 /**
  * Where focus lands on activate: what asked for it (`autofocus`, a name
@@ -117,8 +110,6 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     return hostEl;
   };
   useTrapLifecycle(props, host);
-  const layoutClass = () =>
-    props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
     <Dialog
       defaultOpen
@@ -139,7 +130,7 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
         inline
         initialFocus="none"
         finalFocus="none"
-        class={`box outline-none ${layoutClass()}`}
+        class={`box outline-none ${COVER_HOST_CLASS}`}
         data-component="FocusTrap"
         ref={(el) => {
           hostEl = el;

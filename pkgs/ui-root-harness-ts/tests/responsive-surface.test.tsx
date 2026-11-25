@@ -1,12 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
-import { BottomSheetHostProvider } from '@pkgs/ui-root-client-ts/context';
-import { createPassthroughBottomSheetHost } from '@pkgs/ui-root-client-ts/passthrough';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { shouldUseMobileSheet } from '@pkgs/ui-root-client-ts/should-use-mobile-sheet';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
-import { createWebBottomSheetHost } from '@pkgs/ui-root-client-ts/web-bottom-sheet';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import userEvent from '@testing-library/user-event';
@@ -35,24 +31,6 @@ function Surface(props: {
   );
 }
 
-describe('shouldUseMobileSheet', () => {
-  test('sheet only for responsive + compact + capable host', () => {
-    const base = {
-      presentation: undefined,
-      layoutMode: 'compact',
-      supportsSheetPresentation: true,
-    } as const;
-    expect(shouldUseMobileSheet(base)).toBe(true);
-    expect(shouldUseMobileSheet({ ...base, layoutMode: 'wide' })).toBe(false);
-    expect(shouldUseMobileSheet({ ...base, presentation: 'modal' })).toBe(
-      false
-    );
-    expect(
-      shouldUseMobileSheet({ ...base, supportsSheetPresentation: false })
-    ).toBe(false);
-  });
-});
-
 describe('ResponsiveSurface', () => {
   test('wide layout renders a centered ModalContent dialog named by the title', () => {
     const onClose = mock();
@@ -66,13 +44,12 @@ describe('ResponsiveSurface', () => {
     );
     expect(screen.getByRole('dialog', { name: 'Filters' })).toBeInTheDocument();
     expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
-    expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
     expect(screen.getByText('Surface body')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('close'));
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('compact layout renders the CSS bottom sheet with a decorative handle', async () => {
+  test('compact layout renders the centered modal at the full width inside the 16px margin', async () => {
     const user = userEvent.setup();
     const onClose = mock();
     renderUi(
@@ -85,36 +62,60 @@ describe('ResponsiveSurface', () => {
     );
     const dialog = screen.getByRole('dialog', { name: 'Filters' });
     expect(dialog).toHaveAttribute('aria-modal', 'true');
-    const sheet = mustQuery('[data-surface="sheet"]');
-    expect(sheet.className).toMatch(/bottom-0/);
-    // Raised fill, 20px top radius, the float shadow (no hairline), safe-area
-    // inset, rises in.
-    expect(sheet.className).toMatch(/\bbg-surface-elevated\b/);
-    expect(sheet.className).toMatch(/\brounded-t-sheet\b/);
-    expect(sheet.className).toMatch(/\bshadow-float\b/);
-    expect(sheet.className).not.toMatch(/\bborder\b/);
-    expect(sheet.className).toMatch(/\bsafeBottom\b/);
-    expect(sheet.className).toMatch(/\bsheetEnter\b/);
-    // Content-hug capped at 90% of the layout height.
-    expect(cssOf(sheet)).toContain('max-height:720px');
-    expect(mustQuery('[data-component="BottomSheetHandle"]')).toHaveAttribute(
-      'aria-hidden',
-      'true'
+    const modal = mustQuery('[data-component="ModalContent"]');
+    // Centered on the scrim, never docked to the bottom edge.
+    expect(modal.className).toMatch(/\bself-center\b/);
+    expect(modal.className).not.toMatch(/bottom-0/);
+    const centering = mustQuery(
+      '[data-component="ResponsiveSurface"] > :not([data-component="ModalScrim"])'
     );
-    expect(
-      document.querySelector('[data-component="ModalContent"]')
-    ).toBeNull();
+    expect(centering.contains(modal)).toBe(true);
+    expect(centering.className).toMatch(/\bjustify-center\b/);
+    expect(centering.className).toMatch(/\bitems-center\b/);
+    expect(centering.className).toMatch(/\bp-4\b/);
+    // Raised fill, 20px radius, the float shadow (no hairline), fades in.
+    expect(modal.className).toMatch(/\bbg-surface-elevated\b/);
+    expect(modal.className).toMatch(/\brounded-sheet\b/);
+    expect(modal.className).toMatch(/\bshadow-float\b/);
+    expect(modal.className).not.toMatch(/\bborder\b/);
+    expect(modal.className).toMatch(/\bdialogEnter\b/);
+    // Whole width inside the 16px margin (400 - 2 * 16); height capped to
+    // the viewport inside the same margin, so long content scrolls inside.
+    expect(modal).toHaveAttribute('data-size', 'fullWidth');
+    expect(cssOf(modal)).toContain('max-width:368px');
+    expect(cssOf(modal)).toContain('max-height:768px');
     // Focus opens on the surface's content, never on its close control.
     expect(screen.getByRole('button', { name: 'Close' })).not.toHaveFocus();
     expect(dialog.contains(document.activeElement)).toBe(true);
 
-    fireEvent.click(mustQuery('[data-component="BottomSheetScrim"]'));
+    fireEvent.click(mustQuery('[data-component="ModalScrim"]'));
     expect(onClose).toHaveBeenCalledTimes(1);
     await user.keyboard('{Escape}');
     expect(onClose).toHaveBeenCalledTimes(2);
   });
 
-  test('presentation="modal" forces the centered modal on compact layouts', () => {
+  test('wide layout keeps the size bucket for the centered modal', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <ResponsiveSurface
+            visible
+            onClose={() => {}}
+            title="Filters"
+            size="small"
+          >
+            <p class="text">{'Surface body'}</p>
+          </ResponsiveSurface>
+        </SurfaceStackProvider>
+      ),
+      { width: 1200, height: 800 }
+    );
+    const modal = mustQuery('[data-component="ModalContent"]');
+    expect(modal).toHaveAttribute('data-size', 'small');
+    expect(cssOf(modal)).toContain('max-width:360px');
+  });
+
+  test('presentation="modal" is the same centered modal on compact layouts', () => {
     renderUi(
       () => (
         <SurfaceStackProvider>
@@ -124,7 +125,6 @@ describe('ResponsiveSurface', () => {
       { width: 400, height: 800 }
     );
     expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
-    expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
   });
 
   test('scroll={false} keeps the surface fixed without a chrome ScrollView', () => {
@@ -240,22 +240,7 @@ describe('ResponsiveSurface', () => {
     expect(onClose).not.toHaveBeenCalled();
   });
 
-  test('passthrough host falls back to the modal path; web host is the default', () => {
-    expect(createWebBottomSheetHost().supportsSheetPresentation).toBe(true);
-    renderUi(
-      () => (
-        <SurfaceStackProvider>
-          <BottomSheetHostProvider host={createPassthroughBottomSheetHost()}>
-            <Surface onClose={() => {}} />
-          </BottomSheetHostProvider>
-        </SurfaceStackProvider>
-      ),
-      { width: 400, height: 800 }
-    );
-    expect(mustQuery('[data-component="ModalContent"]')).toBeInTheDocument();
-  });
-
-  test('Escape closes the sheet and returns focus to the control that opened it', async () => {
+  test('Escape closes the compact modal and returns focus to the control that opened it', async () => {
     const user = userEvent.setup();
     const [open, setOpen] = createSignal(false);
     renderUi(
@@ -271,18 +256,16 @@ describe('ResponsiveSurface', () => {
     );
     const opener = screen.getByRole('button', { name: 'Open filters' });
     await user.click(opener);
-    expect(mustQuery('[data-surface="sheet"]')).toBeInTheDocument();
+    const dialog = screen.getByRole('dialog', { name: 'Filters' });
     expect(screen.getByRole('button', { name: 'Close' })).not.toHaveFocus();
     await user.tab();
-    expect(
-      mustQuery('[data-surface="sheet"]').contains(document.activeElement)
-    ).toBe(true);
+    expect(dialog.contains(document.activeElement)).toBe(true);
     await user.keyboard('{Escape}');
-    expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
+    expect(screen.queryByRole('dialog')).toBeNull();
     expect(opener).toHaveFocus();
   });
 
-  test('a scrim tap closes the sheet and returns focus to the opener', async () => {
+  test('a scrim tap closes the compact modal and returns focus to the opener', async () => {
     const user = userEvent.setup();
     const [open, setOpen] = createSignal(false);
     renderUi(
@@ -298,7 +281,7 @@ describe('ResponsiveSurface', () => {
     );
     const opener = screen.getByRole('button', { name: 'Open filters' });
     await user.click(opener);
-    fireEvent.click(mustQuery('[data-component="BottomSheetScrim"]'));
+    fireEvent.click(mustQuery('[data-component="ModalScrim"]'));
     expect(screen.queryByRole('dialog')).toBeNull();
     expect(opener).toHaveFocus();
   });
@@ -320,7 +303,7 @@ describe('ResponsiveSurface', () => {
     expect(onClose).toHaveBeenCalledTimes(1);
   });
 
-  test('sheet unmounts and restores focus when hidden', () => {
+  test('the compact modal unmounts when hidden', () => {
     const [open, setOpen] = createSignal(true);
     renderUi(
       () => (
@@ -336,6 +319,8 @@ describe('ResponsiveSurface', () => {
     expect(screen.getByRole('dialog')).toBeInTheDocument();
     fireEvent.click(screen.getByTestId('close'));
     expect(screen.queryByRole('dialog')).toBeNull();
-    expect(document.querySelector('[data-surface="sheet"]')).toBeNull();
+    expect(
+      document.querySelector('[data-component="ModalContent"]')
+    ).toBeNull();
   });
 });
