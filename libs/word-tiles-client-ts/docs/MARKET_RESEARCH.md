@@ -33,3 +33,13 @@
 - **Print the multiplier and its scope on every uncovered bonus.** Wordfeud's DL and DW share a multiplier but affect different things. A visible label lets a player distinguish them before placing a tile. Use the accessible cell name to spell out “double letter” or “double word”.
 - **Mark the tiles the player can still move.** In Wordfeud's CLOCK, a highlighted run includes an ordinary crossing tile. For Word Tiles, give each tentative tile a consistent edge treatment and leave the committed crossing tile in its usual style. A player deciding what to retract needs tile-level information even when a preview shows the score for the whole word.
 - **Keep blank identity through submission.** Preserve the assigned glyph for reading the word, display a zero in the tile's point position, and include “blank assigned [letter], zero points” in its accessible name. The documented V in YESHIVAS illustrates when this matters: a player scoring a later crossing must distinguish that V from an ordinary V. Use a separate treatment for tentative status so committing the move can clear that treatment while the zero remains.
+
+## Decisions and verification, 2026-11-25
+
+The board prints 2L, 3L, 2W and 3W on its bonus squares. Draft letters have individual dashed edges, so the letters a player can retract remain distinguishable within a crossing word. The first round exercised placement, retraction and submission across two-, three- and four-player tables. [Hosted results and board captures](https://github.com/crvouga/gamezilla/pull/576#issuecomment-7158965534)
+
+The marked blank in the Crosswords manual prompted a change for small boards. Word Tiles underlines the assigned letter in both the draft and the committed word. Precision view also shows the zero-point value. Fit can hide point numerals to make room for the letters. The assigned-blank check exercises a three-player match through submission and compares the blank A with an ordinary C. [Hosted board checks](../../../pkgs/ui-root-harness-ts/tests/storybook/word-tiles-gestures/integration.checks.ts)
+
+The player can pick up a rack tile and drop it onto a magnified square. Starting on the board instead lets the player inspect a crossing by panning or zooming. The phone and desktop checks exercise these actions, including interrupted drops, return to Fit and reduced motion. This interaction follows the board brief; the competitor screenshots establish appearance only.
+
+**Open question.** Can a first-time player recognize the underline alone as a blank in Fit? Automated checks establish that the mark persists and the accessible name identifies the blank. Recognition by players remains unmeasured.
