@@ -132,7 +132,10 @@ function AttemptAlerts(props: PuzzlePackStageScreenViewProps): JSX.Element {
             variant="compact"
             title={t`Your change was not saved`}
             body={error()}
-            retry={{ onClick: props.onRetryChange }}
+            retry={{
+              onClick: props.onRetryChange,
+              dataSet: { testid: 'content-retry-position' },
+            }}
           />
         )}
       </Show>

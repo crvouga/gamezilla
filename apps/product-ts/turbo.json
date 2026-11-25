@@ -8,6 +8,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -23,6 +24,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -38,6 +40,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -53,6 +56,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
+        "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
