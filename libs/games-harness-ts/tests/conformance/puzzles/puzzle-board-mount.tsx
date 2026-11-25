@@ -21,7 +21,10 @@ import {
   SoundsPreferenceProvider,
 } from '@pkgs/sounds-client-ts/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
-import { type ThemeLayout, ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import {
+  type ThemeLayout,
+  ThemeProvider,
+} from '@pkgs/ui-root-client-ts/theme-context';
 import type { SolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 
