@@ -226,7 +226,10 @@ export const DropADisc: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const column = await canvas.findByTestId('custom-game-board-column-4');
+    const turn = canvas.getByTestId('custom-game-board-prompt');
+    await expect(turn).toHaveAttribute('data-turn', '1');
     await userEvent.click(column);
+    await expect(turn).toHaveAttribute('data-turn', '2');
     await expect(
       canvas.getByTestId('custom-game-board-cell-3')
     ).toHaveAttribute('data-disc', '1');

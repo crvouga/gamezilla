@@ -10,7 +10,6 @@ import {
 } from 'solid-js';
 import { useGameBoardPreview } from '../game-board-stage/board-preview';
 import { Column, landing, nextColumn } from './column';
-import rack from './connect-four-rack.module.css';
 import styles from './disc-drop-board.module.css';
 export type DiscDropBoardProps = {
   readonly cells: readonly number[];
@@ -109,7 +108,7 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
   return (
     <div
       ref={root}
-      class={`${styles['board']} ${rack['rack']}`}
+      class={styles['board']}
       role="group"
       aria-label={props.label}
       aria-describedby={describedBy(
@@ -127,7 +126,9 @@ export function DiscDropBoard(props: DiscDropBoardProps): JSX.Element {
       <Show when={promptLine()}>
         <p
           id={promptId}
-          data-turn={prompting() && props.interactive ? props.active : undefined}
+          data-turn={
+            prompting() && props.interactive ? props.active : undefined
+          }
           class={`${styles['prompt']} text textCaption`}
           data-testid={`${props.testId}-prompt`}
         >

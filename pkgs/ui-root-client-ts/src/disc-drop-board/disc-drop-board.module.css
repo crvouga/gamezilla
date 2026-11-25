@@ -102,6 +102,9 @@
 }
 .column[data-previewed="true"]::before {
   opacity: 0.12;
+  box-shadow:
+    inset var(--ui-space-hairline) 0 currentColor,
+    inset calc(-1 * var(--ui-space-hairline)) 0 currentColor;
 }
 .column:focus-visible {
   outline: 2px solid var(--ui-color-focus-ring);
@@ -141,10 +144,21 @@
    side's colour, a hollow disc waiting in the drop slot above the column:
    the disc in hand, never one on the board. */
 .drop {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   padding-block: var(--ui-space-1) var(--ui-space-hairline);
+}
+.drop[data-disc="1"]::after,
+.drop[data-disc="2"]::after {
+  content: "";
+  position: absolute;
+  bottom: calc(-1 * var(--ui-space-1));
+  width: var(--ui-space-3);
+  height: var(--ui-space-2);
+  background: var(--ui-color-text);
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
 }
 .number {
   display: grid;
@@ -304,4 +318,76 @@
   .disc {
     transition: none;
   }
+}
+
+/* Highlights on the upper lip and shadow on the lower lip give the rack
+   depth without spending any of the seven columns' hit area. */
+.board {
+  --rack-glint: var(--ui-color-text-secondary);
+  --rack-shade: var(--ui-color-scrim);
+  background-image: linear-gradient(
+    to bottom,
+    var(--rack-glint) -28%,
+    transparent 14%
+  );
+  box-shadow:
+    inset 0 var(--ui-space-hairline) var(--rack-glint),
+    inset 0 calc(-1 * var(--ui-space-1)) var(--rack-shade);
+}
+
+.board [data-cell] {
+  box-shadow:
+    inset 0 var(--ui-space-1) var(--ui-space-1) var(--rack-shade),
+    0 var(--ui-space-hairline) var(--rack-glint);
+}
+
+/* A raised annulus on each checker surrounds its seat mark. The empty
+   destination keeps its hollow, dashed treatment. */
+.board [data-cell]:not([data-disc="0"]) > span {
+  position: relative;
+  background-image: linear-gradient(
+    155deg,
+    var(--rack-glint) -70%,
+    transparent 48%,
+    var(--rack-shade)
+  );
+}
+
+.board [data-cell]:not([data-disc="0"]) > span::before {
+  position: absolute;
+  inset: 14%;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 var(--ui-space-hairline) var(--rack-shade),
+    0 var(--ui-space-hairline) var(--rack-glint);
+  content: "";
+}
+
+.board [data-winning="true"] {
+  background-image: radial-gradient(
+    circle,
+    var(--ui-color-text) 49%,
+    transparent 51%
+  );
+}
+
+.board [data-turn]::before {
+  display: inline-block;
+  width: var(--ui-space-3);
+  height: var(--ui-space-3);
+  margin-inline-end: var(--ui-space-2);
+  border: var(--ui-space-hairline) solid var(--ui-color-text);
+  vertical-align: baseline;
+  content: "";
+}
+
+.board [data-turn="1"]::before {
+  border-radius: 50%;
+  background: var(--ui-color-destructive);
+}
+
+.board [data-turn="2"]::before {
+  border-radius: var(--ui-space-hairline);
+  background: var(--ui-color-warning);
+  transform: rotate(45deg);
 }
