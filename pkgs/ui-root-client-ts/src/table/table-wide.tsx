@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
@@ -80,7 +81,7 @@ function HeaderCell<R>(props: {
       aria-sort={ariaSort(props.column, props.table.sort)}
     >
       <Show when={props.column.sortValue !== undefined} fallback={label}>
-        <button
+        <SdkButton
           type="button"
           class="clickable inline-flex flex-row items-center gap-ui-xs rounded-sm focus-visible:outline-2 focus-visible:outline-focus-ring focus-visible:outline-offset-2"
           onClick={() =>
@@ -96,7 +97,7 @@ function HeaderCell<R>(props: {
               <ChevronDownIcon size={16} color="icon" />
             </Show>
           </Show>
-        </button>
+        </SdkButton>
       </Show>
     </th>
   );

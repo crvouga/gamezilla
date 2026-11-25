@@ -12,6 +12,7 @@ const require = createRequire(import.meta.url);
 const repoRoot = resolve(import.meta.dirname, '../..');
 export default defineConfig({
   root: resolve(import.meta.dirname, 'src'),
+  optimizeDeps: { exclude: ['@ui-sdk/core'] },
   plugins: [
     workspaceExportsResolver({ repoRoot, scopes: { '@pkgs': 'pkgs' } }),
     tailwindcss(),

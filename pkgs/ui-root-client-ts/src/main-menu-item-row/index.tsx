@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -258,7 +259,7 @@ export function MainMenuItemRow(props: {
       }
     >
       {(onClick) => (
-        <button
+        <SdkButton
           class="clickable clickableTint items-stretch"
           {...dataAttrs({ component: 'MainMenuItem', ...props.item.dataSet })}
           type="button"
@@ -271,7 +272,7 @@ export function MainMenuItemRow(props: {
             interactive={interactive()}
             layout={props.layout ?? 'row'}
           />
-        </button>
+        </SdkButton>
       )}
     </Show>
   );

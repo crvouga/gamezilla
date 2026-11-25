@@ -8,6 +8,7 @@
  * - Recursing into children when expanded
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonPath,
@@ -148,7 +149,7 @@ function NodeRow(props: {
           </div>
         }
       >
-        <button
+        <SdkButton
           class="clickable text-left"
           type="button"
           style={rowStyle(props.depth)}
@@ -156,7 +157,7 @@ function NodeRow(props: {
           aria-expanded={props.expanded ? 'true' : 'false'}
         >
           {content()}
-        </button>
+        </SdkButton>
       </Show>
       <Show when={props.copy}>
         {(copy) => <CopyValueButton value={props.value} copy={copy()} />}
@@ -286,7 +287,7 @@ function CopyValueButton(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <button
+    <SdkButton
       class="clickable clickableOpacity w-5 h-5 items-center justify-center opacity-muted shrink-0"
       type="button"
       aria-label={t`Copy value`}
@@ -295,6 +296,6 @@ function CopyValueButton(props: {
       }}
     >
       <CopyIcon size={12} />
-    </button>
+    </SdkButton>
   );
 }

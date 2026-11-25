@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   DATA_TABLE_ROW_HEIGHT,
@@ -85,7 +86,7 @@ function DataTableCell<T>(props: {
         }
       >
         {(onClick) => (
-          <button
+          <SdkButton
             class="clickable"
             type="button"
             style={inner()}
@@ -93,7 +94,7 @@ function DataTableCell<T>(props: {
             tabindex={props.tabbable ? 0 : -1}
           >
             <DataTableCellContent column={props.column} row={props.row} />
-          </button>
+          </SdkButton>
         )}
       </Show>
     </td>

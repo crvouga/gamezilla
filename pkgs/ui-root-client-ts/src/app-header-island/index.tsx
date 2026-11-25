@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
@@ -23,7 +24,7 @@ const STROKE_DEFAULT = 2;
 function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   const ItemIcon = dynamic(() => props.item.icon);
   return (
-    <button
+    <SdkButton
       class={[
         'clickable clickableTint flex-row items-center gap-2 px-4 h-11 rounded-full border transition-colors',
         {
@@ -59,14 +60,14 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
           {props.item.label}
         </span>
       </span>
-    </button>
+    </SdkButton>
   );
 }
 
 function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
   const ItemIcon = dynamic(() => props.item.icon);
   return (
-    <button
+    <SdkButton
       class={[
         'clickable clickableTint flex-row items-center gap-3 px-3 h-11 w-full rounded-control transition-colors',
         { 'bg-tint-subtle': props.item.active },
@@ -93,7 +94,7 @@ function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
       >
         {props.item.label}
       </span>
-    </button>
+    </SdkButton>
   );
 }
 

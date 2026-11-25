@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
@@ -161,7 +162,7 @@ function IconButtonFace(
   };
 
   return (
-    <button
+    <SdkButton
       class={[
         `clickable clickableTint ${hitBoxClass()}`,
         {
@@ -217,7 +218,7 @@ function IconButtonFace(
           </OnColorProvider>
         </Show>
       </div>
-    </button>
+    </SdkButton>
   );
 }
 

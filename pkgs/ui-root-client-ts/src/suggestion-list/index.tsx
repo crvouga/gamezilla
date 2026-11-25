@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createUniqueId, For, Show } from 'solid-js';
@@ -32,7 +33,7 @@ function SuggestionRow(props: {
   onHover: () => void;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       type="button"
       role="option"
       id={props.id}
@@ -52,7 +53,7 @@ function SuggestionRow(props: {
       <Show when={props.item.detail}>
         {(detail) => <Badge label={detail()} intent="neutral" size="sm" />}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 

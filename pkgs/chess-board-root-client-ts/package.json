@@ -33,6 +33,8 @@
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@solidjs/web": "catalog:",
+    "@ui-sdk/core": "catalog:",
+    "@ui-sdk/solid": "catalog:",
     "chess.js": "catalog:",
     "solid-js": "catalog:"
   },

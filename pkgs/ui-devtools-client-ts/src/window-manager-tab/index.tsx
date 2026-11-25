@@ -5,6 +5,7 @@
  * buttons in one shell, as in `TabStrip`.
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { windowPanels } from '@pkgs/ui-devtools-shared-ts/window-layout';
 import {
@@ -113,7 +114,7 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
           aria-hidden="true"
         />
       </Show>
-      <button
+      <SdkButton
         ref={(element) =>
           // A tab is created for one panel: its bar is keyed by the panel id,
           // so the id read once here never goes stale.
@@ -167,9 +168,9 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
         >
           {title()}
         </span>
-      </button>
+      </SdkButton>
       <Show when={closable()}>
-        <button
+        <SdkButton
           class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-6 h-6 ${styles['close'] ?? ''}`}
           data-component={componentId('WindowManagerTabClose')}
           {...dataAttrs({ 'window-part': 'close', 'panel-id': props.panel.id })}
@@ -179,7 +180,7 @@ export function WindowManagerTab(props: WindowManagerTabProps): JSX.Element {
           onClick={() => api.dispatch({ type: 'close', panel: props.panel.id })}
         >
           <XIcon size={12} color="textSecondary" />
-        </button>
+        </SdkButton>
       </Show>
     </div>
   );

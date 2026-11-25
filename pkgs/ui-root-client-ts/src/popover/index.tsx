@@ -4,6 +4,7 @@ import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import { pushEscapeDismissHandler } from '@pkgs/ui-root-shared-ts/escape-dismiss-stack';
 import { collectTabbable } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
 import type { JSX } from '@solidjs/web';
+import { Popover as SdkPopover, PopoverContent } from '@ui-sdk/solid/popover';
 import {
   createEffect,
   createMemo,
@@ -131,7 +132,7 @@ function PopoverPanel(props: {
   return (
     <div class="box absolute inset-0 boxNone">
       <OnColorReset>
-        <div
+        <PopoverContent inline initialFocus="none" finalFocus="none"
           ref={(el) => {
             panel = el;
           }}
@@ -144,12 +145,11 @@ function PopoverPanel(props: {
           id={props.id}
           data-testid={props.testId}
           data-component={componentId('Popover')}
-          role="dialog"
           aria-label={props.label}
           tabindex={-1}
         >
           {props.children}
-        </div>
+        </PopoverContent>
       </OnColorReset>
     </div>
   );
@@ -228,7 +228,7 @@ export function Popover(props: PopoverProps): JSX.Element {
     },
   };
   return (
-    <>
+    <SdkPopover open={open()} modal={false} dismissible={false} onOpenChange={(next) => next ? setOpen(true) : close('trigger')}>
       <span
         ref={setAnchor}
         class="inline-flex self-start"
@@ -253,6 +253,6 @@ export function Popover(props: PopoverProps): JSX.Element {
           </SurfaceStackSlot>
         )}
       </Show>
-    </>
+    </SdkPopover>
   );
 }

@@ -2,7 +2,8 @@
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createUniqueId, Show } from 'solid-js';
+import { Textarea as SdkTextarea } from '@ui-sdk/solid/textarea';
+import { createUniqueId, Show } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
 
@@ -32,12 +33,6 @@ export type TextareaProps = {
   /** Rendered as `data-testid`. */
   testId?: string | undefined;
 };
-
-/** Height to fit the text; a dynamic value classes cannot express. */
-function fitHeight(element: HTMLTextAreaElement): void {
-  element.style.height = 'auto';
-  element.style.height = `${element.scrollHeight}px`;
-}
 
 function TextareaCount(props: {
   id: string;
@@ -81,7 +76,6 @@ function TextareaCount(props: {
 export function Textarea(props: TextareaProps): JSX.Element {
   const field = useFormField();
   const countId = `textarea-count-${createUniqueId()}`;
-  let element: HTMLTextAreaElement | undefined;
   const counted = (): boolean =>
     props.showCount === true && props.maxLength !== undefined;
   const invalid = (): boolean =>
@@ -93,18 +87,10 @@ export function Textarea(props: TextareaProps): JSX.Element {
     ]);
     return ids === '' ? undefined : ids;
   };
-  createEffect(
-    () => [props.value, props.autoGrow] as const,
-    ([, autoGrow]) => {
-      if (autoGrow === true && element !== undefined) fitHeight(element);
-    }
-  );
   return (
     <div class="box gap-ui-xs" data-component={componentId('Textarea')}>
-      <textarea
-        ref={(el) => {
-          element = el;
-        }}
+      <SdkTextarea
+        autoResize={props.autoGrow === true}
         class={spaced([
           'input inputTextarea text textBody px-ui-lg py-ui-sm',
           invalid() ? 'inputError' : undefined,
@@ -123,7 +109,7 @@ export function Textarea(props: TextareaProps): JSX.Element {
         aria-label={props['aria-label']}
         aria-describedby={describedBy()}
         aria-invalid={invalid() ? 'true' : undefined}
-        onInput={(event) => props.onValueChange(event.currentTarget.value)}
+        onValueChange={(value) => props.onValueChange(value)}
       />
       <Show when={counted() ? props.maxLength : undefined} keyed>
         {(max) => (

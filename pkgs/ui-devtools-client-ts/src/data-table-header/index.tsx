@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { DATA_TABLE_SELECTION_COL_WIDTH } from '@pkgs/ui-devtools-shared-ts/data-table-metrics';
 import type {
@@ -117,7 +118,7 @@ function HeaderCell<T>(props: {
           </div>
         }
       >
-        <button
+        <SdkButton
           class="clickable min-h-10 flex-row items-center w-full"
           type="button"
           style={{
@@ -127,7 +128,7 @@ function HeaderCell<T>(props: {
           onClick={() => props.onToggleSort(props.column.id)}
         >
           {text()}
-        </button>
+        </SdkButton>
       </Show>
     </th>
   );

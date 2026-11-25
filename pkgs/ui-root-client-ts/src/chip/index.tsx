@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -45,7 +46,7 @@ export function Chip(props: ChipProps): JSX.Element {
   const selected = (): boolean => props.selected === true;
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint hitTarget chip self-start flex-row items-center justify-center gap-2"
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
       type="button"
@@ -61,6 +62,6 @@ export function Chip(props: ChipProps): JSX.Element {
         <div class="box h-4 items-center justify-center">{props.startIcon}</div>
       </Show>
       <span class="text textLabel line-clamp-1">{props.label}</span>
-    </button>
+    </SdkButton>
   );
 }

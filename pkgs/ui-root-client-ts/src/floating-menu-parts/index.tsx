@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
@@ -122,7 +123,7 @@ export function FloatingMenuItem(props: {
 }): JSX.Element {
   const RowIcon = dynamic(() => props.row.icon);
   return (
-    <button
+    <SdkButton
       class={[
         'clickable clickableTint min-h-11 py-2 px-4 flex-row items-center gap-3 text-left -outline-offset-2',
         { 'opacity-disabled': props.row.disabled === true },
@@ -161,6 +162,6 @@ export function FloatingMenuItem(props: {
         </p>
       </Show>
       {props.row.trailing}
-    </button>
+    </SdkButton>
   );
 }

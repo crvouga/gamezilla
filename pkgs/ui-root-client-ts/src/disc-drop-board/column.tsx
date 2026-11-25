@@ -1,4 +1,5 @@
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import styles from './disc-drop-board.module.css';
@@ -104,7 +105,7 @@ export function Column(props: {
     props.target % props.board.columns === props.column;
   return (
     <>
-      <button
+      <SdkButton
         aria-describedby={descriptionId}
         tabindex={props.tabStop ? 0 : -1}
         aria-keyshortcuts={
@@ -150,7 +151,7 @@ export function Column(props: {
             />
           )}
         </For>
-      </button>
+      </SdkButton>
       <span id={descriptionId} class={styles['hidden']}>
         {rows()
           .map((row) =>

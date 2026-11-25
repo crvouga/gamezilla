@@ -1,4 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
 import {
   createEffect,
@@ -51,7 +52,7 @@ function PathCell(props: {
   // Only a cell whose description changed is rewritten during a drawing.
   const label = createMemo(() => props.board.cellLabel(props.index));
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       data-cell={props.index}
@@ -98,7 +99,7 @@ function PathCell(props: {
           );
         }}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 

@@ -6,6 +6,7 @@ import {
   nextTabStop,
 } from '@pkgs/ui-root-shared-ts/focus-trap-logic';
 import type { JSX } from '@solidjs/web';
+import { Dialog, DialogContent } from '@ui-sdk/solid/dialog';
 import {
   createEffect,
   createMemo,
@@ -109,19 +110,30 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
   const layoutClass = () =>
     props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
-    <div
+    <Dialog
+      open
+      modal={false}
+      dismissible={false}
+      onOpenChange={(open) => {
+        if (!open && props.active) props.onEscape?.();
+      }}
+    >
+    <DialogContent
+      inline
+      initialFocus="none"
+      finalFocus="none"
       class={`box ${layoutClass()}`}
       data-component="FocusTrap"
       ref={(el) => {
         hostEl = el;
       }}
-      role="dialog"
       aria-modal="true"
       aria-label={props.label}
       aria-labelledby={props.labelledBy}
       tabindex={-1}
     >
       {props.children}
-    </div>
+    </DialogContent>
+    </Dialog>
   );
 }

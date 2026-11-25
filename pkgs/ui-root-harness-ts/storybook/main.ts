@@ -86,6 +86,10 @@ const config: StorybookConfig = {
         },
       }),
     ];
+    config.optimizeDeps = {
+      ...config.optimizeDeps,
+      exclude: [...(config.optimizeDeps?.exclude ?? []), '@ui-sdk/core'],
+    };
     config.resolve = {
       ...config.resolve,
       dedupe: ['solid-js', '@solidjs/web', '@lingui/core'],

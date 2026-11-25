@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
+import { Separator } from '@ui-sdk/solid/separator';
 import type { JSX } from '@solidjs/web';
 
 export type DividerOrientation = 'horizontal' | 'vertical';
@@ -36,10 +37,9 @@ const ORIENTATION: Readonly<Record<DividerOrientation, string>> = {
  */
 export function Divider(props: DividerProps): JSX.Element {
   return (
-    <div
+    <Separator
       class={ORIENTATION[props.orientation ?? 'horizontal']}
-      role="separator"
-      aria-orientation={props.orientation ?? 'horizontal'}
+      orientation={props.orientation ?? 'horizontal'}
       data-testid={props.testId}
       data-component={componentId('Divider')}
     />

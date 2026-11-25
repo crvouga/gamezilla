@@ -7,6 +7,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Pagination, PaginationFirst, PaginationLast, PaginationNext, PaginationPrevious, PaginationLink } from '@ui-sdk/solid/pagination';
 import { For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import {
@@ -59,24 +60,22 @@ function NavButton(props: {
   readonly label: string;
   readonly size: number;
   readonly disabled: boolean;
-  readonly onClick: () => void;
+  readonly step: typeof PaginationPrevious;
   readonly icon: IconComponent;
 }): JSX.Element {
   const NavIcon = dynamic(() => props.icon);
   return (
-    <button
+    <props.step
+      render={(attrs) => <button {...attrs} disabled={props.disabled} />}
       class="clickable clickableTint"
-      type="button"
       style={{ ...HIT_STYLE, opacity: props.disabled ? 0.4 : 1 }}
       aria-label={props.label}
       title={props.label}
-      disabled={props.disabled}
-      onClick={() => props.onClick()}
     >
       <div class="box" style={circleStyle(props.size, false)}>
         <NavIcon size={ICON_SIZE} color="icon" />
       </div>
-    </button>
+    </props.step>
   );
 }
 
@@ -85,7 +84,6 @@ function PageSlot(props: {
   readonly pageIndex: number;
   readonly size: number;
   readonly disabled: boolean;
-  readonly onGo: (pageIndex: number) => void;
 }): JSX.Element {
   const { t } = useLingui();
   const pageLabel = (pageIndex: number): string => {
@@ -113,14 +111,12 @@ function PageSlot(props: {
         const active = () => page().pageIndex === props.pageIndex;
         const label = () => String(page().pageIndex + 1);
         return (
-          <button
+          <PaginationLink
+            page={page().pageIndex + 1}
+            render={(attrs) => <button {...attrs} disabled={props.disabled} />}
             class="clickable clickableTint"
-            type="button"
             style={HIT_STYLE}
             aria-label={pageLabel(page().pageIndex)}
-            aria-current={active() ? 'page' : undefined}
-            disabled={props.disabled}
-            onClick={() => props.onGo(page().pageIndex)}
           >
             <div class="box" style={circleStyle(props.size, active())}>
               <p
@@ -135,7 +131,7 @@ function PageSlot(props: {
                 {label()}
               </p>
             </div>
-          </button>
+          </PaginationLink>
         );
       }}
     </Show>
@@ -173,7 +169,12 @@ export function PaginationControls(
   };
 
   return (
-    <nav
+    <Pagination
+      page={props.pageIndex + 1}
+      pageCount={props.pageCount}
+      disabled={navDisabled()}
+      siblings={props.siblingCount ?? DEFAULT_SIBLING_COUNT}
+      onPageChange={(page) => go(page - 1)}
       class="box flex-row items-center"
       {...dataAttrs({ component: 'PaginationControls', ...props.dataSet })}
       aria-label={t`Pagination`}
@@ -182,14 +183,14 @@ export function PaginationControls(
         label={t`Start`}
         size={size()}
         disabled={navDisabled() || atStart()}
-        onClick={() => go(0)}
+        step={PaginationFirst}
         icon={ChevronsLeftIcon}
       />
       <NavButton
         label={t`Previous`}
         size={size()}
         disabled={navDisabled() || atStart()}
-        onClick={() => go(props.pageIndex - 1)}
+        step={PaginationPrevious}
         icon={ChevronLeftIcon}
       />
       <For each={items()}>
@@ -199,7 +200,6 @@ export function PaginationControls(
             pageIndex={props.pageIndex}
             size={size()}
             disabled={disabled()}
-            onGo={go}
           />
         )}
       </For>
@@ -207,16 +207,16 @@ export function PaginationControls(
         label={t`Next`}
         size={size()}
         disabled={navDisabled() || atEnd()}
-        onClick={() => go(props.pageIndex + 1)}
+        step={PaginationNext}
         icon={ChevronRightIcon}
       />
       <NavButton
         label={t`End`}
         size={size()}
         disabled={navDisabled() || atEnd()}
-        onClick={() => go(lastIndex())}
+        step={PaginationLast}
         icon={ChevronsRightIcon}
       />
-    </nav>
+    </Pagination>
   );
 }

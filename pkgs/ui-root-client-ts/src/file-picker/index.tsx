@@ -4,6 +4,7 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { FileInput, FileInputTrigger } from '@ui-sdk/solid/file-input';
 import { createUniqueId, Show } from 'solid-js';
 import { FileIcon } from '../icons';
 import styles from './file-picker.module.css';
@@ -38,7 +39,11 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
   const labelId = createUniqueId();
   const hintId = createUniqueId();
   return (
-    <label
+    <FileInput
+      accept={props.accept}
+      disabled={props.disabled === true}
+      aria-labelledby={labelId}
+      onValueChange={(files) => props.onSelect(files[0] ?? null)}
       class="box gap-2"
       aria-disabled={ariaBoolean(props.disabled ?? false)}
       {...dataAttrs({ component: 'FilePicker', ...props.dataSet })}
@@ -46,23 +51,14 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
       <span id={labelId} class="text textLabel">
         {props.label}
       </span>
-      <span
+      <FileInputTrigger
+        aria-labelledby={labelId}
+        aria-describedby={props.hint === undefined ? undefined : hintId}
         class={[
           styles['field'],
           { [styles['empty'] ?? '']: props.fileName === null },
         ]}
       >
-        <input
-          type="file"
-          accept={props.accept}
-          disabled={props.disabled}
-          class={styles['input']}
-          aria-labelledby={labelId}
-          aria-describedby={props.hint === undefined ? undefined : hintId}
-          onChange={(event) =>
-            props.onSelect(event.currentTarget.files?.[0] ?? null)
-          }
-        />
         <span class={styles['choose']} aria-hidden="true">
           {props.chooseLabel}
         </span>
@@ -80,12 +76,12 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
             {props.fileName ?? props.emptyLabel}
           </span>
         </span>
-      </span>
+      </FileInputTrigger>
       <Show when={props.hint !== undefined}>
         <span id={hintId} class="text textCaption">
           {props.hint}
         </span>
       </Show>
-    </label>
+    </FileInput>
   );
 }

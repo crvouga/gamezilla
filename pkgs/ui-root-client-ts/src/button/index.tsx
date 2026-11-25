@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -19,6 +20,8 @@ import type { FocusTarget } from '../focus';
 import { LockIcon } from '../icons';
 
 export type ButtonProps = {
+  /** Explanation shown when an agent action needs a person's confirmation. */
+  agentConfirm?: string | undefined;
   /** Visible action label; prefer a verb that describes the outcome. */
   title: JSX.Element;
   /** Runs the action. Use a Link for navigation to another route. */
@@ -145,7 +148,7 @@ export function Button(props: ButtonProps): JSX.Element {
       ? { flex: String(props.flex) }
       : undefined;
   return (
-    <button
+    <SdkButton
       ref={bindElementTargets(props)}
       class={`clickable clickableTint btn ${buttonClass({
         flex: props.flex,
@@ -161,6 +164,7 @@ export function Button(props: ButtonProps): JSX.Element {
         ...props.dataSet,
       })}
       type={props.type ?? 'button'}
+      data-agent-confirm={props.agentConfirm}
       name={props.name}
       value={props.value}
       onClick={() => state().handleClick?.()}
@@ -170,7 +174,7 @@ export function Button(props: ButtonProps): JSX.Element {
       aria-pressed={ariaBoolean(props['aria-pressed'])}
       aria-current={ariaBoolean(props['aria-current'])}
       aria-expanded={ariaBoolean(props['aria-expanded'])}
-      style={flexStyle()}
+      style={flexStyle}
     >
       <span class="box shrink min-w-0 flex-row items-center justify-center overflow-hidden">
         <ButtonContent
@@ -200,6 +204,6 @@ export function Button(props: ButtonProps): JSX.Element {
           endIcon={props.endIcon}
         />
       </span>
-    </button>
+    </SdkButton>
   );
 }

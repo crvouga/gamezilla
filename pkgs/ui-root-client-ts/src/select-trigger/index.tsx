@@ -9,6 +9,7 @@ import type {
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
 
@@ -48,7 +49,7 @@ export function SelectTrigger<T extends SelectValue>(
   const compact = (): boolean => props.size === 'sm';
   const hasSelection = (): boolean => props.selected !== undefined;
   return (
-    <button
+    <SdkButton
       class={triggerClass(compact())}
       {...dataAttrs({ component: 'SelectTrigger', ...props.dataSet })}
       type="button"
@@ -75,6 +76,6 @@ export function SelectTrigger<T extends SelectValue>(
         {props.selected?.label ?? props.placeholder}
       </p>
       <ChevronDownIcon size={compact() ? 16 : 20} color="icon" />
-    </button>
+    </SdkButton>
   );
 }

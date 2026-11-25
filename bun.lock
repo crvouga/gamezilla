@@ -4811,6 +4811,8 @@
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/ui-root-shared-ts": "workspace:*",
         "@solidjs/web": "catalog:",
+        "@ui-sdk/core": "catalog:",
+        "@ui-sdk/solid": "catalog:",
         "chess.js": "catalog:",
         "solid-js": "catalog:",
       },
@@ -7719,6 +7721,8 @@
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/ui-root-shared-ts": "workspace:*",
         "@solidjs/web": "catalog:",
+        "@ui-sdk/core": "catalog:",
+        "@ui-sdk/solid": "catalog:",
         "solid-js": "catalog:",
       },
       "devDependencies": {
@@ -7807,6 +7811,8 @@
         "@solidjs/router": "catalog:",
         "@solidjs/web": "catalog:",
         "@tanstack/virtual-core": "catalog:",
+        "@ui-sdk/core": "catalog:",
+        "@ui-sdk/solid": "catalog:",
         "lucide": "catalog:",
         "prosemirror-commands": "catalog:",
         "prosemirror-history": "catalog:",
@@ -8148,6 +8154,8 @@
     "@types/node": "^20.19.43",
     "@types/pg": "^8.23.1",
     "@typescript/native": "npm:typescript@~7.0.2",
+    "@ui-sdk/core": "0.1.0-beta.17",
+    "@ui-sdk/solid": "0.1.0-beta.17",
     "@xmldom/xmldom": "0.8.15",
     "aedes": "^1.2.0",
     "axe-core": "4.12.1",
@@ -10076,6 +10084,10 @@
     "@typescript/typescript-win32-x64": ["@typescript/typescript-win32-x64@7.0.2", "", { "os": "win32", "cpu": "x64" }, "sha512-0BQ3HkAHHlKLSp1qRvf3SUhGpGsDuhB/jgFw75guyqbxJqEaS0Cw/VFO8i2nHglJUzQCRtMMR/IBAKE3ETMC4g=="],
 
     "@typescript/typescript6": ["@typescript/typescript6@6.0.2", "", { "dependencies": { "@typescript/old": "npm:typescript@^6" }, "bin": { "tsc6": "bin/tsc6" } }, "sha512-mbCddXd+jm7hfx7w2YU64/Av4/NqqeG3GoRZgxPcgoTxYjhrcfJRw9ULch71SS4G+Q3bOXFhRvPqjguN0Hyp5w=="],
+
+    "@ui-sdk/core": ["@ui-sdk/core@0.1.0-beta.17", "", {}, "sha512-wBWNqT0Qf1sE6fqD1XuBnSGBFcY6+cek1z7rKl/r4j2bsv2or9i7z44PLy0J9hmflm3IJ5MLW0P4ur2H9BCIvg=="],
+
+    "@ui-sdk/solid": ["@ui-sdk/solid@0.1.0-beta.17", "", { "peerDependencies": { "@solidjs/web": "^2.0.0", "@ui-sdk/core": "^0.1.0-beta.17", "solid-js": "^2.0.0" } }, "sha512-jdvIex6YOCbCCmMLXp5TzeiBUtyGZOHCE/PdF+DdL3KTJrNJTym+2jIvlJkmpvdkrY4CB6o1zz2DuGJDsdonaA=="],
 
     "@valibot/to-json-schema": ["@valibot/to-json-schema@1.8.0", "", { "peerDependencies": { "valibot": "^1.5.0" } }, "sha512-a0M+uwCuQZEPAo65NYkFSJ14O5c213KoSZmPdoCfuFvUhfULi4T2Z6Tpjv6lTVMW9RoLm74RpRAjNEa43KcN+g=="],
 

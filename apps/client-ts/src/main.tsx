@@ -17,10 +17,12 @@ import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
 import { polyfillDisposal } from '@pkgs/polyfill-shared-ts/disposal';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
+import { registerUiAgentTools } from '@pkgs/ui-root-client-ts/register-ui-agent-tools';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import { render } from '@solidjs/web';
+import { onCleanup } from 'solid-js';
 
 // Before anything runs a `using`: the native shell's web view is Safari's.
 polyfillDisposal();
@@ -54,4 +56,8 @@ window.addEventListener('pagehide', () => {
 });
 
 root.replaceChildren();
-render(() => <client.App />, root);
+const dispose = render(() => {
+  onCleanup(registerUiAgentTools());
+  return <client.App />;
+}, root);
+if (import.meta.hot) import.meta.hot.dispose(dispose);

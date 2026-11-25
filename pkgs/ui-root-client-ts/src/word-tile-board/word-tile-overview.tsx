@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createSignal, onSettled, Show } from 'solid-js';
 import { observeElementResize } from '../observe-element-resize';
@@ -53,12 +54,12 @@ export function WordTileOverview(props: {
       <div class={styles['tools']}>
         <div class={styles['commands']}>
           {props.controls}
-          <button
+          <SdkButton
             type="button"
             class={styles['locator']}
             aria-haspopup="dialog"
             onClick={() => setOpen(true)}
-          >{t`Find a square`}</button>
+          >{t`Find a square`}</SdkButton>
         </div>
         <P variant="caption">{t`View an area`}</P>
         <P variant="caption" testId={`${props.board.testId}-square-details`}>

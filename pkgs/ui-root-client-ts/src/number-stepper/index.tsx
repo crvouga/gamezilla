@@ -4,6 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { NumberInput, NumberInputDecrement, NumberInputIncrement, createNumberInputController } from '@ui-sdk/solid/number-input';
 import { createUniqueId, Show } from 'solid-js';
 
 export type NumberStepperProps = {
@@ -73,15 +74,15 @@ function StepperGlyph(props: { plus: boolean }): JSX.Element {
 }
 
 function StepperButton(props: {
-  onClick: () => void;
   disabled: boolean;
   'aria-label': string;
   'aria-describedby': string | undefined;
   plus: boolean;
   testId: string | undefined;
 }): JSX.Element {
+  const Step = props.plus ? NumberInputIncrement : NumberInputDecrement;
   return (
-    <button
+    <Step
       class={[
         'clickable clickableTint size-11 shrink-0 items-center justify-center rounded-full border border-outline text-text',
         { 'cursor-not-allowed': props.disabled },
@@ -89,14 +90,13 @@ function StepperButton(props: {
       data-component="NumberStepperButton"
       data-testid={props.testId}
       type="button"
-      onClick={() => props.onClick()}
       disabled={props.disabled}
       aria-label={props['aria-label']}
       aria-describedby={props['aria-describedby']}
       tabindex={-1}
     >
       <StepperGlyph plus={props.plus} />
-    </button>
+    </Step>
   );
 }
 
@@ -132,17 +132,7 @@ function useStepperModel(props: NumberStepperProps) {
     if (at === 'max') return t`${props.label} is at its maximum, ${props.max}`;
     return undefined;
   };
-  const change = (delta: number): void => {
-    if (off()) return;
-    const next = stepValue(props.value, delta, props.min, props.max);
-    if (next !== props.value) props.onChange(next);
-  };
-  const jump = (to: 'min' | 'max'): void => {
-    if (off()) return;
-    const target = to === 'min' ? props.min : props.max;
-    if (target !== props.value) props.onChange(target);
-  };
-  return { step, off, bound, reason, change, jump };
+  return { step, off, bound, reason };
 }
 
 /**
@@ -163,13 +153,22 @@ function useStepperModel(props: NumberStepperProps) {
 export function NumberStepper(props: NumberStepperProps): JSX.Element {
   const { t } = useLingui();
   const model = useStepperModel(props);
+  const controller = createNumberInputController();
   const reasonId = `stepper-bound-${createUniqueId()}`;
   const describedBy = (at: 'min' | 'max'): string | undefined =>
     model.bound() === at ? reasonId : undefined;
   const testId = (part: 'decrease' | 'increase' | 'value') =>
     stepperPartTestId(props.dataSet?.['testid'], part);
   return (
-    <div
+    <NumberInput
+      value={props.value}
+      step={props.step ?? 1}
+      min={props.min}
+      max={props.max}
+      aria-label={props.label}
+      disabled={model.off()}
+      controller={controller}
+      onValueChange={(value) => { if (value !== null) props.onChange(value); }}
       class={[
         'box flex-row items-center justify-between gap-3 py-1',
         { 'opacity-disabled': model.off() },
@@ -179,7 +178,6 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
       <span class="text textLabel flex-1">{props.label}</span>
       <div class="box flex-row items-center gap-2">
         <StepperButton
-          onClick={() => model.change(-model.step())}
           disabled={model.off() || props.value <= props.min}
           aria-label={t`Decrease ${props.label}`}
           aria-describedby={describedBy('min')}
@@ -201,13 +199,12 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           )}
           aria-disabled={model.off() ? 'true' : undefined}
           onKeyDown={(event) =>
-            onSpinKeyDown(event, model.change, model.jump, model.step())
+            onSpinKeyDown(event, (delta) => controller.setValue(props.value + delta), (at) => controller.setValue(props[at]), model.step())
           }
         >
           {String(props.value)}
         </div>
         <StepperButton
-          onClick={() => model.change(model.step())}
           disabled={model.off() || props.value >= props.max}
           aria-label={t`Increase ${props.label}`}
           aria-describedby={describedBy('max')}
@@ -222,6 +219,6 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           </span>
         )}
       </Show>
-    </div>
+    </NumberInput>
   );
 }

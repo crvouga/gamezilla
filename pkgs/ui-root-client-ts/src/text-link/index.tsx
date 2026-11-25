@@ -2,6 +2,7 @@
 
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
+import { LinkHost } from '../link-host';
 import type { JSX } from '@solidjs/web';
 import ArrowUpRight from 'lucide/dist/esm/icons/arrow-up-right.mjs';
 import { Show } from 'solid-js';
@@ -97,7 +98,7 @@ function isModifiedClick(event: MouseEvent): boolean {
 export function TextLink(props: TextLinkProps): JSX.Element {
   const external = (): boolean => props.external === true;
   return (
-    <a
+    <LinkHost
       class={linkClass(props)}
       href={props.href}
       target={external() ? '_blank' : undefined}
@@ -122,6 +123,6 @@ export function TextLink(props: TextLinkProps): JSX.Element {
           <Trans>(opens in a new tab)</Trans>
         </VisuallyHidden>
       </Show>
-    </a>
+    </LinkHost>
   );
 }

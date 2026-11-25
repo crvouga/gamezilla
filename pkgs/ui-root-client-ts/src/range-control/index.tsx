@@ -1,5 +1,6 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { Slider } from '@ui-sdk/solid/slider';
 import styles from './range-control.module.css';
 
 export type RangeControlProps = {
@@ -36,6 +37,18 @@ export type RangeControlProps = {
 /** Native keyboard and pointer seeking with the shared control size and palette. */
 export function RangeControl(props: RangeControlProps) {
   return (
+    <Slider<number>
+      class="contents"
+      aria-label={props.label}
+      value={props.value}
+      min={props.min}
+      max={Math.max(props.min, props.max)}
+      step={props.step ?? 1}
+      orientation={props.orientation ?? 'horizontal'}
+      disabled={props.disabled === true}
+      onValueChange={(value) => props.onInput(value)}
+      onValueCommit={() => props.onCommit?.()}
+    >
     <input
       class={
         props.orientation === 'vertical'
@@ -61,5 +74,6 @@ export function RangeControl(props: RangeControlProps) {
       onInput={(event) => props.onInput(event.currentTarget.valueAsNumber)}
       onChange={() => props.onCommit?.()}
     />
+    </Slider>
   );
 }

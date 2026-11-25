@@ -4,6 +4,7 @@
  * `Button`.
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
@@ -33,7 +34,7 @@ export function BottomActionBarAction(props: {
     props.item['aria-label'] ??
     (typeof props.item.label === 'string' ? props.item.label : undefined);
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint flex-1 rounded-control items-center justify-center min-w-0 min-h-11 py-1 gap-1"
       {...dataAttrs({
         component: 'BottomActionBarAction',
@@ -62,7 +63,7 @@ export function BottomActionBarAction(props: {
       >
         {props.item.label}
       </p>
-    </button>
+    </SdkButton>
   );
 }
 

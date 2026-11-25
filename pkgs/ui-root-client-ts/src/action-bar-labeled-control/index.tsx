@@ -1,4 +1,5 @@
 /** @jsxImportSource @solidjs/web */
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
 /**
@@ -57,7 +58,7 @@ export function ActionBarLabeledControl(
     untrack(() => props.onClick)();
   };
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint rounded-control items-center justify-center py-1 gap-1"
       {...dataAttrs({ component: 'ActionBarLabeledControl', ...props.dataSet })}
       type="button"
@@ -79,6 +80,6 @@ export function ActionBarLabeledControl(
         {props.children}
       </div>
       <ActionBarInlineCaption caption={props.caption} />
-    </button>
+    </SdkButton>
   );
 }

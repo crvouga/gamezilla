@@ -16,6 +16,7 @@ import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transpo
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
+import { registerUiAgentTools } from '@pkgs/ui-root-client-ts/register-ui-agent-tools';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
@@ -28,6 +29,7 @@ const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
 
 function AppBoot(): JSX.Element {
+  onCleanup(registerUiAgentTools());
   const offline = wallOfflineNetworkController();
   const env = wallClientEnv({
     http: { fetch: (input, init) => globalThis.fetch(input, init) },
@@ -58,4 +60,5 @@ function AppBoot(): JSX.Element {
 }
 
 root.replaceChildren();
-render(() => <AppBoot />, root);
+const dispose = render(() => <AppBoot />, root);
+if (import.meta.hot) import.meta.hot.dispose(dispose);

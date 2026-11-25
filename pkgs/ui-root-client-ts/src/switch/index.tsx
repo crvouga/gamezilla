@@ -3,6 +3,7 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Switch as SdkSwitch, SwitchThumb } from '@ui-sdk/solid/switch';
 import { createUniqueId, Show } from 'solid-js';
 
 export type SwitchProps = {
@@ -42,7 +43,7 @@ export function Switch(props: SwitchProps): JSX.Element {
     <div class="box flex-row items-center gap-3 shrink-0">
       {/* The identifiers name the control a person presses, so a driver that
           taps by test id toggles it (the wrapper would swallow the click). */}
-      <button
+      <SdkSwitch
         class={[
           'clickable flex-row items-center justify-center min-h-11 w-12 shrink-0 rounded-full',
           {
@@ -50,17 +51,15 @@ export function Switch(props: SwitchProps): JSX.Element {
           },
         ]}
         {...dataAttrs({ component: 'Switch', ...props.dataSet })}
-        type="button"
-        role="switch"
-        aria-checked={props.value ? 'true' : 'false'}
+        checked={props.value}
         aria-label={props['aria-label']}
         aria-labelledby={
           props['aria-label'] === undefined && props.label !== undefined
             ? labelId
             : undefined
         }
-        disabled={props.disabled}
-        onClick={() => props.onValueChange(!props.value)}
+        disabled={props.disabled === true}
+        onCheckedChange={(checked) => props.onValueChange(checked)}
       >
         <span
           class={[
@@ -73,14 +72,14 @@ export function Switch(props: SwitchProps): JSX.Element {
           data-on={props.value ? 'true' : 'false'}
           aria-hidden="true"
         >
-          <span
+          <SwitchThumb
             class={[
               'switchThumb block size-6 rounded-full shrink-0 bg-on-primary',
               { 'translate-x-5': props.value },
             ]}
           />
         </span>
-      </button>
+      </SdkSwitch>
       <Show when={props.label !== undefined}>
         <p id={labelId} class="text textBody shrink-0">
           {props.label}

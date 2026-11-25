@@ -1,4 +1,5 @@
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, createProjection, For, Show } from 'solid-js';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-board.module.css';
@@ -15,7 +16,7 @@ function BoardCell(props: {
   // only when the square itself changes.
   const cell = createMemo(() => props.cells()[props.index]);
   return (
-    <button
+    <SdkButton
       type="button"
       class={styles['cell']}
       data-index={props.index}
@@ -52,7 +53,7 @@ function BoardCell(props: {
           {cell()?.points ?? ''}
         </span>
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 

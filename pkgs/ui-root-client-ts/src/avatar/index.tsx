@@ -8,6 +8,7 @@ import { bestOnColor } from '@pkgs/ui-root-shared-ts/contrast';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
 import type { JSX } from '@solidjs/web';
+import { Avatar as SdkAvatar } from '@ui-sdk/solid/avatar';
 import { createMemo, Show } from 'solid-js';
 import { AvatarFace } from '../avatar-face/index';
 import type { IconComponent } from '../create-icon/index';
@@ -313,7 +314,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
     return bestOnColor(raw).fg;
   });
   return (
-    <span
+    <SdkAvatar
       class={`box inline-flex shrink-0 rounded-full items-center justify-center ${ringClass({ kind: props.kind, seatColor: props.seatColor, ring: props.ring, accentRing: props.accentRing }, initialsRing())}`}
       data-kind={kind()}
       data-you={props.you === true ? 'true' : undefined}
@@ -325,6 +326,7 @@ export function Avatar(props: AvatarProps): JSX.Element {
       {...dataAttrs({ component: 'Avatar', ...props.dataSet })}
       role={name() === undefined ? undefined : 'img'}
       aria-label={name()}
+      aria-hidden={name() === undefined ? 'true' : undefined}
       style={{
         'background-color':
           kind() === 'emptySeat'
@@ -349,6 +351,6 @@ export function Avatar(props: AvatarProps): JSX.Element {
       <Show when={kind() === 'guest'}>
         <GuestMark size={size()} />
       </Show>
-    </span>
+    </SdkAvatar>
   );
 }

@@ -1,5 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
+import { LinkHost } from '../link-host';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
@@ -104,7 +106,7 @@ function TabBarLink(props: { item: TabBarItem; href: string }): JSX.Element {
     press();
   };
   return (
-    <a
+    <LinkHost
       class={ITEM_CLASS}
       {...dataAttrs({ component: 'TabBarItem', ...props.item.dataSet })}
       href={props.href}
@@ -113,13 +115,13 @@ function TabBarLink(props: { item: TabBarItem; href: string }): JSX.Element {
       onClick={onClick}
     >
       <TabBarItemFace item={props.item} />
-    </a>
+    </LinkHost>
   );
 }
 
 function TabBarButton(props: { item: TabBarItem }): JSX.Element {
   return (
-    <button
+    <SdkButton
       class={ITEM_CLASS}
       {...dataAttrs({ component: 'TabBarItem', ...props.item.dataSet })}
       type="button"
@@ -128,7 +130,7 @@ function TabBarButton(props: { item: TabBarItem }): JSX.Element {
       onClick={() => props.item.onPress?.()}
     >
       <TabBarItemFace item={props.item} />
-    </button>
+    </SdkButton>
   );
 }
 

@@ -8,6 +8,7 @@
  * `<button>`s inside one chrome shell (buttons cannot nest in HTML).
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { dynamic, type JSX } from '@solidjs/web';
@@ -75,7 +76,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
         />
       </Show>
       <div class={shellClass(props.active)} style={shellStyle(closable())}>
-        <button
+        <SdkButton
           class={[
             'clickable flex-1 min-w-0 flex-row items-center gap-2 pl-3 rounded-tl-lg rounded-tr-lg overflow-hidden bg-transparent',
             { clickableTint: !props.active },
@@ -101,9 +102,9 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
             />
           </Show>
           <span class={labelClass()}>{props.item.label}</span>
-        </button>
+        </SdkButton>
         <Show when={closable()}>
-          <button
+          <SdkButton
             class={`clickable clickableTint rounded-sm items-center justify-center shrink-0 w-6 h-6 ${styles['close'] ?? ''}`}
             data-component="TabStripClose"
             data-id={props.item.id}
@@ -114,7 +115,7 @@ export function TabStripTab(props: TabStripTabProps): JSX.Element {
             onClick={() => props.item.onClose?.()}
           >
             <XIcon size={12} color="textSecondary" />
-          </button>
+          </SdkButton>
         </Show>
         <Show when={props.active}>
           <div

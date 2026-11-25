@@ -11,6 +11,7 @@
  * while focus is inside the `tablist`.
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
@@ -225,7 +226,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
         </div>
       </Show>
       <Show when={showStandaloneAdd()}>
-        <button
+        <SdkButton
           class="clickable clickableTint px-2 py-1 items-center justify-center rounded-tl-lg rounded-tr-lg overflow-hidden self-end"
           data-component="TabStripAdd"
           type="button"
@@ -234,7 +235,7 @@ export function TabStrip(props: TabStripProps): JSX.Element {
           onClick={() => props.onAdd?.()}
         >
           <PlusIcon size={15} color="textSecondary" />
-        </button>
+        </SdkButton>
       </Show>
     </div>
   );

@@ -2,6 +2,7 @@
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { createFileInputController, FileInput } from '@ui-sdk/solid/file-input';
 
 export type FileTriggerProps = {
   /** Accessible name of the file input. */
@@ -36,26 +37,18 @@ export type FileTriggerProps = {
  * ```
  */
 export function FileTrigger(props: FileTriggerProps): JSX.Element {
-  let input: HTMLInputElement | undefined;
+  const controller = createFileInputController();
   return (
-    <>
-      <input
-        ref={input}
-        type="file"
-        accept={props.accept}
-        class="hidden"
-        hidden
-        tabindex={-1}
-        aria-label={props.label}
-        data-testid={props.testId}
-        data-component={componentId('FileTrigger')}
-        onChange={(event) => {
-          const file = event.currentTarget.files?.[0];
-          if (file !== undefined) props.onSelect(file);
-          event.currentTarget.value = '';
-        }}
-      />
-      {props.children(() => input?.click())}
-    </>
+    <FileInput
+      class="contents"
+      accept={props.accept}
+      aria-label={props.label}
+      controller={controller}
+      data-testid={props.testId}
+      data-component={componentId('FileTrigger')}
+      onValueChange={(files) => { if (files[0] !== undefined) props.onSelect(files[0]); }}
+    >
+      {props.children(() => { controller.open(); })}
+    </FileInput>
   );
 }

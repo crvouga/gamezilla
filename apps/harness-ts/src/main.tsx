@@ -9,10 +9,12 @@
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { bootBrowserBugReports } from '@pkgs/feedback-client-ts/wall';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
+import { registerUiAgentTools } from '@pkgs/ui-root-client-ts/register-ui-agent-tools';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
 import { render } from '@solidjs/web';
+import { onCleanup } from 'solid-js';
 import './polyfill-entry';
 import './styles.css';
 
@@ -27,7 +29,10 @@ bootBrowserBugReports({
   startApplication: async () => {
     root.replaceChildren();
     const { HarnessBoot } = await import('./harness-boot');
-    const dispose = render(() => <HarnessBoot />, root);
+    const dispose = render(() => {
+      onCleanup(registerUiAgentTools());
+      return <HarnessBoot />;
+    }, root);
     if (import.meta.hot) import.meta.hot.dispose(dispose);
   },
 });

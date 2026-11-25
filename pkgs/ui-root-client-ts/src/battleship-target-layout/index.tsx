@@ -1,4 +1,5 @@
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createUniqueId, For, Show } from 'solid-js';
@@ -33,7 +34,7 @@ export function BattleshipRegionOverview(props: {
         <div class={styles['regions']} data-testid={`${props.testId}-region`}>
           <For each={props.regions}>
             {(label, index) => (
-              <button
+              <SdkButton
                 type="button"
                 class={styles['region']}
                 aria-label={label}
@@ -44,7 +45,7 @@ export function BattleshipRegionOverview(props: {
                 }
                 title={label}
                 aria-pressed={ariaBoolean(props.region === index())}
-                disabled={props.disabled}
+                disabled={props.disabled === true}
                 data-testid={`${props.testId}-area-${index()}`}
                 onClick={() => props.onRegion(index())}
               >
@@ -55,7 +56,7 @@ export function BattleshipRegionOverview(props: {
                 >
                   {props.descriptions?.[index()]}
                 </span>
-              </button>
+              </SdkButton>
             )}
           </For>
         </div>

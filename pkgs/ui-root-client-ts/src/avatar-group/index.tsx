@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -152,7 +153,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
   return (
     <Show when={props.onClick} fallback={strip()}>
       {(onClick) => (
-        <button
+        <SdkButton
           class="clickable clickableTint self-start rounded-full"
           {...dataAttrs({ component: 'AvatarGroup', ...props.dataSet })}
           type="button"
@@ -160,7 +161,7 @@ export function AvatarGroup(props: AvatarGroupProps): JSX.Element {
           aria-label={props['aria-label']}
         >
           {strip()}
-        </button>
+        </SdkButton>
       )}
     </Show>
   );

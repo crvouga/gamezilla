@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
@@ -69,7 +70,7 @@ export function WordTileRegions(props: {
         >
           <For each={Array.from({ length: 9 }, (_, index) => index)}>
             {(index) => (
-              <button
+              <SdkButton
                 type="button"
                 class={styles['region']}
                 aria-label={t`View ${region(index).start} to ${region(index).end}`}
@@ -81,7 +82,7 @@ export function WordTileRegions(props: {
                 <span class={styles['direction']} aria-hidden="true">
                   {['↖', '↑', '↗', '←', '•', '→', '↙', '↓', '↘'][index]}
                 </span>
-              </button>
+              </SdkButton>
             )}
           </For>
         </div>

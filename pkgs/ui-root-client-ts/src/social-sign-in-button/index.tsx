@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import './google-font.css';
 
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
@@ -155,7 +156,7 @@ export function SocialSignInButton(
       : (props.label ?? defaultLabel());
 
   return (
-    <button
+    <SdkButton
       class={`clickable clickableOpacity ${buttonClass()}`}
       {...dataAttrs({
         component: 'SocialSignInButton',
@@ -188,6 +189,6 @@ export function SocialSignInButton(
       >
         {visibleLabel()}
       </p>
-    </button>
+    </SdkButton>
   );
 }

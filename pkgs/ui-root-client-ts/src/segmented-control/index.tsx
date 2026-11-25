@@ -2,7 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { nextRovingIndex } from '@pkgs/ui-root-shared-ts/roving-focus';
+import { SegmentedControl as SdkSegmentedControl, SegmentedControlItem } from '@ui-sdk/solid/segmented-control';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 
@@ -46,41 +46,14 @@ export function segmentTestId(
   return groupTestId === undefined ? undefined : `${groupTestId}-${key}`;
 }
 
-/** Arrow keys move the selection, wrapping (WAI-ARIA radio group). */
-function onSegmentKeyDown(event: KeyboardEvent): void {
-  const segment = event.currentTarget;
-  if (!(segment instanceof HTMLElement)) return;
-  const track = segment.closest('[role="radiogroup"]');
-  if (track === null) return;
-  const items = Array.from(
-    track.querySelectorAll<HTMLButtonElement>('[role="radio"]')
-  );
-  const current = items.findIndex((item) => item === document.activeElement);
-  if (current < 0) return;
-  const next = nextRovingIndex({
-    key: event.key,
-    current,
-    disabled: items.map((item) => item.disabled),
-    orientation: 'both',
-    homeEnd: false,
-  });
-  if (next === null) return;
-  event.preventDefault();
-  items[next]?.focus();
-  items[next]?.click();
-}
-
 function SegmentButton<K extends string>(props: {
   segment: Segment<K>;
   isActive: boolean;
-  /** The one segment in the tab order. */
-  tabStop: boolean;
   disabled: boolean;
   groupTestId: string | undefined;
-  onSelect: (key: K) => void;
 }): JSX.Element {
   return (
-    <button
+    <SegmentedControlItem
       class={[
         'clickable segment hitTarget rounded-full flex-1 items-center justify-center min-h-9 px-3 bg-transparent relative z-1',
         {
@@ -90,14 +63,7 @@ function SegmentButton<K extends string>(props: {
       data-component="Segment"
       data-key={props.segment.key}
       data-testid={segmentTestId(props.groupTestId, props.segment.key)}
-      type="button"
-      role="radio"
-      aria-checked={props.isActive ? 'true' : 'false'}
-      tabindex={props.tabStop ? 0 : -1}
-      onKeyDown={onSegmentKeyDown}
-      onClick={() => {
-        if (!props.isActive) props.onSelect(props.segment.key);
-      }}
+      value={props.segment.key}
       disabled={props.disabled}
     >
       <span
@@ -111,7 +77,7 @@ function SegmentButton<K extends string>(props: {
       >
         {props.segment.label}
       </span>
-    </button>
+    </SegmentedControlItem>
   );
 }
 
@@ -155,13 +121,15 @@ export function SegmentedControl<K extends string = string>(
   const indicator = () =>
     segmentIndicatorCss(selectedIndex(), props.segments.length);
   return (
-    <div
+    <SdkSegmentedControl<K>
       class={[
         'box flex-row p-1 gap-1 border border-outline rounded-full relative',
         { 'opacity-disabled': props.disabled === true },
       ]}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
-      role="radiogroup"
+      value={props.selected}
+      onValueChange={(value) => { if (value !== null) props.onSelect(value); }}
+      disabled={props.disabled === true}
       aria-label={props['aria-label']}
       aria-disabled={props.disabled === true ? 'true' : undefined}
     >
@@ -174,17 +142,15 @@ export function SegmentedControl<K extends string = string>(
         />
       </Show>
       <For each={props.segments}>
-        {(seg, index) => (
+        {(seg) => (
           <SegmentButton
             segment={seg}
             isActive={seg.key === props.selected}
-            tabStop={index() === selectedIndex()}
             disabled={props.disabled === true}
             groupTestId={props.dataSet?.['testid']}
-            onSelect={props.onSelect}
           />
         )}
       </For>
-    </div>
+    </SdkSegmentedControl>
   );
 }

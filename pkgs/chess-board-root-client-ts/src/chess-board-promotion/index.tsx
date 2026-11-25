@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 /** Promotion picker stacked on the destination file. */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type {
   BoardOrientation,
@@ -74,7 +75,7 @@ function CancelChip(props: {
   readonly onCancel: () => void;
 }): JSX.Element {
   return (
-    <button
+    <SdkButton
       class="clickable clickableTint items-center justify-center text textBodyBold w-full min-h-11"
       style={{
         'background-color': props.theme.promotion.cancel,
@@ -86,7 +87,7 @@ function CancelChip(props: {
       onClick={() => props.onCancel()}
     >
       <Trans>Cancel</Trans>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -105,7 +106,7 @@ function PromotionChoice(props: {
   const name = () =>
     ({ q: t`Queen`, r: t`Rook`, b: t`Bishop`, n: t`Knight` })[props.kind];
   return (
-    <button
+    <SdkButton
       ref={button}
       class="clickable clickableTint flex-row items-center gap-2 px-2 w-full min-h-11"
       style={{
@@ -123,7 +124,7 @@ function PromotionChoice(props: {
         aria-hidden="true"
       />
       <span class="text textCaption text-board-card-ink">{name()}</span>
-    </button>
+    </SdkButton>
   );
 }
 

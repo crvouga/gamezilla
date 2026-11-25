@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
@@ -136,7 +137,7 @@ export function FloatingPanelHeader(
       class="box flex-row items-center gap-ui-sm border-b border-border px-ui-lg py-ui-md"
       data-component={componentId('FloatingPanelHeader')}
     >
-      <button
+      <SdkButton
         type="button"
         class="text textBodyBold flex-1 min-w-0 text-start cursor-grab touch-none inline-flex items-center gap-ui-sm"
         aria-label={props.handleLabel}
@@ -152,7 +153,7 @@ export function FloatingPanelHeader(
           {'⠿'}
         </span>
         {props.title}
-      </button>
+      </SdkButton>
       {props.trailing}
     </div>
   );

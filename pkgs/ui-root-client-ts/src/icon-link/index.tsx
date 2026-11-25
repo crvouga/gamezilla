@@ -2,6 +2,7 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { LinkHost } from '../link-host';
 import type { JSX } from '@solidjs/web';
 import { ICON_BUTTON_MIN_HIT_TARGET } from '../icon-button/index';
 
@@ -38,7 +39,7 @@ export function IconLink(props: IconLinkProps): JSX.Element {
   const size = (): number => props.size ?? 40;
   const target = (): number => Math.max(size(), ICON_BUTTON_MIN_HIT_TARGET);
   return (
-    <a
+    <LinkHost
       class="clickable clickableTint items-center justify-center rounded-full"
       href={props.href}
       aria-label={props.label}
@@ -51,6 +52,6 @@ export function IconLink(props: IconLinkProps): JSX.Element {
       {...dataAttrs({ component: 'IconLink', ...props.dataSet })}
     >
       {props.children}
-    </a>
+    </LinkHost>
   );
 }

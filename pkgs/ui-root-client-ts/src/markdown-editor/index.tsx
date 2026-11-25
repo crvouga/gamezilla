@@ -25,6 +25,7 @@ import { applyEditorSuggestion, editorSuggestion } from '../editor-suggestions';
 import { EditorToolbar } from '../editor-toolbar/index';
 import { createMarkdownView } from '../editor-view';
 import { cleanMarkdownNode } from '../safe-markdown';
+import { DocumentField } from './document-field';
 import styles from './markdown-editor.module.css';
 
 /** Shows `value` in place of the document, outside the undo history. */
@@ -223,8 +224,19 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
           }}
         />
       </Show>
-      <div
-        ref={host}
+      <DocumentField
+        value={props.value}
+        disabled={props.disabled === true}
+        aria-label={props['aria-label']}
+        onValueChange={(value) => {
+          const view = editor.view();
+          if (view)
+            view.dispatch(view.state.tr.replaceWith(
+              0, view.state.doc.content.size,
+              cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
+            ));
+        }}
+        ref={(element) => { host = element; }}
         class="box flex-1 min-h-0 shrink overflow-hidden text-sm leading-relaxed"
       />
       <Show when={editor.suggestion()}>

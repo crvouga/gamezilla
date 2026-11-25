@@ -4,6 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Progress, ProgressIndicator } from '@ui-sdk/solid/progress';
 import { Show } from 'solid-js';
 import { spaced } from '../layout-classes';
 import styles from './progress-bar.module.css';
@@ -61,24 +62,22 @@ function ProgressTrack(props: {
   size: ProgressBarSize;
 }): JSX.Element {
   return (
-    <div
+    <Progress
       class={`box w-full overflow-hidden rounded-full bg-border ${SIZE[props.size]}`}
-      role="progressbar"
+      value={props.known ? props.value : null}
+      min={0}
+      max={1}
       aria-label={props.label}
-      aria-valuemin={0}
-      aria-valuemax={1}
-      aria-valuenow={props.known ? props.value : undefined}
       aria-busy={props.known ? undefined : 'true'}
     >
-      <div
+      <ProgressIndicator
         class={spaced([
           'box h-full rounded-full',
           TONE[props.tone],
           props.known ? styles['fill'] : styles['sweep'],
         ])}
-        style={props.known ? { width: `${props.value * 100}%` } : undefined}
       />
-    </div>
+    </Progress>
   );
 }
 

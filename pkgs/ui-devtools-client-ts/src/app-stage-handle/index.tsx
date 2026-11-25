@@ -4,6 +4,7 @@
  * view on show, and switches to the next. Renders inside one.
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ArrowLeftRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -176,7 +177,7 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
     if (!event.repeat) props.onTap();
   };
   return (
-    <button
+    <SdkButton
       ref={(element) => {
         button = element;
       }}
@@ -199,6 +200,6 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
       onKeyDown={onKeyDown}
     >
       <ArrowLeftRightIcon size={18} color="icon" />
-    </button>
+    </SdkButton>
   );
 }

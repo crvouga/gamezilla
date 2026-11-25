@@ -1,4 +1,5 @@
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, For, Show } from 'solid-js';
@@ -134,7 +135,7 @@ function GridCell(props: {
     return (row + (props.index % columns)) % 2 === 0 ? 'light' : 'dark';
   };
   return (
-    <button
+    <SdkButton
       type="button"
       class={`${styles['cell']} ${battleship['cell']}`}
       data-index={props.index}
@@ -204,7 +205,7 @@ function GridCell(props: {
           </span>
         )}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
 

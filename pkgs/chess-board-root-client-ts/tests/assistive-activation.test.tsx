@@ -1,6 +1,7 @@
 import { afterEach, expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import { createAgent } from '@ui-sdk/solid/agent';
 import fc from 'fast-check';
 import { type MountedBoard, mountBoard } from './board-fixture';
 
@@ -92,4 +93,17 @@ test('a7 promotion is a named dialog with a closed Tab boundary and returns focu
   expect(screen.queryByRole('dialog')).toBeNull();
   expect(document.activeElement?.getAttribute('data-square')).toBe('a7');
   expect(board.moves).toEqual([]);
+});
+
+test('an agent can play a legal move using the names of the board squares', async () => {
+  board = mountBoard();
+  const agent = createAgent();
+  const result = await agent.act({
+    steps: [
+      { ref: 'e2, White pawn', action: 'press' },
+      { ref: 'e4, empty, Legal destination', action: 'press' },
+    ],
+  });
+  expect(result.error).toBeUndefined();
+  expect(board.moves).toEqual(['e2e4']);
 });

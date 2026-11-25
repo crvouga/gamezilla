@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -126,7 +127,7 @@ export function GameVersusOverlay(props: GameVersusOverlayProps): JSX.Element {
       </span>
       {/* One button over the whole card, drawn as the pill at its foot:
           a press anywhere on the card is the way to the board. */}
-      <button
+      <SdkButton
         type="button"
         class={styles['skipArea']}
         onClick={() => props.onSkip()}
@@ -135,7 +136,7 @@ export function GameVersusOverlay(props: GameVersusOverlayProps): JSX.Element {
         <span class={`text textLabel ${styles['skip']}`}>
           {props.skipLabel}
         </span>
-      </button>
+      </SdkButton>
     </div>
   );
 }
@@ -198,7 +199,7 @@ function ResultDetails(props: {
     >
       <Show when={props.label}>
         {(label) => (
-          <button
+          <SdkButton
             type="button"
             class={`text textLabel ${card['detailsToggle']}`}
             aria-expanded={open() ? 'true' : 'false'}
@@ -211,7 +212,7 @@ function ResultDetails(props: {
           >
             <span>{label()}</span>
             <ChevronDownIcon size={16} color="textSecondary" />
-          </button>
+          </SdkButton>
         )}
       </Show>
       <div ref={body} class={card['detailsBody']}>
@@ -318,7 +319,7 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
       class={styles['result']}
       {...dataAttrs({ component: 'GameResultOverlay', ...props.dataSet })}
     >
-      <button
+      <SdkButton
         type="button"
         class={styles['scrim']}
         tabindex={-1}
@@ -331,7 +332,7 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
         dismiss={
           // Named in words, not only a cross: closing is how the final
           // board is seen, so the card says so.
-          <button
+          <SdkButton
             type="button"
             class={`text textCaption ${styles['dismiss']}`}
             onClick={() => props.onDismiss()}
@@ -339,7 +340,7 @@ export function GameResultOverlay(props: GameResultOverlayProps): JSX.Element {
           >
             <span class={styles['dismissWords']}>{props.dismissLabel}</span>
             <XIcon size={16} color="textSecondary" />
-          </button>
+          </SdkButton>
         }
       />
     </div>

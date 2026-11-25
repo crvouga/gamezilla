@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -110,7 +111,7 @@ function ModeChoice(props: { modes: GameMenuModes }): JSX.Element {
 function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   return (
-    <button
+    <SdkButton
       type="button"
       class={`${styles['tile']} clickable clickableTint`}
       data-emphasis={props.choice.emphasis}
@@ -133,7 +134,7 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
       <span class={styles['chevron']} aria-hidden="true">
         <ChevronRightIcon size={20} />
       </span>
-    </button>
+    </SdkButton>
   );
 }
 
@@ -145,7 +146,7 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
 function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   return (
-    <button
+    <SdkButton
       type="button"
       class={`${styles['link']} clickable clickableTint`}
       data-emphasis={props.choice.emphasis}
@@ -166,7 +167,7 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
       <span class={styles['linkChevron']} aria-hidden="true">
         <ChevronRightIcon size={16} />
       </span>
-    </button>
+    </SdkButton>
   );
 }
 

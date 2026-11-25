@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type {
   JsonExpansionState,
@@ -223,7 +224,7 @@ function ToolbarButton(props: {
 }): JSX.Element {
   const Icon = dynamic(() => props.icon);
   return (
-    <button
+    <SdkButton
       class="clickable clickableOpacity flex-row items-center gap-1 px-2 py-1 min-h-11 rounded-sm"
       type="button"
       style={{ opacity: props.disabled ? 0.4 : 1 }}
@@ -241,6 +242,6 @@ function ToolbarButton(props: {
         </div>
       </Show>
       <p class="text textCaption text-tint">{props.label}</p>
-    </button>
+    </SdkButton>
   );
 }

@@ -10,6 +10,7 @@ import type {
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import { ComboboxChips } from '../combobox-chips/index';
 import { IconButton } from '../icon-button/index';
@@ -86,7 +87,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
           disabled={props.disabled}
         />
       </Show>
-      <button
+      <SdkButton
         class="clickable clickableTint flex-1 min-w-0 min-h-ui-control-md flex-row items-center gap-3 px-4 py-2 rounded-control text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"
@@ -112,7 +113,7 @@ export function ComboboxTrigger<T extends ComboboxValue>(
           </label>
         </Show>
         <ChevronDownIcon size={20} color="icon" />
-      </button>
+      </SdkButton>
       <Show when={showClear()}>
         <div class="box pr-1">
           <IconButton

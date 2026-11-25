@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   AppStage,
   type AppStageView,
@@ -18,13 +19,13 @@ function Screen(props: {
     <div class="box flex-1 gap-3 p-4">
       <h2 class="text textHeading">{props.name}</h2>
       <p class="text textBody text-text-secondary">{props.note}</p>
-      <button
+      <SdkButton
         type="button"
         class="self-start"
         onClick={() => setCount(count() + 1)}
       >
         {`${props.name} kept its state: ${String(count())}`}
-      </button>
+      </SdkButton>
     </div>
   );
 }

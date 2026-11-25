@@ -1,4 +1,5 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
 import { For } from 'solid-js';
 import styles from './tile-rack.module.css';
@@ -44,7 +45,7 @@ export function TileRack(props: TileRackProps): JSX.Element {
       >
         <For each={props.tiles}>
           {(tile) => (
-            <button
+            <SdkButton
               type="button"
               class={styles['tile']}
               data-testid={
@@ -65,7 +66,7 @@ export function TileRack(props: TileRackProps): JSX.Element {
               <span class={styles['points']} aria-hidden="true">
                 {tile.placed ? '' : tile.points}
               </span>
-            </button>
+            </SdkButton>
           )}
         </For>
       </div>

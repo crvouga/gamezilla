@@ -1,4 +1,5 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dynamic, type JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
@@ -63,7 +64,7 @@ export function BreadcrumbPills(props: {
                 }
               >
                 {(click) => (
-                  <button
+                  <SdkButton
                     type="button"
                     role="link"
                     data-testid={
@@ -75,7 +76,7 @@ export function BreadcrumbPills(props: {
                     onClick={() => click()()}
                   >
                     {crumb.name}
-                  </button>
+                  </SdkButton>
                 )}
               </Show>
             </li>

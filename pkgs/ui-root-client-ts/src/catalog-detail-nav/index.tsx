@@ -1,4 +1,5 @@
 /** @jsxImportSource @solidjs/web */
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 /**
  * `CatalogDetailNav` -- slim prev / next controls for a catalog detail screen.
@@ -37,7 +38,7 @@ function NavButton(props: {
 }): JSX.Element {
   const NavIcon = dynamic(() => props.icon);
   return (
-    <button
+    <SdkButton
       class="clickable clickableOpacity items-center justify-center"
       type="button"
       style={{
@@ -60,7 +61,7 @@ function NavButton(props: {
       >
         <NavIcon size={18} />
       </div>
-    </button>
+    </SdkButton>
   );
 }
 

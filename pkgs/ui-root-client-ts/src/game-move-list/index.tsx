@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -125,7 +126,7 @@ function MoveButton(props: {
       <Show when={props.move.swatch}>
         {(look) => <GameSeatSwatch look={look()} />}
       </Show>
-      <button
+      <SdkButton
         type="button"
         class={`${styles['moveButton']} text textLabel`}
         data-current={String(props.current)}
@@ -135,7 +136,7 @@ function MoveButton(props: {
         onClick={() => props.onSelect(props.move.ply)}
       >
         {props.move.label}
-      </button>
+      </SdkButton>
     </span>
   );
 }

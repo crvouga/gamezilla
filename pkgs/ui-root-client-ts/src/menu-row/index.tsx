@@ -1,5 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
+import { LinkHost } from '../link-host';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -198,7 +200,7 @@ function MenuRowLink(
   props: MenuRowProps & MenuRowPart & { href: string }
 ): JSX.Element {
   return (
-    <a
+    <LinkHost
       class={`clickable clickableTint ${rowClass(props.selected === true)}`}
       {...partAttrs(props.part, props.dataSet)}
       href={props.href}
@@ -211,7 +213,7 @@ function MenuRowLink(
       aria-current={props.selected === true ? 'page' : undefined}
     >
       <MenuRowBody {...props} interactive />
-    </a>
+    </LinkHost>
   );
 }
 
@@ -230,7 +232,7 @@ function partAttrs(
 
 function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
   return (
-    <button
+    <SdkButton
       class={[
         `clickable clickableTint ${rowClass(props.selected === true)}`,
         { 'opacity-disabled': props.disabled === true },
@@ -248,7 +250,7 @@ function MenuRowButton(props: MenuRowProps & MenuRowPart): JSX.Element {
       }
     >
       <MenuRowBody {...props} interactive />
-    </button>
+    </SdkButton>
   );
 }
 

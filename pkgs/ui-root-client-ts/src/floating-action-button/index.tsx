@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
@@ -122,7 +123,7 @@ export function FloatingActionButton(
     })
   );
   return (
-    <button
+    <SdkButton
       class={`clickable clickableTint fab ${FAB_CLASS}`}
       {...dataAttrs({
         component: 'FloatingActionButton',
@@ -158,6 +159,6 @@ export function FloatingActionButton(
           }}
         />
       </div>
-    </button>
+    </SdkButton>
   );
 }

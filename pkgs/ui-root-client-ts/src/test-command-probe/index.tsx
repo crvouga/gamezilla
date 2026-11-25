@@ -1,6 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
+import { Input } from '@ui-sdk/solid/input';
+import { Button } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
 
 export type TestCommandProbeProps = {
@@ -54,22 +56,22 @@ export type TestCommandProbeProps = {
  */
 export function TestCommandProbe(props: TestCommandProbeProps): JSX.Element {
   return (
-    <div class="sr-only" data-component={componentId('TestCommandProbe')}>
-      <input
+    <div data-agent-hidden="" class="sr-only" data-component={componentId('TestCommandProbe')}>
+      <Input
         value={props.command}
-        onInput={(event) => props.onCommandInput(event.currentTarget.value)}
+        onValueChange={(value) => props.onCommandInput(value)}
         aria-label={props.commandLabel}
         tabindex={-1}
         data-testid={props.commandTestId}
       />
-      <button
+      <Button
         type="button"
         tabindex={-1}
         onClick={() => props.onSend()}
         data-testid={props.sendTestId}
       >
         {props.sendLabel}
-      </button>
+      </Button>
       <pre data-testid={props.readoutTestId}>{props.readout}</pre>
     </div>
   );

@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -145,7 +146,7 @@ export function CellGridPalette<K extends string = string>(
       >
         <For each={props.items}>
           {(item) => (
-            <button
+            <SdkButton
               type="button"
               class={[
                 `clickable ${styles['tool']}`,
@@ -166,7 +167,7 @@ export function CellGridPalette<K extends string = string>(
               <span class={`text textCaption ${styles['name']}`}>
                 {item.label}
               </span>
-            </button>
+            </SdkButton>
           )}
         </For>
       </div>

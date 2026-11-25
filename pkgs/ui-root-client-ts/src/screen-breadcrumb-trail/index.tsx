@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -33,7 +34,7 @@ function AncestorCrumb(props: {
   return (
     <Show when={props.onClick} fallback={text()}>
       {(onClick) => (
-        <button
+        <SdkButton
           class="clickable clickableTint rounded-sm px-1 -mx-1 min-h-6 justify-center"
           data-component="ScreenBreadcrumbLink"
           data-testid={props.parent ? 'nav-back' : undefined}
@@ -42,7 +43,7 @@ function AncestorCrumb(props: {
           onClick={() => onClick()()}
         >
           {text()}
-        </button>
+        </SdkButton>
       )}
     </Show>
   );

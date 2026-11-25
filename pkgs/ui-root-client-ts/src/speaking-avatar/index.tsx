@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
@@ -111,7 +112,7 @@ function AvatarHead(props: {
 }): JSX.Element {
   const { t } = useLingui();
   return (
-    <button
+    <SdkButton
       class="clickable relative self-center"
       type="button"
       onClick={() => props.onToggle()}
@@ -129,7 +130,7 @@ function AvatarHead(props: {
           mutedColor="textSecondary"
         />
       </div>
-    </button>
+    </SdkButton>
   );
 }
 

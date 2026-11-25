@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -420,7 +421,7 @@ function Hand(
           <Show when={byId().get(id)}>
             {(card) => (
               <>
-                <button
+                <SdkButton
                   type="button"
                   class={styles['card']}
                   style={handCardStyle(index(), suits())}
@@ -449,7 +450,7 @@ function Hand(
                   }}
                 >
                   <HandCardFace card={card()} />
-                </button>
+                </SdkButton>
               </>
             )}
           </Show>

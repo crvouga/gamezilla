@@ -9,6 +9,7 @@
  * never has a layer above it to composite.
  */
 
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { indexFromSquare } from '@pkgs/chess-board-core-shared-ts/geometry';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type {
@@ -86,7 +87,7 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
           const isCursor = createMemo(() => props.cursor === square);
           const isSelected = createMemo(() => props.selected() === square);
           return (
-            <button
+            <SdkButton
               type="button"
               class={`${styles['cell']} ${styles['square']}`}
               style={{ transform: cellTransform(square, props.orientation) }}

@@ -1,4 +1,5 @@
 /** @jsxImportSource @solidjs/web */
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 
@@ -67,7 +68,7 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
   const shortcut = (): string | undefined =>
     normalizeShortcut(props.command.shortcut)?.keys;
   return (
-    <button
+    <SdkButton
       class={[
         'clickable clickableTint py-2 px-3 gap-1 text-left border-l-3 border-l-transparent',
         {
@@ -114,6 +115,6 @@ export function CommandPaletteRow(props: CommandPaletteRowProps): JSX.Element {
           </p>
         )}
       </Show>
-    </button>
+    </SdkButton>
   );
 }
