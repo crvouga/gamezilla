@@ -30,3 +30,4 @@ all applicable checks on the final candidate.
 | Rack interaction | Possible confusion | Board feedback | Automated coverage |
 | --- | --- | --- | --- |
 | Choose a column and follow a drop | A landing preview could look like a played piece | The instruction carries the moving side’s circle or diamond. Only placed pieces have molded faces. The landing well stays open and dashed, and the winning cells retain their individual rings. | Production Storybook opening, Your Turn, Drop a Disc and Connect Four to Win, plus the Connect Four mixed-input and reduced-motion checks. |
+| Slide to choose, or enlarge to inspect | Lifting after a pinch or interrupted drag could commit a disc | The fitted rack previews the release column. A second contact, cancellation, or a changed position discards the pending move. The magnified rack pans and offers Fit board. | Connect Four rack gesture checks on phone and desktop, plus keyboard and reduced-motion checks. |

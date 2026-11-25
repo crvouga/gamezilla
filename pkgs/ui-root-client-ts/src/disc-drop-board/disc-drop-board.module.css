@@ -391,3 +391,53 @@
   background: var(--ui-color-warning);
   transform: rotate(45deg);
 }
+
+.viewport {
+  grid-column: 1 / -1;
+  grid-row: 1;
+  min-width: 0;
+  overflow: clip;
+}
+.plane {
+  display: grid;
+  grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
+  transform: var(--rack-transform, none);
+  transform-origin: top left;
+}
+.viewport,
+.plane {
+  column-gap: inherit;
+}
+.viewport[data-gestures="true"],
+.viewport[data-gestures="true"] .column {
+  touch-action: none;
+  user-select: none;
+}
+.viewport[data-aiming="true"] .drop:not([data-disc="0"]) .number {
+  transform: translateY(var(--ui-space-hairline));
+}
+.inspect {
+  grid-column: 1 / -1;
+  justify-self: center;
+  min-height: var(--ui-space-8);
+  padding-inline: var(--ui-space-3);
+  color: var(--ui-color-text);
+  background: var(--ui-color-background);
+  border: var(--ui-space-hairline) solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-full);
+  cursor: pointer;
+}
+
+.viewport[data-aiming="true"] .drop[data-disc="1"] .number {
+  background: var(--ui-color-destructive);
+}
+.viewport[data-aiming="true"] .drop[data-disc="2"] .number {
+  background: var(--ui-color-warning);
+  color: var(--ui-color-background);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .viewport[data-aiming="true"] .drop:not([data-disc="0"]) .number {
+    transform: translateY(var(--ui-space-1)) scale(0.92);
+    transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+}

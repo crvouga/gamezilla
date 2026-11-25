@@ -116,7 +116,7 @@ async function assertReadableFinish(canvasElement: HTMLElement): Promise<void> {
       element = element.parentElement;
     }
   }
-  for (const column of board.querySelectorAll('button')) {
+  for (const column of board.querySelectorAll('[data-column]')) {
     await expect(column).toHaveAttribute('aria-disabled', 'true');
   }
   const before = board.getAttribute('data-cells');

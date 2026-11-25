@@ -51,6 +51,15 @@ export function ConnectFourBoard(props: {
       fullColumnPrompt={(column) =>
         t`Column ${column + 1} is full. Choose another column.`
       }
+      inspection={{
+        enlarge: t`Inspect board (I)`,
+        fit: t`Fit board (Esc)`,
+        guidance: t`Drag to pan · Fit board to return`,
+        columnLabel: (column, occupied, full) =>
+          full
+            ? t`Column ${column + 1}, full`
+            : t`Column ${column + 1}, ${occupied} of 6 occupied`,
+      }}
       keyboardHelp={
         props.interactive && game().result === 0
           ? t`Left/Right to choose · Enter or Space drops`
