@@ -1,9 +1,9 @@
 import { isShipId, SHIPS } from '@libs/battleship-shared-ts/battleship-board';
 import { t } from '@lingui/core/macro';
+import { BattleshipNavigableGrid } from '@pkgs/ui-root-client-ts/battleship-navigable-grid';
 import { BattleshipPlacementLayout } from '@pkgs/ui-root-client-ts/battleship-placement-layout';
 import { BattleshipRegionOverview } from '@pkgs/ui-root-client-ts/battleship-target-layout';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -159,7 +159,8 @@ export function SetupPrecision(props: {
             </P>
           }
           working={
-            <CellGridBoard
+            <BattleshipNavigableGrid
+              pickup={props.setup.pickup}
               battleshipSurface="fleet"
               label={
                 props.locked

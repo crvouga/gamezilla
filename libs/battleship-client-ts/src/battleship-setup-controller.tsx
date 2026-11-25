@@ -29,9 +29,11 @@ import {
   unplacedShips,
 } from './battleship-draft';
 
+import { type FleetDrag, pickUpShip } from './battleship-drag';
 import { hullEdges } from './battleship-hull';
 
 export type SetupController = {
+  readonly pickup: (cell: string) => FleetDrag | undefined;
   readonly draft: Accessor<Draft>;
   /** The ship a cell press places: the one chosen, else the next to place. */
   readonly selected: Accessor<ShipId | null>;
@@ -112,11 +114,11 @@ function placementInstruction(
   selected: ShipId | null,
   orientation: Orientation
 ): string {
-  if (selected === null) return t`Choose a placed ship to move or remove it.`;
+  if (selected === null) return t`Drag a ship to move it, or choose it to rotate or remove it.`;
   const name = shipName(selected);
   const length = shipLength(selected);
   const direction = orientationName(orientation);
-  return t`${name}: ${length} cells ${direction}. Tap its first cell to place it; use Rotate to change direction.`;
+  return t`${name}: ${length} cells ${direction}. Tap its bow cell or drag to preview placement.`;
 }
 
 /** Commits an accepted change; a refused one only says why. */
@@ -192,7 +194,7 @@ export function createSetupController(
     if (props.locked || ship === null || bow === null) return null;
     return previewPlacement(draft(), ship, { bow, orientation: orientation() });
   });
-  const actions = setupActions({
+  const state: SetupState = {
     props,
     draft,
     selected,
@@ -200,7 +202,9 @@ export function createSetupController(
     setChosen,
     setOrientation,
     setRefusal,
-  });
+  };
+  const actions = setupActions(state);
+  const [drag, setDrag] = createSignal<PlacementPreview | null>(null);
   const chart = createMemo(() =>
     CELLS.map((cell) =>
       setupCell(cell, {
@@ -210,12 +214,34 @@ export function createSetupController(
       })
     )
   );
-  const cells = createMemo(() => previewCells(chart(), placing()));
+  const cells = createMemo(() => previewCells(chart(), drag() ?? placing()));
   const status = createMemo(() =>
     statusText(draft(), selected(), orientation())
   );
   return {
     ...actions,
+    pickup: (cell) =>
+      props.locked
+        ? undefined
+        : pickUpShip(
+            {
+              draft: draft(),
+              selected: selected(),
+              orientation: orientation(),
+              show: (preview) => {
+                setDrag(preview);
+                if (!preview) setHovered(null);
+              },
+              place: (ship, placement) => {
+                if (
+                  !props.locked &&
+                  commit(state, ship, placeInDraft(draft(), ship, placement))
+                )
+                  setChosen(null);
+              },
+            },
+            cell
+          ),
     draft,
     selected,
     orientation,

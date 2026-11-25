@@ -11,6 +11,7 @@ import {
   type GameSide,
   requireTwoPlayerSide,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { BattleshipNavigableGrid } from '@pkgs/ui-root-client-ts/battleship-navigable-grid';
 import {
   BattleshipTargetHeader,
   BattleshipWholeBoard,
@@ -65,7 +66,7 @@ function BoardPanel(props: {
         )}
       </Show>
       <BattleshipWholeBoard finished={props.finished}>
-        <CellGridBoard
+        <BattleshipNavigableGrid
           battleshipSurface={props.heading === null ? 'fleet' : 'target'}
           fill
           label={props.label}
