@@ -4,7 +4,7 @@ import {
   type CellGridBoardProps,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { createSignal, onCleanup, Show } from 'solid-js';
+import { createSignal, onSettled, Show } from 'solid-js';
 import { bindGrid } from './bind';
 import { FIT } from './camera';
 import type { ShipDrag } from './contact';
@@ -23,9 +23,22 @@ export function BattleshipNavigableGrid(props: GridProps) {
   );
 }
 function InteractiveGrid(props: GridProps) {
-  let dispose: (() => void) | undefined;
-  onCleanup(() => dispose?.());
+  let root: HTMLElement | undefined;
   const [view, setView] = createSignal(FIT);
+  // Hit-testing uses the mounted document. A cloned template can still
+  // belong to its inert template document when the ref first runs.
+  onSettled(
+    () =>
+      root &&
+      bindGrid(root, {
+        view,
+        setView: (next) => {
+          if (view().scale === 1 && next.scale > 1) props.onPreview?.(null);
+          setView(next);
+        },
+        pickup: (cell) => props.pickup?.(cell),
+      })
+  );
   return (
     <div
       class={styles['shell']}
@@ -37,15 +50,8 @@ function InteractiveGrid(props: GridProps) {
         class={styles['viewport']}
         data-battle-viewport=""
         data-scale={view().scale}
-        ref={(root) => {
-          dispose = bindGrid(root, {
-            view,
-            setView: (next) => {
-              if (view().scale === 1 && next.scale > 1) props.onPreview?.(null);
-              setView(next);
-            },
-            pickup: (cell) => props.pickup?.(cell),
-          });
+        ref={(element) => {
+          root = element;
         }}
       >
         <div

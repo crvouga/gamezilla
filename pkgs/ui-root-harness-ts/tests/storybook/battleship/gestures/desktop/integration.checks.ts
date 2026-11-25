@@ -1,5 +1,5 @@
 import { test } from '@playwright/test';
-import { defineGestureChecks } from '../checks';
+import { verifyDrag, verifyInspection } from '../checks';
 
 const viewport = { width: 1440, height: 900 };
 test.use({
@@ -10,6 +10,14 @@ test.use({
   trace: 'on',
 });
 
-test.describe(`Battleship board gestures ${viewport.width}`, () => {
-  defineGestureChecks(viewport.width);
+// regression: battleship-drag-mounted-document
+test('Battleship board gestures: drag the Carrier from C1 to C2 and cancel interrupted placement', async ({
+  page,
+}, info) => {
+  await verifyDrag(page, info, viewport.width);
+});
+test('Battleship board gestures: pinch, pan, aim and fit', async ({
+  page,
+}, info) => {
+  await verifyInspection(page, info, viewport.width);
 });
