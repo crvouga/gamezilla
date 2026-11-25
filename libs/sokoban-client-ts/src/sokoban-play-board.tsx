@@ -12,6 +12,7 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   TileBoard,
   type TileBoardDirection,
+  type TileBoardPiece,
   type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
 import type { JSX } from '@solidjs/web';
@@ -105,13 +106,22 @@ function createView(props: Props, closer: () => boolean) {
       sokobanTiles(props.board, positionPieces(props.position), words, frame())
     )
   );
-  const pieces = createMemo(() =>
-    sokobanPieces(props.board, positionPieces(props.position)).map((piece) => ({
-      ...piece,
-      art: warehouseArt[piece.tone],
-      column: piece.column - frame().left,
-      row: piece.row - frame().top,
-    }))
+  const pieces = createMemo<readonly TileBoardPiece[]>((previous) =>
+    sokobanPieces(props.board, positionPieces(props.position)).map(
+      (piece, index) => {
+        const column = piece.column - frame().left;
+        const row = piece.row - frame().top;
+        const prior = previous?.[index];
+        if (
+          prior?.id === piece.id &&
+          prior.tone === piece.tone &&
+          prior.column === column &&
+          prior.row === row
+        )
+          return prior;
+        return { ...piece, art: warehouseArt[piece.tone], column, row };
+      }
+    )
   );
   const outside = createMemo(() =>
     outsideView(props.board, props.position, frame())
