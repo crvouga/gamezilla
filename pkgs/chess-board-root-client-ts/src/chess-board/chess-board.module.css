@@ -459,7 +459,7 @@
 @media (orientation: landscape) and (max-height: 560px) {
   /* The tap hint would wrap the guidance to a third line and push the board
      column past the window; the side, check and keyboard help remain. */
-  .guidanceRow > :first-child {
+  .guidanceRow > p:first-child {
     display: none;
   }
   .keyboardHelp {

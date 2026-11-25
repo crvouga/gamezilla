@@ -66,7 +66,6 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
         page,
       }, info) => {
         const session = await page.context().newCDPSession(page);
-        await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         await retainEvidence(info, 'conditions.json', {
           body: JSON.stringify({
             cpuRate: 4,
@@ -79,6 +78,7 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
           contentType: 'application/json',
         });
         await openStory(page, `${players}-player-match`, 'light');
+        await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         await playWord(page, input);
         await auditAccessibility(page, info);
       });

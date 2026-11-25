@@ -17,12 +17,12 @@ export function defineProfiles(recorded: boolean) {
       page,
     }, info) => {
       const cdp = await page.context().newCDPSession(page);
-      await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
       await cdp.send('Profiler.enable');
       await cdp.send('Profiler.setSamplingInterval', { interval: 1000 });
       const epochs = [];
       for (let epoch = 0; epoch < 3; epoch++) {
         await openBoard(page, 'drop-a-disc', theme);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         // Two real moves warm the interaction path; retain every subsequent sample.
         await page.getByTestId('custom-game-board-column-1').click();
         await page.getByTestId('custom-game-board-column-2').click();
@@ -41,6 +41,7 @@ export function defineProfiles(recorded: boolean) {
         }
         const profile = await cdp.send('Profiler.stop');
         const longTasks = await finishTiming(page);
+        await cdp.send('Emulation.setCPUThrottlingRate', { rate: 1 });
         await retain(info, `cpu-profile-${epoch}`, profile.profile);
         expect(
           samples.every(

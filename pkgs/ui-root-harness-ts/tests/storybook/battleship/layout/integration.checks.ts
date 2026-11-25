@@ -137,6 +137,10 @@ test('storybook integration: battleship finished game keeps the switch and own s
       'light',
       info
     );
+    await page
+      .getByRole('dialog', { name: 'Game over' })
+      .getByTestId('game-result-close')
+      .click();
     await settleMotion(page);
     const board = page.locator(
       '[data-shown="true"] [data-component="CellGridBoard"]'

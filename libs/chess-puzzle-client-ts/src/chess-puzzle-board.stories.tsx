@@ -143,7 +143,10 @@ export const KeyboardHelp: Story = {
       return;
     }
     const initial = puzzleRectangle(canvasElement);
-    await userEvent.click(canvas.getByText('Keyboard controls'));
+    // regression: chess-landscape-keyboard-help-hidden
+    const help = canvas.getByRole('button', { name: 'Keyboard controls' });
+    await expect(help).toBeVisible();
+    await userEvent.click(help);
     await assertStablePuzzleRectangle(canvasElement, initial, 'keyboard-help');
     await assertPuzzleBounds(canvasElement);
     await expect(

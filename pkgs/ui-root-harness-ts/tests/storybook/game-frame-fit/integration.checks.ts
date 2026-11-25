@@ -77,6 +77,11 @@ test('storybook integration: game frame fit 1440x900 keeps a finished board at i
     };
   });
   expect(finished, JSON.stringify(layout)).toBeGreaterThanOrEqual(live - 2);
+  const dialog = page.getByRole('dialog', { name: 'Game over' });
+  await expect(dialog.getByRole('button', { name: /^Rematch/ })).toBeInViewport(
+    { ratio: 1 }
+  );
+  await dialog.getByTestId('game-result-close').click();
   const board = await page
     .locator('[data-component="ChessBoard"]')
     .boundingBox();

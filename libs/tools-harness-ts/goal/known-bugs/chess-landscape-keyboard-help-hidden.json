@@ -1,0 +1,4 @@
+{
+  "summary": "At 844 by 390 the chess puzzle's keyboard-only guidance hid its only control along with the tap hint.",
+  "regressionTest": "libs/chess-puzzle-client-ts/src/chess-puzzle-board.stories.tsx"
+}

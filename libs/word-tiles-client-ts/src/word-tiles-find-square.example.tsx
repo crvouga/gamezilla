@@ -66,4 +66,6 @@ export async function findAndPlace(
   await userEvent.click(canvas.getByTestId(`${testId}-rack-11`));
   await userEvent.click(star);
   await expect(star).toHaveAttribute('data-state', 'tentative');
+  await userEvent.click(star);
+  await expect(star).toHaveAttribute('data-state', 'empty');
 }
