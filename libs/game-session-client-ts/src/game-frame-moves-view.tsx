@@ -88,6 +88,23 @@ function EarlierMoves(props: { readonly count: number }): JSX.Element {
 }
 
 /**
+ * A move's name, its game's word for bare numbers said with it (`Move 9 ·
+ * column 7, Red circle`), so a move reads whole wherever it is listed.
+ */
+function moveName(
+  ply: number,
+  label: string,
+  record: FrameRecord,
+  side: string | undefined
+): string {
+  const word = record.moveHeading ?? '';
+  const move = word === '' ? label : `${word.toLowerCase()} ${label}`;
+  return side === undefined
+    ? t`Move ${ply} · ${move}`
+    : t`Move ${ply} · ${move}, ${side}`;
+}
+
+/**
  * The latest moves, every move on its own row numbered 1 to N (the one
  * count the move shown, "Move 3 of 8", and the move-number field share),
  * each behind its mover's swatch (the game's word for bare-number moves,
@@ -105,10 +122,7 @@ function RecordMoves(
         ply,
         label,
         swatch: mover?.swatch,
-        accessibleName:
-          mover === undefined
-            ? t`Move ${ply}: ${label}`
-            : t`Move ${ply}, ${mover.sideLabel}: ${label}`,
+        accessibleName: moveName(ply, label, props.record, mover?.sideLabel),
         testId: `custom-game-review-move-${ply}`,
       };
     })
@@ -123,6 +137,7 @@ function RecordMoves(
       onSelect={props.onSelect}
       leading={<EarlierMoves count={first()} />}
       heading={props.record.moveHeading || undefined}
+      stripKey={t`Moves`}
       turnLabel={(turn) => <Trans>Move {turn}</Trans>}
       wrap
       ended={props.phase === 'completed' || props.phase === 'cancelled'}

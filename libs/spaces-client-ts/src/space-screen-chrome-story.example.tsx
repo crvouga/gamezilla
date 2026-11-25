@@ -36,6 +36,8 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
     {
       id: 'people',
       label: 'People in this space',
+      // As the app words it: "People" beside the icon in a wide top bar.
+      shortLabel: 'People',
       icon: UsersIcon,
       testId: Handles.spaceMembersButton,
       onPress: fn(),

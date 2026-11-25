@@ -51,6 +51,12 @@ export type GameMoveListProps = {
    */
   heading?: string | undefined;
   /**
+   * The key a `table` laid out as one line over a phone's board shows in
+   * place of `heading` (`Moves`): the line holds whole moves, not columns.
+   * Each move then says its word in its own name (`Move 9 · column 7`).
+   */
+  stripKey?: string | undefined;
+  /**
    * `turn` only: the shown turn's number in words (`Move 4`), so a strip
    * under a phone's board never leaves a bare number beside the moves.
    */
@@ -132,6 +138,7 @@ function MoveButton(props: {
         data-current={String(props.current)}
         aria-current={props.current ? 'step' : undefined}
         aria-label={props.move.accessibleName}
+        title={props.move.accessibleName}
         data-testid={props.move.testId}
         onClick={() => props.onSelect(props.move.ply)}
       >
@@ -334,6 +341,32 @@ export function GameMoveList(props: GameMoveListProps): JSX.Element {
   );
 }
 
+/**
+ * A table's word for its moves (`Column`), over its move columns; laid out
+ * as one line over a phone's board, the line's key (`Moves`) instead.
+ */
+function TableHeading(props: GameMoveListProps): JSX.Element {
+  return (
+    <Show when={props.layout === 'table' && props.heading}>
+      {(heading) => (
+        <span
+          class={`${styles['heading']} text textCaption`}
+          aria-hidden="true"
+        >
+          <Show when={props.stripKey} fallback={heading()}>
+            {(key) => (
+              <>
+                <span class={styles['tableWord']}>{heading()}</span>
+                <span class={styles['stripWord']}>{key()}</span>
+              </>
+            )}
+          </Show>
+        </span>
+      )}
+    </Show>
+  );
+}
+
 /** The listed turns themselves. */
 function TurnList(props: GameMoveListProps): JSX.Element {
   const turns = createMemo(() => {
@@ -379,16 +412,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       {...dataAttrs({ component: 'GameMoveList', ...props.dataSet })}
     >
       {props.leading}
-      <Show when={props.layout === 'table' && props.heading}>
-        {(heading) => (
-          <span
-            class={`${styles['heading']} text textCaption`}
-            aria-hidden="true"
-          >
-            {heading()}
-          </span>
-        )}
-      </Show>
+      <TableHeading {...props} />
       <ol class={styles['turns']} aria-label={props['aria-label']}>
         {/* By position, not by object: a move appended updates its own
             turn, never the whole list. */}

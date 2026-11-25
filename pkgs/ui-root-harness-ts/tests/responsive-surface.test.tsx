@@ -117,8 +117,8 @@ describe('ResponsiveSurface', () => {
 
   // regression: share-remove-confirm-one-panel — a confirmation stacked
   // over the Share surface had its width and edges, reading as one panel.
-  // A small surface keeps a further inset on a phone, inside the one below.
-  test('compact layout keeps a small surface narrower than a full-width one', () => {
+  // An inset (confirmation) surface keeps a further inset on a phone.
+  test('compact layout keeps an inset surface narrower than a full-width one', () => {
     renderUi(
       () => (
         <SurfaceStackProvider>
@@ -127,6 +127,7 @@ describe('ResponsiveSurface', () => {
             onClose={() => {}}
             title="Remove?"
             size="small"
+            inset
           >
             <p class="text">{'Surface body'}</p>
           </ResponsiveSurface>
@@ -138,6 +139,29 @@ describe('ResponsiveSurface', () => {
     expect(modal).toHaveAttribute('data-size', 'small');
     // 390 - 2 * 16 margin - 2 * 20 inset: clear of a full-width surface.
     expect(cssOf(modal)).toContain('max-width:318px');
+  });
+
+  // regression: r65 game-over-clipped — the inset narrowed every small
+  // surface, clipping the Game over dialog's links on a phone.
+  test('compact layout gives a small surface without inset the whole width', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <ResponsiveSurface
+            visible
+            onClose={() => {}}
+            title="Game over"
+            size="small"
+          >
+            <p class="text">{'Surface body'}</p>
+          </ResponsiveSurface>
+        </SurfaceStackProvider>
+      ),
+      { width: 390, height: 844 }
+    );
+    const modal = mustQuery('[data-component="ModalContent"]');
+    expect(modal).toHaveAttribute('data-size', 'fullWidth');
+    expect(cssOf(modal)).toContain('max-width:358px');
   });
 
   test('presentation="modal" is the same centered modal on compact layouts', () => {
@@ -186,12 +210,14 @@ describe('ResponsiveSurface', () => {
     expect(chrome.contains(header)).toBe(true);
     // Scrollbar is flush: chrome has no edge padding; padding is on content.
     expect(chrome.className).not.toMatch(/\bpx-4\b/);
-    expect(chrome.className).not.toMatch(/\bpb-6\b/);
+    expect(chrome.className).not.toMatch(/\bpb-4\b/);
     expect(
       mustQuery('[data-component="ResponsiveSurfaceHeaderPad"]').className
     ).toMatch(/\bpx-4\b/);
     expect(scrollContent.className).toMatch(/\bpx-ui-lg\b/);
-    expect(scrollContent.className).toMatch(/\bpb-ui-xl\b/);
+    // The bottom inset matches the header's top: no empty band under the
+    // last button.
+    expect(scrollContent.className).toMatch(/\bpb-ui-lg\b/);
     // `.surfaceScrollShell`: a grid of `auto` header over `minmax(0, 1fr)`.
     expect(chrome.className).toMatch(/\bsurfaceScrollShell\b/);
     expect(cssOf(chrome)).toMatch(/max-height:\d+px/);
@@ -244,7 +270,7 @@ describe('ResponsiveSurface', () => {
     );
     const chrome = mustQuery('[data-component="ResponsiveSurfaceChrome"]');
     expect(chrome.className).toMatch(/\bpx-4\b/);
-    expect(chrome.className).toMatch(/\bpb-6\b/);
+    expect(chrome.className).toMatch(/\bpb-4\b/);
     expect(
       document.querySelector('[data-component="ResponsiveSurfaceHeaderPad"]')
     ).toBeNull();

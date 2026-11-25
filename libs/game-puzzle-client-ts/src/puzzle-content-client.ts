@@ -60,6 +60,12 @@ export type PuzzleContentFrame = {
 /** Independent game rendering capabilities, with no board or turn assumptions. */
 export type PuzzleContentClient = {
   readonly Player: Component<PuzzlePlayerProps>;
+  /**
+   * The player's quieter aids (a chooser to remove a path, how-to help),
+   * under the board's own commands, so undo and restart stay right under
+   * the board. Given the player's props; absent for a game with none.
+   */
+  readonly Support?: Component<PuzzlePlayerProps>;
   readonly frame: PuzzleContentFrame;
   readonly authoring?: {
     readonly initialDefinition: () => string;

@@ -34,18 +34,24 @@ test("a player chip's facts line is a badge tall with or without a badge", () =>
 // regression: player-chip-grows-when-a-badge-appears — beside a wide board
 // three or more chips share its width, so a rider's round wins and an Out
 // badge took a second facts line only once the rider went Out, and the
-// arena below moved. The second line is held from the start there.
-test('three or more chips beside a wide board hold a second facts line', () => {
+// arena below moved. The facts are one line a badge tall from the start
+// there; a fact with no room steps onto a hidden line a full line below.
+// regression: chip-facts-hidden-wrap-slivers — that hidden line started
+// right under the shown one, so 2-3px of a stepped-aside tag showed along
+// the chip's bottom edge.
+test('three or more chips beside a wide board keep one facts line, no sliver of the next', () => {
   const sheet = read(
     'pkgs/ui-root-client-ts/src/game-player-rail/game-player-rail.module.css'
   );
+  // The last wide block: the one that sets the chips' facts.
   const wide = sheet.slice(
-    sheet.indexOf('@container game-column (min-width: 880px)')
+    sheet.lastIndexOf('@container game-column (min-width: 880px)')
   );
   const selector = '.playerRail:has(> :nth-child(3)) .chipFacts {';
   const body = wide.slice(wide.indexOf(selector) + selector.length);
   expect(wide.indexOf(selector)).toBeGreaterThan(0);
-  expect(body.slice(0, body.indexOf('}'))).toContain(
-    'min-height: calc(2 * var(--ui-space-xl) + var(--ui-space-1));'
-  );
+  const facts = body.slice(0, body.indexOf('}'));
+  expect(facts).toContain('height: var(--ui-space-xl);');
+  expect(facts).toContain('row-gap: var(--ui-space-xl);');
+  expect(facts).toContain('overflow: hidden;');
 });

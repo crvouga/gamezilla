@@ -13,9 +13,11 @@ import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
@@ -54,6 +56,19 @@ type BoardState = {
 };
 
 type BoardViewProps = GameBoardProps & { readonly state: BoardState };
+
+/**
+ * Why the chosen wall, or the host, refused the last attempt (`''` for
+ * nothing refused): an alert over the screen, so the board and its tools
+ * never move for it.
+ */
+function refusalReason(props: BoardViewProps, wall: string | null): string {
+  const game = props.state.game();
+  const reason =
+    wall === null ? null : wallRefusal(game, `${wall}${props.state.tool()}`);
+  if (reason !== null) return quoridorWallMessage(reason, game.mode);
+  return props.interactive ? props.state.refusal() : '';
+}
 
 function createBoardSelection(props: BoardViewProps) {
   const game = (): Quoridor => props.state.game();
@@ -127,7 +142,17 @@ function createBoardSelection(props: BoardViewProps) {
     props.state.setTool('move');
     props.onAction(action);
   };
-  return { cells, selected, message, activate, setPreview, cancel, commit };
+  const refusal = () => refusalReason(props, selected());
+  return {
+    cells,
+    selected,
+    message,
+    refusal,
+    activate,
+    setPreview,
+    cancel,
+    commit,
+  };
 }
 
 function QuoridorBoardView(props: BoardViewProps): JSX.Element {
@@ -207,6 +232,10 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           }}
         />
       </Show>
+      <QuoridorRefusalToast
+        testId={props.testId}
+        reason={selection.refusal()}
+      />
       <P
         id={`${props.testId}-wall-status`}
         role="status"
@@ -306,6 +335,25 @@ function WallConfirmation(props: {
         onClick={props.cancel}
       />
     </StackHorizontal>
+  );
+}
+
+/** A refused wall's reason, floated over the command bar until it changes. */
+function QuoridorRefusalToast(props: {
+  testId: string;
+  reason: string;
+}): JSX.Element {
+  return (
+    <ToastStack placement="above-commands">
+      <Show when={props.reason !== ''}>
+        <Notice
+          tone="warning"
+          dataSet={{ testid: `${props.testId}-wall-refusal` }}
+        >
+          {props.reason}
+        </Notice>
+      </Show>
+    </ToastStack>
   );
 }
 

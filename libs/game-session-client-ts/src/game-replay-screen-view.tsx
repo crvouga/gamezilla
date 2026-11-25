@@ -34,6 +34,7 @@ import {
   type GameHistoryPlayer,
   HistoryPlayers,
 } from './game-history-screen-view';
+import { ReplayMoveStrip } from './game-replay-move-strip';
 
 /** One player of the replayed game, with the seat they played. */
 export type GameReplayPlayer = GameHistoryPlayer & {
@@ -328,13 +329,8 @@ function ReplayPlayers(
   );
 }
 
-/**
- * Moves shown at once, a page holding the shown move: eight, or under a
- * phone's board six when the game runs longer, so a page and its two range
- * buttons keep to two rows.
- */
-const PHONE_PAGE = 6;
-const WIDE_PAGE = 8;
+/** Moves shown at once beside a wide board, a page holding the shown move. */
+const PAGE = 8;
 
 /** Beside a wide board, the same page of numbered moves in its own card. */
 function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
@@ -355,25 +351,16 @@ function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
 }
 
 /**
- * Under a phone's board: the page of moves holding the shown one, each a
- * whole chip with its number, its seat's swatch and the move ("3 ● 4"),
- * the shown move filled. A header says which moves the page holds and
- * turns the page when the game is longer than one; a page keeps its
- * height, so the board never moves.
+ * The page of moves holding the shown one, each a whole chip with its
+ * number, its seat's swatch and the move ("3 ● 4"), the shown move filled.
+ * A header says which moves the page holds and turns the page when the
+ * game is longer than one.
  */
 function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
   // The page holding the shown move; the start shows the first page.
-  const phone = createMediaQuery(PHONE_QUERY);
-  // A short game is one page wherever it is shown.
-  const size = () =>
-    phone() && props.moves.length > WIDE_PAGE ? PHONE_PAGE : WIDE_PAGE;
-  const page = createMemo(() =>
-    Math.floor(Math.max(0, props.ply - 1) / size())
-  );
-  // A phone's page of a long game holds two-digit moves: three across.
-  const columns = () => (size() === PHONE_PAGE ? 3 : 4);
-  const first = () => page() * size() + 1;
-  const last = () => Math.min(first() + size() - 1, props.moves.length);
+  const page = createMemo(() => Math.floor(Math.max(0, props.ply - 1) / PAGE));
+  const first = () => page() * PAGE + 1;
+  const last = () => Math.min(first() + PAGE - 1, props.moves.length);
   const shown = createMemo(() =>
     props.moves
       .slice(first() - 1, last())
@@ -395,7 +382,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
             <Trans>number, player and {props.moveHeading.toLowerCase()}</Trans>
           </Show>
         </P>
-        <Grid columns={columns()} gap="xs" testId="game-history-review-moves">
+        <Grid columns={4} gap="xs" testId="game-history-review-moves">
           <For each={shown()}>
             {(entry) => (
               <Button
@@ -431,7 +418,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
               <Button
                 title={
                   <Trans>
-                    Moves {first() - size()}–{first() - 1}
+                    Moves {first() - PAGE}–{first() - 1}
                   </Trans>
                 }
                 size="sm"
@@ -450,7 +437,7 @@ function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
                 title={
                   <Trans>
                     Moves {last() + 1}–
-                    {Math.min(last() + size(), props.moves.length)}
+                    {Math.min(last() + PAGE, props.moves.length)}
                   </Trans>
                 }
                 size="sm"
@@ -492,8 +479,8 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
 export function GameReplayScreenView(
   props: GameReplayScreenViewProps
 ): JSX.Element {
-  // A phone's one fixed view (`fixedStage`) pages its moves under the
-  // board; a wide screen lists them all in the rail beside it.
+  // A phone's one fixed view (`fixedStage`) lines its moves up over the
+  // board; a wide screen pages them in the rail beside it.
   const phone = createMediaQuery(PHONE_QUERY);
   const opponents = createMemo(() =>
     props.outcome === null
@@ -528,21 +515,14 @@ export function GameReplayScreenView(
         fixedStage
         status={<ReplaySteps {...props} />}
         aside={
-          <Show when={!phone()}>
+          <Show when={!phone()} fallback={<ReplayMoveStrip {...props} />}>
             <ReplayMoves {...props} />
           </Show>
         }
       >
         <GameBoardStage
           others={<ReplayPlayers {...props} place="over" />}
-          own={
-            <StackVertical gap="sm" align="stretch">
-              <ReplayPlayers {...props} place="under" />
-              <Show when={phone()}>
-                <ReplayMovesPage {...props} />
-              </Show>
-            </StackVertical>
-          }
+          own={<ReplayPlayers {...props} place="under" />}
         >
           {props.board}
         </GameBoardStage>

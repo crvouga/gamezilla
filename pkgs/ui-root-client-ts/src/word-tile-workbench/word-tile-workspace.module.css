@@ -138,8 +138,29 @@
 .layout[data-fill="true"][data-layout="stacked"]
   .board
   > *
-  > :is([data-view-controls], [data-testid$="-square-details"]) {
+  > :is(
+    [data-view-controls],
+    [data-view-bar],
+    [data-testid$="-square-details"]
+  ) {
   padding-inline: var(--game-board-workspace-inset, 0px);
+}
+
+/* A phone keeps its view tools behind one View button in a row under the
+   board (`data-view-menu`), so the board, fitted or enlarged, takes all the
+   room but that row. */
+.layout[data-fill="true"] .board [data-view-menu="true"] {
+  --word-tile-enlarged-height: calc(
+    100cqb -
+    var(--ui-control-size-md) -
+    var(--ui-space-1)
+  );
+  --word-tile-fitted-size: min(
+    100cqi,
+    100cqb -
+    var(--ui-control-size-md) -
+    var(--ui-space-1)
+  );
 }
 
 /* Wide: the board at the box's start, as large as the room over the
@@ -148,7 +169,12 @@
    word actions on one row under it. */
 .layout[data-fill="true"][data-layout="wide"] {
   grid-template-columns: 21.5rem minmax(0, 1fr) 10.5rem;
-  grid-template-rows: minmax(var(--word-tile-board-least), 1fr) auto auto;
+  /* The status line and the rack's row keep a player's height whatever the
+     seat holds, so a watcher's board is a player's size. */
+  grid-template-rows:
+    minmax(var(--word-tile-board-least), 1fr)
+    minmax(1lh, auto)
+    minmax(calc(3rem + var(--ui-space-1) * 2), auto);
 }
 .layout[data-fill="true"][data-layout="wide"] .board > * {
   --word-tile-fitted-size: min(100cqi, 100cqb - var(--ui-space-6));

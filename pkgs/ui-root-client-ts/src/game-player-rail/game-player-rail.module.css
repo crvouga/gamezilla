@@ -52,6 +52,11 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+/* The name, then the mark that never gives way (`You`): a long name is cut
+   short before the mark moves off its line. */
+.chipNameLine {
+  flex-wrap: nowrap;
+}
 .chipFacts {
   row-gap: var(--game-player-facts-row-gap, var(--ui-space-1));
   max-width: 100%;
@@ -74,10 +79,14 @@
    same height whoever sits at the table or goes Out. A word that does not
    fit whole wraps onto a hidden second line, so a status steps aside
    whole (never "C…"); the figure keeps its place beside the swatch,
-   shortened only when the chip is narrower than the figure itself. */
+   shortened only when the chip is narrower than the figure itself. The
+   hidden line starts a full line below the shown one, so no sliver of a
+   word stepped aside shows under it. */
 @container game-column (max-width: 879px) {
   .playerRail .chipFacts {
     flex-wrap: wrap;
+    align-content: flex-start;
+    row-gap: var(--ui-space-xl);
     height: var(--ui-space-xl);
     overflow: hidden;
   }
@@ -106,6 +115,8 @@
 @container game-column (min-width: 880px) {
   .playerRail:has(> :nth-child(3)) .chipFacts {
     flex-wrap: wrap;
+    align-content: flex-start;
+    row-gap: var(--ui-space-xl);
     height: var(--ui-space-xl);
     overflow: hidden;
   }

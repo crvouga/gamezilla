@@ -232,6 +232,8 @@ export function MutationIdle(props: {
   labels: MutationModalLabels;
   ids: MutationModalIds;
   message: JSX.Element | undefined;
+  /** What the decision is about, on its own line above `message`. */
+  subject?: JSX.Element | undefined;
   /** Custom idle body (form fields); takes precedence over `message`. */
   children: JSX.Element | undefined;
   destructive: boolean;
@@ -244,7 +246,7 @@ export function MutationIdle(props: {
     <>
       <Show
         when={props.children !== undefined}
-        fallback={<ModalBody message={props.message} />}
+        fallback={<ModalBody message={props.message} subject={props.subject} />}
       >
         <div class="box mb-4">{props.children}</div>
       </Show>

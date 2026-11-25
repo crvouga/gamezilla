@@ -1,6 +1,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
+import { NameText } from '@pkgs/ui-root-client-ts/name-text';
 import type { JSX } from '@solidjs/web';
 
 export type RemoveSpacePersonModalViewProps = {
@@ -11,7 +12,11 @@ export type RemoveSpacePersonModalViewProps = {
   readonly operation: () => Promise<void>;
 };
 
-/** The host's confirm before removing someone from a space. */
+/**
+ * The host's confirm before removing someone from a space. The title stays
+ * short; the full handle stands on its own line in the body, breaking only
+ * at `_`, `.` or `-`, so a long name never splits mid-word in a heading.
+ */
 export function RemoveSpacePersonModalView(
   props: RemoveSpacePersonModalViewProps
 ): JSX.Element {
@@ -19,7 +24,8 @@ export function RemoveSpacePersonModalView(
     <MutationModal
       visible
       onClose={() => props.onClose()}
-      title={<Trans>Remove {props.name}?</Trans>}
+      title={<Trans>Remove person?</Trans>}
+      subject={<NameText name={props.name} />}
       message={
         <Trans>
           They will leave this space. They can choose to join again through the

@@ -19,6 +19,21 @@ export const States: StoryObj = {
   render: () => <Example />,
 };
 
+/** Choose Fit or Enlarge: beside the board, or in a phone's View dialog. */
+async function chooseView(canvasElement: HTMLElement, name: string) {
+  const canvas = within(canvasElement);
+  const view = canvas.queryByRole('button', { name: 'View board' });
+  if (view) await userEvent.click(view);
+  const tools = view
+    ? within(
+        await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+          name: 'Board view',
+        })
+      )
+    : canvas;
+  await userEvent.click(tools.getByRole('button', { name }));
+}
+
 /** Enlarge the same board, place a tile, then retain it in the overview. */
 export const EnlargedPlacement: StoryObj = {
   // Related board components keep a desktop reference beside the phone one.
@@ -27,14 +42,12 @@ export const EnlargedPlacement: StoryObj = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole('button', { name: 'S, 1 point' }));
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Enlarge board' })
-    );
+    await chooseView(canvasElement, 'Enlarge board');
     await userEvent.click(canvas.getByRole('button', { name: 'e3, empty' }));
     await expect(
       canvas.getByRole('button', { name: 'S 1, e3, tentative' })
     ).toHaveAttribute('data-state', 'tentative');
-    await userEvent.click(canvas.getByRole('button', { name: 'Fit board' }));
+    await chooseView(canvasElement, 'Fit board');
     await expect(
       canvas.getByRole('button', { name: 'S 1, e3, tentative' })
     ).toHaveFocus();

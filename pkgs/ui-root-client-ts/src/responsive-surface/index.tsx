@@ -36,10 +36,14 @@ export type ResponsiveSurfaceProps = {
   title?: JSX.Element | undefined;
   /**
    * Modal width bucket on wide layouts. Default `medium`. Compact layouts
-   * use the full width inside the 16px backdrop margin, except `small`,
-   * which keeps a further inset so it stands inside a surface under it.
+   * use the full width inside the 16px backdrop margin, unless `inset`.
    */
   size?: ModalSize | undefined;
+  /**
+   * Confirmations only: on compact layouts keep the `size` bucket with a
+   * further inset, so stacked over a surface it reads as its own dialog.
+   */
+  inset?: boolean | undefined;
   /** Max height of the modal content in px (capped by the viewport). */
   maxHeight?: number | undefined;
   /**
@@ -145,7 +149,7 @@ function SurfaceChrome(props: {
           class={[
             'box grow shrink min-h-0 overflow-hidden w-full',
             {
-              'px-4 pt-4 pb-6': !scroll(),
+              'px-4 pt-4 pb-4': !scroll(),
               // Grid, not `.box` flex: the reliable scrollport host.
               surfaceScrollShell: scroll(),
             },
@@ -180,7 +184,7 @@ function SurfaceChrome(props: {
               flushEdge={false}
               height="full"
               paddingX="lg"
-              paddingBottom="xl"
+              paddingBottom="lg"
             >
               {props.surface.children}
             </ScrollView>
@@ -211,6 +215,7 @@ function CenteredModal(props: ResponsiveSurfaceProps): JSX.Element {
       >
         <ModalContent
           size={props.size ?? 'medium'}
+          inset={props.inset}
           padded={false}
           maxHeight={props.maxHeight}
         >
@@ -228,7 +233,7 @@ function CenteredModal(props: ResponsiveSurfaceProps): JSX.Element {
  * `.dialogEnter` fade-and-scale). It never docks to the bottom edge.
  *
  * Width: the {@link ModalSize} bucket on wide layouts; on compact layouts
- * the whole width inside the backdrop's 16px margin, but a `small` surface
+ * the whole width inside the backdrop's 16px margin, but an `inset` surface
  * (a confirmation) keeps a further inset, so stacked over another it reads
  * as a separate, narrower dialog. Height hugs content and
  * is capped by {@link useModalContentMaxHeight} (viewport minus the margin),
@@ -257,10 +262,10 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
       confirmNavigation(props.onClose, scope.pendingOperations());
     else props.onClose();
   };
-  // A compact layout gives every surface its whole width but a small one,
-  // which stays narrower so it reads as its own dialog over another.
+  // A compact layout gives every surface its whole width but an inset one
+  // (a confirmation), which stays narrower so it reads as its own dialog.
   const size = (): ModalSize =>
-    layoutMode() === 'compact' && props.size !== 'small'
+    layoutMode() === 'compact' && props.inset !== true
       ? 'fullWidth'
       : (props.size ?? 'medium');
   return (

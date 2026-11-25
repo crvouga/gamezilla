@@ -4,6 +4,24 @@ import {
   checkInitialWordWorkspace,
 } from './word-tiles-geometry.example';
 import { expectBoardMap } from './word-tiles-map.example';
+import { viewPrecisionRegion } from './word-tiles-precision.example';
+import {
+  boardViewButton,
+  boardViewTools,
+  closeBoardView,
+  enlargeBoard,
+} from './word-tiles-view.example';
+
+/**
+ * What sits under the enlarged board: its overview on a wide screen, or the
+ * View button a phone keeps it behind.
+ */
+function underBoard(canvasElement: HTMLElement): HTMLElement {
+  return (
+    within(canvasElement).queryByTestId('custom-game-board-overview') ??
+    within(canvasElement).getByRole('button', { name: 'View board' })
+  );
+}
 
 async function assertFocusedCoordinates(
   canvasElement: HTMLElement,
@@ -35,10 +53,7 @@ async function assertFocusedCoordinates(
   await expect(bounds.right).toBeLessThanOrEqual(clip.right);
   await expect(top.left).toBe(bounds.left);
   await expect(left.top).toBe(bounds.top);
-  const overview = within(canvasElement).getByTestId(
-    'custom-game-board-overview'
-  );
-  const context = overview.getBoundingClientRect();
+  const context = underBoard(canvasElement).getBoundingClientRect();
   await expect(context.top).toBeGreaterThanOrEqual(clip.bottom);
   await expect(context.bottom).toBeLessThanOrEqual(window.innerHeight);
   await expect(context.left).toBeGreaterThanOrEqual(clip.left);
@@ -48,29 +63,31 @@ async function assertFocusedCoordinates(
 /** Keyboard navigation must reveal its cell without concealing either coordinate. */
 export async function checkEnlargedCoordinates(canvasElement: HTMLElement) {
   await checkInitialWordWorkspace(canvasElement);
-  const enlarge = within(canvasElement).getByRole('button', {
-    name: 'Enlarge board',
-  });
-  if (enlarge.getAttribute('aria-pressed') !== 'true')
-    await userEvent.click(enlarge);
+  await enlargeBoard(canvasElement);
   // regression: word-tiles-enlarged-context-loss
   const canvas = within(canvasElement);
-  const overview = canvas.getByTestId('custom-game-board-overview');
+  const tools = await boardViewTools(canvasElement);
+  const overview = tools.getByTestId('custom-game-board-overview');
   await expect(overview).toBeVisible();
+  await assertClear(overview);
+  await expect(overview.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+    132
+  );
   await expect(overview.querySelectorAll('[data-state]')).toHaveLength(225);
   const indicator = overview.querySelector('[data-viewport-indicator]');
   await expect(indicator).not.toBeNull();
   await expect(
-    canvas.getByRole('button', { name: 'Enlarge board' })
+    tools.getByRole('button', { name: 'Enlarge board' })
   ).toHaveAttribute('aria-pressed', 'true');
+  await closeBoardView(canvasElement);
   await checkPrecisionWorkspace(canvasElement);
   canvas
     .getByTestId('custom-game-board-cell-h8')
     .focus({ preventScroll: true });
   await assertFocusedCoordinates(canvasElement, 'h8');
-  await userEvent.click(canvas.getByRole('button', { name: 'View a1 to e5' }));
+  await viewPrecisionRegion(canvasElement, 'View a1 to e5');
   await assertFocusedCoordinates(canvasElement, 'c3');
-  await userEvent.click(canvas.getByRole('button', { name: 'View f6 to j10' }));
+  await viewPrecisionRegion(canvasElement, 'View f6 to j10');
   await assertFocusedCoordinates(canvasElement, 'h8');
   for (const [keys, cell] of [
     ['{Control>}{Home}{/Control}', 'a1'],
@@ -94,17 +111,19 @@ async function checkPrecisionWorkspace(
   const viewport = canvas.getByRole('region', {
     name: 'Scrollable word board',
   });
-  const overview = canvas.getByTestId('custom-game-board-overview');
   const rect = viewport.getBoundingClientRect();
-  const context = overview.getBoundingClientRect();
   const available = viewport.parentElement?.getBoundingClientRect();
   if (!available) throw new Error('Missing precision area');
   await expect(rect.width).toBeGreaterThanOrEqual(308);
   await expect(rect.width / available.width).toBeGreaterThanOrEqual(0.8);
   await expect(rect.height).toBeGreaterThanOrEqual(308);
-  await expect(context.width).toBeGreaterThanOrEqual(132);
   await assertClear(viewport, false);
-  await assertClear(overview);
+  await assertClear(underBoard(canvasElement));
+  // A phone's View button stands for its overview, checked in its dialog.
+  if (!boardViewButton(canvasElement))
+    await expect(
+      underBoard(canvasElement).getBoundingClientRect().width
+    ).toBeGreaterThanOrEqual(132);
   await assertClear(canvas.getByTestId('custom-game-board-rack'));
   await assertClear(canvas.getByTestId('custom-game-board-submit'));
 }

@@ -30,10 +30,8 @@ export const ROBIN = person('04', 'robin_42');
 export const SAM = person('05', 'sam');
 export const PLAYBOT = person('06', 'helper_bot', { bot: true });
 export const UNSYNCED = person('07', '', { synced: false });
-export const LONG_NAME = person(
-  '08',
-  'a_really_long_username_that_keeps_going_and_going'
-);
+/** As long as a username may be (32 characters, `USERNAME_MAX_LENGTH`). */
+export const LONG_NAME = person('08', 'a_really_long_username_that_goes');
 
 export const CASEY = person('09', 'casey');
 export const RILEY = person('10', 'riley.k');

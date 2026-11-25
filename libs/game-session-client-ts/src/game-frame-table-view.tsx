@@ -28,7 +28,11 @@ import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { For, Match, Show, Switch } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
-import { ChipSeatTags, PlaySeatTags } from './game-frame-seat-tags';
+import {
+  ChipOwnMark,
+  ChipSeatTags,
+  PlaySeatTags,
+} from './game-frame-seat-tags';
 import { frameUsesRail } from './game-frame-table';
 import type {
   FrameClock,
@@ -173,8 +177,8 @@ function chipStat(seat: FramePlaySeat): GameSeatStat | null {
 
 /**
  * One seat at a table of three or more, as a compact chip in the rail. The
- * viewer's own (`own`) says "You" and marks its place as the seat nearest
- * them.
+ * viewer's own (`own`) says "You" after its name and marks its place as the
+ * seat nearest them.
  */
 export function FrameSeatChipView(
   props: Omit<SeatProps, 'onChoose'> & {
@@ -213,6 +217,11 @@ export function FrameSeatChipView(
             size={GAME_PLAYER_CHIP_AVATAR_SIZE}
             people={props.people}
           />
+        }
+        nameTag={
+          <Show when={props.own === true}>
+            <ChipOwnMark seat={props.seat} />
+          </Show>
         }
         swatch={props.seat.swatch}
         tags={

@@ -13,7 +13,7 @@ import {
   LONG_LABEL_NUMBERLINK,
 } from './numberlink-extremes.example';
 import { numberlinkGeometry } from './numberlink-geometry.example';
-import { NumberlinkPlayer } from './numberlink-player';
+import { NumberlinkPlayer, NumberlinkSupport } from './numberlink-player';
 import {
   FIVE_BY_FIVE,
   PATH_1,
@@ -64,6 +64,7 @@ const meta = {
       figures={figures(args.definition, args.state)}
       figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={<NumberlinkPlayer {...args} />}
+      support={<NumberlinkSupport {...args} />}
     />
   ),
   parameters: { appRouter: true, controls: { exclude: ['onAction'] } },
@@ -153,6 +154,12 @@ export const Solved: Story = {
             state={next() ? progress([]) : args.state}
           />
         }
+        support={
+          <NumberlinkSupport
+            {...args}
+            state={next() ? progress([]) : args.state}
+          />
+        }
       />
     );
   },
@@ -209,24 +216,28 @@ function DrawPathsAttempt(props: {
   const [state, setState] = createSignal(
     progress(untrack(() => props.saved) ?? [])
   );
+  const onAction = (action: string) => {
+    const next = numberlinkPuzzleContent.rules.apply(
+      props.args.definition,
+      state(),
+      action
+    );
+    if (!next.accepted) throw new Error('Story gesture was refused');
+    setState(next.state);
+  };
   return (
     <StoryPackAttempt
       puzzle={props.puzzle}
       figures={figures(props.args.definition, state())}
       figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={
-        <NumberlinkPlayer
+        <NumberlinkPlayer {...props.args} state={state()} onAction={onAction} />
+      }
+      support={
+        <NumberlinkSupport
           {...props.args}
           state={state()}
-          onAction={(action) => {
-            const next = numberlinkPuzzleContent.rules.apply(
-              props.args.definition,
-              state(),
-              action
-            );
-            if (!next.accepted) throw new Error('Story gesture was refused');
-            setState(next.state);
-          }}
+          onAction={onAction}
         />
       }
     />

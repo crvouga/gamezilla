@@ -40,11 +40,11 @@
   overflow-x: hidden;
   overflow-y: auto;
 }
-/* A board shorter than its room sits in the middle of it, not under the
-   status line with the room's whole rest empty; a taller one still
-   scrolls from its top (auto margins never push it out of reach). */
+/* A board shorter than its room sits right under the status line, as on
+   every game's stage, its room's rest below it by the action bar; a
+   taller one scrolls from its top. */
 .board > * {
-  margin-block: auto;
+  margin-block: 0 auto;
 }
 /* The action bar: always there, always this height. */
 .bar {

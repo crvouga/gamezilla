@@ -64,12 +64,19 @@ export function pongHeldLine(
     : t`Paused while a player returns.`;
 }
 
-/** The court, and the stage's line while play is held up. */
-function pongBoard(
-  props: GameFrameBoardProps
-): GameFrameBoardSession<JSX.Element> {
-  const line = createMemo(() => pongHeldLine(props.position, props.simulation));
-  return { Board: () => PongBoard(props), actions: () => [], line };
+/**
+ * The court `View` draws, and the stage's line while play is held up. The
+ * game's court is `PongBoard` (with its sounds); a story passes the view.
+ */
+export function pongBoardOf(
+  View: (props: GameFrameBoardProps) => JSX.Element
+): (props: GameFrameBoardProps) => GameFrameBoardSession<JSX.Element> {
+  return (props) => {
+    const line = createMemo(() =>
+      pongHeldLine(props.position, props.simulation)
+    );
+    return { Board: () => View(props), actions: () => [], line };
+  };
 }
 
 /**
@@ -104,13 +111,13 @@ export const pongFrame: GameFrame<JSX.Element> = {
     facts: () => [],
     out: () => false,
   },
-  createBoard: pongBoard,
+  createBoard: pongBoardOf(PongBoard),
   // The court owns the serve's count and interruptions; the line says how
   // to play (`pongHeldLine` takes it while the paddles cannot move), and
   // the result once the game is over.
   turnStatus: (position, viewer) => {
     const state = readPosition(position);
-    if (state === null) return null;
+    if (state === null) return t`This game can't be shown on this device.`;
     if (state.phase === 'completed') return pongStatus(state, undefined);
     return viewer === null
       ? t`Watching the rally.`

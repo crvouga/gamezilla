@@ -26,6 +26,11 @@ export type MutationModalProps = {
   title: JSX.Element;
   /** Plain confirmation copy. Ignored when `children` is provided. */
   message?: JSX.Element | undefined;
+  /**
+   * What the confirm is about (a person's full handle), on its own line
+   * above `message`; keeps the title short. Ignored with `children`.
+   */
+  subject?: JSX.Element | undefined;
   /** Custom idle-phase body (e.g. form fields). Takes precedence over `message`. */
   children?: JSX.Element | undefined;
   /** The mutation to run on submit. */
@@ -197,6 +202,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
       }
       presentation="modal"
       size="small"
+      inset
       stackId={props.stackId}
       dataSet={{ component: 'MutationModal', ...props.dataSet }}
     >
@@ -211,6 +217,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
               labels={labels}
               ids={ids}
               message={props.message}
+              subject={props.subject}
               destructive={props.variant === 'destructive'}
               submitDisabled={props.submitDisabled ?? false}
               onRun={run}

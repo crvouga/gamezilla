@@ -59,9 +59,17 @@ export async function narrowWorkspace(
     body: await page.screenshot(),
     contentType: 'image/png',
   });
+  // The view tools wait behind one View button under the board.
+  const view = page.getByRole('button', { name: 'View board', exact: true });
+  await reachable(view);
+  await view.click();
   await reachable(
-    page.getByRole('button', { name: 'Find a square', exact: true })
+    page
+      .getByRole('dialog', { name: 'Board view' })
+      .getByRole('button', { name: 'Find a square', exact: true })
   );
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('dialog', { name: 'Board view' })).toHaveCount(0);
   await reachable(page.getByTestId('custom-game-board-more'));
   await rackTargets(page, info, 'initial', 7);
   await playWord(page, 'touch', () =>

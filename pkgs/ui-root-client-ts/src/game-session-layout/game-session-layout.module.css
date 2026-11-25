@@ -30,13 +30,27 @@
 /* Participant chips share the row; each name and counter is one line,
    cut short at the chip's edge (the full name is its title), so every
    chip, and the band of seats over the board, is one height at every
-   table. */
+   table. A phone's row shares its width evenly, so every chip keeps room
+   for its figure; beside a wide board the chips share it by what they
+   hold, so one with a figure and a status (`Points 12`, `Chosen`) takes
+   the room a bare `Out` leaves, and every word it holds reads whole. */
 .participants {
   --game-player-facts-row-gap: 0;
 }
 .participants > [role="list"] {
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
   gap: var(--ui-space-1);
+}
+.participants > [role="list"] > * {
+  flex: 1 1 0;
+  min-width: 0;
+}
+@container game-column (min-width: 880px) {
+  .participants > [role="list"] > * {
+    flex-basis: auto;
+  }
 }
 .participants [data-active] :global(.textLabel),
 .participants [data-component="GameSeatStat"] {
@@ -45,14 +59,11 @@
   text-overflow: ellipsis;
 }
 
-/* On a phone: one row of chips at every table sharing the width evenly,
-   every seat in view (`GamePlayerRail`), the avatar left to the swatch. */
+/* On a phone: one row of up to three chips, rows of two from four, every
+   seat in view (`GamePlayerRail`), the avatar left to the swatch. */
 @container game-column (max-width: 879px) {
-  .participants > [role="list"] {
-    grid-template-columns: none;
-    grid-auto-columns: minmax(0, 1fr);
-  }
   .participants > [role="list"]:has(> :nth-child(4)) {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-flow: row;
   }

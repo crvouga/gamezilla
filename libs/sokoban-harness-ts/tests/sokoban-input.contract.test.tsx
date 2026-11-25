@@ -12,7 +12,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { fireEvent } from '@solidjs/testing-library';
+import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
 import { createSignal, flush } from 'solid-js';
 
@@ -68,15 +68,16 @@ function player(width = 390, definition = CORRIDOR) {
 test('arrow keys, W A S D and the buttons send only moves the rules accept', () => {
   const { view, actions, board } = player();
   fireEvent.keyDown(board, { key: 'ArrowLeft' });
+  flush();
   expect(actions).toEqual([]);
-  expect(view.getByTestId('sokoban-refusal').getAttribute('data-code')).toBe(
+  expect(screen.getByTestId('sokoban-refusal').getAttribute('data-code')).toBe(
     'blocked'
   );
   fireEvent.keyDown(board, { key: 'ArrowRight' });
   fireEvent.keyDown(board, { key: 'd' });
   fireEvent.click(view.getByTestId('sokoban-move-up'));
   expect(actions).toEqual(['r', 'r']);
-  expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).not.toBeNull();
   expect(view.getByTestId('sokoban-counts').getAttribute('data-pushes')).toBe(
     '2'
   );
@@ -383,12 +384,14 @@ test('on a narrow phone each count keeps its label beside its number', () => {
 });
 
 // regression: sokoban-feedback-moves-controls
-test('blocked and solved feedback appear beside the pad or over the board, never above the controls', () => {
-  const { view, board } = player();
-  const row = view.getByTestId('sokoban-move').parentElement;
+test('a blocked move is told in the alerts over the screen, never in the page above the controls', () => {
+  const { board } = player();
+  const page = board.closest('[data-component="ThemeProvider"]');
   fireEvent.keyDown(board, { key: 'ArrowLeft' });
-  const refusal = view.getByTestId('sokoban-refusal');
-  expect(row?.contains(refusal)).toBe(true);
+  flush();
+  const refusal = screen.getByTestId('sokoban-refusal');
+  expect(refusal.closest('[data-component="ToastStack"]')).not.toBeNull();
+  expect(page?.contains(refusal)).toBe(false);
   expect(refusal.textContent).toBe("The worker's way is blocked.");
 });
 

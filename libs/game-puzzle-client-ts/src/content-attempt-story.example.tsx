@@ -139,6 +139,8 @@ export function StoryPackAttempt(props: {
   readonly next?: { title: string; open: () => void } | undefined;
   readonly disabled?: boolean | undefined;
   readonly player: JSX.Element;
+  /** The game's quieter aids under the commands (`PuzzleContentClient.Support`). */
+  readonly support?: JSX.Element;
   /** Stateful controls supplied by a game's rules-backed history fixture. */
   readonly controls?: JSX.Element;
   /** A game's own way on; by default next (once solved) and overview. */
@@ -186,6 +188,7 @@ export function StoryPackAttempt(props: {
         rulesChanged={false}
         unopenable={false}
         player={props.player}
+        support={props.support}
         wayOn={
           props.wayOn ?? (
             <StoryPackActions next={props.complete ? props.next : undefined} />

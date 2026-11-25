@@ -104,18 +104,12 @@ export function MultiplayerSeat(props: {
   return (
     <GamePlayerBar
       // Offline, the person's own turn waits: no call to act, and an
-      // amber tag says why, matching the status line.
-      // A draw offered to the person waits for their answer first: their
-      // seat gives the call to act to the offer on the status line.
+      // amber tag says why, matching the status line. A draw offered to
+      // the person keeps their seat to move: playing on declines it.
       active={
         props.game.outcome === 'ongoing' &&
         props.game.turn === profileId() &&
-        !(props.connected === false && profileId() === props.viewer.myId) &&
-        !(
-          profileId() === props.viewer.myId &&
-          Boolean(props.game.draw_offer_by) &&
-          props.game.draw_offer_by !== props.viewer.myId
-        )
+        !(props.connected === false && profileId() === props.viewer.myId)
       }
       avatar={
         <UserProfileAvatar

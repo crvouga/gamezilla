@@ -199,27 +199,39 @@ export const PlaceAWall: Story = {
 };
 
 /**
- * After e5h, a crossing vertical wall is refused with its reason and a
- * legal one is placed. Its own journey, so each stays inside the story
- * deadline on a throttled phone.
+ * After e5h, a legal wall is placed, then a crossing vertical wall is
+ * refused: Place wall stays off and an alert says why, with the wall tool
+ * still chosen. Its own journey, so each stays inside the story deadline on
+ * a throttled phone.
  */
 export const RefuseACrossingWall: Story = {
   args: { position: classic('e5h') },
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    const page = within(canvasElement.ownerDocument.body);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-v')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-e5v'));
-    await expect(
-      canvas.getByTestId('custom-game-board-wall-status')
-    ).toHaveTextContent('crosses another wall');
     await userEvent.click(canvas.getByTestId('custom-game-board-action-b3v'));
     await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
       canvas.getByTestId('custom-game-board-action-b3')
     ).toHaveAccessibleName(/wall boundaries/);
+    await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
+    await userEvent.click(canvas.getByTestId('custom-game-board-action-e5v'));
+    await expect(
+      canvas.getByTestId('custom-game-board-wall-status')
+    ).toHaveTextContent('crosses another wall');
+    await expect(
+      await page.findByTestId('custom-game-board-wall-refusal')
+    ).toHaveTextContent('crosses another wall');
+    await expect(
+      canvas.getByTestId('custom-game-board-wall-commit')
+    ).toBeDisabled();
+    await expect(
+      canvas.getByTestId('custom-game-board-mode-v')
+    ).toHaveAttribute('aria-pressed', 'true');
   },
 };
 

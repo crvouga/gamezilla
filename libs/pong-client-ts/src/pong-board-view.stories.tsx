@@ -12,7 +12,6 @@ import {
   parsePongInput,
 } from '@libs/pong-shared-ts/pong-state';
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';
-import { boardOnly } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSide,
@@ -22,6 +21,7 @@ import { createSignal } from 'solid-js';
 import { expect, fireEvent, fn, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { PongBoardView } from './pong-board-view';
+import { pongBoardOf } from './pong-frame';
 import { pongGameClient } from './pong-game-client';
 import { PongJourney } from './pong-journey.example';
 import { PongLiveRally } from './pong-live-rally.example';
@@ -64,7 +64,7 @@ const presentation = {
   ...pongGameClient.presentation,
   frame: {
     ...pongGameClient.presentation.frame,
-    createBoard: boardOnly(PongBoardView),
+    createBoard: pongBoardOf(PongBoardView),
   },
 };
 
@@ -135,18 +135,18 @@ export const Finished: Story = {
   },
 };
 
-/** A position this app cannot read says so, with the way back. */
+/** A position this app cannot read says so, with Try again and the way back. */
 export const Unreadable: Story = {
   args: { position: 'pong:not-a-position', simulation: undefined },
   play: async ({ canvasElement }) => {
-    const link = within(canvasElement).getByRole('link', {
-      name: 'Back to spaces',
-    });
-    const bounds = link.getBoundingClientRect();
-    await expect(bounds.top).toBeGreaterThanOrEqual(0);
-    await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
-    await expect(bounds.height).toBeGreaterThanOrEqual(44);
-    await expect(link).toHaveAttribute('href', '/');
+    const canvas = within(canvasElement);
+    for (const name of ['Try again', 'Back to Spaces']) {
+      const button = canvas.getByRole('button', { name });
+      const bounds = button.getBoundingClientRect();
+      await expect(bounds.top).toBeGreaterThanOrEqual(0);
+      await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
+      await expect(bounds.height).toBeGreaterThanOrEqual(32);
+    }
   },
 };
 

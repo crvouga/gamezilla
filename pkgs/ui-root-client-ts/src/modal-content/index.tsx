@@ -21,6 +21,11 @@ export const MODAL_CONTENT_PADDING_STEP = 5;
 export type ModalContentProps = {
   /** Default `medium`. Clamped to the layout width; cannot be overridden via style. */
   size?: ModalSize | undefined;
+  /**
+   * A confirmation stacked over another surface: keeps a further inset on
+   * narrow layouts so it reads as its own, narrower dialog. Default `false`.
+   */
+  inset?: boolean | undefined;
   /** Optional max height in px (e.g. tall inspector modals). */
   maxHeight?: number | undefined;
   /**
@@ -70,7 +75,8 @@ export function ModalContent(props: ModalContentProps): JSX.Element {
     resolveModalLayoutWidth(
       props.size ?? 'medium',
       layout.layout().width,
-      marginPx
+      marginPx,
+      props.inset ?? false
     );
   const maxHeightPx = useModalContentMaxHeight(() => props.maxHeight);
   return (

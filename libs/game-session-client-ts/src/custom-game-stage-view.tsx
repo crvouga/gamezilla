@@ -56,18 +56,15 @@ export function FrameFacts(props: Props): JSX.Element {
 
 /**
  * The seats as the stage shows them: a stopped game has no one to move, so
- * no seat says "Your move" while Reopen game is the way on.
+ * no seat says "Your move" while Reopen game is the way on. A draw offered
+ * to the person keeps their seat to move: the board still takes their move
+ * (playing on declines it), so their seat keeps its tint and edge.
  */
 function stageTable(props: Props): FrameTable {
   const table = props.table;
   const still = (seat: FramePlaySeat): FramePlaySeat =>
     seat.deciding ? { ...seat, deciding: false } : seat;
-  // A draw offered to the person waits for their answer first: their seat
-  // gives the call to act to the offer on the status line.
-  if (!props.stopped) {
-    if (!(props.play.drawOffered && props.play.canAnswerDraw)) return table;
-    return { ...table, near: table.near === null ? null : still(table.near) };
-  }
+  if (!props.stopped) return table;
   return {
     ...table,
     near: table.near === null ? null : still(table.near),

@@ -362,6 +362,12 @@ describe('the play place', () => {
     );
     expect(shown('custom-game-agree')).toBe(true);
     expect(shown('custom-game-reject')).toBe(true);
+    // regression: draw-offer-drops-turn-highlight — the person's seat lost
+    // its turn tint while the offer waited, though the board still took
+    // their move (playing on declines it). It stays the seat to move.
+    expect(
+      screen.getByTestId('custom-game-white').getAttribute('aria-current')
+    ).toBe('step');
   });
 
   test('pressing a move opens the moves place at it and never rewinds the live board', () => {

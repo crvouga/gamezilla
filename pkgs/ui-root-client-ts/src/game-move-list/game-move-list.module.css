@@ -123,6 +123,10 @@
 .list[data-layout="table"] .heading {
   padding-inline-start: calc(32px + var(--ui-space-2));
 }
+/* The line's own key (`Moves`) shows only where the table is one line. */
+.stripWord {
+  display: none;
+}
 .moveButton {
   display: inline-flex;
   align-items: center;
@@ -330,6 +334,22 @@
     padding-inline: var(--ui-space-3);
     border-inline-end: 1px solid var(--ui-color-text-secondary);
     background: var(--ui-color-background);
+  }
+  /* Over the board the key names the line, not a column of it: its
+     moves say their own word in their names. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .heading
+    .tableWord {
+    display: none;
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"]
+    .heading
+    .stripWord {
+    display: inline;
   }
   /* A turn the key cuts is hidden whole (the list marks it). */
   [data-game-fixed="true"]

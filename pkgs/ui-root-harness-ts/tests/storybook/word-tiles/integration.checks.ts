@@ -121,7 +121,13 @@ test('storybook integration: word-tiles find a square looks like an action on th
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openStory(page, 'opening', 'light');
-  const find = page.getByRole('button', { name: 'Find a square', exact: true });
+  // A phone keeps the view tools behind one View button under the board.
+  const view = page.getByRole('button', { name: 'View board', exact: true });
+  await expect(view).toHaveAttribute('aria-haspopup', 'dialog');
+  await view.click();
+  const find = page
+    .getByRole('dialog', { name: 'Board view' })
+    .getByRole('button', { name: 'Find a square', exact: true });
   await expect(find).toHaveAttribute('aria-haspopup', 'dialog');
   const look = await find.evaluate((element) => {
     const css = getComputedStyle(element);

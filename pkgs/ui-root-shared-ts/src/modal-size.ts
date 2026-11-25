@@ -17,9 +17,9 @@ export const MODAL_CONTENT_MARGIN_STEP = 4;
 const MIN_MODAL_WIDTH_PX = 200;
 
 /**
- * Extra room one side of a `small` modal keeps inside the edge margin, so a
- * small dialog (a confirmation) stacked over a full-width surface stands
- * visibly inside it, its edges clear of the one below.
+ * Extra room one side of an inset modal (a confirmation) keeps inside the
+ * edge margin, so stacked over a full-width surface it stands visibly inside
+ * it, its edges clear of the one below. Other modals take the whole room.
  */
 export const SMALL_MODAL_INSET_PX = 20;
 
@@ -31,19 +31,20 @@ function availableWidth(layoutWidth: number, marginPx: number): number {
 /**
  * Resolved content width in px for a modal bucket at the given layout width.
  * `marginPx` is one side (e.g. `spacing[MODAL_CONTENT_MARGIN_STEP]`).
+ * `inset` (confirmations only) keeps {@link SMALL_MODAL_INSET_PX} further in.
  */
 export function resolveModalLayoutWidth(
   size: ModalSize,
   layoutWidth: number,
-  marginPx: number
+  marginPx: number,
+  inset = false
 ): number {
   const available = availableWidth(layoutWidth, marginPx);
   if (size === 'fullWidth') {
     return Math.max(MIN_MODAL_WIDTH_PX, available);
   }
   const bucket = MODAL_WIDTH_PX[size];
-  const room =
-    size === 'small' ? available - SMALL_MODAL_INSET_PX * 2 : available;
+  const room = inset ? available - SMALL_MODAL_INSET_PX * 2 : available;
   const clamped = Math.min(bucket, room);
   return Math.max(MIN_MODAL_WIDTH_PX, clamped);
 }

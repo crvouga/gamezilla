@@ -336,12 +336,16 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
 }
 
 /**
- * The page's title: the space's name when known, else what the page is
- * doing (opening it) or what it found (no such space), never a bare "Space".
+ * The page's title. With the invitation card on screen the card names the
+ * space, so the header says what the page is for ("Join space"), never the
+ * name twice. Otherwise the space's name when known, else what the page is
+ * doing (opening it; joining waits for Join) or what it found.
  */
 function spaceJoinPageTitle(props: SpaceJoinScreenViewProps): JSX.Element {
+  if (props.status === 'live' && props.space !== null)
+    return <Trans>Join space</Trans>;
   if (props.title !== null) return props.title;
-  if (props.status === 'loading') return <Trans>Joining…</Trans>;
+  if (props.status === 'loading') return <Trans>Opening space…</Trans>;
   if (props.status === 'missing') return <Trans>Space not found</Trans>;
   if (props.status === 'offline') return <Trans>You're offline</Trans>;
   if (props.status === 'unavailable') return <Trans>Can't join</Trans>;

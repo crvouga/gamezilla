@@ -24,6 +24,7 @@ import {
 } from './word-tiles-precision.example';
 import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
 import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
+import { enlargeBoard } from './word-tiles-view.example';
 
 const PUZZLE: WordTilesPuzzle = {
   ruleset: RULESET.id,
@@ -229,9 +230,7 @@ export const EnlargedBlank: Story = {
     const canvas = within(canvasElement);
     // Check initial controls before userEvent can scroll to its first target.
     await expectPuzzlePlacementContext(canvasElement);
-    const enlarge = canvas.getByRole('button', { name: 'Enlarge board' });
-    if (enlarge.getAttribute('aria-pressed') !== 'true')
-      await userEvent.click(enlarge);
+    await enlargeBoard(canvasElement);
     await expectPuzzlePlacementContext(canvasElement);
     await userEvent.click(
       canvas.getByTestId(

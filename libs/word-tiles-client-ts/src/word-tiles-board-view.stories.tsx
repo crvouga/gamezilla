@@ -35,6 +35,7 @@ import {
 } from './word-tiles-geometry.example';
 import { matchJourney } from './word-tiles-match-journey.example';
 import { expectPrecisionDefault } from './word-tiles-precision.example';
+import { enlargeBoard } from './word-tiles-view.example';
 
 /** A position from a new two-seat game, with `changes`. */
 function table(changes: Partial<WordTilesPosition> = {}): string {
@@ -345,9 +346,7 @@ export const RecoverAndSubmit: Story = {
     await expect(
       canvas.getByTestId('custom-game-board-lexicon-retry')
     ).toBeVisible();
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Enlarge board' })
-    );
+    await enlargeBoard(canvasElement);
     for (const [tile, cell] of [
       ['11', 'g8'],
       ['0', 'h8'],
