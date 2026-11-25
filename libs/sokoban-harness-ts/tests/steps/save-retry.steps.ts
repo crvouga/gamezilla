@@ -8,7 +8,7 @@ import {
   stepRightWithoutSaving,
 } from '@libs/sokoban-harness-ts/sokoban-save-retry';
 import { playView } from '@libs/sokoban-harness-ts/sokoban-screen';
-import { Then, When } from './world';
+import { Given, Then, When } from './world';
 
 const device = 'bob:phone';
 
@@ -28,6 +28,9 @@ Then('Bob sees that his previous position is still saved', async (w) => {
     worker: { x: 1, y: 1 },
   });
 });
+Given('his device could not save his first step to the right', (w) =>
+  w.run.apply(stepRightWithoutSaving, device)
+);
 When('Bob retries the move after his device can save again', (w) =>
   w.run.apply(retryPositionSave, device)
 );

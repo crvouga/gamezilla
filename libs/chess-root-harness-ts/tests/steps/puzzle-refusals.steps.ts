@@ -6,7 +6,7 @@ import {
   stepThroughPuzzleLine,
 } from '@libs/game-session-harness-ts/puzzle-screen';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
-import { Then, When } from '@libs/harness-ts/define';
+import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 
 When(
@@ -51,6 +51,13 @@ const returnFromEarlierBoard = scenarioAction({
 
 When(
   '{actor} returns from the earlier board to the latest move',
+  async (w, actor: Actor) => {
+    await w.s.apply(returnFromEarlierBoard, actor);
+  }
+);
+
+Given(
+  '{actor} has returned from the earlier board to the latest move',
   async (w, actor: Actor) => {
     await w.s.apply(returnFromEarlierBoard, actor);
   }
