@@ -54,3 +54,13 @@ Three publisher storefronts show different ways to read a fleet, aim and recogni
 [blitz-setup]: https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3918800/94cf8b7824d728dd961f1a3be42803b46e3cee6b/ss_94cf8b7824d728dd961f1a3be42803b46e3cee6b.1920x1080.jpg?t=1794072565
 [blitz-aim]: https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3918800/6f5957ae14aadf5af61d487200960d503f3e2349/ss_6f5957ae14aadf5af61d487200960d503f3e2349.1920x1080.jpg?t=1794072565
 [sea-battle]: https://is1-ssl.mzstatic.com/image/thumb/PurpleSource116/v4/ce/f0/9f/cef09f30-7c3d-5de4-5378-450e26d4d54b/dd91f02f-f09c-4103-99ca-22663ac18633_2.jpg/1024x768bb.jpg
+
+## Decisions and verification · 2026-11-25
+
+- **Reposition a ship.** Preserve the hull segment a person picked up and outline the proposed footprint. A second finger interrupts placement and starts inspection. The hosted gesture check picks up the Carrier at C1, previews it at C2, verifies the bow at A2 and interrupts a second drag. [Gesture checks](../../../pkgs/ui-root-harness-ts/tests/storybook/battleship/gestures/integration.checks.ts)
+- **Inspect without firing.** The region map stays at fit on phones to preserve whole-field context. Its working grid and the desktop firing field support pinch, pan and return to fit. A selected cell keeps its reticle until corrected, cancelled or fired. The hosted aim-correction and sinking comparisons show the marks on the playable surface. [Round 1](https://github.com/crvouga/gamezilla/pull/579#issuecomment-7158890900) · [Round 2](https://github.com/crvouga/gamezilla/pull/579#issuecomment-7159003670)
+- **Read outcomes after motion ends.** A miss remains a ring, a hit a cross, and the wreck retains the ends and sides of its public footprint. Pickup and impact motion are brief. With reduced motion, the same cell outlines and glyphs carry the information. [Cell rendering](../src/battleship-grid-cells.tsx) · [Motion rules](../../../pkgs/ui-root-client-ts/src/battleship-navigable-grid/surface.module.css)
+
+## Open questions
+
+The publisher stills leave accidental-shot rates, correction time and rotation discoverability unresolved. The hosted checks establish our board's response to scripted input. Whether people discover the two-finger inspection gesture without prompting, or distinguish the marks faster than on another board, needs comparative observation.
