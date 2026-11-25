@@ -1,0 +1,4 @@
+{
+  "summary": "Two release verification shards stopped before testing when the same prerequisite artifact download received HTTP 503 from GitHub.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
+}

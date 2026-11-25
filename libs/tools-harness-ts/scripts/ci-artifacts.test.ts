@@ -10,6 +10,7 @@ import {
   deleteArtifacts,
   downloadArtifact,
   listArtifacts,
+  readArtifactZip,
 } from './ci-artifacts';
 import { fakeArtifactsApi } from './ci-artifacts-fake';
 
@@ -258,4 +259,23 @@ test('cleanup deletes every listed transfer exactly once, including none, and ke
     ),
     { examples: [[[]]] }
   );
+});
+
+// regression: release-verification-artifact-http-503
+test('a gateway outage during the prerequisite ZIP transfer preserves the shard input', async () => {
+  const response = Buffer.from('prerequisite ZIP');
+  const sleeps: number[] = [];
+  const read = () => {
+    if (!sleeps.length) throw new Error('gh: HTTP 503');
+    return response;
+  };
+  const pause = async (ms: number) => sleeps.push(ms);
+  expect(await readArtifactZip(read, pause)).toBe(response);
+  expect(sleeps).toEqual([1000]);
+  await expect(
+    readArtifactZip(() => {
+      throw new Error('gh: HTTP 404');
+    }, pause)
+  ).rejects.toThrow('404');
+  expect(sleeps).toEqual([1000]);
 });
