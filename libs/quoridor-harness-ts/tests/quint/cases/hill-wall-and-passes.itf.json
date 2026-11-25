@@ -23,3014 +23,837 @@
   ],
   "states": [
     {
-      "#meta": {
-        "index": 0
-      },
+      "#meta": { "index": 0 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "0"
-      },
+      "_plies": { "#bigint": "0" },
       "_refused": false,
       "mbt::actionTaken": "init",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "Some",
-          "value": "start"
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "Some",
-          "value": "hill"
-        },
-        "square": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "Some", "value": "start" },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "None", "value": { "#tup": [] } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "Some", "value": "hill" },
+        "square": { "tag": "None", "value": { "#tup": [] } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "0"
-      },
-      "walls": {
-        "#set": []
-      },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 1
-      },
+      "#meta": { "index": 1 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "0"
-      },
+      "_plies": { "#bigint": "0" },
       "_refused": true,
       "mbt::actionTaken": "movePawn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "2"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "33"
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "2" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "33" } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "0"
-      },
-      "walls": {
-        "#set": []
-      },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 2
-      },
+      "#meta": { "index": 2 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "0"
-      },
+      "_plies": { "#bigint": "0" },
       "_refused": true,
       "mbt::actionTaken": "movePawn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "0"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "33"
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "33" } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "5" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "0"
-      },
-      "walls": {
-        "#set": []
-      },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "turn": { "#bigint": "0" },
+      "walls": { "#set": [] },
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 3
-      },
+      "#meta": { "index": 3 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "1"
-      },
+      "_plies": { "#bigint": "1" },
       "_refused": false,
       "mbt::actionTaken": "placeWall",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "Some",
-          "value": true
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "0"
-          }
-        },
-        "direction": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "0"
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "0"
-          }
-        },
-        "row": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "1"
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "Some", "value": true },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "Some", "value": { "#bigint": "0" } },
+        "direction": { "tag": "Some", "value": { "#bigint": "0" } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "Some", "value": { "#bigint": "1" } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "1"
-      },
+      "turn": { "#bigint": "1" },
       "walls": {
         "#set": [
           {
-            "#tup": [
-              {
-                "#bigint": "0"
-              },
-              {
-                "#bigint": "1"
-              },
-              {
-                "#bigint": "0"
-              }
-            ]
+            "#tup": [{ "#bigint": "0" }, { "#bigint": "1" }, { "#bigint": "0" }]
           }
         ]
       },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 4
-      },
+      "#meta": { "index": 4 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
           {
             "#set": [
               {
                 "#tup": [
-                  {
-                    "#bigint": "0"
-                  },
-                  {
-                    "#bigint": "1"
-                  },
-                  {
-                    "#bigint": "0"
-                  }
+                  { "#bigint": "0" },
+                  { "#bigint": "1" },
+                  { "#bigint": "0" }
                 ]
               }
             ]
           },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "1"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "1"
-      },
+      "_plies": { "#bigint": "1" },
       "_refused": true,
       "mbt::actionTaken": "movePawn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "2"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "2"
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "2" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "2" } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "1"
-      },
+      "turn": { "#bigint": "1" },
       "walls": {
         "#set": [
           {
-            "#tup": [
-              {
-                "#bigint": "0"
-              },
-              {
-                "#bigint": "1"
-              },
-              {
-                "#bigint": "0"
-              }
-            ]
+            "#tup": [{ "#bigint": "0" }, { "#bigint": "1" }, { "#bigint": "0" }]
           }
         ]
       },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 5
-      },
+      "#meta": { "index": 5 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
           {
             "#set": [
               {
                 "#tup": [
-                  {
-                    "#bigint": "0"
-                  },
-                  {
-                    "#bigint": "1"
-                  },
-                  {
-                    "#bigint": "0"
-                  }
+                  { "#bigint": "0" },
+                  { "#bigint": "1" },
+                  { "#bigint": "0" }
                 ]
               }
             ]
           },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "1"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "1"
-      },
+      "_plies": { "#bigint": "1" },
       "_refused": true,
       "mbt::actionTaken": "passTurn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "0"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "1"
-      },
+      "turn": { "#bigint": "1" },
       "walls": {
         "#set": [
           {
-            "#tup": [
-              {
-                "#bigint": "0"
-              },
-              {
-                "#bigint": "1"
-              },
-              {
-                "#bigint": "0"
-              }
-            ]
+            "#tup": [{ "#bigint": "0" }, { "#bigint": "1" }, { "#bigint": "0" }]
           }
         ]
       },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 6
-      },
+      "#meta": { "index": 6 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
           {
             "#set": [
               {
                 "#tup": [
-                  {
-                    "#bigint": "0"
-                  },
-                  {
-                    "#bigint": "1"
-                  },
-                  {
-                    "#bigint": "0"
-                  }
+                  { "#bigint": "0" },
+                  { "#bigint": "1" },
+                  { "#bigint": "0" }
                 ]
               }
             ]
           },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "1"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "1"
-      },
+      "_plies": { "#bigint": "1" },
       "_refused": true,
       "mbt::actionTaken": "passTurn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "2"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "2" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "1"
-      },
+      "turn": { "#bigint": "1" },
       "walls": {
         "#set": [
           {
-            "#tup": [
-              {
-                "#bigint": "0"
-              },
-              {
-                "#bigint": "1"
-              },
-              {
-                "#bigint": "0"
-              }
-            ]
+            "#tup": [{ "#bigint": "0" }, { "#bigint": "1" }, { "#bigint": "0" }]
           }
         ]
       },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 7
-      },
+      "#meta": { "index": 7 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
           {
             "#set": [
               {
                 "#tup": [
-                  {
-                    "#bigint": "0"
-                  },
-                  {
-                    "#bigint": "1"
-                  },
-                  {
-                    "#bigint": "0"
-                  }
+                  { "#bigint": "0" },
+                  { "#bigint": "1" },
+                  { "#bigint": "0" }
                 ]
               }
             ]
           },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "1"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "1"
-      },
+      "_plies": { "#bigint": "1" },
       "_refused": true,
       "mbt::actionTaken": "movePawn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "1"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "59"
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "1" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "Some", "value": { "#bigint": "59" } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "1"
-      },
+      "turn": { "#bigint": "1" },
       "walls": {
         "#set": [
           {
-            "#tup": [
-              {
-                "#bigint": "0"
-              },
-              {
-                "#bigint": "1"
-              },
-              {
-                "#bigint": "0"
-              }
-            ]
+            "#tup": [{ "#bigint": "0" }, { "#bigint": "1" }, { "#bigint": "0" }]
           }
         ]
       },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "winner": { "#bigint": "-1" }
     },
     {
-      "#meta": {
-        "index": 8
-      },
+      "#meta": { "index": 8 },
       "_before": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
           {
             "#set": [
               {
                 "#tup": [
-                  {
-                    "#bigint": "0"
-                  },
-                  {
-                    "#bigint": "1"
-                  },
-                  {
-                    "#bigint": "0"
-                  }
+                  { "#bigint": "0" },
+                  { "#bigint": "1" },
+                  { "#bigint": "0" }
                 ]
               }
             ]
           },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "1"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "1" },
+          { "#bigint": "-1" }
         ]
       },
       "_finished": {
         "#tup": [
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "4"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "36"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "76"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "44"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "4" }],
+              [{ "#bigint": "1" }, { "#bigint": "36" }],
+              [{ "#bigint": "2" }, { "#bigint": "76" }],
+              [{ "#bigint": "3" }, { "#bigint": "44" }]
             ]
           },
-          {
-            "#set": []
-          },
+          { "#set": [] },
           {
             "#map": [
-              [
-                {
-                  "#bigint": "0"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "1"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "2"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ],
-              [
-                {
-                  "#bigint": "3"
-                },
-                {
-                  "#bigint": "5"
-                }
-              ]
+              [{ "#bigint": "0" }, { "#bigint": "5" }],
+              [{ "#bigint": "1" }, { "#bigint": "5" }],
+              [{ "#bigint": "2" }, { "#bigint": "5" }],
+              [{ "#bigint": "3" }, { "#bigint": "5" }]
             ]
           },
-          {
-            "#bigint": "0"
-          },
-          {
-            "#bigint": "-1"
-          }
+          { "#bigint": "0" },
+          { "#bigint": "-1" }
         ]
       },
-      "_plies": {
-        "#bigint": "1"
-      },
+      "_plies": { "#bigint": "1" },
       "_refused": true,
       "mbt::actionTaken": "passTurn",
       "mbt::nondetPicks": {
-        "_passAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "_wallAccepted": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "beginning": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "column": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "direction": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "player": {
-          "tag": "Some",
-          "value": {
-            "#bigint": "0"
-          }
-        },
-        "row": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "selected": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        },
-        "square": {
-          "tag": "None",
-          "value": {
-            "#tup": []
-          }
-        }
+        "_passAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "_wallAccepted": { "tag": "None", "value": { "#tup": [] } },
+        "beginning": { "tag": "None", "value": { "#tup": [] } },
+        "column": { "tag": "None", "value": { "#tup": [] } },
+        "direction": { "tag": "None", "value": { "#tup": [] } },
+        "player": { "tag": "Some", "value": { "#bigint": "0" } },
+        "row": { "tag": "None", "value": { "#tup": [] } },
+        "selected": { "tag": "None", "value": { "#tup": [] } },
+        "square": { "tag": "None", "value": { "#tup": [] } }
       },
       "mode": "hill",
       "pawns": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "36"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "76"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "44"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "36" }],
+          [{ "#bigint": "2" }, { "#bigint": "76" }],
+          [{ "#bigint": "3" }, { "#bigint": "44" }]
         ]
       },
       "remaining": {
         "#map": [
-          [
-            {
-              "#bigint": "0"
-            },
-            {
-              "#bigint": "4"
-            }
-          ],
-          [
-            {
-              "#bigint": "1"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "2"
-            },
-            {
-              "#bigint": "5"
-            }
-          ],
-          [
-            {
-              "#bigint": "3"
-            },
-            {
-              "#bigint": "5"
-            }
-          ]
+          [{ "#bigint": "0" }, { "#bigint": "4" }],
+          [{ "#bigint": "1" }, { "#bigint": "5" }],
+          [{ "#bigint": "2" }, { "#bigint": "5" }],
+          [{ "#bigint": "3" }, { "#bigint": "5" }]
         ]
       },
-      "turn": {
-        "#bigint": "1"
-      },
+      "turn": { "#bigint": "1" },
       "walls": {
         "#set": [
           {
-            "#tup": [
-              {
-                "#bigint": "0"
-              },
-              {
-                "#bigint": "1"
-              },
-              {
-                "#bigint": "0"
-              }
-            ]
+            "#tup": [{ "#bigint": "0" }, { "#bigint": "1" }, { "#bigint": "0" }]
           }
         ]
       },
-      "winner": {
-        "#bigint": "-1"
-      }
+      "winner": { "#bigint": "-1" }
     }
   ]
 }
