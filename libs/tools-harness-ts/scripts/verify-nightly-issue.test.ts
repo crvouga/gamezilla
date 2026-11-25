@@ -24,10 +24,23 @@ test('an issue API permission failure cannot be interpreted as an empty issue li
 });
 
 test('a red run opens the issue once, rewrites it while it stays red, and a green run closes it', () => {
-  expect(issueAction(true, null)).toEqual({ kind: 'create' });
-  expect(issueAction(true, '388')).toEqual({ kind: 'update', issue: '388' });
-  expect(issueAction(false, '388')).toEqual({ kind: 'close', issue: '388' });
-  expect(issueAction(false, null)).toEqual({ kind: 'none' });
+  expect(issueAction(true, [])).toEqual({ kind: 'create' });
+  expect(issueAction(true, ['388'])).toEqual({ kind: 'update', issue: '388' });
+  expect(issueAction(false, ['388'])).toEqual({
+    kind: 'close',
+    issues: ['388'],
+  });
+  expect(issueAction(false, [])).toEqual({ kind: 'none' });
+});
+
+// regression: duplicate-nightly-issue-survives-green
+test('a green nightly resolves both reports for the same incident', () => {
+  const reports = ['475', '388'];
+  expect(issueAction(true, reports)).toEqual({ kind: 'update', issue: '475' });
+  expect(issueAction(false, reports)).toEqual({
+    kind: 'close',
+    issues: reports,
+  });
 });
 
 test('an issue keeps the run that first went red and counts each later red run once', () => {

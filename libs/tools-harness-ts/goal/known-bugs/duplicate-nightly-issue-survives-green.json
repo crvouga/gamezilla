@@ -1,0 +1,4 @@
+{
+  "summary": "When multiple open CI reports shared the same workflow title, a green run only closed the first one. Close all matching CI reports on a green verdict and keep updating the current one while red.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-nightly-issue.test.ts"
+}
