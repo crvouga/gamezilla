@@ -5,7 +5,6 @@ import { definePrimitive } from '@ui-sdk/core';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createParts } from '@ui-sdk/solid/primitive';
 import { createMemo, createSignal, For, Show } from 'solid-js';
-import { WarehousePiece, warehouseIdentity } from '../warehouse/piece';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
 
@@ -27,6 +26,7 @@ export type CellGridCell = {
   /** Shown in the cell; hidden from assistive technology (the label says it). */
   readonly goal?: boolean | undefined;
   readonly glyph: string;
+  readonly art?: (() => JSX.Element) | undefined;
   /** The cell's whole accessible name: where it is and what it holds. */
   readonly label: string;
   readonly tone: CellGridTone;
@@ -219,14 +219,8 @@ function GridCell(props: {
       }}
     >
       <span class={styles['glyph']} aria-hidden="true">
-        <Show
-          when={
-            props.board.boardTheme === 'sokoban' &&
-            warehouseIdentity(cell()?.identity)
-          }
-          fallback={cell()?.glyph ?? ''}
-        >
-          {(tone) => <WarehousePiece tone={tone()} />}
+        <Show when={cell()?.art} keyed fallback={cell()?.glyph ?? ''}>
+          {(draw) => draw()}
         </Show>
       </span>
       <Show when={props.coordinates?.row}>

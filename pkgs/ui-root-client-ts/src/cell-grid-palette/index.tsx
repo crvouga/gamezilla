@@ -16,7 +16,6 @@ import type {
   CellGridCell,
   CellGridTone,
 } from '../cell-grid-board/index';
-import { WarehousePiece, warehouseIdentity } from '../warehouse/piece';
 import styles from './cell-grid-palette.module.css';
 
 /** One tool: its name and the square it lays down, drawn as the board draws it. */
@@ -27,6 +26,7 @@ export type CellGridPaletteItem<K extends string = string> = {
   /** The swatch's tone, glyph and identity, as a board cell's. */
   readonly tone: CellGridTone;
   readonly glyph?: string | undefined;
+  readonly art?: (() => JSX.Element) | undefined;
   readonly identity?: CellGridCell['identity'];
   /** Call-site id for the tool, shipped as `data-testid`. */
   readonly testid?: string | undefined;
@@ -86,15 +86,8 @@ function Swatch(props: {
         data-identity={props.item.identity}
       >
         <span class={`${board['glyph']} ${styles['swatchGlyph']}`}>
-          <Show
-            when={
-              props.boardTheme === 'sokoban' &&
-              props.item.glyph !== '−' &&
-              warehouseIdentity(props.item.identity)
-            }
-            fallback={props.item.glyph ?? ''}
-          >
-            {(tone) => <WarehousePiece tone={tone()} />}
+          <Show when={props.item.art} keyed fallback={props.item.glyph ?? ''}>
+            {(draw) => draw()}
           </Show>
         </span>
       </span>

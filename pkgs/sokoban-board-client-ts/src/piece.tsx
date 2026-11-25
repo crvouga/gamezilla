@@ -5,15 +5,6 @@ import styles from './warehouse.module.css';
 
 type Piece = 'actor' | 'object' | 'settled';
 
-export function warehouseIdentity(
-  identity: string | undefined
-): Piece | undefined {
-  if (identity === 'one') return 'object';
-  if (identity === 'two') return 'settled';
-  if (identity === 'three') return 'actor';
-  return undefined;
-}
-
 function Worker(): JSX.Element {
   return (
     <>
@@ -56,7 +47,7 @@ function Cargo(props: { readonly delivered: boolean }): JSX.Element {
   );
 }
 
-export function WarehousePiece(props: { readonly tone: Piece }): JSX.Element {
+function WarehousePiece(props: { readonly tone: Piece }): JSX.Element {
   return (
     <svg
       class={styles['piece']}
@@ -75,3 +66,7 @@ export function WarehousePiece(props: { readonly tone: Piece }): JSX.Element {
     </svg>
   );
 }
+
+export const warehouseWorker = () => <WarehousePiece tone="actor" />;
+export const looseCrate = () => <WarehousePiece tone="object" />;
+export const deliveredCrate = () => <WarehousePiece tone="settled" />;

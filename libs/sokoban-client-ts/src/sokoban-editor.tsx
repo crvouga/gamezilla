@@ -7,6 +7,11 @@ import {
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
+  deliveredCrate,
+  looseCrate,
+  warehouseWorker,
+} from '@pkgs/sokoban-board-client-ts/piece';
+import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
@@ -35,15 +40,15 @@ type Editor = ReturnType<typeof useSokobanEditor>;
 function pieceOf(
   board: SokobanBoard,
   index: number
-): Pick<CellGridCell, 'glyph' | 'identity'> {
+): Pick<CellGridCell, 'art' | 'glyph' | 'identity'> {
   const cell = cellOf(board, index);
   const square = board.squares[index];
   if (board.worker !== null && sameCell(board.worker, cell))
-    return { glyph: '☻', identity: 'three' };
+    return { art: warehouseWorker, glyph: '☻', identity: 'three' };
   if (board.crates.some((crate) => sameCell(crate, cell)))
     return square === 'goal'
-      ? { glyph: '▣', identity: 'two' }
-      : { glyph: '▢', identity: 'one' };
+      ? { art: deliveredCrate, glyph: '▣', identity: 'two' }
+      : { art: looseCrate, glyph: '▢', identity: 'one' };
   // A wall is drawn by its fill (the board's `occupied` tone), not a glyph.
   if (square === 'goal') return { glyph: '', identity: 'four' };
   return { glyph: square === 'outside' ? '·' : '', identity: undefined };
@@ -57,8 +62,8 @@ const SWATCHES: Readonly<
   floor: { tone: 'open' },
   goal: { tone: 'open', identity: 'four' },
   outside: { tone: 'quiet', glyph: '·' },
-  worker: { tone: 'open', glyph: '☻', identity: 'three' },
-  crate: { tone: 'open', glyph: '▢', identity: 'one' },
+  worker: { tone: 'open', art: warehouseWorker, glyph: '☻', identity: 'three' },
+  crate: { tone: 'open', art: looseCrate, glyph: '▢', identity: 'one' },
   'remove-crate': { tone: 'open', glyph: '−', identity: 'one' },
   erase: { tone: 'open', glyph: '✕' },
 };
