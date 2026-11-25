@@ -15,13 +15,15 @@ test('sign-out waits for the dismissed success surface to release the screen', a
       isVisible: async () =>
         id === Handles.authSignOutModal
           ? modalVisible
-          : id === Handles.accountSignIn && signedOut,
+          : (id === Handles.accountSignIn || id === Handles.authSignOutDone) &&
+            signedOut,
       tap: async () => {
         if (id === Handles.authSignOutConfirm) signedOut = true;
         if (id === Handles.authSignOutDone) dismissed = true;
       },
-      wait: async (state: string) => {
+      wait: async (state: string, options?: { visibleOr?: string[] }) => {
         if (id !== Handles.authSignOutModal || state !== 'hidden') return;
+        if (options?.visibleOr?.includes(Handles.authSignOutDone)) return;
         expect(dismissed).toBe(true);
         waiting.resolve();
         await closing.promise;
@@ -44,3 +46,32 @@ test('sign-out waits for the dismissed success surface to release the screen', a
   }
   expect(modalVisible).toBe(false);
 });
+
+test.each([true, false])(
+  'an unavailable Done button is accepted only if the sign-out dialog closed (%s)',
+  async (closedDuringTap) => {
+    let open = true;
+    const failedTap = new Error('The Done button disappeared during the tap');
+    const driver = {
+      get: (id: string) => ({
+        isVisible: () =>
+          Promise.resolve(
+            id === Handles.authSignOutModal
+              ? open
+              : id === Handles.authSignOutDone
+          ),
+        tap: async () => {
+          if (id === Handles.authSignOutDone) {
+            open = !closedDuringTap;
+            throw failedTap;
+          }
+        },
+        wait: async () => {},
+      }),
+    } as unknown as Driver;
+    const operation = logOutThroughUi(driver);
+    if (closedDuringTap) await operation;
+    else await expect(operation).rejects.toBe(failedTap);
+    expect(open).toBe(!closedDuringTap);
+  }
+);
