@@ -46,6 +46,8 @@ export type TrailControls = {
 };
 
 export type TrailArenaProps = TrailControls & {
+  /** Round identity lets the follow camera cut directly to the next start. */
+  readonly round?: number | undefined;
   /** A spectator can inspect the live arena without taking a rider. */
   readonly inspectable?: boolean | undefined;
   /** Left and right touch ownership, in spatial order. Labels sit outside the trails. */

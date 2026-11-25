@@ -1,17 +1,14 @@
 import { t } from '@lingui/core/macro';
 import { definePrimitive } from '@ui-sdk/core';
 import { createParts } from '@ui-sdk/solid/primitive';
-import { createEffect, onCleanup, untrack } from 'solid-js';
-import { Button } from './button/index';
+import { createEffect, For, onCleanup, Show } from 'solid-js';
 import styles from './trail-arena/trail-arena.module.css';
-import {
-  type ArenaCamera,
-  FIT,
-  inspectionCamera,
-} from './trail-arena-geometry';
+import type { ArenaCamera, inspectionCamera } from './trail-arena-geometry';
 import type {
   TrailControls,
   TrailHeading,
+  TrailRider,
+  TrailRiderIndex,
   TrailSlot,
 } from './trail-arena-types';
 
@@ -106,6 +103,11 @@ export function trailArenaInput(props: TrailControls) {
   const pointerDown = (
     event: PointerEvent & { currentTarget: HTMLDivElement }
   ) => {
+    if (
+      event.target instanceof Element &&
+      event.target.closest('[data-camera-controls]')
+    )
+      return;
     const slots = controlledSlots(props);
     if (
       !props.enabled ||
@@ -186,7 +188,7 @@ export const { Root: ArenaSurface } = createParts(arena, { root: 'div' });
 type InspectionProps = {
   drawing: () => SVGSVGElement;
   camera: ArenaCamera;
-  paint: (view: ArenaCamera) => void;
+  controller: ReturnType<typeof inspectionCamera>;
 };
 
 function point(event: MouseEvent, rect: DOMRect) {
@@ -219,12 +221,12 @@ function inspectionKey(
 
 /** Only mounted for watchers. Its captured contacts never enter a riding session. */
 export function ArenaInspection(props: InspectionProps) {
-  const camera = inspectionCamera(untrack(() => props.paint));
+  const camera = () => props.controller;
   let surface: HTMLElement | undefined;
   onCleanup(() => {
     surface?.removeEventListener('wheel', wheel);
-    window.removeEventListener('blur', camera.clear);
-    props.paint(FIT);
+    window.removeEventListener('blur', camera().clear);
+    camera().fit();
   });
   function wheel(event: WheelEvent) {
     if (!event.ctrlKey && props.camera.zoom === 1) return;
@@ -234,9 +236,9 @@ export function ArenaInspection(props: InspectionProps) {
       event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? rect.height : 1;
     const anchor = point(event, rect);
     if (event.ctrlKey)
-      camera.move(anchor, anchor, Math.exp((-event.deltaY * unit) / 220));
+      camera().move(anchor, anchor, Math.exp((-event.deltaY * unit) / 220));
     else
-      camera.pan(
+      camera().pan(
         (event.deltaX * unit) / rect.width,
         (event.deltaY * unit) / rect.height
       );
@@ -253,15 +255,15 @@ export function ArenaInspection(props: InspectionProps) {
         ref={(element) => {
           surface = element;
           element.addEventListener('wheel', wheel, { passive: false });
-          window.addEventListener('blur', camera.clear);
+          window.addEventListener('blur', camera().clear);
         }}
-        onKeyDown={(event) => inspectionKey(camera, event)}
-        onBlur={camera.clear}
+        onKeyDown={(event) => inspectionKey(camera(), event)}
+        onBlur={() => camera().clear()}
         onPointerDown={(event) => {
           if (event.button !== 0) return;
           event.currentTarget.focus({ preventScroll: true });
           event.currentTarget.setPointerCapture(event.pointerId);
-          camera.start(
+          camera().start(
             event.pointerId,
             point(event, props.drawing().getBoundingClientRect())
           );
@@ -269,25 +271,54 @@ export function ArenaInspection(props: InspectionProps) {
         onPointerMove={(event) => {
           if (!event.currentTarget.hasPointerCapture(event.pointerId)) return;
           const rect = props.drawing().getBoundingClientRect();
-          camera.drag(
+          camera().drag(
             event.pointerId,
             point(event, rect),
             rect.width / rect.height
           );
         }}
-        onPointerUp={(event) => camera.end(event.pointerId)}
-        onLostPointerCapture={(event) => camera.end(event.pointerId)}
-        onPointerCancel={camera.clear}
+        onPointerUp={(event) => camera().end(event.pointerId)}
+        onLostPointerCapture={(event) => camera().end(event.pointerId)}
+        onPointerCancel={() => camera().clear()}
       />
-      <div class={styles['inspectionTools']}>
-        <Button
-          size="sm"
-          title={props.camera.zoom === 1 ? t`Zoom in` : t`Fit arena`}
-          onClick={() =>
-            props.camera.zoom === 1 ? camera.scale(2) : camera.fit()
-          }
-        />
-      </div>
     </>
+  );
+}
+
+/** Native picker stays within the board and leaves the drawing free for steering. */
+export function RiderCameraPicker(props: {
+  riders: readonly TrailRider[];
+  selected: string;
+  inspectable: boolean;
+  choose: (target: TrailRiderIndex | 'arena' | 'free') => void;
+}) {
+  return (
+    <select
+      class={styles['cameraPicker']}
+      data-camera-controls=""
+      aria-label={t`Arena camera`}
+      value={props.selected}
+      onChange={(event) => {
+        const value = event.currentTarget.value;
+        const rider = props.riders.find((r) => String(r.index) === value);
+        props.choose(rider?.index ?? (value === 'free' ? 'free' : 'arena'));
+      }}
+    >
+      <option value="arena">{t`Full arena`}</option>
+      <For keyed={false} each={props.riders}>
+        {(read) => (
+          <option value={String(read().index)}>
+            {read().alive
+              ? read().controlSlot === null
+                ? t`Follow ${read().label}`
+                : t`Follow ${read().label} (you)`
+              : t`Follow ${read().label} (out)`}
+          </option>
+        )}
+      </For>
+      <Show when={props.inspectable}>
+        <option value="free">{t`Inspect freely`}</option>
+      </Show>
+    </select>
   );
 }

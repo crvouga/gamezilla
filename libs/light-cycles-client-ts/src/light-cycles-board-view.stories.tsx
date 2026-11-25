@@ -26,6 +26,7 @@ import {
   lightCyclesTrioClient,
 } from './light-cycles-game-client';
 import {
+  advanceFollowClock,
   createLightCyclesJourney,
   type LightCyclesJourney,
 } from './light-cycles-journey.example';
@@ -179,11 +180,17 @@ function interactiveRender(
   count: 2 | 3 | 4,
   sides: readonly GameSide[],
   ready?: (journey: LightCyclesJourney) => void,
-  initially?: { readonly stale: boolean; readonly singleTickInputs?: boolean }
+  initially?: {
+    readonly stale: boolean;
+    readonly singleTickInputs?: boolean;
+    readonly followClock?: boolean;
+  }
 ) {
   return ((args, context) => {
     const journey = createLightCyclesJourney(count, initially);
     ready?.(journey);
+    if (initially?.followClock)
+      advanceFollowClock(journey, context.canvasElement, sides.length === 0);
     const codec = lightCyclesPositionCodec(count);
     const position = createMemo(() => codec.encode(journey.state()));
     const seats = LIGHT_CYCLES_SEATS[count];
@@ -229,6 +236,23 @@ export const SteerUp: Story = {
     await expect(rider).toHaveAttribute('data-heading', 'up');
     await expect(rider).toHaveAttribute('data-y', String(y - 1));
   },
+};
+
+/** Actual steering and spectator cameras share the same timed duel. */
+export const FollowOwnCycle: Story = {
+  render: (args, context) =>
+    interactiveRender(2, ['white'], undefined, {
+      stale: false,
+      followClock: true,
+    })(args, context),
+};
+export const FollowWatchedCycle: Story = {
+  render: (args, context) =>
+    interactiveRender(2, [], undefined, { stale: false, followClock: true })(
+      args,
+      context
+    ),
+  parameters: { table: { viewer: null } },
 };
 
 /** One production tick per input exposes the interval between accepting and taking a turn. */

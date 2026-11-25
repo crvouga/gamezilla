@@ -295,8 +295,27 @@
 .inspectionViewport:focus-visible {
   outline: var(--ui-space-hairline) solid var(--ui-color-focus-ring);
 }
-.inspectionTools {
+.cameraPicker {
+  z-index: 1;
+  min-height: var(--ui-control-size-md);
+  padding-inline: var(--ui-space-2);
+  font: inherit;
+  color: var(--ui-color-text);
+  background: var(--ui-color-surface);
+  border: var(--ui-space-hairline) solid var(--ui-color-outline);
+  border-radius: var(--ui-radius-control);
   position: absolute;
   inset-block-start: var(--ui-space-1);
   inset-inline-end: var(--ui-space-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .followingField {
+    transition: transform var(--ui-duration-fast) linear;
+  }
+}
+
+.arena[data-clear-corner="right"] .cameraPicker {
+  inset-inline-end: auto;
+  inset-inline-start: var(--ui-space-1);
 }

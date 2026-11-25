@@ -25,7 +25,7 @@ function touch(element: HTMLElement, type: string, id: number, x: number) {
   );
 }
 
-test('a watcher can lift one finger to pan and taking a rider starts fitted with a fresh gesture', () => {
+test('a watcher can lift one finger to pan and taking a rider follows their cycle with a fresh gesture', () => {
   const [riding, setRiding] = createSignal(false);
   const inputs: unknown[] = [];
   const view = renderWithI18n(() => (
@@ -77,6 +77,7 @@ test('a watcher can lift one finger to pan and taking a rider starts fitted with
   flush();
   expect(view.queryByRole('application', { name: /Inspect arena/ })).toBeNull();
   expect(drawing.getAttribute('viewBox')).toBe(fit);
+  expect(arena.getAttribute('data-follow')).toBe('0');
   touch(arena, 'pointermove', 1, 140);
   touch(arena, 'pointerup', 1, 140);
   expect(inputs).toEqual([]);

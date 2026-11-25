@@ -109,3 +109,16 @@ export function inspectionCamera(paint: (camera: ArenaCamera) => void) {
     end: (id: number) => contacts.delete(id),
   };
 }
+
+/** Keep the target within two cells of centre without swinging the view on a turn. */
+export function followAxis(cell: number, extent: number, previous?: number) {
+  const visible = extent / FOLLOW_ZOOM;
+  const centred = cell - visible / 2;
+  const origin =
+    previous === undefined
+      ? centred
+      : Math.max(centred - 2, Math.min(centred + 2, previous));
+  return clamp(origin, extent - visible);
+}
+
+export const FOLLOW_ZOOM = 1.65;

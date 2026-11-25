@@ -98,8 +98,12 @@ test('light-cycles board inspection desktop wheel drag keyboard and fit', async 
   await record(arena, info, 'panned');
   await surface.press('Home');
   expect(await box(arena)).toEqual(fitted);
-  await arena.getByRole('button', { name: 'Zoom in' }).click();
-  await arena.getByRole('button', { name: 'Fit arena' }).click();
+  await arena
+    .getByRole('combobox', { name: 'Arena camera' })
+    .selectOption('free');
+  await arena
+    .getByRole('combobox', { name: 'Arena camera' })
+    .selectOption('arena');
   expect(await box(arena)).toEqual(fitted);
 });
 
@@ -151,7 +155,9 @@ test('light-cycles board inspection phone anchored pinch pan and cancel', async 
   });
   expect((await box(arena)).x).toBeGreaterThan(cancelled.x);
   await record(arena, info, 'panned');
-  await arena.getByRole('button', { name: 'Fit arena' }).click();
+  await arena
+    .getByRole('combobox', { name: 'Arena camera' })
+    .selectOption('arena');
   expect(await box(arena)).toEqual(fitted);
 });
 
@@ -185,7 +191,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
       (el) => getComputedStyle(el).animationName
     );
     expect(animation === 'none').toBe(motion === 'reduce');
-    await expect(arena).toHaveAttribute('data-zoom', '1');
+    await expect(arena).toHaveAttribute('data-follow', '0');
     await record(arena, info, 'after-drag');
     await arena.press('ArrowRight');
     await expect(preview).toBeVisible();

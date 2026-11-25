@@ -1,11 +1,19 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, createUniqueId, For, Show } from 'solid-js';
-import { FIT, trailShapes } from '../trail-arena-geometry';
+import {
+  type ArenaCamera,
+  FIT,
+  FOLLOW_ZOOM,
+  followAxis,
+  inspectionCamera,
+  trailShapes,
+} from '../trail-arena-geometry';
 import {
   ArenaInspection,
   ArenaSurface,
   controlledSlots,
+  RiderCameraPicker,
   trailArenaInput,
 } from '../trail-arena-input';
 import {
@@ -52,15 +60,15 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   const arenaId = `trail-arena-${createUniqueId()}`;
   let drawing!: SVGSVGElement;
   const [camera, setCamera] = createSignal(FIT);
-  const extent = () => ({
-    width: props.width + 2 * MARGIN,
-    height: props.height + 2 * MARGIN,
-  });
-  const viewBox = () => {
-    const { x, y, zoom } = camera();
-    const { width, height } = extent();
-    return `${x * width - MARGIN} ${y * height - MARGIN} ${width / zoom} ${height / zoom}`;
-  };
+  const controller = inspectionCamera(setCamera);
+  const follow = riderCamera(props);
+  function choose(target: TrailRiderIndex | 'arena' | 'free') {
+    follow.select(target === 'free' ? 'arena' : target);
+    controller.fit();
+    if (target === 'free') controller.scale(2);
+    if (controlledSlots(props) > 0)
+      drawing.parentElement?.focus({ preventScroll: true });
+  }
   const input = trailArenaInput(props);
   const interactive = () => props.enabled && controlledSlots(props) > 0;
   return (
@@ -71,7 +79,16 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       class={styles['arena']}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
-      data-zoom={camera().zoom}
+      data-zoom={follow.rider() ? FOLLOW_ZOOM : camera().zoom}
+      data-round={props.round}
+      data-clear-corner={
+        follow.rider() &&
+        (follow.rider()?.x ?? 0) >= props.width / 2 &&
+        (follow.rider()?.y ?? 0) < 5
+          ? 'right'
+          : undefined
+      }
+      data-follow={follow.rider()?.index ?? 'arena'}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
@@ -98,22 +115,114 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
           margin: `-${(MARGIN / props.width) * 100}%`,
         }}
         data-testid={`${props.testId}-drawing`}
-        viewBox={viewBox()}
+        viewBox={arenaBox(props, follow.rider() ? FIT : camera())}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
-        <ArenaField board={props} arenaId={arenaId} />
+        <TrackedField board={props} follow={follow} arenaId={arenaId} />
       </svg>
-      <Show when={props.inspectable && !interactive()}>
+      <Show when={props.inspectable && !interactive() && !follow.rider()}>
         <ArenaInspection
           drawing={() => drawing}
           camera={camera()}
-          paint={setCamera}
+          controller={controller}
+        />
+      </Show>
+      <Show when={props.round !== undefined}>
+        <RiderCameraPicker
+          riders={props.riders}
+          inspectable={props.inspectable === true}
+          selected={String(
+            follow.rider()?.index ?? (camera().zoom > 1 ? 'free' : 'arena')
+          )}
+          choose={choose}
         />
       </Show>
       <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
     </ArenaSurface>
+  );
+}
+
+function arenaBox(board: TrailArenaProps, camera: ArenaCamera) {
+  const width = board.width + 2 * MARGIN;
+  const height = board.height + 2 * MARGIN;
+  return `${camera.x * width - MARGIN} ${camera.y * height - MARGIN} ${width / camera.zoom} ${height / camera.zoom}`;
+}
+
+function riderCamera(props: TrailArenaProps) {
+  const [choice, setChoice] = createSignal<{
+    scope: string;
+    target: TrailRiderIndex | 'arena';
+  }>();
+  const local = createMemo(() =>
+    props.riders
+      .filter((r) => r.controlSlot !== null)
+      .map((r) => r.index)
+      .join(',')
+  );
+  const rider = createMemo(() => {
+    if (props.round === undefined) return;
+    const selected = choice();
+    if (selected && selected.scope === local())
+      return props.riders.find((r) => r.index === selected.target);
+    return props.riders.find((r) => String(r.index) === local());
+  });
+  return {
+    rider,
+    select: (target: TrailRiderIndex | 'arena') =>
+      setChoice({ scope: local(), target }),
+    session: () => (rider() ? `${rider()?.index}/${props.round}` : undefined),
+  };
+}
+
+function TrackedField(props: {
+  board: TrailArenaProps;
+  follow: ReturnType<typeof riderCamera>;
+  arenaId: string;
+}) {
+  return (
+    <Show
+      when={props.follow.session()}
+      keyed
+      fallback={<ArenaField board={props.board} arenaId={props.arenaId} />}
+    >
+      {(_session) => (
+        <FollowingField
+          board={props.board}
+          rider={props.follow.rider}
+          arenaId={props.arenaId}
+        />
+      )}
+    </Show>
+  );
+}
+
+function FollowingField(props: {
+  board: TrailArenaProps;
+  rider: () => TrailArenaProps['riders'][number] | undefined;
+  arenaId: string;
+}) {
+  const origin = createMemo<{ x: number; y: number }>((previous) => {
+    const rider = props.rider();
+    const axis = (cell: number, size: number, prior?: number) =>
+      followAxis(cell + 0.5 + MARGIN, size + 2 * MARGIN, prior);
+    return {
+      x: axis(rider?.x ?? 0, props.board.width, previous?.x),
+      y: axis(rider?.y ?? 0, props.board.height, previous?.y),
+    };
+  });
+  const offset = (v: number) => (FOLLOW_ZOOM - 1) * MARGIN - v * FOLLOW_ZOOM;
+  return (
+    <g
+      data-follow-field=""
+      class={styles['followingField']}
+      style={{
+        transform: `matrix(${FOLLOW_ZOOM},0,0,${FOLLOW_ZOOM},${offset(origin().x)},${offset(origin().y)})`,
+      }}
+    >
+      <ArenaField board={props.board} arenaId={props.arenaId} />
+    </g>
   );
 }
 

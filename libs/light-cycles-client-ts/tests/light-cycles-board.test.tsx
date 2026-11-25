@@ -388,3 +388,37 @@ test('the marked and spoken next turn is first in the queue, even if the second 
     'Next turn: up.'
   );
 });
+
+test('camera choices identify the followed rider and never steer a cycle', () => {
+  const state = running(lightCyclesStart(3, 3));
+  const view = board(['white'], state);
+  const arena = view.getByTestId('arena-arena');
+  const picker = view.getByRole('combobox', { name: 'Arena camera' });
+  expect(arena.getAttribute('data-follow')).toBe('0');
+  expect(picker).toHaveProperty('value', '0');
+  fireEvent.pointerDown(picker, {
+    pointerId: 1,
+    button: 0,
+    clientX: 100,
+    clientY: 40,
+  });
+  fireEvent.pointerMove(arena, { pointerId: 1, clientX: 150, clientY: 40 });
+  fireEvent.change(picker, { target: { value: '1' } });
+  expect(arena.getAttribute('data-follow')).toBe('1');
+  expect(view.inputs).toEqual([]);
+  fireEvent.change(picker, { target: { value: 'arena' } });
+  expect(arena.getAttribute('data-follow')).toBe('arena');
+  fireEvent.keyDown(arena, { key: 'ArrowUp' });
+  expect(view.inputs).toEqual([['white', { round: 1, heading: 'up' }]]);
+});
+
+test('two people sharing one board start with both riders in view', () => {
+  const view = board(['white', 'black'], running(lightCyclesStart(3, 3)));
+  expect(view.getByTestId('arena-arena').getAttribute('data-follow')).toBe(
+    'arena'
+  );
+  expect(view.getByRole('combobox', { name: 'Arena camera' })).toHaveProperty(
+    'value',
+    'arena'
+  );
+});
