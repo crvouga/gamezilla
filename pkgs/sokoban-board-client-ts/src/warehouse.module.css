@@ -49,14 +49,10 @@
 
 /* Corner stencils extend past the load, so the bay still shows when the
    worker stands in it. The center ring marks an empty bay at thumbnail size. */
-[data-board-theme="warehouse"] [data-marked="true"],
-[data-board-theme="sokoban"] [data-goal="true"],
-[data-board-theme="sokoban"] [data-identity="four"] {
+[data-board-theme="warehouse"] [data-marked="true"] {
   position: relative;
 }
-[data-board-theme="warehouse"] [data-marked="true"]::after,
-[data-board-theme="sokoban"] [data-goal="true"]::after,
-[data-board-theme="sokoban"] [data-identity="four"]::after {
+[data-board-theme="warehouse"] [data-marked="true"]::after {
   content: "";
   position: absolute;
   pointer-events: none;

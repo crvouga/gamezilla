@@ -3,11 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
-    "./*": [
-      "./src/*.ts",
-      "./src/*.tsx",
-      "./src/*.d.ts"
-    ]
+    "./piece": "./src/piece.tsx"
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",

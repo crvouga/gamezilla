@@ -26,7 +26,6 @@ export type CellGridCell = {
   /** Shown in the cell; hidden from assistive technology (the label says it). */
   readonly goal?: boolean | undefined;
   readonly glyph: string;
-  readonly art?: (() => JSX.Element) | undefined;
   /** The cell's whole accessible name: where it is and what it holds. */
   readonly label: string;
   readonly tone: CellGridTone;
@@ -219,9 +218,7 @@ function GridCell(props: {
       }}
     >
       <span class={styles['glyph']} aria-hidden="true">
-        <Show when={cell()?.art} keyed fallback={cell()?.glyph ?? ''}>
-          {(draw) => draw()}
-        </Show>
+        {cell()?.glyph ?? ''}
       </span>
       <Show when={props.coordinates?.row}>
         {(label) => (

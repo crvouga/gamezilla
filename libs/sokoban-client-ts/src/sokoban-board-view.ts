@@ -6,11 +6,6 @@ import {
   sameCell,
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
-import {
-  deliveredCrate,
-  looseCrate,
-  warehouseWorker,
-} from '@pkgs/sokoban-board-client-ts/piece';
 import type {
   TileBoardPiece,
   TileBoardTile,
@@ -135,7 +130,6 @@ export function sokobanPieces(
       id: `crate-${index}`,
       column: crate.x,
       row: crate.y,
-      art: onGoal(crate) ? deliveredCrate : looseCrate,
       glyph: onGoal(crate) ? '▣' : '▢',
       tone: onGoal(crate) ? ('settled' as const) : ('object' as const),
     })),
@@ -146,7 +140,6 @@ export function sokobanPieces(
             id: 'worker',
             column: pieces.worker.x,
             row: pieces.worker.y,
-            art: warehouseWorker,
             glyph: '☻',
             tone: 'actor' as const,
           },

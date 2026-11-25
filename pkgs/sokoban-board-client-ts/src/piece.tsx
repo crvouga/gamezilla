@@ -49,12 +49,7 @@ function Cargo(props: { readonly delivered: boolean }): JSX.Element {
 
 function WarehousePiece(props: { readonly tone: Piece }): JSX.Element {
   return (
-    <svg
-      class={styles['piece']}
-      viewBox="0 0 40 40"
-      aria-hidden="true"
-      focusable="false"
-    >
+    <svg class={styles['piece']} viewBox="0 0 40 40" aria-hidden="true">
       <Switch>
         <Match when={props.tone === 'actor'}>
           <Worker />
@@ -67,6 +62,8 @@ function WarehousePiece(props: { readonly tone: Piece }): JSX.Element {
   );
 }
 
-export const warehouseWorker = () => <WarehousePiece tone="actor" />;
-export const looseCrate = () => <WarehousePiece tone="object" />;
-export const deliveredCrate = () => <WarehousePiece tone="settled" />;
+export const warehouseArt = {
+  actor: () => <WarehousePiece tone="actor" />,
+  object: () => <WarehousePiece tone="object" />,
+  settled: () => <WarehousePiece tone="settled" />,
+} satisfies Record<Piece, () => JSX.Element>;

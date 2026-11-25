@@ -3,6 +3,7 @@ import type {
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Plural, Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { warehouseArt } from '@pkgs/sokoban-board-client-ts/piece';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -105,6 +106,7 @@ function createView(props: Props, closer: () => boolean) {
   const pieces = createMemo(() =>
     sokobanPieces(props.board, positionPieces(props.position)).map((piece) => ({
       ...piece,
+      art: warehouseArt[piece.tone],
       column: piece.column - frame().left,
       row: piece.row - frame().top,
     }))

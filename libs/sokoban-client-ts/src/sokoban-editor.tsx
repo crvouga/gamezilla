@@ -7,11 +7,6 @@ import {
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
-  deliveredCrate,
-  looseCrate,
-  warehouseWorker,
-} from '@pkgs/sokoban-board-client-ts/piece';
-import {
   CellGridBoard,
   type CellGridCell,
 } from '@pkgs/ui-root-client-ts/cell-grid-board';
@@ -40,15 +35,15 @@ type Editor = ReturnType<typeof useSokobanEditor>;
 function pieceOf(
   board: SokobanBoard,
   index: number
-): Pick<CellGridCell, 'art' | 'glyph' | 'identity'> {
+): Pick<CellGridCell, 'glyph' | 'identity'> {
   const cell = cellOf(board, index);
   const square = board.squares[index];
   if (board.worker !== null && sameCell(board.worker, cell))
-    return { art: warehouseWorker, glyph: '☻', identity: 'three' };
+    return { glyph: '☻', identity: 'three' };
   if (board.crates.some((crate) => sameCell(crate, cell)))
     return square === 'goal'
-      ? { art: deliveredCrate, glyph: '▣', identity: 'two' }
-      : { art: looseCrate, glyph: '▢', identity: 'one' };
+      ? { glyph: '▣', identity: 'two' }
+      : { glyph: '▢', identity: 'one' };
   // A wall is drawn by its fill (the board's `occupied` tone), not a glyph.
   if (square === 'goal') return { glyph: '', identity: 'four' };
   return { glyph: square === 'outside' ? '·' : '', identity: undefined };
@@ -62,8 +57,8 @@ const SWATCHES: Readonly<
   floor: { tone: 'open' },
   goal: { tone: 'open', identity: 'four' },
   outside: { tone: 'quiet', glyph: '·' },
-  worker: { tone: 'open', art: warehouseWorker, glyph: '☻', identity: 'three' },
-  crate: { tone: 'open', art: looseCrate, glyph: '▢', identity: 'one' },
+  worker: { tone: 'open', glyph: '☻', identity: 'three' },
+  crate: { tone: 'open', glyph: '▢', identity: 'one' },
   'remove-crate': { tone: 'open', glyph: '−', identity: 'one' },
   erase: { tone: 'open', glyph: '✕' },
 };
@@ -172,7 +167,6 @@ function Board(props: {
     props.board.squares.map((square, index) => ({
       id: squareName(cellOf(props.board, index)),
       ...pieceOf(props.board, index),
-      goal: square === 'goal',
       label: squareLabel(props.board, props.board, index, words),
       tone:
         square === 'wall'
