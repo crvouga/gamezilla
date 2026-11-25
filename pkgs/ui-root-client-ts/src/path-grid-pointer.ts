@@ -57,6 +57,13 @@ function gridPoint(
     : null;
 }
 
+// Older browsers deliver only the dispatched sample.
+function coalescedSamples(
+  event: Partial<Pick<PointerEvent, 'getCoalescedEvents'>>
+) {
+  return event.getCoalescedEvents?.() ?? [];
+}
+
 export function createPathGridPointer(
   props: PathGridBoardProps,
   element: () => HTMLDivElement | undefined
@@ -94,9 +101,9 @@ export function createPathGridPointer(
     event.preventDefault();
     const box = element()?.getBoundingClientRect();
     // A single touch event can contain the turn or reversal between frames.
-    for (const sample of event.getCoalescedEvents?.() ?? []) {
+    for (const sample of coalescedSamples(event)) {
       traceSample(sample, box);
-      if (active === null) return;
+      if (capturedPointer() === null) return;
     }
     traceSample(event, box);
   };
