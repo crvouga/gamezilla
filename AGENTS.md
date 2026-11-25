@@ -13,6 +13,8 @@ What the app is is specified in [`specs/`](specs/). How to write a spec is
 [`README.md`](README.md). State each rule once: link to that file rather
 than restating it.
 
+Keep living competitor research with its product area. Follow the [market research convention](README.md#market-research).
+
 ## Hard Rules
 
 - **We never test manually. Ever.** Automated verification under the [CI stage policy](docs/CI_STAGE_POLICY.md) is the release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
