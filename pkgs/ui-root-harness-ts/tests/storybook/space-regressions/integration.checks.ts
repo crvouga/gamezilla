@@ -83,3 +83,16 @@ test('screens-games-word-tiles-puzzle--reach-target regression word-tiles-puzzle
     { width: 1280, height: 800, theme: 'light', globals: {}, suffix: '' }
   );
 });
+
+// regression: chess-early-game-side-marks
+test('screens-games-chess-board--early-game regression chess-early-game-side-marks', async ({
+  page,
+}) => {
+  await verifyStoryScenario(page, 'screens-games-chess-board--early-game', {
+    width: 390,
+    height: 844,
+    theme: 'light',
+    globals: {},
+    suffix: '',
+  });
+});

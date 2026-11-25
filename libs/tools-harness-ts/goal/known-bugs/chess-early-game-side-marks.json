@@ -1,4 +1,4 @@
 {
   "summary": "At 390×844 in the Italian Game, oversized kings overlapped the player names and made Bc4 and Bc5 look like king moves.",
-  "regressionTest": "libs/chess-root-client-ts/src/chess-game-presentation.stories.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
 }
