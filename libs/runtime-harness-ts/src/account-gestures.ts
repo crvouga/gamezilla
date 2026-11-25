@@ -2,6 +2,7 @@
 
 import { openGlobalMenu } from '@libs/harness-ts/driver-gestures';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { dismissDialogOutcome } from '@pkgs/ui-testing-root-shared-ts/dismiss-dialog-outcome';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   atTabShell,
@@ -18,11 +19,12 @@ export async function signOut(ui: Driver): Promise<void> {
   await tap(ui, Handles.accountSignOut);
   await tap(ui, Handles.authSignOutConfirm);
   await expectVisible(ui, Handles.accountSignIn);
-  if (await ui.get(Handles.authSignOutModal).isVisible())
-    await tap(ui, Handles.authSignOutDone);
-  await ui.get(Handles.authSignOutModal).wait('hidden', {
-    timeoutMs: JOURNEY_WAIT_MS,
-  });
+  await dismissDialogOutcome(
+    ui,
+    Handles.authSignOutModal,
+    Handles.authSignOutDone,
+    { timeoutMs: JOURNEY_WAIT_MS }
+  );
 }
 
 export async function expectSignInOffered(ui: Driver): Promise<void> {

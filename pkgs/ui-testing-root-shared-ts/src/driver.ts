@@ -21,7 +21,7 @@ export type WaitTextCondition = {
 export type DriverWaitOptions = {
   readonly timeoutMs?: number;
   readonly description?: string;
-  /** For a visible wait, accept another control in the same locator scope. */
+  /** For a visibility wait, also accept a visible control in the same locator scope. */
   readonly visibleOr?: readonly string[];
 };
 

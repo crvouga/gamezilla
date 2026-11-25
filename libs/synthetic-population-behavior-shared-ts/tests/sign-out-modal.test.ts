@@ -15,13 +15,15 @@ test('sign-out waits for the dismissed success surface to release the screen', a
       isVisible: async () =>
         id === Handles.authSignOutModal
           ? modalVisible
-          : id === Handles.accountSignIn && signedOut,
+          : (id === Handles.accountSignIn || id === Handles.authSignOutDone) &&
+            signedOut,
       tap: async () => {
         if (id === Handles.authSignOutConfirm) signedOut = true;
         if (id === Handles.authSignOutDone) dismissed = true;
       },
-      wait: async (state: string) => {
+      wait: async (state: string, options?: { visibleOr?: string[] }) => {
         if (id !== Handles.authSignOutModal || state !== 'hidden') return;
+        if (options?.visibleOr?.includes(Handles.authSignOutDone)) return;
         expect(dismissed).toBe(true);
         waiting.resolve();
         await closing.promise;
