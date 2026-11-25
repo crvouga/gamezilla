@@ -66,6 +66,33 @@ describe('AppStage', () => {
     expect(onTap).toHaveBeenCalledTimes(1);
   });
 
+  test('an agent can park the switcher on either edge without changing devices', async () => {
+    const { onTap, handle } = mount();
+    const agent = createAgent();
+    const move = (edge: string, percentFromTop: number) =>
+      agent.act({
+        steps: [
+          {
+            ref: 'Next device',
+            action: 'moveToEdge',
+            args: [edge, percentFromTop],
+          },
+        ],
+      });
+    expect((await move('left', 30)).ok).toBe(true);
+    expect(handle.style.left).toBe('10px');
+    const switcher = agent
+      .snapshot()
+      .find((component) => component.label === 'Next device');
+    expect(switcher?.['side']).toBe('left');
+    expect(switcher?.['percentFromTop']).toBe(30);
+    expect((await move('right', 80)).ok).toBe(true);
+    expect(handle.style.right).toBe('10px');
+    expect((await move('left', 120)).ok).toBe(false);
+    expect(handle.style.right).toBe('10px');
+    expect(onTap).not.toHaveBeenCalled();
+  });
+
   test('a press switches, however long it is held: it is a switcher and nothing else', () => {
     const { handle, onTap, clock } = mount();
     fireEvent.pointerDown(handle, { button: 0, pointerId: 1 });

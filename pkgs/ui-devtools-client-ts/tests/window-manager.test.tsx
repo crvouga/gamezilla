@@ -198,6 +198,51 @@ describe('WindowManager', () => {
     expect(layout().maximized).toBeNull();
   });
 
+  test('an agent can reorder, join and dock tabs by name', async () => {
+    const { layout } = mount({
+      direction: 'row',
+      children: [
+        ['a', 'b'],
+        ['c', 'd'],
+      ],
+    });
+    const agent = createAgent();
+    const move = (action: string, ...args: string[]) =>
+      agent.act({ steps: [{ ref: 'Workspace', action, args }] });
+    const entries = await agent.query({ within: 'Workspace' });
+    if ('error' in entries) throw new Error(entries.error);
+    expect(entries[0]?.items).toContainEqual({ value: 'c', label: 'Panel C' });
+    expect((await move('placeTabBefore', 'Panel B', 'Panel A')).ok).toBe(true);
+    expect(tabsOf(layout())).toEqual([
+      ['b', 'a'],
+      ['c', 'd'],
+    ]);
+    expect((await move('placeTabAfter', 'Panel A', 'Panel C')).ok).toBe(true);
+    expect(tabsOf(layout())).toEqual([['b'], ['c', 'a', 'd']]);
+    expect((await move('dockPanel', 'Panel A', 'Panel B', 'top')).ok).toBe(
+      true
+    );
+    expect(tabsOf(layout())).toEqual([['a'], ['b'], ['c', 'd']]);
+    const workspace = agent
+      .snapshot()
+      .find((entry) => entry.label === 'Workspace');
+    expect(workspace?.['layout']).toEqual(layout());
+    expect((await move('dockPanel', 'Panel B', 'Panel C', 'outside')).ok).toBe(
+      false
+    );
+    expect((await move('placeTabBefore', 'unknown', 'Panel A')).ok).toBe(false);
+    expect(tabsOf(layout())).toEqual([['a'], ['b'], ['c', 'd']]);
+  });
+
+  test('a compact workspace offers no agent docking controls', () => {
+    mount({ direction: 'row', children: [['a'], ['b']] }, { compact: true });
+    expect(
+      createAgent()
+        .snapshot()
+        .flatMap((component) => component.actions)
+    ).not.toContain('dockPanel');
+  });
+
   test('an agent can resize adjacent windows within the divider limits', async () => {
     mount({ direction: 'row', children: [['a'], ['b']] });
     const agent = createAgent();
