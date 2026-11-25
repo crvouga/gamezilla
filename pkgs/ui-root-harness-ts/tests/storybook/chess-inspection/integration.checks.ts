@@ -3,6 +3,8 @@ import { openChessStory, squareCenter } from '../chess/evidence';
 
 import { recordNavigation } from './timing';
 
+test.use({ hasTouch: true, video: 'on', trace: 'on' });
+
 const viewport = (page: Page) => page.locator('[data-chess-inspection]');
 async function capture(page: Page, info: TestInfo, name: string) {
   await info.attach(name, {
@@ -142,9 +144,6 @@ for (const width of [390, 1440]) {
   test.describe(`chess inspection ${width}`, () => {
     test.use({
       viewport: { width, height: 900 },
-      hasTouch: true,
-      video: 'on',
-      trace: 'on',
     });
     for (const motion of ['reduce', 'no-preference'] as const) {
       test(`chess inspection cancels the gesture then resumes play with ${motion}`, async ({
