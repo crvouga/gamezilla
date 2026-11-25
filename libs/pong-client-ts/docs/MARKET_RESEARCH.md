@@ -1,4 +1,4 @@
-# Reading a Pong board during and between rallies
+# Pong court market research
 
 Three publishers' gameplay screenshots show different ways to answer two questions in the middle of a point. Where is the ball headed? Which paddle can I move? They provide less evidence about a third question: when can I play again? The captions describe visible details. The comparison interprets those details, and the final section proposes changes for this board.
 
@@ -36,6 +36,20 @@ Three publishers' gameplay screenshots show different ways to answer two questio
 - **Explain a connection interruption at the court.** When a shared player disconnects, retain the visible paddle positions and say whose connection the players are waiting for. Clear the notice when control returns. A disconnected spectator needs a last-seen indication on their own board while play continues for the players. [Shared control](../../../specs/pong/pong-shared-control.feature) · [Local spectators](../../../specs/pong/pong-local-watch.feature)
 
 These are publisher-selected stills. They establish layout and visible cues. They cannot establish tracking accuracy at speed, input latency, touch reach, or the sequence after a point or disconnection. The interruption proposals follow this game's scoring and control rules. Their usability remains unmeasured.
+
+## Decisions and verification
+
+Reviewed November 25, 2026. Revisit these comparisons when the board changes or when new gameplay footage answers an open question.
+
+| Player task | Decision for this court | Verification |
+| --- | --- | --- |
+| Follow an approaching ball | Keep one bright, solid head against quiet court markings. Draw the brief pickup highlight on the held paddle. The paddle follows input immediately, including with reduced motion. | The live-rally browser runs measure input-to-paddle DOM updates and track drawing-node churn. The gesture scenarios exercise held and released states under both motion preferences. [Round 2 captures and timings](https://github.com/crvouga/gamezilla/pull/575#issuecomment-7159085993) · [Gesture checks](../../../pkgs/ui-root-harness-ts/tests/storybook/pong-inspection/integration.checks.ts) |
+| Find and steer the correct paddle | Name the controlled end before the serve. The first finger on a paddle retains control until release or cancellation. Two local players can steer their respective paddles simultaneously. | The countdown check reads the side cue. The DOM regression supplies two fingers on one paddle, and the hosted touch scenario moves two paddles independently. [Input contract](../../../pkgs/ui-root-client-ts/tests/paddle-court.test.tsx) · [Two-player touch](../../../pkgs/ui-root-harness-ts/tests/storybook/pong-touch/integration.checks.ts) |
+| Look more closely during a rally | Offer inspection on the spectator court. Anchor zoom under the pinch midpoint or trackpad cursor, keep panning within the court, and provide buttons and keys to return to fit. Players retain their paddle gestures during the rally. | The watching story checks the focal point, pan limit and return to fit. The playing story checks direct paddle movement. [Hosted gesture run](https://github.com/crvouga/gamezilla/actions/runs/45593465837) |
+
+## Open questions
+
+How quickly does a new player associate the countdown cue with the correct paddle? Do the bright contact edges and quiet center mark help people follow fast returns on physical phones? The automated fixtures verify the rendered states, geometry and event handling. Answering these perception questions requires player evidence. Footage of real interruptions in the competing games would also allow a comparison of their return-to-play sequences.
 
 [strange-thumb]: https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2689460/ss_42f23d08e5af85b187270951978a18953da1c633.600x338.jpg
 [strange-full]: https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2689460/ss_42f23d08e5af85b187270951978a18953da1c633.1920x1080.jpg
