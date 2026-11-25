@@ -1,4 +1,4 @@
-# How three Connect Four boards communicate a move
+# Connect Four board market research
 
 A player faces two spatial questions on each turn. Which column am I choosing, and where will my disc stop? At the end of a round, the question changes to which four discs won. The three published game screens below give different answers.
 
@@ -60,3 +60,13 @@ These are design proposals, not claims about features shared by the competitors.
 KDE's aligned arrows informed the single entry marker that follows a held disc across the column numbers. The marker fills on pickup and stays aligned with the hollow landing well as the finger moves. Release commits the chosen column. GNOME's documented distinction between positioning and dropping also applies to the keyboard controls. The circle and diamond remain visible after placement and inside the winning rings, preserving seat identity during the on-board result emphasis visible in AI Factory's example.
 
 The seven-column rack fits as a whole for normal play. Pinching suspends the pending drop and enlarges the columns around the midpoint. In this view one pointer pans, and the Fit board control restores play. A magnified move requires an explicit return to fit because the same drag already means pan. These choices concern this implementation. The competitor stills provide no gesture or latency comparison.
+
+## Verification and open questions
+
+On 2026-11-25 the first round’s hosted phone and desktop captures showed the landing preview, placed disc and winning rings. The second round adds native input checks for sliding across columns, release, cancellation, pinch, panning and returning to fit. Its scoped checks and 20 board DOM tests passed. Hosted gesture and timing results are pending for board revision `a740e9295b`. [Round-one board captures](https://github.com/crvouga/gamezilla/pull/574#issuecomment-7158876733) · [Gesture and performance diagnostic](https://github.com/crvouga/gamezilla/actions/runs/45593872333)
+
+- Can a player locate the winning four quickly on a crowded diagonal while still identifying each seat? The round-one images show a vertical win.
+- Does a player trying to place a disc after magnifying the rack discover Fit board? The hosted input checks exercise that path. Discoverability needs evidence from players.
+- How does sliding feel on physical phones and trackpads? The hosted measurements use emulated inputs. Record the device, input and board revision when physical-device evidence becomes available.
+
+Refresh the affected comparison here when a publisher changes its board or when a Connect Four interaction changes. Date the new observation and link it to the resulting decision and verification.
