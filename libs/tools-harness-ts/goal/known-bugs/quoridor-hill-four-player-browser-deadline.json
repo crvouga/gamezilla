@@ -1,0 +1,4 @@
+{
+  "summary": "The four-player hill replay reached the browser deadline after opening accounts for four players and fetching accessibility labels on every model observation. Guests can play the same moves and the board position contains every modeled value.",
+  "regressionTest": "libs/quoridor-harness-ts/tests/quint/quoridor-play.binding.ts"
+}

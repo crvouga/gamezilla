@@ -10,6 +10,7 @@ import {
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import acceptedClassic from './cases/accepted-classic-actions.itf.json';
 import acceptedHill from './cases/accepted-hill-actions.itf.json';
+import hillWall from './cases/hill-wall-and-passes.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
   model: 'quoridor-play',
@@ -36,6 +37,15 @@ bindQuintModel<QuintHarnessWorld>({
       seed: '0x67932',
       parameters: { HILL: true },
       itf: acceptedHill,
+    },
+    {
+      // regression: quoridor-hill-four-player-browser-deadline
+      id: 'quoridor-hill-four-player-browser-deadline',
+      title:
+        'Four hill players place a wall and attempt out-of-turn moves and passes',
+      seed: '0x67932',
+      parameters: { HILL: true },
+      itf: hillWall,
     },
   ],
   actions: {

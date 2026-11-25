@@ -1,5 +1,9 @@
 import { CHESS_GAME_ID } from '@libs/chess-root-harness-ts/chess-playable';
 import { prepareNamedFriend } from '@libs/friends-harness-ts/setup-friend-request';
+import {
+  joinCustomGames,
+  joinCustomGamesAsGuest,
+} from '@libs/game-session-harness-ts/custom-game-lineup';
 import type {
   CustomGameAction,
   CustomGameShown,
@@ -12,7 +16,6 @@ import { focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import {
   createSpace,
-  joinViaLink,
   reopenSpaceLink,
 } from '@libs/spaces-harness-ts/space-actions';
 import {
@@ -84,8 +87,12 @@ export async function customSpace(
   customMembers(w).add(host);
   for (const other of others) {
     await arrive(w, other, options.guests === true);
-    await w.s.apply(joinViaLink, other, link);
-    await w.s.apply(openCustomGames, other, CHESS_GAME_ID);
+    await w.s.apply(
+      options.guests === true ? joinCustomGamesAsGuest : joinCustomGames,
+      CHESS_GAME_ID,
+      host,
+      other
+    );
     const probe = await w.s.read(readCustomGameScreen, other);
     if (probe === null) throw new Error(`${other} has no game screen`);
     customPeople(w).set(other, probe.me);
