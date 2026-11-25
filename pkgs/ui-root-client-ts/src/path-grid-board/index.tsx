@@ -13,6 +13,7 @@ import {
 import { cellGridStep } from '../cell-grid-board/index';
 import { createPathGridPointer, TraceSurface } from '../path-grid-pointer';
 import type { PathGridBoardProps, PathGridEndpoint } from '../path-grid-types';
+import { NumberlinkCable } from './numberlink-cable';
 import styles from './path-grid-board.module.css';
 
 export type {
@@ -83,6 +84,7 @@ function PathCell(props: {
             <span
               class={styles['endpoint']}
               aria-hidden="true"
+              data-tracing={String(endpoint().tracing === true)}
               data-shape={endpoint().label.length > 2 ? 'tag' : 'ring'}
               style={{
                 '--endpoint-lines': lines().length,
@@ -113,18 +115,9 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
       {/* By position, so a growing path updates its node in place. */}
       <For keyed={false} each={props.board.lines}>
         {(line) => (
-          <polyline
-            class={styles['line']}
-            data-path={line().id}
-            data-tone={line().tone}
-            data-connected={String(line().connected)}
-            data-provisional={String(line().provisional === true)}
-            points={line()
-              .cells.map(
-                (cell) =>
-                  `${((cell % props.board.columns) + 0.5) * 100},${(Math.floor(cell / props.board.columns) + 0.5) * 100}`
-              )
-              .join(' ')}
+          <NumberlinkCable
+            line={line()}
+            columns={props.board.columns}
           />
         )}
       </For>

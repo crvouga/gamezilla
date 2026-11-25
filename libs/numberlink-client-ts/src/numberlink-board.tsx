@@ -57,6 +57,7 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
       pair.endpoints.map((cell) => ({
         cell: cell.y * props.definition.width + cell.x,
         label: pair.label,
+        tracing: props.drawingPair === pair.id,
         tone: pair.color,
         connected: connected().has(pair.id),
       }))

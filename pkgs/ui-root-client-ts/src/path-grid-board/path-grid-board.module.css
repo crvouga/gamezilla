@@ -202,3 +202,8 @@
 [data-tone="purple"] {
   --path-color: var(--ui-color-path-purple);
 }
+
+.endpoint[data-tracing="true"] {
+  outline: var(--ui-space-hairline) dashed var(--ui-color-text);
+  outline-offset: var(--ui-space-hairline);
+}

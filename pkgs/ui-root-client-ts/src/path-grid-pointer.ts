@@ -52,8 +52,7 @@ export function createPathGridPointer(
   const capturedPointer = (): number | null => active;
   let previous: Point | null = null;
   let traced = false;
-  const point = (event: PointerEvent): Point | null => {
-    const box = element()?.getBoundingClientRect();
+  const point = (event: PointerEvent, box: DOMRect | undefined): Point | null => {
     if (box === undefined || box.width <= 0 || box.height <= 0) return null;
     const x = ((event.clientX - box.left) / box.width) * props.columns;
     const y = ((event.clientY - box.top) / box.height) * props.rows;
@@ -69,10 +68,8 @@ export function createPathGridPointer(
     element()?.releasePointerCapture(pointer);
     props.onTraceCancel?.(reason);
   };
-  const move = (event: PointerEvent): void => {
-    if (active !== event.pointerId || props.disabled === true) return;
-    event.preventDefault();
-    const next = point(event);
+  const traceSample = (sample: PointerEvent, box: DOMRect | undefined): void => {
+    const next = point(sample, box);
     if (next === null) {
       cancel('boundary');
       return;
@@ -83,6 +80,17 @@ export function createPathGridPointer(
       props.onTraceMove?.(cell);
     }
     previous = next;
+  };
+  const move = (event: PointerEvent): void => {
+    if (active !== event.pointerId || props.disabled === true) return;
+    event.preventDefault();
+    const box = element()?.getBoundingClientRect();
+    // A single touch event can contain the turn or reversal between frames.
+    for (const sample of event.getCoalescedEvents?.() ?? []) {
+      traceSample(sample, box);
+      if (active === null) return;
+    }
+    traceSample(event, box);
   };
   return {
     cancel,
@@ -95,7 +103,7 @@ export function createPathGridPointer(
         !event.isPrimary
       )
         return;
-      const start = point(event);
+      const start = point(event, element()?.getBoundingClientRect());
       if (start === null) return;
       event.preventDefault();
       active = event.pointerId;

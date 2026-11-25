@@ -8,6 +8,7 @@ export type PathGridTone =
 
 export type PathGridEndpoint = {
   readonly cell: number;
+  readonly tracing?: boolean | undefined;
   readonly label: string;
   readonly tone: PathGridTone;
   readonly connected: boolean;
