@@ -3343,6 +3343,7 @@
         "@libs/quoridor-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/lingui-solid-client-ts": "workspace:*",
+        "@pkgs/quoridor-board-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@solidjs/web": "catalog:",
@@ -6670,6 +6671,18 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/quoridor-board-client-ts": {
+      "name": "@pkgs/quoridor-board-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@solidjs/web": "catalog:",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
     "pkgs/resource-naming-shared-ts": {
       "name": "@pkgs/resource-naming-shared-ts",
       "version": "0.0.0",
@@ -9538,6 +9551,8 @@
     "@pkgs/quint-server-ts": ["@pkgs/quint-server-ts@workspace:pkgs/quint-server-ts"],
 
     "@pkgs/quint-shared-ts": ["@pkgs/quint-shared-ts@workspace:pkgs/quint-shared-ts"],
+
+    "@pkgs/quoridor-board-client-ts": ["@pkgs/quoridor-board-client-ts@workspace:pkgs/quoridor-board-client-ts"],
 
     "@pkgs/resource-naming-shared-ts": ["@pkgs/resource-naming-shared-ts@workspace:pkgs/resource-naming-shared-ts"],
 
