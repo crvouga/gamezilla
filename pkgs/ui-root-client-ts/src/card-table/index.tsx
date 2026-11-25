@@ -16,8 +16,10 @@ import {
 import { Button } from '../button/index';
 import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
+import compass from './card-table-compass.module.css';
 import felt from './card-table-felt.module.css';
 import state from './card-table-state.module.css';
+import tray from './card-table-tray.module.css';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -174,7 +176,7 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
   const seat = () => props.seat();
   return (
     <section
-      class={styles['seat']}
+      class={[styles['seat'], compass['seat']]}
       data-trick={String(props.trick)}
       data-player={String(seat().player !== undefined)}
       data-position={seat().position}
@@ -189,7 +191,7 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
       >
         {seat().player}
       </Show>
-      <span class={styles['facts']}>
+      <span class={[styles['facts'], compass['facts']]}>
         <For keyed={false} each={seat().facts}>
           {(fact) => <span class={styles['fact']}>{fact()}</span>}
         </For>
@@ -219,7 +221,10 @@ function Trick(props: {
   trick: boolean;
 }): JSX.Element {
   return (
-    <div class={styles['trick']} data-trick={String(props.trick)}>
+    <div
+      class={[styles['trick'], compass['trick']]}
+      data-trick={String(props.trick)}
+    >
       <For keyed={false} each={props.seats}>
         {(seat) => (
           <span
@@ -474,8 +479,10 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
     );
   });
   return (
-    <div class={styles['pass']} aria-hidden="true">
-      <span class={styles['passLabel']}>{props.pass.label}</span>
+    <div class={[styles['pass'], compass['pass']]} aria-hidden="true">
+      <span class={[styles['passLabel'], compass['passLabel']]}>
+        {props.pass.label}
+      </span>
       <span class={styles['passPlaces']}>
         <For keyed={false} each={places()}>
           {(card) => (
@@ -574,6 +581,57 @@ function HandGuidance(
 }
 
 /**
+ * Under the table: the guidance above the hand, the hand, a refusal said
+ * aloud, and the action. It keeps one height in every phase, hand or none,
+ * so the table and the guidance above the hand never move.
+ */
+function HandTray(props: CardTableProps): JSX.Element {
+  // Why the last card pressed was refused, until the table moves on.
+  const [refusal, setRefusal] = createSignal(() => {
+    // Read only so that a table that moves on starts over.
+    void props.center;
+    return '';
+  });
+  const reasons = createMemo(() => [
+    ...new Set(
+      props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
+    ),
+  ]);
+  const reasonId = (reason: string): string | undefined => {
+    if (reason !== '' && reason === props.handWaiting)
+      return `${props.testId}-waiting`;
+    const index = reasons().indexOf(reason);
+    return index < 0 ? undefined : `${props.testId}-reason-${index}`;
+  };
+  return (
+    <div class={tray['tray']}>
+      <div class={tray['guide']}>
+        <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
+      </div>
+      {/* No cards, no hand: a watcher and a finished game get no empty toolbar. */}
+      <Show when={props.hand.length > 0}>
+        <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
+      </Show>
+      {/* A refused press is always announced, but a reason already shown
+          above the hand is emphasised there rather than printed twice. */}
+      <p
+        class={styles['refusal']}
+        role="status"
+        data-spoken-only={String(
+          reasons().includes(refusal()) || refusal() === props.handWaiting
+        )}
+        data-testid={`${props.testId}-refusal`}
+      >
+        {refusal()}
+      </p>
+      <Show when={props.action}>
+        {(action) => <ActionRow action={action()} />}
+      </Show>
+    </div>
+  );
+}
+
+/**
  * `CardTable` -- four seats around a card game's shared play, and the
  * viewer's own hand.
  *
@@ -598,6 +656,12 @@ function HandGuidance(
  * alone. An optional action confirms a selection (passing cards), with how
  * far the selection is beside it, and shows when it is sent.
  *
+ * A wide table (26rem and up) is a compass: North across the top, West and
+ * East beside the trick, the viewer across the bottom; a narrower one sets
+ * two seats per row, each beside its played card. The felt and the tray
+ * under it (guidance, hand, action) keep one height in every phase, hand or
+ * none, so nothing on the board moves as the game goes on.
+ *
  * @example
  * ```tsx
  * <CardTable label="Table" testId="t" seats={seats} center="Your lead"
@@ -610,23 +674,6 @@ export function CardTable(props: CardTableProps): JSX.Element {
   const seatsById = createMemo(
     () => new Map(props.seats.map((seat) => [seat.testId, seat]))
   );
-  // Why the last card pressed was refused, until the table moves on.
-  const [refusal, setRefusal] = createSignal(() => {
-    // Read only so that a table that moves on starts over.
-    void props.center;
-    return '';
-  });
-  const reasons = createMemo(() => [
-    ...new Set(
-      props.hand.flatMap((card) => (card.refusal ? [card.refusal] : []))
-    ),
-  ]);
-  const reasonId = (reason: string): string | undefined => {
-    if (reason !== '' && reason === props.handWaiting)
-      return `${props.testId}-waiting`;
-    const index = reasons().indexOf(reason);
-    return index < 0 ? undefined : `${props.testId}-reason-${index}`;
-  };
   return (
     <div
       class={styles['root']}
@@ -639,7 +686,11 @@ export function CardTable(props: CardTableProps): JSX.Element {
         testId={props.testId}
       >
         <div
-          class={[styles['table'], { [felt['felt'] ?? '']: true }]}
+          class={[
+            styles['table'],
+            compass['table'],
+            { [felt['felt'] ?? '']: true },
+          ]}
           role="group"
           aria-label={props.label}
         >
@@ -671,26 +722,7 @@ export function CardTable(props: CardTableProps): JSX.Element {
           </p>
         </div>
       </CardTableContext>
-      <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
-      {/* No cards, no hand: a watcher and a finished game get no empty toolbar. */}
-      <Show when={props.hand.length > 0}>
-        <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
-      </Show>
-      {/* A refused press is always announced, but a reason already shown
-          above the hand is emphasised there rather than printed twice. */}
-      <p
-        class={styles['refusal']}
-        role="status"
-        data-spoken-only={String(
-          reasons().includes(refusal()) || refusal() === props.handWaiting
-        )}
-        data-testid={`${props.testId}-refusal`}
-      >
-        {refusal()}
-      </p>
-      <Show when={props.action}>
-        {(action) => <ActionRow action={action()} />}
-      </Show>
+      <HandTray {...props} />
     </div>
   );
 }

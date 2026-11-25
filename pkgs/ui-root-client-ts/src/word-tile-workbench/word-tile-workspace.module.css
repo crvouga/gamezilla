@@ -64,3 +64,80 @@
   grid-area: actions;
   align-self: center;
 }
+
+/* In a board box its host holds still (`data-fill`), the workspace is the
+   box's height and nothing in it scrolls: the rack, actions and feedback
+   take what they need, the board takes the rest (a size container), and
+   the board's squares are sized from that room, fitted or enlarged. Below
+   the least room for a usable board, the box scrolls instead. */
+.layout[data-fill="true"] {
+  --word-tile-board-least: calc(var(--ui-control-size-md) * 6);
+  box-sizing: border-box;
+  height: var(--word-tile-room);
+}
+.layout[data-fill="true"] .board {
+  /* Stretched: a size container's queries read its box, never its content. */
+  align-self: stretch;
+  container-type: size;
+  min-height: var(--word-tile-board-least);
+}
+.layout[data-fill="true"] .board > * {
+  /* The enlarged board's window is the room its whole-board overview
+     (three controls tall) and their gap leave. */
+  --word-tile-enlarged-height: calc(
+    100cqb -
+    var(--ui-control-size-md) *
+    3 -
+    var(--ui-space-1)
+  );
+  --word-tile-enlarged-least: calc(var(--ui-control-size-md) * 3);
+}
+
+/* A phone: the rack, the actions and the feedback over the board, at the
+   host's inset; the board takes the box's whole width (out past the inset
+   its host gives a workspace, `--game-board-workspace-inset`), with its
+   overview and view controls back at the inset. Fitted, the squares are as
+   large as the width, or the height under the view controls and over the
+   square's details, allows. */
+.layout[data-fill="true"][data-layout="stacked"] {
+  display: flex;
+  flex-direction: column;
+}
+.layout[data-fill="true"][data-layout="stacked"] > :not(.board) {
+  flex: none;
+}
+.layout[data-fill="true"][data-layout="stacked"] .board {
+  flex: 1 1 0;
+  margin-inline: calc(var(--game-board-workspace-inset, 0px) * -1);
+}
+.layout[data-fill="true"][data-layout="stacked"] .board > * {
+  --word-tile-fitted-size: min(
+    100cqi,
+    100cqb -
+    var(--ui-control-size-md) -
+    var(--ui-space-6)
+  );
+  --word-tile-fitted-margin: auto;
+}
+.layout[data-fill="true"][data-layout="stacked"] .board [data-overview],
+.layout[data-fill="true"][data-layout="stacked"]
+  .board
+  > *
+  > :is([data-view-controls], [data-testid$="-square-details"]) {
+  padding-inline: var(--game-board-workspace-inset, 0px);
+}
+
+/* Wide: the board at the box's start, as large as the room over the
+   feedback and the rack allows (less a line for the square's details), Fit
+   and Enlarge beside its top in the side column, and the rack beside the
+   word actions on one row under it. */
+.layout[data-fill="true"][data-layout="wide"] {
+  grid-template-columns: 21.5rem minmax(0, 1fr) 10.5rem;
+  grid-template-rows: minmax(var(--word-tile-board-least), 1fr) auto auto;
+}
+.layout[data-fill="true"][data-layout="wide"] .board > * {
+  --word-tile-fitted-size: min(100cqi, 100cqb - var(--ui-space-6));
+  --word-tile-fitted-margin: 0;
+  position: relative;
+  width: var(--word-tile-fitted-size);
+}

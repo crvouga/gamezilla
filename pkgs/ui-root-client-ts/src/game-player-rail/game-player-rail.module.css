@@ -19,7 +19,9 @@
   .playerRail {
     grid-template-columns: none;
     grid-auto-flow: column;
-    grid-auto-columns: minmax(min(100%, 6.75rem), 1fr);
+    /* Every seat in view: the row shares the phone's width evenly, a
+       long name shortening rather than a seat sliding off the edge. */
+    grid-auto-columns: minmax(0, 1fr);
     overflow-x: auto;
     overscroll-behavior-x: contain;
     scrollbar-width: none;
@@ -27,6 +29,14 @@
   .playerRail::-webkit-scrollbar {
     display: none;
   }
+}
+
+/* A chip's 1px border comes out of its padding, so a band of chips is as
+   tall as a lone player's bar (`GamePlayerBar`, unbordered): a board under
+   two players' bars and one under a bigger table's chips start at the same
+   height. */
+.playerRail .chipFrame {
+  padding-block: calc(var(--ui-space-1) - 1px);
 }
 
 /* One line, so the rail keeps its height and a name never breaks mid-word;

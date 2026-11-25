@@ -109,9 +109,11 @@ export function checkHeartsSeatRows(canvas: HTMLElement) {
   const board = canvas.querySelector<HTMLElement>(
     '[data-component="CardTable"]'
   );
-  if (!board || board.clientWidth >= 480) return;
-  const context = board.querySelector('[role="group"]');
-  if (!context) throw new Error('Missing Hearts table');
+  const context = board?.querySelector<HTMLElement>('[role="group"]');
+  if (!board || !context) throw new Error('Missing Hearts table');
+  // A wide table is a compass: each card on its owner's side of the trick.
+  const view = board.ownerDocument.defaultView;
+  if (view?.getComputedStyle(context).gridTemplateAreas !== 'none') return;
   assertHeartsContextBounds(context.getBoundingClientRect());
   for (const seat of board.querySelectorAll('section[data-position]')) {
     const slot = board.querySelector(
@@ -127,6 +129,6 @@ export function checkHeartsSeatRows(canvas: HTMLElement) {
 
 /** The phone table must leave space for the full hand and its pass action. */
 export function assertHeartsContextBounds(context: Bounds) {
-  if (context.width < 480 && context.height > 256)
+  if (context.width < 416 && context.height > 256)
     throw new Error('Hearts phone context crowds the hand');
 }

@@ -166,7 +166,10 @@
   /* A wide word workspace shows as much of the enlarged board as the fitted
      one would take. */
   height: var(--word-tile-enlarged-height, calc(var(--ui-control-size-md) * 7));
-  min-height: calc(var(--ui-control-size-md) * 7);
+  min-height: var(
+    --word-tile-enlarged-least,
+    calc(var(--ui-control-size-md) * 7)
+  );
 }
 .board[data-enlarged="true"] {
   width: max-content;

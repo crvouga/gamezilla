@@ -405,6 +405,52 @@
   white-space: nowrap;
 }
 
+/* -- guidance ------------------------------------------------------------ */
+
+/* Ranks in the frame's start gutter (16px of labels and a 4px gap): the
+   help starts past it, in line with the squares, as the seats do. */
+.guidance[data-gutter="start"] {
+  padding-inline-start: 20px;
+}
+
+/* The keyboard help is a disclosure: a link-toned label after a chevron
+   that turns down when it is open, inline so it keeps the row's baseline. */
+.keyboardTrigger {
+  display: inline;
+  padding: 0;
+  border: 0;
+  border-radius: var(--ui-radius-sm);
+  background: none;
+  color: var(--ui-color-tint);
+  font-weight: var(--ui-font-weight-semibold);
+  cursor: pointer;
+  transition: color var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.keyboardTrigger:hover {
+  color: var(--ui-color-tint-hover);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+.keyboardTrigger:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.keyboardChevron {
+  display: inline-flex;
+  margin-inline-end: var(--ui-space-1);
+  vertical-align: -3px;
+  transition: transform var(--ui-duration-fast) var(--ui-easing-standard);
+}
+.keyboardTrigger[data-open] .keyboardChevron {
+  transform: rotate(90deg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .keyboardTrigger,
+  .keyboardChevron {
+    transition: none;
+  }
+}
+
 /* A short landscape window (a phone on its side): the guidance keeps to
    two lines and open keyboard help floats above its summary over the
    board, so the board column never grows past the window. */

@@ -129,8 +129,8 @@ function StoryPackAttemptControls(props: {
 
 /**
  * `player` on a saved attempt at `puzzle`, as the app shows it: on its
- * board, with "Progress" opening where the attempt stands and Back
- * (`story-attempt-back`) returning, so a story can walk both screens.
+ * board, with "Progress" opening where the attempt stands and its own
+ * "Back to the board" returning, so a story can walk both screens.
  */
 export function StoryPackAttempt(props: {
   readonly puzzle: StoryPackPuzzle;
@@ -159,16 +159,6 @@ export function StoryPackAttempt(props: {
   });
   return (
     <>
-      <Show when={place().screen === 'progress'}>
-        <Button
-          title="Back"
-          intent="neutral"
-          variant="ghost"
-          size="sm"
-          onClick={() => setPlace({ screen: 'attempt' })}
-          dataSet={{ testid: 'story-attempt-back' }}
-        />
-      </Show>
       <PuzzlePackStageScreenView
         status="ready"
         place={place()}

@@ -195,8 +195,8 @@ function rule(sheet: string, head: string): string {
 // regression: hearts-hand-cards-overlap — two overlapping rows then covered
 // the upper row's centre pips on a phone, and the wide fan left each card a
 // 20px corner. Cards never overlap: each steps by its own width and a gap,
-// is as wide as the longer row leaves it (about 46px of thirteen on a
-// phone, 72px on a wide table), and the lower row starts a card's height
+// is as wide as a row of seven leaves it (about 50px on a phone, 57px
+// beside a desktop's side panel), and the lower row starts a card's height
 // and a gap below the upper, the gap wider than a chosen card's 8px lift
 // and 3px ring.
 test('a hand of thirteen cards lies in two rows of whole cards that never overlap', () => {
@@ -206,9 +206,10 @@ test('a hand of thirteen cards lies in two rows of whole cards that never overla
   expect(row).toMatch(/--hand-gap:\s*var\(--ui-space-1\);/);
   expect(row).toMatch(/--hand-row-gap:\s*var\(--ui-space-3\);/);
   const card = rule(sheet, '.hand > .card {');
-  // Each card is as wide as the row leaves it, at most 72px…
+  // Each card is as wide as a row of seven leaves it, at most 72px, so the
+  // hand keeps one size whatever its count…
   expect(card).toMatch(
-    /--card-w:\s*min\(\s*72px,\s*\(100cqw - var\(--hand-span\) \* var\(--hand-gap\)\) \/\s*\(var\(--hand-span\) \+ 1\)\s*\);/
+    /--card-w:\s*min\(72px, \(100cqw - 6 \* var\(--hand-gap\)\) \/ 7\);/
   );
   // …and steps along by its own width and the gap, never less.
   expect(card).toMatch(
@@ -304,7 +305,7 @@ test("a phone's table pairs compact named seat rows with their trick cards", () 
   expect(rule(sheet, '.root {')).toMatch(
     /container:\s*card-table \/ inline-size;/
   );
-  const start = sheet.indexOf('@container card-table not (min-width: 30rem) {');
+  const start = sheet.indexOf('@container card-table not (min-width: 26rem) {');
   expect(start).toBeGreaterThan(-1);
   const phone = sheet.slice(start, sheet.indexOf('\n}\n', start));
   const seat = rule(phone, '.seat[data-position] {');

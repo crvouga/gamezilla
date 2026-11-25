@@ -211,13 +211,8 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-/* A wider table: larger cards in the trick, the side seats beside it. */
-@container (min-width: 30rem) {
-  .table {
-    --card-w: 56px;
-    column-gap: var(--ui-space-4);
-    padding: var(--ui-space-4);
-  }
+/* A wider table is a compass (`card-table-compass.module.css`). */
+@container (min-width: 26rem) {
   /* While cards are passed the middle holds where they go and, when the
      table draws it, what the table is doing: one above the other, never
      one over the other. */
@@ -233,6 +228,7 @@
       "left pass right"
       "left center right"
       "bottom bottom bottom";
+    grid-template-rows: auto minmax(0, 1fr) auto auto;
   }
   .table > .pass {
     grid-area: pass;
@@ -317,9 +313,11 @@
  * pip). Up to seven cards lie in one row; more lie in two, the upper a card
  * longer and the lower centred under it, half a step along. Every card
  * shares one grid cell, placed by its row and its step along it (set on the
- * card), so the hand is as tall as its rows and as wide as its furthest
- * card. A card is as wide as the longer row leaves it, at most 72px:
- * thirteen cards on a 390px phone are about 46px each, on a wide table 72px.
+ * card), so the hand is as wide as its furthest card. A card is as wide
+ * as a row of seven leaves it, at most 72px, whatever the hand's count:
+ * about 50px on a 390px phone, 57px beside a desktop's side panel. The hand
+ * always holds two rows' height, so it keeps one size as cards are passed
+ * and played, and the table above it never moves.
  * The rows sit far enough apart that a chosen card, lifted 8px with its
  * 3px ring, never touches the row above it, and cards far enough apart that
  * a ring never touches its neighbour.
@@ -333,13 +331,10 @@
   width: 100%;
   /* Room for a chosen card's lift and ring above the row and at its ends. */
   padding: var(--ui-space-4) var(--ui-space-1) var(--ui-space-1);
+  min-height: var(--hand-h);
 }
 .hand > .card {
-  --card-w: min(
-    72px,
-    (100cqw - var(--hand-span) * var(--hand-gap)) /
-    (var(--hand-span) + 1)
-  );
+  --card-w: min(72px, (100cqw - 6 * var(--hand-gap)) / 7);
   --step: calc(var(--card-w) + var(--hand-gap));
   grid-area: 1 / 1;
   align-self: start;
@@ -356,6 +351,7 @@
   .hand {
     display: flex;
     flex-wrap: wrap;
+    align-content: flex-start;
     gap: var(--hand-row-gap) var(--hand-gap);
   }
   .hand > .card {
@@ -481,8 +477,10 @@ button.card:focus-visible {
 
 /* Two named player/card pairs per row: every trick place stays directly
    beside its owner, never in a separate compass that needs decoding. */
-@container card-table not (min-width: 30rem) {
+@container card-table not (min-width: 26rem) {
   .table {
+    /* One height in every phase: room for the pass row while passing. */
+    min-height: 16rem;
     grid-template-columns: minmax(0, 1fr) var(--card-w) var(--ui-space-2) minmax(
         0,
         1fr
@@ -561,10 +559,16 @@ button.card:focus-visible {
     max-width: 100%;
     overflow-wrap: anywhere;
   }
+  /* The felt runs to the screen's edge; the count chosen and the pass
+     button keep to the screen's gutter. */
+  .action {
+    padding-inline: var(--ui-space-3);
+  }
 }
 
 .guidance {
   margin: 0;
+  line-height: 1.5;
   color: var(--ui-color-text);
   font-size: var(--ui-font-size-sm);
   text-align: center;

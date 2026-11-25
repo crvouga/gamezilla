@@ -32,12 +32,12 @@ function rule(body: string, selector: string): string {
 // the cards go ('Passing to the left') shared one grid cell, so the prompt
 // covered the direction on a phone (and sat over it on a wide table).
 test('a passing table draws its prompt beside where the cards go, not over it', () => {
-  const phone = block('@container card-table not (min-width: 30rem)');
+  const phone = block('@container card-table not (min-width: 26rem)');
   expect(rule(phone, '  .pass,\n  .center')).toContain('grid-row: 3;');
   expect(rule(phone, '.table:has(> .pass) > .center')).toContain(
     'grid-row: 4;'
   );
-  const wide = block('@container (min-width: 30rem)');
+  const wide = block('@container (min-width: 26rem)');
   expect(rule(wide, '.table > .pass')).toContain('grid-area: pass;');
   const drawn = rule(
     wide,

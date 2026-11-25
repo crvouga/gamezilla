@@ -88,6 +88,20 @@
     --chrome: 360px;
   }
 }
+/* A phone's fixed stage holds the board's box still: the board spans the
+   screen's whole width like every game's board, out past the inset its
+   tools and picker keep (`--game-board-workspace-inset`), and the box
+   scrolls for what does not fit. */
+@media (max-width: 767px) {
+  [data-game-fixed="true"]
+    [data-board-workspace="true"]
+    .board[data-fill="true"][data-board-theme="quoridor"] {
+    align-self: center;
+    width: calc(100% + 2 * var(--game-board-workspace-inset, 0px));
+    max-width: none;
+    margin-inline: 0;
+  }
+}
 .header {
   display: grid;
   place-items: center;

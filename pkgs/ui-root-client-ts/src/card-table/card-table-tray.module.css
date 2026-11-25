@@ -1,0 +1,49 @@
+/*
+ * Under the table: the guidance (two lines kept for it, set just above the
+ * hand), the hand (two rows kept, `--hand-h`, which the hand takes as its
+ * least height), and the action. The tray keeps that height in every
+ * phase, hand or none, so nothing on the board moves.
+ */
+.tray {
+  /* A row of seven cards, as the hand sizes them: at most 72px wide. */
+  --hand-card: min(72px, (100cqw - 8 * var(--ui-space-1)) / 7);
+  --guide-h: calc(3 * var(--ui-font-size-sm));
+  --hand-h: calc(
+    var(--ui-space-4) +
+    var(--ui-space-1) +
+    var(--ui-space-3) +
+    var(--hand-card) *
+    2.8
+  );
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  min-height: calc(
+    var(--guide-h) +
+    var(--hand-h) +
+    2.75rem +
+    var(--ui-space-3) *
+    2
+  );
+}
+/* Three rows of five square cards in a narrow hand, whatever the count. */
+@container card-table (max-width: 21.25rem) {
+  .tray {
+    --hand-card: min(48px, (100cqw - 6 * var(--ui-space-1)) / 5);
+    --hand-h: calc(
+      var(--ui-space-4) +
+      var(--ui-space-1) +
+      var(--ui-space-3) *
+      2 +
+      var(--hand-card) *
+      3
+    );
+  }
+}
+.guide {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  gap: var(--ui-space-1);
+  min-height: var(--guide-h);
+}

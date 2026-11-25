@@ -128,8 +128,11 @@
     [data-board-workspace="true"]
     > [data-game-board]
     > [data-game-board-content] {
+    /* Named, so a workspace may take a part of it (a board) out to the
+       box's edges past the inset. */
+    --game-board-workspace-inset: var(--ui-space-2);
     box-sizing: border-box;
-    padding-inline: var(--ui-space-2);
+    padding-inline: var(--game-board-workspace-inset);
   }
   /* A board narrowed to fit stands clear of the edges, so it and what lies
      over it take the card's corners. */
@@ -325,6 +328,21 @@
     [data-game-slot="controls"]
     [data-component="GameActionBar"]:has(> :first-child:nth-last-child(4)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* Three quiet commands (Offer draw, Resign, Game menu) are two rows,
+     the last whole, so no label is cut in the rail's width. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:has(> :first-child:nth-last-child(3)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:not(
+      :has(> [data-variant="solid"]:first-child)
+    )
+    > :last-child:nth-child(3) {
+    grid-column: 1 / -1;
   }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
     width: 100%;
