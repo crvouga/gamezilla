@@ -34,7 +34,7 @@ The publisher describes swiping to extend, cut through, and redraw paths, with u
 
 The publisher describes joining matching numbers without crossing, filling the board, and saving a victory automatically. The listing gives no correction gesture. The still image establishes a visible win message, not how the board responds to a mistaken move.
 
-## What to demonstrate in hosted board stories
+## Comparing board tasks
 
 | Player task | Board decision | Proposed automated evidence |
 | --- | --- | --- |
@@ -44,10 +44,23 @@ The publisher describes joining matching numbers without crossing, filling the b
 
 These are proposed checks for the hosted stories. The coverage fixtures follow the two completion rules in the [Numberlink spec](../../../specs/numberlink/complete-and-edit.feature). Existing story entry points are in the [player stories](../src/numberlink-player.stories.tsx).
 
-
 ## Decisions for this board
 
 - Keep digits or words visible at both ends. Assign the cable stitch by pair order so adjacent pairs can share a hue and still have different route markings. The six stitch patterns repeat on large boards, so the endpoint labels carry the full pair identity.
 - Keep the hollow loose-end ring during correction. On pickup, the two matching terminals compress briefly and gain an outline. The ring disappears once the route joins its matching terminal. Reduced motion keeps the outline and terminal fill.
 - Magnify the puzzle inside its own frame. Numberlink is turn-based and each path stays provisional until release. A second finger discards that provisional path and takes over the board view. Saved paths stay in place. Two fingers can pan; at magnification one pointer can pan from empty space or continue a route from its loose end.
 - Retain the two existing completion conditions. The comparison suggests keeping both pair count and coverage available. Changes to the surrounding results and controls belong to the stage.
+
+
+## Verification record
+
+On 2026-11-25, the hosted DrawPaths recovery cases passed at 390 × 844 and 1440 × 1024. The captures show a shortened path and a joined pair. The separate 20 × 20 phone run exhausted its 30-second budget on the tenth route, so that revision has no final dense-board phone timing. [Board-only screenshots, clips and timing notes](https://github.com/crvouga/gamezilla/pull/577#issuecomment-7159437003)
+
+The Numberlink input harness verifies that placing a second finger abandons the provisional path through both releases. Hosted gesture cases cover magnified hit targets, return to fit, terminal motion and two adjacent same-color pairs. Their candidate run was queued when this entry was written. [Input contract](../../numberlink-harness-ts/tests/numberlink-pointer-boundary.test.tsx) · [Browser cases](../../../pkgs/ui-root-harness-ts/tests/storybook/numberlink-gestures/integration.checks.ts) · [Candidate run](https://github.com/crvouga/gamezilla/actions/runs/45596597851)
+
+## Open questions
+
+- At phone width, can players follow distinct stitches across several adjacent blue routes when they cannot rely on hue?
+- Can a first-time touch player discover double-tap to return to fit after inspecting a dense board?
+
+Refresh these findings when a cited publisher changes its board, when Numberlink changes the corresponding interaction, or when new evidence answers either question.

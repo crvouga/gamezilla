@@ -1,6 +1,7 @@
 # Numberlink board readiness
 
 This game's evidence supplements the central [self-service readiness matrix](../../docs/SELF_SERVICE_READINESS.md).
+Publisher screenshots and the resulting board decisions are in the [Numberlink market research](docs/MARKET_RESEARCH.md).
 Product rules remain in [Numberlink specifications](../../specs/numberlink/).
 
 | Surface | Recovery and accessibility evidence | Current limit |
