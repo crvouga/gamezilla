@@ -192,19 +192,18 @@ export const LIBRARY_STORY_PARAMETERS = {
   },
 } as const;
 
-/** The connection status that sits above the library in the app. */
+/** Show the library with its connection status. */
 export const withLibraryConnection = (status: {
   online: boolean;
   lastError: string | null;
 }) =>
   createJSXDecorator((Story) => (
-    <>
-      <ContentConnectionStatusView
-        loading={false}
-        online={status.online}
-        lastError={status.lastError}
-        onReconnect={fn()}
-      />
+    <ContentConnectionStatusView
+      loading={false}
+      online={status.online}
+      lastError={status.lastError}
+      onReconnect={fn()}
+    >
       <Story />
-    </>
+    </ContentConnectionStatusView>
   ));

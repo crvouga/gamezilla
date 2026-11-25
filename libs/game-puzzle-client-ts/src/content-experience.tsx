@@ -205,13 +205,14 @@ export function ContentExperience(props: {
             onPress={nav.back}
             atLibrary={nav.place().screen === 'library'}
           />
-          <ContentConnectionStatus loading={started() && fetching()} />
-          <Show
-            when={started() && !content.isLoading() && !play.isLoading()}
-            fallback={<LoadingState />}
-          >
-            <ContentScreen subject={nav.subject()} />
-          </Show>
+          <ContentConnectionStatus loading={started() && fetching()}>
+            <Show
+              when={started() && !content.isLoading() && !play.isLoading()}
+              fallback={<LoadingState />}
+            >
+              <ContentScreen subject={nav.subject()} />
+            </Show>
+          </ContentConnectionStatus>
         </ContentPlaceProvider>
       </ContentLibraryProvider>
     </ContentGameProvider>
