@@ -88,6 +88,10 @@ async function drag(
   }
 }
 
+test.use({
+  video: { mode: 'on', size: { width: 1440, height: 900 } },
+  trace: 'on',
+});
 for (const phone of [true, false]) {
   const viewport = phone
     ? { width: 390, height: 844 }
@@ -96,8 +100,6 @@ for (const phone of [true, false]) {
     test.use({
       viewport,
       hasTouch: phone,
-      video: { mode: 'on', size: viewport },
-      trace: 'on',
     });
     test('inspect the table, cancel pickup, pass and land a card', async ({
       page,
