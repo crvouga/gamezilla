@@ -16,11 +16,15 @@
 :global([data-game-board-stage]):has(.versus) {
   position: relative;
 }
-:global([data-game-board-stage]):has(.versus) > :global([data-game-board]) {
+:global([data-game-board-stage]):has(.versus) > :global([data-game-board]),
+:global([data-game-board-stage]):has(.versus)
+  > :global([data-game-board])
+  > :global([data-game-board-content]) {
   position: static;
 }
 :global([data-game-board-stage]):has(.versus)
   > :global([data-game-board])
+  > :global([data-game-board-content])
   > .overlay {
   border-radius: var(--ui-radius-card);
 }

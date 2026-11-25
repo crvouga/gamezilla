@@ -1,0 +1,19 @@
+/* The board's region (`data-game-board`) holds the game's content
+   (`data-game-board-content`): a column, the content at its top and
+   centred across it. Anywhere a layout leaves the region's height alone
+   the region is exactly as tall as its content, as the board always was.
+   A layout that holds the board still gives the region a height of its
+   own (fixed-stage.module.css, game-session-layout.module.css): then the
+   region keeps its box in every state and the content scrolls inside it
+   when it is taller. */
+.region {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.content {
+  flex: none;
+  width: 100%;
+  min-width: 0;
+  align-self: center;
+}

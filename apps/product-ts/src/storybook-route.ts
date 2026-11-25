@@ -15,13 +15,31 @@ export type StoryRoute = {
   readonly spaceTitle?: string | undefined;
 };
 
-/** The game each framed screen belongs to, by its story family. */
+/** The game a family names (`screens-games-<game>-…`), as its menu names it. */
+const STORY_GAME_TITLES: readonly (readonly [string, string])[] = [
+  ['battleship', 'Battleship'],
+  ['chess', 'Chess'],
+  ['connect-four', 'Connect Four'],
+  ['hearts', 'Hearts'],
+  ['light-cycles', 'Light Cycles'],
+  ['numberlink', 'Numberlink'],
+  ['pong', 'Pong'],
+  ['quoridor', 'Quoridor'],
+  ['sokoban', 'Sokoban'],
+  ['word-tiles', 'Word Tiles'],
+];
+
+/**
+ * The game each framed screen belongs to, by its story family: a game's
+ * own stories its name, puzzles chess, and the shared frame's stories
+ * Connect Four, the game they show.
+ */
 function storySpaceTitle(family: string): string {
-  if (family.startsWith('screens-puzzles') || family.includes('chess'))
-    return 'Chess';
-  if (family.includes('light-cycles')) return 'Light Cycles';
-  if (family.includes('battleship')) return 'Battleship';
-  return 'Connect Four';
+  if (family.startsWith('screens-puzzles')) return 'Chess';
+  const game = STORY_GAME_TITLES.find(([slug]) =>
+    family.startsWith(`screens-games-${slug}`)
+  );
+  return game?.[1] ?? 'Connect Four';
 }
 
 const TAB_ROUTES: Readonly<Record<string, string>> = {

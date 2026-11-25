@@ -6,9 +6,11 @@
  * and one row of commands. What comes and goes (the connection, a refused
  * choice, a draw offered) floats in the `ToastStack`, and a finished game's
  * outcome is a dialog, so none of it pushes the board. On a
- * phone the board takes the frame's whole width and sits in the middle of
- * the room left; `GameBoardStage` narrows a board taller than that room
- * (`--game-board-room`). Wider windows keep the board beside its rail.
+ * phone the board's box takes the frame's whole width and the whole room
+ * left between the seats and the commands; `GameBoardStage` narrows a
+ * board taller than that room (`--game-board-room`). Wider windows keep
+ * the board beside its rail, its box the window's height left under it
+ * (game-session-layout.module.css).
  * Kept apart from game-ui.module.css, which is at its size limit.
  */
 .fixed {
@@ -87,41 +89,43 @@
     overflow: hidden auto;
   }
   /*
-   * The board and its seats sit in the middle of the room, centred once
-   * (`--game-stage-offset`, held by `GameBoardStage` while the room keeps
-   * its size) so a board a few pixels taller or shorter keeps its top edge.
-   * Every band around the room keeps its height, so the room, and the
-   * board in it, never change during a game. A spacer under it, not an
-   * auto margin: the stage keeps its own height (the board's fit measures
-   * it) and a taller stage's top is never cut off.
+   * The board's box (`data-game-board`) is the room the seats leave, from
+   * under them to the commands: every band around it keeps its height, so
+   * the box is the same in every state of the game and at every table,
+   * whatever the board draws in it. The board sits at the box's top, at
+   * the frame's full width or narrowed to fit (`--game-board-room`), and
+   * scrolls inside the box when it is taller; the spare room falls under
+   * it, over the commands, never as a gap in the game's info.
    */
-  .fixed [data-game-slot="stage"]::after {
-    content: "";
-    flex: 1 1 0;
-  }
-  /* The seats sit right under the status line and the board right under
-     them, from the top of the room: the spare room falls under the board,
-     over the commands, never as a gap in the game's info. */
   .fixed [data-game-slot="stage"] > [data-game-board-stage] {
-    flex: none;
+    flex: 1 1 0;
+    min-height: 0;
     margin-top: 0;
     max-width: none;
     padding-block: var(--ui-space-2);
     gap: var(--ui-space-2);
   }
   .fixed [data-game-board-stage] > :not([data-game-board]) {
+    flex: none;
     margin-inline: var(--ui-space-2);
   }
   .fixed [data-game-board-stage] > [data-game-board] {
-    align-self: center;
-    max-width: min(100%, var(--game-board-room, 100%));
+    flex: 1 1 0;
+    align-self: stretch;
+    min-height: 0;
+    max-width: none;
+    overflow: hidden auto;
     border-radius: var(--ui-radius-none);
+  }
+  .fixed [data-game-board] > [data-game-board-content] {
+    max-width: min(100%, var(--game-board-room, 100%));
   }
   /* A board narrowed to fit stands clear of the edges, so it and what lies
      over it take the card's corners. */
   .fixed
     [data-game-board-stage][data-board-narrowed="true"]
-    > [data-game-board] {
+    > [data-game-board]
+    > [data-game-board-content] {
     overflow: hidden;
     border-radius: var(--ui-radius-card);
   }

@@ -1,5 +1,5 @@
-/* The players at a table of three or more: chips that wrap, two across a
-   phone, more beside a wide board, so none is cut off at the edge. */
+/* The players at a table of three or more: chips in rows beside a wide
+   board, one row on a phone (below). */
 .playerRail {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
@@ -9,40 +9,23 @@
   width: 100%;
   min-width: 0;
 }
-/* Three players on a phone: one row of three short chips, so no chip is
-   left alone on a second row and the board keeps its height. Every chip
-   has the same two lines and so the same height: its name, then its
-   swatch, figure and status facts wrapping within each seat.
-   The swatch names the player's piece on the board, the name the person,
-   so the avatar steps aside and the chips stay short. */
+/* On a phone the players are one row of chips at every table, two seats
+   or six, so the band over the board is one chip tall and the board under
+   it never moves with the table's size. Each chip keeps a readable width;
+   a row wider than the phone scrolls sideways, its last chip cut at the
+   edge to say there is more (no scrollbar, which would add to the band's
+   height at a bigger table only). */
 @container game-column (max-width: 879px) {
-  .playerRail:has(> :nth-child(3):last-child) {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+  .playerRail {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(min(100%, 6.75rem), 1fr);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
   }
-  .playerRail:has(> :nth-child(3):last-child) .chipFrame {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto auto;
-    justify-items: center;
-    align-content: start;
-    gap: var(--ui-space-1);
-    padding: var(--ui-space-2) var(--ui-space-1);
-    text-align: center;
-  }
-  .playerRail:has(> :nth-child(3):last-child) .chipText {
-    display: contents;
-  }
-  .playerRail:has(> :nth-child(3):last-child) .chipAvatar {
+  .playerRail::-webkit-scrollbar {
     display: none;
-  }
-  .playerRail:has(> :nth-child(3):last-child) .chipName {
-    justify-self: stretch;
-  }
-  .playerRail:has(> :nth-child(3):last-child) .chipFacts {
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    white-space: normal;
   }
 }
 
@@ -68,45 +51,54 @@
 }
 
 /* Three or more beside a wide board share its width: the swatch names each
-   player's piece, so the avatar steps aside and every name and status
-   reads whole. */
+   player's piece, so the avatar steps aside. */
 @container game-column (min-width: 880px) {
   .playerRail:has(> :nth-child(3)) .chipAvatar {
     display: none;
   }
-  /* Their facts may take a second line beside the shared width (a rider's
-     round wins, then Out): that line is held from the start, so a rider
-     going Out mid-round never grows its chip and the arena below never
-     moves. */
-  .playerRail:has(> :nth-child(3)) .chipFacts {
-    min-height: calc(2 * var(--ui-space-xl) + var(--ui-space-1));
-    align-content: flex-start;
-  }
 }
 
-/* Four or more on a phone: each chip's facts stay one line (the swatch,
-   then one status), so no chip grows a third line over the board. */
+/* Every chip's facts are one line (the swatch, then its figure and
+   status), at every table on a phone and at a bigger one beside a wide
+   board, so every chip has the same two lines and the band of seats the
+   same height whoever sits at the table or goes Out. */
 @container game-column (max-width: 879px) {
-  .playerRail:has(> :nth-child(4)) .chipFacts {
+  .playerRail .chipFacts {
     flex-wrap: nowrap;
-    gap: var(--ui-space-0-5, 2px);
     overflow: hidden;
+  }
+  .playerRail:has(> :nth-child(3)) .chipFacts {
+    gap: var(--ui-space-0-5, 2px);
   }
   /* When the line is still too long, the status after the swatch is the
      one cut short; what was chosen or scored stays whole. */
-  .playerRail:has(> :nth-child(4)) .chipFacts > * {
+  .playerRail .chipFacts > * {
     flex-shrink: 0;
   }
-  .playerRail:has(> :nth-child(4)) .chipFacts > :nth-child(2):not(:last-child) {
+  .playerRail .chipFacts > :nth-child(2):not(:last-child) {
     flex-shrink: 1;
     min-width: 0;
     overflow: hidden;
   }
-  .playerRail:has(> :nth-child(4)) .chipFrame {
+  .playerRail:has(> :nth-child(3)) .chipFrame {
     gap: var(--ui-space-1);
     padding-inline: var(--ui-space-1);
   }
-  .playerRail:has(> :nth-child(4)) .chipAvatar {
+  .playerRail:has(> :nth-child(3)) .chipAvatar {
     display: none;
+  }
+}
+@container game-column (min-width: 880px) {
+  .playerRail:has(> :nth-child(3)) .chipFacts {
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .playerRail:has(> :nth-child(3)) .chipFacts > * {
+    flex-shrink: 0;
+  }
+  .playerRail:has(> :nth-child(3)) .chipFacts > :nth-child(2):not(:last-child) {
+    flex-shrink: 1;
+    min-width: 0;
+    overflow: hidden;
   }
 }

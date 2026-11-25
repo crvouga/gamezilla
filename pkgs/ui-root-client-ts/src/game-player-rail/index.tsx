@@ -30,11 +30,11 @@ export type GamePlayerRailProps = {
 
 /**
  * `GamePlayerRail` + `GamePlayerChip` -- the players at a table of three or
- * more, as compact chips above the board that wrap onto as many rows as
- * they need (two across a phone; three players on a phone make one row of
- * three equal-height chips, each its name above wrapping facts, the avatar
- * left out, so none is left alone and no fact escapes its chip), so every player is in view
- * at once and none is cut off at the screen's edge. Each chip shows the player's
+ * more, as compact chips above the board: rows of chips beside a wide
+ * board, and one row on a phone at every table, scrolling sideways when
+ * wider than the phone, so the band over the board is one chip tall
+ * whatever the table's size and the board never moves with it. Every
+ * chip's facts are one line. Each chip shows the player's
  * avatar and name on its first line, then their swatch, figure, out /
  * reconnecting word and any short facts (`tags`) on the second, so the
  * name keeps the chip's width. The chips of a row share its height, and a

@@ -8,6 +8,8 @@ import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import boardAlign from './board-align.module.css';
 import { GameBoardPreviewContext } from './board-preview';
+import region from './board-region.module.css';
+import { createBoardRegionFill } from './region-fill';
 import { createStageRoomFit } from './room-fit';
 import { createStageCentre } from './stage-centre';
 import { createViewportSquareFit } from './viewport-fit';
@@ -61,11 +63,17 @@ export function GameBoardStage(props: {
   const preview = (): boolean => props.preview === true;
   const [root, setRoot] = createSignal<HTMLDivElement>();
   const square = (): boolean => props.viewportFit === 'square' && !preview();
-  const limit = createViewportSquareFit(root, square);
+  // The board's region (`data-game-board`), whose box a layout may hold
+  // fixed, and the game's content inside it, as tall as it draws.
   const [surface, setSurface] = createSignal<HTMLDivElement>();
-  const room = createStageRoomFit(root, surface);
+  const [content, setContent] = createSignal<HTMLDivElement>();
+  const limit = createViewportSquareFit(root, square, surface, content);
+  const room = createStageRoomFit(root, surface, content);
   // A fixed stage sits in the middle of its room, and stays there.
   const centre = createStageCentre(root, surface);
+  // The window's height left under the region's top, for a layout that
+  // holds the region at that height (`--game-board-viewport-room`).
+  const fill = createBoardRegionFill(root, surface, () => !preview());
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();
@@ -89,6 +97,8 @@ export function GameBoardStage(props: {
         '--game-board-room': room() === undefined ? undefined : `${room()}px`,
         '--game-stage-offset':
           centre() === undefined ? undefined : `${centre()}px`,
+        '--game-board-viewport-room':
+          fill() === undefined ? undefined : `${fill()}px`,
       }}
       data-game-board-stage
       data-board-narrowed={narrowed() ? 'true' : undefined}
@@ -99,29 +109,63 @@ export function GameBoardStage(props: {
       <Show when={others.present()}>{others.content()}</Show>
       <Show when={turn.present()}>{turn.content()}</Show>
       <Show when={own.present()}>{own.content()}</Show>
-      <div
-        ref={setSurface}
-        class={[
-          styles['board'],
-          {
-            [fit['squareBoard'] ?? '']: square(),
-            relative: overlay.present(),
-          },
-        ]}
-        data-game-board
+      <BoardRegion
+        surface={setSurface}
+        content={setContent}
+        square={square()}
+        preview={preview}
+        overlay={overlay}
       >
-        <GameBoardPreviewContext value={preview}>
-          {props.children}
-        </GameBoardPreviewContext>
-        <Show when={overlay.present()}>
-          <GameStageOverlayFrame>{overlay.content()}</GameStageOverlayFrame>
-        </Show>
-      </div>
+        {props.children}
+      </BoardRegion>
       <Show when={props.preview === true && props.previewLabel}>
         <p class={`${styles['previewLabel']} text textFootnote`}>
           {props.previewLabel}
         </p>
       </Show>
+    </div>
+  );
+}
+
+/**
+ * The board's region (`data-game-board`) and the game's content in it.
+ * The region is the box a layout holds still (a fixed stage gives it the
+ * room left between the seats and the commands); the content is as tall
+ * as the game draws it, at the region's top, and scrolls inside it when
+ * taller. Anywhere else the region is as tall as its content. The overlay
+ * covers the content: the board as drawn, not the room under it.
+ */
+function BoardRegion(props: {
+  surface: (element: HTMLDivElement) => void;
+  content: (element: HTMLDivElement) => void;
+  square: boolean;
+  preview: () => boolean;
+  overlay: ReturnType<typeof createScreenSlot>;
+  children: JSX.Element;
+}): JSX.Element {
+  return (
+    <div
+      ref={props.surface}
+      class={[
+        `${styles['board']} ${region['region']}`,
+        { [fit['squareBoard'] ?? '']: props.square },
+      ]}
+      data-game-board
+    >
+      <div
+        ref={props.content}
+        class={[region['content'], { relative: props.overlay.present() }]}
+        data-game-board-content
+      >
+        <GameBoardPreviewContext value={props.preview}>
+          {props.children}
+        </GameBoardPreviewContext>
+        <Show when={props.overlay.present()}>
+          <GameStageOverlayFrame>
+            {props.overlay.content()}
+          </GameStageOverlayFrame>
+        </Show>
+      </div>
     </div>
   );
 }

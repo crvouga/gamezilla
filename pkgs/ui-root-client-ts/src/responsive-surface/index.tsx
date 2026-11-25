@@ -3,14 +3,13 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { ModalSize } from '@pkgs/ui-root-shared-ts/modal-size';
-import { dynamic, type JSX } from '@solidjs/web';
+import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import {
   CONTENT_EDGE_PADDING_STEP,
   ContentEdgePaddingProvider,
   SURFACE_BOTTOM_PADDING_STEP,
 } from '../content-edge-padding/index';
-import { useBottomSheetHost } from '../context/index';
 import { ModalBackdrop } from '../modal-backdrop/index';
 import { ModalContent, useModalContentMaxHeight } from '../modal-content/index';
 import { ModalRoot } from '../modal-root/index';
@@ -23,7 +22,6 @@ import {
 import { ResponsiveSurfaceHeader } from '../responsive-surface-header/index';
 import { ScrollView } from '../scroll-view/index';
 import type { ResponsiveSurfacePresentation } from '../should-use-mobile-sheet';
-import { shouldUseMobileSheet } from '../should-use-mobile-sheet';
 import { useLayoutMode } from '../use-layout-mode';
 
 export type ResponsiveSurfaceProps = {
@@ -36,11 +34,17 @@ export type ResponsiveSurfaceProps = {
   closable?: boolean | undefined;
   /** Optional title row above `children`; also names the dialog. */
   title?: JSX.Element | undefined;
-  /** Centered modal width bucket on wide layouts. Default `medium`. */
+  /**
+   * Modal width bucket on wide layouts. Default `medium`. Compact layouts
+   * always use the full width inside the 16px backdrop margin.
+   */
   size?: ModalSize | undefined;
-  /** Max height of centered modal content in px (wide layouts only). */
+  /** Max height of the modal content in px (capped by the viewport). */
   maxHeight?: number | undefined;
-  /** Default `'responsive'`. */
+  /**
+   * Default `'responsive'`. Both values present the centered modal at every
+   * width; kept so call sites can still mark decisions as dialogs.
+   */
   presentation?: ResponsiveSurfacePresentation | undefined;
   /**
    * Fixed pixel height for the body region (everything below the title). Use
@@ -108,8 +112,7 @@ function surfaceScrolls(surface: ResponsiveSurfaceProps): boolean {
  * Pinned header + scrollable (or fixed) body.
  *
  * When scrolling, the shell is a two-row grid (`auto` / `minmax(0, 1fr)`)
- * capped by `maxHeight` (desktop) or by filling a height-clamped sheet
- * parent (`grow` + `min-h-0`). The body {@link ScrollView} is edge-to-edge
+ * capped by `maxHeight` (the viewport-capped modal height). The body {@link ScrollView} is edge-to-edge
  * so the scrollbar tracks the modal frame; horizontal + bottom padding live
  * on {@link ScrollView} content. The header keeps its own inset so title/close
  * stay aligned with body copy.
@@ -187,7 +190,7 @@ function SurfaceChrome(props: {
   );
 }
 
-function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
+function CenteredModal(props: ResponsiveSurfaceProps): JSX.Element {
   const maxHeight = useModalContentMaxHeight(() => props.maxHeight);
   const closable = (): boolean => props.closable ?? true;
   const requestClose = (): void => {
@@ -217,41 +220,21 @@ function DesktopModal(props: ResponsiveSurfaceProps): JSX.Element {
   );
 }
 
-function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
-  const host = useBottomSheetHost();
-  const closable = (): boolean => props.closable ?? true;
-  const requestClose = (): void => {
-    if (closable()) props.onClose();
-  };
-  const Sheet = dynamic(() => host.Sheet);
-  return (
-    <Sheet
-      open={props.visible}
-      onClose={requestClose}
-      stackId={props.stackId}
-      label={props.label}
-      dataSet={{ component: 'ResponsiveSurface', ...props.dataSet }}
-    >
-      {/* Sheet/FocusTrap clamp height; chrome fills and grids the body. */}
-      <SurfaceChrome surface={props} maxHeight={undefined} />
-    </Sheet>
-  );
-}
-
 /**
- * `ResponsiveSurface` -- overlay that uses a bottom sheet on compact layouts
- * and a centered modal on wide ones ({@link useLayoutMode}). Pass
- * `presentation="modal"` to always use the centered modal.
+ * `ResponsiveSurface` -- the design system's one overlay: a centered modal
+ * on the scrim at every width, phone included ({@link ModalContent}:
+ * `surface-elevated`, the 20px sheet radius, the float shadow, a 200ms
+ * `.dialogEnter` fade-and-scale). It never docks to the bottom edge.
+ *
+ * Width: the {@link ModalSize} bucket on wide layouts; on compact layouts
+ * the whole width inside the backdrop's 16px margin. Height hugs content and
+ * is capped by {@link useModalContentMaxHeight} (viewport minus the margin),
+ * so long content scrolls inside the modal.
  *
  * Content uses {@link CONTENT_EDGE_PADDING_STEP} horizontal inset and
  * {@link SURFACE_BOTTOM_PADDING_STEP} bottom inset via
  * {@link ContentEdgePaddingProvider}, so nested {@link ScrollView}s sit flush
  * with the surface edges.
- *
- * Compact: a sheet rising from the bottom edge (12px top radius, a 36x4
- * grab handle, safe-area bottom inset). Wide: a centered dialog on the scrim
- * (`surface-elevated`, the sheet radius, one hairline, no shadow). Both open
- * with a 250ms ease-out that reduced motion turns off.
  *
  * Default `scroll` pins the title/close header and scrolls only the body.
  * The chrome shell is a CSS grid (`.surfaceScrollShell`: `auto` header +
@@ -261,12 +244,9 @@ function MobileSheet(props: ResponsiveSurfaceProps): JSX.Element {
  * its own inset. Pass `scroll={false}` when children own an internal list
  * scroller (combobox / picker). A fixed `bodyHeight` also disables surface
  * scroll.
- *
- * The sheet comes from {@link useBottomSheetHost} (web CSS sheet by default).
  */
 export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
   const layoutMode = useLayoutMode();
-  const host = useBottomSheetHost();
   const scope = createPendingOperationScope();
   const confirmNavigation = useConfirmNavigation();
   const requestClose = (): void => {
@@ -274,20 +254,11 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
       confirmNavigation(props.onClose, scope.pendingOperations());
     else props.onClose();
   };
-  const useSheet = (): boolean =>
-    shouldUseMobileSheet({
-      presentation: props.presentation,
-      layoutMode: layoutMode(),
-      supportsSheetPresentation: host.supportsSheetPresentation,
-    });
+  const size = (): ModalSize =>
+    layoutMode() === 'compact' ? 'fullWidth' : (props.size ?? 'medium');
   return (
     <PendingOperationScopeContext value={scope}>
-      <Show
-        when={useSheet()}
-        fallback={<DesktopModal {...props} onClose={requestClose} />}
-      >
-        <MobileSheet {...props} onClose={requestClose} />
-      </Show>
+      <CenteredModal {...props} size={size()} onClose={requestClose} />
     </PendingOperationScopeContext>
   );
 }
