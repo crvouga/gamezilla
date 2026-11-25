@@ -22,7 +22,6 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  createUniqueId,
 } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { ChessBoardBackground } from '../chess-board-background/index';
@@ -235,7 +234,6 @@ export function ChessBoardView(args: {
   readonly props: ChessBoardProps;
   readonly ctrl: BoardController;
 }): JSX.Element {
-  const helpId = createUniqueId();
   const boardTestId = () =>
     args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
   const themeVars = createMemo(() => boardThemeToCssVars(args.ctrl.theme()));
@@ -279,13 +277,9 @@ export function ChessBoardView(args: {
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabindex={0}
       role="application"
-      aria-describedby={helpId}
+      aria-description="Pinch or hold an empty square with no piece selected to inspect. Plus zooms, arrows pan and Escape fits the board."
       aria-label={`Chess board, ${args.ctrl.orientation()} facing you`}
     >
-      <span id={helpId} class={styles['liveRegion']}>
-        Pinch or hold an empty square with no piece selected to inspect. Plus
-        zooms, arrows pan and Escape fits the board.
-      </span>
       <BoardBody
         props={args.props}
         ctrl={args.ctrl}
