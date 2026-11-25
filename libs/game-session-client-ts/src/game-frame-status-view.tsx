@@ -243,15 +243,35 @@ export function FrameErrorView(props: {
   readonly text: string;
   /** What happened, as the alert's title; a refused choice by default. */
   readonly title?: string | undefined;
+  /**
+   * One line over the commands it explains (in the Game over card, over
+   * "Retry rematch"): the reason only, in the error's tone.
+   */
+  readonly line?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show when={props.text !== ''}>
-      <ErrorState
-        variant="compact"
-        title={props.title ?? t`That didn't go through`}
-        body={props.text}
-        dataSet={{ testid: 'custom-game-error' }}
-      />
+      <Show
+        when={props.line !== true}
+        fallback={
+          <P
+            variant="caption"
+            tone="destructive"
+            role="alert"
+            lines={2}
+            testId="custom-game-error"
+          >
+            {props.text}
+          </P>
+        }
+      >
+        <ErrorState
+          variant="compact"
+          title={props.title ?? t`That didn't go through`}
+          body={props.text}
+          dataSet={{ testid: 'custom-game-error' }}
+        />
+      </Show>
     </Show>
   );
 }

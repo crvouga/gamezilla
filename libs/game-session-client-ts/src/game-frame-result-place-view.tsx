@@ -148,7 +148,7 @@ export function FrameResultPlace(props: Props): JSX.Element {
           // over the commands once it is closed: never a card of its own.
           <>
             <FrameConnectionNotice connection={props.connection} afterGame />
-            <FrameErrorView text={props.error} />
+            <FrameErrorView text={props.error} line />
           </>
         }
         boardFocus

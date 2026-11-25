@@ -106,6 +106,11 @@
   /* Places to go next (other options, ratings) stay on the phone too, as
      one slim row of small quiet buttons, so the card still ends above the
      board. */
+  /* Two players' scores are in the result's sentence: a phone's card
+     keeps to it and stays short above the board. */
+  .body [data-component="GameStandings"]:not(:has(> :nth-child(3))) {
+    display: none;
+  }
   .body [data-testid="multiplayer-onward"] {
     margin-block: calc(var(--ui-space-2) * -1);
   }
@@ -149,8 +154,9 @@
   flex-basis: 100%;
 }
 
-/* Read in order of need: the outcome, the commands (their labels already
-   say a retry), then a notice, the standings and the quieter ways on. A phone card capped above the board
+/* Read in order of need: the outcome, a notice in a line or two (the
+   cause before the retry it explains), the commands, then the standings
+   and the quieter ways on. A phone card capped above the board
    scrolls only what comes after the commands, which always show. */
 .body > [data-component="GameResultCard"] {
   display: contents;
@@ -162,7 +168,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-2);
-  order: 3;
+  order: 1;
 }
 .alerts:empty,
 .footer:empty {

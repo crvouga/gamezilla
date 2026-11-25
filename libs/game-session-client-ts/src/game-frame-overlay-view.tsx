@@ -120,6 +120,19 @@ function eyebrow(tone: GameResultCardProps['tone']): string {
  * then the game's note (`Host starts the rematch.`), which says why
  * someone has no Rematch of their own.
  */
+/**
+ * Two players' scores in the result's own sentence ("You 19, jordan 26."),
+ * so a phone's short card says them without the standings rows.
+ */
+function scoreLine(result: Props['result']): string {
+  const rows = result?.standings ?? [];
+  const [first, second] = rows;
+  if (rows.length !== 2 || !first || !second) return '';
+  if (first.score === null || second.score === null) return '';
+  const name = (row: typeof first): string => (row.you ? t`You` : row.name);
+  return t`${name(first)} ${first.score}, ${name(second)} ${second.score}.`;
+}
+
 function outcomeCaption(props: Props): string | undefined {
   // A draw's own headline says it; the bare "Game drawn." is not repeated.
   const said =
@@ -128,7 +141,9 @@ function outcomeCaption(props: Props): string | undefined {
   const reason =
     props.result === null || said ? '' : (props.status?.description ?? '');
   const note = props.result?.note ?? '';
-  const caption = [reason, note].filter((part) => part !== '').join(' ');
+  const caption = [reason, scoreLine(props.result), note]
+    .filter((part) => part !== '')
+    .join(' ');
   return caption === '' ? undefined : caption;
 }
 
