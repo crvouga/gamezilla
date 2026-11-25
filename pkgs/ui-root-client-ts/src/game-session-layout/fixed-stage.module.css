@@ -452,3 +452,46 @@
     padding-bottom: 0;
   }
 }
+
+@media (max-width: 359px) {
+  /* Share the top row between history and turn so the enlarged board,
+     rack and submit control all fit above the game commands. */
+  .fixed:has([data-component="WordTileWorkspace"]):not(
+    :has([data-testid="game-history-review-forward"])
+  ) > [data-component="GameLayout"] {
+    display: grid;
+    grid-template: "history turn" auto "stage stage" minmax(0, 1fr) "commands commands" auto / repeat(
+        2,
+        minmax(0, 1fr)
+      );
+  }
+  .fixed:has([data-component="WordTileWorkspace"]) [data-game-slot="rail"] {
+    grid-area: history;
+  }
+  .fixed:has([data-component="WordTileWorkspace"]) .status {
+    grid-area: turn;
+  }
+  .fixed:has([data-component="WordTileWorkspace"]) [data-game-slot="stage"] {
+    grid-area: stage;
+  }
+  .fixed:has([data-component="WordTileWorkspace"])
+    [data-game-slot="controls"]
+    > :not(.status) {
+    grid-area: commands;
+    padding-block: var(--ui-space-1)
+      calc(var(--ui-space-1) + env(safe-area-inset-bottom, 0px));
+  }
+  [data-component="GameColumn"]:has(
+      > .fixed [data-component="WordTileWorkspace"]
+    )
+    > [data-component="GameHeading"] {
+    height: var(--ui-space-6);
+    padding-block: 0;
+  }
+  .fixed
+    [data-game-slot="stage"]
+    > [data-game-board-stage]:has([data-component="WordTileWorkspace"]) {
+    padding-block: var(--ui-space-1);
+    gap: var(--ui-space-1);
+  }
+}

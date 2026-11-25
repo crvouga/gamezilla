@@ -166,7 +166,10 @@
 }
 .viewport[data-enlarged="true"] {
   /* One square and the hairline after it. */
-  --word-tile-pitch: calc(var(--ui-control-size-md) + var(--ui-space-hairline));
+  --word-tile-pitch: calc(
+    var(--word-tile-cell-size, var(--ui-control-size-md)) +
+    var(--ui-space-hairline)
+  );
   /* A wide word workspace shows as much of the enlarged board as the fitted
      one would take, cut to whole squares: past the sticky row and column
      labels the window holds whole columns and rows, never a sliver at an
@@ -203,7 +206,7 @@
   padding: 0;
   grid-template-columns: var(--ui-space-4) repeat(
       var(--word-tile-columns),
-      var(--ui-control-size-md)
+      var(--word-tile-cell-size, var(--ui-control-size-md))
     );
 }
 

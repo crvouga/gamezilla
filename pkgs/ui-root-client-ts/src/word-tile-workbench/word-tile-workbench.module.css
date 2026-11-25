@@ -307,3 +307,19 @@
 ) {
   gap: var(--ui-space-3);
 }
+
+@media (max-width: 359px) {
+  /* Six 48px squares and their labels fill the enlarged phone window. */
+  .layout[data-fill="true"] {
+    --word-tile-cell-size: var(--ui-space-12);
+  }
+}
+
+/* Once the fitted board reaches its full width, leave spare height below
+   the rack. The square details and feedback occupy one line each. */
+.layout[data-fill="true"][data-layout="wide"]:has(
+  .board [data-enlarged="false"]
+):not(:has(.board [data-enlarged="true"])) {
+  max-height: calc(28rem + var(--ui-space-6) + 1lh + 3rem + var(--ui-space-2));
+  row-gap: 0;
+}
