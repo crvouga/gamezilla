@@ -1,0 +1,13 @@
+{
+  "name": "@pkgs/quoridor-board-skin",
+  "version": "0.0.0",
+  "private": true,
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "exports": {
+    "./board.css": "./src/board.css"
+  },
+  "category": "client",
+  "language": "neutral"
+}

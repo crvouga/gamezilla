@@ -150,7 +150,7 @@ export function withWallPreview(
   const horizontal = wall.direction === 'h';
   for (const offset of [0, 1, -9, -8]) {
     const index = anchor + offset;
-    const cell = cells[index]!;
+    const cell = cells[index];
     const edge = horizontal
       ? offset < 0
         ? 'bottom'
@@ -158,7 +158,7 @@ export function withWallPreview(
       : offset === 1 || offset === -8
         ? 'left'
         : 'right';
-    if (!cell.edges?.includes(edge))
+    if (cell && !cell.edges?.includes(edge))
       next[index] = {
         ...cell,
         previewEdges: [edge],

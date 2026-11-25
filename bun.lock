@@ -3342,6 +3342,7 @@
         "@libs/quoridor-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
         "@pkgs/lingui-solid-client-ts": "workspace:*",
+        "@pkgs/quoridor-board-skin": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@solidjs/web": "catalog:",
@@ -6652,6 +6653,10 @@
         "typescript": "catalog:",
       },
     },
+    "pkgs/quoridor-board-skin": {
+      "name": "@pkgs/quoridor-board-skin",
+      "version": "0.0.0",
+    },
     "pkgs/resource-naming-shared-ts": {
       "name": "@pkgs/resource-naming-shared-ts",
       "version": "0.0.0",
@@ -9518,6 +9523,8 @@
     "@pkgs/quint-server-ts": ["@pkgs/quint-server-ts@workspace:pkgs/quint-server-ts"],
 
     "@pkgs/quint-shared-ts": ["@pkgs/quint-shared-ts@workspace:pkgs/quint-shared-ts"],
+
+    "@pkgs/quoridor-board-skin": ["@pkgs/quoridor-board-skin@workspace:pkgs/quoridor-board-skin"],
 
     "@pkgs/resource-naming-shared-ts": ["@pkgs/resource-naming-shared-ts@workspace:pkgs/resource-naming-shared-ts"],
 

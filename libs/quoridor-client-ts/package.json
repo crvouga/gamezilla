@@ -19,6 +19,7 @@
     "@libs/quoridor-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/lingui-solid-client-ts": "workspace:*",
+    "@pkgs/quoridor-board-skin": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@solidjs/web": "catalog:",

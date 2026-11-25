@@ -1,3 +1,4 @@
+import '@pkgs/quoridor-board-skin/board.css';
 import {
   decodeQuoridor,
   type Quoridor,
