@@ -84,8 +84,8 @@ export const chessPresentation: GameClientPresentation = {
     boardFit: 'square',
     players: fixedPlayers(2),
     options: [],
-    // White and Black are the pieces' own colors: a king says which.
-    seats: lookOnlySeats((side) => ({ mark: side === 'white' ? '♔' : '♚' })),
+    // Open and filled circles identify the mover independently of the piece.
+    seats: lookOnlySeats((side) => ({ mark: side === 'white' ? '○' : '●' })),
     createBoard: boardOnly(ChessGameBoard),
     turnStatus: () => null,
     result: (_position, winner) => ({
