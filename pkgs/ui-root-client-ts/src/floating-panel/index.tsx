@@ -1,8 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 
 /** `auto` wraps the content; `window` is a fixed-size window. */

@@ -126,22 +126,22 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
         if (hostEl?.isConnected) details.cancel();
       }}
     >
-    <DialogContent
-      inline
-      initialFocus="none"
-      finalFocus="none"
-      class={`box ${layoutClass()}`}
-      data-component="FocusTrap"
-      ref={(el) => {
-        hostEl = el;
-      }}
-      aria-modal="true"
-      aria-label={props.label}
-      aria-labelledby={props.labelledBy}
-      tabindex={-1}
-    >
-      {props.children}
-    </DialogContent>
+      <DialogContent
+        inline
+        initialFocus="none"
+        finalFocus="none"
+        class={`box ${layoutClass()}`}
+        data-component="FocusTrap"
+        ref={(el) => {
+          hostEl = el;
+        }}
+        aria-modal="true"
+        aria-label={props.label}
+        aria-labelledby={props.labelledBy}
+        tabindex={-1}
+      >
+        {props.children}
+      </DialogContent>
     </Dialog>
   );
 }

@@ -1,7 +1,8 @@
 /** @jsxImportSource @solidjs/web */
-import { Button as SdkButton } from '@ui-sdk/solid/button';
+
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 
 /**
  * `CommandPaletteRow` -- one command inside the palette listbox: icon,

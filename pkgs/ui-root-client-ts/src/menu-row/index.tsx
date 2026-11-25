@@ -1,13 +1,13 @@
 /** @jsxImportSource @solidjs/web */
 
-import { LinkHost } from '../link-host';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Match, Show, Switch } from 'solid-js';
 import { ChevronDownIcon, ChevronRightIcon, ChevronUpIcon } from '../icons';
+import { LinkHost } from '../link-host';
 import type { TextLines } from '../text-classes';
 import { textStyleClass } from '../text-classes';
 import styles from './menu-row.module.css';

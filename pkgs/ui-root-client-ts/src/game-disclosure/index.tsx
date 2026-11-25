@@ -1,7 +1,11 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Collapsible as Disclosure, CollapsibleTrigger, CollapsiblePanel } from '@ui-sdk/solid/collapsible';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
 import { createSignal } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { ChevronDownIcon } from '../icons';
@@ -40,7 +44,9 @@ export function GameDisclosure(props: {
           <ChevronDownIcon size={18} />
         </span>
       </CollapsibleTrigger>
-      <CollapsiblePanel class={styles['disclosureBody']}>{props.children}</CollapsiblePanel>
+      <CollapsiblePanel class={styles['disclosureBody']}>
+        {props.children}
+      </CollapsiblePanel>
     </Disclosure>
   );
 }

@@ -1,13 +1,13 @@
 /** @jsxImportSource @solidjs/web */
 
-import { LinkHost } from '../link-host';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import type { IconComponent } from '../create-icon/index';
+import { LinkHost } from '../link-host';
 
 export type TabBarItem = {
   /** Stable key for the destination. */

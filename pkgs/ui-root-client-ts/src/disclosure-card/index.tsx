@@ -3,7 +3,11 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Collapsible as Disclosure, CollapsibleTrigger, CollapsiblePanel } from '@ui-sdk/solid/collapsible';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
 import { createSignal, Show, untrack } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
 import styles from './disclosure-card.module.css';
@@ -65,7 +69,9 @@ export function DisclosureCard(props: DisclosureCardProps): JSX.Element {
           <ChevronDownIcon size={20} />
         </span>
       </CollapsibleTrigger>
-      <CollapsiblePanel class={styles['body']}>{props.children}</CollapsiblePanel>
+      <CollapsiblePanel class={styles['body']}>
+        {props.children}
+      </CollapsiblePanel>
     </Disclosure>
   );
 }

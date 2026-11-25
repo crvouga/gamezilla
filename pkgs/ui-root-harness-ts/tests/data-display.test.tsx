@@ -204,7 +204,7 @@ describe('SoundIndicator', () => {
       'idle'
     );
     renderUi(() => <SoundIndicator state={state()} />);
-    const status = screen.getByRole('status');
+    const status = screen.getByRole('status', { name: 'Sound on' });
     const idleLabel = status.getAttribute('aria-label');
     setState('muted');
     flush();

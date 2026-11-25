@@ -7,6 +7,7 @@ import {
   releaseActiveTooltip,
 } from '@pkgs/ui-root-shared-ts/tooltip-coordinator';
 import type { JSX } from '@solidjs/web';
+import { Tooltip as SdkTooltip, TooltipTrigger } from '@ui-sdk/solid/tooltip';
 import {
   createContext,
   createEffect,
@@ -82,7 +83,7 @@ function TooltipAnchor(props: {
   floating: boolean | undefined;
 }): JSX.Element {
   const hoverCapable = useHoverCapable();
-  let anchor: HTMLDivElement | undefined;
+  let anchor: HTMLElement | undefined;
   const bubble = () => (
     <TooltipBubble
       controller={props.controller}
@@ -93,10 +94,20 @@ function TooltipAnchor(props: {
     />
   );
   return (
-    <div
-      ref={anchor}
+    <TooltipTrigger
+      render={(attrs) => (
+        <div
+          {...attrs}
+          role="group"
+          tabindex={undefined}
+          aria-describedby={props.controller.id}
+        />
+      )}
+      ref={(element) => {
+        anchor = element;
+      }}
+      aria-label={typeof props.label === 'string' ? props.label : undefined}
       class={['box', { [styles['anchor'] ?? '']: true }]}
-      role="presentation"
       onMouseEnter={() => {
         if (hoverCapable()) props.controller.show();
       }}
@@ -131,7 +142,7 @@ function TooltipAnchor(props: {
           {bubble()}
         </FloatingTooltip>
       </Show>
-    </div>
+    </TooltipTrigger>
   );
 }
 
@@ -251,17 +262,33 @@ export function Tooltip(props: TooltipProps): JSX.Element {
   const placement = (): TooltipPlacement => props.placement ?? 'bottom';
 
   return (
-    <TooltipContext value={controller}>
-      <TooltipAnchor
-        controller={controller}
-        enableFocus={props.enableFocus}
-        placement={placement}
-        label={props.label}
-        dataSet={props.dataSet}
-        floating={props.floating}
-      >
-        {props.children}
-      </TooltipAnchor>
-    </TooltipContext>
+    <SdkTooltip
+      open={visible()}
+      type="description"
+      delay={0}
+      closeDelay={0}
+      onOpenChange={(next, details) => {
+        if (
+          details.reason === 'imperative' ||
+          details.reason === 'escape-key'
+        ) {
+          if (next) show();
+          else hide();
+        } else details.cancel();
+      }}
+    >
+      <TooltipContext value={controller}>
+        <TooltipAnchor
+          controller={controller}
+          enableFocus={props.enableFocus}
+          placement={placement}
+          label={props.label}
+          dataSet={props.dataSet}
+          floating={props.floating}
+        >
+          {props.children}
+        </TooltipAnchor>
+      </TooltipContext>
+    </SdkTooltip>
   );
 }

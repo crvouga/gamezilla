@@ -3,7 +3,11 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Collapsible as Disclosure, CollapsibleTrigger, CollapsiblePanel } from '@ui-sdk/solid/collapsible';
+import {
+  CollapsiblePanel,
+  CollapsibleTrigger,
+  Collapsible as Disclosure,
+} from '@ui-sdk/solid/collapsible';
 import { createSignal, Show, untrack } from 'solid-js';
 import { ChevronRightIcon } from '../icons';
 
@@ -49,7 +53,9 @@ export function Collapsible(props: CollapsibleProps): JSX.Element {
         </Show>
         <p class="text textBodyBold">{props.title}</p>
       </CollapsibleTrigger>
-      <CollapsiblePanel class="box ml-6 mb-2">{props.children}</CollapsiblePanel>
+      <CollapsiblePanel class="box ml-6 mb-2">
+        {props.children}
+      </CollapsiblePanel>
     </Disclosure>
   );
 }

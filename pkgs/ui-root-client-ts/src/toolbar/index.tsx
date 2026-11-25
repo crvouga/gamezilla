@@ -1,7 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from '@solidjs/web';
+import { dynamic, type JSX } from '@solidjs/web';
+import { Toolbar as SdkToolbar } from '@ui-sdk/solid/toolbar';
 import { flexContainerClass, spaced, surfaceClass } from '../layout-classes';
 import type { Justify } from '../layout-props';
 import { spacingClass } from '../space-classes';
@@ -86,8 +87,9 @@ function toolbarClass(bar: ToolbarProps): string {
  * ```
  */
 export function Toolbar(props: ToolbarProps): JSX.Element {
+  const Host = dynamic(() => (props.role === 'toolbar' ? SdkToolbar : 'div'));
   return (
-    <div
+    <Host
       class={toolbarClass(props)}
       role={props.role}
       aria-label={props['aria-label']}
@@ -95,6 +97,6 @@ export function Toolbar(props: ToolbarProps): JSX.Element {
       data-component={componentId('Toolbar')}
     >
       {props.children}
-    </div>
+    </Host>
   );
 }

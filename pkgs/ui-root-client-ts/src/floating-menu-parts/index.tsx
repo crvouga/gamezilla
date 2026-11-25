@@ -1,8 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Separator } from '@ui-sdk/solid/separator';
 import { Show } from 'solid-js';
 import type {
   FloatingMenuHeaderSpec,
@@ -109,10 +110,10 @@ export function FloatingMenuHeader(props: {
 
 export function FloatingMenuDivider(): JSX.Element {
   return (
-    <div
+    <Separator
+      decorative={false}
       class="box h-px bg-border my-1"
       data-component="FloatingMenuDivider"
-      role="separator"
     />
   );
 }
@@ -124,13 +125,13 @@ export function FloatingMenuItem(props: {
   const RowIcon = dynamic(() => props.row.icon);
   return (
     <SdkButton
+      role="menuitem"
       class={[
         'clickable clickableTint min-h-11 py-2 px-4 flex-row items-center gap-3 text-left -outline-offset-2',
         { 'opacity-disabled': props.row.disabled === true },
       ]}
       {...dataAttrs({ component: 'FloatingMenuItem', ...props.row.dataSet })}
       type="button"
-      role="menuitem"
       aria-label={authoredAriaLabel(props.row)}
       disabled={props.row.disabled ?? false}
       onClick={() => props.onSelect(props.row)}

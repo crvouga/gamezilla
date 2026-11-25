@@ -1,9 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import type { ButtonFeedback, ButtonIntent } from '../button-face';
 import { buttonInteraction, MUTATION_FEEDBACK_ICONS } from '../button-face';

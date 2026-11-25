@@ -6,7 +6,12 @@ import {
   nextRovingIndex,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
 import type { JSX } from '@solidjs/web';
-import { Tabs as SdkTabs, TabsTab, TabsPanel, TabsList } from '@ui-sdk/solid/tabs';
+import {
+  Tabs as SdkTabs,
+  TabsList,
+  TabsPanel,
+  TabsTab,
+} from '@ui-sdk/solid/tabs';
 import { createSignal, For, Show } from 'solid-js';
 import { Badge } from '../badge/index';
 import { spaced } from '../layout-classes';
@@ -166,7 +171,9 @@ export function Tabs<V extends string = string>(
   return (
     <SdkTabs<V>
       value={selected() ?? null}
-      onValueChange={(value) => { if (value !== null) select(value); }}
+      onValueChange={(value) => {
+        if (value !== null) select(value);
+      }}
       aria-label={props['aria-label']}
       aria-labelledby={props['aria-labelledby']}
       class="box"
@@ -194,7 +201,9 @@ export function Tabs<V extends string = string>(
                 }
                 data-component={componentId('Tab')}
                 disabled={item.disabled === true}
-                render={(attrs) => <button {...attrs} disabled={item.disabled === true} />}
+                render={(attrs) => (
+                  <button {...attrs} disabled={item.disabled === true} />
+                )}
                 onKeyDown={(event) => onTabKeyDown(event.currentTarget, event)}
               >
                 <span class="text textLabel whitespace-nowrap">

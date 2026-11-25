@@ -7,7 +7,14 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { colorVar } from '@pkgs/ui-root-shared-ts/css-vars';
 import { dynamic, type JSX } from '@solidjs/web';
-import { Pagination, PaginationFirst, PaginationLast, PaginationNext, PaginationPrevious, PaginationLink } from '@ui-sdk/solid/pagination';
+import {
+  Pagination,
+  PaginationFirst,
+  PaginationLast,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@ui-sdk/solid/pagination';
 import { For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import {

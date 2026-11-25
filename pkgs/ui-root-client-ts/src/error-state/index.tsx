@@ -16,6 +16,7 @@ import type { StateBlockVariant } from '../state-block/index';
 import { StateBlock, StateBlockIcon } from '../state-block/index';
 
 export type ErrorStateRetry = {
+  agentConfirm?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
   label?: JSX.Element | undefined;
   onClick: () => void;
@@ -149,6 +150,7 @@ function ErrorActionRow(props: {
 }
 
 function PrimaryRecovery(props: {
+  agentConfirm?: string | undefined;
   dataSet?: ComponentDataSet | undefined;
   label: JSX.Element;
   onClick: () => void;
@@ -157,6 +159,7 @@ function PrimaryRecovery(props: {
   return (
     <Button
       dataSet={props.dataSet}
+      agentConfirm={props.agentConfirm}
       title={props.label}
       intent="primary"
       size={props.size}
@@ -201,6 +204,7 @@ function SpecifiedErrorActions(props: ErrorActionProps): JSX.Element {
         <Show when={props.retry?.label !== undefined}>
           <PrimaryRecovery
             dataSet={props.retry?.dataSet}
+            agentConfirm={props.retry?.agentConfirm}
             label={props.retry?.label ?? ''}
             onClick={() => props.retry?.onClick()}
             size={props.size}
@@ -233,6 +237,7 @@ function CatalogErrorActions(props: ErrorActionProps): JSX.Element {
           {(retry) => (
             <PrimaryRecovery
               dataSet={retry().dataSet}
+              agentConfirm={retry().agentConfirm}
               label={retry().label ?? t`Retry`}
               onClick={() => retry().onClick()}
               size={props.size}
