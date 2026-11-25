@@ -49,6 +49,19 @@ export function PuzzleSolveActions(
         onRetry={props.onRetry}
         onSkip={props.onSkip}
         onNext={props.onNext}
+        beside={
+          <Show when={props.line.plies.length > 0}>
+            <Button
+              title={<Trans>Look back</Trans>}
+              intent="neutral"
+              variant="outline"
+              size="sm"
+              fullWidth
+              onClick={() => props.onOpen({ screen: 'line' })}
+              dataSet={{ testid: 'chess-puzzle-line-open' }}
+            />
+          </Show>
+        }
       />
       <Show when={props.canGoForward}>
         <StackHorizontal align="center" gap="sm" wrap>
@@ -106,16 +119,6 @@ function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
           </Show>
         </MoveStrip>
       </StackVertical>
-      <Show when={hasPlies() && !props.spectator}>
-        <Button
-          title={<Trans>Look back</Trans>}
-          intent="neutral"
-          variant="outline"
-          size="sm"
-          onClick={() => props.onOpen({ screen: 'line' })}
-          dataSet={{ testid: 'chess-puzzle-line-open' }}
-        />
-      </Show>
     </StackHorizontal>
   );
 }

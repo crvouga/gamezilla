@@ -180,7 +180,7 @@ function ResultCommandLayout(props: {
     >
       <StackVertical gap="sm">
         {props.wide}
-        <StackHorizontal gap="md" align="center">
+        <StackHorizontal gap="md" align="center" justify="evenly">
           {props.glyphs}
         </StackHorizontal>
       </StackVertical>

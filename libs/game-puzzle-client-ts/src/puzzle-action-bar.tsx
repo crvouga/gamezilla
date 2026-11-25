@@ -8,7 +8,10 @@ import {
   PuzzleSkipButton,
 } from './puzzle-action-bar-items';
 
-export type PuzzleActionBarProps = PuzzleActionBarModel;
+export type PuzzleActionBarProps = PuzzleActionBarModel & {
+  /** Beside Skip, an equal button: looking back through the line. */
+  beside?: JSX.Element | undefined;
+};
 
 type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
 
@@ -16,19 +19,23 @@ type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
 function SkipRow(props: {
   slot: Extract<PuzzleActionBarSlot, { id: 'skip' }> | undefined;
   onSkip: () => void;
+  beside?: JSX.Element | undefined;
 }): JSX.Element {
+  // Skipping and looking back: two equal quiet buttons on one row.
   return (
-    <Show when={props.slot}>
-      {(slot) => (
-        <StackHorizontal align="center">
+    <StackHorizontal align="center" gap="sm">
+      <Show when={props.slot}>
+        {(slot) => (
           <PuzzleSkipButton
             disabled={slot().disabled}
             onSkip={props.onSkip}
             size="sm"
+            fullWidth
           />
-        </StackHorizontal>
-      )}
-    </Show>
+        )}
+      </Show>
+      {props.beside}
+    </StackHorizontal>
   );
 }
 
@@ -71,7 +78,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
               <PuzzleActionButton slot={slot} model={props} fullWidth />
             )}
           </For>
-          <SkipRow slot={skip()} onSkip={props.onSkip} />
+          <SkipRow slot={skip()} onSkip={props.onSkip} beside={props.beside} />
         </StackVertical>
       }
     >
@@ -82,7 +89,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         <For each={actions().filter((slot) => slot !== lead())}>
           {(slot) => <PuzzleActionButton slot={slot} model={props} fullWidth />}
         </For>
-        <SkipRow slot={skip()} onSkip={props.onSkip} />
+        <SkipRow slot={skip()} onSkip={props.onSkip} beside={props.beside} />
       </StackVertical>
     </Show>
   );

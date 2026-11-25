@@ -155,7 +155,8 @@ function Review(props: ResultProps): JSX.Element {
 
 /**
  * Where else the result leads, on its card: a new game at another clock
- * and the person's ratings.
+ * and the person's ratings, as quiet text under the decision, so the
+ * commands that answer the game carry its weight.
  */
 function Onward(props: ResultProps): JSX.Element {
   return (
@@ -164,9 +165,9 @@ function Onward(props: ResultProps): JSX.Element {
         <Button
           title={<Trans>Game options</Trans>}
           aria-label={t`New game: choose what to play for next`}
-          variant="outline"
+          variant="ghost"
           intent="neutral"
-          flex={1}
+          size="sm"
           onClick={() => props.onOpen({ screen: 'home' })}
           dataSet={{ testid: 'multiplayer-open-find' }}
         />
@@ -174,9 +175,9 @@ function Onward(props: ResultProps): JSX.Element {
       <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
         <Button
           title={<Trans>Your ratings</Trans>}
-          variant="outline"
+          variant="ghost"
           intent="neutral"
-          flex={1}
+          size="sm"
           onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
           dataSet={{ testid: 'multiplayer-open-ratings' }}
         />

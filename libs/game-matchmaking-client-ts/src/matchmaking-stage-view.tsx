@@ -3,7 +3,7 @@ import { Trans } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -199,7 +199,22 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
         aside={
           <Show when={props.game.moves}>
             {(moves) => (
-              <GameSection title={<Trans>Moves</Trans>}>
+              <GameSection
+                title={<Trans>Moves</Trans>}
+                // The same way into the moves as a custom game's card.
+                footer={
+                  <GameActions>
+                    <Button
+                      title={<Trans>Review moves</Trans>}
+                      variant="outline"
+                      intent="neutral"
+                      size="sm"
+                      onClick={() => props.onOpen({ screen: 'moves' })}
+                      dataSet={{ testid: 'multiplayer-review-jump' }}
+                    />
+                  </GameActions>
+                }
+              >
                 <MultiplayerMoveList
                   moves={moves()}
                   perTurn={props.game.players}
