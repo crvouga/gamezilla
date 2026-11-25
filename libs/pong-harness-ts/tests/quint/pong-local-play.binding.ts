@@ -21,6 +21,7 @@ import {
 import type { PongPlace } from '@libs/pong-harness-ts/pong-shared-view';
 import type { PongPaddle } from '@libs/pong-harness-ts/pong-view';
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
+import finishAfterReconnect from './fixtures/pong-local-finish-after-reconnect.itf.json';
 import reopenAfterGuidance from './fixtures/pong-local-reopen-after-paddle-guidance.itf.json';
 
 bindQuintModel<QuintHarnessWorld>({
@@ -28,6 +29,14 @@ bindQuintModel<QuintHarnessWorld>({
   traces: 16,
   maxSteps: 12,
   regressions: [
+    {
+      // regression: pong-local-finish-after-reconnect
+      id: 'pong-local-finish-after-reconnect',
+      title:
+        'A full local match finishes after the watching device joins and the host reconnects',
+      seed: '0x67932',
+      itf: finishAfterReconnect,
+    },
     {
       // regression: pong-local-reopen-after-paddle-guidance
       id: 'pong-local-reopen-after-paddle-guidance',

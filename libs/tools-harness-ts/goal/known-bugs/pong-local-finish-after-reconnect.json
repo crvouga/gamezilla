@@ -1,0 +1,4 @@
+{
+  "summary": "After joining a spectator and reconnecting the host, the local Pong driver parked both paddles at opposite edges. Both players won points and a full first-to-eleven match could exceed its victory deadline. Guide the human controls toward a single winner.",
+  "regressionTest": "libs/pong-harness-ts/tests/quint/pong-local-play.binding.ts"
+}

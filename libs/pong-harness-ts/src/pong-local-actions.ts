@@ -3,12 +3,13 @@ import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-l
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { DriverNode } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { pongGuidance } from './pong-guidance';
 import {
   type PongLocalOpponent,
   type PongLocalStage,
   pongLocalView,
 } from './pong-local-view';
-import { PONG_BOARD } from './pong-view';
+import { PONG_BOARD, pongView } from './pong-view';
 
 async function start(s: ProductHarness, actor = 'alice'): Promise<void> {
   await operateCustomGameControls(s, actor, { operation: 'start' });
@@ -48,13 +49,18 @@ export async function holdPaddleUnlessFinished(
   }
 }
 
-/** Wait for a real victory while holding human paddles away; a bot uses its own inputs. */
+/** Guide the right player to victory; a bot drives its own paddle. */
 async function finish(s: ProductHarness, actor = 'alice'): Promise<void> {
+  let previous: Awaited<ReturnType<typeof pongView>>['ball'] | undefined;
   await pollUntil(
     s,
     async () => {
       const view = await pongLocalView(s, actor);
       if (view.localStage === 'finished') return true;
+      if (view.controlledPaddles.length === 0) return null;
+      const court = await pongView(s, actor);
+      const targets = pongGuidance(court, previous ?? court.ball, 'right');
+      previous = court.ball;
       const ui = await actorUi(s, actor);
       for (const paddle of view.controlledPaddles) {
         const control = ui.get(
@@ -62,7 +68,7 @@ async function finish(s: ProductHarness, actor = 'alice'): Promise<void> {
         );
         const held = await holdPaddleUnlessFinished(
           control,
-          paddle === 'left' ? '0' : '1000',
+          String(targets[paddle]),
           async () => (await pongLocalView(s, actor)).localStage === 'finished'
         );
         if (held === 'finished') return true;
