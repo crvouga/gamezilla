@@ -226,7 +226,7 @@ function listen(h: Handlers) {
     },
     options
   );
-  h.win.addEventListener('blur', h.cancel, options);
+  h.win.addEventListener('blur', h.cancel, { signal: h.signal });
   h.root.ownerDocument.addEventListener('visibilitychange', h.cancel, options);
   h.win.addEventListener(
     'keydown',

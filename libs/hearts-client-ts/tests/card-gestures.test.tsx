@@ -94,3 +94,18 @@ test('pinching an off-centre point keeps that point still and offers a return to
   expect(felt.style.getPropertyValue('--hearts-scale')).toBe('1');
   expect(felt.style.getPropertyValue('--hearts-pan-x')).toBe('0%');
 });
+
+// regression: hearts-focus-transfer-cancels-tap
+test('tab focus moving from the first card to the second does not cancel the next tap', () => {
+  const { card, view } = passing();
+  const next = view.getByTestId('gesture-card-3C');
+  card.focus();
+  contact(next, 'pointerdown', [80, 400]);
+  next.focus();
+  contact(next, 'pointerup', [80, 400]);
+  next.dispatchEvent(
+    new MouseEvent('click', { bubbles: true, cancelable: true, detail: 1 })
+  );
+  flush();
+  expect(next.getAttribute('aria-pressed')).toBe('true');
+});

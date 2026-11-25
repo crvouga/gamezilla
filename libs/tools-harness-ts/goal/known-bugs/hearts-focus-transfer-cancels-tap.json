@@ -1,0 +1,4 @@
+{
+  "summary": "Moving focus between hand cards during a tap was mistaken for the browser losing focus, cancelling subsequent card selections and the Fit table button.",
+  "regressionTest": "libs/hearts-client-ts/tests/card-gestures.test.tsx"
+}
