@@ -2,148 +2,37 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, Match, Switch, untrack } from 'solid-js';
-import type {
-  MutationPhase,
-  MutationStateTransition,
-} from '../mutation-lifecycle';
-import { useMutationLifecycle } from '../mutation-lifecycle';
-import type {
-  MutationModalIds,
-  MutationModalLabels,
-} from '../mutation-modal-parts/index';
-import {
-  MutationError,
-  MutationIdle,
-  MutationLoading,
-  MutationSuccess,
-} from '../mutation-modal-parts/index';
+import { createEffect, untrack } from 'solid-js';
+import type { MutationStepProps } from '../mutation-step/index';
+import { useMutationStep } from '../mutation-step/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 
-export type MutationModalProps = {
+export { resolveMutationSurfaceClose } from '../mutation-step/index';
+
+export type MutationModalProps = MutationStepProps & {
   visible: boolean;
-  onClose: () => void;
-  title: JSX.Element;
-  /** Plain confirmation copy. Ignored when `children` is provided. */
-  message?: JSX.Element | undefined;
-  /**
-   * What the confirm is about (a person's full handle), on its own line
-   * above `message`; keeps the title short. Ignored with `children`.
-   */
-  subject?: JSX.Element | undefined;
-  /** Custom idle-phase body (e.g. form fields). Takes precedence over `message`. */
-  children?: JSX.Element | undefined;
-  /** The mutation to run on submit. */
-  operation: () => Promise<void>;
-  submitLabel: JSX.Element;
-  cancelLabel?: JSX.Element | undefined;
-  /** Submit button color role. Defaults to `'default'`. */
-  variant?: 'default' | 'destructive' | undefined;
-  /** Disable the submit button (e.g. failed form validation). */
-  submitDisabled?: boolean | undefined;
-  /** Caption under the spinner while running. */
-  loadingLabel?: JSX.Element | undefined;
-  successTitle: JSX.Element;
-  successBody?: JSX.Element | undefined;
-  /** Defaults to a generic localized failure title. */
-  errorTitle?: JSX.Element | undefined;
-  /** Success dismiss button label. Defaults to "Done". */
-  dismissLabel?: JSX.Element | undefined;
-  /** Error retry button label. Defaults to "Try again". */
-  retryLabel?: JSX.Element | undefined;
-  /** Notified on failure (e.g. logging). */
-  onError?: ((error: Error) => void) | undefined;
-  /** Side-effect on every phase change (sounds, analytics). */
-  onPhaseChange?: ((transition: MutationStateTransition) => void) | undefined;
-  /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
-  onSuccess?: (() => void) | undefined;
   /** Stable surface-stack id; keeps this dialog above remounting underlays. */
   stackId?: string | undefined;
-  /** `data-*` identifiers for the confirm/submit button, including retry after failure. */
-  submitDataSet?: ComponentDataSet | undefined;
-  /** `data-*` identifiers for the idle-phase cancel button. */
-  cancelDataSet?: ComponentDataSet | undefined;
-  /** `data-*` identifiers for the success-state block. */
-  successDataSet?: ComponentDataSet | undefined;
-  /** `data-*` identifiers for the success-phase dismiss button. */
-  dismissDataSet?: ComponentDataSet | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
-
-/** Closing a pending operation does not pretend that its request was cancelled. */
-export function resolveMutationSurfaceClose(args: {
-  phase: MutationPhase;
-  onClose: () => void;
-  dismissSuccess: () => void;
-}): void {
-  if (args.phase === 'success') {
-    args.dismissSuccess();
-    return;
-  }
-  args.onClose();
-}
-
-/** Getter-backed so phase bodies read the latest labels reactively. */
-function mutationModalLabels(props: MutationModalProps): MutationModalLabels {
-  return {
-    get submitLabel() {
-      return props.submitLabel;
-    },
-    get cancelLabel() {
-      return props.cancelLabel;
-    },
-    get loadingLabel() {
-      return props.loadingLabel;
-    },
-    get successTitle() {
-      return props.successTitle;
-    },
-    get successBody() {
-      return props.successBody;
-    },
-    get errorTitle() {
-      return props.errorTitle;
-    },
-    get dismissLabel() {
-      return props.dismissLabel;
-    },
-    get retryLabel() {
-      return props.retryLabel;
-    },
-  };
-}
-
-function mutationModalIds(props: MutationModalProps): MutationModalIds {
-  return {
-    get submitDataSet() {
-      return props.submitDataSet;
-    },
-    get cancelDataSet() {
-      return props.cancelDataSet;
-    },
-    get successDataSet() {
-      return props.successDataSet;
-    },
-    get dismissDataSet() {
-      return props.dismissDataSet;
-    },
-  };
-}
 
 /**
  * `MutationModal` -- one dialog for the whole mutation lifecycle.
  *
  * Always a centered modal via {@link ResponsiveSurface} `presentation="modal"`
- * (never a bottom sheet), `small`: a narrower dialog of its own, so stacked
- * over another surface it never reads as the same panel. Renders a confirm message or form body, then on
+ * (never a bottom sheet), `small`. A pure confirmation keeps a further inset
+ * on a phone, so stacked over another surface it never reads as the same
+ * panel; a form (`children`, a rename) takes the phone's full dialog width
+ * so its field has room. Renders a confirm message or form body, then on
  * submit transitions through `loading -> success / error` in place. Closing
  * dismisses the observation without cancelling the operation. This is
  * the canonical surface for destructive confirms (sign out, end space) and
  * small form mutations (rename).
  *
- * Phases come from {@link useMutationLifecycle} (shared with
- * `useMutationButton`), so modal and inline surfaces read the same way.
+ * The body is {@link useMutationStep}; its phases come from
+ * `useMutationLifecycle` (shared with `useMutationButton`), so modal and
+ * inline surfaces read the same way.
  *
  * @example
  * ```tsx
@@ -160,95 +49,31 @@ function mutationModalIds(props: MutationModalProps): MutationModalIds {
  * ```
  */
 export function MutationModal(props: MutationModalProps): JSX.Element {
-  const lifecycle = useMutationLifecycle({
-    operation: () => props.operation(),
-    onError: (error) => props.onError?.(error),
-    onPhaseChange: (transition) => props.onPhaseChange?.(transition),
-  });
+  const step = useMutationStep(props);
   // Every open starts from the confirm body again.
   createEffect(
     () => props.visible,
     (visible) => {
       // The phase as it stands at the open: a later phase change is not one.
-      if (visible && untrack(lifecycle.phase) !== 'loading') lifecycle.reset();
+      if (visible && untrack(step.phase) !== 'loading') step.reset();
     }
   );
-  const dismissSuccess = (): void => {
-    props.onClose();
-    props.onSuccess?.();
-  };
-  const surfaceClose = (): void =>
-    resolveMutationSurfaceClose({
-      phase: lifecycle.phase(),
-      onClose: props.onClose,
-      dismissSuccess,
-    });
-  const run = (): void => {
-    void lifecycle.run();
-  };
-  const labels = mutationModalLabels(props);
-  const ids = mutationModalIds(props);
   return (
     <ResponsiveSurface
       visible={props.visible}
-      onClose={surfaceClose}
+      onClose={step.close}
       closable
       // Once it is done the question is answered: the surface is titled with
       // the outcome ("Space ended"), never still asking "End space?".
-      title={
-        lifecycle.phase() === 'success' && props.successBody !== undefined
-          ? props.successTitle
-          : props.title
-      }
+      title={step.title()}
       presentation="modal"
       size="small"
-      inset
+      // A form needs the phone's width for its field; a confirm stays inset.
+      inset={!('children' in props)}
       stackId={props.stackId}
       dataSet={{ component: 'MutationModal', ...props.dataSet }}
     >
-      <div
-        class="box"
-        data-component="MutationStateTransition"
-        data-phase={lifecycle.phase()}
-      >
-        <Switch
-          fallback={
-            <MutationIdle
-              labels={labels}
-              ids={ids}
-              message={props.message}
-              subject={props.subject}
-              destructive={props.variant === 'destructive'}
-              submitDisabled={props.submitDisabled ?? false}
-              onRun={run}
-              onClose={props.onClose}
-            >
-              {props.children}
-            </MutationIdle>
-          }
-        >
-          <Match when={lifecycle.phase() === 'loading'}>
-            <MutationLoading labels={labels} onClose={props.onClose} />
-          </Match>
-          <Match when={lifecycle.phase() === 'success'}>
-            <MutationSuccess
-              labels={labels}
-              ids={ids}
-              onDismiss={dismissSuccess}
-            />
-          </Match>
-          <Match when={lifecycle.phase() === 'error'}>
-            <MutationError
-              ids={ids}
-              labels={labels}
-              error={lifecycle.error()}
-              form={props.children}
-              onRetry={run}
-              onClose={props.onClose}
-            />
-          </Match>
-        </Switch>
-      </div>
+      <step.Body />
     </ResponsiveSurface>
   );
 }

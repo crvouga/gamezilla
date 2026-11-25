@@ -316,6 +316,28 @@
       var(--ui-color-text) var(--ui-space-3)
     );
   }
+  /* Turns past the far edge (a replay shown mid-game) fade out over a
+     wider run there, so the one the edge cuts reads as more to come. */
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"][data-more-after="true"] {
+    mask-image: linear-gradient(
+      to right,
+      transparent 0,
+      var(--ui-color-text) var(--ui-space-10),
+      var(--ui-color-text) calc(100% - var(--ui-space-8)),
+      transparent 100%
+    );
+  }
+  [data-game-fixed="true"]
+    [data-game-slot="rail"]
+    .list[data-layout="table"][data-more-after="true"]:has(> .heading) {
+    mask-image: linear-gradient(
+      to left,
+      transparent 0,
+      var(--ui-color-text) var(--ui-space-8)
+    );
+  }
   [data-game-fixed="true"]
     [data-game-slot="rail"]
     .list[data-layout="table"]

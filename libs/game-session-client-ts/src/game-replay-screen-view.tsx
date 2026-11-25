@@ -1,8 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+import {
+  GAME_PLAYER_COMPACT_AVATAR_SIZE,
+  GamePlayerBar,
+} from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import {
   type GameSeatLook,
@@ -28,6 +33,7 @@ import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-short
 import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import type { JSX } from '@solidjs/web';
 import { createMemo, For, Match, Show, Switch } from 'solid-js';
+import { FramePersonAvatar } from './game-frame-people';
 import type { FramePeople } from './game-frame-view-types';
 import {
   type GameHistoryOutcome,
@@ -265,9 +271,72 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
   );
 }
 
+/** A replayed player's picture, as their seat shows it at the table. */
+function ReplayAvatar(props: {
+  readonly player: GameReplayPlayer;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  const size = GAME_PLAYER_COMPACT_AVATAR_SIZE;
+  return (
+    <Switch fallback={<Avatar size={size} />}>
+      <Match when={props.player.bot}>
+        <Avatar size={size} kind="bot" />
+      </Match>
+      <Match when={props.player.person !== ''}>
+        <FramePersonAvatar
+          person={props.player.person}
+          plainName={props.player.plainName}
+          size={size}
+          people={props.people}
+        />
+      </Match>
+    </Switch>
+  );
+}
+
 /**
- * Players beside their seat's colour, the winner marked in words: as at the
- * table, the others over the board and the viewer under it (a watched
+ * One player as the stage's seat strip shows them: picture, seat colour,
+ * name, `You` for the viewer, and `Winner` at the final position.
+ */
+function ReplaySeat(
+  props: GameReplayScreenViewProps & { readonly player: GameReplayPlayer }
+): JSX.Element {
+  const won = () =>
+    props.ply === props.moves.length &&
+    props.player.winner &&
+    props.players.some((p) => !p.winner);
+  return (
+    <GamePlayerBar
+      density="compact"
+      name={
+        <HistoryPlayers
+          players={[props.player]}
+          played={false}
+          people={props.people}
+        />
+      }
+      plainName={props.player.plainName}
+      avatar={<ReplayAvatar player={props.player} people={props.people} />}
+      swatch={props.player.swatch}
+      swatchLabel={props.player.sideLabel}
+      tags={
+        <>
+          <Show when={props.player.you}>
+            <Badge intent="info" label={<Trans>You</Trans>} />
+          </Show>
+          <Show when={won()}>
+            <Badge intent="success" label={<Trans>Winner</Trans>} />
+          </Show>
+        </>
+      }
+      tagsPlacement="line"
+    />
+  );
+}
+
+/**
+ * Players in the stage's seat strips, the winner marked in words: as at
+ * the table, the others over the board and the viewer under it (a watched
  * game: the first seat over, the rest under).
  */
 function ReplayPlayers(
@@ -284,48 +353,15 @@ function ReplayPlayers(
     );
   });
   return (
-    <StackHorizontal
-      align="center"
-      gap="md"
-      wrap
+    <StackVertical
+      gap="xs"
+      align="stretch"
       testId={`game-history-review-players-${props.place}`}
     >
       <For each={shown()}>
-        {(player) => (
-          <StackHorizontal align="center" gap="xs">
-            <Show when={player.swatch}>
-              {(look) => (
-                <GameSeatSwatch look={look()} label={player.sideLabel} />
-              )}
-            </Show>
-            <P variant="label">
-              {/* The viewer reads "You", as on every other screen. */}
-              <Show
-                when={player.you}
-                fallback={
-                  <HistoryPlayers
-                    players={[player]}
-                    played={false}
-                    people={props.people}
-                  />
-                }
-              >
-                <Trans>You</Trans>
-              </Show>
-            </P>
-            <Show
-              when={
-                props.ply === props.moves.length &&
-                player.winner &&
-                props.players.some((p) => !p.winner)
-              }
-            >
-              <Badge size="sm" intent="success" label={<Trans>Winner</Trans>} />
-            </Show>
-          </StackHorizontal>
-        )}
+        {(player) => <ReplaySeat {...props} player={player} />}
       </For>
-    </StackHorizontal>
+    </StackVertical>
   );
 }
 

@@ -17,6 +17,7 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import { MultiplayerClock } from './multiplayer-clocks';
@@ -48,35 +49,31 @@ function SeatName(props: {
 }
 
 /**
- * The person's own seat says which colour they play, in words. Any other
- * seat's side is its swatch, named for a listener.
+ * `You` on the person's own seat, after their name, the one mark every
+ * game's own seat wears: filled, and never giving way to the seat's facts.
+ * Their side is the swatch before the name; a listener (and a reader) hears
+ * it in words, `You play Red`.
  */
-function SeatTags(props: {
+function OwnMark(props: {
   readonly position: string;
-  readonly profileId: string;
   readonly side: MultiplayerSide;
-  readonly own: boolean;
-  readonly viewer: MultiplayerViewer;
 }): JSX.Element {
   const gameSideLabel = useGameSideLabel();
   return (
-    <>
-      <Show when={props.own && props.viewer.participant}>
-        <Badge
-          intent="neutral"
-          label={
-            <Text variant="inherit" testId="multiplayer-colour">
-              <Trans>
-                You play {gameSideLabel(props.position, props.side)}
-              </Trans>
-            </Text>
-          }
-        />
-      </Show>
-      <Show when={!props.own}>
-        <AccountAutomationLabel profileId={props.profileId} />
-      </Show>
-    </>
+    <Badge
+      intent="info"
+      size="sm"
+      tone="solid"
+      label={
+        <Text variant="inherit" testId="multiplayer-colour">
+          <Trans>You</Trans>
+          <VisuallyHidden>
+            {' '}
+            <Trans>play {gameSideLabel(props.position, props.side)}</Trans>
+          </VisuallyHidden>
+        </Text>
+      }
+    />
   );
 }
 
@@ -125,6 +122,11 @@ export function MultiplayerSeat(props: {
           viewer={props.viewer}
         />
       }
+      nameTag={
+        <Show when={props.own && props.viewer.participant}>
+          <OwnMark position={props.position} side={props.side} />
+        </Show>
+      }
       swatch={frameSwatch(frame().seats.look(props.side))}
       swatchLabel={gameSideLabel(props.position, props.side)}
       tagsPlacement="line"
@@ -136,13 +138,9 @@ export function MultiplayerSeat(props: {
       }
       tags={
         <>
-          <SeatTags
-            position={props.position}
-            profileId={profileId()}
-            side={props.side}
-            own={props.own}
-            viewer={props.viewer}
-          />
+          <Show when={!props.own}>
+            <AccountAutomationLabel profileId={profileId()} />
+          </Show>
           <Show
             when={
               props.connected === false && profileId() === props.viewer.myId

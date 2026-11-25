@@ -17,6 +17,7 @@ import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
 import { BoardRows } from './word-tile-cell';
 import { WordTileOverview } from './word-tile-overview';
+import { WordTileSquareDetails } from './word-tile-square-details';
 import { WordTileViewControls } from './word-tile-view-controls';
 import { WordTileViewMenu } from './word-tile-view-menu';
 
@@ -41,6 +42,11 @@ export type WordTileBoardCell = {
    * the square's printed name `3W`), then where it is and its state.
    */
   readonly label: string;
+  /**
+   * A short line for the chosen square's readout (`h8 · Start · Double
+   * word`); the readout shows `label` when absent.
+   */
+  readonly detail?: string | undefined;
   readonly enabled: boolean;
 };
 
@@ -52,6 +58,7 @@ function sameCell(a: WordTileBoardCell, b: WordTileBoardCell): boolean {
     a.square === b.square &&
     a.state === b.state &&
     a.label === b.label &&
+    a.detail === b.detail &&
     a.enabled === b.enabled
   );
 }
@@ -190,6 +197,8 @@ type BoardView = {
   readonly viewport: () => HTMLDivElement | undefined;
   /** The chosen square's whole name, for its details readout. */
   readonly label: () => string;
+  /** The chosen square's short readout line, when its cell gives one. */
+  readonly detail: () => string | undefined;
   readonly resize: (enlarged: boolean) => void;
   readonly locate: (id: string) => void;
 };
@@ -198,14 +207,23 @@ type BoardView = {
 function BoardOverview(props: {
   board: WordTileBoardProps;
   view: BoardView;
-  position?: string | undefined;
+  /** Beside a wide screen's enlarged board, the chosen square's readout. */
+  details?: boolean;
 }): JSX.Element {
   return (
     <WordTileOverview
       board={props.board}
       cells={props.view.cells}
       viewport={props.view.viewport}
-      position={props.position}
+      details={
+        props.details === true ? (
+          <WordTileSquareDetails
+            testId={props.board.testId}
+            label={props.view.label()}
+            detail={props.view.detail()}
+          />
+        ) : undefined
+      }
       locator={(onChoose) => (
         <WordTileBoard
           {...props.board}
@@ -221,7 +239,7 @@ function BoardOverview(props: {
   );
 }
 
-/** A phone's View button and dialog: Fit, Enlarge and, enlarged, the overview. */
+/** A phone's Board tools button and dialog: Fit, Enlarge and, enlarged, the overview. */
 function BoardViewMenu(props: {
   board: WordTileBoardProps;
   view: BoardView;
@@ -233,6 +251,7 @@ function BoardViewMenu(props: {
     <WordTileViewMenu
       testId={props.board.testId}
       position={props.view.label()}
+      detail={props.view.detail()}
       open={props.open}
       onOpen={props.onOpen}
       onClose={props.onClose}
@@ -257,7 +276,7 @@ function BoardViewMenu(props: {
 
 /**
  * The board's view state: fitted or enlarged, the chosen square, and on a
- * phone whether its View dialog is open. A view choice made in that dialog
+ * phone whether its Board tools dialog is open. A view choice made in that dialog
  * closes it, and the square moves once it has let go of focus.
  */
 function createBoardView(props: WordTileBoardProps) {
@@ -287,6 +306,7 @@ function createBoardView(props: WordTileBoardProps) {
     cells,
     viewport,
     label: () => cells()[focusIndex()]?.label ?? '',
+    detail: () => cells()[focusIndex()]?.detail,
     resize: (value) => {
       setViewing(false);
       setEnlarged(value);
@@ -326,7 +346,7 @@ function createBoardView(props: WordTileBoardProps) {
  * its label, so colour never carries a state alone). One cell is the tab
  * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
  * activates. Phones start with precision cells, and keep Fit, Enlarge and a
- * whole-board region navigator behind one View button under the board;
+ * whole-board region navigator behind one Board tools button under the board;
  * wider screens start fitted, with Fit and Enlarge beside the board. An
  * explicit view choice persists across resizing.
  */
@@ -381,7 +401,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           </div>
         </div>
         <Show when={view.enlarged() && !view.compact()}>
-          <BoardOverview board={props} view={view} position={view.label()} />
+          <BoardOverview board={props} view={view} details />
         </Show>
       </div>
       <Show when={placement() && view.compact()}>
@@ -394,9 +414,11 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
         />
       </Show>
       <Show when={placement() && !view.compact() && !view.enlarged()}>
-        <P variant="caption" testId={`${props.testId}-square-details`}>
-          {view.label()}
-        </P>
+        <WordTileSquareDetails
+          testId={props.testId}
+          label={view.label()}
+          detail={view.detail()}
+        />
       </Show>
     </StackVertical>
   );

@@ -115,7 +115,7 @@
   flex-wrap: wrap;
 }
 
-/* A phone's one row under the board: the View button, then the chosen
+/* A phone's one row under the board: the Board tools button, then the chosen
    square's details (two caption lines fit the button's height). */
 .bar {
   display: flex;

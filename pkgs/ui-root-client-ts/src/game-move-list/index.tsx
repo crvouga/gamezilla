@@ -194,6 +194,20 @@ function hideCutByKey(root: HTMLElement): void {
 }
 
 /**
+ * A one-line strip with turns past its far edge says so (`data-more-after`),
+ * so that edge fades the turn it cuts instead of cutting it square. A line
+ * laid out from its far end rests there (offset 0, earlier turns at
+ * negative offsets).
+ */
+function markMoreAfter(root: HTMLElement): void {
+  const reversed = getComputedStyle(root).flexDirection === 'row-reverse';
+  const after = reversed
+    ? -root.scrollLeft
+    : root.scrollWidth - root.clientWidth - root.scrollLeft;
+  root.dataset['moreAfter'] = String(after > 1);
+}
+
+/**
  * A table's rows show whole from the top: a row cut at the top is scrolled
  * past, with room made under the last row when the rows end there.
  */
@@ -386,6 +400,7 @@ function TurnList(props: GameMoveListProps): JSX.Element {
     scrollMarkedIntoView(root);
     alignPastKey(root);
     hideCutByKey(root);
+    markMoreAfter(root);
   };
   createEffect(
     () => [props.layout, props.current, turns()] as const,
@@ -402,7 +417,9 @@ function TurnList(props: GameMoveListProps): JSX.Element {
       ref={root}
       class={styles['list']}
       onScroll={() => {
-        if (props.layout === 'table' && root !== undefined) hideCutByKey(root);
+        if (props.layout !== 'table' || root === undefined) return;
+        hideCutByKey(root);
+        markMoreAfter(root);
       }}
       data-layout={props.layout}
       data-many-seats={String(columns() > 2)}

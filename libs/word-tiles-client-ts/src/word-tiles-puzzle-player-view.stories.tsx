@@ -219,8 +219,26 @@ export const ReachTarget: Story = {
     ).toHaveAccessibleName(/committed/);
     const next = canvas.getByRole('button', { name: 'Puzzle library' });
     await expect(next).toBeVisible();
+    // regression: word-tiles-puzzle-board-offset — the fitted board sat
+    // centred, right of the target and controls, with its tile values
+    // hidden, and Puzzle library sat under the notice's icon.
+    const left = canvas
+      .getByTestId('word-tiles-puzzle-target')
+      .getBoundingClientRect().left;
+    await expect(next.getBoundingClientRect().left).toBe(left);
+    const board = canvas.getByTestId('word-tiles-puzzle');
+    if (board.getAttribute('data-enlarged') === 'false') {
+      await expect(board.getBoundingClientRect().left).toBe(left);
+      const points = canvas.getByTestId(
+        'word-tiles-puzzle-cell-j8'
+      ).lastElementChild;
+      if (!points) throw new Error('Missing tile value');
+      await expect(getComputedStyle(points).display).not.toBe('none');
+    }
     await userEvent.click(next);
     await expect(args.onReturnToLibrary).toHaveBeenCalledOnce();
+    // The library opens elsewhere: the solved screen rests without a ring.
+    next.blur();
   },
 };
 

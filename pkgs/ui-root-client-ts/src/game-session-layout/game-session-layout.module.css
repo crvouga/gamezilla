@@ -36,6 +36,7 @@
    the room a bare `Out` leaves, and every word it holds reads whole. */
 .participants {
   --game-player-facts-row-gap: 0;
+  container: game-participants / inline-size;
 }
 .participants > [role="list"] {
   display: flex;
@@ -52,6 +53,16 @@
     flex-basis: auto;
   }
 }
+/* Four or more beside a board too narrow for them in one row (a Light
+   Cycles arena) stand in rows of two, every seat the same weight and
+   every name, figure and status whole; a wide board keeps them in one. */
+@container game-participants (max-width: 36rem) {
+  .participants > [role="list"]:has(> :nth-child(4)) {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+  }
+}
 .participants [data-active] :global(.textLabel),
 .participants [data-component="GameSeatStat"] {
   white-space: nowrap;
@@ -59,10 +70,11 @@
   text-overflow: ellipsis;
 }
 
-/* On a phone: one row of up to three chips, rows of two from four, every
-   seat in view (`GamePlayerRail`), the avatar left to the swatch. */
+/* On a phone: two chips share one row, three or more stand in rows of
+   two, every seat in view (`GamePlayerRail`), the avatar left to the
+   swatch. */
 @container game-column (max-width: 879px) {
-  .participants > [role="list"]:has(> :nth-child(4)) {
+  .participants > [role="list"]:has(> :nth-child(3)) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-flow: row;

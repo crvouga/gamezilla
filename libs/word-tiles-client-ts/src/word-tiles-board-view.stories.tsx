@@ -26,6 +26,7 @@ import {
   STORY_LEXICON_KEY,
 } from './word-tiles-board-view.example';
 import { checkEnlargedCoordinates } from './word-tiles-coordinate.example';
+import { findAndPlace } from './word-tiles-find-square.example';
 import { wordTilesFrame } from './word-tiles-frame';
 import { wordTilesGameClient } from './word-tiles-game-client';
 import {
@@ -142,6 +143,8 @@ export const ThreePlayerMatch: Story = {
 export const FourPlayerMatch: Story = {
   args: { position: encodePosition(newPosition(4, STORY_LEXICON_KEY)) },
   render: (args, context) => renderTable(matchJourney(args), context),
+  play: async ({ canvasElement }) =>
+    findAndPlace(canvasElement, 'custom-game-board'),
 };
 
 /** Mid-game on the person's turn: words on the board, a fresh rack. */

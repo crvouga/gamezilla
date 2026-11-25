@@ -1,6 +1,7 @@
 import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
@@ -32,8 +33,11 @@ export function WordTilesPuzzleStatus(props: {
             role="status"
             dataSet={{ testid: 'word-tiles-puzzle-complete' }}
           >{t`Target reached. Puzzle solved!`}</P>
-          <Button title={t`Puzzle library`} onClick={props.onReturnToLibrary} />
         </Notice>
+        {/* On the page's left edge with the target, not under the notice's icon. */}
+        <StackHorizontal gap="sm">
+          <Button title={t`Puzzle library`} onClick={props.onReturnToLibrary} />
+        </StackHorizontal>
       </Show>
       <Show when={props.disabled && !props.complete}>
         <P role="status">{t`This attempt is read-only. Placement is unavailable.`}</P>

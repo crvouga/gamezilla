@@ -180,9 +180,14 @@ export function spaceCardOthers(space: SpaceCardData): readonly SpacePerson[] {
     : space.guests.filter((guest) => guest.id !== space.viewerId);
 }
 
-/** Who hosts the space: "Hosted by you", or the host's name. */
+/**
+ * Who hosts the space: "Hosted by you", or the host's name. `oneLine` is
+ * for a one-line clamp: the name is plain words, so the line ends in an
+ * ellipsis instead of breaking at the name's `_`, `.` or `-`.
+ */
 export function SpaceHostPhrase(props: {
   readonly space: SpaceCardData;
+  readonly oneLine?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -193,7 +198,8 @@ export function SpaceHostPhrase(props: {
           may wrap, the name breaks after its `_`, `.` or `-` first. */}
       <Show when={props.space.host} keyed>
         {(host) => {
-          const hostName = <NameText name={host.name} />;
+          const hostName =
+            props.oneLine === true ? host.name : <NameText name={host.name} />;
           return (
             <Show
               when={host.name.trim() !== ''}

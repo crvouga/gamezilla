@@ -1,5 +1,6 @@
 /* In game the board is the main event: one slim status line, the board
-   edge to edge filling the room left, and the action bar by the thumbs. */
+   edge to edge filling the room left, and the action bar by the thumbs
+   (right under a board sized by its width, below). */
 .stage {
   display: flex;
   flex: 1;
@@ -45,6 +46,16 @@
    taller one scrolls from its top. */
 .board > * {
   margin-block: 0 auto;
+}
+/* A board sized by its width (an arena in its own shape) cannot fill a
+   taller room: its room is as tall as it draws, inside the stage's side
+   gutter, and the action bar (its steering) follows right under it, with
+   no void between. The room left falls under the bar, the same for the
+   whole game. */
+.board:has(> [data-board-sizing="width"]) {
+  flex: 0 1 auto;
+  container-type: inline-size;
+  padding: var(--ui-space-2) var(--ui-space-4);
 }
 /* The action bar: always there, always this height. */
 .bar {

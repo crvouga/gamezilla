@@ -19,15 +19,17 @@ export const States: StoryObj = {
   render: () => <Example />,
 };
 
-/** Choose Fit or Enlarge: beside the board, or in a phone's View dialog. */
+/** Choose Fit or Enlarge: beside the board, or in a phone's Board tools dialog. */
 async function chooseView(canvasElement: HTMLElement, name: string) {
   const canvas = within(canvasElement);
-  const view = canvas.queryByRole('button', { name: 'View board' });
+  const view = canvas.queryByRole('button', {
+    name: 'Board tools: zoom and find a square',
+  });
   if (view) await userEvent.click(view);
   const tools = view
     ? within(
         await within(canvasElement.ownerDocument.body).findByRole('dialog', {
-          name: 'Board view',
+          name: 'Board tools',
         })
       )
     : canvas;

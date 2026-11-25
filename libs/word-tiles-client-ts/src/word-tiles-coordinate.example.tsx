@@ -14,12 +14,14 @@ import {
 
 /**
  * What sits under the enlarged board: its overview on a wide screen, or the
- * View button a phone keeps it behind.
+ * Board tools button a phone keeps it behind.
  */
 function underBoard(canvasElement: HTMLElement): HTMLElement {
   return (
     within(canvasElement).queryByTestId('custom-game-board-overview') ??
-    within(canvasElement).getByRole('button', { name: 'View board' })
+    within(canvasElement).getByRole('button', {
+      name: 'Board tools: zoom and find a square',
+    })
   );
 }
 
@@ -119,7 +121,7 @@ async function checkPrecisionWorkspace(
   await expect(rect.height).toBeGreaterThanOrEqual(308);
   await assertClear(viewport, false);
   await assertClear(underBoard(canvasElement));
-  // A phone's View button stands for its overview, checked in its dialog.
+  // A phone's Board tools button stands for its overview, checked in its dialog.
   if (!boardViewButton(canvasElement))
     await expect(
       underBoard(canvasElement).getBoundingClientRect().width

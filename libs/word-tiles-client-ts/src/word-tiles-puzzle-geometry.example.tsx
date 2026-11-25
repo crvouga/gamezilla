@@ -31,7 +31,7 @@ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
       await assertClear(button);
     await assertClear(canvas.getByRole('button', { name: 'Find a square' }));
   } else {
-    // A phone keeps the overview and Find a square behind one View button.
+    // A phone keeps the overview and Find a square behind one Board tools button.
     const view = boardViewButton(canvasElement);
     if (view) await assertClear(view);
   }

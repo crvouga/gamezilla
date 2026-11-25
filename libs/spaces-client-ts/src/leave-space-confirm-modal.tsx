@@ -96,7 +96,9 @@ export function LeaveSpaceConfirmModal(
       submitLabel={
         asHost() ? <Trans>End space</Trans> : <Trans>Leave space</Trans>
       }
-      variant="destructive"
+      // Ending is for good; a guest's leave is not (they rejoin by link),
+      // so it asks with the ordinary primary action, not the red one.
+      variant={asHost() ? 'destructive' : 'default'}
       operation={operation}
       onSuccess={onSuccess}
       onPhaseChange={onPhaseChange}

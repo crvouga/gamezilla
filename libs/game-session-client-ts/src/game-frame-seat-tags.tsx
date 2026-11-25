@@ -40,7 +40,7 @@ export function PlaySeatTags(props: {
 /**
  * A chip's tags, worded as on every seat (`Chosen`, `Choosing`). A seat
  * that is away or out says that (the chip's own state) and nothing of its
- * secret choice. The person's own seat is told by `ChipOwnMark` after its
+ * secret choice. The person's own seat is told by `OwnSeatMark` after its
  * name, never by a tag that a narrow chip may hide, and leaves out the
  * game's facts of it (their rack is in view under the seats).
  */
@@ -67,19 +67,13 @@ export function ChipSeatTags(props: {
 }
 
 /**
- * `You` after the person's own name on their chip, a line's height, so it
- * never gives way to the chip's facts. On the turn's tint it is filled:
- * the subtle wash over the tint falls below AA in the dark theme.
+ * `You` after the person's own name on their seat, on the name's line, a
+ * line's height, so it never gives way to the seat's facts. One look on
+ * every seat, strip, chip and table place, filled whatever the turn: the
+ * subtle wash fell below AA on the turn's tint in the dark theme.
  */
-export function ChipOwnMark(props: {
-  readonly seat: FramePlaySeat;
-}): JSX.Element {
+export function OwnSeatMark(): JSX.Element {
   return (
-    <Badge
-      intent="info"
-      size="sm"
-      tone={props.seat.deciding ? 'solid' : 'subtle'}
-      label={<Trans>You</Trans>}
-    />
+    <Badge intent="info" size="sm" tone="solid" label={<Trans>You</Trans>} />
   );
 }

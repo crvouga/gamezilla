@@ -28,6 +28,13 @@ export const GAME_PLAYER_COMPACT_AVATAR_SIZE = 32;
 export type GamePlayerBarProps = {
   name: JSX.Element;
   /**
+   * A short mark after the name that never gives way (`You`): it sits on
+   * the name's own line in every placement, and the name is cut short
+   * before it moves off that line or hides, so the person's own seat reads
+   * as theirs however many facts the seat drops.
+   */
+  nameTag?: JSX.Element;
+  /**
    * The seat's `Avatar`. Defaults to the person placeholder; an open seat
    * passes `<Avatar kind="emptySeat" />`, a bot `<Avatar kind="bot" />`.
    */
@@ -122,6 +129,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   // Tags that resolve to nothing (every fact hidden) take no row.
   const tags = createScreenSlot(() => props.tags);
   const turnLabel = createScreenSlot(() => props.turnLabel);
+  const nameTag = createScreenSlot(() => props.nameTag);
   const turn = (): boolean => props.active === true && turnLabel.present();
   const keep = (): boolean => props.tagsPlacement === 'line';
   // A seat's state alone (Away, Out) follows the name on its line, so a seat
@@ -188,6 +196,9 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
             >
               {props.name}
             </span>
+            <Show when={nameTag.present()}>
+              <span class="shrink-0 box flex-row">{nameTag.content()}</span>
+            </Show>
             {/* The turn on the name's own line: the strip gains no row. */}
             <Show when={turn() && !keep()}>
               <PlayerTurn label={props.turnLabel} />

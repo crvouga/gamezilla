@@ -15,7 +15,9 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
     labels: {
       get idle() {
         if (props.joinPending) return t`Check again`;
-        return props.needsConnection ? t`Try joining again` : t`Join space`;
+        // Without a connection the command names what it needs, so it reads
+        // whole after the connection toast has gone.
+        return props.needsConnection ? t`Reconnect and join` : t`Join space`;
       },
       get loading() {
         return t`Joining…`;
@@ -90,7 +92,7 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
 }
 
 /**
- * Offline: asks the server again, as "Try joining again" does when joining
+ * Offline: asks the server again, as "Reconnect and join" does when joining
  * needed the connection; the button says in place whether it is back.
  */
 function SpaceJoinRetryButton(props: {

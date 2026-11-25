@@ -4,6 +4,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { SpaceRecoveryBar } from './space-recovery-bar';
 
@@ -37,9 +38,15 @@ export function SpaceEndedScreenView(
         { name: props.title },
       ]}
       dataSet={{ testid: Handles.spaceEnded }}
-      // The way back sits in the same full-width bottom bar as every Join
-      // and recovery screen.
-      footer={
+    >
+      {/* The ways on stand right under the message they answer, not
+          a screen away at the bottom edge. */}
+      <StackVertical gap="lg">
+        <EmptyState
+          icon={Gamepad2Icon}
+          title={<Trans>This space has ended</Trans>}
+          body={body()}
+        />
         <SpaceRecoveryBar>
           <Button
             title={<Trans>Back to Spaces</Trans>}
@@ -48,13 +55,7 @@ export function SpaceEndedScreenView(
             dataSet={{ testid: Handles.spaceEndedBack }}
           />
         </SpaceRecoveryBar>
-      }
-    >
-      <EmptyState
-        icon={Gamepad2Icon}
-        title={<Trans>This space has ended</Trans>}
-        body={body()}
-      />
+      </StackVertical>
     </ContentScreen>
   );
 }

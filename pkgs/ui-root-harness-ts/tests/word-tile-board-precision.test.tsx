@@ -48,10 +48,12 @@ test('390px phone starts precise and a1–e5 navigation focuses c3 without activ
     expect(view.getByTestId('phone').getAttribute('data-enlarged')).toBe(
       'true'
     );
-    // The view tools wait behind one View button under the board.
+    // The view tools wait behind one Board tools button under the board.
     expect(view.queryByRole('button', { name: 'Fit board' })).toBeNull();
-    fireEvent.click(view.getByRole('button', { name: 'View board' }));
-    const tools = within(view.getByRole('dialog', { name: 'Board view' }));
+    fireEvent.click(
+      view.getByRole('button', { name: 'Board tools: zoom and find a square' })
+    );
+    const tools = within(view.getByRole('dialog', { name: 'Board tools' }));
     expect(
       tools.getAllByRole('button', { name: /^View \w+ to / })
     ).toHaveLength(9);
@@ -61,7 +63,9 @@ test('390px phone starts precise and a1–e5 navigation focuses c3 without activ
     );
     expect(activated).toEqual([]);
     expect(view.queryByRole('dialog')).toBeNull();
-    fireEvent.click(view.getByRole('button', { name: 'View board' }));
+    fireEvent.click(
+      view.getByRole('button', { name: 'Board tools: zoom and find a square' })
+    );
     fireEvent.click(view.getByRole('button', { name: 'Fit board' }));
     expect(view.queryByRole('dialog')).toBeNull();
     expect(view.getByTestId('phone').getAttribute('data-enlarged')).toBe(

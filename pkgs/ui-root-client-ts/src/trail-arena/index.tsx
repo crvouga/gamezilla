@@ -77,6 +77,9 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
+      // Sized by its width, in its own shape: a room taller than it draws
+      // cannot be filled, so a stage lays what follows right under it.
+      data-board-sizing="width"
       {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       role="application"
       aria-label={props.label}

@@ -1,0 +1,4 @@
+{
+  "summary": "At 1280 the reach-target puzzle's fitted board sat about 120px right of its left-aligned target and controls with tile values hidden, and the solved notice indented Puzzle library under its icon; board and button now share the target's left edge and the board is wide enough to keep values.",
+  "regressionTest": "libs/word-tiles-client-ts/src/word-tiles-puzzle-player-view.stories.tsx"
+}

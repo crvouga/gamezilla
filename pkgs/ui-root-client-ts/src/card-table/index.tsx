@@ -332,19 +332,6 @@ function handCardStyle(
   };
 }
 
-function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
-  return (
-    <>
-      <CardFace card={props.card} />
-      <Show when={props.card.refusal}>
-        <span class={state['unavailable']} aria-hidden="true">
-          ×
-        </span>
-      </Show>
-    </>
-  );
-}
-
 function createHandFocus(
   ids: () => readonly string[],
   row: () => HTMLDivElement | undefined
@@ -454,7 +441,7 @@ function Hand(
                     }
                   }}
                 >
-                  <HandCardFace card={card()} />
+                  <CardFace card={card()} />
                 </SdkButton>
               </>
             )}
@@ -571,7 +558,6 @@ function HandGuidance(
             class={styles['guidance']}
             data-emphasis={String(reason === props.refusal)}
           >
-            <span aria-hidden="true">× </span>
             <span id={`${props.testId}-reason-${index()}`}>{reason}</span>
           </p>
         )}

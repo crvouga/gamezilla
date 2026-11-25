@@ -1,4 +1,6 @@
 .layout {
+  --word-tile-fitted-size: 23rem;
+  --word-tile-fitted-margin: auto;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   min-width: 0;
@@ -146,7 +148,7 @@
   padding-inline: var(--game-board-workspace-inset, 0px);
 }
 
-/* A phone keeps its view tools behind one View button in a row under the
+/* A phone keeps its view tools behind one Board tools button in a row under the
    board (`data-view-menu`), so the board, fitted or enlarged, takes all the
    room but that row. */
 .layout[data-fill="true"] .board [data-view-menu="true"] {
@@ -161,6 +163,13 @@
     var(--ui-control-size-md) -
     var(--ui-space-1)
   );
+}
+/* A full-width phone board's whole-square window sits in the middle. */
+.layout[data-fill="true"]
+  .board
+  [data-view-menu="true"]
+  > [data-enlarged="true"] {
+  align-self: center;
 }
 
 /* Wide: the board at the box's start, as large as the room over the

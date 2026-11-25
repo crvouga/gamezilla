@@ -11,7 +11,8 @@ import { createMemo } from 'solid-js';
 /**
  * The line under the board. A finished board keeps its prompt line's room
  * (empty), so the board never resizes or moves when the game ends. A draw
- * offered to the person is answered first, though their move declines it.
+ * offered to the person is said once, by the status line over the board;
+ * the board says only what a disc dropped does to it (declines it).
  */
 function boardPrompt(
   finished: boolean,
@@ -20,7 +21,7 @@ function boardPrompt(
 ): string {
   if (finished || !interactive) return '';
   return drawToAnswer
-    ? t`Answer the draw offer, or drop a disc to play on`
+    ? t`Drop a disc to decline and play on`
     : t`Pick a column to drop your disc`;
 }
 

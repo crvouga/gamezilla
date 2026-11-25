@@ -42,10 +42,13 @@ function ownChip(deciding: boolean): HTMLElement | null {
 }
 
 // regression: game-frame-active-own-chip-badge-contrast
-test('the active own seat chip fills its You badge on the turn tint in the dark theme', () => {
+// regression: own-seat-you-one-look — the own chip's `You` was filled on
+// the turn tint and a pale wash otherwise, unlike every other own seat.
+// It is the one filled mark whatever the turn.
+test('the own seat chip fills its You badge whatever the turn, legible on the dark turn tint', () => {
   expect(ownChip(true)?.getAttribute('data-tone')).toBe('solid');
   cleanup();
-  expect(ownChip(false)?.getAttribute('data-tone')).toBe('subtle');
+  expect(ownChip(false)?.getAttribute('data-tone')).toBe('solid');
 });
 
 // regression: own-chip-you-hidden-on-narrow-chip — the own chip's `You`

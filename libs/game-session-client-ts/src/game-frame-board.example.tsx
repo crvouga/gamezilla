@@ -110,7 +110,7 @@ export function onBoard(moves: readonly number[]) {
             args.table.near?.choosing === true
               ? ''
               : args.play.canAnswerDraw
-                ? 'Answer the draw offer, or drop a disc to play on'
+                ? 'Drop a disc to decline and play on'
                 : undefined
           }
         />

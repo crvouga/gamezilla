@@ -1,5 +1,5 @@
 /* The players at a table of three or more: chips in rows beside a wide
-   board, one row on a phone (below). */
+   board, rows of two on a phone (below). */
 .playerRail {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
@@ -9,9 +9,9 @@
   width: 100%;
   min-width: 0;
 }
-/* On a phone every seat is in view: up to three share one row evenly,
-   four or more stand in rows of two; each chip two lines (its name, then
-   its figure). The band's height follows the table's size only, never a
+/* On a phone every seat is in view: two share one row evenly, three or
+   more stand in rows of two; each chip two lines (its name, then its
+   figure). The band's height follows the table's size only, never a
    state, so the board under it never moves during a game. */
 @container game-column (max-width: 879px) {
   .playerRail {
@@ -19,10 +19,10 @@
     grid-auto-flow: column;
     grid-auto-columns: minmax(0, 1fr);
   }
-  /* Four or more stand in rows of two, each chip half the phone's width,
-     so every name, figure and status reads whole; the band is then as tall
+  /* Three or more stand in rows of two, each chip half the phone's width,
+     so every name, figure and Out reads whole; the band is then as tall
      as two players' bars over a two-player board. */
-  .playerRail:has(> :nth-child(4)) {
+  .playerRail:has(> :nth-child(3)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-flow: row;
   }

@@ -108,3 +108,26 @@ test("a 'line' seat gives its name the room first: the turn's words follow the n
   expect(turn?.textContent).toBe('To move');
   expect(who?.parentElement?.className).toContain('keep');
 });
+
+// regression: own-seat-you-missing-on-strips — a two-seat game's own strip
+// said nothing of whose it was, and a matched seat's `You play Red` gave
+// way to an `Offline` before it on a phone. The own mark follows the name
+// on its own line, in every placement, ahead of the tags that may hide.
+test("a seat's own mark sits after the name on its line, before the tags", () => {
+  const name = 'alice';
+  renderUi(
+    () => (
+      <GamePlayerBar
+        name={<span>{name}</span>}
+        plainName={name}
+        nameTag={<Badge intent="info" tone="solid" label="You" />}
+        tags={<Badge intent="warning" label="Offline" />}
+        tagsPlacement="line"
+      />
+    ),
+    { width: 390, height: 844 }
+  );
+  const who = screen.getByTitle(name).parentElement;
+  expect(who?.textContent).toBe(`${name}You`);
+  expect(who?.nextElementSibling?.textContent).toBe('Offline');
+});

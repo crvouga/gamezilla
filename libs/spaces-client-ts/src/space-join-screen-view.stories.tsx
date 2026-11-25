@@ -50,15 +50,15 @@ export const JoinNotConfirmed: Story = { args: { joinPending: true } };
 export const JoinNeedsConnection: Story = {
   args: { needsConnection: true },
   // The pair keeps every Join state's order: Back to Spaces outlined on
-  // the left, Try joining again filled on the right.
+  // the left, Reconnect and join filled on the right: the command says the
+  // connection is what it waits on, with or without the toast.
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const back = await canvas.findByRole('button', { name: 'Back to Spaces' });
     await expect(back).toHaveAttribute('data-variant', 'outline');
-    await expect(canvas.getByTestId(Handles.spaceJoin)).toHaveAttribute(
-      'data-variant',
-      'solid'
-    );
+    const join = canvas.getByTestId(Handles.spaceJoin);
+    await expect(join).toHaveAttribute('data-variant', 'solid');
+    await expect(join).toHaveTextContent('Reconnect and join');
   },
 };
 

@@ -106,7 +106,8 @@ describe('game surfaces', () => {
 
   // regression: phone-three-players-two-rows — on a phone three players'
   // chips wrapped as two and one, the third alone on a second row, pushing
-  // a Light Cycles arena down. Three players make one row of three chips.
+  // a Light Cycles arena down. The rows of two now hold every chip at one
+  // height, the band set by the table's size alone (below).
   // regression: light-cycles-phone-chips-tall — those chips then stacked
   // avatar over name over figures over "You", about 130px tall, shrinking
   // the arena. Each is its name over one line of its avatar, a size
@@ -120,7 +121,10 @@ describe('game surfaces', () => {
   // row cut the last chip at the edge. Every seat now shares the row's
   // width evenly (no sideways scroll), its name then its figure, so the
   // band is one height at every table size and the board never moves.
-  test('players on a phone share one row up to three, rows of two from four', () => {
+  // regression: phone-three-seats-drop-facts — three chips in one 390px
+  // row dropped their names' ends, win counts and Out badges. Two seats
+  // share one row; three or more stand in rows of two, every fact whole.
+  test('players on a phone share one row when two, rows of two from three', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -133,10 +137,11 @@ describe('game surfaces', () => {
     expect(oneRow).toMatch(/grid-auto-flow: column;/);
     expect(oneRow).toMatch(/grid-auto-columns: minmax\(0, 1fr\);/);
     expect(oneRow).not.toMatch(/overflow-x: auto;/);
-    const four = phone.slice(
-      phone.indexOf('.playerRail:has(> :nth-child(4)) {')
+    expect(phone).not.toContain('.playerRail:has(> :nth-child(4)) {');
+    const three = phone.slice(
+      phone.indexOf('.playerRail:has(> :nth-child(3)) {')
     );
-    expect(four.slice(0, four.indexOf('}'))).toMatch(
+    expect(three.slice(0, three.indexOf('}'))).toMatch(
       /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*grid-auto-flow: row;/
     );
     expect(
@@ -145,6 +150,35 @@ describe('game surfaces', () => {
         '  .playerRail .chipFacts'
       )
     ).toMatch(/flex-wrap: wrap;[\s\S]*overflow: hidden;/);
+  });
+
+  // regression: desktop-own-seat-hero-bar — at a table of three or more
+  // beside a wide board, the person's own seat (or a watcher's nearest)
+  // was a full-width bar with an avatar over small chips for everyone
+  // else. Every seat is a chip of the same weight; beside a board too
+  // narrow for four in a row (a Light Cycles arena) they stand in rows of
+  // two, so no win count or status is hidden.
+  test('beside a narrow board four or more chips stand in rows of two', () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-session-layout/game-session-layout.module.css'),
+      'utf8'
+    );
+    expect(
+      rule(
+        'game-session-layout/game-session-layout.module.css',
+        '.participants'
+      )
+    ).toContain('container: game-participants / inline-size;');
+    const narrow = css.slice(
+      css.indexOf('@container game-participants (max-width: 36rem)')
+    );
+    const rows = narrow.slice(0, narrow.indexOf('}'));
+    expect(rows).toContain(
+      '.participants > [role="list"]:has(> :nth-child(4))'
+    );
+    expect(rows).toMatch(
+      /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/
+    );
   });
 
   // regression: battleship-phone-targets-small — on a phone each of the

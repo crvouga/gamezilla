@@ -19,6 +19,7 @@ import { GAME_VERSUS_AVATAR_SIZE } from '@pkgs/ui-root-client-ts/game-stage-over
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createSignal, Show } from 'solid-js';
 import { fn } from 'storybook/test';
@@ -210,24 +211,32 @@ function StoryStage(props: {
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
+          // As the app's seat: `You` after the person's own name, their
+          // colour the swatch (and, to a listener, `You play Red`); a
+          // watcher reads a seat's side from its swatch alone.
+          nameTag={
+            <Show when={props.watching !== true}>
+              <Badge
+                intent="info"
+                size="sm"
+                tone="solid"
+                label={
+                  <>
+                    You<VisuallyHidden> play Red</VisuallyHidden>
+                  </>
+                }
+              />
+            </Show>
+          }
           tags={
-            <>
-              <Show when={props.offline === true}>
-                <Badge intent="warning" label="Offline" />
-              </Show>
-              {/* As the app's seat: the player's own colour in words; a
-                  watcher reads a seat's side from its swatch alone. */}
-              <Show when={props.watching !== true}>
-                <Badge intent="neutral" label="You play Red" />
-              </Show>
-            </>
+            <Show when={props.offline === true}>
+              <Badge intent="warning" label="Offline" />
+            </Show>
           }
           tagsPlacement="line"
-          // As the app's seat: an offer waiting for an answer takes the
-          // call to act from the turn.
-          active={
-            props.active && props.offline !== true && props.answering !== true
-          }
+          // As the app's seat: a draw offered to the person keeps their
+          // seat to move (playing on declines it), its clock running.
+          active={props.active && props.offline !== true}
           // The person's own turn is the status line's "Your turn.": as
           // the app's seat, only a watcher's seat says it in words.
           turnLabel={props.watching === true ? 'To move' : undefined}
@@ -250,7 +259,7 @@ function StoryStage(props: {
         // but the answer is asked for first, as the app's board says.
         prompt={
           props.answering === true
-            ? 'Answer the draw offer, or drop a disc to play on'
+            ? 'Drop a disc to decline and play on'
             : undefined
         }
       />

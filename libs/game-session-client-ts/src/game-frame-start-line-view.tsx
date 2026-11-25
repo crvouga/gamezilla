@@ -121,10 +121,18 @@ function ReadinessCommand(props: StartProps): JSX.Element {
 
 /**
  * The line over the dock's command. The last person everyone waits for is
- * told so in the second person, never counted as "1 person".
+ * told so in the second person, never counted as "1 person". Offline, a
+ * game that is ready says the start waits on the connection, as its button
+ * does, never a bare "Ready to start." over a start that cannot happen yet.
  */
-function startLine(start: FrameStart, invitedTo?: string): string {
+function startLine(
+  start: FrameStart,
+  invitedTo?: string,
+  offline?: boolean
+): string {
   const reason = start.reason;
+  if (reason === null && offline === true)
+    return t`Ready to start once you're back online.`;
   // The person the game waits for is told what to do, not counted.
   if (reason?.kind === 'invitations' && invitedTo !== undefined)
     return t`Accept to play ${invitedTo}, or decline.`;
@@ -195,7 +203,7 @@ export function FrameStartView(
           }
         >
           <P variant="bodyBold" role="status" testId="custom-game-startable">
-            {startLine(props.start, props.invitedTo)}
+            {startLine(props.start, props.invitedTo, props.offline)}
           </P>
           {/* A seated guest, with nothing to press here, is told who moves
               the game on. */}

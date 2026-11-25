@@ -1,7 +1,6 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameClock } from '@pkgs/ui-root-client-ts/game-clock';
 import {
@@ -29,8 +28,8 @@ import type { JSX } from '@solidjs/web';
 import { For, Match, Show, Switch } from 'solid-js';
 import { FrameHolderAvatar, FrameHolderName } from './game-frame-people';
 import {
-  ChipOwnMark,
   ChipSeatTags,
+  OwnSeatMark,
   PlaySeatTags,
 } from './game-frame-seat-tags';
 import { frameUsesRail } from './game-frame-table';
@@ -125,18 +124,15 @@ export function FrameSeatStripView(props: SeatProps): JSX.Element {
           people={props.people}
         />
       }
+      nameTag={
+        <Show when={props.own === true}>
+          <OwnSeatMark />
+        </Show>
+      }
       swatch={props.seat.swatch}
       swatchLabel={props.seat.sideLabel}
-      tags={
-        <>
-          <Show when={props.own === true}>
-            <Badge intent="info" label={<Trans>You</Trans>} />
-          </Show>
-          <PlaySeatTags seat={props.seat} />
-        </>
-      }
-      // In the players' card beside an arena every strip is one line: the
-      // person's own `You` sits after their name, not on a row of its own.
+      tags={<PlaySeatTags seat={props.seat} />}
+      // In the players' card beside an arena every strip is one line.
       tagsPlacement={props.quietStat === true ? 'inline' : 'below'}
       plainName={props.seat.plainName}
       stat={props.seat.stat}
@@ -220,7 +216,7 @@ export function FrameSeatChipView(
         }
         nameTag={
           <Show when={props.own === true}>
-            <ChipOwnMark seat={props.seat} />
+            <OwnSeatMark />
           </Show>
         }
         swatch={props.seat.swatch}
@@ -250,22 +246,25 @@ type TableProps = {
   /** The viewer's own seat; `null` while watching. */
   readonly viewerSide?: string | null | undefined;
   /**
-   * A phone: at a table of three or more the person's own seat leads the
-   * rail of chips above the board, so they always see themselves beside
-   * everyone else without scrolling past the board.
+   * A phone: a board that names its players draws no seats, and a game
+   * that opts in seats even two players as a rail of chips.
    */
   readonly compact?: boolean | undefined;
 };
 
 /**
- * At a table of three or more on a phone, the person's own seat is a chip
- * leading the rail above the board, unless it needs its full strip (to
- * take the side back).
+ * At a table of three or more, at every width, the person's own seat (a
+ * watcher's nearest) is a chip leading the rail above the board, the same
+ * weight as everyone else's, unless it needs its full strip (to take the
+ * side back).
  */
 function nearInRail(props: TableProps): FramePlaySeat | null {
   const near = props.table.near;
-  return props.compact === true &&
-    frameUsesRail(props.table.shape, props.compact, props.table.seatLayout) &&
+  return frameUsesRail(
+    props.table.shape,
+    props.compact,
+    props.table.seatLayout
+  ) &&
     near !== null &&
     !near.reclaim
     ? near
@@ -328,6 +327,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
         {(seat) => (
           <FrameSeatStripView
             seat={seat()}
+            own={seat().side === props.viewerSide}
             quietStat={props.compact}
             people={props.people}
             onChoose={props.onChoose}
@@ -393,6 +393,7 @@ export function FrameNearSeatView(props: TableProps): JSX.Element {
         <StackVertical testId="custom-game-seat-near">
           <FrameSeatStripView
             seat={seat()}
+            own={seat().side === props.viewerSide}
             quietStat={props.compact}
             people={props.people}
             onChoose={props.onChoose}
@@ -457,17 +458,15 @@ export function FrameBoardSeatView(
                 people={props.people}
               />
             }
+            nameTag={
+              <Show when={own()}>
+                <OwnSeatMark />
+              </Show>
+            }
             // At its place at the table the seat is told apart by that
             // place and its tag (South, West), so no colour dot competes
             // with them.
-            tags={
-              <>
-                <Show when={own()}>
-                  <Badge intent="info" label={<Trans>You</Trans>} />
-                </Show>
-                <PlaySeatTags seat={{ ...shown(), choosing: false }} />
-              </>
-            }
+            tags={<PlaySeatTags seat={{ ...shown(), choosing: false }} />}
             onPress={shown().onPress}
           />
         );

@@ -4,7 +4,7 @@ import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { RemoveSpacePersonModalView } from './remove-space-person-modal-view';
+import { useRemoveSpacePersonStep } from './remove-space-person-step';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
 import type { SpaceAddition } from './space-share-add-people-view';
 import { SpaceShareAddPeopleView } from './space-share-add-people-view';
@@ -38,14 +38,25 @@ function withSlots(
   args: SpaceShareSheetViewProps,
   slots: {
     readonly addPeople?: () => JSX.Element;
-    readonly overlay?: () => JSX.Element;
   }
 ): JSX.Element {
+  return <SpaceShareSheetView {...args} addPeople={slots.addPeople?.()} />;
+}
+
+/** The sheet asking to remove jordan in its own dialog. */
+function RemovingJordan(props: {
+  readonly args: SpaceShareSheetViewProps;
+}): JSX.Element {
+  const removal = useRemoveSpacePersonStep({
+    name: JORDAN.name,
+    onClose: fn(),
+    operation: fn(() => Promise.resolve()),
+  });
   return (
     <SpaceShareSheetView
-      {...args}
-      addPeople={slots.addPeople?.()}
-      overlay={slots.overlay?.()}
+      {...props.args}
+      addPeople={addPeople({ status: 'idle' })}
+      removal={removal}
     />
   );
 }
@@ -58,7 +69,7 @@ const meta = {
   decorators: [withSpaceScreenBehind],
   parameters: {
     appRouter: true,
-    controls: { exclude: ['people', 'addPeople', 'overlay'] },
+    controls: { exclude: ['people', 'addPeople', 'removal'] },
   },
   args: {
     open: true,
@@ -160,19 +171,19 @@ export const SearchDenied: Story = {
     }),
 };
 
-/** Remove asks first; the confirm sits over the sheet. */
+/** Remove asks first, in the Share dialog itself: one title, one close. */
 export const RemoveConfirm: Story = {
-  render: (args) =>
-    withSlots(args, {
-      addPeople: () => addPeople({ status: 'idle' }),
-      overlay: () => (
-        <RemoveSpacePersonModalView
-          name={JORDAN.name}
-          onClose={fn()}
-          operation={fn(() => Promise.resolve())}
-        />
-      ),
-    }),
+  render: (args) => <RemovingJordan args={args} />,
+  play: async ({ canvasElement }) => {
+    const body = within(canvasElement.ownerDocument.body);
+    const dialog = await body.findByRole('dialog', { name: 'Remove person?' });
+    await expect(
+      within(dialog).getByTestId(Handles.spaceRemoveConfirm)
+    ).toBeVisible();
+    await expect(
+      body.queryByRole('dialog', { name: 'Share space' })
+    ).toBeNull();
+  },
 };
 
 /** Remove on a guest's row asks the host to confirm. */

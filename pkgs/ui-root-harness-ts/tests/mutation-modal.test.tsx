@@ -162,6 +162,48 @@ describe('MutationModal', () => {
     expect(screen.getByRole('button', { name: 'Save' })).toBeDisabled();
   });
 
+  // regression: r66 rename-at-confirm-width — a form took a confirmation's
+  // inset on a phone, squeezing its field; only a pure confirm stays narrow.
+  test('on a phone a form takes the full dialog width and a confirm stays inset', () => {
+    const widths: Record<string, string | null> = {};
+    for (const form of [true, false]) {
+      const { unmount } = renderUi(
+        () => (
+          <SurfaceStackProvider>
+            {form ? (
+              <MutationModal
+                visible
+                onClose={() => {}}
+                title="Rename"
+                submitLabel="Save"
+                operation={() => Promise.resolve()}
+                successTitle="Saved"
+              >
+                <span>field</span>
+              </MutationModal>
+            ) : (
+              <MutationModal
+                visible
+                onClose={() => {}}
+                title="End space?"
+                message="Everyone leaves."
+                submitLabel="End space"
+                operation={() => Promise.resolve()}
+                successTitle="Ended"
+              />
+            )}
+          </SurfaceStackProvider>
+        ),
+        { width: 390, height: 844 }
+      );
+      widths[form ? 'form' : 'confirm'] = mustQuery(
+        '[data-component="ModalContent"]'
+      ).getAttribute('data-size');
+      unmount();
+    }
+    expect(widths).toEqual({ form: 'fullWidth', confirm: 'small' });
+  });
+
   test('re-exports the shared lifecycle and resolves surface close per phase', () => {
     expect(typeof useMutationLifecycle).toBe('function');
     const onClose = mock();

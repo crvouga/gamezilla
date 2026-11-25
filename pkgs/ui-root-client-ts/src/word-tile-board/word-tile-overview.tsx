@@ -11,14 +11,14 @@ import { WordTileRegions } from './word-tile-regions';
 
 /**
  * Whole-board context for the enlarged board, beside it on a wide screen and
- * in the View dialog on a phone; the outline tracks actual scrolling.
+ * in the Board tools dialog on a phone; the outline tracks actual scrolling.
  */
 export function WordTileOverview(props: {
   board: WordTileBoardProps;
   /** The board's cells, with unchanged squares kept as the same objects. */
   cells: () => readonly WordTileBoardCell[];
-  /** The chosen square's details; a phone shows them beside its View button. */
-  position?: string | undefined;
+  /** The chosen square's details; a phone shows them beside its Board tools button. */
+  details?: JSX.Element | undefined;
   viewport: () => HTMLDivElement | undefined;
   locator: (onChoose: (id: string) => void) => JSX.Element;
   onLocate: (id: string) => void;
@@ -63,11 +63,7 @@ export function WordTileOverview(props: {
           >{t`Find a square`}</SdkButton>
         </div>
         <P variant="caption">{t`View an area`}</P>
-        <Show when={props.position !== undefined}>
-          <P variant="caption" testId={`${props.board.testId}-square-details`}>
-            {props.position}
-          </P>
-        </Show>
+        {props.details}
         <P variant="caption">{t`Outline shows viewing area.`}</P>
       </div>
       <Show when={open()}>

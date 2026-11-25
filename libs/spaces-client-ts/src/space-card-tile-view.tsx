@@ -63,7 +63,7 @@ function SpaceTileHost(props: { readonly space: SpaceCardData }): JSX.Element {
       </Show>
       <StackVertical shrink>
         <P variant="caption" lines={1}>
-          <SpaceHostPhrase space={props.space} />
+          <SpaceHostPhrase space={props.space} oneLine />
         </P>
       </StackVertical>
     </StackHorizontal>
@@ -73,7 +73,10 @@ function SpaceTileHost(props: { readonly space: SpaceCardData }): JSX.Element {
 /**
  * A space as a desktop card in the lobby's grid: the row's anatomy (the
  * space's mark, name with what pressing it does, who hosts it) with room
- * for the faces of who else is in it. The whole card is the control.
+ * for the faces of who else is in it. The whole card is the control. Cards
+ * in a row share one height: each header sits at the card's top edge and
+ * the guests line at its bottom, so a long name in one card never shifts
+ * its neighbours' headers or footers.
  */
 export function SpaceCardTileView(props: {
   readonly space: SpaceCardData;
@@ -90,11 +93,13 @@ export function SpaceCardTileView(props: {
         aria-label={label()}
       >
         <StackVertical
+          grow
           padding="lg"
           gap="md"
+          justify="between"
           testId={Handles.spaceLobbyCard(props.space.spaceId)}
         >
-          <StackHorizontal gap="md" align="center">
+          <StackHorizontal gap="md" align="start">
             <SpaceMarkView
               spaceId={props.space.spaceId}
               title={props.space.title}

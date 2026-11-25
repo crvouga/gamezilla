@@ -29,7 +29,7 @@ export async function expectPrecisionDefault(
   await expect(center.getBoundingClientRect().height).toBeGreaterThanOrEqual(
     44
   );
-  // The phone's view tools wait behind the View button, in a centred dialog.
+  // The phone's view tools wait behind the Board tools button, in a centred dialog.
   const tools = await boardViewTools(canvasElement);
   // regression: word-tiles-region-purpose-hidden
   await assertClear(tools.getByText('View an area'));
