@@ -17,9 +17,10 @@ export { GameBoardPreviewContext, useGameBoardPreview } from './board-preview';
 /**
  * The play surface and the people around it. The game supplies the
  * interactive surface; the stage keeps it the largest thing on the screen,
- * in reading order: the other players above it (one `GamePlayerBar`, or a
- * `GamePlayerRail` at a bigger table), then the board, then the turn
- * (`GameTurnPill`), then the person's own strip. An empty slot takes no room.
+ * in reading order: everything said about the game over it (the other
+ * players, one `GamePlayerBar` or a `GamePlayerRail` at a bigger table,
+ * then the turn, `GameTurnPill`, then the person's own strip), then the
+ * board, so only commands ever sit under it. An empty slot takes no room.
  * `preview` shows the board as a small thumbnail, in its own colours, over
  * a quiet `previewLabel` instead, while the game is still being set up: it
  * says which board, not where to play, so it never outweighs the setup. A board
@@ -28,9 +29,9 @@ export { GameBoardPreviewContext, useGameBoardPreview } from './board-preview';
 export function GameBoardStage(props: {
   /** The other players, above the board. */
   others?: JSX.Element;
-  /** Whose turn it is, between the board and the person's own strip. */
+  /** Whose turn it is, between the other players and the person's own strip. */
   turn?: JSX.Element;
-  /** The person holding the device, below the board. */
+  /** The person holding the device, over the board with the others. */
   own?: JSX.Element;
   children: JSX.Element;
   /**
@@ -90,7 +91,11 @@ export function GameBoardStage(props: {
       data-board-narrowed={narrowed() ? 'true' : undefined}
       {...dataAttrs({ component: 'GameBoardStage', ...props.dataSet })}
     >
+      {/* Who plays and whose turn it is read over the board, the person's
+          own seat with the others: under the board come only commands. */}
       <Show when={others.present()}>{others.content()}</Show>
+      <Show when={turn.present()}>{turn.content()}</Show>
+      <Show when={own.present()}>{own.content()}</Show>
       <div
         ref={setSurface}
         class={styles['board']}
@@ -112,8 +117,6 @@ export function GameBoardStage(props: {
           {props.previewLabel}
         </p>
       </Show>
-      <Show when={turn.present()}>{turn.content()}</Show>
-      <Show when={own.present()}>{own.content()}</Show>
     </div>
   );
 }

@@ -171,7 +171,13 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
           online={props.online}
           searching={props.stage === 'searching'}
           docked={props.place.screen === 'home' && props.returnTo === undefined}
-          playing={props.stage === 'playing' && props.place.screen === 'stage'}
+          // The live stage (its menu is a sheet over it) says no
+          // connection on its own status line.
+          playing={
+            props.stage === 'playing' &&
+            (props.place.screen === 'stage' ||
+              props.place.screen === 'commands')
+          }
         />
       );
     },
@@ -383,6 +389,8 @@ function Places(props: Props): JSX.Element {
         <PlayPlace {...props} />
       </Match>
       <Match when={props.place.screen === 'commands'}>
+        {/* The game's menu is a sheet over the live stage. */}
+        <PlayPlace {...props} />
         <CommandsPlace {...props} />
       </Match>
       <Match when={props.place.screen === 'moves'}>

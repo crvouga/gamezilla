@@ -508,7 +508,10 @@ describe('the confirmation', () => {
             )
       );
       fireEvent.click(view.getByTestId(`custom-game-${operation}`));
-      expect(view.queryByRole('dialog')).not.toBeNull();
+      // The confirmation opens (over the game's menu sheet, for resign).
+      expect(
+        view.getByTestId(`custom-game-${operation}-confirm`)
+      ).toBeInTheDocument();
       fireEvent.click(view.getByTestId(`custom-game-${operation}-confirm`));
       // The place that asked is gone; the confirm is not.
       expect(view.queryByTestId(`custom-game-${operation}`)).toBeNull();

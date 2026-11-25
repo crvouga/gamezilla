@@ -184,11 +184,12 @@ function FramePlaces(props: Props): JSX.Element {
       >
         {(record) => <FrameMovesPlace {...props} record={record()} />}
       </Match>
-      <Match when={props.phase === 'active' && screen() === 'commands'}>
-        <FrameCommandsPlace {...props} />
-      </Match>
       <Match when={props.phase === 'active'}>
+        {/* The game's menu is a sheet over the live stage. */}
         <CustomGameStagePlace {...props} />
+        <Show when={screen() === 'commands'}>
+          <FrameCommandsPlace {...props} />
+        </Show>
       </Match>
       <Match when={over()}>
         <FrameResultPlace {...props} />

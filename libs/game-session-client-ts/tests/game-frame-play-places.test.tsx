@@ -391,8 +391,9 @@ describe('the game menu', () => {
   // regression: history-link-moves-around
   // "History and stats" sat at the record's title, in its disclosure, and
   // beside Resign. During play it is one row of the game menu.
-  test('holds every command as a row, History and stats among them, once', () => {
+  test('holds every command as a row, History and stats among them, once, in a sheet over the live board', () => {
     mountFrame(() => frameProps({ place: { screen: 'commands' } }));
+    const menu = screen.getByRole('dialog', { name: 'Game menu' });
     for (const row of [
       'custom-game-offer',
       'custom-game-review-moves',
@@ -400,10 +401,11 @@ describe('the game menu', () => {
       'custom-game-resign',
       'custom-game-resume',
     ])
-      expect(screen.getAllByTestId(row)).toHaveLength(1);
+      expect(within(menu).getAllByTestId(row)).toHaveLength(1);
+    // A few commands are a sheet, never a page: the board stays behind it.
     expect(
       document.querySelector('[data-component="GameBoardStage"]')
-    ).toBeNull();
+    ).not.toBeNull();
   });
 
   test('a draw that may not be offered yet says when it may', () => {

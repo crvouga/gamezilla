@@ -122,21 +122,35 @@
     overflow: hidden;
     border-radius: var(--ui-radius-card);
   }
-  /* The commands: a bar at the bottom edge, over the page's own surface. */
+  /* One order on every stage: what the game says (its moves, then its
+     status line) over the board, and only the game's commands under it.
+     The controls' own box steps aside, so its status line joins the info
+     above the board and its commands make the bar at the bottom edge. */
   .fixed [data-game-slot="controls"] {
-    position: relative;
+    display: contents;
+  }
+  .fixed [data-game-slot="controls"] > .status {
+    order: -1;
     flex: none;
     align-self: stretch;
-    gap: var(--ui-space-2);
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    padding-inline: var(--ui-space-3);
+    text-align: center;
+  }
+  .fixed [data-game-slot="controls"] > :not(.status) {
+    position: relative;
+    order: 1;
+    flex: none;
+    align-self: stretch;
+    width: 100%;
+    max-width: none;
+    box-sizing: border-box;
     padding: var(--ui-space-2) var(--ui-space-3)
       calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--ui-color-border);
     background: var(--ui-color-surface);
-  }
-  .fixed [data-game-slot="controls"] > * {
-    align-self: stretch;
-    width: 100%;
-    max-width: none;
   }
   /* The line about the game: one band of two lines, empty or full. */
   .status {
@@ -191,7 +205,7 @@
    * moves when one lands.
    */
   .fixed [data-game-slot="rail"] {
-    order: -1;
+    order: -2;
     flex: none;
     width: 100%;
     max-width: none;

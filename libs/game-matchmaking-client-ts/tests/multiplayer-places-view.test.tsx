@@ -250,24 +250,26 @@ describe('play holds the board and one way to the commands', () => {
     const view = mountPlaces({ stage: 'playing' });
     screen.getByTestId('multiplayer-open-commands').click();
     expect(view.place()).toBe('commands');
-    expect(ids(...GAME_COMMANDS)).toEqual([
+    // A few commands are a sheet over the live board, never a page.
+    const menu = screen.getByRole('dialog', { name: 'Game menu' });
+    expect(
+      GAME_COMMANDS.filter((name) => within(menu).queryByTestId(name) !== null)
+    ).toEqual([
       'multiplayer-offer-draw',
       'multiplayer-flip-board',
       'multiplayer-open-moves',
       'multiplayer-resign',
     ]);
-    expect(ids('slot-board')).toEqual([]);
-    const sections = view.container.querySelectorAll(
-      '[data-component="MenuSection"]'
-    );
+    expect(ids('slot-board')).toEqual(['slot-board']);
+    const sections = menu.querySelectorAll('[data-component="MenuSection"]');
     expect(sections).toHaveLength(2);
     expect(
       sections[1]?.contains(screen.getByTestId('multiplayer-resign'))
     ).toBe(true);
-    expect(screen.getByTestId('multiplayer-offer-draw').textContent).toBe(
+    expect(within(menu).getByTestId('multiplayer-offer-draw').textContent).toBe(
       'Offer a multiplayer draw'
     );
-    expect(screen.getByTestId('multiplayer-resign').textContent).toBe(
+    expect(within(menu).getByTestId('multiplayer-resign').textContent).toBe(
       'Resign multiplayer game'
     );
   });
