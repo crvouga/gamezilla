@@ -284,7 +284,7 @@ export function handCards(
   const seat = seatOfSide(board.orientation);
   const myTurn = position?.phase === 'play' && seatToPlay(position) === seat;
   const refusal = (card: Card): string | undefined => {
-    if (!myTurn || position === null) return undefined;
+    if (!myTurn) return undefined;
     // Not this seat's turn: the hand waits as a whole (`heartsWaiting`),
     // no card is refused by a rule.
     const reason = cardRefusal(position, seat, held, card);
