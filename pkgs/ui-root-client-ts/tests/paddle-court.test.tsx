@@ -2,6 +2,8 @@ import { afterEach, expect, test } from 'bun:test';
 import { PaddleCourt } from '@pkgs/ui-root-client-ts/paddle-court';
 import { cleanup, fireEvent, render } from '@solidjs/testing-library';
 
+import { createAgent } from '@ui-sdk/solid/agent';
+
 afterEach(cleanup);
 
 function court(controlled: ('first' | 'second')[] = ['first', 'second']) {
@@ -118,4 +120,25 @@ test('a spectator cannot focus controls, move either paddle or capture scrolling
   expect(view.element.dataset['interactive']).toBe('false');
   expect(view.directions).toEqual([]);
   expect(view.targets).toEqual([]);
+});
+
+test('the agent moves and releases the local paddle and aims at a court position', async () => {
+  const view = court(['second']);
+  const agent = createAgent();
+  const act = (action: string, ...args: (string | number)[]) =>
+    agent.act({ steps: [{ ref: 'Pong court', action, args }] });
+  expect((await act('moveUp', 'second')).error?.message).toBeUndefined();
+  expect((await act('moveDown', 'second')).error?.message).toBeUndefined();
+  expect((await act('stop', 'second')).error?.message).toBeUndefined();
+  expect(
+    (await act('setTargetFraction', 'second', 0.375)).error?.message
+  ).toBeUndefined();
+  expect((await act('moveUp', 'first')).error).toBeDefined();
+  expect((await act('setTargetFraction', 'second', 2)).error).toBeDefined();
+  expect(view.directions).toEqual([
+    ['second', -1],
+    ['second', 1],
+    ['second', 0],
+  ]);
+  expect(view.targets).toEqual([['second', 0.375]]);
 });

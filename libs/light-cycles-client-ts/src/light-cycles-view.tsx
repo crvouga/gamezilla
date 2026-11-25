@@ -47,7 +47,12 @@ export function trailRiders(
     next: plannedHeading(rider),
     alive: rider.alive,
     mark: LIGHT_CYCLES_RIDERS[rider.seat].mark,
-    controlled: controlled.includes(rider.seat),
+    controlSlot:
+      rider.seat === controlled[0]
+        ? 0
+        : rider.seat === controlled[1]
+          ? 1
+          : null,
     label: LIGHT_CYCLES_RIDERS[rider.seat].name,
   }));
 }

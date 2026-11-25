@@ -2,7 +2,11 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import { trailShapes } from '../trail-arena-geometry';
-import { controlledSlots, trailArenaInput } from '../trail-arena-input';
+import {
+  ArenaSurface,
+  controlledSlots,
+  trailArenaInput,
+} from '../trail-arena-input';
 import {
   ArenaOverlay,
   ArenaPatterns,
@@ -43,7 +47,6 @@ export const LARGE_HEAD_SCALE = 1.4;
  * Each rider index has its own colour token and its own trail pattern;
  * every trail is one merged path, so the cost follows the riders, not the cells.
  */
-/* oxlint-disable jsx-a11y/no-noninteractive-tabindex, jsx-a11y/no-noninteractive-element-interactions -- A keyboard-steered arena uses the ARIA application role; the direction pad provides equivalent buttons outside application mode. */
 export function TrailArena(props: TrailArenaProps): JSX.Element {
   const arenaId = `trail-arena-${createUniqueId()}`;
   const input = trailArenaInput(props);
@@ -53,7 +56,10 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   const interactive = () => props.enabled && controlledSlots(props) > 0;
   const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
   return (
-    <div
+    <ArenaSurface
+      enabled={props.enabled}
+      riders={props.riders}
+      onDirection={props.onDirection}
       class={styles['arena']}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
@@ -133,7 +139,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       </svg>
       <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
-    </div>
+    </ArenaSurface>
   );
 }
 
