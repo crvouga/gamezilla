@@ -9,9 +9,9 @@ import type {
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
 import type { JSX } from '@solidjs/web';
-import { SelectParts } from '../picker-parts';
-import { Show } from 'solid-js';
+import { omit, Show } from 'solid-js';
 import { ChevronDownIcon } from '../icons';
+import { SelectParts } from '../picker-parts';
 
 export type SelectTriggerProps<T extends SelectValue> = {
   selected: SelectOption<T> | undefined;
@@ -19,6 +19,7 @@ export type SelectTriggerProps<T extends SelectValue> = {
   disabled: boolean;
   size: SelectSize;
   open: boolean;
+  listboxId: string;
   'aria-label': string | undefined;
   /** DOM `data-*` identifiers for the trigger button. */
   dataSet?: ComponentDataSet | undefined;
@@ -32,7 +33,11 @@ export type SelectTriggerProps<T extends SelectValue> = {
  * real `<button>` with `aria-haspopup="listbox"` / `aria-expanded`.
  */
 export function SelectLabel(props: { label: JSX.Element }): JSX.Element {
-  return <SelectParts.Label class="text textCaption mb-1 text-text-secondary">{props.label}</SelectParts.Label>;
+  return (
+    <SelectParts.Label class="text textCaption mb-1 text-text-secondary">
+      {props.label}
+    </SelectParts.Label>
+  );
 }
 
 function triggerClass(compact: boolean): string {
@@ -49,7 +54,15 @@ export function SelectTrigger<T extends SelectValue>(
   const hasSelection = (): boolean => props.selected !== undefined;
   return (
     <SelectParts.Trigger
-      render={(part) => <button {...part} role="button" />}
+      render={(part) => {
+        const native = omit(part, 'role');
+        return (
+          <button
+            {...native}
+            aria-controls={props.open ? props.listboxId : undefined}
+          />
+        );
+      }}
       class={triggerClass(compact())}
       {...dataAttrs({ component: 'SelectTrigger', ...props.dataSet })}
       type="button"

@@ -2,8 +2,11 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { SegmentedControl as SdkSegmentedControl, SegmentedControlItem } from '@ui-sdk/solid/segmented-control';
 import type { JSX } from '@solidjs/web';
+import {
+  SegmentedControl as SdkSegmentedControl,
+  SegmentedControlItem,
+} from '@ui-sdk/solid/segmented-control';
 import { For, Show } from 'solid-js';
 
 export type Segment<K extends string = string> = {
@@ -128,7 +131,9 @@ export function SegmentedControl<K extends string = string>(
       ]}
       {...dataAttrs({ component: 'SegmentedControl', ...props.dataSet })}
       value={props.selected}
-      onValueChange={(value) => { if (value !== null) props.onSelect(value); }}
+      onValueChange={(value) => {
+        if (value !== null) props.onSelect(value);
+      }}
       disabled={props.disabled === true}
       aria-label={props['aria-label']}
       aria-disabled={props.disabled === true ? 'true' : undefined}

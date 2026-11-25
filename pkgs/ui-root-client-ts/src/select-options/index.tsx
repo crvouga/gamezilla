@@ -12,9 +12,6 @@ import { For, onSettled, Show } from 'solid-js';
 import { CheckIcon } from '../icons';
 import { ScrollView } from '../scroll-view/index';
 
-/** Idle time after which the type-ahead buffer resets. */
-export const SELECT_TYPE_AHEAD_RESET_MS = 500;
-
 export type SelectOptionsProps<T extends SelectValue> = {
   options: readonly SelectOption<T>[];
   value: T;
@@ -38,12 +35,28 @@ function optionElements(host: HTMLElement): HTMLElement[] {
 function DefaultOptionRow<T extends SelectValue>(props: {
   option: SelectOption<T>;
   selected: boolean;
+  onPick: () => void;
 }): JSX.Element {
+  const finishCurrent = (event: Event): void => {
+    if (!props.selected || props.option.disabled) return;
+    event.preventDefault();
+    props.onPick();
+  };
   return (
     <ListboxItem
+      onClick={finishCurrent}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') finishCurrent(event);
+      }}
       value={props.option.value}
       disabled={props.option.disabled === true}
-      render={(part) => <button {...part} type="button" disabled={props.option.disabled === true} />}
+      render={(part) => (
+        <button
+          {...part}
+          type="button"
+          disabled={props.option.disabled === true}
+        />
+      )}
       class={[
         'clickable clickableTint w-full min-h-11 flex-row items-center gap-3 py-3 px-4 text-left disabled:opacity-disabled',
         { 'bg-tint-subtle': props.selected },
@@ -104,6 +117,7 @@ function SelectOptionEntry<T extends SelectValue>(props: {
           <DefaultOptionRow
             option={props.option}
             selected={props.selected}
+            onPick={props.onPick}
           />
         }
       >
@@ -165,7 +179,9 @@ export function SelectOptions<T extends SelectValue>(
         activation="manual"
         loop
         value={props.value}
-        onValueChange={(next) => { if (next !== null) props.onPick(next); }}
+        onValueChange={(next) => {
+          if (next !== null) props.onPick(next);
+        }}
         id={props.id}
         aria-label={props.label}
       >

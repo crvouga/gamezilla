@@ -10,11 +10,11 @@ import type {
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { ComboboxParts } from '../picker-parts';
 import { Show } from 'solid-js';
 import { ComboboxChips } from '../combobox-chips/index';
 import { IconButton } from '../icon-button/index';
 import { ChevronDownIcon, XIcon } from '../icons';
+import { ComboboxParts } from '../picker-parts';
 
 /**
  * Field row for {@link Combobox}: selected chips (multi), the opener button
@@ -22,7 +22,11 @@ import { ChevronDownIcon, XIcon } from '../icons';
  * control for multi-select. Every interactive part is a sibling `<button>`.
  */
 export function ComboboxLabel(props: { label: JSX.Element }): JSX.Element {
-  return <ComboboxParts.Label class="text textCaption mb-1 text-text-secondary">{props.label}</ComboboxParts.Label>;
+  return (
+    <ComboboxParts.Label class="text textCaption mb-1 text-text-secondary">
+      {props.label}
+    </ComboboxParts.Label>
+  );
 }
 
 export type ComboboxTriggerProps<T extends ComboboxValue> = {
@@ -87,7 +91,15 @@ export function ComboboxTrigger<T extends ComboboxValue>(
         />
       </Show>
       <ComboboxParts.Trigger
-        render={(part) => <button {...part} role="combobox" tabindex={0} aria-controls={props.listboxId} />}
+        render={(part) => (
+          <button
+            {...part}
+            role="combobox"
+            aria-expanded={ariaBoolean(props.open)}
+            tabindex={0}
+            aria-controls={props.listboxId}
+          />
+        )}
         class="clickable clickableTint flex-1 min-w-0 min-h-ui-control-md flex-row items-center gap-3 px-4 py-2 rounded-control text-left"
         {...dataAttrs({ component: 'ComboboxTrigger', ...props.dataSet })}
         type="button"

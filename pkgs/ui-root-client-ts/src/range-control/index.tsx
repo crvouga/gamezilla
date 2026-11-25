@@ -2,6 +2,7 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { slider } from '@ui-sdk/core/slider';
 import { usePrimitive } from '@ui-sdk/solid/primitive';
+import { omit } from 'solid-js';
 import styles from './range-control.module.css';
 
 export type RangeControlProps = {
@@ -44,13 +45,15 @@ export function RangeControl(props: RangeControlProps) {
     step: props.step ?? 1,
     orientation: props.orientation ?? 'horizontal',
     disabled: props.disabled === true,
-    onValueChange: (value) => { if (typeof value === 'number') props.onInput(value); },
+    onValueChange: (value) => {
+      if (typeof value === 'number') props.onInput(value);
+    },
     onValueCommit: () => props.onCommit?.(),
   }));
+  const native = omit(control.slot('root'), 'role');
   return (
     <input
-      {...control.slot('root')}
-      role="slider"
+      {...native}
       class={
         props.orientation === 'vertical'
           ? `box accent-tint bg-transparent cursor-pointer ${styles['vertical']}`

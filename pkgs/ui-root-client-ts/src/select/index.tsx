@@ -10,7 +10,6 @@ import type {
   SelectValue,
 } from '@pkgs/ui-root-shared-ts/select-types';
 import type { JSX } from '@solidjs/web';
-import { SelectParts, pickerItems } from '../picker-parts';
 import {
   createMemo,
   createSignal,
@@ -21,6 +20,7 @@ import {
 import { ErrorState } from '../error-state/index';
 import { SearchIcon } from '../icons';
 import { LoadingState } from '../loading-state/index';
+import { pickerItems, SelectParts } from '../picker-parts';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { SelectOptions } from '../select-options/index';
 import { SelectLabel, SelectTrigger } from '../select-trigger/index';
@@ -164,41 +164,57 @@ export function Select<T extends SelectValue = string>(
       value={props.value}
       open={open()}
       onOpenChange={(next) => setOpen(next)}
-      onValueChange={(value) => { if (value !== null && !props.loading && !props.disabled && props.options.some((option) => option.value === value && !option.disabled)) handlePick(value); }}
+      onValueChange={(value) => {
+        if (
+          value !== null &&
+          !props.loading &&
+          !props.disabled &&
+          props.options.some(
+            (option) => option.value === value && !option.disabled
+          )
+        )
+          handlePick(value);
+      }}
     >
-    <div class="box" {...dataAttrs({ component: 'Select', ...props.dataSet })}>
-      <Show when={props.label !== undefined}>
-        <SelectLabel label={props.label} />
-      </Show>
-      <SelectTrigger
-        selected={selected()}
-        placeholder={props.placeholder ?? t`Select…`}
-        disabled={props.disabled === true}
-        size={props.size ?? 'md'}
-        open={open()}
-        aria-label={name()}
-        dataSet={props.triggerDataSet}
-      />
-      <ResponsiveSurface
-        visible={open()}
-        onClose={() => setOpen(false)}
-        title={title()}
-        label={name()}
-        scroll={false}
+      <div
+        class="box"
+        {...dataAttrs({ component: 'Select', ...props.dataSet })}
       >
-        <Show
-          when={props.surfaceExtra !== undefined && props.surfaceExtra !== null}
-        >
-          <div class="box mb-2">{props.surfaceExtra}</div>
+        <Show when={props.label !== undefined}>
+          <SelectLabel label={props.label} />
         </Show>
-        <SelectSurfaceBody
-          {...props}
-          onPick={handlePick}
+        <SelectTrigger
+          selected={selected()}
+          placeholder={props.placeholder ?? t`Select…`}
+          disabled={props.disabled === true}
+          size={props.size ?? 'md'}
+          open={open()}
           listboxId={listboxId}
-          listboxLabel={name()}
+          aria-label={name()}
+          dataSet={props.triggerDataSet}
         />
-      </ResponsiveSurface>
-    </div>
+        <ResponsiveSurface
+          visible={open()}
+          onClose={() => setOpen(false)}
+          title={title()}
+          label={name()}
+          scroll={false}
+        >
+          <Show
+            when={
+              props.surfaceExtra !== undefined && props.surfaceExtra !== null
+            }
+          >
+            <div class="box mb-2">{props.surfaceExtra}</div>
+          </Show>
+          <SelectSurfaceBody
+            {...props}
+            onPick={handlePick}
+            listboxId={listboxId}
+            listboxLabel={name()}
+          />
+        </ResponsiveSurface>
+      </div>
     </SelectParts.Root>
   );
 }

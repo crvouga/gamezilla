@@ -3,8 +3,13 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import type { JSX } from '@solidjs/web';
-import { NumberInput, NumberInputDecrement, NumberInputIncrement, createNumberInputController } from '@ui-sdk/solid/number-input';
+import { dynamic, type JSX } from '@solidjs/web';
+import {
+  createNumberInputController,
+  NumberInput,
+  NumberInputDecrement,
+  NumberInputIncrement,
+} from '@ui-sdk/solid/number-input';
 import { createUniqueId, Show } from 'solid-js';
 
 export type NumberStepperProps = {
@@ -80,7 +85,9 @@ function StepperButton(props: {
   plus: boolean;
   testId: string | undefined;
 }): JSX.Element {
-  const Step = props.plus ? NumberInputIncrement : NumberInputDecrement;
+  const Step = dynamic(() =>
+    props.plus ? NumberInputIncrement : NumberInputDecrement
+  );
   return (
     <Step
       class={[
@@ -168,7 +175,10 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
       aria-label={props.label}
       disabled={model.off()}
       controller={controller}
-      onValueChange={(value, details) => { if (model.off()) details.cancel(); else if (value !== null) props.onChange(value); }}
+      onValueChange={(value, details) => {
+        if (model.off()) details.cancel();
+        else if (value !== null) props.onChange(value);
+      }}
       class={[
         'box flex-row items-center justify-between gap-3 py-1',
         { 'opacity-disabled': model.off() },
@@ -199,7 +209,12 @@ export function NumberStepper(props: NumberStepperProps): JSX.Element {
           )}
           aria-disabled={model.off() ? 'true' : undefined}
           onKeyDown={(event) =>
-            onSpinKeyDown(event, (delta) => controller.setValue(props.value + delta), (at) => controller.setValue(props[at]), model.step())
+            onSpinKeyDown(
+              event,
+              (delta) => controller.setValue(props.value + delta),
+              (at) => controller.setValue(props[at]),
+              model.step()
+            )
           }
         >
           {String(props.value)}

@@ -2,7 +2,8 @@
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createFileInputController, FileInput } from '@ui-sdk/solid/file-input';
+import { fileInput } from '@ui-sdk/core/file-input';
+import { usePrimitive } from '@ui-sdk/solid/primitive';
 
 export type FileTriggerProps = {
   /** Accessible name of the file input. */
@@ -37,18 +38,23 @@ export type FileTriggerProps = {
  * ```
  */
 export function FileTrigger(props: FileTriggerProps): JSX.Element {
-  const controller = createFileInputController();
+  const field = usePrimitive(fileInput, () => ({
+    onValueChange: (files) => {
+      if (files[0] !== undefined) props.onSelect(files[0]);
+    },
+  }));
   return (
-    <FileInput
-      class="contents"
-      accept={props.accept}
-      aria-label={props.label}
-      controller={controller}
-      data-testid={props.testId}
-      data-component={componentId('FileTrigger')}
-      onValueChange={(files) => { if (files[0] !== undefined) props.onSelect(files[0]); }}
-    >
-      {props.children(() => { controller.open(); })}
-    </FileInput>
+    <div {...field.slot('root')} aria-label={props.label} class="contents">
+      <input
+        {...field.slot('input')}
+        accept={props.accept}
+        data-testid={props.testId}
+        data-component={componentId('FileTrigger')}
+        aria-label={props.label}
+      />
+      {props.children(() => {
+        field.api.open();
+      })}
+    </div>
   );
 }

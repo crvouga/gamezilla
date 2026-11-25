@@ -2,7 +2,10 @@
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Radio as SdkRadio, RadioGroup as SdkRadioGroup } from '@ui-sdk/solid/radio';
+import {
+  Radio as SdkRadio,
+  RadioGroup as SdkRadioGroup,
+} from '@ui-sdk/solid/radio';
 import { createUniqueId, Show } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
@@ -72,7 +75,9 @@ export function RadioGroup(props: RadioGroupProps): JSX.Element {
       data-testid={props.testId}
       data-component={componentId('RadioGroup')}
       value={props.value ?? null}
-      onValueChange={(value) => { if (value !== null) props.onValueChange(value); }}
+      onValueChange={(value) => {
+        if (value !== null) props.onValueChange(value);
+      }}
       disabled={props.disabled === true}
       aria-label={props['aria-label']}
       aria-labelledby={
@@ -123,7 +128,13 @@ export function Radio(props: RadioProps): JSX.Element {
     >
       <SdkRadio
         value={props.value}
-        render={(part, state) => <button {...part} disabled={state.disabled} tabindex={state.disabled ? -1 : part['tabindex']} />}
+        render={(part, state) => (
+          <button
+            {...part}
+            disabled={state.disabled}
+            {...(state.disabled ? { tabindex: -1 } : {})}
+          />
+        )}
         class={spaced([
           'clickable clickableTint flex-row items-center gap-ui-sm rounded-control px-ui-xs min-h-ui-control-md text-start',
           'disabled:cursor-default',
@@ -134,10 +145,12 @@ export function Radio(props: RadioProps): JSX.Element {
         }
         disabled={props.disabled === true}
       >
-        {(state) => <>
-          <RadioMark checked={state.checked} />
-          <span class="text textBody text-text">{props.label}</span>
-        </>}
+        {(state) => (
+          <>
+            <RadioMark checked={state.checked} />
+            <span class="text textBody text-text">{props.label}</span>
+          </>
+        )}
       </SdkRadio>
       <Show when={props.description} keyed>
         {(description) => (

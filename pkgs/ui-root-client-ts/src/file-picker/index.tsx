@@ -4,10 +4,17 @@ import {
   dataAttrs,
 } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { FileInput, FileInputTrigger } from '@ui-sdk/solid/file-input';
+import { fileInput } from '@ui-sdk/core/file-input';
+import { createParts } from '@ui-sdk/solid/primitive';
 import { createUniqueId, Show } from 'solid-js';
 import { FileIcon } from '../icons';
 import styles from './file-picker.module.css';
+
+const FileParts = createParts(fileInput, {
+  root: 'div',
+  input: 'input',
+  trigger: 'button',
+});
 
 export type FilePickerProps = {
   label: JSX.Element;
@@ -39,8 +46,7 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
   const labelId = createUniqueId();
   const hintId = createUniqueId();
   return (
-    <FileInput
-      accept={props.accept}
+    <FileParts.Root
       disabled={props.disabled === true}
       aria-labelledby={labelId}
       onValueChange={(files) => props.onSelect(files[0] ?? null)}
@@ -48,10 +54,11 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
       aria-disabled={ariaBoolean(props.disabled ?? false)}
       {...dataAttrs({ component: 'FilePicker', ...props.dataSet })}
     >
+      <FileParts.Input accept={props.accept} />
       <span id={labelId} class="text textLabel">
         {props.label}
       </span>
-      <FileInputTrigger
+      <FileParts.Trigger
         aria-labelledby={labelId}
         aria-describedby={props.hint === undefined ? undefined : hintId}
         class={[
@@ -76,12 +83,12 @@ export function FilePicker(props: FilePickerProps): JSX.Element {
             {props.fileName ?? props.emptyLabel}
           </span>
         </span>
-      </FileInputTrigger>
+      </FileParts.Trigger>
       <Show when={props.hint !== undefined}>
         <span id={hintId} class="text textCaption">
           {props.hint}
         </span>
       </Show>
-    </FileInput>
+    </FileParts.Root>
   );
 }

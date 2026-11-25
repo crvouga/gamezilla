@@ -3,7 +3,7 @@
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Textarea as SdkTextarea } from '@ui-sdk/solid/textarea';
-import { createUniqueId, Show } from 'solid-js';
+import { createEffect, createUniqueId, Show } from 'solid-js';
 import { useFormField } from '../form-field/index';
 import { spaced } from '../layout-classes';
 
@@ -76,6 +76,16 @@ function TextareaCount(props: {
 export function Textarea(props: TextareaProps): JSX.Element {
   const field = useFormField();
   const countId = `textarea-count-${createUniqueId()}`;
+  let element: HTMLTextAreaElement | undefined;
+  createEffect(
+    () => [props.value, props.autoGrow] as const,
+    ([, autoGrow]) => {
+      if (autoGrow && element) {
+        element.style.height = 'auto';
+        element.style.height = `${element.scrollHeight}px`;
+      }
+    }
+  );
   const counted = (): boolean =>
     props.showCount === true && props.maxLength !== undefined;
   const invalid = (): boolean =>
@@ -90,7 +100,9 @@ export function Textarea(props: TextareaProps): JSX.Element {
   return (
     <div class="box gap-ui-xs" data-component={componentId('Textarea')}>
       <SdkTextarea
-        autoResize={props.autoGrow === true}
+        ref={(input) => {
+          element = input;
+        }}
         class={spaced([
           'input inputTextarea text textBody px-ui-lg py-ui-sm',
           invalid() ? 'inputError' : undefined,
