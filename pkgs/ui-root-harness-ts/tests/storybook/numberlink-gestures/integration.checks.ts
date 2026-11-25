@@ -89,6 +89,21 @@ for (const width of [390, 1440]) {
       await expect
         .poll(async () => (await first.boundingBox())?.width)
         .toBe(fit.width);
+      await first.focus();
+      await page.keyboard.press('Enter');
+      const terminal = first.locator('[data-shape]');
+      await expect(terminal).toHaveAttribute('data-tracing', 'true');
+      await expect
+        .poll(() =>
+          terminal.evaluate((node) =>
+            getComputedStyle(node)
+              .transitionDuration.split(',')
+              .some((value) => parseFloat(value) > 0)
+          )
+        )
+        .toBe(true);
+      await capture(page, info, 'pickup');
+      await page.keyboard.press('Escape');
       await mousePath(page, [0, 1, 2, 1]);
       const tip = board.locator('circle');
       await expect(tip).toHaveCount(1);
