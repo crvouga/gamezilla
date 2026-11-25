@@ -79,3 +79,12 @@ test('lost capture and interruption abandon pending gameplay', () => {
   pointer('pointerup', 4, 180);
   expect(moves).toEqual([]);
 });
+
+// regression: sokoban-pan-at-fit-submits-step
+test('a keyboard pan at fit cannot push the adjacent crate', () => {
+  const { board, moves } = warehouse();
+  fireEvent.keyDown(board, { key: 'ArrowRight', shiftKey: true });
+  expect(moves).toEqual([]);
+  fireEvent.keyDown(board, { key: 'ArrowRight' });
+  expect(moves).toEqual(['right']);
+});

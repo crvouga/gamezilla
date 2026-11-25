@@ -159,13 +159,12 @@ class WarehouseInput {
   key = (event: KeyboardEvent) => {
     if (event.ctrlKey || event.altKey || event.metaKey) return;
 
-    const target =
-      event.shiftKey && this.camera.read().scale > 1 && pan[event.key];
+    const target = event.shiftKey && pan[event.key];
     if (target) {
       event.preventDefault();
       event.stopImmediatePropagation();
       this.inspecting ||= this.contacts.size > 0;
-      this.camera.move(center, target, 1);
+      if (this.camera.read().scale > 1) this.camera.move(center, target, 1);
       return;
     }
 
