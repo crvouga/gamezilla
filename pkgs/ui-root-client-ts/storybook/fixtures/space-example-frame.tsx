@@ -40,7 +40,12 @@ export function spaceExampleChrome(
     spaceName: 'bob’s space',
     onBack: () => spies.onBack(),
     menu: [
-      { id: 'people', label: 'People in this space', icon: UsersIcon },
+      {
+        id: 'people',
+        label: 'People in this space',
+        shortLabel: 'People',
+        icon: UsersIcon,
+      },
       { id: 'share', label: 'Share', icon: ShareIcon },
       { id: 'minimize', label: 'Minimize space', icon: Minimize2Icon },
     ].map((item) => ({ ...item, onPress: () => spies.onSpaceMenu(item.id) })),

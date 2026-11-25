@@ -1,11 +1,12 @@
 import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { NameText } from '@pkgs/ui-root-client-ts/name-text';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import type { TextLines } from '@pkgs/ui-root-client-ts/text-classes';
+import type { TextLines, TextWrap } from '@pkgs/ui-root-client-ts/text-classes';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
@@ -45,12 +46,16 @@ export function SpacePersonAvatar(props: {
 function BotLabel(props: { readonly person: SpacePerson }): JSX.Element {
   return (
     <Show when={props.person.bot}>
-      <Badge
-        label={<Trans>Bot</Trans>}
-        intent="neutral"
-        size="sm"
-        dataSet={{ testid: `account-automation-${props.person.id}` }}
-      />
+      {/* A badge keeps to its row's top edge; its own row centres it on
+          the name's line. */}
+      <StackHorizontal align="center">
+        <Badge
+          label={<Trans>Bot</Trans>}
+          intent="neutral"
+          size="sm"
+          dataSet={{ testid: `account-automation-${props.person.id}` }}
+        />
+      </StackHorizontal>
     </Show>
   );
 }
@@ -63,8 +68,17 @@ export function SpacePersonName(props: {
   readonly person: SpacePerson | null;
   readonly variant?: TextRole | undefined;
   readonly lines?: TextLines | undefined;
+  /**
+   * `break`: breaks anywhere. Without it a long name wraps after `_`, `.`
+   * or `-` first, so it breaks mid-word only when one run cannot fit.
+   */
+  readonly wrap?: TextWrap | undefined;
   readonly testId?: string | undefined;
 }): JSX.Element {
+  const { t } = useLingui();
+  // A person whose name has not arrived yet still reads as someone.
+  const shown = (name: string): string =>
+    name.trim() === '' ? t`Guest` : name;
   return (
     <Show when={props.person} keyed>
       {(person) => (
@@ -73,20 +87,25 @@ export function SpacePersonName(props: {
           fallback={
             <>
               <Text variant={props.variant ?? 'body'} testId={props.testId}>
-                {person.name}
-              </Text>
+                <NameText name={shown(person.name)} />
+              </Text>{' '}
               <BotLabel person={person} />
             </>
           }
         >
-          <StackHorizontal align="center" gap="xs">
-            <P
-              variant={props.variant ?? 'body'}
-              lines={props.lines}
-              testId={props.testId}
-            >
-              {person.name}
-            </P>
+          {/* The name gives up room first, cut short with an ellipsis;
+              the label after it keeps its size, on the same line. */}
+          <StackHorizontal align="center" gap="xs" grow>
+            <StackVertical shrink>
+              <P
+                variant={props.variant ?? 'body'}
+                lines={props.lines}
+                wrap={props.wrap}
+                testId={props.testId}
+              >
+                <NameText name={shown(person.name)} />
+              </P>
+            </StackVertical>
             <BotLabel person={person} />
           </StackHorizontal>
         </Show>

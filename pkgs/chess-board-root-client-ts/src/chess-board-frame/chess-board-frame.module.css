@@ -3,8 +3,19 @@
    same way everywhere; only a thumbnail keeps its corner labels. */
 .host {
   container: chess-frame / inline-size;
+  box-sizing: border-box;
   width: 100%;
   min-width: 0;
+}
+/* A phone's board spans the screen: the frame keeps the screen's gutter on
+   both sides, as the seats over it do, so neither the squares' rim nor a
+   rank label meets the screen's edge. */
+@media (max-width: 767px) {
+  [data-game-fixed="true"]
+    [data-game-board-stage]:not([data-board-narrowed="true"])
+    .host {
+    padding-inline: var(--ui-space-2);
+  }
 }
 .frame {
   display: grid;

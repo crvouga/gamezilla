@@ -67,6 +67,8 @@ export const Solved: Story = {};
 export const Failed: Story = {
   args: {
     ratingChange: -9,
+    // The coach speaks to the outcome: found, but after a slip.
+    coach: { message: "You found Legal's mate after a slip. Retry it clean." },
     result: {
       ...STORY_RESULT,
       completion: {
@@ -95,6 +97,8 @@ export const SolutionShown: Story = {
 /** Skipped: no rated outcome, the puzzle's own facts, and the next puzzle. */
 export const Skipped: Story = {
   args: {
+    // The answer, never a congratulation for a puzzle the person left.
+    coach: { message: "Skipped. The answer was Legal's mate." },
     statusKind: 'skipped',
     status: 'skipped',
     ratingChange: null,

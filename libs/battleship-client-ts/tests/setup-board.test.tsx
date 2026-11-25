@@ -104,6 +104,28 @@ test('the preview marks the cells a placement would cover, and which it cannot',
   expect(cell('b2').getAttribute('data-emphasis')).toBe('none');
 });
 
+// regression: battleship-preview-over-placed-ship — the Battleship's
+// dashed preview lay over the placed Carrier as if it fitted there.
+test('a preview over a placed ship reads as refused and the guidance says the spot is taken', () => {
+  setupBoard('fleet:carrier@b2h');
+  fireEvent.focus(cell('b2'));
+  for (const id of ['b2', 'c2', 'd2', 'e2']) {
+    expect(cell(id).getAttribute('data-emphasis')).toBe('refused');
+    expect(tone(id)).toBe('alert');
+    expect(cell(id).textContent).toBe('⊘');
+  }
+  expect(cell('b2').getAttribute('aria-label')).toBe('B2: Carrier');
+  expect(tone('f2')).toBe('occupied');
+  expect(byTestId('setup-guidance').textContent).toBe(
+    'The Battleship cannot go there: it would overlap the Carrier. That spot is taken: choose another bow cell or rotate.'
+  );
+  expect(document.querySelector('[data-testid="setup-refusal"]')).toBeNull();
+  fireEvent.focus(cell('b4'));
+  expect(byTestId('setup-guidance').textContent).toContain(
+    'Tap its first cell to place it'
+  );
+});
+
 test('placing a placed ship again moves it; rotating it in place is refused off the board', () => {
   const board = setupBoard('fleet:carrier@a1h;battleship@a3h');
   fireEvent.click(byTestId('setup-ship-carrier'));

@@ -42,6 +42,22 @@ function gestureChoice(
     : { operation: 'move', uci: action, ply };
 }
 
+/**
+ * Whether a draw the other participant offered waits for this person's
+ * answer: they play, did not offer it and have not accepted it yet.
+ */
+export function customGameDrawToAnswer(model: CustomGameScreenModel): boolean {
+  const game = model.current();
+  if (game === null || model.mySide() === null || !model.canPlay())
+    return false;
+  const offer = game.drawOfferedBy;
+  return (
+    offer !== '' &&
+    offer !== model.myId() &&
+    !game.drawAcceptedBy.includes(model.myId())
+  );
+}
+
 /** The board the frame mounts, its position and whether the person may move. */
 export type FrameBoard = {
   readonly session: Accessor<GameFrameBoardSession<JSX.Element> | null>;
@@ -111,6 +127,9 @@ function useFrameBoardProps(
     },
     get commitment() {
       return live() ? model.ownCommitment() : null;
+    },
+    get drawToAnswer() {
+      return live() && customGameDrawToAnswer(model);
     },
     get viewer() {
       return model.mySide();

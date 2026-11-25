@@ -41,7 +41,7 @@ export const States: StoryObj = {
       'title',
       'You must follow suit with a spade.'
     );
-    await expect(refused).toHaveTextContent('×');
+    await expect(refused).toHaveAttribute('data-refused', 'true');
     await userEvent.click(refused);
     await expect(
       canvas.getByTestId('example-play-table-refusal')

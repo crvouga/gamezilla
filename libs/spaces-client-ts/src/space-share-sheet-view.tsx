@@ -6,8 +6,8 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { List } from '@pkgs/ui-root-client-ts/list';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
+import type { MutationStep } from '@pkgs/ui-root-client-ts/mutation-step';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
@@ -30,13 +30,20 @@ export type SpaceShareSheetViewProps = {
   /** People with access, host included. */
   readonly people: readonly SpacePerson[];
   readonly hostId: string | null;
+  /** The viewer's own id: their row reads "You". */
+  readonly viewerId?: string | undefined;
   readonly onRemovePerson: (person: SpacePerson) => void;
-  /** A confirm the sheet owns, such as removing a person. */
-  readonly overlay?: JSX.Element;
+  /**
+   * Removing a person, asked in this same dialog: its title and body stand
+   * in for the sheet's until it closes, so no second dialog stacks on top.
+   */
+  readonly removal?: MutationStep | undefined;
 };
 
 function SpaceShareLinkSection(props: {
   readonly onCopyLink: () => Promise<void>;
+  /** The viewer hosts: the link works while they are online. */
+  readonly youHost: boolean;
 }): JSX.Element {
   const { t } = useLingui();
   const copyButton = useMutationButton({
@@ -53,8 +60,20 @@ function SpaceShareLinkSection(props: {
   return (
     <StackVertical gap="sm">
       <H3 size="label">
-        <Trans>Link</Trans>
+        <Trans>Invite with a link</Trans>
       </H3>
+      <P variant="caption">
+        <Show
+          when={props.youHost}
+          fallback={
+            <Trans>
+              Anyone with the link can join while the host is online.
+            </Trans>
+          }
+        >
+          <Trans>Anyone with the link can join while you're online.</Trans>
+        </Show>
+      </P>
       <Button {...copyButton.buttonProps} />
     </StackVertical>
   );
@@ -63,6 +82,8 @@ function SpaceShareLinkSection(props: {
 function SpaceShareUserRow(props: {
   readonly person: SpacePerson;
   readonly trailing: JSX.Element | null;
+  /** The viewer's own row: "You", as People and Join say it. */
+  readonly you?: boolean | undefined;
 }): JSX.Element {
   return (
     <StackHorizontal
@@ -72,28 +93,49 @@ function SpaceShareUserRow(props: {
       paddingY="sm"
       minHeight="row"
     >
-      <SpacePersonAvatar person={props.person} size={44} />
-      <StackVertical grow>
-        <SpacePersonName person={props.person} variant="bodyBold" lines={1} />
+      <SpacePersonAvatar person={props.person} size={40} />
+      <StackVertical grow shrink>
+        <Show
+          when={props.you === true}
+          fallback={
+            <SpacePersonName
+              person={props.person}
+              variant="rowTitle"
+              lines={1}
+            />
+          }
+        >
+          <P variant="rowTitle" lines={1}>
+            <Trans>You</Trans>
+          </P>
+        </Show>
       </StackVertical>
-      {props.trailing}
+      <StackHorizontal align="center">{props.trailing}</StackHorizontal>
     </StackHorizontal>
   );
 }
 
 function PeopleAccessRow(props: {
   readonly person: SpacePerson;
+  readonly you: boolean;
   readonly isHost: boolean;
   readonly canManage: boolean;
   readonly onRemove: () => void;
 }): JSX.Element {
   return (
     <Switch
-      fallback={<SpaceShareUserRow person={props.person} trailing={null} />}
+      fallback={
+        <SpaceShareUserRow
+          person={props.person}
+          you={props.you}
+          trailing={null}
+        />
+      }
     >
       <Match when={props.isHost}>
         <SpaceShareUserRow
           person={props.person}
+          you={props.you}
           trailing={<HostBadge size="sm" />}
         />
       </Match>
@@ -104,6 +146,8 @@ function PeopleAccessRow(props: {
             <Button
               onClick={() => props.onRemove()}
               size="sm"
+              intent="neutral"
+              variant="outline"
               dataSet={{ testid: Handles.spaceRemovePerson(props.person.id) }}
               title={<Trans>Remove</Trans>}
             />
@@ -121,19 +165,25 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
         <Trans>People with access</Trans>
       </H3>
       <P variant="caption">
-        <Trans>
-          Added people find this space in their lobby and choose Join. Anyone
-          with the space link can also join.
-        </Trans>
+        <Show
+          when={props.canManage}
+          fallback={
+            <Trans>
+              People the host adds find this space in Spaces, under Shared with
+              you.
+            </Trans>
+          }
+        >
+          <Trans>
+            People you add find this space in Spaces, under Shared with you.
+          </Trans>
+        </Show>
       </P>
       <Show when={props.peopleStatus === 'loading'}>
-        <LoadingState variant="compact" size="sm" />
-      </Show>
-      <Show when={props.peopleStatus === 'ready' && props.people.length === 0}>
-        <EmptyState
+        <LoadingState
           variant="compact"
-          title={<Trans>No one added yet</Trans>}
-          body={<Trans>Share the space link to invite people.</Trans>}
+          size="sm"
+          caption={<Trans>Loading people…</Trans>}
         />
       </Show>
       <Show when={props.people.length > 0}>
@@ -142,6 +192,7 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
             {(person) => (
               <PeopleAccessRow
                 person={person}
+                you={props.viewerId === person.id}
                 isHost={props.hostId === person.id}
                 canManage={props.canManage}
                 onRemove={() => props.onRemovePerson(person)}
@@ -150,14 +201,37 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
           </For>
         </List>
       </Show>
+      {/* Only the host so far: their row stays, the invitation under it. */}
+      <Show
+        when={
+          props.peopleStatus === 'ready' &&
+          props.people.every((person) => person.id === props.hostId)
+        }
+      >
+        <EmptyState
+          variant="compact"
+          title={<Trans>No one added yet</Trans>}
+          body={
+            <Show
+              when={props.canManage}
+              fallback={<Trans>Copy the link above to invite people.</Trans>}
+            >
+              <Trans>
+                Search above to add people, or copy the link to invite anyone.
+              </Trans>
+            </Show>
+          }
+        />
+      </Show>
     </StackVertical>
   );
 }
 
 /**
  * Share a space: copy its link, add people (host), and see who has access
- * with the host's Remove action. A bottom sheet on phones, a modal on wider
- * screens.
+ * with the host's Remove action. A modal centered on the screen at every
+ * width; long lists scroll inside it. Remove asks in this same dialog: the
+ * title and body swap to the confirm, and Cancel brings the list back.
  */
 export function SpaceShareSheetView(
   props: SpaceShareSheetViewProps
@@ -166,17 +240,30 @@ export function SpaceShareSheetView(
     <ResponsiveSurface
       visible={props.open}
       onClose={() => props.onClose()}
-      title={<Trans>Share space</Trans>}
+      title={props.removal?.title() ?? <Trans>Share space</Trans>}
       size="medium"
-      scroll={false}
       closeDataSet={{ testid: Handles.spaceShareClose }}
     >
-      <ScrollView maxHeight="lg" gap="md">
-        <SpaceShareLinkSection onCopyLink={props.onCopyLink} />
-        <Show when={props.canManage}>{props.addPeople}</Show>
-        <SpaceSharePeopleList {...props} />
-        {props.overlay}
-      </ScrollView>
+      <Show
+        when={props.removal}
+        keyed
+        fallback={
+          // The sheet grows with the window and scrolls as one, so the
+          // people list is never cut mid-row while the window has room.
+          <StackVertical gap="md">
+            <SpaceShareLinkSection
+              onCopyLink={props.onCopyLink}
+              youHost={
+                props.viewerId !== undefined && props.viewerId === props.hostId
+              }
+            />
+            <Show when={props.canManage}>{props.addPeople}</Show>
+            <SpaceSharePeopleList {...props} />
+          </StackVertical>
+        }
+      >
+        {(removal: MutationStep) => <removal.Body />}
+      </Show>
     </ResponsiveSurface>
   );
 }

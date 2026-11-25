@@ -9,6 +9,8 @@ import type { useContentDraftSave } from './use-content-draft-save';
 export function ContentAuthorStage(props: {
   writer: ReturnType<typeof useContentDraftSave>;
   disabled: boolean;
+  /** Opens the draft's kept copies. */
+  onChooseCopy: () => void;
 }): JSX.Element {
   const game = useContentGame();
   return (
@@ -31,6 +33,7 @@ export function ContentAuthorStage(props: {
           onChange={(definition) =>
             props.writer.change({ ...props.writer.body(), definition })
           }
+          onChooseCopy={props.onChooseCopy}
         />
       )}
     </Show>

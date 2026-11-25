@@ -24,6 +24,7 @@ import {
 } from './word-tiles-precision.example';
 import { expectPuzzlePlacementContext } from './word-tiles-puzzle-geometry.example';
 import { WordTilesPuzzlePlayerView } from './word-tiles-puzzle-player-view';
+import { enlargeBoard } from './word-tiles-view.example';
 
 const PUZZLE: WordTilesPuzzle = {
   ruleset: RULESET.id,
@@ -96,11 +97,13 @@ export const RetryWordList: Story = {
   ...WordListUnavailable,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    // The word list's state floats in a toast, outside the story's canvas.
+    const page = within(canvasElement.ownerDocument.body);
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Retry word list' })
+      await page.findByRole('button', { name: 'Retry word list' })
     );
     await expect(
-      canvas.queryByRole('button', { name: 'Retry word list' })
+      page.queryByRole('button', { name: 'Retry word list' })
     ).not.toBeInTheDocument();
     await expect(
       canvas.getByTestId('word-tiles-puzzle-status')
@@ -196,7 +199,9 @@ export const ReachTarget: Story = {
     // regression: word-tiles-puzzle-retry-keeps-draft
     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Retry word list' })
+      within(canvasElement.ownerDocument.body).getByRole('button', {
+        name: 'Retry word list',
+      })
     );
     await expect(
       canvas.getByTestId('word-tiles-puzzle-cell-j8')
@@ -218,8 +223,26 @@ export const ReachTarget: Story = {
     ).toHaveAccessibleName(/committed/);
     const next = canvas.getByRole('button', { name: 'Puzzle library' });
     await expect(next).toBeVisible();
+    // regression: word-tiles-puzzle-board-offset — the fitted board sat
+    // centred, right of the target and controls, with its tile values
+    // hidden, and Puzzle library sat under the notice's icon.
+    const left = canvas
+      .getByTestId('word-tiles-puzzle-target')
+      .getBoundingClientRect().left;
+    await expect(next.getBoundingClientRect().left).toBe(left);
+    const board = canvas.getByTestId('word-tiles-puzzle');
+    if (board.getAttribute('data-enlarged') === 'false') {
+      await expect(board.getBoundingClientRect().left).toBe(left);
+      const points = canvas.getByTestId(
+        'word-tiles-puzzle-cell-j8'
+      ).lastElementChild;
+      if (!points) throw new Error('Missing tile value');
+      await expect(getComputedStyle(points).display).not.toBe('none');
+    }
     await userEvent.click(next);
     await expect(args.onReturnToLibrary).toHaveBeenCalledOnce();
+    // The library opens elsewhere: the solved screen rests without a ring.
+    next.blur();
   },
 };
 
@@ -229,9 +252,7 @@ export const EnlargedBlank: Story = {
     const canvas = within(canvasElement);
     // Check initial controls before userEvent can scroll to its first target.
     await expectPuzzlePlacementContext(canvasElement);
-    const enlarge = canvas.getByRole('button', { name: 'Enlarge board' });
-    if (enlarge.getAttribute('aria-pressed') !== 'true')
-      await userEvent.click(enlarge);
+    await enlargeBoard(canvasElement);
     await expectPuzzlePlacementContext(canvasElement);
     await userEvent.click(
       canvas.getByTestId(

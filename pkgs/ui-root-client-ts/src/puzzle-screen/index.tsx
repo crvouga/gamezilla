@@ -6,6 +6,7 @@ import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
 import { createScreenSlot } from '../screen-slot';
+import own from './puzzle-screen.module.css';
 
 export type PuzzleScreenProps = {
   screenId: string;
@@ -25,6 +26,12 @@ export type PuzzleScreenProps = {
   facts?: JSX.Element | undefined;
   /** Feed choices and coaching stay above the play surface. */
   header?: JSX.Element | undefined;
+  /**
+   * One line of the puzzle's state under the coaching (the moves so far,
+   * the rating a result made), in a row of one fixed height, so the board
+   * under it never moves when it changes. `true` reserves the row empty.
+   */
+  info?: JSX.Element | undefined;
   children: JSX.Element;
   /** Width / height; rectangular boards fit the same well. Defaults to 1. */
   boardAspectRatio?: number | undefined;
@@ -88,7 +95,7 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
     <div class={styles['puzzleFrame']}>
       <div
         ref={root}
-        class={styles['puzzle']}
+        class={`${styles['puzzle']} ${own['root']}`}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
         data-square={String(ratio() === 1)}
         data-board-sizing={props.boardSizing ?? 'fit'}
@@ -113,6 +120,14 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         <div class={styles['panelCard']} aria-hidden="true" />
         <PuzzleFixedRegion name="PuzzleHeader" area="header">
           {props.header}
+          <Show when={props.info !== undefined}>
+            <div
+              class={own['info']}
+              {...dataAttrs({ component: 'PuzzleInfo' })}
+            >
+              {props.info}
+            </div>
+          </Show>
         </PuzzleFixedRegion>
         <div class={styles['well']}>
           <div

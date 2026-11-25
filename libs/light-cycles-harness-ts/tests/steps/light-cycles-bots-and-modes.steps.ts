@@ -207,6 +207,7 @@ Given(
     });
   }
 );
+// regression: custom-game-navigation-offline-or-watching
 Given(
   "{actor}'s Light Cycles {lightCyclesMode} practice has {lightCyclesRider} on {int} round wins against a {lightCyclesBotLevel} bot with a target score of {int}",
   async (

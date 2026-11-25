@@ -14,7 +14,10 @@ When(
 );
 
 Then("{actor}'s other device can leave the space", async (w, actor: Actor) => {
-  expect(await w.s.read(leaveOffered, otherDevice(actor))).toBe(true);
+  await w.s.until((s) => leaveOffered(s, otherDevice(actor)), {
+    maxMs: 20_000,
+    pred: Boolean,
+  });
 });
 
 Then('{actor} can leave the space', async (w, actor: Actor) => {

@@ -25,7 +25,7 @@ test('a phone game in play shows its title with its facts, at a compact size', (
   const css = readFileSync(
     join(
       import.meta.dirname,
-      '../../ui-root-client-ts/src/game-screen/game-heading.module.css'
+      '../../ui-root-client-ts/src/game-screen/game-screen.module.css'
     ),
     'utf8'
   );

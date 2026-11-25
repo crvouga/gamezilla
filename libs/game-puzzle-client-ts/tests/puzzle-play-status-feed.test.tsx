@@ -160,7 +160,7 @@ test('feed: one row per setting with the value the draft holds, the pool and Don
   expect(screen.getByTestId('chess-puzzle-feed-pool').textContent).toBe(
     '12 matching · 40 local puzzles'
   );
-  expect(filledCommands()).toEqual(['Done']);
+  expect(filledCommands()).toEqual(['Save settings']);
   // No setting is edited on the hub itself.
   expect(shown('chess-puzzle-feed-offset-increase')).toBe(false);
   expect(shown('chess-puzzle-feed-history-any')).toBe(false);

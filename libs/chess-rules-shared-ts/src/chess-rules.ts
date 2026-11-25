@@ -43,6 +43,18 @@ function result(board: Chess): Pick<PlayedPosition, 'winner' | 'reason'> {
     };
   return { winner: null, reason: null };
 }
+/**
+ * The draw a finished `position` shows on its own: stalemate, too little
+ * material or the fifty-move rule, as the rules name it; `null` for none,
+ * and for a repetition, which only the history shows.
+ */
+export function chessPositionDraw(position: string): string | null {
+  if (!validateFen(position).ok) return null;
+  const board = new Chess(position);
+  if (board.isStalemate()) return 'stalemate';
+  if (board.isInsufficientMaterial()) return 'insufficient material';
+  return board.isDrawByFiftyMoves() ? 'fifty moves' : null;
+}
 /** Every legal move of `board`, spelled as an action (`e2e4`, `e7e8q`). */
 function legalActions(board: Chess): readonly string[] {
   return board

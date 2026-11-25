@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the enlarged Word Tiles board showed slivers of columns and rows at its edges; the window now holds whole squares past its sticky labels and scrolling snaps a square to each labelled edge.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
+}

@@ -18,6 +18,7 @@ export const STORY_APP_TABS: readonly AppTabSpec[] = [
     label: 'Spaces',
     Icon: Gamepad2Icon,
     testID: 'tab-spaces',
+    alsoActiveUnder: ['/space'],
   },
   {
     name: 'Search',

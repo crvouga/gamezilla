@@ -1,0 +1,4 @@
+{
+  "summary": "At 320 by 740, the fixed workspace inset wrapped the seventh rack tile onto a second line and put the submit control underneath Game menu.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

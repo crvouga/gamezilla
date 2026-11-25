@@ -137,8 +137,16 @@ export const KeyboardHelp: Story = {
   play: async ({ canvasElement }) => {
     await assertPuzzleBounds(canvasElement);
     const canvas = within(canvasElement);
+    // A phone is played by touch: its board has no keyboard help under it.
+    if ((canvasElement.ownerDocument.defaultView?.innerWidth ?? 1024) < 768) {
+      await expect(canvas.queryByText('Keyboard controls')).toBeNull();
+      return;
+    }
     const initial = puzzleRectangle(canvasElement);
-    await userEvent.click(canvas.getByText('Keyboard controls'));
+    // regression: chess-landscape-keyboard-help-hidden
+    const help = canvas.getByRole('button', { name: 'Keyboard controls' });
+    await expect(help).toBeVisible();
+    await userEvent.click(help);
     await assertStablePuzzleRectangle(canvasElement, initial, 'keyboard-help');
     await assertPuzzleBounds(canvasElement);
     await expect(

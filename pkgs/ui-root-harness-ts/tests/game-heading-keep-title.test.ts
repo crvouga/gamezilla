@@ -10,7 +10,7 @@ test('a phone never hides a heading title, a puzzle name included', () => {
   const css = readFileSync(
     join(
       import.meta.dirname,
-      '../../ui-root-client-ts/src/game-screen/game-heading.module.css'
+      '../../ui-root-client-ts/src/game-screen/game-screen.module.css'
     ),
     'utf8'
   );

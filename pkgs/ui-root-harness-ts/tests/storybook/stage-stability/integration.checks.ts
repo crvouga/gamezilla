@@ -85,8 +85,8 @@ async function switchTo(page: Page, storyId: string): Promise<void> {
 
 // regression: stage-board-pushed-by-notice
 // On a 390px phone the connection notice was a row above the board, so the
-// board dropped (up to 110px) when it appeared. Notices now lie over the
-// stage's top: the board keeps its place while one shows.
+// board dropped (up to 110px) when it appeared. The command bar's status
+// line reports the lost connection while the board keeps its place.
 test('storybook integration: stage stability 390 keeps the board in place when a notice appears', async ({
   page,
 }) => {
@@ -95,14 +95,17 @@ test('storybook integration: stage stability 390 keeps the board in place when a
     '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
   );
   await ready(page);
-  await expect(page.locator('[data-component="GameStageNotices"]')).toHaveCount(
+  await expect(page.getByTestId('custom-game-connection-needed')).toHaveCount(
     0
   );
   const before = await boardRect(page);
   expect(before).toMatchObject({ x: 0, width: 390 });
   await switchTo(page, 'screens-custom-games-stage--connection-needed');
+  await expect(page.getByTestId('custom-game-connection-needed')).toBeVisible();
   await expect(
-    page.locator('[data-component="GameStageNotices"]')
+    page
+      .getByRole('status')
+      .filter({ hasText: 'Your move waits for the connection' })
   ).toBeVisible();
   expect(await boardRect(page)).toEqual(before);
 });
@@ -110,7 +113,7 @@ test('storybook integration: stage stability 390 keeps the board in place when a
 // regression: stage-board-moves-on-result
 // On a 390px phone the finished game's board drew smaller and lower than the
 // live one, so it jumped when the game ended. The outcome card now lies over
-// the stage's foot: the board keeps its place and size once the result shows.
+// the board in a dialog: the board keeps its place and size once the result shows.
 test('storybook integration: stage stability 390 keeps the board in place when the result card shows', async ({
   page,
 }) => {
@@ -119,13 +122,11 @@ test('storybook integration: stage stability 390 keeps the board in place when t
     '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
   );
   await ready(page);
-  await expect(page.locator('[data-component="GameStageSheet"]')).toHaveCount(
-    0
-  );
+  await expect(page.getByRole('dialog', { name: 'Game over' })).toHaveCount(0);
   const before = await boardRect(page);
   expect(before).toMatchObject({ x: 0, width: 390 });
   await switchTo(page, 'screens-custom-games-result--you-win');
-  await expect(page.locator('[data-component="GameStageSheet"]')).toBeVisible();
+  await expect(page.getByRole('dialog', { name: 'Game over' })).toBeVisible();
   expect(await boardRect(page)).toEqual(before);
 });
 

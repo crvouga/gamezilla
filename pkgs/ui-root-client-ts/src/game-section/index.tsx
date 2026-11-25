@@ -4,8 +4,7 @@ import type { JSX } from '@solidjs/web';
 import { createUniqueId, Show } from 'solid-js';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
-import sizing from './game-actions.module.css';
-import split from './game-section-media.module.css';
+import componentStyles from './game-section.module.css';
 
 /**
  * Named game content section with optional description and footer. Compose game controls in its body; the generated heading labels the section for assistive technology.
@@ -69,7 +68,7 @@ export function GameSection(props: {
       {props.children}
       <Show when={footer.present()}>
         <div
-          class={`${styles['sectionFooter']} ${split['sectionFoot']}`}
+          class={`${styles['sectionFooter']} ${componentStyles['sectionFoot']}`}
           data-section-part="foot"
         >
           {footer.content()}
@@ -79,13 +78,13 @@ export function GameSection(props: {
   );
   return (
     <Show when={media.present()} fallback={card()}>
-      <div class={split['sectionRoom']} data-section-media="true">
+      <div class={componentStyles['sectionRoom']} data-section-media="true">
         <div
-          class={split['sectionPair']}
+          class={componentStyles['sectionPair']}
           {...dataAttrs({ component: 'GameSectionPair' })}
         >
           <div
-            class={`${split['sectionMedia']} rounded-card border border-border bg-surface`}
+            class={`${componentStyles['sectionMedia']} rounded-card border border-border bg-surface`}
           >
             {media.content()}
           </div>
@@ -112,7 +111,7 @@ export function GameActions(props: {
   return (
     <Show when={content.present()}>
       <div
-        class={`${styles['actions']} ${props.sizing === 'fill' ? sizing['fill'] : ''}`}
+        class={`${styles['actions']} ${props.sizing === 'fill' ? componentStyles['fill'] : ''}`}
         data-sizing={props.sizing ?? 'content'}
         {...dataAttrs({ component: 'GameActions' })}
       >

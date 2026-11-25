@@ -15,7 +15,7 @@ describe('formatSpaceDisplayTitle', () => {
   });
 
   test('uses host possessive when no custom title', () => {
-    expect(formatSpaceDisplayTitle(null, 'alice', mockT)).toBe("alice's space");
+    expect(formatSpaceDisplayTitle(null, 'alice', mockT)).toBe('alice’s space');
   });
 
   test('never embeds space ids when username is missing', () => {

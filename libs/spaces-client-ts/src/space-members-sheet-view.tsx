@@ -5,10 +5,11 @@ import { PresenceRosterList } from '@pkgs/collab-ui-client-ts/presence-roster-li
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
@@ -32,75 +33,117 @@ export type SpaceMembersSheetViewProps = {
   readonly onClose: () => void;
   /** Connected people, in roster order. */
   readonly members: readonly SpaceMemberRow[];
+  /** Opens Share, right under the empty list's invitation. */
+  readonly onShare?: (() => void) | undefined;
+  /**
+   * The host removes a guest from here as from Share: given, each guest's
+   * row (never the host's or the viewer's own) offers Remove.
+   */
+  readonly onRemove?: ((person: SpacePerson) => void) | undefined;
 };
 
 function SpaceMemberBadges(props: {
   readonly member: SpaceMemberRow;
+  readonly onRemove?: ((person: SpacePerson) => void) | undefined;
 }): JSX.Element {
+  const removable = (): SpacePerson | null =>
+    props.onRemove !== undefined && !props.member.isHost && !props.member.isYou
+      ? props.member.person
+      : null;
   return (
     <StackHorizontal align="center" gap="xs">
-      <Show when={props.member.idle}>
-        <Badge
-          label={<Trans>Idle</Trans>}
-          intent="neutral"
-          tone="subtle"
-          size="sm"
-          dataSet={{ testid: Handles.spaceMemberIdle(props.member.actor.id) }}
-        />
-      </Show>
       <Show when={props.member.isHost}>
         <HostBadge size="sm" />
       </Show>
-      <Show when={props.member.isYou}>
+      {/* A fact like Host beside it, in the neutral tag's full-ink text:
+          small green on its pale green wash read too faint. */}
+      <Show when={props.member.isThisTab}>
         <Badge
-          label={<Trans>You</Trans>}
-          intent="info"
+          label={<Trans>This device</Trans>}
+          intent="neutral"
           tone="subtle"
           size="sm"
         />
       </Show>
-      <Show when={props.member.isThisTab}>
-        <Badge
-          label={<Trans>This tab</Trans>}
-          intent="success"
-          tone="subtle"
-          size="sm"
-        />
+      <Show when={removable()} keyed>
+        {(person) => (
+          <Button
+            title={<Trans>Remove</Trans>}
+            size="sm"
+            intent="neutral"
+            variant="outline"
+            onClick={() => props.onRemove?.(person)}
+            dataSet={{ testid: `space-member-remove-${person.id}` }}
+          />
+        )}
       </Show>
     </StackHorizontal>
   );
 }
 
-function rosterRow(member: SpaceMemberRow, you: string): PresenceRosterRow {
+function rosterRow(
+  member: SpaceMemberRow,
+  you: string,
+  unnamed: string,
+  onRemove?: ((person: SpacePerson) => void) | undefined
+): PresenceRosterRow {
   const id = member.actor.id;
   return {
     client: member.actor,
     // A person reads names: "You" for themself, everyone else's username.
-    title: member.isYou ? (
-      you
-    ) : (
-      <SpacePersonName
-        person={member.person}
-        testId={Handles.spaceMemberName(id)}
-      />
+    // A person whose profile has not arrived yet still has a name to read.
+    // Status reads with the name (Idle, like Bot, right after it); the
+    // right edge keeps only the role and the host's Remove, so every row's
+    // controls line up.
+    title: (
+      // The name wraps at its own separators (`_`, `.`, `-`) over up to three
+      // lines, so a handle of any real length (32 characters) reads whole
+      // beside Remove; the full name stays its title. Idle reads under it.
+      <StackVertical gap="xs" grow>
+        {member.isYou ? (
+          you
+        ) : member.person === null ? (
+          unnamed
+        ) : (
+          <SpacePersonName
+            person={member.person}
+            lines={3}
+            testId={Handles.spaceMemberName(id)}
+          />
+        )}
+        <Show when={member.idle}>
+          <StackHorizontal>
+            <Badge
+              label={<Trans>Idle</Trans>}
+              intent="neutral"
+              tone="subtle"
+              size="sm"
+              dataSet={{ testid: Handles.spaceMemberIdle(id) }}
+            />
+          </StackHorizontal>
+        </Show>
+      </StackVertical>
     ),
     isYou: member.isYou,
     isThisTab: member.isThisTab,
-    badges: <SpaceMemberBadges member={member} />,
+    idle: member.idle,
+    badges: <SpaceMemberBadges member={member} onRemove={onRemove} />,
     dataSet: { testid: Handles.spaceMemberRow(id) },
   };
 }
 
 /**
  * People in the space, one row each, with idle / host / you / this-tab
- * badges. A bottom sheet on phones, a centered modal on wider screens.
+ * badges. A modal centered on the screen at every width.
  */
 export function SpaceMembersSheetView(
   props: SpaceMembersSheetViewProps
 ): JSX.Element {
   const { t } = useLingui();
   const rows = createMemo(() =>
-    props.members.map((member) => rosterRow(member, t`You`))
+    props.members.map((member) =>
+      rosterRow(member, t`You`, t`Guest`, props.onRemove)
+    )
   );
   const find = (id: string): SpaceMemberRow | undefined =>
     props.members.find((member) => member.actor.id === id);
@@ -120,8 +163,13 @@ export function SpaceMembersSheetView(
           fallback={
             <EmptyState
               variant="compact"
-              title={<Trans>No one connected yet</Trans>}
+              title={<Trans>No one else is here yet</Trans>}
               body={<Trans>Share the space link to invite people.</Trans>}
+              action={
+                props.onShare === undefined
+                  ? undefined
+                  : { label: <Trans>Share</Trans>, onClick: props.onShare }
+              }
             />
           }
         >

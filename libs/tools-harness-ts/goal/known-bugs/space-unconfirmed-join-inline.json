@@ -1,0 +1,4 @@
+{
+  "summary": "An unanswered join inserted a temporary warning into the invitation title instead of explaining the wait in the floating notice.",
+  "regressionTest": "libs/spaces-client-ts/tests/space-entry-feedback.test.tsx"
+}

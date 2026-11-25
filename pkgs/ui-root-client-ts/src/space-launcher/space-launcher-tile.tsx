@@ -26,7 +26,11 @@ export type SpaceLauncherGame = Pick<
 };
 
 /** The fit of a game in words: `2–4 players`, `Needs 4`, `4 · add 2 bots`. */
-export function useFitWords(): (fit: SpaceGameFit) => string {
+export function useFitWords(): (
+  fit: SpaceGameFit,
+  present?: number,
+  guest?: boolean
+) => string {
   const { t } = useLingui();
   const counts = (values: readonly number[]): string => {
     const first = values[0] ?? 1;
@@ -38,20 +42,34 @@ export function useFitWords(): (fit: SpaceGameFit) => string {
     if (values.length === 2) return t`${first} or ${last}`;
     return t`${values.join(', ')} players`;
   };
-  return (fit) => {
+  // With the head count, a game that seats fewer says who sits out.
+  const watch = (n: number): string => t`${n} watching`;
+  return (fit, present, guest) => {
     if (fit.kind === 'fits') return counts(fit.counts);
-    if (fit.kind === 'solo') return t`Solo`;
-    if (fit.kind === 'tooMany') return t`Up to ${fit.max}`;
+    if (fit.kind === 'solo')
+      return present === undefined || present < 2
+        ? t`Solo`
+        : t`Solo · ${watch(present - 1)}`;
+    if (fit.kind === 'tooMany')
+      return present === undefined
+        ? t`Up to ${fit.max}`
+        : t`${fit.max} players · ${watch(present - fit.max)}`;
     if (fit.kind === 'needs') return t`Needs ${fit.target}`;
+    // Bots are the host's to add: a guest reads only how many it seats.
+    if (guest === true || present === undefined)
+      return t`${fit.target} players`;
     return fit.bots === 1
-      ? t`${fit.target} · add 1 bot`
-      : t`${fit.target} · add ${fit.bots} bots`;
+      ? t`${present} players + 1 bot`
+      : t`${present} players + ${fit.bots} bots`;
   };
 }
 
 function TileMark(props: {
   game: SpaceLauncherGame;
   fit: SpaceGameFit;
+  present: number;
+  /** A guest reads player counts, never the host's bots. */
+  guest: boolean;
   looking: boolean;
   hostName: string;
 }): JSX.Element {
@@ -61,7 +79,7 @@ function TileMark(props: {
     <Switch
       fallback={
         <span class={`text textCaption ${styles['fit']}`}>
-          {fitWords(props.fit)}
+          {fitWords(props.fit, props.present, props.guest)}
         </span>
       }
     >
@@ -102,8 +120,16 @@ export function SpaceLauncherTile(props: {
   /** Pressing does something for this viewer: unset, the tile only shows. */
   onPress: (() => void) | undefined;
 }): JSX.Element {
-  const fit = () => spaceGameFit(props.game.players, props.present, props.role);
-  const dimmed = () => spaceGameFitDimmed(fit());
+  // A guest who cannot suggest only watches the host choose: every game
+  // reads as the host sees it, none dimmed, none looking pressable.
+  const watching = () => props.role === 'guest' && props.onPress === undefined;
+  const fit = () =>
+    spaceGameFit(
+      props.game.players,
+      props.present,
+      watching() ? 'host' : props.role
+    );
+  const dimmed = () => !watching() && spaceGameFitDimmed(fit());
   const pressed = () =>
     props.game.suggestedBy?.you === true ? 'true' : 'false';
   const press = () => {
@@ -123,12 +149,18 @@ export function SpaceLauncherTile(props: {
       onClick={() => press()?.()}
     >
       <span class={styles['art']}>
-        <GameTile motif={props.game.motif} size="lg" />
+        <GameTile motif={props.game.motif} size="xl" />
       </span>
-      <span class={`text textLabel ${styles['name']}`}>{props.game.name}</span>
+      <span class={`text textBodyBold ${styles['name']}`}>
+        {props.game.name}
+      </span>
       <TileMark
         game={props.game}
         fit={fit()}
+        present={props.present}
+        // A guest who only watches reads each count as the host's tile
+        // says it (`3 players + 1 bot`), so every tile counts the same room.
+        guest={props.role === 'guest' && !watching()}
         looking={props.looking}
         hostName={props.hostName}
       />

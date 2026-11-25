@@ -9,12 +9,28 @@ import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
 import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 
+/**
+ * The line under the board. A finished board keeps its prompt line's room
+ * (empty), so the board never resizes or moves when the game ends. A draw
+ * offered to the person is said once, by the status line over the board;
+ * the board says only what a disc dropped does to it (declines it).
+ */
+function boardPrompt(
+  finished: boolean,
+  interactive: boolean,
+  drawToAnswer: boolean
+): string {
+  if (finished || !interactive) return '';
+  return drawToAnswer
+    ? t`Drop a disc to decline and play on`
+    : t`Pick a column to drop your disc`;
+}
+
 export function ConnectFourBoard(props: {
   position: string;
   interactive: boolean;
+  drawToAnswer?: boolean;
   testId: string;
-  /** As `GameBoardProps.steadyStatus`: a finished board keeps its status line's room. */
-  steadyStatus?: boolean | undefined;
   onDrop: (column: number) => void;
 }): JSX.Element {
   const game = createMemo(() => decodeConnectFour(props.position));
@@ -38,15 +54,11 @@ export function ConnectFourBoard(props: {
       interactive={props.interactive && game().result === 0}
       finished={game().result !== 0}
       label={t`Connect Four board, seven columns and six rows`}
-      prompt={
-        game().result !== 0
-          ? props.steadyStatus === true
-            ? ''
-            : undefined
-          : props.interactive
-            ? t`Pick a column to drop your disc`
-            : ''
-      }
+      prompt={boardPrompt(
+        game().result !== 0,
+        props.interactive,
+        props.drawToAnswer === true
+      )}
       previewPrompt={(column) => t`Drop in column ${column + 1}`}
       fullColumnPrompt={(column) =>
         t`Column ${column + 1} is full. Choose another column.`

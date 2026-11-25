@@ -38,7 +38,17 @@ function HeaderTrailing(props: ScreenBaseHeaderProps): JSX.Element {
           overflowDataSet={{ testid: 'header-overflow-menu' }}
         />
       </Show>
-      {props.globalTrailing}
+      {/* The account control never gives up room: a long title shrinks
+          and ends in an ellipsis instead of cutting the avatar off. */}
+      <Show
+        when={
+          props.globalTrailing !== undefined && props.globalTrailing !== null
+        }
+      >
+        <div class="box shrink-0 flex-row items-center">
+          {props.globalTrailing}
+        </div>
+      </Show>
     </>
   );
 }

@@ -34,14 +34,18 @@ export function frameHeadline(
     : { kind: 'you-placed', place: own.place };
 }
 
-/** The headline in words: "You win", "You lost", "You came 3rd", "Erin wins", "Draw". */
+/**
+ * The headline in words, past tense and without a full stop, as a matched
+ * game's says it: "You won", "You lost", "You came 3rd", "Erin won",
+ * "The game was drawn".
+ */
 export function frameHeadlineText(
   headline: FrameHeadline,
   nameOf: (side: GameSide) => string,
   locale: string
 ): string {
-  if (headline.kind === 'draw') return t`Draw`;
-  if (headline.kind === 'you-win') return t`You win`;
+  if (headline.kind === 'draw') return t`The game was drawn`;
+  if (headline.kind === 'you-win') return t`You won`;
   if (headline.kind === 'you-lost') return t`You lost`;
   if (headline.kind === 'you-placed') {
     const place = formatOrdinal(headline.place, locale);
@@ -49,10 +53,10 @@ export function frameHeadlineText(
   }
   if (headline.winners.length === 1) {
     const name = nameOf(headline.winners[0]!);
-    return t`${name} wins`;
+    return t`${name} won`;
   }
   const names = sideNames(headline.winners.map(nameOf));
-  return t`${names} win`;
+  return t`${names} won`;
 }
 
 /** One standings row before its avatar: who, where they placed, their score. */

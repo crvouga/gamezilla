@@ -10,7 +10,8 @@ import type {
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
-import { fireEvent } from '@solidjs/testing-library';
+import { fireEvent, screen } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 import {
   arrangePublishedPack,
   createSokobanDraft,
@@ -88,7 +89,9 @@ export async function moveOnScreen(
   fireEvent.keyDown(view.getByTestId('sokoban-board'), {
     key: KEYS[direction],
   });
-  const refusal = view.queryByTestId('sokoban-refusal');
+  // A refusal floats in the alerts, drawn once the change settles.
+  flush();
+  const refusal = screen.queryByTestId('sokoban-refusal');
   screensOf(s, clientId).told = refusal?.getAttribute('data-code') ?? null;
   if (refusal === null) await afterChange(s, clientId, before);
 }

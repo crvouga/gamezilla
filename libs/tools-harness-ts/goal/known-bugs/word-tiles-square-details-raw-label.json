@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the chosen square's readout beside the board tools showed the raw screen-reader string (\"★, h8, start, double word, empty\"); it now shows a short line (\"h8 · Start · Double word\") and keeps the whole name for assistive technology.",
+  "regressionTest": "libs/word-tiles-client-ts/tests/word-tiles-map.test.tsx"
+}

@@ -6,9 +6,11 @@
   box-sizing: border-box;
   min-height: var(--ui-space-6);
   padding: 0 var(--ui-space-2);
-  border: 1px dashed var(--ui-color-border);
+  /* An empty slot, drawn by its dashed edge, its words at full strength:
+     the strip's one call to act is never the faintest thing in it. */
+  border: 1px dashed var(--ui-color-text-secondary);
   border-radius: var(--ui-radius-sm);
-  color: var(--ui-color-text-secondary);
+  color: var(--ui-color-text);
   font-size: var(--ui-font-size-sm);
   line-height: var(--ui-leading-sm);
   white-space: nowrap;

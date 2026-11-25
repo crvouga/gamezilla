@@ -9,7 +9,9 @@ export function frameUsesRail(
 ): boolean {
   return (
     shape === 'rail' ||
-    (shape === 'strip' && compact === true && layout === 'compact-rail')
+    (shape === 'strip' &&
+      compact === true &&
+      (layout === 'compact-rail' || layout === 'score-rail'))
   );
 }
 
