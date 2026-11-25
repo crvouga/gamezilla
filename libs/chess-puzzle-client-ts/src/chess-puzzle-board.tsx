@@ -37,8 +37,10 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
       autoPromoteQueen={false}
       showCoordinates
       // A phone's board runs edge to edge, its coordinates in the squares'
-      // corners and no words under it: the coach above says what to do.
-      showGuidance={mode() === 'wide'}
+      // corners, and under it only the keyboard help: the coach above says
+      // what to do.
+      showGuidance
+      guidanceDetail={mode() === 'wide' ? 'full' : 'keyboard'}
       coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'inside'}
       highlightLastMove
       lastMove={chessPuzzleLastMove(props.lastAction)}
