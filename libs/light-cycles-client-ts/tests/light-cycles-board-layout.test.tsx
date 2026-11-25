@@ -158,7 +158,7 @@ test("phone: the pad is the arrow keys' T and the riders' heads are drawn larger
 // inside a dark rounded card a cell and a half wider on every side, so the
 // arena read as letterboxed in a second frame. The card is gone: the ground
 // is drawn inside the walls, the walls are the one frame, and the room
-// around them for a head at the edge hangs outside the arena's box.
+// around a head at the edge fits inside the drawing's viewBox.
 test('the arena has one frame: its walls, flush with the column', () => {
   mount(1440);
   const arena = screen.getByTestId('arena-arena');
@@ -171,13 +171,20 @@ test('the arena has one frame: its walls, flush with the column', () => {
     'utf8'
   );
   const rule = (selector: string): string => {
-    const open = css.indexOf('{', css.indexOf(`${selector} {`));
+    const open = css.indexOf('{', css.indexOf(`\n${selector} {`));
     return css.slice(open + 1, css.indexOf('}', open));
   };
   expect(css).toMatch(/\.arena \{[^}]*background:\s*none;/);
   expect(rule('.ground')).toMatch(/fill:\s*var\(--ui-color-background\);/);
-  expect(drawing.style.width).not.toBe('100%');
-  expect(drawing.style.margin.startsWith('-')).toBe(true);
+  expect(rule('.drawing')).toMatch(/width:\s*100%;/);
+  const [ground, , wall] = drawing.querySelectorAll(':scope > rect');
+  expect(ground).toBeDefined();
+  expect(wall).toBeDefined();
+  for (const attribute of ['x', 'y', 'width', 'height', 'rx'])
+    expect(wall?.getAttribute(attribute)).toBe(ground?.getAttribute(attribute));
+  const viewBox = drawing.getAttribute('viewBox')?.split(' ').map(Number);
+  expect(viewBox?.[0]).toBeLessThan(Number(wall?.getAttribute('x')));
+  expect(viewBox?.[1]).toBeLessThan(Number(wall?.getAttribute('y')));
   expect(arena.contains(drawing)).toBe(true);
 });
 

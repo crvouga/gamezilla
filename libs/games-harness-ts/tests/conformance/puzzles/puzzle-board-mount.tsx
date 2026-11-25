@@ -21,7 +21,7 @@ import {
   SoundsPreferenceProvider,
 } from '@pkgs/sounds-client-ts/solid';
 import { createInMemoryAudioPlaybackPort } from '@pkgs/sounds-shared-ts/in-memory-audio-playback-port';
-import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { type ThemeLayout, ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import type { SolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 
@@ -40,7 +40,8 @@ export type MountedBoardProps = Partial<PuzzleBoardProps> & {
 export function puzzleBoardDriver(
   game: TurnHarnessGame,
   props: MountedBoardProps,
-  played: string[]
+  played: string[],
+  layout?: ThemeLayout
 ): SolidDomDriver {
   const part = game.client.puzzles;
   if (part === undefined) throw new Error(`${game.label} has no puzzle board`);
@@ -56,7 +57,10 @@ export function puzzleBoardDriver(
       createRoot: () => () => (
         <I18nProvider i18n={i18n}>
           <ClockProvider clock={time.clock} timers={time.timers}>
-            <ThemeProvider colorScheme="light">
+            <ThemeProvider
+              colorScheme="light"
+              {...(layout && { fixedLayout: layout })}
+            >
               <AudioPlaybackProvider value={createInMemoryAudioPlaybackPort()}>
                 <SoundsPreferenceProvider>
                   <part.Board

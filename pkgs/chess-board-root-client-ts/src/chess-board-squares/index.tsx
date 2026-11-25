@@ -180,7 +180,7 @@ export function coordinateLabelUnits(boardPx: number): number {
 function labelPlacement(size: number) {
   return {
     fileInset: 8,
-    fileBaselineInset: 7,
+    fileBaselineInset: 9,
     rankInset: 5,
     rankBaseline: Math.round(size * 1.02),
   };
