@@ -7,7 +7,12 @@ import {
   touchPath,
 } from '../numberlink-board/evidence';
 
-test.use({ hasTouch: true, video: 'on', trace: 'on' });
+test.use({
+  hasTouch: true,
+  contextOptions: { reducedMotion: 'no-preference' },
+  video: { mode: 'on', size: { width: 1440, height: 1024 } },
+  trace: 'on',
+});
 
 async function pinchAcrossTrace(page: Page) {
   const session = await page.context().newCDPSession(page);
@@ -57,10 +62,6 @@ for (const width of [390, 1440]) {
   test.describe(`Numberlink board inspection at ${width}`, () => {
     test.use({
       viewport: { width, height: width === 390 ? 844 : 1024 },
-      video: {
-        mode: 'on',
-        size: { width, height: width === 390 ? 844 : 1024 },
-      },
     });
     test('storybook integration: numberlink-gestures inspect, fit and draw', async ({
       page,

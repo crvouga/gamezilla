@@ -44,7 +44,7 @@
   container-type: inline-size;
   position: relative;
   display: grid;
-
+  grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
   /* A square is at most 80px, so a small grid (5 × 5) is a comfortable
      board, not a poster across the column. */
   width: min(100%, calc(var(--path-columns) * 80px));
@@ -58,21 +58,16 @@
   aspect-ratio: var(--path-columns) / var(--path-rows);
   border: var(--ui-space-hairline) solid var(--ui-color-outline);
   border-radius: var(--ui-radius-control);
-  overflow: clip;
+  overflow: hidden;
   background: var(--ui-color-background);
   color: var(--ui-color-text);
   touch-action: manipulation;
   user-select: none;
 }
 .board[data-tracing="true"] {
-  touch-action: none;
-}
-.plane {
-  position: absolute;
-  inset: 0;
-  display: grid;
-  grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
-  transform-origin: top left;
+  /* One finger draws; two fingers still zoom the page, so a dense board
+     on a phone can be enlarged and then drawn on. */
+  touch-action: pinch-zoom;
 }
 .cell {
   position: relative;
@@ -190,40 +185,28 @@
   stroke-linecap: round;
   stroke-linejoin: round;
 }
-[data-stitch="0"] {
-  --cable-stitch: 4 20;
-}
 [data-tone="red"] {
+  --cable-stitch: 4 20;
   --path-color: var(--ui-color-path-red);
 }
-[data-stitch="1"] {
-  --cable-stitch: 16 12;
-}
 [data-tone="orange"] {
+  --cable-stitch: 16 12;
   --path-color: var(--ui-color-path-orange);
 }
-[data-stitch="2"] {
-  --cable-stitch: 4 8 4 20;
-}
 [data-tone="yellow"] {
+  --cable-stitch: 4 8 4 20;
   --path-color: var(--ui-color-path-yellow);
 }
-[data-stitch="3"] {
-  --cable-stitch: 24 8 4 8;
-}
 [data-tone="green"] {
+  --cable-stitch: 24 8 4 8;
   --path-color: var(--ui-color-path-green);
 }
-[data-stitch="4"] {
-  --cable-stitch: none;
-}
 [data-tone="blue"] {
+  --cable-stitch: none;
   --path-color: var(--ui-color-path-blue);
 }
-[data-stitch="5"] {
-  --cable-stitch: 32 16;
-}
 [data-tone="purple"] {
+  --cable-stitch: 32 16;
   --path-color: var(--ui-color-path-purple);
 }
 
@@ -244,15 +227,4 @@
   fill: var(--ui-color-background);
   stroke: var(--path-color);
   stroke-width: 6;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .endpoint {
-    transition:
-      transform var(--ui-duration-fast) var(--ui-easing-standard),
-      background-color var(--ui-duration-fast) var(--ui-easing-standard);
-  }
-  .endpoint[data-tracing="true"] {
-    transform: scale(0.92);
-  }
 }

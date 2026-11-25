@@ -11,14 +11,13 @@ import {
   untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
+import { createPathGridPointer, TraceSurface } from '../path-grid-pointer';
 import type {
   PathGridBoardProps,
   PathGridEndpoint,
   PathGridLine,
-} from '../path-grid-pointer';
-import { createPathGridPointer, TraceSurface } from '../path-grid-pointer';
+} from '../path-grid-types';
 import styles from './path-grid-board.module.css';
-import { boardNavigation, createBoardViewport } from './viewport';
 
 export type {
   PathGridBoardProps,
@@ -26,7 +25,7 @@ export type {
   PathGridLine,
   PathGridTone,
   PathGridTraceCancellation,
-} from '../path-grid-pointer';
+} from '../path-grid-types';
 
 /**
  * Splits a label into at most two balanced lines, so the longest allowed
@@ -122,7 +121,7 @@ function NumberlinkCable(props: {
     props.line.connected ? undefined : props.line.cells.at(-1)
   );
   return (
-    <g data-tone={props.line.tone} data-stitch={props.line.stitch}>
+    <g data-tone={props.line.tone}>
       <polyline
         class={styles['line']}
         data-path={props.line.id}
@@ -163,59 +162,6 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
   );
 }
 
-function boardControls(
-  props: PathGridBoardProps,
-  resizeFocus: (size: number) => void
-) {
-  let root: HTMLDivElement | undefined;
-  const host = () => root;
-  const viewport = createBoardViewport(props, host);
-  const pointer = createPathGridPointer(props, host, viewport.bounds);
-  const navigation = boardNavigation(viewport, pointer, host);
-  const interrupt = () => {
-    pointer.cancel();
-    viewport.cancelContacts();
-  };
-  createEffect(
-    () => [props.columns, props.rows] as const,
-    ([columns, rows]) => {
-      untrack(interrupt);
-      viewport.reset();
-      resizeFocus(columns * rows);
-    }
-  );
-  createEffect(
-    () => props.disabled,
-    () => untrack(interrupt)
-  );
-  onCleanup(() => {
-    root?.removeEventListener('wheel', navigation.wheel);
-    root?.ownerDocument.removeEventListener(
-      'pointerdown',
-      navigation.outside,
-      true
-    );
-    root?.ownerDocument.defaultView?.removeEventListener('blur', interrupt);
-    pointer.cancel();
-  });
-  return {
-    host,
-    viewport,
-    navigation,
-    interrupt,
-    attach(element: HTMLDivElement) {
-      root = element;
-      element.addEventListener('wheel', navigation.wheel, { passive: false });
-      element.ownerDocument.addEventListener(
-        'pointerdown',
-        navigation.outside,
-        true
-      );
-      element.ownerDocument.defaultView?.addEventListener('blur', interrupt);
-    },
-  };
-}
-
 /**
  * A fitted rectangular path surface. Rules and every interaction decision
  * belong to its consumer. Like the other game boards it keeps one palette
@@ -234,13 +180,19 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
   const endpoints = createMemo(
     () => new Map(props.endpoints.map((endpoint) => [endpoint.cell, endpoint]))
   );
-  const controls = boardControls(props, (size) =>
-    setFocus((cell) => (cell >= size ? 0 : cell))
+  let root: HTMLDivElement | undefined;
+  const pointer = createPathGridPointer(props, () => root);
+  createEffect(
+    () => [props.columns, props.rows, props.disabled] as const,
+    ([columns, rows]) => {
+      // The host's cancel handler is called, not followed.
+      untrack(() => pointer.cancel());
+      setFocus((cell) => (cell >= columns * rows ? 0 : cell));
+    }
   );
-  const { viewport, navigation } = controls;
+  onCleanup(pointer.cancel);
   const key = (event: KeyboardEvent, index: number): void => {
     setInput('keyboard');
-    if (viewport.key(event, index)) return;
     if (
       props.disabled !== true &&
       props.onCellKey?.(event.key, index) === true
@@ -251,24 +203,21 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
     const next = cellGridStep(event, index, props);
     if (next === null) return;
     event.preventDefault();
-    viewport.reveal(next);
     setFocus(next);
-    controls
-      .host()
-      ?.querySelector<HTMLButtonElement>(`[data-cell="${next}"]`)
-      ?.focus({ preventScroll: true });
+    root?.querySelector<HTMLButtonElement>(`[data-cell="${next}"]`)?.focus();
     if (props.disabled !== true) props.onNavigate?.(next);
   };
   return (
     <TraceSurface
       board={props}
-      ref={controls.attach}
+      ref={(element) => {
+        root = element;
+      }}
       class={styles['board']}
       data-theme="dark"
       role="group"
       aria-label={props.label}
       aria-describedby={props.describedBy}
-      title={viewport.enabled() ? props.navigationHint : undefined}
       data-testid={props.testId}
       data-tracing={String(
         props.disabled !== true && props.onTraceStart !== undefined
@@ -278,32 +227,26 @@ export function PathGridBoard(props: PathGridBoardProps): JSX.Element {
       style={{ '--path-columns': props.columns, '--path-rows': props.rows }}
       onPointerDown={(event) => {
         setInput('pointer');
-        navigation.down(event);
+        pointer.down(event);
       }}
-      onPointerMove={navigation.move}
-      onPointerUp={navigation.up}
-      onPointerCancel={navigation.lost}
-      onLostPointerCapture={navigation.lost}
+      onPointerMove={pointer.move}
+      onPointerUp={pointer.up}
+      onPointerCancel={pointer.lost}
+      onLostPointerCapture={pointer.lost}
     >
-      <div
-        data-plane=""
-        class={styles['plane']}
-        style={{ transform: viewport.transform() }}
-      >
-        <PathLines board={props} />
-        <For each={cells()}>
-          {(index) => (
-            <PathCell
-              board={props}
-              index={index}
-              endpoint={endpoints().get(index)}
-              focusable={focus() === index}
-              onFocus={() => setFocus(index)}
-              onKey={(event) => key(event, index)}
-            />
-          )}
-        </For>
-      </div>
+      <PathLines board={props} />
+      <For each={cells()}>
+        {(index) => (
+          <PathCell
+            board={props}
+            index={index}
+            endpoint={endpoints().get(index)}
+            focusable={focus() === index}
+            onFocus={() => setFocus(index)}
+            onKey={(event) => key(event, index)}
+          />
+        )}
+      </For>
     </TraceSurface>
   );
 }
