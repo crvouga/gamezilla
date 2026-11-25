@@ -65,3 +65,55 @@
 ) {
   background-color: var(--ui-color-game-quoridor-surface);
 }
+
+[data-quoridor-surface] {
+  position: relative;
+  overflow: clip;
+  clip-path: inset(0 var(--board-right, 0px) 0 var(--board-left, 0px));
+}
+[data-quoridor-surface] [data-board-theme="quoridor"] {
+  transform-origin: top left;
+  touch-action: none;
+  user-select: none;
+}
+[data-quoridor-surface] [data-zoom-control] {
+  position: absolute;
+  z-index: 2;
+  inset-block-start: 0;
+  inset-inline-start: var(--board-left, 0px);
+  display: grid;
+  place-items: center;
+  width: var(--ui-space-6);
+  height: var(--ui-space-6);
+  padding: 0;
+  border-radius: var(--ui-radius-sm);
+  font-weight: bold;
+  color: var(--ui-color-game-quoridor-ink);
+  background: var(--ui-color-game-quoridor-surface);
+  cursor: pointer;
+}
+[data-quoridor-surface]:not([data-zoomed="true"]) [data-zoom-out],
+[data-quoridor-surface][data-zoomed="true"] [data-zoom-in] {
+  display: none;
+}
+[data-quoridor-surface] [data-lifted="true"] {
+  position: relative;
+  z-index: 2;
+  overflow: visible;
+}
+[data-quoridor-surface] [data-lifted="true"] > span {
+  transform: translate(var(--lift-x), var(--lift-y)) scale(1.08);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-quoridor-surface] [data-tone="occupied"] > span {
+    animation: quoridor-settle 140ms ease-out;
+  }
+  @keyframes quoridor-settle {
+    from {
+      scale: 1.12;
+    }
+    to {
+      scale: 1;
+    }
+  }
+}

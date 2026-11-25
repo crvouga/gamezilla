@@ -369,3 +369,6 @@ export const RotateWallPreview: Story = {
     ).toHaveAttribute('data-edge-right', 'false');
   },
 };
+
+/** A live opening position for native pawn, wall and navigation gestures. */
+export const DirectManipulation: Story = { render: renderClassicJourney };
