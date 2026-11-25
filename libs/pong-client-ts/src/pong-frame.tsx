@@ -14,6 +14,7 @@ import {
   type GameSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import { PongBoard } from './pong-board';
@@ -59,21 +60,44 @@ export function pongHeldLine(
   if (controls === undefined || (!controls.stale && !controls.paused))
     return null;
   if (readPosition(position)?.phase === 'completed') return null;
-  return controls.stale
-    ? t`Reconnecting. Your paddle moves again when the game returns.`
-    : t`Paused while a player returns.`;
+  if (!controls.stale) return t`Paused while a player returns.`;
+  return controls.sides.length > 1
+    ? t`Reconnecting. The paddles move again when the game returns.`
+    : t`Reconnecting. Your paddle moves again when the game returns.`;
 }
 
 /**
- * The court `View` draws, and the stage's line while play is held up. The
- * game's court is `PongBoard` (with its sounds); a story passes the view.
+ * The stage's line while one device plays both paddles: each player moves
+ * their own, by the keys each one uses on a wide screen, by dragging on a
+ * phone. `null` for a device with one paddle (the turn line says how), or
+ * once the game is over.
+ */
+export function pongSharedLine(
+  position: string,
+  controls: GameSimulationControls | undefined,
+  wide: boolean
+): string | null {
+  if (controls === undefined || controls.sides.length < 2) return null;
+  if (readPosition(position)?.phase === 'completed') return null;
+  return wide
+    ? t`Each player moves their own paddle: W and S the left, the arrow keys the right.`
+    : t`Each player drags their own paddle up and down.`;
+}
+
+/**
+ * The court `View` draws, and the stage's line while play is held up or
+ * one device plays both paddles. The game's court is `PongBoard` (with its
+ * sounds); a story passes the view.
  */
 export function pongBoardOf(
   View: (props: GameFrameBoardProps) => JSX.Element
 ): (props: GameFrameBoardProps) => GameFrameBoardSession<JSX.Element> {
   return (props) => {
-    const line = createMemo(() =>
-      pongHeldLine(props.position, props.simulation)
+    const mode = useLayoutMode();
+    const line = createMemo(
+      () =>
+        pongHeldLine(props.position, props.simulation) ??
+        pongSharedLine(props.position, props.simulation, mode() === 'wide')
     );
     return { Board: () => View(props), actions: () => [], line };
   };

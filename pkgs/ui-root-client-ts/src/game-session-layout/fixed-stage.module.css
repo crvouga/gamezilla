@@ -177,19 +177,35 @@
     min-height: 0;
     padding-block: 3px;
   }
+  /* A plain line takes no well's room, and its two lines are set close
+     enough to fit inside the band's padding, clear of the rule above. */
+  .status [data-look="plain"] > :first-child {
+    padding-block: 0;
+  }
+  .status [data-look="plain"] * {
+    line-height: 1.25;
+  }
   /* The bar's height is its commands' row plus its padding, whether the
      commands are in it or held in the Game over dialog (a placeholder as
      tall as the row): the board above never moves. */
-  /* A replay's band is its step controls: commands, right under the board,
-     clear of the screen's bottom edge. The board's box is as tall as the
-     board (one size for the whole replay), so no gap parts the steps from
-     it; the room left falls under the steps. */
+  /* A replay's band is its step controls, docked at the bottom edge as a
+     stage's bar of commands is. The board's box is as tall as the board
+     (one size for the whole replay); the room left falls between the
+     board and the steps, so neither ever moves. */
   .fixed
     [data-game-slot="controls"]
     > .status:has([data-testid="game-history-review-forward"]) {
     order: 1;
+    margin-top: auto;
     padding: var(--ui-space-2) var(--ui-space-3)
-      calc(var(--ui-space-4) + env(safe-area-inset-bottom, 0px));
+      calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--ui-color-border);
+    background: var(--ui-color-surface);
+  }
+  /* The replay's line of moves fades out at its end edge, so a move cut
+     by the edge reads as more to scroll to, not as a broken chip. */
+  .strip [data-testid="game-history-review-moves"] {
+    mask-image: linear-gradient(to left, transparent, #000 40px);
   }
   .fixed:has([data-testid="game-history-review-forward"])
     [data-game-slot="stage"],

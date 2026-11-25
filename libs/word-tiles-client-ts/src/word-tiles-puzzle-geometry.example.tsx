@@ -39,7 +39,8 @@ export async function expectPuzzlePlacementContext(canvasElement: HTMLElement) {
   const rack = canvas
     .getByTestId('word-tiles-puzzle-rack')
     .getBoundingClientRect();
-  await expect(bounds.top).toBeGreaterThanOrEqual(rack.bottom);
+  // The board comes first, then the rack and actions under it.
+  await expect(rack.top).toBeGreaterThanOrEqual(bounds.bottom);
   await expect(bounds.bottom).toBeLessThanOrEqual(window.innerHeight);
   // Seven 44px targets let the player read a rack-length placement at once.
   await expect(bounds.width).toBeGreaterThanOrEqual(7 * 44);

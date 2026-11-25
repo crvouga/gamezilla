@@ -17,14 +17,11 @@ import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
-function mount(child: () => JSX.Element) {
+function mount(child: () => JSX.Element, width = 390) {
   const time = createHarnessClock();
   return renderWithI18n(() => (
     <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="light"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
+      <ThemeProvider colorScheme="light" fixedLayout={{ width, height: 844 }}>
         <StaticAppRouterProvider
           router={{
             push: () => undefined,
@@ -95,4 +92,33 @@ test('an offline invitation explains the connection requirement once', () => {
     view.container.querySelectorAll('[data-component="Notice"]')
   ).toHaveLength(0);
   expect(view.container.textContent).toContain('Back to Spaces');
+});
+
+// regression: space-recovery-title-on-another-axis
+test('a join that cannot go on heads its centred message with the screen title, once', () => {
+  const states: readonly SpaceJoinStatus[] = [
+    'loading',
+    'unavailable',
+    'missing',
+    'offline',
+  ];
+  for (const width of [390, 1280]) {
+    for (const status of states) {
+      const view = mount(
+        () => (
+          <Join status={status} connection="offline" needsConnection={false} />
+        ),
+        width
+      );
+      const headings = view.container.querySelectorAll('h1');
+      expect(headings).toHaveLength(1);
+      const heading = headings[0];
+      expect(
+        heading?.closest('[data-component="SpaceRecoveryState"]')
+      ).not.toBeNull();
+      const title = heading?.textContent ?? '';
+      expect(view.container.textContent?.split(title)).toHaveLength(2);
+      cleanup();
+    }
+  }
 });

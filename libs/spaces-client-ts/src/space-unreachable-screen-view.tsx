@@ -2,10 +2,9 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
-import { SpaceRecoveryBar } from './space-recovery-bar';
+import { SpaceRecoveryState } from './space-recovery-state';
 
 export type SpaceUnreachableScreenViewProps = {
   /** Custom title, or the localized "<host>'s space" fallback. */
@@ -24,40 +23,40 @@ export function SpaceUnreachableScreenView(
   props: SpaceUnreachableScreenViewProps
 ): JSX.Element {
   const { t } = useLingui();
+  // One centred unit, the screen's title in it; the space is named in
+  // full in the message, which a header would cut.
   return (
     <ContentScreen
       screenId="space-unreachable"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
-        { name: props.title },
+        { name: t`Can't reach this space right now` },
       ]}
+      titlePlacement="content"
     >
-      {/* The ways on stand right under the message they answer, not
-          a screen away at the bottom edge. */}
-      <StackVertical gap="lg">
-        <ErrorState
-          title={t`Can't reach this space right now`}
-          // The space by name, in full: the header may cut a long one short.
-          body={t`${props.title} didn't answer. Check your connection and try again, or go back to Spaces.`}
-          dataSet={{ testid: Handles.spaceUnreachable }}
+      <SpaceRecoveryState
+        icon={XIcon}
+        tone="destructive"
+        role="alert"
+        title={t`Can't reach this space right now`}
+        body={t`${props.title} didn't answer. Check your connection and try again, or go back to Spaces.`}
+        testId={Handles.spaceUnreachable}
+      >
+        <Button
+          title={<Trans>Back to Spaces</Trans>}
+          intent="neutral"
+          variant="outline"
+          flex={1}
+          onClick={() => props.onBackToSpaces()}
+          dataSet={{ testid: Handles.spaceUnreachableBack }}
         />
-        <SpaceRecoveryBar>
-          <Button
-            title={<Trans>Back to Spaces</Trans>}
-            intent="neutral"
-            variant="outline"
-            flex={1}
-            onClick={() => props.onBackToSpaces()}
-            dataSet={{ testid: Handles.spaceUnreachableBack }}
-          />
-          <Button
-            title={<Trans>Try again</Trans>}
-            flex={1}
-            onClick={() => props.onRetry()}
-            dataSet={{ testid: Handles.spaceUnreachableRetry }}
-          />
-        </SpaceRecoveryBar>
-      </StackVertical>
+        <Button
+          title={<Trans>Try again</Trans>}
+          flex={1}
+          onClick={() => props.onRetry()}
+          dataSet={{ testid: Handles.spaceUnreachableRetry }}
+        />
+      </SpaceRecoveryState>
     </ContentScreen>
   );
 }

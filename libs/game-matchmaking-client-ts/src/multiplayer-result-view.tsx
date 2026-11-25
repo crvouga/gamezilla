@@ -137,10 +137,16 @@ function NewOpponent(props: ResultProps): JSX.Element {
   );
 }
 
-/** Stepping through the finished game: its moves, or its record. */
+/**
+ * Stepping through the finished game: its moves, or its record. A game
+ * ended before any move (aborted on a missed first move) has nothing to
+ * step through, so it offers no review.
+ */
 function Review(props: ResultProps): JSX.Element {
+  const played = (): boolean =>
+    (props.game.moves?.moves.length ?? 0) > 0 || props.game.record !== null;
   return (
-    <Show when={props.game.moves !== null || props.game.record !== null}>
+    <Show when={played()}>
       <Button
         title={<Trans>Review</Trans>}
         aria-label={

@@ -79,10 +79,14 @@ export const Drawn: Story = {
     })(args),
 };
 
-/** An aborted game has no result to rematch and no record to keep. */
+/**
+ * An aborted game has no result to rematch and no record to keep: aborted
+ * on a missed first move, its board is empty and it has nothing to review.
+ */
 export const Aborted: Story = {
   render: (args) =>
     renderStory({
+      shown: 0,
       result: {
         tone: 'neutral',
         aborted: true,
@@ -90,7 +94,14 @@ export const Aborted: Story = {
         caption: "The first move wasn't made in time.",
       },
     })(args),
-  args: { game: { ...STORY_FINISHED_GAME, rematch: 'none', record: null } },
+  args: {
+    game: {
+      ...STORY_FINISHED_GAME,
+      rematch: 'none',
+      record: null,
+      moves: { moves: [], shownPly: 0, reviewing: null, heading: 'Column' },
+    },
+  },
 };
 
 /** A watcher reads the result and may step through the moves. */

@@ -31,8 +31,8 @@ export type {
   TrailSlot,
 } from '../trail-arena-types';
 
-/** Room around the walls, in cells, for heads, noses and rings at the edge. */
-const MARGIN = 1.5;
+/** Room outside the walls, in cells, for the focus ring drawn on them. */
+const WALL_ROOM = 0.3;
 
 /**
  * How much larger `heads="large"` draws each rider's head: a phone's cells
@@ -41,27 +41,29 @@ const MARGIN = 1.5;
  */
 export const LARGE_HEAD_SCALE = 1.4;
 
-/** The drawing's box, grown by the room around the walls on every side. */
-function drawingStyle(width: number): JSX.CSSProperties {
-  return {
-    width: `${((width + 2 * MARGIN) / width) * 100}%`,
-    margin: `-${(MARGIN / width) * 100}%`,
-  };
+/**
+ * The ground's room around the grid, in cells: as far as a head on an edge
+ * cell reaches past it (its nose, 1.6 head radii from the cell's centre),
+ * so every rider, nose and all, is drawn inside the walls.
+ */
+function groundRoom(scale: number): number {
+  return Math.round((1.6 * scale - 0.4) * 100) / 100;
 }
 
 /**
- * The arena's shape for its stylesheet: `--arena-aspect` its walls' width
- * over height; `--arena-fit` the same with the room above and below the
- * walls, so a room shorter than the arena is wide narrows it until the
- * whole drawing fits (every rider in view) instead of running off the
- * bottom; `--arena-bleed` that room as a share of the arena's width.
+ * The arena's shape for its stylesheet: `--arena-aspect` and `--arena-fit`
+ * the whole drawing's width over its height (walls and the room around
+ * them), so a room shorter than the arena is wide narrows it until the
+ * whole drawing fits instead of running off the bottom. Nothing hangs
+ * outside the arena's box (`--arena-bleed` 0).
  */
-function arenaShape(width: number, height: number): JSX.CSSProperties {
+function arenaShape(width: number, height: number, room: number) {
+  const aspect = String((width + 2 * room) / (height + 2 * room));
   return {
-    '--arena-aspect': String(width / height),
-    '--arena-fit': String(width / (height + 2 * MARGIN)),
-    '--arena-bleed': String(MARGIN / width),
-  };
+    '--arena-aspect': aspect,
+    '--arena-fit': aspect,
+    '--arena-bleed': '0',
+  } satisfies JSX.CSSProperties;
 }
 
 /**
@@ -78,13 +80,15 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
   );
   const interactive = () => props.enabled && controlledSlots(props) > 0;
   const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
+  const ground = () => groundRoom(headScale());
+  const room = () => ground() + WALL_ROOM;
   return (
     <ArenaSurface
       enabled={props.enabled}
       riders={props.riders}
       onDirection={props.onDirection}
       class={styles['arena']}
-      style={arenaShape(props.width, props.height)}
+      style={arenaShape(props.width, props.height, room())}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
       data-width={props.width}
@@ -105,19 +109,22 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       onPointerCancel={input.pointerUp}
       onLostPointerCapture={input.pointerUp}
     >
+      {/* The walls stand a head's reach out from the grid, inside the
+          arena's box: a rider on an edge cell is drawn whole, inside them. */}
       <svg
         class={styles['drawing']}
-        // The room around the walls hangs outside the arena's box, so the
-        // walls sit flush with the column and only a head at the edge
-        // reaches past them.
-        style={drawingStyle(props.width)}
         data-testid={`${props.testId}-drawing`}
-        viewBox={`${-MARGIN} ${-MARGIN} ${props.width + 2 * MARGIN} ${props.height + 2 * MARGIN}`}
+        viewBox={`${-room()} ${-room()} ${props.width + 2 * room()} ${props.height + 2 * room()}`}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
         <ArenaPatterns arenaId={arenaId} indices={TRAIL_RIDER_INDICES} />
-        <Ground arenaId={arenaId} width={props.width} height={props.height} />
+        <Ground
+          arenaId={arenaId}
+          width={props.width}
+          height={props.height}
+          room={ground()}
+        />
         <Show when={props.touchRegions}>
           <path
             class={styles['touchDivider']}
@@ -136,8 +143,10 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
         </For>
         <rect
           class={styles['wall']}
-          width={props.width}
-          height={props.height}
+          x={-ground()}
+          y={-ground()}
+          width={props.width + 2 * ground()}
+          height={props.height + 2 * ground()}
           rx="0.5"
         />
         <Markers
@@ -163,13 +172,17 @@ function Ground(props: {
   arenaId: string;
   width: number;
   height: number;
+  /** The ground's room around the grid, in cells. */
+  room: number;
 }): JSX.Element {
   return (
     <>
       <rect
         class={styles['ground']}
-        width={props.width}
-        height={props.height}
+        x={-props.room}
+        y={-props.room}
+        width={props.width + 2 * props.room}
+        height={props.height + 2 * props.room}
         rx="0.5"
       />
       <rect

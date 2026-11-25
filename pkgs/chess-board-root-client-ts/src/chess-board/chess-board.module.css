@@ -90,11 +90,12 @@
 /* In-square labels need clearance from the widest piece silhouettes across
    system fonts. Boards with outside coordinates retain their larger figures. */
 /* Corner labels take the squares' corners: the piece sits a little smaller
-   and a little higher, so a rank-1 piece's base never meets its file's
-   letter. */
+   and higher, so a rank-1 piece's base ends clear above its file's letter
+   (an ascender's top, ~78 of 100 board units) and a wide crown (a queen's,
+   a rook's) clear of its rank's figure in the top corner. */
 .root:has(.coords) .piece {
-  background-size: 76% 76%;
-  background-position: 50% 40%;
+  background-size: 72% 72%;
+  background-position: 50% 35%;
 }
 
 .piece[data-piece="wp"] {
@@ -291,6 +292,7 @@
 
   .root:has(.coords) .piece {
     background-size: 84% 84%;
+    background-position: center;
   }
 }
 

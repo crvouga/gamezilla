@@ -158,7 +158,9 @@ export function SpaceLauncherTile(props: {
         game={props.game}
         fit={fit()}
         present={props.present}
-        guest={props.role === 'guest'}
+        // A guest who only watches reads each count as the host's tile
+        // says it (`3 players + 1 bot`), so every tile counts the same room.
+        guest={props.role === 'guest' && !watching()}
         looking={props.looking}
         hostName={props.hostName}
       />

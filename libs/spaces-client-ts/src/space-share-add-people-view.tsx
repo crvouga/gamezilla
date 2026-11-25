@@ -47,13 +47,14 @@ function SpaceAdditionState(props: {
   readonly addition: SpaceAddition;
   readonly onRetry: () => void;
 }): JSX.Element {
+  const { t } = useLingui();
   const success = () =>
     props.addition.status === 'success' ? props.addition : null;
   const failure = () =>
     props.addition.status === 'error' ? props.addition : null;
   // A done add comes and goes: it floats over the sheet, and the person's
   // row in the list is the lasting record. A refused one is the search
-  // field's own result: it stays under the field, with Retry, inside the
+  // field's own result: it stays under the field, with Try again, inside the
   // dialog where the person is working.
   return (
     <>
@@ -81,7 +82,8 @@ function SpaceAdditionState(props: {
               </Show>
             }
             body={error().message}
-            retry={{ onClick: () => props.onRetry() }}
+            // Worded as every other way to try again in the app.
+            retry={{ label: t`Try again`, onClick: () => props.onRetry() }}
           />
         )}
       </Show>

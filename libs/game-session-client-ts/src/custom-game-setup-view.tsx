@@ -166,7 +166,11 @@ function SeatRow(
               people={props.people}
             />
           </Text>
-          <SeatTags seat={props.seat} />
+          {/* Its own centred row: a `Badge` starts itself at the top of a
+              row, which would lift it above the name's centre line. */}
+          <StackHorizontal gap="sm" align="center">
+            <SeatTags seat={props.seat} />
+          </StackHorizontal>
         </StackHorizontal>
       }
       caption={<SeatFacts seat={props.seat} />}

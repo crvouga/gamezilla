@@ -6,7 +6,6 @@ import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
 import type { SpaceJoinScreenViewProps } from './space-join-screen-view';
-import { SpaceRecoveryBar } from './space-recovery-bar';
 
 function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
   const { t } = useLingui();
@@ -127,15 +126,16 @@ function SpaceJoinRetryButton(props: {
 
 /**
  * A state that cannot join: the way back to Spaces, and while offline,
- * Try again beside it, filled on the right as in every recovery pair. It
- * stands right under the message it answers, as on Ended and Unreachable.
+ * Try again beside it, filled on the right as in every recovery pair. Its
+ * `SpaceRecoveryState` stands them right under the message they answer,
+ * as on Ended and Unreachable.
  */
-export function SpaceJoinRecoveryBar(
+export function SpaceJoinRecoveryActions(
   props: SpaceJoinScreenViewProps
 ): JSX.Element {
   const offline = (): boolean => props.status === 'offline';
   return (
-    <SpaceRecoveryBar>
+    <>
       <Button
         title={<Trans>Back to Spaces</Trans>}
         intent={offline() ? 'neutral' : undefined}
@@ -154,7 +154,7 @@ export function SpaceJoinRecoveryBar(
       <Show when={offline()}>
         <SpaceJoinRetryButton onRetry={props.onRetry} />
       </Show>
-    </SpaceRecoveryBar>
+    </>
   );
 }
 

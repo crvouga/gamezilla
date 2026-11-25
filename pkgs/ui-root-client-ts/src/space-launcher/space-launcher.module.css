@@ -84,20 +84,23 @@
 .tile[aria-disabled="true"] {
   cursor: default;
 }
-/* What a guest only sees: no card edge to press, the games on the canvas.
-   The dashed edge is drawn in the outline colour, at least 3:1 against
-   the muted fill and the page in both themes, so the tiles still read. */
+/* What a guest only sees: quieter than the host's cards to press. No
+   fill, the games on the canvas, and a hairline dashed edge that only
+   groups each game. What the guest reads is held to contrast instead:
+   each picture's own ring (at least 3:1, below) and the name and count
+   in text colours, so nothing they need rests on the faint edge. */
 [data-role="guest"] .tile[aria-disabled="true"] {
   border-style: dashed;
-  background: var(--ui-color-surface-muted);
+  background: transparent;
 }
-[data-role="guest"] .tile[aria-disabled="true"]:not([data-looking="true"]) {
-  border-color: var(--ui-color-outline);
-}
+/* A game's picture: its own edge in the outline colour, at least 3:1
+   against the card and the page in both themes, so a picture whose
+   surface is near the card's (Numberlink's in dark) still has a shape. */
 .art {
   display: inline-flex;
   margin-bottom: var(--ui-space-2);
-  border-radius: var(--ui-radius-control);
+  border-radius: var(--ui-radius-card);
+  box-shadow: 0 0 0 1px var(--ui-color-outline);
   transition: opacity var(--ui-duration-fast) var(--ui-easing-standard);
 }
 /* The tile the host is on: the accent edge, said in words in it. */

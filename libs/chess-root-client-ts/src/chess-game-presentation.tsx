@@ -14,7 +14,6 @@ import {
   requireTwoPlayerSide,
   TWO_PLAYER_SIDES,
 } from '@pkgs/turn-game-shared-ts/game-rules';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { ComponentProps, JSX } from '@solidjs/web';
 
 /** How a chess game ended, by the reason its rules give. */
@@ -45,11 +44,11 @@ export function chessMoveSquares(
 /**
  * Chess as every game screen mounts it: the shared chess board in the
  * game's theme, a move sent as its from and to squares and any promotion.
- * A phone-sized board reads its coordinates outside the squares
- * (`ChessBoardFrame`), larger than a corner holds.
+ * A board reads its coordinates outside the squares (`ChessBoardFrame`),
+ * larger than a corner holds, its ranks at the same end edge on a phone
+ * and a wide screen, so the squares start under the screen's title.
  */
 export function ChessGameBoard(props: GameBoardProps): JSX.Element {
-  const mode = useLayoutMode();
   return (
     <ChessBoard
       theme={BOARD_THEME}
@@ -63,7 +62,7 @@ export function ChessGameBoard(props: GameBoardProps): JSX.Element {
       autoPromoteQueen={false}
       showCoordinates
       showGuidance
-      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
+      coordinatePlacement="outside-end"
       highlightLastMove
       highlightLegalMoves
       onMove={(move) =>

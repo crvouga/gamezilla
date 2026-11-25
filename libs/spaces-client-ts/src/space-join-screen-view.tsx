@@ -4,8 +4,8 @@ import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Card } from '@pkgs/ui-root-client-ts/card';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
+import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Gamepad2Icon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
@@ -23,10 +23,11 @@ import {
   spaceCardOthers,
 } from './space-card-view';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
-import { SpaceJoinFooter, SpaceJoinRecoveryBar } from './space-join-footer';
+import { SpaceJoinFooter, SpaceJoinRecoveryActions } from './space-join-footer';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';
+import { SpaceRecoveryState } from './space-recovery-state';
 import { SpacesNeedConnectionNotice } from './spaces-notices';
 
 /** What the viewer's device knows about a space it is not in (not ended). */
@@ -298,87 +299,92 @@ function SpaceJoinLiveBody(props: {
   );
 }
 
-/** A state that cannot join, with its ways on right under the message. */
-function JoinRecoveryBody(
-  props: SpaceJoinScreenViewProps & { readonly children: JSX.Element }
-): JSX.Element {
-  return (
-    <StackVertical gap="lg">
-      {props.children}
-      <SpaceJoinRecoveryBar {...props} />
-    </StackVertical>
-  );
+/** A state that cannot join (or is still opening), in words. */
+type JoinRecoveryCopy = {
+  readonly title: string;
+  readonly body?: string | undefined;
+  readonly icon?: IconComponent | undefined;
+  readonly testId?: string | undefined;
+};
+
+/**
+ * What a state that is not the live invitation says: its title is the
+ * screen's one heading, drawn with the message rather than in the header,
+ * so every sibling state reads alike and never says its words twice.
+ */
+function useJoinRecoveryCopy(): (status: SpaceJoinStatus) => JoinRecoveryCopy {
+  const { t } = useLingui();
+  return (status) => {
+    if (status === 'loading') return { title: t`Opening the space…` };
+    if (status === 'unavailable')
+      return {
+        title: t`You can't join this space`,
+        body: t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`,
+        icon: Gamepad2Icon,
+      };
+    if (status === 'missing')
+      return {
+        title: t`This space can't be found`,
+        body: t`The link may be wrong, or the space may never have existed.`,
+        icon: Gamepad2Icon,
+        testId: Handles.spaceNotFound,
+      };
+    return {
+      title: t`You're offline`,
+      body: t`Joining someone else's space needs a connection. Your own spaces still work offline.`,
+      icon: WifiOffIcon,
+      testId: Handles.spacesNeedConnection,
+    };
+  };
 }
 
 function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
-  const { t } = useLingui();
+  const recovery = useJoinRecoveryCopy();
+  const copy = () => recovery(props.status);
   return (
-    <Switch>
-      <Match when={props.status === 'loading'}>
-        <LoadingState caption={t`Opening the space…`} />
-      </Match>
-      <Match when={props.status === 'unavailable'}>
-        <JoinRecoveryBody {...props}>
-          <EmptyState
-            icon={Gamepad2Icon}
-            title={t`You can't join this space`}
-            body={t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`}
-          />
-        </JoinRecoveryBody>
-      </Match>
-      <Match when={props.status === 'missing'}>
-        <JoinRecoveryBody {...props}>
-          <EmptyState
-            icon={Gamepad2Icon}
-            title={t`This space can't be found`}
-            body={t`The link may be wrong, or the space may never have existed.`}
-            dataSet={{ testid: Handles.spaceNotFound }}
-          />
-        </JoinRecoveryBody>
-      </Match>
-      <Match when={props.status === 'offline'}>
-        <JoinRecoveryBody {...props}>
-          <EmptyState
-            icon={WifiOffIcon}
-            title={t`You're offline`}
-            body={t`Joining someone else's space needs a connection. Your own spaces still work offline.`}
-            dataSet={{ testid: Handles.spacesNeedConnection }}
-          />
-        </JoinRecoveryBody>
-      </Match>
-      <Match when={props.status === 'live'}>
-        <SpaceJoinLiveBody
-          space={props.space}
-          checkingHost={props.connection === 'loading'}
-          needsConnection={props.needsConnection}
-          joinPending={props.joinPending}
-        />
-      </Match>
-    </Switch>
+    <Show
+      when={props.status === 'live'}
+      fallback={
+        <SpaceRecoveryState
+          title={copy().title}
+          body={copy().body}
+          icon={copy().icon}
+          testId={copy().testId}
+          role={props.status === 'loading' ? 'status' : undefined}
+        >
+          <SpaceJoinRecoveryActions {...props} />
+        </SpaceRecoveryState>
+      }
+    >
+      <SpaceJoinLiveBody
+        space={props.space}
+        checkingHost={props.connection === 'loading'}
+        needsConnection={props.needsConnection}
+        joinPending={props.joinPending}
+      />
+    </Show>
   );
 }
 
 /**
  * The page's title. With the invitation card on screen the card names the
  * space, so the header says what the page is for ("Join space"), never the
- * name twice. Otherwise the space's name when known, else what the page is
- * doing (opening it; joining waits for Join) or what it found.
+ * name twice. Every other state draws its title with its message (see
+ * `useJoinRecoveryCopy`).
  */
-function spaceJoinPageTitle(props: SpaceJoinScreenViewProps): JSX.Element {
-  if (props.status === 'live' && props.space !== null)
+function useSpaceJoinPageTitle(
+  props: SpaceJoinScreenViewProps
+): () => JSX.Element {
+  const copy = useJoinRecoveryCopy();
+  return () => {
+    if (props.status !== 'live') return copy(props.status).title;
+    if (props.space === null) return props.title ?? <Trans>Join space</Trans>;
     return props.joinPending ? (
       <Trans>Check your join</Trans>
     ) : (
       <Trans>Join space</Trans>
     );
-  if (props.title !== null) return props.title;
-  if (props.status === 'loading') return <Trans>Opening space…</Trans>;
-  if (props.status === 'missing') return <Trans>Space not found</Trans>;
-  // The state's own heading says "You're offline"; the header says what
-  // the page is for, never the same words twice.
-  if (props.status === 'offline') return <Trans>Join space</Trans>;
-  if (props.status === 'unavailable') return <Trans>Can't join</Trans>;
-  return <Trans>Space</Trans>;
+  };
 }
 
 /**
@@ -389,14 +395,16 @@ function spaceJoinPageTitle(props: SpaceJoinScreenViewProps): JSX.Element {
 export function SpaceJoinScreenView(
   props: SpaceJoinScreenViewProps
 ): JSX.Element {
+  const pageTitle = useSpaceJoinPageTitle(props);
   return (
     <ContentScreen
       screenId="space-join"
       dataSet={{ testid: Handles.spaceJoinPrompt }}
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
-        { name: spaceJoinPageTitle(props) },
+        { name: pageTitle() },
       ]}
+      titlePlacement={props.status === 'live' ? 'header' : 'content'}
       footer={
         props.status === 'live' ? <SpaceJoinFooter {...props} /> : undefined
       }

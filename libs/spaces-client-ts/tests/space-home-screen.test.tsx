@@ -254,6 +254,25 @@ test('each tile says how many play and how many watch, once', () => {
   ]);
 });
 
+// regression: guest-waiting-counts-another-room
+test('a waiting guest reads every game\u2019s count as the host\u2019s tile says it', () => {
+  const room = (role: SpaceRole): string[] => {
+    const [guest, ...rest] = GUESTS.slice(0, 2);
+    if (guest === undefined) throw new Error('a guest is needed');
+    const people =
+      role === 'host'
+        ? [you(AVERY), guest, ...rest]
+        : [AVERY, you(guest), ...rest];
+    mount({ role, people });
+    const marks = GAMES.map(
+      (game) => screen.getByTestId(Handles.gameMenu(game.id)).textContent ?? ''
+    );
+    cleanup();
+    return marks;
+  };
+  expect(room('guest')).toEqual(room('host'));
+});
+
 test('each registered game becomes one launcher tile with its harness handle', () => {
   expect(spaceLauncherGames(GAMES).map((game) => game.testId)).toEqual(
     GAMES.map((game) => Handles.gameMenu(game.id))

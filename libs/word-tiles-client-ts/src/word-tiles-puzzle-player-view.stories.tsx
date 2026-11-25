@@ -97,11 +97,13 @@ export const RetryWordList: Story = {
   ...WordListUnavailable,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    // The word list's state floats in a toast, outside the story's canvas.
+    const page = within(canvasElement.ownerDocument.body);
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Retry word list' })
+      await page.findByRole('button', { name: 'Retry word list' })
     );
     await expect(
-      canvas.queryByRole('button', { name: 'Retry word list' })
+      page.queryByRole('button', { name: 'Retry word list' })
     ).not.toBeInTheDocument();
     await expect(
       canvas.getByTestId('word-tiles-puzzle-status')
@@ -197,7 +199,9 @@ export const ReachTarget: Story = {
     // regression: word-tiles-puzzle-retry-keeps-draft
     await expect(canvas.getByTestId('word-tiles-puzzle-submit')).toBeDisabled();
     await userEvent.click(
-      canvas.getByRole('button', { name: 'Retry word list' })
+      within(canvasElement.ownerDocument.body).getByRole('button', {
+        name: 'Retry word list',
+      })
     );
     await expect(
       canvas.getByTestId('word-tiles-puzzle-cell-j8')

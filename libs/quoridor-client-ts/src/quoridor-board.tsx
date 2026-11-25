@@ -108,7 +108,7 @@ function createBoardSelection(props: BoardViewProps) {
   );
   const message = () => {
     if (game().winner !== null)
-      return t`Game finished. Use the game controls to review earlier moves.`;
+      return t`Game finished. Choose a move in the moves list to see the board at that point.`;
     if (!props.interactive)
       return t`Waiting for ${quoridorPlayerName(game(), game().turn)} to move. This board is read-only.`;
     if (quoridorMustPass(game()))

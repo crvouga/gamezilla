@@ -504,7 +504,11 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
       </p>
       <Button
         title={props.action.label}
-        variant={pending() ? 'ghost' : 'solid'}
+        // Not yet enabled, it is an outline on the page: its words keep
+        // full secondary contrast with no grey well behind them.
+        variant={
+          pending() ? 'ghost' : props.action.enabled ? 'solid' : 'outline'
+        }
         intent={pending() ? 'neutral' : undefined}
         disabled={!props.action.enabled}
         loading={pending()}
@@ -519,7 +523,7 @@ function ActionRow(props: { action: CardTableAction }): JSX.Element {
 }
 
 /**
- * What is said once above the hand: the instruction, or why the hand waits,
+ * What is said once under the hand: the instruction, or why the hand waits,
  * or each rule refusing a card (every card it refuses points to it).
  */
 function HandGuidance(
@@ -567,9 +571,9 @@ function HandGuidance(
 }
 
 /**
- * Under the table: the guidance above the hand, the hand, a refusal said
- * aloud, and the action. It keeps one height in every phase, hand or none,
- * so the table and the guidance above the hand never move.
+ * Under the table: the hand, a refusal said aloud, the action, and the
+ * guidance under them. It keeps one height in every phase, hand or none,
+ * so the table, the hand and the action never move.
  */
 function HandTray(props: CardTableProps): JSX.Element {
   // Why the last card pressed was refused, until the table moves on.
@@ -591,9 +595,6 @@ function HandTray(props: CardTableProps): JSX.Element {
   };
   return (
     <div class={tray['tray']}>
-      <div class={tray['guide']}>
-        <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
-      </div>
       {/* No cards, no hand: a watcher and a finished game get no empty toolbar. */}
       <Show when={props.hand.length > 0}>
         <Hand {...props} onRefused={setRefusal} reasonId={reasonId} />
@@ -613,6 +614,11 @@ function HandTray(props: CardTableProps): JSX.Element {
       <Show when={props.action}>
         {(action) => <ActionRow action={action()} />}
       </Show>
+      {/* Under the hand and its action, so the hand sits right under the
+          table and the room kept for guidance falls at the tray's foot. */}
+      <div class={tray['guide']}>
+        <HandGuidance {...props} reasons={reasons()} refusal={refusal()} />
+      </div>
     </div>
   );
 }
@@ -645,7 +651,7 @@ function HandTray(props: CardTableProps): JSX.Element {
  * A wide table (26rem and up) is a compass: North across the top, West and
  * East beside the trick, the viewer across the bottom; a narrower one sets
  * two seats per row, each beside its played card. The felt and the tray
- * under it (guidance, hand, action) keep one height in every phase, hand or
+ * under it (hand, action, guidance) keep one height in every phase, hand or
  * none, so nothing on the board moves as the game goes on.
  *
  * @example

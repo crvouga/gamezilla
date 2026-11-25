@@ -52,9 +52,18 @@ export function RenameSpaceModalView(
           autocapitalize="words"
           dataSet={{ testid: Handles.spaceRenameInput }}
         />
-        <Show when={!props.refused && props.value.trim() === ''}>
+        {/* How to go back to the host's name, said whether or not a name
+            is in the field, so the dialog keeps one height as it fills. */}
+        <Show when={!props.refused}>
           <P variant="caption" tone="secondary">
-            <Trans>Leave it empty to name the space after its host.</Trans>
+            <Show
+              when={props.value.trim() === ''}
+              fallback={
+                <Trans>Clear it to name the space after its host.</Trans>
+              }
+            >
+              <Trans>Leave it empty to name the space after its host.</Trans>
+            </Show>
           </P>
         </Show>
         <Show when={props.refused}>

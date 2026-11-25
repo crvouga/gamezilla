@@ -2,11 +2,9 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
-import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
-import { SpaceRecoveryBar } from './space-recovery-bar';
+import { SpaceRecoveryState } from './space-recovery-state';
 
 export type SpaceEndedScreenViewProps = {
   /** Custom title, or the localized "<host>'s space" fallback. */
@@ -30,32 +28,30 @@ export function SpaceEndedScreenView(
     const username = props.hostName;
     return username.length > 0 ? t`${label}, hosted by ${username}` : label;
   };
+  // One centred unit, the screen's title in it: what happened heads it,
+  // and the space is named in full under it, which a header would cut.
   return (
     <ContentScreen
       screenId="space-ended"
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
-        { name: props.title },
+        { name: <Trans>This space has ended</Trans> },
       ]}
+      titlePlacement="content"
       dataSet={{ testid: Handles.spaceEnded }}
     >
-      {/* The ways on stand right under the message they answer, not
-          a screen away at the bottom edge. */}
-      <StackVertical gap="lg">
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={<Trans>This space has ended</Trans>}
-          body={body()}
+      <SpaceRecoveryState
+        icon={Gamepad2Icon}
+        title={<Trans>This space has ended</Trans>}
+        body={body()}
+      >
+        <Button
+          title={<Trans>Back to Spaces</Trans>}
+          fullWidth
+          onClick={() => props.onBackToSpaces()}
+          dataSet={{ testid: Handles.spaceEndedBack }}
         />
-        <SpaceRecoveryBar>
-          <Button
-            title={<Trans>Back to Spaces</Trans>}
-            fullWidth
-            onClick={() => props.onBackToSpaces()}
-            dataSet={{ testid: Handles.spaceEndedBack }}
-          />
-        </SpaceRecoveryBar>
-      </StackVertical>
+      </SpaceRecoveryState>
     </ContentScreen>
   );
 }

@@ -18,6 +18,15 @@
 .feedback:empty {
   display: none;
 }
+/* Outside a held box (a puzzle's page), the stacked board, feedback, rack
+   and actions keep the page's small gap. */
+.layout[data-layout="stacked"]:not([data-fill="true"]) {
+  row-gap: var(--ui-space-2);
+}
+.layout[data-layout="stacked"]:not([data-fill="true"]) .tray {
+  display: grid;
+  gap: var(--ui-space-2);
+}
 
 /* Desktop and tablet: a 28rem fitted board with Fit and Enlarge stacked
    beside its top (any word-list notice under them), one full-width status
@@ -200,7 +209,17 @@
   > * {
   --word-tile-enlarged-height: 100cqb;
 }
-.layout[data-fill="true"][data-layout="wide"]:not(:has(> .notice:not(:empty)))
+/* Outside a held box (a puzzle's page), the enlarged window keeps the
+   fitted board's height, whole rows, with the overview beside it in the side
+   column (its least 9rem), so the rack and actions under it stay in view. */
+.layout[data-layout="wide"]:not([data-fill="true"]):not(
+    :has(> .notice:not(:empty))
+  )
+  .board
+  > * {
+  --word-tile-enlarged-height: var(--word-tile-fitted-size);
+}
+.layout[data-layout="wide"]:not(:has(> .notice:not(:empty)))
   .board
   [data-overview] {
   position: absolute;
@@ -208,6 +227,11 @@
   top: calc(var(--ui-control-size-md) * 2 + var(--ui-space-4));
   left: calc(100% + var(--ui-space-4));
   flex-direction: column;
+  width: 9rem;
+}
+.layout[data-fill="true"][data-layout="wide"]:not(:has(> .notice:not(:empty)))
+  .board
+  [data-overview] {
   width: 10.5rem;
 }
 

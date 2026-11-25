@@ -346,8 +346,10 @@ export const RecoverAndSubmit: Story = {
   play: async ({ canvasElement }) => {
     // regression: word-tiles-retry-retained-accepted-draft
     const canvas = within(canvasElement);
+    // The word list's state floats in a toast, outside the story's canvas.
+    const page = within(canvasElement.ownerDocument.body);
     await expect(
-      canvas.getByTestId('custom-game-board-lexicon-retry')
+      await page.findByTestId('custom-game-board-lexicon-retry')
     ).toBeVisible();
     await enlargeBoard(canvasElement);
     for (const [tile, cell] of [
@@ -363,7 +365,7 @@ export const RecoverAndSubmit: Story = {
       );
     }
     await expect(
-      canvas.getByText(
+      page.getByText(
         /Reload it to preview words, or play for the game to check them/
       )
     ).toBeVisible();
@@ -371,9 +373,7 @@ export const RecoverAndSubmit: Story = {
     await expect(canvas.getByTestId('custom-game-board-submit')).toBeEnabled();
     await expect(canvas.getByText(/checked when you play/)).toBeVisible();
     await checkCatStatusGeometry(canvasElement);
-    await userEvent.click(
-      canvas.getByTestId('custom-game-board-lexicon-retry')
-    );
+    await userEvent.click(page.getByTestId('custom-game-board-lexicon-retry'));
     await expect(
       canvas.getByTestId('custom-game-board-cell-h8')
     ).toHaveAttribute('data-state', 'tentative');

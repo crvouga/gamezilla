@@ -127,11 +127,12 @@ export function MultiplayerWaiting(props: {
           when={props.offline !== true}
           fallback={
             <P variant="inherit" testId="multiplayer-waiting-offline">
-              {/* What still happens and what waits: the search goes on
-                  by itself, and stopping it waits for the connection too. */}
+              {/* What still happens and what Stop does now: the search
+                  goes on by itself, and Stop, which needs the connection,
+                  is refused until it returns (the search keeps going). */}
               <Trans>
-                Your search goes on by itself when you're back online. You can
-                stop it then too.
+                Your search keeps going and resumes when you're back online.
+                Stop needs a connection, so it can't end the search until then.
               </Trans>
             </P>
           }

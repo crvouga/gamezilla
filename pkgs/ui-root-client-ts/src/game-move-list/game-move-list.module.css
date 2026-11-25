@@ -110,6 +110,9 @@
   align-items: center;
   gap: var(--ui-space-1);
   min-width: 0;
+  /* A chess king beside a move inks about the move's own cap height, so
+     it stays inside its row and its pill on a phone's strip. */
+  --game-seat-piece-scale: 1.4;
 }
 .list[data-layout="table"] .move {
   grid-column: var(--move-column);

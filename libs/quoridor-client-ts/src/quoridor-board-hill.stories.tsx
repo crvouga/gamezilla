@@ -318,7 +318,10 @@ export const ReachTheHill: Story = {
   },
 };
 
-/** An overlapping wall is refused; a different anchor completes the turn. */
+/**
+ * An overlapping wall is refused; a different anchor recovers it, its wall
+ * shown and ready to place (placing a wall is `FourPlayerRound`'s turn).
+ */
 export const RecoverWallPlacement: Story = {
   args: { position: hill(['e5h']) },
   render: renderHillJourney,
@@ -336,12 +339,14 @@ export const RecoverWallPlacement: Story = {
     await expectQuoridorWallPreview(canvasElement, { refused: true });
     await chooseQuoridorCoordinate(canvasElement, 'a1');
     await expectQuoridorWallPreview(canvasElement);
+    await expect(
+      canvas.getByTestId('custom-game-board-wall-status')
+    ).not.toHaveTextContent(/overlaps/);
     await expectQuoridorTargetVisible(
       canvas.getByTestId('custom-game-board-wall-commit')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
     await expect(
-      await canvas.findByTestId('custom-game-board-action-e8')
+      canvas.getByTestId('custom-game-board-wall-commit')
     ).toBeEnabled();
   },
 };

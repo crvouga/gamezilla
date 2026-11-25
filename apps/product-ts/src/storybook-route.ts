@@ -139,6 +139,7 @@ const SPACE_BODIES = new Set([
   'screens-custom-games-setup-clock',
   'screens-custom-games-private-setup',
   'screens-custom-games-stage',
+  'screens-custom-games-stage-board-priority',
   'screens-custom-games-stage-menu',
   'screens-custom-games-stage-moves',
   'screens-custom-games-result',

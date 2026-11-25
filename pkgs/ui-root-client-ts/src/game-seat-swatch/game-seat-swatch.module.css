@@ -1,9 +1,11 @@
 /* A piece glyph with no paint (a chess king) is the whole token, its ink
    as large as a painted swatch: a piece glyph inks about half its em, so
    it is set near twice the swatch's size on the swatch's own line height,
-   and the swatch keeps its 20px box in every row it sits in. */
+   and the swatch keeps its 20px box in every row it sits in. A tight row
+   (a move record's pill) sets `--game-seat-piece-scale` lower, so the
+   glyph's ink stays inside the row it sits in. */
 .pieceMark {
-  font-size: calc(var(--ui-space-5) * 1.9);
+  font-size: calc(var(--ui-space-5) * var(--game-seat-piece-scale, 1.9));
   line-height: var(--ui-space-5);
   font-weight: normal;
 }
