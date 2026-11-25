@@ -26,3 +26,7 @@ edits require a new gate. Full local verify remains prohibited by host resource
 coordination. Native builds, physical-device latency and absent recovery coverage
 are not claimed as passed. Final readiness still requires the fixed rubric and
 all applicable checks on the final candidate.
+
+| Rack interaction | Possible confusion | Board feedback | Automated coverage |
+| --- | --- | --- | --- |
+| Choose a column and follow a drop | A landing preview could look like a played piece | The instruction carries the moving side’s circle or diamond. Only placed pieces have molded faces. The landing well stays open and dashed, and the winning cells retain their individual rings. | Production Storybook opening, Your Turn, Drop a Disc and Connect Four to Win, plus the Connect Four mixed-input and reduced-motion checks. |

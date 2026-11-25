@@ -1,7 +1,8 @@
 import {
+  COLUMNS,
   decodeConnectFour,
   landingCell,
-  replayConnectFour,
+  ROWS,
 } from '@libs/connect-four-shared-ts/connect-four';
 import { t } from '@lingui/core/macro';
 import { DiscDropBoard } from '@pkgs/ui-root-client-ts/disc-drop-board';
@@ -18,20 +19,19 @@ export function ConnectFourBoard(props: {
 }): JSX.Element {
   const game = createMemo(() => decodeConnectFour(props.position));
   const lastCell = createMemo(() => {
-    const moves = game().moves;
-    const column = moves.at(-1);
+    const position = game();
+    const column = position.moves.at(-1);
     if (column === undefined) return undefined;
-    return (
-      landingCell(replayConnectFour(moves.slice(0, -1)), column) ?? undefined
-    );
+    const next = landingCell(position, column) ?? ROWS * COLUMNS + column;
+    return next - COLUMNS;
   });
   return (
     <DiscDropBoard
       testId={props.testId}
       columnTestId={(column) => `${props.testId}-column-${column + 1}`}
       cells={game().board}
-      columns={7}
-      rows={6}
+      columns={COLUMNS}
+      rows={ROWS}
       active={game().turn}
       winning={game().winning}
       lastCell={lastCell()}
