@@ -67,12 +67,14 @@ function WaitingDescription(props: {
 /** The search's one command: stopping it. */
 export function MultiplayerStopSearch(props: {
   readonly multiple: boolean;
+  readonly offline: boolean;
   readonly onStop: () => Promise<void>;
 }): JSX.Element {
   return (
     <GameActionButton
       size="lg"
       fullWidth
+      disabled={props.offline}
       title={
         <Show
           when={props.multiple}
@@ -131,8 +133,8 @@ export function MultiplayerWaiting(props: {
                   goes on by itself, and Stop, which needs the connection,
                   is refused until it returns (the search keeps going). */}
               <Trans>
-                Your search keeps going and resumes when you're back online.
-                Stop needs a connection, so it can't end the search until then.
+                Your search is still open. Reconnect to see its progress or stop
+                it.
               </Trans>
             </P>
           }

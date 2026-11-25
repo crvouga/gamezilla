@@ -41,6 +41,7 @@ export function MultiplayerSearchingView(
         <GameLobbyDock>
           <MultiplayerStopSearch
             multiple={props.search.players > 2}
+            offline={props.offline === true}
             onStop={props.onStop}
           />
         </GameLobbyDock>
