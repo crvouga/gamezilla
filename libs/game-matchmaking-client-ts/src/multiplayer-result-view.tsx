@@ -159,14 +159,14 @@ function Review(props: ResultProps): JSX.Element {
  */
 function Onward(props: ResultProps): JSX.Element {
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal gap="sm">
       <Show when={props.game.newOpponent}>
         <Button
           title={<Trans>Game options</Trans>}
           aria-label={t`New game: choose what to play for next`}
           variant="outline"
           intent="neutral"
-          size="sm"
+          flex={1}
           onClick={() => props.onOpen({ screen: 'home' })}
           dataSet={{ testid: 'multiplayer-open-find' }}
         />
@@ -176,7 +176,7 @@ function Onward(props: ResultProps): JSX.Element {
           title={<Trans>Your ratings</Trans>}
           variant="outline"
           intent="neutral"
-          size="sm"
+          flex={1}
           onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
           dataSet={{ testid: 'multiplayer-open-ratings' }}
         />

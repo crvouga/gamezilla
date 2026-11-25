@@ -121,12 +121,8 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
           </>
         }
       >
-        {/* Back to Spaces on the left, as on every Join state. */}
-        <Button
-          title={<Trans>Back to Spaces</Trans>}
-          flex={1}
-          onClick={() => props.onBackToSpaces()}
-        />
+        {/* The one way on, filled, on the right as in every Join and
+            recovery pair; leaving, outlined, beside it. */}
         <Show when={props.canLeave}>
           <Button
             title={<Trans>Leave space</Trans>}
@@ -137,6 +133,11 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
             onClick={() => props.onLeave()}
           />
         </Show>
+        <Button
+          title={<Trans>Back to Spaces</Trans>}
+          flex={1}
+          onClick={() => props.onBackToSpaces()}
+        />
       </Show>
     </StackHorizontal>
   );

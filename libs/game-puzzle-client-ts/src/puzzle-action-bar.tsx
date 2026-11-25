@@ -8,12 +8,29 @@ import {
   PuzzleSkipButton,
 } from './puzzle-action-bar-items';
 
-export type PuzzleActionBarProps = PuzzleActionBarModel & {
-  /** At the far end of the skip row: stepping through the moves so far. */
-  trailing?: JSX.Element | undefined;
-};
+export type PuzzleActionBarProps = PuzzleActionBarModel;
 
 type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
+
+/** Skipping, quiet text at the column's start in every solving state. */
+function SkipRow(props: {
+  slot: Extract<PuzzleActionBarSlot, { id: 'skip' }> | undefined;
+  onSkip: () => void;
+}): JSX.Element {
+  return (
+    <Show when={props.slot}>
+      {(slot) => (
+        <StackHorizontal align="center">
+          <PuzzleSkipButton
+            disabled={slot().disabled}
+            onSkip={props.onSkip}
+            size="sm"
+          />
+        </StackHorizontal>
+      )}
+    </Show>
+  );
+}
 
 /**
  * What is done about the puzzle, in one group: help, retrying or moving on,
@@ -54,18 +71,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
               <PuzzleActionButton slot={slot} model={props} fullWidth />
             )}
           </For>
-          <StackHorizontal gap="sm" align="center" justify="between">
-            <Show when={skip()} fallback={<StackHorizontal />}>
-              {(slot) => (
-                <PuzzleSkipButton
-                  disabled={slot().disabled}
-                  onSkip={props.onSkip}
-                  size="sm"
-                />
-              )}
-            </Show>
-            {props.trailing}
-          </StackHorizontal>
+          <SkipRow slot={skip()} onSkip={props.onSkip} />
         </StackVertical>
       }
     >
@@ -76,15 +82,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         <For each={actions().filter((slot) => slot !== lead())}>
           {(slot) => <PuzzleActionButton slot={slot} model={props} fullWidth />}
         </For>
-        <Show when={skip()}>
-          {(slot) => (
-            <PuzzleSkipButton
-              disabled={slot().disabled}
-              onSkip={props.onSkip}
-              fullWidth
-            />
-          )}
-        </Show>
+        <SkipRow slot={skip()} onSkip={props.onSkip} />
       </StackVertical>
     </Show>
   );

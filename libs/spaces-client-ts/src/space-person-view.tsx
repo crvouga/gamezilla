@@ -2,7 +2,7 @@ import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import type { TextLines } from '@pkgs/ui-root-client-ts/text-classes';
@@ -83,14 +83,18 @@ export function SpacePersonName(props: {
             </>
           }
         >
-          <StackHorizontal align="center" gap="xs">
-            <P
-              variant={props.variant ?? 'body'}
-              lines={props.lines}
-              testId={props.testId}
-            >
-              {shown(person.name)}
-            </P>
+          {/* The name gives up room first, cut short with an ellipsis;
+              the label after it keeps its size, on the same line. */}
+          <StackHorizontal align="center" gap="xs" grow>
+            <StackVertical grow>
+              <P
+                variant={props.variant ?? 'body'}
+                lines={props.lines}
+                testId={props.testId}
+              >
+                {shown(person.name)}
+              </P>
+            </StackVertical>
             <BotLabel person={person} />
           </StackHorizontal>
         </Show>

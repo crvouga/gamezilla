@@ -5,14 +5,15 @@ import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronRightIcon,
+  ChevronsRightIcon,
   ListOrderedIcon,
   RotateCcwIcon,
   ShareIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -22,9 +23,6 @@ import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
-
-/** A glyph command's disc: a tap target as tall as the wide command. */
-const GLYPH_SIZE = 48;
 
 /** How the puzzle ended, in the tone of its outcome. */
 function ResultTitle(props: PuzzleStageScreenViewProps): JSX.Element {
@@ -121,32 +119,47 @@ export function PuzzleResultRows(
   );
 }
 
-/** A command as a glyph on a disc as tall as the wide command. */
-function glyph(
-  label: string,
-  Icon: typeof RotateCcwIcon,
-  onClick: () => void,
-  testid: string
-): JSX.Element {
+/**
+ * A quiet command as its glyph on a disc with one word under it: short
+ * enough to sit beside the wide command, plain enough to need no guessing.
+ */
+function LabeledGlyph(props: {
+  readonly label: JSX.Element;
+  readonly icon: typeof RotateCcwIcon;
+  readonly onPress: () => void;
+  readonly testid: string;
+}): JSX.Element {
+  const Icon = props.icon;
   return (
-    <IconButton
-      label={label}
-      size={GLYPH_SIZE}
-      background="surfaceMuted"
-      onClick={onClick}
-      dataSet={{ testid }}
+    <Pressable
+      direction="vertical"
+      align="center"
+      radius="control"
+      onPress={() => props.onPress()}
+      testId={props.testid}
     >
-      <Icon />
-    </IconButton>
+      <StackVertical
+        align="center"
+        justify="center"
+        width="auto"
+        minHeight="row"
+        paddingX="sm"
+      >
+        <Icon />
+      </StackVertical>
+      <Text variant="caption" tone="secondary">
+        {props.label}
+      </Text>
+    </Pressable>
   );
 }
 
 /**
  * What to do next, as the solve state allows it
- * (`buildPuzzleActionBarPlan`), in one row with few words: retrying and
- * stepping through the line are glyphs, and the one wide, filled command
- * is the next puzzle (retrying, after a failed attempt). Sharing waits as a
- * quiet glyph under them.
+ * (`buildPuzzleActionBarPlan`), in one row with few words: retrying,
+ * stepping through the line and sharing are glyphs with one word each,
+ * and the one wide, filled command is the next puzzle (retrying, after a
+ * failed attempt, when the next puzzle becomes a glyph of its own).
  */
 function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   const slots = createMemo(() =>
@@ -163,79 +176,75 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
     offers('retry') &&
     props.status === 'solved' &&
     props.result.completion?.outcome === 'failed';
+  const moves = (): JSX.Element => (
+    <LabeledGlyph
+      label={<Trans>Moves</Trans>}
+      icon={ListOrderedIcon}
+      onPress={() => props.onOpen({ screen: 'line' })}
+      testid={Handles.chessPuzzleSummaryClose}
+    />
+  );
+  const share = (): JSX.Element => (
+    <Show when={props.share} keyed>
+      {(link) => (
+        <LabeledGlyph
+          label={<PuzzleShareLabel state={link.state} short />}
+          icon={ShareIcon}
+          onPress={() => link.onShare()}
+          testid={Handles.chessPuzzleShareLink}
+        />
+      )}
+    </Show>
+  );
   return (
-    <StackVertical gap="sm">
-      <StackHorizontal gap="sm" align="center">
-        <Show
-          when={retryLeads()}
-          fallback={
-            <>
-              <Show when={offers('retry')}>
-                {glyph(
-                  t`Retry`,
-                  RotateCcwIcon,
-                  () => props.onRetry(),
-                  Handles.chessPuzzleActionRetry
-                )}
-              </Show>
-              {glyph(
-                t`Step through the line`,
-                ListOrderedIcon,
-                () => props.onOpen({ screen: 'line' }),
-                Handles.chessPuzzleSummaryClose
-              )}
-              <Show when={offers('next')}>
-                <Button
-                  title={<Trans>Next puzzle</Trans>}
-                  size="lg"
-                  flex={1}
-                  endIcon={<ChevronRightIcon />}
-                  onClick={() => props.onNext()}
-                  dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-                />
-              </Show>
-            </>
-          }
-        >
-          {glyph(
-            t`Step through the line`,
-            ListOrderedIcon,
-            () => props.onOpen({ screen: 'line' }),
-            Handles.chessPuzzleSummaryClose
-          )}
-          <Show when={offers('next')}>
-            {glyph(
-              t`Next puzzle`,
-              ChevronRightIcon,
-              () => props.onNext(),
-              Handles.chessPuzzleSummaryNext
-            )}
-          </Show>
-          <Button
-            title={<Trans>Retry</Trans>}
-            size="lg"
-            flex={1}
-            icon={RotateCcwIcon}
-            onClick={() => props.onRetry()}
-            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+    <StackHorizontal gap="sm" align="center">
+      <Show
+        when={retryLeads()}
+        fallback={
+          <>
+            <Show when={offers('retry')}>
+              <LabeledGlyph
+                label={<Trans>Retry</Trans>}
+                icon={RotateCcwIcon}
+                onPress={() => props.onRetry()}
+                testid={Handles.chessPuzzleActionRetry}
+              />
+            </Show>
+            {moves()}
+            {share()}
+            <Show when={offers('next')}>
+              <Button
+                title={<Trans>Next puzzle</Trans>}
+                size="lg"
+                flex={1}
+                endIcon={<ChevronRightIcon />}
+                onClick={() => props.onNext()}
+                dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+              />
+            </Show>
+          </>
+        }
+      >
+        <Show when={offers('next')}>
+          <LabeledGlyph
+            label={<Trans>Next</Trans>}
+            icon={ChevronsRightIcon}
+            onPress={() => props.onNext()}
+            testid={Handles.chessPuzzleSummaryNext}
           />
         </Show>
-      </StackHorizontal>
-      <Show when={props.share} keyed>
-        {(link) => (
-          <StackHorizontal align="center" gap="xs">
-            <IconButton
-              label={<PuzzleShareLabel state={link.state} short />}
-              size={40}
-              onClick={() => link.onShare()}
-              dataSet={{ testid: Handles.chessPuzzleShareLink }}
-            >
-              <ShareIcon />
-            </IconButton>
-          </StackHorizontal>
-        )}
+        {moves()}
+        {share()}
+        <Button
+          title={<Trans>Retry</Trans>}
+          size="lg"
+          flex={1}
+          icon={RotateCcwIcon}
+          onClick={() => props.onRetry()}
+          dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+        />
       </Show>
-    </StackVertical>
+    </StackHorizontal>
   );
 }
 

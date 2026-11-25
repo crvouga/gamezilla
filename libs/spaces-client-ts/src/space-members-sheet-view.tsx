@@ -96,7 +96,7 @@ function rosterRow(
     title: (
       // Centred on the name's line: a badge's pill sits on the name, not
       // above its baseline.
-      <StackHorizontal align="center" gap="xs" wrap>
+      <StackHorizontal align="center" gap="xs" grow>
         {member.isYou ? (
           you
         ) : member.person === null ? (
@@ -104,7 +104,9 @@ function rosterRow(
         ) : (
           <SpacePersonName
             person={member.person}
-            lines={1}
+            // A long name may take a second line, so the host can tell who
+            // they are removing; its badges stay beside it.
+            lines={2}
             testId={Handles.spaceMemberName(id)}
           />
         )}
