@@ -1,0 +1,4 @@
+{
+  "summary": "Choosing the already selected option left its picker open because the SDK only reports a change for a different value.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/agent-pickers.test.tsx"
+}

@@ -97,6 +97,7 @@ test('an agent discovers and selects named options in closed pickers', async () 
   expect(ui.queryByRole('dialog')).toBeNull();
 });
 
+// regression: ui-sdk-select-current-option
 test('choosing the current option still finishes a picker', () => {
   const picks: string[] = [];
   const ui = renderPickers(() => (

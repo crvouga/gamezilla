@@ -77,6 +77,7 @@ function SnapshotOptionRow(props: {
   return (
     <StackHorizontal align="center" gap="md" paddingX="lg">
       <Checkbox
+        aria-label={`Select snapshot ${formatSnapshotTitle(props.snap.createdAtMs)}`}
         checked={props.checked}
         onToggle={props.onToggleChecked}
         disabled={props.busy}
