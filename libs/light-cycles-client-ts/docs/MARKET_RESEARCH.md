@@ -49,3 +49,17 @@ These are readings of the pictured states. A single frame gives no measurement o
 - **Carry ownership through a bend.** Pair each rider's head mark with a corresponding interior mark on its trail. Keep the occupied shape continuous beneath the marks. In a four-rider position, follow a trail through two corners with hue removed. The marks should identify its owner without suggesting a break that another rider can cross.
 - **Make a one-cell passage read as one cell.** Use the same top-down scale for the edge, rider and trail. Contain outlines and glow inside the occupied footprint. Exercise a route with two parallel trails one cell apart and a rider alongside the outer edge. The open lane should remain visible across its entire length.
 - **Leave a crash mark where the rider stopped.** Replace that rider's nose with a distinct stationary mark in its last occupied cell and retain its hazardous trail. For a simultaneous crash, mark each stopped rider. For a Trio crash with two survivors, keep both survivors' headings visible while they continue. Check the settled frame with motion disabled so the result remains readable after any impact effect. [Crash scenarios](../../../specs/light-cycles/light-cycles-crashes.feature) · [Round scenarios](../../../specs/light-cycles/light-cycles-rounds.feature)
+
+## Decisions and verification · November 25, 2026
+
+| Player task | Decision for this board | Evidence |
+| --- | --- | --- |
+| Distinguish an accepted turn from current travel | The chassis points in the committed direction. A detached chevron marks a queued turn. With reduced motion the cue appears immediately. | The hosted Duel drag scenario checks the queued direction. Round 2 adds an assertion on the painted chevron in both motion preferences. |
+| Follow a rider through a crowded area | Retain four trail patterns and upright rider letters. Riders see the entire arena while they steer. Watchers can magnify a corridor around their fingers or trackpad pointer. | The board test covers two fingers becoming one, panning, taking a rider, restoring fit, and requiring a fresh swipe to steer. Hosted phone and desktop scenarios compare the world coordinate under the gesture anchor. |
+| Locate an eliminated rider | The live chassis becomes a broken disc with its letter. A crossed badge marks the crash while the trail remains visible. | The Round 1 Duel, Trio and Quad captures show the board at its original cell scale. The Round 2 sustained scenarios exercise the same production drawing under normal and throttled CPU. |
+
+[Round 1 board captures](https://github.com/crvouga/gamezilla/pull/578#issuecomment-7158913287) · [Round 2 hosted verification](https://github.com/crvouga/gamezilla/actions/runs/45593493438)
+
+### Open questions
+
+Can players identify all four owners from trail patterns alone in a dense monochrome position? How quickly do they distinguish a queued turn from the committed nose at phone size? Browser state and frame measurements can show a cue was painted and preserved. Answering either player-recognition question requires evidence of task performance.
