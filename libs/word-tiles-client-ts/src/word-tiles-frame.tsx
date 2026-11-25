@@ -68,7 +68,8 @@ export function wordTilesFrame(
 ): GameFrame<JSX.Element> {
   const sides = seatSides(seats);
   return {
-    seatLayout: 'compact-rail',
+    seatLayout: 'score-rail',
+    menuMatchCommands: true,
     compactInset: 'narrowest',
     // The rack, the board and its view controls lay themselves out: the
     // fixed view never narrows them and keeps them off the screen's edge,

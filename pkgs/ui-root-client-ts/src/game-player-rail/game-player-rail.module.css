@@ -137,3 +137,37 @@
     overflow: hidden;
   }
 }
+
+/* Give each score column the width of its identity. Long names or larger
+   text move a seat to the next row, and tile counts wrap within the seat. */
+@container game-column (max-width: 879px) {
+  .playerRail.scoreRail[role="list"]:has(> :nth-child(4)) {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--ui-space-1);
+  }
+  .playerRail.scoreRail[role="list"]:has(> :nth-child(4)) > * {
+    flex: 1 1 max-content;
+    min-width: min(100%, 5rem);
+    max-width: 100%;
+  }
+  .playerRail.scoreRail[role="list"]:has(> :nth-child(4)) .chipFrame {
+    padding-inline: var(--ui-space-1);
+  }
+  .playerRail.scoreRail[role="list"]:has(> :nth-child(4)) .chipNameLine {
+    width: max-content;
+  }
+  .playerRail.scoreRail[role="list"]:has(> :nth-child(4)) .chipFacts {
+    width: 100%;
+    contain: inline-size;
+    height: auto;
+    overflow: visible;
+    row-gap: 0;
+  }
+  .playerRail.scoreRail:has(> :nth-child(4))
+    .chipFacts
+    > [data-component="GameSeatStat"] {
+    flex: none;
+    max-width: 100%;
+  }
+}

@@ -137,6 +137,7 @@ function useFramePresentationFacts(model: FrameProps['model']) {
     board: () => ({
       boardFit: shown()?.frame.boardFit,
       boardAlign: shown()?.frame.boardAlign,
+      menuMatchCommands: shown()?.frame.menuMatchCommands,
       boardWorkspace: shown()?.frame.boardWorkspace === true,
     }),
   };

@@ -187,7 +187,7 @@ export type GameFrameBoardSession<View> = {
 };
 
 /** Compact score rails are opt-in; opposed two-player strips remain the default. */
-export type GameFrameSeatLayout = 'opposed' | 'compact-rail';
+export type GameFrameSeatLayout = 'opposed' | 'compact-rail' | 'score-rail';
 /**
  * `narrow` is the 4px inset on every compact screen; `narrowest` is 4px only
  * below 360px and the standard 16px from there up.
@@ -256,6 +256,8 @@ export type GameFrame<View> = {
    * scrolls inside its box when taller. Absent: a board of one shape.
    */
   readonly boardWorkspace?: boolean;
+  /** Keep optional match commands in the menu beside a board with turn controls. */
+  readonly menuMatchCommands?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   /**

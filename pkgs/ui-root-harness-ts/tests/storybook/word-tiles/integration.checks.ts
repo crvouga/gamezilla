@@ -448,3 +448,41 @@ test('storybook integration: word-tiles bonus squares are told apart by colour a
     expect(new Set(fills).size, theme).toBe(4);
   }
 });
+
+// regression: word-tiles-four-player-score-band
+test('four named seats and scores share the 390px match row', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'four-player-match', 'light');
+  const seats = page
+    .getByRole('list', { name: 'Players' })
+    .getByRole('listitem');
+  await expect(seats).toHaveCount(4);
+  const tops = await seats.evaluateAll((items) =>
+    items.map((seat) => seat.getBoundingClientRect().top)
+  );
+  expect(new Set(tops).size).toBe(1);
+  for (const name of ['avery', 'jordan_plays', 'morgan', 'robin_42']) {
+    const seat = seats.filter({ hasText: name });
+    await expect(seat).toContainText('Score 0');
+    const identity = seat.locator('[title]').filter({ hasText: name }).last();
+    expect(
+      await identity.evaluate((node) => node.scrollWidth <= node.clientWidth)
+    ).toBe(true);
+  }
+});
+
+// regression: word-tiles-placement-match-commands
+test('the placement footer opens draw and resignation through Game menu', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'place-a-word', 'light');
+  await expect(page.getByTestId('custom-game-board-submit')).toBeVisible();
+  await expect(page.getByTestId('custom-game-offer-draw')).toHaveCount(0);
+  await expect(page.getByTestId('custom-game-resign-now')).toHaveCount(0);
+  await page.getByTestId('custom-game-commands').click();
+  await expect(page.getByTestId('custom-game-offer')).toBeVisible();
+  await expect(page.getByTestId('custom-game-resign')).toBeVisible();
+});

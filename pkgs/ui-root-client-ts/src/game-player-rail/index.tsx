@@ -20,6 +20,7 @@ import styles from './game-player-rail.module.css';
 export const GAME_PLAYER_CHIP_AVATAR_SIZE = 32;
 
 export type GamePlayerRailProps = {
+  scoreRail?: boolean;
   /** Names the list of players (`Other players`). */
   'aria-label': string;
   /** `GamePlayerChip`s, in seat order. */
@@ -60,7 +61,10 @@ export type GamePlayerRailProps = {
 export function GamePlayerRail(props: GamePlayerRailProps): JSX.Element {
   return (
     <div
-      class={styles['playerRail']}
+      class={[
+        styles['playerRail'],
+        { [styles['scoreRail'] ?? '']: props.scoreRail === true },
+      ]}
       role="list"
       aria-label={props['aria-label']}
       {...dataAttrs({ ...props.dataSet, component: 'GamePlayerRail' })}

@@ -344,6 +344,7 @@ export function FrameOthersView(props: TableProps): JSX.Element {
       >
         <GameSessionParticipants>
           <GamePlayerRail
+            scoreRail={props.table.seatLayout === 'score-rail'}
             aria-label={
               nearInRail(props) === null ? t`Other players` : t`Players`
             }

@@ -93,6 +93,7 @@ export type GameFrameScreenData = FrameReviewHandlers & {
    * fixed view holds its box like any board's but never narrows it.
    */
   readonly boardWorkspace?: boolean | undefined;
+  readonly menuMatchCommands?: boolean | undefined;
   readonly people?: FramePeople | undefined;
   /** Every choice about the game, as the room accepts it. */
   readonly onChoose: (input: CustomGameInput) => Promise<void>;

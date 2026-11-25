@@ -312,6 +312,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
       error={props.error ?? ''}
       boardFit={props.presentation.frame.boardFit}
       boardAlign={props.presentation.frame.boardAlign}
+      menuMatchCommands={props.presentation.frame.menuMatchCommands}
       boardWorkspace={props.presentation.frame.boardWorkspace === true}
       connection={props.connection ?? 'online'}
       phase={phase()}

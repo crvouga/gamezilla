@@ -334,7 +334,7 @@ function LiveActions(props: Props): JSX.Element {
           operation={() => props.onChoose({ operation: 'claimWin' })}
         />
       </Show>
-      <Show when={props.play.canOfferDraw}>
+      <Show when={props.play.canOfferDraw && !props.menuMatchCommands}>
         <GameActionButton
           title={<Trans>Offer draw</Trans>}
           disabled={counting(props)}
@@ -343,7 +343,13 @@ function LiveActions(props: Props): JSX.Element {
         />
       </Show>
       {/* An offered draw is answered first: resigning waits in the menu. */}
-      <Show when={props.play.canResign && !props.play.canAnswerDraw}>
+      <Show
+        when={
+          props.play.canResign &&
+          !props.play.canAnswerDraw &&
+          !props.menuMatchCommands
+        }
+      >
         <Button
           title={<Trans>Resign</Trans>}
           variant="outline"
