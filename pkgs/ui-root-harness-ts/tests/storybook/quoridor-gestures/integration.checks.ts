@@ -30,8 +30,10 @@ for (const phone of [true, false]) {
       await expectQuoridorStoryPasses(
         page,
         `screens-games-quoridor-${phone ? 'hill' : 'classic'}--direct-manipulation`,
-        'light'
+        'light',
+        'system'
       );
+      await expect(page.locator('[data-reduced-motion="true"]')).toHaveCount(0);
       const board = page.getByTestId('custom-game-board');
       const box = await board.boundingBox();
       if (!box) throw new Error('Missing board');
