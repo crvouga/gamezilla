@@ -1,0 +1,4 @@
+{
+  "summary": "A keyboard user tabbing through a bug report with one screenshot encountered a mismatch between exposed controls and tab stops. Keep the native file input hidden behind the Add picture button.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/file-trigger.test.tsx"
+}
