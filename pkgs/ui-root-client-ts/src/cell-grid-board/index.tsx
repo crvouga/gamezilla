@@ -44,6 +44,7 @@ export type CellGridCell = {
   readonly identity?: 'one' | 'two' | 'three' | 'four' | undefined;
 };
 export type CellGridBoardProps = {
+  readonly battleshipSurface?: 'fleet' | 'target';
   /**
    * Playing-surface palette; never themes the surrounding application.
    * `checkered` is a wooden board of alternating light and dark squares
@@ -307,6 +308,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       }}
       class={`${styles['board']} ${battleship['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
+      data-battleship-surface={props.battleshipSurface}
       data-fill={String(props.fill === true)}
       role="group"
       aria-label={props.label}

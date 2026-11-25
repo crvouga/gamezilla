@@ -81,6 +81,7 @@ function WholeWaters(props: {
       </BattleshipTargetHeader>
       <BattleshipWholeBoard finished={props.finished}>
         <CellGridBoard
+          battleshipSurface="target"
           fill
           label={props.label}
           testId={`${props.testId}-target-grid`}
@@ -162,6 +163,7 @@ export function BattleshipTargetGrid(props: {
               label={t`Choose a target region`}
               overview={
                 <CellGridBoard
+                  battleshipSurface="target"
                   fill
                   label={props.label}
                   testId={`${props.testId}-target-grid`}
@@ -180,6 +182,7 @@ export function BattleshipTargetGrid(props: {
           working={
             <StackVertical gap="xs" align="center" width="full">
               <CellGridBoard
+                battleshipSurface="target"
                 label={t`Precise aim`}
                 testId={`${props.testId}-aim-grid`}
                 cellTestId={(cell) => `${props.testId}-aim-${cell}`}

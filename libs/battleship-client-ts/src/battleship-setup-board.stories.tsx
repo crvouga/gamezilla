@@ -101,6 +101,11 @@ export const PlaceAShip: Story = {
       await canvas.findByTestId('custom-game-setup-cell-b2')
     );
     await expect(args.onChange).toHaveBeenCalledWith('fleet:carrier@b2h');
+    const bow = canvas.getByTestId('custom-game-setup-cell-b2');
+    const stern = canvas.getByTestId('custom-game-setup-cell-f2');
+    await expect(bow).toHaveAttribute('data-edge-left', 'true');
+    await expect(bow).toHaveAttribute('data-edge-right', 'false');
+    await expect(stern).toHaveAttribute('data-edge-right', 'true');
   },
 };
 

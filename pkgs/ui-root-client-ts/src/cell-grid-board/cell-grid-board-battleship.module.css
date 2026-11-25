@@ -69,3 +69,51 @@
   .cell[data-emphasis="none"]:focus-visible {
   outline: none;
 }
+
+/* Fleet plans use square chart tiles. The enemy field uses peg sockets. */
+.board[data-battleship-surface="fleet"] .cell {
+  border-radius: 0;
+}
+.board[data-battleship-surface="target"] .cell[data-tone="open"] {
+  border-radius: var(--ui-radius-card);
+  background-image: radial-gradient(
+    circle at center,
+    var(--color-surface) 0 12%,
+    var(--color-background) 13%
+  );
+}
+.board[data-battleship-surface="target"] .cell[data-emphasis="pending"] {
+  background: var(--color-tint);
+  color: var(--color-background);
+  outline-color: var(--color-background);
+}
+.board[data-battleship-surface] .cell:is([data-tone="occupied"], [data-tone="critical"], [data-tone="alert"]) {
+  --hull-end: var(--ui-radius-card);
+  --bow-left: 0;
+  --bow-right: 0;
+  --stern-left: 0;
+  --stern-right: 0;
+  border-radius: var(--bow-left) var(--bow-right) var(--stern-right) var(--stern-left);
+}
+.board[data-battleship-surface] .cell[data-edge-top="true"][data-edge-left="true"] {
+  --bow-left: var(--hull-end);
+}
+.board[data-battleship-surface] .cell[data-edge-top="true"][data-edge-right="true"] {
+  --bow-right: var(--hull-end);
+}
+.board[data-battleship-surface] .cell[data-edge-bottom="true"][data-edge-left="true"] {
+  --stern-left: var(--hull-end);
+}
+.board[data-battleship-surface] .cell[data-edge-bottom="true"][data-edge-right="true"] {
+  --stern-right: var(--hull-end);
+}
+.board[data-battleship-surface="fleet"] .cell[data-tone="occupied"] {
+  background: var(--color-text);
+  color: var(--color-background);
+  border-color: var(--color-text-secondary);
+}
+.board[data-battleship-surface="fleet"] .cell[data-emphasis="refused"] {
+  background: var(--color-destructive);
+  color: var(--color-on-destructive);
+  outline-color: var(--color-on-destructive);
+}

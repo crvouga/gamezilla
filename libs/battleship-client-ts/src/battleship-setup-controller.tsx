@@ -29,6 +29,8 @@ import {
   unplacedShips,
 } from './battleship-draft';
 
+import { hullEdges } from './battleship-hull';
+
 export type SetupController = {
   readonly draft: Accessor<Draft>;
   /** The ship a cell press places: the one chosen, else the next to place. */
@@ -69,6 +71,7 @@ function setupGlyph(
   previewed: boolean,
   valid: boolean
 ): string {
+  if (previewed && !valid) return GLYPHS.refused;
   if (occupied) return GLYPHS.ship;
   if (!previewed) return '';
   return valid ? GLYPHS.fits : GLYPHS.refused;
@@ -83,6 +86,8 @@ function setupCell(cell: string, view: SetupView): CellGridCell {
     id: cell,
     glyph: setupGlyph(occupant !== null, previewed, valid),
     tone: occupant === null ? 'open' : 'occupied',
+    edges: occupant ? hullEdges(occupant.cells, cell) : undefined,
+    previewEdges: previewed && view.preview ? hullEdges(view.preview.cells, cell) : undefined,
     outlined: occupant !== null && occupant.ship === view.selected,
     emphasis: previewed ? (valid ? 'preview' : 'refused') : 'none',
     enabled: view.enabled,
@@ -177,7 +182,7 @@ export function createSetupController(
   const [orientation, setOrientation] = createSignal<Orientation>('h');
   const [hovered, setHovered] = createSignal<string | null>(null);
   const [refusal, setRefusal] = createSignal<string | null>(null);
-  const selected = () => chosen() ?? unplacedShips(draft())[0] ?? null;
+  const selected = createMemo(() => chosen() ?? unplacedShips(draft())[0] ?? null);
   const placing = createMemo(() => {
     const ship = selected();
     const bow = hovered();

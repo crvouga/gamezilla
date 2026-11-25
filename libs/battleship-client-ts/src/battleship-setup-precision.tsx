@@ -160,6 +160,7 @@ export function SetupPrecision(props: {
           }
           working={
             <CellGridBoard
+              battleshipSurface="fleet"
               label={
                 props.locked
                   ? t`Enlarged fleet inspection`

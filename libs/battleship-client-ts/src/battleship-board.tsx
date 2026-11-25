@@ -66,6 +66,7 @@ function BoardPanel(props: {
       </Show>
       <BattleshipWholeBoard finished={props.finished}>
         <CellGridBoard
+          battleshipSurface={props.heading === null ? 'fleet' : 'target'}
           fill
           label={props.label}
           testId={`${props.testId}-${props.view}-grid`}
@@ -142,6 +143,7 @@ function BattleshipPreviewWaters(props: GameBoardProps): JSX.Element {
   );
   return (
     <CellGridBoard
+      battleshipSurface="target"
       fill
       label={t`${sideName(props.orientation)} waters`}
       testId={props.testId}

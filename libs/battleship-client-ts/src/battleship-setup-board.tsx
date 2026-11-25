@@ -182,6 +182,7 @@ export function BattleshipSetupBoard(
         }
         overview={
           <CellGridBoard
+            battleshipSurface="fleet"
             label={t`Your waters`}
             testId={`${props.testId}-grid`}
             cellTestId={(cell) => `${props.testId}-cell-${cell}`}
