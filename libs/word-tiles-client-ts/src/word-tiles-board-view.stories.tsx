@@ -331,6 +331,8 @@ export const AssignABlank: Story = {
     await expect(cell).toHaveAccessibleName(
       'E 0, h8, your tentative blank as E'
     );
+    const letter = within(cell).getByText('E', { exact: true });
+    await expect(letter).toHaveStyle({ textDecorationLine: 'underline' });
     await expect(cell).toHaveAttribute('data-state', 'tentative');
   },
 };

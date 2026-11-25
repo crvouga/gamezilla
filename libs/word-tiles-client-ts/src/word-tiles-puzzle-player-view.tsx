@@ -22,6 +22,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  createUniqueId,
   Show,
   untrack,
 } from 'solid-js';
@@ -30,6 +31,7 @@ import {
   assignBlank,
   type Candidate,
   candidateProposal,
+  dropTile,
   newCandidate,
   pressCell,
   pressTile,
@@ -174,7 +176,34 @@ function PuzzleBlank(props: {
   );
 }
 
+function PuzzleRack(props: {
+  state: ReturnType<typeof createPuzzleBoard>;
+  boardId: string;
+}): JSX.Element {
+  return (
+    <TileRack
+      placement={
+        props.state.editable()
+          ? {
+              boardId: props.boardId,
+              place: (id, square) =>
+                props.state.setCandidate((c) => dropTile(c, id, square)),
+            }
+          : undefined
+      }
+      label={t`Your rack`}
+      testId="word-tiles-puzzle-rack"
+      tiles={props.state.tiles()}
+      onActivate={(id) => {
+        if (props.state.editable())
+          props.state.setCandidate((c) => pressTile(c, Number(id)));
+      }}
+    />
+  );
+}
+
 function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
+  const state = createPuzzleBoard(props);
   const {
     submit,
     candidate,
@@ -185,8 +214,8 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
     complete,
     editable,
     cells,
-    tiles,
-  } = createPuzzleBoard(props);
+  } = state;
+  const boardId = createUniqueId();
   const showPreview = () =>
     editable() &&
     candidate().blankAt === null &&
@@ -235,14 +264,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
             onClick={() => setCandidate(recallAll)}
           />
         </StackHorizontal>
-        <TileRack
-          label={t`Your rack`}
-          testId="word-tiles-puzzle-rack"
-          tiles={tiles()}
-          onActivate={(id) => {
-            if (editable()) setCandidate((c) => pressTile(c, Number(id)));
-          }}
-        />
+        <PuzzleRack state={state} boardId={boardId} />
       </Show>
       <PuzzleBonusContext
         cell={cells().find(
@@ -250,6 +272,7 @@ function PuzzleBoard(props: PuzzleBoardProps): JSX.Element {
         )}
       />
       <WordTileBoard
+        dropBoardId={boardId}
         measure="compact"
         label={t`Puzzle board, fifteen columns and fifteen rows`}
         testId="word-tiles-puzzle"

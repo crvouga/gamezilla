@@ -250,3 +250,32 @@
 .board[data-enlarged="true"] .points {
   right: var(--ui-space-1);
 }
+
+.viewport[data-navigable="true"] {
+  touch-action: none;
+  user-select: none;
+  overflow-anchor: none;
+}
+.cell[data-drop-target="true"] {
+  outline: 2px dashed var(--ui-color-board-card-ink);
+  outline-offset: -2px;
+  box-shadow: inset 0 0 0 var(--ui-space-1)
+    var(--ui-color-game-word-tiles-accent);
+}
+.letter[data-blank="true"] {
+  text-decoration: underline;
+  text-underline-offset: 0.12em;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .cell[data-state="tentative"] .letter {
+    animation: word-tile-settle 150ms ease-out;
+  }
+}
+@keyframes word-tile-settle {
+  from {
+    transform: translateY(calc(-1 * var(--ui-space-1)));
+  }
+  to {
+    transform: translateY(0);
+  }
+}

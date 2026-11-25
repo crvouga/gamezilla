@@ -16,6 +16,7 @@ import { StackVertical } from '../stack/index';
 import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
 import { BoardRows } from './word-tile-cell';
+import { bindWordNavigation } from './word-tile-navigation';
 import { WordTileOverview } from './word-tile-overview';
 import { WordTileViewControls } from './word-tile-view-controls';
 
@@ -95,6 +96,7 @@ function createStableCells(
 
 export type WordTileBoardProps = {
   /** Locator mode shows the whole board; activation chooses a location, never a move. */
+  readonly dropBoardId?: string | undefined;
   readonly purpose?: 'placement' | 'locator';
   /** Compact fitted board leaves room for rack and puzzle actions; enlarged cells stay full size. */
   readonly measure?: 'full' | 'compact';
@@ -181,16 +183,7 @@ function createPrecisionCenter(
   return center;
 }
 
-/**
- * A word-game board: a labelled grid of square buttons under column and row
- * headers. Empty squares print their bonus; tiles show their letter and
- * value, a tentative tile dashed and a last-turn tile ringed (each also in
- * its label, so colour never carries a state alone). One cell is the tab
- * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
- * activates. Phones start with precision cells and a whole-board region navigator;
- * wider screens start fitted. An explicit view choice persists across resizing.
- */
-export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+function createBoardView(props: WordTileBoardProps) {
   const [selectedIndex, setFocusIndex] = createSignal<number>();
   const focusIndex = () => selectedIndex() ?? centreIndex(props);
   const compact = createMediaQuery('(max-width: 639px)');
@@ -199,6 +192,14 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
   const cells = createStableCells(() => props.cells);
   let root: HTMLDivElement | undefined;
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
+  let navigation: ReturnType<typeof bindWordNavigation> | undefined;
+  const [customZoom, setCustomZoom] = createSignal(false);
+  createEffect(viewport, (clip) => {
+    if (!clip || !root || props.purpose === 'locator') return undefined;
+    const bound = bindWordNavigation(clip, root, setCustomZoom);
+    navigation = bound;
+    return () => bound.dispose();
+  });
   const center = createPrecisionCenter(
     viewport,
     () => root,
@@ -210,20 +211,72 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     focusCell(root, next);
   });
   const resize = (value: boolean): void => {
+    navigation?.reset();
     setEnlarged(value);
     focusCellWhenSettled(() => root, focusIndex());
   };
+
+  const locate = (id: string) => {
+    const index = cells().findIndex((cell) => cell.id === id);
+    if (index < 0) return;
+    setFocusIndex(index);
+    focusCell(root, index);
+    center(index);
+  };
+  return {
+    cells,
+    compact,
+    enlarged,
+    zoomed: () => enlarged() || customZoom(),
+    focusIndex,
+    setFocusIndex,
+    onKey,
+    locate,
+    resize,
+    viewport,
+    setViewport,
+    setRoot: (element: HTMLDivElement) => {
+      root = element;
+    },
+  };
+}
+
+/**
+ * A word-game board: a labelled grid of square buttons under column and row
+ * headers. Empty squares print their bonus; tiles show their letter and
+ * value, a tentative tile dashed and a last-turn tile ringed (each also in
+ * its label, so colour never carries a state alone). One cell is the tab
+ * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
+ * activates. Phones start with precision cells and a whole-board region navigator;
+ * wider screens start fitted. An explicit view choice persists across resizing.
+ */
+export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
+  const {
+    cells,
+    compact,
+    enlarged,
+    zoomed,
+    focusIndex,
+    setFocusIndex,
+    onKey,
+    locate,
+    resize,
+    viewport,
+    setViewport,
+    setRoot,
+  } = createBoardView(props);
   return (
     <StackVertical gap="none">
       {/* Wider than a phone, Fit and Enlarge stay in one place in both views. */}
       <Show when={props.purpose !== 'locator' && (!enlarged() || !compact())}>
-        <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+        <WordTileViewControls enlarged={zoomed()} onChange={resize} />
       </Show>
       <Show when={props.purpose === 'locator'}>
         <P role="status">{cells()[focusIndex()]?.label}</P>
       </Show>
       <div class={styles['precision']}>
         <div
+          data-navigable={String(props.purpose !== 'locator')}
           ref={setViewport}
           class={styles['viewport']}
           data-enlarged={String(enlarged())}
@@ -232,7 +285,10 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           aria-label={t`Scrollable word board`}
         >
           <div
-            ref={root}
+            data-drop-board={
+              props.purpose === 'locator' ? undefined : props.dropBoardId
+            }
+            ref={setRoot}
             class={styles['board']}
             data-measure={props.measure ?? 'full'}
             data-enlarged={String(enlarged())}
@@ -259,7 +315,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
             viewport={viewport}
             controls={
               compact() ? (
-                <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+                <WordTileViewControls enlarged={zoomed()} onChange={resize} />
               ) : undefined
             }
             position={cells()[focusIndex()]?.label ?? ''}
@@ -273,13 +329,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
                 onActivate={onChoose}
               />
             )}
-            onLocate={(id) => {
-              const index = cells().findIndex((cell) => cell.id === id);
-              if (index < 0) return;
-              setFocusIndex(index);
-              focusCell(root, index);
-              center(index);
-            }}
+            onLocate={locate}
           />
         </Show>
       </div>

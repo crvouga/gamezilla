@@ -2,6 +2,7 @@ import {
   formatProposal,
   type ProposedTile,
 } from '@libs/word-tiles-shared-ts/word-tiles-action';
+import { parseCell } from '@libs/word-tiles-shared-ts/word-tiles-board';
 import { parseHand } from '@libs/word-tiles-shared-ts/word-tiles-hidden';
 import { isOccupied } from '@libs/word-tiles-shared-ts/word-tiles-placement';
 import { decodePosition } from '@libs/word-tiles-shared-ts/word-tiles-position';
@@ -142,6 +143,27 @@ export function pressCell(candidate: Candidate, cell: number): Candidate {
     selected: null,
     blankAt: blank ? cell : candidate.blankAt,
   };
+}
+
+/** Dragging names the tile explicitly, even when another tile is selected. */
+export function dropTile(
+  candidate: Candidate,
+  tileId: string,
+  square: string
+): Candidate {
+  const tile = Number(tileId);
+  const cell = parseCell(square);
+  if (
+    cell === null ||
+    candidate.blankAt !== null ||
+    candidate.exchange !== null ||
+    !candidate.order.includes(tile) ||
+    candidate.placed.some((p) => p.cell === cell || p.tile === tile)
+  )
+    return candidate;
+  const selected = { ...candidate, selected: tile };
+  const placed = pressCell(selected, cell);
+  return placed === selected ? candidate : placed;
 }
 
 /** Give the blank at `blankAt` the letter `letter`; it may change until submitted. */

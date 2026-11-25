@@ -93,3 +93,30 @@
     transition: transform 120ms ease;
   }
 }
+
+.rack[data-drag-enabled="true"] .tile[aria-disabled="false"] {
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+}
+.tile[data-lifted="true"] {
+  opacity: 0.5;
+}
+.floating {
+  position: fixed;
+  inset: 0 auto auto 0;
+  display: grid;
+  place-items: center;
+  width: var(--ui-control-size-md);
+  height: var(--ui-control-size-md);
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--ui-color-game-word-tiles-muted);
+  border-bottom-width: var(--ui-space-1);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-game-word-tiles-accent);
+  color: var(--ui-color-board-card-ink);
+  font-size: var(--ui-font-size-xl);
+  font-weight: 700;
+  pointer-events: none;
+}

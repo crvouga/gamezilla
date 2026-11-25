@@ -1,8 +1,10 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
-import { For } from 'solid-js';
+import { For, onSettled } from 'solid-js';
 import styles from './tile-rack.module.css';
+
+import { bindRackDrag, type RackPlacement } from './word-tile-drag';
 
 export type TileRackTile = {
   readonly id: string;
@@ -23,6 +25,7 @@ export type TileRackProps = {
   readonly testId: string;
   readonly tiles: readonly TileRackTile[];
   /** Defaults to `${testId}-${id}`. */
+  readonly placement?: RackPlacement | undefined;
   readonly tileTestId?: ((id: string) => string) | undefined;
   readonly onActivate: (id: string) => void;
 };
@@ -34,9 +37,15 @@ export type TileRackProps = {
  * reordered, so focus survives.
  */
 export function TileRack(props: TileRackProps): JSX.Element {
+  let rack: HTMLDivElement | undefined;
+  onSettled(() =>
+    rack ? bindRackDrag(rack, () => props.placement) : undefined
+  );
   return (
     <div class={styles['frame']}>
       <div
+        ref={rack}
+        data-drag-enabled={String(props.placement !== undefined)}
         class={styles['rack']}
         role="group"
         aria-label={props.label}
@@ -51,6 +60,7 @@ export function TileRack(props: TileRackProps): JSX.Element {
               data-testid={
                 props.tileTestId?.(tile.id) ?? `${props.testId}-${tile.id}`
               }
+              data-rack-tile={tile.id}
               data-selected={String(tile.selected)}
               data-placed={String(tile.placed)}
               aria-pressed={tile.selected ? 'true' : 'false'}
