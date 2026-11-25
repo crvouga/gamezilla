@@ -45,7 +45,7 @@ async function assertPlacement(page: Page) {
 test.describe('desktop', () => {
   test.use({
     viewport: { width: 1440, height: 900 },
-    reducedMotion: 'no-preference',
+    contextOptions: { reducedMotion: 'no-preference' },
   });
   test('storybook integration: word-tiles gesture desktop zoom pan drag cancel and fit', async ({
     page,
@@ -99,7 +99,7 @@ test.describe('phone', () => {
   test.use({
     viewport: { width: 390, height: 844 },
     hasTouch: true,
-    reducedMotion: 'reduce',
+    contextOptions: { reducedMotion: 'reduce' },
   });
   test('storybook integration: word-tiles gesture phone pinch pan interrupted pickup and drop', async ({
     page,
