@@ -1,10 +1,12 @@
 import {
   decodeQuoridor,
   type Quoridor,
+  quoridorCellName,
   quoridorMustPass,
   wallRefusal,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { t } from '@lingui/core/macro';
+import { QuoridorSurface } from '@pkgs/quoridor-board-client-ts/surface';
 import type {
   GameFrameAction,
   GameFrameBoardSession,
@@ -29,6 +31,7 @@ import {
   quoridorBoundary,
   quoridorPlayerName,
   quoridorWallMessage,
+  withWallPreview,
 } from './quoridor-board-cells';
 import {
   QuoridorBoardTools,
@@ -84,11 +87,17 @@ function createBoardSelection(props: BoardViewProps) {
     tool() === 'move'
       ? null
       : `${selected() ?? preview()}${tool()}`;
-  // Memoized: each square reads the list, so computing it inline would
-  // rebuild the whole board once per square on every change.
-  const cells = createMemo(() =>
-    quoridorBoardCells(game(), tool(), props.interactive, previewAction())
+  const targets = createMemo(() =>
+    quoridorBoardCells(game(), tool(), props.interactive)
   );
+  const cells = createMemo(() => {
+    const action = previewAction();
+    return withWallPreview(
+      targets(),
+      action,
+      action !== null && wallRefusal(game(), action) !== null
+    );
+  });
   const message = () => {
     if (game().winner !== null)
       return t`Game finished. Use the game controls to review earlier moves.`;
@@ -128,6 +137,47 @@ function createBoardSelection(props: BoardViewProps) {
   return { cells, selected, message, activate, setPreview, cancel, commit };
 }
 
+function PlayingSurface(
+  props: BoardViewProps & { selection: ReturnType<typeof createBoardSelection> }
+): JSX.Element {
+  const game = () => props.state.game();
+  const tool = () => props.state.tool();
+  return (
+    <QuoridorSurface
+      revision={props.position}
+      syncKey={props.syncKey}
+      tool={tool()}
+      pawn={quoridorCellName(game().pawns[game().turn] ?? 0)}
+      interactive={props.interactive && game().winner === null}
+      onPreview={props.selection.setPreview}
+      onDrop={props.selection.activate}
+      zoomLabel={t`Magnify board`}
+      fitLabel={t`Fit board`}
+    >
+      <CellGridBoard
+        boardTheme="quoridor"
+        fill
+        label={t`Quoridor board, nine columns and nine rows`}
+        describedBy={`${props.testId}-wall-status`}
+        testId={props.testId}
+        columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
+        rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
+        cells={props.selection.cells()}
+        cellTestId={(cell) =>
+          `${props.testId}-action-${cell}${tool() === 'move' ? '' : tool()}`
+        }
+        onActivate={props.selection.activate}
+        onPreview={props.selection.setPreview}
+        onCellKey={(key) => {
+          if (key !== 'Escape') return false;
+          props.selection.cancel();
+          return true;
+        }}
+      />
+    </QuoridorSurface>
+  );
+}
+
 function QuoridorBoardView(props: BoardViewProps): JSX.Element {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
@@ -149,26 +199,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           actions={props.state.actions()}
         />
       </Show>
-      <CellGridBoard
-        boardTheme="quoridor"
-        fill
-        label={t`Quoridor board, nine columns and nine rows`}
-        describedBy={`${props.testId}-wall-status`}
-        testId={props.testId}
-        columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
-        rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
-        cells={selection.cells()}
-        cellTestId={(cell) =>
-          `${props.testId}-action-${cell}${tool() === 'move' ? '' : tool()}`
-        }
-        onActivate={selection.activate}
-        onPreview={selection.setPreview}
-        onCellKey={(key) => {
-          if (key !== 'Escape') return false;
-          selection.cancel();
-          return true;
-        }}
-      />
+      <PlayingSurface {...props} selection={selection} />
       <Show
         when={
           props.interactive &&

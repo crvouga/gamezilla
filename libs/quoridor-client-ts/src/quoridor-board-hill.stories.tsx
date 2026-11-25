@@ -345,3 +345,6 @@ export const RecoverWallPlacement: Story = {
     ).toBeEnabled();
   },
 };
+
+/** A live opening position for native pawn, wall and navigation gestures. */
+export const DirectManipulation: Story = { render: renderHillJourney };
