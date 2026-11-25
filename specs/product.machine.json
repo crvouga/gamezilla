@@ -8,34 +8,11 @@
     "source": [
       "specs/README.md#context-map",
       "specs/journeys/ubiquitous-language.yml",
-      "specs/system/whole-system.qnt",
-      "specs/system/product-state.qnt",
       "specs/conformance.yaml",
       "specs/journeys/critical-journeys.feature",
       "specs/journeys/custom-game.feature",
       "specs/journeys/join-and-offline.feature",
-      "specs/journeys/multiplayer-game.feature",
-      "specs/system/adversarial-examples.qnt",
-      "specs/system/boundary-assumptions.qnt",
-      "specs/system/client-image.qnt",
-      "specs/system/community.qnt",
-      "specs/system/fair-recovery.qnt",
-      "specs/system/identity-machine.qnt",
-      "specs/system/identity.qnt",
-      "specs/system/membership.qnt",
-      "specs/system/multiplayer.qnt",
-      "specs/system/notification-machine.qnt",
-      "specs/system/notifications.qnt",
-      "specs/system/offline-replication.qnt",
-      "specs/system/play.qnt",
-      "specs/system/privacy-lifecycle.qnt",
-      "specs/system/privacy.qnt",
-      "specs/system/public-profile.qnt",
-      "specs/system/puzzle-board.qnt",
-      "specs/system/recovery.qnt",
-      "specs/system/replication.qnt",
-      "specs/system/system-actions.qnt",
-      "specs/system/universe.qnt"
+      "specs/journeys/multiplayer-game.feature"
     ],
     "events": [],
     "context": "system",
@@ -966,34 +943,11 @@
         "source": [
           "specs/README.md#context-map",
           "specs/journeys/ubiquitous-language.yml",
-          "specs/system/whole-system.qnt",
-          "specs/system/product-state.qnt",
           "specs/conformance.yaml",
           "specs/journeys/critical-journeys.feature",
           "specs/journeys/custom-game.feature",
           "specs/journeys/join-and-offline.feature",
           "specs/journeys/multiplayer-game.feature",
-          "specs/system/adversarial-examples.qnt",
-          "specs/system/boundary-assumptions.qnt",
-          "specs/system/client-image.qnt",
-          "specs/system/community.qnt",
-          "specs/system/fair-recovery.qnt",
-          "specs/system/identity-machine.qnt",
-          "specs/system/identity.qnt",
-          "specs/system/membership.qnt",
-          "specs/system/multiplayer.qnt",
-          "specs/system/notification-machine.qnt",
-          "specs/system/notifications.qnt",
-          "specs/system/offline-replication.qnt",
-          "specs/system/play.qnt",
-          "specs/system/privacy-lifecycle.qnt",
-          "specs/system/privacy.qnt",
-          "specs/system/public-profile.qnt",
-          "specs/system/puzzle-board.qnt",
-          "specs/system/recovery.qnt",
-          "specs/system/replication.qnt",
-          "specs/system/system-actions.qnt",
-          "specs/system/universe.qnt",
           "specs/journeys/game-journeys.openslo.yaml"
         ],
         "events": []
@@ -1006,9 +960,7 @@
             "snapshot": "The guest or deleted account has no paid access; a signed-in account carries its own independently confirmed access.",
             "confidence": "assumed",
             "source": [
-              "specs/profile/account-sign-in.qnt",
               "specs/profile/devices.feature",
-              "specs/profile/events.qnt",
               "specs/profile/profile-defaults.feature",
               "specs/profile/sessions.feature",
               "specs/profile/sign-in.feature",
@@ -1043,8 +995,6 @@
                 "source": [
                   "specs/billing/access.dmn",
                   "specs/billing/ubiquitous-language.yml",
-                  "specs/system/access-sync.qnt",
-                  "specs/system/membership-machine.qnt",
                   "specs/ubiquitous-language.yml"
                 ],
                 "events": []
@@ -1057,11 +1007,7 @@
                     "description": "The current person has free limits; ordinary multiplayer and Custom Games are not governed by paid access.",
                     "snapshot": "The current person has free limits; ordinary multiplayer and Custom Games are not governed by paid access.",
                     "confidence": "assumed",
-                    "source": [
-                      "specs/billing/access.dmn",
-                      "specs/system/access-sync.qnt",
-                      "specs/system/membership-machine.qnt"
-                    ],
+                    "source": ["specs/billing/access.dmn"],
                     "events": []
                   },
                   "on": {
@@ -1079,11 +1025,7 @@
                     "description": "The current person’s confirmed paid access applies across their permitted features.",
                     "snapshot": "The current person’s confirmed paid access applies across their permitted features.",
                     "confidence": "assumed",
-                    "source": [
-                      "specs/billing/access.dmn",
-                      "specs/system/access-sync.qnt",
-                      "specs/system/membership-machine.qnt"
-                    ],
+                    "source": ["specs/billing/access.dmn"],
                     "events": []
                   },
                   "on": {
@@ -1101,11 +1043,7 @@
                     "description": "The changed account’s own access is being confirmed; another person’s paid access cannot carry over.",
                     "snapshot": "The changed account’s own access is being confirmed; another person’s paid access cannot carry over.",
                     "confidence": "assumed",
-                    "source": [
-                      "specs/billing/access.dmn",
-                      "specs/system/access-sync.qnt",
-                      "specs/system/membership-machine.qnt"
-                    ],
+                    "source": ["specs/billing/access.dmn"],
                     "events": []
                   },
                   "on": {
@@ -1164,9 +1102,7 @@
             "confidence": "assumed",
             "source": [
               "specs/runtime/app-addresses.feature",
-              "specs/runtime/app-platform.qnt",
               "specs/runtime/connection-continuity.feature",
-              "specs/runtime/connection-continuity.qnt",
               "specs/runtime/app-shell.feature",
               "specs/runtime/ubiquitous-language.yml",
               "specs/ubiquitous-language.yml"
@@ -1184,8 +1120,7 @@
                 "confidence": "assumed",
                 "source": [
                   "specs/runtime/app-addresses.feature",
-                  "specs/runtime/app-shell.feature",
-                  "specs/runtime/app-platform.qnt"
+                  "specs/runtime/app-shell.feature"
                 ],
                 "events": []
               },
@@ -1198,12 +1133,10 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/spaces/deleted-account-spaces.feature",
-                      "specs/spaces/events.qnt",
                       "specs/spaces/hosting-limit.dmn",
                       "specs/spaces/live-updates.feature",
                       "specs/spaces/space-connection-comes-and-goes.feature",
                       "specs/spaces/space-create.feature",
-                      "specs/spaces/space-devices.qnt",
                       "specs/spaces/space-disconnect-reconnect.feature",
                       "specs/spaces/space-end.feature",
                       "specs/spaces/space-friend-join.feature",
@@ -1211,25 +1144,20 @@
                       "specs/spaces/space-guest-link-join.feature",
                       "specs/spaces/space-host-leaves.feature",
                       "specs/spaces/space-host-limit.feature",
-                      "specs/spaces/space-hosting.qnt",
                       "specs/spaces/space-idle.feature",
                       "specs/spaces/space-interruption-recovery.feature",
                       "specs/spaces/space-lifecycle.feature",
                       "specs/spaces/space-links.feature",
                       "specs/spaces/space-live-presence.feature",
-                      "specs/spaces/space-names.qnt",
                       "specs/spaces/space-needs-connection.feature",
                       "specs/spaces/space-offline-devices.feature",
                       "specs/spaces/space-one-person-many-devices.feature",
-                      "specs/spaces/space-recovery.qnt",
                       "specs/spaces/space-rename.feature",
                       "specs/spaces/space-roles.dmn",
-                      "specs/spaces/spaces.als",
                       "specs/spaces/spaces.feature",
                       "specs/spaces/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
                       "specs/spaces/space-unreachable.feature",
-                      "specs/spaces/space-unreachable.qnt",
                       "specs/spaces/spaces-and-live-updates.openslo.yaml"
                     ],
                     "events": []
@@ -1330,7 +1258,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1346,11 +1273,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1368,9 +1291,7 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/spaces/deleted-account-spaces.feature",
-                          "specs/spaces/events.qnt",
                           "specs/spaces/hosting-limit.dmn",
-                          "specs/spaces/hosting-limits.qnt",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
                           "specs/spaces/space-disconnect-reconnect.feature",
@@ -1380,16 +1301,12 @@
                           "specs/spaces/space-guest-link-join.feature",
                           "specs/spaces/space-host-leaves.feature",
                           "specs/spaces/space-host-limit.feature",
-                          "specs/spaces/space-hosting.qnt",
                           "specs/spaces/space-lifecycle.feature",
                           "specs/spaces/space-links.feature",
                           "specs/spaces/space-live-presence.feature",
-                          "specs/spaces/space-names.qnt",
                           "specs/spaces/space-needs-connection.feature",
-                          "specs/spaces/space-recovery.qnt",
                           "specs/spaces/space-rename.feature",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/spaces.feature"
                         ],
                         "events": []
@@ -1412,7 +1329,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1428,11 +1344,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1469,7 +1381,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1485,11 +1396,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1507,7 +1414,6 @@
                         "snapshot": "The host sees the space’s people and choices and can play.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/spaces/adding-people.qnt",
                           "specs/spaces/deleted-account-spaces.feature:19",
                           "specs/spaces/deleted-account-spaces.feature:6",
                           "specs/spaces/live-updates.feature:7",
@@ -1560,7 +1466,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1576,11 +1481,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1613,7 +1514,6 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/spaces/deleted-account-spaces.feature",
-                          "specs/spaces/events.qnt",
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1624,17 +1524,12 @@
                           "specs/spaces/space-guest-link-join.feature",
                           "specs/spaces/space-host-leaves.feature",
                           "specs/spaces/space-host-limit.feature",
-                          "specs/spaces/space-hosting.qnt",
                           "specs/spaces/space-lifecycle.feature",
                           "specs/spaces/space-links.feature",
-                          "specs/spaces/space-links.qnt",
                           "specs/spaces/space-live-presence.feature",
-                          "specs/spaces/space-names.qnt",
                           "specs/spaces/space-needs-connection.feature",
-                          "specs/spaces/space-recovery.qnt",
                           "specs/spaces/space-rename.feature",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/spaces.feature"
                         ],
                         "events": []
@@ -1654,7 +1549,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1670,11 +1564,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1699,7 +1589,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1715,11 +1604,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1738,7 +1623,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1754,11 +1638,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1780,7 +1660,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1796,11 +1675,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1822,7 +1697,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1838,11 +1712,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1930,7 +1800,6 @@
                         "source": [
                           "specs/spaces/hosting-limit.dmn",
                           "specs/spaces/space-roles.dmn",
-                          "specs/spaces/spaces.als",
                           "specs/spaces/deleted-account-spaces.feature",
                           "specs/spaces/live-updates.feature",
                           "specs/spaces/space-create.feature",
@@ -1946,11 +1815,7 @@
                           "specs/spaces/space-live-presence.feature",
                           "specs/spaces/space-needs-connection.feature",
                           "specs/spaces/space-rename.feature",
-                          "specs/spaces/spaces.feature",
-                          "specs/spaces/events.qnt",
-                          "specs/spaces/space-hosting.qnt",
-                          "specs/spaces/space-names.qnt",
-                          "specs/spaces/space-recovery.qnt"
+                          "specs/spaces/spaces.feature"
                         ],
                         "events": []
                       },
@@ -1994,7 +1859,6 @@
                       "specs/profile/profile-edit.feature",
                       "specs/profile/sessions.feature",
                       "specs/profile/ubiquitous-language.yml",
-                      "specs/profile/username-changes.qnt",
                       "specs/profile/username-rules.feature",
                       "specs/ubiquitous-language.yml"
                     ],
@@ -2137,8 +2001,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2162,8 +2025,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2187,8 +2049,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2215,7 +2076,6 @@
                           "specs/profile/offline-username.feature",
                           "specs/profile/profile-edit.feature",
                           "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt",
                           "specs/profile/username-rules.feature"
                         ],
                         "events": [],
@@ -2280,8 +2140,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2302,8 +2161,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2324,8 +2182,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2346,8 +2203,7 @@
                           "specs/profile/profile-edit.feature",
                           "specs/profile/username-rules.feature",
                           "specs/profile/devices.feature",
-                          "specs/profile/sessions.feature",
-                          "specs/profile/username-changes.qnt"
+                          "specs/profile/sessions.feature"
                         ],
                         "events": []
                       },
@@ -2369,12 +2225,9 @@
                     "source": [
                       "specs/auth/at-google-and-apple.feature",
                       "specs/auth/matching-accounts.feature",
-                      "specs/auth/outside-accounts.qnt",
-                      "specs/auth/private-apple-email.qnt",
                       "specs/auth/provider-trouble.feature",
                       "specs/auth/sign-in-ends.feature",
                       "specs/auth/sign-in-link.feature",
-                      "specs/auth/sign-in-links.qnt",
                       "specs/auth/sign-in-methods.feature",
                       "specs/auth/sign-in.feature",
                       "specs/auth/signing-in.openslo.yaml",
@@ -2514,9 +2367,7 @@
                           "specs/profile/apple-sign-in.feature",
                           "specs/profile/finish-signing-in.feature",
                           "specs/profile/offline-sign-in.feature",
-                          "specs/profile/sign-in-abandoned.feature",
-                          "specs/auth/outside-accounts.qnt",
-                          "specs/auth/private-apple-email.qnt"
+                          "specs/profile/sign-in-abandoned.feature"
                         ],
                         "events": []
                       },
@@ -2546,9 +2397,7 @@
                           "specs/profile/apple-sign-in.feature",
                           "specs/profile/finish-signing-in.feature",
                           "specs/profile/offline-sign-in.feature",
-                          "specs/profile/sign-in-abandoned.feature",
-                          "specs/auth/outside-accounts.qnt",
-                          "specs/auth/private-apple-email.qnt"
+                          "specs/profile/sign-in-abandoned.feature"
                         ],
                         "events": []
                       },
@@ -2611,9 +2460,7 @@
                           "specs/profile/apple-sign-in.feature",
                           "specs/profile/finish-signing-in.feature",
                           "specs/profile/offline-sign-in.feature",
-                          "specs/profile/sign-in-abandoned.feature",
-                          "specs/auth/outside-accounts.qnt",
-                          "specs/auth/private-apple-email.qnt"
+                          "specs/profile/sign-in-abandoned.feature"
                         ],
                         "events": []
                       },
@@ -2640,9 +2487,7 @@
                           "specs/profile/apple-sign-in.feature",
                           "specs/profile/finish-signing-in.feature",
                           "specs/profile/offline-sign-in.feature",
-                          "specs/profile/sign-in-abandoned.feature",
-                          "specs/auth/outside-accounts.qnt",
-                          "specs/auth/private-apple-email.qnt"
+                          "specs/profile/sign-in-abandoned.feature"
                         ],
                         "events": []
                       },
@@ -2669,9 +2514,7 @@
                           "specs/profile/apple-sign-in.feature",
                           "specs/profile/finish-signing-in.feature",
                           "specs/profile/offline-sign-in.feature",
-                          "specs/profile/sign-in-abandoned.feature",
-                          "specs/auth/outside-accounts.qnt",
-                          "specs/auth/private-apple-email.qnt"
+                          "specs/profile/sign-in-abandoned.feature"
                         ],
                         "events": []
                       },
@@ -2852,8 +2695,7 @@
                       "specs/runtime/settings.feature",
                       "specs/runtime/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/runtime/interrupted-preference.feature",
-                      "specs/runtime/preference-recovery.qnt"
+                      "specs/runtime/interrupted-preference.feature"
                     ],
                     "events": []
                   },
@@ -2975,8 +2817,6 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/profile/account-deletion.feature",
-                      "specs/profile/account-privacy.qnt",
-                      "specs/profile/accounts.als",
                       "specs/profile/personal-data-export.feature",
                       "specs/profile/personal-data-retention.feature",
                       "specs/profile/privacy-access.dmn",
@@ -2995,12 +2835,10 @@
                         "snapshot": "Export and deletion choices are available according to account permission.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": [],
                         "hints": ["App address: /profile/privacy"]
@@ -3030,12 +2868,10 @@
                         "snapshot": "Privacy actions need proof of this account less than ten minutes old.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3052,12 +2888,10 @@
                         "snapshot": "A guest cannot export or delete an account they do not own.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3115,12 +2949,10 @@
                         "snapshot": "Deletion is in progress; no success is claimed before confirmation.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3140,12 +2972,10 @@
                         "snapshot": "Deletion failed visibly and the person can try again.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3162,12 +2992,10 @@
                         "snapshot": "Personal data is erased and the account cannot return; retained legal records give no access.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3187,12 +3015,10 @@
                         "snapshot": "Future membership charges must stop; the provider cancellation remains pending.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3209,12 +3035,10 @@
                         "snapshot": "The provider cancellation is complete and the deleted account remains unusable.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3254,12 +3078,10 @@
                         "snapshot": "Only the owning account with recent proof can download this complete export.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": [],
                         "hints": [
@@ -3285,12 +3107,10 @@
                         "snapshot": "Another person cannot download this account’s export.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3307,12 +3127,10 @@
                         "snapshot": "The person has their complete export without receiving another person’s data.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3329,12 +3147,10 @@
                         "snapshot": "The failed export has an explanation and allows another attempt.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3351,12 +3167,10 @@
                         "snapshot": "An expired export cannot be downloaded.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/profile/accounts.als",
                           "specs/profile/privacy-access.dmn",
                           "specs/profile/account-deletion.feature",
                           "specs/profile/personal-data-export.feature",
-                          "specs/profile/personal-data-retention.feature",
-                          "specs/profile/account-privacy.qnt"
+                          "specs/profile/personal-data-retention.feature"
                         ],
                         "events": []
                       },
@@ -3382,26 +3196,21 @@
                       "specs/billing/billing-plans.feature",
                       "specs/billing/billing-portal.feature",
                       "specs/billing/cancellation-feedback.feature",
-                      "specs/billing/cancellation-feedback.qnt",
                       "specs/billing/deleted-account-payments.feature",
-                      "specs/billing/events.qnt",
                       "specs/billing/expired-card.feature",
                       "specs/billing/free-trial.feature",
                       "specs/billing/grace-ends.feature",
                       "specs/billing/membership-cancellation.feature",
                       "specs/billing/membership-interval-switch.feature",
-                      "specs/billing/membership-lifecycle.qnt",
                       "specs/billing/membership-renewal.feature",
                       "specs/billing/payment-failures.feature",
                       "specs/billing/payment-provider-switch.feature",
-                      "specs/billing/payment-provider-switch.qnt",
                       "specs/billing/payments.feature",
                       "specs/billing/plus-credit.feature",
                       "specs/billing/refunds.feature",
                       "specs/billing/subscribe.feature",
                       "specs/billing/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/billing/grace-and-refunds.qnt",
                       "specs/billing/payments.openslo.yaml"
                     ],
                     "events": []
@@ -3515,9 +3324,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3555,9 +3361,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3598,9 +3401,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3636,9 +3436,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3783,9 +3580,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3820,9 +3614,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3860,9 +3651,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -3924,9 +3712,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": [],
@@ -3984,9 +3769,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4024,9 +3806,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4061,9 +3840,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4101,9 +3877,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4141,9 +3914,6 @@
                           "specs/billing/plus-credit.feature",
                           "specs/billing/refunds.feature",
                           "specs/billing/subscribe.feature",
-                          "specs/billing/events.qnt",
-                          "specs/billing/membership-lifecycle.qnt",
-                          "specs/billing/payment-provider-switch.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4165,7 +3935,6 @@
                     "source": [
                       "docs/statecharts/SPEC_CONFLICTS.md",
                       "specs/friends/deleted-account-friendships.feature",
-                      "specs/friends/events.qnt",
                       "specs/friends/friend-block.feature",
                       "specs/friends/friend-profile.feature",
                       "specs/friends/friend-remove.feature",
@@ -4175,15 +3944,12 @@
                       "specs/friends/friends-gates.feature",
                       "specs/friends/friends-live-space.feature",
                       "specs/friends/friends-profile-changes.feature",
-                      "specs/friends/friendship.qnt",
-                      "specs/friends/friendships.als",
                       "specs/friends/people-search.feature",
                       "specs/friends/relationships-after-time-away.feature",
                       "specs/friends/social-needs-connection.feature",
                       "specs/friends/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/friends/inbox-items.feature",
-                      "specs/friends/inbox-items.qnt"
+                      "specs/friends/inbox-items.feature"
                     ],
                     "events": []
                   },
@@ -4198,7 +3964,6 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/friends/offline-friend-request.feature",
-                          "specs/friends/offline-friend-requests.qnt",
                           "specs/friends/people-search.feature:7"
                         ],
                         "events": [],
@@ -4281,7 +4046,6 @@
                         "snapshot": "Matching visible people appear; blocked or deleted accounts cannot be found.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4295,8 +4059,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4317,7 +4079,6 @@
                         "snapshot": "No permitted person matches the supplied search.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4331,8 +4092,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4384,7 +4143,6 @@
                         "snapshot": "A sent request waits for the other person’s choice.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4398,8 +4156,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4423,7 +4179,6 @@
                         "snapshot": "An incoming request can be accepted, declined or blocked.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4437,8 +4192,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4465,7 +4218,6 @@
                         "snapshot": "The request is being accepted.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4479,8 +4231,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4501,7 +4251,6 @@
                         "snapshot": "The request cannot proceed for the reason given; the relationship stays intact.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4515,8 +4264,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4534,7 +4281,6 @@
                         "snapshot": "A declined request cannot be sent again during the documented one-day wait.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4548,8 +4294,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": [],
@@ -4677,7 +4421,6 @@
                         "snapshot": "Blocking ends the relationship and its requests and prevents discovery between the two people.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/friends/friendships.als",
                           "specs/friends/deleted-account-friendships.feature",
                           "specs/friends/friend-block.feature",
                           "specs/friends/friend-profile.feature",
@@ -4691,8 +4434,6 @@
                           "specs/friends/people-search.feature",
                           "specs/friends/relationships-after-time-away.feature",
                           "specs/friends/social-needs-connection.feature",
-                          "specs/friends/events.qnt",
-                          "specs/friends/friendship.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -4884,7 +4625,6 @@
                     "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Sokoban, Numberlink and Word Tiles.",
                     "confidence": "assumed",
                     "source": [
-                      "specs/games/space-follow.qnt",
                       "specs/games/space-follows-the-host.feature",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
@@ -5014,7 +4754,6 @@
                           "specs/connect-four/connect-four-bots.feature",
                           "specs/connect-four/connect-four-health.feature",
                           "specs/games/game-history.feature",
-                          "specs/connect-four/connect-four-play.qnt",
                           "specs/games/custom-games.feature",
                           "specs/games/custom-game-creation.feature",
                           "specs/games/custom-game-invitations.feature",
@@ -5063,8 +4802,6 @@
                           "specs/battleship/battleship-fleet-placement.feature",
                           "specs/battleship/battleship-health.feature",
                           "specs/battleship/battleship-hidden-fleets.feature",
-                          "specs/battleship/battleship-fleet-setup.qnt",
-                          "specs/battleship/battleship-play.qnt",
                           "specs/battleship/battleship-shots.feature",
                           "specs/battleship/battleship-sinking.feature",
                           "specs/battleship/battleship-start.feature",
@@ -5072,7 +4809,6 @@
                           "specs/journeys/battleship-game.feature",
                           "specs/games/custom-game-private-setup.feature",
                           "specs/games/matched-game-private-setup.feature",
-                          "specs/games/private-setup.qnt",
                           "specs/games/game-history.feature",
                           "specs/games/custom-games.feature",
                           "specs/games/custom-game-creation.feature",
@@ -5117,7 +4853,6 @@
                           "specs/quoridor/quoridor-modes.feature",
                           "specs/quoridor/quoridor-movement.feature",
                           "specs/quoridor/quoridor-objectives.feature",
-                          "specs/quoridor/quoridor-play.qnt",
                           "specs/quoridor/quoridor-walls.feature",
                           "specs/quoridor/ubiquitous-language.yml",
                           "specs/journeys/quoridor-game.feature",
@@ -5156,7 +4891,6 @@
                           "specs/quoridor/quoridor-modes.feature",
                           "specs/quoridor/quoridor-movement.feature",
                           "specs/quoridor/quoridor-objectives.feature",
-                          "specs/quoridor/quoridor-play.qnt",
                           "specs/quoridor/quoridor-walls.feature",
                           "specs/quoridor/ubiquitous-language.yml",
                           "specs/journeys/quoridor-game.feature",
@@ -5191,23 +4925,16 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/pong/pong-local-play.feature",
-                          "specs/pong/pong-local-play.qnt",
                           "specs/pong/pong-local-watch.feature",
                           "specs/pong/pong-scoring.feature",
-                          "specs/pong/pong-scoring.qnt",
                           "specs/pong/pong-shared-control.feature",
-                          "specs/pong/pong-shared-control.qnt",
                           "specs/pong/pong-smooth-play.openslo.yaml",
                           "specs/pong/ubiquitous-language.yml",
                           "specs/journeys/pong-game.feature",
                           "specs/games/finding-an-opponent-without-a-clock.feature",
-                          "specs/games/opponent-search.qnt",
                           "specs/games/matched-game-without-turns.feature",
-                          "specs/games/matched-game-ending.qnt",
                           "specs/synthetic-population/recognizing-synthetic-users.feature",
-                          "specs/synthetic-population/recognizing-synthetic-users.qnt",
                           "specs/synthetic-population/playing-pong.feature",
-                          "specs/synthetic-population/playing-pong.qnt",
                           "specs/synthetic-population/ubiquitous-language.yml",
                           "specs/games/game-choices.feature",
                           "specs/games/ubiquitous-language.yml"
@@ -5260,10 +4987,7 @@
                             "description": "Local Pong is ready to start on this device, against another person sharing it or a Pong bot. Starting needs no connection, and losing or getting back the connection or closing and reopening the app keeps it ready.",
                             "snapshot": "Local Pong is ready to start on this device, against another person sharing it or a Pong bot. Starting needs no connection, and losing or getting back the connection or closing and reopening the app keeps it ready.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/pong/pong-local-play.feature",
-                              "specs/pong/pong-local-play.qnt"
-                            ],
+                            "source": ["specs/pong/pong-local-play.feature"],
                             "events": []
                           },
                           "on": {
@@ -5292,9 +5016,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-local-play.feature",
-                              "specs/pong/pong-local-play.qnt",
-                              "specs/pong/pong-scoring.feature",
-                              "specs/pong/pong-scoring.qnt"
+                              "specs/pong/pong-scoring.feature"
                             ],
                             "events": []
                           },
@@ -5306,10 +5028,7 @@
                                 "description": "Pong counts down before each serve. The countdown ends with a serve and awards no point.",
                                 "snapshot": "Pong counts down before each serve. The countdown ends with a serve and awards no point.",
                                 "confidence": "assumed",
-                                "source": [
-                                  "specs/pong/pong-scoring.feature",
-                                  "specs/pong/pong-scoring.qnt"
-                                ],
+                                "source": ["specs/pong/pong-scoring.feature"],
                                 "events": []
                               },
                               "on": {
@@ -5335,9 +5054,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/pong/pong-scoring.feature",
-                                  "specs/pong/pong-scoring.qnt",
-                                  "specs/pong/pong-local-play.feature",
-                                  "specs/pong/pong-local-play.qnt"
+                                  "specs/pong/pong-local-play.feature"
                                 ],
                                 "events": []
                               },
@@ -5374,9 +5091,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-scoring.feature",
-                              "specs/pong/pong-scoring.qnt",
-                              "specs/pong/pong-local-play.feature",
-                              "specs/pong/pong-local-play.qnt"
+                              "specs/pong/pong-local-play.feature"
                             ],
                             "events": []
                           },
@@ -5406,9 +5121,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-local-watch.feature",
-                              "specs/pong/pong-local-play.qnt",
-                              "specs/pong/pong-shared-control.feature",
-                              "specs/pong/pong-shared-control.qnt"
+                              "specs/pong/pong-shared-control.feature"
                             ],
                             "events": []
                           },
@@ -5432,8 +5145,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-local-watch.feature",
-                              "specs/pong/pong-shared-control.feature",
-                              "specs/pong/pong-shared-control.qnt"
+                              "specs/pong/pong-shared-control.feature"
                             ],
                             "events": []
                           },
@@ -5451,9 +5163,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-local-watch.feature",
-                              "specs/pong/pong-local-play.qnt",
-                              "specs/pong/pong-shared-control.feature",
-                              "specs/pong/pong-shared-control.qnt"
+                              "specs/pong/pong-shared-control.feature"
                             ],
                             "events": []
                           },
@@ -5471,9 +5181,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/games/finding-an-opponent-without-a-clock.feature",
-                              "specs/games/opponent-search.qnt",
-                              "specs/synthetic-population/finding-opponents.feature",
-                              "specs/synthetic-population/finding-opponents.qnt"
+                              "specs/synthetic-population/finding-opponents.feature"
                             ],
                             "events": []
                           },
@@ -5499,8 +5207,7 @@
                             "snapshot": "Without a connection, the person keeps the search they were shown and is told finding an opponent needs a connection. Coming back online shows the same search, or the matched game agreed while they were away.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/games/finding-an-opponent-without-a-clock.feature",
-                              "specs/games/opponent-search.qnt"
+                              "specs/games/finding-an-opponent-without-a-clock.feature"
                             ],
                             "events": []
                           },
@@ -5521,11 +5228,8 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/games/finding-an-opponent-without-a-clock.feature",
-                              "specs/games/opponent-search.qnt",
                               "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt",
-                              "specs/synthetic-population/recognizing-synthetic-users.feature",
-                              "specs/synthetic-population/recognizing-synthetic-users.qnt"
+                              "specs/synthetic-population/recognizing-synthetic-users.feature"
                             ],
                             "events": []
                           },
@@ -5551,8 +5255,7 @@
                             "snapshot": "Resigning before play begins is refused, and the person is told to abort instead.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt"
+                              "specs/games/matched-game-without-turns.feature"
                             ],
                             "events": []
                           },
@@ -5569,8 +5272,7 @@
                             "snapshot": "Without a connection, the person keeps the matched game they last saw and cannot abort it until the connection returns.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt"
+                              "specs/games/matched-game-without-turns.feature"
                             ],
                             "events": []
                           },
@@ -5588,15 +5290,10 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-shared-control.feature",
-                              "specs/pong/pong-shared-control.qnt",
                               "specs/pong/pong-scoring.feature",
-                              "specs/pong/pong-scoring.qnt",
                               "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt",
                               "specs/synthetic-population/playing-pong.feature",
-                              "specs/synthetic-population/playing-pong.qnt",
-                              "specs/synthetic-population/recognizing-synthetic-users.feature",
-                              "specs/synthetic-population/recognizing-synthetic-users.qnt"
+                              "specs/synthetic-population/recognizing-synthetic-users.feature"
                             ],
                             "events": []
                           },
@@ -5634,8 +5331,7 @@
                             "snapshot": "The person cannot guide the other person's paddle because it belongs to them; it stays where it was.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/pong/pong-shared-control.feature",
-                              "specs/pong/pong-shared-control.qnt"
+                              "specs/pong/pong-shared-control.feature"
                             ],
                             "events": []
                           },
@@ -5652,8 +5348,7 @@
                             "snapshot": "Aborting is refused once play is under way; the person may resign instead.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt"
+                              "specs/games/matched-game-without-turns.feature"
                             ],
                             "events": []
                           },
@@ -5671,11 +5366,8 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-shared-control.feature",
-                              "specs/pong/pong-shared-control.qnt",
                               "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt",
-                              "specs/synthetic-population/playing-pong.feature",
-                              "specs/synthetic-population/playing-pong.qnt"
+                              "specs/synthetic-population/playing-pong.feature"
                             ],
                             "events": []
                           },
@@ -5699,11 +5391,8 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/pong/pong-scoring.feature",
-                              "specs/pong/pong-scoring.qnt",
                               "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt",
                               "specs/synthetic-population/playing-pong.feature",
-                              "specs/synthetic-population/playing-pong.qnt",
                               "specs/journeys/pong-game.feature"
                             ],
                             "events": []
@@ -5730,8 +5419,7 @@
                             "snapshot": "An aborted Pong game has no result and stays aborted: aborting again changes nothing and it cannot be resigned.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/games/matched-game-without-turns.feature",
-                              "specs/games/matched-game-ending.qnt"
+                              "specs/games/matched-game-without-turns.feature"
                             ],
                             "events": []
                           },
@@ -5752,8 +5440,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/journeys/pong-game.feature",
-                              "specs/pong/pong-scoring.feature",
-                              "specs/pong/pong-scoring.qnt"
+                              "specs/pong/pong-scoring.feature"
                             ],
                             "events": []
                           },
@@ -5903,15 +5590,6 @@
                           "specs/puzzles/publication-recovery.feature",
                           "specs/puzzles/publish-packs.feature",
                           "specs/puzzles/publish-puzzles.feature",
-                          "specs/puzzles/draft-editing.qnt",
-                          "specs/puzzles/edition-rules.qnt",
-                          "specs/puzzles/pack-authoring.qnt",
-                          "specs/puzzles/pack-progression.qnt",
-                          "specs/puzzles/pack-publication.qnt",
-                          "specs/puzzles/publication-recovery.qnt",
-                          "specs/puzzles/puzzle-attempt.qnt",
-                          "specs/puzzles/puzzle-authoring.qnt",
-                          "specs/puzzles/puzzle-publication.qnt",
                           "specs/puzzles/puzzle-content-access.dmn",
                           "specs/puzzles/ubiquitous-language.yml",
                           "specs/journeys/sokoban-packs.feature",
@@ -5972,8 +5650,6 @@
                               "specs/puzzles/author-drafts.feature",
                               "specs/puzzles/edit-draft-history.feature",
                               "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/draft-editing.qnt",
-                              "specs/puzzles/puzzle-authoring.qnt",
                               "specs/puzzles/puzzle-content-access.dmn"
                             ],
                             "events": []
@@ -6020,10 +5696,7 @@
                             "description": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
                             "snapshot": "Validation explains which required puzzle details are missing; the draft is kept as it was.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/playtest-drafts.feature",
-                              "specs/puzzles/puzzle-authoring.qnt"
-                            ],
+                            "source": ["specs/puzzles/playtest-drafts.feature"],
                             "events": []
                           },
                           "on": {
@@ -6040,7 +5713,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/playtest-drafts.feature",
-                              "specs/puzzles/puzzle-authoring.qnt",
                               "specs/puzzles/puzzle-content-access.dmn"
                             ],
                             "events": []
@@ -6060,10 +5732,7 @@
                             "description": "A missing title or missing puzzle details refuse publication without losing the drawing.",
                             "snapshot": "A missing title or missing puzzle details refuse publication without losing the drawing.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/puzzle-publication.qnt"
-                            ],
+                            "source": ["specs/puzzles/publish-puzzles.feature"],
                             "events": []
                           },
                           "on": {
@@ -6080,9 +5749,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/publish-puzzles.feature",
-                              "specs/puzzles/puzzle-publication.qnt",
-                              "specs/puzzles/edition-rules.feature",
-                              "specs/puzzles/edition-rules.qnt"
+                              "specs/puzzles/edition-rules.feature"
                             ],
                             "events": []
                           },
@@ -6116,8 +5783,7 @@
                             "source": [
                               "specs/puzzles/publish-puzzles.feature",
                               "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/keep-attempts.feature",
-                              "specs/puzzles/puzzle-publication.qnt"
+                              "specs/puzzles/keep-attempts.feature"
                             ],
                             "events": []
                           },
@@ -6160,8 +5826,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/keep-attempts.feature",
-                              "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/puzzle-attempt.qnt"
+                              "specs/puzzles/offline-work.feature"
                             ],
                             "events": []
                           },
@@ -6180,9 +5845,7 @@
                             "source": [
                               "specs/puzzles/keep-attempts.feature",
                               "specs/puzzles/offline-work.feature",
-                              "specs/puzzles/puzzle-attempt.qnt",
                               "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt",
                               "specs/journeys/sokoban-packs.feature",
                               "specs/journeys/numberlink-packs.feature"
                             ],
@@ -6229,7 +5892,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt",
                               "specs/journeys/sokoban-packs.feature"
                             ],
                             "events": []
@@ -6253,8 +5915,7 @@
                             "snapshot": "Completing every chosen edition completes the pack, so it offers no unfinished puzzle to continue; repeating a completed puzzle never increases its completion count.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/puzzles/pack-progression.feature",
-                              "specs/puzzles/pack-progression.qnt"
+                              "specs/puzzles/pack-progression.feature"
                             ],
                             "events": []
                           },
@@ -6275,7 +5936,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/author-packs.feature",
-                              "specs/puzzles/pack-authoring.qnt",
                               "specs/puzzles/edit-draft-history.feature",
                               "specs/puzzles/offline-work.feature",
                               "specs/puzzles/puzzle-content-access.dmn"
@@ -6324,10 +5984,7 @@
                             "description": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
                             "snapshot": "A puzzle of another game cannot enter the pack; the pack is unchanged.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/author-packs.feature",
-                              "specs/puzzles/pack-authoring.qnt"
-                            ],
+                            "source": ["specs/puzzles/author-packs.feature"],
                             "events": []
                           },
                           "on": {
@@ -6344,9 +6001,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/publication-recovery.feature",
-                              "specs/puzzles/publication-recovery.qnt",
-                              "specs/puzzles/pack-publication.qnt"
+                              "specs/puzzles/publication-recovery.feature"
                             ],
                             "events": []
                           },
@@ -6367,7 +6022,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/publication-recovery.feature",
-                              "specs/puzzles/publication-recovery.qnt",
                               "specs/journeys/sokoban-packs.feature"
                             ],
                             "events": []
@@ -6395,7 +6049,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/pack-publication.qnt",
                               "specs/puzzles/publication-recovery.feature",
                               "specs/journeys/sokoban-packs.feature",
                               "specs/journeys/numberlink-packs.feature"
@@ -6426,10 +6079,7 @@
                             "description": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
                             "snapshot": "Only the author withdraws a pack. It is hidden without erasing a saved attempt, and repeating its publication cannot undo withdrawal.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/publish-packs.feature",
-                              "specs/puzzles/pack-publication.qnt"
-                            ],
+                            "source": ["specs/puzzles/publish-packs.feature"],
                             "events": []
                           },
                           "on": {
@@ -6444,10 +6094,7 @@
                             "description": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
                             "snapshot": "An edition published before a rules change is not started under the changed rules. Republishing after the rules change makes an edition that can be started.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/edition-rules.feature",
-                              "specs/puzzles/edition-rules.qnt"
-                            ],
+                            "source": ["specs/puzzles/edition-rules.feature"],
                             "events": []
                           },
                           "on": {
@@ -6465,10 +6112,7 @@
                             "description": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
                             "snapshot": "A rules change during play stops the play and keeps the attempt; a saved attempt whose edition's rules changed is kept but not resumed.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/puzzles/edition-rules.feature",
-                              "specs/puzzles/edition-rules.qnt"
-                            ],
+                            "source": ["specs/puzzles/edition-rules.feature"],
                             "events": []
                           },
                           "on": {
@@ -6539,7 +6183,6 @@
                           "specs/hearts/hearts-tricks.feature",
                           "specs/hearts/ubiquitous-language.yml",
                           "specs/games/secret-choices.feature",
-                          "specs/games/secret-choices.qnt",
                           "specs/games/multi-seat-stand-ins.feature",
                           "specs/games/shared-victories.feature",
                           "specs/games/game-history.feature",
@@ -6575,7 +6218,6 @@
                           "specs/light-cycles/light-cycles-riders.feature",
                           "specs/light-cycles/light-cycles-connection.feature",
                           "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-round.qnt",
                           "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
                           "specs/light-cycles/ubiquitous-language.yml",
                           "specs/games/game-choices.feature",
@@ -6614,7 +6256,6 @@
                           "specs/light-cycles/light-cycles-riders.feature",
                           "specs/light-cycles/light-cycles-connection.feature",
                           "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-round.qnt",
                           "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
                           "specs/light-cycles/ubiquitous-language.yml",
                           "specs/games/game-choices.feature",
@@ -6653,7 +6294,6 @@
                           "specs/light-cycles/light-cycles-riders.feature",
                           "specs/light-cycles/light-cycles-connection.feature",
                           "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-round.qnt",
                           "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
                           "specs/light-cycles/ubiquitous-language.yml",
                           "specs/games/game-choices.feature",
@@ -6687,15 +6327,11 @@
                           "specs/sokoban/move-and-push.feature",
                           "specs/sokoban/undo-and-redo-moves.feature",
                           "specs/sokoban/complete-puzzles.feature",
-                          "specs/sokoban/sokoban-play.qnt",
                           "specs/sokoban/starter-pack.feature",
-                          "specs/sokoban/starter-pack.qnt",
                           "specs/sokoban/build-boards.feature",
                           "specs/sokoban/place-pieces.feature",
                           "specs/sokoban/check-boards.feature",
-                          "specs/sokoban/board-building.qnt",
                           "specs/sokoban/publish-sokoban-puzzles.feature",
-                          "specs/sokoban/publication-proof.qnt",
                           "specs/sokoban/ubiquitous-language.yml",
                           "specs/journeys/sokoban-packs.feature",
                           "specs/puzzles/ubiquitous-language.yml"
@@ -6712,7 +6348,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/sokoban/starter-pack.feature",
-                              "specs/sokoban/starter-pack.qnt",
                               "specs/sokoban/ubiquitous-language.yml"
                             ],
                             "events": []
@@ -6751,9 +6386,7 @@
                               "specs/sokoban/move-and-push.feature",
                               "specs/sokoban/undo-and-redo-moves.feature",
                               "specs/sokoban/complete-puzzles.feature",
-                              "specs/sokoban/sokoban-play.qnt",
                               "specs/sokoban/starter-pack.feature",
-                              "specs/sokoban/starter-pack.qnt",
                               "specs/journeys/sokoban-packs.feature",
                               "specs/puzzles/keep-attempts.feature"
                             ],
@@ -6803,8 +6436,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/sokoban/move-and-push.feature",
-                              "specs/sokoban/undo-and-redo-moves.feature",
-                              "specs/sokoban/sokoban-play.qnt"
+                              "specs/sokoban/undo-and-redo-moves.feature"
                             ],
                             "events": []
                           },
@@ -6822,9 +6454,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/sokoban/complete-puzzles.feature",
-                              "specs/sokoban/sokoban-play.qnt",
                               "specs/sokoban/starter-pack.feature",
-                              "specs/sokoban/starter-pack.qnt",
                               "specs/puzzles/pack-progression.feature",
                               "specs/journeys/sokoban-packs.feature"
                             ],
@@ -6857,10 +6487,7 @@
                             "description": "Every starter puzzle is complete, so no unfinished puzzle is offered.",
                             "snapshot": "Every starter puzzle is complete, so no unfinished puzzle is offered.",
                             "confidence": "assumed",
-                            "source": [
-                              "specs/sokoban/starter-pack.feature",
-                              "specs/sokoban/starter-pack.qnt"
-                            ],
+                            "source": ["specs/sokoban/starter-pack.feature"],
                             "events": []
                           },
                           "on": {
@@ -6879,9 +6506,7 @@
                               "specs/sokoban/build-boards.feature",
                               "specs/sokoban/place-pieces.feature",
                               "specs/sokoban/check-boards.feature",
-                              "specs/sokoban/board-building.qnt",
                               "specs/sokoban/publish-sokoban-puzzles.feature",
-                              "specs/sokoban/publication-proof.qnt",
                               "specs/puzzles/author-drafts.feature",
                               "specs/puzzles/offline-work.feature"
                             ],
@@ -6896,8 +6521,7 @@
                                 "snapshot": "The builder lists what must be corrected: a missing worker, no crates, or different numbers of crates and goals. The board is kept as a draft and reopens as it was, with no undo or redo choices, and cannot be playtested yet.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/sokoban/check-boards.feature",
-                                  "specs/sokoban/board-building.qnt"
+                                  "specs/sokoban/check-boards.feature"
                                 ],
                                 "events": []
                               },
@@ -6932,8 +6556,7 @@
                                   "specs/sokoban/check-boards.feature",
                                   "specs/sokoban/build-boards.feature",
                                   "specs/sokoban/place-pieces.feature",
-                                  "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt"
+                                  "specs/sokoban/publish-sokoban-puzzles.feature"
                                 ],
                                 "events": []
                               },
@@ -6988,8 +6611,7 @@
                                 "snapshot": "The author plays the private draft with Sokoban’s rules, with or without a connection. Completing the playtest proves the board without counting as an ordinary completion; stopping before completion keeps the board unproven, and the playtest can be begun again. A rules change stops the playtest.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt"
+                                  "specs/sokoban/publish-sokoban-puzzles.feature"
                                 ],
                                 "events": []
                               },
@@ -7012,8 +6634,7 @@
                                 "snapshot": "The author is told to complete a playtest of this board before publication, and nobody else can play it.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt"
+                                  "specs/sokoban/publish-sokoban-puzzles.feature"
                                 ],
                                 "events": []
                               },
@@ -7030,8 +6651,7 @@
                                 "snapshot": "The author completed a playtest of exactly this board under Sokoban’s current rules, so it can be published. Changing only the details keeps the proof; a board edit or a rules change takes it away.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt"
+                                  "specs/sokoban/publish-sokoban-puzzles.feature"
                                 ],
                                 "events": []
                               },
@@ -7069,8 +6689,7 @@
                                 "snapshot": "Playtesting a proven board again keeps its proof.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt"
+                                  "specs/sokoban/publish-sokoban-puzzles.feature"
                                 ],
                                 "events": []
                               },
@@ -7094,7 +6713,6 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt",
                                   "specs/journeys/sokoban-packs.feature"
                                 ],
                                 "events": []
@@ -7116,7 +6734,6 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/sokoban/publish-sokoban-puzzles.feature",
-                                  "specs/sokoban/publication-proof.qnt",
                                   "specs/puzzles/author-packs.feature",
                                   "specs/journeys/sokoban-packs.feature"
                                 ],
@@ -7166,8 +6783,6 @@
                       "specs/chess/puzzle-assistant-context.feature",
                       "specs/chess/puzzle-assistant.feature",
                       "specs/games/puzzle-attempt-resume.feature",
-                      "specs/games/puzzle-attempt.qnt",
-                      "specs/chess/puzzle-assistant.qnt",
                       "specs/games/puzzle-controls.feature",
                       "specs/chess/puzzle-controls.feature",
                       "specs/games/puzzle-exhaust.feature",
@@ -7184,20 +6799,16 @@
                       "specs/games/puzzle-outcome-sync.feature",
                       "specs/games/puzzle-play.feature",
                       "specs/games/puzzle-opponent.feature",
-                      "specs/games/puzzle-progress.als",
                       "specs/games/puzzle-quota.feature",
                       "specs/games/puzzle-ready.openslo.yaml",
                       "specs/games/puzzle-refusals.feature",
                       "specs/chess/puzzle-refusals.feature",
-                      "specs/games/puzzle-result-recovery.qnt",
                       "specs/games/puzzle-review.feature",
                       "specs/chess/puzzle-review.feature",
                       "specs/games/puzzle-selection.feature",
                       "specs/games/puzzle-skip-clock.feature",
                       "specs/games/puzzle-sound.feature",
                       "specs/chess/puzzle-sound.feature",
-                      "specs/games/puzzle-sound.qnt",
-                      "specs/chess/puzzle-sound.qnt",
                       "specs/games/puzzle-spectator.feature",
                       "specs/chess/solve-chess-rules.feature",
                       "specs/games/solve-flow.feature",
@@ -7371,7 +6982,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -7410,11 +7020,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -7443,7 +7048,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -7482,11 +7086,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -7606,7 +7205,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -7645,11 +7243,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": [],
@@ -7687,7 +7280,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -7726,11 +7318,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -7753,7 +7340,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -7792,11 +7378,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -7822,7 +7403,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -7861,11 +7441,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8000,7 +7575,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -8039,11 +7613,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8072,7 +7641,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -8111,11 +7679,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8153,7 +7716,6 @@
                         "source": [
                           "specs/chess/assistant-observation.dmn",
                           "specs/games/daily-puzzle-limit.dmn",
-                          "specs/games/puzzle-progress.als",
                           "specs/games/puzzle-ready.openslo.yaml",
                           "specs/games/puzzle-accessibility.feature",
                           "specs/chess/puzzle-accessibility.feature",
@@ -8192,11 +7754,6 @@
                           "specs/chess/solve-move-rules.feature",
                           "specs/games/solve-show-solution.feature",
                           "specs/chess/solve-show-solution.feature",
-                          "specs/games/puzzle-attempt.qnt",
-                          "specs/chess/puzzle-assistant.qnt",
-                          "specs/games/puzzle-result-recovery.qnt",
-                          "specs/games/puzzle-sound.qnt",
-                          "specs/chess/puzzle-sound.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8226,7 +7783,6 @@
                       "specs/games/puzzle-feed-sticks.feature",
                       "specs/games/puzzle-feed.feature",
                       "specs/chess/puzzle-feed.feature",
-                      "specs/games/puzzle-feed.qnt",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/games/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
@@ -8274,7 +7830,6 @@
                           "specs/games/puzzle-feed-sticks.feature",
                           "specs/games/puzzle-feed.feature",
                           "specs/chess/puzzle-feed.feature",
-                          "specs/games/puzzle-feed.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8308,7 +7863,6 @@
                           "specs/games/puzzle-feed-sticks.feature",
                           "specs/games/puzzle-feed.feature",
                           "specs/chess/puzzle-feed.feature",
-                          "specs/games/puzzle-feed.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8330,7 +7884,6 @@
                           "specs/games/puzzle-feed-sticks.feature",
                           "specs/games/puzzle-feed.feature",
                           "specs/chess/puzzle-feed.feature",
-                          "specs/games/puzzle-feed.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": [],
@@ -8355,7 +7908,6 @@
                           "specs/games/puzzle-feed-sticks.feature",
                           "specs/games/puzzle-feed.feature",
                           "specs/chess/puzzle-feed.feature",
-                          "specs/games/puzzle-feed.qnt",
                           "docs/statecharts/SPEC_CONFLICTS.md"
                         ],
                         "events": []
@@ -8402,7 +7954,6 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/games/puzzle-link.feature",
-                      "specs/games/puzzle-link.qnt",
                       "specs/games/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml"
                     ],
@@ -8450,10 +8001,7 @@
                         "description": "This linked puzzle counts under the person’s rated allowance.",
                         "snapshot": "This linked puzzle counts under the person’s rated allowance.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/games/puzzle-link.feature",
-                          "specs/games/puzzle-link.qnt"
-                        ],
+                        "source": ["specs/games/puzzle-link.feature"],
                         "events": []
                       },
                       "on": {
@@ -8471,10 +8019,7 @@
                         "description": "This linked puzzle is practice and does not consume another rated start.",
                         "snapshot": "This linked puzzle is practice and does not consume another rated start.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/games/puzzle-link.feature",
-                          "specs/games/puzzle-link.qnt"
-                        ],
+                        "source": ["specs/games/puzzle-link.feature"],
                         "events": []
                       },
                       "on": {
@@ -8492,10 +8037,7 @@
                         "description": "The shareable link identifies this puzzle rather than the next puzzle in a feed.",
                         "snapshot": "The shareable link identifies this puzzle rather than the next puzzle in a feed.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/games/puzzle-link.feature",
-                          "specs/games/puzzle-link.qnt"
-                        ],
+                        "source": ["specs/games/puzzle-link.feature"],
                         "events": []
                       },
                       "on": {
@@ -8510,10 +8052,7 @@
                         "description": "An unseen linked puzzle cannot start after the guest used twenty rated starts today.",
                         "snapshot": "An unseen linked puzzle cannot start after the guest used twenty rated starts today.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/games/puzzle-link.feature",
-                          "specs/games/puzzle-link.qnt"
-                        ],
+                        "source": ["specs/games/puzzle-link.feature"],
                         "events": []
                       },
                       "on": {
@@ -8531,10 +8070,7 @@
                         "description": "The link cannot load an unseen puzzle while offline.",
                         "snapshot": "The link cannot load an unseen puzzle while offline.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/games/puzzle-link.feature",
-                          "specs/games/puzzle-link.qnt"
-                        ],
+                        "source": ["specs/games/puzzle-link.feature"],
                         "events": []
                       },
                       "on": {
@@ -8549,10 +8085,7 @@
                         "description": "A removed puzzle cannot be revived through its old link.",
                         "snapshot": "A removed puzzle cannot be revived through its old link.",
                         "confidence": "assumed",
-                        "source": [
-                          "specs/games/puzzle-link.feature",
-                          "specs/games/puzzle-link.qnt"
-                        ],
+                        "source": ["specs/games/puzzle-link.feature"],
                         "events": []
                       },
                       "on": {
@@ -8706,7 +8239,6 @@
                       "specs/games/puzzle-matched-play.feature",
                       "specs/games/matched-game-blocking.feature",
                       "specs/games/finding-an-opponent.feature",
-                      "specs/games/matched-game-daily.qnt",
                       "specs/games/finding-an-opponent-devices.feature",
                       "specs/games/finding-an-opponent-after-a-custom-game.feature",
                       "specs/games/matched-game-abort.feature",
@@ -8724,40 +8256,31 @@
                       "specs/games/matched-game-over.feature",
                       "specs/chess/multiplayer-game-record.feature",
                       "specs/games/matched-game-record.feature",
-                      "specs/games/matched-games.als",
                       "specs/games/matched-game-watchers.feature",
                       "specs/games/matched-game-low-on-time.feature",
                       "specs/games/matched-game-review.feature",
                       "specs/games/matched-game-offline.feature",
-                      "specs/games/matched-game-own-board.qnt",
                       "specs/games/matched-game-ratings.feature",
                       "specs/games/matched-game-ready.openslo.yaml",
                       "specs/games/matched-game-recovery.feature",
                       "specs/games/matched-game-rematch.feature",
                       "specs/games/matched-game-result-notices.feature",
-                      "specs/games/matched-game-shared.qnt",
-                      "specs/games/matched-game-spaces.qnt",
                       "specs/games/finding-an-opponent-clock-choices.feature",
                       "specs/games/matched-game-turn-notices.feature",
                       "specs/games/matched-game-turn-reminders.feature",
                       "specs/games/matched-game-watch-access.dmn",
-                      "specs/games/matched-game.qnt",
                       "specs/chess/play-multiplayer-chess.feature",
                       "specs/games/matched-game-results.feature",
                       "specs/games/matched-game-rules-draw.feature",
                       "specs/games/matched-game-turns.feature",
-                      "specs/games/matched-game-clock-recovery.qnt",
                       "specs/games/matched-game-interruption.feature",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/games/unfinished-game-limit.dmn",
                       "specs/games/unfinished-game-return.feature",
-                      "specs/games/unfinished-game-return.qnt",
                       "specs/ubiquitous-language.yml",
                       "specs/games/four-seat-matchmaking.feature",
                       "specs/games/finding-an-opponent-without-a-clock.feature",
-                      "specs/games/matched-game-without-turns.feature",
-                      "specs/games/matched-game-ending.qnt",
-                      "specs/games/opponent-search.qnt"
+                      "specs/games/matched-game-without-turns.feature"
                     ],
                     "events": []
                   },
@@ -8879,8 +8402,7 @@
                           "specs/games/finding-an-opponent.feature:72",
                           "specs/games/matched-game-over.feature:6",
                           "specs/games/matched-game-over.feature:32",
-                          "specs/synthetic-population/finding-opponents.feature",
-                          "specs/synthetic-population/finding-opponents.qnt"
+                          "specs/synthetic-population/finding-opponents.feature"
                         ],
                         "events": []
                       },
@@ -8945,7 +8467,6 @@
                         "snapshot": "Starting multiplayer search needs a connection.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -8973,9 +8494,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -8992,7 +8511,6 @@
                         "snapshot": "Another unfinished game or competing wait prevents starting this search.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9020,9 +8538,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9039,7 +8555,6 @@
                         "snapshot": "Both participants see the assigned colours, whose turn it is, and the agreed clocks. A Synthetic User opponent thinks between 2 and 20 seconds over each move, like a person.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9068,10 +8583,7 @@
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
                           "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt",
-                          "specs/synthetic-population/human-like-play.feature",
-                          "specs/synthetic-population/human-like-play.qnt"
+                          "specs/synthetic-population/human-like-play.feature"
                         ],
                         "events": []
                       },
@@ -9130,7 +8642,6 @@
                         "snapshot": "Illegal, wrong-turn and spectator moves leave the current game unchanged.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9158,9 +8669,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9177,7 +8686,6 @@
                         "snapshot": "The participant chooses a permitted promotion piece before finishing the move.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9205,9 +8713,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9328,7 +8834,6 @@
                         "snapshot": "Once the permitted opening has passed the game continues under its clocks.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9356,9 +8861,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9477,7 +8980,6 @@
                         "snapshot": "The finished game’s moves and result remain visible without restarting the game.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9505,9 +9007,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9527,8 +9027,7 @@
                           "specs/games/matched-game-rematch.feature:7",
                           "specs/games/matched-game-rematch.feature:42",
                           "specs/games/matched-game-rematch.feature:63",
-                          "specs/synthetic-population/human-like-play.feature",
-                          "specs/synthetic-population/human-like-play.qnt"
+                          "specs/synthetic-population/human-like-play.feature"
                         ],
                         "events": []
                       },
@@ -9557,7 +9056,6 @@
                         "snapshot": "An aborted game, ended offer or competing game prevents the rematch for the stated reason.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9585,9 +9083,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9604,7 +9100,6 @@
                         "snapshot": "The game was aborted and offers no rematch; another search remains available.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/matched-games.als",
                           "specs/games/matched-game-ready.openslo.yaml",
                           "specs/games/matched-game-watch-access.dmn",
                           "specs/games/unfinished-game-limit.dmn",
@@ -9632,9 +9127,7 @@
                           "specs/chess/play-multiplayer-chess.feature",
                           "specs/games/matched-game-results.feature",
                           "specs/games/matched-game-rules-draw.feature",
-                          "specs/games/matched-game-turns.feature",
-                          "specs/games/matched-game-spaces.qnt",
-                          "specs/games/matched-game.qnt"
+                          "specs/games/matched-game-turns.feature"
                         ],
                         "events": []
                       },
@@ -9666,12 +9159,10 @@
                       "specs/games/custom-game-clock.feature",
                       "specs/games/custom-game-completion.feature",
                       "specs/games/custom-game-connection.feature",
-                      "specs/games/custom-game-control.qnt",
                       "specs/games/puzzle-custom-play.feature",
                       "specs/games/custom-game-creation.feature",
                       "specs/games/custom-game-delivery.openslo.yaml",
                       "specs/games/unfinished-game-return.feature",
-                      "specs/games/unfinished-game-return.qnt",
                       "specs/games/custom-game-devices.feature",
                       "specs/games/custom-game-draw-offers.feature",
                       "specs/games/custom-game-rematch.feature",
@@ -9683,13 +9174,10 @@
                       "specs/games/custom-game-open-places.feature",
                       "specs/games/custom-game-sides.feature",
                       "specs/chess/custom-game-play.feature",
-                      "specs/games/custom-game-play.qnt",
                       "specs/chess/custom-game-position-draws.feature",
                       "specs/games/custom-game-privacy.feature",
                       "specs/games/custom-game-readiness.feature",
                       "specs/games/custom-game-interruption.feature",
-                      "specs/games/custom-game.qnt",
-                      "specs/games/custom-games.als",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
                       "specs/games/custom-games.feature",
@@ -9799,8 +9287,7 @@
                         "source": [
                           "specs/games/custom-game-offline.feature:5",
                           "specs/games/custom-games.feature:62",
-                          "specs/games/custom-game-connection.feature:5",
-                          "specs/games/custom-game-local.qnt"
+                          "specs/games/custom-game-connection.feature:5"
                         ],
                         "events": []
                       },
@@ -9905,7 +9392,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -9929,10 +9415,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10006,7 +9489,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10030,10 +9512,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10096,7 +9575,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10120,10 +9598,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10265,7 +9740,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10289,10 +9763,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10311,7 +9782,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10335,10 +9805,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10470,7 +9937,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10494,10 +9960,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10551,7 +10014,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10575,10 +10037,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10650,7 +10109,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10674,10 +10132,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10696,7 +10151,6 @@
                         "source": [
                           "specs/games/custom-game-access.dmn",
                           "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-games.als",
                           "specs/games/custom-game-access.feature",
                           "specs/games/custom-game-accessibility.feature",
                           "specs/games/custom-game-away.feature",
@@ -10720,10 +10174,7 @@
                           "specs/chess/custom-game-play.feature",
                           "specs/chess/custom-game-position-draws.feature",
                           "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-control.qnt",
-                          "specs/games/custom-game-play.qnt",
-                          "specs/games/custom-game.qnt"
+                          "specs/games/custom-game-readiness.feature"
                         ],
                         "events": []
                       },
@@ -10751,8 +10202,7 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/runtime/app-addresses.feature",
-                      "specs/runtime/app-shell.feature",
-                      "specs/runtime/app-platform.qnt"
+                      "specs/runtime/app-shell.feature"
                     ],
                     "events": []
                   },
@@ -10771,8 +10221,7 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/runtime/app-addresses.feature",
-                      "specs/runtime/app-shell.feature",
-                      "specs/runtime/app-platform.qnt"
+                      "specs/runtime/app-shell.feature"
                     ],
                     "events": [],
                     "hints": ["App address: /*all"]
@@ -10791,8 +10240,6 @@
                     "confidence": "assumed",
                     "source": [
                       "specs/feedback/bug-report-accessibility.feature",
-                      "specs/feedback/bug-report-opening.qnt",
-                      "specs/feedback/bug-report.qnt",
                       "specs/feedback/debug-info.feature",
                       "specs/feedback/delivery.feature",
                       "specs/feedback/opening-a-bug-report.feature",
@@ -11066,8 +10513,7 @@
                           "specs/runtime/connected-services.feature",
                           "specs/runtime/request-records.feature",
                           "specs/sync-engine/notes-offline.feature",
-                          "specs/ubiquitous-language.yml",
-                          "specs/runtime/investigation.qnt"
+                          "specs/ubiquitous-language.yml"
                         ]
                       },
                       "initial": "Inspectors: Contract inventory",
@@ -11212,8 +10658,7 @@
                           "specs/developer-tools/checkpoints.feature",
                           "specs/developer-tools/test-world-views.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
-                          "specs/ubiquitous-language.yml",
-                          "specs/developer-tools/checkpoints.qnt"
+                          "specs/ubiquitous-language.yml"
                         ],
                         "events": []
                       },
@@ -11347,7 +10792,6 @@
                         "source": [
                           "specs/observatory/ubiquitous-language.yml",
                           "specs/observatory/observatory-access.dmn",
-                          "specs/observatory/user-observatory.qnt",
                           "specs/synthetic-population/synthetic-population-access.dmn",
                           "specs/synthetic-population/ubiquitous-language.yml",
                           "specs/ubiquitous-language.yml"
@@ -11369,7 +10813,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/observatory/online-now.feature",
-                              "specs/observatory/user-observatory.qnt",
                               "specs/observatory/observatory-access.dmn",
                               "specs/synthetic-population/control-panel.feature"
                             ],
@@ -11403,7 +10846,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/observatory/watching-live.feature",
-                              "specs/observatory/user-observatory.qnt",
                               "specs/observatory/observatory-access.dmn"
                             ],
                             "events": [],
@@ -11448,15 +10890,10 @@
                               "specs/synthetic-population/observatory.feature",
                               "specs/synthetic-population/synthetic-population-access.dmn",
                               "specs/synthetic-population/synthetic-user-personas.feature",
-                              "specs/synthetic-population/synthetic-user-personas.qnt",
                               "specs/synthetic-population/daily-rhythm.feature",
-                              "specs/synthetic-population/daily-rhythm.qnt",
                               "specs/synthetic-population/synthetic-users-play-each-other.feature",
-                              "specs/synthetic-population/finding-opponents.qnt",
                               "specs/synthetic-population/choose-a-game.feature",
-                              "specs/synthetic-population/choose-a-game.qnt",
                               "specs/synthetic-population/synthetic-user-continuity.feature",
-                              "specs/synthetic-population/synthetic-user-continuity.qnt",
                               "specs/synthetic-population/synthetic-user-sign-in.feature",
                               "specs/synthetic-population/control-panel.feature"
                             ],
@@ -11500,9 +10937,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/synthetic-population/synthetic-user-personas.feature",
-                              "specs/synthetic-population/synthetic-user-personas.qnt",
-                              "specs/synthetic-population/synthetic-user-continuity.feature",
-                              "specs/synthetic-population/synthetic-user-continuity.qnt"
+                              "specs/synthetic-population/synthetic-user-continuity.feature"
                             ],
                             "events": [],
                             "routes": [
@@ -11533,8 +10968,7 @@
                             "source": [
                               "specs/synthetic-population/observatory.feature",
                               "specs/synthetic-population/synthetic-population-access.dmn",
-                              "specs/synthetic-population/daily-rhythm.feature",
-                              "specs/synthetic-population/daily-rhythm.qnt"
+                              "specs/synthetic-population/daily-rhythm.feature"
                             ],
                             "events": [],
                             "routes": [
@@ -11561,7 +10995,6 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/synthetic-population/control-panel.feature",
-                              "specs/synthetic-population/control-panel.qnt",
                               "specs/synthetic-population/observatory.feature",
                               "specs/synthetic-population/synthetic-population-access.dmn"
                             ],
@@ -11587,8 +11020,7 @@
                         "source": [
                           "specs/developer-tools/data-notebook.feature",
                           "specs/developer-tools/ubiquitous-language.yml",
-                          "specs/ubiquitous-language.yml",
-                          "specs/developer-tools/data-notebook.qnt"
+                          "specs/ubiquitous-language.yml"
                         ],
                         "events": []
                       },
@@ -11844,8 +11276,6 @@
                           "specs/runtime/ubiquitous-language.yml",
                           "specs/ubiquitous-language.yml",
                           "specs/runtime/environment-release.feature",
-                          "specs/runtime/environment-release.qnt",
-                          "specs/runtime/privacy-recovery.qnt",
                           "specs/runtime/request-speed.openslo.yaml",
                           "specs/runtime/request-success.openslo.yaml",
                           "specs/runtime/always-reachable.openslo.yaml",
@@ -12049,13 +11479,9 @@
                           "specs/sync-engine/a-long-time-offline.feature",
                           "specs/sync-engine/checked-notes.feature",
                           "specs/sync-engine/note-conflicts.feature",
-                          "specs/sync-engine/note-conflicts.qnt",
                           "specs/sync-engine/note-deleting.feature",
                           "specs/sync-engine/note-delivery.openslo.yaml",
-                          "specs/sync-engine/note-recovery.qnt",
-                          "specs/sync-engine/note-refusal-recovery.qnt",
                           "specs/sync-engine/note-refused-edits.feature",
-                          "specs/sync-engine/note-replication.qnt",
                           "specs/sync-engine/note-writing.feature",
                           "specs/sync-engine/notes-across-app-updates.feature",
                           "specs/sync-engine/notes-across-devices.feature",
@@ -12205,11 +11631,7 @@
                               "specs/sync-engine/notes-offline.feature",
                               "specs/sync-engine/notes-saved-once.feature",
                               "specs/sync-engine/online-only-actions.feature",
-                              "specs/sync-engine/shared-space-membership.feature",
-                              "specs/sync-engine/note-conflicts.qnt",
-                              "specs/sync-engine/note-recovery.qnt",
-                              "specs/sync-engine/note-refusal-recovery.qnt",
-                              "specs/sync-engine/note-replication.qnt"
+                              "specs/sync-engine/shared-space-membership.feature"
                             ],
                             "events": []
                           },
@@ -12243,11 +11665,7 @@
                               "specs/sync-engine/notes-offline.feature",
                               "specs/sync-engine/notes-saved-once.feature",
                               "specs/sync-engine/online-only-actions.feature",
-                              "specs/sync-engine/shared-space-membership.feature",
-                              "specs/sync-engine/note-conflicts.qnt",
-                              "specs/sync-engine/note-recovery.qnt",
-                              "specs/sync-engine/note-refusal-recovery.qnt",
-                              "specs/sync-engine/note-replication.qnt"
+                              "specs/sync-engine/shared-space-membership.feature"
                             ],
                             "events": []
                           },
@@ -12278,11 +11696,7 @@
                               "specs/sync-engine/notes-offline.feature",
                               "specs/sync-engine/notes-saved-once.feature",
                               "specs/sync-engine/online-only-actions.feature",
-                              "specs/sync-engine/shared-space-membership.feature",
-                              "specs/sync-engine/note-conflicts.qnt",
-                              "specs/sync-engine/note-recovery.qnt",
-                              "specs/sync-engine/note-refusal-recovery.qnt",
-                              "specs/sync-engine/note-replication.qnt"
+                              "specs/sync-engine/shared-space-membership.feature"
                             ],
                             "events": []
                           },
@@ -12324,15 +11738,10 @@
                         "confidence": "assumed",
                         "source": [
                           "specs/room/match-clock.feature",
-                          "specs/room/match-clock.qnt",
                           "specs/room/match-recovery.feature",
-                          "specs/room/match-recovery.qnt",
                           "specs/room/ownership.feature",
-                          "specs/room/ownership.qnt",
                           "specs/room/presence.feature",
-                          "specs/room/tally-recovery.qnt",
                           "specs/room/tally.feature",
-                          "specs/room/tally.qnt",
                           "specs/room/ubiquitous-language.yml",
                           "specs/ubiquitous-language.yml"
                         ],
@@ -12351,12 +11760,7 @@
                               "specs/room/match-recovery.feature",
                               "specs/room/ownership.feature",
                               "specs/room/presence.feature",
-                              "specs/room/tally.feature",
-                              "specs/room/match-clock.qnt",
-                              "specs/room/match-recovery.qnt",
-                              "specs/room/ownership.qnt",
-                              "specs/room/tally-recovery.qnt",
-                              "specs/room/tally.qnt"
+                              "specs/room/tally.feature"
                             ],
                             "events": []
                           },
@@ -12444,12 +11848,7 @@
                               "specs/room/match-recovery.feature",
                               "specs/room/ownership.feature",
                               "specs/room/presence.feature",
-                              "specs/room/tally.feature",
-                              "specs/room/match-clock.qnt",
-                              "specs/room/match-recovery.qnt",
-                              "specs/room/ownership.qnt",
-                              "specs/room/tally-recovery.qnt",
-                              "specs/room/tally.qnt"
+                              "specs/room/tally.feature"
                             ],
                             "events": []
                           },
@@ -12470,12 +11869,7 @@
                               "specs/room/match-recovery.feature",
                               "specs/room/ownership.feature",
                               "specs/room/presence.feature",
-                              "specs/room/tally.feature",
-                              "specs/room/match-clock.qnt",
-                              "specs/room/match-recovery.qnt",
-                              "specs/room/ownership.qnt",
-                              "specs/room/tally-recovery.qnt",
-                              "specs/room/tally.qnt"
+                              "specs/room/tally.feature"
                             ],
                             "events": []
                           },
@@ -12528,12 +11922,7 @@
                               "specs/room/match-recovery.feature",
                               "specs/room/ownership.feature",
                               "specs/room/presence.feature",
-                              "specs/room/tally.feature",
-                              "specs/room/match-clock.qnt",
-                              "specs/room/match-recovery.qnt",
-                              "specs/room/ownership.qnt",
-                              "specs/room/tally-recovery.qnt",
-                              "specs/room/tally.qnt"
+                              "specs/room/tally.feature"
                             ],
                             "events": []
                           },
@@ -12562,13 +11951,10 @@
                           "specs/matchmaking/changing-ranges.feature",
                           "specs/matchmaking/competing-waits.feature",
                           "specs/matchmaking/complete-groups.feature",
-                          "specs/matchmaking/events.qnt",
                           "specs/matchmaking/lasting-outcomes.feature",
-                          "specs/matchmaking/matching.qnt",
                           "specs/matchmaking/pair-restrictions.feature",
                           "specs/matchmaking/rating-ranges.feature",
                           "specs/matchmaking/search-identity.feature",
-                          "specs/matchmaking/searches.als",
                           "specs/matchmaking/ubiquitous-language.yml",
                           "specs/matchmaking/waiting-for-a-match.feature",
                           "specs/matchmaking/waits-after-time-away.feature",
@@ -12724,7 +12110,6 @@
                             "snapshot": "An invalid range leaves the current wait unchanged.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/matchmaking/searches.als",
                               "specs/matchmaking/availability-and-details.feature",
                               "specs/matchmaking/being-matched.feature",
                               "specs/matchmaking/changing-ranges.feature",
@@ -12735,9 +12120,7 @@
                               "specs/matchmaking/rating-ranges.feature",
                               "specs/matchmaking/search-identity.feature",
                               "specs/matchmaking/waiting-for-a-match.feature",
-                              "specs/matchmaking/waits-after-time-away.feature",
-                              "specs/matchmaking/events.qnt",
-                              "specs/matchmaking/matching.qnt"
+                              "specs/matchmaking/waits-after-time-away.feature"
                             ],
                             "events": []
                           },
@@ -12790,23 +12173,16 @@
                         "source": [
                           "specs/chess-board/board-accessibility.feature",
                           "specs/chess-board/board-annotations.feature",
-                          "specs/chess-board/board-annotations.qnt",
                           "specs/chess-board/board-authority.feature",
                           "specs/chess-board/board-black-promotion.feature",
                           "specs/chess-board/board-feedback.feature",
                           "specs/chess-board/board-independence.feature",
-                          "specs/chess-board/board-independence.qnt",
                           "specs/chess-board/board-interaction.feature",
-                          "specs/chess-board/board-keyboard.qnt",
-                          "specs/chess-board/board-lifecycle.qnt",
                           "specs/chess-board/board-motion.feature",
                           "specs/chess-board/board-opening.feature",
                           "specs/chess-board/board-options.feature",
-                          "specs/chess-board/board-options.qnt",
                           "specs/chess-board/board-premoves.feature",
-                          "specs/chess-board/board-premoves.qnt",
                           "specs/chess-board/board-promotion.feature",
-                          "specs/chess-board/board-promotion.qnt",
                           "specs/chess-board/board-sound.feature",
                           "specs/chess-board/board-special-moves.feature",
                           "specs/chess-board/ubiquitous-language.yml",
@@ -13113,14 +12489,7 @@
                               "specs/chess-board/board-premoves.feature",
                               "specs/chess-board/board-promotion.feature",
                               "specs/chess-board/board-sound.feature",
-                              "specs/chess-board/board-special-moves.feature",
-                              "specs/chess-board/board-annotations.qnt",
-                              "specs/chess-board/board-independence.qnt",
-                              "specs/chess-board/board-keyboard.qnt",
-                              "specs/chess-board/board-lifecycle.qnt",
-                              "specs/chess-board/board-options.qnt",
-                              "specs/chess-board/board-premoves.qnt",
-                              "specs/chess-board/board-promotion.qnt"
+                              "specs/chess-board/board-special-moves.feature"
                             ],
                             "events": []
                           },
@@ -13153,14 +12522,7 @@
                               "specs/chess-board/board-premoves.feature",
                               "specs/chess-board/board-promotion.feature",
                               "specs/chess-board/board-sound.feature",
-                              "specs/chess-board/board-special-moves.feature",
-                              "specs/chess-board/board-annotations.qnt",
-                              "specs/chess-board/board-independence.qnt",
-                              "specs/chess-board/board-keyboard.qnt",
-                              "specs/chess-board/board-lifecycle.qnt",
-                              "specs/chess-board/board-options.qnt",
-                              "specs/chess-board/board-premoves.qnt",
-                              "specs/chess-board/board-promotion.qnt"
+                              "specs/chess-board/board-special-moves.feature"
                             ],
                             "events": []
                           },
@@ -13190,14 +12552,7 @@
                               "specs/chess-board/board-premoves.feature",
                               "specs/chess-board/board-promotion.feature",
                               "specs/chess-board/board-sound.feature",
-                              "specs/chess-board/board-special-moves.feature",
-                              "specs/chess-board/board-annotations.qnt",
-                              "specs/chess-board/board-independence.qnt",
-                              "specs/chess-board/board-keyboard.qnt",
-                              "specs/chess-board/board-lifecycle.qnt",
-                              "specs/chess-board/board-options.qnt",
-                              "specs/chess-board/board-premoves.qnt",
-                              "specs/chess-board/board-promotion.qnt"
+                              "specs/chess-board/board-special-moves.feature"
                             ],
                             "events": []
                           },
@@ -13223,8 +12578,6 @@
                         "source": [
                           "specs/db-indexes/budgets.feature",
                           "specs/db-indexes/execution.feature",
-                          "specs/db-indexes/index-interruption.qnt",
-                          "specs/db-indexes/index-retirement.qnt",
                           "specs/db-indexes/ownership.feature",
                           "specs/db-indexes/persisted-interruption.feature",
                           "specs/db-indexes/planning.feature",
@@ -13341,9 +12694,7 @@
                               "specs/db-indexes/ownership.feature",
                               "specs/db-indexes/persisted-interruption.feature",
                               "specs/db-indexes/planning.feature",
-                              "specs/db-indexes/retirement.feature",
-                              "specs/db-indexes/index-interruption.qnt",
-                              "specs/db-indexes/index-retirement.qnt"
+                              "specs/db-indexes/retirement.feature"
                             ],
                             "events": []
                           },
@@ -13365,9 +12716,7 @@
                               "specs/db-indexes/ownership.feature",
                               "specs/db-indexes/persisted-interruption.feature",
                               "specs/db-indexes/planning.feature",
-                              "specs/db-indexes/retirement.feature",
-                              "specs/db-indexes/index-interruption.qnt",
-                              "specs/db-indexes/index-retirement.qnt"
+                              "specs/db-indexes/retirement.feature"
                             ],
                             "events": []
                           },
@@ -13389,9 +12738,7 @@
                               "specs/db-indexes/ownership.feature",
                               "specs/db-indexes/persisted-interruption.feature",
                               "specs/db-indexes/planning.feature",
-                              "specs/db-indexes/retirement.feature",
-                              "specs/db-indexes/index-interruption.qnt",
-                              "specs/db-indexes/index-retirement.qnt"
+                              "specs/db-indexes/retirement.feature"
                             ],
                             "events": []
                           },
@@ -13561,17 +12908,12 @@
                       "specs/chess/saved-puzzles.feature",
                       "specs/chess/lichess-file-checking.feature",
                       "specs/chess/lichess-file-saving.feature",
-                      "specs/chess/lichess-file-preparation.qnt",
                       "specs/chess/lichess-file-leaving.feature",
-                      "specs/chess/lichess-file-leaving.qnt",
-                      "specs/chess/puzzle-source.qnt",
                       "specs/chess/puzzle-ingest.feature",
                       "specs/chess/puzzle-load-controls.feature",
                       "specs/chess/puzzle-load-progress.feature",
                       "specs/chess/puzzle-load-updates.feature",
                       "specs/chess/puzzle-loading-return.feature",
-                      "specs/chess/puzzle-loading.qnt",
-                      "specs/chess/puzzle-loading-choices.qnt",
                       "specs/chess/puzzle-management-access.dmn"
                     ],
                     "events": []
@@ -13608,15 +12950,11 @@
                           "specs/chess/saved-puzzles.feature",
                           "specs/chess/lichess-file-checking.feature",
                           "specs/chess/lichess-file-saving.feature",
-                          "specs/chess/lichess-file-preparation.qnt",
-                          "specs/chess/puzzle-source.qnt",
                           "specs/chess/puzzle-ingest.feature",
                           "specs/chess/puzzle-load-controls.feature",
                           "specs/chess/puzzle-load-progress.feature",
                           "specs/chess/puzzle-load-updates.feature",
                           "specs/chess/puzzle-loading-return.feature",
-                          "specs/chess/puzzle-loading.qnt",
-                          "specs/chess/puzzle-loading-choices.qnt",
                           "specs/chess/puzzle-management-access.dmn"
                         ],
                         "events": []
@@ -13630,8 +12968,7 @@
                             "confidence": "assumed",
                             "source": [
                               "specs/chess/lichess-file-checking.feature",
-                              "specs/chess/lichess-file-saving.feature",
-                              "specs/chess/lichess-file-preparation.qnt"
+                              "specs/chess/lichess-file-saving.feature"
                             ],
                             "events": []
                           },
@@ -13644,8 +12981,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13672,8 +13008,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13694,8 +13029,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13719,8 +13053,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13750,8 +13083,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13778,8 +13110,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13803,8 +13134,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13828,8 +13158,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13850,8 +13179,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13872,8 +13200,7 @@
                                 "confidence": "assumed",
                                 "source": [
                                   "specs/chess/lichess-file-checking.feature",
-                                  "specs/chess/lichess-file-saving.feature",
-                                  "specs/chess/lichess-file-preparation.qnt"
+                                  "specs/chess/lichess-file-saving.feature"
                                 ],
                                 "events": []
                               },
@@ -13900,8 +13227,7 @@
                             "source": [
                               "specs/chess/puzzle-ingest.feature",
                               "specs/chess/puzzle-load-progress.feature",
-                              "specs/chess/puzzle-loading-return.feature",
-                              "specs/chess/puzzle-loading.qnt"
+                              "specs/chess/puzzle-loading-return.feature"
                             ],
                             "events": []
                           },
@@ -13915,8 +13241,7 @@
                                 "source": [
                                   "specs/chess/puzzle-ingest.feature",
                                   "specs/chess/puzzle-load-progress.feature",
-                                  "specs/chess/puzzle-loading-return.feature",
-                                  "specs/chess/puzzle-loading.qnt"
+                                  "specs/chess/puzzle-loading-return.feature"
                                 ],
                                 "events": []
                               },
@@ -13947,8 +13272,7 @@
                                 "source": [
                                   "specs/chess/puzzle-ingest.feature",
                                   "specs/chess/puzzle-load-progress.feature",
-                                  "specs/chess/puzzle-loading-return.feature",
-                                  "specs/chess/puzzle-loading.qnt"
+                                  "specs/chess/puzzle-loading-return.feature"
                                 ],
                                 "events": []
                               },
@@ -13967,8 +13291,7 @@
                                 "source": [
                                   "specs/chess/puzzle-ingest.feature",
                                   "specs/chess/puzzle-load-progress.feature",
-                                  "specs/chess/puzzle-loading-return.feature",
-                                  "specs/chess/puzzle-loading.qnt"
+                                  "specs/chess/puzzle-loading-return.feature"
                                 ],
                                 "events": []
                               },
@@ -13993,8 +13316,7 @@
                                 "source": [
                                   "specs/chess/puzzle-ingest.feature",
                                   "specs/chess/puzzle-load-progress.feature",
-                                  "specs/chess/puzzle-loading-return.feature",
-                                  "specs/chess/puzzle-loading.qnt"
+                                  "specs/chess/puzzle-loading-return.feature"
                                 ],
                                 "events": []
                               },
@@ -14013,8 +13335,7 @@
                                 "source": [
                                   "specs/chess/puzzle-ingest.feature",
                                   "specs/chess/puzzle-load-progress.feature",
-                                  "specs/chess/puzzle-loading-return.feature",
-                                  "specs/chess/puzzle-loading.qnt"
+                                  "specs/chess/puzzle-loading-return.feature"
                                 ],
                                 "events": []
                               },
@@ -14033,8 +13354,7 @@
                                 "source": [
                                   "specs/chess/puzzle-ingest.feature",
                                   "specs/chess/puzzle-load-progress.feature",
-                                  "specs/chess/puzzle-loading-return.feature",
-                                  "specs/chess/puzzle-loading.qnt"
+                                  "specs/chess/puzzle-loading-return.feature"
                                 ],
                                 "events": []
                               },
@@ -14062,8 +13382,7 @@
                             "snapshot": "The stop choice can overlap with progress or completion; it never rewrites an already finished result.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/chess/puzzle-load-controls.feature",
-                              "specs/chess/puzzle-loading-choices.qnt"
+                              "specs/chess/puzzle-load-controls.feature"
                             ],
                             "events": []
                           },
@@ -14075,8 +13394,7 @@
                                 "snapshot": "Only the connected team following an ongoing addition is offered stopping.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/chess/puzzle-load-controls.feature",
-                                  "specs/chess/puzzle-loading-choices.qnt"
+                                  "specs/chess/puzzle-load-controls.feature"
                                 ],
                                 "events": []
                               },
@@ -14093,8 +13411,7 @@
                                 "snapshot": "The team must confirm stopping. Cancelling or dismissing leaves the addition running.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/chess/puzzle-load-controls.feature",
-                                  "specs/chess/puzzle-loading-choices.qnt"
+                                  "specs/chess/puzzle-load-controls.feature"
                                 ],
                                 "events": []
                               },
@@ -14114,8 +13431,7 @@
                                 "snapshot": "The team sees stopping in progress and cannot submit the same choice again.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/chess/puzzle-load-controls.feature",
-                                  "specs/chess/puzzle-loading-choices.qnt"
+                                  "specs/chess/puzzle-load-controls.feature"
                                 ],
                                 "events": []
                               },
@@ -14135,8 +13451,7 @@
                                 "snapshot": "The stop failure is explained and can be tried again. The current addition result remains honest.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/chess/puzzle-load-controls.feature",
-                                  "specs/chess/puzzle-loading-choices.qnt"
+                                  "specs/chess/puzzle-load-controls.feature"
                                 ],
                                 "events": []
                               },
@@ -14156,8 +13471,7 @@
                                 "snapshot": "The team sees the result of the stop, keeping accepted puzzles. A finished addition stays finished even if confirmation came later.",
                                 "confidence": "assumed",
                                 "source": [
-                                  "specs/chess/puzzle-load-controls.feature",
-                                  "specs/chess/puzzle-loading-choices.qnt"
+                                  "specs/chess/puzzle-load-controls.feature"
                                 ],
                                 "events": []
                               },
@@ -14316,8 +13630,7 @@
                 "confidence": "assumed",
                 "source": [
                   "specs/runtime/app-addresses.feature",
-                  "specs/runtime/app-shell.feature",
-                  "specs/runtime/app-platform.qnt"
+                  "specs/runtime/app-shell.feature"
                 ],
                 "events": []
               },

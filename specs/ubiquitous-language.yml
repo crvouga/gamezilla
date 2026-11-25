@@ -15,7 +15,6 @@ terms:
       by a role (a guest, a member). Scenarios never say "I" or "the user".
     forms: [people, person's, people's]
     avoid: [user, customer, visitor]
-    model: [Person]
 
   - term: the team
     definition: >-
@@ -30,7 +29,6 @@ terms:
       use several; each keeps its own place.
     forms: [phone, tablet, computer, another device, other device]
     avoid: [client, browser]
-    model: [Device]
 
   - term: fresh device
     definition: >-
@@ -43,7 +41,6 @@ terms:
       be opened again ("reopens"), and it still has everything it had.
     forms: [app, the app's, app's, reopens, reopen, reopened]
     avoid: [frontend, website, web app, application]
-    model: [reopenApp]
 
   - term: connection
     definition: >-
@@ -57,7 +54,6 @@ terms:
       to do. A choice refused while offline does not happen later on its own.
     forms: [offline, online, back online, connected, disconnected]
     avoid: [network error, socket]
-    model: [connectionReturns]
 
   - term: environment
     definition: >-

@@ -16,7 +16,6 @@ terms:
       scenario is each game in turn; "another game" is any other one.
     forms: [games, another game, the game's]
     published: true
-    model: [pickGame]
 
   - term: the game's choices
     definition: >-
@@ -28,7 +27,6 @@ terms:
     forms: [the game's custom games]
     avoid: [menu, screen]
     published: true
-    model: [GameChoices]
 
   - term: custom game
     definition: >-
@@ -44,23 +42,6 @@ terms:
       - creates a custom game
     avoid: [match, room, game lobby]
     published: true
-    model:
-      - CustomGame
-      - customGame
-      - gameShown
-      - createGame
-      - status
-      - statusShown
-      - creator
-      - creatorShown
-      - Participant
-      - ParticipantKind
-      - PersonSide
-      - participants
-      - kind
-      - person
-      - current
-      - CustomGameStatus
 
   - term: set up
     definition: >-
@@ -69,7 +50,6 @@ terms:
       is cancelled. Its set-up is the sides and clock choice it has now; a
       choice made for an earlier set-up is refused.
     forms: [sets up, setting up, being set up, set-up]
-    model: [SettingUp]
 
   - term: custom game readiness
     published: true
@@ -87,7 +67,6 @@ terms:
       - ready for a custom game
       - ready for the custom game
       - ready players
-    model: [ready, readyShown, becomeReady, becomeUnready]
 
   - term: private setup
     definition: >-
@@ -113,7 +92,6 @@ terms:
       - their private setups
       - either private setup
     avoid: [hidden setup, secret setup]
-    model: [privateSetup, privateSetupShown]
 
   - term: change a private setup
     definition: >-
@@ -126,7 +104,6 @@ terms:
       - changes his private setup
       - changed her private setup
       - changed his private setup
-    model: [changePrivateSetup]
 
   - term: choose a private setup
     definition: >-
@@ -146,7 +123,6 @@ terms:
       - have chosen their private setups
       - chosen private setup
       - awaiting both private setups
-    model: [choosePrivateSetup]
 
   - term: private setup time
     definition: >-
@@ -155,7 +131,6 @@ terms:
       days each move is given instead. When it runs out before both have
       chosen, the matched game is aborted: it has no result and changes
       nobody's rating.
-    model: [setupSeconds]
 
   - term: reveal
     definition: >-
@@ -190,7 +165,6 @@ terms:
       - a game with secret choices
     avoid: [hidden choice, blind choice, simultaneous move, commitment]
     published: true
-    model: [secretChoiceShown, chosenShown, choosing, reachNextRound]
 
   - term: make a secret choice
     definition: >-
@@ -217,7 +191,6 @@ terms:
       - have made their secret choices
       - making a secret choice
     published: true
-    model: [makeSecretChoice]
 
   - term: stand-in
     definition: >-
@@ -237,7 +210,6 @@ terms:
     forms: [stand-ins, stand-in's]
     avoid: [substitute, replacement bot, takeover, autopilot]
     published: true
-    model: [standIn, standInTakesSide]
 
   - term: take back their side
     definition: >-
@@ -258,7 +230,6 @@ terms:
       - has taken back his side
       - taking back their side
     published: true
-    model: [takeBackSide]
 
   - term: shared victory
     definition: >-
@@ -277,7 +248,6 @@ terms:
       once however often the creator asks; a start for an earlier set-up is
       refused.
     forms: [starts the custom game, starts a custom game, starting a custom game, starting the custom game]
-    model: [startGame, started, startsShown]
     published: true
 
   - term: under way
@@ -289,7 +259,6 @@ terms:
       game's sides and clock choice can no longer change, and nobody may
       take or give up a side.
     forms: [remains under way, gets under way]
-    model: [UnderWay, playBegins]
     published: true
 
   - term: cancelled
@@ -301,7 +270,6 @@ terms:
       moved, and must resign instead from then on. Ending its space cancels
       an unfinished custom game.
     forms: [cancel, cancels, cancelling, cancellation]
-    model: [cancelGame, cancelCustomGame, Cancelled]
 
   - term: starting position
     definition: >-
@@ -313,7 +281,6 @@ terms:
       The creator making a side open again before the custom game starts,
       removing the person, bot or invitation chosen for it.
     forms: [opens the first side, opens the second side, opened the first side, opened the second side]
-    model: [openSide]
 
   - term: close a side
     definition: >-
@@ -321,21 +288,18 @@ terms:
       open it or choose someone for it. A closed side keeps the custom game
       from starting.
     forms: [closes, closed]
-    model: [closeSide, ClosedSide]
 
   - term: take a side
     definition: >-
       The creator choosing themselves for a side before the custom game
       starts. One person takes at most one side.
     forms: [takes the first side, takes the second side, take both sides]
-    model: [takeSide]
 
   - term: assign a bot
     definition: >-
       The creator choosing a bot for a side before the custom game starts,
       in place of whatever was chosen for it before.
     forms: [assigns a bot, assigned a bot, assigned bots, replaced by a bot]
-    model: [assignBot]
 
   - term: claim a side
     definition: >-
@@ -343,7 +307,6 @@ terms:
       custom game starts. When people claim the same side at once, exactly
       one of them gets it.
     forms: [claims, claim, claimant]
-    model: [claimSide]
 
   - term: release a side
     definition: >-
@@ -351,7 +314,6 @@ terms:
       which leaves it open. Nobody else may release it. Leaving the space
       before the start releases their side too.
     forms: [releases, released, releasing]
-    model: [releaseSide]
 
   - term: invitation
     definition: >-
@@ -361,13 +323,11 @@ terms:
       participant; declining or revoking it, or choosing someone else for
       the side, leaves no invitation to accept.
     forms: [invitations, invite, invites, invited, reserved, revoke, revokes, revoked]
-    model: [invite, acceptSide, declineSide, revokeSide, InvitedSide]
 
   - term: nearest
     definition: >-
       Where a person sees each side sit around the board: their own side
       nearest them, and the first side nearest anyone without one.
-    model: [nearestSide]
 
   - term: side
     definition: >-
@@ -390,22 +350,12 @@ terms:
       - swaps the sides
       - swapped the sides
       - swapping the sides
-    model:
-      - Side
-      - OpenSide
-      - firstSide
-      - secondSide
-      - firstSideShown
-      - secondSideShown
-      - swapSides
-      - oppositeSides
 
   - term: bot
     definition: >-
       An automated participant that follows the game's own rules, taking
       turns or guiding play as the game allows.
     forms: [bots, the bots]
-    model: [botPlays, BotSide]
     published: true
 
   - term: player
@@ -435,12 +385,10 @@ terms:
       - move played
       - moves played
     avoid: [command, action]
-    model: [playCustomMove, movesPlayed, moveWaiting, movesShown, playMove, playCurrentMove, moveCount, moves, playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, tryIllegalMove, playPuzzleMove]
 
   - term: turn
     definition: The participant who may make the next move.
     forms: [turns, Alice's turn, Bob's turn, the other player's turn, to move]
-    model: [sideToMove, turn]
 
   - term: move list
     definition: >-
@@ -454,7 +402,6 @@ terms:
       sees the same board. A puzzle's board faces the solver's side, shows
       the last move and shows the puzzle's state; a watcher's board agrees
       with the host's.
-    model: [playShown, PlayBoard, playBoard, Board]
 
   - term: finished
     definition: >-
@@ -463,7 +410,6 @@ terms:
       unfinished. A puzzle is finished once it is over; one still being
       solved, or waiting for a retry after a wrong move, is unfinished.
     forms: [finish, finishes, unfinished]
-    model: [Finished, finishGame]
 
   - term: end
     definition: >-
@@ -477,7 +423,6 @@ terms:
       How a finished game came out: a victory or a draw. Both people see the
       same result, kept with the moves. An aborted matched game has none.
     forms: [results]
-    model: [result, resultShown, PlayOutcome, NoPlay, OngoingPlay, WonPlay, DrawnPlay, playOutcome, PlayState, UnfinishedPlay, WonGame, DrawnGame, playState, winner]
 
   - term: over
     definition: >-
@@ -507,7 +452,6 @@ terms:
       expired first-move allowance draws such a matched game even before
       anyone has made a first move.
     forms: [draws, drawn, drawn by agreement, drawn by the game's own rules, drawing move]
-    model: [drawByAgreement]
 
   - term: resign
     definition: >-
@@ -521,7 +465,6 @@ terms:
       game takes no resignation.
     forms: [resigns, resigned, resigning, resignation]
     avoid: [forfeit, concede, quit]
-    model: [resignGame, resignCustomGame, resignOffered]
 
   - term: matched game
     definition: >-
@@ -533,7 +476,6 @@ terms:
       games and clock choices never fill the same matched game.
     forms: [matched games, matched game's]
     avoid: [multiplayer game, online game, found-opponent game]
-    model: [PlayGame, PlayWorld, playNumber, playSide]
 
   - term: abort
     definition: >-
@@ -543,7 +485,6 @@ terms:
       people to seek an opponent again; aborting it again changes nothing.
     forms: [aborts, aborted, aborting, can no longer be aborted]
     avoid: [void]
-    model: [abortGame, AbortedPlay, AbortedGame, abortOffered]
 
   - term: miss the first move
     definition: >-
@@ -557,7 +498,6 @@ terms:
       private setup, the first side's 30 seconds begin once both people have
       chosen their private setups, not at pairing.
     forms: [misses the first move, missed the first move, missing the first move]
-    model: [firstMoveSeconds]
 
   - term: draw offer
     definition: >-
@@ -585,7 +525,6 @@ terms:
       - accepts the draw
       - decline the draw
       - declines the draw
-    model: [offerDraw, acceptDraw, declineDraw, drawOfferedByShown, drawOffer]
 
   - term: accept
     definition: >-
@@ -626,7 +565,6 @@ terms:
       - decline the rematch
       - declines the rematch
     published: true
-    model: [rematch, offerRematch, acceptRematch, declineRematch, rematchOffer, rematchOf]
     published: true
 
   - term: find a new opponent
@@ -636,7 +574,6 @@ terms:
       unfinished matched game, or while already seeking, it is refused like
       any other search.
     forms: [finds a new opponent, found a new opponent, finding a new opponent]
-    model: [findNewOpponent]
 
   - term: opponent
     definition: >-
@@ -652,7 +589,6 @@ terms:
       current search, or their latest matched game, unfinished or over, the
       same on every device.
     forms: [opens finding an opponent]
-    model: [openFindingAnOpponent]
 
   - term: seek an opponent
     definition: >-
@@ -661,7 +597,6 @@ terms:
       person seeks for one game at a time and may stop seeking. Someone
       seeking an opponent cannot offer a rematch.
     forms: [seeking, seeks, stops seeking, waiting for an opponent, began seeking]
-    model: [seekOpponent, stopSeeking, seeking, seekingSeconds, seekOffered]
 
   - term: search
     definition: >-
@@ -672,7 +607,6 @@ terms:
       ends when they are paired, which turns it into their matched game, or
       when they stop seeking; once paired there is no search left to stop.
     forms: [searches]
-    model: [LastKnownSearch]
 
   - term: clock choice
     definition: >-
@@ -689,7 +623,6 @@ terms:
       seconds a move, and any other is not offered. Its creator may change
       it only before the custom game starts.
     forms: [clock choices, played at, untimed, timed, offered clock choice, daily clock choice, daily clock choices]
-    model: [chooseClock, minutesShown, incrementShown, ClockChoice, clockChoice, clockChoiceShown]
 
   - term: clock
     definition: >-
@@ -701,7 +634,6 @@ terms:
       none of a matched game's clocks run until every person has made their
       first move.
     forms: [clocks]
-    model: [clockLeft, clocksPaused, firstSideClock, secondSideClock, timeLeft]
 
   - term: run out of time
     definition: >-
@@ -718,7 +650,6 @@ terms:
       Time going by in a matched game or a custom game while nobody makes a
       move.
     forms: [second passes, seconds have passed]
-    model: [customTimePasses, secondsPass]
 
   - term: away
     definition: >-
@@ -736,7 +667,6 @@ terms:
       return. Watchers cannot claim the win, and a finished custom game
       keeps its result.
     forms: [claims the win, claimed the win]
-    model: [claimWin]
 
   - term: paused
     definition: >-
@@ -763,7 +693,6 @@ terms:
       The family a clock choice belongs to: bullet, blitz, rapid, classical
       or daily. Each speed has its own rating.
     forms: [speeds, bullet, blitz, rapid, classical, daily]
-    model: [speed]
 
   - term: rating
     definition: >-
@@ -778,7 +707,6 @@ terms:
       another speed; an aborted matched game changes none. A custom game is
       unrated: it changes nobody's rating.
     forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating, daily rating, unrated, rated matched game, rated matched games]
-    model: [ratedGames, opponentRating]
 
   - term: settle
     definition: >-
@@ -810,7 +738,6 @@ terms:
       choice when it offers one, whom matchmaking paired up. Each pairing gives them exactly one
       matched game, however often the game is told about it.
     forms: [pairings]
-    model: [Pairing, pairedPeople, fromPairing]
 
   - term: last known board
     definition: >-
@@ -818,7 +745,6 @@ terms:
       lost its connection. They stay on it, and it can make no move,
       resignation, abort or offer, until the connection brings back the
       matched game as it now stands.
-    model: [LastKnownPlay]
 
   - term: daily game
     definition: >-
@@ -832,7 +758,6 @@ terms:
       one unfinished matched game.
     forms: [daily games, daily game's, days per move, day per move]
     avoid: [correspondence, turn-based game, slow game]
-    model: [DailyGame, daysPass]
 
   - term: turn notice
     definition: >-
@@ -850,7 +775,6 @@ terms:
       one.
     forms: [turn notices, unread turn notice, unread, opened]
     avoid: [notification, alert, ping]
-    model: [turnNotice, openTurnNotice]
 
   - term: result notice
     definition: >-
@@ -861,7 +785,6 @@ terms:
       it never dismisses it and shows the person their daily game; with no
       connection it shows the last known board. A watcher never gets one.
     forms: [result notices, dismiss, dismisses, dismissed, dismissing]
-    model: [resultNotice, openResultNotice, dismissResultNotice]
 
   - term: low on time
     definition: >-
@@ -888,7 +811,6 @@ terms:
       second item, so it leaves the inbox as a turn notice does.
     forms: [turn reminders, unread turn reminder]
     avoid: [nudge]
-    model: [turnReminder]
 
   - term: earlier position
     definition: >-
@@ -906,7 +828,6 @@ terms:
       hint or show the solution until they return to the current position.
     forms: [earlier positions, step back, step forward, the start]
     avoid: [past position, old position]
-    model: [earlierPosition, chooseEarlierPosition, stepBackOneMove, stepForwardOneMove, goToStart]
 
   - term: current position
     definition: >-
@@ -916,7 +837,6 @@ terms:
       over it is the final position.
     forms: [return to the current position, final position]
     avoid: [live position, latest position]
-    model: [returnToCurrentPosition]
 
   - term: game record
     definition: >-
@@ -928,13 +848,11 @@ terms:
       on another device, copies that same one. An unfinished or aborted
       matched game offers neither.
     forms: [game records, copy the game record, copy the final position, copied]
-    model: [gameRecordOffered, copyGameRecord, copyFinalPosition]
 
   - term: game choice
     definition: >-
       Where a space's host picks the game the space plays, and where everyone
       in the space starts. Going back from the game's choices returns there.
-    model: [GameChoice, backToGameChoice]
 
   - term: space view
     definition: >-
@@ -946,12 +864,10 @@ terms:
       idle does not change it. While a custom game is under way in the
       space, it stays on that custom game's board until the game is finished.
     avoid: [screen, page]
-    model: [View, view, Elsewhere]
 
   - term: pair people up
     from: matchmaking
     forms: [paired, are paired, paired up, are paired up]
-    model: [pairPeopleUp]
 
   - term: history
     definition: >-
@@ -971,7 +887,6 @@ terms:
       that needs a retry first.
     forms: [reviews, reviewed, reviewing]
     avoid: [replay, analysis]
-    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry, stepPuzzleSoundReview]
 
   - term: statistics
     definition: >-
@@ -989,7 +904,6 @@ terms:
       puzzle has a rating of its own, which is how hard it is.
     forms: [puzzles, this puzzle, next puzzle, a different puzzle, the puzzle's]
     avoid: [problem, exercise]
-    model: [puzzle, Puzzle, PuzzleSound, puzzleSound]
 
   - term: known puzzle
     definition: >-
@@ -1019,7 +933,6 @@ terms:
       - opened puzzles
       - go back to the puzzles
       - goes back to the puzzles
-    model: [openPuzzles, goBackToPuzzles]
 
   - term: leave the puzzle
     definition: >-
@@ -1027,7 +940,6 @@ terms:
       waits, as it was, for the solver to go back to the puzzles; a finished
       one does not, and going back starts the next puzzle.
     forms: [leaves the puzzle, left the puzzle, leaving the puzzle]
-    model: [leavePuzzle]
 
   - term: puzzle pool
     definition: >-
@@ -1056,7 +968,6 @@ terms:
       to their other devices. Editing previews choices; saving applies
       them. Closing without saving keeps the saved choices.
     forms: [feed choices, unsaved feed settings, saved feed]
-    model: [feedChoice, editing, startEditingFeed, previewFeedChoice, saveFeedChoices, discardFeedChoices]
 
   - term: history filter
     definition: >-
@@ -1129,7 +1040,6 @@ terms:
       watchers. The board faces the solver's side.
     forms: [solvers, the solver's side]
     avoid: [puzzler]
-    model: [Solver, solver]
 
   - term: attempt
     definition: >-
@@ -1139,14 +1049,12 @@ terms:
       not end it.
     forms: [attempts, attempt's]
     avoid: [session]
-    model: [finish, finishAsAppCloses, finishAlongsideOtherDevice, Unfinished]
 
   - term: puzzle state
     definition: >-
       Where the puzzle on a board stands, as the board tells it: being solved
       (the solver is asked to find the next move), a wrong move played,
       solved, skipped, or its solution shown.
-    model: [puzzleState]
 
   - term: line
     definition: >-
@@ -1190,18 +1098,15 @@ terms:
       - won the puzzle another way
       - won the puzzle a different way
       - winning the puzzle different ways
-    model: [solve]
 
   - term: solution move
     definition: The next move of the solution, from where the board stands.
-    model: [revealSolutionMove, trySolutionBeforeHint]
 
   - term: solve
     definition: >-
       Finish a puzzle with its solution. A solved puzzle is over, and no
       more moves can be made in it.
     forms: [solves, solved, solving, solving it cleanly]
-    model: [solve, CleanSolve]
 
   - term: wrong move
     definition: >-
@@ -1210,7 +1115,6 @@ terms:
       made until a retry.
     forms: [wrong]
     avoid: [mistake, blunder]
-    model: [playWrongMove, WrongMove]
 
   - term: hint
     definition: >-
@@ -1220,7 +1124,6 @@ terms:
       retry, or once the puzzle is over. A puzzle solved after a hint earns
       half credit.
     forms: [hints, asks for a hint, asks for another hint, taken a hint, taken two hints]
-    model: [HintedSolve, requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
   - term: retry the puzzle
     definition: >-
@@ -1229,7 +1132,6 @@ terms:
       start. It continues the same attempt, so its first outcome does not
       change. It is not offered while the puzzle is being solved.
     forms: [retry, retries the puzzle, retried, retried the puzzle, retrying the puzzle, retrying]
-    model: [retry, retryAndSolve, tryRetryWhileSolving]
 
   - term: show the solution
     definition: >-
@@ -1243,14 +1145,12 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution, ShownSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping, skipping it]
-    model: [skip, Skipped, trySkipAfterFinish]
 
   - term: failed attempt
     definition: >-
@@ -1267,7 +1167,6 @@ terms:
     definition: >-
       A puzzle is over once it is solved, skipped or its solution shown. No
       more moves can be made in it, and the host may move on.
-    model: [isOver]
 
   - term: move on
     definition: >-
@@ -1280,7 +1179,6 @@ terms:
       - moving on
       - asks for the next puzzle
       - asking for the next puzzle
-    model: [moveOn, moveOnTwiceAtOnce, moveOnOffered]
 
   - term: auto-advance
     definition: >-
@@ -1291,7 +1189,6 @@ terms:
     definition: >-
       How long the current attempt has run. It runs while the puzzle is being
       solved and stops when the puzzle is over.
-    model: [timePasses]
 
   - term: haptic
     definition: >-
@@ -1304,7 +1201,6 @@ terms:
       A move a watcher proposes in a puzzle. The host and every watcher see
       it; it does not move the puzzle, and the host's next move clears it.
     forms: [suggest, suggests, suggested]
-    model: [suggestMove]
 
   - term: puzzle rating
     definition: >-
@@ -1317,7 +1213,6 @@ terms:
       the rating ceiling. Time taken never changes it.
     forms: [puzzle ratings]
     avoid: [score, elo]
-    model: [ratedResult]
 
   - term: rating change
     definition: >-
@@ -1334,7 +1229,6 @@ terms:
       puzzle, ever. A repeat of an already-played puzzle is unrated, and a
       watcher is never rated.
     forms: [rated, rated puzzle, rated puzzles]
-    model: [RatedPuzzle, rated]
 
   - term: puzzle stats
     definition: >-
@@ -1342,7 +1236,6 @@ terms:
       the puzzle rating moved over time, at the game's puzzles. They count
       each puzzle's rated attempt only.
     forms: [stats]
-    model: [readStats, readStatsOnOtherDevice]
 
   - term: rating floor
     definition: >-
@@ -1376,14 +1269,12 @@ terms:
       and its rating change (or that it was unrated), and each opening in
       review.
     avoid: [puzzle history]
-    model: [PlayedPuzzle, gameLog]
 
   - term: first result
     definition: >-
       The first solved, failed or abandoned outcome recorded for a solver's
       puzzle. If devices act apart, the outcome counted first is kept, and
       every device of the account shows it.
-    model: [Result, Solved, Failed, Abandoned]
 
   - term: retired puzzle
     definition: >-
@@ -1391,7 +1282,6 @@ terms:
       puzzle link no longer opens it, but it stays in the game log and still
       opens in review.
     forms: [retired]
-    model: [retirePuzzle]
 
   - term: puzzle link
     definition: >-
@@ -1408,7 +1298,6 @@ terms:
       - shared a puzzle link
       - opens a puzzle link
     avoid: [puzzle address, permalink, deep link, puzzle URL]
-    model: [sharePuzzleLink, openPuzzleLink, linkShared, linkRefusal]
 
   - term: daily matched game limit
     definition: >-
@@ -1441,7 +1330,6 @@ terms:
     definition: >-
       One use of a guest's daily puzzle limit, spent when a rated puzzle
       first starts. Going back to a puzzle already started spends none.
-    model: [puzzleStarts]
 
   - term: refusal
     definition: >-
@@ -1459,7 +1347,6 @@ terms:
       first, or there is no search to stop. A
       refused choice changes nothing and never happens later on its own.
     forms: [refusals]
-    model: [refusal]
 
   - term: watcher
     definition: >-
@@ -1472,27 +1359,21 @@ terms:
       a finished one. A watcher sees the same board and clocks as its
       people.
     forms: [watch, watched, watching, watches]
-    model: [shownMoves, shownWinner, canMove]
 
   - term: space
     from: spaces
-    model: [Space, space, peopleInSpace]
 
   - term: host
     from: spaces
-    model: [spaceHost]
 
   - term: join
     from: spaces
-    model: [joinSpace]
 
   - term: idle
     from: spaces
-    model: [idle, goQuiet]
 
   - term: leave
     from: spaces
-    model: [leaveSpace]
 
   - term: end a space
     from: spaces
@@ -1529,7 +1410,6 @@ terms:
 
   - term: account deletion
     from: profile
-    model: [deleteAccount]
 
   - term: personal data
     from: profile
@@ -1569,11 +1449,9 @@ terms:
 
   - term: return to a space
     from: spaces
-    model: [returnToSpace]
 
   - term: lobby
     from: spaces
-    model: [goBackToLobby]
 
   - term: return to their game
     definition: >-
@@ -1596,7 +1474,6 @@ terms:
       - returning to the matched game
       - returning to their game
     avoid: [jump back, back to game]
-    model: [returnToGame, returnOffered]
 
   - term: a space that no longer exists
     from: spaces
@@ -1615,24 +1492,19 @@ terms:
   - term: sounds
     from: runtime
     forms: [sound, silence, silent, turned sounds on, turned sounds off, turns sounds on, turns sounds off]
-    model: [configurePuzzleSounds]
 
   - term: the app
     from: kernel
     forms: [closed the app, has closed the app]
-    model: [reopenApp, closeApp]
 
   - term: person
     from: kernel
-    model: [currentPlay]
 
   - term: device
     from: kernel
-    model: [PlayDevice]
 
   - term: connection
     from: kernel
-    model: [loseConnection, comeBackOnline, connectionReturns]
 
   - term: progress
     definition: >-

@@ -81,26 +81,6 @@ export const LINES = {
       runs: 'harness',
     }),
   },
-  'model-verifying': {
-    section: 'specification',
-    label: 'Quint model verifying',
-    feeds: [{ kind: 'dynamics' }],
-    rule: evidence({
-      kind: 'dynamics',
-      layer: 'specification',
-      runs: 'harness',
-    }),
-  },
-  'structure-verifying': {
-    section: 'specification',
-    label: 'Alloy model verifying',
-    feeds: [{ kind: 'structure' }],
-    rule: evidence({
-      kind: 'structure',
-      layer: 'specification',
-      runs: 'harness',
-    }),
-  },
   'objective-validity': {
     section: 'specification',
     label: 'OpenSLO objectives well-formed',
@@ -127,26 +107,6 @@ export const LINES = {
       runs: 'harness',
       subset: 'permissions',
       obligation: SERVER_AGREEMENT,
-    }),
-  },
-  'trace-conformance': {
-    section: 'implementation',
-    label: 'model-based / trace conformance',
-    feeds: [{ kind: 'dynamics' }],
-    rule: evidence({
-      kind: 'dynamics',
-      layer: 'implementation',
-      runs: 'harness',
-    }),
-  },
-  'structural-conformance': {
-    section: 'implementation',
-    label: 'Postgres / SQLite structural conformance',
-    feeds: [{ kind: 'structure' }],
-    rule: evidence({
-      kind: 'structure',
-      layer: 'implementation',
-      runs: 'harness',
     }),
   },
   accessibility: {

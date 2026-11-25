@@ -11,7 +11,6 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "prepare:spec": "bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --tsconfig-override ../../tsconfig.json --conditions=browser --conditions=development --preload @pkgs/bun-test-solid-client-ts/preload --preload @libs/harness-ts/preload tests",
     "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
@@ -27,14 +26,7 @@
     "test:spec:6": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 6/13",
     "test:spec:7": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 7/13",
     "test:spec:8": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 8/13",
-    "test:spec:9": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 9/13",
-    "verify:models:0": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 0/7",
-    "verify:models:1": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 1/7",
-    "verify:models:2": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 2/7",
-    "verify:models:3": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 3/7",
-    "verify:models:4": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 4/7",
-    "verify:models:5": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 5/7",
-    "verify:models:6": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts --part 6/7"
+    "test:spec:9": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 9/13"
   },
   "dependencies": {
     "@libs/account-privacy-harness-ts": "workspace:*",
@@ -72,7 +64,6 @@
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/outbox-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-harness-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
@@ -84,7 +75,6 @@
   "category": "harness",
   "game": "chess",
   "language": "typescript",
-  "modelParts": 7,
   "specDomains": [
     "chess"
   ],

@@ -365,7 +365,6 @@ describe('the gate', () => {
     expect(verifyAggregatorTasks('verify', gate)).toEqual(gate);
     for (const slow of [
       'test:spec:0',
-      'verify:models',
       'test:contract',
       ...RELEASE_JOURNEY_TASKS,
       'verify:board-contract',

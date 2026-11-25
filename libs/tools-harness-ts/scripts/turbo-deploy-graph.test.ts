@@ -4,7 +4,6 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { SECRETS_RANGE_ENV } from './secrets-scan-range';
 import {
-  MAX_MODEL_PARTS,
   MAX_SPEC_PARTS,
   specPackages,
   specPartProblems,
@@ -61,25 +60,15 @@ const SPEC_PART_TASKS = Array.from(
   (_, index) => `test:spec:${String(index)}`
 );
 
-/** A split models verification's parts (`verify-models.ts --part k/n`). */
-const MODEL_PART_TASKS = Array.from(
-  { length: MAX_MODEL_PARTS },
-  (_, index) => `verify:models:${String(index)}`
-);
-
 // regression: friends-spec-task-budget — part 7 took 627s against its 600s cap.
 test('slow spec suites split into independently cached parts that all gate Verification', () => {
   // regression: spec-task-batches-over-budget — friends 1,075s; sync 635s.
-  expectSpecParts('libs/friends-harness-ts', 64, ['friends', 'spaces']);
+  expectSpecParts('libs/friends-harness-ts', 19, ['friends', 'spaces']);
   expectSpecParts('pkgs/sync-engine-harness-ts', 4, ['sync-engine']);
   // regression: chess-spec-task-budget — parts 3, 7, and 9 hit 600s; part 5 took 593s.
-  // The custom-game, matched-game and puzzle models moved to every game's
-  // suite, and their parts with them. Both suites plan their models'
-  // replays (tests/quint/replays.json) and run in the fewest parts whose
-  // replays and load stay inside the caps of libs/harness-ts/scripts/spec-parts.ts.
   expectSpecParts('libs/chess-root-harness-ts', 13, ['chess']);
   // regression: games-spec-parts-exceed-capacity-pole
-  expectSpecParts('libs/games-harness-ts', MAX_SPEC_PARTS, ['games']);
+  expectSpecParts('libs/games-harness-ts', 161, ['games']);
 });
 
 // regression: ci-chess-board-omits-inherited-spec-inputs
@@ -122,7 +111,6 @@ function expectSpecParts(
     expect(packageTasks[task]?.inputs).toContain('$TURBO_EXTENDS$');
     const input = `.cache/spec-inputs/part-${String(part)}.json`;
     expect(tasks[task]?.inputs).toContain(input);
-    expect(tasks[task]?.dependsOn).toContain('prepare:spec');
     const fingerprint = JSON.parse(
       readFileSync(join(REPO_ROOT, dir, input), 'utf8')
     ) as {
@@ -175,8 +163,6 @@ const VERIFY_LEAVES = [
   'test:contract:render',
   ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
   ...SPEC_PART_TASKS,
-  'verify:models',
-  ...MODEL_PART_TASKS,
   'test:unit:1',
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
@@ -412,20 +398,7 @@ describe('turbo verify/deploy graph invariants', () => {
     }
   });
 
-  test('verify:models hashes only the models and their checker', () => {
-    // Hash the verifier and evidence implementations, never product runtime
-    // or unrelated tooling tasks such as @libs/tools-harness-ts#tc.
-    const task = loadTasks()['verify:models'];
-    expect(task?.dependsOn).toEqual([
-      '@pkgs/quint-server-ts#src',
-      '@pkgs/quint-shared-ts#src',
-      '@pkgs/conformance-server-ts#src',
-      '@pkgs/conformance-shared-ts#src',
-    ]);
-    expect(task?.inputs).not.toContain('$TURBO_DEFAULT$');
-    // A part is the same verification over a share of the models.
-    for (const part of MODEL_PART_TASKS)
-      expect(loadTasks()[part], part).toEqual(task);
+  test('numbered contract tasks inherit the contract inputs', () => {
     const contract = loadTasks()['test:contract'];
     for (let index = 0; index < 11; index += 1) {
       const name = `test:contract:${String(index)}`;

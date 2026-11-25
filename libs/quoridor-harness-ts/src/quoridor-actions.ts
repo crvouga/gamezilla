@@ -20,7 +20,6 @@ export type QuoridorSetup = {
   readonly fixture?: string;
   readonly moves?: readonly string[];
   readonly active?: boolean;
-  readonly guests?: boolean;
   readonly watchers?: readonly string[];
   readonly first?: string;
 };
@@ -32,7 +31,6 @@ export const establishQuoridor = scenarioAction({
       s,
       options.mode === 'hill' ? 'quoridor-hill' : 'quoridor',
       {
-        guests: options.guests === true,
         ...(options.active === undefined ? {} : { active: options.active }),
         ...(options.watchers === undefined
           ? {}
@@ -127,15 +125,10 @@ export const preferQuoridorReducedMotion = scenarioAction({
   act: (s, actor: string) => s.actors.get(actor)!.device.setReducedMotion(true),
 });
 
-export async function quoridorBoard(s: ProductHarness, actor = 'alice') {
-  const screen = await readCustomGameScreen(s, actor);
-  if (screen?.current == null) throw new Error('No Quoridor board');
-  return { ...screen, current: screen.current };
-}
-
 /** The board's rendered pieces, boundaries, player names and wall status. */
 export async function quoridorView(s: ProductHarness, actor = 'alice') {
-  const screen = await quoridorBoard(s, actor);
+  const screen = await readCustomGameScreen(s, actor);
+  if (screen?.current == null) throw new Error('No Quoridor board');
   const game = decodeQuoridor(screen.position);
   const ui = await actorUi(s, actor);
   const suffix = await quoridorToolSuffix((id) => ui.get(id).isVisible());

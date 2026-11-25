@@ -381,7 +381,6 @@
     "pkgs/http-client-shared-ts/src/**/*.tsx",
     "pkgs/http-client-client-ts/src/**/*.tsx",
     "pkgs/db-schema-root-shared-ts/src/**/*.ts",
-    "pkgs/db-schema-root-harness-ts/src/**/*.ts",
     "pkgs/db-schema-postgres-shared-ts/src/**/*.ts",
     "pkgs/db-schema-postgres-server-ts/src/**/*.ts",
     "pkgs/db-schema-postgres-shared-ts/tests/**/*.ts",

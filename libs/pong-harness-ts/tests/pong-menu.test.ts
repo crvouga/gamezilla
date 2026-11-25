@@ -5,7 +5,11 @@ import {
   restartApp,
   restoreActorConnection,
 } from '@libs/harness-ts/actions';
-import { establishLocalPong } from '@libs/pong-harness-ts/pong-actions';
+import {
+  establishLocalPong,
+  finishPongCountdown,
+  winPongPoint,
+} from '@libs/pong-harness-ts/pong-actions';
 import {
   establishPongLocalStage,
   finishLocalPong,
@@ -13,7 +17,7 @@ import {
 } from '@libs/pong-harness-ts/pong-local-actions';
 import { prepareLocalPongViewer } from '@libs/pong-harness-ts/pong-local-courts';
 import { joinSharedPong } from '@libs/pong-harness-ts/pong-shared-actions';
-import { pongView } from '@libs/pong-harness-ts/pong-view';
+import { pongScoreboard, pongView } from '@libs/pong-harness-ts/pong-view';
 import { openHarness } from './open-pong-harness';
 
 test('a simulation-only registration reaches the shared custom-game choices', async () => {
@@ -55,4 +59,25 @@ test('the reconnected full match with seed 6 reaches a winning score', async () 
   const court = await s.read(pongView);
   expect(court.stage).toBe('finished');
   expect(Math.max(court.score.left, court.score.right)).toBe(11);
+}, 60_000);
+
+// regression: pong-scoring-reopen-after-serve
+test('reopening immediately after the serve preserves a one-point match', async () => {
+  await using s = await openHarness();
+  await s.apply(establishLocalPong, true, 1);
+  await s.apply(finishPongCountdown);
+  await s.apply(restartApp, 'alice');
+  expect(await s.read(pongScoreboard)).toMatchObject({
+    stage: 'playing',
+    targetScore: 1,
+    score: { left: 0, right: 0 },
+  });
+  await s.apply(winPongPoint, 'right');
+  await s.advanceTime(5000);
+  await s.apply(restartApp, 'alice');
+  expect(await s.read(pongScoreboard)).toMatchObject({
+    stage: 'finished',
+    score: { left: 0, right: 1 },
+    winner: 'right',
+  });
 }, 60_000);
