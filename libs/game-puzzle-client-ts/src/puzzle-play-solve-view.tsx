@@ -34,7 +34,7 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
 /**
  * What is done about the puzzle, as the solve state allows it
  * (`buildPuzzleActionBarPlan`). While the board shows an earlier move the
- * hint waits, and the way back to the latest move is offered under it.
+ * hint waits.
  */
 export function PuzzleSolveActions(
   props: PuzzleStageScreenViewProps
@@ -64,22 +64,29 @@ export function PuzzleSolveActions(
           </Show>
         }
       />
-      <Show when={props.canGoForward}>
-        <StackHorizontal align="center" gap="sm" wrap>
-          <P variant="caption" tone="secondary">
-            <Trans>The board shows an earlier move.</Trans>
-          </P>
-          <Button
-            title={<Trans>Back to the latest move</Trans>}
-            intent="neutral"
-            variant="ghost"
-            size="sm"
-            onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
-            dataSet={{ testid: 'chess-puzzle-return-live' }}
-          />
-        </StackHorizontal>
-      </Show>
     </StackVertical>
+  );
+}
+
+export function EarlierPosition(
+  props: PuzzleStageScreenViewProps
+): JSX.Element {
+  return (
+    <Show when={props.canGoForward && !props.spectator}>
+      <StackHorizontal align="center" gap="sm" paddingX="lg" wrap>
+        <P variant="caption" tone="secondary">
+          <Trans>The board shows an earlier move.</Trans>
+        </P>
+        <Button
+          title={<Trans>Back to the latest move</Trans>}
+          intent="neutral"
+          variant="ghost"
+          size="sm"
+          onClick={() => props.line.nav.onNavigate(PUZZLE_NAV_INTENT.end)}
+          dataSet={{ testid: 'chess-puzzle-return-live' }}
+        />
+      </StackHorizontal>
+    </Show>
   );
 }
 

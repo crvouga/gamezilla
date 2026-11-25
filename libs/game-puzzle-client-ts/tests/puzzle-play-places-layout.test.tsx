@@ -112,6 +112,7 @@ test('play: a wrong move says so, and Retry is the one filled command', () => {
   expect(filledCommands()).toEqual(['Retry']);
 });
 
+// regression: puzzle-earlier-position-cue
 test('play: a board on an earlier move holds the hint and offers the way back to the latest', () => {
   const asked: string[] = [];
   mountPlay('play', {
@@ -133,7 +134,18 @@ test('play: a board on an earlier move holds the hint and offers the way back to
     'disabled',
     false
   );
-  fireEvent.click(screen.getByTestId('chess-puzzle-return-live'));
+  const header = region('PuzzleHeader');
+  expect(
+    header.contains(screen.getByText('The board shows an earlier move.'))
+  ).toBe(true);
+  const resume = screen.getByRole('button', {
+    name: 'Back to the latest move',
+  });
+  expect(header.contains(resume)).toBe(true);
+  expect(header.contains(screen.getByTestId('chess-puzzle-move-history'))).toBe(
+    true
+  );
+  fireEvent.click(resume);
   expect(asked).toEqual(['end']);
 });
 

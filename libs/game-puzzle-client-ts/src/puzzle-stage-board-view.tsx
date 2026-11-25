@@ -10,6 +10,7 @@ import {
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import {
   CompactLine,
+  EarlierPosition,
   PuzzleSolveActions,
   PuzzleSolveLine,
   SpectatorAllowance,
@@ -40,6 +41,11 @@ export function PuzzleStageBoardView(
       lead={
         <Show when={props.spectator}>
           <SpectatorAllowance label={props.allowanceLabel} />
+        </Show>
+      }
+      positionNotice={
+        <Show when={place() === 'play'}>
+          <EarlierPosition {...props} />
         </Show>
       }
       // The puzzle's state in one line over the board: the moves so far
