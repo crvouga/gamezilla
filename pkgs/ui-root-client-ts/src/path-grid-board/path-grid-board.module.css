@@ -185,25 +185,45 @@
   stroke-linejoin: round;
 }
 [data-tone="red"] {
+  --cable-stitch: 4 20;
   --path-color: var(--ui-color-path-red);
 }
 [data-tone="orange"] {
+  --cable-stitch: 16 12;
   --path-color: var(--ui-color-path-orange);
 }
 [data-tone="yellow"] {
+  --cable-stitch: 4 8 4 20;
   --path-color: var(--ui-color-path-yellow);
 }
 [data-tone="green"] {
+  --cable-stitch: 24 8 4 8;
   --path-color: var(--ui-color-path-green);
 }
 [data-tone="blue"] {
+  --cable-stitch: none;
   --path-color: var(--ui-color-path-blue);
 }
 [data-tone="purple"] {
+  --cable-stitch: 32 16;
   --path-color: var(--ui-color-path-purple);
 }
 
 .endpoint[data-tracing="true"] {
   outline: var(--ui-space-hairline) dashed var(--ui-color-text);
   outline-offset: var(--ui-space-hairline);
+}
+
+.thread {
+  fill: none;
+  stroke: var(--ui-color-background);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--cable-stitch);
+}
+.tip {
+  fill: var(--ui-color-background);
+  stroke: var(--path-color);
+  stroke-width: 6;
 }
