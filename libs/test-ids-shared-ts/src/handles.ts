@@ -71,6 +71,7 @@ export const Handles = {
   spaceJoinPrompt: 'space-join-prompt',
   spaceJoinHostOfflineTag: 'space-join-host-offline-tag',
   spaceJoinNotConfirmed: 'space-join-not-confirmed',
+  spaceJoinRetry: 'space-join-retry',
   spaceEnded: 'space-ended',
   spaceEndedBack: 'space-ended-back',
   spaceHostOffline: 'space-host-offline',

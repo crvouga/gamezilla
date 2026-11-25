@@ -26,6 +26,7 @@ const meta = {
     onJoinPhaseChange: fn(),
     onLeave: fn(),
     onBackToSpaces: fn(),
+    onRetry: fn(() => Promise.resolve()),
   },
 } satisfies Meta<typeof SpaceJoinScreenView>;
 export default meta;
@@ -61,14 +62,26 @@ export const JoinNeedsConnection: Story = {
   },
 };
 
-/** The device has nothing on this space and cannot ask the server. */
+/**
+ * The device has nothing on this space and cannot ask the server: Try again
+ * asks it, filled on the right, as in every recovery pair.
+ */
 export const Offline: Story = {
   args: {
     status: 'offline',
     connection: 'offline',
     needsConnection: true,
     space: null,
-    title: 'Space',
+    title: null,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const back = await canvas.findByRole('button', { name: 'Back to Spaces' });
+    await expect(back).toHaveAttribute('data-variant', 'outline');
+    await expect(canvas.getByTestId(Handles.spaceJoinRetry)).toHaveAttribute(
+      'data-variant',
+      'solid'
+    );
   },
 };
 
@@ -84,17 +97,17 @@ export const HostOfflineNotOnList: Story = {
 
 /** Still reading the space from this device or the server. */
 export const Loading: Story = {
-  args: { status: 'loading', space: null, title: 'Space' },
+  args: { status: 'loading', space: null, title: null },
 };
 
 /** Not the host's friend nor added: told so, never a dead Join. */
 export const Unavailable: Story = {
-  args: { status: 'unavailable', space: null, title: 'Space' },
+  args: { status: 'unavailable', space: null, title: null },
 };
 
 /** The server answered and there is no such space. */
 export const Missing: Story = {
-  args: { status: 'missing', space: null, title: 'Space' },
+  args: { status: 'missing', space: null, title: null },
 };
 
 /** Long titles and names truncate on the card and in the breadcrumb. */

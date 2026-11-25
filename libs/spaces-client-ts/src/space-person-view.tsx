@@ -2,6 +2,7 @@ import { DeviceAvatar } from '@libs/profile-client-ts/device-avatar';
 import { parseAvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
+import { NameText } from '@pkgs/ui-root-client-ts/name-text';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -67,7 +68,10 @@ export function SpacePersonName(props: {
   readonly person: SpacePerson | null;
   readonly variant?: TextRole | undefined;
   readonly lines?: TextLines | undefined;
-  /** `break`: a long name breaks anywhere, never cut short. */
+  /**
+   * `break`: breaks anywhere. Without it a long name wraps after `_`, `.`
+   * or `-` first, so it breaks mid-word only when one run cannot fit.
+   */
   readonly wrap?: TextWrap | undefined;
   readonly testId?: string | undefined;
 }): JSX.Element {
@@ -83,7 +87,7 @@ export function SpacePersonName(props: {
           fallback={
             <>
               <Text variant={props.variant ?? 'body'} testId={props.testId}>
-                {shown(person.name)}
+                <NameText name={shown(person.name)} />
               </Text>{' '}
               <BotLabel person={person} />
             </>
@@ -99,7 +103,7 @@ export function SpacePersonName(props: {
                 wrap={props.wrap}
                 testId={props.testId}
               >
-                {shown(person.name)}
+                <NameText name={shown(person.name)} />
               </P>
             </StackVertical>
             <BotLabel person={person} />

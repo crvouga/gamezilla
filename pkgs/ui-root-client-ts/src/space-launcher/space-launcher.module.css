@@ -84,10 +84,15 @@
 .tile[aria-disabled="true"] {
   cursor: default;
 }
-/* What a guest only sees: no card edge to press, the games on the canvas. */
+/* What a guest only sees: no card edge to press, the games on the canvas.
+   The dashed edge is drawn in the outline colour, at least 3:1 against
+   the muted fill and the page in both themes, so the tiles still read. */
 [data-role="guest"] .tile[aria-disabled="true"] {
   border-style: dashed;
   background: var(--ui-color-surface-muted);
+}
+[data-role="guest"] .tile[aria-disabled="true"]:not([data-looking="true"]) {
+  border-color: var(--ui-color-outline);
 }
 .art {
   display: inline-flex;

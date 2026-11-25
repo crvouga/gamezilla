@@ -116,12 +116,11 @@ describe('game surfaces', () => {
   // its name while the other two chips kept one line. Every chip is the
   // same two lines: its name, then its swatch, figure and short facts on
   // wrapping facts, with no avatar to push them apart.
-  // regression: phone-four-seats-cut — four seats in one phone row cut the
-  // last chip at the edge and shortened every name and figure. Two seats
-  // share one row; three or more stand in rows of two, every seat in
-  // view, its name and figure whole. The band's height follows the table's
-  // size only, so the board never moves between states of one game.
-  test('players on a phone share one row up to two, rows of two from three', () => {
+  // regression: phone-four-seats-cut — four seats in one scrolling phone
+  // row cut the last chip at the edge. Every seat now shares the row's
+  // width evenly (no sideways scroll), its name then its figure, so the
+  // band is one height at every table size and the board never moves.
+  test('players on a phone share one row evenly, every seat in view', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -134,18 +133,13 @@ describe('game surfaces', () => {
     expect(oneRow).toMatch(/grid-auto-flow: column;/);
     expect(oneRow).toMatch(/grid-auto-columns: minmax\(0, 1fr\);/);
     expect(oneRow).not.toMatch(/overflow-x: auto;/);
-    const four = phone.slice(
-      phone.indexOf('.playerRail:has(> :nth-child(3)) {')
-    );
-    expect(four.slice(0, four.indexOf('}'))).toMatch(
-      /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*grid-auto-flow: row;/
-    );
+    expect(phone).not.toMatch(/\.playerRail:has\(> :nth-child\(\d\)\) \{/);
     expect(
       rule(
         'game-player-rail/game-player-rail.module.css',
         '  .playerRail .chipFacts'
       )
-    ).toMatch(/flex-wrap: nowrap;/);
+    ).toMatch(/flex-wrap: wrap;[\s\S]*overflow: hidden;/);
   });
 
   // regression: battleship-phone-targets-small — on a phone each of the
@@ -351,7 +345,7 @@ describe('game surfaces', () => {
         'game-player-rail/game-player-rail.module.css',
         '  .playerRail .chipFacts'
       )
-    ).toMatch(/flex-wrap: nowrap;/);
+    ).toMatch(/flex-wrap: wrap;[\s\S]*overflow: hidden;/);
   });
 
   // regression: setup-players-card-stretched — wide, the board preview's

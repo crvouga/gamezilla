@@ -3,6 +3,7 @@ import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { CurrentBadge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { NameText } from '@pkgs/ui-root-client-ts/name-text';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -188,17 +189,20 @@ export function SpaceHostPhrase(props: {
       when={!props.space.hostedByViewer}
       fallback={<Trans>Hosted by you</Trans>}
     >
-      {/* Plain words, so the line's one-line clamp ends a long name in an
-          ellipsis instead of breaking it onto a second line. */}
+      {/* A one-line clamp ends a long name in an ellipsis; where the line
+          may wrap, the name breaks after its `_`, `.` or `-` first. */}
       <Show when={props.space.host} keyed>
-        {(host) => (
-          <Show
-            when={host.name.trim() !== ''}
-            fallback={<Trans>Hosted by a guest</Trans>}
-          >
-            <Trans>Hosted by {host.name}</Trans>
-          </Show>
-        )}
+        {(host) => {
+          const hostName = <NameText name={host.name} />;
+          return (
+            <Show
+              when={host.name.trim() !== ''}
+              fallback={<Trans>Hosted by a guest</Trans>}
+            >
+              <Trans>Hosted by {hostName}</Trans>
+            </Show>
+          );
+        }}
       </Show>
     </Show>
   );

@@ -58,6 +58,7 @@ function Join(props: {
       onJoin={() => Promise.resolve()}
       onLeave={() => undefined}
       onBackToSpaces={() => undefined}
+      onRetry={() => Promise.resolve()}
     />
   );
 }

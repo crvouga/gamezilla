@@ -59,8 +59,9 @@
 .line.keep > .who {
   height: var(--ui-space-6);
 }
-@container seat-identity (max-width: 240px) {
-  .line.keep > .tags {
-    flex-basis: auto;
-  }
+/* Each tag is its own item of the line, so the seat drops only the tags
+   that do not fit, last first: an `Offline` beside a short name stays
+   when a second tag after it has no room. */
+.line.keep > .tags {
+  display: contents;
 }

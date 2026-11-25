@@ -61,28 +61,28 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
 }
 
 /**
- * Four seats on a phone stand in two rows of two, every seat in view, each
- * with its readable facts.
+ * Four seats on a phone share one row, every seat in view, each with its
+ * readable facts.
  */
 export async function expectFourSeatRail(seats: HTMLElement[]) {
   const boxes = seats.map((seat) => seat.getBoundingClientRect());
   const [first, second, third, fourth] = boxes;
   if (!first || !second || !third || !fourth)
     throw new Error('Four seats are required');
-  // Rows of two: each row's seats side by side at one top, the second row
-  // under the first, so every name and figure has half the phone's width.
-  for (const [left, right] of [
+  // One row sharing the phone's width: every seat side by side at one
+  // top, each wholly inside the window, so the band is one height at every
+  // table size.
+  const row: [DOMRect, DOMRect][] = [
     [first, second],
+    [second, third],
     [third, fourth],
-  ] as const) {
+  ];
+  for (const [left, right] of row) {
     await expect(right.top).toBe(left.top);
     await expect(right.left).toBeGreaterThanOrEqual(left.right);
   }
-  await expect(third.top).toBeGreaterThanOrEqual(first.bottom);
-  await expect(third.left).toBe(first.left);
-  await expect(second.right).toBeLessThanOrEqual(
-    first.left + (seats[0]?.parentElement?.clientWidth ?? 0) + 1
-  );
+  await expect(first.left).toBeGreaterThanOrEqual(0);
+  await expect(fourth.right).toBeLessThanOrEqual(window.innerWidth);
   for (const seat of seats) {
     await expect(seat.getBoundingClientRect().height).toBeGreaterThanOrEqual(
       44

@@ -172,7 +172,11 @@ export const FourSeats: Story = {
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',
-      description: 'Secret choices: 1 of 2 made. Make yours on the board.',
+      // Secret choices are open, so the line is the game's own about
+      // them, never a plain "Your turn." beside a seat that says
+      // "Choosing" (`plainTurnLine`).
+      description: 'Secret choices: 2 of 3 made. Make yours on the board.',
+      plainTurn: false,
     }),
     table: {
       shape: 'rail',

@@ -59,7 +59,9 @@ test("a 'line' seat keeps its tag on the name's line at every width", () => {
   const keep = rule(LINE_CSS, '.line.keep');
   expect(keep).toContain('height: var(--ui-space-6)');
   expect(keep).toContain('overflow: hidden');
-  expect(LINE_CSS).toContain('.line.keep > .tags {\n    flex-basis: auto;');
+  // regression: phone offline seat dropped `Offline` with its second tag
+  // Each tag wraps off the line on its own, so one that fits stays.
+  expect(rule(LINE_CSS, '.line.keep > .tags')).toContain('display: contents');
   renderUi(
     () => (
       <GamePlayerBar

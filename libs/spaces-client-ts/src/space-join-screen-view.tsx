@@ -2,7 +2,6 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
-import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Card } from '@pkgs/ui-root-client-ts/card';
 import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { Divider } from '@pkgs/ui-root-client-ts/divider';
@@ -11,10 +10,10 @@ import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { Gamepad2Icon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
+import { NameText } from '@pkgs/ui-root-client-ts/name-text';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
-import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from '@solidjs/web';
 import { For, Match, Show, Switch } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
@@ -24,10 +23,10 @@ import {
   spaceCardOthers,
 } from './space-card-view';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
+import { SpaceJoinFooter } from './space-join-footer';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';
-import { SpaceRecoveryBar } from './space-recovery-bar';
 import { SpacesNeedConnectionNotice } from './spaces-notices';
 
 /** What the viewer's device knows about a space it is not in (not ended). */
@@ -46,8 +45,11 @@ export type SpaceJoinConnection =
   | 'host-offline';
 
 export type SpaceJoinScreenViewProps = {
-  /** Custom title, or the localized "<host>'s space" fallback. */
-  readonly title: string;
+  /**
+   * Custom title, or the localized "<host>'s space" fallback; null while
+   * the device knows neither, so the page names what it is doing instead.
+   */
+  readonly title: string | null;
   readonly status: SpaceJoinStatus;
   readonly connection: SpaceJoinConnection;
   /** Joining was tried without a connection, or the device is offline. */
@@ -66,88 +68,9 @@ export type SpaceJoinScreenViewProps = {
     | undefined;
   readonly onLeave: () => void;
   readonly onBackToSpaces: () => void;
+  /** Offline: asks the server again; rejects while still offline. */
+  readonly onRetry: () => Promise<void>;
 };
-
-function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
-  const { t } = useLingui();
-  const join = useMutationButton({
-    operation: () => props.onJoin(),
-    labels: {
-      get idle() {
-        if (props.joinPending) return t`Check again`;
-        return props.needsConnection ? t`Try joining again` : t`Join space`;
-      },
-      get loading() {
-        return t`Joining…`;
-      },
-      get success() {
-        return t`Joined`;
-      },
-      get error() {
-        return t`Couldn't join`;
-      },
-    },
-    get disabled() {
-      return props.joinDisabled;
-    },
-    onPhaseChange: (transition) => props.onJoinPhaseChange?.(transition),
-  });
-  return (
-    <Button
-      {...join.buttonProps}
-      flex={1}
-      dataSet={{ testid: Handles.spaceJoin }}
-    />
-  );
-}
-
-/**
- * Join; while the host is away, the way back to Spaces instead, and Leave
- * for someone on the space's list.
- */
-function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
-  return (
-    <StackHorizontal gap="sm">
-      <Show
-        when={props.connection === 'host-offline'}
-        fallback={
-          // Back to Spaces on the left, outlined, and joining (or checking
-          // again, or trying again) filled on the right, in every state.
-          <>
-            <Show when={props.joinPending || props.needsConnection}>
-              <Button
-                title={<Trans>Back to Spaces</Trans>}
-                intent="neutral"
-                variant="outline"
-                flex={1}
-                onClick={() => props.onBackToSpaces()}
-              />
-            </Show>
-            <SpaceJoinButton {...props} />
-          </>
-        }
-      >
-        {/* The one way on, filled, on the right as in every Join and
-            recovery pair; leaving, outlined, beside it. */}
-        <Show when={props.canLeave}>
-          <Button
-            title={<Trans>Leave space</Trans>}
-            intent="neutral"
-            variant="outline"
-            flex={1}
-            dataSet={{ testid: Handles.spaceLeave }}
-            onClick={() => props.onLeave()}
-          />
-        </Show>
-        <Button
-          title={<Trans>Back to Spaces</Trans>}
-          flex={1}
-          onClick={() => props.onBackToSpaces()}
-        />
-      </Show>
-    </StackHorizontal>
-  );
-}
 
 /**
  * Who is here in words, on one line: the first name (the viewer's "You"
@@ -179,7 +102,7 @@ function JoinGuestsLine(props: {
   // reads who is here and the count always shows.
   return (
     <P variant="caption" lines={2} testId="space-join-guests">
-      {nameOf(ordered()[0])}
+      <NameText name={nameOf(ordered()[0])} />
       <Show when={rest() !== ''}> {rest()}</Show>
     </P>
   );
@@ -282,13 +205,14 @@ function SpaceJoinInvitation(props: {
           <SpaceJoinStatusTag space={props.space} host={props.host} />
         </StackHorizontal>
         {/* Who hosts, on a row of the card's full width: a long name wraps
-            to its last character, so the guest confirms whose space it is. */}
+            at its separators over two lines, so the guest confirms whose
+            space it is; the full name is its title. */}
         <StackHorizontal align="start" gap="xs">
           <Show when={props.space.host} keyed>
             {(host) => <SpacePersonAvatar person={host} size={20} />}
           </Show>
           <StackVertical grow shrink>
-            <P variant="caption" lines={6}>
+            <P variant="caption" lines={2}>
               <SpaceHostPhrase space={props.space} />
             </P>
           </StackVertical>
@@ -412,6 +336,19 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
 }
 
 /**
+ * The page's title: the space's name when known, else what the page is
+ * doing (opening it) or what it found (no such space), never a bare "Space".
+ */
+function spaceJoinPageTitle(props: SpaceJoinScreenViewProps): JSX.Element {
+  if (props.title !== null) return props.title;
+  if (props.status === 'loading') return <Trans>Joining…</Trans>;
+  if (props.status === 'missing') return <Trans>Space not found</Trans>;
+  if (props.status === 'offline') return <Trans>You're offline</Trans>;
+  if (props.status === 'unavailable') return <Trans>Can't join</Trans>;
+  return <Trans>Space</Trans>;
+}
+
+/**
  * `/space/:id` for a space the viewer is not in, presentational: a live
  * space's summary with Join, or why it cannot be joined (not allowed, not
  * found, offline, host away). `SpaceJoinPrompt` wires it to the space.
@@ -425,55 +362,9 @@ export function SpaceJoinScreenView(
       dataSet={{ testid: Handles.spaceJoinPrompt }}
       breadcrumbs={[
         { name: <Trans>Spaces</Trans>, href: '/' },
-        { name: props.title },
+        { name: spaceJoinPageTitle(props) },
       ]}
-      footer={
-        <Switch>
-          <Match
-            when={props.status === 'live' && props.connection !== 'loading'}
-          >
-            <JoinPromptFooter {...props} />
-          </Match>
-          {/* While the host's connection is checked, the way back waits
-              in the bar, as in every other state. */}
-          <Match
-            when={props.status === 'live' && props.connection === 'loading'}
-          >
-            <Button
-              title={<Trans>Back to Spaces</Trans>}
-              intent="neutral"
-              variant="outline"
-              fullWidth
-              onClick={() => props.onBackToSpaces()}
-            />
-          </Match>
-          {/* Every state that cannot join keeps the same bottom bar, with
-              its one way on filled. */}
-          <Match
-            when={
-              props.status === 'unavailable' ||
-              props.status === 'missing' ||
-              props.status === 'offline'
-            }
-          >
-            <SpaceRecoveryBar>
-              <Button
-                title={<Trans>Back to Spaces</Trans>}
-                fullWidth
-                onClick={() => props.onBackToSpaces()}
-                // The addresses its empty state's action had.
-                dataSet={
-                  props.status === 'missing'
-                    ? { testid: Handles.spaceNotFoundBack }
-                    : props.status === 'offline'
-                      ? { testid: `${Handles.spacesNeedConnection}-action` }
-                      : undefined
-                }
-              />
-            </SpaceRecoveryBar>
-          </Match>
-        </Switch>
-      }
+      footer={<SpaceJoinFooter {...props} />}
     >
       <StackVertical grow gap="md">
         {/* What comes and goes (no connection, a join not confirmed, the

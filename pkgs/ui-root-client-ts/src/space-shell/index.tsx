@@ -7,6 +7,7 @@ import type { JSX } from '@solidjs/web';
 import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
 import { useAppFrameGlobalStatus } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
+import { Button } from '../button/index';
 import { createElementWidth } from '../create-element-width';
 import { FloatingMenu } from '../floating-menu/index';
 import type {
@@ -114,6 +115,11 @@ export type SpaceShellProps = SpaceShellChrome & {
 
 /** One action's width in row 1: a 44px button and the gap beside it. */
 const ACTION_SLOT_PX = 48;
+/**
+ * One labelled action's width in row 1 on a wide layout: its icon, a short
+ * word ("People", "Share", "Menu") and the gap beside it.
+ */
+const LABELLED_SLOT_PX = 120;
 /** Row 1's own padding and the gaps around the title. */
 const ROW_SPARE_PX = 32;
 /** The most of row 1 a long title may hold before it is cut short. */
@@ -129,9 +135,13 @@ const MAX_INLINE_ACTIONS = 2;
  * How many of `count` actions sit in row 1 as buttons when `room` px are
  * left for them. The first always does: it is the one people reach for.
  */
-export function spaceInlineActionCount(count: number, room: number): number {
+export function spaceInlineActionCount(
+  count: number,
+  room: number,
+  slot: number = ACTION_SLOT_PX
+): number {
   if (count === 0) return 0;
-  return Math.min(count, Math.max(1, Math.floor(room / ACTION_SLOT_PX)));
+  return Math.min(count, Math.max(1, Math.floor(room / slot)));
 }
 
 function exitRow(props: SpaceShellProps, label: string): FloatingMenuItemRow {
@@ -206,8 +216,35 @@ function useSpaceMenu(
   });
 }
 
-/** One of the space's actions as a button in row 1. */
-function SpaceInlineAction(props: { item: SpaceMenuItem }): JSX.Element {
+/**
+ * One of the space's actions as a button in row 1: on a wide layout its
+ * icon and short word side by side, on a narrow one the icon alone; the
+ * full label is its accessible name either way.
+ */
+function SpaceInlineAction(props: {
+  item: SpaceMenuItem;
+  labelled: boolean;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.labelled}
+      fallback={<SpaceInlineIconAction item={props.item} />}
+    >
+      <Button
+        title={props.item.shortLabel ?? props.item.label}
+        aria-label={props.item.label}
+        intent={props.item.tone === 'destructive' ? 'danger' : 'neutral'}
+        variant="ghost"
+        icon={props.item.icon}
+        disabled={props.item.disabled === true}
+        onClick={() => props.item.onPress()}
+        dataSet={spaceDataSet({ action: props.item.id }, props.item.testId)}
+      />
+    </Show>
+  );
+}
+
+function SpaceInlineIconAction(props: { item: SpaceMenuItem }): JSX.Element {
   const Icon = (): JSX.Element => {
     const Drawn = props.item.icon ?? EllipsisIcon;
     return (
@@ -237,28 +274,48 @@ function SpaceInlineAction(props: { item: SpaceMenuItem }): JSX.Element {
  * the host or Leave for a guest.
  */
 function SpaceMenuAction(
-  props: SpaceShellProps & { overflow: () => readonly SpaceMenuItem[] }
+  props: SpaceShellProps & {
+    overflow: () => readonly SpaceMenuItem[];
+    labelled: boolean;
+  }
 ): JSX.Element {
   const { t } = useLingui();
   const menu = useAnchoredMenu();
   const content = useSpaceMenu(props, () => props.overflow());
+  const dataSet = () =>
+    spaceDataSet({ action: 'settings' }, props.testIds?.settings);
   return (
     <>
       <span ref={menu.setTrigger} class="inline-flex">
-        <IconButton
-          label={t`Space menu`}
-          aria-label={t`Space menu`}
-          aria-haspopup="menu"
-          aria-expanded={menu.open()}
-          size={44}
-          onClick={() => menu.toggle()}
-          dataSet={spaceDataSet(
-            { action: 'settings' },
-            props.testIds?.settings
-          )}
+        <Show
+          when={props.labelled}
+          fallback={
+            <IconButton
+              label={t`Space menu`}
+              aria-label={t`Space menu`}
+              aria-haspopup="menu"
+              aria-expanded={menu.open()}
+              size={44}
+              onClick={() => menu.toggle()}
+              dataSet={dataSet()}
+            >
+              <EllipsisIcon size={24} color="icon" />
+            </IconButton>
+          }
         >
-          <EllipsisIcon size={24} color="icon" />
-        </IconButton>
+          {/* The visible word is part of its name ("Space menu"). */}
+          <Button
+            title={t`Menu`}
+            aria-label={t`Space menu`}
+            aria-haspopup="menu"
+            aria-expanded={menu.open()}
+            intent="neutral"
+            variant="ghost"
+            icon={EllipsisIcon}
+            onClick={() => menu.toggle()}
+            dataSet={dataSet()}
+          />
+        </Show>
       </span>
       <FloatingMenu
         open={menu.open()}
@@ -279,6 +336,9 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
   const [heading, setHeading] = createSignal<HTMLElement | null>(null);
   const [status, setStatus] = createSignal<HTMLElement | null>(null);
   const rowWidth = createElementWidth(row);
+  // A wide layout has room for each action's word beside its icon.
+  const mode = useLayoutMode();
+  const labelled = (): boolean => mode() === 'wide';
   // The app's own status (working offline, the connection missing) wherever
   // no sidebar shows it (a phone): a person in a space is still told. Its
   // account menu stays outside the space.
@@ -303,8 +363,10 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
       rowWidth() -
         Math.min(titleWidth(), rowWidth() * TITLE_MAX_SHARE) -
         statusWidth() -
-        2 * ACTION_SLOT_PX -
-        ROW_SPARE_PX
+        ACTION_SLOT_PX -
+        (labelled() ? LABELLED_SLOT_PX : ACTION_SLOT_PX) -
+        ROW_SPARE_PX,
+      labelled() ? LABELLED_SLOT_PX : ACTION_SLOT_PX
     )
   );
   return (
@@ -346,11 +408,12 @@ function ActionsRow(props: SpaceShellProps): JSX.Element {
           )}
         </Show>
         <For each={actions().slice(0, inline())}>
-          {(item) => <SpaceInlineAction item={item} />}
+          {(item) => <SpaceInlineAction item={item} labelled={labelled()} />}
         </For>
         <SpaceMenuAction
           {...props}
           overflow={() => actions().slice(inline())}
+          labelled={labelled()}
         />
       </div>
     </header>

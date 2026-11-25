@@ -96,10 +96,9 @@ function rosterRow(
     // right edge keeps only the role and the host's Remove, so every row's
     // controls line up.
     title: (
-      // The name in full, breaking anywhere a long one must, so the host can
-      // tell who they are removing; Idle reads under it, never squeezing it.
-      // Six lines hold any name at the narrowest width; the clamp is only a
-      // guard, never the thing that cuts a readable name short.
+      // The name wraps at its own separators (`_`, `.`, `-`) over up to two
+      // lines, so the host can tell who they are removing; the full name
+      // stays its title. Idle reads under it, never squeezing it.
       <StackVertical gap="xs" grow>
         {member.isYou ? (
           you
@@ -108,8 +107,7 @@ function rosterRow(
         ) : (
           <SpacePersonName
             person={member.person}
-            lines={6}
-            wrap="break"
+            lines={2}
             testId={Handles.spaceMemberName(id)}
           />
         )}
