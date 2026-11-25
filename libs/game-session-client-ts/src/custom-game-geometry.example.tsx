@@ -60,17 +60,26 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   );
 }
 
-/** Two phone columns retain complete identities and each seat's readable facts. */
+/** One phone row keeps every seat in view, each with its readable facts. */
 export async function expectFourSeatRail(seats: HTMLElement[]) {
   const boxes = seats.map((seat) => seat.getBoundingClientRect());
   const [first, second, third, fourth] = boxes;
   if (!first || !second || !third || !fourth)
     throw new Error('Four seats are required');
-  await expect(second.top).toBe(first.top);
-  await expect(fourth.top).toBe(third.top);
-  await expect(third.top).toBe(Math.max(first.bottom, second.bottom) + 4);
-  await expect(second.left).toBe(first.right + 4);
-  await expect(fourth.left).toBe(third.right + 4);
+  // One row sharing the phone's width: every seat in view, side by side,
+  // so the band keeps one height whoever sits at the table.
+  const pairs: [DOMRect, DOMRect][] = [
+    [first, second],
+    [second, third],
+    [third, fourth],
+  ];
+  for (const [left, right] of pairs) {
+    await expect(right.top).toBe(left.top);
+    await expect(right.left).toBeGreaterThanOrEqual(left.right);
+  }
+  await expect(fourth.right).toBeLessThanOrEqual(
+    first.left + (seats[0]?.parentElement?.clientWidth ?? 0) + 1
+  );
   for (const seat of seats) {
     await expect(seat.getBoundingClientRect().height).toBeGreaterThanOrEqual(
       44
