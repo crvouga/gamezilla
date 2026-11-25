@@ -1,0 +1,4 @@
+{
+  "summary": "The actor poll counted only its one-millisecond sleeps while live browser probes took far longer. Five reads of a drawn game exceeded the four-minute scenario timeout before their own fifteen-second deadline.",
+  "regressionTest": "libs/harness-ts/tests/actor-poll-deadline.test.ts"
+}

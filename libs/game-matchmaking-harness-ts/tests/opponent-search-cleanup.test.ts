@@ -32,7 +32,7 @@ test('owned search cancellation reaches the server before its browser is dispose
       ['alice', { ui, localSql: () => ({ query: async () => [{ pending }] }) }],
     ]),
     session: {
-      scheduler: { starvedAdvances: () => 0 },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
       advanceTime: async () => {
         pending = 0;
         events.push('acknowledged');

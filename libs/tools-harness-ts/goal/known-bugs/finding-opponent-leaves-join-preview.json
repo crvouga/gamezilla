@@ -1,0 +1,4 @@
+{
+  "summary": "When a second device opened its host's space, finding an opponent followed Back out of the join preview while it waited for the space. All five drawn-game reopens timed out.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/finding-an-opponent-arrival.test.ts"
+}

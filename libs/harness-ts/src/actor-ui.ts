@@ -9,6 +9,7 @@ import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Action, ActionDef } from '@pkgs/harness-root-shared-ts/effect';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
+import { describeWhereabouts } from './actor-whereabouts';
 import { expectShellShown, shellShown } from './driver-gestures';
 import type { ProductHarness } from './harness';
 import { productExtra } from './harness';
@@ -96,7 +97,23 @@ export type PollUntilOptions = {
   readonly maxMs: number;
   readonly stepMs?: number;
   readonly description: string;
+  readonly actor?: string;
 };
+
+async function pollTimeout(
+  s: ProductHarness,
+  opts: PollUntilOptions
+): Promise<Error> {
+  const prefix = `Timed out after ${String(opts.maxMs)}ms waiting for ${opts.description}`;
+  const actor = opts.actor === undefined ? undefined : s.actors.get(opts.actor);
+  if (actor === undefined) return new Error(prefix);
+  const place = await describeWhereabouts({
+    browser: actor.browser,
+    appOrigin: null,
+    html: () => actor.ui.snapshotHtml(),
+  });
+  return new Error(`${prefix} at ${place}`);
+}
 
 export async function pollUntil<T>(
   s: ProductHarness,
@@ -104,15 +121,19 @@ export async function pollUntil<T>(
   opts: PollUntilOptions
 ): Promise<T> {
   const stepMs = opts.stepMs ?? DEFAULT_STEP_MS;
+  const scheduler = s.session.scheduler;
+  const wallStart = scheduler.virtual ? null : scheduler.clock.now();
   let waited = 0;
   let granted = 0;
   for (;;) {
     const found = await probe();
     if (found !== null) return found;
-    if (waited >= opts.maxMs) {
-      throw new Error(
-        `Timed out after ${String(opts.maxMs)}ms waiting for ${opts.description}`
-      );
+    // A browser probe can spend most of its time driving and reading the
+    // page. Count that time against its real deadline as well as the sleeps.
+    const elapsed =
+      wallStart === null ? waited : scheduler.clock.now() - wallStart;
+    if (elapsed >= opts.maxMs) {
+      throw await pollTimeout(s, opts);
     }
     // A poll the scheduler spent running ahead of unfinished wall work moved
     // the clock without moving the simulation, so it does not spend the

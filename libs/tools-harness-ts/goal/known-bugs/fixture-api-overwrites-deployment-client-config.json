@@ -1,0 +1,4 @@
+{
+  "summary": "An embedded fixture API attached to the hosted browser stack materialized its own permissions, broker and other public settings on its first worker request. This revoked the operator grant and displaced the deployed broker used for live updates.",
+  "regressionTest": "libs/app-root-server-ts/tests/request-db-error.test.ts"
+}

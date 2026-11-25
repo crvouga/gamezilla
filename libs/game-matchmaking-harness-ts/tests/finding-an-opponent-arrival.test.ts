@@ -64,3 +64,15 @@ test('a new device stays in the space while its games load under the Back button
   const loading = new Set([Handles.navBack, Handles.spaceLoading]);
   expect(findingAnOpponentStep(loading, GAME, false)).toBeNull();
 });
+
+// regression: finding-opponent-leaves-join-preview
+test('a second device waits in the join preview and enters when Join appears', () => {
+  const preview = new Set<string>([Handles.spaceJoinPrompt, Handles.navBack]);
+  expect(findingAnOpponentHandles(GAME)).toContain(Handles.spaceJoinPrompt);
+  expect(findingAnOpponentHandles(GAME)).toContain(Handles.spaceJoin);
+  expect(findingAnOpponentStep(preview, GAME, false)).toBeNull();
+  preview.add(Handles.spaceJoin);
+  expect(findingAnOpponentStep(preview, GAME, false)).toBe(Handles.spaceJoin);
+  preview.add(Handles.spaceNotFound);
+  expect(findingAnOpponentStep(preview, GAME, false)).toBe('nowhere');
+});
