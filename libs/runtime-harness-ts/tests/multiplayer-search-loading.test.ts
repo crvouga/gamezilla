@@ -292,6 +292,29 @@ test('cleanup stops a waiting search before ending its space', async () => {
   ]);
 });
 
+// regression: connect-four-result-blocks-space-cleanup
+test('the completed game releases the space menu after closing its result', async () => {
+  const { ui, taps } = loadingScreen();
+  let dialog = true;
+  const get = ui.get.bind(ui);
+  ui.get = (id) => ({
+    ...get(id),
+    isVisible: async () =>
+      id === 'game-result-close' ? dialog : id === Handles.spaceEnd && !dialog,
+    tap: async () => {
+      if (id === 'game-result-close') dialog = false;
+      await get(id).tap();
+    },
+  });
+  await endMultiplayerSpace(ui);
+  expect(taps).toEqual([
+    'game-result-close',
+    Handles.spaceEnd,
+    Handles.spaceEndConfirm,
+    Handles.spaceMutationDismiss,
+  ]);
+});
+
 // regression: live-multiplayer-wrong-time-control
 test('a previous 2+1 choice is changed to the requested 5+0 before finding an opponent', async () => {
   const { ui, taps } = loadingScreen();

@@ -64,5 +64,7 @@ export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
 /** A failed scenario must not leave a search to consume the next person's match. */
 export async function endMultiplayerSpace(ui: Driver): Promise<void> {
   await retirePreviousMultiplayer(ui);
+  if (await ui.get('game-result-close').isVisible())
+    await tap(ui, 'game-result-close');
   await endActiveSpace(ui);
 }

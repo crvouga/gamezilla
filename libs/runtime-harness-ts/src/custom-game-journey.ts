@@ -42,7 +42,7 @@ export async function startCustomGameAgainstBot(ui: Driver): Promise<void> {
 }
 
 export async function expectCustomGameReady(ui: Driver): Promise<void> {
-  await ui.get('custom-game-status').expect.text('White to move.', {
+  await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
@@ -90,7 +90,7 @@ export async function expectCustomGameBotReply(ui: Driver): Promise<void> {
   chess.move('e4');
   chess.move(reply.trim());
   check(chess.turn() === 'w', 'bot reply did not return White’s turn');
-  await ui.get('custom-game-status').expect.text('White to move.', {
+  await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
@@ -233,7 +233,7 @@ export async function expectStartable(ui: Driver): Promise<void> {
 export async function startReadyGame(ui: Driver): Promise<void> {
   await expectStartable(ui);
   await tap(ui, 'custom-game-start');
-  await ui.get('custom-game-status').expect.text('White to move.', {
+  await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });

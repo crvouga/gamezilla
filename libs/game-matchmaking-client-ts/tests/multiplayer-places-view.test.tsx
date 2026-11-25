@@ -326,6 +326,7 @@ describe('play holds the board and one way to the commands', () => {
     expect(view.place()).toBe('stage');
   });
 
+  // regression: multiplayer-result-covers-confirmation
   test('resigning only asks, and the confirmation outlives the game ending under it', () => {
     const view = mountPlaces({ stage: 'playing', open: 'commands' });
     screen.getByTestId('multiplayer-resign').click();
@@ -338,6 +339,9 @@ describe('play holds the board and one way to the commands', () => {
     view.setStage('finished');
     expect(view.place()).toBe('result');
     expect(screen.getByTestId('multiplayer-confirm')).toBe(confirm);
+    expect(screen.queryByTestId('game-result-close')).toBeNull();
+    view.set({ confirming: null });
+    expect(screen.getByTestId('game-result-close')).toBeTruthy();
   });
 
   test('a watcher is offered only their own board and the moves', () => {

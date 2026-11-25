@@ -350,7 +350,7 @@ function ResultPlace(props: Props): JSX.Element {
           board={props.board}
           overlay={props.overlay}
           onOverlay={props.onOverlay}
-          result={props.result}
+          result={props.confirming === null ? props.result : undefined}
           game={game()}
           commands={props.commands}
           online={props.online}
