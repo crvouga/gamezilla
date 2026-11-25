@@ -104,7 +104,9 @@ function rackPointers(frame: HTMLElement, props: RackViewportProps) {
     props.preview(null);
   };
   function down(event: PointerEvent) {
-    if (event.button !== 0) return;
+    // Only hardware pointers have a browser capture session. Programmatic
+    // activation and assistive clicks use the column button directly.
+    if (!event.isTrusted || event.button !== 0) return;
     const column = rackColumnAt(frame, event);
     const playable =
       contacts.size === 0 &&
