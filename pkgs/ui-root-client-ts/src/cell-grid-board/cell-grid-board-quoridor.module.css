@@ -51,7 +51,7 @@
   outline-offset: calc(-1 * var(--ui-space-1));
 }
 
-/* A faint wash groups the four squares on either side of the proposed wall. */
+/* The darker sand groups the two tiles on each side of the proposed wall. */
 .board
 [data-cell]:is(
   [data-preview-edge-top="true"],
@@ -59,9 +59,5 @@
   [data-preview-edge-left="true"],
   [data-preview-edge-right="true"]
 ) {
-  background-color: color-mix(
-    in srgb,
-    var(--cell-grid-preview) 12%,
-    var(--ui-color-game-quoridor-canvas)
-  );
+  background-color: var(--ui-color-game-quoridor-surface);
 }
