@@ -3,54 +3,44 @@ import { fn } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { useRemoveSpacePersonStep } from './remove-space-person-step';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
+import type { SpaceShareSheetViewProps } from './space-share-sheet-view';
 import { SpaceShareSheetView } from './space-share-sheet-view';
 import { AVERY, JORDAN, LONG_NAME, PLAYBOT } from './spaces-story.example';
 
-type RemovePersonStoryProps = {
-  /** The shown name of the person being removed. */
+function RemovePersonStory(props: {
+  readonly sheet: SpaceShareSheetViewProps;
   readonly name: string;
-  readonly onClose: () => void;
-  readonly operation: () => Promise<void>;
-};
-
-/** The Share dialog on its Remove person step, as the host sees it. */
-function RemovePersonStory(props: RemovePersonStoryProps): JSX.Element {
+}): JSX.Element {
   const removal = useRemoveSpacePersonStep({
     get name() {
       return props.name;
     },
-    onClose: () => props.onClose(),
-    operation: () => props.operation(),
+    onClose: () => props.sheet.onClose(),
+    operation: fn(() => Promise.resolve()),
   });
-  return (
-    <SpaceShareSheetView
-      open
-      onClose={fn()}
-      onCopyLink={fn(() => Promise.resolve())}
-      canManage
-      peopleStatus="ready"
-      people={[AVERY, JORDAN, PLAYBOT]}
-      hostId={AVERY.id}
-      viewerId={AVERY.id}
-      onRemovePerson={fn()}
-      removal={removal}
-    />
-  );
+  return <SpaceShareSheetView {...props.sheet} removal={removal} />;
 }
 
 const meta = {
   id: 'screens-spaces-remove-person',
   title: 'Screens/Space/Manage/Remove person',
-  component: RemovePersonStory,
+  component: SpaceShareSheetView,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
   parameters: { appRouter: true },
   args: {
-    name: 'jordan_plays',
+    open: true,
+    onCopyLink: fn(() => Promise.resolve()),
+    canManage: true,
+    peopleStatus: 'ready',
+    people: [AVERY, JORDAN, PLAYBOT],
+    hostId: AVERY.id,
+    viewerId: AVERY.id,
+    onRemovePerson: fn(),
     onClose: fn(),
-    operation: fn(() => Promise.resolve()),
   },
-} satisfies Meta<typeof RemovePersonStory>;
+  render: (args) => <RemovePersonStory sheet={args} name={JORDAN.name} />,
+} satisfies Meta<typeof SpaceShareSheetView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -58,4 +48,6 @@ type Story = StoryObj<typeof meta>;
 export const Confirm: Story = {};
 
 /** A long name wraps on its own line instead of widening the dialog. */
-export const LongName: Story = { args: { name: LONG_NAME.name } };
+export const LongName: Story = {
+  render: (args) => <RemovePersonStory sheet={args} name={LONG_NAME.name} />,
+};

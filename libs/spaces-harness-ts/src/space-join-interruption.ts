@@ -61,8 +61,7 @@ export async function joinUnconfirmedShown(
 ): Promise<boolean> {
   await bringToFront(s, actorId);
   const ui = await actorUi(s, actorId);
-  const text = await ui.get(Handles.spaceJoin).text();
-  return text?.includes('Not confirmed') === true;
+  return ui.get(Handles.spaceJoinNotConfirmed).isVisible();
 }
 
 export async function lobbyShown(

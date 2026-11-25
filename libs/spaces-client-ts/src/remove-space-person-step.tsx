@@ -6,6 +6,7 @@ import type {
 } from '@pkgs/ui-root-client-ts/mutation-step';
 import { useMutationStep } from '@pkgs/ui-root-client-ts/mutation-step';
 import { NameText } from '@pkgs/ui-root-client-ts/name-text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 
 export type RemoveSpacePersonStepProps = {
   /** The shown name of the person being removed. */
@@ -50,7 +51,14 @@ export function removeSpacePersonCopy(
       return <Trans>Removing…</Trans>;
     },
     get successTitle() {
-      return <Trans>{props.name} removed</Trans>;
+      return (
+        <Text
+          variant="inherit"
+          dataSet={{ testid: Handles.spaceRemoveSuccess }}
+        >
+          <Trans>{props.name} removed</Trans>
+        </Text>
+      );
     },
     get successBody() {
       return (
@@ -63,7 +71,6 @@ export function removeSpacePersonCopy(
       return <Trans>Couldn't remove person</Trans>;
     },
     submitDataSet: { testid: Handles.spaceRemoveConfirm },
-    successDataSet: { testid: Handles.spaceRemoveSuccess },
     dismissDataSet: { testid: Handles.spaceMutationDismiss },
   };
 }
