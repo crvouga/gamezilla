@@ -27,7 +27,7 @@ export type PuzzleSummaryCardProps = {
 /** The rating a finished puzzle made, and the streak it kept. */
 export function PuzzleSummaryCard(props: PuzzleSummaryCardProps): JSX.Element {
   return (
-    <StackVertical gap="md" align="center" self="stretch">
+    <StackVertical gap="sm" align="start" self="stretch">
       <PuzzleRatingDelta
         ratingBefore={props.completion.ratingBefore}
         ratingAfter={props.completion.ratingAfter}

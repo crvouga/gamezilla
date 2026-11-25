@@ -9,7 +9,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from 'solid-js';
 import { createMemo, Show } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
@@ -94,9 +94,9 @@ function rosterRow(
     // right edge keeps only the role and the host's Remove, so every row's
     // controls line up.
     title: (
-      // Centred on the name's line: a badge's pill sits on the name, not
-      // above its baseline.
-      <StackHorizontal align="center" gap="xs" grow>
+      // The name in full, breaking anywhere a long one must, so the host can
+      // tell who they are removing; Idle reads under it, never squeezing it.
+      <StackVertical gap="xs" grow>
         {member.isYou ? (
           you
         ) : member.person === null ? (
@@ -104,14 +104,13 @@ function rosterRow(
         ) : (
           <SpacePersonName
             person={member.person}
-            // A long name may take a second line, so the host can tell who
-            // they are removing; its badges stay beside it.
-            lines={2}
+            lines={3}
+            wrap="break"
             testId={Handles.spaceMemberName(id)}
           />
         )}
         <Show when={member.idle}>
-          <StackHorizontal align="center">
+          <StackHorizontal>
             <Badge
               label={<Trans>Idle</Trans>}
               intent="neutral"
@@ -121,7 +120,7 @@ function rosterRow(
             />
           </StackHorizontal>
         </Show>
-      </StackHorizontal>
+      </StackVertical>
     ),
     isYou: member.isYou,
     isThisTab: member.isThisTab,

@@ -5,7 +5,7 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { TextRole } from '@pkgs/ui-root-client-ts/text';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
-import type { TextLines } from '@pkgs/ui-root-client-ts/text-classes';
+import type { TextLines, TextWrap } from '@pkgs/ui-root-client-ts/text-classes';
 import type { JSX } from 'solid-js';
 import { Show } from 'solid-js';
 
@@ -67,6 +67,8 @@ export function SpacePersonName(props: {
   readonly person: SpacePerson | null;
   readonly variant?: TextRole | undefined;
   readonly lines?: TextLines | undefined;
+  /** `break`: a long name breaks anywhere, never cut short. */
+  readonly wrap?: TextWrap | undefined;
   readonly testId?: string | undefined;
 }): JSX.Element {
   const { t } = useLingui();
@@ -90,10 +92,11 @@ export function SpacePersonName(props: {
           {/* The name gives up room first, cut short with an ellipsis;
               the label after it keeps its size, on the same line. */}
           <StackHorizontal align="center" gap="xs" grow>
-            <StackVertical grow>
+            <StackVertical shrink>
               <P
                 variant={props.variant ?? 'body'}
                 lines={props.lines}
+                wrap={props.wrap}
                 testId={props.testId}
               >
                 {shown(person.name)}

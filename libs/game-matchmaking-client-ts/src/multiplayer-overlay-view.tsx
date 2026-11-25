@@ -11,6 +11,7 @@ import {
   GameVersusOverlay,
   type GameVersusSide,
 } from '@pkgs/ui-root-client-ts/game-stage-overlay';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { type JSX, Match, Show, Switch } from 'solid-js';
 import type { MultiplayerStage } from './multiplayer-places';
 
@@ -51,8 +52,10 @@ export type MultiplayerResultShown = {
   readonly aborted?: boolean | undefined;
   /** Who won, in a sentence. */
   readonly title: JSX.Element;
-  /** Why, an offered rematch and the rating change. */
+  /** Why, and an offered rematch. */
   readonly caption?: JSX.Element | undefined;
+  /** What the game did to the person's rating: its own row, under the why. */
+  readonly rating?: JSX.Element | undefined;
 };
 
 type OverlayProps = {
@@ -144,6 +147,11 @@ export function MultiplayerResultCard(props: {
           caption={result().caption}
           dataSet={{ testid: 'multiplayer-announcement' }}
         >
+          {/* The rating change on a row of its own, from the text's edge,
+              never a pill wrapping out of the sentence above. */}
+          <Show when={result().rating}>
+            <StackHorizontal>{result().rating}</StackHorizontal>
+          </Show>
           {props.children}
         </GameResultCard>
       )}

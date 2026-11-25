@@ -413,16 +413,28 @@ function Offers(props: StatusProps): JSX.Element {
 }
 
 /** After the headline: why a finished game ended, offers, the rating change. */
-export function MultiplayerStatusDetail(props: StatusProps): JSX.Element {
+export function MultiplayerStatusDetail(
+  props: StatusProps & {
+    /** The rating change is said elsewhere (the result card's own row). */
+    readonly withoutRating?: boolean | undefined;
+  }
+): JSX.Element {
   return (
     <>
       <Show when={props.game.outcome !== 'ongoing'}>
         <Reason game={props.game} />{' '}
       </Show>
       <Offers {...props} />
-      <RatingChange {...props} />
+      <Show when={props.withoutRating !== true}>
+        <RatingChange {...props} />
+      </Show>
     </>
   );
+}
+
+/** What the game did to the person's rating, as its own badge. */
+export function MultiplayerRatingChange(props: StatusProps): JSX.Element {
+  return <RatingChange {...props} />;
 }
 
 /** Whether {@link MultiplayerStatusDetail} has anything to say. */

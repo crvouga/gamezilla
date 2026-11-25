@@ -9,24 +9,24 @@ import {
   storyArgs,
 } from './matchmaking-screen-view.example';
 
-/** The reason and the rating change, as the result card lays them out. */
+/** The reason, and the rating change on its own row, as the card lays them out. */
 function caption(reason: string, intent: BadgeIntent, change: string) {
-  return (
-    <>
-      {reason}{' '}
+  return {
+    caption: reason,
+    rating: (
       <Badge
         intent={intent}
         tone="subtle"
         label={change === '0' ? 'Rating unchanged' : `Rating ${change}`}
       />
-    </>
-  );
+    ),
+  };
 }
 
 const WON = {
   tone: 'won',
   title: 'You won.',
-  caption: caption('By resignation.', 'success', '+8'),
+  ...caption('By resignation.', 'success', '+8'),
 } as const;
 
 const meta = {
@@ -57,7 +57,7 @@ export const RematchOffered: Story = {
       result: {
         tone: 'lost',
         title: 'Your opponent won.',
-        caption: caption(
+        ...caption(
           'By resignation. Bob offered you a rematch.',
           'destructive',
           '-8'
@@ -74,7 +74,7 @@ export const Drawn: Story = {
       result: {
         tone: 'drawn',
         title: 'The game is drawn.',
-        caption: caption('Drawn by agreement.', 'neutral', '0'),
+        ...caption('Drawn by agreement.', 'neutral', '0'),
       },
     })(args),
 };

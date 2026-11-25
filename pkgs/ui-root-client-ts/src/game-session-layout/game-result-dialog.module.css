@@ -59,18 +59,17 @@
   width: 100%;
   max-width: none;
 }
-/* The filled command takes the whole first row; the others share rows in
-   equal widths, two across, so the sheet stays short, more of the final
-   board shows above it on a phone, and no label is ever cut. An odd one
-   out takes its row's whole width. */
+/* The filled command takes the whole first row; the others share the
+   rows under it, each as wide as its words and growing to fill its row,
+   as many across as fit: short labels sit three across, a long one moves
+   to the next row, so the sheet stays short and no label is ever cut. */
 .actions [data-component="GameActionBar"] {
   flex-direction: row;
   flex-wrap: wrap;
 }
 .actions [data-component="GameActionBar"] > * {
-  flex: 1 1 calc(50% - var(--ui-space-2));
+  flex: 1 1 auto;
   width: auto;
-  min-width: 0;
 }
 .actions [data-component="GameActionBar"] > :first-child {
   flex-basis: 100%;

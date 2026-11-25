@@ -83,7 +83,7 @@ function ResultFacts(props: PuzzleStageScreenViewProps): JSX.Element {
   const themeLabel = (theme: string): string =>
     props.feed.themes?.label(theme) ?? theme;
   return (
-    <StackHorizontal wrap gap="sm" justify="center">
+    <StackHorizontal wrap gap="sm">
       <Show when={props.result.puzzleRating > 0}>
         <PuzzleRatingBadge
           rating={props.result.puzzleRating}
@@ -197,7 +197,7 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
     </Show>
   );
   return (
-    <StackHorizontal gap="sm" align="center">
+    <StackHorizontal gap="md" align="center">
       <Show
         when={retryLeads()}
         fallback={
@@ -213,14 +213,16 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
             {moves()}
             {share()}
             <Show when={offers('next')}>
-              <Button
-                title={<Trans>Next puzzle</Trans>}
-                size="lg"
-                flex={1}
-                endIcon={<ChevronRightIcon />}
-                onClick={() => props.onNext()}
-                dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-              />
+              <StackVertical grow justify="center">
+                <Button
+                  title={<Trans>Next puzzle</Trans>}
+                  size="lg"
+                  fullWidth
+                  endIcon={<ChevronRightIcon />}
+                  onClick={() => props.onNext()}
+                  dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+                />
+              </StackVertical>
             </Show>
           </>
         }
@@ -235,14 +237,16 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
         </Show>
         {moves()}
         {share()}
-        <Button
-          title={<Trans>Retry</Trans>}
-          size="lg"
-          flex={1}
-          icon={RotateCcwIcon}
-          onClick={() => props.onRetry()}
-          dataSet={{ testid: Handles.chessPuzzleActionRetry }}
-        />
+        <StackVertical grow justify="center">
+          <Button
+            title={<Trans>Retry</Trans>}
+            size="lg"
+            fullWidth
+            icon={RotateCcwIcon}
+            onClick={() => props.onRetry()}
+            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+          />
+        </StackVertical>
       </Show>
     </StackHorizontal>
   );
@@ -279,7 +283,8 @@ export function PuzzleResultSummary(
       {/* What next comes straight after how it went, so on a phone Next
           puzzle is in view without scrolling; the numbers follow. */}
       <ResultCommands {...props} />
-      <StackVertical gap="md" align="center">
+      {/* The numbers read from the column's start, as the commands do. */}
+      <StackVertical gap="md" align="start">
         <Show when={props.result.completion} keyed>
           {(completion) => (
             <PuzzleSummaryCard

@@ -12,6 +12,7 @@ import { ChessBoard } from '@pkgs/chess-board-root-client-ts/chess-board';
 import { formatUci } from '@pkgs/chess-rules-shared-ts/uci';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import { useThemeLayout } from '@pkgs/ui-root-client-ts/theme-context';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import { type JSX, Show } from 'solid-js';
 import { puzzleBoardArrows } from './puzzle-board-arrows';
@@ -21,6 +22,7 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
   // Chess's boards follow the app's sound preference themselves.
   const sounds = useSoundsPreference();
   const mode = useLayoutMode();
+  const layout = useThemeLayout();
   return (
     <ChessBoard
       guidancePlacement="after"
@@ -36,10 +38,10 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
       onMove={(move) => props.onAction(formatUci(move))}
       autoPromoteQueen={false}
       showCoordinates
-      // A phone's board runs edge to edge, its coordinates in the squares'
-      // corners, and under it only the keyboard help: the coach above says
-      // what to do.
-      showGuidance
+      // A compact board runs edge to edge, its coordinates in the squares'
+      // corners: the coach above says what to do. A tablet keeps only the
+      // keyboard help under it; a phone, played by touch, keeps nothing.
+      showGuidance={layout.breakpoint() !== 'mobile'}
       guidanceDetail={mode() === 'wide' ? 'full' : 'keyboard'}
       coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'inside'}
       highlightLastMove

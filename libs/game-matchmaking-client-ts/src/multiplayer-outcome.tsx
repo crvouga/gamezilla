@@ -19,6 +19,7 @@ import type {
   MultiplayerVersusShown,
 } from './multiplayer-overlay-view';
 import {
+  MultiplayerRatingChange,
   MultiplayerStatusDetail,
   MultiplayerStatusTitle,
   multiplayerStatusHasDetail,
@@ -72,6 +73,23 @@ function ResultCaption(props: GameProps): JSX.Element {
       viewer={viewer()}
       winnerName={winnerName()}
       lowOnTime={null}
+      withoutRating
+    />
+  );
+}
+
+/** The rating change for the result card's own row. */
+function ResultRating(props: GameProps): JSX.Element {
+  const { viewer, winnerName } = useMultiplayerViewer(
+    () => props.game,
+    () => props.myId
+  );
+  return (
+    <MultiplayerRatingChange
+      game={props.game}
+      viewer={viewer()}
+      winnerName={winnerName()}
+      lowOnTime={null}
     />
   );
 }
@@ -93,6 +111,7 @@ export function multiplayerResultShown(
     aborted: game.outcome === 'aborted',
     title: <ResultTitle game={game} myId={myId} />,
     caption: detailed ? <ResultCaption game={game} myId={myId} /> : undefined,
+    rating: <ResultRating game={game} myId={myId} />,
   };
 }
 
