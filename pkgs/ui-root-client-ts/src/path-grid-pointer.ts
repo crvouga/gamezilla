@@ -1,9 +1,59 @@
 import { definePrimitive } from '@ui-sdk/core';
 import { createParts } from '@ui-sdk/solid/primitive';
-import type {
-  PathGridBoardProps,
-  PathGridTraceCancellation,
-} from './path-grid-types';
+export type PathGridTone =
+  | 'red'
+  | 'orange'
+  | 'yellow'
+  | 'green'
+  | 'blue'
+  | 'purple';
+
+export type PathGridEndpoint = {
+  readonly cell: number;
+  readonly tracing?: boolean | undefined;
+  readonly label: string;
+  readonly tone: PathGridTone;
+  readonly connected: boolean;
+};
+
+export type PathGridLine = {
+  readonly stitch?: number;
+  readonly id: string;
+  readonly cells: readonly number[];
+  readonly tone: PathGridTone;
+  readonly connected: boolean;
+  /** Still being drawn: shown, but not yet saved. */
+  readonly provisional?: boolean | undefined;
+};
+
+export type PathGridTraceCancellation =
+  | 'boundary'
+  | 'interrupted'
+  | 'stationary';
+
+export type PathGridBoardProps = {
+  readonly columns: number;
+  readonly rows: number;
+  readonly label: string;
+  readonly testId: string;
+  readonly endpoints: readonly PathGridEndpoint[];
+  readonly lines: readonly PathGridLine[];
+  readonly cellLabel: (index: number) => string;
+  /** The endpoint chosen for editing; marked independently of pair color and focus. */
+  readonly selectedCell?: number | undefined;
+  readonly disabled?: boolean | undefined;
+  readonly describedBy?: string | undefined;
+  readonly navigationHint?: string;
+  readonly onActivate?: ((index: number) => void) | undefined;
+  readonly onNavigate?: ((index: number) => void) | undefined;
+  readonly onCellKey?: ((key: string, index: number) => boolean) | undefined;
+  readonly onTraceStart?: ((index: number) => void) | undefined;
+  readonly onTraceMove?: ((index: number) => void) | undefined;
+  readonly onTraceEnd?: (() => void) | undefined;
+  readonly onTraceCancel?:
+    | ((reason: PathGridTraceCancellation) => void)
+    | undefined;
+};
 
 type Point = { readonly x: number; readonly y: number };
 type Grid = { readonly columns: number; readonly rows: number };
@@ -64,20 +114,59 @@ function coalescedSamples(
   return event.getCoalescedEvents?.() ?? [];
 }
 
+function focusStart(
+  root: HTMLElement | undefined,
+  start: Point,
+  columns: number
+) {
+  const index = Math.floor(start.y) * columns + Math.floor(start.x);
+  root
+    ?.querySelector<HTMLButtonElement>(`[data-cell="${index}"]`)
+    ?.focus({ preventScroll: true });
+  return index;
+}
+
+function sampleWithin(event: PointerEvent, box: DOMRect) {
+  return (
+    event.clientX >= box.left &&
+    event.clientX < box.right &&
+    event.clientY >= box.top &&
+    event.clientY < box.bottom
+  );
+}
+
+function visitSamples(
+  event: PointerEvent,
+  clip: DOMRect,
+  visit: (sample: PointerEvent, inside: boolean) => boolean
+) {
+  for (const sample of coalescedSamples(event))
+    if (!visit(sample, sampleWithin(sample, clip))) return;
+  visit(event, sampleWithin(event, clip));
+}
+
+function canStart(event: PointerEvent, props: PathGridBoardProps) {
+  return props.disabled !== true && event.button === 0 && event.isPrimary;
+}
+
 export function createPathGridPointer(
   props: PathGridBoardProps,
-  element: () => HTMLDivElement | undefined
+  element: () => HTMLDivElement | undefined,
+  bounds: (clip: DOMRect) => DOMRect
 ) {
   let active: number | null = null;
   const capturedPointer = (): number | null => active;
   let previous: Point | null = null;
   let traced = false;
-  const cancel = (reason: PathGridTraceCancellation = 'interrupted'): void => {
+  const cancel = (
+    reason: PathGridTraceCancellation = 'interrupted',
+    keepCapture = false
+  ): void => {
     if (active === null) return;
     const pointer = active;
     active = null;
     previous = null;
-    element()?.releasePointerCapture(pointer);
+    if (!keepCapture) element()?.releasePointerCapture(pointer);
     props.onTraceCancel?.(reason);
   };
   const traceSample = (
@@ -99,36 +188,32 @@ export function createPathGridPointer(
   const move = (event: PointerEvent): void => {
     if (active !== event.pointerId || props.disabled === true) return;
     event.preventDefault();
-    const box = element()?.getBoundingClientRect();
-    // A single touch event can contain the turn or reversal between frames.
-    for (const sample of coalescedSamples(event)) {
-      traceSample(sample, box);
-      if (capturedPointer() === null) return;
-    }
-    traceSample(event, box);
+    const clip = element()?.getBoundingClientRect();
+    if (!clip) return;
+    const box = bounds(clip);
+    visitSamples(event, clip, (sample, inside) => {
+      traceSample(sample, inside ? box : undefined);
+      return capturedPointer() !== null;
+    });
   };
   return {
     cancel,
     down(event: PointerEvent): void {
       if (
         active !== null ||
-        props.disabled === true ||
         props.onTraceStart === undefined ||
-        event.button !== 0 ||
-        !event.isPrimary
+        !canStart(event, props)
       )
         return;
-      const start = gridPoint(event, element()?.getBoundingClientRect(), props);
+      const clip = element()?.getBoundingClientRect();
+      const start = gridPoint(event, clip && bounds(clip), props);
       if (start === null) return;
       event.preventDefault();
       active = event.pointerId;
       previous = start;
       traced = false;
       element()?.setPointerCapture(event.pointerId);
-      const index = Math.floor(start.y) * props.columns + Math.floor(start.x);
-      element()
-        ?.querySelector<HTMLButtonElement>(`[data-cell="${index}"]`)
-        ?.focus({ preventScroll: true });
+      const index = focusStart(element(), start, props.columns);
       props.onTraceStart(index);
     },
     move,

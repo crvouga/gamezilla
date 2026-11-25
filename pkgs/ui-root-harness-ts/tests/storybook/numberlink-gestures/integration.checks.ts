@@ -4,6 +4,7 @@ import {
   center,
   mousePath,
   openBoard,
+  touchPath,
 } from '../numberlink-board/evidence';
 
 test.use({ hasTouch: true, video: 'on', trace: 'on' });
@@ -49,7 +50,7 @@ async function trackpadAcrossTrace(page: Page) {
     await page.keyboard.up('Control');
   }
   await page.mouse.up();
-  await page.mouse.wheel(12, 8);
+  await page.mouse.wheel(100, 8);
 }
 
 for (const width of [390, 1440]) {
@@ -76,9 +77,13 @@ for (const width of [390, 1440]) {
       const enlarged = await first.boundingBox();
       expect(enlarged?.width).toBeGreaterThan(fit.width * 1.1);
       await expect(board.locator('[data-path]')).toHaveCount(0);
-      // Use the transformed hit target before returning to fit.
-      await mousePath(page, [1, 0]); // an empty start cannot commit
-      await expect(board.locator('[data-path]')).toHaveCount(0);
+      // Pair 1's matching endpoint remains visible near the center when zoomed.
+      await (width === 390 ? touchPath : mousePath)(page, [13, 12]);
+      await expect(
+        page.getByTestId('numberlink-board-cell-12')
+      ).toHaveAccessibleName('C3: path 1, unfinished');
+      await capture(page, info, 'magnified-drawing');
+      await page.keyboard.press('Delete');
       await page.keyboard.press('0');
       await expect
         .poll(async () => (await first.boundingBox())?.width)
@@ -101,3 +106,28 @@ for (const width of [390, 1440]) {
     });
   });
 }
+
+test('storybook integration: numberlink-gestures matching labels and stitches at the same hue', async ({
+  page,
+}, info) => {
+  await openBoard(
+    page,
+    'light',
+    'screens-games-numberlink-puzzle--dense-board-half-drawn'
+  );
+  const board = page.getByTestId('numberlink-board');
+  for (const row of [0, 1]) {
+    for (const col of [0, 19]) {
+      const end = page.getByTestId(`numberlink-board-cell-${row * 20 + col}`);
+      await expect(end).toHaveAttribute('data-tone', 'blue');
+      await expect(end).toHaveText(String(row + 1));
+    }
+  }
+  const stitches = await board
+    .locator('g[data-stitch] path')
+    .evaluateAll((nodes) =>
+      nodes.map((node) => getComputedStyle(node).strokeDasharray)
+    );
+  expect(new Set(stitches).size).toBeGreaterThan(1);
+  await capture(page, info, 'same-hue');
+});
