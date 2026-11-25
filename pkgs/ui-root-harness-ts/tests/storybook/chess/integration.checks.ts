@@ -69,6 +69,7 @@ test('storybook integration: chess puzzle 844x390 shows every square beside its 
 });
 
 // regression: chess-puzzle-guidance-below-short-landscape-fold
+// regression: chess-landscape-keyboard-help-hidden
 test('storybook integration: chess puzzle 844x390 opens keyboard help with every square in view', async ({
   page,
 }) => {
