@@ -1,8 +1,6 @@
 import { useDeviceId } from '@libs/auth-client-ts/use-device-id';
-import type { AvatarConfig } from '@libs/profile-shared-ts/avatar-config';
 import {
   AvatarSeedGenerator,
-  configsEqual,
   createDefaultAvatarConfig,
   parseAvatarConfig,
   resolveAvatarSeed,
@@ -18,8 +16,8 @@ import {
   createEffect,
   createMemo,
   createSignal,
-  untrack,
 } from 'solid-js';
+import { createAvatarDraft } from './avatar-draft';
 import type { AvatarEditorScreenViewProps } from './avatar-editor-screen-view';
 import { useMyProfileId } from './patch-avatar-use-my-profile-id';
 import { useProfileRow } from './patch-avatar-use-profile-row';
@@ -43,39 +41,6 @@ function usePersistedConfig() {
   });
   const seedFallback = createMemo(() => profileId() ?? deviceId() ?? '');
   return { seedFallback, profileId, persisted, ready };
-}
-
-function useDraftSync(args: {
-  persisted: Accessor<AvatarConfig>;
-  ready: Accessor<boolean>;
-}) {
-  // Seeds the draft shown before the saved avatar loads; the effect below
-  // adopts the saved one once it is ready and follows it from then on.
-  const [draft, setDraft] = createSignal<AvatarConfig>(untrack(args.persisted));
-  const bootstrappedRef = { current: false };
-  const lastPersistedRef = { current: null as AvatarConfig | null };
-
-  createEffect(
-    () => ({ persisted: args.persisted(), ready: args.ready() }),
-    ({ persisted, ready }) => {
-      if (!ready) return;
-      const prev = lastPersistedRef.current;
-      if (!bootstrappedRef.current || prev === null) {
-        setDraft(persisted);
-        lastPersistedRef.current = persisted;
-        bootstrappedRef.current = true;
-        return;
-      }
-      if (!configsEqual(prev, persisted)) {
-        setDraft((current) =>
-          configsEqual(current, prev) ? persisted : current
-        );
-        lastPersistedRef.current = persisted;
-      }
-    }
-  );
-
-  return { draft, setDraft };
 }
 
 const COPIED_HOLD_MS = 2000;
@@ -120,21 +85,6 @@ function useDiscardActions(dirty: Accessor<boolean>) {
   };
 }
 
-function useSaveAction(args: {
-  draft: Accessor<AvatarConfig>;
-  profileId: Accessor<string | null>;
-}) {
-  const mutationClient = useMutationClient();
-  return async () => {
-    const profileId = args.profileId();
-    if (profileId === null) return;
-    const result = await mutationClient.mutate(patchAvatarMutation, {
-      avatarConfig: serializeAvatarConfig(args.draft()),
-    });
-    if (!result.ok) throw new Error(result.failures[0]?.message);
-  };
-}
-
 /**
  * The avatar editor's state and effects as `AvatarEditorScreenView` props:
  * the draft seeded from the saved avatar, the discard guard, the seed
@@ -142,17 +92,23 @@ function useSaveAction(args: {
  */
 export function useAvatarEditor(): Omit<AvatarEditorScreenViewProps, 'notice'> {
   const { seedFallback, profileId, persisted, ready } = usePersistedConfig();
-  const { draft, setDraft } = useDraftSync({ persisted, ready });
-  const dirty = createMemo(
-    () => ready() && !configsEqual(draft(), persisted())
-  );
+  const mutationClient = useMutationClient();
+  const { draft, setDraft, dirty, save } = createAvatarDraft({
+    persisted,
+    ready,
+    async write(config) {
+      const result = await mutationClient.mutate(patchAvatarMutation, {
+        avatarConfig: serializeAvatarConfig(config),
+      });
+      if (!result.ok) throw new Error(result.failures[0]?.message);
+    },
+  });
   const effectiveSeed = createMemo(() =>
     resolveAvatarSeed(draft(), seedFallback())
   );
   const random = useRandom();
   const discard = useDiscardActions(dirty);
   const seedCopy = useSeedCopy(effectiveSeed);
-  const save = useSaveAction({ draft, profileId });
   return {
     get status() {
       return ready() ? 'ready' : 'loading';
@@ -182,6 +138,8 @@ export function useAvatarEditor(): Omit<AvatarEditorScreenViewProps, 'notice'> {
     onBack: discard.onBack,
     onConfirmDiscard: discard.onConfirmDiscard,
     onKeepEditing: discard.onKeepEditing,
-    onSave: save,
+    onSave: async () => {
+      if (profileId() !== null) await save();
+    },
   };
 }
