@@ -55,27 +55,6 @@ type BoardState = {
 
 type BoardViewProps = GameBoardProps & { readonly state: BoardState };
 
-function createWallPreview(
-  props: BoardViewProps,
-  previewAction: Accessor<string | null>
-) {
-  const targets = createMemo(() =>
-    quoridorBoardCells(
-      props.state.game(),
-      props.state.tool(),
-      props.interactive
-    )
-  );
-  const reason = createMemo(() => {
-    const action = previewAction();
-    return action === null ? null : wallRefusal(props.state.game(), action);
-  });
-  const cells = createMemo(() =>
-    withWallPreview(targets(), previewAction(), reason() !== null)
-  );
-  return { targets, reason, cells };
-}
-
 function createBoardSelection(props: BoardViewProps) {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
@@ -107,7 +86,17 @@ function createBoardSelection(props: BoardViewProps) {
     tool() === 'move'
       ? null
       : `${selected() ?? preview()}${tool()}`;
-  const { targets, reason, cells } = createWallPreview(props, previewAction);
+  const targets = createMemo(() =>
+    quoridorBoardCells(game(), tool(), props.interactive)
+  );
+  const cells = createMemo(() => {
+    const action = previewAction();
+    return withWallPreview(
+      targets(),
+      action,
+      action !== null && wallRefusal(game(), action) !== null
+    );
+  });
   const message = () => {
     if (game().winner !== null)
       return t`Game finished. Use the game controls to review earlier moves.`;
@@ -117,7 +106,7 @@ function createBoardSelection(props: BoardViewProps) {
       return t`No legal move or wall. Pass to continue.`;
     const action = previewAction();
     if (action !== null)
-      return `${quoridorBoundary(action)}. ${selected() === null && reason() === null ? t`Select this square to keep the preview.` : quoridorWallMessage(reason(), game().mode)}`;
+      return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action), game().mode)}`;
     // A host refusal explains the last attempt; it outranks standing guidance.
     const refused = props.state.refusal();
     if (refused !== '') return refused;
@@ -137,24 +126,14 @@ function createBoardSelection(props: BoardViewProps) {
   };
   const commit = () => {
     const action = `${selected()}${tool()}`;
-    if (selected() === null || reason() !== null) return;
+    if (wallRefusal(game(), action) !== null) return;
     cancel();
     props.state.setRefusal('');
     // The wall is spent: the next turn starts with the pawn tool.
     props.state.setTool('move');
     props.onAction(action);
   };
-  return {
-    cells,
-    targets,
-    reason,
-    selected,
-    message,
-    activate,
-    setPreview,
-    cancel,
-    commit,
-  };
+  return { cells, selected, message, activate, setPreview, cancel, commit };
 }
 
 function QuoridorBoardView(props: BoardViewProps): JSX.Element {
@@ -213,7 +192,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
         <QuoridorTargetPicker
           testId={props.testId}
           tool={tool()}
-          cells={selection.targets()}
+          cells={selection.cells()}
           selected={selection.selected()}
           onActivate={selection.activate}
         />
@@ -221,7 +200,9 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
       <Show when={selection.selected() !== null && props.interactive}>
         <WallConfirmation
           testId={props.testId}
-          enabled={selection.reason() === null}
+          enabled={
+            wallRefusal(game(), `${selection.selected()}${tool()}`) === null
+          }
           cancel={() => {
             selection.cancel();
             setRefocus(true);
@@ -323,8 +304,8 @@ function WallConfirmation(props: {
 }
 
 function toolGuidance(tool: QuoridorTool): string {
-  if (tool === 'move') return t`Choose a marked destination to move your pawn.`;
+  if (tool === 'move') return t`Move to a marked square.`;
   return tool === 'h'
-    ? t`Choose a square. The wall runs above it and the square to its right.`
-    : t`Choose a square. The wall runs beside its right edge and the square above.`;
+    ? t`Tap a square: preview a wall above it.`
+    : t`Tap a square: preview a wall to its right.`;
 }
