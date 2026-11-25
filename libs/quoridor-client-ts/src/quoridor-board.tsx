@@ -70,6 +70,28 @@ function refusalReason(props: BoardViewProps, wall: string | null): string {
   return props.interactive ? props.state.refusal() : '';
 }
 
+function boardMessage(
+  props: BoardViewProps,
+  previewAction: Accessor<string | null>
+): string {
+  const game = props.state.game();
+  if (game.winner !== null)
+    return t`Game finished. Choose a move in the moves list to see the board at that point.`;
+  if (!props.interactive)
+    return t`Waiting for ${quoridorPlayerName(game, game.turn)} to move. This board is read-only.`;
+  if (quoridorMustPass(game))
+    return t`No legal move or wall. Pass to continue.`;
+  const action = previewAction();
+  if (action !== null)
+    return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game, action), game.mode)}`;
+  // A host refusal explains the last attempt; it outranks standing guidance.
+  const refused = props.state.refusal();
+  if (refused !== '') return refused;
+  return (game.remaining[game.turn] ?? 0) === 0
+    ? quoridorWallMessage('no-walls', game.mode)
+    : '';
+}
+
 function createBoardSelection(props: BoardViewProps) {
   const game = (): Quoridor => props.state.game();
   const tool = (): QuoridorTool => props.state.tool();
@@ -106,23 +128,7 @@ function createBoardSelection(props: BoardViewProps) {
   const cells = createMemo(() =>
     quoridorBoardCells(game(), tool(), props.interactive, previewAction())
   );
-  const message = () => {
-    if (game().winner !== null)
-      return t`Game finished. Choose a move in the moves list to see the board at that point.`;
-    if (!props.interactive)
-      return t`Waiting for ${quoridorPlayerName(game(), game().turn)} to move. This board is read-only.`;
-    if (quoridorMustPass(game()))
-      return t`No legal move or wall. Pass to continue.`;
-    const action = previewAction();
-    if (action !== null)
-      return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action), game().mode)}`;
-    // A host refusal explains the last attempt; it outranks standing guidance.
-    const refused = props.state.refusal();
-    if (refused !== '') return refused;
-    return (game().remaining[game().turn] ?? 0) === 0
-      ? quoridorWallMessage('no-walls', game().mode)
-      : '';
-  };
+  const message = () => boardMessage(props, previewAction);
   const activate = (cell: string): void => {
     const action = tool() === 'move' ? cell : `${cell}${tool()}`;
     if (tool() !== 'move') {
