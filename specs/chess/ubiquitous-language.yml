@@ -17,7 +17,6 @@ terms:
     from: kernel
   - term: connection
     from: kernel
-    model: [online, loseConnection, comeBackOnline, connectionReturns]
   - term: environment
     from: kernel
   - term: block someone
@@ -71,7 +70,6 @@ terms:
   # The shared kernel's "the app", named in this context's model.
   - term: the app
     from: kernel
-    model: [reopenApp]
 
   # --- Where a person is in a space ------------------------------------------
 
@@ -98,20 +96,17 @@ terms:
       so everyone in it has the host's view, on every device they have in
       the space. Going idle does not change what the space is showing.
     avoid: [screen, menu, page]
-    model: [View, view, Elsewhere]
 
   - term: game choice
     definition: >-
       Where a space's host picks the game the space plays, and where everyone
       in the space starts.
-    model: [GameChoice, backToGameChoice]
 
   - term: chess choices
     definition: >-
       Chess's own starting point in a space, between the game choice and the
       board; a solver steps back here from the board and goes back to the
       puzzles from here.
-    model: [ChessChoices]
 
   - term: board
     definition: >-
@@ -120,7 +115,6 @@ terms:
       puzzle's state; a watcher's board agrees with the host's. In a Custom
       Game each participant's board faces their own side, and everyone
       else's board faces White.
-    model: [Board]
     published: true
 
   - term: play puzzles
@@ -136,7 +130,6 @@ terms:
       - opened puzzles
       - go back to the puzzles
       - goes back to the puzzles
-    model: [openPuzzles, goBackToPuzzles]
 
   - term: leave the puzzle
     definition: >-
@@ -144,7 +137,6 @@ terms:
       waits, as it was, for the solver to go back to the puzzles; a finished
       one does not, and going back starts the next puzzle.
     forms: [leaves the puzzle, left the puzzle, leaving the puzzle]
-    model: [leavePuzzle]
 
   # --- Puzzles and the feed --------------------------------------------------
 
@@ -154,7 +146,6 @@ terms:
       checkmate, played on the board. Each
       puzzle has a rating of its own, which is how hard it is.
     avoid: [problem, exercise]
-    model: [puzzle, PuzzleSound, puzzleSound]
     published: true
 
   - term: puzzle's own rating
@@ -199,30 +190,6 @@ terms:
       - stop adding puzzles
       - adds some of the puzzles
     avoid: [import, ingest, puzzle file]
-    model:
-      - PuzzleLoading
-      - puzzleLoading
-      - addPuzzles
-      - finishAddingPuzzles
-      - failAddingPuzzles
-      - addSomePuzzles
-      - stopAddingPuzzles
-      - followAddingPuzzles
-      - addingPuzzles
-      - addingPuzzlesStatus
-      - stoppingPuzzles
-      - askToStopAddingPuzzles
-      - cancelStoppingPuzzles
-      - confirmStoppingPuzzles
-      - finishStoppingPuzzles
-      - failStoppingPuzzles
-      - returnToLichessFile
-      - followingAddingPuzzles
-      - leavingAddingPuzzles
-      - askToLeaveAddingPuzzles
-      - cancelLeavingAddingPuzzles
-      - confirmLeavingAddingPuzzles
-      - leaveAddingPuzzles
 
   - term: Lichess file
     definition: >-
@@ -234,23 +201,6 @@ terms:
       - saved a Lichess file
       - provide a Lichess file
       - save another Lichess file
-    model:
-      - LichessFile
-      - lichessFile
-      - lichessFileSaved
-      - savingLichessFile
-      - needsLichessFile
-      - checkLichessFile
-      - finishCheckingLichessFile
-      - failCheckingLichessFile
-      - chooseLichessFile
-      - saveLichessFile
-      - finishSavingLichessFile
-      - failSavingLichessFile
-      - askToStopSavingLichessFile
-      - cancelStoppingLichessFile
-      - confirmStoppingLichessFile
-      - anotherEnvironmentSavesLichessFile
 
   - term: broken puzzle
     definition: >-
@@ -364,7 +314,6 @@ terms:
       Where the puzzle on a board stands, as the board tells it: being solved
       (the solver is asked to find the next move), a wrong move played,
       solved, skipped, or its solution shown.
-    model: [puzzleState]
 
   - term: line
     definition: >-
@@ -398,14 +347,12 @@ terms:
   - term: solution move
     definition: The next move of the solution, from where the board stands.
     forms: [asks to see the solution move, asked to see the solution move, correct move]
-    model: [revealSolutionMove, trySolutionBeforeHint]
 
   - term: solve
     definition: >-
       Finish a puzzle with the solution or any legal checkmate. A solved puzzle is over, and
       its pieces can no longer be moved.
     forms: [solves, solved, solving]
-    model: [solve]
     published: true
 
   - term: wrong move
@@ -415,14 +362,12 @@ terms:
       retry. It earns half credit, like a hint.
     forms: [wrong]
     avoid: [mistake, blunder]
-    model: [playWrongMove]
 
   - term: hint
     definition: >-
       Help while solving: the first highlights the piece to move, the second
       shows the solution move. A puzzle solved after a hint earns half credit.
     forms: [asks for a hint, asks for another hint, asked for a hint]
-    model: [requestHint, help, tryHintAfterFinish, tryHintFromReview, tryHintBeforeRetry, tryEarlierHint]
 
   - term: half credit
     definition: >-
@@ -435,7 +380,6 @@ terms:
       solve, a shown solution or a skip, play the same puzzle from its start.
       It continues the same attempt, so its first outcome does not change.
     forms: [retries the puzzle, retried the puzzle, retrying the puzzle]
-    model: [retry, tryRetryWhileSolving]
 
   - term: show the solution
     definition: >-
@@ -449,14 +393,12 @@ terms:
       - revealed
       - revealed solution
       - revealed line
-    model: [showSolution, tryShowSolutionAfterFinish, tryShowSolutionFromReview]
 
   - term: skip
     definition: >-
       Give up on a puzzle being solved. It is over, and the attempt is
       abandoned.
     forms: [skips, skipped, skipping]
-    model: [skip, trySkipAfterFinish]
 
   - term: failed attempt
     definition: >-
@@ -468,7 +410,6 @@ terms:
     definition: >-
       A puzzle is over once it is solved, skipped or its solution shown. Its
       pieces can no longer be moved, and the host may move on.
-    model: [isOver]
 
   - term: abandoned attempt
     definition: An attempt's outcome when the puzzle was skipped.
@@ -485,7 +426,6 @@ terms:
       - asks for another puzzle
       - asks for the next puzzle
       - asking for the next puzzle
-    model: [moveOn, moveOnTwiceAtOnce, moveOnOffered]
 
   - term: auto-advance
     definition: >-
@@ -497,7 +437,6 @@ terms:
       How long the current attempt has run. It runs while the puzzle is being
       solved and stops when the puzzle is over.
     forms: [clock, seconds pass]
-    model: [timePasses]
 
   - term: haptic
     definition: >-
@@ -523,7 +462,6 @@ terms:
       A move a watcher proposes. The host and every watcher see it; it does
       not move the puzzle, and the host's next move clears it.
     forms: [suggest, suggests, suggested]
-    model: [suggestMove]
 
   # --- Rating, stats and the game log ------------------------------------------
 
@@ -607,7 +545,6 @@ terms:
       device.
     forms: [reviews, reviewing, reviewed]
     avoid: [replay, analysis]
-    model: [stepBackPosition, stepForwardPosition, position, chooseReviewPosition, tryReviewBeforeRetry]
 
   # --- The daily puzzle limit --------------------------------------------------
 
@@ -624,25 +561,21 @@ terms:
     definition: >-
       One use of a guest's daily puzzle limit, spent when a rated puzzle first
       starts. Going back to a puzzle already started spends none.
-    model: [puzzleStarts]
 
   # --- Chess rules (FIDE) ------------------------------------------------------
 
   - term: move
     source: FIDE Laws of Chess, Article 3 (the moves of the pieces)
     forms: [moves, moved, moving, plays]
-    model: [playCorrectContinuation, tryMoveAfterFinish, tryMoveFromReview, tryMoveBeforeRetry, playCapturePuzzleMove]
   - term: capture
     source: FIDE Laws of Chess, Article 3.1.1 (removing an opposing piece as part of a move)
     forms: [captures, captured]
   - term: piece
     source: FIDE Laws of Chess, Article 2.2
     forms: [rook, knight, bishop, queen, pawn, king]
-    model: [choosePiece]
   - term: to move
     source: FIDE Laws of Chess, Article 1.1 (having the move)
   - term: illegal move
-    model: [tryIllegalMove]
     source: FIDE Laws of Chess, Article 3.10
   - term: check
     source: FIDE Laws of Chess, Article 3.9
@@ -1147,7 +1080,6 @@ terms:
       current puzzle without claiming a chess fact it cannot establish.
       Its words remain available without sound or movement.
     forms: [assistant, assistant's, commentary]
-    model: [commentary, commentaryPuzzle]
 
   - term: observation
     definition: >-
@@ -1155,7 +1087,6 @@ terms:
       A wrong move is described as a possibility because the board keeps
       the position before it. Puzzle labels alone never justify a claim.
     forms: [observations]
-    model: [guidance]
 
   - term: hanging piece
     definition: >-
@@ -1173,7 +1104,6 @@ terms:
   - term: mute
     definition: Stop the assistant's voice while keeping its words available.
     forms: [muted, mutes, unmute, unmutes]
-    model: [muteAssistant, unmuteAssistant, assistantMuted]
 
   - term: reduced motion
     definition: A person's choice to avoid decorative movement in the app.

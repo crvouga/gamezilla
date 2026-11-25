@@ -34,15 +34,12 @@ terms:
 
   - term: device
     from: kernel
-    model: [PhoneState, phoneState]
 
   - term: connection
     from: kernel
-    model: [Online, Offline, goOffline, comeBackOnline]
 
   - term: the app
     from: kernel
-    model: [AppClosed, closeUnexpectedly, reopenApp]
 
   - term: closed unexpectedly
     definition: >-
@@ -61,17 +58,14 @@ terms:
       last saw plus their own changes since. No change is ever lost or
       counted twice.
     forms: [tallies]
-    model: [tally, shownTally]
 
   - term: add one
     definition: Raise the tally by one.
     forms: [adds one, added one, adding one]
-    model: [addOne]
 
   - term: take one off
     definition: Lower the tally by one.
     forms: [takes one off, took one off, taken one off, taking one off]
-    model: [takeOne]
 
   - term: change
     definition: >-
@@ -94,14 +88,12 @@ terms:
       The person who owns the room: the first person to claim it. Nobody can
       take the room from its owner, and only the owner can turn someone away.
     forms: [owns, owned, own, owners]
-    model: [owner]
 
   - term: claim the room
     definition: >-
       Ask to become the owner of a room nobody owns yet. Someone who claims a
       room that already has an owner is told so, and nothing changes.
     forms: [claims the room, claimed the room, claiming the room, claimer]
-    model: [claim]
 
   - term: turn someone away
     definition: >-
@@ -114,7 +106,6 @@ terms:
       - has turned someone away
       - turned away
       - turning someone away
-    model: [turnAway, turnedAway]
 
   # --- The timed match ----------------------------------------------------------
 
@@ -125,13 +116,11 @@ terms:
       clock runs, and is over once a player runs out of time; nothing changes
       it after that. White and Black both see the match as it stands.
     forms: [match, matches, the match, a match]
-    model: [matchStatus, matchShown]
 
   - term: White and Black
     definition: >-
       The two players of a match. White moves first.
     forms: [player, players]
-    model: [Player]
 
   - term: start a match
     definition: >-
@@ -139,7 +128,6 @@ terms:
       seconds each of them has; White is then to move. A match that is
       playing or over cannot be started again.
     forms: [starts a match, started a match, starting a match]
-    model: [startMatch]
 
   - term: match clock
     definition: >-
@@ -148,27 +136,23 @@ terms:
       player can use the shared match, keeps the time left on return, and
       never pauses merely because a player's own phone is offline.
     forms: [clock]
-    model: [clocksPaused]
 
   - term: time left
     definition: >-
       How many of their seconds a player has left: "White has 7 seconds
       left". It runs down only while that player is to move.
     forms: [seconds left, second left]
-    model: [timeLeft]
 
   - term: seconds pass
     definition: >-
       Time goes by for everyone in the room: "When 6 seconds pass".
     forms: [seconds have passed, second passes]
-    model: [timePasses]
 
   - term: player to move
     definition: >-
       The player whose time the match clock is running down. Only they can
       move.
     forms: [to move]
-    model: [playerToMove]
 
   - term: move
     definition: >-
@@ -177,13 +161,11 @@ terms:
       match starts, or once the player's time has run out does not count,
       and the player is told it came too late when their time had run out.
     forms: [moves, moved, mover]
-    model: [move]
 
   - term: opponent
     definition: >-
       The other player of the match: Black to White, White to Black.
     forms: [opponent's]
-    model: [opponent]
 
   - term: run out of time
     definition: >-
@@ -208,7 +190,6 @@ terms:
       - has claimed someone has run out of time
       - claiming the opponent has run out of time
       - early claim
-    model: [claimOutOfTime]
 
   - term: win on time
     definition: >-
@@ -216,4 +197,3 @@ terms:
       player who ran out of time loses on time, and White and Black both see
       who won.
     forms: [wins on time, won on time, loses on time]
-    model: [winner]

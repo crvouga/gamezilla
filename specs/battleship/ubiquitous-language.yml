@@ -37,7 +37,6 @@ terms:
       A player's board as they see it: their whole fleet, and every shot the
       other player has made at it, as a hit or a miss.
     forms: [own boards]
-    model: [ownBoard]
 
   - term: targeting board
     definition: >-
@@ -45,7 +44,6 @@ terms:
       at, marked as a hit or a miss, and the ships they have sunk. It shows
       nothing else of the other player's fleet.
     forms: [targeting boards]
-    model: [targetingBoard]
 
   - term: fleet
     definition: >-
@@ -55,7 +53,6 @@ terms:
       fleet until then. Only its own player sees it, becoming ready confirms
       it, and a ready player's ships cannot be placed again or rotated.
     forms: [fleets, complete fleet, incomplete fleet]
-    model: [fleet]
 
   - term: ship
     definition: >-
@@ -73,7 +70,6 @@ terms:
       players are ready and the game starts, and the game is over once a
       player has won.
     forms: [setups]
-    model: [phase]
 
   - term: place
     definition: >-
@@ -82,7 +78,6 @@ terms:
       changes where it lies. A ship that would run off the board or lie on
       another ship is refused, and the ships stay where they were.
     forms: [places, placed, placing]
-    model: [placeShip]
 
   - term: rotate
     definition: >-
@@ -90,7 +85,6 @@ terms:
       first cell. A rotation that would run off the board or lie on another
       ship is refused, and the ship stays where it was.
     forms: [rotates, rotated, rotating, rotation]
-    model: [rotateShip]
 
   - term: random fleet
     definition: >-
@@ -98,7 +92,6 @@ terms:
       setup, by the same rules as placing, in place of the ships they had
       placed. Which cells it uses is not promised.
     forms: [random fleets]
-    model: [randomFleet]
 
 
   - term: ready
@@ -108,7 +101,6 @@ terms:
       ships cannot be placed again or rotated. In a custom game a bot is
       ready once the custom game starts.
     forms: [readiness, becomes ready, become ready, not ready]
-    model: [ready, becomeReady]
 
   - term: start
     definition: >-
@@ -116,7 +108,6 @@ terms:
       creator starts it; any other Battleship game starts by itself. The
       first player then has the first turn.
     forms: [starts, started, starting]
-    model: [startGame]
 
   - term: turn
     definition: >-
@@ -124,7 +115,6 @@ terms:
       and the turn passes to the other player after every hit and every
       miss: a hit gives no extra shot, and nobody may pass their turn.
     forms: [turns]
-    model: [turn]
 
   - term: shot
     definition: >-
@@ -134,14 +124,12 @@ terms:
       says nothing about the other player's fleet. Both players see what
       every shot found: a hit or a miss, and which ship it sank.
     forms: [shots, shoot, shoots, shooting, shot at, shoots at, has shot at]
-    model: [shoot, shots]
 
   - term: hit
     definition: >-
       A shot at a cell with a ship on it. It shows that cell holds a ship,
       but not which one, until the ship sinks.
     forms: [hits, has hit, hitting]
-    model: [hits]
 
   - term: miss
     definition: >-
@@ -155,14 +143,12 @@ terms:
       it and names it, so both players know which ship sank, and nothing
       else about the fleet.
     forms: [sink, sinks, sinking, sank]
-    model: [sunk]
 
   - term: victory
     definition: >-
       A player sinking the other player's fifth ship with the 17th hit,
       which wins the game; the game is then over at once.
     forms: [wins, winner, won, win]
-    model: [winner]
 
   - term: over
     definition: >-
@@ -193,7 +179,6 @@ terms:
     from: spaces
   - term: connection
     from: kernel
-    model: [online, loseConnection, connectionReturns]
   - term: keyboard
     from: runtime
   - term: control

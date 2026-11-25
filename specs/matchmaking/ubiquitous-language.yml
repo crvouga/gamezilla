@@ -11,7 +11,6 @@ terms:
     definition: >-
       Finding each person who is waiting someone to be paired with: someone
       close enough to their rating whom they accept and who accepts them.
-    model: [Matchmaking]
 
   - term: wait for a match
     definition: >-
@@ -30,7 +29,6 @@ terms:
       - waits
       - wait
     avoid: [queue, join the queue, ticket, participant, enqueue]
-    model: [waitForMatch, Waiting, Wait, waitNumber]
 
   - term: request for a match
     definition: >-
@@ -38,7 +36,6 @@ terms:
       earlier answer, even after that wait has stopped or been matched.
       Asking anew while waiting is refused without replacing the wait.
     forms: [request, requests, repeats her earlier request for a match, repeats his earlier request for a match]
-    model: [repeatRequest]
 
   - term: details
     definition: >-
@@ -58,7 +55,6 @@ terms:
       wide one.
     forms: [range, ranges, narrow range, wide range]
     avoid: [reach, radius, formula]
-    model: [ratingRange]
 
   - term: growing range
     definition: >-
@@ -70,7 +66,6 @@ terms:
   - term: seconds pass
     definition: Time goes by while people wait; growing ranges grow as agreed.
     forms: [second passes, seconds have passed]
-    model: [secondsPass]
 
   - term: accept
     definition: >-
@@ -87,7 +82,6 @@ terms:
       change did not count. Repeating the same range change keeps its
       earlier answer without overwriting a later choice.
     forms: [widens, widen, widened, narrows, narrowed, change]
-    model: [changeRange]
 
   - term: pair people up
     definition: >-
@@ -97,7 +91,6 @@ terms:
       moment may have either order. Every group is formed all at once.
     forms: [pairs people up, paired people up]
     avoid: [matching round, tick]
-    model: [pairUp]
     published: true
 
   - term: matched
@@ -106,7 +99,6 @@ terms:
       Each person sees the same group, and that match is kept. Each wait is matched
       once. Asking for a later wait does not change this earlier match.
     forms: [match, matches, matched with, matched with each other]
-    model: [Matched]
 
   - term: matching pool
     definition: >-
@@ -120,13 +112,11 @@ terms:
       number of people, from 2 through 16, and every person accepts every
       other person. Nobody sees an incomplete group.
     forms: [groups, group size]
-    model: [GroupSize, requestedSize]
 
   - term: place in a group
     definition: >-
       One of the places a complete group needs filled by a distinct person.
       A group of three has three places, each filled once.
-    model: [Seat, seats, seating]
 
   - term: available for a match
     definition: >-
@@ -134,7 +124,6 @@ terms:
       a match already made is kept. Becoming available again never
       restarts an ended wait without a new request.
     forms: [available, unavailable, becomes unavailable for a match, becomes available for a match again]
-    model: [becomeUnavailable, becomeAvailable]
 
   - term: private wait
     definition: >-
@@ -153,11 +142,9 @@ terms:
 
   - term: device
     from: kernel
-    model: [Device]
 
   - term: connection
     from: kernel
-    model: [loseConnection, comeBackOnline]
 
   - term: stop waiting
     definition: >-
@@ -167,19 +154,16 @@ terms:
       stays matched.
     forms: [stops waiting, stopped waiting, stopping, ended, ends]
     avoid: [leave the queue, dequeue, cancel]
-    model: [stopWaiting]
 
   - term: not waiting
     definition: >-
       A person with no wait: they never waited for a match, or they stopped
       waiting.
-    model: [NotWaiting]
 
   - term: standing
     definition: >-
       Where a person stands with matchmaking: not waiting, waiting, or
       matched with someone.
-    model: [Standing, standing]
 
   - term: matchmaking match
     definition: >-
@@ -187,7 +171,6 @@ terms:
       distinct people matched together. The consuming game receives this
       same match whenever it asks again, and decides how that game is played.
     forms: [matchmaking matches, matchmaking match is formed, matchmaking match was formed]
-    model: [MatchFormed, MatchmakingEvent, MatchGroup, people, waits]
     published: true
 
   - term: cannot be matched together
@@ -197,18 +180,15 @@ terms:
       permits a still-waiting pair to match; it never brings back a stopped
       wait. A restriction arising after a match does not undo that match.
     forms: [can be matched together, cannot be matched with]
-    model: [restrictPair, allowPair]
 
   - term: match ownership
     definition: >-
       Every wait belongs to one person and one matching pool, and is waiting,
       stopped or in one complete matchmaking match. One person's current
       wait never belongs to two matches; their earlier matches stay separate.
-    model: [Seeker, owns, current, Search, pool, state, SearchState, WaitingSearch, StoppedSearch, MatchedSearch, assignment, MatchingPool]
 
   - term: repeat a range change
     definition: >-
       Ask again for the same range change. Its earlier answer is kept,
       without overwriting a newer choice or changing a later wait.
     forms: [repeats that range change, repeats her earlier wide range change, repeats his earlier wide range change]
-    model: [repeatRangeChange]

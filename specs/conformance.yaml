@@ -159,8 +159,6 @@ conformance:
   # spec, and every spec of the kind must be checked against the product.
   behavior: required
   decisions: required
-  dynamics: required
-  structure: required
   objectives: required
   accessibility: required
 
