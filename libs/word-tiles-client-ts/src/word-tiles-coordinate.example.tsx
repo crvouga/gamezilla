@@ -55,11 +55,20 @@ async function assertFocusedCoordinates(
   await expect(bounds.right).toBeLessThanOrEqual(clip.right);
   await expect(top.left).toBe(bounds.left);
   await expect(left.top).toBe(bounds.top);
+  // The overview stays clear of the window: under it and within its width
+  // (a phone, a narrow column), or beside it and within its height (a wide
+  // column, where it stands under Fit and Enlarge so the window keeps its
+  // rows). Either way it never covers a square and stays in view.
   const context = underBoard(canvasElement).getBoundingClientRect();
-  await expect(context.top).toBeGreaterThanOrEqual(clip.bottom);
   await expect(context.bottom).toBeLessThanOrEqual(window.innerHeight);
-  await expect(context.left).toBeGreaterThanOrEqual(clip.left);
-  await expect(context.right).toBeLessThanOrEqual(clip.right);
+  if (context.left >= clip.right) {
+    await expect(context.top).toBeGreaterThanOrEqual(clip.top);
+    await expect(context.bottom).toBeLessThanOrEqual(clip.bottom);
+  } else {
+    await expect(context.top).toBeGreaterThanOrEqual(clip.bottom);
+    await expect(context.left).toBeGreaterThanOrEqual(clip.left);
+    await expect(context.right).toBeLessThanOrEqual(clip.right);
+  }
 }
 
 /** Keyboard navigation must reveal its cell without concealing either coordinate. */
