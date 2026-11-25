@@ -1,4 +1,4 @@
 {
   "summary": "Offline search scenarios missed the connection guidance on the matchmaking home and open search.",
-  "regressionTest": "libs/games-harness-ts/tests/steps/finding-an-opponent.steps.ts"
+  "regressionTest": "specs/games/finding-an-opponent.feature"
 }
