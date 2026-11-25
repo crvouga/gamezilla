@@ -87,14 +87,22 @@
   width: 100%;
   height: auto;
 }
-.line {
-  stroke: var(--ui-color-border);
-  stroke-width: 4;
-  stroke-dasharray: 12 12;
-}
 .paddle,
 .ball {
   fill: currentColor;
+}
+.ball {
+  stroke: var(--ui-color-game-pong-canvas);
+  stroke-width: 2;
+  paint-order: stroke fill;
+  vector-effect: non-scaling-stroke;
+}
+.stage:active .court[data-interactive="true"] {
+  cursor: grabbing;
+}
+.stage:has(.half[data-side="first"] :focus-visible) .paddle[data-side="first"],
+.stage:has(.half[data-side="second"] :focus-visible) .paddle[data-side="second"] {
+  stroke: var(--ui-color-game-pong-accent);
 }
 /* Each paddle in its player's color, as their swatch beside their name. */
 .paddle[data-color="player1"] {
@@ -235,17 +243,13 @@
     transition: none;
   }
 }
-.ring {
-  fill: none;
-  stroke: var(--ui-color-border);
-  stroke-width: 4;
-}
 /* The points: large and in the page's bright ink, the first thing read. */
 .score {
   color: var(--ui-color-text);
   opacity: 1;
   font-size: var(--ui-font-size-2xl);
   font-weight: var(--ui-font-weight-bold);
+  font-family: var(--ui-font-mono);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }

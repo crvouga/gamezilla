@@ -8,6 +8,7 @@ import {
   CourtSurface,
   paddleCourtInput,
 } from '../paddle-court-input';
+import { ArcadeMarkings } from './arcade-markings';
 import { useCourtInputLifecycle } from './input-lifecycle';
 import styles from './paddle-court.module.css';
 
@@ -234,20 +235,12 @@ function CourtDrawing(props: PaddleCourtProps): JSX.Element {
       aria-hidden="true"
     >
       <DragLanes {...props} />
-      <path
-        class={styles['line']}
-        d={`M ${props.width / 2} 0 V ${props.height}`}
-      />
-      <circle
-        class={styles['ring']}
-        cx={props.width / 2}
-        cy={props.height / 2}
-        r={props.height * 0.14}
-      />
+      <ArcadeMarkings />
       <For keyed={false} each={props.paddles}>
         {(paddle) => (
           <rect
             class={styles['paddle']}
+            rx={paddle().width / 3}
             data-side={paddle().side}
             data-color={paddle().color}
             data-testid={`${props.testId}-${paddle().side}-paddle`}
