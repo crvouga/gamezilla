@@ -120,7 +120,7 @@ describe('game surfaces', () => {
   // row cut the last chip at the edge. Every seat now shares the row's
   // width evenly (no sideways scroll), its name then its figure, so the
   // band is one height at every table size and the board never moves.
-  test('players on a phone share one row evenly, every seat in view', () => {
+  test('players on a phone share one row up to three, rows of two from four', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -133,7 +133,12 @@ describe('game surfaces', () => {
     expect(oneRow).toMatch(/grid-auto-flow: column;/);
     expect(oneRow).toMatch(/grid-auto-columns: minmax\(0, 1fr\);/);
     expect(oneRow).not.toMatch(/overflow-x: auto;/);
-    expect(phone).not.toMatch(/\.playerRail:has\(> :nth-child\(\d\)\) \{/);
+    const four = phone.slice(
+      phone.indexOf('.playerRail:has(> :nth-child(4)) {')
+    );
+    expect(four.slice(0, four.indexOf('}'))).toMatch(
+      /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*grid-auto-flow: row;/
+    );
     expect(
       rule(
         'game-player-rail/game-player-rail.module.css',
