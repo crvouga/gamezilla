@@ -130,7 +130,10 @@ test('an arrow selects the neighboring tab once and moves focus to it', () => {
   first.focus();
   fireEvent.keyDown(first, { key: 'ArrowRight' });
   expect(choose).toHaveBeenCalledTimes(1);
-  expect(active()).toBe('two');
+  expect(screen.getByRole('tab', { name: 'Two' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
   expect(screen.getByRole('tab', { name: 'Two' })).toHaveFocus();
 });
 
@@ -156,7 +159,10 @@ test('an agent selects and closes the named document among open tabs', async () 
     ],
   });
   expect(result.error?.message).toBeUndefined();
-  expect(active()).toBe('draft');
+  expect(screen.getByRole('tab', { name: 'Draft' })).toHaveAttribute(
+    'aria-selected',
+    'true'
+  );
   expect(closeDraft).toHaveBeenCalledTimes(1);
   expect(closeNotes).not.toHaveBeenCalled();
 });
