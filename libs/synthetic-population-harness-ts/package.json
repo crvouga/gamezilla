@@ -36,7 +36,6 @@
     "@libs/test-ids-shared-ts": "workspace:*",
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/permissions-shared-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/sync-engine-server-ts": "workspace:*",
     "hono": "catalog:",

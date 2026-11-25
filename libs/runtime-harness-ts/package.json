@@ -66,7 +66,6 @@
     "@pkgs/db-indexes-root-shared-ts": "workspace:*",
     "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/logger-shared-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",

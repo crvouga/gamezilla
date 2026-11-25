@@ -37,7 +37,6 @@
     "@pkgs/openslo-shared-ts": "workspace:*",
     "@pkgs/os-server-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

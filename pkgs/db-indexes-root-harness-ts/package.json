@@ -25,8 +25,6 @@
   "devDependencies": {
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
-    "@pkgs/quint-server-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

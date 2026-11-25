@@ -26,8 +26,7 @@
     "@libs/search-harness-ts": "workspace:*",
     "@libs/synthetic-population-harness-ts": "workspace:*",
     "@pkgs/dmn-shared-ts": "workspace:*",
-    "@pkgs/permissions-shared-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*"
+    "@pkgs/permissions-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
