@@ -174,8 +174,9 @@ export function FrameConnectionView(props: {
   readonly beforeGame?: boolean | undefined;
 }): JSX.Element {
   return (
-    // No connection comes and goes: it floats with the screen's alerts.
-    <ToastStack placement="above-actions">
+    // No connection comes and goes: it floats with the screen's alerts,
+    // and stays, with no close, for as long as it holds.
+    <ToastStack placement="above-actions" persistent>
       <FrameConnectionNotice
         connection={props.connection}
         beforeGame={props.beforeGame}

@@ -488,10 +488,15 @@
   }
 
   /* Error is the destructive edge plus the message and `aria-invalid`;
-     color never carries it alone. It keeps the focus ring. */
+     color never carries it alone. Focused, the ring keeps its 2px weight in
+     the error's colour, so a field in error never reads as fine. */
   .inputError,
   .inputError:hover:not(:focus-visible):not(:disabled) {
     border-color: var(--ui-color-destructive);
+  }
+  .inputError:focus-visible {
+    border-color: var(--ui-color-destructive);
+    outline-color: var(--ui-color-destructive);
   }
 
   @media (prefers-reduced-motion: reduce) {

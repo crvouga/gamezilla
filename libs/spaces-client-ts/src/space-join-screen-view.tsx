@@ -89,11 +89,6 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
   return (
     <Button
       {...join.buttonProps}
-      // Offline, the way back leads and trying again waits beside it; once
-      // the connection returns, joining is the filled command again.
-      {...(props.needsConnection
-        ? { variant: 'outline' as const, intent: 'neutral' as const }
-        : {})}
       flex={1}
       dataSet={{ testid: Handles.spaceJoin }}
     />
@@ -110,36 +105,20 @@ function JoinPromptFooter(props: SpaceJoinScreenViewProps): JSX.Element {
       <Show
         when={props.connection === 'host-offline'}
         fallback={
-          // Back to Spaces on the left, joining on the right, in every
-          // state; needing the connection, the way back is the filled one.
-          <Show
-            when={props.needsConnection}
-            fallback={
-              <>
-                {/* An unconfirmed join keeps a way back beside it. */}
-                <Show when={props.joinPending}>
-                  <Button
-                    title={<Trans>Back to Spaces</Trans>}
-                    intent="neutral"
-                    variant="outline"
-                    flex={1}
-                    onClick={() => props.onBackToSpaces()}
-                  />
-                </Show>
-                <SpaceJoinButton {...props} />
-              </>
-            }
-          >
-            {/* The way back always on the left and trying again on the
-                right, as on every recovery pair; the fill says which fits
-                now. */}
-            <Button
-              title={<Trans>Back to Spaces</Trans>}
-              flex={1}
-              onClick={() => props.onBackToSpaces()}
-            />
+          // Back to Spaces on the left, outlined, and joining (or checking
+          // again, or trying again) filled on the right, in every state.
+          <>
+            <Show when={props.joinPending || props.needsConnection}>
+              <Button
+                title={<Trans>Back to Spaces</Trans>}
+                intent="neutral"
+                variant="outline"
+                flex={1}
+                onClick={() => props.onBackToSpaces()}
+              />
+            </Show>
             <SpaceJoinButton {...props} />
-          </Show>
+          </>
         }
       >
         {/* Back to Spaces on the left, as on every Join state. */}
@@ -362,12 +341,14 @@ function SpaceJoinLiveBody(props: {
               }
             >
               {/* Needing the connection is said once, in the alert that
-                  stays while it lasts; the page still says what joining
-                  does. */}
-              <Trans>
-                Join to play together. You'll go straight to whatever the space
-                is doing.
-              </Trans>
+                  stays while it lasts; what joining does is said only when
+                  joining can happen. */}
+              <Show when={!props.needsConnection}>
+                <Trans>
+                  Join to play together. You'll go straight to whatever the
+                  space is doing.
+                </Trans>
+              </Show>
             </Show>
           </P>
         }

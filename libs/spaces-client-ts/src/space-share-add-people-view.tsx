@@ -51,20 +51,23 @@ function SpaceAdditionState(props: {
     props.addition.status === 'success' ? props.addition : null;
   const failure = () =>
     props.addition.status === 'error' ? props.addition : null;
-  // How the last add went comes and goes: it floats over the sheet, so
-  // the people with access never move down to make room for it. The
-  // added person's row in that list is the lasting record.
+  // A done add comes and goes: it floats over the sheet, and the person's
+  // row in the list is the lasting record. A refused one is the search
+  // field's own result: it stays under the field, with Retry, inside the
+  // dialog where the person is working.
   return (
-    <ToastStack placement="top">
-      <Show when={success()}>
-        {(added) => (
-          <SuccessState
-            variant="compact"
-            title={<Trans>{added().name} added</Trans>}
-            dataSet={{ testid: Handles.spaceAddSuccess }}
-          />
-        )}
-      </Show>
+    <>
+      <ToastStack placement="top">
+        <Show when={success()}>
+          {(added) => (
+            <SuccessState
+              variant="compact"
+              title={<Trans>{added().name} added</Trans>}
+              dataSet={{ testid: Handles.spaceAddSuccess }}
+            />
+          )}
+        </Show>
+      </ToastStack>
       <Show when={failure()}>
         {(error) => (
           <ErrorState
@@ -82,7 +85,7 @@ function SpaceAdditionState(props: {
           />
         )}
       </Show>
-    </ToastStack>
+    </>
   );
 }
 

@@ -48,15 +48,15 @@ export const JoinNotConfirmed: Story = { args: { joinPending: true } };
 /** Joining was tried without a connection: said plainly above the space. */
 export const JoinNeedsConnection: Story = {
   args: { needsConnection: true },
-  // Offline, the way back leads: Back to Spaces is the filled command and
-  // Try joining again the quieter one beside it.
+  // The pair keeps every Join state's order: Back to Spaces outlined on
+  // the left, Try joining again filled on the right.
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const back = await canvas.findByRole('button', { name: 'Back to Spaces' });
-    await expect(back).toHaveAttribute('data-variant', 'solid');
+    await expect(back).toHaveAttribute('data-variant', 'outline');
     await expect(canvas.getByTestId(Handles.spaceJoin)).toHaveAttribute(
       'data-variant',
-      'outline'
+      'solid'
     );
   },
 };

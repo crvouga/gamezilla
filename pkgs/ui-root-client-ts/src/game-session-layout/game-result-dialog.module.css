@@ -59,15 +59,21 @@
   width: 100%;
   max-width: none;
 }
-/* The filled command takes the whole first row; the others share the next
-   row, as many across as their words allow, so the sheet stays short and
-   more of the final board shows above it on a phone. */
+/* The filled command takes the whole first row; the others share rows in
+   equal widths, two across, so the sheet stays short, more of the final
+   board shows above it on a phone, and no label is ever cut. An odd one
+   out takes its row's whole width. */
 .actions [data-component="GameActionBar"] {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(104px, 1fr));
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.actions [data-component="GameActionBar"] > * {
+  flex: 1 1 calc(50% - var(--ui-space-2));
+  width: auto;
+  min-width: 0;
 }
 .actions [data-component="GameActionBar"] > :first-child {
-  grid-column: 1 / -1;
+  flex-basis: 100%;
 }
 /* The standings read at a glance: rows as tall as a tap target. */
 .body [data-component="GameStandingRow"] > div {

@@ -174,7 +174,11 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
         </Show>
       </P>
       <Show when={props.peopleStatus === 'loading'}>
-        <LoadingState variant="compact" size="sm" />
+        <LoadingState
+          variant="compact"
+          size="sm"
+          caption={<Trans>Loading people…</Trans>}
+        />
       </Show>
       <Show when={props.people.length > 0}>
         <List>

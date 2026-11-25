@@ -1,12 +1,18 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import { Trans, useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
+import {
+  ChevronLeftIcon,
+  ChevronRightIcon,
+} from '@pkgs/ui-root-client-ts/icons';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { For, type JSX, Show } from 'solid-js';
 import { PuzzleActionBar } from './puzzle-action-bar';
+import type { PuzzleMoveNavProps } from './puzzle-move-history-nav';
 import { HistoryPlyCluster } from './puzzle-move-history-ply';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
@@ -31,6 +37,36 @@ export function SpectatorAllowance(props: { label: string }): JSX.Element {
 }
 
 /**
+ * One move back and one forward through the moves so far, on the board in
+ * place: quiet glyphs, as a game record's steps are.
+ */
+function PuzzleStepButtons(props: { nav: PuzzleMoveNavProps }): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <StackHorizontal align="center" gap="xs">
+      <IconButton
+        label={t`Previous move`}
+        size={40}
+        disabled={!props.nav.canGoBack}
+        onClick={() => props.nav.onNavigate(PUZZLE_NAV_INTENT.back)}
+        dataSet={{ testid: 'chess-puzzle-step-back' }}
+      >
+        <ChevronLeftIcon />
+      </IconButton>
+      <IconButton
+        label={t`Next move`}
+        size={40}
+        disabled={!props.nav.canGoForward}
+        onClick={() => props.nav.onNavigate(PUZZLE_NAV_INTENT.forward)}
+        dataSet={{ testid: 'chess-puzzle-step-forward' }}
+      >
+        <ChevronRightIcon />
+      </IconButton>
+    </StackHorizontal>
+  );
+}
+
+/**
  * What is done about the puzzle, as the solve state allows it
  * (`buildPuzzleActionBarPlan`). While the board shows an earlier move the
  * hint waits, and the way back to the latest move is offered under it.
@@ -49,6 +85,7 @@ export function PuzzleSolveActions(
         onRetry={props.onRetry}
         onSkip={props.onSkip}
         onNext={props.onNext}
+        trailing={<PuzzleStepButtons nav={props.line.nav} />}
       />
       <Show when={props.canGoForward}>
         <StackHorizontal align="center" gap="sm" wrap>

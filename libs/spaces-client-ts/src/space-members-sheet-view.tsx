@@ -94,7 +94,9 @@ function rosterRow(
     // right edge keeps only the role and the host's Remove, so every row's
     // controls line up.
     title: (
-      <StackHorizontal align="baseline" gap="xs" wrap>
+      // Centred on the name's line: a badge's pill sits on the name, not
+      // above its baseline.
+      <StackHorizontal align="center" gap="xs" wrap>
         {member.isYou ? (
           you
         ) : member.person === null ? (
@@ -102,6 +104,7 @@ function rosterRow(
         ) : (
           <SpacePersonName
             person={member.person}
+            lines={1}
             testId={Handles.spaceMemberName(id)}
           />
         )}

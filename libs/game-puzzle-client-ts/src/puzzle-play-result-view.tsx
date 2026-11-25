@@ -4,18 +4,17 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
+import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ChevronRightIcon,
   ListOrderedIcon,
   RotateCcwIcon,
   ShareIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import { createMemo, type JSX, Match, Show, Switch } from 'solid-js';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
@@ -23,6 +22,9 @@ import { PuzzleRatingBadge } from './puzzle-rating-badge';
 import { PuzzleSettingsRow } from './puzzle-settings-row';
 import { PuzzleShareLabel } from './puzzle-share-label';
 import { PuzzleSummaryCard } from './puzzle-summary-card';
+
+/** A glyph command's disc: a tap target as tall as the wide command. */
+const GLYPH_SIZE = 48;
 
 /** How the puzzle ended, in the tone of its outcome. */
 function ResultTitle(props: PuzzleStageScreenViewProps): JSX.Element {
@@ -109,12 +111,6 @@ export function PuzzleResultRows(
   return (
     <StackVertical paddingX="lg">
       <MenuSection>
-        <MenuRow
-          title={<Trans>Step through the line</Trans>}
-          leading={<ListOrderedIcon size={20} color="textSecondary" />}
-          onClick={() => props.onOpen({ screen: 'line' })}
-          dataSet={{ testid: Handles.chessPuzzleSummaryClose }}
-        />
         <PuzzleSettingsRow
           feed={props.feed}
           allowanceLabel={props.allowanceLabel}
@@ -125,10 +121,32 @@ export function PuzzleResultRows(
   );
 }
 
+/** A command as a glyph on a disc as tall as the wide command. */
+function glyph(
+  label: string,
+  Icon: typeof RotateCcwIcon,
+  onClick: () => void,
+  testid: string
+): JSX.Element {
+  return (
+    <IconButton
+      label={label}
+      size={GLYPH_SIZE}
+      background="surfaceMuted"
+      onClick={onClick}
+      dataSet={{ testid }}
+    >
+      <Icon />
+    </IconButton>
+  );
+}
+
 /**
  * What to do next, as the solve state allows it
- * (`buildPuzzleActionBarPlan`): the next puzzle is the one filled command;
- * retrying and sharing the puzzle are quieter beside it.
+ * (`buildPuzzleActionBarPlan`), in one row with few words: retrying and
+ * stepping through the line are glyphs, and the one wide, filled command
+ * is the next puzzle (retrying, after a failed attempt). Sharing waits as a
+ * quiet glyph under them.
  */
 function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   const slots = createMemo(() =>
@@ -140,70 +158,84 @@ function ResultCommands(props: PuzzleStageScreenViewProps): JSX.Element {
   );
   const offers = (id: 'next' | 'retry'): boolean =>
     slots().some((slot) => slot.id === id);
-  // After a failed attempt the coach says retry: Retry is the one filled,
-  // full-width command on top, as on the wrong-move stage, and Next puzzle
-  // and Share are the quieter pair under it.
-  const failedAttempt = (): boolean =>
-    props.status === 'solved' && props.result.completion?.outcome === 'failed';
-  const retry = (lead: boolean): JSX.Element => (
-    <Button
-      title={<Trans>Retry</Trans>}
-      intent={lead ? 'primary' : 'neutral'}
-      variant={lead ? 'solid' : 'outline'}
-      size={lead ? 'lg' : undefined}
-      fullWidth={lead}
-      icon={RotateCcwIcon}
-      onClick={() => props.onRetry()}
-      dataSet={{ testid: Handles.chessPuzzleActionRetry }}
-    />
-  );
-  const next = (lead: boolean): JSX.Element => (
-    <Button
-      title={<Trans>Next puzzle</Trans>}
-      size={lead ? 'lg' : undefined}
-      fullWidth={lead}
-      variant={lead ? 'solid' : 'outline'}
-      intent={lead ? 'primary' : 'neutral'}
-      endIcon={<ChevronRightIcon />}
-      onClick={() => props.onNext()}
-      dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
-    />
-  );
-  const share = (): JSX.Element => (
-    <Show when={props.share} keyed>
-      {(link) => (
-        <Button
-          title={<PuzzleShareLabel state={link.state} short />}
-          intent="neutral"
-          variant="outline"
-          icon={ShareIcon}
-          onClick={() => link.onShare()}
-          dataSet={{ testid: Handles.chessPuzzleShareLink }}
-        />
-      )}
-    </Show>
-  );
+  // After a failed attempt the coach says retry: Retry is the wide one.
+  const retryLeads = (): boolean =>
+    offers('retry') &&
+    props.status === 'solved' &&
+    props.result.completion?.outcome === 'failed';
   return (
-    <Show
-      when={failedAttempt() && offers('retry')}
-      fallback={
-        <StackVertical gap="md">
-          <Show when={offers('next')}>{next(true)}</Show>
-          <GameActions sizing="share">
-            <Show when={offers('retry')}>{retry(false)}</Show>
-            {share()}
-          </GameActions>
-        </StackVertical>
-      }
-    >
-      <StackVertical gap="md">
-        {retry(true)}
-        <GameActions sizing="share">
-          <Show when={offers('next')}>{next(false)}</Show>
-          {share()}
-        </GameActions>
-      </StackVertical>
-    </Show>
+    <StackVertical gap="sm">
+      <StackHorizontal gap="sm" align="center">
+        <Show
+          when={retryLeads()}
+          fallback={
+            <>
+              <Show when={offers('retry')}>
+                {glyph(
+                  t`Retry`,
+                  RotateCcwIcon,
+                  () => props.onRetry(),
+                  Handles.chessPuzzleActionRetry
+                )}
+              </Show>
+              {glyph(
+                t`Step through the line`,
+                ListOrderedIcon,
+                () => props.onOpen({ screen: 'line' }),
+                Handles.chessPuzzleSummaryClose
+              )}
+              <Show when={offers('next')}>
+                <Button
+                  title={<Trans>Next puzzle</Trans>}
+                  size="lg"
+                  flex={1}
+                  endIcon={<ChevronRightIcon />}
+                  onClick={() => props.onNext()}
+                  dataSet={{ testid: Handles.chessPuzzleSummaryNext }}
+                />
+              </Show>
+            </>
+          }
+        >
+          {glyph(
+            t`Step through the line`,
+            ListOrderedIcon,
+            () => props.onOpen({ screen: 'line' }),
+            Handles.chessPuzzleSummaryClose
+          )}
+          <Show when={offers('next')}>
+            {glyph(
+              t`Next puzzle`,
+              ChevronRightIcon,
+              () => props.onNext(),
+              Handles.chessPuzzleSummaryNext
+            )}
+          </Show>
+          <Button
+            title={<Trans>Retry</Trans>}
+            size="lg"
+            flex={1}
+            icon={RotateCcwIcon}
+            onClick={() => props.onRetry()}
+            dataSet={{ testid: Handles.chessPuzzleActionRetry }}
+          />
+        </Show>
+      </StackHorizontal>
+      <Show when={props.share} keyed>
+        {(link) => (
+          <StackHorizontal align="center" gap="xs">
+            <IconButton
+              label={<PuzzleShareLabel state={link.state} short />}
+              size={40}
+              onClick={() => link.onShare()}
+              dataSet={{ testid: Handles.chessPuzzleShareLink }}
+            >
+              <ShareIcon />
+            </IconButton>
+          </StackHorizontal>
+        )}
+      </Show>
+    </StackVertical>
   );
 }
 
@@ -230,9 +262,11 @@ export function PuzzleResultSummary(
           <ResultTitle {...props} />
         </H2>
       </VisuallyHidden>
-      <P variant="caption" tone="secondary" align="center">
+      {/* The coach over the board says how it went in a few words; what
+          it means for the attempt is for a listener. */}
+      <VisuallyHidden>
         <ResultCaption {...props} />
-      </P>
+      </VisuallyHidden>
       {/* What next comes straight after how it went, so on a phone Next
           puzzle is in view without scrolling; the numbers follow. */}
       <ResultCommands {...props} />

@@ -11,9 +11,9 @@
   margin: 0 auto;
   padding: var(--ui-space-3) var(--ui-space-4) var(--ui-space-6);
 }
-/* On desktop the stage starts on the frame column's edge, where every
+/* In the app's frame on desktop the stage starts on the frame column's edge, where every
    other screen's content starts. */
-.stage[data-layout="wide"] {
+[data-component="AppFrame"] .stage[data-layout="wide"] {
   margin-inline: 0;
   padding-inline: 0;
 }

@@ -8,7 +8,10 @@ import {
   PuzzleSkipButton,
 } from './puzzle-action-bar-items';
 
-export type PuzzleActionBarProps = PuzzleActionBarModel;
+export type PuzzleActionBarProps = PuzzleActionBarModel & {
+  /** At the far end of the skip row: stepping through the moves so far. */
+  trailing?: JSX.Element | undefined;
+};
 
 type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
 
@@ -42,19 +45,28 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
     <Show
       when={lead() !== undefined}
       fallback={
-        <StackHorizontal gap="sm" align="center" wrap>
+        // Help is the one command while solving: the column's full width.
+        // Skipping, a different kind of choice, is quiet text under it,
+        // with stepping through the moves at the row's far end.
+        <StackVertical gap="xs">
           <For each={actions()}>
-            {(slot) => <PuzzleActionButton slot={slot} model={props} />}
-          </For>
-          <Show when={skip()}>
             {(slot) => (
-              <PuzzleSkipButton
-                disabled={slot().disabled}
-                onSkip={props.onSkip}
-              />
+              <PuzzleActionButton slot={slot} model={props} fullWidth />
             )}
-          </Show>
-        </StackHorizontal>
+          </For>
+          <StackHorizontal gap="sm" align="center" justify="between">
+            <Show when={skip()} fallback={<StackHorizontal />}>
+              {(slot) => (
+                <PuzzleSkipButton
+                  disabled={slot().disabled}
+                  onSkip={props.onSkip}
+                  size="sm"
+                />
+              )}
+            </Show>
+            {props.trailing}
+          </StackHorizontal>
+        </StackVertical>
       }
     >
       <StackVertical gap="sm">

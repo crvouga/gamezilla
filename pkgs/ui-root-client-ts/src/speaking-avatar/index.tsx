@@ -76,6 +76,8 @@ export type SpeakingAvatarProps = Omit<
   speak?: boolean | undefined;
   /** Lines reserved inside the speech bubble. Defaults to `2`. */
   numberOfLines?: number | undefined;
+  /** The bubble keeps exactly `numberOfLines` of height (`SpeechBubble`). */
+  fixedHeight?: boolean | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
 };
@@ -175,6 +177,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
     'seed',
     'speak',
     'numberOfLines',
+    'fixedHeight',
     'dataSet',
   ]);
   // Audio wiring is composition-level configuration: read once.
@@ -238,6 +241,7 @@ export function SpeakingAvatar(props: SpeakingAvatarProps): JSX.Element {
         loading={speech.isLoading() || local.bubbleResolving === true}
         header={local.header}
         numberOfLines={local.numberOfLines}
+        fixedHeight={local.fixedHeight}
       />
     </div>
   );

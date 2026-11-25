@@ -36,8 +36,10 @@ function PlayBoard(props: PuzzleBoardProps): JSX.Element {
       onMove={(move) => props.onAction(formatUci(move))}
       autoPromoteQueen={false}
       showCoordinates
-      showGuidance
-      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
+      // A phone's board runs edge to edge, its coordinates in the squares'
+      // corners and no words under it: the coach above says what to do.
+      showGuidance={mode() === 'wide'}
+      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'inside'}
       highlightLastMove
       lastMove={chessPuzzleLastMove(props.lastAction)}
       highlightLegalMoves
@@ -65,7 +67,7 @@ function ReviewBoard(props: PuzzleBoardProps): JSX.Element {
       interactive={false}
       animations={props.animated}
       showCoordinates
-      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'outside-start'}
+      coordinatePlacement={mode() === 'wide' ? 'outside-end' : 'inside'}
       highlightLastMove
     />
   );

@@ -5,6 +5,7 @@ import { useScreenFocus } from '../screen-focus/index';
 import { ScreenIntro } from '../screen-intro/index';
 import styles from '../screen-layouts.module.css';
 import { createScreenSlot } from '../screen-slot';
+import own from './puzzle-screen.module.css';
 
 export type PuzzleScreenProps = {
   screenId: string;
@@ -87,7 +88,7 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
     <div class={styles['puzzleFrame']}>
       <div
         ref={root}
-        class={styles['puzzle']}
+        class={`${styles['puzzle']} ${own['root']}`}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
         data-square={ratio() === 1}
         data-board-sizing={props.boardSizing ?? 'fit'}

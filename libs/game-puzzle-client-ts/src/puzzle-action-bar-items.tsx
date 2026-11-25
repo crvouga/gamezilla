@@ -136,12 +136,14 @@ export function PuzzleSkipButton(props: {
   disabled: boolean;
   onSkip: () => void;
   fullWidth?: boolean | undefined;
+  size?: 'sm' | undefined;
 }): JSX.Element {
   return (
     <Button
       title={<Trans>Skip puzzle</Trans>}
       intent="neutral"
       variant="ghost"
+      size={props.size}
       fullWidth={props.fullWidth}
       disabled={props.disabled}
       onClick={() => props.onSkip()}
