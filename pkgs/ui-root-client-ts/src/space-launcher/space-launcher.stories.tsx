@@ -68,7 +68,8 @@ export const Screen: Story = {
     await expect(
       canvas.getByRole('heading', { name: 'bob is choosing a game' })
     ).toBeVisible();
-    await expect(canvas.getByText('4 players')).toBeVisible();
+    // A guest reads the host's count for the chosen table.
+    await expect(canvas.getByText('2 players + 2 bots')).toBeVisible();
     await expect(
       canvas.getByRole('button', { name: /^Chess/ })
     ).toHaveAttribute('aria-disabled', 'true');

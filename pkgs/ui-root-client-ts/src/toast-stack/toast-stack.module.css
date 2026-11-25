@@ -41,6 +41,12 @@
     bottom: var(--ui-space-6);
     width: min(400px, calc(100vw - 2 * var(--ui-space-6)));
   }
+  /* An alert that would cover a game's status or commands in the bottom
+     corner stands at the top corner instead, under the space's bar. */
+  .stack[data-placement="top"] {
+    top: calc(var(--ui-space-6) + 56px);
+    bottom: auto;
+  }
 }
 /* Each alert is its own floating card: opaque, raised with the one float
    shadow, and dismissible as a whole by the stack's own close. */
