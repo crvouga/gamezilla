@@ -9,7 +9,6 @@
  * never has a layer above it to composite.
  */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { indexFromSquare } from '@pkgs/chess-board-core-shared-ts/geometry';
 import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type {
@@ -25,6 +24,7 @@ import { cellTransform } from '@pkgs/chess-board-root-shared-ts/board-units';
 import type { JSX } from '@solidjs/web';
 import { type Accessor, createMemo, For } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
+import { ChessGrid, ChessSquare } from './chess-grid';
 
 const FILES: readonly FileChar[] = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 const RANKS: readonly RankChar[] = ['8', '7', '6', '5', '4', '3', '2', '1'];
@@ -69,7 +69,10 @@ function squareName(square: Square, position: Position): string {
 export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
   const targets = createMemo(() => new Set(props.legalTargets()));
   return (
-    <div
+    <ChessGrid
+      aria-label="Chess board squares"
+      disabled={!props.interactive}
+      onSquareActivate={(square) => props.onSquareActivate(square)}
       class={`box absolute inset-0 ${styles['grid']}`}
       onFocusIn={(e) => {
         const square = (e.target as HTMLElement).dataset['square'];
@@ -87,26 +90,19 @@ export function ChessBoardHitGrid(props: ChessBoardHitGridProps): JSX.Element {
           const isCursor = createMemo(() => props.cursor === square);
           const isSelected = createMemo(() => props.selected() === square);
           return (
-            <SdkButton
-              type="button"
+            <ChessSquare
+              value={square}
               class={`${styles['cell']} ${styles['square']}`}
               style={{ transform: cellTransform(square, props.orientation) }}
               data-testid={chessBoardSquareTestId(props.boardTestId, square)}
               data-square={square}
               aria-label={`${label()}${legal() ? ', Legal destination' : ''}`}
               aria-pressed={isSelected() ? 'true' : 'false'}
-              aria-disabled={props.interactive ? 'false' : 'true'}
               tabindex={isCursor() ? 0 : -1}
-              onClick={(event) => {
-                // Pointer gestures already commit through the board host.
-                // Assistive activation emits only a click, with no press.
-                if (event.detail === 0 && props.interactive)
-                  props.onSquareActivate(square);
-              }}
             />
           );
         }}
       </For>
-    </div>
+    </ChessGrid>
   );
 }

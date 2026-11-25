@@ -1,11 +1,11 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Show } from 'solid-js';
+import { Toggle } from '@ui-sdk/solid/toggle';
+import { CHIP_CLASS, ChipFace } from './face';
 
 export type ChipProps = {
   label: JSX.Element;
@@ -46,22 +46,19 @@ export function Chip(props: ChipProps): JSX.Element {
   const selected = (): boolean => props.selected === true;
   const role = (): 'button' | 'radio' => props.role ?? 'button';
   return (
-    <SdkButton
-      class="clickable clickableTint hitTarget chip self-start flex-row items-center justify-center gap-2"
+    <Toggle
+      class={CHIP_CLASS}
       {...dataAttrs({ component: 'Chip', ...props.dataSet })}
-      type="button"
+      pressed={selected()}
       role={role()}
       aria-pressed={role() === 'button' ? ariaBoolean(selected()) : undefined}
       aria-checked={role() === 'radio' ? ariaBoolean(selected()) : undefined}
       tabindex={props.tabStop === false ? -1 : undefined}
-      onClick={() => props.onClick?.()}
+      onPressedChange={() => props.onClick?.()}
       onKeyDown={(event) => props.onKeyDown?.(event)}
       disabled={props.disabled === true}
     >
-      <Show when={props.startIcon !== undefined}>
-        <div class="box h-4 items-center justify-center">{props.startIcon}</div>
-      </Show>
-      <span class="text textLabel line-clamp-1">{props.label}</span>
-    </SdkButton>
+      <ChipFace label={props.label} startIcon={props.startIcon} />
+    </Toggle>
   );
 }

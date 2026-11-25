@@ -74,23 +74,23 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
         aria-hidden="true"
       >
         <Switch fallback={<PersonPlaceholder fill={props.placeholderFill} />}>
-      <Match when={props.bot ? undefined : props.initials}>
-        {(initials) => (
-          <span
-            class="text font-semibold"
-            aria-hidden="true"
-            style={{
-              color: props.color,
-              'font-size': `${Math.round(props.size * 0.4)}px`,
-            }}
-          >
-            {initials().slice(0, 2)}
-          </span>
-        )}
-      </Match>
-      <Match when={icon()}>
-        <Glyph size={glyphSize(props.size)} color={props.color} />
-      </Match>
+          <Match when={props.bot ? undefined : props.initials}>
+            {(initials) => (
+              <span
+                class="text font-semibold"
+                aria-hidden="true"
+                style={{
+                  color: props.color,
+                  'font-size': `${Math.round(props.size * 0.4)}px`,
+                }}
+              >
+                {initials().slice(0, 2)}
+              </span>
+            )}
+          </Match>
+          <Match when={icon()}>
+            <Glyph size={glyphSize(props.size)} color={props.color} />
+          </Match>
         </Switch>
       </AvatarFallback>
     </>

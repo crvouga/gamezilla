@@ -2,12 +2,10 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import {
-  nextRovingIndex,
-  rovingTabStop,
-} from '@pkgs/ui-root-shared-ts/roving-focus';
 import type { JSX } from '@solidjs/web';
+import { Radio, RadioGroup } from '@ui-sdk/solid/radio';
 import { createUniqueId, For, Show } from 'solid-js';
+import { CHIP_CLASS, ChipFace } from '../chip/face';
 import { Chip } from '../chip/index';
 
 export type ChipGroupOption<K extends string = string> = {
@@ -73,64 +71,50 @@ function optionDataSet<K extends string>(
   };
 }
 
-/** Arrow keys move the chosen radio chip, wrapping over disabled ones. */
-function onRadioChipKeyDown(event: KeyboardEvent): void {
-  const chip = event.currentTarget;
-  if (!(chip instanceof HTMLElement)) return;
-  const row = chip.closest('[role="radiogroup"]');
-  if (row === null) return;
-  const items = Array.from(
-    row.querySelectorAll<HTMLButtonElement>('[role="radio"]')
-  );
-  const current = items.findIndex((item) => item === document.activeElement);
-  if (current < 0) return;
-  const next = nextRovingIndex({
-    key: event.key,
-    current,
-    disabled: items.map((item) => item.disabled),
-    orientation: 'both',
-    homeEnd: false,
-  });
-  if (next === null) return;
-  event.preventDefault();
-  items[next]?.focus();
-  items[next]?.click();
-}
-
 function SingleChips<K extends string>(props: {
   group: ChipGroupSingleProps<K>;
+  labelledBy: string | undefined;
 }): JSX.Element {
-  const off = (option: ChipGroupOption<K>): boolean =>
-    props.group.disabled === true || option.disabled === true;
-  const tabStop = (): K | undefined => {
-    const options = props.group.options;
-    const index = rovingTabStop(
-      options.findIndex((option) => option.key === props.group.selected),
-      options.map(off)
-    );
-    return index === null ? undefined : options[index]?.key;
-  };
   return (
-    <For each={props.group.options}>
-      {(option) => (
-        <Chip
-          // oxlint-disable-next-line jsx-a11y/role-has-required-aria-props -- Chip sets aria-checked from `selected` when role is radio
-          role="radio"
-          label={option.label}
-          startIcon={option.icon}
-          selected={option.key === props.group.selected}
-          disabled={off(option)}
-          tabStop={tabStop() === option.key}
-          onKeyDown={onRadioChipKeyDown}
-          onClick={() => {
-            if (option.key !== props.group.selected) {
-              props.group.onSelect(option.key);
-            }
-          }}
-          dataSet={optionDataSet(option)}
-        />
-      )}
-    </For>
+    <RadioGroup
+      class="box flex-row flex-wrap gap-2"
+      aria-label={props.group['aria-label']}
+      aria-labelledby={props.labelledBy}
+      value={props.group.selected}
+      disabled={props.group.disabled === true}
+      onValueChange={(value) => {
+        const item = props.group.options.find((option) => option.key === value);
+        if (
+          item &&
+          !item.disabled &&
+          !props.group.disabled &&
+          item.key !== props.group.selected
+        )
+          props.group.onSelect(item.key);
+      }}
+    >
+      <For each={props.group.options}>
+        {(option) => (
+          <Radio
+            value={option.key}
+            disabled={option.disabled === true}
+            class={CHIP_CLASS}
+            {...dataAttrs({ component: 'Chip', ...optionDataSet(option) })}
+            render={(part, state) => (
+              <button
+                {...part}
+                disabled={state.disabled}
+                tabindex={
+                  state.disabled || part['tabindex'] === '-1' ? -1 : undefined
+                }
+              />
+            )}
+          >
+            <ChipFace label={option.label} startIcon={option.icon} />
+          </Radio>
+        )}
+      </For>
+    </RadioGroup>
   );
 }
 
@@ -192,7 +176,10 @@ export function ChipGroup<K extends string = string>(
   props: ChipGroupProps<K>
 ): JSX.Element {
   const labelId = `chip-group-label-${createUniqueId()}`;
-  const multiple = (): boolean => isMultiple(props);
+  const labelledBy = () =>
+    props.label !== undefined && props['aria-label'] === undefined
+      ? labelId
+      : undefined;
   return (
     <div
       class="box gap-2 py-1"
@@ -207,24 +194,27 @@ export function ChipGroup<K extends string = string>(
           {props.label}
         </span>
       </Show>
-      <div
-        class="box flex-row flex-wrap gap-2"
-        role={multiple() ? 'group' : 'radiogroup'}
-        aria-label={props['aria-label']}
-        aria-labelledby={
-          props.label !== undefined && props['aria-label'] === undefined
-            ? labelId
-            : undefined
+      <Show
+        when={isMultiple(props) ? props : undefined}
+        fallback={
+          <SingleChips
+            group={props as ChipGroupSingleProps<K>}
+            labelledBy={labelledBy()}
+          />
         }
-        aria-disabled={props.disabled === true ? 'true' : undefined}
       >
-        <Show
-          when={isMultiple(props) ? props : undefined}
-          fallback={<SingleChips group={props as ChipGroupSingleProps<K>} />}
-        >
-          {(group) => <MultipleChips group={group()} />}
-        </Show>
-      </div>
+        {(group) => (
+          <div
+            class="box flex-row flex-wrap gap-2"
+            role="group"
+            aria-label={props['aria-label']}
+            aria-labelledby={labelledBy()}
+            aria-disabled={props.disabled === true ? 'true' : undefined}
+          >
+            <MultipleChips group={group()} />
+          </div>
+        )}
+      </Show>
     </div>
   );
 }

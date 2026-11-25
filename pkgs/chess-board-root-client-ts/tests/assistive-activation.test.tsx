@@ -95,13 +95,22 @@ test('a7 promotion is a named dialog with a closed Tab boundary and returns focu
   expect(board.moves).toEqual([]);
 });
 
-test('an agent can play a legal move using the names of the board squares', async () => {
+test('an agent can inspect the pieces and play a legal move by square', async () => {
   board = mountBoard();
   const agent = createAgent();
+  const squares = await agent.query({
+    within: 'Chess board squares',
+    text: 'e2',
+  });
+  if ('error' in squares) throw new Error(squares.error);
+  expect(squares[0]?.items).toContainEqual({
+    value: 'e2',
+    label: 'e2, White pawn',
+  });
   const result = await agent.act({
     steps: [
-      { ref: 'e2, White pawn', action: 'press' },
-      { ref: 'e4, empty, Legal destination', action: 'press' },
+      { ref: 'Chess board squares', action: 'activateSquare', args: ['e2'] },
+      { ref: 'Chess board squares', action: 'activateSquare', args: ['e4'] },
     ],
   });
   expect(result.error).toBeUndefined();

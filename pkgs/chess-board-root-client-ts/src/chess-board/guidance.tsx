@@ -2,7 +2,11 @@ import type { ChessBoardProps } from '@pkgs/chess-board-root-shared-ts/chess-boa
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { Collapsible, CollapsiblePanel, CollapsibleTrigger } from '@ui-sdk/solid/collapsible';
+import {
+  Collapsible,
+  CollapsiblePanel,
+  CollapsibleTrigger,
+} from '@ui-sdk/solid/collapsible';
 import { Match, Show, Switch } from 'solid-js';
 import type { BoardController } from '../chess-board-controller';
 import styles from './chess-board.module.css';
@@ -68,10 +72,10 @@ export function ChessBoardGuidance(props: {
           <CollapsibleTrigger class="text textCaption list-item cursor-pointer">
             <Trans>Keyboard controls</Trans>
           </CollapsibleTrigger>
-          <CollapsiblePanel>
-          <P variant="caption" tone="secondary">
-            <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
-          </P>
+          <CollapsiblePanel hiddenUntilFound>
+            <P variant="caption" tone="secondary">
+              <Trans>Arrows to move, Enter to choose, Escape to cancel.</Trans>
+            </P>
           </CollapsiblePanel>
         </Collapsible>
       </div>

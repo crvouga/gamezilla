@@ -203,12 +203,24 @@ describe('WindowManager', () => {
     const agent = createAgent();
     const resize = (value: number) =>
       agent.act({
-        steps: [{ ref: 'Resize windows left and right', action: 'setValue', args: [value] }],
+        steps: [
+          {
+            ref: 'Resize windows left and right',
+            action: 'setValue',
+            args: [value],
+          },
+        ],
       });
     expect((await resize(65)).ok).toBe(true);
-    expect(screen.getByRole('separator')).toHaveAttribute('aria-valuenow', '65');
+    expect(screen.getByRole('separator')).toHaveAttribute(
+      'aria-valuenow',
+      '65'
+    );
     expect((await resize(99)).ok).toBe(false);
-    expect(screen.getByRole('separator')).toHaveAttribute('aria-valuenow', '65');
+    expect(screen.getByRole('separator')).toHaveAttribute(
+      'aria-valuenow',
+      '65'
+    );
   });
 
   test('a divider is a window splitter the arrows resize', () => {

@@ -37,10 +37,10 @@ const splitter = definePrimitive({
     root: slot({
       attrs: (state) => ({
         role: 'separator',
-        tabindex: 0,
-        'aria-valuemin': state.min,
-        'aria-valuemax': state.max,
-        'aria-valuenow': state.value,
+        tabindex: '0',
+        'aria-valuemin': String(state.min),
+        'aria-valuemax': String(state.max),
+        'aria-valuenow': String(state.value),
       }),
     }),
   }),

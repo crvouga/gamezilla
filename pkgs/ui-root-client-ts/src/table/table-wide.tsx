@@ -1,16 +1,16 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import { ChevronDownIcon, ChevronUpIcon } from '../icons';
 import { spaced } from '../layout-classes';
+import { ActionRow } from './action-row';
 import {
   ariaSort,
   cellClass,
   nextSort,
-  onRowKeyDown,
   PRESSABLE_ROW,
   rowTestId,
   type TableColumn,
@@ -35,7 +35,7 @@ function WideRow<R>(props: { table: TableBodyProps<R>; row: R }): JSX.Element {
   const press = (): void => props.table.onRowPress?.(props.row);
   const pressable = (): boolean => props.table.onRowPress !== undefined;
   return (
-    <tr
+    <ActionRow
       class={spaced([
         'h-11 border-b border-border last:border-b-0',
         pressable() ? PRESSABLE_ROW : undefined,
@@ -45,12 +45,7 @@ function WideRow<R>(props: { table: TableBodyProps<R>; row: R }): JSX.Element {
       data-pressable={pressable() ? 'true' : undefined}
       tabindex={pressable() ? 0 : undefined}
       aria-label={pressable() ? props.table.rowLabel?.(props.row) : undefined}
-      onClick={() => {
-        if (pressable()) press();
-      }}
-      onKeyDown={(event) => {
-        if (pressable()) onRowKeyDown(event, press);
-      }}
+      onActivate={pressable() ? press : undefined}
     >
       <For each={props.table.columns}>
         {(column) => (
@@ -59,7 +54,7 @@ function WideRow<R>(props: { table: TableBodyProps<R>; row: R }): JSX.Element {
           </td>
         )}
       </For>
-    </tr>
+    </ActionRow>
   );
 }
 
