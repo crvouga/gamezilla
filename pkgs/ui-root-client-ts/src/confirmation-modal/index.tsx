@@ -82,6 +82,9 @@ export function ConfirmationModal(props: ConfirmationModalProps): JSX.Element {
       closable={!submitting()}
       title={props.title}
       presentation="modal"
+      // Small: a confirmation is a narrower dialog of its own, never the
+      // same panel as a surface it is stacked over.
+      size="small"
       dataSet={{ component: 'ConfirmationModal', ...props.dataSet }}
     >
       <ConfirmationModalBody

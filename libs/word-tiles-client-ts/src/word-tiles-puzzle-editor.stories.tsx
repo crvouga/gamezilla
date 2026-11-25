@@ -21,8 +21,16 @@ const meta = {
   title: 'Screens/Space/Boards/Word Tiles/Puzzle editor',
   component: WordTilesPuzzleEditorView,
   tags: ['autodocs'],
-  parameters: { appRouter: true, controls: { exclude: ['onChange'] } },
-  args: { definition: INITIAL, disabled: false, onChange: fn() },
+  parameters: {
+    appRouter: true,
+    controls: { exclude: ['onChange', 'onChooseCopy'] },
+  },
+  args: {
+    definition: INITIAL,
+    disabled: false,
+    onChange: fn(),
+    onChooseCopy: fn(),
+  },
 } satisfies Meta<typeof WordTilesPuzzleEditorView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -38,5 +46,8 @@ export const Disabled: Story = {
   args: { definition: WITH_WORDS, disabled: true },
 };
 
-/** A draft this app cannot read points at an earlier saved copy. */
+/**
+ * A draft this app cannot read points at an earlier saved copy, and opens
+ * the draft's kept copies from right beside the message.
+ */
 export const Unreadable: Story = { args: { definition: 'not a puzzle' } };

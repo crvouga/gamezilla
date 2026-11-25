@@ -197,18 +197,18 @@
     min-height: 44px;
     overflow: visible;
   }
-  /* Every command on one row, the same size, so an answer the game waits
+  /* Every command on one row, sharing it, so an answer the game waits
      for (accept, decline) takes the row in place of offer and resign and
-     the bar keeps its height. A row longer than the phone scrolls sideways. */
+     the bar keeps its height. Commands too wide for one row wrap to a
+     second, each row's commands sharing its width, so no command is ever
+     cut at the screen's edge; the game's own (filled) step leads. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: var(--ui-space-2);
-    overflow-x: auto;
-    /* Room for a focused command's ring inside the scrolling row on every
-       side, given back outside so the bar keeps its size. */
-    /* The full width, with equal room inside on every side for the ring;
-       only the block room is given back, so the commands stay centred. */
+    /* The full width, with equal room inside on every side for a focused
+       command's ring; only the block room is given back, so the commands
+       stay centred. */
     width: 100%;
     box-sizing: border-box;
     padding: var(--ui-space-1);

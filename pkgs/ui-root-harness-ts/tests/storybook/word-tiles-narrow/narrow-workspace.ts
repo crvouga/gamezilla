@@ -111,7 +111,7 @@ async function rackTargets(
   });
 }
 
-/** The opening phone layout needs no scrolling: one rack row, then the whole board. */
+/** The opening phone layout needs no scrolling: the whole board, then one rack row. */
 export async function narrowOpeningFits(
   page: Page,
   info: TestInfo,

@@ -31,11 +31,13 @@ const STORY_GAME_TITLES: readonly (readonly [string, string])[] = [
 
 /**
  * The game each framed screen belongs to, by its story family: a game's
- * own stories its name, puzzles chess, and the shared frame's stories
- * Connect Four, the game they show.
+ * own stories its name, puzzles chess, puzzle packs their own name (their
+ * fixtures belong to no one game), and the shared frame's stories Connect
+ * Four, the game they show.
  */
 function storySpaceTitle(family: string): string {
   if (family.startsWith('screens-puzzles')) return 'Chess';
+  if (family.startsWith('screens-puzzle-packs')) return 'Puzzle packs';
   const game = STORY_GAME_TITLES.find(([slug]) =>
     family.startsWith(`screens-games-${slug}`)
   );
@@ -110,12 +112,11 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
 };
 
 // These views are mounted under SpaceScreenFrame in the product; the story
-// shell frames them the same way. Link screens are outside a space.
+// shell frames them the same way. Link screens are outside a space. Every
+// `screens-games-<game>-…` family is a game's own screen in a space, so the
+// shell frames each one by its prefix, including families added later.
+const SPACE_BODY_PREFIX = 'screens-games-';
 const SPACE_BODIES = new Set([
-  'screens-games-battleship-board',
-  'screens-games-battleship-setup',
-  'screens-games-chess-board',
-  'screens-games-connect-four-board',
   'screens-matchmaking-stage-menu',
   'screens-matchmaking-home',
   'screens-matchmaking-guide',
@@ -143,26 +144,9 @@ const SPACE_BODIES = new Set([
   'screens-custom-games-result',
   'screens-history-games',
   'screens-history-replay',
-  'screens-games-hearts-board',
-  'screens-games-light-cycles-stage',
-  'screens-games-light-cycles-stage-variants',
-  'screens-games-numberlink-editor',
-  'screens-games-numberlink-puzzle',
-  'screens-games-numberlink-preview',
-  'screens-games-pong-stage',
-  'screens-games-quoridor-hill',
-  'screens-games-quoridor-classic',
-  'screens-games-sokoban-editor',
-  'screens-games-sokoban-puzzle',
-  'screens-games-sokoban-preview',
-  'screens-games-word-tiles-board',
-  'screens-games-word-tiles-editor',
-  'screens-games-word-tiles-puzzle',
-  'screens-games-word-tiles-puzzle-preview',
   'screens-puzzles-import',
   'screens-puzzles-import-source',
   'screens-puzzles-import-status',
-  'screens-games-chess-puzzle',
   'screens-puzzles-stage',
   'screens-puzzles-result',
   'screens-puzzles-home',
@@ -199,7 +183,7 @@ export function storyRoute(id: string, override?: StoryRoute): StoryRoute {
   if (tab !== undefined) return { pathname: tab, tab: true, spaceBody: false };
   if (SELF_FRAMED_SPACE_BODIES.has(family))
     return { pathname: '/space/story-room', tab: false, spaceBody: 'story' };
-  if (SPACE_BODIES.has(family))
+  if (SPACE_BODIES.has(family) || family.startsWith(SPACE_BODY_PREFIX))
     return {
       pathname: '/space/story-room',
       tab: false,

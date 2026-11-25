@@ -130,7 +130,15 @@ export function BattleshipTargetGrid(props: {
   const workbench = () => mode() !== 'wide' && canAim();
   const regions = REGIONS;
   return (
-    <StackVertical gap="xs" width="full">
+    // A phone's workbench keeps the page's gutter, like the seats above it
+    // (a tablet's stage has one already), and room under Fire before the
+    // board switch.
+    <StackVertical
+      gap="xs"
+      width="full"
+      paddingX={workbench() ? { base: 'lg', md: 'none' } : undefined}
+      paddingBottom={workbench() ? 'sm' : undefined}
+    >
       <Show
         when={workbench()}
         fallback={

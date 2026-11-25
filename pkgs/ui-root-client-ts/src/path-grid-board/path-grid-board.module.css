@@ -49,9 +49,11 @@
      board, not a poster across the column. */
   width: min(100%, calc(var(--path-columns) * 80px));
   /* A host that bounds its height (a card's picture) says how tall the
-     board may be; elsewhere this is unset and so is the cap. */
+     board may be. Elsewhere the window bounds it: its height less the
+     page's title and the tools and actions under the board (about 27rem),
+     so Undo, Redo and Restart stay in view on a laptop; never under 16rem. */
   max-width: calc(
-    var(--board-fit-block-size) *
+    var(--board-fit-block-size, max(16rem, 100dvh - 27rem)) *
     var(--path-columns) /
     var(--path-rows)
   );

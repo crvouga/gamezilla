@@ -33,6 +33,11 @@ export type PuzzleEditorProps = {
   readonly definition: string;
   readonly disabled: boolean;
   readonly onChange: (definition: string) => void;
+  /**
+   * Opens the draft's kept copies, so an editor that cannot read the
+   * draft can offer the way to an earlier copy right where it says so.
+   */
+  readonly onChooseCopy?: (() => void) | undefined;
 };
 
 export type PuzzlePreviewProps = { readonly definition: string };

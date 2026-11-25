@@ -20,6 +20,17 @@ describe('resolveModalLayoutWidth', () => {
     );
   });
 
+  test('small keeps a further inset, so it stands inside a full-width surface', () => {
+    expect(resolveModalLayoutWidth('small', 1280, margin)).toBe(
+      MODAL_WIDTH_PX.small
+    );
+    // A phone: 390 - 2 * 16 margin - 2 * 20 inset.
+    expect(resolveModalLayoutWidth('small', 390, margin)).toBe(318);
+    expect(resolveModalLayoutWidth('small', 390, margin)).toBeLessThan(
+      resolveModalLayoutWidth('fullWidth', 390, margin)
+    );
+  });
+
   test('fullWidth fills available width with a floor', () => {
     expect(resolveModalLayoutWidth('fullWidth', 500, margin)).toBe(
       500 - margin * 2

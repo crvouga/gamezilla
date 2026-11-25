@@ -116,11 +116,12 @@ describe('game surfaces', () => {
   // its name while the other two chips kept one line. Every chip is the
   // same two lines: its name, then its swatch, figure and short facts on
   // wrapping facts, with no avatar to push them apart.
-  // The seat band keeps one height whoever sits at the table: on a phone
-  // every seat is one chip in a single row that scrolls sideways when the
-  // table is wider than the phone, so a third or fourth player never
-  // pushes the board down.
-  test('players on a phone share one scrolling row, each chip one line of facts', () => {
+  // regression: phone-four-seats-cut — four seats in one phone row cut the
+  // last chip at the edge and shortened every name and figure. Two seats
+  // share one row; three or more stand in rows of two, every seat in
+  // view, its name and figure whole. The band's height follows the table's
+  // size only, so the board never moves between states of one game.
+  test('players on a phone share one row up to two, rows of two from three', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -129,8 +130,15 @@ describe('game surfaces', () => {
       css.indexOf('@container game-column (max-width: 879px)')
     );
     const rail = phone.slice(phone.indexOf('.playerRail {'));
-    expect(rail.slice(0, rail.indexOf('}'))).toMatch(
-      /grid-auto-flow: column;[\s\S]*overflow-x: auto;/
+    const oneRow = rail.slice(0, rail.indexOf('}'));
+    expect(oneRow).toMatch(/grid-auto-flow: column;/);
+    expect(oneRow).toMatch(/grid-auto-columns: minmax\(0, 1fr\);/);
+    expect(oneRow).not.toMatch(/overflow-x: auto;/);
+    const four = phone.slice(
+      phone.indexOf('.playerRail:has(> :nth-child(3)) {')
+    );
+    expect(four.slice(0, four.indexOf('}'))).toMatch(
+      /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*grid-auto-flow: row;/
     );
     expect(
       rule(

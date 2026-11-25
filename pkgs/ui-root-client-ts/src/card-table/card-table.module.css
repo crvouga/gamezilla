@@ -55,8 +55,8 @@
   width: 100%;
   padding: var(--ui-space-2) var(--ui-space-1);
 }
-/* A narrow seat (beside a phone's table) lists its facts one under another. */
-@container (max-width: 7.5rem) {
+/* A narrow seat lists its facts one under another (not a wide side seat). */
+@container (max-width: 6.5rem) {
   .seat[data-player="true"] .facts {
     flex-direction: column;
     align-items: center;
@@ -329,8 +329,8 @@
   display: grid;
   justify-content: center;
   width: 100%;
-  /* Room for a chosen card's lift and ring above the row and at its ends. */
-  padding: var(--ui-space-4) var(--ui-space-1) var(--ui-space-1);
+  /* Room for a chosen card's 8px lift and 3px ring, above and at the ends. */
+  padding: var(--ui-space-3) var(--ui-space-1) var(--ui-space-1);
   min-height: var(--hand-h);
 }
 .hand > .card {

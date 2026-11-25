@@ -9,25 +9,24 @@
   width: 100%;
   min-width: 0;
 }
-/* On a phone the players are one row of chips at every table, two seats
-   or six, so the band over the board is one chip tall and the board under
-   it never moves with the table's size. Each chip keeps a readable width;
-   a row wider than the phone scrolls sideways, its last chip cut at the
-   edge to say there is more (no scrollbar, which would add to the band's
-   height at a bigger table only). */
+/* On a phone every seat is in view, its name and figure whole: up to
+   two seats share one row; at three or more they stand in rows of two,
+   so each chip has half the phone's width and the band is two rows tall
+   at every bigger table, like two players' bars. The band's height follows the
+   table's size only, never a state of the game, so the board under it
+   keeps one box from the first move to the last. */
 @container game-column (max-width: 879px) {
   .playerRail {
     grid-template-columns: none;
     grid-auto-flow: column;
-    /* Every seat in view: the row shares the phone's width evenly, a
-       long name shortening rather than a seat sliding off the edge. */
     grid-auto-columns: minmax(0, 1fr);
-    overflow-x: auto;
-    overscroll-behavior-x: contain;
-    scrollbar-width: none;
   }
-  .playerRail::-webkit-scrollbar {
-    display: none;
+  .playerRail:has(> :nth-child(3)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row;
+  }
+  .playerRail > * {
+    min-width: 0;
   }
 }
 
@@ -71,7 +70,9 @@
 /* Every chip's facts are one line (the swatch, then its figure and
    status), at every table on a phone and at a bigger one beside a wide
    board, so every chip has the same two lines and the band of seats the
-   same height whoever sits at the table or goes Out. */
+   same height whoever sits at the table or goes Out. When the line is
+   too long, a status word or tag is the one cut short; the swatch and the
+   figure (what was scored or chosen) stay whole. */
 @container game-column (max-width: 879px) {
   .playerRail .chipFacts {
     flex-wrap: nowrap;
@@ -80,12 +81,12 @@
   .playerRail:has(> :nth-child(3)) .chipFacts {
     gap: var(--ui-space-0-5, 2px);
   }
-  /* When the line is still too long, the status after the swatch is the
-     one cut short; what was chosen or scored stays whole. */
   .playerRail .chipFacts > * {
     flex-shrink: 0;
   }
-  .playerRail .chipFacts > :nth-child(2):not(:last-child) {
+  .playerRail
+    .chipFacts
+    > :not([data-component="GameSeatSwatch"], [data-component="GameSeatStat"]) {
     flex-shrink: 1;
     min-width: 0;
     overflow: hidden;
@@ -106,7 +107,9 @@
   .playerRail:has(> :nth-child(3)) .chipFacts > * {
     flex-shrink: 0;
   }
-  .playerRail:has(> :nth-child(3)) .chipFacts > :nth-child(2):not(:last-child) {
+  .playerRail:has(> :nth-child(3))
+    .chipFacts
+    > :not([data-component="GameSeatSwatch"], [data-component="GameSeatStat"]) {
     flex-shrink: 1;
     min-width: 0;
     overflow: hidden;

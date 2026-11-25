@@ -16,6 +16,13 @@ export const MODAL_CONTENT_MARGIN_STEP = 4;
 
 const MIN_MODAL_WIDTH_PX = 200;
 
+/**
+ * Extra room one side of a `small` modal keeps inside the edge margin, so a
+ * small dialog (a confirmation) stacked over a full-width surface stands
+ * visibly inside it, its edges clear of the one below.
+ */
+export const SMALL_MODAL_INSET_PX = 20;
+
 function availableWidth(layoutWidth: number, marginPx: number): number {
   const gutter = marginPx * 2;
   return Math.max(0, layoutWidth - gutter);
@@ -35,7 +42,9 @@ export function resolveModalLayoutWidth(
     return Math.max(MIN_MODAL_WIDTH_PX, available);
   }
   const bucket = MODAL_WIDTH_PX[size];
-  const clamped = Math.min(bucket, available);
+  const room =
+    size === 'small' ? available - SMALL_MODAL_INSET_PX * 2 : available;
+  const clamped = Math.min(bucket, room);
   return Math.max(MIN_MODAL_WIDTH_PX, clamped);
 }
 

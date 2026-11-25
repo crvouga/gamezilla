@@ -115,6 +115,31 @@ describe('ResponsiveSurface', () => {
     expect(cssOf(modal)).toContain('max-width:360px');
   });
 
+  // regression: share-remove-confirm-one-panel — a confirmation stacked
+  // over the Share surface had its width and edges, reading as one panel.
+  // A small surface keeps a further inset on a phone, inside the one below.
+  test('compact layout keeps a small surface narrower than a full-width one', () => {
+    renderUi(
+      () => (
+        <SurfaceStackProvider>
+          <ResponsiveSurface
+            visible
+            onClose={() => {}}
+            title="Remove?"
+            size="small"
+          >
+            <p class="text">{'Surface body'}</p>
+          </ResponsiveSurface>
+        </SurfaceStackProvider>
+      ),
+      { width: 390, height: 844 }
+    );
+    const modal = mustQuery('[data-component="ModalContent"]');
+    expect(modal).toHaveAttribute('data-size', 'small');
+    // 390 - 2 * 16 margin - 2 * 20 inset: clear of a full-width surface.
+    expect(cssOf(modal)).toContain('max-width:318px');
+  });
+
   test('presentation="modal" is the same centered modal on compact layouts', () => {
     renderUi(
       () => (

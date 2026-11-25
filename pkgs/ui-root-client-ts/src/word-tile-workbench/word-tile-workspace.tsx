@@ -65,14 +65,17 @@ function createWorkspaceMeasure(root: () => HTMLElement | undefined): {
 }
 
 /**
- * One seat's word workspace, in reading order for its layout. On phones:
- * notice, rack, actions, feedback, then the board. When wide: notice, the
- * board with its feedback beside it, then the rack beside the actions, right
- * above the player's own seat. Source order always follows what is on screen,
- * so Tab and screen readers move the way the eye does. In a board box its
- * host holds still, the workspace fills the box and sizes its board to the
- * room the rack, actions and feedback leave (`data-fill`), so all of them
- * show without scrolling.
+ * One seat's word workspace, in reading order for its layout: the notice,
+ * the board, then under it the feedback, the rack and the actions (when
+ * wide, the rack beside the actions, right above the player's own seat).
+ * The board comes first so it stands at the same place for a player and a
+ * watcher, and the game's actions sit under it. Source order always follows
+ * what is on screen, so Tab and screen readers move the way the eye does.
+ * In a board box its host holds still, the workspace fills the box and
+ * sizes its board to the room the rack, actions and feedback leave
+ * (`data-fill`), so all of them show without scrolling; on a phone that
+ * room is reserved whatever the seat holds, so a watcher's board is the
+ * player's size.
  */
 export function WordTileWorkspace(props: {
   notice?: JSX.Element;
@@ -116,10 +119,12 @@ export function WordTileWorkspace(props: {
         fallback={
           <>
             {notice()}
-            {rack()}
-            {actions()}
-            {feedback()}
             {board()}
+            <div class={styles['tray']}>
+              {feedback()}
+              {rack()}
+              {actions()}
+            </div>
           </>
         }
       >

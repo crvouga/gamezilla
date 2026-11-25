@@ -36,7 +36,8 @@ export type ResponsiveSurfaceProps = {
   title?: JSX.Element | undefined;
   /**
    * Modal width bucket on wide layouts. Default `medium`. Compact layouts
-   * always use the full width inside the 16px backdrop margin.
+   * use the full width inside the 16px backdrop margin, except `small`,
+   * which keeps a further inset so it stands inside a surface under it.
    */
   size?: ModalSize | undefined;
   /** Max height of the modal content in px (capped by the viewport). */
@@ -227,7 +228,9 @@ function CenteredModal(props: ResponsiveSurfaceProps): JSX.Element {
  * `.dialogEnter` fade-and-scale). It never docks to the bottom edge.
  *
  * Width: the {@link ModalSize} bucket on wide layouts; on compact layouts
- * the whole width inside the backdrop's 16px margin. Height hugs content and
+ * the whole width inside the backdrop's 16px margin, but a `small` surface
+ * (a confirmation) keeps a further inset, so stacked over another it reads
+ * as a separate, narrower dialog. Height hugs content and
  * is capped by {@link useModalContentMaxHeight} (viewport minus the margin),
  * so long content scrolls inside the modal.
  *
@@ -254,8 +257,12 @@ export function ResponsiveSurface(props: ResponsiveSurfaceProps): JSX.Element {
       confirmNavigation(props.onClose, scope.pendingOperations());
     else props.onClose();
   };
+  // A compact layout gives every surface its whole width but a small one,
+  // which stays narrower so it reads as its own dialog over another.
   const size = (): ModalSize =>
-    layoutMode() === 'compact' ? 'fullWidth' : (props.size ?? 'medium');
+    layoutMode() === 'compact' && props.size !== 'small'
+      ? 'fullWidth'
+      : (props.size ?? 'medium');
   return (
     <PendingOperationScopeContext value={scope}>
       <CenteredModal {...props} size={size()} onClose={requestClose} />

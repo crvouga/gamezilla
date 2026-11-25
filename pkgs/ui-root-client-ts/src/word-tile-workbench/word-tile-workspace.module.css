@@ -4,6 +4,7 @@
   min-width: 0;
 }
 .notice,
+.tray,
 .rack,
 .actions,
 .feedback,
@@ -93,18 +94,32 @@
   --word-tile-enlarged-least: calc(var(--ui-control-size-md) * 3);
 }
 
-/* A phone: the rack, the actions and the feedback over the board, at the
-   host's inset; the board takes the box's whole width (out past the inset
-   its host gives a workspace, `--game-board-workspace-inset`), with its
-   overview and view controls back at the inset. Fitted, the squares are as
-   large as the width, or the height under the view controls and over the
-   square's details, allows. */
+/* A phone: the board at the box's top, then the feedback, the rack and the
+   actions under it, at the host's inset, in a tray as tall as a seat's
+   (one status line, a rack of 3rem tiles, a row of actions) whatever the
+   seat holds, so a watcher's board is a player's size at the same place.
+   The board takes the box's whole width (out past the inset its host gives
+   a workspace, `--game-board-workspace-inset`), with its overview and view
+   controls back at the inset. Fitted, the squares are as large as the
+   width, or the height under the view controls and over the square's
+   details, allows. */
 .layout[data-fill="true"][data-layout="stacked"] {
   display: flex;
   flex-direction: column;
 }
 .layout[data-fill="true"][data-layout="stacked"] > :not(.board) {
   flex: none;
+}
+.layout[data-fill="true"][data-layout="stacked"] .tray {
+  display: flex;
+  flex-direction: column;
+  min-height: calc(
+    1lh +
+    3rem +
+    var(--ui-space-1) *
+    2 +
+    var(--ui-control-size-md)
+  );
 }
 .layout[data-fill="true"][data-layout="stacked"] .board {
   flex: 1 1 0;

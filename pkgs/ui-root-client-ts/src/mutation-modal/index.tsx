@@ -130,7 +130,8 @@ function mutationModalIds(props: MutationModalProps): MutationModalIds {
  * `MutationModal` -- one dialog for the whole mutation lifecycle.
  *
  * Always a centered modal via {@link ResponsiveSurface} `presentation="modal"`
- * (never a bottom sheet). Renders a confirm message or form body, then on
+ * (never a bottom sheet), `small`: a narrower dialog of its own, so stacked
+ * over another surface it never reads as the same panel. Renders a confirm message or form body, then on
  * submit transitions through `loading -> success / error` in place. Closing
  * dismisses the observation without cancelling the operation. This is
  * the canonical surface for destructive confirms (sign out, end space) and
@@ -195,6 +196,7 @@ export function MutationModal(props: MutationModalProps): JSX.Element {
           : props.title
       }
       presentation="modal"
+      size="small"
       stackId={props.stackId}
       dataSet={{ component: 'MutationModal', ...props.dataSet }}
     >

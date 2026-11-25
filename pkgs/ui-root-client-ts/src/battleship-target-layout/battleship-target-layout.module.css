@@ -17,16 +17,18 @@
   gap: var(--ui-space-1) var(--ui-space-3);
   min-width: 0;
 }
+/* Five 44px regions under a 12px label row, inside 4px: no taller, so a
+   phone keeps the precise cells and Fire in the board region under it. */
 .navigator {
-  flex: 0 0 15.5rem;
-  width: 15.5rem;
+  flex: 0 0 15rem;
+  width: 15rem;
   display: flex;
   flex-direction: column;
   gap: var(--ui-space-1);
 }
 .map {
   position: relative;
-  width: 15.5rem;
+  width: 15rem;
   aspect-ratio: 1;
 }
 .overview
@@ -34,17 +36,20 @@
   width: 100%;
   max-width: none;
   aspect-ratio: 1;
+  /* A row label ("10") needs the wider column; a column label (one
+     letter) a 12px row. */
   grid-template-columns: var(--ui-space-5) repeat(10, minmax(0, 1fr));
-  grid-template-rows: var(--ui-space-5) repeat(10, minmax(0, 1fr));
+  grid-template-rows: var(--ui-space-3) repeat(10, minmax(0, 1fr));
   padding: var(--ui-space-1);
   gap: 0;
 }
 .overview [data-cell] span {
   font-size: var(--ui-text-label-size);
+  line-height: 1;
 }
 .regions {
   position: absolute;
-  inset: var(--ui-space-6) var(--ui-space-1) var(--ui-space-1) var(--ui-space-6);
+  inset: var(--ui-space-4) var(--ui-space-1) var(--ui-space-1) var(--ui-space-6);
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-rows: 1fr;
@@ -94,6 +99,15 @@
 }
 .controls {
   order: -1;
+}
+/* No tools above the cells (Fire is under them): no gap for them either. */
+.controls:has(> :empty) {
+  margin-block-end: calc(-1 * var(--ui-space-1));
+}
+/* The precise cells keep slim block padding: their labels need no more. */
+.working
+[data-component="CellGridBoard"][data-board-theme="battleship"][data-fill="false"] {
+  padding-block: var(--ui-space-1);
 }
 .working {
   width: 100%;
