@@ -272,7 +272,6 @@
   opacity: 1;
   font-size: var(--ui-font-size-2xl);
   font-weight: var(--ui-font-weight-bold);
-  font-family: var(--ui-font-mono);
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
