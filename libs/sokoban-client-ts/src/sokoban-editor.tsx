@@ -167,6 +167,7 @@ function Board(props: {
     props.board.squares.map((square, index) => ({
       id: squareName(cellOf(props.board, index)),
       ...pieceOf(props.board, index),
+      goal: square === 'goal',
       label: squareLabel(props.board, props.board, index, words),
       tone:
         square === 'wall'

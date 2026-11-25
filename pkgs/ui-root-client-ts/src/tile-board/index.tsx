@@ -2,6 +2,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
+import { WarehousePiece } from '../warehouse/piece';
 import { useTileBoardActions } from './actions';
 import styles from './tile-board.module.css';
 
@@ -29,6 +30,7 @@ export type TileBoardPiece = {
 };
 export type TileBoardDirection = 'up' | 'down' | 'left' | 'right';
 export type TileBoardProps = {
+  readonly boardTheme?: 'warehouse';
   readonly label: string;
   readonly testId: string;
   readonly columns: number;
@@ -148,6 +150,7 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
       data-testid={props.testId}
       data-disabled={String(props.disabled === true)}
       data-interactive={String(input.interactive())}
+      data-board-theme={props.boardTheme}
       data-size={props.size ?? 'compact'}
       {...dataAttrs({ component: 'TileBoard' })}
       style={{
@@ -191,7 +194,9 @@ export function TileBoard(props: TileBoardProps): JSX.Element {
               }}
             >
               {/* The token fills most of its tile, its glyph inside it. */}
-              <span class={styles['token']}>{piece().glyph}</span>
+              <span class={styles['token']}><Show when={props.boardTheme === 'warehouse'} fallback={piece().glyph}>
+                  <WarehousePiece tone={piece().tone} />
+                </Show></span>
             </span>
           )}
         </For>

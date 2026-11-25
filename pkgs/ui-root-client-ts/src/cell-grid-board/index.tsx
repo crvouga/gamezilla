@@ -5,6 +5,7 @@ import { definePrimitive } from '@ui-sdk/core';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createParts } from '@ui-sdk/solid/primitive';
 import { createMemo, createSignal, For, Show } from 'solid-js';
+import { WarehousePiece, warehouseIdentity } from '../warehouse/piece';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
 
@@ -218,7 +219,9 @@ function GridCell(props: {
       }}
     >
       <span class={styles['glyph']} aria-hidden="true">
-        {cell()?.glyph ?? ''}
+        <Show when={props.board.boardTheme === 'sokoban' && warehouseIdentity(cell()?.identity)} fallback={cell()?.glyph ?? ''}>
+          {(tone) => <WarehousePiece tone={tone()} />}
+        </Show>
       </span>
       <Show when={props.coordinates?.row}>
         {(label) => (

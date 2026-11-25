@@ -180,6 +180,7 @@ export function SokobanPreview(props: PuzzlePreviewProps): JSX.Element {
         });
         return (
           <TileBoard
+          boardTheme="warehouse"
             label={t`Sokoban board preview`}
             testId="sokoban-preview"
             columns={value().width}

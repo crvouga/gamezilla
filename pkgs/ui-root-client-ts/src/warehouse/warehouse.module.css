@@ -1,0 +1,69 @@
+.piece {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ink, .uniform {
+  fill: var(--ui-color-game-sokoban-canvas);
+}
+.face, .brace {
+  fill: var(--ui-color-game-sokoban-ink);
+}
+.helmet {
+  fill: var(--ui-color-game-sokoban-accent);
+}
+.helmet, .brace {
+  stroke: var(--ui-color-game-sokoban-canvas);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.wood, .grain {
+  fill: var(--ui-color-game-sokoban-canvas);
+  opacity: 0.2;
+}
+.grain, .line {
+  fill: none;
+  stroke: var(--ui-color-game-sokoban-canvas);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.check, .straps {
+  fill: none;
+  stroke: var(--ui-color-game-sokoban-two);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.straps {
+  stroke: var(--ui-color-game-sokoban-accent);
+}
+
+/* Corner stencils extend past the load, so the bay still shows when the
+   worker stands in it. The center ring marks an empty bay at thumbnail size. */
+[data-board-theme="warehouse"] [data-marked="true"],
+[data-board-theme="sokoban"] [data-goal="true"],
+[data-board-theme="sokoban"] [data-identity="four"] {
+  position: relative;
+}
+[data-board-theme="warehouse"] [data-marked="true"]::after,
+[data-board-theme="sokoban"] [data-goal="true"]::after,
+[data-board-theme="sokoban"] [data-identity="four"]::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 4%;
+  --warehouse-stencil: linear-gradient(currentColor 0 0);
+  background:
+    var(--warehouse-stencil) left top / 28% 5% no-repeat,
+    var(--warehouse-stencil) left top / 5% 28% no-repeat,
+    var(--warehouse-stencil) right top / 28% 5% no-repeat,
+    var(--warehouse-stencil) right top / 5% 28% no-repeat,
+    var(--warehouse-stencil) left bottom / 28% 5% no-repeat,
+    var(--warehouse-stencil) left bottom / 5% 28% no-repeat,
+    var(--warehouse-stencil) right bottom / 28% 5% no-repeat,
+    var(--warehouse-stencil) right bottom / 5% 28% no-repeat;
+  color: var(--ui-color-game-sokoban-surface);
+}

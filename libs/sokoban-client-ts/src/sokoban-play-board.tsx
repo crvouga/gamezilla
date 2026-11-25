@@ -126,6 +126,7 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
     <StackVertical gap="md">
       <StackVertical>
         <TileBoard
+          boardTheme="warehouse"
           label={
             closeView()
               ? t`Sokoban board, close view around the worker`
