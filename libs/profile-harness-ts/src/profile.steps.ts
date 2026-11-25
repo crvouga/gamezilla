@@ -8,6 +8,7 @@ import {
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type { Actor } from '@libs/harness-ts/parameter-types';
 import { otherDevice } from '@libs/harness-ts/platform';
+import { runTag } from '@libs/harness-ts/run-scope';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import { type HarnessWorld, remember } from '@libs/harness-ts/spec-world';
 import { USERNAME_CHANGE_COOLDOWN_MS } from '@libs/profile-shared-ts/username';
@@ -35,7 +36,11 @@ import {
   standInNoticeShown,
   usernameWaitingToShareShown,
 } from './profile-ui-reads';
-import { usernameKey } from './remembered-username';
+import {
+  claimFixtureUsername,
+  fixtureUsername,
+  usernameKey,
+} from './remembered-username';
 import {
   startAllowingUsername,
   stopAllowingUsername,
@@ -65,7 +70,7 @@ async function tryUsername(
   username: string
 ): Promise<void> {
   await w.s.apply(openProfileEdit, actor);
-  await w.s.apply(submitUsername, actor, username);
+  await w.s.apply(submitUsername, actor, fixtureUsername(w, username));
 }
 
 Given(
@@ -109,7 +114,8 @@ async function takeUsername(
 Given(
   "{actor}'s username is {username}",
   async (w, actor: Actor, username: string) => {
-    await takeUsername(w, actor, username);
+    const name = claimFixtureUsername(w, username, await w.s.read(runTag));
+    await takeUsername(w, actor, name);
     // A username they have, not one they changed moments ago.
     await w.s.advanceTime(USERNAME_CHANGE_COOLDOWN_MS * 2);
   }
@@ -118,7 +124,7 @@ Given(
 Given(
   '{actor} has renamed themselves to {username}',
   async (w, actor: Actor, username: string) => {
-    await takeUsername(w, actor, username);
+    await takeUsername(w, actor, claimFixtureUsername(w, username, null));
   }
 );
 
@@ -126,7 +132,7 @@ When(
   '{actor} renames themselves to {username}',
   async (w, actor: Actor, username: string) => {
     await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(setUsername, actor, username);
+    await w.s.apply(setUsername, actor, fixtureUsername(w, username));
   }
 );
 
@@ -134,7 +140,11 @@ When(
   '{actor} renames themselves to {username} on their other device',
   async (w, actor: Actor, username: string) => {
     await w.s.apply(openProfileEdit, otherDevice(actor));
-    await w.s.apply(setUsername, otherDevice(actor), username);
+    await w.s.apply(
+      setUsername,
+      otherDevice(actor),
+      fixtureUsername(w, username)
+    );
   }
 );
 
@@ -149,7 +159,7 @@ When(
   '{actor} starts renaming themselves to {username} and leaves without saving',
   async (w, actor: Actor, username: string) => {
     await w.s.apply(openProfileEdit, actor);
-    await w.s.apply(typeUsernameDraft, actor, username);
+    await w.s.apply(typeUsernameDraft, actor, fixtureUsername(w, username));
     await w.s.apply(leaveUsernameEditor, actor);
   }
 );
@@ -195,7 +205,7 @@ Then(
   "{actor}'s profile (still )shows {username}",
   async (w, actor: Actor, username: string) => {
     await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
-      pred: (shown) => shown === username,
+      pred: (shown) => shown === fixtureUsername(w, username),
     });
   }
 );
@@ -205,7 +215,7 @@ Then(
   async (w, actor: Actor, username: string, seconds: number) => {
     await w.s.apply(focusActor, actor);
     await w.s.until((harness) => readProfileUsernameShown(harness, actor), {
-      pred: (shown) => shown === username,
+      pred: (shown) => shown === fixtureUsername(w, username),
       maxMs: seconds * SECOND_MS,
     });
   }
@@ -217,7 +227,7 @@ Then(
     await w.s.until(
       (harness) => readProfileTabUsername(harness, otherDevice(actor)),
       {
-        pred: (shown) => shown === username,
+        pred: (shown) => shown === fixtureUsername(w, username),
       }
     );
   }
@@ -228,7 +238,10 @@ Then(
   async (w, actor: Actor, username: string, seconds: number) => {
     await w.s.until(
       (harness) => readProfileTabUsername(harness, otherDevice(actor)),
-      { pred: (shown) => shown === username, maxMs: seconds * SECOND_MS }
+      {
+        pred: (shown) => shown === fixtureUsername(w, username),
+        maxMs: seconds * SECOND_MS,
+      }
     );
   }
 );
@@ -292,21 +305,21 @@ Then('{actor} already has an avatar', async (w, actor: Actor) => {
 When(
   'the team stops allowing the username {username}',
   async (w, username: string) => {
-    await w.s.apply(stopAllowingUsername, username);
+    await w.s.apply(stopAllowingUsername, fixtureUsername(w, username));
   }
 );
 
 Given(
   'the team has stopped allowing the username {username}',
   async (w, username: string) => {
-    await w.s.apply(stopAllowingUsername, username);
+    await w.s.apply(stopAllowingUsername, fixtureUsername(w, username));
   }
 );
 
 When(
   'the team starts allowing the username {username} again',
   async (w, username: string) => {
-    await w.s.apply(startAllowingUsername, username);
+    await w.s.apply(startAllowingUsername, fixtureUsername(w, username));
   }
 );
 

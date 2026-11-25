@@ -1,0 +1,4 @@
+{
+  "summary": "Three browser scenarios each claimed alice_one for separate accounts on one live stack. After the first accepted claim, later optimistic saves were refused on upload and left no shared username to restore following a rejected offline rename.",
+  "regressionTest": "libs/profile-harness-ts/tests/fixture-usernames.test.ts"
+}
