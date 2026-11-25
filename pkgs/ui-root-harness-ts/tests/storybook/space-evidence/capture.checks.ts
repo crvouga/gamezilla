@@ -2,7 +2,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import { test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
-import scope from './scope.json';
+import scope from './scope.json' with { type: 'json' };
 
 const index = JSON.parse(
   readFileSync(
