@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
-import { Button as SdkButton } from '@ui-sdk/solid/button';
+
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 
 /**
  * Rectangular ActionBar control: icon/avatar + under-caption as one button.

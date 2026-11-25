@@ -1,12 +1,12 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { ColorTokenName } from '@pkgs/ui-root-shared-ts/colors-types';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { resolveColor } from '@pkgs/ui-root-shared-ts/resolve-color';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { children, Show } from 'solid-js';
 import { OnColorProvider } from '../on-color-context/index';
 import { useThemeTokens } from '../theme-context/index';

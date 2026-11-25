@@ -1,12 +1,12 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useTimers } from '@pkgs/clock-client-ts/solid';
 import type { LocalizedString } from '@pkgs/i18n-shared-ts/localized-string';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createEffect, createSignal, Show } from 'solid-js';
 import { CircleCheckIcon, CopyIcon } from '../icons';
 

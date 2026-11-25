@@ -16,11 +16,11 @@ import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transpo
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
 import '@pkgs/tailwind-shared-ts/tailwind.css';
-import { registerUiAgentTools } from '@pkgs/ui-root-client-ts/register-ui-agent-tools';
 import '@pkgs/ui-root-client-ts/fonts';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
-import { type JSX, render } from '@solidjs/web';
+import { renderApplication } from '@pkgs/ui-root-client-ts/render-application';
+import type { JSX } from '@solidjs/web';
 import { onCleanup } from 'solid-js';
 import './polyfill-entry';
 import './styles.css';
@@ -29,7 +29,6 @@ const root = document.getElementById('root');
 assert.ok(root !== null, 'root element is missing');
 
 function AppBoot(): JSX.Element {
-  onCleanup(registerUiAgentTools());
   const offline = wallOfflineNetworkController();
   const env = wallClientEnv({
     http: { fetch: (input, init) => globalThis.fetch(input, init) },
@@ -60,5 +59,5 @@ function AppBoot(): JSX.Element {
 }
 
 root.replaceChildren();
-const dispose = render(() => <AppBoot />, root);
+const dispose = renderApplication(() => <AppBoot />, root);
 if (import.meta.hot) import.meta.hot.dispose(dispose);

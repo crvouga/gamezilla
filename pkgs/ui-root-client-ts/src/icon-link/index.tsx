@@ -2,9 +2,9 @@
 
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { LinkHost } from '../link-host';
 import type { JSX } from '@solidjs/web';
 import { ICON_BUTTON_MIN_HIT_TARGET } from '../icon-button/index';
+import { LinkHost } from '../link-host';
 
 export type IconLinkProps = {
   href: string;

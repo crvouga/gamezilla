@@ -1,7 +1,9 @@
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { definePrimitive } from '@ui-sdk/core';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createParts } from '@ui-sdk/solid/primitive';
 import { createMemo, createSignal, For, Show } from 'solid-js';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
@@ -84,6 +86,41 @@ export type CellGridBoardProps = {
   readonly onCellKey?: ((key: string, id: string) => boolean) | undefined;
   readonly describedBy?: string | undefined;
 };
+type CellPreviews = Pick<CellGridBoardProps, 'cells' | 'onPreview'>;
+const previewState = (options: CellPreviews) => ({
+  available: !!options.onPreview,
+});
+const previews = definePrimitive({
+  name: 'cell-grid-preview',
+  options: { cells: 'value', onPreview: 'callback' },
+  state: previewState,
+  sync: previewState,
+  api: (context) => ({
+    cells: () =>
+      context.options().cells.map(({ id, label }) => ({ value: id, label })),
+    previewCell(choice: unknown) {
+      const options = context.options();
+      const cell = options.cells.find(
+        ({ id, label }) => choice === id || choice === label
+      );
+      if (!options.onPreview || !cell)
+        throw new Error('Choose a cell on the current board.');
+      options.onPreview(cell.id);
+    },
+    clearPreview() {
+      context.options().onPreview?.(null);
+    },
+  }),
+  agent: {
+    actions: ['previewCell', 'clearPreview'],
+    shown: (state) => state.available,
+    items: (api) => api.cells(),
+    closed: true,
+  },
+  slots: (slot) => ({ root: slot({}) }),
+});
+const { Root: PreviewGrid } = createParts(previews, { root: 'div' });
+
 export type CellGridSize = {
   readonly columns: number;
   readonly rows: number;
@@ -262,8 +299,12 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       event.preventDefault();
   };
   return (
-    <div
-      ref={root}
+    <PreviewGrid
+      cells={props.cells}
+      onPreview={props.onPreview}
+      ref={(element) => {
+        root = element;
+      }}
       class={`${styles['board']} ${battleship['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
       data-fill={String(props.fill === true)}
@@ -301,7 +342,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
           </>
         )}
       </For>
-    </div>
+    </PreviewGrid>
   );
 }
 

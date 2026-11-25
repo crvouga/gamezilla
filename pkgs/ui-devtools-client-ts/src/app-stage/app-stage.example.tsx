@@ -1,11 +1,11 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   AppStage,
   type AppStageView,
 } from '@pkgs/ui-devtools-client-ts/app-stage';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createSignal, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 

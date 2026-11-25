@@ -1,6 +1,5 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
@@ -9,6 +8,7 @@ import {
   rovingTabStop,
 } from '@pkgs/ui-root-shared-ts/roving-focus';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createUniqueId, For } from 'solid-js';
 import board from '../cell-grid-board/cell-grid-board.module.css';
 import type {

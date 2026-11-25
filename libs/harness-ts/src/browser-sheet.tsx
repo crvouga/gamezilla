@@ -14,8 +14,8 @@
  * the light DOM still paints Stripe and the sign-in screens as designed.
  */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type JSX, render } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Match, onSettled, Show, Switch } from 'solid-js';
 import type {
   HarnessBrowser,

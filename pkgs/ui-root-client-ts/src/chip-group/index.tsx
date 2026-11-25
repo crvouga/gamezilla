@@ -5,8 +5,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Radio, RadioGroup } from '@ui-sdk/solid/radio';
 import { createUniqueId, For, Show } from 'solid-js';
-import { CHIP_CLASS, ChipFace } from '../chip/face';
-import { Chip } from '../chip/index';
+import { CHIP_CLASS, Chip, ChipFace } from '../chip/index';
 
 export type ChipGroupOption<K extends string = string> = {
   key: K;

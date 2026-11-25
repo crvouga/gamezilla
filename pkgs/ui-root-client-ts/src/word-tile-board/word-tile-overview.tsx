@@ -1,6 +1,6 @@
 import { t } from '@lingui/core/macro';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createEffect, createSignal, onSettled, Show } from 'solid-js';
 import { observeElementResize } from '../observe-element-resize';
 import { ResponsiveSurface } from '../responsive-surface/index';

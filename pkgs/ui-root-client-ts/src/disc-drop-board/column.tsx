@@ -1,6 +1,6 @@
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, createUniqueId, For, Show } from 'solid-js';
 import styles from './disc-drop-board.module.css';
 import type { DiscDropBoardProps } from './index';

@@ -1,9 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import {
   useAppFrameBreadcrumbs,

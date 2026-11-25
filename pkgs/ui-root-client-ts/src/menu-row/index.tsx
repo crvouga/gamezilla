@@ -203,8 +203,14 @@ function MenuRowLink(
     <LinkHost
       class={`clickable clickableTint ${rowClass(props.selected === true)}`}
       {...partAttrs(props.part, props.dataSet)}
-      href={props.href}
+      href={props.disabled ? undefined : props.href}
+      disabled={props.disabled === true}
+      aria-disabled={props.disabled ? 'true' : undefined}
       onClick={(event) => {
+        if (props.disabled) {
+          event.preventDefault();
+          return;
+        }
         if (props.onClick === undefined) return;
         event.preventDefault();
         props.onClick();

@@ -108,7 +108,12 @@ function EditorField(props: FieldProps): JSX.Element {
       aria-label={props['aria-label']}
       onValueChange={(value) => props.onChangeText(value)}
       onInput={(event) => emitSelection(event.currentTarget)}
-      render={(attrs) => <textarea {...attrs} onSelect={(event) => emitSelection(event.currentTarget)} />}
+      render={(attrs) => (
+        <textarea
+          {...attrs}
+          onSelect={(event) => emitSelection(event.currentTarget)}
+        />
+      )}
       onKeyUp={(event) => emitSelection(event.currentTarget)}
       onClick={(event) => emitSelection(event.currentTarget)}
       onFocus={() => props.onFocusChange(true)}

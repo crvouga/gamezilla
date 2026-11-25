@@ -1,7 +1,7 @@
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createUniqueId, For, Show } from 'solid-js';
 import styles from './battleship-target-layout.module.css';
 

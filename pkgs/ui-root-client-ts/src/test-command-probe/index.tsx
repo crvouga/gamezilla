@@ -1,9 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { Input } from '@ui-sdk/solid/input';
-import { Button } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
+import { Button } from '@ui-sdk/solid/button';
+import { Input } from '@ui-sdk/solid/input';
 
 export type TestCommandProbeProps = {
   /** Accessible name of the command field. */
@@ -56,7 +56,11 @@ export type TestCommandProbeProps = {
  */
 export function TestCommandProbe(props: TestCommandProbeProps): JSX.Element {
   return (
-    <div data-agent-hidden="" class="sr-only" data-component={componentId('TestCommandProbe')}>
+    <div
+      data-agent-hidden=""
+      class="sr-only"
+      data-component={componentId('TestCommandProbe')}
+    >
       <Input
         value={props.command}
         onValueChange={(value) => props.onCommandInput(value)}

@@ -1,6 +1,5 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { asKeyword } from '@pkgs/keyword-shared-ts/keyword';
 import { createKvState } from '@pkgs/kv-root-client-ts/solid';
 import { booleanKvCodec } from '@pkgs/kv-root-shared-ts/kv-state-codec';
@@ -10,6 +9,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { speakingAvatarSvg } from '@pkgs/ui-root-shared-ts/speaking-avatar-svg';
 import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';

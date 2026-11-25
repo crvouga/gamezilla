@@ -2,13 +2,13 @@
 
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { LinkHost } from '../link-host';
 import type { JSX } from '@solidjs/web';
 import ArrowUpRight from 'lucide/dist/esm/icons/arrow-up-right.mjs';
 import { Show } from 'solid-js';
 import { createIcon } from '../create-icon/index';
 import { Icon } from '../icon/index';
 import { spaced } from '../layout-classes';
+import { LinkHost } from '../link-host';
 import { VisuallyHidden } from '../visually-hidden/index';
 
 const ArrowUpRightIcon = createIcon(ArrowUpRight);

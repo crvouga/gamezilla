@@ -23,23 +23,22 @@ import { EditorSuggestionMenu } from '../editor-suggestion-menu/index';
 import type { EditorSuggestion } from '../editor-suggestions';
 import { applyEditorSuggestion, editorSuggestion } from '../editor-suggestions';
 import { EditorToolbar } from '../editor-toolbar/index';
-import { createMarkdownView } from '../editor-view';
+import { createMarkdownView, DocumentField } from '../editor-view';
 import { cleanMarkdownNode } from '../safe-markdown';
-import { DocumentField } from './document-field';
 import styles from './markdown-editor.module.css';
 
-/** Shows `value` in place of the document, outside the undo history. */
+function documentChange(view: EditorView, value: string) {
+  return view.state.tr.replaceWith(
+    0,
+    view.state.doc.content.size,
+    cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
+  );
+}
+
+/** External updates stay outside the local undo history. */
 function replaceDocument(view: EditorView, value: string): void {
   view.updateState(
-    view.state.apply(
-      view.state.tr
-        .replaceWith(
-          0,
-          view.state.doc.content.size,
-          cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
-        )
-        .setMeta('addToHistory', false)
-    )
+    view.state.apply(documentChange(view, value).setMeta('addToHistory', false))
   );
 }
 
@@ -152,6 +151,29 @@ function useEditor(props: MarkdownEditorProps) {
   return { view, suggestion, selected, choose, mount, dismiss };
 }
 
+function EditorDocument(props: {
+  input: MarkdownEditorProps;
+  editor: ReturnType<typeof useEditor>;
+}) {
+  let host: HTMLDivElement | undefined;
+  onSettled(() => (host ? props.editor.mount(host) : undefined));
+  return (
+    <DocumentField
+      value={props.input.value}
+      disabled={props.input.disabled === true}
+      aria-label={props.input['aria-label']}
+      onValueChange={(value) => {
+        const view = props.editor.view();
+        if (view) view.dispatch(documentChange(view, value));
+      }}
+      ref={(element) => {
+        host = element;
+      }}
+      class="box flex-1 min-h-0 shrink overflow-hidden text-sm leading-relaxed"
+    />
+  );
+}
+
 /**
  * Controlled Markdown writing surface with formatting, safe links and command suggestions. Inject a ClockProvider; changes emit Markdown while keyboard focus and selection stay in the editor. Supply aria-label to name the writing surface; invalid marks validation failures.
  */
@@ -160,7 +182,6 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
   const id = `editor-commands-${createUniqueId()}`;
   const [linkOpen, setLinkOpen] = createSignal(false);
   let savedSelection: Selection | undefined;
-  let host: HTMLDivElement | undefined;
   const saveSelection = () => {
     savedSelection = editor.view()?.state.selection;
   };
@@ -173,7 +194,6 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
     view.focus();
     savedSelection = undefined;
   };
-  onSettled(() => (host ? editor.mount(host) : undefined));
   createEffect(
     () => editor.suggestion() !== null,
     (suggesting) =>
@@ -224,21 +244,7 @@ export function MarkdownEditor(props: MarkdownEditorProps) {
           }}
         />
       </Show>
-      <DocumentField
-        value={props.value}
-        disabled={props.disabled === true}
-        aria-label={props['aria-label']}
-        onValueChange={(value) => {
-          const view = editor.view();
-          if (view)
-            view.dispatch(view.state.tr.replaceWith(
-              0, view.state.doc.content.size,
-              cleanMarkdownNode(defaultMarkdownParser.parse(value)).content
-            ));
-        }}
-        ref={(element) => { host = element; }}
-        class="box flex-1 min-h-0 shrink overflow-hidden text-sm leading-relaxed"
-      />
+      <EditorDocument input={props} editor={editor} />
       <Show when={editor.suggestion()}>
         {(match) => (
           <EditorSuggestionMenu

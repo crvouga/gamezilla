@@ -2,11 +2,12 @@
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { definePrimitive } from '@ui-sdk/core';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { createParts } from '@ui-sdk/solid/primitive';
 import { For, Show } from 'solid-js';
 import { ChevronDownIcon, ChevronUpIcon } from '../icons';
 import { spaced } from '../layout-classes';
-import { ActionRow } from './action-row';
 import {
   ariaSort,
   cellClass,
@@ -16,6 +17,41 @@ import {
   type TableColumn,
   type TableSort,
 } from './table-parts';
+
+type RowOptions = { onActivate?: (() => void) | undefined };
+
+function availability(options: RowOptions) {
+  return { disabled: options.onActivate === undefined };
+}
+
+const actionRow = definePrimitive({
+  name: 'table-row',
+  options: { onActivate: 'callback' },
+  state: availability,
+  sync: availability,
+  api: (context) => ({
+    activateRow: () => context.options().onActivate?.(),
+  }),
+  slots: (slot) => ({
+    root: slot({
+      press: ({ api }) => api.activateRow(),
+      on: {
+        keydown: (event, { api, el }) => {
+          if (
+            event.target !== el ||
+            (event.key !== 'Enter' && event.key !== ' ')
+          )
+            return;
+          event.preventDefault();
+          api.activateRow();
+        },
+      },
+    }),
+  }),
+  agent: { actions: ['activateRow'], shown: (state) => !state.disabled },
+});
+
+const { Root: ActionRow } = createParts(actionRow, { root: 'tr' });
 
 /** What both layouts draw from: the rows already in their order. */
 export type TableBodyProps<R> = {

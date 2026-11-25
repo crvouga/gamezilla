@@ -1,6 +1,6 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   createEffect,
   createMemo,

@@ -1,8 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import type { MarkdownEditorCommand } from '@pkgs/ui-root-shared-ts/markdown-editor-types';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, For } from 'solid-js';
 import type { EditorSuggestion } from '../editor-suggestions';
 

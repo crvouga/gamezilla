@@ -4,6 +4,7 @@ import { describe, expect, mock, test } from 'bun:test';
 import { TabStrip } from '@pkgs/ui-devtools-client-ts/tab-strip';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { fireEvent, screen } from '@solidjs/testing-library';
+import { createAgent } from '@ui-sdk/solid/agent';
 import { createSignal } from 'solid-js';
 import { renderUi } from './render';
 
@@ -63,10 +64,9 @@ test('Delete closes the focused tab and focus follows the remaining selected tab
       }
     />
   ));
-  expect(screen.getByRole('button', { name: 'Close' })).not.toHaveAttribute(
-    'aria-hidden',
-    'true'
-  );
+  expect(
+    screen.getByRole('button', { name: 'Close Draft' })
+  ).not.toHaveAttribute('aria-hidden', 'true');
   expect(screen.getByRole('tablist', { name: 'Drafts' })).toHaveAttribute(
     'aria-owns',
     screen
@@ -75,14 +75,14 @@ test('Delete closes the focused tab and focus follows the remaining selected tab
       .join(' ')
   );
   expect(
-    screen.getByRole('button', { name: 'Close' })
+    screen.getByRole('button', { name: 'Close Draft' })
   ).toHaveAccessibleDescription('Draft');
   const tab = screen.getByRole('tab', { name: 'Draft' });
   tab.focus();
   fireEvent.keyDown(tab, { key: 'Delete' });
   expect(screen.queryByRole('tab', { name: 'Draft' })).toBeNull();
   expect(screen.getByRole('tab', { name: 'Saved' })).toHaveFocus();
-  expect(screen.queryByRole('button', { name: 'Close' })).toBeNull();
+  expect(screen.queryByRole('button', { name: 'Close Draft' })).toBeNull();
 });
 
 // regression: ui-tab-close-pending-focus-stolen
@@ -111,4 +111,52 @@ test('a pending close keeps focus in the caller confirmation', () => {
   fireEvent.keyDown(tab, { key: 'Delete' });
   expect(confirmation()).toHaveFocus();
   expect(tab).toBeInTheDocument();
+});
+
+test('an arrow selects the neighboring tab once and moves focus to it', () => {
+  const [active, setActive] = createSignal('one');
+  const choose = mock((id: string) => setActive(id));
+  renderUi(() => (
+    <TabStrip
+      selectedId={active()}
+      onSelect={choose}
+      items={[
+        { id: 'one', label: 'One' },
+        { id: 'two', label: 'Two' },
+      ]}
+    />
+  ));
+  const first = screen.getByRole('tab', { name: 'One' });
+  first.focus();
+  fireEvent.keyDown(first, { key: 'ArrowRight' });
+  expect(choose).toHaveBeenCalledTimes(1);
+  expect(active()).toBe('two');
+  expect(screen.getByRole('tab', { name: 'Two' })).toHaveFocus();
+});
+
+test('an agent selects and closes the named document among open tabs', async () => {
+  const [active, setActive] = createSignal('notes');
+  const closeDraft = mock();
+  const closeNotes = mock();
+  renderUi(() => (
+    <TabStrip
+      aria-label="Open documents"
+      selectedId={active()}
+      onSelect={setActive}
+      items={[
+        { id: 'notes', label: 'Notes', onClose: closeNotes },
+        { id: 'draft', label: 'Draft', onClose: closeDraft },
+      ]}
+    />
+  ));
+  const result = await createAgent().act({
+    steps: [
+      { ref: 'Open documents', action: 'select', args: ['Draft'] },
+      { ref: 'Close Draft', action: 'press' },
+    ],
+  });
+  expect(result.error?.message).toBeUndefined();
+  expect(active()).toBe('draft');
+  expect(closeDraft).toHaveBeenCalledTimes(1);
+  expect(closeNotes).not.toHaveBeenCalled();
 });

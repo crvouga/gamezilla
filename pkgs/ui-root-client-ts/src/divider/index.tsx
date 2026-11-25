@@ -1,8 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
-import { Separator } from '@ui-sdk/solid/separator';
 import type { JSX } from '@solidjs/web';
+import { Separator } from '@ui-sdk/solid/separator';
 
 export type DividerOrientation = 'horizontal' | 'vertical';
 

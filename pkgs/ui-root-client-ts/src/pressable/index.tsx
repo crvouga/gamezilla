@@ -1,9 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { RadiusToken } from '@pkgs/ui-root-shared-ts/token-names';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
 import type { DataSetProps } from '../data-set-binding';
 import { bindDataSet } from '../data-set-binding';
@@ -117,6 +117,7 @@ function PressableLink(props: PressableProps): JSX.Element {
     <LinkHost
       ref={[targets, dataSet]}
       class={pressableClass(props)}
+      disabled={props.disabled === true}
       href={props.disabled === true ? undefined : props.href}
       id={props.id}
       data-testid={props.testId}

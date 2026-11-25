@@ -1,9 +1,9 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
 import { EmbeddedScreen } from '../embedded-screen/index';
@@ -115,7 +115,7 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
       type="button"
       class={`${styles['tile']} clickable clickableTint`}
       data-emphasis={props.choice.emphasis}
-      onClick={() => confirmNavigation(() => props.choice.onClick())}
+      onClick={() => confirmNavigation(props.choice.onClick)}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
       <ChoiceIcon choice={props.choice} size="tile" />
@@ -150,7 +150,7 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
       type="button"
       class={`${styles['link']} clickable clickableTint`}
       data-emphasis={props.choice.emphasis}
-      onClick={() => confirmNavigation(() => props.choice.onClick())}
+      onClick={() => confirmNavigation(props.choice.onClick)}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
       <ChoiceIcon choice={props.choice} size="row" />

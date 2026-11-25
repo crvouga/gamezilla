@@ -4,10 +4,10 @@
  * `Button`.
  */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { ariaBoolean } from '@pkgs/ui-root-shared-ts/aria-boolean';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import type {
   BottomActionBarActionItem,
   BottomActionBarButtonItem,

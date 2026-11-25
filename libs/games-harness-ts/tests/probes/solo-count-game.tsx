@@ -27,6 +27,7 @@ import type {
   PuzzlesCapability,
 } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { TurnGameCapabilities } from '@pkgs/turn-game-shared-ts/game-rules';
+import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { createEffect, For, untrack } from 'solid-js';
 import { countRules } from './count-rules';
 import { probeAutomation, probePresentation } from './probe-parts';
@@ -89,14 +90,14 @@ function PuzzleBoard(props: PuzzleBoardProps) {
       </ol>
       <For each={['one', 'two', 'three', 'stay', 'four']}>
         {(action) => (
-          <button
+          <Pressable
             type="button"
-            data-testid={`${props.testId}-${action}`}
+            testId={`${props.testId}-${action}`}
             disabled={!props.interactive || props.mode !== 'play'}
-            onClick={() => props.onAction(action)}
+            onPress={() => props.onAction(action)}
           >
             {action}
-          </button>
+          </Pressable>
         )}
       </For>
     </div>

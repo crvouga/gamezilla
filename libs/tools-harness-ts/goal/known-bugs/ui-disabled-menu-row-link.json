@@ -1,0 +1,4 @@
+{
+  "summary": "A disabled menu row with a destination could still be followed by an agent and invoke its navigation callback.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/ui-agent-tools.test.tsx"
+}

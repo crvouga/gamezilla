@@ -1,8 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Match, Switch } from 'solid-js';
 import { Badge } from '../badge/index';
 import { GameTile } from '../game-tile/index';

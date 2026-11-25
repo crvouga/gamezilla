@@ -11,7 +11,6 @@
  * while focus is inside the `tablist`.
  */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
@@ -19,6 +18,8 @@ import { useDocumentShortcuts } from '@pkgs/ui-root-client-ts/use-document-short
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
+import { Tabs, TabsList } from '@ui-sdk/solid/tabs';
 import {
   createEffect,
   createUniqueId,
@@ -126,9 +127,8 @@ function TabListOwner(props: {
 }): JSX.Element {
   return (
     <Show when={props.items.length > 0}>
-      <div
+      <TabsList
         class="sr-only"
-        role="tablist"
         aria-label={props.label}
         aria-owns={props.items
           .map((item) => `${props.idBase}-${item.id}`)
@@ -167,7 +167,12 @@ export function TabStrip(props: TabStripProps): JSX.Element {
     (props.trailing === undefined || props.trailing === null);
 
   return (
-    <div
+    <Tabs
+      value={props.selectedId}
+      onValueChange={(value) => {
+        if (value !== null) props.onSelect(value);
+      }}
+      aria-label={props['aria-label'] ?? t`Tabs`}
       class="box grow-0 shrink-0 flex-row items-end gap-2 px-2 pt-1 pb-0 border-b border-border bg-surface-muted"
       {...dataAttrs({ component: 'TabStrip', ...props.dataSet })}
       style={{ height: `${TAB_MIN_HEIGHT + 4}px` }}
@@ -207,7 +212,6 @@ export function TabStrip(props: TabStripProps): JSX.Element {
                 active={active()}
                 reserveSeparatorBefore={index > 0}
                 separatorVisible={index > 0 && !active() && !prevActive()}
-                onSelect={props.onSelect}
                 tabId={`${idBase}-${item().id}`}
                 ref={(el) => {
                   cells[index] = el;
@@ -237,6 +241,6 @@ export function TabStrip(props: TabStripProps): JSX.Element {
           <PlusIcon size={15} color="textSecondary" />
         </SdkButton>
       </Show>
-    </div>
+    </Tabs>
   );
 }

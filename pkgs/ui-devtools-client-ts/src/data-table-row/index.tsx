@@ -1,6 +1,5 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   DATA_TABLE_ROW_HEIGHT,
@@ -14,6 +13,7 @@ import type {
 import { Checkbox } from '@pkgs/ui-root-client-ts/checkbox';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, Show } from 'solid-js';
 import styles from '../data-table/data-table.module.css';
 

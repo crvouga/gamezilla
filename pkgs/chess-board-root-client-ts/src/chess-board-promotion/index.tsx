@@ -1,7 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 /** Promotion picker stacked on the destination file. */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { chessBoardPromotionTestId } from '@pkgs/chess-board-core-shared-ts/probe';
 import type {
   BoardOrientation,
@@ -15,6 +14,7 @@ import { FocusTrap } from '@pkgs/ui-root-client-ts/focus-trap';
 import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, onSettled, Show } from 'solid-js';
 
 import styles from '../chess-board/chess-board.module.css';

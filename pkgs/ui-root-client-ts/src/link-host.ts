@@ -1,13 +1,21 @@
 import { definePrimitive } from '@ui-sdk/core';
 import { createParts } from '@ui-sdk/solid/primitive';
 
+function availability(options: { disabled?: boolean | undefined }) {
+  return { disabled: options.disabled === true };
+}
+
 const link = definePrimitive({
   name: 'link',
-  state: () => ({}),
+  options: { disabled: 'boolean' },
+  state: availability,
+  sync: availability,
   api: (context) => ({
     follow() {
       const anchor = context.element('root');
-      if (anchor?.hasAttribute('href')) anchor.click();
+      if (context.options().disabled || !anchor?.hasAttribute('href'))
+        throw new Error('This link is unavailable.');
+      anchor.click();
     },
   }),
   agent: { actions: ['follow'] },
