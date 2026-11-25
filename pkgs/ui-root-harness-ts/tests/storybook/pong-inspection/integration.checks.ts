@@ -9,6 +9,8 @@ import {
 } from '@playwright/test';
 import { openPong } from '../pong-overhaul/evidence';
 
+test.use({ video: { mode: 'on', size: { width: 1440, height: 900 } } });
+
 async function bounds(element: Locator) {
   const rect = await element.boundingBox();
   if (!rect) throw new Error('Pong court is missing');
@@ -163,7 +165,6 @@ for (const viewport of [
     test.use({
       viewport,
       hasTouch: viewport.width === 390,
-      video: { mode: 'on', size: viewport },
     });
     test('inspect around the gesture and return to fit', ({ page }, info) =>
       inspect(page, info, viewport.width === 390));
