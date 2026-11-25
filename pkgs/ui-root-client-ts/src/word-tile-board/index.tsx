@@ -1,10 +1,13 @@
 import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import {
   createEffect,
   createMemo,
+  createProjection,
   createSignal,
+  For,
   onSettled,
   Show,
   untrack,
@@ -15,10 +18,11 @@ import { observeElementResize } from '../observe-element-resize';
 import { StackVertical } from '../stack/index';
 import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
-import { BoardRows } from './word-tile-cell';
-import { bindWordNavigation } from './word-tile-navigation';
+import {
+  bindWordNavigation,
+  WordTileViewControls,
+} from './word-tile-navigation';
 import { WordTileOverview } from './word-tile-overview';
-import { WordTileViewControls } from './word-tile-view-controls';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
 export type WordTileSquare = 'DL' | 'TL' | 'DW' | 'TW' | 'start';
@@ -339,5 +343,116 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
         </P>
       </Show>
     </StackVertical>
+  );
+}
+
+function BoardCell(props: {
+  board: WordTileBoardProps;
+  cells: () => readonly WordTileBoardCell[];
+  index: number;
+  focusable: boolean;
+  onFocusIndex: (index: number) => void;
+  onKey: (event: KeyboardEvent, index: number) => void;
+}): JSX.Element {
+  // Unchanged squares keep their object, so this square's bindings rerun
+  // only when the square itself changes.
+  const cell = createMemo(() => props.cells()[props.index]);
+  return (
+    <SdkButton
+      type="button"
+      class={styles['cell']}
+      data-index={props.index}
+      data-cell={cell()?.id}
+      data-testid={`${props.board.testId}-cell-${cell()?.id ?? ''}`}
+      data-state={cell()?.state ?? 'empty'}
+      data-square={cell()?.square ?? 'none'}
+      aria-label={cell()?.label}
+      aria-disabled={cell()?.enabled === true ? 'false' : 'true'}
+      tabindex={props.focusable ? 0 : -1}
+      onFocus={() => props.onFocusIndex(props.index)}
+      onKeyDown={(event) => props.onKey(event, props.index)}
+      onClick={() => {
+        props.onFocusIndex(props.index);
+        const id = cell()?.id;
+        if (id !== undefined && cell()?.enabled === true)
+          props.board.onActivate?.(id);
+      }}
+    >
+      <Show
+        when={cell()?.letter}
+        fallback={
+          <span class={styles['square']} aria-hidden="true">
+            <Show when={cell()?.square}>
+              {(square) => <>{props.board.squareText(square())}</>}
+            </Show>
+          </span>
+        }
+      >
+        <span
+          data-blank={cell()?.points === 0 ? 'true' : undefined}
+          class={styles['letter']}
+          aria-hidden="true"
+        >
+          {cell()?.letter}
+        </span>{' '}
+        <span class={styles['points']} aria-hidden="true">
+          {cell()?.points ?? ''}
+        </span>
+      </Show>
+    </SdkButton>
+  );
+}
+
+/** Coordinate headers and cells share one row-major keyboard index. */
+function BoardRows(props: {
+  board: WordTileBoardProps;
+  cells: () => readonly WordTileBoardCell[];
+  focusIndex: () => number;
+  onFocusIndex: (index: number) => void;
+  onKey: (event: KeyboardEvent, index: number) => void;
+}): JSX.Element {
+  // Holds the focused index alone, so a focus move updates the square left
+  // and the square entered, not every square.
+  const focused = createProjection<Record<number, boolean>>((draft) => {
+    const index = props.focusIndex();
+    for (const key of Object.keys(draft)) draft[Number(key)] = false;
+    draft[index] = true;
+  }, {});
+  return (
+    <>
+      <span class={styles['header']} data-axis="corner" aria-hidden="true" />
+      <For each={props.board.columnLabels}>
+        {(label) => (
+          <span class={styles['header']} data-axis="column" aria-hidden="true">
+            {label}
+          </span>
+        )}
+      </For>
+      <For each={props.board.rowLabels}>
+        {(label, row) => (
+          <>
+            <span class={styles['header']} data-axis="row" aria-hidden="true">
+              {label}
+            </span>
+            <For each={props.board.columnLabels}>
+              {(_, column) => {
+                const index = () =>
+                  row() * props.board.columnLabels.length + column();
+                return (
+                  <BoardCell
+                    board={props.board}
+                    cells={props.cells}
+                    index={index()}
+                    focusable={focused[index()] === true}
+                    onFocusIndex={props.onFocusIndex}
+                    onKey={props.onKey}
+                  />
+                );
+              }}
+            </For>
+          </>
+        )}
+      </For>
+    </>
   );
 }
