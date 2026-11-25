@@ -97,7 +97,9 @@ export const establishPongLocalStage = scenarioAction({
         guests: true,
         ready: true,
         active: false,
-        // Keep the normal match length so joining and reopening can happen during play.
+        // A finished fixture needs one real deciding point. Active fixtures
+        // keep the normal match length for reopening and joining during play.
+        ...(setup.stage === 'finished' ? { configuration: '1' } : {}),
       })
     );
     if (setup.stage !== 'ready') await start(s, actor);

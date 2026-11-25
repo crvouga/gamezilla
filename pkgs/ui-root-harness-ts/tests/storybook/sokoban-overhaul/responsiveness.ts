@@ -1,10 +1,6 @@
 // @io-wall-ok — browser performance instrumentation, never product timing.
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import {
-  summarizeLongTasks,
-  traceWindow,
-} from '../../../storybook/long-task-trace';
-import {
   prepareSokobanMoves,
   runSokobanMoves,
   type TimedStep,
@@ -32,9 +28,7 @@ export const pushAndUndo: TimedStep = async (page, index) => {
 /** How a timing run moves: walking from a move count, or its own steps. */
 export type TimingPlan =
   | number
-  | { readonly step: TimedStep; readonly name: string }
-  /** Walking, with a Chromium trace of the window for diagnosis. */
-  | { readonly walkingFrom: number; readonly traceLongTasks: true };
+  | { readonly step: TimedStep; readonly name: string };
 
 export async function measureSokoban(
   page: Page,
@@ -42,16 +36,8 @@ export async function measureSokoban(
   rate: number,
   plan: TimingPlan = 2
 ) {
-  const traced = typeof plan === 'object' && 'walkingFrom' in plan;
-  const step =
-    typeof plan === 'number'
-      ? walking(plan)
-      : 'walkingFrom' in plan
-        ? walking(plan.walkingFrom)
-        : plan.step;
-  const name =
-    typeof plan === 'object' && 'name' in plan ? plan.name : 'responsiveness';
-  const traceLongTasks = traced;
+  const step = typeof plan === 'number' ? walking(plan) : plan.step;
+  const name = typeof plan === 'number' ? 'responsiveness' : plan.name;
   const moves = await prepareSokobanMoves(page);
   await page.getByTestId('sokoban-board').focus();
   const cdp = await page.context().newCDPSession(page);
@@ -61,33 +47,12 @@ export async function measureSokoban(
   await cdp.send('HeapProfiler.collectGarbage');
   await cdp.send('Emulation.setCPUThrottlingRate', { rate });
   try {
-    const measure = () =>
-      withSokobanTiming(page, async () => {
-        await runSokobanMoves(page, step, moves.readAfterFrame);
-        return page.evaluate(
-          () =>
-            (window as unknown as { sokobanSamples: Samples }).sokobanSamples
-        );
-      });
-    let samples: Samples | undefined;
-    // Diagnosis only: a Chromium trace around the timed window, so a long
-    // task's contents (script, GC, layout, or time the thread was
-    // descheduled) reach the job log.
-    const trace = traceLongTasks
-      ? await traceWindow(cdp, async () => {
-          samples = await measure();
-        })
-      : undefined;
-    samples ??= await measure();
-    if (trace)
-      process.stdout.write(
-        `SOKOBAN_LONG_TASKS ${JSON.stringify({
-          test: info.title,
-          name,
-          longTaskMs: samples.longTaskMs,
-          tasks: summarizeLongTasks(trace),
-        })}\n`
+    const samples = await withSokobanTiming(page, async () => {
+      await runSokobanMoves(page, step, moves.readAfterFrame);
+      return page.evaluate(
+        () => (window as unknown as { sokobanSamples: Samples }).sokobanSamples
       );
+    });
     expect(samples.inputToFrameMs).toHaveLength(20);
     const sorted = [...samples.inputToFrameMs].sort((a, b) => a - b);
     const report = {

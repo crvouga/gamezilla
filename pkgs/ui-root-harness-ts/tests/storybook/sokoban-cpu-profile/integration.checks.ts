@@ -2,6 +2,10 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { expect, test } from '@playwright/test';
 import {
+  summarizeLongTasks,
+  traceWindow,
+} from '../../../storybook/long-task-trace';
+import {
   prepareSokobanMoves,
   runSokobanMoves,
   walking,
@@ -66,6 +70,18 @@ test('storybook integration: Sokoban maximum close view CPU profile at 4x for di
       profile: CpuProfile;
     };
     await counts(page, 26, 6);
+    // Twenty alternating steps return the worker to H2. Trace the same walk
+    // after the CPU profile is stopped so the two profilers do not compete.
+    const trace = await traceWindow(cdp, () =>
+      runSokobanMoves(page, walking(26), moves.readAfterFrame)
+    );
+    await counts(page, 46, 6);
+    process.stdout.write(
+      `SOKOBAN_LONG_TASKS ${JSON.stringify({
+        test: info.title,
+        tasks: summarizeLongTasks(trace),
+      })}\n`
+    );
     await mkdir(info.outputDir, { recursive: true });
     const path = info.outputPath('sokoban-close-view.cpuprofile');
     await writeFile(path, JSON.stringify(profile));
