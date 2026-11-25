@@ -6,12 +6,24 @@
   stroke-linejoin: round;
   stroke-dasharray: var(--cable-stitch);
 }
-[data-tone="red"] { --cable-stitch: 4 20; }
-[data-tone="orange"] { --cable-stitch: 16 12; }
-[data-tone="yellow"] { --cable-stitch: 4 8 4 20; }
-[data-tone="green"] { --cable-stitch: 24 8 4 8; }
-[data-tone="blue"] { --cable-stitch: none; }
-[data-tone="purple"] { --cable-stitch: 32 16; }
+[data-tone="red"] {
+  --cable-stitch: 4 20;
+}
+[data-tone="orange"] {
+  --cable-stitch: 16 12;
+}
+[data-tone="yellow"] {
+  --cable-stitch: 4 8 4 20;
+}
+[data-tone="green"] {
+  --cable-stitch: 24 8 4 8;
+}
+[data-tone="blue"] {
+  --cable-stitch: none;
+}
+[data-tone="purple"] {
+  --cable-stitch: 32 16;
+}
 
 .tip {
   fill: var(--ui-color-background);

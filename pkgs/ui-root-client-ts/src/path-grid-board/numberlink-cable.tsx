@@ -30,7 +30,12 @@ export function NumberlinkCable(props: {
         <path class={styles['thread']} d={`M${points()}`} />
       </Show>
       <Show when={tip() !== undefined}>
-        <circle class={styles['tip']} cx={x(tip() ?? 0)} cy={y(tip() ?? 0)} r="11" />
+        <circle
+          class={styles['tip']}
+          cx={x(tip() ?? 0)}
+          cy={y(tip() ?? 0)}
+          r="11"
+        />
       </Show>
     </g>
   );

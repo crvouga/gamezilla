@@ -115,10 +115,7 @@ function PathLines(props: { board: PathGridBoardProps }): JSX.Element {
       {/* By position, so a growing path updates its node in place. */}
       <For keyed={false} each={props.board.lines}>
         {(line) => (
-          <NumberlinkCable
-            line={line()}
-            columns={props.board.columns}
-          />
+          <NumberlinkCable line={line()} columns={props.board.columns} />
         )}
       </For>
     </svg>

@@ -44,6 +44,19 @@ export function pathGridSegment(from: Point, to: Point, grid: Grid): number[] {
   return cells;
 }
 
+function gridPoint(
+  event: PointerEvent,
+  box: DOMRect | undefined,
+  grid: Grid
+): Point | null {
+  if (box === undefined || box.width <= 0 || box.height <= 0) return null;
+  const x = ((event.clientX - box.left) / box.width) * grid.columns;
+  const y = ((event.clientY - box.top) / box.height) * grid.rows;
+  return x >= 0 && y >= 0 && x < grid.columns && y < grid.rows
+    ? { x, y }
+    : null;
+}
+
 export function createPathGridPointer(
   props: PathGridBoardProps,
   element: () => HTMLDivElement | undefined
@@ -52,14 +65,6 @@ export function createPathGridPointer(
   const capturedPointer = (): number | null => active;
   let previous: Point | null = null;
   let traced = false;
-  const point = (event: PointerEvent, box: DOMRect | undefined): Point | null => {
-    if (box === undefined || box.width <= 0 || box.height <= 0) return null;
-    const x = ((event.clientX - box.left) / box.width) * props.columns;
-    const y = ((event.clientY - box.top) / box.height) * props.rows;
-    return x >= 0 && y >= 0 && x < props.columns && y < props.rows
-      ? { x, y }
-      : null;
-  };
   const cancel = (reason: PathGridTraceCancellation = 'interrupted'): void => {
     if (active === null) return;
     const pointer = active;
@@ -68,8 +73,11 @@ export function createPathGridPointer(
     element()?.releasePointerCapture(pointer);
     props.onTraceCancel?.(reason);
   };
-  const traceSample = (sample: PointerEvent, box: DOMRect | undefined): void => {
-    const next = point(sample, box);
+  const traceSample = (
+    sample: PointerEvent,
+    box: DOMRect | undefined
+  ): void => {
+    const next = gridPoint(sample, box, props);
     if (next === null) {
       cancel('boundary');
       return;
@@ -103,7 +111,7 @@ export function createPathGridPointer(
         !event.isPrimary
       )
         return;
-      const start = point(event, element()?.getBoundingClientRect());
+      const start = gridPoint(event, element()?.getBoundingClientRect(), props);
       if (start === null) return;
       event.preventDefault();
       active = event.pointerId;

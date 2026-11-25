@@ -1,6 +1,28 @@
 import { expect, fireEvent, userEvent, within } from 'storybook/test';
 import { numberlinkGeometry } from './numberlink-geometry.example';
 
+async function drawCoalescedTurn(
+  board: HTMLElement,
+  point: (cell: number) => PointerEventInit
+) {
+  await fireEvent.pointerDown(board, point(0));
+  await expect(
+    board
+      .querySelector('[data-cell="13"]')
+      ?.querySelector('[data-tracing="true"]')
+  ).toBeVisible();
+  // The browser delivers the top-right turn and the final sample together.
+  const move = new PointerEvent('pointermove', {
+    ...point(13),
+    bubbles: true,
+  });
+  Object.defineProperty(move, 'getCoalescedEvents', {
+    value: () => [new PointerEvent('pointermove', point(3))],
+  });
+  await fireEvent(board, move);
+  await fireEvent.pointerUp(board, point(13));
+}
+
 /** Synthetic touch events exercise production hit testing; capture itself needs a trusted browser pointer. */
 export async function recoverWithPointer(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
@@ -55,7 +77,7 @@ export async function recoverWithPointer(canvasElement: HTMLElement) {
     await expect(
       canvas.getByRole('button', { name: 'C1: empty' })
     ).toBeInTheDocument();
-    await draw([0, 1, 2, 3, 8, 13]);
+    await drawCoalescedTurn(board, point);
     await expect(
       canvas.getByRole('button', { name: 'A1: endpoint 1, connected' })
     ).toBeInTheDocument();
