@@ -64,6 +64,13 @@
 /* A phone's side seats are narrow: a compact plate, its facts one under
    another (the seat's own container query), the trick's cards between. */
 @container card-table not (min-width: 26rem) {
+  .table[role="group"] {
+    box-sizing: border-box;
+    height: 16rem;
+    --card-w: 36px;
+    row-gap: var(--ui-space-1);
+    padding-block: var(--ui-space-1);
+  }
   .seat[data-player="true"][data-position="left"],
   .seat[data-player="true"][data-position="right"] {
     padding: var(--ui-space-1);
