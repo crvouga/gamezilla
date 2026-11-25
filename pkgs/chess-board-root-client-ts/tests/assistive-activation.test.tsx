@@ -116,3 +116,73 @@ test('an agent can inspect the pieces and play a legal move by square', async ()
   expect(result.error).toBeUndefined();
   expect(board.moves).toEqual(['e2e4']);
 });
+
+test('agents can draw on a view-only position and clear only their own marks', async () => {
+  board = mountBoard({
+    interactive: false,
+    enableUserArrows: true,
+    arrows: [{ from: 'a1', to: 'a8', color: 'secondary' }],
+  });
+  const agent = createAgent();
+  const ref = 'Personal chessboard annotations';
+  const annotation = () =>
+    agent.snapshot().find((entry) => entry.label === ref);
+  expect(annotation()?.['brushes']).toEqual([
+    'primary',
+    'secondary',
+    'alt',
+    'danger',
+  ]);
+  const draw = await agent.act({
+    steps: [
+      { ref, action: 'toggleArrow', args: ['e2', 'e4', 'danger'] },
+      { ref, action: 'toggleCircle', args: ['d5'] },
+    ],
+  });
+  expect(draw.error?.message).toBeUndefined();
+  expect(board.layer('arrows')).toEqual([
+    'arrow:danger@e2-e4',
+    'arrow:secondary@a1-a8',
+  ]);
+  expect(board.layer('shapes')).toEqual(['circle:primary@d5']);
+  expect(annotation()?.['value']).toEqual([
+    { kind: 'arrow', from: 'e2', to: 'e4', color: 'danger', id: 'e2-e4' },
+    { kind: 'circle', square: 'd5', color: 'primary', id: 'c-d5' },
+  ]);
+  const grid = agent
+    .snapshot()
+    .find((entry) => entry.label === 'Chess board squares');
+  expect(grid?.actions).toEqual([]);
+  const clear = await agent.act({
+    steps: [{ ref, action: 'clearAnnotations' }],
+  });
+  expect(clear.error?.message).toBeUndefined();
+  expect(board.layer('arrows')).toEqual(['arrow:secondary@a1-a8']);
+  expect(board.layer('shapes')).toEqual([]);
+  expect(board.moves).toEqual([]);
+});
+
+test('a board without personal drawing keeps square activation and refuses annotation actions', async () => {
+  board = mountBoard();
+  const agent = createAgent();
+  expect(
+    agent.snapshot().find((entry) => entry.label === 'Chess board squares')
+      ?.actions
+  ).toContain('activateSquare');
+  expect(
+    agent
+      .snapshot()
+      .find((entry) => entry.label === 'Personal chessboard annotations')
+  ).toBeUndefined();
+  const result = await agent.act({
+    steps: [
+      {
+        ref: 'Personal chessboard annotations',
+        action: 'toggleArrow',
+        args: ['e2', 'e4'],
+      },
+    ],
+  });
+  expect(result.error).toBeDefined();
+  expect(board.layer('arrows')).toEqual([]);
+});

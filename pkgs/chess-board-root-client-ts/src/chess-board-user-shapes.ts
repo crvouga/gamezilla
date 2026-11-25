@@ -27,6 +27,7 @@ export type UserShapes = {
   readonly arrows: Accessor<readonly BoardArrow[]>;
   /** Arrow under construction (only once it leaves its origin square). */
   readonly preview: Accessor<ShapePreview | null>;
+  readonly toggle: (from: Square, to: Square, brush: ShapeBrush) => void;
   readonly begin: (from: Square, brush: ShapeBrush) => void;
   /** The pointer is over `square` (null: off the board). */
   readonly hover: (square: Square | null) => void;
@@ -66,6 +67,14 @@ export function createUserShapes(args?: {
     args?.onChange?.(next);
   };
 
+  const toggle = (from: Square, to: Square, brush: ShapeBrush): void => {
+    const shape: BoardShape =
+      from === to
+        ? { kind: 'circle', square: from, color: brush, id: `c-${from}` }
+        : { kind: 'arrow', from, to, color: brush, id: `${from}-${to}` };
+    commit(toggleShape(shapes(), shape));
+  };
+
   const preview = createMemo((): ShapePreview | null => {
     const s = stroke();
     if (s === null) return null;
@@ -78,6 +87,7 @@ export function createUserShapes(args?: {
     shapes,
     arrows,
     preview,
+    toggle,
     begin(square, brush) {
       setStroke({ from: square, brush, to: square });
     },
@@ -90,26 +100,7 @@ export function createUserShapes(args?: {
       const s = stroke();
       setStroke(null);
       if (s === null || to === null) return;
-      if (to === s.from) {
-        commit(
-          toggleShape(shapes(), {
-            kind: 'circle',
-            square: s.from,
-            color: s.brush,
-            id: `c-${s.from}`,
-          })
-        );
-        return;
-      }
-      commit(
-        toggleShape(shapes(), {
-          kind: 'arrow',
-          from: s.from,
-          to,
-          color: s.brush,
-          id: `${s.from}-${to}`,
-        })
-      );
+      toggle(s.from, to, s.brush);
     },
     abort() {
       setStroke(null);

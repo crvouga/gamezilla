@@ -171,6 +171,14 @@ function BoardBody(args: {
         orientation={args.ctrl.orientation}
         theme={args.ctrl.theme}
         shapes={args.ctrl.userShapes.shapes}
+        drawingEnabled={
+          args.props.enableUserArrows === true && ix().pendingPromotion === null
+        }
+        onToggle={(from, to, brush) => {
+          args.ctrl.model.actions.cancelAll();
+          args.ctrl.userShapes.toggle(from, to, brush);
+        }}
+        onClear={args.ctrl.userShapes.clear}
         arrows={args.ctrl.arrows}
         preview={args.ctrl.userShapes.preview}
       />
