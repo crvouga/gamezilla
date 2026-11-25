@@ -14,7 +14,7 @@ function SpaceJoinButton(props: SpaceJoinScreenViewProps): JSX.Element {
     operation: () => props.onJoin(),
     labels: {
       get idle() {
-        if (props.joinPending) return t`Check again`;
+        if (props.joinPending) return t`Check if I'm in`;
         // Without a connection the command names what it needs, so it reads
         // whole after the connection toast has gone.
         return props.needsConnection ? t`Reconnect and join` : t`Join space`;
@@ -127,9 +127,12 @@ function SpaceJoinRetryButton(props: {
 
 /**
  * A state that cannot join: the way back to Spaces, and while offline,
- * Try again beside it, filled on the right as in every recovery pair.
+ * Try again beside it, filled on the right as in every recovery pair. It
+ * stands right under the message it answers, as on Ended and Unreachable.
  */
-function SpaceJoinRecoveryFooter(props: SpaceJoinScreenViewProps): JSX.Element {
+export function SpaceJoinRecoveryBar(
+  props: SpaceJoinScreenViewProps
+): JSX.Element {
   const offline = (): boolean => props.status === 'offline';
   return (
     <SpaceRecoveryBar>
@@ -155,7 +158,10 @@ function SpaceJoinRecoveryFooter(props: SpaceJoinScreenViewProps): JSX.Element {
   );
 }
 
-/** The join screen's bottom bar, for every state it can be in. */
+/**
+ * The join screen's bottom bar while the space is live; a state that cannot
+ * join has its ways on under its message instead.
+ */
 export function SpaceJoinFooter(props: SpaceJoinScreenViewProps): JSX.Element {
   return (
     <Switch>
@@ -172,17 +178,6 @@ export function SpaceJoinFooter(props: SpaceJoinScreenViewProps): JSX.Element {
           fullWidth
           onClick={() => props.onBackToSpaces()}
         />
-      </Match>
-      {/* Every state that cannot join keeps the same bottom bar, with
-          its one way on filled. */}
-      <Match
-        when={
-          props.status === 'unavailable' ||
-          props.status === 'missing' ||
-          props.status === 'offline'
-        }
-      >
-        <SpaceJoinRecoveryFooter {...props} />
       </Match>
     </Switch>
   );

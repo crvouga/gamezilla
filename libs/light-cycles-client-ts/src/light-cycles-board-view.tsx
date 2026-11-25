@@ -218,7 +218,14 @@ function Arena(props: {
     props.board.simulation?.stale === true ||
     props.board.simulation?.paused === true;
   return (
-    <StackVertical gap="md" testId={props.board.testId}>
+    // A phone's stage runs edge to edge: the arena keeps the seat chips'
+    // inset above it, so its walls and focus ring are never cut by the
+    // screen's edge.
+    <StackVertical
+      gap="md"
+      paddingX={mode() === 'wide' ? undefined : 'sm'}
+      testId={props.board.testId}
+    >
       <Scores state={props.state} testId={props.board.testId} />
       <VisuallyHidden>
         <P id={descriptionId} testId={`${props.board.testId}-description`}>

@@ -228,7 +228,11 @@ export function CustomGameScreenView(
           </EmbeddedScreen>
         )}
       </Show>
-      <FrameConfirmDialog confirm={confirm} onChoose={props.onChoose} />
+      <FrameConfirmDialog
+        confirm={confirm}
+        onChoose={props.onChoose}
+        beforeGame={props.phase === 'configuring'}
+      />
     </>
   );
 }

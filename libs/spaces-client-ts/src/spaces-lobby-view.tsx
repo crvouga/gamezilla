@@ -76,43 +76,25 @@ function SpacesGroupHeading(props: {
 }
 
 /**
- * A group's cards two by two. An odd count leads with its first card
- * across the full width (the one open here, or the newest), so the grid
- * never ends in an empty slot beside a lone card.
+ * A group's cards two by two, each one column wide: a lone card, or the
+ * last of an odd group, keeps its column on the page's leading edge
+ * instead of stretching across the page.
  */
 function SpacesCardGrid(props: {
   readonly spaces: readonly SpaceCardData[];
   readonly onOpenSpace: (spaceId: string) => void;
 }): JSX.Element {
-  const lead = createMemo(() =>
-    props.spaces.length % 2 === 1 ? props.spaces[0] : undefined
-  );
-  const paired = createMemo(() =>
-    lead() === undefined ? props.spaces : props.spaces.slice(1)
-  );
   return (
-    <StackVertical gap="md">
-      <Show when={lead()}>
+    <Grid columns={2} gap="md">
+      <For keyed={false} each={props.spaces}>
         {(space) => (
           <SpaceCardTileView
             space={space()}
             onOpen={() => props.onOpenSpace(space().spaceId)}
           />
         )}
-      </Show>
-      <Show when={paired().length > 0}>
-        <Grid columns={2} gap="md">
-          <For keyed={false} each={paired()}>
-            {(space) => (
-              <SpaceCardTileView
-                space={space()}
-                onOpen={() => props.onOpenSpace(space().spaceId)}
-              />
-            )}
-          </For>
-        </Grid>
-      </Show>
-    </StackVertical>
+      </For>
+    </Grid>
   );
 }
 

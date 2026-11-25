@@ -475,8 +475,9 @@ button.card:focus-visible {
   }
 }
 
-/* Two named player/card pairs per row: every trick place stays directly
-   beside its owner, never in a separate compass that needs decoding. */
+/* Two player/card pairs per row, each trick place beside its owner, in
+   the table's turn order: the viewer bottom left, their left above them,
+   across beside that, their right beside the viewer, as on a wide table. */
 @container card-table not (min-width: 26rem) {
   .table {
     /* One height in every phase: room for the pass row while passing. */
@@ -496,27 +497,27 @@ button.card:focus-visible {
     justify-content: center;
     padding: var(--ui-space-1);
   }
-  .seat[data-position="right"],
-  .seat[data-position="bottom"] {
+  .seat[data-position="top"],
+  .seat[data-position="right"] {
     grid-column: 4 / 6;
   }
   .seat[data-trick="true"] {
     grid-column: 1;
   }
-  .seat[data-trick="true"][data-position="right"],
-  .seat[data-trick="true"][data-position="bottom"] {
+  .seat[data-trick="true"][data-position="top"],
+  .seat[data-trick="true"][data-position="right"] {
     grid-column: 4;
-  }
-  .seat[data-position="top"],
-  .slot[data-position="top"],
-  .seat[data-position="right"],
-  .slot[data-position="right"] {
-    grid-row: 1;
   }
   .seat[data-position="left"],
   .slot[data-position="left"],
+  .seat[data-position="top"],
+  .slot[data-position="top"] {
+    grid-row: 1;
+  }
   .seat[data-position="bottom"],
-  .slot[data-position="bottom"] {
+  .slot[data-position="bottom"],
+  .seat[data-position="right"],
+  .slot[data-position="right"] {
     grid-row: 2;
   }
   .seat[data-player="true"][data-position] {
@@ -537,8 +538,8 @@ button.card:focus-visible {
   .slot[data-position] {
     grid-column: 2;
   }
-  .slot[data-position="right"],
-  .slot[data-position="bottom"] {
+  .slot[data-position="top"],
+  .slot[data-position="right"] {
     grid-column: 5;
   }
   .pass,

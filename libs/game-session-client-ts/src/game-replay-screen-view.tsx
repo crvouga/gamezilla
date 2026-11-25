@@ -34,6 +34,7 @@ import { useHoverCapable } from '@pkgs/ui-root-client-ts/use-hover-capable';
 import type { JSX } from '@solidjs/web';
 import { createMemo, For, Match, Show, Switch } from 'solid-js';
 import { FramePersonAvatar } from './game-frame-people';
+import { OwnSeatMark } from './game-frame-seat-tags';
 import type { FramePeople } from './game-frame-view-types';
 import {
   type GameHistoryOutcome,
@@ -319,15 +320,15 @@ function ReplaySeat(
       avatar={<ReplayAvatar player={props.player} people={props.people} />}
       swatch={props.player.swatch}
       swatchLabel={props.player.sideLabel}
+      nameTag={
+        <Show when={props.player.you}>
+          <OwnSeatMark />
+        </Show>
+      }
       tags={
-        <>
-          <Show when={props.player.you}>
-            <Badge intent="info" label={<Trans>You</Trans>} />
-          </Show>
-          <Show when={won()}>
-            <Badge intent="success" label={<Trans>Winner</Trans>} />
-          </Show>
-        </>
+        <Show when={won()}>
+          <Badge intent="success" label={<Trans>Winner</Trans>} />
+        </Show>
       }
       tagsPlacement="line"
     />

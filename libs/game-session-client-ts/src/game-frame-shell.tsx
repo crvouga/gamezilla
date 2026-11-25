@@ -55,6 +55,8 @@ export function createFrameConfirm(): FrameConfirm {
 export function FrameConfirmDialog(props: {
   readonly confirm: FrameConfirm;
   readonly onChoose: Choose;
+  /** Still set up, nobody has played: cancelling says so, not "no result". */
+  readonly beforeGame?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show when={props.confirm.asked()} keyed>
@@ -81,7 +83,16 @@ export function FrameConfirmDialog(props: {
                   </Trans>
                 }
               >
-                <Trans>The game ends for everyone, with no result.</Trans>
+                <Show
+                  when={props.beforeGame === true}
+                  fallback={
+                    <Trans>The game ends for everyone, with no result.</Trans>
+                  }
+                >
+                  <Trans>
+                    Nobody has played yet. The game is called off for everyone.
+                  </Trans>
+                </Show>
               </Show>
             }
             cancelLabel={

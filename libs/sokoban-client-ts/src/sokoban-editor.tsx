@@ -210,8 +210,10 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
       {(board) => (
         // The tools, used on every press, sit beside the board when there
         // is room and head it on a phone, so the whole board is in view
-        // under them. The size, set once, follows with how to use the
-        // tools and what to correct: beside the board, or after it.
+        // under them. What to correct comes first after them: straight
+        // under the board on a phone, beside it under the tools on a wide
+        // screen, both in the first view. The size, set once, and how to
+        // use the tools follow.
         <EditorWorkbench
           tools={<ToolPalette editor={editor} disabled={props.disabled} />}
           canvas={
@@ -219,6 +221,7 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
           }
           notes={
             <>
+              <Feedback editor={editor} board={board()} />
               <SokobanSizeControls
                 board={board()}
                 disabled={props.disabled}
@@ -230,7 +233,6 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
                   any piece on them; erasing makes plain floor.
                 </Trans>
               </P>
-              <Feedback editor={editor} board={board()} />
             </>
           }
         />

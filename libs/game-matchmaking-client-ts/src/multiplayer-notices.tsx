@@ -24,26 +24,17 @@ export function MultiplayerNotices(props: {
    * search says it in its own card).
    */
   readonly playing?: boolean | undefined;
-  /** The home's dock says no connection over Find an opponent instead. */
+  /**
+   * The home's dock says no connection, and why searching is refused, over
+   * its command instead.
+   */
   readonly docked?: boolean | undefined;
 }): JSX.Element {
   return (
     <>
-      <Show when={props.denial}>
-        {(denied) => (
-          // On the home its way forward is the dock's command, so the
-          // notice says why without a second button.
-          <DenialSurfaceView
-            denial={
-              props.docked === true
-                ? { ...denied(), action: undefined }
-                : denied()
-            }
-            // Compact on the home, so the match and its rows fit above the
-            // dock that holds the way forward.
-            variant={props.docked === true ? 'compact' : 'fill'}
-          />
-        )}
+      {/* On the home the dock says why, over its way forward. */}
+      <Show when={props.docked === true ? undefined : props.denial}>
+        {(denied) => <DenialSurfaceView denial={denied()} />}
       </Show>
       {/* A refusal stands where the command is; what comes and goes (a
           refused command, no connection) floats over the screen. */}

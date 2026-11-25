@@ -1,4 +1,5 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
+import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -65,6 +66,11 @@ type FindProps = MultiplayerPlaceFrame & {
   readonly forward?:
     | { readonly label: string; readonly onPress: () => void }
     | undefined;
+  /**
+   * Why searching is refused (a guest's daily games are used), said right
+   * over the dock's command that answers it, never a screen away.
+   */
+  readonly denial?: DenialView | undefined;
   readonly ratings: readonly MultiplayerRatingView[];
   readonly onOpen: (place: MultiplayerPlace) => void;
   /** Starts a search, at the chosen time control when the game is timed. */
@@ -258,26 +264,63 @@ function FindAbout(props: Pick<FindProps, 'onOpen'>): JSX.Element {
   );
 }
 
+/**
+ * A refusal over the command that answers it: what happened, then why and
+ * how to go on, the spec handles on the explanation (which names the way).
+ */
+function DockDenial(props: { readonly denial: DenialView }): JSX.Element {
+  const body = () => props.denial.body;
+  return (
+    <>
+      <P
+        variant="bodyBold"
+        align="center"
+        role="status"
+        dataSet={body() === undefined ? props.denial.dataSet : undefined}
+      >
+        {props.denial.title}
+      </P>
+      <Show when={body()}>
+        {(text) => (
+          <P
+            variant="caption"
+            tone="secondary"
+            align="center"
+            dataSet={props.denial.dataSet}
+          >
+            {text()}
+          </P>
+        )}
+      </Show>
+    </>
+  );
+}
+
 /** The search's one command, held at the foot of the screen. */
 function FindDock(props: FindProps): JSX.Element {
   const many = () => props.find.players > 2;
   return (
     <GameLobbyDock
       status={
-        <Show when={props.offline === true}>
-          <P
-            variant="caption"
-            tone="warning"
-            align="center"
-            role="status"
-            lines={2}
-            testId="multiplayer-offline"
-          >
-            <Trans>
-              You're offline. Find an opponent comes back with the connection.
-            </Trans>
-          </P>
-        </Show>
+        <>
+          <Show when={props.denial}>
+            {(denial) => <DockDenial denial={denial()} />}
+          </Show>
+          <Show when={props.offline === true}>
+            <P
+              variant="caption"
+              tone="warning"
+              align="center"
+              role="status"
+              lines={2}
+              testId="multiplayer-offline"
+            >
+              <Trans>
+                You're offline. Find an opponent comes back with the connection.
+              </Trans>
+            </P>
+          </Show>
+        </>
       }
     >
       <Show when={props.forward} keyed>

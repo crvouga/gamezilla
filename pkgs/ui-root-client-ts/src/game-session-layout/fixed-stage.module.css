@@ -110,6 +110,15 @@
     flex: none;
     margin-inline: var(--ui-space-2);
   }
+  /* A board whose ranks stand in a gutter (chess) keeps the standard seat
+     row too: the seats span the screen's gutters like every game's, not
+     indented to the squares. */
+  .fixed
+    [data-game-slot="stage"]
+    > [data-game-board-stage]:has([data-board-gutter])
+    > :not([data-game-board]) {
+    margin-inline: var(--ui-space-2);
+  }
   .fixed [data-game-board-stage] > [data-game-board] {
     flex: 1 1 0;
     align-self: stretch;

@@ -1,5 +1,5 @@
 /** @jsxImportSource @solidjs/web */
-/** The lobby's desktop grid never ends in an empty slot beside a lone card. */
+/** The lobby's desktop cards each keep one column's width, a lone one too. */
 
 import { afterEach, expect, test } from 'bun:test';
 import type { SpaceCardData } from '@libs/spaces-client-ts/space-card-view';
@@ -42,12 +42,14 @@ function placement(container: HTMLElement, space: SpaceCardData): string {
   return card.closest('[data-component="Grid"]') === null ? 'full' : 'paired';
 }
 
-// regression: lobby-lone-card-leaves-empty-slot
-test('an odd group leads with one full-width card, then pairs the rest', () => {
+// regression: lobby-lone-card-stretches-full-width
+test('an odd group, and a lone card, keep one column each', () => {
   const container = mountWide([HOSTED_SPACE, FRIEND_SPACE, JOINED_SPACE], 1);
-  expect(placement(container, HOSTED_SPACE)).toBe('full');
+  expect(placement(container, HOSTED_SPACE)).toBe('paired');
   expect(placement(container, FRIEND_SPACE)).toBe('paired');
   expect(placement(container, JOINED_SPACE)).toBe('paired');
+  cleanup();
+  expect(placement(mountWide([HOSTED_SPACE], 1), HOSTED_SPACE)).toBe('paired');
 });
 
 test('even groups pair every card, and every space wears its own mark', () => {

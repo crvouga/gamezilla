@@ -191,3 +191,32 @@
   position: relative;
   width: var(--word-tile-fitted-size);
 }
+
+/* Beside a wide game's rail the seats stand the stage's usual gap clear of
+   a wide workspace's board (a phone's stage keeps its own). Four or more,
+   in rows of two, span the board alone, not Fit and Enlarge beside it:
+   as wide as its column, or, when the window's height bounds the board,
+   the height its box leaves it (the rows above less the square's details). */
+:global([data-game-board-stage]):has(
+  > [data-game-board] .layout[data-fill="true"][data-layout="wide"]
+) {
+  gap: var(--ui-space-3);
+}
+:global([data-game-board-stage]):has(
+    > [data-game-board] .layout[data-fill="true"][data-layout="wide"]
+  ):has(> :not(:global([data-game-board])) [role="list"] > :nth-child(4))
+  > :not(:global([data-game-board])) {
+  max-width: min(
+    100% -
+    10.5rem -
+    var(--ui-space-4),
+    var(--game-board-viewport-room, 100vh) -
+    1lh -
+    3rem -
+    var(--ui-space-1) *
+    2 -
+    var(--ui-space-2) *
+    2 -
+    var(--ui-space-6)
+  );
+}

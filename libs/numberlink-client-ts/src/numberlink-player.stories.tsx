@@ -28,6 +28,22 @@ function progress(paths: typeof SOLUTION): string {
   return JSON.stringify({ paths });
 }
 
+/** Whether saved progress holds a path, so Undo has a move to take back. */
+function hasPaths(state: string): boolean {
+  try {
+    const progress: unknown = JSON.parse(state);
+    return (
+      typeof progress === 'object' &&
+      progress !== null &&
+      'paths' in progress &&
+      Array.isArray(progress.paths) &&
+      progress.paths.length > 0
+    );
+  } catch {
+    return false;
+  }
+}
+
 /** The game's own figures for the attempt, as the app's panel shows them. */
 function figures(definition: string, state: string) {
   const values = numberlinkPuzzleContent.statistics?.(definition, state) ?? {};
@@ -61,6 +77,7 @@ const meta = {
         args.definition,
         args.state
       )}
+      played={hasPaths(args.state)}
       figures={figures(args.definition, args.state)}
       figuresPlacement={numberlinkContentFrame.figuresPlacement}
       player={<NumberlinkPlayer {...args} />}
@@ -350,9 +367,14 @@ export const DrawingHelp: Story = {
     await userEvent.click(
       canvas.getByRole('button', { name: 'Drawing and keyboard help' })
     );
-    await expect(canvas.getByTestId('numberlink-key-hints')).toBeVisible();
+    const help = within(
+      await within(document.body).findByRole('dialog', {
+        name: 'Drawing and keyboard help',
+      })
+    );
+    await expect(help.getByTestId('numberlink-key-hints')).toBeVisible();
     await expect(
-      canvas.getByText(/Start again at an endpoint to redraw/)
+      help.getByText(/Start again at an endpoint to redraw/)
     ).toBeVisible();
   },
 };

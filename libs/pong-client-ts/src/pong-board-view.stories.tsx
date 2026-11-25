@@ -222,10 +222,14 @@ export const PaddleMovement: Story = {
   },
 };
 
-/** The same production mechanics with the right paddle controlled. */
+/**
+ * The same production mechanics with the right paddle controlled, by the
+ * person seated on the right: their seat carries the right paddle's colour.
+ */
 export const RightPaddleMovement: Story = {
   ...PaddleMovement,
   args: { simulation: playing(['black']) },
+  parameters: { table: { viewer: 'black' } satisfies GameTableStory },
 };
 
 /** Both paddles update independently for native simultaneous touch evidence. */

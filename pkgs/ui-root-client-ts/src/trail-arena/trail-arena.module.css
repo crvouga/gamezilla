@@ -47,10 +47,14 @@
 /* No card of its own: the drawing's walls frame the ground inside them, so
    the arena is never letterboxed in a second dark frame. */
 .arena {
-  position: relative;
   /* As wide as the column, but never taller than the room it is given
-     (the nearest size container, else the screen). */
-  width: min(100%, calc(100cqh * var(--arena-aspect, 1)));
+     (the nearest size container, else the screen), with the room around
+     its walls counted in. A stage reads the size, and the room hanging
+     above and below the walls (`--arena-bleed-block`), from here. */
+  --arena-size: min(100%, calc(100cqh * var(--arena-fit, 1)));
+  --arena-bleed-block: calc(var(--arena-size) * var(--arena-bleed, 0));
+  position: relative;
+  width: var(--arena-size);
   margin-inline: auto;
   border-radius: var(--ui-radius-card);
   background: none;
@@ -63,12 +67,15 @@
 .arena[data-interactive="true"] {
   touch-action: none;
 }
+/* Focus is the walls themselves, thick and bright: drawn in the arena's
+   own shape and corners, never outside it, so no column edge or scrolling
+   region clips it and no second line runs beside the wall. */
 .arena:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
-  /* A dark band either side of the cyan ring, so focus reads on a light
-     page and apart from the arena's own cyan edge. */
-  box-shadow: 0 0 0 6px var(--ui-color-background);
+  outline: none;
+}
+.arena:focus-visible .wall {
+  stroke: var(--ui-color-focus-ring);
+  stroke-width: 0.5;
 }
 /* Away from the game, the drawing dims so it never looks live. */
 .arena[data-dimmed="true"] .drawing {

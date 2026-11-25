@@ -96,9 +96,13 @@ export function StoryPackActions(props: {
   );
 }
 
-/** An attempt's commands at rest: undo, redo and restart. */
+/**
+ * An attempt's commands at rest: undo, redo and restart. Undo waits for a
+ * move, as the app's own does (`canUndo`).
+ */
 function StoryPackAttemptControls(props: {
   readonly disabled: boolean;
+  readonly played: boolean;
 }): JSX.Element {
   return (
     <StackHorizontal gap="sm" wrap shrink>
@@ -107,7 +111,7 @@ function StoryPackAttemptControls(props: {
         intent="neutral"
         variant="outline"
         size="sm"
-        disabled={props.disabled}
+        disabled={props.disabled || !props.played}
       />
       <Button
         title="Redo"
@@ -138,6 +142,8 @@ export function StoryPackAttempt(props: {
   readonly saving?: boolean | undefined;
   readonly next?: { title: string; open: () => void } | undefined;
   readonly disabled?: boolean | undefined;
+  /** Whether the attempt has a move to undo; by default it has. */
+  readonly played?: boolean | undefined;
   readonly player: JSX.Element;
   /** The game's quieter aids under the commands (`PuzzleContentClient.Support`). */
   readonly support?: JSX.Element;
@@ -196,7 +202,10 @@ export function StoryPackAttempt(props: {
         }
         controls={
           props.controls ?? (
-            <StoryPackAttemptControls disabled={props.disabled === true} />
+            <StoryPackAttemptControls
+              disabled={props.disabled === true}
+              played={props.played !== false}
+            />
           )
         }
         onRetryChange={fn()}

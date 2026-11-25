@@ -26,6 +26,18 @@ type StartProps = {
    * stays in view after the notice is dismissed.
    */
   readonly offline?: boolean | undefined;
+  /**
+   * A seat the viewer may fill is what holds the game back: the way to fill
+   * it (its label says how) leads, and readiness stays a quiet command.
+   */
+  readonly fillSeat?: FrameFillSeat | undefined;
+};
+
+/** Filling the seat that holds the game back, and how it can be filled. */
+export type FrameFillSeat = {
+  readonly invite: boolean;
+  readonly bot: boolean;
+  readonly onOpen: () => void;
 };
 
 /** The viewer cannot get ready until their private setup is complete. */
@@ -49,6 +61,9 @@ function mustGetReady(start: FrameStart): boolean {
  * they are not; taking it back is an outlined one of the same size once they are.
  */
 export function FrameReadinessButton(props: StartProps): JSX.Element {
+  // Filling a seat leads while one is open; readiness waits beside it.
+  const quiet = (ready: boolean): boolean =>
+    ready || props.fillSeat !== undefined;
   return (
     <Show when={props.start.readiness}>
       {(readiness) => (
@@ -59,7 +74,7 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
             </Show>
           }
           dataSet={{ testid: 'custom-game-ready' }}
-          variant={readiness().ready ? 'outline' : 'solid'}
+          variant={quiet(readiness().ready) ? 'outline' : 'solid'}
           size="lg"
           disabled={!readiness().ready && readiness().blocked}
           operation={() =>
@@ -81,7 +96,13 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
  */
 function StartButton(props: StartProps): JSX.Element {
   return (
-    <Show when={props.start.canStart && !mustGetReady(props.start)}>
+    <Show
+      when={
+        props.start.canStart &&
+        !mustGetReady(props.start) &&
+        props.fillSeat === undefined
+      }
+    >
       <GameActionButton
         title={
           <Show
@@ -101,6 +122,26 @@ function StartButton(props: StartProps): JSX.Element {
   );
 }
 
+/** How the seat can be filled, said on its command. */
+function FillSeatButton(props: { readonly fill: FrameFillSeat }): JSX.Element {
+  const title = (): JSX.Element => {
+    if (props.fill.invite && props.fill.bot)
+      return <Trans>Invite a player or add a bot</Trans>;
+    if (props.fill.invite) return <Trans>Invite a player</Trans>;
+    if (props.fill.bot) return <Trans>Add a bot</Trans>;
+    return <Trans>Choose who sits here</Trans>;
+  };
+  return (
+    <Button
+      title={title()}
+      variant="solid"
+      size="lg"
+      onClick={() => props.fill.onOpen()}
+      dataSet={{ testid: 'custom-game-fill-seat' }}
+    />
+  );
+}
+
 /** The command the viewer's own readiness asks for: arrange, or get ready. */
 function ReadinessCommand(props: StartProps): JSX.Element {
   return (
@@ -110,7 +151,7 @@ function ReadinessCommand(props: StartProps): JSX.Element {
     >
       <Button
         title={<Trans>Arrange your setup</Trans>}
-        variant="solid"
+        variant={props.fillSeat === undefined ? 'solid' : 'outline'}
         size="lg"
         onClick={() => props.onArrange?.()}
         dataSet={{ testid: 'custom-game-setup-arrange' }}
@@ -226,6 +267,9 @@ export function FrameStartView(
       }
     >
       {props.seat}
+      <Show when={props.fillSeat}>
+        {(fill) => <FillSeatButton fill={fill()} />}
+      </Show>
       <StartButton {...props} />
       <ReadinessCommand {...props} />
     </GameLobbyDock>

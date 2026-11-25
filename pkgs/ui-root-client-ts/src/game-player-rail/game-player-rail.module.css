@@ -57,6 +57,11 @@
 .chipNameLine {
   flex-wrap: nowrap;
 }
+/* The mark sits on the name's centre line: a `Badge` starts itself at the
+   top of a row, which lifts it above a name taller than the pill. */
+.chipNameLine > * {
+  align-self: center;
+}
 .chipFacts {
   row-gap: var(--game-player-facts-row-gap, var(--ui-space-1));
   max-width: 100%;

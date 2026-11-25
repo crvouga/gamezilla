@@ -93,10 +93,12 @@
 }
 .cell:focus-visible {
   /* Two tones, so the ring stands out on dark empty squares, light bonus
-     squares and tiles alike. */
-  outline: 2px solid var(--ui-color-board-card-face);
-  outline-offset: -2px;
-  box-shadow: inset 0 0 0 4px var(--ui-color-board-card-ink);
+     squares and tiles alike. It rings the square from outside, over the
+     hairline and its neighbours' edges, so a tile's letter and value stay
+     whole under it. */
+  outline: 2px solid var(--ui-color-board-card-ink);
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px var(--ui-color-board-card-face);
   z-index: 1;
 }
 .cell[data-square="DL"] {

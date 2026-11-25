@@ -7,6 +7,9 @@ import {
   NumberlinkSupport,
 } from '@libs/numberlink-client-ts/numberlink-player';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
+import { ClockProvider } from '@pkgs/clock-client-ts/solid';
+import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
+import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 
@@ -18,11 +21,16 @@ const props = {
 };
 
 function mount(width: number) {
+  const time = createHarnessClock();
   return renderWithI18n(() => (
-    <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
-      <NumberlinkPlayer {...props} />
-      <NumberlinkSupport {...props} />
-    </ThemeProvider>
+    <ClockProvider clock={time.clock} timers={time.timers}>
+      <ThemeProvider colorScheme="dark" fixedLayout={{ width, height: 900 }}>
+        <SurfaceStackProvider>
+          <NumberlinkPlayer {...props} />
+          <NumberlinkSupport {...props} />
+        </SurfaceStackProvider>
+      </ThemeProvider>
+    </ClockProvider>
   ));
 }
 

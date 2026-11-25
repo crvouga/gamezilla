@@ -23,7 +23,7 @@ import {
   spaceCardOthers,
 } from './space-card-view';
 import { SpaceHostOfflineNotice } from './space-connection-notice';
-import { SpaceJoinFooter } from './space-join-footer';
+import { SpaceJoinFooter, SpaceJoinRecoveryBar } from './space-join-footer';
 import { SpaceMarkView } from './space-mark';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar } from './space-person-view';
@@ -188,6 +188,8 @@ function SpaceJoinStatusTag(props: {
 function SpaceJoinInvitation(props: {
   readonly space: SpaceCardData;
   readonly host: SpaceJoinHost;
+  /** An earlier join was not confirmed: the card says so under the name. */
+  readonly joinPending?: boolean | undefined;
 }): JSX.Element {
   return (
     <Card>
@@ -201,6 +203,17 @@ function SpaceJoinInvitation(props: {
           <StackVertical grow shrink gap="xs">
             {/* In full: the guest confirms which space they are joining. */}
             <H2 size="subtitle">{props.space.title}</H2>
+            {/* Where the viewer stands, in the card's own words: they asked
+                to join and the space has not said yes yet. */}
+            <Show when={props.joinPending === true}>
+              <Text
+                variant="bodyBold"
+                tone="warning"
+                testId={Handles.spaceJoinNotConfirmed}
+              >
+                <Trans>Your join isn't confirmed yet</Trans>
+              </Text>
+            </Show>
           </StackVertical>
           <SpaceJoinStatusTag space={props.space} host={props.host} />
         </StackHorizontal>
@@ -246,42 +259,34 @@ function SpaceJoinLiveBody(props: {
   readonly space: SpaceCardData | null;
   readonly checkingHost: boolean;
   readonly needsConnection: boolean;
-  /** An earlier join was not confirmed: the page says so by Check again. */
+  /** An earlier join was not confirmed: the card and its button say so. */
   readonly joinPending: boolean;
 }): JSX.Element {
   return (
     <StackVertical gap="lg">
       <Show when={props.space}>
         {(space) => (
-          <SpaceJoinInvitation space={space()} host={joinHostState(props)} />
+          <SpaceJoinInvitation
+            space={space()}
+            host={joinHostState(props)}
+            joinPending={props.joinPending}
+          />
         )}
       </Show>
       <Show
         when={props.checkingHost}
         fallback={
-          <P tone="secondary">
-            <Show
-              when={!props.joinPending}
-              fallback={
-                <Text variant="inherit" testId={Handles.spaceJoinNotConfirmed}>
-                  <Trans>
-                    Your join isn't confirmed yet. Check again to see whether
-                    you're in.
-                  </Trans>
-                </Text>
-              }
-            >
-              {/* Needing the connection is said once, in the alert that
-                  stays while it lasts; what joining does is said only when
-                  joining can happen. */}
-              <Show when={!props.needsConnection}>
-                <Trans>
-                  Join to play together. You'll go straight to whatever the
-                  space is doing.
-                </Trans>
-              </Show>
-            </Show>
-          </P>
+          // Needing the connection is said once, in the alert that stays
+          // while it lasts, and a join not confirmed in the card and its
+          // button; what joining does is said only when joining can happen.
+          <Show when={!props.joinPending && !props.needsConnection}>
+            <P tone="secondary">
+              <Trans>
+                Join to play together. You'll go straight to whatever the space
+                is doing.
+              </Trans>
+            </P>
+          </Show>
         }
       >
         <LoadingState
@@ -289,6 +294,18 @@ function SpaceJoinLiveBody(props: {
           caption={<Trans>Checking the host’s connection…</Trans>}
         />
       </Show>
+    </StackVertical>
+  );
+}
+
+/** A state that cannot join, with its ways on right under the message. */
+function JoinRecoveryBody(
+  props: SpaceJoinScreenViewProps & { readonly children: JSX.Element }
+): JSX.Element {
+  return (
+    <StackVertical gap="lg">
+      {props.children}
+      <SpaceJoinRecoveryBar {...props} />
     </StackVertical>
   );
 }
@@ -301,27 +318,33 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
         <LoadingState caption={t`Opening the space…`} />
       </Match>
       <Match when={props.status === 'unavailable'}>
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={t`You can't join this space`}
-          body={t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`}
-        />
+        <JoinRecoveryBody {...props}>
+          <EmptyState
+            icon={Gamepad2Icon}
+            title={t`You can't join this space`}
+            body={t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`}
+          />
+        </JoinRecoveryBody>
       </Match>
       <Match when={props.status === 'missing'}>
-        <EmptyState
-          icon={Gamepad2Icon}
-          title={t`This space can't be found`}
-          body={t`The link may be wrong, or the space may never have existed.`}
-          dataSet={{ testid: Handles.spaceNotFound }}
-        />
+        <JoinRecoveryBody {...props}>
+          <EmptyState
+            icon={Gamepad2Icon}
+            title={t`This space can't be found`}
+            body={t`The link may be wrong, or the space may never have existed.`}
+            dataSet={{ testid: Handles.spaceNotFound }}
+          />
+        </JoinRecoveryBody>
       </Match>
       <Match when={props.status === 'offline'}>
-        <EmptyState
-          icon={WifiOffIcon}
-          title={t`You're offline`}
-          body={t`Joining someone else's space needs a connection. Your own spaces still work offline.`}
-          dataSet={{ testid: Handles.spacesNeedConnection }}
-        />
+        <JoinRecoveryBody {...props}>
+          <EmptyState
+            icon={WifiOffIcon}
+            title={t`You're offline`}
+            body={t`Joining someone else's space needs a connection. Your own spaces still work offline.`}
+            dataSet={{ testid: Handles.spacesNeedConnection }}
+          />
+        </JoinRecoveryBody>
       </Match>
       <Match when={props.status === 'live'}>
         <SpaceJoinLiveBody
@@ -343,11 +366,17 @@ function JoinPromptBody(props: SpaceJoinScreenViewProps): JSX.Element {
  */
 function spaceJoinPageTitle(props: SpaceJoinScreenViewProps): JSX.Element {
   if (props.status === 'live' && props.space !== null)
-    return <Trans>Join space</Trans>;
+    return props.joinPending ? (
+      <Trans>Check your join</Trans>
+    ) : (
+      <Trans>Join space</Trans>
+    );
   if (props.title !== null) return props.title;
   if (props.status === 'loading') return <Trans>Opening space…</Trans>;
   if (props.status === 'missing') return <Trans>Space not found</Trans>;
-  if (props.status === 'offline') return <Trans>You're offline</Trans>;
+  // The state's own heading says "You're offline"; the header says what
+  // the page is for, never the same words twice.
+  if (props.status === 'offline') return <Trans>Join space</Trans>;
   if (props.status === 'unavailable') return <Trans>Can't join</Trans>;
   return <Trans>Space</Trans>;
 }
@@ -368,7 +397,9 @@ export function SpaceJoinScreenView(
         { name: <Trans>Spaces</Trans>, href: '/' },
         { name: spaceJoinPageTitle(props) },
       ]}
-      footer={<SpaceJoinFooter {...props} />}
+      footer={
+        props.status === 'live' ? <SpaceJoinFooter {...props} /> : undefined
+      }
     >
       <StackVertical grow gap="md">
         {/* What comes and goes (no connection, a join not confirmed, the

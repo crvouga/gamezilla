@@ -25,7 +25,10 @@ import {
   FramePersonName,
 } from './game-frame-people';
 import { FrameLobbyPage } from './game-frame-shell';
-import { FrameStartView } from './game-frame-start-line-view';
+import {
+  type FrameFillSeat,
+  FrameStartView,
+} from './game-frame-start-line-view';
 import { FrameClockWords } from './game-frame-status-view';
 import type {
   FrameOptions,
@@ -391,6 +394,29 @@ function LobbyMode(props: Props & { readonly setup: FrameSetup }): JSX.Element {
 }
 
 /**
+ * The seat to fill while an open or closed seat holds the game back and the
+ * viewer may choose who sits there: its own place offers the ways.
+ */
+function fillSeatOf(
+  props: Props & { readonly setup: FrameSetup }
+): FrameFillSeat | undefined {
+  const reason = props.setup.start.reason?.kind;
+  if (reason !== 'open-seats' && reason !== 'incomplete') return undefined;
+  const seat = props.setup.seats.find(
+    (each) =>
+      each.choices !== null &&
+      (each.holder.kind === 'open' || each.holder.kind === 'closed')
+  );
+  const choices = seat?.choices;
+  if (seat === undefined || choices == null) return undefined;
+  return {
+    invite: choices.invitees !== null,
+    bot: choices.bots,
+    onOpen: () => props.onOpen({ screen: 'seat', side: seat.side }),
+  };
+}
+
+/**
  * The lobby while a game is set up, as a lobby reads in any game: what is
  * played, who is in and who is ready, what is agreed, and under them, in
  * a dock that never scrolls, the one thing to do next (take a seat, get
@@ -418,6 +444,7 @@ export function CustomGameSetupPlace(
           }
           onChoose={props.onChoose}
           onReady={props.onReady}
+          fillSeat={fillSeatOf(props)}
           offline={props.connection === 'needed'}
           onArrange={
             props.setup.privateSetup === null
