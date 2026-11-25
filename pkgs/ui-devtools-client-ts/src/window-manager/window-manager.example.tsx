@@ -1,6 +1,5 @@
 /** @jsxImportSource @solidjs/web */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { WindowManager } from '@pkgs/ui-devtools-client-ts/window-manager';
 import type { WindowPanel } from '@pkgs/ui-devtools-client-ts/window-manager-types';
 import {
@@ -21,6 +20,7 @@ import {
   TerminalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createSignal, untrack } from 'solid-js';
 import { ExampleRoot } from '../../../ui-root-client-ts/storybook/fixtures/example-root';
 

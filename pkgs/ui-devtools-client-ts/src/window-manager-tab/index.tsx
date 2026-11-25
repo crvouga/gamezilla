@@ -5,7 +5,6 @@
  * buttons in one shell, as in `TabStrip`.
  */
 
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { windowPanels } from '@pkgs/ui-devtools-shared-ts/window-layout';
 import {
@@ -16,6 +15,7 @@ import {
 import { XIcon } from '@pkgs/ui-root-client-ts/icons';
 import { componentId, dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { dynamic, type JSX } from '@solidjs/web';
+import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createEffect, Show, untrack } from 'solid-js';
 import styles from '../tab-strip/tab-strip.module.css';
 import {
