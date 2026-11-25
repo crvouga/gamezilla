@@ -1,3 +1,4 @@
+import {defineBaseline} from '../baseline-gestures';
 import { test } from '@playwright/test';
 import { defineControls } from '../controls';
 import { boardContext } from '../matrix';
@@ -8,3 +9,4 @@ for (const theme of ['light', 'dark']) {
   defineReview(390, theme);
   defineControls(390, theme);
 }
+defineBaseline(390);
