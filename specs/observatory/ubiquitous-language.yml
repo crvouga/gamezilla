@@ -10,21 +10,18 @@ terms:
       activity and whether it is a person or a Synthetic User, and watch any
       of them live. The Synthetic Users' own part of it, with their personas
       and controls, is the Synthetic Population panel.
-    model: [openObservatory]
     published: true
   - term: online now
     definition: >-
       Using the app with a connection at this moment, whether a person or a
       Synthetic User. The User Observatory lists whoever is online now, with
       each one's activity and whether each is a person or a Synthetic User.
-    model: [onlineNow, listShown, showing, showOnly, invListShowsOnlineNow, invOnlineNowMeansAppOpenAndConnected]
     published: true
   - term: activity
     definition: >-
       What someone online now is currently doing in the app: browsing,
       looking for a multiplayer opponent for a game, or playing a game.
     forms: [activities]
-    model: [continueActivity]
   - term: watch live
     definition: >-
       Follow, from the User Observatory, what someone online now sees in the
@@ -32,7 +29,6 @@ terms:
       Anyone online now can be watched live, a person or a Synthetic User.
       Watching live stops when they are no longer online now.
     forms: [watches live, watching live, watched live]
-    model: [watching, watchLive, watchEndedNotice, invWatchingOnlyOnlineNow]
     published: true
   - term: private details
     definition: >-
@@ -40,7 +36,6 @@ terms:
       and anything only they should see, such as their email address and how
       they sign in. Watching a person live never shows them.
     forms: [private detail]
-    model: [privateDetailsShown, invPrivateDetailsHidden]
     published: true
 
   # Borrowed.
@@ -50,16 +45,12 @@ terms:
     from: synthetic-population
   - term: place in the app
     from: runtime
-    model: [placeShown, placeOf]
   - term: Settings
     from: runtime
-    model: [openSettings]
   - term: people search
     from: friends
-    model: [searchPeople]
   - term: sign-in method
     from: profile
-    model: [viewSignInMethods]
   - term: sign in
     from: profile
   - term: Google
@@ -78,7 +69,5 @@ terms:
     from: kernel
   - term: connection
     from: kernel
-    model: [connectionAvailable]
   - term: the app
     from: kernel
-    model: [openApp, closeApp]

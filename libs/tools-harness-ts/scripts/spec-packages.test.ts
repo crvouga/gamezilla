@@ -210,7 +210,7 @@ describe('specPackages', () => {
   });
 
   // regression: db-framework-contract-spec-discovery
-  test('unbound database protocols stay in package model tests', () => {
+  test('database index features remain bound after retiring the protocol models', () => {
     expect(packages.map((pkg) => pkg.name)).not.toContain(
       '@pkgs/db-schema-root-harness-ts'
     );
@@ -223,10 +223,7 @@ describe('specPackages', () => {
     const indexing = packages.find(
       (pkg) => pkg.name === '@pkgs/db-indexes-root-harness-ts'
     );
-    expect(indexing?.models).toEqual([
-      'specs/db-indexes/index-interruption.qnt',
-      'specs/db-indexes/index-retirement.qnt',
-    ]);
+    expect(indexing?.models).toEqual([]);
     expect(indexing?.features).toHaveLength(6);
     expect(indexing?.definitions.length).toBeGreaterThan(0);
     expect(indexing?.problems).toEqual([]);

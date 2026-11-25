@@ -75,7 +75,7 @@ import {
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
-import { MAX_MODEL_PARTS, MAX_SPEC_PARTS } from './spec-packages';
+import { MAX_SPEC_PARTS } from './spec-packages';
 import { readTurboTasks } from './turbo-config';
 import type { RunPlan } from './turbo-preflight';
 import {
@@ -161,17 +161,10 @@ export const MAIN_VERIFY_TASKS = [
   'test',
   'test:contract',
   'test:contract:render',
-  // One symbolic model per task. The whole product suite outruns one runner.
   ...Array.from({ length: 11 }, (_, index) => `test:contract:${String(index)}`),
   ...Array.from(
     { length: MAX_SPEC_PARTS },
     (_, index) => `test:spec:${String(index)}`
-  ),
-  'verify:models',
-  // The parts of a split models verification (`MAX_MODEL_PARTS` in spec-packages).
-  ...Array.from(
-    { length: MAX_MODEL_PARTS },
-    (_, index) => `verify:models:${String(index)}`
   ),
   'test:unit:1',
   'test:unit:2',

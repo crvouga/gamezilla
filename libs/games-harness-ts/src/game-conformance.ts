@@ -159,9 +159,7 @@ export const SHARED_SPECIFICATIONS: Readonly<
 /** The file endings of the specifications a game is held to. */
 export const SHARED_SPECIFICATION_KINDS = [
   '.feature',
-  '.qnt',
   '.dmn',
-  '.als',
   '.openslo.yaml',
 ] as const;
 

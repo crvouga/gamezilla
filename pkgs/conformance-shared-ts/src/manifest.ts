@@ -16,8 +16,6 @@
 export const CONFORMANCE_KINDS = [
   'behavior',
   'decisions',
-  'dynamics',
-  'structure',
   'objectives',
   'accessibility',
 ] as const;

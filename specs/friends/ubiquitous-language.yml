@@ -22,7 +22,6 @@ terms:
       mutual: when Alice is Bob's friend, Bob is Alice's.
     forms: [friends, friend's, friends']
     avoid: [buddy, follower]
-    model: [Friend, friend]
     published: true
 
   - term: friendship
@@ -31,7 +30,6 @@ terms:
       other's friend request, and ends, for both at once, when either removes
       or blocks the other.
     forms: [friendships]
-    model: [friendships, FriendshipEvent, BecameFriends, FriendshipEnded]
 
   - term: stranger
     definition: >-
@@ -39,14 +37,12 @@ terms:
       either way, and no block between them. Either can ask the other to be
       friends.
     forms: [strangers]
-    model: [Stranger]
 
   - term: friendship status
     definition: >-
       Where one person stands with another, as they see it: a stranger, a
       friend, a friend request they sent, one they received, someone they
       blocked, or nobody at all (hidden by a block).
-    model: [FriendshipStatus, friendshipStatus]
 
   - term: friends list
     definition: >-
@@ -83,7 +79,6 @@ terms:
       decline it, or the asker cancels it. "Request" for short.
     forms: [friend requests, Request, request, requests]
     avoid: [invite, invitation, friend invite]
-    model: [ask, friendRequests, RequestSent, RequestReceived, requestShown, waitingToShare, invPendingRequestIsPrivate, invSharedRequestAgrees, invOwnChoiceIsKept, reopen]
 
   - term: asker
     definition: >-
@@ -98,7 +93,6 @@ terms:
       profile. The two become friends at once, and the asker gets a notice.
     forms: [accepts a friend request, accepted a friend request, accepting a friend request]
     avoid: [confirm, confirms, confirmed, confirming, approve]
-    model: [accept, acceptFromProfile]
 
   - term: decline a friend request
     definition: >-
@@ -108,7 +102,6 @@ terms:
       waiting period, and the asker can ask again.
     forms: [declines a friend request, declined a friend request, declining a friend request, a day passes]
     avoid: [turn down, turns down, turned down, turning down, reject, rejects, rejected]
-    model: [decline, declineFromProfile, declined, dayPasses]
 
   - term: cancel
     definition: >-
@@ -117,7 +110,6 @@ terms:
       can ask again.
     forms: [cancels, cancelled, cancelling]
     avoid: [withdraw, withdraws, withdrawn, retract, unsend]
-    model: [cancel]
 
   - term: refused
     definition: >-
@@ -126,7 +118,6 @@ terms:
       unavailable while the asker is offline is described only as unavailable,
       without revealing a block. Nothing reaches the person asked.
     forms: [refuse, refuses]
-    model: [requestRefused, invRefusalEndsPendingChoice]
 
   # --- Ending and blocking --------------------------------------------------
 
@@ -136,7 +127,6 @@ terms:
       out before confirming the removal keeps the friend.
     forms: [removes a friend, removed a friend, removing a friend]
     avoid: [unfriend, unfriends, delete a friend]
-    model: [remove]
 
   - term: block someone
     definition: >-
@@ -145,21 +135,18 @@ terms:
       longer find the blocker. The blocked person is not told. The blocker
       can still find them and unblock.
     forms: [blocks someone, blocked someone, blocker, blocker's, blocked person, blocked people]
-    model: [block, blockPerson, blocks, Blocking, invBlockEndsSharedRequest]
     published: true
 
   - term: hidden by a block
     definition: >-
       What a blocked person sees of the blocker: nobody. People search does
       not find the blocker, and nothing says why.
-    model: [Hidden]
 
   - term: unblock
     definition: >-
       Undo a block. The two are strangers again, and either can ask the
       other to be friends.
     forms: [unblocks, unblocked, unblocking]
-    model: [unblock, unblockPerson]
 
   # --- Finding people and hearing back --------------------------------------
 
@@ -206,7 +193,6 @@ terms:
       connection is missing.
     forms: [inbox items, marked opened, still waiting, opens the friend request]
     avoid: [notification, unread, dismiss]
-    model: [openItem, unopened, opened]
 
   - term: mark the inbox read
     definition: >-
@@ -215,7 +201,6 @@ terms:
       is told the connection is missing.
     forms: [marks the inbox read, marked the inbox read]
     avoid: [notification, unread]
-    model: [markAllRead]
 
   - term: archive an inbox item
     definition: >-
@@ -225,7 +210,6 @@ terms:
       and the person is told the connection is missing.
     forms: [archives, archived, archiving, archived inbox]
     avoid: [dismiss, notification]
-    model: [archiveItem, archived]
 
   - term: inbox list
     definition: >-
@@ -235,7 +219,6 @@ terms:
     forms:
       [waiting inbox, looks at the waiting inbox, looks at the archived inbox]
     avoid: [notification, filter]
-    model: [chooseList, list]
 
   - term: connection is missing
     definition: >-
@@ -243,11 +226,9 @@ terms:
       device does not have one. The inbox item stays as it was.
     forms: [told the connection is missing]
     avoid: [notification, network error]
-    model: [told]
 
   - term: connection
     from: kernel
-    model: [loseConnection, connectionReturns]
 
   # --- Borrowed -------------------------------------------------------------
   - term: account deletion

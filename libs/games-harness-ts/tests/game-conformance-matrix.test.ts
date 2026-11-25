@@ -76,7 +76,7 @@ test('every code suite registers every eligible game, with unsupported areas owi
   }
 });
 
-test('a model, decision table, structure and objective are listed like features', () => {
+test('a decision table and objective are listed like features', () => {
   const kinds = new Set(
     sharedSpecifications().map((uri) =>
       SHARED_SPECIFICATION_KINDS.find((kind) => uri.endsWith(kind))
@@ -135,8 +135,6 @@ test('a shared feature binds only games offering everything it shows', async () 
     expect(customGames.suites).not.toContain(
       'specs/games/game-choices.feature'
     );
-    // The custom-game models bind it like the features do.
-    expect(customGames.suites).toContain('specs/games/custom-game-play.qnt');
   }
 });
 

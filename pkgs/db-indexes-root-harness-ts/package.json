@@ -11,12 +11,10 @@
   },
   "scripts": {
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
-    "prepare:spec": "bun run --tsconfig-override=../../tsconfig.json --conditions=browser --conditions=development --preload=@pkgs/bun-test-solid-client-ts/register ../../libs/harness-ts/scripts/prepare-spec.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test tests",
     "test:spec": "bun run ../../libs/harness-ts/scripts/test-spec.ts",
-    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1",
-    "verify:models": "bun run ../../libs/tools-harness-ts/scripts/verify-models.ts"
+    "test:spec:0": "bun run ../../libs/harness-ts/scripts/test-spec.ts --part 0/1"
   },
   "dependencies": {
     "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -27,8 +25,6 @@
   "devDependencies": {
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/property-shared-ts": "workspace:*",
-    "@pkgs/quint-server-ts": "workspace:*",
-    "@pkgs/quint-shared-ts": "workspace:*",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
     "fast-check": "catalog:",

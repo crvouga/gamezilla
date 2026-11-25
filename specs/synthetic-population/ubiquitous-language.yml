@@ -7,7 +7,6 @@ terms:
     definition: >-
       The complete synthetic population of autonomous automated opponents:
       every Synthetic User, whether or not it is online now.
-    model: [populationSize, populationVaried]
   - term: Synthetic User
     definition: >-
       A persistent account operated autonomously and identified as automated.
@@ -15,7 +14,6 @@ terms:
       as people with a sign-in link sent to it.
     forms: [Synthetic Users, Synthetic User's]
     published: true
-    model: [SyntheticUser, syntheticAvailable, identity, invPersistentIdentity, syntheticIdentified, invSyntheticRecognition, invOfflineKeepsIdentification]
   - term: Synthetic Population panel
     definition: >-
       The Synthetic Users' own part of the User Observatory. Authorized
@@ -23,7 +21,6 @@ terms:
       see and change the desired synthetic population, and find each
       Synthetic User's control panel.
     forms: [Synthetic Population panel's]
-    model: [openPanel]
   - term: User Observatory
     from: observatory
   - term: desired synthetic population
@@ -31,44 +28,37 @@ terms:
       How many Synthetic Users should be available. Apart from Synthetic
       Users finishing an ongoing game, no more Synthetic Users are online now
       than this.
-    model: [desiredPopulation, changeDesiredPopulation, invOnlineWithinDesired]
   - term: pause
     definition: >-
       Stop starting activities for a Synthetic User while preserving an
       ongoing game. Pausing every Synthetic User does this for the whole
       Synthetic Population at once.
     forms: [pauses, paused, pausing]
-    model: [pause, pauseAll, paused, syntheticPaused, invPausedStartsNothing]
   - term: resume
     definition: >-
       Allow a paused Synthetic User to start activities again. Resuming
       every Synthetic User does this for the whole Synthetic Population at
       once.
     forms: [resumes, resumed, resuming]
-    model: [resume, resumeAll]
   - term: restart
     definition: >-
       Close and reopen a Synthetic User's app from its control panel. It
       keeps its account, its persona and any ongoing game, and carries on
       from its current activity.
     forms: [restarts, restarted, restarting]
-    model: [restart]
   - term: control panel
     definition: >-
       The controls the Synthetic Population panel offers for one Synthetic User: pause,
       resume and restart. Only a Synthetic User has one; a person never does.
     forms: [control panels]
-    model: [controlPanelOffered, invNoControlPanelForPeople]
   - term: activity
     definition: >-
       What a Synthetic User is currently doing in the app: browsing,
       looking for a multiplayer opponent for a game, or playing a game.
     forms: [activities]
-    model: [Activity, activity, playing, Browsing, Playing, Finished, invActivityRestored, startNextActivity, continueActivity]
   - term: Recovery
     definition: Restoring an interrupted Synthetic User to its current activity safely.
     forms: [recovers, recovered, recovering]
-    model: [reopenApp, invOngoingGamePreserved]
   - term: Synthetic Population's mailbox
     definition: >-
       The one mailbox where every sign-in link sent to a Synthetic User's
@@ -118,28 +108,22 @@ terms:
     from: pong
   - term: multiplayer opponent
     from: chess
-    model: [seekingOpponent, invLookingHasGame, lookForOpponent, peopleLooking, peoplePlaying, syntheticLooking, syntheticPlaying]
   - term: game
     from: games
-    model: [game, chosenGame, invOnlyOfferedGames, invGamePreserved, openMultiplayer]
   - term: person
     from: kernel
-    model: [personIdentified, invPersonRecognition]
   - term: connection
     from: kernel
-    model: [connectionAvailable]
   - term: multiplayer chess
     from: chess
   - term: time control
     from: chess
   - term: multiplayer result
     from: chess
-    model: [invFinishedGamePreserved]
   - term: username
     from: profile
   - term: the app
     from: kernel
-    model: [reopenApp]
   - term: control
     definition: >-
       Permission to pause, resume or restart a Synthetic User's autonomous
@@ -153,7 +137,6 @@ terms:
       its own, which it keeps for good. Its username is still identified as
       a Synthetic User wherever it appears.
     forms: [personas, complete persona]
-    model: [personasComplete, personaKept, usernamesDistinct, invUniqueUsernames, invCompletePersona, invPersonaKept, invVariedPopulation]
   - term: skill level
     definition: >-
       How well a Synthetic User plays: beginner, casual, intermediate or
@@ -179,10 +162,8 @@ terms:
       kept away longest.
     forms: [daily schedules]
     published: true
-    model: [keptAway, onSchedule, scheduleBegins, scheduleEnds, invOffScheduleOnlyToFinish]
   - term: online now
     from: observatory
-    model: [onlineNow]
   - term: move
     definition: >-
       What a player does when it is their go in a game: a move in chess, a
@@ -193,12 +174,10 @@ terms:
       How long a Synthetic User needs to make a move, as a person would: at
       least 2 seconds and at most 20, and never the same whole number of
       seconds for two moves in a row.
-    model: [thinkingTimeHumanLike, thinkingTimeChanged, invThinkingTimeHumanLike, invThinkingTimeVaries]
   - term: avatar
     from: profile
   - term: rematch
     from: games
-    model: [offerRematch, gamesInARow, invAtMostThreeInARow]
 
   - term: continue a multiplayer game
     definition: >-

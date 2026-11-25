@@ -32,19 +32,6 @@ test('cache inputs reference existing package owners after package splits', () =
   }
 });
 
-// regression: flattened-checker-cache-dependencies
-test('model verdicts depend on the split checker and evidence implementations', () => {
-  const config = JSON.parse(
-    readFileSync(join(ROOT, 'turbo.json'), 'utf8')
-  ) as Config;
-  expect(config.tasks['verify:models']!.dependsOn).toEqual([
-    '@pkgs/quint-server-ts#src',
-    '@pkgs/quint-shared-ts#src',
-    '@pkgs/conformance-server-ts#src',
-    '@pkgs/conformance-shared-ts#src',
-  ]);
-});
-
 /**
  * These tests scan every workspace manifest for the `game` / `gameRegistry`
  * markers, so a game package's `package.json` is an input. They name those

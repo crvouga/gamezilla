@@ -41,6 +41,5 @@ test('it inherits the custom-game specifications and owes nothing for what it do
   expect(areasOf(SETUP_RACE_GAME).bound).toEqual(['rules', 'custom-games']);
   const specifications = inheritedSpecifications(SETUP_RACE_GAME);
   expect(specifications).toContain('specs/games/game-turns.feature');
-  expect(specifications).toContain('specs/games/custom-game-play.qnt');
   expect(specifications).not.toContain('specs/games/game-history.feature');
 });

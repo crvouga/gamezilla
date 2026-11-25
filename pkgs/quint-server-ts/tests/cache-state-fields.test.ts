@@ -1,12 +1,5 @@
-// @io-wall-ok — compiler fixtures use isolated temporary directories.
 import { expect, test } from 'bun:test';
-import { mkdtempSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { cacheValueParameters } from '@pkgs/quint-server-ts/cache-value-parameters';
-import { typecheck } from '@pkgs/quint-server-ts/typecheck';
-import { verify } from '@pkgs/quint-server-ts/verify';
 
 const SOURCE = `module counter {
   var state: { count: int }
@@ -28,14 +21,6 @@ test('operators share the same pre-state field without duplicating its projectio
   const cached = cacheValueParameters(source);
   expect(cached.match(/state\.count/g)).toHaveLength(1);
   expect(cacheValueParameters(cached)).toBe(cached);
-  const dir = mkdtempSync(join(tmpdir(), 'quint-shared-state-'));
-  try {
-    const path = join(dir, 'shared.qnt');
-    writeFileSync(path, cached);
-    expect(typecheck(path)).toEqual({ ok: true });
-  } finally {
-    removeTree(dir, { whenLocked: 'leave' });
-  }
 });
 
 // regression: product-symbolic-model-compilation-timeout
@@ -44,34 +29,4 @@ test('repeated pre-state projections are shared without capturing shadowed param
   expect(cached).toContain('val cached_state_');
   expect(cached.match(/state\.count/g)).toHaveLength(2);
   expect(cacheValueParameters(cached)).toBe(cached);
-  const dir = mkdtempSync(join(tmpdir(), 'quint-cached-state-'));
-  try {
-    const path = join(dir, 'counter.qnt');
-    writeFileSync(path, cached);
-    expect(typecheck(path)).toEqual({ ok: true });
-  } finally {
-    removeTree(dir, { whenLocked: 'leave' });
-  }
 });
-
-test('shared pre-state projections preserve a violating mixed-state transition', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'quint-state-counterexample-'));
-  try {
-    const path = join(dir, 'counter.qnt');
-    writeFileSync(path, SOURCE);
-    const result = await verify({
-      specPath: path,
-      invariants: ['invAtMostOne'],
-      maxSteps: 2,
-      inferPolymorphicTypes: false,
-      outDir: join(dir, 'proof'),
-      timeoutMs: 120_000,
-    });
-    expect(result.ok).toBe(false);
-    if (result.ok) throw new Error('The violating transition was lost.');
-    expect(result.output).toContain('found a counterexample');
-    expect(result.output).toContain('count: 2');
-  } finally {
-    removeTree(dir, { whenLocked: 'leave' });
-  }
-}, 120_000);

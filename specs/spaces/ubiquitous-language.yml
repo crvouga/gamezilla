@@ -22,7 +22,6 @@ terms:
       the host, on every device in it.
     forms: [spaces, space's]
     avoid: [session, game room, lobby room, party]
-    model: [InSpace, SpaceEvent, Space]
     published: true
 
   - term: host
@@ -31,7 +30,6 @@ terms:
       rename or end it, and it ends when they leave.
     forms: [hosts, hosting, hosted, host's]
     avoid: [owner, creator]
-    model: [hostOf, host]
     published: true
 
   - term: join
@@ -42,7 +40,6 @@ terms:
       one's own space never needs a connection.
     forms: [joins, joined, joining]
     avoid: [enter the space]
-    model: [join, PersonJoined, joined, joinOffered]
     published: true
 
   - term: leave
@@ -52,7 +49,6 @@ terms:
       Losing the connection or closing the app is not leaving.
     forms: [leaves, left, leaving]
     avoid: [quit, exit]
-    model: [leave, leaveHost, Left, PersonLeft]
     published: true
 
   - term: end a space
@@ -62,7 +58,6 @@ terms:
       from then on.
     forms: [end, ends, ended, ending, ends the space, ended the space]
     avoid: [close the space, shut down, delete the space]
-    model: [endSpace, Ended, SpaceEnded, EndedSpace]
     published: true
 
   - term: open space
@@ -71,7 +66,6 @@ terms:
       return to it.
     forms: [open spaces]
     avoid: [live space, active space, running space]
-    model: [_openSpaces, SpaceOpened, OpenSpace]
     published: true
 
   - term: lobby
@@ -81,7 +75,6 @@ terms:
       joined, each of which they can return to or join.
     forms: [lobby's, lobbies]
     avoid: [space list, dashboard]
-    model: [Lobby, lobby, _listing]
     published: true
 
   - term: space link
@@ -91,7 +84,6 @@ terms:
       a space that has ended or does not exist.
     forms: [space links, space's link, the link]
     avoid: [invite link, invite code, room code]
-    model: [openSpaceLink, linkDestination]
     published: true
 
   - term: hosting limit
@@ -103,7 +95,6 @@ terms:
       hosting limit.
     forms: [hosting limits]
     avoid: [space limit, space quota]
-    model: [hostedSpaces]
     published: true
 
   # This context's own language
@@ -114,7 +105,6 @@ terms:
       straight away, and it is open, with or without a connection.
     forms: [creates a space, created a space, creates another space, creating a space]
     avoid: [start a space, make a space, open a space]
-    model: [createSpace]
     published: true
 
   - term: return to a space
@@ -123,7 +113,6 @@ terms:
       stepping out of it.
     forms: [returns to their space, returned to their space, returns to the space]
     avoid: [reopen the space, reopens their space]
-    model: [returnToSpace]
     published: true
 
   - term: a space that no longer exists
@@ -131,7 +120,6 @@ terms:
       A space that is gone although a person's lobby still lists it.
       Returning to it says it can't be reached right now.
     forms: [no longer exists, missing space]
-    model: [spaceNoLongerExists]
     published: true
 
   - term: try again
@@ -139,14 +127,12 @@ terms:
       Ask once more for what the app could not do a moment ago, such as
       reaching a space.
     forms: [tries again, tried again, trying again]
-    model: [tryAgain]
 
   - term: step out
     definition: >-
       Go from a space back to the lobby without leaving it. The space stays
       open, and the person can return to it or join it again.
     forms: [steps out, stepped out, stepping out]
-    model: [stepOut]
 
   - term: remove a person
     definition: >-
@@ -156,7 +142,6 @@ terms:
       are available. A host can remove a person without a connection;
       the person learns the removal once both connections are back.
     forms: [removes someone from the space, removed someone from the space, removed from the space]
-    model: [removePerson]
 
   - term: add a person
     definition: >-
@@ -166,7 +151,6 @@ terms:
       can add a known person without a connection; the person learns the
       addition once both connections are available.
     forms: [adds someone to the space, added someone to the space, added to the space]
-    model: [addPerson]
 
   - term: go back to the lobby
     definition: >-
@@ -174,7 +158,6 @@ terms:
       are in, that is stepping out; from a space that has ended, it is all
       there is left to do.
     forms: [goes back to the lobby, gone back to the lobby, went back to the lobby]
-    model: [goBackToLobby, stepOut]
 
   - term: drop out
     definition: >-
@@ -186,7 +169,6 @@ terms:
       came and went more than once. The host keeps using their own space
       while offline.
     forms: [drops out, dropped out]
-    model: [DroppedOut]
 
   - term: presence
     definition: >-
@@ -202,7 +184,6 @@ terms:
       still there. A missing connection is shown to the person who lost it,
       and is not the same as being idle.
     avoid: [roster, member list]
-    model: [presence, presenceOf, ViewingPresence, viewPresence, stopViewingPresence, _counting]
 
   - term: idle
     definition: >-
@@ -217,14 +198,12 @@ terms:
       whatever they last chose, and nobody is told the host is offline.
     forms: [stays idle, been idle, is idle, not idle]
     avoid: [inactive, afk, asleep]
-    model: [idle, goQuiet]
     published: true
 
   - term: whereabouts
     definition: >-
       Where a person is in Spaces right now: the lobby, in a space, looking at
       who is in it, or looking at a space that has ended.
-    model: [Whereabouts, RecoveryWhereabouts, whereabouts]
 
   - term: rename a space
     definition: >-
@@ -233,7 +212,6 @@ terms:
       that is refused once the connection comes back is undone, and the host
       is told why.
     forms: [renames the space, renamed the space, rename the space, renaming the space, clears the space name, cleared the space name]
-    model: [rename, lastRename, RenameResult, NoRename, NameSaved, NameNotAllowed]
 
   - term: space name
     definition: >-
@@ -247,7 +225,6 @@ terms:
       the name it had. The host can clear the name, and the space is named
       after them again.
     forms: [space names, named after]
-    model: [spaceName, givenName, NAMED_AFTER_HOST]
 
   - term: not allowed
     definition: >-
@@ -255,7 +232,6 @@ terms:
       rules never change; the team can also stop allowing other names on top
       of them.
     avoid: [banned, blocked, censored, moderated, inappropriate]
-    model: [ALWAYS_REFUSED]
 
   - term: no longer allowed
     definition: >-
@@ -264,14 +240,12 @@ terms:
       space named after its host, as if it had never been given a name.
       An offline device keeps applying the naming rules it already knows.
     avoid: [banned, flagged, censored, moderated]
-    model: [_notAllowed]
 
   - term: invited to Plus
     definition: >-
       What a person sees on reaching their hosting limit: an offer of Plus so
       they can host more spaces, instead of an error.
     forms: [invited to get Plus, invitation to Plus]
-    model: [invitedToPlus]
 
   - term: what happens in a space
     definition: >-
@@ -297,10 +271,8 @@ terms:
   # Borrowed language
   - term: connection
     from: kernel
-    model: [loseConnection, connectionReturns]
   - term: the app
     from: kernel
-    model: [closeApp]
 
   - term: account deletion
     from: profile
@@ -321,10 +293,8 @@ terms:
     from: billing
   - term: paid access
     from: billing
-    model: [PaidAccessStarted, PaidAccessEnded]
   - term: friend
     from: friends
-    model: [friend]
   - term: username
     from: profile
   - term: profile
@@ -335,10 +305,8 @@ terms:
     from: profile
   - term: stop allowing
     from: profile
-    model: [stopAllowing]
   - term: start allowing
     from: profile
-    model: [startAllowing]
 
   - term: attempt to join
     definition: >-

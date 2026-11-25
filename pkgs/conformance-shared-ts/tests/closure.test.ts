@@ -88,12 +88,12 @@ describe('closureProblems', () => {
   test('every spec is bound and every kind has one', () => {
     const world = closedWorld(SHAPE);
     const specs = world.specs
-      .filter((spec) => spec.kind !== 'structure')
+      .filter((spec) => spec.kind !== 'objectives')
       .map((spec) =>
         spec.kind === 'dynamics' ? { ...spec, bound: false } : spec
       );
     expect(closureProblems({ ...world, specs })).toEqual([
-      'conformance "structure": required, but there is no structure spec',
+      'conformance "objectives": required, but there is no objectives spec',
       'specs/spaces/model.qnt: not bound exactly once (bun run spec:verify says why) — nothing checks it, so it cannot count',
     ]);
   });
@@ -237,7 +237,7 @@ const BREAKS: Readonly<Record<string, Break>> = {
   }),
   'a kind with no spec': (w) => ({
     ...w,
-    specs: w.specs.filter((s) => s.kind !== 'structure'),
+    specs: w.specs.filter((s) => s.kind !== 'objectives'),
   }),
 };
 
