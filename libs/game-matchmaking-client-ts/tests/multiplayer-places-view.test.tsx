@@ -74,7 +74,13 @@ describe('each stage opens on its own small screen', () => {
         find: { players: 2, timed: true, timeControl: '5+0' },
       },
     });
-    const noticed = () => ids('multiplayer-offline', 'multiplayer-error');
+    // A search says no connection in its own card; elsewhere it floats.
+    const noticed = () =>
+      ids(
+        'multiplayer-offline',
+        'multiplayer-waiting-offline',
+        'multiplayer-error'
+      );
     for (const open of [
       'multiplayer-open-time-control',
       'multiplayer-open-ratings',
@@ -244,24 +250,26 @@ describe('play holds the board and one way to the commands', () => {
     const view = mountPlaces({ stage: 'playing' });
     screen.getByTestId('multiplayer-open-commands').click();
     expect(view.place()).toBe('commands');
-    expect(ids(...GAME_COMMANDS)).toEqual([
+    // A few commands are a sheet over the live board, never a page.
+    const menu = screen.getByRole('dialog', { name: 'Game menu' });
+    expect(
+      GAME_COMMANDS.filter((name) => within(menu).queryByTestId(name) !== null)
+    ).toEqual([
       'multiplayer-offer-draw',
       'multiplayer-flip-board',
       'multiplayer-open-moves',
       'multiplayer-resign',
     ]);
-    expect(ids('slot-board')).toEqual([]);
-    const sections = view.container.querySelectorAll(
-      '[data-component="MenuSection"]'
-    );
+    expect(ids('slot-board')).toEqual(['slot-board']);
+    const sections = menu.querySelectorAll('[data-component="MenuSection"]');
     expect(sections).toHaveLength(2);
     expect(
       sections[1]?.contains(screen.getByTestId('multiplayer-resign'))
     ).toBe(true);
-    expect(screen.getByTestId('multiplayer-offer-draw').textContent).toBe(
+    expect(within(menu).getByTestId('multiplayer-offer-draw').textContent).toBe(
       'Offer a multiplayer draw'
     );
-    expect(screen.getByTestId('multiplayer-resign').textContent).toBe(
+    expect(within(menu).getByTestId('multiplayer-resign').textContent).toBe(
       'Resign multiplayer game'
     );
   });
@@ -318,6 +326,7 @@ describe('play holds the board and one way to the commands', () => {
     expect(view.place()).toBe('stage');
   });
 
+  // regression: multiplayer-result-covers-confirmation
   test('resigning only asks, and the confirmation outlives the game ending under it', () => {
     const view = mountPlaces({ stage: 'playing', open: 'commands' });
     screen.getByTestId('multiplayer-resign').click();
@@ -330,6 +339,9 @@ describe('play holds the board and one way to the commands', () => {
     view.setStage('finished');
     expect(view.place()).toBe('result');
     expect(screen.getByTestId('multiplayer-confirm')).toBe(confirm);
+    expect(screen.queryByTestId('game-result-close')).toBeNull();
+    view.set({ confirming: null });
+    expect(screen.getByTestId('game-result-close')).toBeTruthy();
   });
 
   test('a watcher is offered only their own board and the moves', () => {
@@ -515,18 +527,25 @@ describe('the result', () => {
       stage: 'finished',
       props: {
         game: FINISHED,
-        result: { tone: 'lost', title: 'Your opponent won.' },
+        result: { tone: 'lost', title: 'You lost' },
       },
     });
     const text = () =>
       screen.getByTestId('multiplayer-announcement').textContent;
     expect(text()).toContain('Defeat');
-    view.set({ result: { tone: 'drawn', title: 'Drawn.' } });
+    view.set({ result: { tone: 'drawn', title: 'The game was drawn' } });
     expect(text()).toContain('Draw');
-    view.set({ result: { tone: 'neutral', aborted: true, title: 'Aborted.' } });
-    expect(text()).toContain('No result');
-    view.set({ result: { tone: 'neutral', title: 'alice won.' } });
-    expect(text()).toContain('Game over');
+    view.set({
+      result: { tone: 'neutral', aborted: true, title: 'The game was aborted' },
+    });
+    expect(text()).toContain('Aborted');
+    // A watcher's draw is a draw too, though it is neither theirs to win nor lose.
+    view.set({
+      result: { tone: 'neutral', drawn: true, title: 'The game was drawn' },
+    });
+    expect(text()).toContain('Draw');
+    view.set({ result: { tone: 'neutral', title: 'alice won' } });
+    expect(text()).toContain('Final result');
   });
 
   test('Back from the ratings returns to where they were opened from', () => {

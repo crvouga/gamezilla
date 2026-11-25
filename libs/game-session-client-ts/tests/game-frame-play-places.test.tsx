@@ -4,7 +4,7 @@ import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
 import type { StageOverlayEvent } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup, fireEvent, screen, within } from '@solidjs/testing-library';
-import { untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
 import {
   frameProps,
   mountFrame,
@@ -50,6 +50,17 @@ const over = (place: CustomGamePlace = { screen: 'result' }) =>
       standings: [],
     },
   });
+
+// regression: offline-local-game-connection-state-missing
+// regression: offline-local-chess-turn-hidden
+test('White can see their turn in an offline local game against a bot', () => {
+  mountFrame(() => frameProps({ connection: 'offline-local' }), 390);
+  expect(screen.getByTestId('custom-game-status').textContent).toContain(
+    'Your turn.'
+  );
+  expect(screen.getByText(/Your local game can continue/)).toBeDefined();
+  expect(shown('custom-game-connection-needed')).toBe(false);
+});
 
 describe('the play place', () => {
   // regression: replay-controls-heavy-live
@@ -98,6 +109,26 @@ describe('the play place', () => {
     fireEvent.click(screen.getByTestId('custom-game-resign-now'));
     expect(chosen).toHaveLength(1);
     expect(view.queryByRole('dialog')).not.toBeNull();
+  });
+
+  // regression: custom-game-result-covers-resign-done
+  test('the result opens after the resigning player dismisses Done', async () => {
+    const [finished, setFinished] = createSignal(false);
+    mountFrame(() =>
+      finished()
+        ? over()
+        : frameProps({
+            onChoose: async () => {
+              setFinished(true);
+            },
+          })
+    );
+    fireEvent.click(screen.getByTestId('custom-game-resign-now'));
+    fireEvent.click(screen.getByTestId('custom-game-resign-confirm'));
+    const done = await screen.findByTestId('custom-game-resign-done');
+    expect(shown('game-result-close')).toBe(false);
+    fireEvent.click(done);
+    expect(await screen.findByTestId('game-result-close')).toBeDefined();
   });
 
   test('someone who may neither offer a draw nor resign is shown neither', () => {
@@ -362,6 +393,12 @@ describe('the play place', () => {
     );
     expect(shown('custom-game-agree')).toBe(true);
     expect(shown('custom-game-reject')).toBe(true);
+    // regression: draw-offer-drops-turn-highlight — the person's seat lost
+    // its turn tint while the offer waited, though the board still took
+    // their move (playing on declines it). It stays the seat to move.
+    expect(
+      screen.getByTestId('custom-game-white').getAttribute('aria-current')
+    ).toBe('step');
   });
 
   test('pressing a move opens the moves place at it and never rewinds the live board', () => {
@@ -393,8 +430,9 @@ describe('the game menu', () => {
   // regression: history-link-moves-around
   // "History and stats" sat at the record's title, in its disclosure, and
   // beside Resign. During play it is one row of the game menu.
-  test('holds every command as a row, History and stats among them, once', () => {
+  test('holds every command as a row, History and stats among them, once, in a sheet over the live board', () => {
     mountFrame(() => frameProps({ place: { screen: 'commands' } }));
+    const menu = screen.getByRole('dialog', { name: 'Game menu' });
     for (const row of [
       'custom-game-offer',
       'custom-game-review-moves',
@@ -402,10 +440,11 @@ describe('the game menu', () => {
       'custom-game-resign',
       'custom-game-resume',
     ])
-      expect(screen.getAllByTestId(row)).toHaveLength(1);
+      expect(within(menu).getAllByTestId(row)).toHaveLength(1);
+    // A few commands are a sheet, never a page: the board stays behind it.
     expect(
       document.querySelector('[data-component="GameBoardStage"]')
-    ).toBeNull();
+    ).not.toBeNull();
   });
 
   test('a draw that may not be offered yet says when it may', () => {
@@ -512,14 +551,14 @@ describe('the result place', () => {
     );
   });
 
-  test('on a phone the standings fold behind their own control beside the board', () => {
+  test('on a phone the ending is a dialog with the standings open in it', () => {
     mountFrame(() => over(), 390);
-    const toggle = screen.getByTestId('game-result-overlay-details');
-    expect(toggle.textContent).toContain('Standings');
-    expect(toggle.getAttribute('aria-expanded')).toBe('false');
-    fireEvent.click(toggle);
-    expect(toggle.getAttribute('aria-expanded')).toBe('true');
-    expect(screen.getByTestId('custom-game-result')).toBeTruthy();
+    const dialog = screen.getByRole('dialog', { name: 'Game over' });
+    // The dialog has room: the standings show in full, behind no control.
+    expect(screen.queryByTestId('game-result-overlay-details')).toBeNull();
+    expect(dialog.contains(screen.getByTestId('custom-game-result'))).toBe(
+      true
+    );
     expect(shown('game-result-overlay-dismiss')).toBe(false);
   });
 
@@ -550,9 +589,12 @@ describe('the result place', () => {
       result: null,
       status: status({ description: 'Game cancelled.', emphasis: 'neutral' }),
     }));
-    expect(
-      screen.getByTestId('custom-game-result-headline').textContent
-    ).toContain('Game cancelled.');
+    expect(screen.getByTestId('custom-game-result-headline').textContent).toBe(
+      'The game was cancelled'
+    );
+    const outcome = screen.getByTestId('custom-game-outcome').textContent;
+    expect(outcome).toContain('Cancelled');
+    expect(outcome).toContain('Nobody won; the game was stopped');
     expect(shown('custom-game-new')).toBe(true);
   });
 });

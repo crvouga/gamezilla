@@ -24,9 +24,9 @@ const COPY: Readonly<Record<string, () => string>> = {
   'unlock.rated.limit.title': () => t`You've hit today's puzzle limit`,
   'unlock.rated.limit.body': () =>
     t`Sign in free for unlimited puzzles, or come back tomorrow.`,
-  'unlock.matched.keep-playing.title': () => t`Sign in to keep playing`,
+  'unlock.matched.keep-playing.title': () => t`You've used today's free games`,
   'unlock.matched.keep-playing.body': () =>
-    t`Accounts play unlimited matched games and keep their rating. As a guest, new free games start at midnight UTC.`,
+    t`Sign in to keep playing: accounts play unlimited matched games and keep their rating. Or come back after midnight UTC for new free games.`,
   'unlock.account.title': () => t`Sign in to continue`,
   'unlock.friends.title': () => t`Sign in to add friends`,
   'unlock.friends.body': () =>

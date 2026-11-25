@@ -78,6 +78,8 @@ export type ButtonProps = {
   'aria-current'?: boolean | undefined;
   /** A disclosure: whether what it shows is open. */
   'aria-expanded'?: boolean | undefined;
+  /** It opens a menu or a dialog (a menu button's or a sheet's trigger). */
+  'aria-haspopup'?: 'menu' | 'dialog' | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
   /** From `createFocusTarget()`: lets the screen move focus to this button. */
@@ -174,6 +176,7 @@ export function Button(props: ButtonProps): JSX.Element {
       aria-pressed={ariaBoolean(props['aria-pressed'])}
       aria-current={ariaBoolean(props['aria-current'])}
       aria-expanded={ariaBoolean(props['aria-expanded'])}
+      aria-haspopup={props['aria-haspopup']}
       style={flexStyle}
     >
       <span class="box shrink min-w-0 flex-row items-center justify-center overflow-hidden">

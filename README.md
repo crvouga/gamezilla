@@ -23,6 +23,16 @@ The step catalogs — [`docs/STEPS_CATALOG.md`](docs/STEPS_CATALOG.md) and each 
 
 Public source, not open source: [`LICENSE`](LICENSE) reserves all rights, and [`CONTRIBUTING.md`](CONTRIBUTING.md) explains that outside contributions are not accepted. Repository: `external.sourceRepository` in the product identity. Package manager: Bun `1.4.2` (`mise.toml`; 1.3.x fails wildcard `.tsx` subpaths on CI). Node `>= 22`. Language of the app: English. Day boundary for limits: midnight UTC. Primary client: a phone's Chrome, including low-end Android (~2 GB). Not desktop-first, and not Capacitor.
 
+## Market research
+
+Keep market research in the package that owns the product area, under `docs/MARKET_RESEARCH.md`. If one package owns several areas with separate research, use `docs/<area>/MARKET_RESEARCH.md` for each. Choose one owner when several packages implement the same experience. Link to its research from the other packages.
+
+Start the document with a plain-text Markdown title (`# Account recovery`, for example). Name the task a person wants to complete. Identify competing products and publishers, date each observation, and link to its source. For visual comparisons, include a captioned screenshot of the relevant interaction. Record what you observed, what you inferred, and which questions remain open.
+
+Update the same document when competitors change, new evidence answers a question, or the team revisits a decision. Link each decision to the comparison that informed it and to verification of the result when available.
+
+`bun install` generates the local domain index at `docs/MARKET_RESEARCH_INDEX.md`. Run `bun run research:index` after adding, renaming, editing, or removing research. The generator discovers documents by filename and uses their titles as index entries. Commit the source documents. Git ignores the generated index.
+
 ## Words
 
 Scenarios name people (Alice, Bob) or a role (a guest, a member). The shared kernel is person, device, fresh device, the app, connection (offline / back online), and the team (the people who run the product).

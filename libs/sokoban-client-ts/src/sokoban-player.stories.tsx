@@ -13,6 +13,10 @@ import {
 
 const openLibrary = fn();
 
+/** A refused move floats in the page's alerts, outside the story's canvas. */
+const alerts = (canvasElement: HTMLElement) =>
+  within(canvasElement.ownerDocument.body);
+
 const meta = {
   id: 'screens-games-sokoban-puzzle',
   title: 'Screens/Space/Boards/Sokoban/Puzzle',
@@ -146,13 +150,13 @@ export const BlockedMove: Story = {
     (await canvas.findByTestId('sokoban-board')).focus();
     await userEvent.keyboard('{ArrowLeft}');
     await expect(
-      await canvas.findByTestId('sokoban-refusal')
+      await alerts(canvasElement).findByTestId('sokoban-refusal')
     ).toHaveTextContent("The worker's way is blocked.");
     await expect(args.onAction).not.toHaveBeenCalled();
     // regression: sokoban-zero-moves-undo-guidance
-    await expect(canvas.getByTestId('sokoban-refusal')).not.toHaveTextContent(
-      'undo'
-    );
+    await expect(
+      alerts(canvasElement).getByTestId('sokoban-refusal')
+    ).not.toHaveTextContent('undo');
   },
 };
 
@@ -162,7 +166,9 @@ export const SolveWithKeyboard: Story = {
     const canvas = within(canvasElement);
     (await canvas.findByTestId('sokoban-board')).focus();
     await userEvent.keyboard('{ArrowLeft}');
-    await expect(await canvas.findByTestId('sokoban-refusal')).toBeVisible();
+    await expect(
+      await alerts(canvasElement).findByTestId('sokoban-refusal')
+    ).toBeVisible();
     for (const key of [
       'ArrowRight',
       'ArrowRight',
@@ -186,7 +192,7 @@ export const SolveWithKeyboard: Story = {
       'All crates are on goals'
     );
     await expect(
-      canvas.queryByTestId('sokoban-refusal')
+      alerts(canvasElement).queryByTestId('sokoban-refusal')
     ).not.toBeInTheDocument();
   },
 };
@@ -198,7 +204,9 @@ export const LetterKeyRecovery: Story = {
     const board = canvas.getByTestId('sokoban-board');
     board.focus();
     await userEvent.keyboard('a');
-    await expect(canvas.getByTestId('sokoban-refusal')).toBeVisible();
+    await expect(
+      alerts(canvasElement).getByTestId('sokoban-refusal')
+    ).toBeVisible();
     await userEvent.keyboard('dd');
     await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
       'data-pushes',
@@ -244,7 +252,9 @@ export const CornerRecovery: Story = {
     const board = canvas.getByTestId('sokoban-board');
     board.focus();
     await userEvent.keyboard('{ArrowLeft}{ArrowLeft}');
-    await expect(canvas.getByTestId('sokoban-refusal')).toBeVisible();
+    await expect(
+      alerts(canvasElement).getByTestId('sokoban-refusal')
+    ).toBeVisible();
     await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
       'data-moves',
       '1'
@@ -256,11 +266,11 @@ export const CornerRecovery: Story = {
     );
     // regression: sokoban-history-stale-refusal
     await expect(
-      canvas.queryByTestId('sokoban-refusal')
+      alerts(canvasElement).queryByTestId('sokoban-refusal')
     ).not.toBeInTheDocument();
     await userEvent.click(canvas.getByRole('button', { name: 'Redo' }));
     await expect(
-      canvas.queryByTestId('sokoban-refusal')
+      alerts(canvasElement).queryByTestId('sokoban-refusal')
     ).not.toBeInTheDocument();
     await expect(canvas.getByTestId('sokoban-counts')).toHaveAttribute(
       'data-pushes',

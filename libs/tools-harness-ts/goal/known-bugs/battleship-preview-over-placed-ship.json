@@ -1,0 +1,4 @@
+{
+  "summary": "Placing the Battleship on a phone, its dashed preview lay over the placed Carrier as though it fitted; a preview over occupied cells now reads as refused (⊘, alert tone) and the setup guidance says the spot is taken.",
+  "regressionTest": "libs/battleship-client-ts/tests/setup-board.test.tsx"
+}

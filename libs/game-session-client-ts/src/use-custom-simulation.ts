@@ -39,6 +39,8 @@ export function useCustomSimulation(
   const [error, setError] = createSignal(false);
   const [steering, setSteering] = createSignal<Steering>({});
   const [elsewhere, setElsewhere] = createSignal(false);
+  // Reopening after the engine stopped starts the execution afresh.
+  const [attempt, setAttempt] = createSignal(0);
   let connection: ReturnType<typeof connectCustomSimulation> | null = null;
   const key = useSimulationKey(current, myId);
   const connect = (room: SpaceOpenRoomEntry['room']): (() => void) => {
@@ -69,7 +71,7 @@ export function useCustomSimulation(
     };
   };
   createEffect(
-    () => ({ room: entry()?.room, id: key() }),
+    () => ({ attempt: attempt(), room: entry()?.room, id: key() }),
     (now) => {
       setPosition(null);
       setError(false);
@@ -84,27 +86,17 @@ export function useCustomSimulation(
     elsewhere,
     clientId: () => entry()?.clientId,
   });
-  const controls = createMemo<GameSimulationControls>(() => {
-    const claim = connection?.claim;
-    // Handlers keep the sides these controls offer: a board releasing its
-    // input while it is disposed must not read (and so rerun) the tree.
-    const here = sides.here();
-    return {
-      paused: paused(),
-      stale: stale(),
-      sides: here,
-      elsewhere: sides.elsewhere(),
-      ...(claim === undefined || elsewhere() ? {} : { claim }),
-      onInput: (side, input) => {
-        if (here.includes(side)) connection?.replica.control(side, input);
-      },
-      onRelease: () => connection?.replica.release(),
-    };
+  const controls = useSimulationControls(() => connection, sides, {
+    paused,
+    stale,
+    elsewhere,
   });
   return {
     position,
     controls,
     error,
+    /** Starts the stopped game's engine again from the saved score. */
+    restart: () => setAttempt((n) => n + 1),
     active: () => key() !== '',
     chooseLocal: (choice: CustomGameChoice) =>
       connection?.chooseLocal(choice) ?? null,
@@ -112,6 +104,35 @@ export function useCustomSimulation(
 }
 
 type Steering = Readonly<Record<string, string>>;
+
+/** What the board may do with the running execution, on this device. */
+function useSimulationControls(
+  connection: () => ReturnType<typeof connectCustomSimulation> | null,
+  sides: ReturnType<typeof useSteeredSides>,
+  state: {
+    readonly paused: Accessor<boolean>;
+    readonly stale: Accessor<boolean>;
+    readonly elsewhere: Accessor<boolean>;
+  }
+): Accessor<GameSimulationControls> {
+  return createMemo<GameSimulationControls>(() => {
+    const claim = connection()?.claim;
+    // Handlers keep the sides these controls offer: a board releasing its
+    // input while it is disposed must not read (and so rerun) the tree.
+    const here = sides.here();
+    return {
+      paused: state.paused(),
+      stale: state.stale(),
+      sides: here,
+      elsewhere: sides.elsewhere(),
+      ...(claim === undefined || state.elsewhere() ? {} : { claim }),
+      onInput: (side, input) => {
+        if (here.includes(side)) connection()?.replica.control(side, input);
+      },
+      onRelease: () => connection()?.replica.release(),
+    };
+  });
+}
 
 /** Which live execution the screen shows: '' while none runs. */
 function useSimulationKey(

@@ -2,6 +2,7 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from '@solidjs/web';
+import { Show } from 'solid-js';
 
 export type EndSpaceConfirmModalProps = {
   visible: boolean;
@@ -10,6 +11,8 @@ export type EndSpaceConfirmModalProps = {
   operation: () => Promise<void>;
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
   onSuccess?: (() => void) | undefined;
+  /** The space's name, so the question says which space it ends. */
+  spaceName?: string | undefined;
 };
 
 /** Confirm-end shell (space-agnostic; action wiring lives at the call site). */
@@ -23,9 +26,16 @@ export function EndSpaceConfirmModal(
     <MutationModal
       visible={props.visible}
       onClose={props.onClose}
-      title={<Trans>End space?</Trans>}
+      title={
+        <Show when={props.spaceName} fallback={<Trans>End this space?</Trans>}>
+          {(name) => <Trans>End {name()}?</Trans>}
+        </Show>
+      }
       message={
-        <Trans>Everyone will leave this space. This cannot be undone.</Trans>
+        <Trans>
+          Everyone in it leaves and the space closes for good. This can't be
+          undone.
+        </Trans>
       }
       submitLabel={<Trans>End space</Trans>}
       variant="destructive"
@@ -33,7 +43,7 @@ export function EndSpaceConfirmModal(
       onSuccess={onSuccess}
       loadingLabel={<Trans>Ending space…</Trans>}
       successTitle={<Trans>Space ended</Trans>}
-      successBody={<Trans>Everyone has been returned to the lobby.</Trans>}
+      successBody={<Trans>Everyone in it is back in Spaces.</Trans>}
       errorTitle={<Trans>Couldn't end space</Trans>}
       stackId="end-space-confirm"
       submitDataSet={{ testid: Handles.spaceEndConfirm }}

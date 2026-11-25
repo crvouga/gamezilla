@@ -42,6 +42,7 @@ function AuthorStage(props: {
   document: ContentDocument;
   workspace: ContentAuthorWorkspace;
 }): JSX.Element {
+  const nav = useContentPlace();
   return (
     <Show
       when={props.document.kind === 'pack'}
@@ -49,6 +50,7 @@ function AuthorStage(props: {
         <ContentAuthorStage
           writer={props.workspace.writer}
           disabled={props.workspace.adopting() !== null}
+          onChooseCopy={() => nav.open({ screen: 'copies' })}
         />
       }
     >

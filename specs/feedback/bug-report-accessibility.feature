@@ -10,6 +10,7 @@ Feature: Report a bug with the keyboard alone and by listening
     Background:
       Given Alice is using the keyboard alone
 
+    @regression:feedback-dialog-host-focus
     Scenario: A person using the keyboard alone opens a bug report
       When Alice chooses to report a bug
       Then Alice has one bug report open

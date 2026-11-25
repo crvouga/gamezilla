@@ -80,8 +80,10 @@ test('wall modes, target and confirmation share the working board container', ()
   // regression: quoridor-split-wall-editing
   // regression: quoridor-detached-wall-controls
   const { view } = mountBoard();
-  const board = view.getByTestId('precision');
-  expect(board.nextElementSibling).toBe(view.getByTestId('precision-tools'));
+  const board = view
+    .getByTestId('precision')
+    .closest('[data-quoridor-surface]');
+  expect(board?.nextElementSibling).toBe(view.getByTestId('precision-tools'));
   expect(
     view
       .getByTestId('precision-tools')
@@ -92,7 +94,7 @@ test('wall modes, target and confirmation share the working board container', ()
   fireEvent.click(view.getByTestId('precision-mode-h'));
   fireEvent.click(view.getByTestId('precision-action-d4h'));
   const commit = view.getByTestId('precision-wall-commit');
-  expect(commit.parentElement?.parentElement).toBe(board.parentElement);
+  expect(commit.parentElement?.parentElement).toBe(board?.parentElement);
   expect(view.getAllByTestId('precision-mode-h')).toHaveLength(1);
   view.unmount();
 });
@@ -101,7 +103,7 @@ test('Classic goal row and Hill center do not use the heavy physical outline', (
   // regression: quoridor-goal-resembles-wall
   for (const mode of ['classic', 'hill'] as const) {
     const game = playQuoridor(newQuoridor(mode), 'd4h')!;
-    const cells = quoridorBoardCells(game, 'move', true, null);
+    const cells = quoridorBoardCells(game, 'move', true);
     const goals = cells.filter((cell) => cell.goal);
     expect(goals).toHaveLength(mode === 'classic' ? 9 : 1);
     expect(goals.every((cell) => cell.outlined === false)).toBe(true);

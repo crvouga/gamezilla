@@ -22,7 +22,10 @@ import type {
 } from './multiplayer-game-view';
 import { MultiplayerGuideView } from './multiplayer-guide-view';
 import { MultiplayerMovesView } from './multiplayer-moves-view';
-import { MultiplayerNotices } from './multiplayer-notices';
+import {
+  MultiplayerNotices,
+  MultiplayerOfflineLine,
+} from './multiplayer-notices';
 import {
   MultiplayerOverlayView,
   type MultiplayerResultShown,
@@ -167,6 +170,15 @@ function frameOf(props: Props): MultiplayerPlaceFrame {
           denial={props.commandDenial}
           error={props.error}
           online={props.online}
+          searching={props.stage === 'searching'}
+          docked={props.place.screen === 'home' && props.returnTo === undefined}
+          // The live stage (its menu is a sheet over it) says no
+          // connection on its own status line.
+          playing={
+            props.stage === 'playing' &&
+            (props.place.screen === 'stage' ||
+              props.place.screen === 'commands')
+          }
         />
       );
     },
@@ -193,6 +205,10 @@ function FindPlace(props: Props): JSX.Element {
       title={props.title}
       goal={props.goal}
       find={props.find}
+      findRefused={props.commandDenial !== undefined || !props.online}
+      offline={!props.online}
+      forward={props.online ? props.commandDenial?.action : undefined}
+      denial={props.returnTo === undefined ? props.commandDenial : undefined}
       ratings={props.ratings}
       onOpen={props.onOpen}
       onFind={props.onFind}
@@ -228,6 +244,7 @@ function SearchingPlace(props: Props): JSX.Element {
           goal={props.goal}
           search={search()}
           onStop={props.onStop}
+          offline={!props.online}
         />
       )}
     </Show>
@@ -270,10 +287,17 @@ function PlayPlace(props: Props): JSX.Element {
               result={undefined}
             />
           )}
-          status={props.status}
+          // No connection holds the game up: said on the status line, where
+          // it stays in view and covers no seat.
+          status={
+            <Show when={props.online} fallback={<MultiplayerOfflineLine />}>
+              {props.status}
+            </Show>
+          }
           game={game()}
           commands={props.commands}
           onOpen={props.onOpen}
+          offline={!props.online}
         />
       )}
     </Show>
@@ -326,11 +350,12 @@ function ResultPlace(props: Props): JSX.Element {
           board={props.board}
           overlay={props.overlay}
           onOverlay={props.onOverlay}
-          result={props.result}
+          result={props.confirming === null ? props.result : undefined}
           game={game()}
           commands={props.commands}
           online={props.online}
           onOpen={props.onOpen}
+          onLeave={props.onLeave}
         />
       )}
     </Show>
@@ -366,6 +391,8 @@ function Places(props: Props): JSX.Element {
         <PlayPlace {...props} />
       </Match>
       <Match when={props.place.screen === 'commands'}>
+        {/* The game's menu is a sheet over the live stage. */}
+        <PlayPlace {...props} />
         <CommandsPlace {...props} />
       </Match>
       <Match when={props.place.screen === 'moves'}>

@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×844 Offer draw and Resign competed with Play word during placement.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

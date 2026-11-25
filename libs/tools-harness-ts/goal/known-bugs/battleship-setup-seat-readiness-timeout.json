@@ -1,0 +1,4 @@
+{
+  "summary": "The fresh Battleship journey timed out reading the white readiness label to identify its own fleet despite having a near seat marked with its side.",
+  "regressionTest": "libs/runtime-harness-ts/tests/private-setup-connection.test.ts"
+}

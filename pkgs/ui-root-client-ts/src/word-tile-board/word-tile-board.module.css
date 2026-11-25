@@ -93,10 +93,12 @@
 }
 .cell:focus-visible {
   /* Two tones, so the ring stands out on dark empty squares, light bonus
-     squares and tiles alike. */
-  outline: 2px solid var(--ui-color-board-card-face);
-  outline-offset: -2px;
-  box-shadow: inset 0 0 0 4px var(--ui-color-board-card-ink);
+     squares and tiles alike. It rings the square from outside, over the
+     hairline and its neighbours' edges, so a tile's letter and value stay
+     whole under it. */
+  outline: 2px solid var(--ui-color-board-card-ink);
+  outline-offset: 0;
+  box-shadow: 0 0 0 4px var(--ui-color-board-card-face);
   z-index: 1;
 }
 .cell[data-square="DL"] {
@@ -163,17 +165,48 @@
   overscroll-behavior: contain;
 }
 .viewport[data-enlarged="true"] {
+  /* One square and the hairline after it. */
+  --word-tile-pitch: calc(
+    var(--word-tile-cell-size, var(--ui-control-size-md)) +
+    var(--ui-space-hairline)
+  );
   /* A wide word workspace shows as much of the enlarged board as the fitted
-     one would take. */
-  height: var(--word-tile-enlarged-height, calc(var(--ui-control-size-md) * 7));
-  min-height: calc(var(--ui-control-size-md) * 7);
+     one would take, cut to whole squares: past the sticky row and column
+     labels the window holds whole columns and rows, never a sliver at an
+     edge, and scrolling snaps a square to each labelled edge. */
+  width: calc(
+    var(--ui-space-4) +
+    round(down, 100% - var(--ui-space-4), var(--word-tile-pitch))
+  );
+  --word-tile-seven-rows: calc(var(--ui-space-6) + var(--word-tile-pitch) * 7);
+  height: calc(
+    var(--ui-space-6) +
+    round(
+      down,
+      var(--word-tile-enlarged-height, var(--word-tile-seven-rows)) -
+      var(--ui-space-6),
+      var(--word-tile-pitch)
+    )
+  );
+  min-height: calc(
+    var(--ui-space-6) +
+    round(
+      down,
+      var(--word-tile-enlarged-least, var(--word-tile-seven-rows)) -
+      var(--ui-space-6),
+      var(--word-tile-pitch)
+    )
+  );
+  scroll-snap-type: both mandatory;
 }
 .board[data-enlarged="true"] {
   width: max-content;
   max-width: none;
+  /* No padding, so the first and last squares meet the window's edges. */
+  padding: 0;
   grid-template-columns: var(--ui-space-4) repeat(
       var(--word-tile-columns),
-      var(--ui-control-size-md)
+      var(--word-tile-cell-size, var(--ui-control-size-md))
     );
 }
 
@@ -194,8 +227,10 @@
   z-index: 3;
 }
 .board[data-enlarged="true"] .cell {
-  scroll-margin-top: var(--ui-space-6);
-  scroll-margin-left: var(--ui-space-6);
+  /* Clear of the sticky labels and their hairline, for focus and snapping. */
+  scroll-margin-top: calc(var(--ui-space-6) + var(--ui-space-hairline));
+  scroll-margin-left: calc(var(--ui-space-4) + var(--ui-space-hairline));
+  scroll-snap-align: start;
 }
 .header[data-axis="column"] {
   min-height: var(--ui-space-6);
@@ -214,10 +249,12 @@
 }
 
 /* A complete fitted puzzle board alongside its rack and target at desktop
-   height; a wide word workspace sets a larger size. */
+   height, on the left edge its target and controls share, just wide
+   enough (over 24rem inside its padding) that tiles keep their values. A word
+   workspace sets its own size and edge. */
 .board[data-measure="compact"][data-enlarged="false"] {
-  max-width: var(--word-tile-fitted-size, 23rem);
-  margin-inline: var(--word-tile-fitted-margin, auto);
+  max-width: var(--word-tile-fitted-size, 25rem);
+  margin-inline: var(--word-tile-fitted-margin, 0);
 }
 
 /* The same weight as the tier rules below, so each tier's fill wins. */

@@ -38,6 +38,11 @@ export function ModalHeader(props: ModalHeaderProps): JSX.Element {
 export type ModalBodyProps = {
   /** Plain copy; takes precedence over `children`. */
   message?: JSX.Element | undefined;
+  /**
+   * What the decision is about (a person's full handle), on its own line
+   * above `message`, so a long name never crowds the title.
+   */
+  subject?: JSX.Element | undefined;
   /** DOM `data-*` identifiers (`data-component`, `data-src`, …). */
   dataSet?: ComponentDataSet | undefined;
   children?: JSX.Element | undefined;
@@ -51,6 +56,11 @@ export function ModalBody(props: ModalBodyProps): JSX.Element {
       class="box mb-4"
       {...dataAttrs({ component: 'ModalBody', ...props.dataSet })}
     >
+      <Show when={props.subject}>
+        {(subject) => (
+          <p class="text textBodyBold text-text mb-1">{subject()}</p>
+        )}
+      </Show>
       <Show when={hasMessage()} fallback={props.children}>
         <p class="text textBody text-text-secondary">{props.message}</p>
       </Show>

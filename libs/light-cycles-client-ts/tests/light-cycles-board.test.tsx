@@ -306,7 +306,7 @@ test("a person's other device says it does not steer their rider and offers to r
     ride?.run();
     expect(claims).toBe(1);
     expect(session.line?.()).toBe(
-      'Round 1 · You ride Comet from another of your devices.'
+      'Round 1 · You ride Comet on another device.'
     );
     dispose();
   });

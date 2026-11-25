@@ -28,6 +28,7 @@ When('Alice moves the keyboard through the bug report', (w) =>
 When('Alice describes the bug as {string}', (w, description: string) =>
   w.apply(describeBug, description)
 );
+// regression: feedback-dialog-host-focus
 Then("Alice's keyboard is in the bug report", async (w) =>
   expect(await w.read(readKeyboardInBugReport)).toBe(true)
 );

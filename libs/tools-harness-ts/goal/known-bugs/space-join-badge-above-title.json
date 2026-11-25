@@ -1,0 +1,4 @@
+{
+  "summary": "The live invitation badge aligned to the top of the monogram.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
+}

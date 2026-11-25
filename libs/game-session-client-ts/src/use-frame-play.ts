@@ -12,6 +12,7 @@ import { FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
 import {
   BOARD_TEST_ID,
+  customGameDrawToAnswer,
   type FrameBoard,
   frameActionItems,
 } from './game-frame-play';
@@ -61,11 +62,7 @@ function drawFacts(
     offerAgainLater: offerable && declined,
     canOfferDraw: offerable && !declined && !frameViewerHeld(model),
     heldOfferDraw: offerable && !declined && frameViewerHeld(model),
-    canAnswerDraw:
-      playing &&
-      offer !== '' &&
-      offer !== model.myId() &&
-      !game.drawAcceptedBy.includes(model.myId()),
+    canAnswerDraw: customGameDrawToAnswer(model),
   };
 }
 

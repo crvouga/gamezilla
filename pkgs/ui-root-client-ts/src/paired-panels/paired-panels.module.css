@@ -24,6 +24,9 @@
   order: 1;
   justify-self: center;
   width: min(100%, 18rem);
+  position: sticky;
+  bottom: var(--ui-space-1);
+  z-index: 1;
 }
 /* Only side by side: behind the switch, the switch names the panel. */
 .title {

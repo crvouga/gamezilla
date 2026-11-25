@@ -21,6 +21,7 @@ Feature: Finding an opponent in every game
       When they are paired
       Then Alice and Bob receive the same new game on opposite sides
 
+    @regression:matchmaking-offline-search-notice
     Scenario: An offline account cannot seek an opponent
       Given Alice has an account without a connection
       When Alice seeks an opponent for the game
@@ -94,6 +95,7 @@ Feature: Finding an opponent in every game
       Then Alice is told she has no search to stop
       And Alice is not waiting for an opponent
 
+    @regression:matchmaking-offline-search-notice
     Scenario: An offline person keeps the search she cannot stop
       Given Alice is seeking an opponent for the game
       And Alice is offline

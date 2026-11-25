@@ -26,13 +26,27 @@ const meta = {
     onJoinPhaseChange: fn(),
     onLeave: fn(),
     onBackToSpaces: fn(),
+    onRetry: fn(() => Promise.resolve()),
   },
 } satisfies Meta<typeof SpaceJoinScreenView>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** A live space with guests: who hosts, who is there, and Join. */
-export const Live: Story = {};
+export const Live: Story = {
+  // regression: space-join-badge-above-title
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const title = await canvas.findByRole('heading', {
+      name: JOINED_SPACE.title,
+    });
+    const badge = canvas.getByText('Live').getBoundingClientRect();
+    const heading = title.getBoundingClientRect();
+    await expect(
+      Math.abs(badge.top + badge.bottom - heading.top - heading.bottom)
+    ).toBeLessThan(4);
+  },
+};
 
 /** A live space nobody has joined yet: no guest section, still Join. */
 export const LiveNoGuests: Story = {
@@ -46,16 +60,41 @@ export const CheckingHost: Story = { args: { connection: 'loading' } };
 export const JoinNotConfirmed: Story = { args: { joinPending: true } };
 
 /** Joining was tried without a connection: said plainly above the space. */
-export const JoinNeedsConnection: Story = { args: { needsConnection: true } };
+export const JoinNeedsConnection: Story = {
+  args: { needsConnection: true },
+  // The pair keeps every Join state's order: Back to Spaces outlined on
+  // the left, Reconnect and join filled on the right: the command says the
+  // connection is what it waits on, with or without the toast.
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const back = await canvas.findByRole('button', { name: 'Back to Spaces' });
+    await expect(back).toHaveAttribute('data-variant', 'outline');
+    const join = canvas.getByTestId(Handles.spaceJoin);
+    await expect(join).toHaveAttribute('data-variant', 'solid');
+    await expect(join).toHaveTextContent('Reconnect and join');
+  },
+};
 
-/** The device has nothing on this space and cannot ask the server. */
+/**
+ * The device has nothing on this space and cannot ask the server: Try again
+ * asks it, filled on the right, as in every recovery pair.
+ */
 export const Offline: Story = {
   args: {
     status: 'offline',
     connection: 'offline',
     needsConnection: true,
     space: null,
-    title: 'Space',
+    title: null,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const back = await canvas.findByRole('button', { name: 'Back to Spaces' });
+    await expect(back).toHaveAttribute('data-variant', 'outline');
+    await expect(canvas.getByTestId(Handles.spaceJoinRetry)).toHaveAttribute(
+      'data-variant',
+      'solid'
+    );
   },
 };
 
@@ -71,17 +110,17 @@ export const HostOfflineNotOnList: Story = {
 
 /** Still reading the space from this device or the server. */
 export const Loading: Story = {
-  args: { status: 'loading', space: null, title: 'Space' },
+  args: { status: 'loading', space: null, title: null },
 };
 
 /** Not the host's friend nor added: told so, never a dead Join. */
 export const Unavailable: Story = {
-  args: { status: 'unavailable', space: null, title: 'Space' },
+  args: { status: 'unavailable', space: null, title: null },
 };
 
 /** The server answered and there is no such space. */
 export const Missing: Story = {
-  args: { status: 'missing', space: null, title: 'Space' },
+  args: { status: 'missing', space: null, title: null },
 };
 
 /** Long titles and names truncate on the card and in the breadcrumb. */
@@ -96,4 +135,34 @@ export const Join: Story = {
     await userEvent.click(await canvas.findByTestId(Handles.spaceJoin));
     await expect(args.onJoin).toHaveBeenCalled();
   },
+};
+
+/** Presses the bar's Back to Spaces and checks it leaves for the lobby. */
+const pressBackToSpaces: NonNullable<Story['play']> = async ({
+  args,
+  canvasElement,
+}) => {
+  const canvas = within(canvasElement);
+  await userEvent.click(
+    await canvas.findByRole('button', { name: 'Back to Spaces' })
+  );
+  await expect(args.onBackToSpaces).toHaveBeenCalledTimes(1);
+};
+
+/** J10: offline, the bar's Back to Spaces leaves for the lobby. */
+export const OfflineBack: Story = {
+  args: { ...Offline.args },
+  play: pressBackToSpaces,
+};
+
+/** J10: a space that can't be joined, the bar's Back to Spaces leaves. */
+export const UnavailableBack: Story = {
+  args: { ...Unavailable.args },
+  play: pressBackToSpaces,
+};
+
+/** J10: a dead link, the bar's Back to Spaces leaves. */
+export const MissingBack: Story = {
+  args: { ...Missing.args },
+  play: pressBackToSpaces,
 };

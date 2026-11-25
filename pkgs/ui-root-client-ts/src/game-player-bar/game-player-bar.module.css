@@ -1,0 +1,113 @@
+/*
+ * A seat whose tags follow its name (`tagsPlacement="inline"`). The name,
+ * its swatch and the turn are one line that never wraps: a long name is cut
+ * short, never squeezed to nothing or broken a letter a line. The tags sit
+ * after it while the strip has the room; on a narrow strip (a phone's seat
+ * beside its clock) they always take a line of their own under the name, so
+ * the seat is the same height whoever is to move. A `line` seat
+ * (`tagsPlacement="line"`) is one line at every width (below).
+ */
+.identity {
+  container: seat-identity / inline-size;
+}
+.line {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  gap: var(--ui-space-1) var(--ui-space-2);
+  min-width: 0;
+}
+.who {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-width: 0;
+  max-width: 100%;
+}
+.name {
+  min-width: 3ch;
+}
+.name,
+.name * {
+  white-space: nowrap;
+}
+.name > * {
+  overflow-wrap: normal;
+}
+.line > .tags {
+  max-width: 100%;
+  overflow: hidden;
+}
+@container seat-identity (max-width: 240px) {
+  .line > .tags {
+    flex-basis: 100%;
+  }
+}
+/* `line`: one line, a tag's height. The name is its first item and is
+   never pushed off it (cut short only when longer than the whole line);
+   the turn's words and the tags after it are whole or gone: one that does
+   not fit wraps onto a second line, which the line's height hides. The
+   seat's tint and edge are its turn on the narrowest strip, its swatch its
+   side, so a five-letter name is never cut to make room for words. */
+.line.keep {
+  flex-wrap: wrap;
+  align-content: flex-start;
+  height: var(--ui-space-6);
+  overflow: hidden;
+}
+.line.keep > .who {
+  height: var(--ui-space-6);
+}
+/* Each tag is its own item of the line, so the seat drops only the tags
+   that do not fit, last first: an `Offline` beside a short name stays
+   when a second tag after it has no room. */
+.line.keep > .tags {
+  display: contents;
+}
+/* Every mark sits on the name's centre line: a `Badge` starts itself at
+   the top of a row, which lifts it above a name taller than the pill. */
+.line > *,
+.who > *,
+.tags > * {
+  align-self: center;
+}
+
+/* A seat's choices: a labelled pill, so it reads as "Change"
+   rather than an unexplained chevron. */
+.seatToggle {
+  display: inline-flex;
+  flex-direction: row;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  gap: var(--ui-space-1);
+  height: 36px;
+  padding-inline: var(--ui-space-3) var(--ui-space-2);
+  border: 1px solid var(--ui-color-border);
+  color: var(--ui-color-text);
+  position: relative;
+  white-space: nowrap;
+}
+.seatToggleLabel {
+  color: var(--ui-color-text);
+  font-weight: var(--ui-font-weight-semibold);
+  white-space: nowrap;
+}
+/* A 44px hit area around the 36px button. */
+.seatToggle::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--ui-space-1) * -1);
+}
+.seatToggle:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+.seatOptions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  padding: var(--ui-space-2) 0 var(--ui-space-3);
+  border-top: 1px solid var(--ui-color-border);
+}

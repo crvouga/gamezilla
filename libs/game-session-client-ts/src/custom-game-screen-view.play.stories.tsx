@@ -1,4 +1,4 @@
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { CustomGameScreenView } from './custom-game-screen-view';
 import { onBoard } from './game-frame-board.example';
@@ -130,7 +130,10 @@ export const Timed: Story = {
   },
 };
 
-/** Playing a bot: the opponent's seat shows the bot and its level. */
+/**
+ * Playing a bot: the opponent's seat shows the bot and its level. A draw
+ * needs two people, so no draw is offered.
+ */
 export const AgainstBot: Story = {
   args: {
     status: status({
@@ -141,6 +144,8 @@ export const AgainstBot: Story = {
       near: playSeat(AVERY, { deciding: true }),
       others: [playSeat(BOT)],
     },
+    // A bot answers no draw offer: only Resign and Game menu are offered.
+    play: { ...FRAME_NO_PLAY, canResign: true },
   },
 };
 
@@ -167,7 +172,11 @@ export const FourSeats: Story = {
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',
-      description: 'Secret choices: 1 of 2 made. Make yours on the board.',
+      // Secret choices are open, so the line is the game's own about
+      // them, never a plain "Your turn." beside a seat that says
+      // "Choosing" (`plainTurnLine`).
+      description: 'Secret choices: 2 of 3 made. Make yours on the board.',
+      plainTurn: false,
     }),
     table: {
       shape: 'rail',
@@ -278,7 +287,15 @@ export const ChoiceRefused: Story = {
 export const ChoiceRetried: Story = {};
 
 /** The game's own engine stopped: the saved score is kept and reopening recovers. */
-export const Stopped: Story = { args: { stopped: true } };
+export const Stopped: Story = {
+  args: { stopped: true, onReopen: fn() },
+  play: async ({ args, canvasElement }) => {
+    // The stopped game is told in the alerts that float over the screen.
+    const page = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await page.findByTestId('custom-game-reopen'));
+    await expect(args.onReopen).toHaveBeenCalled();
+  },
+};
 
 /** A long game lists only its latest moves; earlier ones are reached from the moves place. */
 export const LongRecord: Story = {

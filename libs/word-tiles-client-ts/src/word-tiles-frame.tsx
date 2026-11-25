@@ -68,11 +68,12 @@ export function wordTilesFrame(
 ): GameFrame<JSX.Element> {
   const sides = seatSides(seats);
   return {
-    seatLayout: 'compact-rail',
+    seatLayout: 'score-rail',
+    menuMatchCommands: true,
     compactInset: 'narrowest',
-    // The rack, the board and its view controls fit themselves, at the
-    // page's 16px edge: the fixed view's full-width board would put the
-    // rack against the screen's edge and the own seat under the commands.
+    // The rack, the board and its view controls lay themselves out: the
+    // fixed view never narrows them and keeps them off the screen's edge,
+    // at the seats' inset, scrolling inside the board's box when taller.
     boardWorkspace: true,
     drawOffers: true,
     players: { min: 2, max: 4, default: seats, modes: WORD_TILES_IDS },

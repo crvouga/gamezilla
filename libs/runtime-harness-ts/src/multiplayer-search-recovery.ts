@@ -50,8 +50,14 @@ export async function retirePreviousMultiplayer(ui: Driver): Promise<void> {
     return;
   // Aborting and resigning are among the game's commands, one press from
   // the board; whichever the game offers ends it.
-  await tap(ui, 'multiplayer-open-commands');
-  await tap(ui, await leavingCommand(ui));
+  try {
+    await tap(ui, 'multiplayer-open-commands');
+    await tap(ui, await leavingCommand(ui));
+  } catch (error) {
+    const outcome = await ui.get('multiplayer-game').attribute('data-outcome');
+    if (!outcome || outcome === 'ongoing') throw error;
+    return;
+  }
   await tap(ui, 'multiplayer-confirm');
   await ui
     .get('multiplayer-confirm')

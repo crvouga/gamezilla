@@ -35,6 +35,12 @@ export type ChessBoardProps = {
   showCoordinates?: boolean | undefined;
   /** Visible side, check and keyboard guidance beside a full playing board. */
   showGuidance?: boolean | undefined;
+  /**
+   * `full` (default): the side at the bottom, check, how to move and the
+   * keyboard help. `keyboard`: the keyboard help only, for a screen whose
+   * coach already says what to do.
+   */
+  guidanceDetail?: 'full' | 'keyboard' | undefined;
   /** Fit guidance and coordinates inside a square host, rather than adding height. */
   fitSquare?: boolean | undefined;
   /** Put expandable help after a width-driven puzzle board. Matches default to before. */

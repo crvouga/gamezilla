@@ -25,26 +25,25 @@ export type SpacesLobbyViewProps = {
   readonly hostedCount: number;
   /** Spaces to show, open-on-this-device first. */
   readonly spaces: readonly SpaceCardData[];
-  readonly onCreateSpace: () => void;
   readonly onOpenSpace: (spaceId: string) => void;
 };
 
-function SpacesEmptyState(props: {
-  readonly onCreateSpace: () => void;
-}): JSX.Element {
+/**
+ * Nothing to list yet. The screen's own New space (the header's button, a
+ * phone's floating one) is the one way to start: the empty state says where
+ * it is rather than offering a second button beside it.
+ */
+function SpacesEmptyState(): JSX.Element {
   return (
     <EmptyState
       icon={Gamepad2Icon}
       title={<Trans>No spaces yet</Trans>}
       body={
         <Trans>
-          Start a space to play with friends. Spaces you join show up here.
+          Start one with New space and invite friends to play. Spaces friends
+          share with you show up here too.
         </Trans>
       }
-      action={{
-        label: <Trans>Start a space</Trans>,
-        onClick: () => props.onCreateSpace(),
-      }}
     />
   );
 }
@@ -77,43 +76,25 @@ function SpacesGroupHeading(props: {
 }
 
 /**
- * A group's cards two by two. An odd count leads with its first card
- * across the full width (the one open here, or the newest), so the grid
- * never ends in an empty slot beside a lone card.
+ * A group's cards two by two, each one column wide: a lone card, or the
+ * last of an odd group, keeps its column on the page's leading edge
+ * instead of stretching across the page.
  */
 function SpacesCardGrid(props: {
   readonly spaces: readonly SpaceCardData[];
   readonly onOpenSpace: (spaceId: string) => void;
 }): JSX.Element {
-  const lead = createMemo(() =>
-    props.spaces.length % 2 === 1 ? props.spaces[0] : undefined
-  );
-  const paired = createMemo(() =>
-    lead() === undefined ? props.spaces : props.spaces.slice(1)
-  );
   return (
-    <StackVertical gap="md">
-      <Show when={lead()}>
+    <Grid columns={2} gap="md">
+      <For keyed={false} each={props.spaces}>
         {(space) => (
           <SpaceCardTileView
             space={space()}
             onOpen={() => props.onOpenSpace(space().spaceId)}
           />
         )}
-      </Show>
-      <Show when={paired().length > 0}>
-        <Grid columns={2} gap="md">
-          <For keyed={false} each={paired()}>
-            {(space) => (
-              <SpaceCardTileView
-                space={space()}
-                onOpen={() => props.onOpenSpace(space().spaceId)}
-              />
-            )}
-          </For>
-        </Grid>
-      </Show>
-    </StackVertical>
+      </For>
+    </Grid>
   );
 }
 
@@ -210,7 +191,7 @@ export function SpacesLobbyView(props: SpacesLobbyViewProps): JSX.Element {
       when={props.status === 'ready'}
       fallback={
         <StackVertical grow gap="md">
-          <LoadingState />
+          <LoadingState caption={<Trans>Loading your spaces…</Trans>} />
         </StackVertical>
       }
     >
@@ -224,7 +205,7 @@ export function SpacesLobbyView(props: SpacesLobbyViewProps): JSX.Element {
                 spaces={[]}
                 onOpenSpace={props.onOpenSpace}
               />
-              <SpacesEmptyState onCreateSpace={props.onCreateSpace} />
+              <SpacesEmptyState />
             </>
           }
         >

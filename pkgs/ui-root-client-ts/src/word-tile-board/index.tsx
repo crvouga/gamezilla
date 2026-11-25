@@ -17,7 +17,9 @@ import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
 import { BoardRows } from './word-tile-cell';
 import { WordTileOverview } from './word-tile-overview';
+import { WordTileSquareDetails } from './word-tile-square-details';
 import { WordTileViewControls } from './word-tile-view-controls';
+import { WordTileViewMenu } from './word-tile-view-menu';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
 export type WordTileSquare = 'DL' | 'TL' | 'DW' | 'TW' | 'start';
@@ -40,6 +42,11 @@ export type WordTileBoardCell = {
    * the square's printed name `3W`), then where it is and its state.
    */
   readonly label: string;
+  /**
+   * A short line for the chosen square's readout (`h8 · Start · Double
+   * word`); the readout shows `label` when absent.
+   */
+  readonly detail?: string | undefined;
   readonly enabled: boolean;
 };
 
@@ -51,6 +58,7 @@ function sameCell(a: WordTileBoardCell, b: WordTileBoardCell): boolean {
     a.square === b.square &&
     a.state === b.state &&
     a.label === b.label &&
+    a.detail === b.detail &&
     a.enabled === b.enabled
   );
 }
@@ -181,61 +189,201 @@ function createPrecisionCenter(
   return center;
 }
 
+/** What a board's view tools read and do. */
+type BoardView = {
+  readonly compact: () => boolean;
+  readonly enlarged: () => boolean;
+  readonly cells: () => readonly WordTileBoardCell[];
+  readonly viewport: () => HTMLDivElement | undefined;
+  /** The chosen square's whole name, for its details readout. */
+  readonly label: () => string;
+  /** The chosen square's short readout line, when its cell gives one. */
+  readonly detail: () => string | undefined;
+  readonly resize: (enlarged: boolean) => void;
+  readonly locate: (id: string) => void;
+};
+
+/** The enlarged board's overview; Find a square opens the whole-board locator. */
+function BoardOverview(props: {
+  board: WordTileBoardProps;
+  view: BoardView;
+  /** Beside a wide screen's enlarged board, the chosen square's readout. */
+  details?: boolean;
+}): JSX.Element {
+  return (
+    <WordTileOverview
+      board={props.board}
+      cells={props.view.cells}
+      viewport={props.view.viewport}
+      details={
+        props.details === true ? (
+          <WordTileSquareDetails
+            testId={props.board.testId}
+            label={props.view.label()}
+            detail={props.view.detail()}
+          />
+        ) : undefined
+      }
+      locator={(onChoose) => (
+        <WordTileBoard
+          {...props.board}
+          purpose="locator"
+          testId={`${props.board.testId}-map`}
+          label={t`Whole board locator`}
+          cells={props.view.cells().map((cell) => ({ ...cell, enabled: true }))}
+          onActivate={onChoose}
+        />
+      )}
+      onLocate={props.view.locate}
+    />
+  );
+}
+
+/** A phone's Board tools button and dialog: Fit, Enlarge and, enlarged, the overview. */
+function BoardViewMenu(props: {
+  board: WordTileBoardProps;
+  view: BoardView;
+  open: boolean;
+  onOpen: () => void;
+  onClose: () => void;
+}): JSX.Element {
+  return (
+    <WordTileViewMenu
+      testId={props.board.testId}
+      position={props.view.label()}
+      detail={props.view.detail()}
+      open={props.open}
+      onOpen={props.onOpen}
+      onClose={props.onClose}
+    >
+      <StackVertical gap="md">
+        <WordTileViewControls
+          enlarged={props.view.enlarged()}
+          onChange={props.view.resize}
+        />
+        <Show
+          when={props.view.enlarged()}
+          fallback={
+            <P variant="caption">{t`Enlarge the board to move around it by area or find a square.`}</P>
+          }
+        >
+          <BoardOverview board={props.board} view={props.view} />
+        </Show>
+      </StackVertical>
+    </WordTileViewMenu>
+  );
+}
+
+/**
+ * The board's view state: fitted or enlarged, the chosen square, and on a
+ * phone whether its Board tools dialog is open. A view choice made in that dialog
+ * closes it, and the square moves once it has let go of focus.
+ */
+function createBoardView(props: WordTileBoardProps) {
+  const [selectedIndex, setFocusIndex] = createSignal<number>();
+  const focusIndex = () => selectedIndex() ?? centreIndex(props);
+  const compact = createMediaQuery('(max-width: 639px)');
+  const [choice, setEnlarged] = createSignal<boolean>();
+  const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
+  const [viewing, setViewing] = createSignal(false);
+  const cells = createStableCells(() => props.cells);
+  // The board element, set once by its ref: not reactive.
+  let element: HTMLDivElement | undefined;
+  const root = (): HTMLDivElement | undefined => element;
+  const setRoot = (value: HTMLDivElement): void => {
+    element = value;
+  };
+  const [viewport, setViewport] = createSignal<HTMLDivElement>();
+  const center = createPrecisionCenter(viewport, root, enlarged, focusIndex);
+  const show = (index: number): void => {
+    setFocusIndex(index);
+    focusCell(root(), index);
+    center(index);
+  };
+  const view: BoardView = {
+    compact,
+    enlarged,
+    cells,
+    viewport,
+    label: () => cells()[focusIndex()]?.label ?? '',
+    detail: () => cells()[focusIndex()]?.detail,
+    resize: (value) => {
+      setViewing(false);
+      setEnlarged(value);
+      focusCellWhenSettled(root, focusIndex());
+    },
+    locate: (id) => {
+      const index = cells().findIndex((cell) => cell.id === id);
+      if (index < 0) return;
+      if (!viewing()) {
+        show(index);
+        return;
+      }
+      setViewing(false);
+      onSettled(() => show(index));
+    },
+  };
+  const onKey = boardKeyboard(props, (next) => {
+    setFocusIndex(next);
+    focusCell(element, next);
+  });
+  return {
+    view,
+    focusIndex,
+    setFocusIndex,
+    setRoot,
+    setViewport,
+    viewing,
+    setViewing,
+    onKey,
+  };
+}
+
 /**
  * A word-game board: a labelled grid of square buttons under column and row
  * headers. Empty squares print their bonus; tiles show their letter and
  * value, a tentative tile dashed and a last-turn tile ringed (each also in
  * its label, so colour never carries a state alone). One cell is the tab
  * stop; arrow keys move, Home / End go to a row's ends, Enter or Space
- * activates. Phones start with precision cells and a whole-board region navigator;
- * wider screens start fitted. An explicit view choice persists across resizing.
+ * activates. Phones start with precision cells, and keep Fit, Enlarge and a
+ * whole-board region navigator behind one Board tools button under the board;
+ * wider screens start fitted, with Fit and Enlarge beside the board. An
+ * explicit view choice persists across resizing.
  */
 export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
-  const [selectedIndex, setFocusIndex] = createSignal<number>();
-  const focusIndex = () => selectedIndex() ?? centreIndex(props);
-  const compact = createMediaQuery('(max-width: 639px)');
-  const [choice, setEnlarged] = createSignal<boolean>();
-  const enlarged = () => props.purpose !== 'locator' && (choice() ?? compact());
-  const cells = createStableCells(() => props.cells);
-  let root: HTMLDivElement | undefined;
-  const [viewport, setViewport] = createSignal<HTMLDivElement>();
-  const center = createPrecisionCenter(
-    viewport,
-    () => root,
-    enlarged,
-    focusIndex
-  );
-  const onKey = boardKeyboard(props, (next) => {
-    setFocusIndex(next);
-    focusCell(root, next);
-  });
-  const resize = (value: boolean): void => {
-    setEnlarged(value);
-    focusCellWhenSettled(() => root, focusIndex());
-  };
+  const state = createBoardView(props);
+  const { view } = state;
+  const placement = () => props.purpose !== 'locator';
+  const measure = () => props.measure ?? 'full';
   return (
     <StackVertical gap="none">
       {/* Wider than a phone, Fit and Enlarge stay in one place in both views. */}
-      <Show when={props.purpose !== 'locator' && (!enlarged() || !compact())}>
-        <WordTileViewControls enlarged={enlarged()} onChange={resize} />
+      <Show when={placement() && !view.compact()}>
+        <WordTileViewControls
+          enlarged={view.enlarged()}
+          onChange={view.resize}
+        />
       </Show>
-      <Show when={props.purpose === 'locator'}>
-        <P role="status">{cells()[focusIndex()]?.label}</P>
+      <Show when={!placement()}>
+        <P role="status">{view.label()}</P>
       </Show>
-      <div class={styles['precision']}>
+      <div
+        class={styles['precision']}
+        data-view-menu={String(placement() && view.compact())}
+      >
         <div
-          ref={setViewport}
+          ref={state.setViewport}
           class={styles['viewport']}
-          data-enlarged={String(enlarged())}
-          data-measure={props.measure ?? 'full'}
+          data-enlarged={String(view.enlarged())}
+          data-measure={measure()}
           role="region"
           aria-label={t`Scrollable word board`}
         >
           <div
-            ref={root}
+            ref={state.setRoot}
             class={styles['board']}
-            data-measure={props.measure ?? 'full'}
-            data-enlarged={String(enlarged())}
+            data-measure={measure()}
+            data-enlarged={String(view.enlarged())}
             role="group"
             aria-label={props.label}
             aria-describedby={props.describedBy}
@@ -245,48 +393,32 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           >
             <BoardRows
               board={props}
-              cells={cells}
-              focusIndex={focusIndex}
-              onFocusIndex={setFocusIndex}
-              onKey={onKey}
+              cells={view.cells}
+              focusIndex={state.focusIndex}
+              onFocusIndex={state.setFocusIndex}
+              onKey={state.onKey}
             />
           </div>
         </div>
-        <Show when={enlarged()}>
-          <WordTileOverview
-            board={props}
-            cells={cells}
-            viewport={viewport}
-            controls={
-              compact() ? (
-                <WordTileViewControls enlarged={enlarged()} onChange={resize} />
-              ) : undefined
-            }
-            position={cells()[focusIndex()]?.label ?? ''}
-            locator={(onChoose) => (
-              <WordTileBoard
-                {...props}
-                purpose="locator"
-                testId={`${props.testId}-map`}
-                label={t`Whole board locator`}
-                cells={cells().map((cell) => ({ ...cell, enabled: true }))}
-                onActivate={onChoose}
-              />
-            )}
-            onLocate={(id) => {
-              const index = cells().findIndex((cell) => cell.id === id);
-              if (index < 0) return;
-              setFocusIndex(index);
-              focusCell(root, index);
-              center(index);
-            }}
-          />
+        <Show when={view.enlarged() && !view.compact()}>
+          <BoardOverview board={props} view={view} details />
         </Show>
       </div>
-      <Show when={props.purpose !== 'locator' && !enlarged()}>
-        <P variant="caption" testId={`${props.testId}-square-details`}>
-          {cells()[focusIndex()]?.label}
-        </P>
+      <Show when={placement() && view.compact()}>
+        <BoardViewMenu
+          board={props}
+          view={view}
+          open={state.viewing()}
+          onOpen={() => state.setViewing(true)}
+          onClose={() => state.setViewing(false)}
+        />
+      </Show>
+      <Show when={placement() && !view.compact() && !view.enlarged()}>
+        <WordTileSquareDetails
+          testId={props.testId}
+          label={view.label()}
+          detail={view.detail()}
+        />
       </Show>
     </StackVertical>
   );

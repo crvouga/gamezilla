@@ -20,8 +20,8 @@ export type ActiveSpacesSheetProps = {
 };
 
 /**
- * Lists every live space the user is in. Bottom sheet on mobile, centered
- * modal on wider viewports. End/Leave requestors are injected from outside
+ * Lists every live space the user is in, in a modal centered on the
+ * screen at every width. End/Leave requestors are injected from outside
  * the portal so modal context is not dropped.
  */
 export function ActiveSpacesSheet(props: ActiveSpacesSheetProps): JSX.Element {

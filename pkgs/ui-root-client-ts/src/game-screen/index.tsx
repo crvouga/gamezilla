@@ -9,9 +9,7 @@ import {
 import styles from '../game-ui.module.css';
 import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
-import heading from './game-heading.module.css';
-import precision from './game-precision.module.css';
-import stageAlign from './game-stage-align.module.css';
+import componentStyles from './game-screen.module.css';
 
 /**
  * A game inside its host's chrome. The host's one top bar carries the back
@@ -62,7 +60,7 @@ export function GameScreen(props: {
       dataSet={{ ...props.dataSet, component: 'GameScreen' }}
     >
       <div
-        class={`${styles['column']} ${precision['column']}`}
+        class={`${styles['column']} ${componentStyles['column']}`}
         {...dataAttrs({ component: 'GameColumn' })}
       >
         <Show
@@ -76,12 +74,12 @@ export function GameScreen(props: {
           }
         >
           <div
-            class={heading['heading']}
+            class={componentStyles['heading']}
             data-keep-title={String(props.keepTitle === true)}
             {...dataAttrs({ component: 'GameHeading' })}
           >
             <div
-              class={heading['headingTitle']}
+              class={componentStyles['headingTitle']}
               {...dataAttrs({ component: 'GameHeadingTitle' })}
             >
               <ScreenIntro
@@ -90,7 +88,7 @@ export function GameScreen(props: {
                 actions={props.actions}
               />
             </div>
-            <div class={heading['facts']}>{facts.content()}</div>
+            <div class={componentStyles['facts']}>{facts.content()}</div>
           </div>
         </Show>
         {props.children}
@@ -177,9 +175,9 @@ export function GameLayout(props: {
         </Show>
         <div
           class={[
-            `${styles['stage']} ${precision['stage']}`,
+            `${styles['stage']} ${componentStyles['stage']}`,
             {
-              [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+              [componentStyles['centred'] ?? '']: props.stageAlign === 'center',
             },
           ]}
           data-game-slot="stage"
@@ -191,7 +189,8 @@ export function GameLayout(props: {
             class={[
               styles['controls'],
               {
-                [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+                [componentStyles['centred'] ?? '']:
+                  props.stageAlign === 'center',
               },
             ]}
             data-game-slot="controls"
@@ -205,7 +204,8 @@ export function GameLayout(props: {
             class={[
               styles['rail'],
               {
-                [stageAlign['centred'] ?? '']: props.stageAlign === 'center',
+                [componentStyles['centred'] ?? '']:
+                  props.stageAlign === 'center',
               },
             ]}
             data-game-slot="rail"

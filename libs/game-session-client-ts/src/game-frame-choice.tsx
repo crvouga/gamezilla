@@ -1,3 +1,4 @@
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
 import type { JSX } from '@solidjs/web';
@@ -50,6 +51,8 @@ export function FrameChoiceRow(props: {
   readonly selected?: boolean | undefined;
   readonly tone?: 'destructive' | undefined;
   readonly disabled?: boolean | undefined;
+  /** The choice opens a next step (a game, a setup): a chevron says so. */
+  readonly navigates?: boolean | undefined;
   readonly operation: () => Promise<void>;
 }): JSX.Element {
   const key = (): string => props.choice ?? props.id;
@@ -63,7 +66,14 @@ export function FrameChoiceRow(props: {
       tone={props.tone}
       hideChevron
       trailing={
-        <Show when={sending()}>
+        <Show
+          when={sending()}
+          fallback={
+            <Show when={props.navigates === true}>
+              <ChevronRightIcon size={20} color="icon" />
+            </Show>
+          }
+        >
           <Spinner size="sm" />
         </Show>
       }

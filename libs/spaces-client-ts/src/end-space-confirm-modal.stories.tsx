@@ -16,6 +16,7 @@ const meta = {
     onClose: fn(),
     operation: fn(() => Promise.resolve()),
     onSuccess: fn(),
+    spaceName: 'Friday game night',
   },
 } satisfies Meta<typeof EndSpaceConfirmModal>;
 export default meta;

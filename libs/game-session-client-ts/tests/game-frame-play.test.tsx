@@ -4,7 +4,10 @@ import {
   frameHeadlineText,
   frameStandingRows,
 } from '@libs/game-session-client-ts/game-frame-headline';
-import { customGameWinner } from '@libs/game-session-client-ts/game-frame-result';
+import {
+  customGameDrawReason,
+  customGameWinner,
+} from '@libs/game-session-client-ts/game-frame-result';
 import { FrameWatchingView } from '@libs/game-session-client-ts/game-frame-status-view';
 import {
   frameTable,
@@ -126,25 +129,23 @@ describe('the game-over headline', () => {
     viewer: GameSide | null
   ) => frameHeadlineText(frameHeadline(standings, viewer), nameOf, 'en');
 
-  test('a seated winner reads "You win", a seated loser of two "You lost"', () => {
+  test('a seated winner reads "You won", a seated loser of two "You lost"', () => {
     const standings = standingsFromWinner('black', twoSeats);
-    expect(text(standings, 'black')).toBe('You win');
+    expect(text(standings, 'black')).toBe('You won');
     expect(text(standings, 'white')).toBe('You lost');
   });
 
   test('a watcher reads who won, by name', () => {
-    expect(text(standingsFromWinner('white', twoSeats), null)).toBe(
-      'Erin wins'
-    );
+    expect(text(standingsFromWinner('white', twoSeats), null)).toBe('Erin won');
     expect(text(standingsFromWinner(['white', 'red'], GAME_SIDES), null)).toBe(
-      'Erin and Robin win'
+      'Erin and Robin won'
     );
   });
 
   test('a draw is a draw for everyone', () => {
     const standings = standingsFromWinner('draw', twoSeats);
-    expect(text(standings, 'white')).toBe('Draw');
-    expect(text(standings, null)).toBe('Draw');
+    expect(text(standings, 'white')).toBe('The game was drawn');
+    expect(text(standings, null)).toBe('The game was drawn');
   });
 
   test('a seated player placed third at a scored table', () => {
@@ -170,6 +171,32 @@ describe('the game-over headline', () => {
       customGameWinner({ ...over, outcome: 'black wins by resignation' })
     ).toBe('black');
     expect(customGameWinner(activeGame())).toBeNull();
+  });
+
+  // regression: custom-draw-rule-unnamed — a custom game drawn by its rules
+  // said only "Drawn by the game's own rules.", so players could not tell
+  // which rule. The game names the rule its final position shows; a
+  // recorded cause still comes first, and the generic words stay the
+  // fallback.
+  test('a rules draw names the rule the final position shows', () => {
+    const drawn = {
+      ...activeGame(),
+      status: 'completed' as const,
+      outcome: 'draw' as const,
+    };
+    const named = {
+      rulesDrawDescription: (position: string) =>
+        position === 'position' ? 'The board filled up.' : undefined,
+    };
+    expect(customGameDrawReason(drawn, named)).toBe('The board filled up.');
+    expect(customGameDrawReason({ ...drawn, fen: 'other' }, named)).toBe(
+      "Drawn by the game's own rules."
+    );
+    expect(customGameDrawReason(drawn)).toBe("Drawn by the game's own rules.");
+    expect(
+      customGameDrawReason({ ...drawn, outcomeReason: 'agreement' }, named)
+    ).toBe('Drawn by agreement.');
+    expect(customGameDrawReason(activeGame(), named)).toBeNull();
   });
 });
 
