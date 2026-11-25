@@ -103,11 +103,11 @@
     min-height: 40px;
     padding-block: 0;
   }
-  /* Places to go next (other options, ratings) wait on the game's home,
-     one step back: the phone card holds only the outcome and its answers,
-     and ends above the board. */
+  /* Places to go next (other options, ratings) stay on the phone too, as
+     one slim row of small quiet buttons, so the card still ends above the
+     board. */
   .body [data-testid="multiplayer-onward"] {
-    display: none;
+    margin-block: calc(var(--ui-space-2) * -1);
   }
 }
 /* A wide window docks the card over the stage's side column, beside the
@@ -135,4 +135,16 @@
   right: var(--ui-space-3);
   z-index: 1;
   margin: 0;
+}
+
+/* The outcome in one line: its word, then the headline beside it on the
+   same baseline, the reason under both; the card stays short. */
+.body > [data-component="GameResultCard"] > :first-child > :first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--ui-space-2);
+}
+.body > [data-component="GameResultCard"] > :first-child > :first-child > p {
+  flex-basis: 100%;
 }

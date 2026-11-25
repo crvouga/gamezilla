@@ -170,6 +170,7 @@ function Onward(props: ResultProps): JSX.Element {
             title={<Trans>Game options</Trans>}
             variant="ghost"
             intent="neutral"
+            size="sm"
             flex={1}
             endIcon={<ChevronRightIcon />}
             onClick={() => props.onOpen({ screen: 'home' })}
@@ -180,6 +181,7 @@ function Onward(props: ResultProps): JSX.Element {
           title={<Trans>Your ratings</Trans>}
           variant="ghost"
           intent="neutral"
+          size="sm"
           flex={1}
           endIcon={<ChevronRightIcon />}
           onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
