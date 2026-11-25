@@ -10,13 +10,16 @@ import {
 import { REPO_ROOT } from '../scripts/spec-packages';
 
 /** Campaign modules are verified together, without claiming product conformance. */
-export function campaignBindings(gatingTasks: ReadonlySet<string>): {
+export function campaignBindings(
+  gatingTasks: ReadonlySet<string>,
+  root = REPO_ROOT
+): {
   readonly domains: ReadonlySet<string>;
   readonly specs: readonly SpecFile[];
   readonly problems: readonly string[];
 } {
-  const campaigns = specCampaigns(REPO_ROOT);
-  const problems = [...campaignProblems(REPO_ROOT, campaigns)];
+  const campaigns = specCampaigns(root);
+  const problems = [...campaignProblems(root, campaigns)];
   const domains = new Set(campaigns.map((campaign) => campaign.domain));
   const specs: SpecFile[] = [];
   for (const domain of domains) {
@@ -28,7 +31,7 @@ export function campaignBindings(gatingTasks: ReadonlySet<string>): {
       );
     for (const owner of owners) {
       const manifest = JSON.parse(
-        readFileSync(join(REPO_ROOT, owner.dir, 'package.json'), 'utf8')
+        readFileSync(join(root, owner.dir, 'package.json'), 'utf8')
       ) as {
         readonly name: string;
         readonly scripts?: Readonly<Record<string, string>>;
@@ -50,7 +53,7 @@ export function campaignBindings(gatingTasks: ReadonlySet<string>): {
       }
     }
     const bound = problems.length === before && before === 0;
-    for (const name of readdirSync(join(REPO_ROOT, 'specs', domain))
+    for (const name of readdirSync(join(root, 'specs', domain))
       .filter((name) => name.endsWith('.qnt'))
       .sort())
       specs.push({

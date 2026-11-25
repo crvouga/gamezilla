@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink Columns stepper buttons referred to a missing SDK input. Each button must identify the spinbutton whose value it changes.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/actions.test.tsx"
+}

@@ -14,11 +14,11 @@ import { wallRemoteHas } from './turbo-preflight';
 
 const turbo = join(import.meta.dirname, '../../../node_modules/.bin/turbo');
 const sentinel = 'fixture-secret-must-never-enter-a-cache-artifact';
-const modelOutputs = (
+const workspaceTasks = (
   JSON.parse(
     readFileSync(join(import.meta.dirname, '../../../turbo.json'), 'utf8')
   ) as { tasks: Record<string, { outputs: string[] }> }
-).tasks['verify:models']!.outputs;
+).tasks;
 
 function fixture(root: string): void {
   writeFileSync(
@@ -40,7 +40,7 @@ function fixture(root: string): void {
           dependsOn: ['^build'],
           inputs: ['source.txt', 'emit.ts'],
           env: ['BUILD_FLAVOR', 'BUILD_FAIL'],
-          outputs: ['dist/**', ...modelOutputs],
+          outputs: ['dist/**', ...workspaceTasks['test:spec:0']!.outputs],
         },
       },
     })
@@ -63,8 +63,8 @@ function fixture(root: string): void {
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 if (process.env.BUILD_FAIL === 'yes') process.exit(7);
 mkdirSync('dist', { recursive: true });
-mkdirSync('.cache/harness-report/models/evidence', {recursive: true});
-writeFileSync('.cache/harness-report/models/evidence/result.json', 'verified');
+mkdirSync('.cache/harness-report/part-0/evidence', {recursive: true});
+writeFileSync('.cache/harness-report/part-0/evidence/result.json', 'verified');
 mkdirSync('.cache/harness-report/models/quint-home', {recursive: true});
 writeFileSync('.cache/harness-report/models/quint-home/runtime.txt', process.env.REPORTS_TOKEN ?? '');
 writeFileSync('dist/output.txt', readFileSync('source.txt', 'utf8') + (process.env.BUILD_FLAVOR ?? '')${name === 'b' ? " + readFileSync('../a/dist/output.txt', 'utf8')" : ''});
@@ -141,18 +141,14 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     },
   });
   try {
-    const product = JSON.parse(
-      readFileSync(
-        join(import.meta.dirname, '../../../apps/product-ts/turbo.json'),
-        'utf8'
-      )
-    ) as { tasks: Record<string, { outputs: string[] }> };
-    const parts = Object.keys(product.tasks).filter((name) =>
-      /^test:contract:\d+$/.test(name)
+    // regression: turbo-cache-fixture-retired-model-task
+    const parts = Object.entries(workspaceTasks).filter(([name]) =>
+      /^test:spec:\d+$/.test(name)
     );
     expect(parts.length).toBeGreaterThan(0);
-    for (const name of parts) {
-      expect(product.tasks[name]!.outputs).toEqual(modelOutputs);
+    for (const [name, task] of parts) {
+      const part = name.split(':')[2];
+      expect(task.outputs).toEqual([`.cache/harness-report/part-${part}/**`]);
     }
     fixture(root);
     const env = {
@@ -178,7 +174,7 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     const before = await hashes(root, env);
     for (const name of ['a', 'b', 'c']) {
       removeTree(join(root, 'packages', name, 'dist'), { whenLocked: 'leave' });
-      removeTree(join(root, 'packages', name, '.cache/harness-report/models'), {
+      removeTree(join(root, 'packages', name, '.cache/harness-report'), {
         whenLocked: 'leave',
       });
     }
@@ -188,7 +184,7 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
       readFileSync(
         join(
           root,
-          'packages/a/.cache/harness-report/models/evidence/result.json'
+          'packages/a/.cache/harness-report/part-0/evidence/result.json'
         ),
         'utf8'
       )
