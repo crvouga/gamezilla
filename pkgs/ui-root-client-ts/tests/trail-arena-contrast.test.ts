@@ -29,7 +29,7 @@ const sheet = read(
 
 /** The token a rule's property names, `--ui-color-<name>` → `<name>`. */
 function tokenOf(selector: string, property: string): string | undefined {
-  const block = sheet.split(`${selector} {`)[1]?.split('}')[0] ?? '';
+  const block = sheet.split(`\n${selector} {`)[1]?.split('}')[0] ?? '';
   return new RegExp(`${property}: var\\(--ui-color-([a-z-]+)\\);`).exec(
     block
   )?.[1];
@@ -101,20 +101,24 @@ test("a crash is never drawn in a rider's colour, and a crashed rider's letter i
 });
 
 // regression: light-cycles-arena-focus-ring-invisible-on-light-page
-test('the arena focus ring reads on the light page and apart from its cyan edge', () => {
-  const rule = sheet.split('.arena:focus-visible {')[1]?.split('}')[0] ?? '';
-  expect(rule).toContain('outline: 2px solid var(--ui-color-focus-ring);');
-  expect(rule).toContain('box-shadow: 0 0 0 6px var(--ui-color-background);');
+test('keyboard focus thickens the arena wall and keeps it visible in both themes', () => {
+  const focusedWall = '.arena:focus-visible .wall';
+  expect(tokenOf(focusedWall, 'stroke')).toBe('focus-ring');
+  expect(tokenOf('.ground', 'fill')).toBe('background');
+  const width = (selector: string) =>
+    Number(
+      /stroke-width: ([\d.]+);/.exec(
+        sheet.split(`\n${selector} {`)[1]?.split('}')[0] ?? ''
+      )?.[1]
+    );
+  expect(width(focusedWall)).toBeGreaterThan(width('.wall'));
   for (const theme of ['light', 'dark'] as const) {
-    const halo = arenaHex(theme, 'background');
+    const ground = arenaHex(theme, 'background');
     const ring = arenaHex(theme, 'focus-ring');
     const page = tokens.color[theme]['background']?.$value.hex ?? '';
-    // The ring touches only the dark band, and the band or the ring
-    // stands out from the page (the band on a light page, the ring on a
-    // dark one, where the band blends in).
-    expect(contrast(ring, halo)).toBeGreaterThanOrEqual(3);
+    expect(contrast(ring, ground)).toBeGreaterThanOrEqual(3);
     expect(
-      Math.max(contrast(halo, page), contrast(ring, page))
+      Math.max(contrast(ground, page), contrast(ring, page))
     ).toBeGreaterThanOrEqual(3);
   }
 });

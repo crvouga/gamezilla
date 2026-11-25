@@ -10,6 +10,7 @@ import {
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import userEvent from '@testing-library/user-event';
+import { Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 function mount(args: {
@@ -170,7 +171,20 @@ describe('MutationModal', () => {
       const { unmount } = renderUi(
         () => (
           <SurfaceStackProvider>
-            {form ? (
+            <Show
+              when={form}
+              fallback={
+                <MutationModal
+                  visible
+                  onClose={() => {}}
+                  title="End space?"
+                  message="Everyone leaves."
+                  submitLabel="End space"
+                  operation={() => Promise.resolve()}
+                  successTitle="Ended"
+                />
+              }
+            >
               <MutationModal
                 visible
                 onClose={() => {}}
@@ -181,17 +195,7 @@ describe('MutationModal', () => {
               >
                 <span>field</span>
               </MutationModal>
-            ) : (
-              <MutationModal
-                visible
-                onClose={() => {}}
-                title="End space?"
-                message="Everyone leaves."
-                submitLabel="End space"
-                operation={() => Promise.resolve()}
-                successTitle="Ended"
-              />
-            )}
+            </Show>
           </SurfaceStackProvider>
         ),
         { width: 390, height: 844 }
