@@ -1871,6 +1871,13 @@
       ],
       "dependsOn": ["@libs/tools-harness-ts#generate:identity"]
     },
+    "//#task:research:index": {
+      "inputs": [
+        "libs/tools-harness-ts/scripts/market-research-index.ts",
+        "{apps,libs,pkgs}/*/docs/**/MARKET_RESEARCH.md"
+      ],
+      "outputs": ["docs/MARKET_RESEARCH_INDEX.md"]
+    },
     "//#task:spec:catalog": {
       "dependsOn": [
         "@libs/tools-harness-ts#src",
