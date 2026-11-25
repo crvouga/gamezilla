@@ -30,6 +30,7 @@ import {
   Show,
   untrack,
 } from 'solid-js';
+import figures from './figures.module.css';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
 
@@ -52,7 +53,7 @@ export type ChessBoardPiecesProps = {
   readonly engaged: () => boolean;
 };
 
-const PIECE_CLASS = `${styles['cell']} ${styles['piece']}`;
+const PIECE_CLASS = `${styles['cell']} ${styles['piece']} ${figures['figure']}`;
 
 function Piece(props: {
   readonly row: ChessPieceRow;

@@ -117,7 +117,7 @@ environment that logs every slide.
 | Configurable animation speed | yes (`animationDurationMs`) |
 | Coordinates inside the edge squares in the opposite square color | yes |
 | Premoves chained off an earlier premove's destination | no — premoves are validated against the real position |
-| Piece sets / board themes picker | no — Cburnett pieces; colors via `theme` |
+| Piece sets / board themes picker | no — one cut-paper set; colors via `theme` |
 
 ## How it is proven
 

@@ -39,6 +39,7 @@ import {
 } from 'solid-js';
 import { watchBoardInput } from './board-input-lifecycle';
 import { useBoardMotionEnvironment } from './board-motion-context';
+import figures from './chess-board-pieces/figures.module.css';
 import styles from './chess-board/chess-board.module.css';
 import { createBoardKeyHandler } from './chess-board-keys';
 import { BoardPointer } from './chess-board-pointer';
@@ -231,7 +232,7 @@ function createInput(args: {
     defaultCursorSquare(untrack(parts.orientation))
   );
   const drag = createPieceDrag({
-    piece: styles['piece'] ?? '',
+    piece: `${styles['piece']} ${figures['figure']}`,
     avatar: styles['avatar'] ?? '',
     avatarTouch: styles['avatarTouch'] ?? '',
     lifted: styles['lifted'] ?? '',

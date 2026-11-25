@@ -2,9 +2,7 @@
 
 ## Cburnett
 
-The chess pieces drawn by the board (the inline SVG `.piece` backgrounds in
-[`pkgs/chess-board-root-client-ts/src/chess-board.module.css`](../../chess-board-root-client-ts/src/chess-board.module.css))
-are the **Cburnett** set by Colin M.L. Burnett, taken from
+The earlier board used the **Cburnett** set by Colin M.L. Burnett, taken from
 `public/piece/cburnett/*.svg` in [lichess-org/lila](https://github.com/lichess-org/lila).
 
 What each source states:

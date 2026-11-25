@@ -29,6 +29,8 @@ import { type Accessor, createMemo, For, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
 
+import marks from './move-marks.module.css';
+
 export type SquareWashKind = 'selected' | 'check' | 'premove' | 'last-move';
 
 export type SquareWashInput = {
@@ -87,7 +89,7 @@ function Wash(props: {
   const wash = () => splitKey(props.washKey);
   return (
     <div
-      class={`${styles['cell']} ${styles['wash']}`}
+      class={`${styles['cell']} ${styles['wash']} ${marks['mark']}`}
       data-kind={wash().kind}
       style={{ transform: cellTransform(wash().square, props.orientation()) }}
     >
