@@ -1,0 +1,4 @@
+{
+  "summary": "Four hosted rematch scenarios tried to press Leave through Bob's game-result dialog after the first game ended. Bob never reached the leave confirmation, so Alice could not start a rematch with his side open.",
+  "regressionTest": "libs/spaces-harness-ts/tests/leave-space-after-game-result.test.ts"
+}

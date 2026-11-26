@@ -9,6 +9,10 @@ import {
   expectShellShown,
   pressBackUntilVisible,
 } from '@libs/harness-ts/driver-gestures';
+import {
+  dismissGameResult,
+  tapSpaceBarControl,
+} from '@libs/spaces-harness-ts/space-bar-gestures';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
@@ -166,25 +170,11 @@ async function enterHostedSpace(ui: Driver): Promise<void> {
   check(false, 'the hosted space never opened, so it cannot be ended');
 }
 
-async function dismissGameResult(ui: Driver): Promise<boolean> {
-  const close = ui.get('game-result-close');
-  if (!(await close.isVisible())) return false;
-  await close.tap({ timeoutMs: JOURNEY_WAIT_MS });
-  await close.expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
-  return true;
-}
-
 /** End the space the person is in and see it ended. */
 export async function endActiveSpace(ui: Driver): Promise<void> {
-  await dismissGameResult(ui);
+  await dismissGameResult(ui, JOURNEY_WAIT_MS);
   await enterHostedSpace(ui);
-  try {
-    await tap(ui, Handles.spaceEnd);
-  } catch (error) {
-    // The final move can put its result over End after the space is ready.
-    if (!(await dismissGameResult(ui))) throw error;
-    await tap(ui, Handles.spaceEnd);
-  }
+  await tapSpaceBarControl(ui, Handles.spaceEnd, JOURNEY_WAIT_MS);
   await tap(ui, Handles.spaceEndConfirm);
   await ui
     .get(Handles.spaceEndConfirm)
