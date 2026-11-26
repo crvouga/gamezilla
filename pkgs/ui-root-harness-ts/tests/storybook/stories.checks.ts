@@ -56,6 +56,31 @@ async function verifyBoardRegression(
   await verifyStoryScenario(page, id, scenario);
 }
 
+// regression: feedback-story-drops-typed-description
+test('product-bug-report--describe-and-send regression feedback-story-drops-typed-description', async ({
+  page,
+}) => {
+  await verifyBoardRegression(
+    page,
+    'product-bug-report--describe-and-send',
+    390
+  );
+});
+
+// regression: card-table-pass-prompt-covers-direction
+test('product-cardtable--states regression card-table-pass-prompt-covers-direction', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'product-cardtable--states', 390);
+});
+
+// regression: puzzle-result-details-inaccessible-by-keyboard
+test('screens-puzzles-result--unrated regression puzzle-result-details-inaccessible-by-keyboard', async ({
+  page,
+}) => {
+  await verifyBoardRegression(page, 'screens-puzzles-result--unrated', 390);
+});
+
 // regression: quoridor-pawn-prominence-and-identity
 test('screens-games-quoridor-classic--pawn-identity-and-keyboard regression quoridor-pawn-prominence-and-identity', async ({
   page,

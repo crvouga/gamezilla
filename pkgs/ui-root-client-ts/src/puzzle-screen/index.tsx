@@ -1,3 +1,4 @@
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -82,6 +83,7 @@ function PuzzleFixedRegion(props: {
  * A square board's panel runs to the column's end, as a game's rail does.
  */
 export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
+  const { t } = useLingui();
   const ratio = createMemo(() =>
     requireBoardAspectRatio(props.boardAspectRatio)
   );
@@ -123,6 +125,9 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
           <Show when={props.info !== undefined}>
             <div
               class={own['info']}
+              role="group"
+              aria-label={t`Puzzle details`}
+              tabindex={props.info === true ? undefined : 0}
               {...dataAttrs({ component: 'PuzzleInfo' })}
             >
               {props.info}
