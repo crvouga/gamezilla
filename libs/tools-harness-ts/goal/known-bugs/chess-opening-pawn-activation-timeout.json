@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly repeatedly mounted the opening chessboard for 200 draws from 16 file and orientation pairs, exceeding the five-second test budget. Each pair now gets one fresh board and an exact move assertion.",
+  "regressionTest": "pkgs/chess-board-root-client-ts/tests/assistive-activation.test.tsx"
+}
