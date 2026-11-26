@@ -62,6 +62,8 @@ export function tracksNightlyIssue(
 function reproduceGroup(name: string): string {
   if (name === 'pr-load')
     return 'Dispatch Verify Nightly with the same pr-load-revisions';
+  if (name === 'browser')
+    return 'gh workflow run verify-nightly.yml -f group=browser -f browser-partition=<the partition its job summary names>';
   return name === 'storybook'
     ? 'bun storybook:test'
     : `bun verify-nightly ${name}`;
@@ -96,6 +98,24 @@ export function nightlyGroups(
   }));
 }
 
+/**
+ * What a pass does not say: a group that verifies only the night's turn of
+ * its partitions passed that turn, not its whole suite.
+ */
+export function scopeNotes(groups: readonly NightlyGroup[]): string[] {
+  return groups
+    .filter(
+      (group) =>
+        Object.hasOwn(NIGHTLY_SUITES, group.name) &&
+        NIGHTLY_SUITES[group.name as keyof typeof NIGHTLY_SUITES]
+          .nightlyScope === 'rotating'
+    )
+    .map(
+      (group) =>
+        `verify-nightly:${group.name} ran this night's turn of its partitions, not its whole suite; each runner's job summary names its partition and how many nights run them all.`
+    );
+}
+
 export function failedGroups(
   groups: readonly NightlyGroup[]
 ): readonly NightlyGroup[] {
@@ -122,6 +142,7 @@ export function formatNightlyTable(
     failed.length === 0
       ? `Every ${scope} group passed`
       : `${failed.length} of ${groups.length} ${scope} groups did not pass`,
+    ...scopeNotes(groups),
   ].join('\n');
 }
 
@@ -143,6 +164,7 @@ export function formatNightlyMarkdown(
         `| \`verify-nightly:${group.name}\` | ${group.result === 'success' ? 'PASS' : `**${group.result}**`} | ${group.summary} | \`${group.reproduce}\` |`
     ),
     '',
+    ...scopeNotes(groups).flatMap((note) => [note, '']),
     ...(failed.length === 0
       ? []
       : [
