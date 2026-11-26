@@ -15,40 +15,41 @@ function retainedCard(w: World): string {
   return Handles.spaceLobbyCard(id);
 }
 
-// regression: space-bar-actions-hidden
 Given(
-  'Alice has played e2 in Classic Quoridor on a fresh device and the bot has replied',
-  async (w) => {
-    await startBotGameJourney(w.journey, 'Classic Quoridor');
-    await observeBotGameJourney(w.journey, 'Classic Quoridor');
-    w.memo.set('quoridor-space', (await w.journey.spaceLink()).split('/')[2]);
-    await w.journey.act('playQuoridorOpening', async (ui) => {
-      await QUORIDOR_PLAYABLE.shared.automation.turns.perform(
-        ui,
-        'custom-game-board',
-        'e2'
-      );
-      await expectVisible(ui, 'custom-game-review-move-2');
-      const board = await readPublicCustomGame(ui);
-      check(
-        board.status === 'active' && board.ply === 2,
-        'Expected the bot reply'
-      );
-      w.memo.set('quoridor-position', board.position);
-      w.memo.set('quoridor-turn', board.turn);
-      for (const action of [
-        Handles.spaceMembersButton,
-        Handles.spaceShare,
-        Handles.spaceRename,
-        Handles.spaceLeave,
-        Handles.spaceEnd,
-        Handles.spaceClose,
-      ]) {
-        await expectVisible(ui, action);
-      }
-    });
-  }
+  'Alice is playing Classic Quoridor against a bot on a fresh device',
+  (w) => startBotGameJourney(w.journey, 'Classic Quoridor')
 );
+
+// regression: space-bar-actions-hidden
+When('Alice moves to e2 and sees the bot reply', async (w) => {
+  await observeBotGameJourney(w.journey, 'Classic Quoridor');
+  w.memo.set('quoridor-space', (await w.journey.spaceLink()).split('/')[2]);
+  await w.journey.act('playQuoridorOpening', async (ui) => {
+    await QUORIDOR_PLAYABLE.shared.automation.turns.perform(
+      ui,
+      'custom-game-board',
+      'e2'
+    );
+    await expectVisible(ui, 'custom-game-review-move-2');
+    const board = await readPublicCustomGame(ui);
+    check(
+      board.status === 'active' && board.ply === 2,
+      'Expected the bot reply'
+    );
+    w.memo.set('quoridor-position', board.position);
+    w.memo.set('quoridor-turn', board.turn);
+    for (const action of [
+      Handles.spaceMembersButton,
+      Handles.spaceShare,
+      Handles.spaceRename,
+      Handles.spaceLeave,
+      Handles.spaceEnd,
+      Handles.spaceClose,
+    ]) {
+      await expectVisible(ui, action);
+    }
+  });
+});
 
 When('Alice minimizes her space', (w) =>
   w.journey.act('minimizeSpace', (ui) => tap(ui, Handles.spaceClose))
