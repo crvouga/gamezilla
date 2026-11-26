@@ -10,6 +10,7 @@ import {
   For,
   Show,
 } from 'solid-js';
+import { createBoardArrival } from '../board-arrival';
 import { useGameBoardPreview } from '../game-board-stage/board-preview';
 import styles from './disc-drop-board.module.css';
 import { RackViewport } from './rack-gestures';
@@ -69,8 +70,7 @@ export type DiscDropBoardProps = {
  * board to assistive technology. While the board takes a drop the column
  * pointed at or focused takes a tint and its number a hollow ring in the
  * dropping side's colour, its landing cell shows a dashed, empty outline in
- * that colour (never a disc already played; it breathes slowly, and holds
- * still under reduced motion), and the prompt names the column (`Drop in
+ * that colour. The prompt names the column (`Drop in
  * column 6`).
  * The last disc played falls into place (not under reduced motion), and
  * once four connect their outlines emphasize the win while every disc stays readable. As a
@@ -322,6 +322,7 @@ function DiscCell(props: {
 }): JSX.Element {
   const index = () => props.row * props.board.columns + props.column;
   const disc = () => props.board.cells[index()] ?? 0;
+  const arrived = createBoardArrival(() => disc() !== 0);
   // A played disc carries its side's mark; the landing preview never does
   // (a dashed, empty outline), so it can never be read as a disc played.
   const marker = () => (disc() !== 0 ? discMark(disc()) : '');
@@ -331,6 +332,7 @@ function DiscCell(props: {
       data-testid={`${props.board.testId}-cell-${index()}`}
       data-cell={index()}
       data-disc={disc()}
+      data-arrived={arrived() || undefined}
       data-preview={String(props.target === index())}
       data-preview-disc={props.target === index() ? props.board.active : 0}
       data-winning={String(props.board.winning.includes(index()))}

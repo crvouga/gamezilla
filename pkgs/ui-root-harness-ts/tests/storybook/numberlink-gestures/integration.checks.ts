@@ -113,8 +113,16 @@ for (const width of [390, 1440]) {
       await expect(
         page.getByTestId('numberlink-board-cell-13')
       ).toHaveAccessibleName('D3: endpoint 1, connected');
+      await expect(first.locator('[data-shape]')).toHaveCSS(
+        'animation-name',
+        /join-path/
+      );
       await capture(page, info, 'joined');
       await page.emulateMedia({ reducedMotion: 'reduce' });
+      await expect(first.locator('[data-shape]')).toHaveCSS(
+        'animation-name',
+        'none'
+      );
       await expect(first.locator('[data-shape]')).toHaveCSS(
         'transition-duration',
         '0s'

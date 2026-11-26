@@ -1,0 +1,4 @@
+{
+  "summary": "New tiles received from another player appeared without the board placement animation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/word-tile-board.test.tsx"
+}

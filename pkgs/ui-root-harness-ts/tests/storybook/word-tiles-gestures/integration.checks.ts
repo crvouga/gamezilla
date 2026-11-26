@@ -187,6 +187,7 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
 test('storybook integration: word-tiles gesture assigned blank remains marked after commit', async ({
   page,
 }, info) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' });
   await openStory(page, 'three-player-match', 'light');
   const board = page.getByTestId('custom-game-board');
   const blank = centerCell(page);
@@ -208,6 +209,9 @@ test('storybook integration: word-tiles gesture assigned blank remains marked af
   await page.getByTestId('custom-game-board-submit').click();
   await expect(blank).toHaveAttribute('data-state', 'committed');
   await expect(blank).toHaveAccessibleName('A 0, h8, blank played as A');
+  await expect(blank).toHaveCSS('animation-name', /word-tile-placed/);
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await expect(blank).toHaveCSS('animation-name', 'none');
   await expect(blank.getByText('A', { exact: true })).toHaveCSS(
     'text-decoration-line',
     'underline'
