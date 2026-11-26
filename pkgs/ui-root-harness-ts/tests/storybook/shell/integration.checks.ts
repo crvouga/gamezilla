@@ -1,5 +1,40 @@
 import { expect, type Page, test } from '@playwright/test';
 
+// regression: space-management-stories-document-examples
+test('storybook integration: space management stories document the production components', async ({
+  request,
+}) => {
+  const response = await request.get('/manifests/components.json');
+  await expect(response).toBeOK();
+  const manifest: unknown = await response.json();
+  for (const [id, name, file] of [
+    [
+      'screens-spaces-members',
+      'SpaceMemberRosterView',
+      'space-member-roster-view',
+    ],
+    ['screens-spaces-share', 'SpaceSharingPanel', 'space-sharing-panel'],
+    [
+      'screens-spaces-remove-person',
+      'SpaceManagementView',
+      'space-management-view',
+    ],
+  ] as const) {
+    expect(manifest).toMatchObject({
+      components: {
+        [id]: {
+          reactComponentMeta: {
+            exportName: name,
+            filePath: expect.stringContaining(
+              `/libs/spaces-client-ts/src/${file}.tsx`
+            ),
+          },
+        },
+      },
+    });
+  }
+});
+
 async function open(page: Page, id: string, width: number): Promise<void> {
   await page.setViewportSize({ width, height: 844 });
   await page.goto(`/iframe.html?id=${id}&viewMode=story&globals=theme:light`);

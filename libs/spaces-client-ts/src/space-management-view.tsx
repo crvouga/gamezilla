@@ -22,6 +22,7 @@ export type SpaceManagementViewProps = {
   readonly removal?: MutationStep | undefined;
 };
 
+/** Shows a space’s people, sharing and settings, including removal confirmations. */
 export function SpaceManagementView(
   props: SpaceManagementViewProps
 ): JSX.Element {
