@@ -12,7 +12,7 @@ async function open(page: Page, story: string) {
 async function rect(node: Locator) {
   const box = await node.boundingBox();
   if (!box || box.width <= 0 || box.height <= 0)
-    throw new Error(`Missing ${node}`);
+    throw new Error(`Missing ${node.toString()}`);
   return box;
 }
 
@@ -39,35 +39,44 @@ async function frame(page: Page) {
 }
 
 // regression: quoridor-history-pushes-board
-test('stable game stage keeps the four- and eight-move Quoridor positions at the reported size', async ({
-  page,
-}) => {
-  await page.setViewportSize({ width: 1153, height: 2000 });
-  let previous;
-  for (const [story, moves] of [
-    ['both-pawns-advanced', 4],
-    ['pawns-passed', 8],
-  ] as const) {
-    await open(page, `screens-games-quoridor-classic--${story}`);
-    const history = page.locator('[data-game-slot="history"]');
-    await expect(
-      history.getByTestId(`custom-game-review-move-${moves}`)
-    ).toBeVisible();
-    await expect(
-      history.getByRole('button', { name: 'All moves' })
-    ).toBeVisible();
-    const boxes = await frame(page);
-    const grid = await rect(page.getByTestId('custom-game-board'));
-    expect(grid.width).toBeCloseTo(boxes.board.width, 0);
-    const cell = await rect(
-      page.getByTestId('custom-game-board').locator('[data-cell]').first()
-    );
-    expect(cell.height).toBeCloseTo(cell.width, 0);
-    const geometry = { ...boxes, grid, history: await rect(history) };
-    if (previous) expect(geometry).toEqual(previous);
-    previous = geometry;
-  }
-});
+for (const viewport of [
+  { width: 390, height: 844 },
+  { width: 1153, height: 2000 },
+]) {
+  test(`stable game stage keeps the reported Quoridor positions at ${viewport.width}x${viewport.height}`, async ({
+    page,
+  }, info) => {
+    await page.setViewportSize(viewport);
+    let previous;
+    for (const [story, moves] of [
+      ['both-pawns-advanced', 4],
+      ['pawns-passed', 8],
+    ] as const) {
+      await open(page, `screens-games-quoridor-classic--${story}`);
+      const history = page.locator('[data-game-slot="history"]');
+      await expect(
+        history.getByTestId(`custom-game-review-move-${moves}`)
+      ).toBeVisible();
+      await expect(
+        history.getByRole('button', { name: 'All moves' })
+      ).toBeVisible();
+      const boxes = await frame(page);
+      const grid = await rect(page.getByTestId('custom-game-board'));
+      expect(grid.width).toBeCloseTo(boxes.board.width, 0);
+      const cell = await rect(
+        page.getByTestId('custom-game-board').locator('[data-cell]').first()
+      );
+      expect(cell.height).toBeCloseTo(cell.width, 0);
+      const geometry = { ...boxes, grid, history: await rect(history) };
+      if (previous) expect(geometry).toEqual(previous);
+      previous = geometry;
+      const name = `quoridor-${viewport.width}x${viewport.height}-move-${moves}.png`;
+      const path = info.outputPath(name);
+      await page.screenshot({ path });
+      await info.attach(name, { path, contentType: 'image/png' });
+    }
+  });
+}
 
 // regression: quoridor-hill-desktop-board-below-target-size
 test('stable game stage centres playable Quoridor squares in a height-limited desktop', async ({
