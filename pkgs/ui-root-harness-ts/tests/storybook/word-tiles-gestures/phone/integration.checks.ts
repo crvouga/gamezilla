@@ -112,6 +112,7 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
   await expectRackRelease(page);
 });
 
+// regression: word-tiles-tap-after-fast-drag
 test('storybook integration: word-tiles gesture phone opens tools immediately after a rack drop', async ({
   page,
 }) => {
@@ -134,6 +135,9 @@ test('storybook integration: word-tiles gesture phone opens tools immediately af
   await fitBoard(page);
   await assertPlacement(page);
   await expectRackRelease(page);
+  const nextTile = page.getByTestId('custom-game-board-rack-0');
+  await nextTile.tap();
+  await expect(nextTile).toHaveAttribute('aria-pressed', 'true');
 });
 
 async function fitBoard(page: Page) {

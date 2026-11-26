@@ -33,6 +33,7 @@ export async function observeTouches(page: Page) {
     ])
       window.addEventListener(type, record, { capture: true, passive: true });
     window.addEventListener('click', record);
+    window.addEventListener('touchmove', record, { passive: true });
   });
 }
 
