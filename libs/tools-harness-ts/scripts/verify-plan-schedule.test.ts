@@ -57,6 +57,7 @@ test('the schedule names only the shards with uncached work', () => {
 });
 
 // regression: release-product-build-invalidates-sibling-plan
+// regression: release-cold-build-runner-handoffs
 test('one Turbo graph owns the product build and admin bundle check before either executes', () => {
   for (const hit of [false, true]) {
     const plan = balanceShards(
