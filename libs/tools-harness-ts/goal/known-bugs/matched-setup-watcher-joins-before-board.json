@@ -1,0 +1,4 @@
+{
+  "summary": "A guest joining Alice's matched Battleship space before either setup was chosen timed out waiting for the shared board. Both people must reach the paired game's board before the test reads who is ready.",
+  "regressionTest": "specs/games/matched-game-private-setup.feature"
+}
