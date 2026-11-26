@@ -22,7 +22,7 @@
     "generate:brand-artifacts": "bun run scripts/generate-brand-artifacts.ts",
     "generate:identity": "bun run scripts/materialize-product-identity.ts --development",
     "generate:identity-agents": "bun run scripts/sync-agent-mcp.ts",
-    "install:cli": "mise install",
+    "install:cli": "mise install opentofu conftest infisical",
     "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
     "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
     "test": "bun test --path-ignore-patterns='scripts/{verify-actionlint.test.ts,verify-snapshot.test.ts,workflow-remote-tty.test.ts,workspace-run.test.ts}' scripts/*.test.ts",
