@@ -8,7 +8,7 @@ import {
 } from '@pkgs/ui-root-client-ts/game-move-list';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
-import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import {
   FixedGameSession,
   StageDetails,
@@ -174,17 +174,8 @@ function RecordOutline(props: { readonly record: FrameRecord }): JSX.Element {
   );
 }
 
-/**
- * The moves played so far, beside the live board (under it on a phone): a
- * list to read, never to steer the live board with. Pressing a move, or
- * Review moves, opens the moves place at it.
- */
-export function FrameMovesCard(
-  props: Props & {
-    /** The place has its own way to the moves place (the result's Review moves). */
-    readonly listOnly?: boolean | undefined;
-  }
-): JSX.Element {
+/** The history strip opens a selected move on the review board. */
+export function FrameMovesCard(props: Props): JSX.Element {
   const review = (ply: number): void => {
     props.onSeek(ply);
     props.onOpen({ screen: 'moves' });
@@ -198,20 +189,6 @@ export function FrameMovesCard(
             component: 'CustomGameReview',
             testid: 'custom-game-record',
           }}
-          footer={
-            <Show when={recordPlayed(record()) && props.listOnly !== true}>
-              <GameActions>
-                <Button
-                  title={<Trans>Review moves</Trans>}
-                  variant="outline"
-                  intent="neutral"
-                  size="sm"
-                  onClick={() => review(record().displayedPly)}
-                  dataSet={{ testid: 'custom-game-review-jump' }}
-                />
-              </GameActions>
-            </Show>
-          }
         >
           <Show
             when={recordPlayed(record())}
@@ -449,7 +426,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
             <Show when={recordPlayed(props.record)}>
               <RecordMoves {...props} onSelect={props.onSeek} />
             </Show>
-            <StageDetails label={t`Go to move`}>
+            <StageDetails label={t`Go to move`} testId="custom-game-go-to-move">
               <RecordSelect {...props} />
               <ReviewJumpField {...props} />
               <FrameErrorView text={props.record.error} />

@@ -4,6 +4,7 @@ Feature: Copy the game record of a finished matched game
 
   Rule: Once a matched game is over with a result, each of its people and anyone watching can copy its game record and its final position; an unfinished or aborted matched game offers neither
 
+    @regression:finished-game-copy-controls-unreachable
     Scenario: A watcher is offered the game record and the final position as soon as the matched game is over
       Given Alice has the first side against Bob in a 5+0 matched game after their first moves
       And Carol is a guest watching Alice's matched game

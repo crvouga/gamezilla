@@ -118,6 +118,7 @@ export function FixedGameSession(props: FixedGameSessionProps): JSX.Element {
 /** Review tools and records can be opened without resizing the playing surface. */
 export function StageDetails(props: {
   label: string;
+  testId: string;
   children: JSX.Element;
 }): JSX.Element {
   const [open, setOpen] = createSignal(false);
@@ -129,6 +130,8 @@ export function StageDetails(props: {
         variant="outline"
         intent="neutral"
         aria-haspopup="dialog"
+        aria-expanded={open()}
+        dataSet={{ testid: props.testId }}
         onClick={() => setOpen(true)}
       />
       <ResponsiveSurface

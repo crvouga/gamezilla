@@ -84,6 +84,7 @@ Feature: Private setups in a custom game
       When Alice opens the game's history
       Then Alice sees her own private setup and what play revealed of Bob's
 
+    @regression:finished-game-review-number-field-unreachable
     Scenario: Someone in the space reviewing the finished custom game sees neither private setup
       Given Carol is in Alice's space
       When Carol reviews the starting position

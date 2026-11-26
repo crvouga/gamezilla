@@ -24,6 +24,29 @@ async function clipboardOf(
   return clipboard as RecordingClipboard;
 }
 
+/** Open an available record and restore the place the person was reading. */
+async function withGameRecord<T>(
+  s: ProductHarness,
+  actor: string,
+  use: () => Promise<T>
+): Promise<T> {
+  const ui = await actorUi(s, actor);
+  return onMultiplayerPlace(s, actor, 'moves', async () => {
+    const open = ui.get('multiplayer-open-record');
+    if (
+      !(await open.isVisible()) ||
+      (await open.attribute('aria-expanded')) === 'true'
+    )
+      return use();
+    await open.tap();
+    try {
+      return await use();
+    } finally {
+      await ui.key('escape');
+    }
+  });
+}
+
 /** What a person's matched-game screen offers them to copy. */
 export async function gameRecordOffered(
   s: ProductHarness,
@@ -32,7 +55,7 @@ export async function gameRecordOffered(
   await bringToFront(s, actor);
   const ui = await actorUi(s, actor);
   // What a finished game offers to keep is with its moves, one row away.
-  return onMultiplayerPlace(s, actor, 'moves', async () => ({
+  return withGameRecord(s, actor, async () => ({
     gameRecord: await ui.get(COPY_CONTROLS['game record']).isVisible(),
     finalPosition: await ui.get(COPY_CONTROLS['final position']).isVisible(),
   }));
@@ -49,7 +72,7 @@ export const copyShownMultiplayerText = scenarioAction({
     const before = clipboard.writes.length;
     await bringToFront(s, actor);
     const ui = await actorUi(s, actor);
-    await onMultiplayerPlace(s, actor, 'moves', async () => {
+    await withGameRecord(s, actor, async () => {
       await ui.get(COPY_CONTROLS[what]).tap();
       await pollUntil(
         s,

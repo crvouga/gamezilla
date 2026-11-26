@@ -215,7 +215,7 @@ describe('the play place', () => {
     expect(screen.getByTestId('custom-game-record').textContent).toContain(
       'No moves yet.'
     );
-    expect(shown('custom-game-review-jump')).toBe(false);
+    expect(shown('custom-game-all-moves')).toBe(false);
   });
 
   // regression: hearts-record-card-only-a-sentence

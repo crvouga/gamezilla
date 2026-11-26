@@ -47,12 +47,21 @@ export function useCustomGameChoices(options: {
     if (input.operation === 'create') await create();
     else await send(input);
   };
-  const ready = () =>
-    choose(
-      options.privateSetup.has()
-        ? { operation: 'ready', setup: options.privateSetup.draft() }
-        : { operation: 'ready' }
-    );
+  const ready = async (arrangeIncomplete = false): Promise<boolean> => {
+    const setup = options.privateSetup;
+    if (setup.has()) {
+      const confirmed = setup.complete()
+        ? setup.draft()
+        : arrangeIncomplete
+          ? setup.random()
+          : undefined;
+      if (confirmed === undefined) return false;
+      await choose({ operation: 'ready', setup: confirmed });
+    } else {
+      await choose({ operation: 'ready' });
+    }
+    return true;
+  };
   const playBot = async (): Promise<void> => {
     const requested = options.gameId();
     const spaceId = options.spaceId();
@@ -75,10 +84,14 @@ export function useCustomGameChoices(options: {
       await choose({ operation: 'bot', side });
     }
     if (ownSetup() === null) return;
-    if (options.privateSetup.has() && !options.privateSetup.complete())
-      options.privateSetup.random();
-    await ready();
-    if (ownSetup() !== null) await choose({ operation: 'start' });
+    if ((await ready(true)) && ownSetup() !== null)
+      await choose({ operation: 'start' });
   };
-  return { choose, ready, playBot };
+  return {
+    choose,
+    ready: async () => {
+      await ready();
+    },
+    playBot,
+  };
 }

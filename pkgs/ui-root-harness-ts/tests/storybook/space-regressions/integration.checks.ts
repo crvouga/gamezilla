@@ -1,4 +1,4 @@
-import { test } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { verifyStoryScenario } from '../verify-story-scenario';
 
 // regression: hearts-trick-card-double-pip
@@ -53,13 +53,27 @@ test('screens-space-ended--long-content regression space-recovery-off-center', a
 test('screens-spaces-share--added regression space-share-toast-covers-close', async ({
   page,
 }) => {
-  await verifyStoryScenario(page, 'screens-spaces-share--added', {
-    width: 1280,
-    height: 800,
-    theme: 'light',
-    globals: {},
-    suffix: '',
-  });
+  for (const [width, height] of [
+    [390, 844],
+    [1280, 800],
+  ] as const) {
+    await verifyStoryScenario(page, 'screens-spaces-share--added', {
+      width,
+      height,
+      theme: 'light',
+      globals: {},
+      suffix: '',
+    });
+    const dialog = page.getByRole('dialog', { name: 'People in this space' });
+    const alert = page.getByRole('region', { name: 'Alerts' });
+    await expect(alert).toBeInViewport({ ratio: 1 });
+    await dialog.getByRole('button', { name: 'Close', exact: true }).click({
+      trial: true,
+    });
+    await alert.getByRole('button', { name: 'Close', exact: true }).click();
+    await expect(alert).toHaveCount(0);
+    await expect(dialog).toBeVisible();
+  }
 });
 
 // regression: word-tiles-enlarged-edge-slivers

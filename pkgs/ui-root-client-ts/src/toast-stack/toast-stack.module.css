@@ -17,8 +17,12 @@
     left: var(--ui-space-4);
     right: var(--ui-space-4);
   }
-  .stack:is([data-placement="top"], [data-placement="dialog"]) {
+  .stack[data-placement="top"] {
     top: calc(env(safe-area-inset-top, 0px) + 60px);
+  }
+  /* A centered dialog owns its top edge for its title and Close button. */
+  .stack[data-placement="dialog"] {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--ui-space-4));
   }
   .stack[data-placement="bottom"] {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);

@@ -1,0 +1,4 @@
+{
+  "summary": "Play a bot sent Ready before the generated Battleship fleet reached the setup draft, so room validation opened an assertion screen.",
+  "regressionTest": "libs/game-session-client-ts/tests/battleship-bot-ready.test.ts"
+}
