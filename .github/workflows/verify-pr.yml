@@ -132,6 +132,7 @@ jobs:
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
+      consumers: ${{ steps.plan.outputs.consumers }}
     steps:
       - &budget
         name: Check remaining workflow time
@@ -329,7 +330,7 @@ jobs:
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -431,11 +432,23 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
+      - name: Determine whether the PR needs workspace dependencies
+        if: github.event_name == 'pull_request'
+        id: scope
+        run: |
+          result=0
+          git diff --quiet --no-renames "$PR_BASE...$PR_HEAD" -- . ':!README.md' ':!AGENTS.md' ':(exclude,glob)docs/**/*.md' || result=$?
+          case "$result" in
+            0) echo "docs=true" >> "$GITHUB_OUTPUT" ;;
+            1) echo "docs=false" >> "$GITHUB_OUTPUT" ;;
+            *) exit "$result" ;;
+          esac
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}
+          workspace: ${{ steps.scope.outputs.docs != 'true' }}
+          tools: ${{ steps.scope.outputs.docs == 'true' && 'bun gitleaks' || env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || needs.verify-start.outputs.consumers == '-' && 'bun node' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -443,7 +456,12 @@ jobs:
         if: github.event_name == 'pull_request'
         env:
           VERIFY_DEADLINE_SECONDS: '120'
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:ci
+          DOCS_ONLY: ${{ steps.scope.outputs.docs }}
+        run: |
+          if [[ "$DOCS_ONLY" == true ]]; then
+            exec bun libs/tools-harness-ts/scripts/verify-secrets.ts
+          fi
+          exec bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:ci
       - name: Download immutable plan
         if: github.event_name != 'pull_request'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2

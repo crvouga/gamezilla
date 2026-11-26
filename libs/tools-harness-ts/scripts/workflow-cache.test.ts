@@ -36,7 +36,7 @@ test('Verification enforces read/write after secrets injection', () => {
 // regression: ci-provider-api-dependency-cache-ref
 // regression: windows-dependency-tree-cache-eperm
 // regression: mise-action-upgrade-stale-version-contract
-test('setup installs frozen dependencies on every run and never archives the linked trees', () => {
+test('workspace jobs install frozen dependencies and never archives the linked trees', () => {
   const source = readFileSync(
     join(root, '.github/actions/setup/action.yml'),
     'utf8'
@@ -57,10 +57,13 @@ test('setup installs frozen dependencies on every run and never archives the lin
     (step) => step.run === 'bun install --frozen-lockfile'
   );
   expect(install).toBeGreaterThan(-1);
-  expect(steps[install]!.if).toBeUndefined();
+  expect(steps[install]!.if).toBe("inputs.workspace == 'true'");
   expect(source).toMatch(/uses: jdx\/mise-action@[0-9a-f]{40} # v5\./);
   // No cache key depends on the ref.
-  expect(source).not.toMatch(/github\.(ref|head_ref|base_ref)|GITHUB_REF/);
+  for (const step of steps)
+    expect(step.with?.['key'] ?? '').not.toMatch(
+      /github\.(ref|head_ref|base_ref)|GITHUB_REF/
+    );
   // bun links packages into node_modules; an archive of those links did not
   // survive Windows (Git's tar restored them unreadable, EPERM), so no OS
   // caches the trees and every run links them from bun's own cache.
@@ -129,17 +132,21 @@ test('setup installs with no secret in the environment, restoring generation fro
   // come in only after the install.
   expect(inject).toBeGreaterThan(-1);
   expect(inject).toBeGreaterThan(save);
-  expect(steps[inject]!.if).toBe("inputs.secrets-environment != ''");
+  expect(steps[inject]!.if).toBe(
+    "inputs.workspace == 'true' && inputs.secrets-environment != ''"
+  );
   // Without TURBO_TOKEN the install's generation keeps the GitHub cache.
   expect(restore).toBeGreaterThan(-1);
   expect(restore).toBeLessThan(install);
   expect(save).toBeGreaterThan(install);
-  expect(steps[restore]!.if).toBeUndefined();
+  expect(steps[restore]!.if).toBe("inputs.workspace == 'true'");
   expect(steps[install]!.env?.['TURBO_CACHE_DIR']).toBe(
     '.cache/setup-generation'
   );
-  expect(steps[install]!.if).toBeUndefined();
-  expect(steps[save]!.if).toBe("steps.generation.outputs.cache-hit != 'true'");
+  expect(steps[install]!.if).toBe("inputs.workspace == 'true'");
+  expect(steps[save]!.if).toBe(
+    "inputs.workspace == 'true' && steps.generation.outputs.cache-hit != 'true'"
+  );
 });
 
 test('every job that injects secrets does it in setup, after the install', () => {

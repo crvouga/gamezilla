@@ -29,7 +29,7 @@ test('fresh runners install pinned tools without the stalled tool archive', () =
   expect(installs).toHaveLength(1);
   const install = installs[0]!;
   expect(install.uses).toMatch(/^jdx\/mise-action@[a-f0-9]{40}$/);
-  expect(install.if).toBeUndefined();
+  expect(install.if).toContain("steps.pr-tools.outputs.cache-hit != 'true'");
   // regression: mise-release-download-504
   // A GitHub release-download outage (Verify PR run 42566398011) falls back to
   // main's toolchain snapshot; a miss still fails the job.
@@ -55,5 +55,15 @@ test('fresh runners install pinned tools without the stalled tool archive', () =
   expect(install.with?.['install_args']).toBe(
     "${{ inputs.tools || '--include-lazy' }}"
   );
-  expect(install.with?.['cache']).toBe(false);
+  expect(install.with?.['cache']).toContain("inputs.tools != ''");
+  const restore = setup.runs.steps.find(
+    (step) => step.name === 'Restore PR tool binaries'
+  );
+  const save = setup.runs.steps.find(
+    (step) => step.name === 'Save PR tool binaries'
+  );
+  expect(restore?.with?.['path']).toBe(save?.with?.['path']);
+  expect(restore?.with?.['key']).toContain("hashFiles('mise.toml')");
+  expect(restore?.with?.['path']).not.toContain('opentofu');
+  expect(activate?.run).not.toContain('mise install $TOOLS');
 });

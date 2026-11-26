@@ -22,7 +22,10 @@ test('Verification transfers the immutable plan as a CI artifact rather than a m
   );
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };
   // The only output is the shard matrix, which holds no plan data.
-  expect(Object.keys(jobs['verify-start']!.outputs ?? {})).toEqual(['shards']);
+  expect(Object.keys(jobs['verify-start']!.outputs ?? {})).toEqual([
+    'shards',
+    'consumers',
+  ]);
   const upload = jobs['verify-start']!.steps.find(
     (step) =>
       step.uses?.startsWith('actions/upload-artifact@') &&

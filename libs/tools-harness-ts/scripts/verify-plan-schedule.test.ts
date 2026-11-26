@@ -147,7 +147,7 @@ test('a fully cached plan schedules nothing and still accounts for every task', 
     expect(schedule.shards).toEqual([]);
     expect(schedule.consumers).toBe(false);
     // The job output the workflow builds the shard matrix from.
-    expect(readFileSync(output, 'utf8')).toBe('shards=[]\n');
+    expect(readFileSync(output, 'utf8')).toBe('shards=[]\nconsumers=-\n');
     const recorded = schedule.cached.map((index) => {
       const entries = archiveEntries(
         join(fixture, `.cache/verify-ci/cached/results-${index}.tar.gz`)
