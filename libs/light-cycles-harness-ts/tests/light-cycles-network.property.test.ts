@@ -11,6 +11,7 @@ import {
 const seed = fc.integer({ min: 1, max: 1_000_000 });
 const steps = fc.array(lightCyclesStep, { minLength: 4, maxLength: 32 });
 
+// regression: light-cycles-quad-trail-validation-timeout
 test('a Quad arena over real rooms keeps its rules through seeded faults, and every device converges', async () => {
   await assertProperty(
     'Light Cycles Quad adverse network',

@@ -99,7 +99,7 @@ export function lightCyclesSeatIndex(seat: LightCyclesSeat): number {
 /** The seat list for one of the three layouts, or null for anything else. */
 export function lightCyclesSeatLayout(
   seats: readonly string[]
-): readonly LightCyclesSeat[] | null {
+): (typeof LIGHT_CYCLES_SEATS)[LightCyclesRiderCount] | null {
   if (seats.length !== 2 && seats.length !== 3 && seats.length !== 4)
     return null;
   const layout = LIGHT_CYCLES_SEATS[seats.length];
