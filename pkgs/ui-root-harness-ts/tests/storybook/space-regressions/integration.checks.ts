@@ -52,7 +52,7 @@ test('screens-space-ended--long-content regression space-recovery-off-center', a
 // regression: space-share-toast-covers-close
 test('screens-spaces-share--added regression space-share-toast-covers-close', async ({
   page,
-}) => {
+}, info) => {
   for (const [width, height] of [
     [390, 844],
     [1280, 800],
@@ -66,9 +66,14 @@ test('screens-spaces-share--added regression space-share-toast-covers-close', as
     });
     const dialog = page.getByRole('dialog', { name: 'People in this space' });
     const alert = page.getByRole('region', { name: 'Alerts' });
+    await expect(alert.getByRole('status')).toHaveText('morgan added');
     await expect(alert).toBeInViewport({ ratio: 1 });
     await dialog.getByRole('button', { name: 'Close', exact: true }).click({
       trial: true,
+    });
+    await page.screenshot({
+      animations: 'disabled',
+      path: info.outputPath(`sharing-alert-${width}x${height}.png`),
     });
     await alert.getByRole('button', { name: 'Close', exact: true }).click();
     await expect(alert).toHaveCount(0);
