@@ -88,6 +88,8 @@ for (const sample of [
     page,
   }) => {
     await openGame(page, sample.story, 1440);
+    if (sample.story.includes('quoridor'))
+      await page.getByRole('button', { name: 'Coordinates' }).click();
     const panel = sample.story.includes('quoridor')
       ? page.getByTestId('custom-game-board-tools')
       : page.locator('[data-component="WordTileActions"]');
@@ -155,6 +157,7 @@ test('storybook integration: literal Quoridor wall tools fit their board workspa
   page,
 }) => {
   await openGame(page, 'screens-games-quoridor-hill--opening', 1440);
+  await page.getByRole('button', { name: 'Coordinates' }).click();
   const tools = page.getByTestId('custom-game-board-tools');
   for (const name of ['Move pawn', 'Horizontal wall', 'Vertical wall'])
     await expect(
