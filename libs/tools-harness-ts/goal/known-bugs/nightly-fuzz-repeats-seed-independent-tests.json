@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly repeated the fixed OpenTofu predicate and Storybook index tests on every determinism seed, although neither reads the seed.",
+  "regressionTest": "apps/product-ts/scripts/test-file-command.test.ts"
+}

@@ -36,3 +36,14 @@ export async function discoverPbtTests(repoRoot: string): Promise<string[]> {
   }
   return files.sort();
 }
+
+/** Determinism replays vary HARNESS_SEED. Ordinary units run in their package. */
+export async function discoverSeededTests(repoRoot: string): Promise<string[]> {
+  const tests = new Bun.Glob('{pkgs,libs}/*/tests/**/*.test.{ts,tsx}');
+  const files: string[] = [];
+  for await (const file of tests.scan({ cwd: repoRoot, onlyFiles: true })) {
+    const source = await Bun.file(join(repoRoot, file)).text();
+    if (source.includes('HARNESS_SEED')) files.push(file.split(sep).join('/'));
+  }
+  return files.sort();
+}

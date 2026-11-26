@@ -368,7 +368,6 @@
       "passThroughEnv": ["*"]
     },
     "test:fuzz": {
-      "dependsOn": ["@pkgs/ui-root-harness-ts#storybook:build"],
       "cache": false,
       "passThroughEnv": ["*"]
     }
