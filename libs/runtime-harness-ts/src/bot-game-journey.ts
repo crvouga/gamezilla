@@ -19,6 +19,11 @@ type BotGame = {
 
 /** The named choices exercised by the start journeys, not a product registry. */
 const CHOICES: Readonly<Record<string, BotGame>> = {
+  'Classic Quoridor': {
+    id: 'quoridor',
+    seats: 2,
+    readyControl: 'custom-game-board-mode-move',
+  },
   Hearts: { id: 'hearts', seats: 4, readyControl: 'custom-game-board-pass' },
   'Word Tiles': {
     id: 'word-tiles',

@@ -4,7 +4,7 @@ import { expect, test } from 'bun:test';
 import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import type { SpaceRole } from '@pkgs/ui-root-client-ts/space-types';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
-import { fireEvent, screen } from '@solidjs/testing-library';
+import { screen } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
 /** A variable, not a literal: a literal `role` reads as an ARIA role to jsx-a11y. */
@@ -18,8 +18,8 @@ function renderShell(spaceName: string): void {
         title="Choose game"
         role={GUEST}
         onBack={() => {}}
-        onLeave={() => {}}
-        onEnd={() => {}}
+        onMembers={() => {}}
+        onMinimize={() => {}}
         testIds={{ title: 'title', name: 'name' }}
       >
         <div />
@@ -29,20 +29,13 @@ function renderShell(spaceName: string): void {
 }
 
 // regression: space-name-not-shown-in-space
-test('the top bar says what the screen is and the space menu which space it is', () => {
+test('the top bar names the screen and its space', () => {
   renderShell('Friday puzzles');
   expect(screen.getByTestId('title').textContent).toBe('Choose game');
-  expect(screen.queryByTestId('name')).toBeNull();
-  fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
   expect(screen.getByTestId('name').textContent).toBe('Friday puzzles');
-  expect(screen.getByRole('menu').contains(screen.getByTestId('name'))).toBe(
-    true
-  );
 });
 
-test('a space whose name is not known yet heads its menu with nothing', () => {
+test('a space whose name is still unknown shows only the screen title', () => {
   renderShell('');
-  fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
-  expect(screen.getByRole('menu')).toBeDefined();
   expect(screen.queryByTestId('name')).toBeNull();
 });

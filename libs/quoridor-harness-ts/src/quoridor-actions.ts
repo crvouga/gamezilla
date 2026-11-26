@@ -86,6 +86,8 @@ export const placeQuoridorWall = scenarioAction({
     const action = `${cell}${suffix}`;
     const screen = await readCustomGameScreen(s, actor);
     if (screen?.current == null) throw new Error('No Quoridor game');
+    const coordinates = ui.get(`${CUSTOM_GAME_BOARD}-coordinates`);
+    if (await coordinates.isVisible()) await coordinates.key('enter');
     const wallMode = ui.get(`${CUSTOM_GAME_BOARD}-mode-${suffix}`);
     if (
       screen.current.status !== 'active' ||

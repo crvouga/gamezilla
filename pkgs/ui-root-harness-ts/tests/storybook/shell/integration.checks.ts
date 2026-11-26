@@ -65,11 +65,7 @@ test('storybook integration: screens-space-home--host-choosing has exactly one r
   await expect(
     bar.getByRole('button', { name: 'Account menu', exact: true })
   ).toHaveCount(0);
-  // Which space it is heads the space menu.
-  await bar.getByRole('button', { name: 'Space menu' }).click();
-  await expect(page.getByTestId('space-menu-name')).toHaveText(
-    'Friday game night'
-  );
+  await expect(bar.getByTestId('space-name')).toHaveText('Friday game night');
   await expect(page.locator('[data-component="AppTabBar"]')).toHaveCount(0);
 });
 
@@ -82,15 +78,15 @@ test('storybook integration: a stack route keeps its header without bottom tabs'
 });
 
 // regression: space-menu-tooltip-obscures-choosing-heading
-test('a focused Space menu keeps the choosing heading clear on a phone', async ({
+test('storybook integration: a focused Minimize button keeps the choosing heading clear on a phone', async ({
   page,
 }) => {
   await open(page, 'space-choosing--screen', 390);
   await page.keyboard.press('Tab');
-  const menu = page.getByRole('button', { name: 'Space menu' });
-  await menu.focus();
-  await expect(menu).toBeFocused();
-  const tip = page.getByRole('tooltip').filter({ hasText: 'Space menu' });
+  const minimize = page.getByRole('button', { name: 'Minimize space' });
+  await minimize.focus();
+  await expect(minimize).toBeFocused();
+  const tip = page.getByRole('tooltip').filter({ hasText: 'Minimize space' });
   await expect(tip).toBeVisible();
   const bubble = await tip.boundingBox();
   const heading = await page
@@ -98,6 +94,39 @@ test('a focused Space menu keeps the choosing heading clear on a phone', async (
     .boundingBox();
   if (!bubble || !heading) throw new Error('Missing tooltip or heading');
   expect(bubble.y + bubble.height).toBeLessThanOrEqual(heading.y);
-  await menu.press('Enter');
-  await expect(page.getByRole('menu', { name: 'Space menu' })).toBeVisible();
 });
+
+// regression: space-bar-actions-hidden
+for (const width of [320, 390, 1440]) {
+  test(`storybook integration: every host space action fits at ${width}px with a long title`, async ({
+    page,
+  }) => {
+    await open(page, 'screens-space-home--long-name', width);
+    const bar = page.locator('[data-space-row="actions"]');
+    const buttons = bar.locator('[data-space-row="tools"] button');
+    await expect(buttons).toHaveCount(6);
+    const names = [
+      'People in this space',
+      'Share',
+      'Rename',
+      'Leave space',
+      'End space',
+      'Minimize space',
+    ];
+    let previousRight = 0;
+    for (const [index, name] of names.entries()) {
+      const button = buttons.nth(index);
+      await expect(button).toHaveAccessibleName(name);
+      await expect(button).toBeInViewport({ ratio: 1 });
+      const box = await button.boundingBox();
+      if (!box) throw new Error(`Missing button: ${name}`);
+      expect(box.width).toBeGreaterThanOrEqual(44);
+      expect(box.height).toBeGreaterThanOrEqual(44);
+      expect(box.x).toBeGreaterThanOrEqual(previousRight);
+      previousRight = box.x + box.width;
+    }
+    const title = await bar.getByTestId('space-title').boundingBox();
+    if (!title) throw new Error('Missing space title');
+    expect(title.width).toBeGreaterThan(0);
+  });
+}

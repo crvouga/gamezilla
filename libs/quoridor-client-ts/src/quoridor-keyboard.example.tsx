@@ -5,6 +5,7 @@ export async function cancelQuoridorWallWithKeyboard(
   canvasElement: HTMLElement
 ) {
   const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
   await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
   const anchor = canvas.getByTestId('custom-game-board-action-d4h');
   anchor.focus();

@@ -46,10 +46,10 @@ function definition(rules: typeof quoridorRules, hill: boolean) {
       choose: (position, random, _hand, strength = 'medium') =>
         quoridorBots.choose(position, strength, random, null),
       async perform(ui, board, action) {
-        if (action !== 'pass') {
-          const mode = ui.get(
-            `${board}-mode-${action.length === 3 ? action[2] : 'move'}`
-          );
+        if (action.length === 3) {
+          const coordinates = ui.get(`${board}-coordinates`);
+          if (await coordinates.isVisible()) await coordinates.key('enter');
+          const mode = ui.get(`${board}-mode-${action[2]}`);
           await mode.wait('enabled');
           await mode.key('enter');
         }

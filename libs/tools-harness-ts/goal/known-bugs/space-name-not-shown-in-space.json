@@ -1,4 +1,4 @@
 {
   "summary": "A person inside a space could no longer see what the space was called: its top bar began saying what the screen is (Choose game, Chess) instead of the space's name, and nothing else in the space showed the name, so a rename reached nobody in the space. The space menu is now headed by the space's name.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/space-shell-menu-name.test.tsx"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/space-shell-name.test.tsx"
 }

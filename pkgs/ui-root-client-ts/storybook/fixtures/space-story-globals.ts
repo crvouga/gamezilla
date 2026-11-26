@@ -1,4 +1,4 @@
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import type { SpaceRole } from '../../src/space-types';
 import type {
   SpaceExampleGameKey,
@@ -74,20 +74,23 @@ export const SPACE_STORY_PLAY_FIXTURE: Readonly<
   'word-tiles': 'wordTiles',
 };
 
-/**
- * The way out of a space sits in the space menu: End space for the host,
- * Leave space for a guest. Opens the menu, checks the row, and closes it.
- */
-export async function expectSpaceExitInMenu(
+/** Check the role's controls before interacting with the stage. */
+export async function expectSpaceBarActions(
   canvasElement: HTMLElement,
   role: SpaceRole
 ): Promise<void> {
-  const page = within(canvasElement.ownerDocument.body);
-  await userEvent.click(page.getByRole('button', { name: 'Space menu' }));
-  await expect(
-    await page.findByRole('menuitem', {
-      name: role === 'host' ? 'End space' : 'Leave space',
-    })
-  ).toBeVisible();
-  await userEvent.keyboard('{Escape}');
+  const bar = within(within(canvasElement).getByRole('banner'));
+  const names = [
+    'People in this space',
+    'Share',
+    ...(role === 'host' ? ['Rename'] : []),
+    'Leave space',
+    ...(role === 'host' ? ['End space'] : []),
+    'Minimize space',
+  ];
+  for (const name of names)
+    await expect(bar.getByRole('button', { name })).toBeVisible();
+  await expect(bar.getAllByRole('button').at(-1)).toBe(
+    bar.getByRole('button', { name: 'Minimize space' })
+  );
 }
