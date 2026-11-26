@@ -68,6 +68,10 @@ on:
         description: Optional live feature path to investigate (empty runs every feature)
         type: string
         default: ''
+      capture_steps:
+        description: Save browser screenshots after each step of the selected feature
+        type: boolean
+        default: false
 
 env:
   TURBO_UI: stream
@@ -221,6 +225,7 @@ jobs:
         env: ${{ fromJSON(needs.health-matrix.outputs.all) }}
     env:
       HEALTH_SPEC: ${{ inputs.spec || '' }}
+      JOURNEY_CAPTURE_STEPS: ${{ inputs.spec && inputs.capture_steps && '1' || '0' }}
       SECRETS_ENV: ${{ matrix.env }}
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       # Health refreshes the declared AWS resources but must never mutate them.
@@ -255,9 +260,9 @@ jobs:
         run: bun run health:local
 
       # Critical journeys (specs/journeys/, apps/product-ts/tests/steps/live-world.ts)
-      # save a screenshot, the page HTML and the browser console per failure.
+      # save failure evidence and, when requested, screenshots of completed steps.
       - name: Upload critical journey evidence
-        if: failure()
+        if: ${{ failure() || (!cancelled() && inputs.spec && inputs.capture_steps) }}
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: critical-journeys-${{ github.run_id }}-${{ env.SECRETS_ENV }}

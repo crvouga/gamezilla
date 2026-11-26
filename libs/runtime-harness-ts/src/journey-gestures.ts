@@ -166,12 +166,25 @@ async function enterHostedSpace(ui: Driver): Promise<void> {
   check(false, 'the hosted space never opened, so it cannot be ended');
 }
 
+async function dismissGameResult(ui: Driver): Promise<boolean> {
+  const close = ui.get('game-result-close');
+  if (!(await close.isVisible())) return false;
+  await close.tap({ timeoutMs: JOURNEY_WAIT_MS });
+  await close.expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
+  return true;
+}
+
 /** End the space the person is in and see it ended. */
 export async function endActiveSpace(ui: Driver): Promise<void> {
-  if (await ui.get('game-result-close').isVisible())
-    await tap(ui, 'game-result-close');
+  await dismissGameResult(ui);
   await enterHostedSpace(ui);
-  await tap(ui, Handles.spaceEnd);
+  try {
+    await tap(ui, Handles.spaceEnd);
+  } catch (error) {
+    // The final move can put its result over End after the space is ready.
+    if (!(await dismissGameResult(ui))) throw error;
+    await tap(ui, Handles.spaceEnd);
+  }
   await tap(ui, Handles.spaceEndConfirm);
   await ui
     .get(Handles.spaceEndConfirm)

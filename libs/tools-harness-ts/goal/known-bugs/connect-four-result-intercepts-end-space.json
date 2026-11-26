@@ -1,0 +1,4 @@
+{
+  "summary": "After both Connect Four players saw the seventh move, the result scrim intercepted End space during host cleanup.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}
