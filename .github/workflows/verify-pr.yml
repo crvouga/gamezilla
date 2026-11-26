@@ -47,7 +47,8 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          STAGE_SECONDS: '180'
+          # Reserve ten seconds for checkout cleanup and verdict publication.
+          STAGE_SECONDS: '170'
         run: |
           set -euo pipefail
           read_created() { timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at; }

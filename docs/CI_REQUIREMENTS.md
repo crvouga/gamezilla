@@ -21,7 +21,10 @@ Health measures elapsed time from GitHub workflow creation through the final ver
 | --- | --- | --- |
 | Pull request | under 2 minutes | 3 minutes |
 | Production Release on main | under 8 minutes | 10 minutes |
+| Health | under 30 minutes | 40 minutes |
 | Complete Nightly | under 30 minutes | 45 minutes |
+
+PR commands stop at 170 seconds to reserve time for GitHub to publish the required check. Health commands stop at minute 39.
 
 Nightly commands stop 39 minutes after workflow creation. The remaining six minutes allow GitHub to cancel outstanding work and publish its verdict. Nightly gate shard jobs also have a 35-minute runner timeout because a runner can stop responding during verification.
 

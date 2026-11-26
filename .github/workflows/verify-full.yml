@@ -1,25 +1,8 @@
 name: Verify Full
-run-name: Verify Full · manual
 permissions:
   contents: read # check out the code
   actions: read # read run state (gh run list, job metadata)
 on:
-  workflow_dispatch:
-    inputs:
-      shards:
-        description: Most shards a run may start
-        type: choice
-        options: [8, 12, 16, 24, 32, 40, 48, 64]
-        default: 64
-      concurrency:
-        description: Turbo slots per shard
-        type: number
-        default: 1
-      cache-mode:
-        description: normal or cold (cold forces execution without deleting remote caches)
-        type: choice
-        options: [normal, cold]
-        default: normal
   workflow_call:
     outputs:
       reuse-shared:
@@ -65,12 +48,6 @@ on:
         description: enforce (a current advisory fails the gate) or report (the registry's verdict is logged, not enforced)
         type: string
         default: enforce
-
-# Repeated branch validations replace earlier requests with the same settings.
-# Reusable calls inherit the caller's workflow name and keep a per-run group.
-concurrency:
-  group: ${{ (github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' }}
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -238,7 +215,6 @@ jobs:
             if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq --arg deployment "$VERIFY_DEPLOYMENT" '
               [.[].workflow_runs[] | select(if $deployment == "true" then
                 .path == ".github/workflows/deploy.yml" else
-                (.path == ".github/workflows/verify-full.yml" and .event == "workflow_dispatch") or
                 (.path == ".github/workflows/verify-nightly.yml" and
                  (.display_title | (contains("diagnostic ") | not) or endswith("diagnostic gate")))
               end)] | length'); then

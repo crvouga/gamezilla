@@ -26,6 +26,7 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
   const tail = (shell: string) => shell.slice(shell.indexOf('created_epoch='));
   expect(tail(budgetCommand('verify-full.yml'))).toBe(tail(command));
   expect(budgetCommand('deploy.yml')).toBe(command);
+  expect(budgetCommand('health.yml')).toBe(command);
   const nightly = budgetCommand('verify-nightly.yml');
   expect(tail(nightly)).toBe(tail(command));
   const dir = mkdtempSync(join(tmpdir(), 'ci-budget-'));

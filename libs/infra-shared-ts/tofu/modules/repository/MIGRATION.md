@@ -71,8 +71,8 @@ the API can create one), so there are none. OpenTofu keeps authenticating with
 maintainer. Consequences:
 
 - No `app_auth` provider block; the token is the one credential.
-- Agent PRs cannot be told apart by author, so PR Hygiene does not apply
-  `agent-generated` automatically; the label exists for agents to add.
+- Agent PRs cannot be told apart by author, so agents apply the
+  `agent-generated` label themselves.
 - No app is ever a bypass actor; the admin role is the only one.
 
 ## Deliberate departures from the requested spec
@@ -81,7 +81,6 @@ maintainer. Consequences:
 - **No AI review check.** Decided by the maintainer: CI is the only gate.
 - **PRs open ready for review, not draft.** A draft cannot auto-merge, and the
   maintainer asked for ready by default.
-- **PR Hygiene runs weekly.** Updating clean branches would rerun CI.
 - **Labels are managed one resource each, not authoritatively.** An
   authoritative set would delete `/overnight`'s dated labels on every apply.
 - **No reviewer on `production`, and repository policy still applies in
@@ -100,5 +99,3 @@ Run as the maintainer:
 3. When green it squash-merges by itself and its branch is deleted.
 4. `git push origin HEAD:main` is rejected (`GH013`), even for the admin.
 5. `git push origin :refs/tags/release-<n>` is rejected.
-6. `gh workflow run pr-hygiene.yml` succeeds; a PR labelled `do-not-merge`
-   loses auto-merge.

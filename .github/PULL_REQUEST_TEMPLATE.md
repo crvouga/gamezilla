@@ -2,7 +2,6 @@
 Keep every `##` section with real content; the HTML comments are guidance.
 Stay high level: everything above the checklist fits in ~120 words.
 Verify a box only when it is true.
-PR Hygiene holds a pull request whose description lacks one of these sections.
 -->
 
 ## Summary

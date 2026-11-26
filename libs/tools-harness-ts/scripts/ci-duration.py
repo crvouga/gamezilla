@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 # Seconds from workflow creation to its verdict, including any reruns.
 BUDGETS = {
     "Verify PR": ("verify-pr.yml", 120, 180),
+    "Health": ("health.yml", 1800, 2400),
     "Release": ("deploy.yml", 480, 600),
     "Verify Nightly": ("verify-nightly.yml", 1800, 2700),
 }
@@ -16,6 +17,8 @@ BUDGETS = {
 def eligible(stage, run):
     if stage == "Verify PR":
         return run["event"] == "pull_request"
+    if stage == "Health":
+        return run["event"] in ("schedule", "workflow_dispatch")
     if stage == "Release":
         return run["head_branch"] == "main" and run["display_title"] in (
             "Release · push", "Release · manual"
