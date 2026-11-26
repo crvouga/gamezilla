@@ -201,3 +201,16 @@ test('the deployment verifies production bundles, billing, migrations, security 
   expect(tasks).not.toContain('test:contract');
   expect(tasks).not.toContain('test:spec:0');
 });
+
+// regression: release-checks-undeployed-population-worker
+test('Nightly verifies population-worker infrastructure outside the production rollout', () => {
+  const task =
+    '@apps/synthetic-population-worker-ts#verify:synthetic-population-foundation';
+  expect(deploymentTasks(MAIN_VERIFY_TASKS)).not.toContain(task);
+  expect(ciStageTasks(MAIN_VERIFY_TASKS, 'nightly')).toContain(task);
+  for (const worker of ['admin-api', 'auth-relay', 'product']) {
+    expect(deploymentTasks(MAIN_VERIFY_TASKS)).toContain(
+      `@apps/${worker}-ts#verify:worker-bundle`
+    );
+  }
+});

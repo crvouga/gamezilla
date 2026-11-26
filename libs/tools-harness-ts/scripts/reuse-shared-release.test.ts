@@ -84,6 +84,8 @@ test('Release reuses a completed apply across verification edits and requires fr
     const sha = commit(dir, ['README.md']);
     commit(dir, [
       '.github/workflows/verify-pr.yml',
+      'libs/tools-harness-ts/scripts/ci-stage.ts',
+      'libs/tools-harness-ts/scripts/reuse-shared-release.sh',
       'docs/CI_REQUIREMENTS.md',
       'libs/tools-harness-ts/scripts/verify-plan-schedule.ts',
       'libs/tools-harness-ts/scripts/workflow-plan-artifact.test.ts',
