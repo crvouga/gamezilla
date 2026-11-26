@@ -6,7 +6,8 @@ Feature: Return to a Classic Quoridor game from the lobby
 
     @regression:space-bar-actions-hidden
     Scenario: The host returns to the same board after the bot replies
-      Given Alice has played e2 in Classic Quoridor on a fresh device and the bot has replied
+      Given Alice is playing Classic Quoridor against a bot on a fresh device
+      When Alice moves to e2 and sees the bot reply
       When Alice minimizes her space
       Then Alice sees her space in the lobby
       When Alice opens that space from the lobby
