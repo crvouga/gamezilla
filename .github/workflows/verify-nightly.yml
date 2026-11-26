@@ -52,8 +52,12 @@ on:
       group:
         description: Diagnostic group, or all for comprehensive verification
         type: choice
-        options: [all, gate, random, browser, visual, coverage, performance, storybook]
+        options: [all, gate, random, browser, visual, coverage, performance, storybook, pr-load]
         default: all
+      pr-load-revisions:
+        description: JSON array of distinct merged commit SHAs for a PR throughput diagnostic
+        type: string
+        default: '[]'
       storybook-pattern:
         description: Optional story-id regex for explicit Storybook diagnostics; empty runs every state
         type: string
@@ -312,6 +316,54 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
 
+  verify-nightly-pr-load:
+    name: verify-nightly:pr-load (${{ matrix.revision }})
+    if: github.event_name == 'workflow_dispatch' && inputs.group == 'pr-load'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      id-token: write
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        revision: ${{ fromJSON(inputs.pr-load-revisions || '[]') }}
+    env:
+      REVISION: ${{ matrix.revision }}
+      VERIFY_CI_STAGE: pr
+      VERIFY_PROFILE: release
+      VERIFY_DEADLINE_SECONDS: '1500'
+      GH_EVENT: pull_request
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - *checkout
+      - name: Select a merged workload
+        run: |
+          set -euo pipefail
+          [[ "$REVISION" =~ ^[a-f0-9]{40}$ ]]
+          git merge-base --is-ancestor "$REVISION" origin/main
+          cp libs/tools-harness-ts/scripts/ci-stage.ts "$RUNNER_TEMP/pr-tasks.ts"
+          cp libs/tools-harness-ts/scripts/pr-load.sh "$RUNNER_TEMP/pr-load.sh"
+          git switch --detach "$REVISION"
+      - uses: ./.github/actions/setup
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          tools: bun node gh opentofu gitleaks actionlint
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Execute PR checks
+        run: bash "$RUNNER_TEMP/pr-load.sh"
+      - name: Retain measurements
+        if: always() && !cancelled()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: pr-load-${{ matrix.revision }}
+          path: .cache/pr-load/metrics.json
+          include-hidden-files: true
+          if-no-files-found: error
+          retention-days: 3
+
   # The ending word. Every group ran to its own result; any group that did
   # not succeed fails the night, and the failure is filed where people look.
   verify-nightly-end:
@@ -324,6 +376,7 @@ jobs:
       - verify-nightly-coverage
       - verify-nightly-performance
       - verify-nightly-storybook
+      - verify-nightly-pr-load
     if: always() && !cancelled()
     runs-on: ubuntu-24.04
     timeout-minutes: 10

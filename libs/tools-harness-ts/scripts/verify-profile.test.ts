@@ -264,7 +264,12 @@ describe('Verify Nightly workflow', () => {
   });
 
   test('every suite is one job, and every job is a suite', () => {
-    const groups = ['gate', ...Object.keys(NIGHTLY_SUITES), 'storybook'];
+    const groups = [
+      'gate',
+      ...Object.keys(NIGHTLY_SUITES),
+      'storybook',
+      'pr-load',
+    ];
     expect(Object.keys(nightly.jobs).sort()).toEqual(
       [...groups, 'end'].map((group) => `verify-nightly-${group}`).sort()
     );

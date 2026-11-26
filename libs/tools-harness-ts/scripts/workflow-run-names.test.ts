@@ -28,7 +28,9 @@ type Workflow = {
     string,
     {
       name?: string;
-      strategy?: { matrix?: { env?: unknown; shard?: unknown } };
+      strategy?: {
+        matrix?: { env?: unknown; shard?: unknown; revision?: unknown };
+      };
     }
   >;
 };
@@ -117,6 +119,12 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
       const perShard = job.strategy?.matrix?.shard !== undefined;
       expect(id === prefix || id.startsWith(`${prefix}-`)).toBe(true);
       const stage = id === prefix ? '' : `:${id.slice(prefix.length + 1)}`;
+      if (job.strategy?.matrix?.revision !== undefined) {
+        expect(job.name).toBe(
+          `${prefix}${stage} (${'${{ matrix.revision }}'})`
+        );
+        continue;
+      }
       if (id === 'verify-nightly-end') {
         expect(job.name).toBe(
           "${{ inputs.group && inputs.group != 'all' && 'verify-nightly:diagnostic' || 'verify-nightly:end' }}"

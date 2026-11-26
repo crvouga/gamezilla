@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type LoadReport, loadReport, readLoadInput } from './ci-load';
-import { isBlockingCiTask } from './ci-stage';
+import { isBlockingCiTask, PR_TASKS } from './ci-stage';
 import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
 import { createTaskEstimator } from './verify-task-estimates';
 
@@ -19,6 +19,7 @@ export type TaskRow = {
 
 export type ProfileSplit = {
   readonly prSeconds: number;
+  readonly releaseOnlySeconds: number;
   readonly nightlyOnlySeconds: number;
   readonly prTasks: number;
   readonly nightlyOnlyTasks: number;
@@ -70,16 +71,18 @@ export function profileSplit(rows: readonly TaskRow[]): ProfileSplit {
   const blocking = rows.filter((row) =>
     isBlockingCiTask(row.id, MAIN_VERIFY_TASKS)
   );
+  const pr = blocking.filter((row) => isBlockingCiTask(row.id, PR_TASKS));
   const nightly = rows.filter(
     (row) => !isBlockingCiTask(row.id, MAIN_VERIFY_TASKS)
   );
   return {
-    prSeconds: sum(blocking),
+    prSeconds: sum(pr),
+    releaseOnlySeconds: sum(blocking) - sum(pr),
     nightlyOnlySeconds: sum(nightly),
-    prTasks: blocking.length,
+    prTasks: pr.length,
     nightlyOnlyTasks: nightly.length,
     longest: longest(rows),
-    longestPr: longest(blocking),
+    longestPr: longest(pr),
   };
 }
 

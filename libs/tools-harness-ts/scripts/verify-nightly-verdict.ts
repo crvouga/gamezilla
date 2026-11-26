@@ -32,6 +32,8 @@ const GATE_SUMMARY =
   'The complete verification catalog at nightly depth: every Quint trace, five times the property runs';
 
 function groupSummary(name: string): string {
+  if (name === 'pr-load')
+    return 'Concurrent verification of historical PR workloads';
   if (name === 'gate') return GATE_SUMMARY;
   if (name === 'storybook')
     return 'Storybook browser comparisons and retained pixel evidence';
@@ -44,7 +46,7 @@ function groupSummary(name: string): string {
 export function nightlyGroupNames(selection = 'all'): readonly string[] {
   const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
   if (selection === 'all') return names;
-  if (selection === 'storybook') return [selection];
+  if (selection === 'storybook' || selection === 'pr-load') return [selection];
   if (!names.includes(selection))
     throw new Error(`Unknown nightly group: ${selection}`);
   return [selection];
@@ -58,6 +60,8 @@ export function tracksNightlyIssue(
 }
 
 function reproduceGroup(name: string): string {
+  if (name === 'pr-load')
+    return 'Dispatch Verify Nightly with the same pr-load-revisions';
   return name === 'storybook'
     ? 'bun storybook:test'
     : `bun verify-nightly ${name}`;
@@ -78,7 +82,8 @@ export function nightlyGroups(
   const reported = Object.keys(needs)
     .filter(
       (job) =>
-        job !== 'verify-nightly-storybook' || needs[job]?.result !== 'skipped'
+        !['verify-nightly-storybook', 'verify-nightly-pr-load'].includes(job) ||
+        needs[job]?.result !== 'skipped'
     )
     .map((job) =>
       job.startsWith(JOB_PREFIX) ? job.slice(JOB_PREFIX.length) : job

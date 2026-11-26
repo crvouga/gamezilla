@@ -1,0 +1,4 @@
+{
+  "summary": "The capacity report counted a release-only 200-second spec part alongside a 10-second PR lint task, reporting 210 seconds of PR work.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stats.test.ts"
+}
