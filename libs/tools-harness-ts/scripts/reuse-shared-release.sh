@@ -29,6 +29,14 @@ while read -r id sha status attempt created; do
   # Only paths disjoint from shared infrastructure, the auth relay, shared
   # credentials and its toolchain are allowed. Inspect both sides of renames.
   git diff --quiet --no-renames "$sha" HEAD -- . \
+    ':(exclude)README.md' \
+    ':(exclude).github/workflows/verify-nightly.yml' \
+    ':(exclude)apps/product-ts/scripts/discover.ts' \
+    ':(exclude)apps/product-ts/scripts/test-fuzz.ts' \
+    ':(exclude)apps/product-ts/scripts/test-file-command.test.ts' \
+    ':(exclude)apps/product-ts/turbo.json' \
+    ':(exclude,glob)pkgs/*-client-ts/src/**/*.css' \
+    ':(exclude,glob)pkgs/*-harness-ts/tests/storybook/**' \
     ':(exclude,glob)docs/**/*.md' ':(exclude,glob)specs/**/*.feature' \
     ':(exclude,glob)libs/*-client-ts/src/**' ':(exclude,glob)apps/product-client-ts/src/**' \
     ':(exclude).github/workflows/verify-pr.yml' \

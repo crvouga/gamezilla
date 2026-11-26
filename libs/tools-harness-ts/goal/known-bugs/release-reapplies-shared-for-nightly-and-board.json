@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45863119707 repeated shared reconciliation after a Nightly fuzz change and reached the production safe-start check nine seconds late. Nightly test configuration, client CSS and Storybook checks can reuse a recent verified ancestor's shared applications.",
+  "regressionTest": "libs/tools-harness-ts/scripts/reuse-shared-release.test.ts"
+}
