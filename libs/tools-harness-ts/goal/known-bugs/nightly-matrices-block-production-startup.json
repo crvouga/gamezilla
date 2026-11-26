@@ -1,0 +1,4 @@
+{
+  "summary": "The full Nightly admitted up to 24 concurrent jobs into a 20-runner account while production fleet and policy jobs waited to start.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

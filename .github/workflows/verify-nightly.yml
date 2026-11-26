@@ -114,6 +114,8 @@ jobs:
     uses: ./.github/workflows/verify-pr.yml
     with:
       profile: nightly
+      # Reserve six of the twenty account runners for releases and PRs.
+      shards: 2
 
   verify-nightly-random:
     name: verify-nightly:random (${{ matrix.shard }}/${{ strategy.job-total }})
@@ -171,10 +173,10 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
-      - &setup
-        uses: ./.github/actions/setup
+      - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
+          tools: bun node
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
@@ -227,7 +229,14 @@ jobs:
     steps:
       - *budget
       - *checkout
-      - *setup
+      - &setup
+        uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - &renderer
         uses: ./.github/actions/visual-renderer
         timeout-minutes: 2
@@ -337,6 +346,7 @@ jobs:
     timeout-minutes: 45
     strategy:
       fail-fast: true
+      max-parallel: 2
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
