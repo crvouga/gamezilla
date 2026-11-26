@@ -13,7 +13,7 @@ the same resources and undo each other.
 | Merge methods | merge commit only | squash only (`PR_TITLE` / `PR_BODY`) |
 | Auto-merge, delete branch on merge, update branch | on | on (unchanged) |
 | `main` ruleset | deletion, non-fast-forward, PR (0 approvals, dismiss stale, thread resolution), required checks, **up to date required** (turned off by #337) | adds `creation`, `required_linear_history`, `allowed_merge_methods = ["squash"]`, admin bypass through a pull request only |
-| Required checks | `verify:start`, `verify:end`, `CodeQL`, `Analyze (actions)`, `Analyze (javascript-typescript)` | the ruleset requires `verify:end`; `verify:end` enforces the `outage_tolerant` CodeQL checks (findings block, an unavailable scanner warns) |
+| Required checks | First-party verification | The ruleset requires `verify:end` from GitHub Actions. |
 | Bypass actors | none | repository admin role (`actor_id` 5), `pull_request` mode |
 | Tag protection | none | `release-*`: no deletion, no update |
 | Legacy branch protection | none (`removed` block already forgets the old address) | none |
@@ -77,15 +77,11 @@ maintainer. Consequences:
 
 ## Deliberate departures from the requested spec
 
-- **One required verification job.** `verify:end` runs the PR tasks and enforces the CodeQL policy. Release and Nightly distribute the full catalog.
+- **One required verification job.** `verify:end` runs the PR tasks. Release and Nightly distribute the full catalog.
 - **No AI review check.** Decided by the maintainer: CI is the only gate.
 - **PRs open ready for review, not draft.** A draft cannot auto-merge, and the
   maintainer asked for ready by default.
-- **PR Hygiene runs on a schedule (every 15 minutes), not on `pull_request`.**
-  Verify PR's final gate fails any PR check that is not required
-  (`required-pr-checks.ts`); scheduled runs are not PR checks. It does not run
-  `update-branch` on behind PRs: without a merge queue that reruns full CI for
-  nothing.
+- **PR Hygiene runs weekly.** Updating clean branches would rerun CI.
 - **Labels are managed one resource each, not authoritatively.** An
   authoritative set would delete `/overnight`'s dated labels on every apply.
 - **No reviewer on `production`, and repository policy still applies in

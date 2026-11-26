@@ -71,16 +71,6 @@
     "tc": {
       "inputs": ["$TURBO_EXTENDS$", "!scripts/verify-task-costs.json"]
     },
-    "verify:pr-checks": {
-      "cache": false,
-      "passThroughEnv": [
-        "GH_TOKEN",
-        "GITHUB_REPOSITORY",
-        "GITHUB_SHA",
-        "PR_HEAD",
-        "SHARD_RESULT"
-      ]
-    },
     "docs:ci-load": {
       "cache": false
     },

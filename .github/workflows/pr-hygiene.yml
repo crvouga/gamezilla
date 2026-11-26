@@ -13,10 +13,7 @@ run-name: "PR Hygiene · ${{ github.event_name == 'schedule' && 'schedule' || 'm
 # - A PR with no activity for 2 days gets `stale`; 3 days later it is closed.
 #   `hotfix` PRs are exempt.
 #
-# Scheduled only, never on pull_request: Verify PR's final gate refuses any
-# PR check that is not a required check (required-pr-checks.ts), and scheduled
-# runs are not PR checks. Behind-but-clean PRs are left alone: main does not
-# require up-to-date branches, and updating them would rerun CI for nothing.
+# Behind-but-clean PRs are left alone. Updating them would rerun CI.
 #
 # Weekly (was every 15 minutes): a sweep this frequent was most of the org's
 # Actions volume and got Actions disabled. Dispatch it by hand when needed.
