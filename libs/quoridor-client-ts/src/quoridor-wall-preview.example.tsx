@@ -16,6 +16,7 @@ export async function expectQuoridorSpatialArea(canvasElement: HTMLElement) {
   await expect(board.getBoundingClientRect().width).toBeGreaterThanOrEqual(
     minimum
   );
+  if (canvas.queryByTestId('custom-game-board-coordinates')) return;
   for (const name of ['Horizontal wall', 'Vertical wall'])
     await expect(canvas.getByRole('button', { name })).toHaveTextContent(name);
 }

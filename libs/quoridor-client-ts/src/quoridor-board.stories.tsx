@@ -133,6 +133,7 @@ export const NoWallsLeft: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expect(canvas.getByTestId('custom-game-board-mode-h')).toBeDisabled();
     await expect(canvas.getByTestId('custom-game-board-mode-v')).toBeDisabled();
     await expect(
@@ -183,6 +184,7 @@ export const PlaceAWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-h')
@@ -224,6 +226,7 @@ export const RefuseACrossingWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     const page = within(canvasElement.ownerDocument.body);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-v')
@@ -283,6 +286,7 @@ export const KeepAPathOpen: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-v')
     );
@@ -346,6 +350,7 @@ export const PreciseCoordinates: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectQuoridorGoalMarker(canvasElement, 'a9');
     await chooseQuoridorCoordinate(canvasElement, 'e2');
@@ -375,6 +380,7 @@ export const RotateWallPreview: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
     await expectQuoridorSpatialArea(canvasElement);

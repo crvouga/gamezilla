@@ -45,6 +45,7 @@ function mountBoard() {
       </ThemeProvider>
     </ClockProvider>
   ));
+  fireEvent.click(view.getByTestId('precision-coordinates'));
   return { view, actions };
 }
 

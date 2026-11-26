@@ -40,6 +40,7 @@ function mountBoard(mode: 'classic' | 'hill') {
       </ThemeProvider>
     </ClockProvider>
   ));
+  fireEvent.click(view.getByTestId('lifecycle-coordinates'));
   const anchor = () => view.getByTestId('lifecycle-action-d4h');
   fireEvent.click(view.getByTestId('lifecycle-mode-h'));
   fireEvent.focus(anchor());
