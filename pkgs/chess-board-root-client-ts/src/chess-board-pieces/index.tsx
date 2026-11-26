@@ -32,6 +32,7 @@ import {
 } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
+import figures from './figures.module.css';
 
 export type PremoveGhost = {
   readonly to: Square;
@@ -52,7 +53,7 @@ export type ChessBoardPiecesProps = {
   readonly engaged: () => boolean;
 };
 
-const PIECE_CLASS = `${styles['cell']} ${styles['piece']}`;
+const PIECE_CLASS = `${styles['cell']} ${styles['piece']} ${figures['figure']}`;
 
 function Piece(props: {
   readonly row: ChessPieceRow;

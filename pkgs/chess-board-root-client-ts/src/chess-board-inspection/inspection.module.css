@@ -1,0 +1,28 @@
+.viewport {
+  position: relative;
+  width: 100%;
+  touch-action: none;
+}
+.fixed {
+  width: fit-content;
+}
+.viewport[data-chess-inspection="magnified"] {
+  overflow: clip;
+  cursor: grab;
+}
+.surface {
+  transform-origin: top left;
+}
+.fit {
+  position: absolute;
+  inset: auto var(--ui-space-1) var(--ui-space-1) auto;
+}
+
+.readout {
+  display: block;
+  padding: var(--ui-space-1) var(--ui-space-2);
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-xs);
+}

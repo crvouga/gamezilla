@@ -59,7 +59,7 @@ const PIECE_NAMES: Readonly<Record<PieceType, string>> = {
   k: 'king',
 };
 
-function squareName(square: Square, position: Position): string {
+export function squareName(square: Square, position: Position): string {
   const piece = position[indexFromSquare(square)];
   return piece === null || piece === undefined
     ? `${square}, empty`

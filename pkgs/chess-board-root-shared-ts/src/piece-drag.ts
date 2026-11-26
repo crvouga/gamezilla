@@ -22,7 +22,7 @@
 export const TOUCH_ZOOM = 1.8;
 /**
  * Touch: where the finger holds the grown piece, as a fraction of its height
- * from the top — the base of the Cburnett art (its feet sit at ~39/45 of the
+ * from the top — the base of the piece artwork (its feet sit at 42/48 of the
  * box). The whole piece shows above the finger and the drop square is the
  * one under the fingertip, right below the piece's base.
  */
