@@ -1,0 +1,4 @@
+{
+  "summary": "Localhost printed install and cleanup chatter in the Run pane and dropped successful Bun install output from the linked log.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workspace-run.test.ts"
+}

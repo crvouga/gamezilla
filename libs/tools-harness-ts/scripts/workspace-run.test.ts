@@ -44,6 +44,7 @@ function writeFakeTools(dir: string): void {
       'fi\n' +
       'if [ "$1" = "run" ] && [ "$2" = "secrets:pull" ]; then exit "${WORKSPACE_RUN_TEST_SECRETS_STATUS:-1}"; fi\n' +
       'if [ "$1" = "install" ]; then\n' +
+      '  echo "bun: resolving packages" >&2\n' +
       '  [ "${WORKSPACE_RUN_TEST_INSTALL:-ok}" != "fail" ] || exit 1\n' +
       '  if [ -L node_modules/.bun/stale-link ]; then\n' +
       '    echo "EEXIST: File exists: failed to symlink dependencies for package: @babel/helper-module-transforms@7.29.7 (symlink)" >&2\n' +
@@ -144,6 +145,24 @@ function checkout() {
     step: (name: string) => script('step.sh', [name]),
   };
 }
+
+// regression: localhost-install-output
+test('Localhost sends cold install details to its linked log on success and failure', () => {
+  const { dir, run } = checkout();
+  const log = join(dir, '.cache/localhost-stack/dev.log');
+  const failed = run({ WORKSPACE_RUN_TEST_INSTALL: 'fail' });
+  expect(failed.status).toBe(1);
+  expect(failed.stdout).toBe(`Failed (1) · Logs ${log}\n`);
+  expect(failed.stderr).toBe('');
+  expect(readFileSync(log, 'utf8')).toContain('bun: resolving packages');
+  const started = run();
+  expect(started.status).toBe(0);
+  expect(started.stdout + started.stderr).toBe('');
+  const details = readFileSync(log, 'utf8');
+  expect(details).toContain('mise: downloading');
+  expect(details).toContain('bun: resolving packages');
+  expect(details).toContain('stopping any stack');
+});
 
 // regression: workspace-setup-failure-stamp
 test('failed setup is not accepted as a prepared checkout and can be retried', () => {
@@ -364,7 +383,9 @@ test('an outdated mise that cannot be updated says which version is needed', () 
   outdatedMise(dir, 'offline');
   const result = run();
   expect(result.status).not.toBe(0);
-  expect(`${result.stdout}${result.stderr}`).toContain(
+  expect(
+    readFileSync(join(dir, '.cache/localhost-stack/dev.log'), 'utf8')
+  ).toContain(
     '!!! mise 2026.11.11 is required and could not be installed over'
   );
   expect(result.calls).toEqual([]);
@@ -448,7 +469,9 @@ test('activation cannot wait for input or resolve tools over the network', () =>
   );
   const result = run();
   expect(result.status, result.stderr).toBe(0);
-  expect(result.stderr).toContain('activating installed workspace tools');
+  expect(
+    readFileSync(join(dir, '.cache/localhost-stack/dev.log'), 'utf8')
+  ).toContain('activating installed workspace tools');
   expect(result.calls).toEqual([STOP, DEV]);
 });
 
@@ -460,9 +483,9 @@ test('Localhost rebuilds a conflicting Bun link before it starts the stack', () 
   const result = run();
   expect(result.status, result.stderr).toBe(0);
   expect(result.calls).toEqual([INSTALL, INSTALL, STOP, DEV]);
-  expect(result.stdout).toContain(
-    'rebuilding conflicting Bun dependency links'
-  );
+  expect(
+    readFileSync(join(dir, '.cache/localhost-stack/dev.log'), 'utf8')
+  ).toContain('rebuilding conflicting Bun dependency links');
   expect(run().calls).toEqual([STOP, DEV]);
 });
 
