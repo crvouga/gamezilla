@@ -113,7 +113,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
     }
   );
   return (
-    <StackVertical gap="xs">
+    <StackVertical gap="xs" dataSet={{ 'quoridor-mode': game().mode }}>
       <Show when={game().winner === null && quoridorMustPass(game())}>
         <QuoridorBoardTools
           testId={props.testId}

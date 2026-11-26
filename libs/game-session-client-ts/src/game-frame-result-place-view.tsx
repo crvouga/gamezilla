@@ -166,7 +166,7 @@ export function FrameResultPlace(
         }
         status={<FrameStatusView status={props.status} spokenOnly />}
         actions={<NextActions {...props} />}
-        history={<FrameMovesCard {...props} listOnly />}
+        history={<FrameMovesCard {...props} />}
       >
         {(information) => <FrameStage {...props} information={information} />}
       </FixedGameSession>

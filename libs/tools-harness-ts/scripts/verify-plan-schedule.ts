@@ -47,13 +47,22 @@ export function startedFirst(plan: VerifyPlan): VerifyPlan {
 }
 
 /**
- * The `verify:shards` matrix: one entry per shard with work, written in dashes
- * alone, with no letter or digit for a masked secret to match.
+ * Each punctuation-only entry carries a shared runner slot (-) and a unique
+ * shard token (+). Rotate small matrices across slots as new runs arrive.
  */
-export function shardMatrix(schedule: Pick<VerifySchedule, 'shards'>): string {
+export function shardMatrix(
+  schedule: Pick<VerifySchedule, 'shards'>,
+  runId = 0
+): string {
   if (schedule.shards.some((shard, place) => shard !== place))
     throw new Error('Shards with work must be numbered first');
-  return JSON.stringify(schedule.shards.map((shard) => '-'.repeat(shard + 1)));
+  const sharedSlots = 12;
+  return JSON.stringify(
+    schedule.shards.map((shard) => ({
+      '-': '-'.repeat(1 + ((runId + shard) % sharedSlots)),
+      '+': '+'.repeat(shard + 1),
+    }))
+  );
 }
 
 export function verifySchedule(plan: VerifyPlan): VerifySchedule {
@@ -117,6 +126,12 @@ export function writeSchedule(
     );
     packShardEvidence(root, index, [path], CACHED);
   }
-  if (output) appendFileSync(output, `shards=${shardMatrix(schedule)}\n`);
+  if (output) {
+    const matrix = shardMatrix(
+      schedule,
+      Number(process.env['GITHUB_RUN_ID'] ?? 0)
+    );
+    appendFileSync(output, `shards=${matrix}\n`);
+  }
   return schedule;
 }

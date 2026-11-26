@@ -1,0 +1,4 @@
+{
+  "summary": "A finished matched game's copy controls could not be reached by the game-record scenarios after they moved into the Game record dialog.",
+  "regressionTest": "specs/games/matched-game-record.feature"
+}

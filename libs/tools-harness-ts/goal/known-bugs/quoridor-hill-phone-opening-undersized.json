@@ -1,0 +1,4 @@
+{
+  "summary": "On a 390 × 844 phone the four-player Hill opening board measured only 323px wide because the board always reserved space for three rows of controls.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-regressions/integration.checks.ts"
+}

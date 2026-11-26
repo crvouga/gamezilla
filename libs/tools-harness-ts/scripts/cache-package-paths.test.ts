@@ -10,13 +10,21 @@ type Config = {
 
 // regression: game-lesson-story-cache-input
 test('editing the catalog walkthrough rebuilds the hosted Storybook', () => {
-  const story = 'libs/games-client-ts/src/game-home-how-to-play.stories.tsx';
+  const story =
+    'libs/game-menu-client-ts/src/game-home-how-to-play.stories.tsx';
   const build =
     readTurboTasks(ROOT)['@pkgs/ui-root-harness-ts#storybook:build'];
   const files = (build?.inputs ?? []).map(
     (pattern) => new Bun.Glob(pattern.replace('$TURBO_ROOT$/', ''))
   );
-  expect(files.some((pattern) => pattern.match(story))).toBe(true);
+  for (const file of [
+    story,
+    'libs/games-client-ts/src/game-menu-preview.example.tsx',
+  ])
+    expect(
+      files.some((pattern) => pattern.match(file)),
+      file
+    ).toBe(true);
 });
 
 // regression: flattened-checker-cache-dependencies
