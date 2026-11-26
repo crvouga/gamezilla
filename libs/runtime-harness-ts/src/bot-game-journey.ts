@@ -22,7 +22,7 @@ const CHOICES: Readonly<Record<string, BotGame>> = {
   Battleship: {
     id: 'battleship',
     seats: 2,
-    readyControl: 'custom-game-board-own-grid',
+    readyControl: 'custom-game-board-target-grid',
   },
   'Classic Quoridor': {
     id: 'quoridor',
