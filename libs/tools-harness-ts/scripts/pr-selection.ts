@@ -150,6 +150,8 @@ function waitsForRelease(
   byId: ReadonlyMap<string, DryRunTask>,
   costs: TaskCosts
 ): string | null {
+  if (task.taskId === '@libs/infra-server-ts#test')
+    return 'validates infrastructure with OpenTofu and Conftest';
   if (browserTask(task.taskId)) return 'drives a browser';
   if (solverTask(task.taskId)) return 'runs the model-checking solver';
   const prerequisite = workingPrerequisite(task, byId);

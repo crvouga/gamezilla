@@ -329,7 +329,7 @@ jobs:
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -435,7 +435,7 @@ jobs:
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}

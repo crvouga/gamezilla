@@ -114,7 +114,7 @@ test('gate shards install every toolchain the gate catalog needs', () => {
       (step) => step.uses === './.github/actions/setup'
     )!;
     expect(setup.with?.['tools']).toBe(
-      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}"
+      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}"
     );
   }
 });
