@@ -64,7 +64,7 @@ check real external systems and cannot be replaced by cached unit results. Main 
 
 ## Nightly-only groups
 
-Nightly runs the whole gate above at deeper budgets, and adds groups outside the gate:
+The shared Nightly runs the gate at deeper budgets. Numbered games-harness spec partitions rotate over four UTC dates. The creation date fixes the turn, including on reruns. Dispatch Verify Nightly with `group=gate` to request every partition at Nightly depth. Nightly also runs these groups:
 fresh-seed property runs, deterministic fuzz, database-index mutation testing,
 real-browser stack integration, Storybook browser/MCP verification,
 coverage, room/sync/Pong benchmarks and SQL performance checks.

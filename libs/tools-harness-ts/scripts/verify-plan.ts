@@ -2,6 +2,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { captureAudit } from './audit-snapshot';
+import {
+  GAME_SPEC_NIGHTS,
+  nightlyGameSpecTurn,
+} from './nightly-game-spec-turn';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import {
   flattenVerifyAggregators,
@@ -139,7 +143,16 @@ export async function createVerifyPlan(): Promise<void> {
   );
   const discoveryMs = Number(process.hrtime.bigint() - discoveryStarted) / 1e6;
   const lookupStarted = process.hrtime.bigint();
-  const local = planFromDryRun(raw);
+  const createdAt = env['VERIFY_GAME_SPEC_TURN_CREATED_AT'];
+  const turn = createdAt ? nightlyGameSpecTurn(createdAt) : undefined;
+  const selected = turn
+    ? raw.tasks.filter((task) => turn.includes(task.taskId))
+    : raw.tasks;
+  if (turn)
+    console.log(
+      `Game specs: UTC turn ${turn.turn + 1}/${GAME_SPEC_NIGHTS}; deferred ${raw.tasks.length - selected.length} numbered partitions. Dispatch group=gate for every partition.`
+    );
+  const local = planFromDryRun({ ...raw, tasks: selected });
   const costs = readScheduleCosts();
   const { resolved, remoteResponses, responsesByHash } = await resolveCache(
     local,

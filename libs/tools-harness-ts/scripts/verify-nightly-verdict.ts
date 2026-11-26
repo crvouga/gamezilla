@@ -12,6 +12,7 @@
  */
 import { appendFileSync } from 'node:fs';
 import { failureIssueTitle, fileFailureIssue } from './ci-failure-issue';
+import { GAME_SPEC_NIGHTS } from './nightly-game-spec-turn';
 import { NIGHTLY_SUITES } from './verify-profile';
 
 /** `needs`, as the workflow serializes it. */
@@ -35,6 +36,8 @@ const visualJobs = [
 const ISSUE_TITLE = failureIssueTitle('Verify Nightly');
 const GATE_SUMMARY =
   'The complete verification catalog at nightly depth: every Quint trace, five times the property runs';
+
+const ROTATING_GATE_SUMMARY = `Nightly-depth gate with one of ${GAME_SPEC_NIGHTS} UTC turns of numbered game specs. Dispatch group=gate for all turns.`;
 
 function groupSummary(name: string): string {
   if (name === 'pr-load')
@@ -100,7 +103,10 @@ export function nightlyGroups(
     selection === 'all' ? [...new Set([...names, ...reported])] : names;
   return groups.map((name) => ({
     name,
-    summary: groupSummary(name),
+    summary:
+      selection === 'all' && name === 'gate'
+        ? ROTATING_GATE_SUMMARY
+        : groupSummary(name),
     result: groupResult(name, needs),
     reproduce: reproduceGroup(name),
   }));
@@ -150,6 +156,7 @@ export function formatNightlyTable(
     failed.length === 0
       ? `Every ${scope} group passed`
       : `${failed.length} of ${groups.length} ${scope} groups did not pass`,
+    ...(selection === 'all' ? [ROTATING_GATE_SUMMARY] : []),
     ...scopeNotes(groups),
   ].join('\n');
 }

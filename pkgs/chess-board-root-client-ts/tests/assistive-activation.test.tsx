@@ -1,8 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
-import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import { createAgent } from '@ui-sdk/solid/agent';
-import fc from 'fast-check';
 import { type MountedBoard, mountBoard } from './board-fixture';
 
 let board: MountedBoard | undefined;
@@ -30,21 +28,21 @@ test('click-only activation of e2 then e4 offers the same move as keyboard input
   expect(screen.getByRole('button', { name: 'e4, White pawn' })).toBeTruthy();
 });
 
+// regression: chess-opening-pawn-activation-timeout
 test('all opening pawn activations retain their square identity in either orientation', () => {
-  assertProperty(
-    'chess-assistive-opening-pawns',
-    fc.property(
-      fc.constantFrom('a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'),
-      fc.constantFrom('white' as const, 'black' as const),
-      (file, orientation) => {
-        board = mountBoard({ orientation });
-        activate(`${file}2`);
-        activate(`${file}4`);
-        expect(board.moves).toEqual([`${file}2${file}4`]);
-        board.unmount();
-      }
-    )
-  );
+  for (const orientation of ['white', 'black'] as const) {
+    for (const file of 'abcdefgh') {
+      board = mountBoard({ orientation });
+      activate(`${file}2`);
+      activate(`${file}4`);
+      expect(
+        board.moves,
+        `${file}-file pawn, ${orientation} orientation`
+      ).toEqual([`${file}2${file}4`]);
+      board.unmount();
+      board = undefined;
+    }
+  }
 });
 
 test('a pointer click following pointerdown and pointerup does not toggle selection twice', () => {

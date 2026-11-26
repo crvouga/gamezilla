@@ -417,6 +417,17 @@ describe('Verify Nightly workflow', () => {
     );
     const groups = nightlyGroups(green);
     expect(failedGroups(groups)).toEqual([]);
+    expect(
+      nightly.jobs['verify-nightly-gate']?.with?.['rotate-game-specs']
+    ).toBe(
+      "${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' }}"
+    );
+    expect(formatNightlyTable(groups)).toContain(
+      '4 UTC turns of numbered game specs'
+    );
+    expect(nightlyGroups(green, 'gate')[0]?.summary).toContain(
+      'complete verification catalog'
+    );
     const rotating = Object.entries(NIGHTLY_SUITES)
       .filter(([, suite]) => suite.nightlyScope === 'rotating')
       .map(([name]) => name);
