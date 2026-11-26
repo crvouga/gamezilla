@@ -1,0 +1,3138 @@
+[
+  {
+    "id": "sokoban-receiving",
+    "title": "Receiving dock",
+    "description": "Move one crate onto its mark in two to five pushes.",
+    "difficulty": "Beginner",
+    "puzzles": [
+      {
+        "id": "sokoban-receiving-01",
+        "title": "Dock 01",
+        "board": "SK1:6#/##3-#/#-.--#/#--$-#/#-@--#/6#",
+        "solution": "rurul"
+      },
+      {
+        "id": "sokoban-receiving-02",
+        "title": "Dock 02",
+        "board": "SK1:6#/#-.-##/##--##/#-$--#/#4-#/##--@#/6#",
+        "solution": "lluuu"
+      },
+      {
+        "id": "sokoban-receiving-03",
+        "title": "Dock 03",
+        "board": "SK1:6#/##-#-#/#-@--#/3#--#/#.-$-#/6#",
+        "solution": "rrddll"
+      },
+      {
+        "id": "sokoban-receiving-04",
+        "title": "Dock 04",
+        "board": "SK1:8#/##5-#/#5-@#/##--##-#/#6-#/#-$-.-##/8#",
+        "solution": "llllddldrr"
+      },
+      {
+        "id": "sokoban-receiving-05",
+        "title": "Dock 05",
+        "board": "SK1:6#/#--@-#/#-$--#/#3-##/#-.--#/3#--#/6#",
+        "solution": "ldd"
+      },
+      {
+        "id": "sokoban-receiving-06",
+        "title": "Dock 06",
+        "board": "SK1:8#/#4-@-#/#-#4-#/#-#$-#-#/#-.3-##/#6-#/8#",
+        "solution": "llddrdl"
+      },
+      {
+        "id": "sokoban-receiving-07",
+        "title": "Dock 07",
+        "board": "SK1:7#/#-#3-#/#3-@-#/##-$--#/#-.3-#/#4-##/7#",
+        "solution": "ldrdl"
+      },
+      {
+        "id": "sokoban-receiving-08",
+        "title": "Dock 08",
+        "board": "SK1:8#/#3-#--#/#6-#/#--@-$-#/#--#--.#/#5-##/8#",
+        "solution": "rurdldr"
+      },
+      {
+        "id": "sokoban-receiving-09",
+        "title": "Dock 09",
+        "board": "SK1:7#/#-#3-#/#5-#/#-$-#-#/#.#--##/#-#@--#/#4-##/7#",
+        "solution": "uululd"
+      },
+      {
+        "id": "sokoban-receiving-10",
+        "title": "Dock 10",
+        "board": "SK1:7#/3#--##/##3-.#/#3-$-#/#3-@-#/#5-#/7#",
+        "solution": "ulur"
+      },
+      {
+        "id": "sokoban-receiving-11",
+        "title": "Dock 11",
+        "board": "SK1:7#/#3-#-#/#3-#-#/#--$--#/#@.3-#/7#",
+        "solution": "ruurdrdl"
+      },
+      {
+        "id": "sokoban-receiving-12",
+        "title": "Dock 12",
+        "board": "SK1:8#/#-#3-@#/#6-#/#--#3-#/#-.4-#/#--$3-#/#-#4-#/8#",
+        "solution": "lldddddlurul"
+      },
+      {
+        "id": "sokoban-receiving-13",
+        "title": "Dock 13",
+        "board": "SK1:8#/#--#--.#/##3-$-#/3#4-#/#3-#--#/##4-@#/#4-#-#/8#",
+        "solution": "luuulur"
+      },
+      {
+        "id": "sokoban-receiving-14",
+        "title": "Dock 14",
+        "board": "SK1:7#/#@-#--#/#.-$--#/#-#-#-#/#5-#/7#",
+        "solution": "dddrrrruulll"
+      },
+      {
+        "id": "sokoban-receiving-15",
+        "title": "Dock 15",
+        "board": "SK1:7#/#5-#/#5-#/#-$@#-#/#--.--#/#5-#/#--#--#/7#",
+        "solution": "uldldr"
+      },
+      {
+        "id": "sokoban-receiving-16",
+        "title": "Dock 16",
+        "board": "SK1:6#/#-#--#/#-.-##/#--#-#/#-$--#/#@3-#/##3-#/6#",
+        "solution": "ruu"
+      },
+      {
+        "id": "sokoban-receiving-17",
+        "title": "Dock 17",
+        "board": "SK1:6#/#--#-#/#4-#/#.3-#/##3-#/#-$-##/#--@##/6#",
+        "solution": "luurul"
+      },
+      {
+        "id": "sokoban-receiving-18",
+        "title": "Dock 18",
+        "board": "SK1:6#/#--#-#/#-$--#/#--#-#/#3-##/#-+--#/6#",
+        "solution": "luuuurddd"
+      },
+      {
+        "id": "sokoban-receiving-19",
+        "title": "Dock 19",
+        "board": "SK1:8#/#-$-@.-#/#3-#--#/#6-#/#3-#-##/8#",
+        "solution": "ldllurrr"
+      },
+      {
+        "id": "sokoban-receiving-20",
+        "title": "Dock 20",
+        "board": "SK1:8#/##4-##/##-.3-#/#-#4-#/#@5-#/#--$3-#/#5-##/8#",
+        "solution": "rddruuu"
+      },
+      {
+        "id": "sokoban-receiving-21",
+        "title": "Dock 21",
+        "board": "SK1:8#/#-#4-#/#--#-3#/##4-##/#-@-#--#/#--$--##/#.5-#/8#",
+        "solution": "rdrdll"
+      },
+      {
+        "id": "sokoban-receiving-22",
+        "title": "Dock 22",
+        "board": "SK1:6#/##3-#/3#--#/#--$-#/#4-#/#-+--#/6#",
+        "solution": "rruuulddrdl"
+      },
+      {
+        "id": "sokoban-receiving-23",
+        "title": "Dock 23",
+        "board": "SK1:6#/#-#--#/#-$--#/#-.@-#/#3-##/6#",
+        "solution": "llurdrruuldrdl"
+      },
+      {
+        "id": "sokoban-receiving-24",
+        "title": "Dock 24",
+        "board": "SK1:7#/#4-##/#-#3-#/#3-#-#/##--$-#/#-@3-#/#-#.--#/7#",
+        "solution": "rrrulruullddd"
+      },
+      {
+        "id": "sokoban-receiving-25",
+        "title": "Dock 25",
+        "board": "SK1:6#/#@.-##/##-#-#/#--$-#/#4-#/6#",
+        "solution": "rdddrruldluu"
+      },
+      {
+        "id": "sokoban-receiving-26",
+        "title": "Dock 26",
+        "board": "SK1:8#/##--#--#/#4-$-#/#--#@--#/#-#4-#/#--#-.-#/#3-#--#/8#",
+        "solution": "rruulddd"
+      },
+      {
+        "id": "sokoban-receiving-27",
+        "title": "Dock 27",
+        "board": "SK1:6#/#--#-#/#4-#/#-$--#/##3-#/##-@-#/##.--#/6#",
+        "solution": "uuulddd"
+      },
+      {
+        "id": "sokoban-receiving-28",
+        "title": "Dock 28",
+        "board": "SK1:7#/#.4-#/#-#-#-#/#-$-#-#/#--@--#/7#",
+        "solution": "uldluu"
+      },
+      {
+        "id": "sokoban-receiving-29",
+        "title": "Dock 29",
+        "board": "SK1:8#/#4-#-#/#-#--#-#/#4-#-#/##--$--#/#4-#-#/#-#@-.-#/8#",
+        "solution": "uuurddldr"
+      },
+      {
+        "id": "sokoban-receiving-30",
+        "title": "Dock 30",
+        "board": "SK1:7#/#--#--#/#5-#/##-$--#/#4-.#/#-#--##/#--@-##/7#",
+        "solution": "ruuuuldldrr"
+      },
+      {
+        "id": "sokoban-receiving-31",
+        "title": "Dock 31",
+        "board": "SK1:6#/#-.--#/#-#--#/#-#$-#/#4-#/#-#@##/6#",
+        "solution": "uuurul"
+      },
+      {
+        "id": "sokoban-receiving-32",
+        "title": "Dock 32",
+        "board": "SK1:7#/#4-##/#--#--#/#4-.#/#--$-@#/#4-##/#5-#/7#",
+        "solution": "ldlulurr"
+      },
+      {
+        "id": "sokoban-receiving-33",
+        "title": "Dock 33",
+        "board": "SK1:6#/#.3-#/#4-#/#-@$-#/##3-#/3#--#/6#",
+        "solution": "druurull"
+      },
+      {
+        "id": "sokoban-receiving-34",
+        "title": "Dock 34",
+        "board": "SK1:7#/#.@3-#/3#--##/#--$--#/3#--##/7#",
+        "solution": "rrdddluurull"
+      },
+      {
+        "id": "sokoban-receiving-35",
+        "title": "Dock 35",
+        "board": "SK1:7#/#--.@-#/#5-#/#--#--#/##--$-#/##4-#/##4-#/7#",
+        "solution": "rddddluuurul"
+      },
+      {
+        "id": "sokoban-receiving-36",
+        "title": "Dock 36",
+        "board": "SK1:8#/#-#4-#/#-#--$-#/#--#--##/##5-#/##--.--#/##-#-@-#/8#",
+        "solution": "luuuuurdddrdl"
+      },
+      {
+        "id": "sokoban-receiving-37",
+        "title": "Dock 37",
+        "board": "SK1:6#/#4-#/#.3-#/#3-##/#--$-#/##@--#/6#",
+        "solution": "ruuluurrdll"
+      },
+      {
+        "id": "sokoban-receiving-38",
+        "title": "Dock 38",
+        "board": "SK1:6#/#4-#/#--$##/#4-#/#4-#/#-##+#/6#",
+        "solution": "ulluuurddldrurd"
+      },
+      {
+        "id": "sokoban-receiving-39",
+        "title": "Dock 39",
+        "board": "SK1:6#/##3-#/##$--#/#-@--#/#3-.#/#3-##/##3-#/6#",
+        "solution": "ruulddldrr"
+      },
+      {
+        "id": "sokoban-receiving-40",
+        "title": "Dock 40",
+        "board": "SK1:6#/##3-#/#.-#-#/#3-##/#--$-#/#--@-#/6#",
+        "solution": "ruldluruldlu"
+      },
+      {
+        "id": "sokoban-receiving-41",
+        "title": "Dock 41",
+        "board": "SK1:6#/##3-#/#-$#-#/##3-#/#3-##/#--.-#/#--@-#/6#",
+        "solution": "uuuruulldddldr"
+      },
+      {
+        "id": "sokoban-receiving-42",
+        "title": "Dock 42",
+        "board": "SK1:7#/#@4-#/##--$-#/#5-#/##.##-#/7#",
+        "solution": "rrrdrdlluld"
+      },
+      {
+        "id": "sokoban-receiving-43",
+        "title": "Dock 43",
+        "board": "SK1:8#/##5-#/#--$##-#/#4-#-#/#.-#3-#/#4-@-#/8#",
+        "solution": "llluuuurdldddrruulluld"
+      },
+      {
+        "id": "sokoban-receiving-44",
+        "title": "Dock 44",
+        "board": "SK1:8#/#-.--#-#/##-3#-#/#--@$--#/#3-#--#/##4-##/8#",
+        "solution": "ddrruulldluu"
+      },
+      {
+        "id": "sokoban-receiving-45",
+        "title": "Dock 45",
+        "board": "SK1:6#/#-#-.#/#--#-#/#-#--#/#--$-#/#-#--#/#@--##/6#",
+        "solution": "uurrdruuu"
+      },
+      {
+        "id": "sokoban-receiving-46",
+        "title": "Dock 46",
+        "board": "SK1:6#/#4-#/#-##-#/#@3-#/#.#$-#/#3-##/3#--#/6#",
+        "solution": "ddrrurullrruullldd"
+      },
+      {
+        "id": "sokoban-receiving-47",
+        "title": "Dock 47",
+        "board": "SK1:8#/#3-.--#/#--$-#-#/#--5#/#3-#--#/#-#-@--#/8#",
+        "solution": "luluuurrdlullddrulurr"
+      },
+      {
+        "id": "sokoban-receiving-48",
+        "title": "Dock 48",
+        "board": "SK1:6#/#4-#/#-$#-#/#-@#-#/#3-.#/#4-#/6#",
+        "solution": "luurddldrr"
+      },
+      {
+        "id": "sokoban-receiving-49",
+        "title": "Dock 49",
+        "board": "SK1:8#/##3-.-#/#--@3-#/#-$4-#/##5-#/8#",
+        "solution": "ddlulurdrulurr"
+      },
+      {
+        "id": "sokoban-receiving-50",
+        "title": "Dock 50",
+        "board": "SK1:8#/#-#4-#/#3-$--#/#-#--3#/##-#--@#/##5-#/##-.3-#/8#",
+        "solution": "lluluurddddrdl"
+      },
+      {
+        "id": "sokoban-receiving-51",
+        "title": "Dock 51",
+        "board": "SK1:8#/#--#3-#/#4-@-#/#-$3-##/#--#--.#/8#",
+        "solution": "lllldrrrurdldr"
+      },
+      {
+        "id": "sokoban-receiving-52",
+        "title": "Dock 52",
+        "board": "SK1:6#/#4-#/#.##-#/#4-#/#3-##/#-#$-#/##--@#/6#",
+        "solution": "luulluuurrrddlldlu"
+      },
+      {
+        "id": "sokoban-receiving-53",
+        "title": "Dock 53",
+        "board": "SK1:7#/#5-#/#@--$-#/#5-#/#3-#-#/#3-#-#/#4-.#/7#",
+        "solution": "rrurdldrurddd"
+      },
+      {
+        "id": "sokoban-receiving-54",
+        "title": "Dock 54",
+        "board": "SK1:7#/#-#@-##/#3-$-#/#-.--##/#-#3-#/#5-#/7#",
+        "solution": "rddlddrruldlurul"
+      },
+      {
+        "id": "sokoban-receiving-55",
+        "title": "Dock 55",
+        "board": "SK1:8#/#6-#/#-@$3-#/#6-#/3#4-#/#.5-#/##-#3-#/8#",
+        "solution": "urdddrdll"
+      },
+      {
+        "id": "sokoban-receiving-56",
+        "title": "Dock 56",
+        "board": "SK1:7#/#-@--##/#--#$-#/#5-#/#.4-#/7#",
+        "solution": "rrddrdlll"
+      },
+      {
+        "id": "sokoban-receiving-57",
+        "title": "Dock 57",
+        "board": "SK1:8#/#4-.##/#3-#-##/#3-#--#/#--$3-#/#3-@#-#/8#",
+        "solution": "luuulurr"
+      },
+      {
+        "id": "sokoban-receiving-58",
+        "title": "Dock 58",
+        "board": "SK1:8#/#4-#-#/#4-@-#/#--##--#/#-$-#.-#/#6-#/#6-#/8#",
+        "solution": "lllddldrrrdru"
+      },
+      {
+        "id": "sokoban-receiving-59",
+        "title": "Dock 59",
+        "board": "SK1:7#/##4-#/#3-$-#/#@3-##/#5-#/#-.3-#/#--#--#/7#",
+        "solution": "rruurdddrdll"
+      },
+      {
+        "id": "sokoban-receiving-60",
+        "title": "Dock 60",
+        "board": "SK1:8#/##@3-##/##$4-#/#4-#-#/#4-.-#/#6-#/8#",
+        "solution": "ddldrrr"
+      },
+      {
+        "id": "sokoban-receiving-61",
+        "title": "Dock 61",
+        "board": "SK1:8#/#3-#.-#/#-#--@-#/#3-#--#/#5-##/#3-$--#/#6-#/8#",
+        "solution": "ddddlulurdruuu"
+      },
+      {
+        "id": "sokoban-receiving-62",
+        "title": "Dock 62",
+        "board": "SK1:8#/#@5-#/#4-$-#/##5-#/##.3-##/3#-#--#/8#",
+        "solution": "rrrrdrdluldrdll"
+      },
+      {
+        "id": "sokoban-receiving-63",
+        "title": "Dock 63",
+        "board": "SK1:7#/##--@.#/#3-#-#/3#3-#/#--$-##/#-#3-#/7#",
+        "solution": "lddrddluuulurr"
+      },
+      {
+        "id": "sokoban-receiving-64",
+        "title": "Dock 64",
+        "board": "SK1:8#/#-#4-#/#3-#-.#/#-$@3-#/#-#-##-#/##5-#/8#",
+        "solution": "ulldrrrrllddrrruu"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-stockroom",
+    "title": "Stockroom",
+    "description": "Steer a single crate around shelving in four to eight pushes.",
+    "difficulty": "Easy",
+    "puzzles": [
+      {
+        "id": "sokoban-stockroom-01",
+        "title": "Shelf 01",
+        "board": "SK1:6#/#3-.#/#-#$-#/##@--#/##3-#/6#",
+        "solution": "rruuldrddllurdruu"
+      },
+      {
+        "id": "sokoban-stockroom-02",
+        "title": "Shelf 02",
+        "board": "SK1:6#/#-.-##/#4-#/#3-##/#--$-#/#--@-#/6#",
+        "solution": "ruldluuu"
+      },
+      {
+        "id": "sokoban-stockroom-03",
+        "title": "Shelf 03",
+        "board": "SK1:6#/#--#-#/#@--.#/#--$-#/#--#-#/6#",
+        "solution": "rrrdlullddrulurr"
+      },
+      {
+        "id": "sokoban-stockroom-04",
+        "title": "Shelf 04",
+        "board": "SK1:8#/#-.4-#/#6-#/#6-#/##@$--##/#--#3-#/##4-##/8#",
+        "solution": "urrdlrddlluuuu"
+      },
+      {
+        "id": "sokoban-stockroom-05",
+        "title": "Shelf 05",
+        "board": "SK1:8#/##--#-##/#-$4-#/#-#@-#-#/#3-.--#/8#",
+        "solution": "dlluururddullddrr"
+      },
+      {
+        "id": "sokoban-stockroom-06",
+        "title": "Shelf 06",
+        "board": "SK1:8#/#-@3#-#/##$-##-#/#--#3-#/#4-#-#/#--.--##/8#",
+        "solution": "dddldr"
+      },
+      {
+        "id": "sokoban-stockroom-07",
+        "title": "Shelf 07",
+        "board": "SK1:6#/#.3-#/#--#-#/#--$@#/#3-##/6#",
+        "solution": "ldluudrruull"
+      },
+      {
+        "id": "sokoban-stockroom-08",
+        "title": "Shelf 08",
+        "board": "SK1:8#/##5-#/#-#-$--#/#-#-#--#/#6-#/#--.-#-#/#3-#@-#/8#",
+        "solution": "ruuluululddd"
+      },
+      {
+        "id": "sokoban-stockroom-09",
+        "title": "Shelf 09",
+        "board": "SK1:8#/#4-3#/#4-@-#/#-#$--##/##4-##/#.5-#/#3-#--#/8#",
+        "solution": "llddrdll"
+      },
+      {
+        "id": "sokoban-stockroom-10",
+        "title": "Shelf 10",
+        "board": "SK1:8#/#--##-##/#-.3-##/#-##-$-#/##4-@#/8#",
+        "solution": "uldlurull"
+      },
+      {
+        "id": "sokoban-stockroom-11",
+        "title": "Shelf 11",
+        "board": "SK1:6#/#--3#/#--#-#/#--$-#/#3-.#/#-@--#/#4-#/6#",
+        "solution": "rruuldlluurdldrr"
+      },
+      {
+        "id": "sokoban-stockroom-12",
+        "title": "Shelf 12",
+        "board": "SK1:8#/#--@3-#/#--#-3#/#--#$--#/#-#4-#/#-#4-#/#--.3-#/8#",
+        "solution": "rddddrdl"
+      },
+      {
+        "id": "sokoban-stockroom-13",
+        "title": "Shelf 13",
+        "board": "SK1:8#/##5-#/#3-$--#/#6-#/#-#4-#/3#-@.##/8#",
+        "solution": "luuuurdddldr"
+      },
+      {
+        "id": "sokoban-stockroom-14",
+        "title": "Shelf 14",
+        "board": "SK1:7#/#3-.-#/#--#--#/#5-#/#5-#/#-#$--#/##@-#-#/7#",
+        "solution": "ruulurdruu"
+      },
+      {
+        "id": "sokoban-stockroom-15",
+        "title": "Shelf 15",
+        "board": "SK1:7#/#3-#-#/#4-.#/##--@-#/#-$#--#/##3-##/7#",
+        "solution": "ddlluuruulldrrr"
+      },
+      {
+        "id": "sokoban-stockroom-16",
+        "title": "Shelf 16",
+        "board": "SK1:8#/##-#-#-#/##3-.-#/#6-#/#-$4-#/#4-#-#/#@--#--#/8#",
+        "solution": "ruulurdrulurr"
+      },
+      {
+        "id": "sokoban-stockroom-17",
+        "title": "Shelf 17",
+        "board": "SK1:8#/#@3-#-#/#6-#/#-#$--.#/#6-#/##--#--#/8#",
+        "solution": "dddrruruulldrurdldrr"
+      },
+      {
+        "id": "sokoban-stockroom-18",
+        "title": "Shelf 18",
+        "board": "SK1:8#/#3-##-#/#3-#-@#/#--$3-#/#--#-.-#/8#",
+        "solution": "ldllulldrrrdrruuld"
+      },
+      {
+        "id": "sokoban-stockroom-19",
+        "title": "Shelf 19",
+        "board": "SK1:8#/#-.4-#/#3-#--#/#-@--$-#/#-#-#--#/8#",
+        "solution": "ruurrrdddluurulll"
+      },
+      {
+        "id": "sokoban-stockroom-20",
+        "title": "Shelf 20",
+        "board": "SK1:7#/#5-#/#-#-#-#/#-#3-#/#.--$##/#-#-@-#/7#",
+        "solution": "uluuurrddlruullddrdll"
+      },
+      {
+        "id": "sokoban-stockroom-21",
+        "title": "Shelf 21",
+        "board": "SK1:8#/##5-#/#.--#-##/#5-##/#@--$--#/#3-#--#/8#",
+        "solution": "rrurrdlullddruruldlurul"
+      },
+      {
+        "id": "sokoban-stockroom-22",
+        "title": "Shelf 22",
+        "board": "SK1:8#/#-#4-#/#5-.#/#3-#--#/#@5-#/#3-$--#/3#4-#/8#",
+        "solution": "rrddrulurdruuruulldr"
+      },
+      {
+        "id": "sokoban-stockroom-23",
+        "title": "Shelf 23",
+        "board": "SK1:6#/#3-##/##+--#/##$-##/#--#-#/#4-#/#4-#/6#",
+        "solution": "ddlddruuu"
+      },
+      {
+        "id": "sokoban-stockroom-24",
+        "title": "Shelf 24",
+        "board": "SK1:8#/#--#-@-#/#-#3-##/#.5-#/#6-#/#-#-$--#/#--#3-#/8#",
+        "solution": "dddddluurulll"
+      },
+      {
+        "id": "sokoban-stockroom-25",
+        "title": "Shelf 25",
+        "board": "SK1:8#/#--#@--#/#--$--##/#--##--#/#6-#/#.--#--#/4#--##/8#",
+        "solution": "dlrrddlllluuurdddrdl"
+      },
+      {
+        "id": "sokoban-stockroom-26",
+        "title": "Shelf 26",
+        "board": "SK1:7#/3#3-#/#--$--#/#--#--#/#-.--@#/7#",
+        "solution": "llluururddrdll"
+      },
+      {
+        "id": "sokoban-stockroom-27",
+        "title": "Shelf 27",
+        "board": "SK1:8#/#6-#/#-@4-#/#3-$#-#/#.4-##/8#",
+        "solution": "rddruluurrdlulddrdll"
+      },
+      {
+        "id": "sokoban-stockroom-28",
+        "title": "Shelf 28",
+        "board": "SK1:6#/#4-#/#4-#/#4-#/#--3#/##$@-#/#.3-#/6#",
+        "solution": "dluuluurdddrdl"
+      },
+      {
+        "id": "sokoban-stockroom-29",
+        "title": "Shelf 29",
+        "board": "SK1:8#/#4-#-#/#-$4-#/##-#-.-#/##5-#/#@5-#/8#",
+        "solution": "rrruuululldrrurddrddllurdru"
+      },
+      {
+        "id": "sokoban-stockroom-30",
+        "title": "Shelf 30",
+        "board": "SK1:7#/#--.#-#/#@4-#/#5-#/#--#--#/##-$--#/3#3-#/7#",
+        "solution": "rdddrdruuuruldlu"
+      },
+      {
+        "id": "sokoban-stockroom-31",
+        "title": "Shelf 31",
+        "board": "SK1:7#/#5-#/#--4#/#-@$-##/#5-#/#4-.#/#-#3-#/7#",
+        "solution": "drruldlluurddldrrr"
+      },
+      {
+        "id": "sokoban-stockroom-32",
+        "title": "Shelf 32",
+        "board": "SK1:7#/#4-.#/#5-#/##-#--#/#@$3-#/#5-#/#3-#-#/7#",
+        "solution": "druuulurrr"
+      },
+      {
+        "id": "sokoban-stockroom-33",
+        "title": "Shelf 33",
+        "board": "SK1:8#/#-@-#--#/#4-$-#/#4-#-#/#4-.-#/8#",
+        "solution": "rdrddrruulldlluurddldrr"
+      },
+      {
+        "id": "sokoban-stockroom-34",
+        "title": "Shelf 34",
+        "board": "SK1:8#/#5-+#/##--#-##/#-$4-#/#3-#--#/8#",
+        "solution": "llldddllurdruulurrr"
+      },
+      {
+        "id": "sokoban-stockroom-35",
+        "title": "Shelf 35",
+        "board": "SK1:8#/#--@--##/#--$-#-#/#--#3-#/#4-#-#/##3-#-#/3#--.-#/8#",
+        "solution": "ldrurddddldr"
+      },
+      {
+        "id": "sokoban-stockroom-36",
+        "title": "Shelf 36",
+        "board": "SK1:7#/3#@--#/#3-#-#/#5-#/#.3-##/#3-$-#/#-#--##/7#",
+        "solution": "dddddruuluuurrddlruullddrdll"
+      },
+      {
+        "id": "sokoban-stockroom-37",
+        "title": "Shelf 37",
+        "board": "SK1:8#/#3-#--#/##5-#/##$-#--#/#3-#--#/#3-@-.#/8#",
+        "solution": "luuulddldrrrr"
+      },
+      {
+        "id": "sokoban-stockroom-38",
+        "title": "Shelf 38",
+        "board": "SK1:7#/3#3-#/#-$3-#/#5-#/#5-#/#4-##/#3-+-#/7#",
+        "solution": "llluuuurdrruulddddldr"
+      },
+      {
+        "id": "sokoban-stockroom-39",
+        "title": "Shelf 39",
+        "board": "SK1:7#/#5-#/#--$--#/##-#-##/#4-##/##4-#/##-+--#/7#",
+        "solution": "luuuururddddrdl"
+      },
+      {
+        "id": "sokoban-stockroom-40",
+        "title": "Shelf 40",
+        "board": "SK1:8#/#--#-#.#/#6-#/#--#@--#/#-$--#-#/#6-#/8#",
+        "solution": "dldluulurrrrdru"
+      },
+      {
+        "id": "sokoban-stockroom-41",
+        "title": "Shelf 41",
+        "board": "SK1:7#/##4-#/#.--#-#/#3-@-#/#--#--#/#--$-##/3#3-#/7#",
+        "solution": "llddrdruurullrddlluurul"
+      },
+      {
+        "id": "sokoban-stockroom-42",
+        "title": "Shelf 42",
+        "board": "SK1:7#/#.#3-#/#5-#/#-$@--#/##-#--#/5#-#/7#",
+        "solution": "ulldrrurrddlurullldlu"
+      },
+      {
+        "id": "sokoban-stockroom-43",
+        "title": "Shelf 43",
+        "board": "SK1:7#/#-#--.#/#4-##/#3-$@#/#--##-#/##--#-#/7#",
+        "solution": "llullddrulurrdrulur"
+      },
+      {
+        "id": "sokoban-stockroom-44",
+        "title": "Shelf 44",
+        "board": "SK1:7#/#3-.-#/#--##-#/#4-@#/#5-#/##-$-##/#5-#/7#",
+        "solution": "ldddluuruldluulurr"
+      },
+      {
+        "id": "sokoban-stockroom-45",
+        "title": "Shelf 45",
+        "board": "SK1:8#/#-@#3-#/##3-$-#/##4-##/#--#3-#/#--.-#-#/8#",
+        "solution": "drrurrdluldrdllulddldr"
+      },
+      {
+        "id": "sokoban-stockroom-46",
+        "title": "Shelf 46",
+        "board": "SK1:8#/#4-3#/#--3#-#/#-@--$-#/#6-#/##5-#/#--.3-#/8#",
+        "solution": "rrdrrullldlluurdldrurdd"
+      },
+      {
+        "id": "sokoban-stockroom-47",
+        "title": "Shelf 47",
+        "board": "SK1:8#/#4-.-#/#4-#-#/#-#3-##/#5-##/#-$4-#/#3-@-##/8#",
+        "solution": "llulurdruuulurr"
+      },
+      {
+        "id": "sokoban-stockroom-48",
+        "title": "Shelf 48",
+        "board": "SK1:7#/##@#--#/##$##.#/##4-#/#5-#/#5-#/##--3#/7#",
+        "solution": "ddrddllurdrulurrdru"
+      },
+      {
+        "id": "sokoban-stockroom-49",
+        "title": "Shelf 49",
+        "board": "SK1:8#/#@--#--#/#5-.#/#3-#--#/#4-$-#/#3-##-#/8#",
+        "solution": "rrdrrrddllruullldddruulurrr"
+      },
+      {
+        "id": "sokoban-stockroom-50",
+        "title": "Shelf 50",
+        "board": "SK1:7#/#5-#/#3-#.#/#3-#-#/##$3-#/#3-@-#/7#",
+        "solution": "lluruulldrurdldrrdruu"
+      },
+      {
+        "id": "sokoban-stockroom-51",
+        "title": "Shelf 51",
+        "board": "SK1:8#/#.--@#-#/#6-#/#--#3-#/#4-$-#/#--#3-#/#6-#/8#",
+        "solution": "ddddruurulllrddlluurul"
+      },
+      {
+        "id": "sokoban-stockroom-52",
+        "title": "Shelf 52",
+        "board": "SK1:7#/#5-#/##4-#/#.4-#/#-##--#/#-$3-#/#-#--@#/7#",
+        "solution": "luuulllddrrdruurulll"
+      },
+      {
+        "id": "sokoban-stockroom-53",
+        "title": "Shelf 53",
+        "board": "SK1:8#/#5-.#/##4-##/#3-#--#/#--@3-#/#-$4-#/3#4-#/8#",
+        "solution": "lldrurrddluuuulurrr"
+      },
+      {
+        "id": "sokoban-stockroom-54",
+        "title": "Shelf 54",
+        "board": "SK1:8#/#6-#/#4-$-#/#6-#/#--#--@#/#-#3-##/#.5-#/8#",
+        "solution": "uuulddrdlulddrdlll"
+      },
+      {
+        "id": "sokoban-stockroom-55",
+        "title": "Shelf 55",
+        "board": "SK1:7#/#.#3-#/#-@--##/#-#3-#/#3-$##/##4-#/#5-#/7#",
+        "solution": "rrddlddrruldluuurullrddlluu"
+      },
+      {
+        "id": "sokoban-stockroom-56",
+        "title": "Shelf 56",
+        "board": "SK1:8#/#5-##/#-$-##.#/#--##--#/#6-#/#6-#/#-#@#--#/8#",
+        "solution": "ulluuuurddldrrrrdruu"
+      },
+      {
+        "id": "sokoban-stockroom-57",
+        "title": "Shelf 57",
+        "board": "SK1:8#/#.--#--#/#-##--##/#--#3-#/#-#4-#/#4-$-#/#-@4-#/8#",
+        "solution": "rrrrulllldluuuu"
+      },
+      {
+        "id": "sokoban-stockroom-58",
+        "title": "Shelf 58",
+        "board": "SK1:8#/#--#-#-#/#--#--.#/#6-#/##$3-##/#5-##/#-#--@##/8#",
+        "solution": "lluluuluurdldrrrdrulur"
+      },
+      {
+        "id": "sokoban-stockroom-59",
+        "title": "Shelf 59",
+        "board": "SK1:8#/#6-#/#--#--@#/#--#--##/#-##-$##/#-.4-#/8#",
+        "solution": "lldddruuluurrdluldddrdll"
+      },
+      {
+        "id": "sokoban-stockroom-60",
+        "title": "Shelf 60",
+        "board": "SK1:8#/#4-#-#/##-$3-#/#--#3-#/##--#--#/#4-@.#/#3-#--#/8#",
+        "solution": "uulululdddrddllurrrr"
+      },
+      {
+        "id": "sokoban-stockroom-61",
+        "title": "Shelf 61",
+        "board": "SK1:8#/##3-#.#/#-#--#-#/#6-#/#-#-#--#/#@$4-#/#3-#-##/8#",
+        "solution": "rdruudlluurrrrdruu"
+      },
+      {
+        "id": "sokoban-stockroom-62",
+        "title": "Shelf 62",
+        "board": "SK1:8#/#-.--#-#/#--#-$@#/#--#--##/##5-#/##5-#/8#",
+        "solution": "ldldlluuurrddrdlldluuu"
+      },
+      {
+        "id": "sokoban-stockroom-63",
+        "title": "Shelf 63",
+        "board": "SK1:8#/#-#3-##/#.#--#-#/#@5-#/#3-#--#/#3-$--#/4#3-#/8#",
+        "solution": "rrddrdruurulllldlu"
+      },
+      {
+        "id": "sokoban-stockroom-64",
+        "title": "Shelf 64",
+        "board": "SK1:8#/#3-#--#/#6-#/#6-#/3#4-#/#-$-#@.#/#4-#-#/8#",
+        "solution": "ullddllurdruuruulldrurdldrrurd"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-packing",
+    "title": "Packing stations",
+    "description": "Place two crates on separate goals in five to nine pushes.",
+    "difficulty": "Easy",
+    "puzzles": [
+      {
+        "id": "sokoban-packing-01",
+        "title": "Station 01",
+        "board": "SK1:8#/#-#4-#/#6-#/#3-#-##/#-$--.@#/#--#-$-#/#-#-.#-#/8#",
+        "solution": "dluldululldrrr"
+      },
+      {
+        "id": "sokoban-packing-02",
+        "title": "Station 02",
+        "board": "SK1:7#/##--@-#/#--$$.#/##4-#/#--##.#/#5-#/7#",
+        "solution": "dullddrrurdlllurr"
+      },
+      {
+        "id": "sokoban-packing-03",
+        "title": "Station 03",
+        "board": "SK1:7#/#-#3-#/#-#$--#/#-..--#/##4-#/#@$3-#/#-#--##/7#",
+        "solution": "rurrddlurulruuuldrddldlu"
+      },
+      {
+        "id": "sokoban-packing-04",
+        "title": "Station 04",
+        "board": "SK1:8#/#--#3-#/#@$4-#/#-$.3-#/#4-#-#/#6-#/##.3-##/8#",
+        "solution": "drluurdddd"
+      },
+      {
+        "id": "sokoban-packing-05",
+        "title": "Station 05",
+        "board": "SK1:8#/#-##@#-#/#3-$--#/##.--$-#/#3-.-##/#4-3#/8#",
+        "solution": "ddurrdlll"
+      },
+      {
+        "id": "sokoban-packing-06",
+        "title": "Station 06",
+        "board": "SK1:8#/#5-##/#-#-$-##/#-.-#.-#/#6-#/##@$3-#/3#--#-#/8#",
+        "solution": "urrddluruluururdlldddlu"
+      },
+      {
+        "id": "sokoban-packing-07",
+        "title": "Station 07",
+        "board": "SK1:7#/#5-#/#3-#.#/3#-$-#/#-$3-#/#-@#.-#/7#",
+        "solution": "lurrurdru"
+      },
+      {
+        "id": "sokoban-packing-08",
+        "title": "Station 08",
+        "board": "SK1:7#/#.--#-#/#-$@--#/#.4-#/#--$--#/#4-##/7#",
+        "solution": "rdddlurullurul"
+      },
+      {
+        "id": "sokoban-packing-09",
+        "title": "Station 09",
+        "board": "SK1:7#/#4-.#/##-#--#/#4-$#/#-#$--#/#3-@-#/#3-.-#/7#",
+        "solution": "uulddldrurruuu"
+      },
+      {
+        "id": "sokoban-packing-10",
+        "title": "Station 10",
+        "board": "SK1:7#/3#3-#/#-#-#-#/#--#--#/#-$@#-#/#.$-#-#/#3-.-#/7#",
+        "solution": "ddllurluurdrdullddrrul"
+      },
+      {
+        "id": "sokoban-packing-11",
+        "title": "Station 11",
+        "board": "SK1:8#/#3-.--#/#-#$-@-#/##--.$-#/#5-##/#6-#/8#",
+        "solution": "luldrddllurdrruurul"
+      },
+      {
+        "id": "sokoban-packing-12",
+        "title": "Station 12",
+        "board": "SK1:8#/##@--3#/#-$##--#/#$3-.-#/#.-#--##/##--#--#/8#",
+        "solution": "dldrrr"
+      },
+      {
+        "id": "sokoban-packing-13",
+        "title": "Station 13",
+        "board": "SK1:8#/#--#-#-#/#.##3-#/#3-#--#/#--$.$-#/#--@3-#/8#",
+        "solution": "rulrdrruldllluruldlu"
+      },
+      {
+        "id": "sokoban-packing-14",
+        "title": "Station 14",
+        "board": "SK1:7#/#-.3-#/#5-#/#5-#/#-#-#$#/##-$-.#/##3-@#/7#",
+        "solution": "lluuurrdullurul"
+      },
+      {
+        "id": "sokoban-packing-15",
+        "title": "Station 15",
+        "board": "SK1:7#/#3-#-#/#--.$-#/#-.3-#/#3-$##/#--@--#/7#",
+        "solution": "uurrulldddruluuuldrddrurul"
+      },
+      {
+        "id": "sokoban-packing-16",
+        "title": "Station 16",
+        "board": "SK1:8#/#@.#-#-#/##-#3-#/#-$3-##/#$5-#/#6-#/#.5-#/8#",
+        "solution": "rddlddruuu"
+      },
+      {
+        "id": "sokoban-packing-17",
+        "title": "Station 17",
+        "board": "SK1:7#/#3-#-#/#$--#-#/#.4-#/#--@--#/##-$#-#/##--#.#/7#",
+        "solution": "lddrulurrurddullluuuld"
+      },
+      {
+        "id": "sokoban-packing-18",
+        "title": "Station 18",
+        "board": "SK1:7#/3#3-#/#-$-#-#/#-#-#-#/#--@.-#/#-#-$-#/##3-.#/7#",
+        "solution": "rdldrluulluurlddrrrruuullddullddrr"
+      },
+      {
+        "id": "sokoban-packing-19",
+        "title": "Station 19",
+        "board": "SK1:7#/#4-##/#$#3-#/#5-#/#-#3-#/#.$--+#/7#",
+        "solution": "lluullddrrrluuuullddd"
+      },
+      {
+        "id": "sokoban-packing-20",
+        "title": "Station 20",
+        "board": "SK1:8#/#.#4-#/#5-##/#-@#$--#/#-$.-3#/#6-#/#4-#-#/8#",
+        "solution": "ldrdrruurullldlu"
+      },
+      {
+        "id": "sokoban-packing-21",
+        "title": "Station 21",
+        "board": "SK1:7#/#--#--#/#3-$-#/#4-@#/#.#$#-#/#-#.--#/7#",
+        "solution": "lldurruuldrdllluld"
+      },
+      {
+        "id": "sokoban-packing-22",
+        "title": "Station 22",
+        "board": "SK1:7#/#--.--#/#-#--##/##4-#/#--$-##/#-$-@.#/#5-#/7#",
+        "solution": "ldllurrrluuu"
+      },
+      {
+        "id": "sokoban-packing-23",
+        "title": "Station 23",
+        "board": "SK1:8#/#-3#-.#/#@--#$-#/#6-#/#3-$--#/##3-.-#/8#",
+        "solution": "rrdrdldrurruuuldrddllurdruu"
+      },
+      {
+        "id": "sokoban-packing-24",
+        "title": "Station 24",
+        "board": "SK1:7#/#--#--#/#@-$--#/##-.-.#/#5-#/#-$-3#/#5-#/7#",
+        "solution": "rdrdddluluruurdrruuldldrllddru"
+      },
+      {
+        "id": "sokoban-packing-25",
+        "title": "Station 25",
+        "board": "SK1:7#/#3-#@#/#-.$--#/#.-#$-#/#4-##/3#3-#/##4-#/7#",
+        "solution": "dllluldrddrrurull"
+      },
+      {
+        "id": "sokoban-packing-26",
+        "title": "Station 26",
+        "board": "SK1:8#/#-.4-#/#--#3-#/##4-@#/#-$4-#/#-.--$-#/8#",
+        "solution": "ddlulldlurrrdlluluu"
+      },
+      {
+        "id": "sokoban-packing-27",
+        "title": "Station 27",
+        "board": "SK1:7#/#5-#/#3-$-#/#--#$##/#@3-.#/#-.3-#/##-#--#/7#",
+        "solution": "ruururrdllulddduurrdullddrr"
+      },
+      {
+        "id": "sokoban-packing-28",
+        "title": "Station 28",
+        "board": "SK1:7#/#-.--@#/#5-#/#--#.-#/#3-$-#/#--#$-#/#--#--#/7#",
+        "solution": "dddllrrddluuruulllldddruuu"
+      },
+      {
+        "id": "sokoban-packing-29",
+        "title": "Station 29",
+        "board": "SK1:7#/##.3-#/#-.3-#/#--$--#/##4-#/#-#$-##/#@3-##/7#",
+        "solution": "rruruulrddluudlururul"
+      },
+      {
+        "id": "sokoban-packing-30",
+        "title": "Station 30",
+        "board": "SK1:7#/#5-#/#4-.#/##$3-#/#--#.$#/#@-#--#/7#",
+        "solution": "ruurrddrululuulldrurdrddrululldrurd"
+      },
+      {
+        "id": "sokoban-packing-31",
+        "title": "Station 31",
+        "board": "SK1:7#/#-.3-#/#-@3-#/#-$--##/#-#$#-#/#4-.#/3#3-#/7#",
+        "solution": "rdduulldddrrrllluurlddrruuurul"
+      },
+      {
+        "id": "sokoban-packing-32",
+        "title": "Station 32",
+        "board": "SK1:8#/#-+--#-#/#6-#/##-#3-#/#--#-$-#/#3-.$-#/8#",
+        "solution": "rrdrrddlululldddrruurullrdddlluuurrrrdddl"
+      },
+      {
+        "id": "sokoban-packing-33",
+        "title": "Station 33",
+        "board": "SK1:8#/#-#4-#/#--.3-#/#--#--.#/#@#3-$#/#-$4-#/##5-#/8#",
+        "solution": "drrdrurruldluurul"
+      },
+      {
+        "id": "sokoban-packing-34",
+        "title": "Station 34",
+        "board": "SK1:7#/#5-#/#5-#/##$$.-#/##-#-.#/##@-3#/7#",
+        "solution": "uurrurdlluulldrurdldr"
+      },
+      {
+        "id": "sokoban-packing-35",
+        "title": "Station 35",
+        "board": "SK1:7#/#.4-#/#@4-#/3#.--#/#-$$#-#/#5-#/7#",
+        "solution": "rrrrdddlluuddllurdrrruullurrdddlludrruuluull"
+      },
+      {
+        "id": "sokoban-packing-36",
+        "title": "Station 36",
+        "board": "SK1:8#/#4-#-#/##-$#--#/#-$-.--#/#6-#/#4-.-#/#--@--##/8#",
+        "solution": "lluuurrrdrruulddllluuurdldr"
+      },
+      {
+        "id": "sokoban-packing-37",
+        "title": "Station 37",
+        "board": "SK1:8#/#--#.--#/#--#3-#/#--$.--#/#5-##/#@$#3-#/#6-#/8#",
+        "solution": "druluurrllddrulurdrruuddllur"
+      },
+      {
+        "id": "sokoban-packing-38",
+        "title": "Station 38",
+        "board": "SK1:8#/#--3#-#/#--$3-#/#6-#/#--.--$#/##3-#+#/8#",
+        "solution": "uluurddlluuldlluurddldr"
+      },
+      {
+        "id": "sokoban-packing-39",
+        "title": "Station 39",
+        "board": "SK1:7#/#5-#/#$4-#/#3-$-#/#.#3-#/#+--#-#/#5-#/7#",
+        "solution": "uuruuldddurrurrdllluld"
+      },
+      {
+        "id": "sokoban-packing-40",
+        "title": "Station 40",
+        "board": "SK1:8#/#--##-.#/#6-#/3#4-#/#--@-$-#/#-$##--#/#4-.-#/8#",
+        "solution": "ldldrrrlluurrurrddluulurdru"
+      },
+      {
+        "id": "sokoban-packing-41",
+        "title": "Station 41",
+        "board": "SK1:7#/#-#--##/#--.--#/3#3-#/#-$3-#/#--#--#/#+--$-#/7#",
+        "solution": "uurrurrdddlllrruuurul"
+      },
+      {
+        "id": "sokoban-packing-42",
+        "title": "Station 42",
+        "board": "SK1:7#/##-#@##/#.--$-#/#-.3-#/#3-$-#/##3-##/7#",
+        "solution": "drddlldlurrurulll"
+      },
+      {
+        "id": "sokoban-packing-43",
+        "title": "Station 43",
+        "board": "SK1:8#/#-$@-.-#/#-$4-#/#-#4-#/#-##--##/#3-.--#/8#",
+        "solution": "rddddllluuurrurdddulullurrr"
+      },
+      {
+        "id": "sokoban-packing-44",
+        "title": "Station 44",
+        "board": "SK1:8#/#.5-#/#--#-.-#/#--#-$-#/#@4-##/3#-$-##/#6-#/8#",
+        "solution": "rrddruurudluudrruullll"
+      },
+      {
+        "id": "sokoban-packing-45",
+        "title": "Station 45",
+        "board": "SK1:8#/#-.--#-#/#3-$--#/#5-##/#4-#@#/#4-$.#/8#",
+        "solution": "dllulldrrrluuruldlurul"
+      },
+      {
+        "id": "sokoban-packing-46",
+        "title": "Station 46",
+        "board": "SK1:8#/#5-##/#6-#/#3-#@.#/4#-$-#/#4-$-#/#-.3-##/8#",
+        "solution": "rddluldrdllrruruuuldrddllurdru"
+      },
+      {
+        "id": "sokoban-packing-47",
+        "title": "Station 47",
+        "board": "SK1:8#/#3-#-.#/##4-@#/#3-#--#/#--$#--#/#4-$-#/4#--.#/8#",
+        "solution": "ldddldrluluulurrrdru"
+      },
+      {
+        "id": "sokoban-packing-48",
+        "title": "Station 48",
+        "board": "SK1:7#/##4-#/#--.#-#/#$--#-#/#--$--#/#+-##-#/#--#--#/7#",
+        "solution": "ruuruurrdddlluldlddruuruullddrulur"
+      },
+      {
+        "id": "sokoban-packing-49",
+        "title": "Station 49",
+        "board": "SK1:7#/#3-#-#/#-#$--#/#3-#-#/##$-#-#/#.@-#-#/#4-.#/7#",
+        "solution": "ruulluurrddddldrrluuuldrdl"
+      },
+      {
+        "id": "sokoban-packing-50",
+        "title": "Station 50",
+        "board": "SK1:7#/#--.--#/#--#--#/#-#3-#/##4-#/#@$-$.#/#-#3-#/7#",
+        "solution": "rurrrddllurllurdruuurul"
+      },
+      {
+        "id": "sokoban-packing-51",
+        "title": "Station 51",
+        "board": "SK1:8#/#-#-#.-#/#@-$3-#/#-#$#--#/#6-#/#--#-#-#/#.-#3-#/8#",
+        "solution": "rrrlllddrrrruulldurrddlllruullddd"
+      },
+      {
+        "id": "sokoban-packing-52",
+        "title": "Station 52",
+        "board": "SK1:7#/##--.-#/#5-#/#5-#/#--.--#/#-$-$@#/#3-#-#/7#",
+        "solution": "lulllddrrudluuulurdrulur"
+      },
+      {
+        "id": "sokoban-packing-53",
+        "title": "Station 53",
+        "board": "SK1:7#/#3-$+#/#-$-#-#/#-#--##/#3-.##/#5-#/7#",
+        "solution": "lldddlluurlurrddrddlluruuur"
+      },
+      {
+        "id": "sokoban-packing-54",
+        "title": "Station 54",
+        "board": "SK1:7#/#-#-.-#/#--@--#/##$3-#/#5-#/#-$.--#/#-#-#-#/7#",
+        "solution": "ddlldrruuuldrddllurdrurrdlululurdru"
+      },
+      {
+        "id": "sokoban-packing-55",
+        "title": "Station 55",
+        "board": "SK1:8#/#--##--#/#@$4-#/#--$3-#/#3-.--#/#3-#-.#/8#",
+        "solution": "drdrruuldldrrrurdllllluuurddldrr"
+      },
+      {
+        "id": "sokoban-packing-56",
+        "title": "Station 56",
+        "board": "SK1:8#/#3-@3#/##--.--#/##$-##-#/#6-#/#.3-$-#/8#",
+        "solution": "drrdddlulluuldrddllurururrrddldlllruulur"
+      },
+      {
+        "id": "sokoban-packing-57",
+        "title": "Station 57",
+        "board": "SK1:8#/#--#-@-#/#$-#$3#/#4-.##/#6-#/#.--##-#/8#",
+        "solution": "lddlluuldddrrurrdlullddrulurr"
+      },
+      {
+        "id": "sokoban-packing-58",
+        "title": "Station 58",
+        "board": "SK1:8#/#.--.--#/#6-#/#-#-$3#/#-#--$@#/#3-#-##/8#",
+        "solution": "llululldddrruurullrdddlluuu"
+      },
+      {
+        "id": "sokoban-packing-59",
+        "title": "Station 59",
+        "board": "SK1:8#/#3-@#-#/#$$#3-#/#3-##-#/#.5-#/#5-.#/8#",
+        "solution": "lldddldrrrrllluuuuldd"
+      },
+      {
+        "id": "sokoban-packing-60",
+        "title": "Station 60",
+        "board": "SK1:7#/#--#--#/#3-$@#/#-$--##/#-#3-#/#.-.-##/#-##--#/7#",
+        "solution": "ldlddlluurlddrrruuulddulluurdrdluldd"
+      },
+      {
+        "id": "sokoban-packing-61",
+        "title": "Station 61",
+        "board": "SK1:7#/#--.--#/3#@--#/#--#$##/#--#--#/#5-#/#-$-.-#/7#",
+        "solution": "rddrddlullldrruruuurul"
+      },
+      {
+        "id": "sokoban-packing-62",
+        "title": "Station 62",
+        "board": "SK1:8#/#3-.--#/#6-#/#3-##-#/##-.#--#/#-$--$-#/#-@3-##/8#",
+        "solution": "ruuuurrrdddlldludluuuulurr"
+      },
+      {
+        "id": "sokoban-packing-63",
+        "title": "Station 63",
+        "board": "SK1:8#/##5-#/#-#--$-#/#6-#/#-.--$-#/##-@3-#/#--.3-#/8#",
+        "solution": "ruurddrdlluuuuurddrdlll"
+      },
+      {
+        "id": "sokoban-packing-64",
+        "title": "Station 64",
+        "board": "SK1:7#/#5-#/#-$$@-#/#5-#/#5-#/#--.#.#/#4-##/7#",
+        "solution": "ulddldrrurdlluuuldddldr"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-freight",
+    "title": "Freight depot",
+    "description": "Move two crates through the depot in seven to thirteen pushes.",
+    "difficulty": "Medium",
+    "puzzles": [
+      {
+        "id": "sokoban-freight-01",
+        "title": "Bay 01",
+        "board": "SK1:8#/#--#3-#/#@-#3-#/#3-$#-#/#--$-..#/#5-##/#6-#/8#",
+        "solution": "rdddrrulrrruulldldrrllulldrrr"
+      },
+      {
+        "id": "sokoban-freight-02",
+        "title": "Bay 02",
+        "board": "SK1:8#/#5-##/#3-.--#/#3-#$-#/#5-.#/#@$4-#/#--#3-#/8#",
+        "solution": "drulurrrrurul"
+      },
+      {
+        "id": "sokoban-freight-03",
+        "title": "Bay 03",
+        "board": "SK1:8#/3#.--.#/##--$--#/#3-@--#/#--#$--#/#--#3-#/8#",
+        "solution": "urdddluuluurrddlurul"
+      },
+      {
+        "id": "sokoban-freight-04",
+        "title": "Bay 04",
+        "board": "SK1:8#/##@.--##/##5-#/#-#4-#/#--$3-#/#-$4-#/#-##-.-#/8#",
+        "solution": "rrddddlulldrrrurdlluuu"
+      },
+      {
+        "id": "sokoban-freight-05",
+        "title": "Bay 05",
+        "board": "SK1:8#/#.5-#/#5-##/#-.--#@#/#$3-$-#/#5-##/#6-#/8#",
+        "solution": "dlldluruldldluuu"
+      },
+      {
+        "id": "sokoban-freight-06",
+        "title": "Bay 06",
+        "board": "SK1:8#/#--#-#-#/#5-.#/##5-#/3#-$-##/##-$3-#/#-@#-.-#/8#",
+        "solution": "urrluurrddluulurr"
+      },
+      {
+        "id": "sokoban-freight-07",
+        "title": "Bay 07",
+        "board": "SK1:7#/#5-#/#--$--#/##-$--#/##.@--#/#.--3#/7#",
+        "solution": "rulruulldddrdluuuurddrdl"
+      },
+      {
+        "id": "sokoban-freight-08",
+        "title": "Bay 08",
+        "board": "SK1:8#/#-.##-##/#6-#/#-.4-#/##$--$-#/#--##--#/#@-#3-#/8#",
+        "solution": "ruurrurrddlurulldlluurrdl"
+      },
+      {
+        "id": "sokoban-freight-09",
+        "title": "Bay 09",
+        "board": "SK1:7#/#.3-##/#--.-##/#3-$-#/#--$--#/#-#@-##/7#",
+        "solution": "uuuddrruldluruull"
+      },
+      {
+        "id": "sokoban-freight-10",
+        "title": "Bay 10",
+        "board": "SK1:7#/#5-#/#-$-#-#/#5-#/##-#-##/#--.-@#/#-$--.#/7#",
+        "solution": "lllldrrruuuluuldddurrddldllur"
+      },
+      {
+        "id": "sokoban-freight-11",
+        "title": "Bay 11",
+        "board": "SK1:7#/#-+3-#/4#$-#/#5-#/#-$##.#/#5-#/#5-#/7#",
+        "solution": "rrrddllldldrrrdrullluurrurull"
+      },
+      {
+        "id": "sokoban-freight-12",
+        "title": "Bay 12",
+        "board": "SK1:8#/#6-#/#-#4-#/#.$$.--#/#-#4-#/#--#3-#/#3-#@-#/8#",
+        "solution": "ululuruulllddrrruuldrdlrurrdlulldl"
+      },
+      {
+        "id": "sokoban-freight-13",
+        "title": "Bay 13",
+        "board": "SK1:8#/#4-#-#/##-$3-#/#@$--.-#/##-#3-#/##5-#/#--#.#-#/8#",
+        "solution": "rrluurrdddduuuuldldrr"
+      },
+      {
+        "id": "sokoban-freight-14",
+        "title": "Bay 14",
+        "board": "SK1:8#/#4-#-#/##--$$-#/#-@-.--#/#-.#3-#/#-#-#--#/#3-#--#/8#",
+        "solution": "ruurdldrdrruulluldrdluldrrurrdl"
+      },
+      {
+        "id": "sokoban-freight-15",
+        "title": "Bay 15",
+        "board": "SK1:8#/#6-#/#-$$3-#/#-#-.--#/#5-.#/#-@3-##/#-#-#--#/8#",
+        "solution": "luuuurrddrddllurrrlllluurrurd"
+      },
+      {
+        "id": "sokoban-freight-16",
+        "title": "Bay 16",
+        "board": "SK1:8#/##3-.-#/#6-#/#4-3#/#-$-$-@#/#--.##-#/##--#--#/8#",
+        "solution": "lluldullddruulurdrulurr"
+      },
+      {
+        "id": "sokoban-freight-17",
+        "title": "Bay 17",
+        "board": "SK1:7#/#5-#/#.$-.-#/#--#--#/##-4#/#-$3-#/#@4-#/7#",
+        "solution": "uruulurrlddddrruldluuuluurrdl"
+      },
+      {
+        "id": "sokoban-freight-18",
+        "title": "Bay 18",
+        "board": "SK1:7#/#--#.##/#@3-##/#--#--#/#-$$--#/##-.--#/7#",
+        "solution": "rrrdddllurdrruuldrdlullulurrlddrruu"
+      },
+      {
+        "id": "sokoban-freight-19",
+        "title": "Bay 19",
+        "board": "SK1:7#/#4-+#/#4-$#/#--#--#/#.--$##/##4-#/#--#-##/7#",
+        "solution": "llldddrdruurullulddurrddll"
+      },
+      {
+        "id": "sokoban-freight-20",
+        "title": "Bay 20",
+        "board": "SK1:7#/#-#.--#/#--$--#/#-$-#-#/#@#3-#/#--#--#/#4-.#/7#",
+        "solution": "uurrrurddddluluulldrurrrddlluu"
+      },
+      {
+        "id": "sokoban-freight-21",
+        "title": "Bay 21",
+        "board": "SK1:8#/#5-##/##-.-.-#/##5-#/#-$4-#/#-$4-#/#@#3-##/8#",
+        "solution": "uururrddlulldrururdddluuluurrddlu"
+      },
+      {
+        "id": "sokoban-freight-22",
+        "title": "Bay 22",
+        "board": "SK1:7#/#3-.##/#--#-##/#@$3-#/##.$#-#/#5-#/7#",
+        "solution": "ururrddrddlluluuddrdrruulldluluurdduur"
+      },
+      {
+        "id": "sokoban-freight-23",
+        "title": "Bay 23",
+        "board": "SK1:8#/#--#3-#/#-#@$--#/#3-#$-#/#5-##/#--#-..#/8#",
+        "solution": "rurrdlddldrluluururddd"
+      },
+      {
+        "id": "sokoban-freight-24",
+        "title": "Bay 24",
+        "board": "SK1:7#/#5-#/4#--#/#-@#$-#/#--$-##/#5-#/#-.--.#/7#",
+        "solution": "ddrruuruulddddldruuldlluurdd"
+      },
+      {
+        "id": "sokoban-freight-25",
+        "title": "Bay 25",
+        "board": "SK1:8#/#6-#/#.--$#-#/#-@4-#/#3-$#.#/#-#4-#/8#",
+        "solution": "ruurdldrrluurrddlllddruluururrddlldlurull"
+      },
+      {
+        "id": "sokoban-freight-26",
+        "title": "Bay 26",
+        "board": "SK1:8#/#--#3-#/#-.4-#/#6-#/##-$-#.#/#--$--##/##3-@-#/8#",
+        "solution": "llluurlddrruulurrurdlldddluuurul"
+      },
+      {
+        "id": "sokoban-freight-27",
+        "title": "Bay 27",
+        "board": "SK1:8#/#-.##-##/#6-#/#3-#--#/#3-$$##/#3-#-@#/#--.#--#/8#",
+        "solution": "lulrurullldddluuu"
+      },
+      {
+        "id": "sokoban-freight-28",
+        "title": "Bay 28",
+        "board": "SK1:8#/3#3-.#/#3-@--#/#-$3-##/##$.-#-#/#6-#/8#",
+        "solution": "llldrurdrddlluulurrdrulurr"
+      },
+      {
+        "id": "sokoban-freight-29",
+        "title": "Bay 29",
+        "board": "SK1:7#/##4-#/#-$-#-#/#-@$--#/3#--##/#--.--#/#3-.-#/7#",
+        "solution": "ruuldldrurdddldruuuuurrddlruullddd"
+      },
+      {
+        "id": "sokoban-freight-30",
+        "title": "Bay 30",
+        "board": "SK1:8#/#5-##/#--$#$-#/#@5-#/#--.3-#/#3-#--#/#.#3-##/8#",
+        "solution": "ruurddrdluldrdluldrruuuurrddrdll"
+      },
+      {
+        "id": "sokoban-freight-31",
+        "title": "Bay 31",
+        "board": "SK1:8#/#3-#--#/#.$#3-#/#-.#-$-#/#-##3-#/#6-#/#--@#--#/8#",
+        "solution": "uruuurddrdllldlluuuuurdlddddrruldluuu"
+      },
+      {
+        "id": "sokoban-freight-32",
+        "title": "Bay 32",
+        "board": "SK1:7#/##.3-#/#-.-@##/#3-$-#/#-$3-#/#-##--#/#--#--#/7#",
+        "solution": "lddrrululllddrrluurrdlrrddluruldludlururul"
+      },
+      {
+        "id": "sokoban-freight-33",
+        "title": "Bay 33",
+        "board": "SK1:7#/#5-#/#.3-##/#4-@#/#--$--#/##-#$##/#.4-#/7#",
+        "solution": "llldddrruululddurrddllrruuruldlurull"
+      },
+      {
+        "id": "sokoban-freight-34",
+        "title": "Bay 34",
+        "board": "SK1:8#/#--##--#/#-#-#--#/#--$-.-#/#-#$--##/#3-#--#/#-@#-.-#/8#",
+        "solution": "luuurrrdruruulddddululllddrrudlluurrr"
+      },
+      {
+        "id": "sokoban-freight-35",
+        "title": "Bay 35",
+        "board": "SK1:8#/#3-##-#/#--$#--#/##-.-@-#/##$#3-#/#3-.--#/#--3#-#/8#",
+        "solution": "llluurdldrrdrruulddldlluurrrrddlululuulldrurd"
+      },
+      {
+        "id": "sokoban-freight-36",
+        "title": "Bay 36",
+        "board": "SK1:7#/#-@-3#/#-$$--#/##4-#/#5-#/#5-#/#--..-#/7#",
+        "solution": "rddddldruuuuulddddldr"
+      },
+      {
+        "id": "sokoban-freight-37",
+        "title": "Bay 37",
+        "board": "SK1:8#/#6-#/#.#--$-#/#-.@3-#/#4-$-#/#3-#--#/8#",
+        "solution": "rrrdllllrruuurdrdllldldluu"
+      },
+      {
+        "id": "sokoban-freight-38",
+        "title": "Bay 38",
+        "board": "SK1:8#/#4-#-#/#.-#$#-#/#-$3-@#/#3-#-##/#5-.#/#6-#/8#",
+        "solution": "llldlluurddldrrrrllluuuurrdullddrddrruullldlu"
+      },
+      {
+        "id": "sokoban-freight-39",
+        "title": "Bay 39",
+        "board": "SK1:7#/#.#@--#/#-#3-#/#.4-#/#5-#/##-$$-#/#4-##/7#",
+        "solution": "ddldddrruldlurruldlurulrurrdlldlluuddrrul"
+      },
+      {
+        "id": "sokoban-freight-40",
+        "title": "Bay 40",
+        "board": "SK1:7#/#5-#/#--$--#/##--.-#/#-$##-#/#@-#--#/#3-#.#/7#",
+        "solution": "ruurruuldulldrdrrurddduuluuldldr"
+      },
+      {
+        "id": "sokoban-freight-41",
+        "title": "Bay 41",
+        "board": "SK1:8#/#3-##-#/#-#$-$-#/#@5-#/##4-##/#--#..-#/8#",
+        "solution": "uurrddldrrurdurulldllluurrddldrurd"
+      },
+      {
+        "id": "sokoban-freight-42",
+        "title": "Bay 42",
+        "board": "SK1:7#/#3-3#/#-$-$-#/#--#.-#/#5-#/#3-@-#/#-.3-#/7#",
+        "solution": "llluuuurddddrrruuullulddldrrdru"
+      },
+      {
+        "id": "sokoban-freight-43",
+        "title": "Bay 43",
+        "board": "SK1:8#/#5-##/##$--@-#/#-.4-#/3#--#-#/#--$3-#/#-#3-.#/8#",
+        "solution": "lddddluuruululdrrddluruulldrurddddldrr"
+      },
+      {
+        "id": "sokoban-freight-44",
+        "title": "Bay 44",
+        "board": "SK1:8#/#6-#/#--.#$##/#@4-##/#-.4-#/#-$4-#/#-##3-#/8#",
+        "solution": "ddrrurrddlurululuurrddldlrdrruldluruldlu"
+      },
+      {
+        "id": "sokoban-freight-45",
+        "title": "Bay 45",
+        "board": "SK1:8#/#6-#/##$-#--#/#-$4-#/#6-#/#--+#--#/##4-.#/8#",
+        "solution": "lluurdrrruuullddddldrrrlluuuuuldddldr"
+      },
+      {
+        "id": "sokoban-freight-46",
+        "title": "Bay 46",
+        "board": "SK1:8#/#3-#@-#/#--#-$-#/#3-#--#/#-.--$-#/##5-#/#.5-#/8#",
+        "solution": "rddlddrdllllrrrruuuuulddrdlll"
+      },
+      {
+        "id": "sokoban-freight-47",
+        "title": "Bay 47",
+        "board": "SK1:8#/##5-#/##$.#-##/#6-#/##$@--##/#5-.#/#6-#/8#",
+        "solution": "uldrddllurrrrlluuuuldddrddllurdruuu"
+      },
+      {
+        "id": "sokoban-freight-48",
+        "title": "Bay 48",
+        "board": "SK1:8#/#@5-#/#4-$-#/#3-#-##/#--..--#/3#--$##/#6-#/8#",
+        "solution": "rrdddrddrulluuururrdllulddldrdrruuddlluuururrdlluldd"
+      },
+      {
+        "id": "sokoban-freight-49",
+        "title": "Bay 49",
+        "board": "SK1:8#/#6-#/#6-#/#-@#--.#/#4-#-#/#--$#--#/#-.--$-#/8#",
+        "solution": "urrrrddddllluluuurrddldluulurrrurdldr"
+      },
+      {
+        "id": "sokoban-freight-50",
+        "title": "Bay 50",
+        "board": "SK1:8#/#-$3-.#/#4-.##/#3-#--#/#6-#/#-@#$#-#/#5-##/8#",
+        "solution": "drrudlluuruurrddllrddlluuulurrrlllurrrr"
+      },
+      {
+        "id": "sokoban-freight-51",
+        "title": "Bay 51",
+        "board": "SK1:8#/#-.#3-#/#3-.$##/#4-$-#/#3-#-@#/##-#3-#/#--#3-#/8#",
+        "solution": "ulluurddllrrrddlurullulllddrrudlluurrddluu"
+      },
+      {
+        "id": "sokoban-freight-52",
+        "title": "Bay 52",
+        "board": "SK1:8#/#3-#.-#/#-@.3-#/3#4-#/#--$-#-#/#--$3-#/#-#4-#/8#",
+        "solution": "rrddlrddluudllurrdruludrdrruulullddrulurdrullulldr"
+      },
+      {
+        "id": "sokoban-freight-53",
+        "title": "Bay 53",
+        "board": "SK1:8#/##--@--#/#3-$$-#/#--#3-#/#-.4-#/#6-#/#.#4-#/8#",
+        "solution": "dddrdllluldrrruuuurddrdlll"
+      },
+      {
+        "id": "sokoban-freight-54",
+        "title": "Bay 54",
+        "board": "SK1:7#/#-#-@-#/#-$$--#/#5-#/#-#3-#/#5-#/#-.--.#/7#",
+        "solution": "lddddldrrllluuuurdrruulddddrdl"
+      },
+      {
+        "id": "sokoban-freight-55",
+        "title": "Bay 55",
+        "board": "SK1:7#/#4-.#/#5-#/#.-#--#/##$-$-#/#--@#-#/7#",
+        "solution": "luuluurrrrdddlldlurruulluldrrrddlluulurrr"
+      },
+      {
+        "id": "sokoban-freight-56",
+        "title": "Bay 56",
+        "board": "SK1:8#/#-#4-#/#--$-#-#/#@#--$-#/##--#--#/#.3-.-#/8#",
+        "solution": "urrurrrddllrruullldddurrddlllruuuurdurrddllulddldrr"
+      },
+      {
+        "id": "sokoban-freight-57",
+        "title": "Bay 57",
+        "board": "SK1:8#/##3-..#/#@#$3-#/#-$4-#/#-#-#--#/#3-#--#/8#",
+        "solution": "drrruuldrdlddlluurrurrrddluulldrurrddluluurlddru"
+      },
+      {
+        "id": "sokoban-freight-58",
+        "title": "Bay 58",
+        "board": "SK1:8#/#3-.@-#/#.#--#-#/#6-#/#3-#-##/#-$--$-#/#-#3-##/8#",
+        "solution": "llddddrdruudllulldrururuurrddlddldlurruullrrddlluuuddlluuurrddldlu"
+      },
+      {
+        "id": "sokoban-freight-59",
+        "title": "Bay 59",
+        "board": "SK1:8#/#6-#/##3-.-#/#-#@3-#/#-$$-#-#/#-#-#-.#/#6-#/8#",
+        "solution": "rrrddldlluuuruulldrurdldrrurddullldddlluurlddrruuuruulldrr"
+      },
+      {
+        "id": "sokoban-freight-60",
+        "title": "Bay 60",
+        "board": "SK1:8#/#3-#--#/#--#3-#/#--#-.-#/#5-##/#$3-$-#/#.-#-#@#/8#",
+        "solution": "ullullddluurrrdlullddruluruuldddrurrdru"
+      },
+      {
+        "id": "sokoban-freight-61",
+        "title": "Bay 61",
+        "board": "SK1:8#/#-.3-##/#4-.-#/##-#-#-#/3#--#-#/#@$--$-#/#--#3-#/8#",
+        "solution": "rruruurrddddlluuuurrdddldluuuddrruuululldr"
+      },
+      {
+        "id": "sokoban-freight-62",
+        "title": "Bay 62",
+        "board": "SK1:8#/#4-..#/##3-#-#/#3-##-#/#-$3-##/#--$#--#/#-#-@--#/8#",
+        "solution": "luudluruuddllurdruluurrrlllddrulurr"
+      },
+      {
+        "id": "sokoban-freight-63",
+        "title": "Bay 63",
+        "board": "SK1:8#/#-#3-.#/#--.3-#/#3-#--#/#4-#-#/#@$--$-#/#4-#-#/8#",
+        "solution": "urruurrrdddlldludlurudlurudlluurrrlddlulurdrdrdrruululur"
+      },
+      {
+        "id": "sokoban-freight-64",
+        "title": "Bay 64",
+        "board": "SK1:7#/#@#3-#/#-$-$-#/#.#-#-#/#5-#/#5-#/#.#-3#/7#",
+        "solution": "drlddrrrruuulldddrdlluldrrrruuululddurrddllldlu"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-sorting",
+    "title": "Sorting floor",
+    "description": "Organize three crates in eight to thirteen pushes.",
+    "difficulty": "Medium",
+    "puzzles": [
+      {
+        "id": "sokoban-sorting-01",
+        "title": "Aisle 01",
+        "board": "SK1:8#/#-.--#-#/##3-.-#/#--#$.##/#3-$$##/##--#-@#/8#",
+        "solution": "lulldlurrudlluurr"
+      },
+      {
+        "id": "sokoban-sorting-02",
+        "title": "Aisle 02",
+        "board": "SK1:7#/#5-#/#3-$-#/#-.+#-#/#-$-$.#/3#--##/7#",
+        "solution": "uurrdddldlurruuulllldddrrrlluururrdlluld"
+      },
+      {
+        "id": "sokoban-sorting-03",
+        "title": "Aisle 03",
+        "board": "SK1:8#/#5-.#/#3-$--#/##3-$-#/#3-#-.#/#5-##/#-.--$@#/8#",
+        "solution": "llluuurrurdllulurr"
+      },
+      {
+        "id": "sokoban-sorting-04",
+        "title": "Aisle 04",
+        "board": "SK1:8#/#-#-.--#/#3-$+.#/#-$4-#/#--#-$-#/#--#3-#/#6-#/8#",
+        "solution": "rdddlulurdrulllurlllddrulurrdru"
+      },
+      {
+        "id": "sokoban-sorting-05",
+        "title": "Aisle 05",
+        "board": "SK1:8#/#--#3-#/#--.#-$#/#5-.#/#-.-$--#/#-@-#$-#/#6-#/8#",
+        "solution": "ruurrdlrrddluruulldlddrruuruluurdldldlu"
+      },
+      {
+        "id": "sokoban-sorting-06",
+        "title": "Aisle 06",
+        "board": "SK1:8#/#@$.-.-#/#--.$--#/##-$-3#/#--#3-#/#3-#-##/#6-#/8#",
+        "solution": "drrurrdlddrddllluuuulurrrddlrdrddllluuuulur"
+      },
+      {
+        "id": "sokoban-sorting-07",
+        "title": "Aisle 07",
+        "board": "SK1:8#/#--$.--#/#-#4-#/#@$-$#-#/##--.#-#/#5-.#/8#",
+        "solution": "rdrrdrruuullddldrrluuuldldrluluurr"
+      },
+      {
+        "id": "sokoban-sorting-08",
+        "title": "Aisle 08",
+        "board": "SK1:8#/#4-.-#/#6-#/4#$$-#/#5-##/#-@-#--#/#-.-$.-#/8#",
+        "solution": "rurrddlluuruurddduluulur"
+      },
+      {
+        "id": "sokoban-sorting-09",
+        "title": "Aisle 09",
+        "board": "SK1:8#/#-.-.-##/#3-$$-#/#@##-#-#/#--$--.#/#4-#-#/8#",
+        "solution": "drdrruuuddrruululldllddrrrrluu"
+      },
+      {
+        "id": "sokoban-sorting-10",
+        "title": "Aisle 10",
+        "board": "SK1:8#/#5-##/#-.-$--#/#4-#-#/#3-@$-#/#.--$.-#/8#",
+        "solution": "ldrluuuurrdrddlluldrdllrrurruulll"
+      },
+      {
+        "id": "sokoban-sorting-11",
+        "title": "Aisle 11",
+        "board": "SK1:7#/#--@3#/#.$$-.#/#5-#/#.$#--#/#5-#/7#",
+        "solution": "ldldddrrruulluldrurdrddlludrruulurdddlluurul"
+      },
+      {
+        "id": "sokoban-sorting-12",
+        "title": "Aisle 12",
+        "board": "SK1:8#/##.$-#-#/##3-$-#/##5-#/##-+#$-#/#-.4-#/8#",
+        "solution": "urrdrdllluuruulrddrruldlluurdrdluld"
+      },
+      {
+        "id": "sokoban-sorting-13",
+        "title": "Aisle 13",
+        "board": "SK1:7#/#@#3-#/#3-..#/#-$$--#/#-$3-#/#3-.##/7#",
+        "solution": "dddrrlluurrrddludlluurrrlddlulurr"
+      },
+      {
+        "id": "sokoban-sorting-14",
+        "title": "Aisle 14",
+        "board": "SK1:7#/#.-$@##/#--.#-#/3#-#-#/#-.$--#/#-$3-#/#-#3-#/7#",
+        "solution": "lddduuulrdddrddluulldrurrddlurulu"
+      },
+      {
+        "id": "sokoban-sorting-15",
+        "title": "Aisle 15",
+        "board": "SK1:8#/#5-##/#3-$$-#/#4-@-#/#--.$#-#/#3-.#-#/#--#.--#/8#",
+        "solution": "lddluuuurddduuurdrdlluld"
+      },
+      {
+        "id": "sokoban-sorting-16",
+        "title": "Aisle 16",
+        "board": "SK1:8#/#3-#-##/#3-+.-#/#--#3-#/#-#--$##/#--$--##/#.--$--#/8#",
+        "solution": "dddrdlllurdrurudlurudlu"
+      },
+      {
+        "id": "sokoban-sorting-17",
+        "title": "Aisle 17",
+        "board": "SK1:8#/#4-#@#/#-.$-$-#/#5-##/#.3-3#/#--$-.-#/8#",
+        "solution": "dldlllddrrlluuuurddrdllrrurull"
+      },
+      {
+        "id": "sokoban-sorting-18",
+        "title": "Aisle 18",
+        "board": "SK1:7#/#5-#/#--$-##/#.-$--#/#-#$--#/#-.3-#/#--#+-#/7#",
+        "solution": "ullluurrluurrdddduuldrdlruuuuldrdll"
+      },
+      {
+        "id": "sokoban-sorting-19",
+        "title": "Aisle 19",
+        "board": "SK1:7#/#5-#/##--$$#/#@-##.#/##.$--#/#-.3-#/7#",
+        "solution": "rururrdlluldddrdrrull"
+      },
+      {
+        "id": "sokoban-sorting-20",
+        "title": "Aisle 20",
+        "board": "SK1:7#/#--#--#/#.--$@#/#.#-$-#/4#--#/#-.$-##/7#",
+        "solution": "ddldlruruullluldrrrrddlurulll"
+      },
+      {
+        "id": "sokoban-sorting-21",
+        "title": "Aisle 21",
+        "board": "SK1:8#/#-@--#-#/#-$.#--#/#--$-#.#/#--$--.#/#6-#/8#",
+        "solution": "lddrdrrrlllluuurrddldrrdrrudllurlllluur"
+      },
+      {
+        "id": "sokoban-sorting-22",
+        "title": "Aisle 22",
+        "board": "SK1:8#/#.-.$-.#/#6-#/#5-##/#$$--#-#/#@#4-#/8#",
+        "solution": "ururrddluuldluruurrrlddluldlu"
+      },
+      {
+        "id": "sokoban-sorting-23",
+        "title": "Aisle 23",
+        "board": "SK1:7#/#-.-.##/#5-#/##-$--#/#--#-$#/#--#$.#/4#-@#/7#",
+        "solution": "luuurduulullddrluurrdlrrddluuldlu"
+      },
+      {
+        "id": "sokoban-sorting-24",
+        "title": "Aisle 24",
+        "board": "SK1:7#/#@.#--#/#4-##/##-#$-#/#--$--#/#--.$-#/##-#.-#/7#",
+        "solution": "rdrrdrddlruuldduuulldddrluuurrddldlurrrdlulluu"
+      },
+      {
+        "id": "sokoban-sorting-25",
+        "title": "Aisle 25",
+        "board": "SK1:8#/#-.-$.-#/#3-#.-#/#--##--#/#-$--$-#/#--#--@#/8#",
+        "solution": "luruululldlldddrurrrudllluluurrrlllddru"
+      },
+      {
+        "id": "sokoban-sorting-26",
+        "title": "Aisle 26",
+        "board": "SK1:7#/#4-.#/#-#-$$#/#-.-$-#/#5-#/##-@3#/##3-.#/7#",
+        "solution": "urruldllluuurrddddldrrluuuuurdlddrrullrru"
+      },
+      {
+        "id": "sokoban-sorting-27",
+        "title": "Aisle 27",
+        "board": "SK1:8#/#.5-#/#-3#--#/#@$3-.#/#-$-.--#/#--$##-#/#-#4-#/8#",
+        "solution": "uurrrrrdddddlllulluurrllddrururrllldluu"
+      },
+      {
+        "id": "sokoban-sorting-28",
+        "title": "Aisle 28",
+        "board": "SK1:8#/#-.--#-#/#4-$@#/#3-$--#/#--.-$-#/#-.-##-#/8#",
+        "solution": "dlluldrdluldrrurrdllrruulldlurul"
+      },
+      {
+        "id": "sokoban-sorting-29",
+        "title": "Aisle 29",
+        "board": "SK1:7#/#-#3-#/#@$--$#/##-.-.#/#--$#-#/#.3-##/7#",
+        "solution": "rdrruurdldllddruluururrdldlruuldlddrdl"
+      },
+      {
+        "id": "sokoban-sorting-30",
+        "title": "Aisle 30",
+        "board": "SK1:7#/#.--$-#/##-#--#/#-.3-#/#-.-$##/#-#$@-#/#-#3-#/7#",
+        "solution": "dlurulruruuldrdllruull"
+      },
+      {
+        "id": "sokoban-sorting-31",
+        "title": "Aisle 31",
+        "board": "SK1:8#/#-.#3-#/#@-$3-#/#--#$.-#/#3-$-##/##.#3-#/8#",
+        "solution": "rrrurrddldllrruruulldllddrrurruuldllrddlluu"
+      },
+      {
+        "id": "sokoban-sorting-32",
+        "title": "Aisle 32",
+        "board": "SK1:7#/#-$-.##/#-@$--#/##-$--#/#-#3-#/#-.--.#/7#",
+        "solution": "drdrruulddldruuuuldddrdluululurr"
+      },
+      {
+        "id": "sokoban-sorting-33",
+        "title": "Aisle 33",
+        "board": "SK1:8#/#4-#-#/#-.--#-#/##+$-.-#/#-#-$$-#/#4-#-#/8#",
+        "solution": "urrdlddruurrdlluluurdldrddluurul"
+      },
+      {
+        "id": "sokoban-sorting-34",
+        "title": "Aisle 34",
+        "board": "SK1:8#/##-.#@-#/#3-.#-#/#3-$--#/##--#$-#/#-.--$-#/8#",
+        "solution": "rddddlllrrruullrrddlurulddlluuddrruulrddlluluurlddruu"
+      },
+      {
+        "id": "sokoban-sorting-35",
+        "title": "Aisle 35",
+        "board": "SK1:7#/##.--+#/#-##--#/#-$--$#/#3-$.#/#5-#/7#",
+        "solution": "lddlddrruldllluurrlddrruulldrururulddlddrruulldrurulul"
+      },
+      {
+        "id": "sokoban-sorting-36",
+        "title": "Aisle 36",
+        "board": "SK1:8#/##4-##/##$--#.#/##5-#/#@$.$--#/#4-.-#/#-##3-#/8#",
+        "solution": "drruurdldrlllururuulddrrddludllururrrdru"
+      },
+      {
+        "id": "sokoban-sorting-37",
+        "title": "Aisle 37",
+        "board": "SK1:7#/#@4-#/#-$--$#/##$3-#/##-.-.#/#-#-.-#/#3-#-#/7#",
+        "solution": "drrurddduuurddlldluruulldrurdd"
+      },
+      {
+        "id": "sokoban-sorting-38",
+        "title": "Aisle 38",
+        "board": "SK1:8#/#6-#/#.-$#--#/#-$4-#/##$-.-.#/#@4-##/8#",
+        "solution": "rrrruuuullllddrrrdrruuldldruuullddrddllurlurul"
+      },
+      {
+        "id": "sokoban-sorting-39",
+        "title": "Aisle 39",
+        "board": "SK1:8#/#5-##/#-.--#-#/#--.##@#/#-.#3-#/##$$-$-#/#4-3#/8#",
+        "solution": "dllddlluulurdddrrulrurrdlldlluuudddrruldlu"
+      },
+      {
+        "id": "sokoban-sorting-40",
+        "title": "Aisle 40",
+        "board": "SK1:8#/#-#--@-#/#-3$--#/#6-#/#3-..##/##.4-#/8#",
+        "solution": "lldddrdluuuurddldrllluurdrruulddldr"
+      },
+      {
+        "id": "sokoban-sorting-41",
+        "title": "Aisle 41",
+        "board": "SK1:8#/#4-.##/3#4-#/#-#-.--#/#@$.3-#/##-$$--#/##-#3-#/8#",
+        "solution": "rrrurrddldlurruullldldruurrrddlulrddluuruu"
+      },
+      {
+        "id": "sokoban-sorting-42",
+        "title": "Aisle 42",
+        "board": "SK1:7#/#3-#-#/#-@$.-#/3#-$.#/##4-#/#-#-$##/#-.3-#/7#",
+        "solution": "rddrruullddddruluuurrddlruulldddrdluuurluulldrr"
+      },
+      {
+        "id": "sokoban-sorting-43",
+        "title": "Aisle 43",
+        "board": "SK1:7#/##-$.-#/##.-$-#/##-@--#/#.-$3#/##--3#/7#",
+        "solution": "rruldlluurlddrruldlddruluruulddrdlruurrdlullddrurul"
+      },
+      {
+        "id": "sokoban-sorting-44",
+        "title": "Aisle 44",
+        "board": "SK1:8#/#6-#/#4-#+#/#--$$--#/##$-.-.#/#3-#--#/8#",
+        "solution": "ullddulldrrrdrullldrrlldluruulldrurdldr"
+      },
+      {
+        "id": "sokoban-sorting-45",
+        "title": "Aisle 45",
+        "board": "SK1:7#/#--#--#/#-$$--#/#-.-@-#/##$-#-#/#4-##/#--.-.#/7#",
+        "solution": "llddldrrrlluuuluurddddldruruuruldlluurd"
+      },
+      {
+        "id": "sokoban-sorting-46",
+        "title": "Aisle 46",
+        "board": "SK1:8#/#3-.#-#/##5-#/##$--$##/#+$4-#/##-#.--#/8#",
+        "solution": "rrrdrruldluluurrddrdlulluuldrdlrruu"
+      },
+      {
+        "id": "sokoban-sorting-47",
+        "title": "Aisle 47",
+        "board": "SK1:8#/#@.$3-#/##5-#/#--#$#-#/#$-.-#-#/#.#--#-#/8#",
+        "solution": "rddldrrrudlluurrurrdllddlluuurldddrruululddldruurrrull"
+      },
+      {
+        "id": "sokoban-sorting-48",
+        "title": "Aisle 48",
+        "board": "SK1:7#/#--$+-#/#-$3-#/#.-#-##/#--.$##/#5-#/7#",
+        "solution": "dllddrdrulluuuldrrruldlddrrudlluururrdlddlluulurrldddrruululddurrddldllur"
+      },
+      {
+        "id": "sokoban-sorting-49",
+        "title": "Aisle 49",
+        "board": "SK1:8#/#3-#-##/#.-$#-##/#-$$--##/#4-#@#/#-#.--.#/8#",
+        "solution": "dllluludrruldlluuurrdduulldddrrurdldrrllullurluurrddduul"
+      },
+      {
+        "id": "sokoban-sorting-50",
+        "title": "Aisle 50",
+        "board": "SK1:8#/#.3-$-#/#--.#-.#/#@$$3-#/##5-#/#6-#/8#",
+        "solution": "urdrrrllddlurrruuruldddrullldlulurdrrruulll"
+      },
+      {
+        "id": "sokoban-sorting-51",
+        "title": "Aisle 51",
+        "board": "SK1:7#/#3-3#/#$#-$.#/#.4-#/#4-##/#-@-$-#/##-.-##/7#",
+        "solution": "ruuuullddrrrruldllluurrdddlddrrudlluurdrulldlurrrulur"
+      },
+      {
+        "id": "sokoban-sorting-52",
+        "title": "Aisle 52",
+        "board": "SK1:7#/#-#.--#/#-.3-#/#-##--#/#-$-$##/#-.-$@#/7#",
+        "solution": "llruuruulldllddrrlluurrurrddlulllddrrdruurullrrul"
+      },
+      {
+        "id": "sokoban-sorting-53",
+        "title": "Aisle 53",
+        "board": "SK1:8#/##5-#/#--#-$-#/#-.#-$-#/#-@..$##/#--#3-#/8#",
+        "solution": "rruuurrddlruulllldddrrdrullluuurrdduurrddldllrruruullddrdluuurdrdlulduulldldddru"
+      },
+      {
+        "id": "sokoban-sorting-54",
+        "title": "Aisle 54",
+        "board": "SK1:7#/#4-.#/#5-#/#-$-.-#/#-#--+#/#-$$-##/#-#--##/7#",
+        "solution": "lddluruululldddrrdrullluurrllddrrurluulurr"
+      },
+      {
+        "id": "sokoban-sorting-55",
+        "title": "Aisle 55",
+        "board": "SK1:8#/#.$3-.#/#@-#-$##/3#-$--#/##5-#/##-#--.#/#--#-3#/8#",
+        "solution": "urrrrdddldrluuurulll"
+      },
+      {
+        "id": "sokoban-sorting-56",
+        "title": "Aisle 56",
+        "board": "SK1:8#/#--#-#-#/#-$#.--#/#5-##/4#--.#/#@-$-.$#/#--#3-#/8#",
+        "solution": "rrrdrrudlluuullluurdldrrrurdldddrruldluuurd"
+      },
+      {
+        "id": "sokoban-sorting-57",
+        "title": "Aisle 57",
+        "board": "SK1:8#/#--3#-#/#.$#3-#/#-$@$--#/#--##--#/#5-.#/#4-.-#/8#",
+        "solution": "rurdddlllluurrrurddulllddrrrlllluuuurdlddrdrrruullldlu"
+      },
+      {
+        "id": "sokoban-sorting-58",
+        "title": "Aisle 58",
+        "board": "SK1:8#/#4-#-#/##.#$--#/#--#3-#/#3-$--#/#3-##@#/#-$--..#/8#",
+        "solution": "dllluurrurddulllllddrrrlluuuuurrddrdlldluu"
+      },
+      {
+        "id": "sokoban-sorting-59",
+        "title": "Aisle 59",
+        "board": "SK1:8#/#4-#-#/#--.-$@#/#--$-#-#/#-#-#-##/#-$4-#/##.-.--#/8#",
+        "solution": "lllddduullddrdrrlluluurrddrdlrurrdlulllluuur"
+      },
+      {
+        "id": "sokoban-sorting-60",
+        "title": "Aisle 60",
+        "board": "SK1:7#/#--#-##/#.$@$-#/#--#--#/#3-.-#/#-$-.-#/#-##--#/7#",
+        "solution": "ldlddrrluuuulddrdrrruullrddlluluurddurrddldllurrllu"
+      },
+      {
+        "id": "sokoban-sorting-61",
+        "title": "Aisle 61",
+        "board": "SK1:8#/#--.3-#/#$--@.-#/#-#4-#/#6-#/#.$$-#-#/#4-#-#/8#",
+        "solution": "lluldddrrrddludluruuruullldddrdrulluurrrddluu"
+      },
+      {
+        "id": "sokoban-sorting-62",
+        "title": "Aisle 62",
+        "board": "SK1:7#/#.--$-#/#-#.#-#/#--$-.#/#-#$-##/##4-#/#-@--##/7#",
+        "solution": "rruuulduuullddrluurrddrruulllrddrdddllurdruudluur"
+      },
+      {
+        "id": "sokoban-sorting-63",
+        "title": "Aisle 63",
+        "board": "SK1:8#/#.--#--#/##-.3-#/#@$-#-##/##3-$-#/#-.#$#-#/#6-#/8#",
+        "solution": "rdddrrrruulllrrrddlludrruullddlluuuurrrddllrruullldduuruldddru"
+      },
+      {
+        "id": "sokoban-sorting-64",
+        "title": "Aisle 64",
+        "board": "SK1:8#/#-#--.-#/#--$3-#/##4-.#/#@$$-#.#/#3-#--#/8#",
+        "solution": "drrudllururrrurdllllddrulurrrlllurdrulur"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-dispatch",
+    "title": "Dispatch hall",
+    "description": "Deliver three crates in eleven to seventeen pushes.",
+    "difficulty": "Hard",
+    "puzzles": [
+      {
+        "id": "sokoban-dispatch-01",
+        "title": "Lane 01",
+        "board": "SK1:8#/#--#3-#/#-#3-.#/#@3-#-#/##.-$$-#/#4-$-#/#-.3-##/8#",
+        "solution": "rrrurrdddlldlluurdrdlruudrrulllrulurr"
+      },
+      {
+        "id": "sokoban-dispatch-02",
+        "title": "Lane 02",
+        "board": "SK1:8#/#.$-#-##/#-#-@.##/3#$3-#/#6-#/#-.$3-#/8#",
+        "solution": "ddlldruruuldrdldllurrurrddllruulurlul"
+      },
+      {
+        "id": "sokoban-dispatch-03",
+        "title": "Lane 03",
+        "board": "SK1:8#/#--#--##/#-#-.--#/#.5-#/#$$#3-#/#@-$-.-#/##--#--#/8#",
+        "solution": "rrrllludrrruulldldrrluurrrrdddluulullddrrururul"
+      },
+      {
+        "id": "sokoban-dispatch-04",
+        "title": "Lane 04",
+        "board": "SK1:7#/#3-.-#/#--$--#/#-$-$##/#--#.-#/#-##+##/7#",
+        "solution": "uuulullddrrurdduluuldldrrurd"
+      },
+      {
+        "id": "sokoban-dispatch-05",
+        "title": "Lane 05",
+        "board": "SK1:7#/#--#-.#/#.4-#/#-$--.#/#$$#@-#/#5-#/7#",
+        "solution": "ululldrrurrddldlluulurrrlldddrrruuulldrllddluu"
+      },
+      {
+        "id": "sokoban-dispatch-06",
+        "title": "Lane 06",
+        "board": "SK1:7#/#4-##/#-.--.#/#-##-$#/#-$3-#/#-$-.-#/#--@-##/7#",
+        "solution": "llurluuurrrrdlulllddrrlddrruuuruldddrullldrurrulul"
+      },
+      {
+        "id": "sokoban-dispatch-07",
+        "title": "Lane 07",
+        "board": "SK1:8#/##4-##/#--$3-#/#--#3-#/#--@.--#/#-$$3-#/#--#..-#/8#",
+        "solution": "luururddullddrrurddlulllddrururdlllurr"
+      },
+      {
+        "id": "sokoban-dispatch-08",
+        "title": "Lane 08",
+        "board": "SK1:8#/##4-##/#--$-$-#/#.-$##-#/##..@--#/3#4-#/8#",
+        "solution": "lluuurrdldldruuulddrddrrulrruullluldrdl"
+      },
+      {
+        "id": "sokoban-dispatch-09",
+        "title": "Lane 09",
+        "board": "SK1:8#/#@$--.-#/3#3-##/#4-$-#/#3-#--#/#-.4-#/#-$--.-#/8#",
+        "solution": "rrddlldddrrrluuururddrdllluuuur"
+      },
+      {
+        "id": "sokoban-dispatch-10",
+        "title": "Lane 10",
+        "board": "SK1:8#/#-.-.--#/#.##3-#/#$$4-#/#@#--$-#/#-#4-#/8#",
+        "solution": "urrdrdruudluudrruullddrululrdrrul"
+      },
+      {
+        "id": "sokoban-dispatch-11",
+        "title": "Lane 11",
+        "board": "SK1:8#/#-##-@-#/#4-$-#/#$$#3-#/#.--.-##/3#4-#/##-.3-#/8#",
+        "solution": "ldllldurrrddllulurrlddrrruruullddddrdluuuuurdrdluld"
+      },
+      {
+        "id": "sokoban-dispatch-12",
+        "title": "Lane 12",
+        "board": "SK1:7#/#-#3-#/#--#$.#/#--#--#/#-.-$-#/#$#3-#/#+##-##/7#",
+        "solution": "uuruuldddurrdrrullrruuulddrddllurdruu"
+      },
+      {
+        "id": "sokoban-dispatch-13",
+        "title": "Lane 13",
+        "board": "SK1:8#/#@4-.#/##-$3-#/#-#.#--#/#-$-##-#/#--.-$-#/8#",
+        "solution": "rrrrrddddlruulululldrdddllurdruuulurrrdrdddllrruulululd"
+      },
+      {
+        "id": "sokoban-dispatch-14",
+        "title": "Lane 14",
+        "board": "SK1:8#/#.--$-##/#-#@..-#/#--#$--#/#4-$-#/#-#--3#/8#",
+        "solution": "ullddrdrrudllluuurrdrdrrdlululullddrdrdrurruululldrurdllulrrrdrddludlu"
+      },
+      {
+        "id": "sokoban-dispatch-15",
+        "title": "Lane 15",
+        "board": "SK1:8#/#.-.-#@#/#4-$-#/#--#-$-#/#--#--##/#--$.--#/8#",
+        "solution": "dllullddddrluuuurrdddrululullddrulurdrrdrrulllldlu"
+      },
+      {
+        "id": "sokoban-dispatch-16",
+        "title": "Lane 16",
+        "board": "SK1:8#/#--#-#@#/#5-$#/3#-#$-#/#-.4-#/#-#-$--#/#.3-#.#/8#",
+        "solution": "ddddlluldrdllruuuurrdrdlll"
+      },
+      {
+        "id": "sokoban-dispatch-17",
+        "title": "Lane 17",
+        "board": "SK1:8#/#-@4-#/##$-.-##/##3-#-#/#5-.#/#-$--#-#/#--$.--#/8#",
+        "solution": "rddldlddrruuuuulddrdddlluurrrrllddlulurdruulur"
+      },
+      {
+        "id": "sokoban-dispatch-18",
+        "title": "Lane 18",
+        "board": "SK1:8#/#--@-#.#/#-$4-#/#-#--#-#/#-##$#-#/#.--$.-#/8#",
+        "solution": "rdrrdddlluulurrldddrruuulllullddddrrruulululddd"
+      },
+      {
+        "id": "sokoban-dispatch-19",
+        "title": "Lane 19",
+        "board": "SK1:7#/#3-3#/#-#-$@#/#.#--##/#.--.-#/#--$$-#/#3-#-#/7#",
+        "solution": "ldldlddrulluuuurrdrddrdllrullrruuldrddldlluurrddlurul"
+      },
+      {
+        "id": "sokoban-dispatch-20",
+        "title": "Lane 20",
+        "board": "SK1:8#/#.$4-#/#-.$$--#/#@#4-#/#--#-#-#/#--#-#.#/8#",
+        "solution": "uurrrdldrrurdduuullll"
+      },
+      {
+        "id": "sokoban-dispatch-21",
+        "title": "Lane 21",
+        "board": "SK1:8#/#-$--..#/#@--$--#/#-4#-#/#.#4-#/#$##3-#/#6-#/8#",
+        "solution": "rrrrurdddlddrulldllludrrrrruuuulllllurrr"
+      },
+      {
+        "id": "sokoban-dispatch-22",
+        "title": "Lane 22",
+        "board": "SK1:7#/#3-.-#/#-.-$@#/#-.-#-#/#--$#-#/#--$--#/#-#3-#/7#",
+        "solution": "ulllddddruddrrulruuullullddrdrulluurrrrddddldluulluuurdurrdlrrdddlluuuddlluuurr"
+      },
+      {
+        "id": "sokoban-dispatch-23",
+        "title": "Lane 23",
+        "board": "SK1:8#/#-#4-#/#-$-$-##/#-.4-#/#3-$-.#/#.##@#-#/8#",
+        "solution": "ullluurdrdrruuulldduurrdddllluldrrurluurrddldruuuldrdll"
+      },
+      {
+        "id": "sokoban-dispatch-24",
+        "title": "Lane 24",
+        "board": "SK1:8#/#--#3-#/#5-.#/#-#3-.#/#-$-@--#/#-$--#-#/#--$.--#/8#",
+        "solution": "luullddddrrlluurrddlulurdrruruulldrrlddluudlluurrrr"
+      },
+      {
+        "id": "sokoban-dispatch-25",
+        "title": "Lane 25",
+        "board": "SK1:8#/#..3-@#/#6-#/##$#$--#/#--#3-#/#-.#$--#/#--#--##/8#",
+        "solution": "llllddduurrrddlurdddluruulurdddluuruullrrddlululrdrrull"
+      },
+      {
+        "id": "sokoban-dispatch-26",
+        "title": "Lane 26",
+        "board": "SK1:8#/3#4-#/#-$-@#-#/#-$-$.-#/#6-#/3#-#..#/8#",
+        "solution": "dldrrurdllllluurlddrrruuulddullddrrrurdllllurrr"
+      },
+      {
+        "id": "sokoban-dispatch-27",
+        "title": "Lane 27",
+        "board": "SK1:8#/#5-##/##--$$-#/#-.-#--#/#3-.$-#/#--3#-#/##-#-@.#/8#",
+        "solution": "ruullluuurrdduulldddrrurddullluururddrdluullldlddru"
+      },
+      {
+        "id": "sokoban-dispatch-28",
+        "title": "Lane 28",
+        "board": "SK1:8#/#4-+-#/#-##3-#/#--$--##/#-$$3-#/#-#-.-.#/#6-#/8#",
+        "solution": "llllddrrlluurrrdddrddllurrlluddlluurrdrruuldllurdruudllluurrr"
+      },
+      {
+        "id": "sokoban-dispatch-29",
+        "title": "Lane 29",
+        "board": "SK1:8#/#-.4-#/#-3#--#/#--##$-#/4#.$-#/#@$3-.#/##-#--##/8#",
+        "solution": "rrrururdluuddlddruuruuldrdlruuulll"
+      },
+      {
+        "id": "sokoban-dispatch-30",
+        "title": "Lane 30",
+        "board": "SK1:8#/#4-3#/#--$3-#/#@$$.--#/#3-#-.#/#-#--#.#/8#",
+        "solution": "drurrrurddluluuldullddrrrrurdllluuldldrr"
+      },
+      {
+        "id": "sokoban-dispatch-31",
+        "title": "Lane 31",
+        "board": "SK1:8#/#-.3-##/3#-#.-#/#-#-$--#/#@$-.$-#/#-#--#-#/##--##-#/8#",
+        "solution": "rrurlddruluuurrdrddlldluuuddrrruuldrdluuullddrluurrdrddlu"
+      },
+      {
+        "id": "sokoban-dispatch-32",
+        "title": "Lane 32",
+        "board": "SK1:8#/#--#3-#/#-$4-#/#.5-#/#6-#/#$#$##.#/#--.@3#/8#",
+        "solution": "ludlludrruululurddrddlluuruurdddurruuulddldrrurd"
+      },
+      {
+        "id": "sokoban-dispatch-33",
+        "title": "Lane 33",
+        "board": "SK1:8#/#+5-#/#.--$$-#/#--#-$-#/#6-#/#.--#--#/#4-#-#/8#",
+        "solution": "rrrrrddluldrdlldlluurdrdlruruullrrrrullll"
+      },
+      {
+        "id": "sokoban-dispatch-34",
+        "title": "Lane 34",
+        "board": "SK1:8#/##5-#/#-#$3-#/#--$$--#/##@3-.#/#-.-#-.#/8#",
+        "solution": "rrudllurrdrruuldldrurdluuullddrdluldruuurddldrr"
+      },
+      {
+        "id": "sokoban-dispatch-35",
+        "title": "Lane 35",
+        "board": "SK1:8#/#--.#--#/##5-#/##-.$.-#/##-#$#@#/#3-$--#/#--#3-#/8#",
+        "solution": "ulullldddrrlluurrllddrruudddrruldlurruululrrdddlllluururrdlrrddlluuddlluuurrdrruuld"
+      },
+      {
+        "id": "sokoban-dispatch-36",
+        "title": "Lane 36",
+        "board": "SK1:8#/#5-##/##$--$-#/#4-$-#/#.-#@.-#/#3-#--#/#--.#--#/8#",
+        "solution": "uluuldddlddrruldluruurrdrrullluldddldruuurruurdd"
+      },
+      {
+        "id": "sokoban-dispatch-37",
+        "title": "Lane 37",
+        "board": "SK1:8#/#--#--##/#3-#-##/#3-$-##/##$#3-#/#--$-.-#/#-@..--#/8#",
+        "solution": "rrruuullulldrddldrrlurruululdddldr"
+      },
+      {
+        "id": "sokoban-dispatch-38",
+        "title": "Lane 38",
+        "board": "SK1:8#/#.--#-.#/#4-$-#/#--$-$@#/#3-##-#/#-.##--#/8#",
+        "solution": "ulldldlluurddrururrdllldlluurrrrllddlurrrrullldlurul"
+      },
+      {
+        "id": "sokoban-dispatch-39",
+        "title": "Lane 39",
+        "board": "SK1:8#/#--.4#/#--#-#.#/#4-.-#/#-$4-#/#-$$3-#/#-@#3-#/8#",
+        "solution": "luurlddrurlluurrrrdddluudllluurrrrlddludlluurrrlddlurrrrudlllluulur"
+      },
+      {
+        "id": "sokoban-dispatch-40",
+        "title": "Lane 40",
+        "board": "SK1:8#/#5-.#/##$-#--#/#@-#--.#/#-.4-#/3#$$--#/#6-#/8#",
+        "solution": "rdrrruuulllddldrrrurrddldlururuulullldddrrddlurulrurlddruruuddllur"
+      },
+      {
+        "id": "sokoban-dispatch-41",
+        "title": "Lane 41",
+        "board": "SK1:8#/#+-.-#-#/#3-##-#/##-$$--#/#--$3-#/#--#--.#/8#",
+        "solution": "rdddrrdrruuldldrlulurlluurdlddrrulrdrrulldlluuruldddruu"
+      },
+      {
+        "id": "sokoban-dispatch-42",
+        "title": "Lane 42",
+        "board": "SK1:8#/#--$--.#/#6-#/#4-$##/#.3-$@#/#.4-##/8#",
+        "solution": "ldlluurdrdlllrrruuluurrdlulddrdllluuurrr"
+      },
+      {
+        "id": "sokoban-dispatch-43",
+        "title": "Lane 43",
+        "board": "SK1:7#/#--.-.#/#$-##-#/#--##-#/#5-#/#.$-$-#/#-#--@#/7#",
+        "solution": "lluulldruuuuldddrrrrddluruuuullldddrrddlurulrdrulldlurrrudllludrrruuddllluulur"
+      },
+      {
+        "id": "sokoban-dispatch-44",
+        "title": "Lane 44",
+        "board": "SK1:8#/#--##.-#/#3-$--#/#--$-$##/#-#-@--#/#-#-..##/8#",
+        "solution": "ululldrrdrruulddldruuuldlluurdldrrurdd"
+      },
+      {
+        "id": "sokoban-dispatch-45",
+        "title": "Lane 45",
+        "board": "SK1:8#/##-#-@-#/#-.#$$##/##.4-#/#5-##/#-.--$-#/#6-#/8#",
+        "solution": "ddldddrrulluurdldlrdrruldluruuuuldrdllddruruldlludrrul"
+      },
+      {
+        "id": "sokoban-dispatch-46",
+        "title": "Lane 46",
+        "board": "SK1:8#/##-#3-#/#3-#--#/#4-$-#/#@.-#$-#/#-.#3-#/##.$3-#/8#",
+        "solution": "rddrrurrdlllrrruuulllulddrurrrddlurullluld"
+      },
+      {
+        "id": "sokoban-dispatch-47",
+        "title": "Lane 47",
+        "board": "SK1:7#/#-..-@#/#.4-#/#--$--#/#--#--#/#-$-$-#/#-#3-#/7#",
+        "solution": "llllddddruuurrrddddluruullrrddluruullllddrdrdruruuulldlrurrdllrrddluuddlluudlurrruruldldlu"
+      },
+      {
+        "id": "sokoban-dispatch-48",
+        "title": "Lane 48",
+        "board": "SK1:8#/#@.--.-#/#-#4-#/#.$-#--#/#-$#3-#/#4-$-#/#-#4-#/8#",
+        "solution": "rrddldldrrdrruuddllurururdddluuruullrrddluuddldlluururul"
+      },
+      {
+        "id": "sokoban-dispatch-49",
+        "title": "Lane 49",
+        "board": "SK1:8#/#-.-$-+#/##3-$-#/##.3#-#/##4-##/##-#$-##/#6-#/8#",
+        "solution": "dlllulddduururrllldddrrrddlurulddlluuuuddddrruulrddlluu"
+      },
+      {
+        "id": "sokoban-dispatch-50",
+        "title": "Lane 50",
+        "board": "SK1:8#/#.--#-.#/#6-#/##-.#--#/#4-$-#/#-$#$--#/#4-@-#/8#",
+        "solution": "lurulddlluuudddrruulrddlluurrrudlluuulldrurdrrddllludrrrruulddllluurul"
+      },
+      {
+        "id": "sokoban-dispatch-51",
+        "title": "Lane 51",
+        "board": "SK1:7#/#.-.-##/#-#-$-#/##3-##/#-@$--#/#--$.-#/7#",
+        "solution": "urrddlruulldruuurdldddrruldluuurdlddrrululldldrruuruullrrddlu"
+      },
+      {
+        "id": "sokoban-dispatch-52",
+        "title": "Lane 52",
+        "board": "SK1:8#/#--#-@-#/#--.$$##/#3-.--#/#4-$##/#.5-#/##5-#/8#",
+        "solution": "lddrdullddrdrrullruuluurdddullldddrrulruddrrululldlruruldddruuruul"
+      },
+      {
+        "id": "sokoban-dispatch-53",
+        "title": "Lane 53",
+        "board": "SK1:8#/#6-#/##-$3-#/#@$-.$##/3#3-##/#3-##-#/#3-..-#/8#",
+        "solution": "rurdddldrrluuuuurrdlulddddldruurruluurrdluld"
+      },
+      {
+        "id": "sokoban-dispatch-54",
+        "title": "Lane 54",
+        "board": "SK1:8#/#4-#-#/#3-.--#/#5-@#/#-$4-#/#-$$-#.#/#3-##.#/8#",
+        "solution": "llllldrrrrurddulllllddrruruulldrrrurdlllddluuulurr"
+      },
+      {
+        "id": "sokoban-dispatch-55",
+        "title": "Lane 55",
+        "board": "SK1:8#/##3-..#/#--#--@#/#-$4-#/#-.-#--#/#--$-$-#/##3-#-#/8#",
+        "solution": "lldldlddrruluurrrddlldludluluurrrlllddrrudlluurrddrruuulullddrrlddrruuluurlddru"
+      },
+      {
+        "id": "sokoban-dispatch-56",
+        "title": "Lane 56",
+        "board": "SK1:8#/#.3-$-#/#-#$-#.#/#-#--#-#/#.#$-@-#/#6-#/#6-#/8#",
+        "solution": "luldrdllrruuuuldddrddllurdrulurdrruuuulldddrlldldlurrrrruudlluuull"
+      },
+      {
+        "id": "sokoban-dispatch-57",
+        "title": "Lane 57",
+        "board": "SK1:8#/#@$-.--#/##$#3-#/#-$4-#/#-#3-.#/#.3-#-#/8#",
+        "solution": "rrrddlddlluurrdrruuldrdluuulldurrddddllluurrdrdllrruruuldldrruruul"
+      },
+      {
+        "id": "sokoban-dispatch-58",
+        "title": "Lane 58",
+        "board": "SK1:8#/#-.-.--#/#6-#/#--#$--#/#.#-$$-#/#5-@#/8#",
+        "solution": "ludlluruddrrulruullllulddrurrrrddldluudrruullddrululrdruruldllullddru"
+      },
+      {
+        "id": "sokoban-dispatch-59",
+        "title": "Lane 59",
+        "board": "SK1:7#/#--.--#/#$@.--#/#.-#--#/#-$-#-#/#-$3-#/##--#-#/7#",
+        "solution": "dlddrrlluurduuuldrddrddluuuurrrdddlldluurdrruululllurrdrrdddllluudrdrruulululldrddrdrruuuul"
+      },
+      {
+        "id": "sokoban-dispatch-60",
+        "title": "Lane 60",
+        "board": "SK1:8#/#--.#--#/#6-#/#-#4-#/#-#--.-#/#-$$4#/#--$@-.#/8#",
+        "solution": "luuruulllddddrrrrlluuudddllurluuurrrdrruulddllulldddrdruuuu"
+      },
+      {
+        "id": "sokoban-dispatch-61",
+        "title": "Lane 61",
+        "board": "SK1:8#/#.#4-#/#-#-$$-#/#--#.--#/#@-$3-#/#.--#--#/8#",
+        "solution": "rrrurrdllllrrrruuullddrdlldlluurdrdlruruuurdrdldlllluu"
+      },
+      {
+        "id": "sokoban-dispatch-62",
+        "title": "Lane 62",
+        "board": "SK1:8#/#-$-.-##/#-$#3-#/#.$.3-#/#--#3-#/#--#3-#/#-@-#--#/8#",
+        "solution": "luuurluurdddurrurrdlllldlddruuluruuldrur"
+      },
+      {
+        "id": "sokoban-dispatch-63",
+        "title": "Lane 63",
+        "board": "SK1:8#/3#3-##/#.#4-#/#$--$--#/#@3#-##/##--$--#/#--.-.-#/8#",
+        "solution": "urrurrddddllurdruuurulullddrluurrddddrdllruuuuuldldrurddd"
+      },
+      {
+        "id": "sokoban-dispatch-64",
+        "title": "Lane 64",
+        "board": "SK1:8#/#3-#--#/#3-$-.#/#--#--.#/3#-$#-#/#.-$--@#/8#",
+        "solution": "llllrrrruulullulldrrrdrruuldrdddlluurullulldrrrr"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-transfer",
+    "title": "Transfer yards",
+    "description": "Arrange four crates in twelve to seventeen pushes.",
+    "difficulty": "Hard",
+    "puzzles": [
+      {
+        "id": "sokoban-transfer-01",
+        "title": "Yard 01",
+        "board": "SK1:8#/#.#.3-#/#3-$$-#/#.5-#/#$$-.--#/#@#4-#/8#",
+        "solution": "urruuurdurrddllldlluurrdlrrrurull"
+      },
+      {
+        "id": "sokoban-transfer-02",
+        "title": "Yard 02",
+        "board": "SK1:7#/#-#-.-#/#-$$--#/#-.$-.#/#-.#-##/##--$##/#-@3-#/7#",
+        "solution": "rruuulrruulldrurdldddlluluurrllddrdrruuulldurrdl"
+      },
+      {
+        "id": "sokoban-transfer-03",
+        "title": "Yard 03",
+        "board": "SK1:7#/3#3-#/#-$$-.#/#.4-#/#.$$-##/#--#-##/#-@#.##/7#",
+        "solution": "luuurdrurddulllddruluurrdlrruuuldrddllulurddrrullurr"
+      },
+      {
+        "id": "sokoban-transfer-04",
+        "title": "Yard 04",
+        "board": "SK1:7#/##.#-.#/#@$-$-#/##--$-#/#-$.-.#/#5-#/7#",
+        "solution": "rdrdrrulruulddrddllurldlluruurldddrruulurdddlluurrrulldlu"
+      },
+      {
+        "id": "sokoban-transfer-05",
+        "title": "Yard 05",
+        "board": "SK1:8#/#@##3-#/#-$.-$-#/##3-$-#/#-.4-#/##-#$.##/#.4-##/8#",
+        "solution": "drdrrddrdlllrrruuruuldduuulddrdll"
+      },
+      {
+        "id": "sokoban-transfer-06",
+        "title": "Yard 06",
+        "board": "SK1:7#/##-.-##/#--@-##/##$.#-#/#--$--#/#-$-.-#/#-.-$-#/7#",
+        "solution": "ddrrddluulllddrururrddllullurdruuuldrddllurdru"
+      },
+      {
+        "id": "sokoban-transfer-07",
+        "title": "Yard 07",
+        "board": "SK1:8#/#.-3#-#/#@#--#-#/#$--$--#/#.$--$-#/#..#3-#/#-#3-##/8#",
+        "solution": "drduldrrrdrrullrullldlurrrdllulu"
+      },
+      {
+        "id": "sokoban-transfer-08",
+        "title": "Yard 08",
+        "board": "SK1:7#/#-@-.-#/#3-#-#/#-$..-#/#-$$--#/#--$#-#/#-.3-#/7#",
+        "solution": "lddrrllddruddrrruulldurrddllulluurlddruuulurr"
+      },
+      {
+        "id": "sokoban-transfer-09",
+        "title": "Yard 09",
+        "board": "SK1:8#/#--.-$@#/#.$$-#-#/#--$##-#/##.-.--#/##5-#/8#",
+        "solution": "dddlllluluurdurrdlduullddrdrulluurdduurrdllrdddrrruuuull"
+      },
+      {
+        "id": "sokoban-transfer-10",
+        "title": "Yard 10",
+        "board": "SK1:7#/#5-#/#+--$-#/#-$$#.#/##..-$#/3#3-#/7#",
+        "solution": "rrdulldrdrdrrulluluurdduurrdlll"
+      },
+      {
+        "id": "sokoban-transfer-11",
+        "title": "Yard 11",
+        "board": "SK1:7#/#-@#.##/#4$-#/#3-.##/#.3-##/#3-.-#/7#",
+        "solution": "dddldrrluuuulddrrruldlluurdldrr"
+      },
+      {
+        "id": "sokoban-transfer-12",
+        "title": "Yard 12",
+        "board": "SK1:7#/#--.$-#/#.4-#/##$$--#/#--@#.#/##$.#-#/#3-3#/7#",
+        "solution": "lurdddluuruuulldrurdddururdlldlurulrrrul"
+      },
+      {
+        "id": "sokoban-transfer-13",
+        "title": "Yard 13",
+        "board": "SK1:8#/#6-#/#4-.-#/#.#$#-.#/#3-$-.#/#$$4-#/#@4-##/8#",
+        "solution": "rruurrllddlurrruuullllddrrrdrrudllurlllddluurrudrruululldrr"
+      },
+      {
+        "id": "sokoban-transfer-14",
+        "title": "Yard 14",
+        "board": "SK1:7#/#.--#-#/#-.-@-#/#.-##$#/#3$-.#/#5-#/##3-##/7#",
+        "solution": "llddrdrruldldluuuluurrdrrdullullddrurulddddrruldludluru"
+      },
+      {
+        "id": "sokoban-transfer-15",
+        "title": "Yard 15",
+        "board": "SK1:7#/##.3-#/##-.$-#/#-#-$.#/#@##$-#/#.-$--#/#4-##/7#",
+        "solution": "drdrrullrrruuuullddrdrdluuluurrdlddddllurdruuuurull"
+      },
+      {
+        "id": "sokoban-transfer-16",
+        "title": "Yard 16",
+        "board": "SK1:7#/3#.$.#/#.-.--#/#--#$-#/##$$--#/#-@#--#/7#",
+        "solution": "urrudlludrruruuldllddrruruldddruuu"
+      },
+      {
+        "id": "sokoban-transfer-17",
+        "title": "Yard 17",
+        "board": "SK1:8#/##5-#/#-$#-.-#/#3-$.-#/#.#$--##/##@$.3#/8#",
+        "solution": "rurullrrruullldldururrdrddlluruulldldrrdrrudllur"
+      },
+      {
+        "id": "sokoban-transfer-18",
+        "title": "Yard 18",
+        "board": "SK1:7#/#-$+--#/#..$3#/##$3-#/#--$--#/#4-.#/7#",
+        "solution": "dlddldrrrlluuulurddddrruldluudrrululrddlu"
+      },
+      {
+        "id": "sokoban-transfer-19",
+        "title": "Yard 19",
+        "board": "SK1:7#/##-#@.#/#3-#$#/#-$3-#/##$-.-#/#.4-#/#.--$-#/7#",
+        "solution": "rddlddrdlllruuuulldrdrdluuurdldrdrruuu"
+      },
+      {
+        "id": "sokoban-transfer-20",
+        "title": "Yard 20",
+        "board": "SK1:8#/#4-..#/#--$3-#/#-.#$--#/#--#-#-#/#-##@-$#/#-$3-.#/8#",
+        "solution": "rdruuululullldddddrrrruruululluldlddddrrruuurruldlulur"
+      },
+      {
+        "id": "sokoban-transfer-21",
+        "title": "Yard 21",
+        "board": "SK1:8#/#-@4-#/#-#--$-#/#.-#$.-#/#--.-$##/#-$--.-#/8#",
+        "solution": "rrddulullddrdrdrruluulullddddrrrulruuurrddlruullddulullddddrrululuurrrddrdluuurdldddlllu"
+      },
+      {
+        "id": "sokoban-transfer-22",
+        "title": "Yard 22",
+        "board": "SK1:7#/#.--3#/#--#--#/#..-$-#/#--$--#/#-$#$-#/##.#@##/7#",
+        "solution": "uruulllddluurrrrddlullrrruldllulurddrruldldlu"
+      },
+      {
+        "id": "sokoban-transfer-23",
+        "title": "Yard 23",
+        "board": "SK1:8#/##--#-##/#--#3-#/#--.-..#/#-$4-#/##$-$-##/#-+$3-#/8#",
+        "solution": "ruuulldrrddluruurrdddlluurlddrururuulldrddlulurlddlulur"
+      },
+      {
+        "id": "sokoban-transfer-24",
+        "title": "Yard 24",
+        "board": "SK1:8#/##@-#.##/#6-#/#-$-..-#/#-$$-#-#/##.--$-#/8#",
+        "solution": "rdrrrdddllluruulllddrrdruludlluurrrlddrdrruululldrlulldrr"
+      },
+      {
+        "id": "sokoban-transfer-25",
+        "title": "Yard 25",
+        "board": "SK1:8#/#-.-$@##/#-##$$-#/#-#--#-#/#--.-.-#/#4-#-#/##-.$--#/8#",
+        "solution": "ldddrrddllrruuuululddurrddlllrrrddllulurldllurdrruuuul"
+      },
+      {
+        "id": "sokoban-transfer-26",
+        "title": "Yard 26",
+        "board": "SK1:8#/#.-.#-##/#--$-.-#/#.--$--#/#--$--##/##3-$@#/#3-#-##/8#",
+        "solution": "lulldlurrrdlulurldlddruruullddrurrululrddlluuruldddruu"
+      },
+      {
+        "id": "sokoban-transfer-27",
+        "title": "Yard 27",
+        "board": "SK1:8#/#--##@##/#3-#-.#/#-##.$.#/#-$-$-$#/#.5-#/8#",
+        "solution": "drdlddllurdrruuldlldllurdrrurrdllllurrrdru"
+      },
+      {
+        "id": "sokoban-transfer-28",
+        "title": "Yard 28",
+        "board": "SK1:8#/#.-$.#-#/#-#--$@#/#4-$##/#--.3-#/##--$.-#/8#",
+        "solution": "llddrdluuurdlddrrululllddrrluurrdluuuldrdddlluurlddrruuulul"
+      },
+      {
+        "id": "sokoban-transfer-29",
+        "title": "Yard 29",
+        "board": "SK1:7#/#-@-$.#/#5-#/#-.$$##/##.$--#/#.3-##/7#",
+        "solution": "rdrrulldldddrruululddurrddllrruluuurrdluldrdlullurrr"
+      },
+      {
+        "id": "sokoban-transfer-30",
+        "title": "Yard 30",
+        "board": "SK1:8#/#--.#--#/#-#--.-#/#.5-#/#$$-@3#/#--#$$.#/#6-#/8#",
+        "solution": "lulldrddrrurlulrddlllururuuullddrdrrudlluluurrdrddlldlurruu"
+      },
+      {
+        "id": "sokoban-transfer-31",
+        "title": "Yard 31",
+        "board": "SK1:8#/#5-##/#.3-$-#/#3-$$+#/#4-#-#/#.#-.-$#/#--#3-#/8#",
+        "solution": "ululldddrdrdrullluuuurrdldurrdlulullddrddrrrudllluluuurrrddldulruullddrdluldrrruull"
+      },
+      {
+        "id": "sokoban-transfer-32",
+        "title": "Yard 32",
+        "board": "SK1:7#/#.-##-#/#3-.-#/#-$--.#/#-$3-#/##-$#-#/#-+$--#/7#",
+        "solution": "ruurrddlluuruulllddrrrlddrruulludlluurrddluruldlu"
+      },
+      {
+        "id": "sokoban-transfer-33",
+        "title": "Yard 33",
+        "board": "SK1:7#/#-.@-.#/##$3-#/##.-3#/#5-#/##-3$#/#3-#.#/7#",
+        "solution": "dddrrdulluuuldrddlddruurrdluluulurrldddlddruuuurul"
+      },
+      {
+        "id": "sokoban-transfer-34",
+        "title": "Yard 34",
+        "board": "SK1:8#/#.-##.##/#--#-.-#/#3-$.##/#@-$3-#/#-$#$--#/##5-#/8#",
+        "solution": "rurrdrullldrurrdddllluluurrdrlullddrdrrudlluluurrrruldlllddrdrrruudlurudllurlllddruruldluu"
+      },
+      {
+        "id": "sokoban-transfer-35",
+        "title": "Yard 35",
+        "board": "SK1:7#/#+$--.#/#$#-$-#/#--.$-#/#4-##/#5-#/#-.-#-#/7#",
+        "solution": "ddrruurrddlruulldddrdluldruuuurdrdldlluluurrllddrddluurdrruulurdddllluu"
+      },
+      {
+        "id": "sokoban-transfer-36",
+        "title": "Yard 36",
+        "board": "SK1:7#/#-.3-#/#-..#-#/#.$3-#/#3$--#/#@#3-#/7#",
+        "solution": "uurruurrdddldluulldruuurrrddllrruulllldrurrrddlludrddluudlurrruull"
+      },
+      {
+        "id": "sokoban-transfer-37",
+        "title": "Yard 37",
+        "board": "SK1:7#/#--.--#/#$.--.#/#.-$#-#/##$$--#/#-@-#-#/7#",
+        "solution": "uruulurdddlururrddlldluruuulldrrddrruuulrdddlluurlddlu"
+      },
+      {
+        "id": "sokoban-transfer-38",
+        "title": "Yard 38",
+        "board": "SK1:8#/#--.-.-#/#@#--#-#/#6-#/#-.--$-#/#3-$$-#/##-$.--#/8#",
+        "solution": "drdddruururrdllrrddlulldlurrruruldldlurudlurudllluurrrddlu"
+      },
+      {
+        "id": "sokoban-transfer-39",
+        "title": "Yard 39",
+        "board": "SK1:7#/#-.-$-#/#-$-$@#/#--##-#/#$-.--#/#5-#/#.--.-#/7#",
+        "solution": "ddllluluurddddldrrluuulddrrrruuullulddldruurrrull"
+      },
+      {
+        "id": "sokoban-transfer-40",
+        "title": "Yard 40",
+        "board": "SK1:8#/#.3-.##/#-$-#--#/#-$$#--#/#$-.--.#/#@#3-##/8#",
+        "solution": "urrudlludrruuddlluururddullddrrrrlluuldldruruur"
+      },
+      {
+        "id": "sokoban-transfer-41",
+        "title": "Yard 41",
+        "board": "SK1:7#/#3-3#/#-.$--#/##$.--#/#5-#/##$--##/#.-.$@#/7#",
+        "solution": "lllrruuuululldrurdddlurrdddlludrruulduuuulldrurdrddldluu"
+      },
+      {
+        "id": "sokoban-transfer-42",
+        "title": "Yard 42",
+        "board": "SK1:8#/#6-#/#5-.#/#.#4-#/##@$$.-#/#-$$--##/#3-.--#/8#",
+        "solution": "dldrurrdrullldruuuruldddruluululdrrddrulurr"
+      },
+      {
+        "id": "sokoban-transfer-43",
+        "title": "Yard 43",
+        "board": "SK1:8#/#3-.-.#/#--#$-.#/#-.3-##/#-$--$@#/#-$--3#/#--#3-#/8#",
+        "solution": "lulllldrlddrurrudllluurrrddlurrulurlddldlluurrddlurruldlluururrrddlu"
+      },
+      {
+        "id": "sokoban-transfer-44",
+        "title": "Yard 44",
+        "board": "SK1:7#/#-.-$-#/3#3-#/#-#$-.#/#.@.$-#/#-$#--#/#--#-##/7#",
+        "solution": "rurrddluuldllddrulurrurrdlllrrruuulldduurdldr"
+      },
+      {
+        "id": "sokoban-transfer-45",
+        "title": "Yard 45",
+        "board": "SK1:8#/##-#3-#/#.-.$#.#/#4-$.#/#-$$3-#/#-#@#--#/8#",
+        "solution": "urulrdrruldlluullddrrrrulrruulldurrddlddrulllurdrrudllurllldlu"
+      },
+      {
+        "id": "sokoban-transfer-46",
+        "title": "Yard 46",
+        "board": "SK1:7#/#4-.#/#-#3-#/#-.#--#/##$#-##/#@$-$-#/#-$-..#/7#",
+        "solution": "drrrlllurdrruuuruullllddrddldrrluuuluurrrrddlddldluudrruuulur"
+      },
+      {
+        "id": "sokoban-transfer-47",
+        "title": "Yard 47",
+        "board": "SK1:8#/#--3#.#/#.-#3-#/#-$$-$-#/#$3-.##/#--@--.#/8#",
+        "solution": "ruuurddldrllluurdrruuldllluurdldrrrlddrruulldrlldlurrruurldlldlurrrrru"
+      },
+      {
+        "id": "sokoban-transfer-48",
+        "title": "Yard 48",
+        "board": "SK1:8#/#--.$-##/#--$#.-#/#.#--+-#/#3-$$-#/#--#--##/#-#4-#/8#",
+        "solution": "dlddruuruululldllddrrlluurrduurrdrddldlullrrrudllurldldlurruullur"
+      },
+      {
+        "id": "sokoban-transfer-49",
+        "title": "Yard 49",
+        "board": "SK1:8#/#3-#@-#/#-$.--.#/#-3$.-#/#--#-.-#/#3-##-#/#--##--#/8#",
+        "solution": "dllulldrdurrrddlurullullddrrrurdllllddrulurrrlllur"
+      },
+      {
+        "id": "sokoban-transfer-50",
+        "title": "Yard 50",
+        "board": "SK1:8#/#--#--.#/#--$@--#/#-$$3-#/#.#-.-$#/#-#--.-#/8#",
+        "solution": "ldululddrrrurdlddrrudlluurdldluruulldrurdrdruu"
+      },
+      {
+        "id": "sokoban-transfer-51",
+        "title": "Yard 51",
+        "board": "SK1:7#/#-$.#-#/#.4-#/#-$-.-#/#$#$--#/#@-.#-#/7#",
+        "solution": "rrudlludrruruulllurdrrddluddlluuruulddrrdrruulldlluurdldrurrrddlldlluururdd"
+      },
+      {
+        "id": "sokoban-transfer-52",
+        "title": "Yard 52",
+        "board": "SK1:8#/#--.-$-#/#--#$$-#/#-##-$-#/#--#3-#/#--.3-#/#-.--+-#/8#",
+        "solution": "lllluuuururrdduullldddrdrrrruuulddduuldrdlldlluuuururrdddrdlrruuuulldddddllluurd"
+      },
+      {
+        "id": "sokoban-transfer-53",
+        "title": "Yard 53",
+        "board": "SK1:7#/#-3#.#/#.-.$-#/#--#--#/#-$$--#/#--$.-#/##-#-@#/7#",
+        "solution": "uuuullldlddrrlluurdldruuurrrddddluuruulllddrruruldddrullldrurruu"
+      },
+      {
+        "id": "sokoban-transfer-54",
+        "title": "Yard 54",
+        "board": "SK1:8#/#--##-##/#..3-##/##--.--#/#@#-$--#/#-.3$-#/#4-3#/8#",
+        "solution": "drdruurlddruluurrrddlllrrudlluuruldddruudrruldlluulrddrruull"
+      },
+      {
+        "id": "sokoban-transfer-55",
+        "title": "Yard 55",
+        "board": "SK1:8#/#--.3-#/#--##--#/##-.-$$#/##--$$+#/#-.--#-#/8#",
+        "solution": "ulllrruullldddrdrulluuurrrddrdluuurddldlruuulllddrrddlurruurull"
+      },
+      {
+        "id": "sokoban-transfer-56",
+        "title": "Yard 56",
+        "board": "SK1:7#/#--..-#/#5-#/#-#-#-#/#--$--#/#3$.-#/#+#--##/7#",
+        "solution": "uurruulldddurruurrdddldlurruuulllldddrruuurrddlruullllddrdruudlluururlldddrruu"
+      },
+      {
+        "id": "sokoban-transfer-57",
+        "title": "Yard 57",
+        "board": "SK1:8#/#3-#--#/#@3$-##/#-#-.--#/##--.--#/#4-.-#/##-.$--#/8#",
+        "solution": "urrddrrdddluuuldldrrluuuulldrurddrddllururrullulldrurddrrrdddlluudllur"
+      },
+      {
+        "id": "sokoban-transfer-58",
+        "title": "Yard 58",
+        "board": "SK1:7#/#3-#-#/#-@$#-#/#--$-.#/##--$-#/#..-$.#/#--#--#/7#",
+        "solution": "ddrdrdruululdldrrlluuluurdddrdluuuurdddrdl"
+      },
+      {
+        "id": "sokoban-transfer-59",
+        "title": "Yard 59",
+        "board": "SK1:7#/#-$--+#/#--$$-#/#--#-$#/#-#3-#/#--#-.#/#-.--.#/7#",
+        "solution": "ldddrddlllluuurururrddlddrdluuurddldlruruuuulldrurdddluulllurrr"
+      },
+      {
+        "id": "sokoban-transfer-60",
+        "title": "Yard 60",
+        "board": "SK1:7#/#-#-+-#/#.-#-$#/#3-$.#/#-#$$-#/#4-.#/#4-##/7#",
+        "solution": "rdddulldurrdlullrrdddllurdruudllluurrrddludlluurrdruu"
+      },
+      {
+        "id": "sokoban-transfer-61",
+        "title": "Yard 61",
+        "board": "SK1:7#/#@$.--#/##--#-#/#--$--#/##.$$-#/#--.-##/#4-.#/7#",
+        "solution": "rddddrrululuurddddldrrluuuldrddllururrruldlluurdrdlrruuul"
+      },
+      {
+        "id": "sokoban-transfer-62",
+        "title": "Yard 62",
+        "board": "SK1:7#/#-#@..#/#-#$$-#/#--.$##/#5-#/#-$-#-#/#--.-##/7#",
+        "solution": "dddduuuurrdlulddlldddrururuuddldlluurrddluruuurldddllurdrruu"
+      },
+      {
+        "id": "sokoban-transfer-63",
+        "title": "Yard 63",
+        "board": "SK1:8#/#-#.-.-#/#-#--#$#/#-#-$--#/#--$.--#/#-#-$--#/#-##@#.#/8#",
+        "solution": "uluuruurrddddlllurdrruulrddlluurrdlruuullldurrrddllulurddrddlluuu"
+      },
+      {
+        "id": "sokoban-transfer-64",
+        "title": "Yard 64",
+        "board": "SK1:7#/#5-#/#-$-#-#/3#$.@#/#3-$##/#-#.$-#/#-..--#/7#",
+        "solution": "uulldddllddrrudrruluddllluurrdrdluuuuurrddlruullddddruluuulldrurddd"
+      }
+    ]
+  },
+  {
+    "id": "sokoban-dry-dock",
+    "title": "Dry docks",
+    "description": "Bring all four crates home in fifteen to twenty-two pushes.",
+    "difficulty": "Expert",
+    "puzzles": [
+      {
+        "id": "sokoban-dry-dock-01",
+        "title": "Berth 01",
+        "board": "SK1:8#/#.-.-#-#/##3-@-#/##5-#/#--.$-.#/#-#-3$#/#-#4-#/8#",
+        "solution": "llddddrrulrdrulldluruuruldddruuruldlludrrulullddru"
+      },
+      {
+        "id": "sokoban-dry-dock-02",
+        "title": "Berth 02",
+        "board": "SK1:8#/##.-.--#/#--.3-#/##-$3-#/#-#$$--#/#@.$3-#/8#",
+        "solution": "rrrurrdlllruuruulllddruurrdddldlurruullrrddludlurudllu"
+      },
+      {
+        "id": "sokoban-dry-dock-03",
+        "title": "Berth 03",
+        "board": "SK1:7#/#-@-#.#/##$.--#/#-$$--#/#--$-##/#--.-.#/##-#--#/7#",
+        "solution": "rdrddlruuldrddllluurrdullddrrrluuldldruruuuldrddllurdrrudlluurrddlurru"
+      },
+      {
+        "id": "sokoban-dry-dock-04",
+        "title": "Berth 04",
+        "board": "SK1:8#/#-.$3-#/#@#$3-#/##-$3-#/#--#$-##/#3-..-#/#3-.#-#/8#",
+        "solution": "urrrddddlluurlddrrruuulddullddrruuuuldrdddlluururddruruulll"
+      },
+      {
+        "id": "sokoban-dry-dock-05",
+        "title": "Berth 05",
+        "board": "SK1:8#/#--#3-#/#3-$--#/#.-$-#-#/#3-$$-#/#3-.-##/#-..#@-#/8#",
+        "solution": "ullluuurrdduuurrdddldlruruuulldllddrdluuurrddrdlluldrrruruululdddull"
+      },
+      {
+        "id": "sokoban-dry-dock-06",
+        "title": "Berth 06",
+        "board": "SK1:8#/##5-#/#-$$.#-#/#-$-#--#/#--$-#-#/#-.@--.#/#3-.--#/8#",
+        "solution": "rulrdrruuuulllddddldrlluuurlddrrrrruuuullldddullddrrrrlluuldluurr"
+      },
+      {
+        "id": "sokoban-dry-dock-07",
+        "title": "Berth 07",
+        "board": "SK1:7#/#@$--.#/##$$#-#/#-.$--#/#5-#/#4-.#/#-.3-#/7#",
+        "solution": "rdddduurluurdddldrrurulluur"
+      },
+      {
+        "id": "sokoban-dry-dock-08",
+        "title": "Berth 08",
+        "board": "SK1:8#/#-#-.--#/#-.#-3#/#--$3-#/#-$#-.-#/#3-$$##/#--#+--#/8#",
+        "solution": "rudlullluurdldrrruulrddlluurrrrdlulllddrrdrullluurrdduuu"
+      },
+      {
+        "id": "sokoban-dry-dock-09",
+        "title": "Berth 09",
+        "board": "SK1:7#/#4-##/3#-$+#/#-$.-$#/#--.--#/#--$#-#/#.3-##/7#",
+        "solution": "lddrulldlddrulururuuldddllurdrurrdlllulddrdruluurruuld"
+      },
+      {
+        "id": "sokoban-dry-dock-10",
+        "title": "Berth 10",
+        "board": "SK1:8#/#5-##/#3-$-##/#3-#$@#/##$-.$-#/#.-.-#.#/8#",
+        "solution": "dlldluuluurrrdduulllddrdrrurdllluldrdluuuurddduururddrdl"
+      },
+      {
+        "id": "sokoban-dry-dock-11",
+        "title": "Berth 11",
+        "board": "SK1:8#/##5-#/#-##-$-#/#--$3-#/#-.$+3#/##$.--##/#.5-#/8#",
+        "solution": "uldldurrddllrruuuuurdrdlulddllddrudrruldlluulurrldddrruulururrdluld"
+      },
+      {
+        "id": "sokoban-dry-dock-12",
+        "title": "Berth 12",
+        "board": "SK1:8#/#6-#/##.@-.##/#.4-##/#-#$-$-#/#--$$#-#/#-.4-#/8#",
+        "solution": "ldlddrdrruldlluuurrddldlurrrdlruuddrruulldludlludrrruuruulldrddlurul"
+      },
+      {
+        "id": "sokoban-dry-dock-13",
+        "title": "Berth 13",
+        "board": "SK1:7#/#3-..#/#4-##/##$--.#/#@$$--#/#-$.--#/7#",
+        "solution": "drrudllurrurrddluluruulldrddlurrulurlddlulurr"
+      },
+      {
+        "id": "sokoban-dry-dock-14",
+        "title": "Berth 14",
+        "board": "SK1:8#/#.-##-.#/#-$-$+$#/#$--#--#/#-##3-#/#--.3-#/8#",
+        "solution": "urddldldllluurrurldllddrrrruuruulddulldllddrrrrrudllllluurrurrddrdllrruuullldllurrr"
+      },
+      {
+        "id": "sokoban-dry-dock-15",
+        "title": "Berth 15",
+        "board": "SK1:7#/#-$--.#/#--.--#/#-#3-#/#$3-.#/#-$$--#/#.@#-##/7#",
+        "solution": "ulurrurrddllullddruruuulldddrrurldllurdruudlluuurrr"
+      },
+      {
+        "id": "sokoban-dry-dock-16",
+        "title": "Berth 16",
+        "board": "SK1:8#/#6-#/#.3-$-#/#3-$-$#/##3-#.#/##$.#--#/##-.##@#/8#",
+        "solution": "uuulldlddlururuuldddluruulldrurddruuurrddullll"
+      },
+      {
+        "id": "sokoban-dry-dock-17",
+        "title": "Berth 17",
+        "board": "SK1:8#/#3-.--#/#-4$-#/#4-#.#/#6-#/#3-#-.#/#--##-+#/8#",
+        "solution": "uuuuullddldrrluuurrddddluluuulddldrrrluuurrdddlluururdllldlulurr"
+      },
+      {
+        "id": "sokoban-dry-dock-18",
+        "title": "Berth 18",
+        "board": "SK1:8#/#.--$--#/#-.$-#-#/##-$3-#/3#-$#@#/#-..--##/8#",
+        "solution": "uuullllddrrlddrululuurrdlddruluurrrddllrruullldddrdluuuurdurrddlluldd"
+      },
+      {
+        "id": "sokoban-dry-dock-19",
+        "title": "Berth 19",
+        "board": "SK1:8#/#-.3-.#/#.3-.@#/#$-3$-#/#--#--##/#--#3-#/8#",
+        "solution": "lldullddlururrdluldrrurrdllrddluuruulllddrururrddldlulllddruurrulurrllddlu"
+      },
+      {
+        "id": "sokoban-dry-dock-20",
+        "title": "Berth 20",
+        "board": "SK1:7#/#.4-#/##3-$#/#-$-$-#/#3-#-#/##.$+.#/7#",
+        "solution": "ruuluurdddululldldrdrluurlddruuluurrrddllruulldddruurull"
+      },
+      {
+        "id": "sokoban-dry-dock-21",
+        "title": "Berth 21",
+        "board": "SK1:8#/#--#-.-#/#$-@$-.#/#-##3-#/#.$4-#/#3-$.##/8#",
+        "solution": "rddldllurrrurrdldllulldrurrdrullldrruuullulddurrrrlddruu"
+      },
+      {
+        "id": "sokoban-dry-dock-22",
+        "title": "Berth 22",
+        "board": "SK1:8#/##.-#--#/#--.-$-#/#3-$#.#/#--.$-##/#--#$-##/#--#--@#/8#",
+        "solution": "luullullddruurdrrddlurulluurddrddluruluururdllldllddruluurlddruu"
+      },
+      {
+        "id": "sokoban-dry-dock-23",
+        "title": "Berth 23",
+        "board": "SK1:8#/#5-.#/#-4#-#/#-#.@#-#/#-#-$$-#/##.$$--#/#4-.-#/8#",
+        "solution": "lddrrlluurdldrdrruulldlldrruurrdlllurrruu"
+      },
+      {
+        "id": "sokoban-dry-dock-24",
+        "title": "Berth 24",
+        "board": "SK1:8#/##--#--#/#--.-$.#/##@#.$-#/#-##-$-#/#3-$.-#/#3-#--#/8#",
+        "solution": "urrrurdddldllrrdruluuruldddruldlldllurrrurrulul"
+      },
+      {
+        "id": "sokoban-dry-dock-25",
+        "title": "Berth 25",
+        "board": "SK1:8#/#-.-.$-#/#3-#--#/#.-$.#@#/#3-#-##/#--$$--#/#5-##/8#",
+        "solution": "uullldlddddrudrrullluurdlddrruldludlurudlurruullurrdddluu"
+      },
+      {
+        "id": "sokoban-dry-dock-26",
+        "title": "Berth 26",
+        "board": "SK1:8#/#-.#--##/##.#.$-#/#6-#/#3-$$##/#4-$-#/#--.##@#/8#",
+        "solution": "ullluldldruruuruurdrdlllddrruldluluuddrrulrdruruldlldlu"
+      },
+      {
+        "id": "sokoban-dry-dock-27",
+        "title": "Berth 27",
+        "board": "SK1:7#/#-..#-#/#5-#/#5-#/#.--$-#/#$$-#$#/#@#--.#/7#",
+        "solution": "uurrddrruulrddlluulldrurrrddlluluuurrrdddullruullldrurrddldlurudlurudlu"
+      },
+      {
+        "id": "sokoban-dry-dock-28",
+        "title": "Berth 28",
+        "board": "SK1:8#/#-$3-.#/#-#$--.#/#@--$$##/#--##-.#/#--.3-#/#--#3-#/8#",
+        "solution": "rddrrruuddllluurrurdduluuldrrddrddllulluururrddrdllruuulldrurddrddllurdruluulllluurrrr"
+      },
+      {
+        "id": "sokoban-dry-dock-29",
+        "title": "Berth 29",
+        "board": "SK1:7#/#3-$+#/#-#$3#/#3-$-#/#-.--.#/#.-$--#/7#",
+        "solution": "llddlddrurrdllluluuurrddldrdrruulrddllurllluuurrddrdluuur"
+      },
+      {
+        "id": "sokoban-dry-dock-30",
+        "title": "Berth 30",
+        "board": "SK1:7#/#-.$--#/#-#$--#/#3-$-#/##--#-#/##$-.##/#-@..-#/7#",
+        "solution": "uruulluurrddddldrluuruuullddrluurrdddduuurrdlulddldruurruull"
+      },
+      {
+        "id": "sokoban-dry-dock-31",
+        "title": "Berth 31",
+        "board": "SK1:8#/##4-##/##.4-#/#@$$#.##/#.$4-#/##--$#-#/#.3-3#/8#",
+        "solution": "drrudlluruurrrdddllrruulullddddrdlrrulluuuurrrdddllluurrurdlllddruluurrdl"
+      },
+      {
+        "id": "sokoban-dry-dock-32",
+        "title": "Berth 32",
+        "board": "SK1:8#/##--.-.#/#--$--.#/#-$3-.#/#-$$--@#/#3-#--#/8#",
+        "solution": "lluuulldldrrrrllllddrrudluluurrrrlddludlurudllururrrlddlulur"
+      },
+      {
+        "id": "sokoban-dry-dock-33",
+        "title": "Berth 33",
+        "board": "SK1:8#/#--..-##/##$3-.#/#-$3-##/#@$-$#-#/3#3-.#/8#",
+        "solution": "urrurrdldldrrlluulldrurruulldurrddlurdddluudllururrrlddluluurlddru"
+      },
+      {
+        "id": "sokoban-dry-dock-34",
+        "title": "Berth 34",
+        "board": "SK1:8#/#.#-$-.#/#-.-##-#/#--$#-@#/#4-$-#/#-.-$-##/8#",
+        "solution": "dllldlurrrdllulluurrdullddrrdrrulluulldddrluuurrddldlurrrdluludlurruurrllddllu"
+      },
+      {
+        "id": "sokoban-dry-dock-35",
+        "title": "Berth 35",
+        "board": "SK1:8#/3#4-#/#-$$-#-#/#-#3-.#/#-#$-#.#/#--$@--#/#-.-.#-#/8#",
+        "solution": "dllurruulddrdlruuurrddlruulldduuuuldrddldlluuurrurdllldddrruurrluurrddlllddlluuurrurdldrr"
+      },
+      {
+        "id": "sokoban-dry-dock-36",
+        "title": "Berth 36",
+        "board": "SK1:7#/#5-#/#--.-$#/#-#$$@#/##4-#/#-#$.-#/#3-..#/7#",
+        "solution": "dlludrruluurddddluuuulldrurdrddlludrruuldrddldlurruuldduuuulldrurddrddlludrruuldlu"
+      },
+      {
+        "id": "sokoban-dry-dock-37",
+        "title": "Berth 37",
+        "board": "SK1:8#/#.--#@-#/#-#$-$.#/#3-$$-#/#3-#--#/#.-.-#-#/8#",
+        "solution": "rdlrddlulldlluuurrdddulruulldddrrurrruuldrdllllrurrlldldluu"
+      },
+      {
+        "id": "sokoban-dry-dock-38",
+        "title": "Berth 38",
+        "board": "SK1:7#/3#.--#/#-$-$-#/#4-.#/#-#$$##/#.#+--#/7#",
+        "solution": "uuudllurdrrruuldrdllluldrrruldddruluurrdlulddullduurrdrruuldldr"
+      },
+      {
+        "id": "sokoban-dry-dock-39",
+        "title": "Berth 39",
+        "board": "SK1:7#/#3-+-#/#3-.##/#$$-.-#/#.-$$-#/#3-3#/7#",
+        "solution": "lllddrddluururrdluldlddrruurrdlulllddrruruuulllddrrlurdddluuulurr"
+      },
+      {
+        "id": "sokoban-dry-dock-40",
+        "title": "Berth 40",
+        "board": "SK1:7#/#-@$..#/#$4-#/#-$#-.#/#3-#-#/#3-$-#/#.--3#/7#",
+        "solution": "ldddduuurrrrdddlluludrddluluuurrrurdlllldddruuluurrrlllddrulurr"
+      },
+      {
+        "id": "sokoban-dry-dock-41",
+        "title": "Berth 41",
+        "board": "SK1:7#/#-.$--#/##--@##/#-#$$-#/#--$.##/#.3-##/#.4-#/7#",
+        "solution": "ddlddruluuruulddddrdllulurdrruuldrdllruuuurdd"
+      },
+      {
+        "id": "sokoban-dry-dock-42",
+        "title": "Berth 42",
+        "board": "SK1:8#/#--@--##/#-$-#.-#/#--.#.-#/#-$$#.-#/##$3-##/#5-##/8#",
+        "solution": "dddulldruruurrddddldllurrdruuruulullddduuurrdrddldldllurdrruuudddllurluulldrurdldrdrruuddllurdrulluuuuldldr"
+      },
+      {
+        "id": "sokoban-dry-dock-43",
+        "title": "Berth 43",
+        "board": "SK1:7#/#--#--#/#+$--.#/##3-.#/##-$#.#/#-$-$-#/##3-##/7#",
+        "solution": "rdrrrddldlludrruruulllurdrrddldllurluuruldddruluurrdrddlruuluurddlullddddruluurrllddruulurr"
+      },
+      {
+        "id": "sokoban-dry-dock-44",
+        "title": "Berth 44",
+        "board": "SK1:8#/#3-#--#/#-$3-@#/##$--.-#/#3-.#.#/##$--$-#/#3-.--#/8#",
+        "solution": "dddlruullddluuuulldrrrdrruuldldrurdllldluruulldrurddldrddluuuruulldrurdldrr"
+      },
+      {
+        "id": "sokoban-dry-dock-45",
+        "title": "Berth 45",
+        "board": "SK1:8#/#-#3-##/#-$.$--#/#@-$$--#/#-##3-#/#3-#--#/#--.-..#/8#",
+        "solution": "ddrrdrruuuuulldrurdddlurrdddllllluuurruurrddddrdluuuuullddrluurrddldrurddldlruuuuuldldrurdddululllur"
+      },
+      {
+        "id": "sokoban-dry-dock-46",
+        "title": "Berth 46",
+        "board": "SK1:8#/#..-.--#/#4-$-#/#-$$#-##/#3-#--#/##$##--#/#--.--@#/8#",
+        "solution": "luuuurulldlllddrrudlluurrrurdddrddlllludrrrruuluulldlrurrddrddlllluuruurrdddrdllruuuulllurdddludlurudlu"
+      },
+      {
+        "id": "sokoban-dry-dock-47",
+        "title": "Berth 47",
+        "board": "SK1:8#/##.#@-##/#--#$$-#/#-.#-$-#/#-.4-#/#3-.$-#/#--##--#/8#",
+        "solution": "dddrruululddurrddlluurdldldluudrrurrdllrrddluruulldldlluuruldddrurrurrdlll"
+      },
+      {
+        "id": "sokoban-dry-dock-48",
+        "title": "Berth 48",
+        "board": "SK1:8#/#-.--.-#/#--3#@#/#.--$-##/#-$$#-##/#-$.3-#/##-#3-#/8#",
+        "solution": "ulllllddddrrrlluuddrrdrruluulllddrrluluulurrrlldddrdrdrrullruulldluu"
+      },
+      {
+        "id": "sokoban-dry-dock-49",
+        "title": "Berth 49",
+        "board": "SK1:8#/#--#3-#/#-.-$-##/#--#-$-#/#.@#$$-#/#5-.#/#-.#3-#/8#",
+        "solution": "uurrdduulldddrrdrrullllrrrruulrddlllluuurrddurrddlluuullddddluruuurrdddlruuulldddrruurdldrluuuurdlddrruldlurull"
+      },
+      {
+        "id": "sokoban-dry-dock-50",
+        "title": "Berth 50",
+        "board": "SK1:7#/#.##.-#/#.4-#/#-$3-#/3#-#-#/#@$$--#/#-.$--#/7#",
+        "solution": "drrurruullulldrrurrdddlluudddllurdrurrdlluudrruuulllrrrdddlluullurdrddrruulullrrrdddlluulurdru"
+      },
+      {
+        "id": "sokoban-dry-dock-51",
+        "title": "Berth 51",
+        "board": "SK1:8#/##-#--##/#@-.-$##/#-.3-##/#-#$-$##/#.#.-$-#/#6-#/8#",
+        "solution": "rrrddddrruldlluuddrruluurdlddrrululuuurdddluulllddddrrrudllluuururrdlullddddrrruuddrrulullululddurrdrrddluruullrrddluurul"
+      },
+      {
+        "id": "sokoban-dry-dock-52",
+        "title": "Berth 52",
+        "board": "SK1:8#/#-.$3-#/#--$3-#/#-$--#-#/#-#$.#-#/3#.@--#/#4-.-#/8#",
+        "solution": "uuldruuuldllurrrdddluruulldrurddduurrdddldlludrrruuuulldddldruuulduulldrrurdurrulll"
+      },
+      {
+        "id": "sokoban-dry-dock-53",
+        "title": "Berth 53",
+        "board": "SK1:8#/#6-#/##--#$-#/#-#-$-.#/#.-$$--#/#4-3#/#.-.--@#/8#",
+        "solution": "llluuurdrruuullldddlddrruluuuurrrddllrruulllddddluldrruurrdlllruuurrdrddllur"
+      },
+      {
+        "id": "sokoban-dry-dock-54",
+        "title": "Berth 54",
+        "board": "SK1:8#/##3-..#/#-$4-#/##3-.-#/#3-$-##/#-$#$--#/#-+#3-#/8#",
+        "solution": "luurrurrdlrddluuulldrllddrulururuuldddduurrurdddluruulllddrrdrululuurrllddrulur"
+      },
+      {
+        "id": "sokoban-dry-dock-55",
+        "title": "Berth 55",
+        "board": "SK1:8#/#-.3-.#/#$5-#/#-##--##/#@$3-.#/#.$#$#-#/#5-##/8#",
+        "solution": "ddrrruuruullluldddrrrrlddlludrruuruullllddrddrruuudddlluurlluurrurrddlulllddrddrruuudllluurrurrddlurull"
+      },
+      {
+        "id": "sokoban-dry-dock-56",
+        "title": "Berth 56",
+        "board": "SK1:7#/#--.$@#/#--$$##/##--$-#/#3-#-#/#.-.-.#/7#",
+        "solution": "llddlddrrruulldurrddlluuuurdldddrruulrddllulldrrrluuruuldlddrdluuurddluulur"
+      },
+      {
+        "id": "sokoban-dry-dock-57",
+        "title": "Berth 57",
+        "board": "SK1:8#/#.-.-@##/#-$$-3#/#$#-#--#/#--$-#-#/#5-.#/#4-.-#/8#",
+        "solution": "llllddduuurrdulldrlddrdrruldldluuuururrdldddldrrllluuuurldddrruuullddrluurrddldrrr"
+      },
+      {
+        "id": "sokoban-dry-dock-58",
+        "title": "Berth 58",
+        "board": "SK1:8#/#5-##/#3-.3#/#-#4-#/##@#.--#/##-3$-#/##.$.--#/8#",
+        "solution": "ddrruuuluurdldrdddllurdruurrddlllruuuluurddddurrddluruulrddlluurrdl"
+      },
+      {
+        "id": "sokoban-dry-dock-59",
+        "title": "Berth 59",
+        "board": "SK1:8#/#-#.--@#/#3-#$##/#--$-$-#/#-$#-#-#/#-..3-#/3#-.--#/8#",
+        "solution": "llldlddldrrruulrdddrruldllulluuurrdrdduululddldruurrddrruullluldduruurrdullddrddrruulllullddrulurdru"
+      },
+      {
+        "id": "sokoban-dry-dock-60",
+        "title": "Berth 60",
+        "board": "SK1:8#/#-.4-#/#--#3-#/##.-#--#/##$--$-#/#@$-$-##/#-.#-.##/8#",
+        "solution": "ruuulurrrdrrddllrddluruuulullddddrrlluuuurrdrdddllluurdluuurrdrdddlluldrrrulldlurrrruuulll"
+      },
+      {
+        "id": "sokoban-dry-dock-61",
+        "title": "Berth 61",
+        "board": "SK1:8#/#-#4-#/#-$$#-##/#--$-$-#/#3-.@.#/#--#3-#/#4-..#/8#",
+        "solution": "lulrdrruluullddrluurrddddldrllluururddullddrrllluuuurlddrrrruuullddullddrrrrlluuldldrr"
+      },
+      {
+        "id": "sokoban-dry-dock-62",
+        "title": "Berth 62",
+        "board": "SK1:8#/#.5-#/#3-..-#/#-#$##-#/##-$--.#/#-$-$--#/#@##3-#/8#",
+        "solution": "ururrrlluurrrddlddlururuulllddldruuurrrddllrddluluuddrruldlurrruullulldrrurrdddllludrrruuulllldrddrrddru"
+      },
+      {
+        "id": "sokoban-dry-dock-63",
+        "title": "Berth 63",
+        "board": "SK1:8#/#3-@--#/#-#$$3#/##-$3-#/#.3-$-#/#--.#--#/#-..--##/8#",
+        "solution": "ddrrddldllluuurdddrruruuldlluruulddduldlddrrrruruulldlduldruruulddrurrdllll"
+      },
+      {
+        "id": "sokoban-dry-dock-64",
+        "title": "Berth 64",
+        "board": "SK1:7#/#-#3.#/#--@$-#/#$-$$##/#--#--#/#.-#--#/#--#--#/7#",
+        "solution": "llddruururrdlddulruuldrddrddluuuulllddrururddrddluuuluurlddllurdrrudlu"
+      }
+    ]
+  }
+]

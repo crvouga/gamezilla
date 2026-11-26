@@ -1,5 +1,9 @@
-import { shippedEditions } from '@libs/game-puzzle-harness-ts/content-game-reads';
+import {
+  packProgressOnDevice,
+  shippedEditions,
+} from '@libs/game-puzzle-harness-ts/content-game-reads';
 import { mountContentExample } from '@libs/game-puzzle-harness-ts/mount-content-example';
+import { sokobanStarterPack } from '@libs/sokoban-shared-ts/sokoban-starter-pack';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { fireEvent } from '@solidjs/testing-library';
 import { completeOnScreen } from './sokoban-play';
@@ -14,28 +18,28 @@ import {
 } from './sokoban-screen';
 import type { SokobanHarness } from './sokoban-system';
 
-/** The starter pack's editions as this run's rules ship them, in pack order. */
-export function starterEditions(s: SokobanHarness) {
-  const shipped = shippedEditions(s);
-  const pack = shipped.revisions.find((edition) => edition.kind === 'pack');
-  if (pack === undefined) throw new Error('Sokoban ships no starter pack');
-  return {
-    pack,
-    puzzles: shipped.revisions.filter((edition) => edition.kind === 'puzzle'),
-  };
+/** The starter pack's puzzles in the order people see on their device. */
+export async function starterEditions(s: SokobanHarness, clientId: string) {
+  const pack = await packProgressOnDevice(
+    s,
+    clientId,
+    sokobanStarterPack.title
+  );
+  if (!pack) throw new Error('Sokoban ships no starter pack');
+  return pack.items;
 }
 
-/** Mounts the library at the starter pack; an open attempt stays open. */
-async function openStarterPack(
+async function openPack(
   s: SokobanHarness,
-  clientId: string
+  clientId: string,
+  title = sokobanStarterPack.title
 ): Promise<View> {
-  const view = await mountContentExample(s, clientId);
-  await clickWhenReady(
-    s,
-    view,
-    `content-bundled-${starterEditions(s).pack.document_id}`
+  const pack = shippedEditions(s).revisions.find(
+    (entry) => entry.kind === 'pack' && entry.title === title
   );
+  if (!pack) throw new Error(`Sokoban ships no pack called ${title}`);
+  const view = await mountContentExample(s, clientId);
+  await clickWhenReady(s, view, `content-bundled-${pack.document_id}`);
   await waitFor(s, () => view.queryByTestId('content-pack-puzzles') !== null);
   return view;
 }
@@ -71,11 +75,11 @@ async function startStarter(
   clientId: string,
   index: number
 ): Promise<void> {
-  const view = await openStarterPack(s, clientId);
+  const view = await openPack(s, clientId);
   closePlay(s, clientId);
-  const puzzle = starterEditions(s).puzzles[index];
+  const puzzle = (await starterEditions(s, clientId))[index];
   if (puzzle === undefined) throw new Error(`No starter puzzle ${index}`);
-  fireEvent.click(view.getByTestId(`content-pack-puzzle-${puzzle.id}`));
+  fireEvent.click(view.getByTestId(`content-pack-puzzle-${puzzle.revisionId}`));
   await enterAttempt(s, clientId, view);
 }
 
@@ -83,13 +87,15 @@ async function startStarter(
 export const startFreshStarterPuzzle = defineAction({
   name: 'startFreshStarterPuzzle',
   act: async (s: SokobanHarness, clientId: string, index: number) => {
-    const view = await openStarterPack(s, clientId);
-    const puzzle = starterEditions(s).puzzles[index];
+    const view = await openPack(s, clientId);
+    const puzzle = (await starterEditions(s, clientId))[index];
     if (puzzle === undefined) throw new Error(`No starter puzzle ${index}`);
     const before = new Set(
       (await devicePlay(s, clientId)).attempts.map((entry) => entry.id)
     );
-    fireEvent.click(view.getByTestId(`content-pack-puzzle-${puzzle.id}`));
+    fireEvent.click(
+      view.getByTestId(`content-pack-puzzle-${puzzle.revisionId}`)
+    );
     await clickWhenReady(s, view, 'content-start-attempt');
     let started: string | undefined;
     await waitFor(s, async () => {
@@ -113,7 +119,7 @@ export const startStarterPuzzle = defineAction({
 export const continueStarterPack = defineAction({
   name: 'continueStarterPack',
   act: async (s: SokobanHarness, clientId: string) => {
-    const view = await openStarterPack(s, clientId);
+    const view = await openPack(s, clientId);
     const next = view.queryByTestId('content-pack-next');
     screensOf(s, clientId).told = next === null ? 'no-unfinished-puzzle' : null;
     if (next === null) {
@@ -143,13 +149,16 @@ export async function playingStarter(
   const attempt = (await devicePlay(s, clientId)).attempts.find(
     (entry) => entry.id === attemptId
   );
-  return starterEditions(s).puzzles.findIndex(
-    (puzzle) => puzzle.id === attempt?.source_id
+  return (await starterEditions(s, clientId)).findIndex(
+    (puzzle) => puzzle.revisionId === attempt?.source_id
   );
 }
 
 /** The next puzzle the finished attempt offers, by pack position, or -1. */
-export function offeredStarter(s: SokobanHarness, clientId: string): number {
+export async function offeredStarter(
+  s: SokobanHarness,
+  clientId: string
+): Promise<number> {
   const view = screensOf(s, clientId).play?.view;
   // The pack's way on is on the attempt's progress screen: open it by the
   // board's control, read, and return to the board.
@@ -158,7 +167,7 @@ export function offeredStarter(s: SokobanHarness, clientId: string): number {
   const offer = view?.queryByTestId('content-next-puzzle')?.textContent ?? '';
   const board = view?.queryByTestId('content-return-board') ?? null;
   if (onward !== null && board !== null) fireEvent.click(board);
-  return starterEditions(s).puzzles.findIndex(
+  return (await starterEditions(s, clientId)).findIndex(
     (puzzle) => offer === `Next puzzle: ${puzzle.title}`
   );
 }
@@ -167,19 +176,33 @@ export async function completedStarters(
   s: SokobanHarness,
   clientId: string
 ): Promise<ReadonlySet<number>> {
-  const done = new Set(
-    (await devicePlay(s, clientId)).completions.map(
-      (entry) => entry.puzzle_revision_id
-    )
-  );
-  const indices = starterEditions(s).puzzles.flatMap((puzzle, index) =>
-    done.has(puzzle.id) ? [index] : []
+  const indices = (await starterEditions(s, clientId)).flatMap(
+    (puzzle, index) => (puzzle.status === 'completed' ? [index] : [])
   );
   return new Set(indices);
 }
 
+export const startWarehousePuzzle = defineAction({
+  name: 'startWarehousePuzzle',
+  act: async (
+    s: SokobanHarness,
+    clientId: string,
+    packTitle: string,
+    title: string
+  ) => {
+    const pack = await packProgressOnDevice(s, clientId, packTitle);
+    const puzzle = pack?.items.find((entry) => entry.title === title);
+    if (!puzzle) throw new Error(`No puzzle ${title} in ${packTitle}`);
+    closePlay(s, clientId);
+    const view = await openPack(s, clientId, packTitle);
+    await clickWhenReady(s, view, `content-pack-puzzle-${puzzle.revisionId}`);
+    await enterAttempt(s, clientId, view);
+  },
+});
+
 export const SOKOBAN_STARTER_ACTIONS = [
   startStarterPuzzle,
+  startWarehousePuzzle,
   continueStarterPack,
   completeStarterPuzzle,
   startFreshStarterPuzzle,

@@ -8,6 +8,7 @@ import type { ExampleRules } from '@libs/game-puzzle-harness-ts/example-app-rule
 import { sokobanGameClient } from '@libs/sokoban-client-ts/sokoban-game-client';
 import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-edits';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
+import { sokobanStarterPack } from '@libs/sokoban-shared-ts/sokoban-starter-pack';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import { syncVirtual } from '@pkgs/sync-engine-harness-ts/scenario-boot';
@@ -38,10 +39,12 @@ function withStarters(
         get rulesVersion() {
           return content.rulesVersion;
         },
-        bundledPacks: (content.bundledPacks ?? []).map((pack) => ({
-          ...pack,
-          puzzles: pack.puzzles.slice(0, count),
-        })),
+        bundledPacks: (content.bundledPacks ?? [])
+          .filter((pack) => pack.id === sokobanStarterPack.id)
+          .map((pack) => ({
+            ...pack,
+            puzzles: pack.puzzles.slice(0, count),
+          })),
       };
     },
   };
