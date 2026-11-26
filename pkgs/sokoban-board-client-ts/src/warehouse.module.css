@@ -1,0 +1,103 @@
+.piece {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ink,
+.uniform {
+  fill: var(--ui-color-game-sokoban-canvas);
+}
+.face,
+.brace {
+  fill: var(--ui-color-game-sokoban-ink);
+}
+.helmet {
+  fill: var(--ui-color-game-sokoban-accent);
+}
+.helmet,
+.brace {
+  stroke: var(--ui-color-game-sokoban-canvas);
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+.wood,
+.grain {
+  fill: var(--ui-color-game-sokoban-canvas);
+  opacity: 0.2;
+}
+.grain,
+.line {
+  fill: none;
+  stroke: var(--ui-color-game-sokoban-canvas);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+.check,
+.straps {
+  fill: none;
+  stroke: var(--ui-color-game-sokoban-two);
+  stroke-width: 4;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+.straps {
+  stroke: var(--ui-color-game-sokoban-accent);
+}
+
+/* Corner stencils extend past the load, so the bay still shows when the
+   worker stands in it. The center ring marks an empty bay at thumbnail size. */
+[data-board-theme="warehouse"] [data-marked="true"] {
+  position: relative;
+}
+[data-board-theme="warehouse"] [data-marked="true"]::after {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  inset: 4%;
+  --warehouse-stencil: linear-gradient(currentColor 0 0);
+  background:
+    var(--warehouse-stencil) left top / 28% 5% no-repeat,
+    var(--warehouse-stencil) left top / 5% 28% no-repeat,
+    var(--warehouse-stencil) right top / 28% 5% no-repeat,
+    var(--warehouse-stencil) right top / 5% 28% no-repeat,
+    var(--warehouse-stencil) left bottom / 28% 5% no-repeat,
+    var(--warehouse-stencil) left bottom / 5% 28% no-repeat,
+    var(--warehouse-stencil) right bottom / 28% 5% no-repeat,
+    var(--warehouse-stencil) right bottom / 5% 28% no-repeat;
+  color: var(--ui-color-game-sokoban-surface);
+}
+
+[data-board-theme="warehouse"] [data-board-layer] {
+  transform-origin: top left;
+  transform: var(--warehouse-camera, none);
+}
+[data-board-theme="warehouse"][data-magnified="true"] {
+  cursor: grab;
+}
+[data-board-theme="warehouse"][data-magnified="true"]:active {
+  cursor: grabbing;
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-board-theme="warehouse"] [data-tone="object"],
+  [data-board-theme="warehouse"] [data-tone="settled"] {
+    transition: transform 120ms cubic-bezier(0.2, 0.7, 0.3, 1);
+  }
+}
+
+[data-board-theme="warehouse"] [data-marked="true"] > span {
+  background: transparent;
+}
+.fit {
+  display: none;
+  position: absolute;
+  inset-block-start: var(--ui-space-1);
+  inset-inline-end: var(--ui-space-1);
+  background: var(--ui-color-game-sokoban-canvas);
+  border-radius: var(--ui-radius-control);
+}
+[data-board-theme="warehouse"][data-magnified="true"] .fit {
+  display: block;
+}
