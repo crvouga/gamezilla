@@ -85,7 +85,7 @@ runs:
       with:
         lookup-only: ${{ inputs.tools == '' }}
         key: pr-tools-v1-2026.9.13-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.toml') }}
-        path: &pr-tool-paths |
+        path: |
           ~/.local/share/mise/bin
           ~/.local/share/mise/installs/bun
           ~/.local/share/mise/installs/node
@@ -126,7 +126,7 @@ runs:
         TOOLS: ${{ inputs.tools || '--include-lazy' }}
       run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
         data="$HOME/.local/share/mise"
-        export PATH="$data/bin:$data/shims:$PATH" MISE_YES=1
+        export PATH="$data/bin:$data/shims:$PATH" MISE_YES=1 MISE_AUTO_INSTALL=false
         {
           echo "$data/bin"
           echo "$data/shims"
@@ -147,7 +147,12 @@ runs:
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         key: ${{ steps.pr-tools.outputs.cache-primary-key }}
-        path: *pr-tool-paths
+        path: |
+          ~/.local/share/mise/bin
+          ~/.local/share/mise/installs/bun
+          ~/.local/share/mise/installs/node
+          ~/.local/share/mise/installs/gitleaks
+          ~/.local/share/mise/installs/actionlint
 
     - name: Look up the toolchain snapshot
       if: steps.mise.outcome == 'success' && inputs.tools == '' && github.ref == 'refs/heads/main'
