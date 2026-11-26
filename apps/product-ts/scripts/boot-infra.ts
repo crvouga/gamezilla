@@ -59,10 +59,11 @@ async function freshPort(): Promise<number> {
   return reservation.port;
 }
 
-/** Postgres, migrated and seeded: ready for the first API query. */
+/** Postgres with the app schema and, when requested, the local sample data. */
 export async function startPostgres(args: {
   readonly port: number;
   readonly dataDir: string;
+  readonly skipLocalSeed: boolean;
 }): Promise<{
   readonly url: string;
   stop(): Promise<void>;
@@ -73,7 +74,7 @@ export async function startPostgres(args: {
   });
   try {
     await runLocalMigrate(postgres.url);
-    await runLocalSeed(postgres.url);
+    if (!args.skipLocalSeed) await runLocalSeed(postgres.url);
   } catch (error) {
     await postgres.stop();
     throw error;
@@ -234,6 +235,7 @@ export async function bootInfra(args: {
   const postgres = await startPostgres({
     port: await freshPort(),
     dataDir: args.dataDir,
+    skipLocalSeed: args.options.skipLocalSeed,
   });
   let outside: Awaited<ReturnType<typeof startOutsideServices>> | null = null;
   let s3: Awaited<ReturnType<typeof startS3>> | null = null;

@@ -96,7 +96,12 @@ test('a feature path selects a suite and trailing flags select its scenarios', (
       'Apple',
     ])
   ).toEqual({
-    stack: ['--api-nodes', '2', '--synthetic-population-workers=0'],
+    stack: [
+      '--api-nodes',
+      '2',
+      '--no-local-seed',
+      '--synthetic-population-workers=0',
+    ],
     suite: ['specs/profile/apple-sign-in.feature', '-t', 'Apple'],
   });
 });
@@ -131,4 +136,19 @@ test('isolated stack suites have no uninvited matchmaking participants', () => {
     ).syntheticPopulationWorkers
   ).toBe(1);
   expect(parseStackOptions([]).syntheticPopulationWorkers).toBe(1);
+});
+
+// regression: stack-specs-import-development-puzzles
+test('the chess repeat scenario and its partition start with fixture-owned puzzles', () => {
+  const named = [
+    'specs/games/puzzle-play.feature',
+    '--',
+    '-t',
+    'A repeat of a played puzzle shows it is unrated instead of a rating change',
+  ];
+  for (const selection of [[], named])
+    expect(
+      parseStackOptions(stackSuiteArgs(selection).stack).skipLocalSeed
+    ).toBe(true);
+  expect(parseStackOptions([]).skipLocalSeed).toBe(false);
 });
