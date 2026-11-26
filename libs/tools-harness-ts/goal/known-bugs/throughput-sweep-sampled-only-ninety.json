@@ -1,0 +1,4 @@
+{
+  "summary": "The launcher used 176 revisions for disjoint batches that needed 186. Its nominal 100-job batch dispatched only 90 workloads.",
+  "regressionTest": "libs/tools-harness-ts/scripts/pr-load-report.test.ts"
+}
