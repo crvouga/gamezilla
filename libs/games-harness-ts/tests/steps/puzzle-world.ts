@@ -11,14 +11,18 @@ import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles'
 import { startUnnamedPuzzle } from '@libs/game-session-harness-ts/puzzle-allowance';
 import { chosenFeedTheme } from '@libs/game-session-harness-ts/puzzle-feed-choices';
 import {
+  openPuzzleLink,
+  puzzleLinkTo,
+} from '@libs/game-session-harness-ts/puzzle-link';
+import {
   knownPuzzle,
-  knownPuzzlesOf,
   theKnownPuzzle,
 } from '@libs/game-session-harness-ts/puzzle-moves';
 import type { PoolPuzzle } from '@libs/game-session-harness-ts/puzzle-pool';
 import {
   puzzleNamespaceOfGame,
   readCataloguePuzzle,
+  stockKnownPuzzle,
   writeKnownPuzzlePool,
 } from '@libs/game-session-harness-ts/puzzle-pool';
 import {
@@ -27,7 +31,6 @@ import {
   openPuzzleStatsPlace,
   readCataloguePuzzles,
   readStatsPuzzleRating,
-  retireCataloguePuzzle,
   showGamePuzzleStats,
 } from '@libs/game-session-harness-ts/puzzle-records';
 import {
@@ -218,28 +221,32 @@ export async function ensureOnPuzzle(
   if (!playsPuzzles(w, actor)) await enterPuzzles(w, actor);
 }
 
-const KNOWN_ONLY = 'puzzle-pool:known-only';
+/** Open the specified position by its link and wait for that board to take a move. */
+export async function enterFixturePuzzle(
+  w: HarnessWorld,
+  actor: string,
+  fixture: PuzzleFixture
+): Promise<void> {
+  const { id, rating } = fixture.record;
+  await w.s.apply(stockKnownPuzzle, puzzleGameId(w), id);
+  await w.s.apply(focusActor, actor);
+  await w.s.apply(openPuzzleLink, actor, puzzleLinkTo(id));
+  await w.s.until(
+    async (surf) => {
+      if ((await readPuzzleOnBoard(surf, actor)) !== id) return false;
+      const probe = await readPuzzleProbe(surf, actor);
+      return probe?.interactive === true && probe.puzzleRating === rating;
+    },
+    { maxMs: SETTLE_MS }
+  );
+  await trackPuzzle(w, actor);
+}
 
-/**
- * The game's known puzzle on `actor`'s board: the pool keeps it alone, so
- * the feed serves it.
- */
 export async function enterKnownPuzzle(
   w: HarnessWorld,
   actor: string
-): Promise<PuzzleFixture> {
-  const known = theKnownPuzzle(turnGameOf(w));
-  if (!w.memo.has(KNOWN_ONLY)) {
-    for (const other of knownPuzzlesOf(turnGameOf(w)))
-      if (other.record.id !== known.record.id)
-        await w.s.apply(retireCataloguePuzzle, other.record.id);
-    w.memo.set(KNOWN_ONLY, true);
-  }
-  const id = await enterPuzzles(w, actor);
-  // Precondition guard: the feed served the game's known puzzle.
-  if (id !== known.record.id)
-    throw new Error(`${actor} was served ${id}, not ${known.record.id}`);
-  return known;
+): Promise<void> {
+  await enterFixturePuzzle(w, actor, theKnownPuzzle(turnGameOf(w)));
 }
 
 /**
@@ -399,21 +406,20 @@ export function themedPuzzles(w: HarnessWorld): readonly string[] {
   );
 }
 
-/**
- * The game's known puzzle, alone in the pool and rated `rating`, on
- * `actor`'s board.
- */
+/** Open a puzzle authored at this rating so concurrent solvers can compare distinct puzzles. */
 export async function enterKnownPuzzleRated(
   w: HarnessWorld,
   actor: string,
   rating: number
 ): Promise<void> {
-  const known = theKnownPuzzle(turnGameOf(w));
-  await writePool(w, [{ id: known.record.id, rating }]);
-  const id = await enterPuzzles(w, actor);
-  // Precondition guard: the feed served it.
-  if (id !== known.record.id)
-    throw new Error(`${actor} was served ${id}, not ${known.record.id}`);
+  const game = turnGameOf(w);
+  const fixture = [
+    ...(game.fixtures.puzzles ?? []),
+    ...(game.fixtures.morePuzzles ?? []),
+  ].find(({ record }) => record.rating === rating);
+  if (fixture === undefined)
+    throw new Error(`${game.label} has no puzzle rated ${String(rating)}`);
+  await enterFixturePuzzle(w, actor, fixture);
 }
 
 /**

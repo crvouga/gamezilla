@@ -9,6 +9,7 @@
 
 import {
   admitCataloguePuzzle,
+  insertNewCatalogueRows,
   upsertCatalogueRows,
 } from '@libs/game-puzzle-shared-ts/puzzle-catalogue';
 import {
@@ -23,9 +24,9 @@ import { writeServerFixture } from '@libs/harness-ts/write-server-fixture';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { PuzzleRecord } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { HarnessGame } from './harness-game';
+import type { HarnessGame, TurnHarnessGame } from './harness-game';
 import { turnHarnessGameOf } from './harness-game-of';
-import { knownPuzzlesOf } from './puzzle-moves';
+import { knownPuzzle, knownPuzzlesOf } from './puzzle-moves';
 
 /**
  * One puzzle of a pool a scenario describes: a known puzzle of the game, by
@@ -51,27 +52,18 @@ export const writeKnownPuzzlePool = scenarioAction({
   name: 'writeKnownPuzzlePool',
   act: async (s, gameId: string, pool: readonly PoolPuzzle[]) => {
     const game = turnHarnessGameOf(s, gameId);
-    const known = knownPuzzlesOf(game);
-    const authored = [...known, ...(game.fixtures.morePuzzles ?? [])];
-    const turnGames = createTurnGames([game.shared.turnGame]);
-    const rows = pool.map(({ id, ...described }) => {
-      const record = authored.find(
-        (fixture) => fixture.record.id === id
-      )?.record;
-      if (record === undefined)
-        throw new Error(`${game.label} names no known puzzle ${id}`);
-      const admission = admitCataloguePuzzle(turnGames, {
-        record: { ...record, ...described },
-        source: { url: null, tags: [] },
-      });
-      if (!admission.ok) throw new Error(admission.detail);
-      return admission.row;
-    });
+    const rows = catalogueRows(
+      game,
+      pool.map(({ id, ...described }) => ({
+        ...knownPuzzle(game, id).record,
+        ...described,
+      }))
+    );
     const kept = new Set(rows.map((row) => row.id));
     const at = new Date(s.harness.clock.now()).toISOString();
     await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, async (db) => {
       await upsertCatalogueRows(db, rows);
-      for (const fixture of known) {
+      for (const fixture of knownPuzzlesOf(game)) {
         const id = fixture.record.id;
         await db.run(sql`
           UPDATE chess_puzzles
@@ -83,10 +75,42 @@ export const writeKnownPuzzlePool = scenarioAction({
   },
 });
 
-/**
- * Add the first `count` of `gameId`'s more puzzles to its pool, as its
- * import pipeline would: a pool of more puzzles than its known ones.
- */
+function catalogueRows(
+  game: TurnHarnessGame,
+  records: readonly PuzzleRecord[]
+) {
+  const turnGames = createTurnGames([game.shared.turnGame]);
+  return records.map((record) => {
+    const admission = admitCataloguePuzzle(turnGames, {
+      record,
+      source: { url: null, tags: [] },
+    });
+    if (!admission.ok) throw new Error(admission.detail);
+    return admission.row;
+  });
+}
+
+/** Offer this authored position at its specified rating beside the shared catalogue. */
+export const stockKnownPuzzle = scenarioAction({
+  name: 'stockKnownPuzzle',
+  act: async (s, gameId: string, puzzleId: string) => {
+    const game = turnHarnessGameOf(s, gameId);
+    const { record } = knownPuzzle(game, puzzleId);
+    const rows = catalogueRows(game, [record]);
+    const at = new Date(s.harness.clock.now()).toISOString();
+    await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, (db) =>
+      db.transaction(async (tx) => {
+        await insertNewCatalogueRows(tx, rows, at);
+        await tx.run(sql`
+          UPDATE chess_puzzles SET rating = ${record.rating}, deleted_at = NULL, updated_at = ${at}
+          WHERE id = ${puzzleId} AND (deleted_at IS NOT NULL OR rating <> ${record.rating})
+        `);
+      })
+    );
+  },
+});
+
+/** Add the first `count` of the game's extra puzzles to its pool. */
 export const stockMorePuzzles = scenarioAction({
   name: 'stockMorePuzzles',
   act: async (s, gameId: string, count: number) => {
@@ -96,15 +120,10 @@ export const stockMorePuzzles = scenarioAction({
       throw new Error(
         `${game.label} names ${String(more.length)} more puzzles, not ${String(count)} (fixtures.morePuzzles)`
       );
-    const turnGames = createTurnGames([game.shared.turnGame]);
-    const rows = more.slice(0, count).map(({ record }) => {
-      const admission = admitCataloguePuzzle(turnGames, {
-        record,
-        source: { url: null, tags: [] },
-      });
-      if (!admission.ok) throw new Error(admission.detail);
-      return admission.row;
-    });
+    const rows = catalogueRows(
+      game,
+      more.slice(0, count).map((fixture) => fixture.record)
+    );
     await writeServerFixture(s, GAME_PUZZLE_SUB.topicMap, (db) =>
       upsertCatalogueRows(db, rows)
     );
@@ -193,5 +212,6 @@ export const seedPuzzleRating = scenarioAction({
 export const PUZZLE_POOL_ACTIONS = [
   writeKnownPuzzlePool,
   stockMorePuzzles,
+  stockKnownPuzzle,
   seedPuzzleRating,
 ];

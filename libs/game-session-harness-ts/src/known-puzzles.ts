@@ -14,6 +14,11 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-puzzles';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 
+/** Cycle a game's extra fixtures from 1300 to 1700 in 20-point steps for the rating comparisons. */
+export function extraPuzzleRating(index: number): number {
+  return 1300 + (index % 21) * 20;
+}
+
 /**
  * A solver move of a known puzzle: the line is followed up to `at` (the
  * index of a solver move in `record.line` under its declared layout), and `action` is played
