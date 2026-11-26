@@ -121,6 +121,7 @@
     "@libs/secrets-shared-ts": "workspace:*",
     "@libs/synthetic-population-server-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/auth-inhouse-client-ts": "workspace:*",
