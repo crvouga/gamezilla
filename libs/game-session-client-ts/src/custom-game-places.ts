@@ -15,6 +15,7 @@ export type CustomGamePlace =
         | 'options'
         | 'clock'
         | 'private-setup'
+        | 'board'
         | 'play'
         | 'commands'
         | 'moves'
@@ -28,8 +29,9 @@ export type CustomGameScreenName = CustomGamePlace['screen'];
 /**
  * What each phase shows. Before a game: starting one. While it is set up:
  * the lobby, and from it one seat (and inviting someone to it), the
- * options, the clock and the person's private setup. While it is played: the live board, the game's commands
- * and the moves. Once it is over: the result, and the moves.
+ * options, the clock, the person's private setup and the board the game
+ * starts on. While it is played: the live board, the game's commands and
+ * the moves. Once it is over: the result, and the moves.
  */
 export const CUSTOM_GAME_PLACES = defineScreenPlaces<
   FramePhase,
@@ -51,6 +53,7 @@ export const CUSTOM_GAME_PLACES = defineScreenPlaces<
       'options',
       'clock',
       'private-setup',
+      'board',
     ],
     active: ['play', 'commands', 'moves'],
     completed: ['result', 'moves'],

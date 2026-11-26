@@ -183,6 +183,30 @@ describe('the lobby', () => {
     ]);
   });
 
+  test('the board the game starts on is behind its own row, at its playing size', () => {
+    const opened: CustomGamePlace[] = [];
+    mountFrame(() =>
+      setupProps({ screen: 'lobby' }, { onOpen: (place) => opened.push(place) })
+    );
+    fireEvent.click(screen.getByTestId('custom-game-board-open'));
+    expect(opened).toEqual([{ screen: 'board' }]);
+    cleanup();
+    let closed = 0;
+    mountFrame(() =>
+      setupProps({ screen: 'board' }, { onClose: () => (closed += 1) })
+    );
+    const stage = document.querySelector('[data-component="GameBoardStage"]');
+    expect(stage?.getAttribute('data-preview')).toBe('false');
+    expect(shown('custom-game-public')).toBe(true);
+    // Nothing is set up here: the one command returns to the lobby.
+    expect(shown('custom-game-startable')).toBe(false);
+    expect(filled().map((button) => button.dataset['testid'])).toEqual([
+      'custom-game-board-close',
+    ]);
+    fireEvent.click(screen.getByTestId('custom-game-board-close'));
+    expect(closed).toBe(1);
+  });
+
   test('exactly one command is filled: Start when ready, getting ready before that', () => {
     mountFrame(() => setupProps());
     expect(filled().map((button) => button.dataset['testid'])).toEqual([

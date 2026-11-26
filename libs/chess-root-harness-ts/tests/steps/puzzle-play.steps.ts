@@ -24,6 +24,7 @@ import {
   readShownChessPromotion,
 } from '@libs/chess-root-harness-ts/chess-board-reads';
 import { CHESS_GAME_ID } from '@libs/chess-root-harness-ts/chess-playable';
+import { showCustomGameBoard } from '@libs/game-session-harness-ts/custom-game-places';
 import {
   isPuzzleSolved,
   leavePuzzleForGameChoices,
@@ -363,6 +364,8 @@ Then(
 
 Then("{actor}'s board faces {word}", async (w, actor: Actor, side: string) => {
   const orientation = sideOf(side) === 'w' ? 'white' : 'black';
+  // A custom game still being set up keeps its board one row from the lobby.
+  await w.s.apply(showCustomGameBoard, actor);
   expect((await boardProbe(w, actor)).orientation).toBe(orientation);
 });
 

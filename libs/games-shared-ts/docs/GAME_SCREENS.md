@@ -84,6 +84,7 @@ each of its states, with phone and desktop baselines in both themes.
 | | `options` | Form | The game's own options |
 | | `clock` | Form | The clock, and swapping sides |
 | | `private-setup` | Stage | The person's own private setup, and getting ready with it |
+| | `board` | Stage | The board the game starts on, as it will face the person |
 | `active` | `play` | Stage | Play the live position |
 | | `commands` | Choice | Offer a draw, resign, cancel, look back |
 | | `moves` | Stage | Step through the moves played |

@@ -28,6 +28,7 @@ import {
   findOpponentFor,
   gameForPosition,
   openMultiplayer,
+  searchHubShown,
 } from './game-automation';
 import { MovePacing } from './move-pacing';
 import {
@@ -289,8 +290,8 @@ export class SyntheticUserApplication {
     // another Synthetic User, it finds an opponent only where it was sent.
     if (
       this.reserved.length === 0 &&
-      (await this.driver.get('multiplayer-find').isVisible()) &&
-      decision.activity !== 'browsing'
+      decision.activity !== 'browsing' &&
+      (await searchHubShown(this.driver))
     ) {
       this.transition({ type: 'READY' });
       await this.driver.get('multiplayer-find').tap();
