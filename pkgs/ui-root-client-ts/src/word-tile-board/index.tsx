@@ -16,9 +16,12 @@ import { StackVertical } from '../stack/index';
 import { P } from '../text/index';
 import styles from './word-tile-board.module.css';
 import { BoardRows } from './word-tile-cell';
+import {
+  bindWordNavigation,
+  WordTileViewControls,
+} from './word-tile-navigation';
 import { WordTileOverview } from './word-tile-overview';
 import { WordTileSquareDetails } from './word-tile-square-details';
-import { WordTileViewControls } from './word-tile-view-controls';
 import { WordTileViewMenu } from './word-tile-view-menu';
 
 /** A square's printed bonus: letter or word, doubled or tripled, or the start. */
@@ -103,6 +106,7 @@ function createStableCells(
 
 export type WordTileBoardProps = {
   /** Locator mode shows the whole board; activation chooses a location, never a move. */
+  readonly dropBoardId?: string | undefined;
   readonly purpose?: 'placement' | 'locator';
   /** Compact fitted board leaves room for rack and puzzle actions; enlarged cells stay full size. */
   readonly measure?: 'full' | 'compact';
@@ -192,6 +196,7 @@ function createPrecisionCenter(
 /** What a board's view tools read and do. */
 type BoardView = {
   readonly compact: () => boolean;
+  readonly zoomed: () => boolean;
   readonly enlarged: () => boolean;
   readonly cells: () => readonly WordTileBoardCell[];
   readonly viewport: () => HTMLDivElement | undefined;
@@ -258,7 +263,7 @@ function BoardViewMenu(props: {
     >
       <StackVertical gap="md">
         <WordTileViewControls
-          enlarged={props.view.enlarged()}
+          enlarged={props.view.zoomed()}
           onChange={props.view.resize}
         />
         <Show
@@ -294,6 +299,14 @@ function createBoardView(props: WordTileBoardProps) {
     element = value;
   };
   const [viewport, setViewport] = createSignal<HTMLDivElement>();
+  const [customZoom, setCustomZoom] = createSignal(false);
+  let navigation: ReturnType<typeof bindWordNavigation> | undefined;
+  createEffect(viewport, (clip) => {
+    if (!clip || !element || props.purpose === 'locator') return undefined;
+    const bound = bindWordNavigation(clip, element, setCustomZoom);
+    navigation = bound;
+    return () => bound.dispose();
+  });
   const center = createPrecisionCenter(viewport, root, enlarged, focusIndex);
   const show = (index: number): void => {
     setFocusIndex(index);
@@ -303,11 +316,13 @@ function createBoardView(props: WordTileBoardProps) {
   const view: BoardView = {
     compact,
     enlarged,
+    zoomed: () => enlarged() || customZoom(),
     cells,
     viewport,
     label: () => cells()[focusIndex()]?.label ?? '',
     detail: () => cells()[focusIndex()]?.detail,
     resize: (value) => {
+      navigation?.reset();
       setViewing(false);
       setEnlarged(value);
       focusCellWhenSettled(root, focusIndex());
@@ -359,10 +374,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
     <StackVertical gap="none">
       {/* Wider than a phone, Fit and Enlarge stay in one place in both views. */}
       <Show when={placement() && !view.compact()}>
-        <WordTileViewControls
-          enlarged={view.enlarged()}
-          onChange={view.resize}
-        />
+        <WordTileViewControls enlarged={view.zoomed()} onChange={view.resize} />
       </Show>
       <Show when={!placement()}>
         <P role="status">{view.label()}</P>
@@ -372,6 +384,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
         data-view-menu={String(placement() && view.compact())}
       >
         <div
+          data-navigable={String(placement())}
           ref={state.setViewport}
           class={styles['viewport']}
           data-enlarged={String(view.enlarged())}
@@ -380,6 +393,7 @@ export function WordTileBoard(props: WordTileBoardProps): JSX.Element {
           aria-label={t`Scrollable word board`}
         >
           <div
+            data-drop-board={placement() ? props.dropBoardId : undefined}
             ref={state.setRoot}
             class={styles['board']}
             data-measure={measure()}

@@ -48,9 +48,11 @@
   fill: var(--ui-color-game-word-tiles-one);
 }
 .square[data-state="committed"],
-.square[data-state="recent"],
-.square[data-state="tentative"] {
+.square[data-state="recent"] {
   fill: var(--ui-color-board-card-face);
+}
+.square[data-state="tentative"] {
+  fill: var(--ui-color-game-word-tiles-accent);
 }
 .window {
   fill: none;

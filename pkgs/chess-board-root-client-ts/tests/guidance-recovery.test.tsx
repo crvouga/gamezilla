@@ -13,7 +13,7 @@ test('disabling input retains the guidance footprint without offering unavailabl
     },
   });
   try {
-    const row = board.host.parentElement?.querySelector(
+    const row = board.container.querySelector(
       '[data-slot="collapsible"]'
     )?.parentElement;
     if (!row) throw new Error('Missing guidance row');

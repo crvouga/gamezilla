@@ -80,20 +80,23 @@ function shardFillSeconds(env: NodeJS.ProcessEnv): number {
  * none is smaller than the longest indivisible group, never more than the
  * cap.
  */
-function planShards(
+export function planShards(
   tasks: readonly VerifyTask[],
   env: NodeJS.ProcessEnv
 ): VerifyPlan {
-  const target = adaptiveShardTarget(
-    tasks,
-    shardSizing(env),
-    shardFillSeconds(env)
+  const fillSeconds = shardFillSeconds(env);
+  const target = adaptiveShardTarget(tasks, shardSizing(env), fillSeconds);
+  const matrixCapacity = Number(
+    env['VERIFY_MAX_PARALLEL'] ?? env['VERIFY_SHARDS'] ?? '16'
   );
+  const activeRuns = Math.max(1, Number(env['VERIFY_ACTIVE_RUNS'] || 1));
+  const runners = Math.max(1, Math.floor(matrixCapacity / activeRuns));
   const plan = startedFirst(
     balanceShards(
       tasks,
       Number(env['VERIFY_SHARDS'] ?? '16'),
-      target.targetSeconds
+      target.targetSeconds,
+      { runners, fillSeconds }
     )
   );
   const shardCount = plan.shards.filter(
@@ -103,7 +106,7 @@ function planShards(
     `shards: ${String(shardCount)} for ${target.uncachedSeconds.toFixed(0)} s of uncached work; ` +
       `${target.targetSeconds.toFixed(0)} s per shard (efficiency floor ${target.efficiencySeconds.toFixed(0)} s, ` +
       `longest group ${target.longestGroupSeconds.toFixed(0)} s); ` +
-      `cap ${env['VERIFY_SHARDS'] ?? '16'}`
+      `cap ${env['VERIFY_SHARDS'] ?? '16'}, ${runners} runner share of ${matrixCapacity} across ${activeRuns} active runs`
   );
   return plan;
 }

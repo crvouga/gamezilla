@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing Shift and Right on a fitted Sokoban board sent a gameplay step when the camera had no room to pan.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-board-gestures.test.tsx"
+}

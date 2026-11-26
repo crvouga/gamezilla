@@ -200,11 +200,8 @@ describe('path board', () => {
   // separate capsules that read as a rendering fault. Every path, open or
   // joined, is one continuous stroke between its squares' centres.
   test('a path still open is one continuous stroke between its squares', () => {
-    const css = readFileSync(
-      join(UI_SRC, 'path-grid-board/path-grid-board.module.css'),
-      'utf8'
-    );
-    expect(css).not.toContain('stroke-dasharray');
+    const cable = rule('path-grid-board/path-grid-board.module.css', '.line');
+    expect(declared(cable, 'stroke-dasharray')).toBe('none');
     const board = begun();
     const lines = board.querySelectorAll('[data-path="four"]');
     expect(lines.length).toBe(1);

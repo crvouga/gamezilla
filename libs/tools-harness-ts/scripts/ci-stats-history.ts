@@ -45,6 +45,7 @@ export type Distribution = {
   readonly count: number;
   readonly p50: number;
   readonly p90: number;
+  readonly p95: number;
   readonly p99: number;
   readonly max: number;
   readonly total: number;
@@ -100,6 +101,7 @@ export function distribution(values: readonly number[]): Distribution {
     count: finite.length,
     p50: round(percentile(finite, 0.5)),
     p90: round(percentile(finite, 0.9)),
+    p95: round(percentile(finite, 0.95)),
     p99: round(percentile(finite, 0.99)),
     max: round(finite.length ? Math.max(...finite) : 0),
     total: round(finite.reduce((sum, value) => sum + value, 0)),

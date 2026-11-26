@@ -41,6 +41,7 @@ import { watchBoardInput } from './board-input-lifecycle';
 import { useBoardMotionEnvironment } from './board-motion-context';
 import styles from './chess-board/chess-board.module.css';
 import { createBoardKeyHandler } from './chess-board-keys';
+import figures from './chess-board-pieces/figures.module.css';
 import { BoardPointer } from './chess-board-pointer';
 import { createChessBoardSounds } from './chess-board-sounds';
 import type { UserShapes } from './chess-board-user-shapes';
@@ -61,6 +62,7 @@ export type BoardController = {
   readonly theme: Accessor<ReturnType<typeof mergeBoardTheme>>;
   readonly userShapes: UserShapes;
   readonly arrows: Accessor<ReturnType<UserShapes['arrows']>>;
+  readonly cancelPress: () => void;
   readonly onKeyDown: (event: KeyboardEvent) => void;
   readonly activateSquare: (square: Square) => void;
   /** A hit-grid square button took focus: the cursor follows it. */
@@ -208,6 +210,7 @@ type Input = {
   readonly setHover: (el: HTMLElement) => void;
   readonly cursor: Accessor<Square>;
   readonly setCursor: (square: Square) => void;
+  readonly cancelPress: () => void;
   readonly onKeyDown: (event: KeyboardEvent) => void;
 };
 
@@ -231,7 +234,7 @@ function createInput(args: {
     defaultCursorSquare(untrack(parts.orientation))
   );
   const drag = createPieceDrag({
-    piece: styles['piece'] ?? '',
+    piece: `${styles['piece']} ${figures['figure']}`,
     avatar: styles['avatar'] ?? '',
     avatarTouch: styles['avatarTouch'] ?? '',
     lifted: styles['lifted'] ?? '',
@@ -273,7 +276,13 @@ function createInput(args: {
       parts.model.actions.cancelAll();
     },
   });
-  return { setHover, cursor, setCursor, onKeyDown };
+  return {
+    setHover,
+    cursor,
+    setCursor,
+    onKeyDown,
+    cancelPress: () => pointer.cancelPress(),
+  };
 }
 
 export function createBoardController(args: {
@@ -338,6 +347,7 @@ export function createBoardController(args: {
     userShapes,
     arrows,
     onKeyDown: input.onKeyDown,
+    cancelPress: input.cancelPress,
     activateSquare: (square) => {
       input.setCursor(square);
       userShapes.clear();

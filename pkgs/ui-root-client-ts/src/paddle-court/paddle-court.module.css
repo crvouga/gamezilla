@@ -87,14 +87,45 @@
   width: 100%;
   height: auto;
 }
-.line {
-  stroke: var(--ui-color-border);
-  stroke-width: 4;
-  stroke-dasharray: 12 12;
+.glass {
+  fill: none;
+  pointer-events: none;
+  stroke: var(--ui-color-game-pong-surface);
 }
+
+.rail,
+.service {
+  stroke-width: 2;
+}
+
+.net {
+  stroke-width: 3;
+  stroke-dasharray: 4 8;
+}
+
+.ticks {
+  stroke: var(--ui-color-game-pong-muted);
+  stroke-width: 2;
+  opacity: 0.55;
+}
+
 .paddle,
 .ball {
   fill: currentColor;
+}
+.ball {
+  stroke: var(--ui-color-game-pong-canvas);
+  stroke-width: 2;
+  paint-order: stroke fill;
+  vector-effect: non-scaling-stroke;
+}
+.stage:active .court[data-interactive="true"] {
+  cursor: grabbing;
+}
+.stage:has(.half[data-side="first"] :focus-visible) .paddle[data-side="first"],
+.stage:has(.half[data-side="second"] :focus-visible)
+  .paddle[data-side="second"] {
+  stroke: var(--ui-color-game-pong-accent);
 }
 /* Each paddle in its player's color, as their swatch beside their name. */
 .paddle[data-color="player1"] {
@@ -235,11 +266,6 @@
     transition: none;
   }
 }
-.ring {
-  fill: none;
-  stroke: var(--ui-color-border);
-  stroke-width: 4;
-}
 /* The points: large and in the page's bright ink, the first thing read. */
 .score {
   color: var(--ui-color-text);
@@ -284,4 +310,35 @@
 }
 .gesture[data-side="second"] {
   right: var(--ui-space-3);
+}
+
+.inspectSurface {
+  overflow: hidden;
+}
+.inspectSurface[data-inspecting="true"] {
+  touch-action: none;
+  cursor: grab;
+}
+.inspectSurface[data-inspecting="true"]:active {
+  cursor: grabbing;
+}
+.projection {
+  transform-origin: top left;
+}
+.inspectTools {
+  position: absolute;
+  inset-inline-end: var(--ui-space-2);
+  inset-block-end: var(--ui-space-2);
+  display: flex;
+  gap: var(--ui-space-1);
+}
+.court[data-held-first="true"] .paddle[data-side="first"],
+.court[data-held-second="true"] .paddle[data-side="second"] {
+  stroke: var(--ui-color-game-pong-accent);
+  stroke-width: 4;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .paddle {
+    transition: stroke-width var(--ui-duration-fast) var(--ui-easing-standard);
+  }
 }

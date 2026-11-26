@@ -1,3 +1,4 @@
+import { t } from '@lingui/core/macro';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
@@ -7,8 +8,9 @@ import {
   type CourtSide,
   CourtSurface,
   paddleCourtInput,
+  useCourtInputLifecycle,
 } from '../paddle-court-input';
-import { useCourtInputLifecycle } from './input-lifecycle';
+import { CourtInspection } from './inspection';
 import styles from './paddle-court.module.css';
 
 export type { CourtSide } from '../paddle-court-input';
@@ -207,7 +209,13 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
           {props.status}
         </div>
       </Show>
-      <Show when={props.enabled && props.touchHint}>
+      <Show
+        when={
+          props.enabled &&
+          (props.touchHint !== undefined ||
+            props.statusData?.stage === 'countdown')
+        }
+      >
         <For each={props.controlled}>
           {(side) => (
             <span
@@ -216,12 +224,48 @@ function CourtFeedback(props: PaddleCourtProps): JSX.Element {
               aria-hidden="true"
               data-testid={`${props.testId}-${side}-gesture`}
             >
-              ↕ {props.touchHint}
+              <Show when={props.statusData?.stage === 'countdown'}>
+                {side === 'first' ? t`Left paddle` : t`Right paddle`}
+                {' · '}
+              </Show>
+              {props.touchHint
+                ? `↕ ${props.touchHint}`
+                : side === 'first' && props.controlled.length === 2
+                  ? 'W / S'
+                  : '↑ / ↓'}
             </span>
           )}
         </For>
       </Show>
     </>
+  );
+}
+
+/** Stationary markings on the court glass. The game pieces use the outer viewBox. */
+function ArcadeMarkings(): JSX.Element {
+  return (
+    <svg
+      width="100%"
+      height="100%"
+      viewBox="0 0 600 400"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      class={styles['glass']}
+    >
+      <path
+        class={styles['rail']}
+        d="M12 60 V24 L24 12 H576 L588 24 V60 M12 340 V376 L24 388 H576 L588 376 V340"
+      />
+      <path class={styles['net']} d="M300 16 V160 M300 240 V384" />
+      <path
+        class={styles['service']}
+        d="M288 164 H312 L336 188 V212 L312 236 H288 L264 212 V188 Z"
+      />
+      <path
+        class={styles['ticks']}
+        d="M12 100 H20 M12 200 H28 M12 300 H20 M588 100 H580 M588 200 H572 M588 300 H580"
+      />
+    </svg>
   );
 }
 
@@ -234,20 +278,12 @@ function CourtDrawing(props: PaddleCourtProps): JSX.Element {
       aria-hidden="true"
     >
       <DragLanes {...props} />
-      <path
-        class={styles['line']}
-        d={`M ${props.width / 2} 0 V ${props.height}`}
-      />
-      <circle
-        class={styles['ring']}
-        cx={props.width / 2}
-        cy={props.height / 2}
-        r={props.height * 0.14}
-      />
+      <ArcadeMarkings />
       <For keyed={false} each={props.paddles}>
         {(paddle) => (
           <rect
             class={styles['paddle']}
+            rx={paddle().width / 3}
             data-side={paddle().side}
             data-color={paddle().color}
             data-testid={`${props.testId}-${paddle().side}-paddle`}
@@ -331,7 +367,14 @@ export function PaddleCourt(props: PaddleCourtProps): JSX.Element {
           onPointerCancel={input.pointerUp}
           onLostPointerCapture={input.pointerUp}
         >
-          <CourtDrawing {...props} />
+          <Show
+            when={props.controlled.length === 0}
+            fallback={<CourtDrawing {...props} />}
+          >
+            <CourtInspection>
+              <CourtDrawing {...props} />
+            </CourtInspection>
+          </Show>
           <CourtFeedback {...props} />
         </CourtSurface>
         <HalfControls {...props} />

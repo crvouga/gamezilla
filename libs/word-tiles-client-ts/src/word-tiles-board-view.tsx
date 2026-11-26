@@ -17,10 +17,15 @@ import {
   WordTileWorkspace,
 } from '@pkgs/ui-root-client-ts/word-tile-workbench';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Show } from 'solid-js';
+import { createMemo, createUniqueId, Show } from 'solid-js';
 import type { LexiconState } from './use-word-tiles-lexicon';
 import { wordTilesActions } from './word-tiles-actions';
-import { assignBlank, pressCell, pressTile } from './word-tiles-candidate';
+import {
+  assignBlank,
+  dropTile,
+  pressCell,
+  pressTile,
+} from './word-tiles-candidate';
 import {
   boardCells,
   COLUMN_LABELS,
@@ -47,6 +52,7 @@ function SeatBoard(props: {
 }): JSX.Element {
   // Memoized: each square reads the list, so computing it inline would
   // rebuild the whole board once per square on every change.
+  const boardId = createUniqueId();
   const cells = createMemo(() =>
     boardCells(props.position, props.draft.candidate(), props.draft.editable())
   );
@@ -56,6 +62,7 @@ function SeatBoard(props: {
   // A function, so each branch mounts its own board.
   const board = (): JSX.Element => (
     <WordTileBoard
+      dropBoardId={boardId}
       measure="compact"
       label={t`Word board, fifteen columns and fifteen rows`}
       testId={props.draft.props.testId}
@@ -73,6 +80,7 @@ function SeatBoard(props: {
     <>
       <LexiconRecovery draft={props.draft} />
       <SeatWorkspace
+        boardId={boardId}
         draft={props.draft}
         position={props.position}
         random={props.random}
@@ -85,6 +93,7 @@ function SeatBoard(props: {
 
 /** A watcher's workspace (its note that racks stay private) or a seat's. */
 function SeatWorkspace(props: {
+  boardId: string;
   draft: WordTilesDraft;
   position: WordTilesPosition;
   random: () => number;
@@ -108,6 +117,16 @@ function SeatWorkspace(props: {
         finished={props.position.ended !== null}
         rack={
           <TileRack
+            placement={
+              props.draft.editable() &&
+              props.draft.candidate().exchange === null
+                ? {
+                    boardId: props.boardId,
+                    place: (id, square) =>
+                      props.draft.update((c) => dropTile(c, id, square)),
+                  }
+                : undefined
+            }
             label={t`Your rack`}
             testId={`${props.draft.props.testId}-rack`}
             tiles={props.tiles}

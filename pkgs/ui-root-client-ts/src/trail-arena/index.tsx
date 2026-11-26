@@ -1,10 +1,19 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createMemo, createUniqueId, For, Show } from 'solid-js';
-import { trailShapes } from '../trail-arena-geometry';
+import { createMemo, createSignal, createUniqueId, For, Show } from 'solid-js';
 import {
+  type ArenaCamera,
+  FIT,
+  FOLLOW_ZOOM,
+  followAxis,
+  inspectionCamera,
+  trailShapes,
+} from '../trail-arena-geometry';
+import {
+  ArenaInspection,
   ArenaSurface,
   controlledSlots,
+  RiderCameraPicker,
   trailArenaInput,
 } from '../trail-arena-input';
 import {
@@ -46,8 +55,13 @@ export const LARGE_HEAD_SCALE = 1.4;
  * cell reaches past it (its nose, 1.6 head radii from the cell's centre),
  * so every rider, nose and all, is drawn inside the walls.
  */
-function groundRoom(scale: number): number {
+function groundRoom(board: TrailArenaProps): number {
+  const scale = board.heads === 'large' ? LARGE_HEAD_SCALE : 1;
   return Math.round((1.6 * scale - 0.4) * 100) / 100;
+}
+
+function wallRoom(board: TrailArenaProps) {
+  return Math.round((groundRoom(board) + WALL_ROOM) * 100) / 100;
 }
 
 /**
@@ -70,23 +84,38 @@ function arenaShape(width: number, height: number, room: number) {
  */
 export function TrailArena(props: TrailArenaProps): JSX.Element {
   const arenaId = `trail-arena-${createUniqueId()}`;
+  let drawing!: SVGSVGElement;
+  const [camera, setCamera] = createSignal(FIT);
+  const controller = inspectionCamera(setCamera);
+  const follow = riderCamera(props);
+  function choose(target: TrailRiderIndex | 'arena' | 'free') {
+    follow.select(target === 'free' ? 'arena' : target);
+    controller.fit();
+    if (target === 'free') controller.scale(2);
+    if (controlledSlots(props) > 0)
+      drawing.parentElement?.focus({ preventScroll: true });
+  }
   const input = trailArenaInput(props);
-  const shapes = createMemo(() =>
-    trailShapes(props.cells, props.width, props.height)
-  );
   const interactive = () => props.enabled && controlledSlots(props) > 0;
-  const headScale = () => (props.heads === 'large' ? LARGE_HEAD_SCALE : 1);
-  const ground = () => groundRoom(headScale());
-  const room = () => Math.round((ground() + WALL_ROOM) * 100) / 100;
   return (
     <ArenaSurface
       enabled={props.enabled}
       riders={props.riders}
       onDirection={props.onDirection}
       class={styles['arena']}
-      style={arenaShape(props.width, props.height, room())}
+      style={arenaShape(props.width, props.height, wallRoom(props))}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
+      data-zoom={follow.rider() ? FOLLOW_ZOOM : camera().zoom}
+      data-round={props.round}
+      data-clear-corner={
+        follow.rider() &&
+        (follow.rider()?.x ?? 0) >= props.width / 2 &&
+        (follow.rider()?.y ?? 0) < 5
+          ? 'right'
+          : undefined
+      }
+      data-follow={follow.rider()?.index ?? 'arena'}
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
@@ -108,85 +137,177 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       {/* The walls stand a head's reach out from the grid, inside the
           arena's box: a rider on an edge cell is drawn whole, inside them. */}
       <svg
+        ref={drawing}
         class={styles['drawing']}
         data-testid={`${props.testId}-drawing`}
-        viewBox={`${-room()} ${-room()} ${props.width + 2 * room()} ${props.height + 2 * room()}`}
+        viewBox={arenaBox(props, follow.rider() ? FIT : camera())}
         preserveAspectRatio="xMidYMid meet"
         aria-hidden="true"
       >
-        <ArenaPatterns arenaId={arenaId} indices={TRAIL_RIDER_INDICES} />
-        <Ground
-          arenaId={arenaId}
-          width={props.width}
-          height={props.height}
-          room={ground()}
-        />
-        <Show when={props.touchRegions}>
-          <path
-            class={styles['touchDivider']}
-            d={`M ${props.width / 2} ${-ground()} V ${props.height + ground()}`}
-          />
-        </Show>
-        <For each={TRAIL_RIDER_INDICES}>
-          {(index) => (
-            <TrailPath
-              arenaId={arenaId}
-              index={index}
-              shape={() => shapes()[index]}
-              testId={props.testId}
-            />
-          )}
-        </For>
-        <rect
-          class={styles['wall']}
-          x={-ground()}
-          y={-ground()}
-          width={props.width + 2 * ground()}
-          height={props.height + 2 * ground()}
-          rx="0.5"
-        />
-        <Markers
-          riders={props.riders}
-          crashes={props.crashes}
-          counts={(index) => shapes()[index]?.count ?? 0}
-          scale={headScale()}
-          testId={props.testId}
-        />
+        <TrackedField board={props} follow={follow} arenaId={arenaId} />
       </svg>
+      <Show when={props.inspectable && !interactive() && !follow.rider()}>
+        <ArenaInspection
+          drawing={() => drawing}
+          camera={camera()}
+          controller={controller}
+        />
+      </Show>
+      <Show when={props.round !== undefined}>
+        <RiderCameraPicker
+          riders={props.riders}
+          inspectable={props.inspectable === true}
+          selected={String(
+            follow.rider()?.index ?? (camera().zoom > 1 ? 'free' : 'arena')
+          )}
+          choose={choose}
+        />
+      </Show>
       <TouchRegions regions={props.touchRegions} testId={props.testId} />
       <ArenaOverlay overlay={props.overlay} testId={props.testId} />
     </ArenaSurface>
   );
 }
 
-/**
- * The arena's own ground, filling its walls (a head's reach around the
- * grid) and rounded as they are, and its dotted floor on the grid the
- * riders ride: the walls are its one frame, with no second card around it.
- */
-function Ground(props: {
+function arenaBox(board: TrailArenaProps, camera: ArenaCamera) {
+  const margin = wallRoom(board);
+  const width = board.width + 2 * margin;
+  const height = board.height + 2 * margin;
+  return `${camera.x * width - margin} ${camera.y * height - margin} ${width / camera.zoom} ${height / camera.zoom}`;
+}
+
+function riderCamera(props: TrailArenaProps) {
+  const [choice, setChoice] = createSignal<{
+    scope: string;
+    target: TrailRiderIndex | 'arena';
+  }>();
+  const local = createMemo(() =>
+    props.riders
+      .filter((r) => r.controlSlot !== null)
+      .map((r) => r.index)
+      .join(',')
+  );
+  const rider = createMemo(() => {
+    if (props.round === undefined) return;
+    const selected = choice();
+    if (selected && selected.scope === local())
+      return props.riders.find((r) => r.index === selected.target);
+    return props.riders.find((r) => String(r.index) === local());
+  });
+  return {
+    rider,
+    select: (target: TrailRiderIndex | 'arena') =>
+      setChoice({ scope: local(), target }),
+    session: () => (rider() ? `${rider()?.index}/${props.round}` : undefined),
+  };
+}
+
+function TrackedField(props: {
+  board: TrailArenaProps;
+  follow: ReturnType<typeof riderCamera>;
   arenaId: string;
-  width: number;
-  height: number;
-  /** The ground's room around the grid, in cells. */
-  room: number;
-}): JSX.Element {
+}) {
+  return (
+    <Show
+      when={props.follow.session()}
+      keyed
+      fallback={<ArenaField board={props.board} arenaId={props.arenaId} />}
+    >
+      {(_session) => (
+        <FollowingField
+          board={props.board}
+          rider={props.follow.rider}
+          arenaId={props.arenaId}
+        />
+      )}
+    </Show>
+  );
+}
+
+function FollowingField(props: {
+  board: TrailArenaProps;
+  rider: () => TrailArenaProps['riders'][number] | undefined;
+  arenaId: string;
+}) {
+  const margin = () => wallRoom(props.board);
+  const origin = createMemo<{ x: number; y: number }>((previous) => {
+    const rider = props.rider();
+    const axis = (cell: number, size: number, prior?: number) =>
+      followAxis(cell + 0.5 + margin(), size + 2 * margin(), prior);
+    return {
+      x: axis(rider?.x ?? 0, props.board.width, previous?.x),
+      y: axis(rider?.y ?? 0, props.board.height, previous?.y),
+    };
+  });
+  const offset = (v: number) => (FOLLOW_ZOOM - 1) * margin() - v * FOLLOW_ZOOM;
+  return (
+    <g
+      data-follow-field=""
+      class={styles['followingField']}
+      style={{
+        transform: `matrix(${FOLLOW_ZOOM},0,0,${FOLLOW_ZOOM},${offset(origin().x)},${offset(origin().y)})`,
+      }}
+    >
+      <ArenaField board={props.board} arenaId={props.arenaId} />
+    </g>
+  );
+}
+
+function ArenaField(props: { board: TrailArenaProps; arenaId: string }) {
+  const ground = () => groundRoom(props.board);
+  const shapes = createMemo(() =>
+    trailShapes(props.board.cells, props.board.width, props.board.height)
+  );
   return (
     <>
+      <ArenaPatterns arenaId={props.arenaId} indices={TRAIL_RIDER_INDICES} />
+      {/* The arena's own ground, inside its walls: the walls are its one
+            frame, with no second card around them. */}
       <rect
         class={styles['ground']}
-        x={-props.room}
-        y={-props.room}
-        width={props.width + 2 * props.room}
-        height={props.height + 2 * props.room}
+        x={-ground()}
+        y={-ground()}
+        width={props.board.width + 2 * ground()}
+        height={props.board.height + 2 * ground()}
         rx="0.5"
       />
       <rect
         class={styles['floor']}
-        width={props.width}
-        height={props.height}
+        width={props.board.width}
+        height={props.board.height}
         rx="0.5"
         fill={`url(#${props.arenaId}-grid)`}
+      />
+      <Show when={props.board.touchRegions}>
+        <path
+          class={styles['touchDivider']}
+          d={`M ${props.board.width / 2} ${-ground()} V ${props.board.height + ground()}`}
+        />
+      </Show>
+      <For each={TRAIL_RIDER_INDICES}>
+        {(index) => (
+          <TrailPath
+            arenaId={props.arenaId}
+            index={index}
+            shape={() => shapes()[index]}
+            testId={props.board.testId}
+          />
+        )}
+      </For>
+      <rect
+        class={styles['wall']}
+        x={-ground()}
+        y={-ground()}
+        width={props.board.width + 2 * ground()}
+        height={props.board.height + 2 * ground()}
+        rx="0.5"
+      />
+      <Markers
+        riders={props.board.riders}
+        crashes={props.board.crashes}
+        counts={(index) => shapes()[index]?.count ?? 0}
+        scale={props.board.heads === 'large' ? LARGE_HEAD_SCALE : 1}
+        testId={props.board.testId}
       />
     </>
   );

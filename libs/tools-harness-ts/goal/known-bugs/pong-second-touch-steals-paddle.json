@@ -1,0 +1,4 @@
+{
+  "summary": "A second finger takes over an already held paddle and can stop its owner's drag when cancelled.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/paddle-court.test.tsx"
+}

@@ -91,13 +91,8 @@ function createDrawingKey(
   };
 }
 
-function previewDrawing(
-  ports: DrawingPorts,
-  action: NumberlinkAction | null
-): NumberlinkState {
-  if (action === null) return ports.state();
-  const next = applyNumberlinkAction(ports.definition(), ports.state(), action);
-  return next.valid ? next.value : ports.state();
+function checkDrawing(ports: DrawingPorts, action: NumberlinkAction) {
+  return applyNumberlinkAction(ports.definition(), ports.state(), action);
 }
 
 function createDrawingFeedback(
@@ -140,14 +135,21 @@ function cancelOnNewInput(ports: DrawingPorts, cancel: () => void): void {
  * gesture can land in the same event, before the signal shows the first.
  */
 function createGesture() {
-  const [shown, setShown] = createSignal<NumberlinkAction | null>(null);
+  const [shown, setShown] = createSignal<{
+    action: NumberlinkAction;
+    preview: NumberlinkState;
+  } | null>(null);
   let last: NumberlinkAction | null = null;
   return {
     shown,
     last: () => last,
-    set: (next: NumberlinkAction | null): void => {
-      last = next;
-      setShown(next);
+    clear: (): void => {
+      last = null;
+      setShown(null);
+    },
+    set: (action: NumberlinkAction, preview: NumberlinkState): void => {
+      last = action;
+      setShown({ action, preview });
     },
   };
 }
@@ -160,12 +162,12 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
   let refused = false;
   const cell = (index: number): Cell => cellAt(index, ports.definition().width);
   const cancel = (): void => {
-    drawing.set(null);
+    drawing.clear();
     refused = false;
   };
   const status = createDrawingFeedback(drawing.last, cancel);
   cancelOnNewInput(ports, cancel);
-  const preview = createMemo(() => previewDrawing(ports, drawing.shown()));
+  const preview = createMemo(() => drawing.shown()?.preview ?? ports.state());
   const begin = (index: number): void => {
     if (ports.disabled()) return;
     const action = initialDrawing(ports, cell(index));
@@ -176,7 +178,8 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     refused = false;
     setError(null);
     status.clear();
-    drawing.set(action);
+    const next = checkDrawing(ports, action);
+    drawing.set(action, next.valid ? next.value : ports.state());
   };
   const extend = (index: number): void => {
     const current = drawing.last();
@@ -188,16 +191,12 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
         ? [...current.cells, at]
         : current.cells.slice(0, visited + 1);
     const action = { pairId: current.pairId, cells };
-    const next = applyNumberlinkAction(
-      ports.definition(),
-      ports.state(),
-      action
-    );
+    const next = checkDrawing(ports, action);
     refused = !next.valid;
     setError(
       next.valid ? null : (next.issues[0]?.message ?? t`Draw the path again.`)
     );
-    if (next.valid) drawing.set(action);
+    if (next.valid) drawing.set(action, next.value);
   };
   const finish = (): void => {
     const action = drawing.last();
@@ -218,7 +217,7 @@ export function createNumberlinkDrawing(ports: DrawingPorts) {
     clearError: () => setError(null),
   });
   return {
-    gesture: drawing.shown,
+    gesture: () => drawing.shown()?.action ?? null,
     error,
     feedback: status.feedback,
     preview,

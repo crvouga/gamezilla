@@ -107,9 +107,9 @@ test('gate shards install every toolchain the gate catalog needs', () => {
     const setup = workflow.jobs[job]!.steps.find(
       (step) => step.uses === './.github/actions/setup'
     )!;
-    // Unset is the setup action's default: every pinned tool, lazy included,
-    // which is what nightly's gate shards ran the same catalog with.
-    expect(setup.with?.['tools']).toBeUndefined();
+    expect(setup.with?.['tools']).toBe(
+      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}"
+    );
   }
 });
 

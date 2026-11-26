@@ -46,7 +46,11 @@ function BoardCell(props: {
           </span>
         }
       >
-        <span class={styles['letter']} aria-hidden="true">
+        <span
+          data-blank={cell()?.points === 0 ? 'true' : undefined}
+          class={styles['letter']}
+          aria-hidden="true"
+        >
           {cell()?.letter}
         </span>{' '}
         <span class={styles['points']} aria-hidden="true">

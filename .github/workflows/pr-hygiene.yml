@@ -7,8 +7,7 @@ run-name: "PR Hygiene · ${{ github.event_name == 'schedule' && 'schedule' || 'm
 
 # Keeps many concurrent agent PRs moving without a person watching the list:
 # - `do-not-merge` turns auto-merge off.
-# - A PR that conflicts with main gets `needs-human` and one comment naming the
-#   conflicting files; the label comes off once the conflict is resolved.
+# - A PR that conflicts with main gets a comment naming the conflicting files.
 # - A PR whose description lacks a section of the template is told which, once,
 #   and has auto-merge turned off until it follows the template.
 # - A PR with no activity for 2 days gets `stale`; 3 days later it is closed.
@@ -64,30 +63,22 @@ jobs:
             echo "PR #${number}: do-not-merge, turning auto-merge off"
             gh pr merge "$number" --disable-auto
           done
-      - name: Label conflicting PRs needs-human
+      - name: Report conflicting files to the owning agent
         run: |
           set -euo pipefail
           marker='<!-- pr-hygiene:conflict -->'
           tick='`'
           git -c credential.helper= fetch --quiet origin main
           gh pr list --state open --base main --limit 200 \
-            --json number,mergeable,labels \
-            --jq '.[] | [.number, .mergeable, ([.labels[].name] | index("needs-human") != null)] | @tsv' |
-          while IFS=$'\t' read -r number mergeable labelled; do
-            if [ "$mergeable" = "CONFLICTING" ] && [ "$labelled" = "false" ]; then
-              git -c credential.helper= fetch --quiet origin "pull/${number}/head:refs/pr-hygiene/${number}"
-              files=$(git merge-tree --write-tree --name-only --no-messages origin/main "refs/pr-hygiene/${number}" | tail -n +2 | sed "s/^/- ${tick}/; s/\$/${tick}/" || true)
-              body=$(printf '%s\nThis PR conflicts with %smain%s. Merge %sorigin/main%s in and resolve:\n\n%s\n' "$marker" "$tick" "$tick" "$tick" "$tick" "${files:-"- (GitHub could not list the files)"}")
-              echo "PR #${number}: conflicting, labelling needs-human"
-              gh pr edit "$number" --add-label needs-human
-              gh pr comment "$number" --body "$body"
-            elif [ "$mergeable" = "MERGEABLE" ] && [ "$labelled" = "true" ]; then
-              # Only remove a label this workflow added.
-              if gh pr view "$number" --json comments --jq '.comments[].body' | grep -qF "$marker"; then
-                echo "PR #${number}: conflict resolved, removing needs-human"
-                gh pr edit "$number" --remove-label needs-human
-              fi
-            fi
+            --json number,mergeable \
+            --jq '.[] | select(.mergeable == "CONFLICTING") | .number' |
+          while read -r number; do
+            reported=$(gh pr view "$number" --json comments --jq '[.comments[] | select((.author.login == "github-actions" or .author.login == "github-actions[bot]") and (.body | contains("<!-- pr-hygiene:conflict -->")))] | length')
+            [ "$reported" -eq 0 ] || continue
+            git -c credential.helper= fetch --quiet origin "pull/${number}/head:refs/pr-hygiene/${number}"
+            files=$(git merge-tree --write-tree --name-only --no-messages origin/main "refs/pr-hygiene/${number}" | tail -n +2 | sed "s/^/- ${tick}/; s/\$/${tick}/" || true)
+            body=$(printf '%s\nThis PR conflicts with %smain%s. Merge %sorigin/main%s in and resolve:\n\n%s\n' "$marker" "$tick" "$tick" "$tick" "$tick" "${files:-"- (GitHub could not list the files)"}")
+            gh pr comment "$number" --body "$body"
           done
       # Every description has the sections of the template, so a reviewer finds
       # the same thing in the same place on every PR. One that does not is told

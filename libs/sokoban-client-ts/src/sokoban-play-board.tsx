@@ -3,12 +3,16 @@ import type {
   SokobanPosition,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Plural, Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { WarehouseFit } from '@pkgs/sokoban-board-client-ts/fit';
+import { useWarehouseGestures } from '@pkgs/sokoban-board-client-ts/gestures';
+import { warehouseArt } from '@pkgs/sokoban-board-client-ts/piece';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   TileBoard,
   type TileBoardDirection,
+  type TileBoardPiece,
   type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
 import type { JSX } from '@solidjs/web';
@@ -102,12 +106,22 @@ function createView(props: Props, closer: () => boolean) {
       sokobanTiles(props.board, positionPieces(props.position), words, frame())
     )
   );
-  const pieces = createMemo(() =>
-    sokobanPieces(props.board, positionPieces(props.position)).map((piece) => ({
-      ...piece,
-      column: piece.column - frame().left,
-      row: piece.row - frame().top,
-    }))
+  const pieces = createMemo<readonly TileBoardPiece[]>((previous) =>
+    sokobanPieces(props.board, positionPieces(props.position)).map(
+      (piece, index) => {
+        const column = piece.column - frame().left;
+        const row = piece.row - frame().top;
+        const prior = previous?.[index];
+        if (
+          prior?.id === piece.id &&
+          prior.tone === piece.tone &&
+          prior.column === column &&
+          prior.row === row
+        )
+          return prior;
+        return { ...piece, art: warehouseArt[piece.tone], column, row };
+      }
+    )
   );
   const outside = createMemo(() =>
     outsideView(props.board, props.position, frame())
@@ -122,10 +136,22 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
   const canClose = () => props.board.width > 8 || props.board.height > 8;
   const closeView = () => canClose() && closer();
   const view = createView(props, closeView);
+  const tap = (index: number) => props.onTile(view.indexInBoard(index));
+  const gestures = useWarehouseGestures({
+    puzzle: () => props.board,
+    columns: () => view.frame().columns,
+    rows: () => view.frame().rows,
+    step: (direction) => props.onDirection(direction),
+    tap,
+  });
   return (
     <StackVertical gap="md">
       <StackVertical>
         <TileBoard
+          boardTheme="warehouse"
+          bindPointerInput={gestures.bind}
+          boardTool={<WarehouseFit label={t`Fit board`} onFit={gestures.fit} />}
+          inputDescription={t`Swipe to step. Pinch or hold to zoom. Drag to pan when zoomed. Hold again to fit. Use + or - to zoom, Shift and arrow keys to pan, and 0 to fit.`}
           label={
             closeView()
               ? t`Sokoban board, close view around the worker`
@@ -139,7 +165,7 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
           pieces={view.pieces()}
           describedBy={props.describedBy}
           onDirection={props.onDirection}
-          onTile={(index) => props.onTile(view.indexInBoard(index))}
+          onTile={tap}
         />
       </StackVertical>
       <Show when={canClose()}>

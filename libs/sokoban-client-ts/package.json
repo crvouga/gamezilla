@@ -19,6 +19,7 @@
     "@libs/sokoban-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/lingui-solid-client-ts": "workspace:*",
+    "@pkgs/sokoban-board-client-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",
     "@solidjs/web": "catalog:",
     "solid-js": "catalog:"
