@@ -4,8 +4,9 @@ import { GameBoardStage } from '../game-board-stage/index';
 import { GameScreen } from '../game-screen/index';
 import { Surface } from '../surface/index';
 import { P } from '../text/index';
+import { FixedGameSession, StageDetails } from './fixed-game-session';
 import Example from './game-session-layout.example';
-import { FixedGameSession, GameSessionLayout } from './index';
+import { GameSessionLayout } from './index';
 
 const meta = {
   id: 'templates-matchmaking-game',
@@ -89,15 +90,14 @@ function FixedStage(props: {
             </Surface>
           }
           history={
-            <Surface tone="muted" padding="sm" testId="rail-probe">
+            <>
               <P>1. e4 e5 2. Nf3</P>
-            </Surface>
+              <StageDetails label="All moves" testId="all-moves-probe">
+                <P>1. e4 e5</P>
+                <P>2. Nf3</P>
+              </StageDetails>
+            </>
           }
-          allMoves={{
-            label: 'All moves',
-            testId: 'all-moves-probe',
-            onPress: () => undefined,
-          }}
         >
           {(information) => (
             <GameBoardStage information={information}>
