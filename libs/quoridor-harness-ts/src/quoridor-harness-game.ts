@@ -8,6 +8,7 @@ import {
   establishQuoridorBotVictory,
   playQuoridorBot,
 } from './quoridor-bot-actions';
+import { movePracticePawn } from './quoridor-lesson-actions';
 import { QUORIDOR_MODEL_ACTIONS } from './quoridor-model';
 import { QUORIDOR_HILL_PLAYABLE, QUORIDOR_PLAYABLE } from './quoridor-playable';
 import { readQuoridorRecord } from './quoridor-record-reading';
@@ -18,6 +19,7 @@ export const QUORIDOR_HARNESS_GAME = assertHarnessGame({
   actions: [
     ...QUORIDOR_ACTIONS,
     ...QUORIDOR_MODEL_ACTIONS,
+    movePracticePawn,
     establishQuoridorBotVictory,
     playQuoridorBot,
   ],
