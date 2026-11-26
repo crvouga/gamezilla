@@ -49,6 +49,7 @@ export function CustomGameTest(props: {
           ...props.model.games(),
           error: props.model.error() || props.review.error(),
           myId: props.model.myId(),
+          members: props.model.members(),
           settled: props.model.settled(),
           receipt: receipt(),
           connected: props.model.connected(),

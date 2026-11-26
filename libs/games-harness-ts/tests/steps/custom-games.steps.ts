@@ -6,6 +6,7 @@ import {
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
 import { returnToGameIfOffered } from '@libs/game-matchmaking-harness-ts/return-to-game';
 import { playCustomGameBots } from '@libs/game-session-harness-ts/custom-game-bots';
+import { leaveCustomGameSpace } from '@libs/game-session-harness-ts/custom-game-departure';
 import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
 import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
 import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
@@ -108,6 +109,9 @@ Given('{actor} has a finished custom game', async (w) => {
   });
   await rememberCustomGame(w);
 });
+Given("{actor} has left the custom game's space", async (w, actor: string) =>
+  w.s.apply(leaveCustomGameSpace, actor, hostOf(w))
+);
 When('{actor} asks for a rematch', async (w, actor: string) => {
   await w.s.apply(attemptCustomGame, actor, { operation: 'rematch' });
 });

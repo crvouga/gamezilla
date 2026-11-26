@@ -12,6 +12,7 @@ import {
 } from './custom-game-bots';
 import { attemptCustomGameBoundary } from './custom-game-boundary';
 import { createCustomGameIn, operateCustomGame } from './custom-game-controls';
+import { leaveCustomGameSpace } from './custom-game-departure';
 import { playCustomGameHistory } from './custom-game-history';
 import {
   establishCustomGame,
@@ -51,6 +52,7 @@ export const GAME_SESSION_HARNESS_ACTIONS = [
   joinCustomGamesAsGuest,
   returnToCustomGames,
   operateCustomGame,
+  leaveCustomGameSpace,
   createCustomGameIn,
   raceCustomGameChoices,
   attemptCustomGame,
