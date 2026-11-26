@@ -110,16 +110,32 @@ test('the matrix has one entry per shard with work and nothing a secret could ma
   // Verify run 38209389895 masked the digit 1: `[0,1]` would have been
   // dropped, and every shard skipped.
   expect(shardMatrix({ shards: [] })).toBe('[]');
-  expect(shardMatrix({ shards: [0, 1, 2] })).toBe('["-","--","---"]');
   for (const count of [1, 40, 64]) {
     const matrix = shardMatrix({
       shards: Array.from({ length: count }, (_, shard) => shard),
     });
-    const entries = JSON.parse(matrix) as string[];
+    const entries = JSON.parse(matrix) as Record<'-' | '+', string>[];
     expect(entries).toHaveLength(count);
-    expect(new Set(entries).size).toBe(count);
+    expect(new Set(entries.map((entry) => entry['+'])).size).toBe(count);
     expect(matrix).not.toMatch(/[0-9a-z]/i);
   }
+});
+
+// regression: concurrent-full-gates-exhaust-free-runners
+test('eight full gates share twelve runner slots and small runs rotate their first slot', () => {
+  const lanes = new Set<string>();
+  const first = new Set<string>();
+  for (let run = 0; run < 8; run++) {
+    const matrix = shardMatrix(
+      { shards: Array.from({ length: 64 }, (_, i) => i) },
+      run
+    );
+    const entries = JSON.parse(matrix) as Record<'-', string>[];
+    first.add(entries[0]!['-']);
+    for (const entry of entries) lanes.add(entry['-']);
+  }
+  expect(lanes.size).toBe(12);
+  expect(first.size).toBe(8);
 });
 
 test('a fully cached plan schedules nothing and still accounts for every task', () => {
