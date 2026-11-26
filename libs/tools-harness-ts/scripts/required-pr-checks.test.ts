@@ -72,7 +72,7 @@ test('retired GitGuardian results do not gate PRs, but declaring it again enforc
   ]);
   expect(
     requiredPrCheckFailures(CONFIGURED, [END, skippedScan], false)
-  ).toContain('Missing required check: verify:start (app 15368)');
+  ).toContain('Missing required check: CodeQL (app 57789)');
 });
 
 // regression: optional-pr-checks
@@ -212,9 +212,7 @@ test('every PR invokes the guard after the suite verdict with failures enforced'
     step.run?.includes('@libs/tools-harness-ts#verify:pr-checks')
   );
   expect(guard).toBeGreaterThan(verdict);
-  expect(steps[guard]?.if).toBe(
-    "always() && !cancelled() && github.event_name == 'pull_request'"
-  );
+  expect(steps[guard]?.if).toBe("github.event_name == 'pull_request'");
   expect(steps[guard]?.['continue-on-error']).toBeUndefined();
 });
 

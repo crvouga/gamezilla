@@ -92,7 +92,6 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
     },
     { context: 'CodeQL', integration_id: 57789, outage_tolerant: true },
     { context: 'verify:end', integration_id: 15368 },
-    { context: 'verify:start', integration_id: 15368 },
   ]);
   expect(new Set(checks.map((check) => check.context)).size).toBe(
     checks.length

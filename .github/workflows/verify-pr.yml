@@ -118,6 +118,7 @@ defaults:
 
 jobs:
   verify-start:
+    if: github.event_name != 'pull_request'
     name: verify:start
     runs-on: ubuntu-24.04
     permissions:
@@ -392,13 +393,20 @@ jobs:
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Run the pull request gate
+        if: github.event_name == 'pull_request'
+        env:
+          VERIFY_DEADLINE_SECONDS: '1500'
+        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:ci
       - name: Download immutable plan
+        if: github.event_name != 'pull_request'
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: verify-plan
           path: .cache/verify-ci
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
+        if: github.event_name != 'pull_request'
         timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       - name: Upload queryable trace artifacts
@@ -427,7 +435,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
       - name: Transfer raw evidence
-        if: always() && !cancelled()
+        if: always() && !cancelled() && github.event_name != 'pull_request'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-evidence-consumers
@@ -438,10 +446,10 @@ jobs:
           if-no-files-found: ignore
       # Only the small verdicts: the evidence is gigabytes of snapshots.
       - name: Transfer shard verdicts
-        if: always() && !cancelled()
+        if: always() && !cancelled() && github.event_name != 'pull_request'
         run: bun run libs/tools-harness-ts/scripts/verify-artifact-download.ts verify-results- .cache/verify-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
       - name: Summarize every suite
-        if: always() && !cancelled()
+        if: always() && !cancelled() && github.event_name != 'pull_request'
         env:
           START_RESULT: ${{ needs.verify-start.result }}
           SHARD_RESULT: ${{ needs.verify-shards.result }}
@@ -459,13 +467,13 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
       - name: Require every PR check
-        if: always() && !cancelled() && github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request'
         env:
           SHARD_RESULT: ${{ needs.verify-shards.result }}
         run: bunx turbo run @libs/tools-harness-ts#verify:pr-checks
       # A red run still measured every task that passed.
       - name: Save measured task durations
-        if: always() && !cancelled() && hashFiles('.cache/verify-ci/measured-costs.json') != ''
+        if: always() && !cancelled() && github.event_name != 'pull_request' && hashFiles('.cache/verify-ci/measured-costs.json') != ''
         uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
           path: .cache/verify-ci/measured-costs.json
@@ -502,5 +510,5 @@ jobs:
       # Only after a pass: "Re-run failed jobs" downloads verify-plan again, and
       # GitHub expires leftovers after a day.
       - name: Delete transfer artifacts
-        if: success() && env.VERIFY_PROFILE != 'nightly'
+        if: success() && env.VERIFY_CI_STAGE == 'release'
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-

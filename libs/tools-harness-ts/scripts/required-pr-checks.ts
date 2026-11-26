@@ -146,7 +146,8 @@ export function requiredPrCheckFailures(
     );
     // GitGuardian was explicitly retired; its installed app can still post results.
     if (!declared && check.appId === 46505) continue;
-    if (!shard && !declared) {
+    const planner = check.appId === ACTIONS && check.name === 'verify:start';
+    if (!planner && !shard && !declared) {
       failures.push(
         `Optional or untrusted check: ${check.name} (app ${check.appId}); declare it in the repository required-checks registry`
       );
@@ -162,7 +163,7 @@ export function requiredPrCheckFailures(
     if (tolerated) continue;
     const cachedShard =
       emptyShardPlan &&
-      UNEXPANDED_SHARD.has(check.name) &&
+      (planner || UNEXPANDED_SHARD.has(check.name)) &&
       check.conclusion === 'skipped';
     if (
       check.status !== 'completed' ||

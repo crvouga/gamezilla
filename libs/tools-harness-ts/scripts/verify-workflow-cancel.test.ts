@@ -149,7 +149,7 @@ describe('Verify workflow cancellation', () => {
     const cleanup = end.at(-1)!;
     expect(cleanup.name).toBe('Delete transfer artifacts');
     // regression: verify-rerun-missing-plan
-    expect(cleanup.if).toBe("success() && env.VERIFY_PROFILE != 'nightly'");
+    expect(cleanup.if).toBe("success() && env.VERIFY_CI_STAGE == 'release'");
     expect(cleanup.run?.trim()).toBe(
       'bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-'
     );
@@ -257,7 +257,9 @@ describe('Verify workflow cancellation', () => {
     expect(end.needs).toEqual(['verify-start', 'verify-shards']);
     expect(end.if).toBe('always() && !cancelled()');
     expect(end['continue-on-error']).toBeUndefined();
-    expect(workflow.jobs['verify-start']!.if).toBeUndefined();
+    expect(workflow.jobs['verify-start']!.if).toBe(
+      "github.event_name != 'pull_request'"
+    );
     expect(workflow.jobs['verify-shards']!.strategy?.['fail-fast']).toBe(false);
     const step = (script: string) =>
       end.steps.findIndex((candidate) => candidate.run?.includes(script));
@@ -266,10 +268,15 @@ describe('Verify workflow cancellation', () => {
     const consumers = step('verify-consumers.ts');
     const verdict = step('verify-verdict.ts');
     expect(consumers).toBeGreaterThan(-1);
-    expect(end.steps[consumers]!.if).toBeUndefined();
+    expect(end.steps[consumers]!.if).toBe(
+      "github.event_name != 'pull_request'"
+    );
+    const pr = end.steps[step('turbo-ci-run.ts verify:ci')]!;
+    expect(pr.if).toBe("github.event_name == 'pull_request'");
+    expect(pr['continue-on-error']).toBeUndefined();
     expect(verdict).toBeGreaterThan(consumers);
     expect(end.steps[verdict]).toMatchObject({
-      if: 'always() && !cancelled()',
+      if: "always() && !cancelled() && github.event_name != 'pull_request'",
       env: {
         START_RESULT: '${{ needs.verify-start.result }}',
         SHARD_RESULT: '${{ needs.verify-shards.result }}',
