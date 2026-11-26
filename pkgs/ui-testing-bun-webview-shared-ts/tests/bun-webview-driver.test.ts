@@ -50,6 +50,77 @@ function createFakeView(): BunWebView & {
 }
 
 describe('BunWebviewDriver', () => {
+  // regression: word-tiles-google-post-press-cleanup
+  it('completes an acknowledged Google press when the opener stops answering', async () => {
+    const view = createFakeView();
+    const evaluate = view.evaluate.getMockImplementation()!;
+    const stalled = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    let acknowledged = false;
+    view.evaluate.mockImplementation(async (script: string) => {
+      if (acknowledged) {
+        stalled.resolve();
+        await release.promise;
+      }
+      if (script.includes('document.elementFromPoint'))
+        return '[data-testid="auth-method-google"]';
+      const result = await evaluate(script);
+      if (
+        script.includes('__uiTestingPointerCounts') &&
+        view.pointer.click === 1
+      )
+        acknowledged = true;
+      return result;
+    });
+    const tap = new BunWebviewDriver({ view, timers })
+      .get('auth-method-google')
+      .tap();
+    try {
+      expect(
+        await Promise.race([
+          tap.then(() => 'completed'),
+          stalled.promise.then(() => 'waiting on opener'),
+        ])
+      ).toBe('completed');
+      expect(acknowledged).toBe(true);
+      expect(view.click).toHaveBeenCalledTimes(1);
+    } finally {
+      release.resolve();
+      await tap;
+    }
+  });
+
+  it('returns the native Google press error when the opener goes silent', async () => {
+    const { clock, timers } = createHarnessClock();
+    const view = createFakeView();
+    const original = new Error('native dispatch rejected');
+    const evaluate = view.evaluate.getMockImplementation()!;
+    const entered = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    view.click.mockRejectedValue(original);
+    view.evaluate.mockImplementation(async (script: string) => {
+      if (view.click.mock.calls.length > 0) {
+        entered.resolve();
+        await release.promise;
+      }
+      if (script.includes('document.elementFromPoint'))
+        return '[data-testid="auth-method-google"]';
+      return evaluate(script);
+    });
+    const tap = new BunWebviewDriver({ view, timers })
+      .get('auth-method-google')
+      .tap()
+      .catch((error: Error) => error);
+    try {
+      await entered.promise;
+      clock.advance(1000);
+      expect(await tap).toMatchObject({ cause: original });
+      expect(view.click).toHaveBeenCalledTimes(1);
+      expect(clock.pendingOneShotCount()).toBe(0);
+    } finally {
+      release.resolve();
+    }
+  });
   it('rejects an off-target trusted click without sending another gesture', async () => {
     // regression: browser-tap-accepts-unrelated-click
     const view = createFakeView();
