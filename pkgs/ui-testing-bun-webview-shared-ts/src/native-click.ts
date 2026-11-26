@@ -24,6 +24,8 @@ function pointerCounterScript(selector: string | undefined): string {
       var elements = e.composedPath().filter(function (node) { return node instanceof Element; });
       counts.matchesTarget = counts.selector === null || elements.some(function (node) { return node.matches(counts.selector); });
       counts.hit = elements.slice(0, 4).map(function (node) { return node.tagName + '[data-testid=' + (node.getAttribute('data-testid') || '').slice(0, 120) + ']'; }).join(' < ');
+      var tracking = window.__uiTestingPressVisibility;
+      if (counts.matchesTarget && tracking?.selector === counts.selector) tracking.stop();
     }, true);
   }
   var counts = window.__uiTestingPointerCounts;

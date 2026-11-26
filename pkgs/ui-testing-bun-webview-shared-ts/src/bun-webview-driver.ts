@@ -25,11 +25,12 @@ export type BunWebviewDriverOptions = {
   readonly actorId?: string;
   /** How popup windows are created (share the page's data store). */
   readonly popupOptions?: PopupViewOptions;
-  /** Bounds waits on popup windows (one that closed itself never answers). */
+  /** Bounds waits on unresponsive windows. */
   readonly timers: Timers;
 };
 
 export class BunWebviewDriver implements Driver, BunWebviewHost {
+  readonly timers: Timers;
   readonly kind = 'bun-webview';
   readonly view: BunWebView;
   private readonly baseUrl: string | undefined;
@@ -37,6 +38,7 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
   private readonly popups: BunWebviewPopups;
 
   constructor(options: BunWebviewDriverOptions) {
+    this.timers = options.timers;
     this.view = options.view;
     this.baseUrl = options.baseUrl;
     this.actorId = options.actorId;

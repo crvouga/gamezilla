@@ -33,7 +33,7 @@ import { pressBrowserKey } from './browser-key';
 import type { BunWebviewHost } from './bun-webview-host';
 import { nativeClick } from './native-click';
 import { diagnosePress } from './press-diagnosis';
-import { trackPressVisibility } from './track-press-visibility';
+import { pressableTargetScript } from './pressable-target';
 import { visibilityScript } from './visibility-script';
 
 /**
@@ -110,6 +110,9 @@ function cssPath(path: readonly string[]): string {
   return path.map((id) => `[data-testid=${JSON.stringify(id)}]`).join(' ');
 }
 
+// A delayed failure diagnosis can only release the gesture that requested it.
+let nextPressId = 0;
+
 export class BunWebviewDriverNode implements DriverNode {
   readonly expect: DriverNode['expect'] = {
     visible: (options) => runExpectVisible(this, options),
@@ -129,8 +132,9 @@ export class BunWebviewDriverNode implements DriverNode {
   async tap(options?: UiWaitOptions): Promise<void> {
     await this.waitVisible(options);
     const view = await this.view();
+    const pressId = ++nextPressId;
     const target = await view.evaluate(
-      pressableTargetScript(cssPath(this.path))
+      pressableTargetScript(cssPath(this.path), pressId)
     );
     if (typeof target === 'string') {
       // A trusted click can arrive even when WebKit suppresses pointerup
@@ -139,20 +143,12 @@ export class BunWebviewDriverNode implements DriverNode {
       try {
         // Keep the selected element, not coordinates that a late notice can
         // move. Bun resolves its current bounds when sending trusted input.
-        await trackPressVisibility(view, target, () =>
-          nativeClick(view, target, 'primary', 'click')
-        );
+        await nativeClick(view, target, 'primary', 'click');
       } catch (error) {
         throw new UiTestError(
-          `${String(error)}; ${await diagnosePress(view, target, wallTimers)}`,
+          `${String(error)}; ${await diagnosePress(view, target, this.host.timers, pressId)}`,
           { cause: error }
         );
-      } finally {
-        await view
-          .evaluate(
-            `document.querySelector(${JSON.stringify(target)})?.removeAttribute('data-ui-testing-press-target')`
-          )
-          .catch(() => undefined);
       }
       return;
     }
@@ -164,7 +160,7 @@ export class BunWebviewDriverNode implements DriverNode {
       await view.click(selector);
     } catch (error) {
       throw new UiTestError(
-        `${String(error)}; ${await diagnosePress(view, selector, wallTimers)}`,
+        `${String(error)}; ${await diagnosePress(view, selector, this.host.timers)}`,
         { cause: error }
       );
     }
@@ -367,43 +363,6 @@ export class BunWebviewDriverNode implements DriverNode {
     }
     return box;
   }
-}
-
-/**
- * The match a person could press: shown, scrolled into view, and on top at
- * its centre. Stacked screens keep earlier screens mounted underneath, so the
- * first match in document order is often covered.
- */
-function pressableTargetScript(selector: string): string {
-  return `(async function(){
-    var all = document.querySelectorAll(${JSON.stringify(selector)});
-    for (var i = 0; i < all.length; i++) {
-      var el = all[i];
-      var style = getComputedStyle(el);
-      if (style.display === 'none' || style.visibility === 'hidden') continue;
-      el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
-      // The native selector click checks actionability. A unique control
-      // needs no animation frames to distinguish it from a covered copy.
-      if (all.length === 1) return ${JSON.stringify(selector)};
-      var previous = null;
-      for (var frame = 0; frame < 18; frame++) {
-        await new Promise(requestAnimationFrame);
-        var r = el.getBoundingClientRect();
-        var stable = previous !== null && previous.left === r.left && previous.top === r.top && previous.width === r.width && previous.height === r.height;
-        previous = { left: r.left, top: r.top, width: r.width, height: r.height };
-        if (!stable || r.width === 0 || r.height === 0) continue;
-        var x = r.left + r.width / 2;
-        var y = r.top + r.height / 2;
-        var hit = document.elementFromPoint(x, y);
-        if (hit !== null && (hit === el || el.contains(hit))) {
-          var id = window.__uiTestingPressTargetId = (window.__uiTestingPressTargetId || 0) + 1;
-          el.setAttribute('data-ui-testing-press-target', String(id));
-          return '[data-ui-testing-press-target="' + id + '"]';
-        }
-      }
-    }
-    return null;
-  })()`;
 }
 
 function scrollDelta(

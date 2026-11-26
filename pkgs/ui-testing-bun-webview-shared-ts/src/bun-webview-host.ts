@@ -3,6 +3,8 @@
  * its locator node can both depend on it without importing each other.
  */
 
+import type { Timers } from '@pkgs/clock-shared-ts/types';
+
 export type BunWebView = {
   navigate(url: string): Promise<void>;
   /** Wait until `selector` is actionable, then native-click its center. */
@@ -21,6 +23,7 @@ export type BunWebView = {
 };
 
 export type BunWebviewHost = {
+  readonly timers: Timers;
   /**
    * The window a selector's element is in: an open popup when it shows the
    * element, else the page itself. Resolving also reconciles popups.

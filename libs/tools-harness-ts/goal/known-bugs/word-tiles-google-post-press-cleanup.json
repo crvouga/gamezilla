@@ -1,0 +1,4 @@
+{
+  "summary": "Word Tiles daily game setup stalled for 90 seconds on the opener's visibility cleanup during Alice’s Google press. An acknowledged press must finish when the opener stops answering.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/bun-webview-driver.test.ts"
+}

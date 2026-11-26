@@ -15,7 +15,10 @@ const FRAMES = 6;
  * frame (or that it moved), and the element under its centre when that is
  * not the element itself.
  */
-export function pressDiagnosisScript(selector: string): string {
+export function pressDiagnosisScript(
+  selector: string,
+  pressId?: number
+): string {
   return `(async function(){
     function one(node) {
       var style = getComputedStyle(node);
@@ -42,7 +45,10 @@ export function pressDiagnosisScript(selector: string): string {
     function screenOf(host) {
       return host === null ? '' : ' on screen ' + String(host.getAttribute('data-screen')).slice(0, 48);
     }
-    var el = document.querySelector(${JSON.stringify(selector)});
+    var matches = document.querySelectorAll(${JSON.stringify(selector)});
+    var el = matches.item(0);
+    var tracking = window.__uiTestingPressVisibility;
+    if (tracking && tracking.id === ${JSON.stringify(pressId ?? null)}) tracking.stop();
     if (el === null) return 'the element is gone';
     var boxes = [];
     for (var frame = 0; frame < ${FRAMES}; frame++) {
@@ -59,7 +65,7 @@ export function pressDiagnosisScript(selector: string): string {
     var style = getComputedStyle(el);
     return (moving ? 'moving: ' + boxes.join(' -> ') : 'still at ' + boxes[0]) +
       '; viewport ' + innerWidth + 'x' + innerHeight +
-      '; connected=' + el.isConnected + '; matches=' + document.querySelectorAll(${JSON.stringify(selector)}).length +
+      '; connected=' + el.isConnected + '; matches=' + matches.length +
       '; disabled=' + (el.disabled === true || el.getAttribute('aria-disabled') === 'true') +
       '; hidden=' + (style.display === 'none' || style.visibility === 'hidden') +
       '; centre (' + Math.round(x) + ',' + Math.round(y) + ') hits ' +
@@ -72,7 +78,8 @@ export function pressDiagnosisScript(selector: string): string {
 export async function diagnosePress(
   view: { evaluate(script: string): Promise<unknown> },
   selector: string,
-  timers: Timers
+  timers: Timers,
+  pressId?: number
 ): Promise<string> {
   let timeout: unknown;
   try {
@@ -83,7 +90,7 @@ export async function diagnosePress(
       );
     });
     const found = await Promise.race([
-      view.evaluate(pressDiagnosisScript(selector)),
+      view.evaluate(pressDiagnosisScript(selector, pressId)),
       deadline,
     ]);
     return typeof found === 'string' ? found.slice(0, 1500) : 'no diagnosis';

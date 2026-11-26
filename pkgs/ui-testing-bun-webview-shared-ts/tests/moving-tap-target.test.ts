@@ -2,7 +2,16 @@ import { expect, test } from 'bun:test';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
 import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-host';
-import { Window } from 'happy-dom';
+import { type Element, Window } from 'happy-dom';
+
+function trustedClick(window: Window, target: Element) {
+  const event = new window.MouseEvent('click', {
+    bubbles: true,
+    composed: true,
+  });
+  Object.defineProperty(event, 'isTrusted', { value: true });
+  target.dispatchEvent(event);
+}
 
 async function tapReplacedButton(control: string, frames: boolean) {
   const window = new Window();
@@ -27,8 +36,6 @@ async function tapReplacedButton(control: string, frames: boolean) {
     press: async () => undefined,
     screenshot: async () => new Uint8Array(),
     evaluate: async (script) => {
-      if (script.includes('__uiTestingPointerCounts'))
-        return [clicks, clicks, clicks, 1, true];
       if (
         !script.includes('document.elementFromPoint') &&
         script.includes('getComputedStyle')
@@ -49,6 +56,7 @@ async function tapReplacedButton(control: string, frames: boolean) {
         throw new Error(
           'the marked button was replaced before native dispatch'
         );
+      trustedClick(window, window.document.querySelector(selector)!);
       clicks += 1;
     },
   };
@@ -97,8 +105,6 @@ test('a late offline notice cannot redirect a draft creation tap', async () => {
     press: async () => undefined,
     screenshot: async () => new Uint8Array(),
     evaluate: async (script) => {
-      if (script.includes('__uiTestingPointerCounts'))
-        return [clicks, clicks, clicks, 1, true];
       if (
         !script.includes('document.elementFromPoint') &&
         script.includes('getComputedStyle')
@@ -113,6 +119,7 @@ test('a late offline notice cannot redirect a draft creation tap', async () => {
         typeof selectorOrX === 'string'
           ? window.document.querySelector(selectorOrX)
           : window.document.elementFromPoint(selectorOrX, y!);
+      if (hit) trustedClick(window, hit);
       if (hit === target) created += 1;
       else unintended += 1;
       clicks += 1;
