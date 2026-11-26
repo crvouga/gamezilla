@@ -1,0 +1,4 @@
+{
+  "summary": "The Connect Four watcher Dave and the Word Tiles watcher Carol reached the board wait while still on the join screen. The shared link driver discarded which invitation outcome it saw.",
+  "regressionTest": "libs/spaces-harness-ts/tests/matched-watcher-join.test.ts"
+}

@@ -1,3 +1,4 @@
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
@@ -24,7 +25,7 @@ export function ActiveSpace(props: ActiveSpaceProps): JSX.Element {
   };
 
   return (
-    <StackVertical grow>
+    <StackVertical grow testId={Handles.spaceActive}>
       <ActiveSpaceBody
         spaceId={props.spaceId}
         onRequestEnd={() => requestEndSpace(props.spaceId)}

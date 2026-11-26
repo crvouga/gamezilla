@@ -6,7 +6,7 @@ import {
 } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
-import { joinViaLink } from '@libs/spaces-harness-ts/space-actions';
+import { joinSpaceFromLink } from '@libs/spaces-harness-ts/space-link';
 import {
   forgetMultiplayerReply,
   sendMultiplayerCommand,
@@ -58,7 +58,14 @@ export const joinMultiplayerSpace = scenarioAction({
     await ensureActor(s, watcher);
     const spaceId = await multiplayerSpaceId(s, host);
     if (spaceId === null) throw new Error('The multiplayer host has no space');
-    await Promise.resolve(joinViaLink.act(s, watcher, `/space/${spaceId}`));
+    const { opened, afterJoin } = await joinSpaceFromLink(
+      s,
+      watcher,
+      `/space/${spaceId}`,
+      'enter'
+    );
+    const arrival =
+      afterJoin === undefined ? opened : `${opened} → ${afterJoin}`;
     // The host can still be loading the board when the guest joins. A search
     // can also have no match yet. The host's synced record distinguishes them.
     const gameId = (await multiplayerView(s, host)).game?.id ?? null;
@@ -76,7 +83,7 @@ export const joinMultiplayerSpace = scenarioAction({
         },
         {
           maxMs: 5000,
-          description: `${actor} sees the shared multiplayer board ${gameId ?? 'after pairing'}`,
+          description: `${actor} sees the shared multiplayer board ${gameId ?? 'after pairing'} (${watcher}: ${arrival})`,
           actor,
         }
       );

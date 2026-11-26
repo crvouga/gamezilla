@@ -47,22 +47,15 @@ export async function waitActiveSpace(
 
 type Ui = Awaited<ReturnType<typeof actorUi>>;
 
-/**
- * Whether `handle` shows. The space's top row (Minimize) also tops the shell a
- * space shows while it is still finding out whether this person is in it,
- * so the bar means inside only once that loading body is gone. Each read is
- * its own look at a live page: the loading body is read on both sides of the
- * bar, so a loading shell that gives way to the join prompt between two
- * reads never passes for being inside.
- */
+/** Minimize is also on the loading shell. Only the joined space owns its body. */
 async function outcomeShown(ui: Ui, handle: string): Promise<boolean> {
   if (handle !== Handles.spaceClose) return ui.get(handle).isVisible();
   // regression: space-loading-shell-reads-as-inside
   // regression: space-loading-shell-gone-between-reads
-  const loading = () => ui.get(Handles.spaceLoading).isVisible();
-  if (await loading()) return false;
-  if (!(await ui.get(handle).isVisible())) return false;
-  return !(await loading());
+  return (
+    (await ui.get(Handles.spaceActive).isVisible()) &&
+    !(await ui.get(Handles.spaceLoading).isVisible())
+  );
 }
 
 export async function waitForLobbyCard(
@@ -207,15 +200,20 @@ export async function confirmSpaceMutation(
   });
 }
 
+export const SPACE_LINK_RECOVERY = [
+  Handles.spaceEnded,
+  Handles.spaceJoinUnavailable,
+  Handles.spaceNotFound,
+  Handles.spaceHostOffline,
+  Handles.spacesNeedConnection,
+  Handles.spaceUnreachable,
+] as const;
+
 /** Every screen a space link or a start can settle on. */
 const SPACE_OUTCOMES = [
   Handles.spaceJoin,
-  // Inside: the space's top row, with Minimize on every screen and size.
   Handles.spaceClose,
-  Handles.spaceEnded,
-  Handles.spaceHostOffline,
-  Handles.spaceNotFound,
-  Handles.spacesNeedConnection,
+  ...SPACE_LINK_RECOVERY,
   Handles.spacesHostingLimit,
 ] as const;
 

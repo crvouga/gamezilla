@@ -69,6 +69,9 @@ export const Handles = {
   spaceLobbyCard: (spaceId: string) => `space-lobby-card-${spaceId}`,
   spaceJoin: 'space-join',
   spaceJoinPrompt: 'space-join-prompt',
+  spaceJoinUnavailable: 'space-join-unavailable',
+  /** The open space on a device whose membership is confirmed. */
+  spaceActive: 'space-active',
   spaceJoinHostOfflineTag: 'space-join-host-offline-tag',
   spaceJoinNotConfirmed: 'space-join-not-confirmed',
   spaceJoinRetry: 'space-join-retry',
