@@ -1,0 +1,4 @@
+{
+  "summary": "Bob reached the custom game screen while joining Alice's Connect Four game, but the browser harness timed out before checking where the menu tap had taken him.",
+  "regressionTest": "libs/game-session-harness-ts/tests/show-custom-games.test.ts"
+}
