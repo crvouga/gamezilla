@@ -11,7 +11,10 @@ import {
   GameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
-import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
+import {
+  GameScreenProvider,
+  useVisitedGameScreen,
+} from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
@@ -132,11 +135,13 @@ function GameFrame(props: {
  * shared registration declares and the settings it declares as data decide
  * which template screens exist. No screen is the game's own.
  */
-export function GameMenu(props: {
+type GameMenuProps = {
   game: GameClient;
   onBackToGames: () => void;
-}): JSX.Element {
-  const navigation = useGameScreen();
+};
+
+function GameMenuContent(props: GameMenuProps): JSX.Element {
+  const navigation = useVisitedGameScreen();
   const offers: Offers = (capability) =>
     props.game.shared.registration?.capabilities[capability] !== undefined;
   useOpenLinkedMultiplayer(navigation, () => offers('matchmaking'));
@@ -172,5 +177,13 @@ export function GameMenu(props: {
         </GameChoicesName>
       </StackVertical>
     </GameFrame>
+  );
+}
+
+export function GameMenu(props: GameMenuProps): JSX.Element {
+  return (
+    <GameScreenProvider game={props.game.shared.id}>
+      <GameMenuContent {...props} />
+    </GameScreenProvider>
   );
 }

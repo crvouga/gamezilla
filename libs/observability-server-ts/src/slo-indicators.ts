@@ -402,6 +402,7 @@ export const INDICATORS: readonly Indicator[] = [
     checks: [
       'battleship.battleship-health',
       'connect-four.connect-four-health',
+      'journeys.back-from-quoridor',
       'journeys.battleship-game',
       'journeys.chess-puzzle-history',
       'journeys.connect-four-game',

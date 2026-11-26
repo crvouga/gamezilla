@@ -71,6 +71,18 @@ describe('the check names', () => {
 });
 
 describe("a run's results", () => {
+  // regression: game-back-journey-unnamed-health-check
+  test('records the result of leaving a Quoridor board and returning to the space', () => {
+    expect(
+      checkResults([
+        {
+          featureUri: 'specs/journeys/back-from-quoridor.feature',
+          statuses: ['pass'],
+        },
+      ])
+    ).toEqual([{ check: 'journeys.back-from-quoridor', passed: true }]);
+  });
+
   test('pass a feature only when it decided scenarios and all of them passed', () => {
     expect(
       checkResults([
