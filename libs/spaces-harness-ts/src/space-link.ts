@@ -57,6 +57,7 @@ async function waitForLink(
     },
     {
       maxMs: SPACE_WAIT_MS,
+      actor,
       get description() {
         return `${actor} ${phase} (last saw ${lastSeen})`;
       },
