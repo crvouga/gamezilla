@@ -277,7 +277,10 @@ function WallConfirmation(props: {
       gap="sm"
       wrap
       scrollTarget={reveal.target}
-      dataSet={{ component: 'QuoridorWallConfirmation' }}
+      dataSet={{
+        component: 'QuoridorWallConfirmation',
+        'quoridor-confirmation': 'true',
+      }}
     >
       <Button
         title={t`Place wall`}

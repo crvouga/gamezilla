@@ -1,4 +1,4 @@
 {
-  "summary": "At 1440 × 900 the Classic opening grid was 428px wide and shrank to 384px when the wall picker opened.",
+  "summary": "At 1440 × 900 the Classic opening grid shrank from 428px to 384px when the wall picker opened. After restoring its width, the clipped confirmation still scrolled the grid up 17px.",
   "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/desktop-table-room/integration.checks.ts"
 }

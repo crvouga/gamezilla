@@ -66,9 +66,8 @@
    only repeat the picker's wall and the buttons there, so it stays the
    board's description and live status for assistive technology alone,
    and proposing a wall never needs a row of its own. */
-:has(> [data-quoridor-surface]):has(
-  > [data-component="QuoridorWallConfirmation"]
-) > [role="status"] {
+:has(> [data-quoridor-surface]):has(> [data-quoridor-confirmation])
+> [role="status"] {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -76,27 +75,32 @@
   clip-path: inset(50%);
   white-space: nowrap;
 }
-/* Beside a wide board, while the picker shows (a player to move), that
-   row stands beside the picker. */
+/* A wide board has room for the mode buttons, picker and confirmation
+   along one row. Direct play uses the last two columns for its guidance. */
 @container game-column (min-width: 880px) {
-  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates]) {
+  [data-quoridor-mode]:has(> [data-quoridor-surface]:first-child) {
+    /* The control height, with clearance for the grid labels and row gap. */
+    --quoridor-tool-room: calc(var(--ui-control-size-md) + var(--ui-space-4));
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    align-items: center;
+    grid-template-columns: max-content repeat(2, minmax(0, 1fr));
+    align-items: start;
     column-gap: var(--ui-space-3);
   }
-  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates]) > * {
+  [data-quoridor-mode] > [data-quoridor-surface] {
     grid-column: 1 / -1;
   }
-  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates])
-    > [data-quoridor-coordinates] {
-    grid-row: 3;
-    grid-column: 1;
+  [data-quoridor-surface]:first-child + * {
+    grid-area: 2 / 1;
   }
-  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates])
-    > :is([role="status"], [data-component="QuoridorWallConfirmation"]) {
-    grid-row: 3;
-    grid-column: 2;
+  [data-quoridor-mode] > [data-quoridor-coordinates] {
+    grid-area: 2 / 2;
+  }
+  [data-quoridor-mode] > :is([role="status"], [data-quoridor-confirmation]) {
+    grid-area: 2 / 2 / auto / -1;
+  }
+  [data-quoridor-coordinates]
+    ~ :is([role="status"], [data-quoridor-confirmation]) {
+    grid-column-start: 3;
   }
 }
 
@@ -139,7 +143,10 @@
     --under: calc(var(--ui-control-size-md) * 2);
     width: min(
       calc(100% + 2 * var(--game-board-workspace-inset, 0px)),
-      max(min(100%, 320px), calc(100cqb - var(--under) + 0.5rem))
+      max(
+        min(100%, 320px),
+        calc(100cqb - var(--quoridor-tool-room, calc(var(--under) - 0.5rem)))
+      )
     );
   }
 
@@ -147,15 +154,5 @@
     [data-board-workspace="true"]
     [data-quoridor-surface]:has(~ * [aria-pressed]) {
     --under: calc(var(--ui-control-size-md) * 3);
-  }
-}
-
-/* The wide picker and confirmation already share the second row. Keep
-   that same two-row allowance when switching between direct and precise play. */
-@container game-column (min-width: 880px) {
-  [data-game-fixed="true"]
-    [data-board-workspace="true"]
-    [data-quoridor-surface]:has(~ * [aria-pressed]) {
-    --under: calc(var(--ui-control-size-md) * 2);
   }
 }
