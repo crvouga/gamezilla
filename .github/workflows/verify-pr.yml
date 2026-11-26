@@ -120,7 +120,7 @@ env:
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
-    shell: ci-budget-shell {0}
+    shell: ci-budget-shell {0}  # zizmor: ignore[misfeature] -- invokes bash with the remaining workflow budget
 
 
 jobs:

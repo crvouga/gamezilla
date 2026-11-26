@@ -189,7 +189,7 @@ test('each stage keeps its selection as the catalog grows and changes order', ()
 test('the deployment verifies production bundles, billing, migrations, security and every critical journey', () => {
   const tasks = deploymentTasks(MAIN_VERIFY_TASKS);
   for (const task of [
-    ...RELEASE_JOURNEY_TASKS,
+    '@apps/product-ts#test:release-journeys:critical',
     '@libs/billing-harness-ts#test',
     '@libs/runtime-server-ts#verify:schema-evolution',
     '@libs/tools-harness-ts#ci:audit',

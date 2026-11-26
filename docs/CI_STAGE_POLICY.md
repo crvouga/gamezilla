@@ -52,7 +52,7 @@ release must also pass environment configuration, infrastructure safety and live
 post-deployment probes before it is tagged. This is a bounded automated release bar;
 it does not promise that every feature, visual state or performance case is correct.
 
-Release verifies the production bundles and offline shell, all critical journey shards, API, billing, permissions, authentication and migration tests, repository policy, credential scanning, workflow security and dependency advisories. Environment deployment runs the full API integration suite against the built service and the live smoke checks. The exact production selection is `deploymentTasks` in `ci-stage.ts`.
+Release verifies the production bundles and offline shell, the critical-journeys feature on an isolated production build, API, billing, permissions, authentication and migration tests, repository policy, credential scanning, workflow security and dependency advisories. Environment deployment runs the full API integration suite against the built service and the live smoke checks. The exact production selection is `deploymentTasks` in `ci-stage.ts`.
 
 Manual branch diagnostics retain the broad gate. Nightly runs repository-wide lint and type checking, unit and model suites, and the rotating browser corpus. Cold PR work deferred for budget runs there unless it belongs to the production gate.
 
