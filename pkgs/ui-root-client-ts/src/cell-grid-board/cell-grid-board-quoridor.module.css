@@ -79,21 +79,21 @@
 /* Beside a wide board, while the picker shows (a player to move), that
    row stands beside the picker. */
 @container game-column (min-width: 880px) {
-  :has(> [data-quoridor-surface]):has(> [data-component="Select"]) {
+  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates]) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     align-items: center;
     column-gap: var(--ui-space-3);
   }
-  :has(> [data-quoridor-surface]):has(> [data-component="Select"]) > * {
+  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates]) > * {
     grid-column: 1 / -1;
   }
-  :has(> [data-quoridor-surface]):has(> [data-component="Select"])
-    > [data-component="Select"] {
+  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates])
+    > [data-quoridor-coordinates] {
     grid-row: 3;
     grid-column: 1;
   }
-  :has(> [data-quoridor-surface]):has(> [data-component="Select"])
+  :has(> [data-quoridor-surface]):has(> [data-quoridor-coordinates])
     > :is([role="status"], [data-component="QuoridorWallConfirmation"]) {
     grid-row: 3;
     grid-column: 2;

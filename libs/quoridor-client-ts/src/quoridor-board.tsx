@@ -109,7 +109,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
   createEffect(
     () => refocus() && toolFocus.mounted(),
     (ready) => {
-      if (ready && toolFocus.focus()) setRefocus(false);
+      if (ready && toolFocus.focus({ preventScroll: true })) setRefocus(false);
     }
   );
   return (
@@ -148,12 +148,6 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
             testId={props.testId}
             actions={props.state.actions()}
             focusTarget={toolFocus.target}
-            close={() => {
-              selection.cancel();
-              props.state.setTool('move');
-              setPrecise(false);
-              setRefocus(true);
-            }}
           />
           <QuoridorTargetPicker
             testId={props.testId}
@@ -161,6 +155,12 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
             cells={selection.cells()}
             selected={selection.selected()?.slice(0, 2) ?? null}
             onActivate={selection.activate}
+            onClose={() => {
+              selection.cancel();
+              props.state.setTool('move');
+              setPrecise(false);
+              setRefocus(true);
+            }}
           />
         </Show>
       </Show>

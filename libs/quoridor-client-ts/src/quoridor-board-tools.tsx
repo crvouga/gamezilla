@@ -4,9 +4,9 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import type { FocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { Select } from '@pkgs/ui-root-client-ts/select';
-import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
 import { type QuoridorTool, quoridorBoundary } from './quoridor-board-cells';
 
 /** The same tools in every host, directly beside the working board. */
@@ -14,7 +14,6 @@ export function QuoridorBoardTools(props: {
   testId: string;
   actions: readonly GameFrameAction[];
   /** Held by whichever tool is pressed, so focus can return to the active tool. */
-  close?: () => void;
   focusTarget?: FocusTarget | undefined;
 }): JSX.Element {
   return (
@@ -41,13 +40,6 @@ export function QuoridorBoardTools(props: {
           />
         )}
       </For>
-      <Show when={props.close}>
-        <Button
-          title={t`Done`}
-          variant="ghost"
-          onClick={() => props.close?.()}
-        />
-      </Show>
     </StackHorizontal>
   );
 }
@@ -77,27 +69,37 @@ export function QuoridorTargetPicker(props: {
   cells: readonly CellGridCell[];
   selected: string | null;
   onActivate: (cell: string) => void;
+  onClose: () => void;
 }): JSX.Element {
   return (
-    <Select
-      aria-label={
-        props.tool === 'move'
-          ? t`Move to a coordinate`
-          : props.tool === 'h'
-            ? t`Wall starts above a square`
-            : t`Wall starts to the right of a square`
-      }
-      placeholder={
-        props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
-      }
-      surfaceTitle={
-        props.tool === 'move' ? t`Choose destination` : t`Choose wall anchor`
-      }
-      value={props.selected ?? ''}
-      searchable={props.tool !== 'move'}
-      triggerDataSet={{ testid: `${props.testId}-precise-target` }}
-      options={quoridorTargetOptions(props.testId, props.tool, props.cells)}
-      onValueChange={props.onActivate}
-    />
+    <StackHorizontal gap="xs" dataSet={{ 'quoridor-coordinates': 'true' }}>
+      <StackVertical grow shrink>
+        <Select
+          aria-label={
+            props.tool === 'move'
+              ? t`Move to a coordinate`
+              : props.tool === 'h'
+                ? t`Wall starts above a square`
+                : t`Wall starts to the right of a square`
+          }
+          placeholder={
+            props.tool === 'move'
+              ? t`Choose destination`
+              : t`Choose wall anchor`
+          }
+          surfaceTitle={
+            props.tool === 'move'
+              ? t`Choose destination`
+              : t`Choose wall anchor`
+          }
+          value={props.selected ?? ''}
+          searchable={props.tool !== 'move'}
+          triggerDataSet={{ testid: `${props.testId}-precise-target` }}
+          options={quoridorTargetOptions(props.testId, props.tool, props.cells)}
+          onValueChange={props.onActivate}
+        />
+      </StackVertical>
+      <Button title={t`Done`} variant="ghost" onClick={props.onClose} />
+    </StackHorizontal>
   );
 }
