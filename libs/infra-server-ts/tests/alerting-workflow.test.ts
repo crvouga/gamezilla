@@ -24,7 +24,7 @@ test('Release applies alerting after verification and Health detects drift under
   const apply = release['deploy-repository-policy']!;
   const drift = jobs('health.yml')['health-repository-policy']!;
   expect(apply.needs).toBe('deploy-verify');
-  expect(release['deploy-fleet']!.needs).toContain('deploy-repository-policy');
+  expect(release['deploy-prd']!.needs).toContain('deploy-repository-policy');
   for (const job of [apply, drift]) {
     expect(job.if).toContain("github.ref == 'refs/heads/main'");
     expect(job.concurrency).toEqual({
