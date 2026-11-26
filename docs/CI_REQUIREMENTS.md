@@ -23,7 +23,7 @@ Health measures elapsed time from GitHub workflow creation through the final ver
 | Production Release on main | under 8 minutes | 10 minutes |
 | Complete Nightly | under 30 minutes | 45 minutes |
 
-Production verification runs at most one wave of shards and stops on the first failure. When at most one shard has cache misses, the planner runs the checks and writes the verdict on its own runner. Planning and shard execution have until four minutes after workflow creation because an environment deployment needs six minutes of the ten-minute ceiling. The verifier reports missing results as incomplete and blocks deployment. Production shards can use available runners while a Nightly or manual diagnostic waits in its own concurrency group.
+Production verification runs at most one wave of shards and stops on the first failure. When the product build is cached or absent and at most one shard has cache misses, the planner runs the checks and writes the verdict on its own runner. Planning and shard execution have until four minutes after workflow creation because an environment deployment needs six minutes of the ten-minute ceiling. The verifier reports missing results as incomplete and blocks deployment. Production shards can use available runners while a Nightly or manual diagnostic waits in its own concurrency group.
 
 Focused diagnostic runs measure their selected suite separately. The capacity model below estimates cold work on a hypothetical warm pool. The hosted budgets use observed runs on GitHub Free. GitHub controls when an eligible job receives a runner.
 
