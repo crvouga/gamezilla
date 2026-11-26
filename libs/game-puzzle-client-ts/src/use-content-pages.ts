@@ -1,5 +1,6 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { AttemptLibrary } from '@libs/game-puzzle-shared-ts/attempt-library';
+import { isBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
 import type { ContentLibrary } from '@libs/game-puzzle-shared-ts/content-library';
 import {
   byNewestPublication,
@@ -45,7 +46,7 @@ function createIdPage(
 
 export type PublishedPage = {
   readonly cursors: Accessor<readonly PublishedPageCursor[]>;
-  readonly limit: Accessor<number>;
+  readonly documents: Accessor<readonly ContentDocument[]>;
   readonly hasMore: Accessor<boolean>;
   readonly more: () => void;
 };
@@ -58,13 +59,20 @@ export function createPublishedPage(
     PUBLISHED_PAGE_START,
   ]);
   const limit = createMemo(() => cursors().length * CONTENT_PAGE_SIZE);
-  const ordered = createMemo(() => rows().toSorted(byNewestPublication));
-  const hasMore = () => ordered().length >= limit();
+  const ordered = createMemo(() =>
+    rows()
+      .filter(
+        (doc) => doc.published_revision_id !== null && !isBundledContent(doc.id)
+      )
+      .toSorted(byNewestPublication)
+  );
+  const documents = createMemo(() => ordered().slice(0, limit()));
+  const edge = () => documents()[limit() - 1];
+  const hasMore = () => edge()?.published_at != null;
   const more = (): void => {
-    const last = ordered()[limit() - 1];
-    const beforeAt = last?.published_at;
-    if (!hasMore() || last === undefined || beforeAt == null) return;
-    const next = { beforeAt, beforeId: last.id };
+    const last = edge();
+    if (last?.published_at == null) return;
+    const next = { beforeAt: last.published_at, beforeId: last.id };
     // Asked twice before the first shows, a page is still added once.
     setCursors((prior) =>
       prior.some((cursor) => cursor.beforeId === last.id)
@@ -72,7 +80,7 @@ export function createPublishedPage(
         : [...prior, next]
     );
   };
-  return { cursors, limit, hasMore, more };
+  return { cursors, documents, hasMore, more };
 }
 
 export function useContentPages(
@@ -81,9 +89,7 @@ export function useContentPages(
   subject: Accessor<ContentSubject>
 ) {
   const myId = useMyId();
-  const published = createPublishedPage(() =>
-    content().documents.filter((doc) => doc.published_revision_id !== null)
-  );
+  const published = createPublishedPage(() => content().documents);
   const owned = createIdPage(() =>
     content().documents.filter((doc) => doc.owner_id === myId())
   );
