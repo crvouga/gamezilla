@@ -68,7 +68,14 @@ test('fifteen-column CAT/TOE board map locates a remote intersection without con
     view.getByRole('button', { name: 'View a1 to e5' }).textContent
   ).toContain('↖');
   const details = view.getByTestId('map-fixture-square-details');
-  expect(details.textContent).toBe('A 1, h8, committed');
+  // regression: word-tiles-square-details-raw-label — the readout showed
+  // the screen-reader string; it shows a short line and keeps the long one.
+  expect(details.querySelector('[aria-hidden="true"]')?.textContent).toBe(
+    'h8 · A 1'
+  );
+  expect(
+    details.querySelector('[data-component="VisuallyHidden"]')?.textContent
+  ).toBe('A 1, h8, committed');
   // regression: word-tiles-map-fine-target-detour
   fireEvent.click(view.getByRole('button', { name: 'View a1 to e5' }));
   expect(document.activeElement).toBe(view.getByTestId('map-fixture-cell-c3'));
@@ -117,4 +124,45 @@ test('CAT/TOE board locator announces its visible Find a square label', () => {
   expect(view.getByRole('dialog')).toHaveAccessibleName(
     'Find a square on the board'
   );
+});
+
+/** Run `body` as a phone, whose view tools wait behind Board tools. */
+function asPhone(body: () => void): void {
+  const original = Object.getOwnPropertyDescriptor(window, 'matchMedia');
+  Object.defineProperty(window, 'matchMedia', {
+    configurable: true,
+    value: () => ({
+      matches: true,
+      addEventListener() {},
+      removeEventListener() {},
+    }),
+  });
+  try {
+    body();
+  } finally {
+    if (original) Object.defineProperty(window, 'matchMedia', original);
+    else Reflect.deleteProperty(window, 'matchMedia');
+  }
+}
+
+// regression: word-tiles-board-tools-focus-after-locator
+test('dismissing Board tools after its locator hands focus back to the Board tools button', () => {
+  asPhone(() => {
+    const view = renderMap();
+    const button = view.getByRole('button', {
+      name: 'Board tools: zoom and find a square',
+    });
+    button.focus();
+    fireEvent.click(button);
+    const find = view.getByRole('button', { name: 'Find a square' });
+    find.focus();
+    fireEvent.click(find);
+    fireEvent.keyDown(view.getByTestId('map-fixture-map-cell-h8'), {
+      key: 'Escape',
+    });
+    expect(document.activeElement).toBe(find);
+    fireEvent.keyDown(find, { key: 'Escape' });
+    expect(view.queryByRole('dialog')).toBeNull();
+    expect(document.activeElement).toBe(button);
+  });
 });

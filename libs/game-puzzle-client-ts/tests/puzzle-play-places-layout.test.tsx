@@ -101,10 +101,10 @@ test('play: the line is read, not pressed, and one control opens it', () => {
   expect(opened).toEqual(['line', 'feed']);
 });
 
-test('play: a wrong move reports failure, and Retry is the one filled command', () => {
+test('play: a wrong move says so, and Retry is the one filled command', () => {
   mountPlay('play', { statusKind: 'failed', status: 'wrong' });
   expect(screen.getByTestId('chess-puzzle-status-label').textContent).toBe(
-    'Failed'
+    'Wrong move'
   );
   expect(shown('chess-puzzle-action-solution')).toBe(true);
   expect(shown('chess-puzzle-action-skip')).toBe(true);
@@ -112,6 +112,7 @@ test('play: a wrong move reports failure, and Retry is the one filled command', 
   expect(filledCommands()).toEqual(['Retry']);
 });
 
+// regression: puzzle-earlier-position-cue
 test('play: a board on an earlier move holds the hint and offers the way back to the latest', () => {
   const asked: string[] = [];
   mountPlay('play', {
@@ -133,7 +134,18 @@ test('play: a board on an earlier move holds the hint and offers the way back to
     'disabled',
     false
   );
-  fireEvent.click(screen.getByTestId('chess-puzzle-return-live'));
+  const header = region('PuzzleHeader');
+  expect(
+    header.contains(screen.getByText('The board shows an earlier move.'))
+  ).toBe(true);
+  const resume = screen.getByRole('button', {
+    name: 'Back to the latest move',
+  });
+  expect(header.contains(resume)).toBe(true);
+  expect(header.contains(screen.getByTestId('chess-puzzle-move-history'))).toBe(
+    true
+  );
+  fireEvent.click(resume);
   expect(asked).toEqual(['end']);
 });
 

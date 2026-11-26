@@ -3,6 +3,7 @@ import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import type { ScreenBasePrimaryAction } from '@pkgs/ui-root-client-ts/screen-base-types';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import type { SpaceCardData } from './space-card-view';
@@ -16,7 +17,7 @@ export type SpacesScreenViewProps = {
   readonly hostedCount: number;
   /** Spaces to show, open-on-this-device first. */
   readonly spaces: readonly SpaceCardData[];
-  /** Inline notice for a refused create / end / leave, above the list. */
+  /** A refused create / end / leave, floated over the lobby. */
   readonly notice?: JSX.Element;
   /**
    * Starts a space. The header action shows its progress; a hosting-limit
@@ -52,13 +53,13 @@ export function SpacesScreenView(props: SpacesScreenViewProps): JSX.Element {
       screenId="spaces"
       breadcrumbs={[{ name: <Trans>Spaces</Trans> }]}
       primaryAction={primaryAction()}
-      controls={props.notice}
     >
+      {/* A refused create / end / leave floats over the lobby. */}
+      <ToastStack placement="above-commands">{props.notice}</ToastStack>
       <SpacesLobbyView
         status={props.status}
         hostedCount={props.hostedCount}
         spaces={props.spaces}
-        onCreateSpace={() => void props.onCreateSpace()}
         onOpenSpace={props.onOpenSpace}
       />
     </CollectionScreen>

@@ -15,8 +15,9 @@ import {
 } from '@libs/word-tiles-shared-ts/word-tiles-puzzle';
 import { RULESET } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Select } from '@pkgs/ui-root-client-ts/select';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
@@ -105,6 +106,34 @@ function Fields(props: {
   );
 }
 
+/**
+ * A draft the editor cannot read: what to do about it, and the way to the
+ * draft's kept copies to do it, when the builder offers one.
+ */
+function UnreadableDraft(props: {
+  onChooseCopy: (() => void) | undefined;
+}): JSX.Element {
+  return (
+    <StackVertical gap="sm">
+      <P>{t`This draft cannot be opened. Choose an earlier saved copy to continue.`}</P>
+      <Show when={props.onChooseCopy}>
+        {(choose) => (
+          // A row of its own, so the button keeps its own width.
+          <StackHorizontal>
+            <Button
+              title={t`Choose a saved copy`}
+              intent="neutral"
+              variant="outline"
+              onClick={() => choose()()}
+              dataSet={{ testid: 'word-tiles-editor-choose-copy' }}
+            />
+          </StackHorizontal>
+        )}
+      </Show>
+    </StackVertical>
+  );
+}
+
 /** The game's own builder tools, loading the word list board words are checked against. */
 export function WordTilesPuzzleEditor(props: PuzzleEditorProps): JSX.Element {
   // Board words are checked against the pinned list, loaded here for the shell.
@@ -151,9 +180,7 @@ export function WordTilesPuzzleEditorView(
         const read = puzzle();
         return read.valid ? read.value : null;
       })()}
-      fallback={
-        <P>{t`This draft cannot be opened. Choose an earlier saved copy to continue.`}</P>
-      }
+      fallback={<UnreadableDraft onChooseCopy={props.onChooseCopy} />}
     >
       {(read) => (
         <StackVertical gap="md">

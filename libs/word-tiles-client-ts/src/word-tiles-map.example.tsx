@@ -1,5 +1,6 @@
 import { expect, userEvent, within } from 'storybook/test';
 import { assertClear } from './word-tiles-geometry.example';
+import { boardViewTools, closeBoardView } from './word-tiles-view.example';
 
 /** The small map is a locator: inspect the full board and return without placing. */
 export async function expectBoardMap(
@@ -8,7 +9,8 @@ export async function expectBoardMap(
 ) {
   // regression: word-tiles-overview-unreadable-context
   const canvas = within(canvasElement);
-  const trigger = canvas.getByRole('button', {
+  // On a phone, Find a square is among the view tools behind View.
+  const trigger = (await boardViewTools(canvasElement)).getByRole('button', {
     name: 'Find a square',
   });
   await assertClear(trigger);
@@ -30,7 +32,11 @@ export async function expectBoardMap(
   await expect(original).toHaveAttribute('data-state', state ?? 'empty');
   await expect(page.queryByRole('dialog')).not.toBeInTheDocument();
   await assertClear(original);
-  await userEvent.click(trigger);
+  const again = (await boardViewTools(canvasElement)).getByRole('button', {
+    name: 'Find a square',
+  });
+  await userEvent.click(again);
   await userEvent.keyboard('{Escape}');
-  await expect(trigger).toHaveFocus();
+  await expect(again).toHaveFocus();
+  await closeBoardView(canvasElement);
 }

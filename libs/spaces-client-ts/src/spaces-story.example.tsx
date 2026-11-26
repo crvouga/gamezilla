@@ -30,10 +30,8 @@ export const ROBIN = person('04', 'robin_42');
 export const SAM = person('05', 'sam');
 export const PLAYBOT = person('06', 'helper_bot', { bot: true });
 export const UNSYNCED = person('07', '', { synced: false });
-export const LONG_NAME = person(
-  '08',
-  'a_really_long_username_that_keeps_going_and_going'
-);
+/** As long as a username may be (32 characters, `USERNAME_MAX_LENGTH`). */
+export const LONG_NAME = person('08', 'a_really_long_username_that_goes');
 
 export const CASEY = person('09', 'casey');
 export const RILEY = person('10', 'riley.k');
@@ -48,7 +46,7 @@ function space(
 ): SpaceCardData {
   return {
     spaceId: `5bace000-0000-4000-8000-0000000000${suffix}`,
-    title: `${host.name}'s space`,
+    title: `${host.name}’s space`,
     host,
     hostUsername: host.name,
     badge: 'live',
@@ -73,6 +71,8 @@ export const FRIEND_SPACE = space('02', ROBIN);
 /** A live space the viewer was added to, crowded past the avatar stack. */
 export const JOINED_SPACE = space('03', SAM, {
   guests: [AVERY, JORDAN, MORGAN, ROBIN, PLAYBOT, LONG_NAME, UNSYNCED],
+  // The story's viewer is avery: among the guests they read as "You".
+  viewerId: AVERY.id,
 });
 
 /** Long custom title and host name, to stress truncation. */

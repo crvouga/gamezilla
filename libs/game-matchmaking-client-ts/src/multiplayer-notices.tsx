@@ -4,7 +4,8 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
@@ -16,32 +17,93 @@ export function MultiplayerNotices(props: {
   readonly denial: DenialView | undefined;
   readonly error: string | null;
   readonly online: boolean;
+  /** A search is running: a refusal then is about stopping it. */
+  readonly searching?: boolean | undefined;
+  /**
+   * A game in play: no connection is said on its status line instead (a
+   * search says it in its own card).
+   */
+  readonly playing?: boolean | undefined;
+  /**
+   * The home's dock says no connection, and why searching is refused, over
+   * its command instead.
+   */
+  readonly docked?: boolean | undefined;
 }): JSX.Element {
   return (
     <>
-      <Show when={props.denial}>
+      {/* On the home the dock says why, over its way forward. */}
+      <Show when={props.docked === true ? undefined : props.denial}>
         {(denied) => <DenialSurfaceView denial={denied()} />}
       </Show>
-      <Show when={props.error}>
-        {(error) => (
-          <ErrorState
-            variant="compact"
-            title={<Trans>Multiplayer command refused</Trans>}
-            body={error()}
-            dataSet={{ testid: 'multiplayer-error' }}
-          />
-        )}
-      </Show>
-      <Show when={!props.online}>
-        <Notice icon={WifiOffIcon} dataSet={{ testid: 'multiplayer-offline' }}>
-          <Text variant="inherit" role="status">
-            <Trans>
-              Multiplayer commands need a connection. Your accepted game stays
-              here.
-            </Trans>
-          </Text>
-        </Notice>
-      </Show>
+      {/* A refusal stands where the command is; what comes and goes (a
+          refused command, no connection) floats over the screen. */}
+      <ToastStack>
+        <Show when={props.error}>
+          {(error) => (
+            <Show
+              when={props.searching === true}
+              fallback={
+                <ErrorState
+                  variant="compact"
+                  title={<Trans>That didn't go through</Trans>}
+                  body={error()}
+                  dataSet={{ testid: 'multiplayer-error' }}
+                />
+              }
+            >
+              <ErrorState
+                variant="compact"
+                title={<Trans>Couldn't stop the search</Trans>}
+                body={
+                  <Trans>
+                    You're still looking for an opponent. Press Stop to try
+                    again.
+                  </Trans>
+                }
+                dataSet={{ testid: 'multiplayer-error' }}
+              />
+            </Show>
+          )}
+        </Show>
+        <Show
+          when={
+            !props.online &&
+            props.playing !== true &&
+            props.searching !== true &&
+            props.docked !== true
+          }
+        >
+          <Notice
+            tone="warning"
+            icon={WifiOffIcon}
+            dataSet={{ testid: 'multiplayer-offline' }}
+          >
+            <Text variant="inherit" role="status">
+              <Trans>
+                You're offline. Matchmaking picks up where it was when the
+                connection returns.
+              </Trans>
+            </Text>
+          </Notice>
+        </Show>
+      </ToastStack>
     </>
+  );
+}
+
+/** No connection, on a matched game's status line beside its commands. */
+export function MultiplayerOfflineLine(): JSX.Element {
+  return (
+    <P
+      variant="caption"
+      tone="warning"
+      align="center"
+      role="status"
+      lines={2}
+      testId="multiplayer-offline"
+    >
+      <Trans>Offline. Your move waits for the connection.</Trans>
+    </P>
   );
 }

@@ -9,19 +9,24 @@ import {
   storyArgs,
 } from './matchmaking-screen-view.example';
 
-/** The reason and the rating change, as the result card lays them out. */
+/** The reason, and the rating change on its own row, as the card lays them out. */
 function caption(reason: string, intent: BadgeIntent, change: string) {
-  return (
-    <>
-      {reason} <Badge intent={intent} tone="solid" label={`Rating ${change}`} />
-    </>
-  );
+  return {
+    caption: reason,
+    rating: (
+      <Badge
+        intent={intent}
+        tone="subtle"
+        label={change === '0' ? 'Rating unchanged' : `Rating ${change}`}
+      />
+    ),
+  };
 }
 
 const WON = {
   tone: 'won',
-  title: 'You won.',
-  caption: caption('By resignation.', 'success', '+8'),
+  title: 'You won',
+  ...caption('By resignation.', 'success', '+8'),
 } as const;
 
 const meta = {
@@ -51,9 +56,9 @@ export const RematchOffered: Story = {
     renderStory({
       result: {
         tone: 'lost',
-        title: 'Your opponent won.',
-        caption: caption(
-          'By resignation. Bob offered you a multiplayer rematch.',
+        title: 'You lost',
+        ...caption(
+          'By resignation. Bob offered you a rematch.',
           'destructive',
           '-8'
         ),
@@ -68,34 +73,46 @@ export const Drawn: Story = {
     renderStory({
       result: {
         tone: 'drawn',
-        title: 'The game is drawn.',
-        caption: caption('Drawn by agreement.', 'neutral', '0'),
+        title: 'The game was drawn',
+        ...caption('Drawn by agreement.', 'neutral', '0'),
       },
     })(args),
 };
 
-/** An aborted game has no result to rematch and no record to keep. */
+/**
+ * An aborted game has no result to rematch and no record to keep: aborted
+ * on a missed first move, its board is empty and it has nothing to review.
+ */
 export const Aborted: Story = {
   render: (args) =>
     renderStory({
+      shown: 0,
       result: {
         tone: 'neutral',
         aborted: true,
-        title: 'The game was aborted.',
+        title: 'The game was aborted',
         caption: "The first move wasn't made in time.",
       },
     })(args),
-  args: { game: { ...STORY_FINISHED_GAME, rematch: 'none', record: null } },
+  args: {
+    game: {
+      ...STORY_FINISHED_GAME,
+      rematch: 'none',
+      record: null,
+      moves: { moves: [], shownPly: 0, reviewing: null, heading: 'Column' },
+    },
+  },
 };
 
 /** A watcher reads the result and may step through the moves. */
 export const Watching: Story = {
   render: (args) =>
     renderStory({
+      watching: true,
       result: {
         tone: 'neutral',
-        title:
-          'Watching multiplayer Connect Four. alice won the multiplayer game.',
+        // As the screen says it: who won first, the watching for a listener.
+        title: 'alice won',
         caption: 'By resignation.',
       },
     })(args),

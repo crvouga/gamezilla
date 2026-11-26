@@ -137,6 +137,7 @@ function useFramePresentationFacts(model: FrameProps['model']) {
     board: () => ({
       boardFit: shown()?.frame.boardFit,
       boardAlign: shown()?.frame.boardAlign,
+      menuMatchCommands: shown()?.frame.menuMatchCommands,
       boardWorkspace: shown()?.frame.boardWorkspace === true,
     }),
   };
@@ -209,6 +210,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         connection={frameConnection(model)}
         error={refusal(model.error(), model.current()?.fen)}
         stopped={model.simulation.error()}
+        onReopen={() => model.simulation.restart()}
         status={status()}
         canCreate={model.canCreate()}
         playerCount={model.playerCount()}

@@ -58,9 +58,11 @@ export type EmbeddedScreenProps = {
  * padding, width and title treatment: `MainMenuScreen` (a menu of
  * destinations) and `GameScreen` (a game). The body is one column at the
  * screen's measure (`menu` unless the template asks for `full`), its title
- * block inside it. A capped column is centered in every host, title included,
- * retaining the 16px page inset on narrow screens. A `full` column spans
- * the frame.
+ * block inside it. On compact hosts a capped column is centered, title
+ * included, retaining the 16px page inset on narrow screens; on desktop it
+ * starts at the frame column's edge, where every screen's content starts,
+ * so moving between screens never shifts the content sideways. A `full`
+ * column spans the frame.
  *
  * @example
  * ```tsx
@@ -165,7 +167,7 @@ function EmbeddedScroller(props: ScrolledProps): JSX.Element {
       paddingBottom="2xl"
       gap="lg"
       measure={props.width ?? 'menu'}
-      measureAlign="center"
+      measureAlign={props.inset ? 'center' : 'start'}
     >
       <ScreenIntro
         title={props.title}

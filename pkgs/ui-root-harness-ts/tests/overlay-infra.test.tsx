@@ -52,6 +52,10 @@ describe('FocusTrap', () => {
       'aria-modal',
       'true'
     );
+    // Focus opens on the dialog itself (no ring on a control yet); Tab
+    // then walks its controls and wraps.
+    expect(screen.getByRole('dialog', { name: 'Dialog' })).toHaveFocus();
+    await user.tab();
     expect(screen.getByTestId('a')).toHaveFocus();
     await user.tab();
     expect(screen.getByTestId('b')).toHaveFocus();

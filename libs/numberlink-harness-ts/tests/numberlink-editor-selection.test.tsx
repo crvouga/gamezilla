@@ -6,6 +6,11 @@ import { editorFixture } from './numberlink-client-fixture';
 test('the editor identifies the selected endpoint and updates its location after placement', () => {
   const f = editorFixture();
   try {
+    // regression: numberlink-editor-repeated-placement-guidance
+    expect(f.view.getAllByText(/empty cell/i)).toHaveLength(1);
+    expect(
+      f.view.getByTestId('numberlink-placement-target').textContent
+    ).toContain('empty cell');
     const selected = () =>
       f.view
         .getByTestId('numberlink-board')

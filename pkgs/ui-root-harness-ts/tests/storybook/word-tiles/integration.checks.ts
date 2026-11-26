@@ -66,7 +66,6 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
         page,
       }, info) => {
         const session = await page.context().newCDPSession(page);
-        await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         await retainEvidence(info, 'conditions.json', {
           body: JSON.stringify({
             cpuRate: 4,
@@ -79,6 +78,7 @@ for (const input of ['mouse', 'touch', 'keyboard'] as const) {
           contentType: 'application/json',
         });
         await openStory(page, `${players}-player-match`, 'light');
+        await session.send('Emulation.setCPUThrottlingRate', { rate: 4 });
         await playWord(page, input);
         await auditAccessibility(page, info);
       });
@@ -121,7 +121,16 @@ test('storybook integration: word-tiles find a square looks like an action on th
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await openStory(page, 'opening', 'light');
-  const find = page.getByRole('button', { name: 'Find a square', exact: true });
+  // A phone keeps the view tools behind one Board tools button under the board.
+  const view = page.getByRole('button', {
+    name: 'Board tools: zoom and find a square',
+    exact: true,
+  });
+  await expect(view).toHaveAttribute('aria-haspopup', 'dialog');
+  await view.click();
+  const find = page
+    .getByRole('dialog', { name: 'Board tools' })
+    .getByRole('button', { name: 'Find a square', exact: true });
   await expect(find).toHaveAttribute('aria-haspopup', 'dialog');
   const look = await find.evaluate((element) => {
     const css = getComputedStyle(element);
@@ -181,6 +190,20 @@ test('storybook integration: word-tiles placing tiles does not move the board', 
   expect(after?.y).toBe(before?.y);
 });
 
+// regression: word-tiles-320-submit-covered
+test('word-tiles leaves the submit button above Game menu at 320px', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 320, height: 740 });
+  await openStory(page, 'opening', 'light');
+  const submit = await page
+    .getByTestId('custom-game-board-submit')
+    .boundingBox();
+  const menu = await page.getByTestId('custom-game-commands').boundingBox();
+  if (!submit || !menu) throw new Error('Missing a game control');
+  expect(submit.y + submit.height).toBeLessThanOrEqual(menu.y);
+});
+
 // regression: word-tiles-390-edge-inset
 // regression: word-tiles-fixed-stage-full-bleed
 test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at 320', async ({
@@ -197,7 +220,7 @@ test('storybook integration: word-tiles keeps a 16px edge at 390 and 4px only at
 
 // regression: word-tiles-desktop-rack-under-opponent
 // regression: word-tiles-desktop-board-bounded-by-window-height
-test('storybook integration: word-tiles desktop rack sits under a larger board beside the own seat', async ({
+test('storybook integration: word-tiles desktop keeps the own seat above the board and the rack directly below it', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -216,8 +239,10 @@ test('storybook integration: word-tiles desktop rack sits under a larger board b
   // 28rem fitted board, up from 23rem before the overhaul.
   expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
-  expect(seat.top).toBeGreaterThanOrEqual(rack.bottom);
-  expect(seat.top - rack.bottom).toBeLessThanOrEqual(48);
+  expect(board.top).toBeGreaterThanOrEqual(seat.bottom);
+  expect(board.top - seat.bottom).toBeLessThanOrEqual(48);
+  expect(rack.top - board.bottom).toBeLessThanOrEqual(48);
+  expect(rack.bottom).toBeLessThanOrEqual(900);
   expect(seat.bottom).toBeLessThanOrEqual(900);
 });
 
@@ -438,4 +463,42 @@ test('storybook integration: word-tiles bonus squares are told apart by colour a
     ).toBe(true);
     expect(new Set(fills).size, theme).toBe(4);
   }
+});
+
+// regression: word-tiles-four-player-score-band
+test('four named seats and scores share the 390px match row', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'four-player-match', 'light');
+  const seats = page
+    .getByRole('list', { name: 'Players' })
+    .getByRole('listitem');
+  await expect(seats).toHaveCount(4);
+  const tops = await seats.evaluateAll((items) =>
+    items.map((seat) => seat.getBoundingClientRect().top)
+  );
+  expect(new Set(tops).size).toBe(1);
+  for (const name of ['avery', 'jordan_plays', 'morgan', 'robin_42']) {
+    const seat = seats.filter({ hasText: name });
+    await expect(seat).toContainText('Score 0');
+    const identity = seat.locator('[title]').filter({ hasText: name }).last();
+    expect(
+      await identity.evaluate((node) => node.scrollWidth <= node.clientWidth)
+    ).toBe(true);
+  }
+});
+
+// regression: word-tiles-placement-match-commands
+test('the placement footer opens draw and resignation through Game menu', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'place-a-word', 'light');
+  await expect(page.getByTestId('custom-game-board-submit')).toBeVisible();
+  await expect(page.getByTestId('custom-game-offer-draw')).toHaveCount(0);
+  await expect(page.getByTestId('custom-game-resign-now')).toHaveCount(0);
+  await page.getByTestId('custom-game-commands').click();
+  await expect(page.getByTestId('custom-game-offer')).toBeVisible();
+  await expect(page.getByTestId('custom-game-resign')).toBeVisible();
 });

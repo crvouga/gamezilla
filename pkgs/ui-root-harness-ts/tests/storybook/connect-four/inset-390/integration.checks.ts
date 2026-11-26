@@ -28,15 +28,20 @@ test('storybook integration: connect-four 390px gives the board the whole width 
     if (!heading) return { board, commands, meta: null };
     const style = getComputedStyle(heading);
     const box = heading.getBoundingClientRect();
+    const title = heading.querySelector('[data-component="GameHeadingTitle"]');
     const parts = [
       ...heading.querySelectorAll(
         '[data-component="GameHeadingTitle"] h1, [data-component="GameHeadingTitle"] h2, [data-component="GameFact"]'
       ),
     ];
-    const clipped = parts
+    const visible = parts.filter(
+      (part) =>
+        !title?.contains(part) || getComputedStyle(title).clipPath === 'none'
+    );
+    const clipped = visible
       .filter((part) => part.scrollWidth > part.clientWidth + 1)
       .map((part) => part.textContent);
-    const rects = parts.map((part) => part.getBoundingClientRect());
+    const rects = visible.map((part) => part.getBoundingClientRect());
     return {
       board,
       commands,

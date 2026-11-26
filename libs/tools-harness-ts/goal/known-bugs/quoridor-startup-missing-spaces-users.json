@@ -1,0 +1,4 @@
+{
+  "summary": "SQLite failed at startup when the spaces_users table was missing during reconciliation.",
+  "regressionTest": "pkgs/db-schema-sqlite-harness-ts/tests/missing-domain-table.test.ts"
+}

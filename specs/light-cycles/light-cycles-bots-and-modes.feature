@@ -67,6 +67,7 @@ Feature: Ride against bots or find players for a mode
       Then Comet is at column 35, row 14 heading right
       And Alice can steer Comet
 
+    @regression:custom-game-navigation-offline-or-watching
     Scenario: Practice reaches a victory without a connection
       Given Alice is offline
       And Alice's Light Cycles Duel practice has Comet on 2 round wins against a hard bot with a target score of 3

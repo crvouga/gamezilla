@@ -12,6 +12,7 @@ import {
   SpaceGuestsPhrase,
   SpaceHostPhrase,
   spaceCardAction,
+  spaceCardOthers,
   spaceCardTestId,
   useSpaceCardLabel,
 } from './space-card-view';
@@ -28,13 +29,13 @@ function SpaceTileGuests(props: {
 }): JSX.Element {
   return (
     <StackHorizontal align="center" gap="sm">
-      <Show when={props.space.guests.length > 0}>
+      <Show when={spaceCardOthers(props.space).length > 0}>
         <AvatarGroup
           size={GUEST_AVATAR_SIZE}
           maxVisible={GUEST_AVATAR_MAX_VISIBLE}
           ringColor="surface"
         >
-          <For keyed={false} each={props.space.guests}>
+          <For keyed={false} each={spaceCardOthers(props.space)}>
             {(guest) => (
               <SpacePersonAvatar person={guest()} size={GUEST_AVATAR_SIZE} />
             )}
@@ -42,8 +43,8 @@ function SpaceTileGuests(props: {
         </AvatarGroup>
       </Show>
       <StackVertical grow shrink>
-        <P variant="caption" lines={1}>
-          <SpaceGuestsPhrase guests={props.space.guests} />
+        <P variant="caption" lines={2}>
+          <SpaceGuestsPhrase guests={spaceCardOthers(props.space)} />
         </P>
       </StackVertical>
     </StackHorizontal>
@@ -62,7 +63,7 @@ function SpaceTileHost(props: { readonly space: SpaceCardData }): JSX.Element {
       </Show>
       <StackVertical shrink>
         <P variant="caption" lines={1}>
-          <SpaceHostPhrase space={props.space} />
+          <SpaceHostPhrase space={props.space} oneLine />
         </P>
       </StackVertical>
     </StackHorizontal>
@@ -72,7 +73,10 @@ function SpaceTileHost(props: { readonly space: SpaceCardData }): JSX.Element {
 /**
  * A space as a desktop card in the lobby's grid: the row's anatomy (the
  * space's mark, name with what pressing it does, who hosts it) with room
- * for the faces of who else is in it. The whole card is the control.
+ * for the faces of who else is in it. The whole card is the control. Cards
+ * in a row share one height: each header sits at the card's top edge and
+ * the guests line at its bottom, so a long name in one card never shifts
+ * its neighbours' headers or footers.
  */
 export function SpaceCardTileView(props: {
   readonly space: SpaceCardData;
@@ -89,18 +93,20 @@ export function SpaceCardTileView(props: {
         aria-label={label()}
       >
         <StackVertical
+          grow
           padding="lg"
           gap="md"
+          justify="between"
           testId={Handles.spaceLobbyCard(props.space.spaceId)}
         >
-          <StackHorizontal gap="md" align="center">
+          <StackHorizontal gap="md" align="start">
             <SpaceMarkView
               spaceId={props.space.spaceId}
               title={props.space.title}
               size="lg"
             />
             <StackVertical grow shrink gap="xs">
-              <Text variant="rowTitle" lines={1}>
+              <Text variant="rowTitle" lines={2}>
                 {props.space.title}
               </Text>
               <SpaceTileHost space={props.space} />

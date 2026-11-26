@@ -23,7 +23,7 @@ export const Ended: Story = {};
 
 /** The host's profile is not on this device: the title alone. */
 export const UnknownHost: Story = {
-  args: { title: "avery's space", hostName: '' },
+  args: { title: 'avery’s space', hostName: '' },
 };
 
 /** Long titles and host names wrap in the body and truncate in the crumb. */
@@ -32,6 +32,20 @@ export const LongContent: Story = {
     title:
       'The extremely long and very descriptive name of a space about board games',
     hostName: LONG_NAME.name,
+  },
+  // regression: space-recovery-off-center
+  play: async ({ canvasElement }) => {
+    const title = await within(canvasElement).findByRole('heading', {
+      level: 1,
+    });
+    const pane = title.closest('[data-screen="space-ended"][data-mode="wide"]');
+    if (!pane) return;
+    const frame = pane.getBoundingClientRect();
+    const heading = title.getBoundingClientRect();
+    await expect(
+      Math.abs(heading.left + heading.right - frame.left - frame.right)
+    ).toBeLessThan(3);
+    await expect(heading.top).toBeGreaterThan(frame.top + frame.height / 4);
   },
 };
 

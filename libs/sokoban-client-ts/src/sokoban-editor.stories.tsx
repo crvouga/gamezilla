@@ -96,5 +96,12 @@ export const Disabled: Story = { args: { disabled: true } };
 
 /** A draft this app cannot read points at an earlier saved draft. */
 export const Unreadable: Story = {
-  args: { definition: 'not a board' },
+  args: { definition: 'not a board', onChooseCopy: fn() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(
+      canvas.getByRole('button', { name: 'Choose saved draft' })
+    );
+    await expect(args.onChooseCopy).toHaveBeenCalledOnce();
+  },
 };

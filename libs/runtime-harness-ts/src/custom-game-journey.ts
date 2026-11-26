@@ -8,7 +8,7 @@ import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 async function openConnectedCustomGame(ui: Driver): Promise<void> {
   await tap(ui, Handles.gameMenu('chess'));
   await tap(ui, 'game-choice-custom-game');
-  await expectVisible(ui, 'custom-game-status');
+  await expectVisible(ui, 'custom-game-content');
   // The menu renders from local state before the room's first sync. Wait for
   // its connection notice to clear before submitting a server-backed choice.
   await ui.get('custom-game-connection-needed').expect.hidden({
@@ -42,7 +42,7 @@ export async function startCustomGameAgainstBot(ui: Driver): Promise<void> {
 }
 
 export async function expectCustomGameReady(ui: Driver): Promise<void> {
-  await ui.get('custom-game-status').expect.text('White to move.', {
+  await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
@@ -90,7 +90,7 @@ export async function expectCustomGameBotReply(ui: Driver): Promise<void> {
   chess.move('e4');
   chess.move(reply.trim());
   check(chess.turn() === 'w', 'bot reply did not return White’s turn');
-  await ui.get('custom-game-status').expect.text('White to move.', {
+  await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
@@ -135,18 +135,18 @@ async function tapIfShown(ui: Driver, testId: string): Promise<void> {
  */
 async function openCustomGameJourney(ui: Driver): Promise<void> {
   for (let poll = 0; poll < SCREEN_POLLS; poll += 1) {
-    if (await ui.get('custom-game-status').isVisible()) break;
+    if (await ui.get('custom-game-content').isVisible()) break;
     await tapIfShown(ui, Handles.gameMenu('chess'));
     await tapIfShown(ui, 'game-choice-custom-game');
     try {
       await ui
-        .get('custom-game-status')
+        .get('custom-game-content')
         .expect.visible({ timeoutMs: SCREEN_SETTLE_MS });
     } catch {
       // Still on the way.
     }
   }
-  await expectVisible(ui, 'custom-game-status');
+  await expectVisible(ui, 'custom-game-content');
   await ui.get('custom-game-connection-needed').expect.hidden({
     timeoutMs: JOURNEY_WAIT_MS,
   });
@@ -233,7 +233,7 @@ export async function expectStartable(ui: Driver): Promise<void> {
 export async function startReadyGame(ui: Driver): Promise<void> {
   await expectStartable(ui);
   await tap(ui, 'custom-game-start');
-  await ui.get('custom-game-status').expect.text('White to move.', {
+  await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });

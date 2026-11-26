@@ -1,5 +1,9 @@
 import { expect, test } from 'bun:test';
-import { pongFrame } from '@libs/pong-client-ts/pong-frame';
+import {
+  pongFrame,
+  pongHeldLine,
+  pongSharedLine,
+} from '@libs/pong-client-ts/pong-frame';
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import { initialPongState } from '@libs/pong-shared-ts/pong-state';
@@ -66,4 +70,58 @@ test("Pong's points to win beside its name, and how to play in the stage's one l
       () => null
     )
   ).toBe('Drag or use the arrow keys to move your paddle.');
+});
+
+// regression: pong-reconnecting-instructions — while reconnecting, the
+// stage's line told the player to drag or use the arrow keys though the
+// court said "Reconnecting…" and the paddle could not move. While play is
+// held up the line says what is happening and when play goes on; the
+// instructions return once input is back.
+test("Pong's line says why play is held up, and the instructions return after", () => {
+  const position = pongPositionCodec.encode(
+    initialPongState(pongConfig(), () => 0)
+  );
+  const controls = {
+    paused: false,
+    stale: false,
+    sides: ['white'] as const,
+    onInput: () => {},
+    onRelease: () => {},
+  };
+  expect(pongHeldLine(position, { ...controls, stale: true })).toBe(
+    'Reconnecting. Your paddle moves again when the game returns.'
+  );
+  expect(pongHeldLine(position, { ...controls, paused: true })).toBe(
+    'Paused while a player returns.'
+  );
+  expect(pongHeldLine(position, controls)).toBeNull();
+  expect(pongHeldLine(position, undefined)).toBeNull();
+});
+
+// regression: pong-shared-device-says-your-paddle — one device playing both
+// paddles was told to move "your paddle". Its line names each player's own
+// paddle, with each one's keys on a wide screen.
+test("Pong's line on a shared device speaks to each player", () => {
+  const position = pongPositionCodec.encode(
+    initialPongState(pongConfig(), () => 0)
+  );
+  const shared = {
+    paused: false,
+    stale: false,
+    sides: ['white', 'black'] as const,
+    onInput: () => {},
+    onRelease: () => {},
+  };
+  expect(pongSharedLine(position, shared, true)).toBe(
+    'Each player moves their own paddle: W and S the left, the arrow keys the right.'
+  );
+  expect(pongSharedLine(position, shared, false)).toBe(
+    'Each player drags their own paddle up and down.'
+  );
+  expect(
+    pongSharedLine(position, { ...shared, sides: ['white'] as const }, true)
+  ).toBeNull();
+  expect(pongHeldLine(position, { ...shared, stale: true })).toBe(
+    'Reconnecting. The paddles move again when the game returns.'
+  );
 });

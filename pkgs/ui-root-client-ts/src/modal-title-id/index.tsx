@@ -11,8 +11,8 @@ export type ModalTitleIdProviderProps = {
 };
 
 /**
- * Links a surface's dialog host to its visible title: `ModalRoot` / the web
- * bottom sheet provide a generated id, headers (`ModalHeader`,
+ * Links a surface's dialog host to its visible title: `ModalRoot` provides a
+ * generated id, headers (`ModalHeader`,
  * `ResponsiveSurfaceHeader`) stamp it on their title node, and the
  * `FocusTrap` host points `aria-labelledby` at it.
  */

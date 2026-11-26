@@ -85,6 +85,13 @@ function dependenciesFinished(
   }
 }
 
+function isBrowserPass(event: StreamEvent): boolean {
+  return (
+    event.source.startsWith('@apps/product-ts#test:release-journeys:') &&
+    event.text.startsWith('production-browser PASS ')
+  );
+}
+
 export function taskStream(
   tasks: readonly VerifyTask[],
   log: (line: string) => void,
@@ -123,6 +130,7 @@ export function taskStream(
       log(event.text);
       return;
     }
+    if (isBrowserPass(event)) log(event.text);
     const begun = /^cache (miss|bypass|hit)/.exec(event.text)?.[1];
     if (begun)
       dependenciesFinished(task, { started, finished }, ports.now(), log);

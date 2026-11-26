@@ -5,7 +5,7 @@ import { Sounds } from '@pkgs/sounds-shared-ts/sound-id';
 import type { MutationStateTransition } from '@pkgs/ui-root-client-ts/mutation-lifecycle';
 import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, untrack } from 'solid-js';
+import { createEffect, createSignal, Show, untrack } from 'solid-js';
 
 export type LeaveSpaceConfirmModalProps = {
   visible: boolean;
@@ -16,7 +16,33 @@ export type LeaveSpaceConfirmModalProps = {
   onSuccess?: (() => void) | undefined;
   /** Host leave ends the space for everyone (I4); the copy says so. */
   asHost?: boolean;
+  /** The space's name, so the question says which space it is about. */
+  spaceName?: string | undefined;
 };
+
+/** The question, naming the space when its name is known. */
+function LeaveSpaceTitle(props: {
+  readonly asHost: boolean;
+  readonly spaceName: string | undefined;
+}): JSX.Element {
+  return (
+    <Show
+      when={props.asHost}
+      fallback={
+        <Show
+          when={props.spaceName}
+          fallback={<Trans>Leave this space?</Trans>}
+        >
+          {(name) => <Trans>Leave {name()}?</Trans>}
+        </Show>
+      }
+    >
+      <Show when={props.spaceName} fallback={<Trans>End this space?</Trans>}>
+        {(name) => <Trans>End {name()}?</Trans>}
+      </Show>
+    </Show>
+  );
+}
 
 /** Confirm-leave shell (space-agnostic; action wiring lives at the call site). */
 export function LeaveSpaceConfirmModal(
@@ -53,29 +79,25 @@ export function LeaveSpaceConfirmModal(
     <MutationModal
       visible={props.visible}
       onClose={props.onClose}
-      title={
-        asHost() ? (
-          <Trans>Leave and end the space?</Trans>
-        ) : (
-          <Trans>Leave space?</Trans>
-        )
-      }
+      title={<LeaveSpaceTitle asHost={asHost()} spaceName={props.spaceName} />}
       message={
         asHost() ? (
           <Trans>
-            You're the host, so leaving ends the space for everyone. This cannot
-            be undone.
+            Everyone in it leaves and the space closes for good. This can't be
+            undone.
           </Trans>
         ) : (
           <Trans>
-            Leave this space on your account. You will leave on every device.
-            You can join again later if the space is still live.
+            You'll leave on all your devices. You can join again while the space
+            is live.
           </Trans>
         )
       }
       submitLabel={
-        asHost() ? <Trans>Leave and end</Trans> : <Trans>Leave</Trans>
+        asHost() ? <Trans>End space</Trans> : <Trans>Leave space</Trans>
       }
+      // Ending is for good; a guest's leave is not (they rejoin by link),
+      // so it asks with the ordinary primary action, not the red one.
       variant={asHost() ? 'destructive' : 'default'}
       operation={operation}
       onSuccess={onSuccess}
@@ -92,10 +114,10 @@ export function LeaveSpaceConfirmModal(
       }
       successBody={
         asHost() ? (
-          <Trans>Everyone can see that the space has ended.</Trans>
+          <Trans>Everyone in it is back in Spaces.</Trans>
         ) : (
           <Trans>
-            You can rejoin from the invite link if the space is still live.
+            You can join again from Spaces or the link while it's live.
           </Trans>
         )
       }

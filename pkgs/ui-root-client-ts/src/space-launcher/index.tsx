@@ -5,7 +5,9 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
+import { type SpaceGameFit, spaceGameFit } from '../space-game-fit';
 import type { SpaceRole } from '../space-types';
+import { Spinner } from '../spinner/index';
 import styles from './space-launcher.module.css';
 import {
   type SpaceLauncherGame,
@@ -17,6 +19,8 @@ export {
   SpaceLauncherTile,
   useFitWords,
 } from './space-launcher-tile';
+
+import { useLayoutMode } from '../use-layout-mode';
 
 export type SpaceLauncherProps = {
   /** The host picks; a guest suggests. */
@@ -55,8 +59,8 @@ function useCopy(props: SpaceLauncherProps) {
       : t`Pick a game for ${props.present} players`;
   const guestHint = () =>
     suggests()
-      ? t`You join when the game starts. Tap a game to suggest it.`
-      : t`You join when the game starts.`;
+      ? t`You'll join as soon as it starts. Tap a game to suggest it.`
+      : t`You'll join as soon as it starts.`;
   const guestFoot = () =>
     suggests()
       ? t`Only the host starts a game. Dimmed games don't fit ${props.present} players.`
@@ -65,12 +69,37 @@ function useCopy(props: SpaceLauncherProps) {
     status: () => (host() ? picking() : choosing()),
     hint: () =>
       host()
-        ? t`Tap a game to set it up. Modes and bots come next.`
+        ? t`Choose one to set it up. You'll pick its mode and any bots next.`
         : guestHint(),
     section: () => (host() || !suggests() ? t`Games` : t`Suggest a game`),
-    foot: () =>
-      host() ? t`Guests see which game you're looking at.` : guestFoot(),
+    // The host's page needs no foot: nothing shows guests which tile they
+    // are on, so it promises nothing.
+    foot: () => (host() ? '' : guestFoot()),
   };
+}
+
+/** Where a fit sorts: games everyone here can play lead, short ones last. */
+const FIT_ORDER: Readonly<Record<SpaceGameFit['kind'], number>> = {
+  fits: 0,
+  bots: 1,
+  tooMany: 2,
+  solo: 3,
+  needs: 4,
+};
+
+/**
+ * The games in the order a group reads them: those that seat everyone here
+ * first (with bots next), then those where some watch, then those too few
+ * are here for. The given order holds within each.
+ */
+function orderedGames(
+  games: readonly SpaceLauncherGame[],
+  present: number,
+  viewer: SpaceRole
+): SpaceLauncherGame[] {
+  const rank = (game: SpaceLauncherGame): number =>
+    FIT_ORDER[spaceGameFit(game.players, present, viewer).kind];
+  return [...games].sort((a, b) => rank(a) - rank(b));
 }
 
 /**
@@ -93,6 +122,7 @@ function useCopy(props: SpaceLauncherProps) {
  */
 export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
   const copy = useCopy(props);
+  const mode = useLayoutMode();
   const press = (key: string): (() => void) | undefined => {
     const pressed = props.role === 'host' ? props.onChoose : props.onSuggest;
     return pressed === undefined ? undefined : () => pressed(key);
@@ -101,31 +131,51 @@ export function SpaceLauncher(props: SpaceLauncherProps): JSX.Element {
     <div
       class={styles['stage']}
       data-role={props.role}
+      data-layout={mode()}
       {...dataAttrs({ component: 'SpaceLauncher', ...props.dataSet })}
     >
       <section class={styles['status']}>
         <h2 class="text textTitle" data-testid={props.testIds?.status}>
           {copy.status()}
         </h2>
-        <p class={`text textBody ${styles['muted']}`}>{copy.hint()}</p>
+        {/* A guest is waiting on the host: the one activity indicator says
+            so beside the words, so their screen reads as a wait, not a menu. */}
+        <p class={`text textBody ${styles['muted']} ${styles['hint']}`}>
+          <Show when={props.role === 'guest'}>
+            <Spinner size="sm" decorative />
+          </Show>
+          <span>{copy.hint()}</span>
+        </p>
       </section>
-      <section class={styles['grid']} aria-label={copy.section()}>
-        <For each={props.games}>
-          {(game) => (
-            <SpaceLauncherTile
-              game={game}
-              role={props.role}
-              present={props.present}
-              hostName={props.hostName}
-              looking={props.role === 'guest' && props.lookingAt === game.key}
-              onPress={press(game.key)}
-            />
-          )}
-        </For>
+      <section class={styles['games']} aria-label={copy.section()}>
+        <div class={styles['grid']}>
+          <For
+            each={orderedGames(
+              props.games,
+              props.present,
+              // A guest who cannot suggest reads every game as the host does.
+              props.role === 'guest' && props.onSuggest === undefined
+                ? 'host'
+                : props.role
+            )}
+          >
+            {(game) => (
+              <SpaceLauncherTile
+                game={game}
+                role={props.role}
+                present={props.present}
+                hostName={props.hostName}
+                looking={props.role === 'guest' && props.lookingAt === game.key}
+                onPress={press(game.key)}
+              />
+            )}
+          </For>
+        </div>
+        {/* What the choice means, right under the games it is about. */}
+        <Show when={props.games.length > 0 && copy.foot() !== ''}>
+          <p class={`text textCaption ${styles['foot']}`}>{copy.foot()}</p>
+        </Show>
       </section>
-      <Show when={props.games.length > 0}>
-        <p class={`text textCaption ${styles['foot']}`}>{copy.foot()}</p>
-      </Show>
     </div>
   );
 }

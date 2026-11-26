@@ -51,7 +51,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
         fallback={
           <Notice>
             <Text variant="inherit">
-              <Trans>Waiting for the creator to create a game.</Trans>
+              <Trans>Waiting for the host to set up a game.</Trans>
             </Text>
           </Notice>
         }
@@ -60,6 +60,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
           <FrameChoiceRow
             choices={choices}
             id="custom-game-play-bot"
+            navigates
             leading={<BotIcon size={24} />}
             title={
               <Show
@@ -82,6 +83,7 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
           <FrameChoiceRow
             choices={choices}
             id="custom-game-create"
+            navigates
             leading={<UsersIcon size={24} />}
             title={<Trans>Play with people</Trans>}
             caption={<Trans>Choose who sits where, then start</Trans>}

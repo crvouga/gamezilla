@@ -187,7 +187,7 @@ export type GameFrameBoardSession<View> = {
 };
 
 /** Compact score rails are opt-in; opposed two-player strips remain the default. */
-export type GameFrameSeatLayout = 'opposed' | 'compact-rail';
+export type GameFrameSeatLayout = 'opposed' | 'compact-rail' | 'score-rail';
 /**
  * `narrow` is the 4px inset on every compact screen; `narrowest` is 4px only
  * below 360px and the standard 16px from there up.
@@ -249,14 +249,15 @@ export type GameFrame<View> = {
   readonly boardAlign?: 'start';
   /**
    * The board is a workspace that lays itself out and fits itself (Word
-   * Tiles' rack, board and view controls at the page's own edge; Quoridor's
-   * board with its wall tools and target picker under it): on a
-   * phone the frame keeps the page flowing around it, as on every other
-   * screen, instead of holding the game in one fixed view whose
-   * full-width board narrows to fit, which is for a board of one shape.
-   * Absent: the fixed view.
+   * Tiles' rack, board and view controls; Quoridor's board with its wall
+   * tools and target picker under it). The fixed view holds its box still
+   * like any board's, but never narrows it to fit (narrowing is for a board
+   * of one shape): it keeps the seats' inset from the screen's edges and
+   * scrolls inside its box when taller. Absent: a board of one shape.
    */
   readonly boardWorkspace?: boolean;
+  /** Keep optional match commands in the menu beside a board with turn controls. */
+  readonly menuMatchCommands?: boolean;
   /** The options chosen before play; empty for a game without any. */
   readonly options: readonly GameOptionGroup[];
   /**

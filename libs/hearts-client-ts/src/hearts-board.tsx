@@ -151,7 +151,7 @@ function handInstruction(
 ): string | undefined {
   if (passing) return props.commitment === null ? undefined : passWaiting();
   return props.interactive && props.hand !== null
-    ? t`Your turn. Play a card without ×.`
+    ? t`Your turn. Play any card.`
     : undefined;
 }
 

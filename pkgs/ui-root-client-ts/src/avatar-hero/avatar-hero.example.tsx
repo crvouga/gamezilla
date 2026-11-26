@@ -2,11 +2,11 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { AvatarHero } from '@pkgs/ui-root-client-ts/avatar-hero';
-import { sampleAvatarSvg } from '@pkgs/ui-root-client-ts/avatar-sample-svg';
 import { ShuffleIcon } from '@pkgs/ui-root-client-ts/icons';
 import { useThemeTokens } from '@pkgs/ui-root-client-ts/theme-context';
 import type { JSX } from '@solidjs/web';
 import { createSignal } from 'solid-js';
+import { sampleAvatarSvg } from '../../storybook/fixtures/avatar-sample-svg';
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import { SchemePreview } from '../../storybook/fixtures/scheme-preview';
 

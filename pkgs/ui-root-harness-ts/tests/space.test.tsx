@@ -242,7 +242,8 @@ describe('SpaceShell', () => {
     // Nothing of the space's way out sits loose in the row.
     const row = document.querySelector('[data-space-row="actions"]');
     expect(row?.querySelectorAll('button')).toHaveLength(2);
-    expect(row?.textContent).toBe("Back to spacesbob's spaceSpace menu");
+    // On a wide window the menu shows its short word; its name stays whole.
+    expect(row?.textContent).toBe("Back to spacesbob's spaceMenu");
     expect(screen.queryByRole('menuitem')).toBeNull();
     const opener = screen.getByRole('button', { name: 'Space menu' });
     expect(opener.getAttribute('aria-haspopup')).toBe('menu');
@@ -455,7 +456,7 @@ describe('SpaceLauncher', () => {
     ));
     const duel = screen.getByTestId('tile-duel');
     expect(duel.getAttribute('data-dimmed')).toBe('false');
-    expect(duel.textContent).toBe('DuelUp to 2');
+    expect(duel.textContent).toBe('Duel2 players · 1 watching');
     const four = screen.getByRole('button', { name: /Four/ });
     expect(four.getAttribute('data-dimmed')).toBe('true');
     expect(four.textContent).toBe('FourNeeds 4');

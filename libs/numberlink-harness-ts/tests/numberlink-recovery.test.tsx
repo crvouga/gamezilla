@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { NumberlinkPlayer } from '@libs/numberlink-client-ts/numberlink-player';
+import {
+  NumberlinkPlayer,
+  NumberlinkSupport,
+} from '@libs/numberlink-client-ts/numberlink-player';
 import {
   FIVE_BY_FIVE,
   PATH_1,
@@ -20,13 +23,20 @@ test('three paths use one recovery trigger and remove the chosen path only', () 
   ];
   const actions: string[] = [];
   const [state, setState] = createSignal(JSON.stringify({ paths }));
+  const props = {
+    definition: JSON.stringify(FIVE_BY_FIVE),
+    get state() {
+      return state();
+    },
+    disabled: false,
+    onAction: (action: string) => actions.push(action),
+  };
+  // The chooser is the player's support, under the attempt's commands.
   const view = renderNumberlink(() => (
-    <NumberlinkPlayer
-      definition={JSON.stringify(FIVE_BY_FIVE)}
-      state={state()}
-      disabled={false}
-      onAction={(action) => actions.push(action)}
-    />
+    <>
+      <NumberlinkPlayer {...props} />
+      <NumberlinkSupport {...props} />
+    </>
   ));
   try {
     // regression: numberlink-progress-detached-from-board

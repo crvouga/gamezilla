@@ -1,0 +1,88 @@
+/* An inset oval rail surrounds the four seats without consuming hand space. */
+.salon [data-table-felt] {
+  isolation: isolate;
+  background: var(--ui-color-game-hearts-canvas);
+  border-color: var(--ui-color-game-hearts-muted);
+}
+.salon [data-table-felt]::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  inset: var(--ui-space-1);
+  border-radius: 50%;
+  background: var(--ui-color-game-hearts-surface);
+  border: 1px solid var(--ui-color-game-hearts-muted);
+}
+.salon section[data-position] {
+  font-variant-numeric: tabular-nums;
+}
+.salon section[data-winner="true"] {
+  box-shadow: inset 0 calc(-1 * var(--ui-space-1))
+    var(--ui-color-game-hearts-accent);
+}
+.salon [role="toolbar"] {
+  background: var(--ui-color-surface-sunken);
+  border-radius: var(--ui-radius-control);
+}
+.salon [data-pass-tray] {
+  background: var(--ui-color-game-hearts-canvas);
+  border-radius: var(--ui-radius-control);
+  padding-inline: var(--ui-space-1);
+}
+.salon button[aria-pressed="true"]::before {
+  content: "✓" / "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-inline: var(--ui-space-1);
+  background: var(--ui-color-tint);
+  color: var(--ui-color-on-primary);
+  font-weight: var(--ui-font-weight-bold);
+}
+.points {
+  position: absolute;
+  bottom: var(--ui-space-1);
+  left: var(--ui-space-1);
+  font-size: var(--ui-font-size-xs);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.viewport {
+  overflow: clip;
+  border-radius: var(--ui-radius-sheet);
+  touch-action: none;
+}
+.viewport > [data-table-felt] {
+  transform-origin: top left;
+  transform: translate(var(--hearts-pan-x), var(--hearts-pan-y))
+    scale(var(--hearts-scale));
+}
+.salon button[data-card] {
+  touch-action: none;
+}
+.salon button[data-picked-up] {
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: var(--ui-shadow-float);
+}
+.salon[data-dragging] .viewport {
+  outline: 2px dashed var(--ui-color-focus-ring);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .salon [data-position] > [data-card] {
+    animation: hearts-land var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+}
+@keyframes hearts-land {
+  from {
+    transform: translateY(calc(-1 * var(--ui-space-2))) scale(0.94);
+  }
+  to {
+    transform: none;
+  }
+}
+.salon:has([aria-expanded="false"]) > [data-hearts-navigation] {
+  display: none;
+}

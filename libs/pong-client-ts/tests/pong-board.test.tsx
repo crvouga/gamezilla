@@ -5,19 +5,27 @@ import { pongPositionCodec } from '@libs/pong-shared-ts/pong-game';
 import { initialPongState } from '@libs/pong-shared-ts/pong-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
+import {
+  type AppRouter,
+  StaticAppRouterProvider,
+} from '@pkgs/ui-root-client-ts/app-router';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, fireEvent } from '@solidjs/testing-library';
 import { createSignal, flush } from 'solid-js';
 
 afterEach(cleanup);
 
-function board(sides: readonly GameSide[], testId = 'pong') {
+function board(
+  sides: readonly GameSide[],
+  testId = 'pong',
+  router?: AppRouter
+) {
   const [paused, setPaused] = createSignal(false);
   const [position, setPosition] = createSignal(
     pongPositionCodec.encode(initialPongState(pongConfig(), () => 0))
   );
   const inputs: unknown[] = [];
-  const view = renderWithI18n(() => (
+  const court = () => (
     <ThemeProvider
       colorScheme="light"
       fixedLayout={{ width: 390, height: 844 }}
@@ -45,7 +53,16 @@ function board(sides: readonly GameSide[], testId = 'pong') {
         }}
       />
     </ThemeProvider>
-  ));
+  );
+  const view = renderWithI18n(() =>
+    router === undefined ? (
+      court()
+    ) : (
+      <StaticAppRouterProvider router={router}>
+        {court()}
+      </StaticAppRouterProvider>
+    )
+  );
   return { ...view, inputs, setPaused, setPosition };
 }
 
@@ -125,12 +142,25 @@ test('serve and pause remain on court with explicit cues for both touch edges', 
 
 // regression: pong-unreadable-recovery-destination
 test('literal unreadable story offers the existing Spaces destination', () => {
-  const view = board([]);
+  const pushed: unknown[] = [];
+  const router: AppRouter = {
+    push: (href) => pushed.push(href),
+    replace: () => undefined,
+    back: () => undefined,
+    canGoBack: () => false,
+  };
+  const view = board([], 'pong', router);
   view.setPosition('pong:not-a-position');
   flush();
-  const recovery = view.getByRole('link', { name: 'Back to spaces' });
-  expect(recovery.getAttribute('href')).toBe('/');
+  const recovery = view.getByRole('button', { name: 'Back to Spaces' });
   expect(view.getByRole('alert').contains(recovery)).toBe(true);
+  expect(
+    view
+      .getByRole('alert')
+      .contains(view.getByRole('button', { name: 'Try again' }))
+  ).toBe(true);
+  fireEvent.click(recovery);
+  expect(pushed).toEqual(['/']);
   expect(view.queryByRole('application')).toBeNull();
 });
 

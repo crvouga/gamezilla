@@ -25,6 +25,7 @@ import styles from './tooltip.module.css';
 /** Static CSS placement — no measurement or auto-flip. Bare `top`/`bottom`
  *  center on the trigger; `*-start` / `*-end` pin to that edge. */
 export type TooltipPlacement =
+  | 'left'
   | 'top'
   | 'bottom'
   | 'top-start'
@@ -48,11 +49,15 @@ export type TooltipProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-function tooltipSide(placement: TooltipPlacement): 'top' | 'bottom' {
+function tooltipSide(placement: TooltipPlacement): 'top' | 'bottom' | 'left' {
+  if (placement === 'left') return 'left';
   return placement.startsWith('top') ? 'top' : 'bottom';
 }
 
-function tooltipAlign(placement: TooltipPlacement): 'start' | 'center' | 'end' {
+function tooltipAlign(
+  placement: TooltipPlacement
+): 'start' | 'center' | 'end' | undefined {
+  if (placement === 'left') return undefined;
   if (placement.endsWith('-start')) return 'start';
   if (placement.endsWith('-end')) return 'end';
   return 'center';
@@ -203,6 +208,8 @@ function TooltipBubble(props: {
         {
           [styles['bubble'] ?? '']: !props.floating,
           [styles['floating'] ?? '']: props.floating === true,
+          [styles['left'] ?? '']:
+            !props.floating && props.placement() === 'left',
           [styles['top'] ?? '']:
             !props.floating && tooltipSide(props.placement()) === 'top',
           [styles['bottom'] ?? '']:

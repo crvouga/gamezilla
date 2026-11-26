@@ -1,6 +1,7 @@
 /** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
+import { accessibleName } from '@pkgs/a11y-shared-ts/accessible-name';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameOptionField } from '@pkgs/ui-root-client-ts/game-option-field';
@@ -29,6 +30,19 @@ import { createSignal, Show } from 'solid-js';
 import { mustQuery, renderUi } from './render';
 
 describe('Game frame: the players', () => {
+  // regression: quoridor-player-chip-spoken-walls
+  test('a Quoridor player button separates the name from the wall count', () => {
+    renderUi(() => (
+      <GamePlayerChip
+        name="bob"
+        swatch={{ color: 'pawn-two', mark: '◆' }}
+        stat={{ label: 'Walls', value: '10' }}
+        onPress={() => {}}
+      />
+    ));
+    expect(accessibleName(screen.getByRole('button'))).toBe('bob Walls 10');
+  });
+
   test('the rail lists every chip and marks only the active one as the current step', () => {
     renderUi(
       () => (

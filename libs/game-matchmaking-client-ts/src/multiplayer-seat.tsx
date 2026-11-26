@@ -17,6 +17,7 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import { MultiplayerClock } from './multiplayer-clocks';
@@ -48,35 +49,31 @@ function SeatName(props: {
 }
 
 /**
- * The person's own seat says which colour they play, in words. Any other
- * seat's side is its swatch, named for a listener.
+ * `You` on the person's own seat, after their name, the one mark every
+ * game's own seat wears: filled, and never giving way to the seat's facts.
+ * Their side is the swatch before the name; a listener (and a reader) hears
+ * it in words, `You play Red`.
  */
-function SeatTags(props: {
+function OwnMark(props: {
   readonly position: string;
-  readonly profileId: string;
   readonly side: MultiplayerSide;
-  readonly own: boolean;
-  readonly viewer: MultiplayerViewer;
 }): JSX.Element {
   const gameSideLabel = useGameSideLabel();
   return (
-    <>
-      <Show when={props.own && props.viewer.participant}>
-        <Badge
-          intent="neutral"
-          label={
-            <Text variant="inherit" testId="multiplayer-colour">
-              <Trans>
-                You play {gameSideLabel(props.position, props.side)}
-              </Trans>
-            </Text>
-          }
-        />
-      </Show>
-      <Show when={!props.own}>
-        <AccountAutomationLabel profileId={props.profileId} />
-      </Show>
-    </>
+    <Badge
+      intent="info"
+      size="sm"
+      tone="solid"
+      label={
+        <Text variant="inherit" testId="multiplayer-colour">
+          <Trans>You</Trans>
+          <VisuallyHidden>
+            {' '}
+            <Trans>play {gameSideLabel(props.position, props.side)}</Trans>
+          </VisuallyHidden>
+        </Text>
+      }
+    />
   );
 }
 
@@ -94,6 +91,8 @@ export function MultiplayerSeat(props: {
   readonly own: boolean;
   readonly near: boolean;
   readonly viewer: MultiplayerViewer;
+  /** No connection: the person's own turn waits for it, and says so. */
+  readonly connected?: boolean | undefined;
 }): JSX.Element {
   const presentation = useGamePresentation();
   const frame = () => presentation(props.game.fen).frame;
@@ -101,8 +100,13 @@ export function MultiplayerSeat(props: {
   const profileId = () => multiplayerOwner(props.game, props.side);
   return (
     <GamePlayerBar
+      // Offline, the person's own turn waits: no call to act, and an
+      // amber tag says why, matching the status line. A draw offered to
+      // the person keeps their seat to move: playing on declines it.
       active={
-        props.game.outcome === 'ongoing' && props.game.turn === profileId()
+        props.game.outcome === 'ongoing' &&
+        props.game.turn === profileId() &&
+        !(props.connected === false && profileId() === props.viewer.myId)
       }
       avatar={
         <UserProfileAvatar
@@ -118,9 +122,14 @@ export function MultiplayerSeat(props: {
           viewer={props.viewer}
         />
       }
+      nameTag={
+        <Show when={props.own && props.viewer.participant}>
+          <OwnMark position={props.position} side={props.side} />
+        </Show>
+      }
       swatch={frameSwatch(frame().seats.look(props.side))}
       swatchLabel={gameSideLabel(props.position, props.side)}
-      tagsPlacement="inline"
+      tagsPlacement="line"
       stat={frame().seats.stat(props.position, props.side)}
       state={
         frame().seats.out(props.position, props.side)
@@ -129,31 +138,38 @@ export function MultiplayerSeat(props: {
       }
       tags={
         <>
-          <SeatTags
-            position={props.position}
-            profileId={profileId()}
-            side={props.side}
-            own={props.own}
-            viewer={props.viewer}
-          />
+          <Show when={!props.own}>
+            <AccountAutomationLabel profileId={profileId()} />
+          </Show>
+          <Show
+            when={
+              props.connected === false && profileId() === props.viewer.myId
+            }
+          >
+            <Badge intent="warning" label={<Trans>Offline</Trans>} />
+          </Show>
           <For each={frame().seats.facts(props.position, props.side, [])}>
             {(fact) => <Badge intent="neutral" label={fact} />}
           </For>
         </>
       }
+      // The person's own turn is the status line's "Your turn." above the
+      // board; their seat marks it by its tint and edge alone, so the two
+      // never say it twice. Anyone else's seat says they are to move.
       turnLabel={
-        <Show
-          when={profileId() === props.viewer.myId}
-          fallback={<Trans>To move</Trans>}
-        >
-          <Trans>Your move</Trans>
+        <Show when={profileId() !== props.viewer.myId}>
+          <Trans>To move</Trans>
         </Show>
       }
       trailing={
         <Show
           when={props.game.white_ms !== null && props.game.black_ms !== null}
         >
-          <MultiplayerClock game={props.game} side={props.side} />
+          <MultiplayerClock
+            game={props.game}
+            side={props.side}
+            muted={props.connected === false}
+          />
         </Show>
       }
       dataSet={{

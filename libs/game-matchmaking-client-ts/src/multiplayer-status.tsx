@@ -80,36 +80,41 @@ function useFrameTurnStatus(props: StatusProps): () => string | null {
       : null;
 }
 
-/** How a finished game reads to a person who played it. */
+/**
+ * How a finished game reads to a person who played it: short and in the
+ * past tense, with no full stop to see, as a custom game's result says it.
+ * A listener, who cannot see the screen, hears it is the multiplayer game.
+ */
 function PlayerResult(props: StatusProps): JSX.Element {
   const won = () => props.game.outcome === ownSide(props);
   return (
     <Switch>
       <Match when={props.game.outcome === 'aborted'}>
         <Trans>
-          The <VisuallyHidden>multiplayer </VisuallyHidden>game was aborted.
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game was aborted
+          <VisuallyHidden>.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={props.game.outcome === 'draw'}>
         <Trans>
-          The <VisuallyHidden>multiplayer </VisuallyHidden>game is drawn.
+          The <VisuallyHidden>multiplayer </VisuallyHidden>game was drawn
+          <VisuallyHidden>.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={won()}>
         <Trans>
-          You won<VisuallyHidden> the multiplayer game</VisuallyHidden>.
+          You won<VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={multiplayerSides(props.game).length > 2}>
         <Trans>
           {props.winnerName} won
-          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+          <VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Match>
       <Match when={!won()}>
         <Trans>
-          Your opponent won
-          <VisuallyHidden> the multiplayer game</VisuallyHidden>.
+          You lost<VisuallyHidden> the multiplayer game.</VisuallyHidden>
         </Trans>
       </Match>
     </Switch>
@@ -206,7 +211,22 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
   const turnName = useShownName(() => props.game.turn);
   return (
     <>
-      <Trans>Watching multiplayer {presentation(props.game.fen).name()}.</Trans>
+      {/* Once the game is over the result leads with who won; that it was
+          watched is for a listener, who cannot see the seats. */}
+      <Show
+        when={props.game.outcome === 'ongoing'}
+        fallback={
+          <VisuallyHidden>
+            <Trans>
+              Watching multiplayer {presentation(props.game.fen).name()}.
+            </Trans>
+          </VisuallyHidden>
+        }
+      >
+        <Trans>
+          Watching multiplayer {presentation(props.game.fen).name()}.
+        </Trans>
+      </Show>
       <Show
         when={turnStatus()}
         fallback={
@@ -244,11 +264,17 @@ function WatcherHeadline(props: StatusProps): JSX.Element {
         )}
       >
         {' '}
-        <Trans>{props.winnerName} won the multiplayer game.</Trans>
+        <Trans>
+          {props.winnerName} won
+          <VisuallyHidden> the multiplayer game.</VisuallyHidden>
+        </Trans>
       </Show>
       <Show when={props.game.outcome === 'draw'}>
         {' '}
-        <Trans>The multiplayer game is drawn.</Trans>
+        <Trans>
+          The<VisuallyHidden> multiplayer</VisuallyHidden> game was drawn
+          <VisuallyHidden>.</VisuallyHidden>
+        </Trans>
       </Show>
     </>
   );
@@ -307,6 +333,9 @@ function Reason(props: { readonly game: MultiplayerGame }): JSX.Element {
       <Match when={props.game.reason === 'agreement'}>
         <Trans>Drawn by agreement.</Trans>
       </Match>
+      <Match when={props.game.reason === 'abort'}>
+        <Trans>Nobody won; the game was stopped before it was under way.</Trans>
+      </Match>
       <Match when={props.game.reason === 'first move missed'}>
         <Trans>The first move wasn't made in time.</Trans>
       </Match>
@@ -337,15 +366,28 @@ function RatingChange(props: StatusProps): JSX.Element {
               : 'neutral'
         }
         label={
-          <Trans>
-            <VisuallyHidden>Your </VisuallyHidden>Rating
-            <VisuallyHidden> changed by</VisuallyHidden>{' '}
-            {(diff() ?? 0) > 0 ? '+' : ''}
-            {diff() ?? 0}
-            <VisuallyHidden>.</VisuallyHidden>
-          </Trans>
+          // No change reads as that, never "Rating 0", which looks like a
+          // rating of nought.
+          <Show
+            when={(diff() ?? 0) !== 0}
+            fallback={
+              <Trans>
+                <VisuallyHidden>Your </VisuallyHidden>Rating unchanged
+                <VisuallyHidden>.</VisuallyHidden>
+              </Trans>
+            }
+          >
+            <Trans>
+              <VisuallyHidden>Your </VisuallyHidden>Rating
+              <VisuallyHidden> changed by</VisuallyHidden>{' '}
+              {(diff() ?? 0) > 0 ? '+' : ''}
+              {diff() ?? 0}
+              <VisuallyHidden>.</VisuallyHidden>
+            </Trans>
+          </Show>
         }
-        tone="solid"
+        // No change is quiet; a gain or a loss is the result's own figure.
+        tone="subtle"
         dataSet={{ testid: 'multiplayer-rating-change' }}
       />
     </Show>
@@ -365,32 +407,50 @@ function Offers(props: StatusProps): JSX.Element {
   return (
     <>
       <Show when={offeredToMe(props.game.draw_offer_by)}>
-        <Trans>{drawName()} offered you a multiplayer draw.</Trans>{' '}
+        <Trans>
+          {drawName()} offered you a
+          <VisuallyHidden> multiplayer</VisuallyHidden> draw.
+        </Trans>{' '}
       </Show>
       <Show when={offeredToMe(props.game.rematch_offer_by)}>
-        <Trans>{rematchName()} offered you a multiplayer rematch.</Trans>{' '}
+        <Trans>
+          {rematchName()} offered you a
+          <VisuallyHidden> multiplayer</VisuallyHidden> rematch.
+        </Trans>{' '}
       </Show>
     </>
   );
 }
 
 /** After the headline: why a finished game ended, offers, the rating change. */
-export function MultiplayerStatusDetail(props: StatusProps): JSX.Element {
+export function MultiplayerStatusDetail(
+  props: StatusProps & {
+    /** The rating change is said elsewhere (the result card's own row). */
+    readonly withoutRating?: boolean | undefined;
+  }
+): JSX.Element {
   return (
     <>
       <Show when={props.game.outcome !== 'ongoing'}>
         <Reason game={props.game} />{' '}
       </Show>
       <Offers {...props} />
-      <RatingChange {...props} />
+      <Show when={props.withoutRating !== true}>
+        <RatingChange {...props} />
+      </Show>
     </>
   );
+}
+
+/** What the game did to the person's rating, as its own badge. */
+export function MultiplayerRatingChange(props: StatusProps): JSX.Element {
+  return <RatingChange {...props} />;
 }
 
 /** Whether {@link MultiplayerStatusDetail} has anything to say. */
 export function multiplayerStatusHasDetail(props: StatusProps): boolean {
   const game = props.game;
-  if (game.outcome !== 'ongoing' && game.reason !== 'abort') return true;
+  if (game.outcome !== 'ongoing') return true;
   if (!props.viewer.participant) return false;
   const offered = (by: string | null) =>
     Boolean(
@@ -400,6 +460,20 @@ export function multiplayerStatusHasDetail(props: StatusProps): boolean {
     offered(game.draw_offer_by) ||
     offered(game.rematch_offer_by) ||
     game[`${ownSide(props)}_rating_diff`] != null
+  );
+}
+
+/** A draw offered to the person, mid-game, waiting for their answer. */
+function drawOfferedToMe(props: StatusProps): boolean {
+  const by = props.game.draw_offer_by;
+  return (
+    props.game.outcome === 'ongoing' &&
+    props.viewer.participant &&
+    Boolean(
+      by &&
+        by !== props.viewer.myId &&
+        multiplayerSideOf(props.game, by) !== null
+    )
   );
 }
 
@@ -486,38 +560,41 @@ export function MultiplayerStatusTitle(props: StatusProps): JSX.Element {
 }
 
 /**
- * The seat to move already says whose turn it is (`Your move`), so the
- * plain line is for a listener only. Anything more (a pause, an offer, a
- * first-move deadline, a low clock, the result) is shown.
- */
-function seatsSayIt(props: StatusProps): boolean {
-  return (
-    props.game.outcome === 'ongoing' &&
-    props.game.paused_at_ms === null &&
-    props.lowOnTime === null &&
-    !multiplayerStatusHasDetail(props) &&
-    !awaitingFirstMoves(props)
-  );
-}
-
-/**
  * Where the game stands, in one line under the board: whose turn, or how it
  * ended and why. It is the screen's live announcement, so a listener hears
  * colour, turn, offers and the result as they change.
  */
 export function MultiplayerStatus(props: StatusProps): JSX.Element {
-  // A game's own words about the turn (`First to e5 wins.`) are shown.
-  const turnStatus = useFrameTurnStatus(props);
   return (
+    // Shown on the command bar's status band as quiet, centred text, as the
+    // custom-game stage does: the band is never a blank strip, and a
+    // watcher reads there that they are watching.
     <GameTurnPill
       live
-      spokenOnly={seatsSayIt(props) && turnStatus() === null}
-      emphasis={emphasis(props)}
+      // A draw offered to the person is the one thing to answer: the line
+      // takes the turn's own filled pill, so it outranks the seat's cue.
+      emphasis={drawOfferedToMe(props) ? 'yours' : emphasis(props)}
       tone={tone(props)}
+      look={
+        tone(props) === 'neutral' && !drawOfferedToMe(props) ? 'plain' : 'pill'
+      }
       dataSet={{ testid: 'multiplayer-announcement' }}
-      title={<MultiplayerStatusTitle {...props} />}
+      title={
+        // A draw offered mid-game is the one thing to answer: it is the
+        // line, in one sentence, as on the custom-game band; whose turn it
+        // is stays for a listener.
+        <Show
+          when={drawOfferedToMe(props)}
+          fallback={<MultiplayerStatusTitle {...props} />}
+        >
+          <VisuallyHidden>
+            <MultiplayerStatusTitle {...props} />{' '}
+          </VisuallyHidden>
+          <Offers {...props} />
+        </Show>
+      }
       detail={
-        multiplayerStatusHasDetail(props) ? (
+        multiplayerStatusHasDetail(props) && !drawOfferedToMe(props) ? (
           <MultiplayerStatusDetail {...props} />
         ) : undefined
       }

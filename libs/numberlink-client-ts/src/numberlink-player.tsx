@@ -13,6 +13,7 @@ import type {
   NumberlinkState,
 } from '@libs/numberlink-shared-ts/numberlink-types';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -121,12 +122,6 @@ function Drawing(props: {
             </Show>
           )}
         </P>
-        <NumberlinkRecovery
-          definition={props.definition}
-          state={props.state}
-          onAction={props.onAction}
-        />
-        <NumberlinkDrawingHelp />
       </Show>
       <Show when={drawing.error()}>
         {(error) => <Notice tone="error">{error()}</Notice>}
@@ -135,18 +130,23 @@ function Drawing(props: {
   );
 }
 
-/** Join matching numbered endpoints while filling the board with paths. */
-export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
+/** The puzzle and its saved paths, or `null` when either cannot be read. */
+function createNumberlinkInput(props: PuzzlePlayerProps) {
   // SQL watches can deliver new row objects without changing either input.
   // Keep parsing behind primitive equality so that delivery preserves a gesture.
   const definition = createMemo(() => props.definition);
   const serializedState = createMemo(() => props.state);
-  const input = createMemo(() => {
+  return createMemo(() => {
     const board = decodeNumberlinkDefinition(definition());
     if (!board.valid) return null;
     const state = decodeNumberlinkState(board.value, serializedState());
     return state.valid ? { definition: board.value, state: state.value } : null;
   });
+}
+
+/** Join matching numbered endpoints while filling the board with paths. */
+export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
+  const input = createNumberlinkInput(props);
   return (
     <Show
       when={input()}
@@ -166,6 +166,36 @@ export function NumberlinkPlayer(props: PuzzlePlayerProps): JSX.Element {
           disabled={props.disabled}
           onAction={props.onAction}
         />
+      )}
+    </Show>
+  );
+}
+
+/**
+ * Under the attempt's commands while the puzzle is open: removing a whole
+ * path, and how to draw. Side by side on a wide screen.
+ */
+export function NumberlinkSupport(props: PuzzlePlayerProps): JSX.Element {
+  const input = createNumberlinkInput(props);
+  const open = () => {
+    const value = input();
+    return value !== null &&
+      !props.disabled &&
+      !numberlinkComplete(value.definition, value.state)
+      ? value
+      : null;
+  };
+  return (
+    <Show when={open()}>
+      {(value) => (
+        <Grid columns={{ base: 1, md: 2 }} gap="sm" align="start">
+          <NumberlinkRecovery
+            definition={value().definition}
+            state={value().state}
+            onAction={props.onAction}
+          />
+          <NumberlinkDrawingHelp />
+        </Grid>
       )}
     </Show>
   );
