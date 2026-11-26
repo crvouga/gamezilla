@@ -920,7 +920,6 @@
       "Someone comes online or changes activity": "system",
       "Watches someone live": "user",
       "Opens the Synthetic Population panel": "user",
-      "Opens the User Observatory without permission": "user",
       "The watched person moves around the app": "system",
       "Returns to the User Observatory": "user",
       "A Synthetic User's daily schedule begins or ends": "time",
@@ -929,7 +928,11 @@
       "Opens the control panel": "user",
       "Returns to the Synthetic Population panel": "user",
       "Changes the desired synthetic population": "user",
-      "Pauses, resumes or restarts Synthetic Users": "user"
+      "Pauses, resumes or restarts Synthetic Users": "user",
+      "Opens the administration site": "user",
+      "Signs in with an administrator account": "user",
+      "Signs in with an ordinary account": "user",
+      "Returns to the dashboard": "user"
     }
   },
   "states": {
@@ -2736,9 +2739,6 @@
                         },
                         "Opens connected sign-in methods": {
                           "target": "#App: Sign-in methods"
-                        },
-                        "Opens puzzle import": {
-                          "target": "#App: Adding puzzles"
                         }
                       }
                     },
@@ -10450,8 +10450,8 @@
                     "Tools: Tool home": {
                       "id": "Tools: Tool home",
                       "meta": {
-                        "description": "The team can choose a test world, evidence, the User Observatory or an independent framework example.",
-                        "snapshot": "The team can choose a test world, evidence, the User Observatory or an independent framework example.",
+                        "description": "The team can choose a test world, evidence or an independent framework example.",
+                        "snapshot": "The team can choose a test world, evidence or an independent framework example.",
                         "confidence": "assumed",
                         "source": [
                           "specs/README.md#context-map",
@@ -10492,12 +10492,6 @@
                         },
                         "Reads device inspection scope": {
                           "target": "#Tools: Inspection scope"
-                        },
-                        "Opens the User Observatory": {
-                          "target": "#Tools: User Observatory"
-                        },
-                        "Opens the User Observatory without permission": {
-                          "target": "#Observatory: Permission required"
                         }
                       }
                     },
@@ -10780,234 +10774,6 @@
                       "on": {
                         "Returns to the testing tool": {
                           "target": "#Tools: Tool home"
-                        }
-                      }
-                    },
-                    "Tools: User Observatory": {
-                      "id": "Tools: User Observatory",
-                      "meta": {
-                        "description": "An authorized person sees who is online now, watches someone live and looks after the Synthetic Population from its panel.",
-                        "snapshot": "The team sees how people and Synthetic Users use the app.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/observatory/ubiquitous-language.yml",
-                          "specs/observatory/observatory-access.dmn",
-                          "specs/synthetic-population/synthetic-population-access.dmn",
-                          "specs/synthetic-population/ubiquitous-language.yml",
-                          "specs/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "initial": "Observatory: User Observatory",
-                      "on": {
-                        "Returns to the testing tool": {
-                          "target": "#Tools: Tool home"
-                        }
-                      },
-                      "states": {
-                        "Observatory: User Observatory": {
-                          "id": "Observatory: User Observatory",
-                          "meta": {
-                            "description": "An authorized person sees whoever is online now, each with its activity and whether it is a person or a Synthetic User, and may show only people or only Synthetic Users. Only a Synthetic User is offered a control panel.",
-                            "snapshot": "An authorized person sees whoever is online now, each with its activity and whether it is a person or a Synthetic User, and may show only people or only Synthetic Users. Only a Synthetic User is offered a control panel.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/observatory/online-now.feature",
-                              "specs/observatory/observatory-access.dmn",
-                              "specs/synthetic-population/control-panel.feature"
-                            ],
-                            "events": [],
-                            "routes": [
-                              "/admin/observatory",
-                              "/admin/observatory/online"
-                            ],
-                            "hints": [
-                              "App address: /admin/observatory",
-                              "App address: /admin/observatory/online"
-                            ]
-                          },
-                          "on": {
-                            "Someone comes online or changes activity": {
-                              "target": "#Observatory: User Observatory"
-                            },
-                            "Watches someone live": {
-                              "target": "#Observatory: Watching live"
-                            },
-                            "Opens the Synthetic Population panel": {
-                              "target": "#Observatory: Synthetic Population panel"
-                            }
-                          }
-                        },
-                        "Observatory: Watching live": {
-                          "id": "Observatory: Watching live",
-                          "meta": {
-                            "description": "The authorized person sees the watched person's place in the app, or a Synthetic User's ongoing game as it sees it, and follows them around the app, never seeing a person's private details.",
-                            "snapshot": "The authorized person sees the watched person's place in the app, or a Synthetic User's ongoing game as it sees it, and follows them around the app, never seeing a person's private details.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/observatory/watching-live.feature",
-                              "specs/observatory/observatory-access.dmn"
-                            ],
-                            "events": [],
-                            "routes": ["/admin/observatory/live/:sessionId"],
-                            "hints": [
-                              "App address: /admin/observatory/live/:sessionId"
-                            ]
-                          },
-                          "on": {
-                            "The watched person moves around the app": {
-                              "target": "#Observatory: Watching live"
-                            },
-                            "Returns to the User Observatory": {
-                              "target": "#Observatory: User Observatory"
-                            }
-                          }
-                        },
-                        "Observatory: Permission required": {
-                          "id": "Observatory: Permission required",
-                          "meta": {
-                            "description": "A person without permission is told that permission is required and sees nobody online now, no one live and no Synthetic User activity.",
-                            "snapshot": "A person without permission is told that permission is required and sees nobody online now, no one live and no Synthetic User activity.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/observatory/online-now.feature",
-                              "specs/observatory/watching-live.feature",
-                              "specs/observatory/observatory-access.dmn",
-                              "specs/synthetic-population/observatory.feature",
-                              "specs/synthetic-population/synthetic-population-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {}
-                        },
-                        "Observatory: Synthetic Population panel": {
-                          "id": "Observatory: Synthetic Population panel",
-                          "meta": {
-                            "description": "An authorized person sees the desired synthetic population and each Synthetic User's activity. Synthetic Users keep a daily rhythm within the desired synthetic population, each with a persona of its own, and with no person looking they play each other to a multiplayer result.",
-                            "snapshot": "An authorized person sees the desired synthetic population and each Synthetic User's activity. Synthetic Users keep a daily rhythm within the desired synthetic population, each with a persona of its own, and with no person looking they play each other to a multiplayer result.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/synthetic-population/observatory.feature",
-                              "specs/synthetic-population/synthetic-population-access.dmn",
-                              "specs/synthetic-population/synthetic-user-personas.feature",
-                              "specs/synthetic-population/daily-rhythm.feature",
-                              "specs/synthetic-population/synthetic-users-play-each-other.feature",
-                              "specs/synthetic-population/choose-a-game.feature",
-                              "specs/synthetic-population/synthetic-user-continuity.feature",
-                              "specs/synthetic-population/synthetic-user-sign-in.feature",
-                              "specs/synthetic-population/control-panel.feature"
-                            ],
-                            "events": [],
-                            "routes": [
-                              "/admin/observatory/synthetic-users",
-                              "/admin/observatory/synthetic-users/directory",
-                              "/admin/observatory/synthetic-users/workers",
-                              "/admin/observatory/synthetic-users/events"
-                            ],
-                            "hints": [
-                              "App address: /admin/observatory/synthetic-users",
-                              "App address: /admin/observatory/synthetic-users/directory",
-                              "App address: /admin/observatory/synthetic-users/workers",
-                              "App address: /admin/observatory/synthetic-users/events"
-                            ]
-                          },
-                          "on": {
-                            "A Synthetic User's daily schedule begins or ends": {
-                              "target": "#Observatory: Synthetic Population panel"
-                            },
-                            "Opens a Synthetic User": {
-                              "target": "#Observatory: Synthetic User"
-                            },
-                            "Opens the desired synthetic population": {
-                              "target": "#Observatory: Desired synthetic population"
-                            },
-                            "Opens the control panel": {
-                              "target": "#Observatory: Control panel"
-                            },
-                            "Returns to the User Observatory": {
-                              "target": "#Observatory: User Observatory"
-                            }
-                          }
-                        },
-                        "Observatory: Synthetic User": {
-                          "id": "Observatory: Synthetic User",
-                          "meta": {
-                            "description": "One Synthetic User's persona, kept for good: its username, skill level and favorite games, with its current activity.",
-                            "snapshot": "One Synthetic User's persona, kept for good: its username, skill level and favorite games, with its current activity.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/synthetic-population/synthetic-user-personas.feature",
-                              "specs/synthetic-population/synthetic-user-continuity.feature"
-                            ],
-                            "events": [],
-                            "routes": [
-                              "/admin/observatory/synthetic-users/:id",
-                              "/admin/observatory/synthetic-users/:id/events",
-                              "/admin/observatory/synthetic-users/:id/replay",
-                              "/admin/observatory/synthetic-users/:id/inspector"
-                            ],
-                            "hints": [
-                              "App address: /admin/observatory/synthetic-users/:id",
-                              "App address: /admin/observatory/synthetic-users/:id/events",
-                              "App address: /admin/observatory/synthetic-users/:id/replay",
-                              "App address: /admin/observatory/synthetic-users/:id/inspector"
-                            ]
-                          },
-                          "on": {
-                            "Returns to the Synthetic Population panel": {
-                              "target": "#Observatory: Synthetic Population panel"
-                            }
-                          }
-                        },
-                        "Observatory: Desired synthetic population": {
-                          "id": "Observatory: Desired synthetic population",
-                          "meta": {
-                            "description": "An authorized person changes the desired synthetic population; a person with observation permission is told that permission is required and the number stays as it was.",
-                            "snapshot": "An authorized person changes the desired synthetic population; a person with observation permission is told that permission is required and the number stays as it was.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/synthetic-population/observatory.feature",
-                              "specs/synthetic-population/synthetic-population-access.dmn",
-                              "specs/synthetic-population/daily-rhythm.feature"
-                            ],
-                            "events": [],
-                            "routes": [
-                              "/admin/observatory/synthetic-users/settings"
-                            ],
-                            "hints": [
-                              "App address: /admin/observatory/synthetic-users/settings"
-                            ]
-                          },
-                          "on": {
-                            "Changes the desired synthetic population": {
-                              "target": "#Observatory: Desired synthetic population"
-                            },
-                            "Returns to the Synthetic Population panel": {
-                              "target": "#Observatory: Synthetic Population panel"
-                            }
-                          }
-                        },
-                        "Observatory: Control panel": {
-                          "id": "Observatory: Control panel",
-                          "meta": {
-                            "description": "An authorized person pauses, resumes or restarts one Synthetic User or every one at once. A paused Synthetic User finishes its ongoing game and starts no new activity; a restarted one keeps its account, persona and ongoing game. A person with observation permission is told that permission is required.",
-                            "snapshot": "An authorized person pauses, resumes or restarts one Synthetic User or every one at once. A paused Synthetic User finishes its ongoing game and starts no new activity; a restarted one keeps its account, persona and ongoing game. A person with observation permission is told that permission is required.",
-                            "confidence": "assumed",
-                            "source": [
-                              "specs/synthetic-population/control-panel.feature",
-                              "specs/synthetic-population/observatory.feature",
-                              "specs/synthetic-population/synthetic-population-access.dmn"
-                            ],
-                            "events": []
-                          },
-                          "on": {
-                            "Pauses, resumes or restarts Synthetic Users": {
-                              "target": "#Observatory: Control panel"
-                            },
-                            "Returns to the Synthetic Population panel": {
-                              "target": "#Observatory: Synthetic Population panel"
-                            }
-                          }
                         }
                       }
                     },
@@ -12897,6 +12663,360 @@
                       }
                     }
                   }
+                }
+              },
+              "on": {
+                "Opens Spaces": {
+                  "target": "#App: Spaces"
+                },
+                "Opens Profile": {
+                  "target": "#App: Profile"
+                },
+                "Opens Settings": {
+                  "target": "#App: Settings"
+                },
+                "Opens Notifications": {
+                  "target": "#App: Notifications"
+                },
+                "Opens people search": {
+                  "target": "#App: Friends"
+                },
+                "Starts signing in": {
+                  "target": "#App: Signing in"
+                },
+                "Opens a bug report": {
+                  "target": "#App: Bug report"
+                },
+                "Opens the testing tool": {
+                  "target": "#App: Tools"
+                },
+                "Opens an unknown app address": {
+                  "target": "#App: Unknown address"
+                },
+                "Closes the app": {
+                  "target": "#App: App closed"
+                },
+                "Opens an app update notice": {
+                  "target": "#Connection: Update available"
+                },
+                "Opens a fresh device offline": {
+                  "target": "#Connection: Fresh device offline"
+                },
+                "Opens a returning device offline": {
+                  "target": "#Connection: Saved app offline"
+                },
+                "Opens game choices": {
+                  "target": "#App: Games"
+                }
+              }
+            },
+            "App: App closed": {
+              "id": "App: App closed",
+              "meta": {
+                "description": "Closing the app preserves saved account data and device preferences.",
+                "snapshot": "Closing the app preserves saved account data and device preferences.",
+                "confidence": "assumed",
+                "source": [
+                  "specs/runtime/app-addresses.feature",
+                  "specs/runtime/app-shell.feature"
+                ],
+                "events": []
+              },
+              "on": {
+                "Reopens the app": {
+                  "target": "#App: Spaces"
+                }
+              }
+            },
+            "Administration": {
+              "id": "Administration",
+              "meta": {
+                "description": "The team opens a separate site for administration.",
+                "snapshot": "The team opens a separate site for administration.",
+                "confidence": "assumed",
+                "source": ["specs/observatory/ubiquitous-language.yml"],
+                "events": []
+              },
+              "initial": "Administration: Checking access",
+              "states": {
+                "Administration: Checking access": {
+                  "id": "Administration: Checking access",
+                  "meta": {
+                    "description": "Sign in with an account marked as an administrator to reach the dashboard.",
+                    "snapshot": "Sign in with an account marked as an administrator to reach the dashboard.",
+                    "confidence": "assumed",
+                    "source": ["specs/observatory/ubiquitous-language.yml"],
+                    "events": []
+                  },
+                  "on": {
+                    "Signs in with an administrator account": {
+                      "target": "#Administration: Dashboard"
+                    },
+                    "Signs in with an ordinary account": {
+                      "target": "#Administration: Permission required"
+                    }
+                  }
+                },
+                "Administration: Permission required": {
+                  "id": "Administration: Permission required",
+                  "meta": {
+                    "description": "This account cannot use administration. The person can sign in with another account.",
+                    "snapshot": "This account cannot use administration. The person can sign in with another account.",
+                    "confidence": "assumed",
+                    "source": ["specs/observatory/ubiquitous-language.yml"],
+                    "events": []
+                  },
+                  "on": {
+                    "Signs in with an administrator account": {
+                      "target": "#Administration: Dashboard"
+                    }
+                  }
+                },
+                "Administration: Dashboard": {
+                  "id": "Administration: Dashboard",
+                  "meta": {
+                    "description": "The team can open the User Observatory, manage Synthetic Users and load chess puzzles.",
+                    "snapshot": "The team can open the User Observatory, manage Synthetic Users and load chess puzzles.",
+                    "confidence": "assumed",
+                    "source": ["specs/observatory/ubiquitous-language.yml"],
+                    "events": []
+                  },
+                  "on": {
+                    "Opens the User Observatory": {
+                      "target": "#Tools: User Observatory"
+                    },
+                    "Opens puzzle import": {
+                      "target": "#App: Adding puzzles"
+                    }
+                  }
+                },
+                "Tools: User Observatory": {
+                  "id": "Tools: User Observatory",
+                  "meta": {
+                    "description": "An authorized person sees who is online now, watches someone live and looks after the Synthetic Population from its panel.",
+                    "snapshot": "The team sees how people and Synthetic Users use the app.",
+                    "confidence": "assumed",
+                    "source": [
+                      "specs/observatory/ubiquitous-language.yml",
+                      "specs/observatory/observatory-access.dmn",
+                      "specs/synthetic-population/synthetic-population-access.dmn",
+                      "specs/synthetic-population/ubiquitous-language.yml",
+                      "specs/ubiquitous-language.yml"
+                    ],
+                    "events": []
+                  },
+                  "initial": "Observatory: User Observatory",
+                  "on": {
+                    "Returns to the dashboard": {
+                      "target": "#Administration: Dashboard"
+                    }
+                  },
+                  "states": {
+                    "Observatory: User Observatory": {
+                      "id": "Observatory: User Observatory",
+                      "meta": {
+                        "description": "An authorized person sees whoever is online now, each with its activity and whether it is a person or a Synthetic User, and may show only people or only Synthetic Users. Only a Synthetic User is offered a control panel.",
+                        "snapshot": "An authorized person sees whoever is online now, each with its activity and whether it is a person or a Synthetic User, and may show only people or only Synthetic Users. Only a Synthetic User is offered a control panel.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/observatory/online-now.feature",
+                          "specs/observatory/observatory-access.dmn",
+                          "specs/synthetic-population/control-panel.feature"
+                        ],
+                        "events": [],
+                        "routes": [
+                          "/admin/observatory",
+                          "/admin/observatory/online"
+                        ],
+                        "hints": [
+                          "Administration address: /admin/observatory",
+                          "Administration address: /admin/observatory/online"
+                        ]
+                      },
+                      "on": {
+                        "Someone comes online or changes activity": {
+                          "target": "#Observatory: User Observatory"
+                        },
+                        "Watches someone live": {
+                          "target": "#Observatory: Watching live"
+                        },
+                        "Opens the Synthetic Population panel": {
+                          "target": "#Observatory: Synthetic Population panel"
+                        }
+                      }
+                    },
+                    "Observatory: Watching live": {
+                      "id": "Observatory: Watching live",
+                      "meta": {
+                        "description": "The authorized person sees the watched person's place in the app, or a Synthetic User's ongoing game as it sees it, and follows them around the app, never seeing a person's private details.",
+                        "snapshot": "The authorized person sees the watched person's place in the app, or a Synthetic User's ongoing game as it sees it, and follows them around the app, never seeing a person's private details.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/observatory/watching-live.feature",
+                          "specs/observatory/observatory-access.dmn"
+                        ],
+                        "events": [],
+                        "routes": ["/admin/observatory/live/:sessionId"],
+                        "hints": [
+                          "Administration address: /admin/observatory/live/:sessionId"
+                        ]
+                      },
+                      "on": {
+                        "The watched person moves around the app": {
+                          "target": "#Observatory: Watching live"
+                        },
+                        "Returns to the User Observatory": {
+                          "target": "#Observatory: User Observatory"
+                        }
+                      }
+                    },
+                    "Observatory: Permission required": {
+                      "id": "Observatory: Permission required",
+                      "meta": {
+                        "description": "A person without permission is told that permission is required and sees nobody online now, no one live and no Synthetic User activity.",
+                        "snapshot": "A person without permission is told that permission is required and sees nobody online now, no one live and no Synthetic User activity.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/observatory/online-now.feature",
+                          "specs/observatory/watching-live.feature",
+                          "specs/observatory/observatory-access.dmn",
+                          "specs/synthetic-population/observatory.feature",
+                          "specs/synthetic-population/synthetic-population-access.dmn"
+                        ],
+                        "events": []
+                      },
+                      "on": {}
+                    },
+                    "Observatory: Synthetic Population panel": {
+                      "id": "Observatory: Synthetic Population panel",
+                      "meta": {
+                        "description": "An authorized person sees the desired synthetic population and each Synthetic User's activity. Synthetic Users keep a daily rhythm within the desired synthetic population, each with a persona of its own, and with no person looking they play each other to a multiplayer result.",
+                        "snapshot": "An authorized person sees the desired synthetic population and each Synthetic User's activity. Synthetic Users keep a daily rhythm within the desired synthetic population, each with a persona of its own, and with no person looking they play each other to a multiplayer result.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/synthetic-population/observatory.feature",
+                          "specs/synthetic-population/synthetic-population-access.dmn",
+                          "specs/synthetic-population/synthetic-user-personas.feature",
+                          "specs/synthetic-population/daily-rhythm.feature",
+                          "specs/synthetic-population/synthetic-users-play-each-other.feature",
+                          "specs/synthetic-population/choose-a-game.feature",
+                          "specs/synthetic-population/synthetic-user-continuity.feature",
+                          "specs/synthetic-population/synthetic-user-sign-in.feature",
+                          "specs/synthetic-population/control-panel.feature"
+                        ],
+                        "events": [],
+                        "routes": [
+                          "/admin/observatory/synthetic-users",
+                          "/admin/observatory/synthetic-users/directory",
+                          "/admin/observatory/synthetic-users/workers",
+                          "/admin/observatory/synthetic-users/events"
+                        ],
+                        "hints": [
+                          "Administration address: /admin/observatory/synthetic-users",
+                          "Administration address: /admin/observatory/synthetic-users/directory",
+                          "Administration address: /admin/observatory/synthetic-users/workers",
+                          "Administration address: /admin/observatory/synthetic-users/events"
+                        ]
+                      },
+                      "on": {
+                        "A Synthetic User's daily schedule begins or ends": {
+                          "target": "#Observatory: Synthetic Population panel"
+                        },
+                        "Opens a Synthetic User": {
+                          "target": "#Observatory: Synthetic User"
+                        },
+                        "Opens the desired synthetic population": {
+                          "target": "#Observatory: Desired synthetic population"
+                        },
+                        "Opens the control panel": {
+                          "target": "#Observatory: Control panel"
+                        },
+                        "Returns to the User Observatory": {
+                          "target": "#Observatory: User Observatory"
+                        }
+                      }
+                    },
+                    "Observatory: Synthetic User": {
+                      "id": "Observatory: Synthetic User",
+                      "meta": {
+                        "description": "One Synthetic User's persona, kept for good: its username, skill level and favorite games, with its current activity.",
+                        "snapshot": "One Synthetic User's persona, kept for good: its username, skill level and favorite games, with its current activity.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/synthetic-population/synthetic-user-personas.feature",
+                          "specs/synthetic-population/synthetic-user-continuity.feature"
+                        ],
+                        "events": [],
+                        "routes": [
+                          "/admin/observatory/synthetic-users/:id",
+                          "/admin/observatory/synthetic-users/:id/events",
+                          "/admin/observatory/synthetic-users/:id/replay",
+                          "/admin/observatory/synthetic-users/:id/inspector"
+                        ],
+                        "hints": [
+                          "Administration address: /admin/observatory/synthetic-users/:id",
+                          "Administration address: /admin/observatory/synthetic-users/:id/events",
+                          "Administration address: /admin/observatory/synthetic-users/:id/replay",
+                          "Administration address: /admin/observatory/synthetic-users/:id/inspector"
+                        ]
+                      },
+                      "on": {
+                        "Returns to the Synthetic Population panel": {
+                          "target": "#Observatory: Synthetic Population panel"
+                        }
+                      }
+                    },
+                    "Observatory: Desired synthetic population": {
+                      "id": "Observatory: Desired synthetic population",
+                      "meta": {
+                        "description": "An authorized person changes the desired synthetic population; a person with observation permission is told that permission is required and the number stays as it was.",
+                        "snapshot": "An authorized person changes the desired synthetic population; a person with observation permission is told that permission is required and the number stays as it was.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/synthetic-population/observatory.feature",
+                          "specs/synthetic-population/synthetic-population-access.dmn",
+                          "specs/synthetic-population/daily-rhythm.feature"
+                        ],
+                        "events": [],
+                        "routes": [
+                          "/admin/observatory/synthetic-users/settings"
+                        ],
+                        "hints": [
+                          "Administration address: /admin/observatory/synthetic-users/settings"
+                        ]
+                      },
+                      "on": {
+                        "Changes the desired synthetic population": {
+                          "target": "#Observatory: Desired synthetic population"
+                        },
+                        "Returns to the Synthetic Population panel": {
+                          "target": "#Observatory: Synthetic Population panel"
+                        }
+                      }
+                    },
+                    "Observatory: Control panel": {
+                      "id": "Observatory: Control panel",
+                      "meta": {
+                        "description": "An authorized person pauses, resumes or restarts one Synthetic User or every one at once. A paused Synthetic User finishes its ongoing game and starts no new activity; a restarted one keeps its account, persona and ongoing game. A person with observation permission is told that permission is required.",
+                        "snapshot": "An authorized person pauses, resumes or restarts one Synthetic User or every one at once. A paused Synthetic User finishes its ongoing game and starts no new activity; a restarted one keeps its account, persona and ongoing game. A person with observation permission is told that permission is required.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/synthetic-population/control-panel.feature",
+                          "specs/synthetic-population/observatory.feature",
+                          "specs/synthetic-population/synthetic-population-access.dmn"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Pauses, resumes or restarts Synthetic Users": {
+                          "target": "#Observatory: Control panel"
+                        },
+                        "Returns to the Synthetic Population panel": {
+                          "target": "#Observatory: Synthetic Population panel"
+                        }
+                      }
+                    }
+                  }
                 },
                 "App: Adding puzzles": {
                   "id": "App: Adding puzzles",
@@ -13560,11 +13680,11 @@
                         "events": []
                       },
                       "on": {
-                        "Returns to settings": {
-                          "target": "#App: Tools"
-                        },
                         "Signs in with permitted team access": {
                           "target": "#Puzzle loading: Checking access"
+                        },
+                        "Returns to the dashboard": {
+                          "target": "#Administration: Dashboard"
                         }
                       }
                     }
@@ -13572,73 +13692,16 @@
                   "initial": "Puzzle loading: Checking access",
                   "on": {
                     "Leaves adding puzzles": {
-                      "target": "#App: Tools"
+                      "target": "#Administration: Dashboard"
                     }
                   }
                 }
-              },
-              "on": {
-                "Opens Spaces": {
-                  "target": "#App: Spaces"
-                },
-                "Opens Profile": {
-                  "target": "#App: Profile"
-                },
-                "Opens Settings": {
-                  "target": "#App: Settings"
-                },
-                "Opens Notifications": {
-                  "target": "#App: Notifications"
-                },
-                "Opens people search": {
-                  "target": "#App: Friends"
-                },
-                "Starts signing in": {
-                  "target": "#App: Signing in"
-                },
-                "Opens a bug report": {
-                  "target": "#App: Bug report"
-                },
-                "Opens the testing tool": {
-                  "target": "#App: Tools"
-                },
-                "Opens an unknown app address": {
-                  "target": "#App: Unknown address"
-                },
-                "Closes the app": {
-                  "target": "#App: App closed"
-                },
-                "Opens an app update notice": {
-                  "target": "#Connection: Update available"
-                },
-                "Opens a fresh device offline": {
-                  "target": "#Connection: Fresh device offline"
-                },
-                "Opens a returning device offline": {
-                  "target": "#Connection: Saved app offline"
-                },
-                "Opens game choices": {
-                  "target": "#App: Games"
-                }
               }
-            },
-            "App: App closed": {
-              "id": "App: App closed",
-              "meta": {
-                "description": "Closing the app preserves saved account data and device preferences.",
-                "snapshot": "Closing the app preserves saved account data and device preferences.",
-                "confidence": "assumed",
-                "source": [
-                  "specs/runtime/app-addresses.feature",
-                  "specs/runtime/app-shell.feature"
-                ],
-                "events": []
-              },
-              "on": {
-                "Reopens the app": {
-                  "target": "#App: Spaces"
-                }
-              }
+            }
+          },
+          "on": {
+            "Opens the administration site": {
+              "target": "#Administration"
             }
           }
         }
