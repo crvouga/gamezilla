@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+#MISE description="Dispatch a hosted nightly diagnostic group on a published branch"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+group=${1:?usage: mise run nightly -- GROUP [REF]}
+ref=${2:-$(git symbolic-ref --short HEAD)}
+exec gh workflow run verify-nightly.yml --ref "$ref" -f group="$group"

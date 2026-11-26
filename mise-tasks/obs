@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Find diagnostic evidence by trace or run ID"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec bun obs "$@"

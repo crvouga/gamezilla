@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+#MISE description="Dispatch the full verification gate on a published branch"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+ref=${1:-$(git symbolic-ref --short HEAD)}
+exec gh workflow run verify-pr.yml --ref "$ref"

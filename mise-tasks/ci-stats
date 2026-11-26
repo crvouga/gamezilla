@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Report workflow queue, execution and runner demand"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec bun ci:stats "$@"

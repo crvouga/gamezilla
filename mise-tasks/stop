@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Stop processes owned by this checkout"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec ./libs/tools-harness-ts/workspace/teardown.sh "$@"

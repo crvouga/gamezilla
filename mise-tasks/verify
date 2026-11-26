@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Run the local verification gate through its admission slot"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec bun verify "$@"
