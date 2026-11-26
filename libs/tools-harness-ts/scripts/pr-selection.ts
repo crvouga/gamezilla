@@ -238,7 +238,9 @@ export function admitPrMisses(
     .sort((a, b) => priority(a) - priority(b) || a.localeCompare(b));
   for (const id of ordered) {
     const remaining = Math.max(...lanes);
-    const seconds = costs[id] ?? 10;
+    // Cold runs on the hosted runner took much longer than warm history.
+    // Charge a half-lane minimum even when a past unit suite took a second.
+    const seconds = Math.max(priority(id) === 0 ? 1 : 25, costs[id] ?? 25);
     if (priority(id) > 0 && seconds > remaining) continue;
     lanes[lanes.indexOf(remaining)] = remaining - seconds;
     selected.add(id);
