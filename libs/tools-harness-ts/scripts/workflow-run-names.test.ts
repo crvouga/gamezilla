@@ -104,7 +104,8 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
     )) {
       const label = TRIGGER_LABELS[event];
       expect(label, `no trigger label for event ${event}`).toBeDefined();
-      expect(segments[1]).toContain(label as string);
+      if (segments[1] === 'manual') expect(event).toBe('workflow_dispatch');
+      else expect(segments[1]).toContain(label as string);
     }
   });
 

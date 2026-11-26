@@ -27,9 +27,16 @@ if (import.meta.main) {
   const path = join(import.meta.dirname, '../../../.cache/verify-ci/plan.json');
   const plan = JSON.parse(readFileSync(path, 'utf8')) as VerifyPlan;
   const stages = singleRunnerStages(plan);
-  execFileSync('mise', ['install', ...deploymentTools(plan.tasks).split(' ')], {
-    stdio: 'inherit',
-  });
+  if (process.argv.includes('--install-tools')) {
+    execFileSync(
+      'mise',
+      ['install', ...deploymentTools(plan.tasks).split(' ')],
+      {
+        stdio: 'inherit',
+      }
+    );
+    process.exit(0);
+  }
   for (const index of stages) {
     const status = await runShard(index, false);
     if (status !== 0) process.exit(status);

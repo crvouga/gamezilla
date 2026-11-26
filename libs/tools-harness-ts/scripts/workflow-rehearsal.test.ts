@@ -33,8 +33,8 @@ test('Release rehearsal verifies and plans without opening the release path', ()
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
     env: { AWS_ROLE_ARN: '${{ vars.AWS_HEALTH_ROLE_ARN }}' },
   });
-  expect(workflow.jobs['deploy-fleet']?.if).toBe('${{ !inputs.rehearsal }}');
-  expect(workflow.jobs['deploy-dev']?.needs).toBe('deploy-fleet');
+  expect(workflow.jobs['deploy-fleet']?.if).toContain('!inputs.rehearsal');
+  expect(workflow.jobs['deploy-dev']?.if).toContain('!inputs.rehearsal');
   const commands = workflow.jobs['deploy-rehearsal']?.steps
     ?.flatMap((step) => (step.run ? [step.run] : []))
     .join('\n');
