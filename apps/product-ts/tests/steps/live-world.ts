@@ -1,4 +1,3 @@
-import { captureMatchmakingEntry } from './matchmaking-entry-capture';
 import {
   BROWSER_FAILURE_LAYOUT,
   browserFailureLog,
@@ -230,8 +229,6 @@ function liveJourneyHost(
     openPeer: peer.open,
     act: async (name, gestures) => {
       const current = await ensureHost(target, devices);
-      if (name === 'findGameOpponent' && process.env['JOURNEY_CAPTURE_STEPS'] === '1' && devices.host === current)
-        await captureMatchmakingEntry(current);
       await timedAct(devices, current, gestures, name);
     },
     actAsGuest: async (name, gestures) => {
