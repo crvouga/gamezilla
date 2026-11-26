@@ -13,7 +13,10 @@ import {
 import { setMultiplayerConnection } from '@libs/game-matchmaking-harness-ts/multiplayer-connection';
 import { shownBoardPosition } from '@libs/game-matchmaking-harness-ts/multiplayer-review';
 import { passMultiplayerTime } from '@libs/game-matchmaking-harness-ts/multiplayer-time';
-import { chooseMatchedPrivateSetup } from '@libs/game-session-harness-ts/matched-game-private-setup';
+import {
+  chooseMatchedPrivateSetup,
+  matchedSetupBoardTakes,
+} from '@libs/game-session-harness-ts/matched-game-private-setup';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { daily } from './finding-an-opponent-world';
 import { firstMoves, told } from './matched-game';
@@ -69,6 +72,8 @@ Given(
     await w.s.apply(chooseMatchedPrivateSetup, actor);
     await told(w, actor, 'OFFLINE');
     await w.s.apply(setMultiplayerConnection, actor, true);
+    // Work online can return while the device is still reconnecting.
+    await w.s.until((s) => matchedSetupBoardTakes(s, actor));
   }
 );
 
