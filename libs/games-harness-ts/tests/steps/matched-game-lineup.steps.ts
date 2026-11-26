@@ -43,17 +43,22 @@ async function pairedAs(
   expect(String(timeControlOf(expected.clock)?.speed)).toBe(expected.speed);
   const { viewer, opponent } = people;
   await w.s.apply(openFindingAnOpponent, viewer, gameOf(w).shared.id);
+  const name = await w.s.read(nameEveryoneSeesOf, opponent);
+  expect(name).toBeTruthy();
+  const label = `${name} (${expected.rating})`;
   await w.s.until(
     (s) => shownMultiplayerText(s, viewer, 'multiplayer-opponent'),
-    { pred: (shown) => shown !== null }
+    {
+      pred: (shown) => {
+        expect(shown ?? '').not.toStartWith('Deleted account (');
+        return shown === label;
+      },
+    }
   );
   const lineup = await w.s.read(shownMultiplayerLineup, viewer);
   const game = (await w.s.read(multiplayerView, viewer)).game!;
   const side = game.white_id === (await ownerOf(w, viewer)) ? 'white' : 'black';
-  expect(lineup.opponent).toContain(
-    String(await w.s.read(nameEveryoneSeesOf, opponent))
-  );
-  expect(lineup.opponent).toContain(`(${expected.rating})`);
+  expect(lineup.opponent).toBe(label);
   expect(lineup.timeControl).toBe(clockShown(expected.clock));
   expect(lineup.colour).toBe(`You play ${sideName(w, side)}`);
 }
