@@ -130,6 +130,7 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
     Handles.spaceJoinPrompt,
     Handles.spaceJoin,
     CUSTOM_GAME_CONTENT,
+    'game-back-stay',
     Handles.gameChoice('multiplayer'),
     Handles.gameMenu(gameId),
     Handles.navBack,
@@ -159,7 +160,10 @@ export function findingAnOpponentStep(
   if (visible.has(Handles.spaceJoinPrompt))
     return visible.has(Handles.spaceJoin) ? Handles.spaceJoin : null;
   // The space stays on a custom game under way: its board is as far as it goes.
-  if (visible.has(CUSTOM_GAME_CONTENT) && !visible.has(Handles.navBack))
+  if (
+    visible.has('game-back-stay') ||
+    (visible.has(CUSTOM_GAME_CONTENT) && !visible.has(Handles.navBack))
+  )
     return 'arrived';
   return (
     [

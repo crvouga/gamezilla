@@ -222,7 +222,25 @@ export const switchSpaceGame = scenarioAction({
   },
 });
 
+export const answerGameBack = scenarioAction({
+  name: 'answerGameBack',
+  act: async (s, actor: string, answer: 'stay' | 'confirm') => {
+    await (await actorUi(s, actor)).get(`game-back-${answer}`).tap();
+    await s.session.waitForIdle();
+  },
+});
+
+export async function gameBackOffered(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  if (!(await ui.get('game-back-stay').isVisible())) return null;
+  return ui.get('game-back-confirm').text();
+}
+
 export const GAME_NAVIGATION_ACTIONS = [
+  answerGameBack,
   pickGame,
   openGameChoice,
   goBackInGame,

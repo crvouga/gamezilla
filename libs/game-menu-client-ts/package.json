@@ -47,6 +47,7 @@
   "gameApi": [
     "game-client",
     "game-settings",
+    "game-stage-back.example",
     "game-table-people.example"
   ],
   "language": "typescript"

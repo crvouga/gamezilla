@@ -1,0 +1,4 @@
+{
+  "summary": "Back from an active Classic Quoridor game against a bot minimized the space without asking whether to resign.",
+  "regressionTest": "specs/games/unfinished-game-return.feature"
+}

@@ -12,7 +12,8 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import type { JSX } from '@solidjs/web';
-import { createEffect, Show } from 'solid-js';
+import { createEffect } from 'solid-js';
+import { CustomGameBack } from './custom-game-back';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { CustomGameSetupBoard } from './custom-game-private-setup';
@@ -99,6 +100,7 @@ const DENIED_FRAME = {
 type FrameProps = {
   model: CustomGameScreenModel;
   title: JSX.Element;
+  onBackFromBoard: (personal: boolean) => void;
 };
 
 /**
@@ -158,12 +160,22 @@ function useStageStatus(
   );
 }
 
+function returnFromCustomGame(
+  model: CustomGameScreenModel,
+  backFromBoard: FrameProps['onBackFromBoard']
+) {
+  return (): void => {
+    if (model.current() === null || model.current()?.status === 'configuring')
+      model.back();
+    else backFromBoard(model.underWay() || !model.connected());
+  };
+}
+
 /** Reads the room for `CustomGameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
   const model = props.model;
   const review = useCustomGameReview(model);
   const place = useCustomGamePlace(model, review);
-  const choices = useGameChoicesName();
   const stage = useStageOverlay(
     () => frameOverlayPhase(place.phase()),
     useTimers()
@@ -180,20 +192,16 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const record = useFrameRecord(model, review);
   const boardState = useFrameBoardState(model, review, board);
   const shown = useFramePresentationFacts(model);
-  const atHome = (): boolean =>
-    place.place().screen === CUSTOM_GAME_PLACES.home[place.phase()].screen;
+  const leave = returnFromCustomGame(model, props.onBackFromBoard);
   return (
     <>
-      {/* Back from a phase's home names where it leads: the game's choices.
-          While the game is under way its board is home, with no way out. */}
-      <Show when={!(model.underWay() && atHome())}>
-        <DefineBackButton
-          onPress={() => {
-            if (!place.back()) model.back();
-          }}
-          label={atHome() ? choices() : undefined}
-        />
-      </Show>
+      <CustomGameBack
+        game={model.current()}
+        canResign={play().canResign || play().heldResign}
+        backWithinGame={place.back}
+        leave={leave}
+        resign={() => model.choose({ operation: 'resign' })}
+      />
       <CustomGameScreenView
         title={props.title}
         goal={shown.goal()}
@@ -229,7 +237,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onReady={model.ready}
         onPlayBot={model.playBot}
         onRandomSetup={async () => model.privateSetup.random()}
-        onBack={model.back}
+        onBack={leave}
         onSeek={review.seek}
         onReturnLive={review.returnLive}
         onSelectRecord={review.select}
@@ -246,6 +254,7 @@ export function CustomGameScreen(props: {
   onBack: () => void;
   title?: string;
   onHistory?: () => void;
+  onBackFromBoard: (personal: boolean) => void;
 }): JSX.Element {
   const model = useCustomGameScreen(
     props.onBack,
@@ -256,22 +265,26 @@ export function CustomGameScreen(props: {
   const choices = useGameChoicesName();
   return (
     <>
-      <Show when={!model.underWay()}>
-        <DefineBackButton onPress={model.back} label={choices()} />
-      </Show>
       <DecisionGate
         decision={model.watchDecision()}
         testId="custom-game-denial"
         denied={(denial) => (
-          <CustomGameScreenView
-            {...DENIED_FRAME}
-            title={title()}
-            denial={denial}
-            onBack={model.back}
-          />
+          <>
+            <DefineBackButton onPress={model.back} label={choices()} />
+            <CustomGameScreenView
+              {...DENIED_FRAME}
+              title={title()}
+              denial={denial}
+              onBack={model.back}
+            />
+          </>
         )}
       >
-        <CustomGameFrame model={model} title={title()} />
+        <CustomGameFrame
+          model={model}
+          title={title()}
+          onBackFromBoard={props.onBackFromBoard}
+        />
       </DecisionGate>
     </>
   );
