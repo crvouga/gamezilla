@@ -73,7 +73,7 @@ export function selectPrTasks(
     if (task.command === NO_OP || !isBlockingCiTask(task.taskId, PR_TASKS))
       continue;
     if (everything === null && !reached(task.taskId)) continue;
-    const reason = waitsForRelease(task, byId, context.costs);
+    const reason = deferredReason(task, byId, context.costs);
     if (reason === null) tasks.push(task);
     else deferred.push([task.taskId, reason]);
   }
@@ -91,7 +91,7 @@ export function describePrSelection(
   return [
     `turbo-ci-run: pull request: ${reach} ${String(selection.tasks.length)} gate tasks it verifies`,
     ...selection.deferred.map(
-      ([taskId, reason]) => `  release  ${taskId} (${reason})`
+      ([taskId, reason]) => `  deferred  ${taskId} (${reason})`
     ),
   ];
 }
@@ -145,7 +145,7 @@ function unboundedChange(
   return null;
 }
 
-function waitsForRelease(
+function deferredReason(
   task: DryRunTask,
   byId: ReadonlyMap<string, DryRunTask>,
   costs: TaskCosts

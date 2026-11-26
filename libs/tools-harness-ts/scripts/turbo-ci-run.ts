@@ -828,7 +828,7 @@ async function planOrNull(
         (task) => !admitted.has(task.taskId)
       );
       for (const task of deferred)
-        console.log(`  release  ${task.taskId} (outside PR compute budget)`);
+        console.log(`  deferred  ${task.taskId} (outside PR compute budget)`);
       plan = planFromTasks(
         plan.tasks.filter((task) => task.hit || admitted.has(task.taskId))
       );

@@ -119,13 +119,11 @@ test('gate shards install every toolchain the gate catalog needs', () => {
       (step) => step.uses === './.github/actions/setup'
     )!;
     const tools = setup.with?.['tools'];
-    expect(tools).toContain(
-      "env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint'"
-    );
-    expect(tools).toEndWith(" || '' }}");
-    if (job === 'verify-end') {
+    if (job === 'verify-shards')
+      expect(tools).toBe("${{ steps.tools.outputs.install || '' }}");
+    else {
       expect(tools).toContain(
-        "steps.scope.outputs.docs == 'true' && 'bun gitleaks'"
+        "env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint'"
       );
       expect(tools).toContain(
         "needs.verify-start.outputs.consumers == '-' && 'bun node'"

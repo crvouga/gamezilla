@@ -331,19 +331,25 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
-      - uses: ./.github/actions/setup
-        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
-        with:
-          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Download immutable plan
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: verify-plan
           path: .cache/verify-ci
+      - name: Read this production shard's tool list
+        id: tools
+        if: inputs.deployment
+        run: |
+          tools=$(base64 -d .cache/verify-ci/plan.payload | gzip -dc | jq -er --argjson shard "$VERIFY_SHARD" '.["deployment-tools"] | fromjson | .[$shard] | strings')
+          echo "install=$tools" >> "$GITHUB_OUTPUT"
+      - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          tools: ${{ steps.tools.outputs.install || '' }}
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Restore immutable plan and required prerequisites
         run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
       - name: Select task toolchains

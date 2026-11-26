@@ -6,7 +6,7 @@ name: Release
 # A rehearsal is labelled apart, so duration checks read only real releases.
 run-name: "Release · ${{ inputs.rehearsal && 'rehearsal' || github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Every push to main verifies the exact commit with the whole gate (a pull request ran four of its tasks),
+# Every push to main verifies the exact commit with the production verification gate,
 # then releases the shared services and deploys development and production independently.
 # Rehearsals verify and plan without releasing.
 #
