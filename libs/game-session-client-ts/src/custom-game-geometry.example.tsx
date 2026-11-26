@@ -1,4 +1,4 @@
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 
 /** Geometry is checked before any userEvent can scroll an element into view. */
 export async function expectBoardFirst(
@@ -14,6 +14,18 @@ export async function expectBoardFirst(
   while (parent) {
     await expect(parent.scrollTop).toBe(0);
     parent = parent.parentElement;
+  }
+  await canvasElement.ownerDocument.fonts.ready;
+  if (view.innerWidth >= 880) {
+    const region = board.closest('[data-game-board]');
+    if (!region) throw new Error('The rack needs a board region');
+    // Observe the final row fitting in its stage while the story is still
+    // untouched. Dialog transitions are compared against this fitted rack.
+    await waitFor(() =>
+      expect(board.getBoundingClientRect().bottom).toBeLessThanOrEqual(
+        region.getBoundingClientRect().bottom
+      )
+    );
   }
   const box = board.getBoundingClientRect();
   // Beside its rail a board is as wide as the window's height lets the
@@ -44,16 +56,11 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   const dialog = canvas.getByRole('dialog', { name: 'Game over' });
   await expect(dialog.contains(headline)).toBe(true);
   await expect(dialog.contains(rematch)).toBe(true);
-  const before = board.getBoundingClientRect();
+  const before = board.getBoundingClientRect().toJSON();
   await userEvent.click(canvas.getByTestId('game-result-close'));
-  const after = board.getBoundingClientRect();
-  await expect([after.top, after.left, after.width, after.height]).toEqual([
-    before.top,
-    before.left,
-    before.width,
-    before.height,
-  ]);
+  await expect(board.getBoundingClientRect().toJSON()).toEqual(before);
   await userEvent.click(canvas.getByTestId('game-show-result'));
+  await expect(board.getBoundingClientRect().toJSON()).toEqual(before);
   await expect(canvas.getAllByTestId('custom-game-rematch')).toHaveLength(1);
   await expect(canvas.getAllByTestId('custom-game-history-stats')).toHaveLength(
     1
