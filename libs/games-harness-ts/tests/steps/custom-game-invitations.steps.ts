@@ -1,7 +1,7 @@
 import { expect } from 'bun:test';
-import { readCustomGameName } from '@libs/game-session-harness-ts/custom-game-names';
 import {
   customGameInvitationShown,
+  customGameSeatName,
   readCustomGameInvitation,
 } from '@libs/game-session-harness-ts/custom-game-reads';
 import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
@@ -64,7 +64,7 @@ Then(
       (seat) => game[seat].person === creatorId
     );
     if (seated === undefined) return;
-    const name = await w.s.read(readCustomGameName, creator, seated);
+    const name = await w.s.read(customGameSeatName, creator, seated);
     expect(name).toBeTruthy();
     expect(
       await w.s.until((s) => readCustomGameInvitation(s, person, side), {

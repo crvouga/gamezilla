@@ -32,7 +32,8 @@ function boardIgnoring(ignoredPairs: number): {
     key: unused,
     scroll: unused,
     wait: unused,
-    isVisible: unused,
+    // The move list opens from the status line; this example lists it.
+    isVisible: async () => id === 'custom-game-record',
     text: unused,
     tap: unused,
     layout: async () => ({ x: 0, y: 0, width: 400, height: 400 }),
