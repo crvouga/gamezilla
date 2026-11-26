@@ -17,8 +17,6 @@ import { Button } from '../button/index';
 import { moveFocus } from '../move-focus';
 import styles from './card-table.module.css';
 import componentStyles from './card-table-details.module.css';
-import { createHeartsInput } from './hearts-input';
-import felt from './hearts-table.module.css';
 import { CardTableContext } from './table-context';
 
 export type CardSuit = 'clubs' | 'diamonds' | 'spades' | 'hearts';
@@ -87,7 +85,15 @@ export type CardTableAction = {
 
 export type CardTableProps = {
   readonly label: string;
-  readonly hearts?: { zoom: string; fit: string };
+  readonly hearts?: {
+    zoom: string;
+    fit: string;
+    input: {
+      view: () => { x: number; y: number; scale: number };
+      bind: (element: HTMLElement) => void;
+      toggle: () => void;
+    };
+  };
   /** Disclosure label for the player table while passing on short phones. */
   readonly tableSummary?: string | undefined;
   readonly testId: string;
@@ -340,7 +346,7 @@ function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
       <CardFace card={props.card} />
       <Show when={props.card.points?.mark}>
         {(mark) => (
-          <span class={felt['points']} aria-hidden="true">
+          <span data-hearts-points="" aria-hidden="true">
             {mark()}
           </span>
         )}
@@ -681,16 +687,16 @@ function HandTray(props: CardTableProps): JSX.Element {
  * ```
  */
 export function CardTable(props: CardTableProps): JSX.Element {
-  const input = createHeartsInput();
   const seatIds = createMemo(() => props.seats.map((seat) => seat.testId));
   const seatsById = createMemo(
     () => new Map(props.seats.map((seat) => [seat.testId, seat]))
   );
   return (
     <div
-      class={[styles['root'], { [felt['salon'] ?? '']: !!props.hearts }]}
+      class={styles['root']}
+      data-hearts-table={props.hearts ? '' : undefined}
       ref={(element) => {
-        if (props.hearts) input.bind(element);
+        props.hearts?.input.bind(element);
       }}
       data-testid={props.testId}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
@@ -701,13 +707,14 @@ export function CardTable(props: CardTableProps): JSX.Element {
         testId={props.testId}
       >
         <div
-          class={props.hearts ? felt['viewport'] : undefined}
           data-hearts-viewport={props.hearts ? '' : undefined}
-          style={{
-            '--hearts-pan-x': `${input.view().x * 100}%`,
-            '--hearts-pan-y': `${input.view().y * 100}%`,
-            '--hearts-scale': String(input.view().scale),
-          }}
+          style={
+            props.hearts && {
+              '--hearts-pan-x': `${props.hearts.input.view().x * 100}%`,
+              '--hearts-pan-y': `${props.hearts.input.view().y * 100}%`,
+              '--hearts-scale': String(props.hearts.input.view().scale),
+            }
+          }
         >
           <div
             class={[
@@ -755,8 +762,10 @@ export function CardTable(props: CardTableProps): JSX.Element {
             <Button
               size="sm"
               variant="ghost"
-              title={input.view().scale > 1 ? labels().fit : labels().zoom}
-              onClick={input.toggle}
+              title={
+                labels().input.view().scale > 1 ? labels().fit : labels().zoom
+              }
+              onClick={labels().input.toggle}
             />
           </div>
         )}

@@ -1,4 +1,5 @@
 import { createSignal, onSettled } from 'solid-js';
+import './board.css';
 
 type Point = { x: number; y: number };
 type Contact = { at: Point; felt: boolean };

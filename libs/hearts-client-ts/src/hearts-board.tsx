@@ -4,6 +4,7 @@ import {
   passDirection,
 } from '@libs/hearts-shared-ts/hearts-position';
 import { t } from '@lingui/core/macro';
+import { createHeartsInput } from '@pkgs/hearts-board-client-ts/input';
 import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
@@ -155,6 +156,11 @@ function handInstruction(
     : undefined;
 }
 
+function togglePassCard(cards: readonly string[], card: string) {
+  if (cards.includes(card)) return cards.filter((other) => other !== card);
+  return cards.length < 3 ? [...cards, card] : cards;
+}
+
 /**
  * The Hearts table: four seats around the trick, the viewer nearest, and
  * the viewer's own hand. While passing, three cards are chosen and passed
@@ -162,6 +168,7 @@ function handInstruction(
  * one they refuse says why. A watcher sees the table and no hand.
  */
 export function HeartsBoard(props: GameBoardProps): JSX.Element {
+  const input = createHeartsInput();
   // Memos, so a prop read again with the same value resets nothing.
   const position = createMemo(() => props.position);
   const commitment = createMemo(() => props.commitment);
@@ -193,13 +200,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
       props.onAction(card);
       return;
     }
-    setSelected((now) =>
-      now.includes(card)
-        ? now.filter((other) => other !== card)
-        : now.length < 3
-          ? [...now, card]
-          : now
-    );
+    setSelected((now) => togglePassCard(now, card));
   };
   const players = useSeatPlayers();
   const nameOf = (side: GameSide) => players?.nameOf(side) ?? null;
@@ -214,7 +215,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
   const awaitingHand = () => props.interactive && props.hand === null;
   return (
     <CardTable
-      hearts={{ zoom: t`Zoom table`, fit: t`Fit table` }}
+      hearts={{ input, zoom: t`Zoom table`, fit: t`Fit table` }}
       label={t`Hearts table`}
       tableSummary={t`Players and scores`}
       testId={props.testId}

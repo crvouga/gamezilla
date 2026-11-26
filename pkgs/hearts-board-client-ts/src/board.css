@@ -1,10 +1,10 @@
 /* An inset oval rail surrounds the four seats without consuming hand space. */
-.salon [data-table-felt] {
+[data-hearts-table] [data-table-felt] {
   isolation: isolate;
   background: var(--ui-color-game-hearts-canvas);
   border-color: var(--ui-color-game-hearts-muted);
 }
-.salon [data-table-felt]::before {
+[data-hearts-table] [data-table-felt]::before {
   content: "";
   position: absolute;
   pointer-events: none;
@@ -14,23 +14,23 @@
   background: var(--ui-color-game-hearts-surface);
   border: 1px solid var(--ui-color-game-hearts-muted);
 }
-.salon section[data-position] {
+[data-hearts-table] section[data-position] {
   font-variant-numeric: tabular-nums;
 }
-.salon section[data-winner="true"] {
+[data-hearts-table] section[data-winner="true"] {
   box-shadow: inset 0 calc(-1 * var(--ui-space-1))
     var(--ui-color-game-hearts-accent);
 }
-.salon [role="toolbar"] {
+[data-hearts-table] [role="toolbar"] {
   background: var(--ui-color-surface-sunken);
   border-radius: var(--ui-radius-control);
 }
-.salon [data-pass-tray] {
+[data-hearts-table] [data-pass-tray] {
   background: var(--ui-color-game-hearts-canvas);
   border-radius: var(--ui-radius-control);
   padding-inline: var(--ui-space-1);
 }
-.salon button[aria-pressed="true"]::before {
+[data-hearts-table] button[aria-pressed="true"]::before {
   content: "✓" / "";
   position: absolute;
   top: 0;
@@ -40,7 +40,7 @@
   color: var(--ui-color-on-primary);
   font-weight: var(--ui-font-weight-bold);
 }
-.points {
+[data-hearts-points] {
   position: absolute;
   bottom: var(--ui-space-1);
   left: var(--ui-space-1);
@@ -49,29 +49,29 @@
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
-.viewport {
+[data-hearts-viewport] {
   overflow: clip;
   border-radius: var(--ui-radius-sheet);
   touch-action: none;
 }
-.viewport > [data-table-felt] {
+[data-hearts-viewport] > [data-table-felt] {
   transform-origin: top left;
   transform: translate(var(--hearts-pan-x), var(--hearts-pan-y))
     scale(var(--hearts-scale));
 }
-.salon button[data-card] {
+[data-hearts-table] button[data-card] {
   touch-action: none;
 }
-.salon button[data-picked-up] {
+[data-hearts-table] button[data-picked-up] {
   z-index: 3;
   pointer-events: none;
   box-shadow: var(--ui-shadow-float);
 }
-.salon[data-dragging] .viewport {
+[data-hearts-table][data-dragging] [data-hearts-viewport] {
   outline: 2px dashed var(--ui-color-focus-ring);
 }
 @media (prefers-reduced-motion: no-preference) {
-  .salon [data-position] > [data-card] {
+  [data-hearts-table] [data-position] > [data-card] {
     animation: hearts-land var(--ui-duration-fast) var(--ui-easing-standard);
   }
 }
@@ -83,6 +83,6 @@
     transform: none;
   }
 }
-.salon:has([aria-expanded="false"]) > [data-hearts-navigation] {
+[data-hearts-table]:has([aria-expanded="false"]) > [data-hearts-navigation] {
   display: none;
 }
