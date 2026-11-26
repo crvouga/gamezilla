@@ -140,7 +140,9 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          STAGE_SECONDS: "${{ github.event_name == 'pull_request' && 180 || inputs.profile == 'nightly' && 2700 || 600 }}"
+          # Production needs six minutes after verification for a safe rollout.
+          # Leave reporting time when the check cannot finish inside that window.
+          STAGE_SECONDS: "${{ github.event_name == 'pull_request' && 180 || inputs.profile == 'nightly' && 2700 || inputs.require-main && github.job != 'verify-end' && 240 || github.workflow == 'Release' && 480 || 600 }}"
         run: |
           set -euo pipefail
           created=$(timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
@@ -205,7 +207,7 @@ jobs:
           key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-
       - name: Measure competing workflow runs
-        if: env.VERIFY_CI_STAGE != 'pr'
+        if: env.VERIFY_CI_STAGE != 'pr' && !inputs.require-main
         id: demand
         run: |
           set -euo pipefail
@@ -265,11 +267,10 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
-      # A failed build is recorded in this shard's verdict, which `verify:end`
-      # reports; the shards still run so one red build does not hide every
-      # other failure.
+      # Release stops here on a failed prerequisite. Diagnostic runs collect
+      # results for other tasks. Both transfer the prerequisite verdict.
       - name: Build shared prerequisites and warm their cache
-        continue-on-error: true
+        continue-on-error: ${{ github.workflow != 'Release' }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
       - name: Transfer prerequisite outputs
         if: always() && !cancelled()
@@ -300,9 +301,10 @@ jobs:
   verify-shards:
     name: verify:shards (${{ strategy.job-index }})
     needs: [verify-start]
-    # Across PR dispatch, Release and Nightly, one shard can use each slot.
+    # Diagnostics share slots. A production release has its own bounded wave
+    # so a queued nightly shard cannot hold the deployment past its deadline.
     concurrency:
-      group: verify-full-shard-${{ matrix.shard['-'] }}
+      group: ${{ inputs.require-main && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}
       queue: max
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
@@ -313,7 +315,7 @@ jobs:
       id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
     strategy:
-      fail-fast: false
+      fail-fast: ${{ github.workflow == 'Release' }}
       max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '12') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
@@ -470,7 +472,10 @@ jobs:
           path: .cache/verify-ci
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
-        if: github.event_name != 'pull_request'
+        if: >-
+          github.event_name != 'pull_request' &&
+          (github.workflow != 'Release' || (needs.verify-start.result == 'success' &&
+          (needs.verify-shards.result == 'success' || needs.verify-start.outputs.shards == '[]')))
         timeout-minutes: ${{ inputs.profile == 'nightly' && 45 || 10 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       - name: Upload queryable trace artifacts
