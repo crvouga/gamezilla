@@ -139,6 +139,7 @@ Feature: Private setups in a matched game
     Background:
       Given Alice has the first side against Bob in a 5+0 matched game awaiting both private setups
 
+    @regression:matched-setup-choice-during-reconnection
     Scenario: A person back online can choose their private setup
       Given Alice has a complete private setup
       And Alice is back online after her offline choice was refused
