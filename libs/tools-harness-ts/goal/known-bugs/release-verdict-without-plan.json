@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45863781391 exhausted its verification allowance before the planner emitted shards, then held the release queue to install a verdict runner that could only fail on the missing plan.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-workflow-cancel.test.ts"
+}

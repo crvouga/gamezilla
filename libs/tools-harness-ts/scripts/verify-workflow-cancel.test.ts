@@ -273,8 +273,10 @@ describe('Verify workflow cancellation', () => {
     ]);
     const end = workflow.jobs['verify-end']!;
     expect(end.needs).toEqual(['verify-start', 'verify-shards']);
+    // regression: release-verdict-without-plan
     expect(end.if).toBe(
-      "always() && !cancelled() && needs.verify-start.outputs.single_runner != '+'"
+      "always() && !cancelled() && needs.verify-start.outputs.single_runner != '+' && " +
+        "(github.workflow != 'Release' || needs.verify-start.result == 'success' || needs.verify-start.outputs.shards != '')"
     );
     expect(end['continue-on-error']).toBeUndefined();
     expect(workflow.jobs['verify-start']!.if).toBeUndefined();
