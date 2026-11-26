@@ -136,7 +136,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           SHARED_CREATED_AT: ${{ inputs.created-at }}
-          STAGE_SECONDS: "${{ inputs.profile == 'nightly' && 2700 || inputs.require-main && github.job != 'verify-end' && 240 || github.workflow == 'Release' && 480 || 600 }}"
+          # Nightly work ends at minute 39 to leave six minutes for hosted cancellation.
+          STAGE_SECONDS: "${{ inputs.profile == 'nightly' && 2340 || inputs.require-main && github.job != 'verify-end' && 240 || github.workflow == 'Release' && 480 || 600 }}"
         run: |
           set -euo pipefail
           if [[ -n "${SHARED_CREATED_AT:-}" ]]; then
@@ -362,7 +363,7 @@ jobs:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
       id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ inputs.profile == 'nightly' && 45 || 10 }}
+    timeout-minutes: ${{ inputs.profile == 'nightly' && 35 || 10 }}
     strategy:
       fail-fast: ${{ github.workflow == 'Release' }}
       max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '6') }}

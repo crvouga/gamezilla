@@ -36,7 +36,7 @@ export type VerifyProfile = {
 /** The longest any Verify Nightly job may run, setup included. */
 export const NIGHTLY_JOB_MINUTES = 45;
 /**
- * One nightly runner's compute budget, a gate shard's or a suite shard's:
+ * A nightly suite runner's compute budget:
  * under the job limit with room for checkout, setup and the step's own
  * timeout to fire after it.
  */
@@ -70,7 +70,8 @@ const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
     // The gate plans each shard to fill part of this (`verify-plan.ts`), so
     // a deeper night spreads over more shards rather than longer ones; a
     // laptop runs the whole corpus in one slot.
-    deadlineSeconds: { ci: SHARD_DEADLINE_SECONDS, local: 21_600 },
+    // Leave time inside the 35-minute hosted gate job for setup and evidence.
+    deadlineSeconds: { ci: 32 * 60, local: 21_600 },
     continueAfterFailure: true,
   },
 };
