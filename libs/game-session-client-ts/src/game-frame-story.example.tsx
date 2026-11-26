@@ -264,7 +264,7 @@ export function frameArgs(): CustomGameScreenViewProps {
     stopped: false,
     status: null,
     canCreate: true,
-    playerCount: 2,
+    sides: ['white', 'black'],
     setup: null,
     table: FRAME_NO_TABLE,
     play: FRAME_NO_PLAY,

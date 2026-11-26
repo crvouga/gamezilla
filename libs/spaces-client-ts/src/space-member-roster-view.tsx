@@ -7,8 +7,6 @@ import type { RoomActor } from '@pkgs/room-root-shared-ts/types';
 import { Badge, HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
-import { ScrollView } from '@pkgs/ui-root-client-ts/scroll-view';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Show } from 'solid-js';
@@ -28,9 +26,7 @@ export type SpaceMemberRow = SpacePresenceFace & {
   readonly isHost: boolean;
 };
 
-export type SpaceMembersSheetViewProps = {
-  readonly visible: boolean;
-  readonly onClose: () => void;
+export type SpaceMemberRosterViewProps = {
   /** Connected people, in roster order. */
   readonly members: readonly SpaceMemberRow[];
   /** Opens Share, right under the empty list's invitation. */
@@ -134,10 +130,10 @@ function rosterRow(
 
 /**
  * People in the space, one row each, with idle / host / you / this-tab
- * badges. A modal centered on the screen at every width.
+ * badges.
  */
-export function SpaceMembersSheetView(
-  props: SpaceMembersSheetViewProps
+export function SpaceMemberRosterView(
+  props: SpaceMemberRosterViewProps
 ): JSX.Element {
   const { t } = useLingui();
   const rows = createMemo(() =>
@@ -150,43 +146,35 @@ export function SpaceMembersSheetView(
   const personOf = (actor: RoomActor): SpacePerson | null =>
     find(actor.id)?.person ?? null;
   return (
-    <ResponsiveSurface
-      visible={props.visible}
-      onClose={() => props.onClose()}
-      title={<Trans>People in this space</Trans>}
-      scroll={false}
-      closeDataSet={{ testid: Handles.spaceMembersClose }}
-    >
-      <ScrollView maxHeight="lg">
-        <Show
-          when={rows().length > 0}
-          fallback={
-            <EmptyState
-              variant="compact"
-              title={<Trans>No one else is here yet</Trans>}
-              body={<Trans>Share the space link to invite people.</Trans>}
-              action={
-                props.onShare === undefined
-                  ? undefined
-                  : { label: <Trans>Share</Trans>, onClick: props.onShare }
-              }
-            />
-          }
-        >
-          <PresenceRosterList
-            rows={rows()}
-            colorForParticipant={(id) =>
-              find(id)?.color ?? resolveParticipantColor(id)
+    <>
+      <Show
+        when={rows().length > 0}
+        fallback={
+          <EmptyState
+            variant="compact"
+            title={<Trans>No one else is here yet</Trans>}
+            body={<Trans>Share the space link to invite people.</Trans>}
+            action={
+              props.onShare === undefined
+                ? undefined
+                : { label: <Trans>Share</Trans>, onClick: props.onShare }
             }
-            renderAvatar={(actor, size) => (
-              <SpacePersonAvatar person={personOf(actor)} size={size} />
-            )}
           />
-        </Show>
-        <SpaceProbe testId={Handles.spacePresenceCount}>
-          {rows().length}
-        </SpaceProbe>
-      </ScrollView>
-    </ResponsiveSurface>
+        }
+      >
+        <PresenceRosterList
+          rows={rows()}
+          colorForParticipant={(id) =>
+            find(id)?.color ?? resolveParticipantColor(id)
+          }
+          renderAvatar={(actor, size) => (
+            <SpacePersonAvatar person={personOf(actor)} size={size} />
+          )}
+        />
+      </Show>
+      <SpaceProbe testId={Handles.spacePresenceCount}>
+        {rows().length}
+      </SpaceProbe>
+    </>
   );
 }

@@ -259,8 +259,12 @@ export const openSpaceMembers = scenarioAction({
 export const leaveSpace = scenarioAction({
   name: 'leaveSpace',
   act: async (s, actorId: string) => {
-    await tapSpaceAction(s, actorId, Handles.spaceLeave);
     const ui = await actorUi(s, actorId);
+    if (await ui.get(Handles.spaceEnd).isVisible()) {
+      await Promise.resolve(endSpace.act(s, actorId));
+      return;
+    }
+    await tapSpaceAction(s, actorId, Handles.spaceLeave);
     await ui.get(Handles.spaceLeaveConfirm).tap({ timeoutMs: SPACE_WAIT_MS });
     await ui
       .get(Handles.spaceLeaveConfirm)
@@ -288,6 +292,7 @@ export const renameSpace = scenarioAction({
     // stays open saying so, and nothing is saved.
     if (await ui.get(Handles.spaceRenameNotAllowed).isVisible()) return;
     await confirmSpaceMutation(s, actorId, Handles.spaceRenameConfirm);
+    await ui.get(Handles.spaceMembersClose).tap({ timeoutMs: SPACE_WAIT_MS });
   },
 });
 

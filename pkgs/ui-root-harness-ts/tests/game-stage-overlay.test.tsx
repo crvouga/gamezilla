@@ -7,7 +7,15 @@ import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render'
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { GameResultOverlay } from '@pkgs/ui-root-client-ts/game-stage-overlay';
+import GameStageOverlayExample from '@pkgs/ui-root-client-ts/game-stage-overlay/game-stage-overlay.example';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
+import { renderUi } from './render';
+
+// regression: result-example-without-args
+test('the standalone result example opens with a win', () => {
+  const view = renderUi(() => <GameStageOverlayExample />);
+  expect(view.getByRole('heading', { name: 'You won' })).toBeVisible();
+});
 
 const CSS = readFileSync(
   join(

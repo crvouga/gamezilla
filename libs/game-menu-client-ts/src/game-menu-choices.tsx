@@ -253,21 +253,21 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.matchmakingHome,
-            title: () =>
-              playerCount > 2 ? (
-                <Trans>Find players</Trans>
-              ) : (
-                <Trans>Find an opponent</Trans>
-              ),
+            title: () => <Trans>Match making</Trans>,
             caption: () => (
               <FindOpponentOffer>
                 <Show
-                  when={playerCount > 2}
-                  fallback={<Trans>Meet another {name} player</Trans>}
+                  when={game.mode === undefined}
+                  fallback={<Trans>Find players for your chosen mode</Trans>}
                 >
-                  <Trans>
-                    Meet {playerCount - 1} other {name} players
-                  </Trans>
+                  <Show
+                    when={playerCount > 2}
+                    fallback={<Trans>Meet another {name} player</Trans>}
+                  >
+                    <Trans>
+                      Meet {playerCount - 1} other {name} players
+                    </Trans>
+                  </Show>
                 </Show>
               </FindOpponentOffer>
             ),
@@ -278,9 +278,7 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.customGamesHome,
-            // Short enough to keep the lead's tag beside it on a phone's
-            // row; the caption says bots are welcome too.
-            title: () => <Trans>Play with friends</Trans>,
+            title: () => <Trans>Custom games</Trans>,
             // The game menu is always inside a space: its people are who
             // plays a custom game, beside any bots.
             caption: () => (

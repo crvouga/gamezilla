@@ -357,12 +357,20 @@ export function spaceNameRefusalShown(
   return shows(s, actorId, Handles.spaceRenameNotAllowed);
 }
 
-/** The space bar offers Rename to the viewer. */
-export function renameOffered(
+/** Space settings offers the host a name editor. */
+export async function renameOffered(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  return shows(s, actorId, Handles.spaceRename);
+  const ui = await frontUi(s, actorId);
+  const settings = ui.get(Handles.spaceSettings);
+  if (!(await settings.isVisible())) return false;
+  await settings.tap();
+  const close = ui.get(Handles.spaceMembersClose);
+  await close.expect.visible();
+  const offered = await ui.get(Handles.spaceRename).isVisible();
+  await close.tap();
+  return offered;
 }
 
 /**

@@ -27,10 +27,12 @@ function filled(): HTMLElement[] {
 const shown = (id: string): boolean => screen.queryByTestId(id) !== null;
 
 describe('before a game', () => {
-  test('the start place offers the two ways to begin as rows, and nothing else', () => {
+  test('fresh setup shows both seats, the bot shortcut and the action to open the table', () => {
     mountFrame(() =>
       frameProps({ phase: 'none', place: { screen: 'home' }, status: null })
     );
+    expect(shown('custom-game-white-choices')).toBe(true);
+    expect(shown('custom-game-black-choices')).toBe(true);
     expect(shown('custom-game-play-bot')).toBe(true);
     expect(shown('custom-game-create')).toBe(true);
     expect(

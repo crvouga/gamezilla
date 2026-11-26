@@ -3,9 +3,10 @@ import {
   opponentSearchView,
   seekGameOpponent,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import { pickGame } from '@libs/game-session-harness-ts/game-navigation';
-import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
+import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
+import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
+import { selectedSetupMode } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   createSpace,
@@ -114,12 +115,24 @@ export const joinSpaceOf = scenarioAction({
   },
 });
 
-/** The host picks the mode as the space's game. */
+/** The host chooses the mode on the custom game's setup. */
 export const pickLightCyclesMode = scenarioAction({
   name: 'pickLightCyclesMode',
   act: (s, host: string, count: LightCyclesCount) =>
-    pickGame.act(s, host, lightCyclesGameId(count)),
+    openCustomGames.act(s, host, lightCyclesGameId(count)),
 });
+
+export async function customModeChosen(
+  s: ProductHarness,
+  actor: string,
+  count: LightCyclesCount
+): Promise<boolean> {
+  const ui = await actorUi(s, actor);
+  return (
+    (await ui.get('custom-game-content').isVisible()) &&
+    (await selectedSetupMode(ui, lightCyclesGameId(count)))
+  );
+}
 
 const seekers = new WeakMap<ProductHarness, Map<string, LightCyclesCount>>();
 

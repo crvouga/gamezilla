@@ -6,8 +6,6 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
 import { List } from '@pkgs/ui-root-client-ts/list';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
-import type { MutationStep } from '@pkgs/ui-root-client-ts/mutation-step';
-import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
@@ -16,9 +14,7 @@ import { For, Match, Show, Switch } from 'solid-js';
 import type { SpacePerson } from './space-person-view';
 import { SpacePersonAvatar, SpacePersonName } from './space-person-view';
 
-export type SpaceShareSheetViewProps = {
-  readonly open: boolean;
-  readonly onClose: () => void;
+export type SpaceSharingPanelProps = {
   /** Copies the space link; the button shows copying / copied / failed. */
   readonly onCopyLink: () => Promise<void>;
   /** The host may add and remove people. */
@@ -33,11 +29,6 @@ export type SpaceShareSheetViewProps = {
   /** The viewer's own id: their row reads "You". */
   readonly viewerId?: string | undefined;
   readonly onRemovePerson: (person: SpacePerson) => void;
-  /**
-   * Removing a person, asked in this same dialog: its title and body stand
-   * in for the sheet's until it closes, so no second dialog stacks on top.
-   */
-  readonly removal?: MutationStep | undefined;
 };
 
 function SpaceShareLinkSection(props: {
@@ -74,7 +65,10 @@ function SpaceShareLinkSection(props: {
           <Trans>Anyone with the link can join while you're online.</Trans>
         </Show>
       </P>
-      <Button {...copyButton.buttonProps} />
+      <Button
+        {...copyButton.buttonProps}
+        dataSet={{ testid: Handles.spaceCopyLink }}
+      />
     </StackVertical>
   );
 }
@@ -158,7 +152,7 @@ function PeopleAccessRow(props: {
   );
 }
 
-function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
+function SpaceSharePeopleList(props: SpaceSharingPanelProps): JSX.Element {
   return (
     <StackVertical gap="sm">
       <H3 size="label">
@@ -227,43 +221,18 @@ function SpaceSharePeopleList(props: SpaceShareSheetViewProps): JSX.Element {
   );
 }
 
-/**
- * Share a space: copy its link, add people (host), and see who has access
- * with the host's Remove action. A modal centered on the screen at every
- * width; long lists scroll inside it. Remove asks in this same dialog: the
- * title and body swap to the confirm, and Cancel brings the list back.
- */
-export function SpaceShareSheetView(
-  props: SpaceShareSheetViewProps
-): JSX.Element {
+/** The link, invitations and access list shared by People and Settings. */
+export function SpaceSharingPanel(props: SpaceSharingPanelProps): JSX.Element {
   return (
-    <ResponsiveSurface
-      visible={props.open}
-      onClose={() => props.onClose()}
-      title={props.removal?.title() ?? <Trans>Share space</Trans>}
-      size="medium"
-      closeDataSet={{ testid: Handles.spaceShareClose }}
-    >
-      <Show
-        when={props.removal}
-        keyed
-        fallback={
-          // The sheet grows with the window and scrolls as one, so the
-          // people list is never cut mid-row while the window has room.
-          <StackVertical gap="md">
-            <SpaceShareLinkSection
-              onCopyLink={props.onCopyLink}
-              youHost={
-                props.viewerId !== undefined && props.viewerId === props.hostId
-              }
-            />
-            <Show when={props.canManage}>{props.addPeople}</Show>
-            <SpaceSharePeopleList {...props} />
-          </StackVertical>
+    <StackVertical gap="md">
+      <SpaceShareLinkSection
+        onCopyLink={props.onCopyLink}
+        youHost={
+          props.viewerId !== undefined && props.viewerId === props.hostId
         }
-      >
-        {(removal: MutationStep) => <removal.Body />}
-      </Show>
-    </ResponsiveSurface>
+      />
+      <Show when={props.canManage}>{props.addPeople}</Show>
+      <SpaceSharePeopleList {...props} />
+    </StackVertical>
   );
 }

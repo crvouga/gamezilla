@@ -1,5 +1,6 @@
 /* The stage fills the space below the header. */
 .shell {
+  container-type: inline-size;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -11,12 +12,10 @@
   color: var(--ui-color-text);
 }
 
-/* Keep the action group together. When the title and actions need separate
-   lines, the title stays with Back and Minimize stays against the right edge. */
+/* The title gives up room before the tools. */
 .actions {
   display: flex;
   flex: none;
-  flex-wrap: wrap;
   align-items: center;
   column-gap: var(--ui-space-1);
   min-height: 56px;
@@ -31,19 +30,21 @@
 }
 
 .context {
-  flex: 1 1 8rem;
+  flex: 1;
   min-width: 0;
 }
 
 .where {
+  display: flex;
+  align-items: baseline;
+  gap: var(--ui-space-2);
   flex: 1;
   min-width: 0;
 }
 
 .tools {
-  flex-wrap: wrap;
   justify-content: flex-end;
-  max-width: 100%;
+  flex: none;
   margin-inline-start: auto;
 }
 
@@ -64,4 +65,26 @@
 }
 .stage[data-scroll="fixed"] {
   overflow: hidden;
+}
+
+/* On a phone the game gets the available title space. The full space name
+   is available to assistive technology and in Settings. */
+@container (max-width: 600px) {
+  .where > :nth-child(2) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+@container (max-width: 320px) {
+  .where {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
 }

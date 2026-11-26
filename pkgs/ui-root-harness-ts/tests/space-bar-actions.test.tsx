@@ -27,8 +27,7 @@ test.each([
           role={role}
           onBack={mock()}
           onMembers={mock()}
-          onInvite={mock()}
-          onRename={role === 'host' ? mock() : undefined}
+          onSettings={role === 'host' ? mock() : undefined}
           onLeave={leave}
           onEnd={role === 'host' ? end : undefined}
           onMinimize={minimize}
@@ -43,10 +42,7 @@ test.each([
     expect(buttons.map((button) => button.getAttribute('aria-label'))).toEqual([
       'Back to spaces',
       'People in this space',
-      'Share',
-      ...(role === 'host' ? ['Rename'] : []),
-      'Leave space',
-      ...(role === 'host' ? ['End space'] : []),
+      ...(role === 'host' ? ['Space settings', 'End space'] : ['Leave space']),
       'Minimize space',
     ]);
     fireEvent.click(
@@ -61,7 +57,7 @@ test.each([
 test('permission changes update the bar while Minimize stays last', () => {
   const press = mock();
   const [grants, setGrants] = createSignal({
-    rename: false,
+    settings: false,
     leave: false,
     end: false,
   });
@@ -73,8 +69,7 @@ test('permission changes update the bar while Minimize stays last', () => {
       onBack={press}
       onMembers={press}
       onMinimize={press}
-      onInvite={press}
-      onRename={grants().rename ? press : undefined}
+      onSettings={grants().settings ? press : undefined}
       onLeave={grants().leave ? press : undefined}
       onEnd={grants().end ? press : undefined}
     >
@@ -86,19 +81,19 @@ test('permission changes update the bar while Minimize stays last', () => {
     'space bar permissions',
     fc.property(
       fc.record({
-        rename: fc.boolean(),
+        settings: fc.boolean(),
         leave: fc.boolean(),
         end: fc.boolean(),
       }),
       (next) => {
         setGrants(next);
         flush();
-        expect(bar.queryByRole('button', { name: 'Rename' }) !== null).toBe(
-          next.rename
-        );
+        expect(
+          bar.queryByRole('button', { name: 'Space settings' }) !== null
+        ).toBe(next.settings);
         expect(
           bar.queryByRole('button', { name: 'Leave space' }) !== null
-        ).toBe(next.leave);
+        ).toBe(next.leave && !next.end);
         expect(bar.queryByRole('button', { name: 'End space' }) !== null).toBe(
           next.end
         );

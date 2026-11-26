@@ -3,20 +3,24 @@ import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal } from 'solid-js';
 import { useRemoveSpacePersonStep } from './remove-space-person-step';
+import {
+  SpaceManagementView,
+  type SpaceManagementViewProps,
+} from './space-management-view';
+import { SpaceMemberRoster } from './space-member-roster';
 import type { SpacePerson } from './space-person-view';
 import { SpaceShareAddPeople } from './space-share-add-people';
-import { SpaceShareSheetView } from './space-share-sheet-view';
+import { SpaceSharingPanel } from './space-sharing-panel';
 import { useRemoveSpaceUser } from './use-remove-space-user';
 import { useSpaceCan } from './use-space-can';
 import { useSpaceHostMembershipDisplay } from './use-space-host-membership-display';
 import { useSpacePeople } from './use-space-people';
 import { useSpaceUserEntries } from './use-space-user-entries';
 
-export type SpaceShareSheetProps = {
-  readonly spaceId: string;
-  readonly open: boolean;
-  readonly onOpenChange: (open: boolean) => void;
-};
+type Props = Pick<
+  SpaceManagementViewProps,
+  'page' | 'spaceName' | 'onNavigate' | 'onClose' | 'onRename'
+> & { readonly spaceId: string };
 
 function spaceShareUrl(spaceId: string): string {
   if (typeof window !== 'undefined') {
@@ -25,8 +29,8 @@ function spaceShareUrl(spaceId: string): string {
   return `/space/${spaceId}`;
 }
 
-/** Wires {@link SpaceShareSheetView} to the space's people and its link. */
-export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
+/** The shared People and Settings pages with live space data. */
+export function SpaceManagement(props: Props): JSX.Element {
   const myId = useMyId();
   const canManageMembers = useSpaceCan(
     () => props.spaceId,
@@ -51,28 +55,42 @@ export function SpaceShareSheet(props: SpaceShareSheetProps): JSX.Element {
     },
   });
 
+  const requestRemove = (person: SpacePerson): void => {
+    removal.reset();
+    setRemoving(person);
+  };
   return (
-    <SpaceShareSheetView
-      open={props.open}
-      onClose={() => {
-        setRemoving(null);
-        props.onOpenChange(false);
-      }}
-      onCopyLink={async () => {
-        await navigator.clipboard.writeText(spaceShareUrl(props.spaceId));
-      }}
-      canManage={canManageMembers()}
-      addPeople={
-        <SpaceShareAddPeople spaceId={props.spaceId} listedIds={listedIds()} />
+    <SpaceManagementView
+      {...props}
+      people={
+        <SpaceMemberRoster
+          spaceId={props.spaceId}
+          visible={props.page.tab === 'people'}
+          onShare={() =>
+            props.onNavigate({ area: props.page.area, tab: 'sharing' })
+          }
+          onRemove={requestRemove}
+        />
       }
-      peopleStatus={isLoading() ? 'loading' : 'ready'}
-      people={people()}
-      hostId={host()?.profileId ?? null}
-      viewerId={myId() === '' ? undefined : myId()}
-      onRemovePerson={(person) => {
-        removal.reset();
-        setRemoving(person);
-      }}
+      sharing={
+        <SpaceSharingPanel
+          onCopyLink={async () => {
+            await navigator.clipboard.writeText(spaceShareUrl(props.spaceId));
+          }}
+          canManage={canManageMembers()}
+          addPeople={
+            <SpaceShareAddPeople
+              spaceId={props.spaceId}
+              listedIds={listedIds()}
+            />
+          }
+          peopleStatus={isLoading() ? 'loading' : 'ready'}
+          people={people()}
+          hostId={host()?.profileId ?? null}
+          viewerId={myId() === '' ? undefined : myId()}
+          onRemovePerson={requestRemove}
+        />
+      }
       removal={removing() === null ? undefined : removal}
     />
   );

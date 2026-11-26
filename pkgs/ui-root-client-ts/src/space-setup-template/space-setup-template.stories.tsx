@@ -27,12 +27,11 @@ const meta = {
   args: {
     onBack: fn(),
     onMembers: fn(),
-    onRename: fn(),
+    onSettings: fn(),
     onMinimize: fn(),
     onLeave: fn(),
     onEnd: fn(),
     onPersonAction: fn(),
-    onInvite: fn(),
     onReadyChange: fn(),
     onStart: fn(),
     onChangeGame: fn(),
