@@ -149,6 +149,7 @@
         "@libs/app-root-shared-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/battleship-harness-ts#src",
+        "@libs/billing-harness-ts#src",
         "@libs/billing-shared-ts#src",
         "@libs/connect-four-harness-ts#src",
         "@libs/db-shared-ts#src",

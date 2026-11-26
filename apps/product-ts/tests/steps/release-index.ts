@@ -10,13 +10,13 @@ import { readFileSync } from 'node:fs';
 import { createGlobalHttpClient } from '@pkgs/http-client-shared-ts/global';
 import type { StackManifest } from '../../scripts/manifest';
 import { useLiveWorld } from './live-world';
-import { registerBillingPages } from './release-billing-pages';
+import { registerReleaseBillingPages } from './release-billing-pages';
 
 const manifest = JSON.parse(
   readFileSync(process.env['LOCALHOST_STACK_MANIFEST']!, 'utf8')
 ) as StackManifest;
 
-registerBillingPages(manifest.billingOrigin);
+registerReleaseBillingPages(manifest.billingOrigin);
 useLiveWorld({
   webOrigin: manifest.webOrigin,
   apiOrigin: manifest.apiOrigin,

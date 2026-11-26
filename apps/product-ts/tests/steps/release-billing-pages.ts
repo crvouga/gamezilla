@@ -1,3 +1,4 @@
+import { registerBillingPages } from '@libs/billing-harness-ts/provider-pages.steps';
 import { viewBillingPlans } from '@libs/runtime-harness-ts/billing-gestures';
 import {
   expectVisible,
@@ -5,7 +6,6 @@ import {
   tap,
 } from '@libs/runtime-harness-ts/journey-gestures';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Given, Then, When } from './define';
 import type { LiveWorld } from './live-world';
 
 const checkoutCard = 'stripe-mock-card';
@@ -76,35 +76,28 @@ async function openProvider(
 }
 
 /** Registered only by the isolated release runner, using its simulated Stripe origin. */
-export function registerBillingPages(providerOrigin: string): void {
-  Given('Alice is signed in with Google', async (w) => {
-    await w.journey.open('signed-in');
-  });
-  Given('Alice views the billing plans', async (w) => {
-    await w.journey.act('open billing plans', viewBillingPlans);
-    await showAction(w, Handles.billingSubscribe);
-  });
-  Given('Alice has left checkout without paying', async (w) => {
-    await w.journey.act('open billing plans', viewBillingPlans);
-    await showAction(w, Handles.billingSubscribe);
-    await openProvider(w, Handles.billingSubscribe, providerOrigin);
-    await w.journey.act('leave checkout', (ui) => tap(ui, cancelCheckout));
-    await showAction(w, Handles.billingManage);
-  });
-  When('Alice chooses to start the free trial', async (w) => {
-    await openProvider(w, Handles.billingSubscribe, providerOrigin);
-  });
-  Then('Alice can enter a payment method at checkout', async (w) => {
-    await w.journey.act('see the checkout form', (ui) =>
-      expectVisible(ui, checkoutCard)
-    );
-  });
-  When('Alice chooses to manage her membership', async (w) => {
-    await openProvider(w, Handles.billingManage, providerOrigin);
-  });
-  Then('Alice can return to the app from the billing portal', async (w) => {
-    await w.journey.act('see the portal return action', (ui) =>
-      expectVisible(ui, portalReturn)
-    );
+export function registerReleaseBillingPages(providerOrigin: string): void {
+  registerBillingPages<LiveWorld>({
+    showPlans: async (w) => {
+      await w.journey.open('signed-in');
+      await w.journey.act('open billing plans', viewBillingPlans);
+      await showAction(w, Handles.billingSubscribe);
+    },
+    leaveCheckout: async (w) => {
+      await openProvider(w, Handles.billingSubscribe, providerOrigin);
+      await w.journey.act('leave checkout', (ui) => tap(ui, cancelCheckout));
+      await showAction(w, Handles.billingManage);
+    },
+    openCheckout: (w) =>
+      openProvider(w, Handles.billingSubscribe, providerOrigin),
+    seeCheckout: (w) =>
+      w.journey.act('see the checkout form', (ui) =>
+        expectVisible(ui, checkoutCard)
+      ),
+    openPortal: (w) => openProvider(w, Handles.billingManage, providerOrigin),
+    seePortal: (w) =>
+      w.journey.act('see the portal return action', (ui) =>
+        expectVisible(ui, portalReturn)
+      ),
   });
 }

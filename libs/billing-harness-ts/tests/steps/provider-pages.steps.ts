@@ -1,33 +1,38 @@
-import { managePlus } from '@libs/billing-harness-ts/billing-actions';
+import {
+  leaveCheckout,
+  managePlus,
+  openBilling,
+} from '@libs/billing-harness-ts/billing-actions';
 import { STRIPE_PAGE } from '@libs/billing-harness-ts/billing-gestures';
 import {
   onCheckout,
   openCheckout,
 } from '@libs/billing-harness-ts/checkout-actions';
-import { Then, When } from '@libs/harness-ts/define';
+import { registerBillingPages } from '@libs/billing-harness-ts/provider-pages.steps';
+import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { visible } from '@libs/harness-ts/observations';
-import type { Actor } from '@libs/harness-ts/parameter-types';
+import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 
-When('{actor} chooses to start the free trial', async (w, actor: Actor) => {
-  await w.s.apply(openCheckout, actor);
-});
-
-Then(
-  '{actor} can enter a payment method at checkout',
-  async (w, actor: Actor) => {
-    await w.s.until((s) => onCheckout(s, actor), { pred: Boolean });
-  }
-);
-
-When('{actor} chooses to manage her membership', async (w, actor: Actor) => {
-  await w.s.apply(managePlus, actor);
-});
-
-Then(
-  '{actor} can return to the app from the billing portal',
-  async (w, actor: Actor) => {
-    await w.s.until((s) => visible(s, actor, [STRIPE_PAGE.portalReturn]), {
+registerBillingPages<HarnessWorld>({
+  showPlans: async (w) => {
+    await w.s.apply(signInWithGoogle, 'alice');
+    await w.s.apply(openBilling, 'alice');
+  },
+  leaveCheckout: async (w) => {
+    await w.s.apply(leaveCheckout, 'alice');
+  },
+  openCheckout: async (w) => {
+    await w.s.apply(openCheckout, 'alice');
+  },
+  seeCheckout: async (w) => {
+    await w.s.until((s) => onCheckout(s, 'alice'), { pred: Boolean });
+  },
+  openPortal: async (w) => {
+    await w.s.apply(managePlus, 'alice');
+  },
+  seePortal: async (w) => {
+    await w.s.until((s) => visible(s, 'alice', [STRIPE_PAGE.portalReturn]), {
       pred: Boolean,
     });
-  }
-);
+  },
+});

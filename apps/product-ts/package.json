@@ -109,6 +109,7 @@
     "@apps/harness-ts": "workspace:*",
     "@clack/prompts": "catalog:",
     "@libs/auth-shared-ts": "workspace:*",
+    "@libs/billing-harness-ts": "workspace:*",
     "@libs/billing-shared-ts": "workspace:*",
     "@libs/db-shared-ts": "workspace:*",
     "@libs/infra-shared-ts": "workspace:*",
