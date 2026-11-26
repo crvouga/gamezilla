@@ -1,0 +1,4 @@
+{
+  "summary": "The chess history journey ran without a health metric or game journey indicator.",
+  "regressionTest": "libs/observability-server-ts/tests/synthetic-checks.test.ts"
+}

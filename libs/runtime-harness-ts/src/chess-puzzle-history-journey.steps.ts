@@ -6,12 +6,15 @@ import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyWorld } from './journey-types';
 import { expectPuzzlePlayable } from './space-gestures';
 
-const { When, Then } = stepsFor<JourneyWorld>();
+const { Given, When, Then } = stepsFor<JourneyWorld>();
 
-When('they open the shared four-move mate-in-two chess puzzle', async (w) => {
-  await w.journey.openLink('/chess/puzzle/01Xbe');
-  await w.journey.act('openMateInTwo', expectPuzzlePlayable);
-});
+Given(
+  'they have opened the shared four-move mate-in-two chess puzzle',
+  async (w) => {
+    await w.journey.openLink('/chess/puzzle/01Xbe');
+    await w.journey.act('openMateInTwo', expectPuzzlePlayable);
+  }
+);
 
 function playMove(from: Square, to: Square) {
   return (w: JourneyWorld) =>
@@ -27,7 +30,7 @@ function playMove(from: Square, to: Square) {
     });
 }
 
-When('they play g6-g5 on the chess puzzle board', playMove('g6', 'g5'));
+Given('they have played g6-g5 on the chess puzzle board', playMove('g6', 'g5'));
 When('they play a2-g2 on the chess puzzle board', playMove('a2', 'g2'));
 
 When(

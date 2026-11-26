@@ -68,19 +68,12 @@ function linkedSpaceHref(
  * Why a puzzle link cannot open its puzzle — no connection, or the puzzle
  * was retired — or null when it can.
  */
-function usePuzzleLinkRefusal(
-  puzzleId: Accessor<string>
-): (
+function usePuzzleLinkRefusal(): (
   id: string,
   hold: (handle: { unsubscribe: () => void }) => void
 ) => Promise<PuzzleLinkOpening | null> {
   const engine = useSyncEngineInstance();
   const checkConnection = useCheckConnection();
-  const puzzle = createQuery(
-    () => sql<PuzzleRow>`
-      SELECT id, deleted_at FROM chess_puzzles WHERE id = ${puzzleId()}
-    `
-  );
   return async (id, hold) => {
     if (!(await checkConnection())) return { kind: 'offline' };
     const handle = engine.subscribeQueries([
@@ -90,7 +83,11 @@ function usePuzzleLinkRefusal(
     const ready = await handle.ready;
     await engine.waitForFirstSync();
     if (!ready) return { kind: 'offline' };
-    const row = puzzle.rows()[0];
+    // The reactive query may still show its pre-sync snapshot. Read the
+    // row committed by this subscription before deciding the link is retired.
+    const [row] = await engine.db.query(sql<PuzzleRow>`
+      SELECT id, deleted_at FROM chess_puzzles WHERE id = ${id}
+    `);
     return row === undefined || row.deleted_at !== null
       ? { kind: 'unavailable' }
       : null;
@@ -107,7 +104,7 @@ export function usePuzzleLinkOpening(
 } {
   const myId = useMyId();
   const router = useRouter();
-  const refusal = usePuzzleLinkRefusal(puzzleId);
+  const refusal = usePuzzleLinkRefusal();
   const createSpace = useCreateSpace();
   const hosted = useHostedSpaceId(myId);
   const attempts = usePuzzleInteractions(puzzleId);

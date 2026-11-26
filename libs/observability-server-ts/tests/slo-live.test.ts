@@ -434,6 +434,7 @@ describe('one broken game among the journeys', () => {
     'battleship.battleship-health',
     'connect-four.connect-four-health',
     'journeys.battleship-game',
+    'journeys.chess-puzzle-history',
     'journeys.connect-four-game',
     'journeys.critical-journeys',
     'journeys.custom-game',

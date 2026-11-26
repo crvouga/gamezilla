@@ -46,7 +46,7 @@ export function registerSokobanRecovery<W extends World>(
     }
   );
 
-  When('her device cannot save her first step to the right', async (w) => {
+  const refuseFirstStep = async (w: W) => {
     const restore = await refusePositionSave(await database(w));
     try {
       await w.journey.act('stepRight', async (ui) => {
@@ -58,7 +58,13 @@ export function registerSokobanRecovery<W extends World>(
     } finally {
       await restore();
     }
-  });
+  };
+
+  When('her device cannot save her first step to the right', refuseFirstStep);
+  Given(
+    'her device could not save her first step to the right',
+    refuseFirstStep
+  );
 
   Then('Alice is told her previous position is still saved', async (w) => {
     await w.journey.act('observeRefusal', (ui) =>

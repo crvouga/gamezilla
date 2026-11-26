@@ -1,6 +1,6 @@
 import { getMainSqliteDbName } from '@libs/app-root-shared-ts/main-sqlite-db-name';
 import { LAST_LOCAL_ACCOUNT_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
-import { registerSokobanRecovery } from '@libs/runtime-harness-ts/sokoban-recovery-steps';
+import { registerSokobanRecovery } from '@libs/runtime-harness-ts/sokoban-recovery.steps';
 import type { LiveWorld } from './live-world';
 
 // Serialized into the disposable actor's page. A second port joins the running

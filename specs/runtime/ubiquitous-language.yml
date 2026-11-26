@@ -326,3 +326,14 @@ terms:
   - term: progress
     definition: >-
       The work and play a person has already kept in the app.
+
+  - term: Sokoban
+    from: sokoban
+  - term: starter pack
+    from: sokoban
+  - term: puzzle
+    from: puzzles
+  - term: attempt
+    from: puzzles
+  - term: pack
+    from: puzzles

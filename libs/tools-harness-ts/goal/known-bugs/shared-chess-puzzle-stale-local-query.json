@@ -1,0 +1,4 @@
+{
+  "summary": "The compiled app declared shared puzzle 01Xbe unavailable on first opening because its query observer still held the snapshot from before subscription hydration.",
+  "regressionTest": "specs/journeys/chess-puzzle-history.feature"
+}

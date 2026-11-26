@@ -105,7 +105,7 @@ test('storybook integration: stage stability 390 keeps the board in place when a
   await expect(
     page
       .getByRole('status')
-      .filter({ hasText: 'Your move waits for the connection' })
+      .filter({ hasText: "You're offline. Moves need a connection." })
   ).toBeVisible();
   expect(await boardRect(page)).toEqual(before);
 });

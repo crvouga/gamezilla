@@ -132,6 +132,7 @@ Then(
         rank,
         SUIT_SYMBOLS[suit] ?? '',
         SUIT_NAMES[suit] ?? '',
+        ...(suit === 'H' ? ['+1'] : shown.card === 'QS' ? ['+13'] : []),
       ]);
       expect(shown.label.toLowerCase()).toContain(
         `${RANK_NAMES[shown.card[0]!]} of ${SUIT_NAMES[suit]}`
