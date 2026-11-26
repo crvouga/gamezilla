@@ -1,6 +1,10 @@
 import { expect, test } from 'bun:test';
 import { transferDiagnostic } from './verify-artifact-download';
-import { decodePlan, encodePlan } from './verify-plan-transfer';
+import {
+  decodePlan,
+  deploymentTools,
+  encodePlan,
+} from './verify-plan-transfer';
 
 test('compressed plan transport preserves exact task identities and rejects truncation', () => {
   const files = {
@@ -34,4 +38,16 @@ test('artifact diagnostics redact credentials inside an encoded proxy URL', () =
   expect(transferDiagnostic(`download failed: ${signed}`)).not.toContain(
     'fake-credential'
   );
+});
+
+test('cached checks require no external CLI on a production shard', () => {
+  expect(
+    deploymentTools([
+      { hit: true, taskId: '@libs/infra-server-ts#test' },
+      { hit: false, taskId: '@libs/tools-harness-ts#verify:secrets' },
+    ])
+  ).toBe('bun gitleaks node');
+  expect(
+    deploymentTools([{ hit: false, taskId: '@libs/infra-server-ts#test' }])
+  ).toBe('bun conftest node opentofu');
 });

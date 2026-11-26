@@ -85,6 +85,37 @@ describe('planFromDryRun', () => {
     ]);
   });
 
+  // regression: admin-build-transit-dependency
+  test('the product build retains the admin build across the scriptless harness', () => {
+    const admin = '@apps/admin-client-ts#build';
+    const harness = '@apps/harness-ts#build';
+    const product = '@apps/product-ts#build';
+    const plan = planFromDryRun(
+      dryRun([
+        {
+          taskId: product,
+          command: 'vite build',
+          hash: 'product',
+          dependencies: [harness],
+        },
+        {
+          taskId: harness,
+          command: '<NONEXISTENT>',
+          hash: 'transit',
+          dependencies: [admin],
+        },
+        {
+          taskId: admin,
+          command: 'vite build',
+          hash: 'c5db84f96d08acf5',
+          cache: { status: 'HIT', source: 'REMOTE' },
+        },
+      ])
+    );
+    expect(plan.toExecute[0]?.dependencies).toEqual([admin]);
+    expect(plan.remoteHits.map((task) => task.taskId)).toEqual([admin]);
+  });
+
   test('splits real tasks into misses and hits', () => {
     const plan = planFromDryRun(
       dryRun([

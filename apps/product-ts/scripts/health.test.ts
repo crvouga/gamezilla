@@ -58,6 +58,26 @@ const STANDARD: Environment = {
   deployment: true,
 };
 
+// regression: release-smoke-requires-production
+test('the configured pre-deploy smoke selects features the isolated stack can run', () => {
+  const manifest = JSON.parse(
+    readFileSync(join(REPO_ROOT, 'apps/product-ts/package.json'), 'utf8')
+  ) as {
+    scripts: Record<string, string>;
+  };
+  const cli = parseCli(
+    manifest.scripts['test:release-journeys:critical']!.split(' ')
+  );
+  expect(cli.specPaths.length).toBeGreaterThan(0);
+  expect(selectSpecs({ all: releaseSpecs(), cli }).ok).toBe(true);
+  expect(
+    selectSpecs({
+      all: releaseSpecs(),
+      cli: parseCli(['specs/journeys/critical-journeys.feature']),
+    }).ok
+  ).toBe(false);
+});
+
 // regression: deploy-missing-multiplayer-release-journeys
 // regression: deploy-health-escaped-pull-request
 test('the release bundle checks every health journey the localhost stack can run', () => {

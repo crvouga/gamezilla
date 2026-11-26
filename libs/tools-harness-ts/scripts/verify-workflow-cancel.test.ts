@@ -61,7 +61,7 @@ describe('Verify workflow cancellation', () => {
     expect(shards.env['VERIFY_SHARD']).toBe('${{ strategy.job-index }}');
     expect(shards.concurrency).toEqual({
       group:
-        "${{ inputs.require-main && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}",
+        "${{ inputs.deployment && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}",
       queue: 'max',
     });
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;

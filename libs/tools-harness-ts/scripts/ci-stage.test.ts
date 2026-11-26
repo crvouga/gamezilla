@@ -3,7 +3,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { ciStageTasks, isBlockingCiTask, PR_TASKS } from './ci-stage';
+import {
+  ciStageTasks,
+  deploymentTasks,
+  isBlockingCiTask,
+  PR_TASKS,
+} from './ci-stage';
 import { MAIN_VERIFY_TASKS, RELEASE_JOURNEY_TASKS } from './turbo-ci-run';
 
 type Workflow = {
@@ -114,13 +119,11 @@ test('gate shards install every toolchain the gate catalog needs', () => {
       (step) => step.uses === './.github/actions/setup'
     )!;
     const tools = setup.with?.['tools'];
-    expect(tools).toContain(
-      "env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint'"
-    );
-    expect(tools).toEndWith(" || '' }}");
-    if (job === 'verify-end') {
+    if (job === 'verify-shards')
+      expect(tools).toBe("${{ steps.tools.outputs.install || '' }}");
+    else {
       expect(tools).toContain(
-        "steps.scope.outputs.docs == 'true' && 'bun gitleaks'"
+        "env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint'"
       );
       expect(tools).toContain(
         "needs.verify-start.outputs.consumers == '-' && 'bun node'"
@@ -181,4 +184,19 @@ test('each stage keeps its selection as the catalog grows and changes order', ()
       }
     )
   );
+});
+
+test('the deployment verifies production bundles, billing, migrations, security and every critical journey', () => {
+  const tasks = deploymentTasks(MAIN_VERIFY_TASKS);
+  for (const task of [
+    '@apps/product-ts#test:release-journeys:critical',
+    '@libs/billing-harness-ts#test',
+    '@libs/runtime-server-ts#verify:schema-evolution',
+    '@libs/tools-harness-ts#ci:audit',
+    '@apps/product-ts#verify:worker-bundle',
+  ])
+    expect(tasks).toContain(task);
+  expect(tasks).not.toContain('test');
+  expect(tasks).not.toContain('test:contract');
+  expect(tasks).not.toContain('test:spec:0');
 });

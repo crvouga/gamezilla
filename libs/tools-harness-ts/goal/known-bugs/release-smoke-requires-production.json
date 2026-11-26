@@ -1,0 +1,4 @@
+{
+  "summary": "The pre-deploy browser smoke selected a critical journey restricted to a deployed production host.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

@@ -66,12 +66,39 @@ export function decodePlan(payload: string): Record<string, string> {
   return files;
 }
 
+/** A production shard installs only the pinned CLIs its cache misses execute. */
+export function deploymentTools(
+  tasks: readonly { readonly hit: boolean; readonly taskId: string }[]
+): string {
+  const tools = new Set(['bun', 'node']);
+  const byTask: Readonly<Record<string, readonly string[]>> = {
+    '@libs/tools-harness-ts#verify:actionlint': ['actionlint'],
+    '@libs/tools-harness-ts#verify:secrets': ['gitleaks'],
+    '@libs/tools-harness-ts#verify:workflow-security': ['zizmor'],
+    '@libs/infra-server-ts#verify:repository-policy': ['opentofu', 'conftest'],
+    '@libs/infra-server-ts#test': ['opentofu', 'conftest'],
+    '@pkgs/auth-root-harness-ts#test': ['java', 'http:alloy', 'http:apalache'],
+  };
+  for (const { hit, taskId } of tasks) {
+    if (hit) continue;
+    for (const tool of byTask[taskId] ?? []) tools.add(tool);
+    if (taskId.startsWith('@apps/product-ts#test:release-journeys:'))
+      tools.add('github:emqx/emqx');
+  }
+  return [...tools].sort().join(' ');
+}
+
 export function packPlan(): string {
-  return encodePlan(
-    Object.fromEntries(
-      FILES.map((name) => [name, readFileSync(join(DIRECTORY, name), 'utf8')])
-    )
+  const files = Object.fromEntries(
+    FILES.map((name) => [name, readFileSync(join(DIRECTORY, name), 'utf8')])
   );
+  if (process.env['VERIFY_DEPLOYMENT'] === 'true') {
+    const plan = JSON.parse(files['plan.json']!) as VerifyPlan;
+    files['deployment-tools'] = JSON.stringify(
+      plan.shards.map((shard) => deploymentTools(shard.tasks))
+    );
+  }
+  return encodePlan(files);
 }
 
 export function restorePlan(payload: string): void {
