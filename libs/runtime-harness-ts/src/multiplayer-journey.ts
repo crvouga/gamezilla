@@ -217,6 +217,10 @@ export async function expectNoMultiplayerGame(ui: Driver): Promise<void> {
 /** Observe the rendered board, rather than a server or local database row. */
 async function shownGameId(ui: Driver, timeoutMs: number): Promise<string> {
   await ui.get('multiplayer-game').expect.visible({ timeoutMs });
+  check(
+    !(await ui.get('multiplayer-versus').isVisible()),
+    'An introduction covers the ready matched game'
+  );
   await ui.get('multiplayer-open-commands').expect.visible({ timeoutMs });
   const html = await ui.snapshotHtml();
   const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];

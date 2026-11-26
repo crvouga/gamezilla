@@ -1,0 +1,4 @@
+{
+  "summary": "Opening Connect Four matchmaking could show a signed-in host the key icon and Not available while the local space host was still being read.",
+  "regressionTest": "libs/games-harness-ts/tests/matchmaking-entry.test.ts"
+}

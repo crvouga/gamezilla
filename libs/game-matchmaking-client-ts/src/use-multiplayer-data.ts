@@ -124,7 +124,8 @@ export function useMultiplayerData(gameId: () => string) {
       const current = game();
       return current !== null && multiplayerSideOf(current, myId()) !== null;
     },
-    loading: () => games.isLoading() || awaitingRoom(),
+    scopeLoading: () => spaces.isLoading() || games.isLoading(),
+    loading: () => searches.isLoading() || awaitingRoom(),
   };
 }
 

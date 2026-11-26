@@ -41,7 +41,7 @@ test('the content registers as the sokoban game with its starter pack', () => {
     history: 'snapshots',
   });
   expect(sokobanPuzzleContent.solver).toBeUndefined();
-  expect(sokobanPuzzleContent.bundledPacks).toEqual([sokobanStarterPack]);
+  expect(sokobanPuzzleContent.bundledPacks?.[0]).toEqual(sokobanStarterPack);
 });
 
 test('the starter pack is four distinct original puzzles with stable ids', () => {

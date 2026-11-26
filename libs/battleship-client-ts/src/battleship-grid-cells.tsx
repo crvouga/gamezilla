@@ -12,6 +12,7 @@ import { sunkShipCells } from '@libs/battleship-shared-ts/battleship-intel';
 import type { Shot } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
 import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
+import { type Accessor, createMemo } from 'solid-js';
 import { GLYPHS, shipName } from './battleship-copy';
 
 import { hullEdges } from './battleship-hull';
@@ -180,5 +181,33 @@ export function fleetGridCells(
             edges: hullEdges(ship.cells, cell),
           };
     return withRecent(view, cell === recent);
+  });
+}
+
+/** Keep a new shot's arrival on the board when the narrow aiming grid gives way to the whole fleet. */
+export function createShotGrid(read: Accessor<readonly CellGridCell[]>) {
+  return createMemo<readonly CellGridCell[]>((previous) =>
+    markArrivingShot(previous, read())
+  );
+}
+
+function markArrivingShot(
+  before: readonly CellGridCell[] | undefined,
+  cells: readonly CellGridCell[]
+): readonly CellGridCell[] {
+  if (!before) return cells;
+  return cells.map((cell, index) => {
+    if (cell.emphasis !== 'recent') return cell;
+    const prior = before[index];
+    if (
+      prior?.id !== cell.id ||
+      !(
+        prior.arrivingShot ||
+        prior.tone === 'open' ||
+        prior.tone === 'occupied'
+      )
+    )
+      return cell;
+    return { ...cell, arrivingShot: true };
   });
 }

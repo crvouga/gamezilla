@@ -1,9 +1,5 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import type {
-  StageOverlay,
-  StageOverlayEvent,
-} from '@pkgs/turn-game-client-ts/stage-overlay';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
@@ -21,23 +17,19 @@ import type {
 } from './multiplayer-game-view';
 import { MultiplayerMoveList } from './multiplayer-move-list';
 import {
-  MultiplayerOverlayView,
-  MultiplayerResultCard,
-  type MultiplayerResultShown,
-} from './multiplayer-overlay-view';
-import {
   type MultiplayerPlaceFrame,
   MultiplayerStagePlace,
 } from './multiplayer-place-frame';
 import type { MultiplayerPlace } from './multiplayer-places';
+import {
+  MultiplayerResultCard,
+  type MultiplayerResultShown,
+} from './multiplayer-result-card';
 
 type ResultProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** The seats around the board on the final position. */
   readonly board: MultiplayerBoardSlot | undefined;
-  /** What lies over the final board: the result card, or nothing once closed. */
-  readonly overlay: StageOverlay;
-  readonly onOverlay: (event: StageOverlayEvent) => void;
   /** How the game ended, why, and the rating change: the screen's announcement. */
   readonly result: MultiplayerResultShown | undefined;
   readonly game: MultiplayerGameView;
@@ -266,15 +258,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
           </Show>
         }
       >
-        {props.board?.(
-          <MultiplayerOverlayView
-            title={props.title}
-            overlay={props.overlay}
-            onOverlay={props.onOverlay}
-            versus={undefined}
-            result={props.result}
-          />
-        )}
+        {props.board?.()}
       </GameSessionLayout>
     </MultiplayerStagePlace>
   );

@@ -307,6 +307,17 @@
   text-underline-offset: 0.12em;
 }
 @media (prefers-reduced-motion: no-preference) {
+  .cell[data-arrived] {
+    animation: word-tile-placed 150ms ease-out;
+  }
+  @keyframes word-tile-placed {
+    from {
+      scale: 0.9;
+    }
+    to {
+      scale: 1;
+    }
+  }
   .cell[data-state="tentative"] .letter {
     animation: word-tile-settle 150ms ease-out;
   }

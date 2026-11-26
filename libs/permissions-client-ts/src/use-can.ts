@@ -17,9 +17,8 @@ import { useClock } from '@pkgs/clock-client-ts/solid';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { decide, decideLimit } from '@pkgs/permissions-shared-ts/decision';
 import { type Accessor, createMemo } from 'solid-js';
-import { usePermissionPolicy } from './use-permission-policy';
 import type { AccessScopeAccessor } from './use-permission-subject';
-import { usePermissionSubject } from './use-permission-subject';
+import { usePermissionInputs } from './use-permission-subject';
 import { usePrivacyDecision } from './use-privacy-decision';
 
 /** A live decision for holding one more of a consumer's counted resource. */
@@ -27,8 +26,7 @@ export function useLimitDecision(
   key: AppLimit,
   used: Accessor<number>
 ): Accessor<Decision> {
-  const policy = usePermissionPolicy();
-  const subject = usePermissionSubject();
+  const { policy, subject } = usePermissionInputs();
   return () => decideLimit(policy(), subject(), key, used());
 }
 
@@ -57,8 +55,7 @@ export function useMatchedGameAllowance(
   readonly decision: Accessor<Decision>;
   readonly left: Accessor<MatchedGamesLeft | null>;
 } {
-  const policy = usePermissionPolicy();
-  const subject = usePermissionSubject();
+  const { policy, subject } = usePermissionInputs();
   const clock = useClock();
   const at = () => ({ startedAt: begunAt(), nowMs: clock.now() });
   return {
@@ -75,17 +72,22 @@ export function useDecision(
   key: AppGrantKey,
   scope?: AccessScopeAccessor
 ): Accessor<Decision> {
-  const policy = usePermissionPolicy();
-  const subject = usePermissionSubject(scope);
+  return useDecisionRead(key, scope).decision;
+}
+
+/** Readiness follows the very same inputs used for the decision. */
+export function useDecisionRead(key: AppGrantKey, scope?: AccessScopeAccessor) {
+  const { policy, subject, isLoading } = usePermissionInputs(scope);
   const privacyDecision =
     key === PERMISSION.profileDeleteAccount ||
     key === PERMISSION.profileExportData
       ? usePrivacyDecision()
       : null;
-  return () => {
+  const read = () => {
     const decision = decide(policy(), subject(), key);
     return privacyDecision === null ? decision : privacyDecision(key, decision);
   };
+  return { decision: read, isLoading };
 }
 
 /** Whether the caller may `key` right now. */

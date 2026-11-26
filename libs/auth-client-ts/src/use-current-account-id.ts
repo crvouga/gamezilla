@@ -4,10 +4,15 @@ import { isUuid } from '@pkgs/uuid-shared-ts/uuid';
 import type { Accessor } from 'solid-js';
 
 /** Local users.id, including anonymous accounts; null until storage hydrates. */
-export function useCurrentAccountId(): Accessor<string | null> {
+export function useAccountIdRead() {
   const item = createSecureStorageItem(LAST_LOCAL_ACCOUNT_ID_KEY);
-  return () => {
+  const value = () => {
     const value = item.value();
     return value !== null && isUuid(value) ? value : null;
   };
+  return { value, isHydrated: item.isHydrated };
+}
+
+export function useCurrentAccountId(): Accessor<string | null> {
+  return useAccountIdRead().value;
 }

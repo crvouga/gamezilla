@@ -7,19 +7,15 @@ import {
   wordTiles4GameShared,
   wordTilesGameShared,
 } from '@libs/word-tiles-shared-ts/word-tiles-game';
-import { ENABLE_LEXICON } from '@libs/word-tiles-shared-ts/word-tiles-lexicon';
 import { winningSeats } from '@libs/word-tiles-shared-ts/word-tiles-play';
 import { decodePosition } from '@libs/word-tiles-shared-ts/word-tiles-position';
-import {
-  RULESET,
-  type WordTilesSeatCount,
-} from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
+import type { WordTilesSeatCount } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
-import type { JSX } from '@solidjs/web';
 import { WordTilesBoard } from './word-tiles-board';
 import { wordTilesFrame } from './word-tiles-frame';
+import { wordTilesLesson } from './word-tiles-lesson';
 import { seatName } from './word-tiles-panels';
 import {
   initialWordTilesPuzzle,
@@ -66,29 +62,6 @@ const presentation = (seats: WordTilesSeatCount): GameClientPresentation => ({
   },
 });
 
-function Instructions(): JSX.Element {
-  const lexicon = ENABLE_LEXICON.key;
-  const ruleset = RULESET.id;
-  return (
-    <Trans>
-      Take turns placing tiles from your seven-tile rack in one row or column to
-      form words, joined to the tiles already on the 15 × 15 board; the first
-      word covers the centre star. Every word you form or extend must be in the
-      word list, and each is scored: letter squares multiply the new tile under
-      them, word squares the whole word, and using all seven tiles earns 50
-      more. A blank plays any letter for no points. Instead of placing you may
-      pass, or exchange tiles while the bag holds at least seven. The game ends
-      when someone uses their last tile with the bag empty — the others'
-      remaining tiles count against them and go to that player — or after six
-      scoreless turns in a row, when everyone's remaining tiles count against
-      them. The highest score wins; tied leaders share the win. Resigning or
-      running out of time follows the table's rules: with two players the other
-      wins, with more the game is drawn. Word list: {lexicon} (ENABLE, public
-      domain, words of 2 to 15 letters). Rules: {ruleset}.
-    </Trans>
-  );
-}
-
 export const wordTilesGameClient = defineGameClient({
   shared: wordTilesGameShared,
   title: 'Word Tiles',
@@ -98,7 +71,7 @@ export const wordTilesGameClient = defineGameClient({
   subtitle: () => (
     <Trans>Place letter tiles, cross words, score squares.</Trans>
   ),
-  instructions: () => <Instructions />,
+  lesson: wordTilesLesson,
   presentation: presentation(2),
   puzzleContent: {
     Player: WordTilesPuzzlePlayer,
@@ -123,7 +96,7 @@ export const wordTiles3GameClient = defineGameClient({
   subtitle: () => (
     <Trans>Three racks, one board, the highest score wins.</Trans>
   ),
-  instructions: () => <Instructions />,
+  lesson: wordTilesLesson,
   presentation: presentation(3),
 });
 
@@ -134,6 +107,6 @@ export const wordTiles4GameClient = defineGameClient({
   caption: 'Four players. Build crossing words for points.',
   tile: 'letters',
   subtitle: () => <Trans>Four racks, one board, the highest score wins.</Trans>,
-  instructions: () => <Instructions />,
+  lesson: wordTilesLesson,
   presentation: presentation(4),
 });

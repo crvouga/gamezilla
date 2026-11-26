@@ -10,6 +10,7 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { LightCyclesBoard } from './light-cycles-board';
 import { decodeLightCycles } from './light-cycles-board-view';
 import { lightCyclesFrame } from './light-cycles-frame';
+import { lightCyclesLesson } from './light-cycles-lesson';
 import { riderName } from './light-cycles-view';
 
 /** The round limit reached with the lead shared: the rules' only draw. */
@@ -45,15 +46,6 @@ const presentation = (name: () => string, riders: LightCyclesRiderCount) => ({
         : reason,
 });
 
-const instructions = () => (
-  <Trans>
-    Steer your rider around the arena. Every rider leaves a light trail; the
-    edge and every trail crash a rider. The last rider riding wins the round,
-    and the first to the target score wins the game. Ride against bots, share a
-    device, invite people, or find players.
-  </Trans>
-);
-
 export const lightCyclesDuelClient = defineGameClient({
   shared: lightCyclesDuelShared,
   title: 'Light Cycles Duel',
@@ -61,7 +53,7 @@ export const lightCyclesDuelClient = defineGameClient({
   caption: 'Two riders, one arena of light trails',
   tile: 'trails',
   subtitle: () => <Trans>Outlast your rival on the grid.</Trans>,
-  instructions,
+  lesson: lightCyclesLesson(2),
   presentation: presentation(() => t`Light Cycles Duel`, 2),
 });
 
@@ -72,7 +64,7 @@ export const lightCyclesTrioClient = defineGameClient({
   caption: 'Three riders, one arena of light trails',
   tile: 'trails',
   subtitle: () => <Trans>Be the last of three riders riding.</Trans>,
-  instructions,
+  lesson: lightCyclesLesson(3),
   presentation: presentation(() => t`Light Cycles Trio`, 3),
 });
 
@@ -83,6 +75,6 @@ export const lightCyclesQuadClient = defineGameClient({
   caption: 'Four riders, one arena of light trails',
   tile: 'trails',
   subtitle: () => <Trans>Be the last of four riders riding.</Trans>,
-  instructions,
+  lesson: lightCyclesLesson(4),
   presentation: presentation(() => t`Light Cycles Quad`, 4),
 });

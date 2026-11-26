@@ -30,8 +30,7 @@ import sql from '@pkgs/sql-root-shared-ts/sql';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useCreateId } from '@pkgs/uuid-client-ts/solid';
-import { usePermissionPolicy } from './use-permission-policy';
-import { usePermissionSubject } from './use-permission-subject';
+import { usePermissionInputs } from './use-permission-subject';
 import { usePrivacyDecision } from './use-privacy-decision';
 
 /** The single client permission API (§22.5). Reads are reactive. */
@@ -74,8 +73,7 @@ function isDenialMeta(meta: unknown): meta is QuotaDenialMeta {
  * facts and the consumption ledger. Nothing else in the client reads them.
  */
 export function usePermissions(): Permissions {
-  const policy = usePermissionPolicy();
-  const subject = usePermissionSubject();
+  const { policy, subject } = usePermissionInputs();
   const privacyDecision = usePrivacyDecision();
   const clock = useClock();
   const myId = useMyId();
