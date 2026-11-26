@@ -1,31 +1,13 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
-import {
-  multiplayerOwner,
-  multiplayerSideOf,
-  multiplayerSides,
-} from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
-import { frameSwatch } from '@libs/game-session-client-ts/game-frame-look';
-import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
-import { UserUsername } from '@libs/profile-client-ts/user-username';
-import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { useGameSideLabel } from '@pkgs/turn-game-client-ts/use-game-side-label';
-import {
-  GAME_VERSUS_AVATAR_SIZE,
-  type GameVersusSide,
-} from '@pkgs/ui-root-client-ts/game-stage-overlay';
+import { multiplayerSideOf } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
 import type { JSX } from '@solidjs/web';
-import type { Accessor } from 'solid-js';
-import type {
-  MultiplayerResultShown,
-  MultiplayerVersusShown,
-} from './multiplayer-overlay-view';
+import type { MultiplayerResultShown } from './multiplayer-result-card';
 import {
   MultiplayerRatingChange,
   MultiplayerStatusDetail,
   MultiplayerStatusTitle,
   multiplayerStatusHasDetail,
 } from './multiplayer-status';
-import { timeControlText, timeControlWords } from './time-control-name';
 import { useMultiplayerViewer } from './use-multiplayer-viewer';
 
 /**
@@ -114,55 +96,5 @@ export function multiplayerResultShown(
     title: <ResultTitle game={game} myId={myId} />,
     caption: detailed ? <ResultCaption game={game} myId={myId} /> : undefined,
     rating: <ResultRating game={game} myId={myId} />,
-  };
-}
-
-/**
- * Who plays whom in the matched game, for its versus card: the person's
- * own side below and the rest above; a watched game is split in two, in
- * seat order. Each side carries its rating and the side it plays.
- */
-export function useMultiplayerVersus(
-  game: Accessor<MultiplayerGame | null>,
-  myId: Accessor<string>
-): Accessor<MultiplayerVersusShown | undefined> {
-  const presentation = useGamePresentation();
-  const sideLabel = useGameSideLabel();
-  return () => {
-    const current = game();
-    if (current === null) return undefined;
-    const frame = presentation(current.fen).frame;
-    const shown = (
-      side: ReturnType<typeof multiplayerSides>[number]
-    ): GameVersusSide => {
-      const profileId = multiplayerOwner(current, side);
-      const rating = current[`${side}_rating`] ?? '';
-      const label = sideLabel(current.fen, side);
-      return {
-        id: side,
-        name: <UserUsername profileId={profileId} withAt={false} />,
-        avatar: (
-          <UserProfileAvatar
-            profileId={profileId}
-            size={GAME_VERSUS_AVATAR_SIZE}
-          />
-        ),
-        swatch: frameSwatch(frame.seats.look(side)),
-        caption: rating === '' ? label : `${label} · ${rating}`,
-      };
-    };
-    const sides = multiplayerSides(current);
-    const own = multiplayerSideOf(current, myId());
-    const half = Math.ceil(sides.length / 2);
-    return {
-      others:
-        own === null
-          ? sides.slice(0, half).map(shown)
-          : sides.filter((side) => side !== own).map(shown),
-      own: own === null ? sides.slice(half).map(shown) : [shown(own)],
-      clock: timeControlWords(current.time_control) || undefined,
-      timeControl: timeControlText(current.time_control) || undefined,
-      target: frame.target?.(current.fen),
-    };
   };
 }
