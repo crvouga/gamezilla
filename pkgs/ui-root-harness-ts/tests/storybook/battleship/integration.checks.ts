@@ -42,6 +42,17 @@ for (const viewport of screens)
           theme,
           info
         );
+        if (story === 'board--fire-a-shot') {
+          const impact = page
+            .getByTestId('custom-game-board-target-e5')
+            .locator('span')
+            .first();
+          await expect(impact).toHaveAttribute('aria-hidden', 'true');
+          await page.emulateMedia({ reducedMotion: 'no-preference' });
+          await expect(impact).toHaveCSS('animation-name', /settle/);
+          await page.emulateMedia({ reducedMotion: 'reduce' });
+          await expect(impact).toHaveCSS('animation-name', 'none');
+        }
         await captureBattleEvidence(page, info);
         if (story === 'board--opening') await measureTargeting(page, info);
         expect(errors).toEqual([]);

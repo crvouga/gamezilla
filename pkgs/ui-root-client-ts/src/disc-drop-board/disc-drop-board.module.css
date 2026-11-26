@@ -244,8 +244,6 @@
   box-shadow:
     0 0 0 2px var(--disc-hole),
     inset 0 0 0 2px var(--ui-color-text-secondary);
-  animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
-    alternate;
 }
 .cell[data-preview-disc="1"] {
   --disc-preview: var(--ui-color-destructive);
@@ -275,7 +273,7 @@
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */
-.cell[data-last="true"] .disc {
+.cell[data-arrived][data-last="true"] .disc {
   animation: disc-drop var(--ui-duration-slow) linear;
 }
 .hidden {
@@ -286,14 +284,6 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-@keyframes disc-preview-breathe {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.7;
-  }
 }
 @keyframes disc-drop {
   from {
@@ -313,9 +303,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cell[data-last="true"] .disc,
-  .cell[data-preview-disc="1"] .disc,
-  .cell[data-preview-disc="2"] .disc {
+  .cell[data-arrived][data-last="true"] .disc {
     animation: none;
   }
   .column::before,
