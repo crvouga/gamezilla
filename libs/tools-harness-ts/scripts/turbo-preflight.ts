@@ -112,11 +112,35 @@ export function planFromDryRun(json: string | TurboDryRun): RunPlan {
   if (!Array.isArray(parsed.tasks)) {
     throw new Error('turbo --dry=json: missing tasks array');
   }
-  return planFromTasks(
-    (parsed.tasks as DryRunTask[])
-      .map(toPlannedTask)
-      .filter((task): task is PlannedTask => task !== null)
+  const placeholders = new Map(
+    parsed.tasks
+      .filter((task) => task.command === NONEXISTENT)
+      .map((task) => [task.taskId, task])
   );
+  const expanded = new Map<string, readonly string[]>();
+  // Turbo walks through scriptless packages when resolving ^build.
+  function realDependencies(id: string): readonly string[] {
+    const placeholder = placeholders.get(id);
+    if (!placeholder) return [id];
+    const cached = expanded.get(id);
+    if (cached) return cached;
+    const edges = Array.isArray(placeholder.dependencies)
+      ? placeholder.dependencies.filter(
+          (dep): dep is string => typeof dep === 'string'
+        )
+      : [];
+    const real = [...new Set(edges.flatMap(realDependencies))];
+    expanded.set(id, real);
+    return real;
+  }
+  const tasks = parsed.tasks
+    .map(toPlannedTask)
+    .filter((task): task is PlannedTask => task !== null)
+    .map((task) => ({
+      ...task,
+      dependencies: [...new Set(task.dependencies.flatMap(realDependencies))],
+    }));
+  return planFromTasks(tasks);
 }
 
 export function planFromTasks(tasks: readonly PlannedTask[]): RunPlan {

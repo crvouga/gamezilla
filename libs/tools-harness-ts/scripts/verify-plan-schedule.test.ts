@@ -122,7 +122,7 @@ test('the matrix has one entry per shard with work and nothing a secret could ma
 });
 
 // regression: concurrent-full-gates-exhaust-free-runners
-test('eight full gates share twelve runner slots and small runs rotate their first slot', () => {
+test('eight gates in a pool share six runner slots and small runs rotate their first slot', () => {
   const lanes = new Set<string>();
   const first = new Set<string>();
   for (let run = 0; run < 8; run++) {
@@ -134,8 +134,8 @@ test('eight full gates share twelve runner slots and small runs rotate their fir
     first.add(entries[0]!['-']);
     for (const entry of entries) lanes.add(entry['-']);
   }
-  expect(lanes.size).toBe(12);
-  expect(first.size).toBe(8);
+  expect(lanes.size).toBe(6);
+  expect(first.size).toBe(6);
 });
 
 test('a fully cached plan schedules nothing and still accounts for every task', () => {

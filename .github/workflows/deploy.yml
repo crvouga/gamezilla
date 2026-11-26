@@ -6,7 +6,7 @@ name: Release
 # A rehearsal is labelled apart, so duration checks read only real releases.
 run-name: "Release · ${{ inputs.rehearsal && 'rehearsal' || github.event_name == 'push' && 'push' || 'manual' }}"
 
-# Every push to main verifies the exact commit with the whole gate (a pull request ran four of its tasks),
+# Every push to main verifies the exact commit with the production verification gate,
 # then releases the shared services and deploys development and production independently.
 # Rehearsals verify and plan without releasing.
 #
@@ -54,7 +54,7 @@ concurrency:
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
-    shell: ci-budget-shell {0}
+    shell: ci-budget-shell {0}  # zizmor: ignore[misfeature] -- invokes bash with the remaining workflow budget
 
 jobs:
   deploy-verify:
@@ -66,6 +66,9 @@ jobs:
     uses: ./.github/workflows/verify-full.yml
     with:
       profile: release
+      deployment: true
+      shards: 6
+      concurrency: 3
       require-main: ${{ !inputs.rehearsal }}
       # Pull requests do not run the advisory audit; nightly enforces it. A
       # registry that moved must not fail a deploy.

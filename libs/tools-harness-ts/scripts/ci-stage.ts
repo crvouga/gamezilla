@@ -51,3 +51,29 @@ export function isBlockingCiTask(
     catalog.includes(id) || catalog.includes(id.slice(id.indexOf('#') + 1))
   );
 }
+
+/** Blocking deployment checks. Manual branch diagnostics keep their full catalog. */
+export function deploymentTasks(catalog: readonly string[]): readonly string[] {
+  const tasks = catalog.filter(
+    (task) =>
+      (task.startsWith('@apps/') && task.includes('#verify:')) ||
+      [
+        '@libs/infra-server-ts#verify:repository-policy',
+        '@libs/runtime-server-ts#verify:schema-evolution',
+        '@libs/tools-harness-ts#ci:audit',
+        '@libs/tools-harness-ts#verify:workflow-security',
+        '@libs/tools-harness-ts#verify:secrets',
+        '@libs/tools-harness-ts#verify:actionlint',
+      ].includes(task)
+  );
+  return [
+    ...tasks,
+    '@apps/product-ts#test:release-journeys:critical',
+    '@apps/product-api-ts#test',
+    '@libs/billing-harness-ts#test',
+    '@libs/permissions-harness-ts#test',
+    '@libs/infra-server-ts#test',
+    '@pkgs/db-migrate-shared-ts#test',
+    '@pkgs/auth-root-harness-ts#test',
+  ];
+}

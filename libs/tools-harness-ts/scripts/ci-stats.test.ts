@@ -307,7 +307,11 @@ describe('workload', () => {
   test('gate tasks are accounted to PR and Release; deeper groups to nightly', () => {
     const split = profileSplit([
       { id: '@a#lint', seconds: 10, source: 'history' },
-      { id: '@a#test:spec:0', seconds: 200, source: 'history' },
+      {
+        id: '@apps/product-ts#verify:worker-bundle',
+        seconds: 200,
+        source: 'history',
+      },
       { id: '@a#bench:room', seconds: 300, source: 'history' },
     ]);
     expect(split.prSeconds).toBe(10);

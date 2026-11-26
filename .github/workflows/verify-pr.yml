@@ -32,7 +32,7 @@ env:
 
 defaults:
   run:
-    shell: ci-budget-shell {0}
+    shell: ci-budget-shell {0}  # zizmor: ignore[misfeature] -- invokes bash with the remaining workflow budget
 
 jobs:
   verify-end:

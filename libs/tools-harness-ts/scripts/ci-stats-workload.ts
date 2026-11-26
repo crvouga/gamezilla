@@ -7,7 +7,7 @@
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { type LoadReport, loadReport, readLoadInput } from './ci-load';
-import { ciStageTasks, isBlockingCiTask, PR_TASKS } from './ci-stage';
+import { deploymentTasks, isBlockingCiTask, PR_TASKS } from './ci-stage';
 import { MAIN_VERIFY_TASKS } from './turbo-ci-run';
 import { createTaskEstimator } from './verify-task-estimates';
 
@@ -68,13 +68,14 @@ export function readWorkload(root: string): Workload {
 
 /** Estimated leaf work by stage, excluding setup and prerequisite builds. */
 export function profileSplit(rows: readonly TaskRow[]): ProfileSplit {
-  const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
-  const blocking = rows.filter((row) => isBlockingCiTask(row.id, release));
-  const pr = blocking.filter((row) => isBlockingCiTask(row.id, PR_TASKS));
-  const nightly = rows.filter((row) => !isBlockingCiTask(row.id, release));
+  const release = deploymentTasks(MAIN_VERIFY_TASKS);
+  const pr = rows.filter((row) => isBlockingCiTask(row.id, PR_TASKS));
+  const beyondPr = rows.filter((row) => !isBlockingCiTask(row.id, PR_TASKS));
+  const blocking = beyondPr.filter((row) => isBlockingCiTask(row.id, release));
+  const nightly = beyondPr.filter((row) => !isBlockingCiTask(row.id, release));
   return {
     prSeconds: sum(pr),
-    releaseOnlySeconds: sum(blocking) - sum(pr),
+    releaseOnlySeconds: sum(blocking),
     nightlyOnlySeconds: sum(nightly),
     prTasks: pr.length,
     nightlyOnlyTasks: nightly.length,

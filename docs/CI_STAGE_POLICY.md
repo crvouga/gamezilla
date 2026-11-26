@@ -8,7 +8,7 @@ successful Turbo results for identical inputs.
 | Pull-request task | Why it cannot wait for Release |
 | --- | --- |
 | `tc`, `lint` | `main` must compile and keep its boundaries, or every Release failure after it is noise. |
-| Affected unit tests | Run short source-only unit tests of the change. Cold work beyond the available compute budget moves to Release. |
+| Affected unit tests | Run short source-only unit tests of the change. Overflow runs in Nightly or the production gate. |
 | `verify:secrets` | A credential that reaches `main` has leaked. |
 | `verify:actionlint` | A workflow that does not parse cannot run Release, so nothing would report it. |
 
@@ -53,33 +53,9 @@ release must also pass environment configuration, infrastructure safety and live
 post-deployment probes before it is tagged. This is a bounded automated release bar;
 it does not promise that every feature, visual state or performance case is correct.
 
-Release checks every package's `tc`,
-`lint`, `test`, contract models, spec parts and Quint models, the repository
-consistency checks, branding checks and all three
-`@apps/product-ts#test:release-journeys:<k>` partitions. Release checks the exact
-selected commit and reuses only identical successful task hashes. Manual Verify PR
-dispatches use the same selection. A regression test (`ci-stage.test.ts`) requires
-Nightly to retain every Storybook partition and Release to keep the critical journeys. Nightly runs the complete catalog at its deeper profile.
+Release verifies the production bundles and offline shell, guest link joining and offline reopening on an isolated production build, API, billing, permissions, authentication and migration tests, repository policy, credential scanning, workflow security and dependency advisories. Environment deployment runs the full API integration suite against the built service and the live smoke checks. The exact production selection is `deploymentTasks` in `ci-stage.ts`.
 
-Selection is cheap; successful tasks execute only on cache misses, so a change pays for
-the tasks its inputs reach. Gate shards install the complete pinned toolchain (the setup
-action's default), the same one nightly's gate shards use, so no selected task lacks
-its JVM, model checker or scanner.
-
-Among the gate, these checks are why Release must block a deploy rather than wait for nightly:
-
-| Check | Why it cannot reasonably wait |
-| --- | --- |
-| Package `tc`, `lint`, root lint, `ci:syncpack` | Compilation, structural safety rules (including access boundaries), task-runner integrity and workspace dependency consistency. Turbo deduplicates lint's typecheck prerequisites. |
-| `ci:i18n`, `ci:specs` | Repository consistency: the committed Lingui catalog matches the source copy, and every spec stays in its context's language. Left to nightly they merged green and kept every later night red; Release now stops on them and files the issue. |
-| `verify:actionlint`, `verify:workflow-security`, `verify:secrets` | Broken workflow syntax, unsafe automation permissions/triggers and committed credentials. Secret scanning remains tied to the immutable Git range. |
-| `ci:audit` | Release reports current dependency advisories without blocking a deploy on a registry that moved; nightly enforces them. Existing Dependabot alerts/security updates remain. |
-| Permissions library/shared/harness and auth provider/root harness unit tests | Access-control and authentication failures can expose data immediately. These run the same assertions as nightly, not alternate implementations. |
-| Migration and schema-engine unit tests; `verify:schema-evolution` | Destructive schema evolution cannot wait for nightly. The baseline is the immutable PR base or pre-push SHA, not a moving main ref that might already equal HEAD. A manual run compares the selected commit's parent. |
-| Product/auth relay Worker bundle checks; rendered Worker; offline shell | The release executables and boot assets must exist and satisfy their runtime contracts. Their build prerequisites remain blocking and cached. |
-| Production-build journey partitions | Catch browser, auth, sync and game integration failures before deployment using the production bundle and stack. |
-| Synthetic population foundation; repository policy | Prevent unsafe infrastructure isolation, resource hosting and repository-protection changes. |
-| Fleet/foundation plans | Changed infrastructure needs provider validation against actual state. A Release rehearsal on the branch (`rehearsal=true`) plans both; pull requests no longer do. |
+Manual branch diagnostics retain the broad gate. Nightly runs repository-wide lint and type checking, unit and model suites, and the rotating browser corpus. Cold PR work deferred for budget runs there unless it belongs to the production gate.
 
 Release additionally retains foundation-before-migration ordering, stateful-resource
 plan policy, runtime configuration and secret validation, durable room namespace

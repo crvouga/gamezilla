@@ -22,6 +22,10 @@ on:
         default: normal
   workflow_call:
     inputs:
+      deployment:
+        description: Verify the production artifacts, integrations and release safeguards
+        type: boolean
+        default: false
       require-main:
         description: Refuse a release from any ref other than main
         type: boolean
@@ -81,10 +85,11 @@ env:
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
-  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '12' }}
+  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '6' }}
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
+  VERIFY_DEPLOYMENT: ${{ inputs.deployment && 'true' || 'false' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
@@ -92,7 +97,7 @@ env:
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
-    shell: ci-budget-shell {0}
+    shell: ci-budget-shell {0}  # zizmor: ignore[misfeature] -- invokes bash with the remaining workflow budget
 
 
 jobs:
@@ -187,13 +192,13 @@ jobs:
           # Only workflows that can occupy a shared shard slot affect packing.
           demand=0
           for status in queued in_progress; do
-            if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq '
-              [.[].workflow_runs[] | select(
-                .path == ".github/workflows/deploy.yml" or
+            if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq --arg deployment "$VERIFY_DEPLOYMENT" '
+              [.[].workflow_runs[] | select(if $deployment == "true" then
+                .path == ".github/workflows/deploy.yml" else
                 (.path == ".github/workflows/verify-full.yml" and .event == "workflow_dispatch") or
                 (.path == ".github/workflows/verify-nightly.yml" and
                  (.display_title | (contains("diagnostic ") | not) or endswith("diagnostic gate")))
-              )] | length'); then
+              end)] | length'); then
               echo "::warning::Runner demand unavailable. Using the configured matrix capacity."
               exit 0
             fi
@@ -275,7 +280,7 @@ jobs:
     needs: [verify-start]
     # Production has a separate bounded wave from diagnostic shards.
     concurrency:
-      group: ${{ inputs.require-main && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}
+      group: ${{ inputs.deployment && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}
       queue: max
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
@@ -287,7 +292,7 @@ jobs:
     timeout-minutes: ${{ inputs.profile == 'nightly' && 45 || 10 }}
     strategy:
       fail-fast: ${{ github.workflow == 'Release' }}
-      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '12') }}
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '6') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:
@@ -299,18 +304,25 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
-      - uses: ./.github/actions/setup
-        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
-        with:
-          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Download immutable plan
         uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: verify-plan
           path: .cache/verify-ci
+      - name: Read this production shard's tool list
+        id: tools
+        if: inputs.deployment
+        run: |
+          tools=$(base64 -d .cache/verify-ci/plan.payload | gzip -dc | jq -er --argjson shard "$VERIFY_SHARD" '.["deployment-tools"] | fromjson | .[$shard] | strings')
+          echo "install=$tools" >> "$GITHUB_OUTPUT"
+      - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          tools: ${{ steps.tools.outputs.install || '' }}
+          secrets-environment: dev
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Restore immutable plan and required prerequisites
         run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
       - name: Select task toolchains

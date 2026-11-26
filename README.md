@@ -383,7 +383,7 @@ the visibility, homepage, enabled Issues, disabled Projects/Wiki/Discussions,
 and existing environment names (`allow_forking` is not sent for a user-owned
 repository). Publishing the repository is the one edit `visibility` →
 `public`; the same apply turns on secret scanning and push protection.
-Release runs `.github/workflows/verify-full.yml` (`verify:end`, the whole gate at release depth) on
+Release runs `.github/workflows/verify-full.yml` (`verify:end`, the production verification gate) on
 `main` on every push to `main` before it ships. The ruleset requires the same job before a PR merges, over the checks a pull request runs (`PR_TASKS` in `ci-stage.ts`).
 No merge queue is added.
 
@@ -664,7 +664,7 @@ A green `release` verification is meant to predict a green Release. Each step of
 
 | Release runs | Proven first by |
 | --- | --- |
-| Verify commit | The whole gate (`release` profile) on the exact commit; a pull request ran four of its tasks, and it restores what earlier releases proved. |
+| Verify commit | The production verification gate on the exact commit; a pull request ran four of its tasks, and it restores what earlier releases proved. |
 | Apply the fleet stack | `plan:fleet` against the real state, in a Release rehearsal dispatched on the branch (`rehearsal=true`). |
 | Apply dev's foundation | `tofu validate`, tflint and the plan policy (`@libs/infra-server-ts#lint`); `plan:foundation` in a Release rehearsal dispatched on the branch. |
 | Migrate, then the puzzle catalog | `verify:schema-evolution` and the validated load file, both on the emulated Postgres. |
@@ -812,14 +812,8 @@ Feature titles, one line each, so a session can route without listing the tree. 
 All changes to `main` go through a pull request. The OpenTofu repository ruleset
 requires the repository-owned `verify:end` check and resolved review conversations.
 GitHub CodeQL default setup is disabled. A branch need not be up to date with `main` to merge: many
-||||||| 8c0b599fbc
-requires every check in `libs/infra-shared-ts/tofu/modules/repository/required-checks/`
-(planning and the complete verdict) and resolved review conversations; no
-approval is required. CodeQL's checks are marked `outage_tolerant`: the final PR gate
-enforces them instead of the ruleset, so findings block but a scanner GitHub could not
-download only warns. A branch need not be up to date with `main` to merge: many
 concurrent agent branches made that a constant update-and-rerun loop. Verify PR checks
-the merge commit at push time, and Release reruns the full gate on `main` before shipping.
+the merge commit at push time, and Release verifies the deployment on `main` before shipping.
 A push dismisses stale approvals. Dynamic shards are enforced
 by the aggregate verdict, including missing or failed shard evidence. Agents enable
 auto-merge on eligible PRs under the [merge hold policy](#merge-holds). It waits for the same required

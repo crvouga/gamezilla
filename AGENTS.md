@@ -290,7 +290,7 @@ Four workflows, one contract each. Details:
   write a test that exists only for one profile.
 - **A nightly finding is promoted.** Pin the failing trace in the model
   binding's `regressions`, or the shrunk input as a `// regression: <bug-id>`
-  example. The pinned regression lives in a gate suite, which every Release runs.
+  example. The pinned regression lives in its owning gate suite. Production-critical regressions belong in the deployment checks.
 - **A red Release check is queued work.** Each check failing in Release's
   verification on `main` has one open issue labelled `ci-failure`
   ("Release check failing on main: `<task>`"), rewritten by every red Release

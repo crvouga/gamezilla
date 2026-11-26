@@ -19,6 +19,21 @@
       ],
       "passThroughEnv": ["*"]
     },
+    "test:release-journeys:critical": {
+      "dependsOn": ["^src", "//#task:i18n:compile"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "!**/*.md",
+        "$TURBO_ROOT$/specs/journeys/join-and-offline.feature",
+        "$TURBO_ROOT$/turbo-platform-key.json"
+      ],
+      "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
+      "outputs": [
+        ".cache/release-report/all/**",
+        ".cache/critical-journeys/release-all/**"
+      ],
+      "passThroughEnv": ["*"]
+    },
     "test:release-journeys:0": {
       "dependsOn": ["^src", "//#task:i18n:compile"],
       "inputs": [
