@@ -37,29 +37,26 @@ export type FilePickerProps = {
 /**
  * A labelled field for choosing one file: a "Choose file" control and the
  * chosen file's name (or what is missing) in one bordered row, then an
- * optional hint. The native file input stays in the tab order, unseen
- * under the row, so the keyboard and screen readers reach it by its label;
- * its ring is drawn on the row. The caller owns the chosen name, so the
- * field never contradicts what the screen says was chosen.
+ * optional hint. The labelled button opens the native chooser and displays
+ * the caller’s chosen file name.
  */
 export function FilePicker(props: FilePickerProps): JSX.Element {
-  const labelId = createUniqueId();
+  const triggerId = createUniqueId();
   const hintId = createUniqueId();
   return (
     <FileParts.Root
       disabled={props.disabled === true}
-      aria-labelledby={labelId}
       onValueChange={(files) => props.onSelect(files[0] ?? null)}
       class="box gap-2"
       aria-disabled={ariaBoolean(props.disabled ?? false)}
       {...dataAttrs({ component: 'FilePicker', ...props.dataSet })}
     >
       <FileParts.Input accept={props.accept} />
-      <span id={labelId} class="text textLabel">
+      <label for={triggerId} class="text textLabel">
         {props.label}
-      </span>
+      </label>
       <FileParts.Trigger
-        aria-labelledby={labelId}
+        id={triggerId}
         aria-describedby={props.hint === undefined ? undefined : hintId}
         class={[
           styles['field'],

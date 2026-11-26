@@ -1,0 +1,4 @@
+{
+  "summary": "The FilePicker wrapper and chooser button shared the name Choose an image. The Selected story could not choose avatar.png or check its callback in either theme.",
+  "regressionTest": "pkgs/ui-root-client-ts/tests/file-choice.test.tsx"
+}
