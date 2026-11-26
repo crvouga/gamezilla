@@ -24,7 +24,7 @@
       "inputs": [
         "$TURBO_DEFAULT$",
         "!**/*.md",
-        "$TURBO_ROOT$/specs/journeys/critical-journeys.feature",
+        "$TURBO_ROOT$/specs/journeys/join-and-offline.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
