@@ -1,0 +1,68 @@
+.mark::after {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* Open corners leave the figure, the square coordinates and the keyboard
+   focus perimeter visible on a selected square. */
+.mark[data-kind="selected"]::after {
+  content: "";
+  inset: 6%;
+  border: solid var(--chess-focus-band);
+  border-width: clamp(2px, 0.6cqw, 4px);
+  clip-path: polygon(
+    0 0,
+    30% 0,
+    30% 30%,
+    70% 30%,
+    70% 0,
+    100% 0,
+    100% 30%,
+    70% 30%,
+    70% 70%,
+    100% 70%,
+    100% 100%,
+    70% 100%,
+    70% 70%,
+    30% 70%,
+    30% 100%,
+    0 100%,
+    0 70%,
+    30% 70%,
+    30% 30%,
+    0 30%
+  );
+}
+
+.mark[data-kind="check"]::after {
+  content: "";
+  inset: auto 18% 2%;
+  height: 8%;
+  background: repeating-linear-gradient(
+    120deg,
+    var(--chess-focus-band) 0 12%,
+    var(--chess-sq-light) 12% 24%
+  );
+}
+
+.mark[data-arrival]::before {
+  position: absolute;
+  pointer-events: none;
+  content: "";
+  inset: 0 0 auto auto;
+  width: 28%;
+  aspect-ratio: 1;
+  background: var(--chess-border);
+  clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* An open tick at the departure and a solid pennant at the arrival keep the
+   direction readable on a still board. Selection can coexist with arrival. */
+.mark[data-kind="last-move"]:not([data-arrival])::after {
+  content: "";
+  inset: 0 0 auto auto;
+  width: 28%;
+  aspect-ratio: 1;
+  background: var(--chess-border);
+  clip-path: polygon(0 0, 24% 0, 100% 76%, 100% 100%);
+}

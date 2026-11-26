@@ -29,6 +29,8 @@ import { type Accessor, createMemo, For, Show } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { HtmlPaintToken } from '../paint-token/index';
 
+import marks from './move-marks.module.css';
+
 export type SquareWashKind = 'selected' | 'check' | 'premove' | 'last-move';
 
 export type SquareWashInput = {
@@ -62,6 +64,7 @@ export type ChessBoardSquaresProps = {
   readonly boardTestId: string;
   readonly orientation: Accessor<BoardOrientation>;
   readonly position: Accessor<Position>;
+  readonly lastArrival: Accessor<Square | undefined>;
   readonly washes: Accessor<readonly string[]>;
   readonly legalTargets: Accessor<readonly Square[]>;
   readonly captureTargets: Accessor<readonly Square[]>;
@@ -82,13 +85,15 @@ function splitKey(key: string): { kind: string; square: Square } {
 
 function Wash(props: {
   readonly washKey: string;
+  readonly lastArrival: Accessor<Square | undefined>;
   readonly orientation: Accessor<BoardOrientation>;
 }): JSX.Element {
   const wash = () => splitKey(props.washKey);
   return (
     <div
-      class={`${styles['cell']} ${styles['wash']}`}
+      class={`${styles['cell']} ${styles['wash']} ${marks['mark']}`}
       data-kind={wash().kind}
+      data-arrival={props.lastArrival() === wash().square ? '' : undefined}
       style={{ transform: cellTransform(wash().square, props.orientation()) }}
     >
       <HtmlPaintToken kind={wash().kind as SquareWashKind} at={wash().square} />
@@ -270,7 +275,13 @@ export function ChessBoardSquares(props: ChessBoardSquaresProps): JSX.Element {
       data-testid={chessBoardLayerTestId(props.boardTestId, 'squares')}
     >
       <For each={[...props.washes()]}>
-        {(key) => <Wash washKey={key} orientation={props.orientation} />}
+        {(key) => (
+          <Wash
+            washKey={key}
+            orientation={props.orientation}
+            lastArrival={props.lastArrival}
+          />
+        )}
       </For>
       <For each={highlights()}>
         {(h) => (

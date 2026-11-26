@@ -7,6 +7,7 @@ import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import { createBoardController } from '../chess-board-controller';
 import { ChessBoardFrame } from '../chess-board-frame/index';
+import { ChessBoardInspection } from '../chess-board-inspection/index';
 import { ChessBoardView } from '../chess-board-view/index';
 import { ChessBoardGuidance } from './guidance';
 import { ChessBoardLayout } from './layout';
@@ -27,6 +28,11 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
     colorScheme: () => themeCtx.colorScheme(),
     timers,
   });
+  const board = () => (
+    <ChessBoardInspection fixed={props.size !== undefined} ctrl={ctrl}>
+      <ChessBoardView props={props} ctrl={ctrl} />
+    </ChessBoardInspection>
+  );
   return (
     <ChessBoardLayout
       fitSquare={props.fitSquare}
@@ -42,13 +48,13 @@ export function ChessBoard(props: ChessBoardProps): JSX.Element {
           props.showCoordinates &&
           props.coordinatePlacement?.startsWith('outside-')
         }
-        fallback={<ChessBoardView props={props} ctrl={ctrl} />}
+        fallback={board()}
       >
         <ChessBoardFrame
           orientation={props.orientation ?? 'white'}
           ranks={props.coordinatePlacement === 'outside-end' ? 'end' : 'start'}
         >
-          <ChessBoardView props={props} ctrl={ctrl} />
+          {board()}
         </ChessBoardFrame>
       </Show>
     </ChessBoardLayout>

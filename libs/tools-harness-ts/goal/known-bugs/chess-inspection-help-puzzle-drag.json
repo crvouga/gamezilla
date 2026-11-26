@@ -1,0 +1,4 @@
+{
+  "summary": "Inspection help added a text row to the measured puzzle board in the DOM harness. A drag from g6 started on g1 and puzzle 01Xbe could not be solved.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/puzzle-catalog-regression.test.ts"
+}

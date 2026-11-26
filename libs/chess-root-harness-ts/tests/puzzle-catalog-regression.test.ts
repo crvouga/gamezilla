@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { openPuzzleByTheme } from '@libs/chess-puzzle-harness-ts/chess-actions';
+import {
+  openPuzzleByTheme,
+  playUntilSolved,
+} from '@libs/chess-puzzle-harness-ts/chess-actions';
 import {
   ingestChessPuzzleCsv,
   readLocalPuzzleRow,
@@ -14,6 +17,7 @@ import {
 } from '@libs/game-session-harness-ts/puzzle-link';
 import { retireCataloguePuzzle } from '@libs/game-session-harness-ts/puzzle-records';
 import {
+  isPuzzleSolved,
   openGamePuzzles,
   readPuzzleOnBoard,
 } from '@libs/game-session-harness-ts/puzzle-screen';
@@ -59,6 +63,7 @@ test('repeated puzzle assistant scenarios restore all three puzzles on a shared 
   ]);
 });
 
+// regression: chess-inspection-help-puzzle-drag
 // regression: chess-named-puzzle-already-on-board
 test('opening the four-move mate already on the board keeps its attempt playable', async () => {
   await using s = await openHarness();
@@ -74,4 +79,6 @@ test('opening the four-move mate already on the board keeps its attempt playable
   });
   await s.apply(openPuzzleByTheme, actor, puzzle.theme, puzzle.id);
   expect(await s.read(readPuzzleOnBoard, actor)).toBe('01Xbe');
+  await s.apply(playUntilSolved, actor);
+  await s.until((world) => isPuzzleSolved(world, actor), { maxMs: 15_000 });
 }, 120_000);

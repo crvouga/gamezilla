@@ -16,8 +16,8 @@ import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { For, onSettled, Show } from 'solid-js';
-
 import styles from '../chess-board/chess-board.module.css';
+import figures from '../chess-board-pieces/figures.module.css';
 
 type PromotionKind = NonNullable<Move['promotion']>;
 const ORDERED: readonly PromotionKind[] = ['q', 'r', 'b', 'n'];
@@ -119,11 +119,11 @@ function PromotionChoice(props: {
       onClick={() => props.onPick(props.kind)}
     >
       <span
-        class={`${styles['piece']} ${styles['promotionPiece']}`}
+        class={`${styles['piece']} ${figures['figure']} ${styles['promotionPiece']}`}
         data-piece={`${props.color}${props.kind}`}
         aria-hidden="true"
       />
-      <span class="text textCaption text-board-card-ink">{name()}</span>
+      <span class="text textBodyBold text-board-card-ink">{name()}</span>
     </SdkButton>
   );
 }
@@ -151,7 +151,7 @@ function PromotionStack(props: {
   });
   return (
     <div
-      class="box absolute flex-col max-h-full overflow-y-auto"
+      class="box absolute flex-col max-h-full overflow-y-auto rounded-md border border-outline"
       role="presentation"
       style={props.layout.style}
       onClick={(e) => e.stopPropagation()}
@@ -164,7 +164,7 @@ function PromotionStack(props: {
       }}
     >
       <StackVertical self="stretch" scrollTarget={reveal.target}>
-        <h3 class="text textCaption p-2 bg-surface">
+        <h3 class="text textBodyBold p-2 bg-surface">
           <Trans>Promote pawn</Trans>
         </h3>
         <Show when={props.layout.cancelFirst}>{cancel()}</Show>

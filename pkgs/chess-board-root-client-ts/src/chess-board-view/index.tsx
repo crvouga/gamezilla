@@ -22,6 +22,7 @@ import {
   createEffect,
   createMemo,
   createSignal,
+  createUniqueId,
 } from 'solid-js';
 import styles from '../chess-board/chess-board.module.css';
 import { ChessBoardBackground } from '../chess-board-background/index';
@@ -147,6 +148,11 @@ function BoardBody(args: {
         orientation={args.ctrl.orientation}
         position={() => game().position}
         washes={useWashes(args.props, args.ctrl)}
+        lastArrival={() =>
+          args.props.highlightLastMove === false
+            ? undefined
+            : markedLastMove(args.props, args.ctrl)?.to
+        }
         legalTargets={() => ix().legalTargets}
         captureTargets={args.ctrl.model.captureTargets}
         cellHighlights={() => args.props.cellHighlights}
@@ -229,6 +235,7 @@ export function ChessBoardView(args: {
   readonly props: ChessBoardProps;
   readonly ctrl: BoardController;
 }): JSX.Element {
+  const helpId = createUniqueId();
   const boardTestId = () =>
     args.props.dataSet?.['testid'] ?? DEFAULT_CHESS_BOARD_TEST_ID;
   const themeVars = createMemo(() => boardThemeToCssVars(args.ctrl.theme()));
@@ -272,8 +279,13 @@ export function ChessBoardView(args: {
       // oxlint-disable-next-line jsx-a11y/no-noninteractive-tabindex
       tabindex={0}
       role="application"
+      aria-describedby={helpId}
       aria-label={`Chess board, ${args.ctrl.orientation()} facing you`}
     >
+      <span id={helpId} hidden>
+        Pinch or hold an empty square with no piece selected to inspect. Plus
+        zooms, arrows pan and Escape fits the board.
+      </span>
       <BoardBody
         props={args.props}
         ctrl={args.ctrl}

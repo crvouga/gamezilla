@@ -160,7 +160,7 @@ test("phone: the pad is the arrow keys' T and the riders' heads are drawn larger
 // is drawn inside the walls, the walls are the one frame, and the room
 // around a head at the edge fits inside the drawing's viewBox.
 test('the arena has one frame: its walls, flush with the column', () => {
-  mount(1440);
+  mount(1440, POSITION, []);
   const arena = screen.getByTestId('arena-arena');
   const drawing = screen.getByTestId('arena-arena-drawing');
   const css = readFileSync(

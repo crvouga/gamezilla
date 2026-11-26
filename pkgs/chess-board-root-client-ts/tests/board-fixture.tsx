@@ -138,12 +138,15 @@ export function mountBoard(props: Partial<ChessBoardProps> = {}) {
       clientX: at.x,
       clientY: at.y,
     });
-    host.dispatchEvent(event);
+    const target = host.closest('[data-chess-inspection="magnified"]') ?? host;
+    target.dispatchEvent(event);
     return event;
   };
 
   return {
     host,
+    container: result.container,
+    clock,
     moves,
     setOrientation(next: 'white' | 'black'): void {
       setOrientation(next);

@@ -2,7 +2,12 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
 import axe from 'axe-core';
 
-export async function openSokoban(page: Page, story: string, theme: string) {
+export async function openSokoban(
+  page: Page,
+  story: string,
+  theme: string,
+  motion?: 'system'
+) {
   await page.route('**/*', (route) =>
     new URL(route.request().url()).hostname === '127.0.0.1'
       ? route.continue()
@@ -16,7 +21,7 @@ export async function openSokoban(page: Page, story: string, theme: string) {
     ).__STORYBOOK_HIGHLIGHT_INITIALIZED = true;
   });
   await page.goto(
-    `/iframe.html?id=screens-games-sokoban-${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=screens-games-sokoban-${story}&viewMode=story&globals=theme:${theme}${motion ? ';motion:system' : ''}`
   );
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',

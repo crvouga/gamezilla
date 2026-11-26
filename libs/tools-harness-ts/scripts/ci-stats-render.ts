@@ -149,7 +149,7 @@ function historyKeyNumbers(history: HistoryStats): string[] {
   return [
     `- Observed load, all runners: ${num(hours)} agent-hours per day averaged over ${num(history.days)} days (${String(history.runs)} runs), so about ${num(hours / 24)} agents busy around the clock on average.`,
     `- Self-hosted runners took jobs ${own?.firstAt ? `from ${own.firstAt.slice(0, 10)} to ${own.lastAt.slice(0, 10)}` : 'never in this window'}; the rest ran on GitHub-hosted VMs. Self-hosted numbers cover that short span only.`,
-    `- Peak jobs running at once: ${String(history.running.peak)} on self-hosted (capped by the fleet), ${String(history.runningHosted.peak)} on GitHub-hosted (uncapped), ${String(history.runningAll.peak)} anywhere; ${String(history.demand.peak)} running or queued.`,
+    `- Peak jobs running at once: ${String(history.running.peak)} on self-hosted (capped by the fleet), ${String(history.runningHosted.peak)} on GitHub-hosted, ${String(history.runningAll.peak)} anywhere; ${String(history.demand.peak)} running or queued.`,
     `- Jobs running anywhere stay at or under ${String(history.runningAll.levelP90)} 90% of busy time and ${String(history.runningAll.levelP99)} 99% of it.`,
   ];
 }
@@ -247,9 +247,31 @@ function observedHistory(history: HistoryStats, skippedRuns: number): string {
     '## Observed history (GitHub Actions)',
     '',
     ...skippedNote(skippedRuns),
-    `${String(history.runs)} runs and ${String(history.jobs)} jobs, ${history.from.slice(0, 16)} to ${history.to.slice(0, 16)} UTC (${num(history.days)} days). Percentiles are p50 / p90 / max.`,
+    `${String(history.runs)} runs and ${String(history.jobs)} jobs, ${history.from.slice(0, 16)} to ${history.to.slice(0, 16)} UTC (${num(history.days)} days). Percentile columns use the units in their headings.`,
     '',
-    'Per-run and per-job tables count every job that ran on a runner, and name the runner kind where hardware matters. **Self-hosted** is the fleet being replaced or grown; **GitHub-hosted** is a 2-core VM the workflows used before (and sometimes beside) it, so its durations differ from any self-hosted hardware, and it scales without a cap, which makes its concurrency the closest thing here to unconstrained demand. A run no runner took never executed and is left out of its per-run measures. Job durations are for jobs that succeeded: a failed job may have stopped early or hit a timeout.',
+    table(
+      ['Pull request measure', 'Samples', 'P95', 'Target'],
+      [
+        [
+          'Time to required verdict',
+          String(history.prValidationSeconds.count),
+          history.prValidationSeconds.count
+            ? duration(history.prValidationSeconds.p95)
+            : 'n/a',
+          '90s',
+        ],
+        [
+          'Job queue wait',
+          String(history.prJobQueueSeconds.count),
+          history.prJobQueueSeconds.count
+            ? duration(history.prJobQueueSeconds.p95)
+            : 'n/a',
+          '5s',
+        ],
+      ]
+    ),
+    '',
+    'Per-run and per-job tables count every job that ran on a runner, and name the runner kind where hardware matters. **Self-hosted** is the fleet being replaced or grown; **GitHub-hosted** is a 2-core VM the workflows used before (and sometimes beside) it, so its durations differ from any self-hosted hardware, and account quotas can queue jobs across workflows. A run no runner took never executed and is left out of its per-run measures. Job durations are for jobs that succeeded: a failed job may have stopped early or hit a timeout.',
     '',
     '### Where jobs ran',
     '',
@@ -420,7 +442,7 @@ function concurrencyTable(history: HistoryStats): string {
     ],
     [
       row('Running on self-hosted (capped by fleet size)', history.running),
-      row('Running on GitHub-hosted (uncapped)', history.runningHosted),
+      row('Running on GitHub-hosted', history.runningHosted),
       row('Running anywhere', history.runningAll),
       row('Running or queued for a runner, anywhere', history.demand),
     ]
@@ -493,7 +515,7 @@ function gapsSection(): string {
     '## What this data cannot tell you',
     '',
     '- **Peak memory and CPU per job.** GitHub does not report them. Per-agent RAM and cores are assumptions (the repo plans about 2 GB per spec worker and one core per shard) until a probe measures a shard.',
-    '- **Unconstrained demand.** Self-hosted concurrency and shard counts are capped by the runners online at the time. The GitHub-hosted rows are the uncapped view, up to the shard cap above.',
+    '- **Unconstrained demand.** Self-hosted concurrency and shard counts are capped by the runners online at the time. GitHub-hosted concurrency also depends on the account quota. Demand includes jobs waiting for a runner.',
     '- **Hardware speed.** Durations come from two different machines (the self-hosted fleet and 2-core GitHub-hosted VMs); a faster or slower CPU scales them.',
     '- **Disk and network.** Checkout, `node_modules`, the turbo cache and artifact transfer sizes are not measured here.',
     '- **Cost.** Prices are not in this document. Ask the LLM to look them up for the current date and region.',

@@ -1,0 +1,4 @@
+{
+  "summary": "Resizing the focused Pong court from 844 × 390 to 1440 × 900 blurs it during layout and used to write reactive pickup state inside that computation.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/pong-contrast/integration.checks.ts"
+}

@@ -29,13 +29,6 @@ type NumberlinkBoardProps = Pick<
   readonly drawingPair?: string | undefined;
 };
 
-function pairColor(definition: NumberlinkDefinition, id: string) {
-  const pair = definition.pairs.find((entry) => entry.id === id);
-  if (pair === undefined)
-    throw new Error('A validated path must name an endpoint pair');
-  return pair.color;
-}
-
 function sameMembers(a: ReadonlySet<string>, b: ReadonlySet<string>) {
   return a.size === b.size && [...a].every((id) => b.has(id));
 }
@@ -45,32 +38,11 @@ type CellOwner = {
   readonly endpoint: boolean;
 };
 
-export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
+function createCellLabels(
+  props: NumberlinkBoardProps,
+  connected: () => ReadonlySet<string>
+) {
   const { t } = useLingui();
-  // Equal membership keeps endpoints and statuses still while a path grows.
-  const connected = createMemo(
-    () => new Set(connectedPairs(props.definition, props.state)),
-    { equals: sameMembers }
-  );
-  const endpoints = createMemo(() =>
-    props.definition.pairs.flatMap((pair) =>
-      pair.endpoints.map((cell) => ({
-        cell: cell.y * props.definition.width + cell.x,
-        label: pair.label,
-        tone: pair.color,
-        connected: connected().has(pair.id),
-      }))
-    )
-  );
-  const lines = createMemo(() =>
-    props.state.paths.map((path) => ({
-      id: path.pairId,
-      tone: pairColor(props.definition, path.pairId),
-      connected: connected().has(path.pairId),
-      provisional: path.pairId === props.drawingPair,
-      cells: path.cells.map((cell) => cell.y * props.definition.width + cell.x),
-    }))
-  );
   // One pass per drawing step, so each of a dense board's cells labels
   // itself by lookup instead of searching every pair and path.
   const owners = createMemo(() => {
@@ -88,23 +60,87 @@ export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
         result.set(end.y * width + end.x, { pair, endpoint: true });
     return result;
   });
-  const label = (index: number): string => {
-    const x = index % props.definition.width;
-    const y = Math.floor(index / props.definition.width);
-    const coordinate = `${String.fromCharCode(65 + x)}${y + 1}`;
-    const owner = owners().get(index);
-    if (owner === undefined) return t`${coordinate}: empty`;
-    const { pair } = owner;
-    const status = connected().has(pair.id) ? t`connected` : t`unfinished`;
-    return owner.endpoint
-      ? t`${coordinate}: endpoint ${pair.label}, ${status}`
-      : t`${coordinate}: path ${pair.label}, ${status}`;
+  const labels = createMemo(() =>
+    Array.from(
+      { length: props.definition.width * props.definition.height },
+      (_, index) => {
+        const coordinate = `${String.fromCharCode(65 + (index % props.definition.width))}${Math.floor(index / props.definition.width) + 1}`;
+        const owner = createMemo(() => owners().get(index), {
+          equals: (a, b) => a?.pair === b?.pair && a?.endpoint === b?.endpoint,
+        });
+        const joined = createMemo(() => {
+          const item = owner();
+          return item !== undefined && connected().has(item.pair.id);
+        });
+        return createMemo(() => {
+          const item = owner();
+          if (!item) return t`${coordinate}: empty`;
+          const pair = item.pair;
+          const status = joined() ? t`connected` : t`unfinished`;
+          return item.endpoint
+            ? t`${coordinate}: endpoint ${pair.label}, ${status}`
+            : t`${coordinate}: path ${pair.label}, ${status}`;
+        });
+      }
+    )
+  );
+  return (index: number): string => {
+    const label = labels()[index];
+    if (!label) throw new RangeError('Cell lies outside the board');
+    return label();
   };
+}
+
+export function NumberlinkBoard(props: NumberlinkBoardProps): JSX.Element {
+  const { t } = useLingui();
+  // Equal membership keeps endpoints and statuses still while a path grows.
+  const connected = createMemo(
+    () => new Set(connectedPairs(props.definition, props.state)),
+    { equals: sameMembers }
+  );
+  const endpoints = createMemo(() =>
+    props.definition.pairs.flatMap((pair) =>
+      pair.endpoints.map((cell) => ({
+        cell: cell.y * props.definition.width + cell.x,
+        label: pair.label,
+        tracing: props.drawingPair === pair.id,
+        tone: pair.color,
+        connected: connected().has(pair.id),
+      }))
+    )
+  );
+  const pairStyles = createMemo(
+    () =>
+      new Map(
+        props.definition.pairs.map((pair, index) => [
+          pair.id,
+          { tone: pair.color, stitch: index % 6 },
+        ])
+      )
+  );
+  const lines = createMemo(() =>
+    props.state.paths.map((path) => {
+      const style = pairStyles().get(path.pairId);
+      if (!style)
+        throw new Error('A validated path must name an endpoint pair');
+      return {
+        id: path.pairId,
+        ...style,
+        connected: connected().has(path.pairId),
+        provisional: path.pairId === props.drawingPair,
+        cells: path.cells.map(
+          (cell) => cell.y * props.definition.width + cell.x
+        ),
+      };
+    })
+  );
+  const label = createCellLabels(props, connected);
   return (
     <PathGridBoard
       columns={props.definition.width}
       rows={props.definition.height}
       label={t`Numberlink board`}
+      navigationHint={t`Pinch to zoom. Drag with two fingers to pan. Double-tap to zoom or fit. Use + and − to zoom, or 0 to fit.`}
       testId="numberlink-board"
       endpoints={endpoints()}
       lines={lines()}

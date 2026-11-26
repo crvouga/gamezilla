@@ -1,0 +1,4 @@
+{
+  "summary": "Verify run 45740514106 planned 45 shard jobs against a 16-slot matrix. The hosted planner ignored both the matrix capacity and concurrent workflows during task packing.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-capacity.test.ts"
+}

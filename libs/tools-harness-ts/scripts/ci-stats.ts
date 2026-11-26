@@ -117,7 +117,11 @@ async function listRuns(
     ])
   ) as RawRun[];
   return raw
-    .filter((run) => run.status === 'completed')
+    .filter(
+      (run) =>
+        run.status === 'completed' &&
+        Date.parse(run.createdAt) >= Date.parse(since)
+    )
     .map((run) => ({
       workflow: workflow.name,
       id: run.databaseId,
@@ -343,6 +347,11 @@ async function main(): Promise<void> {
   const out = values.out ?? DEFAULT_OUT;
   mkdirSync(dirname(out), { recursive: true });
   writeFileSync(out, `${renderStats(input)}\n`);
+  if (collected) {
+    const historyPath = join(dirname(out), 'ci-history.json');
+    writeFileSync(historyPath, JSON.stringify(collected, null, 2));
+    console.log(`ci-stats: wrote ${historyPath}`);
+  }
   console.log(`ci-stats: wrote ${out}`);
 }
 
