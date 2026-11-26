@@ -345,7 +345,17 @@ describe('Verify Nightly workflow', () => {
     }
   });
 
-  test('every suite is one job, and every job is a suite', () => {
+  test('all suites share the timestamp read at Nightly admission', () => {
+    for (const [id, job] of Object.entries(nightly.jobs)) {
+      if (id === 'verify-nightly-admission') continue;
+      expect([job.needs].flat(), id).toContain('verify-nightly-admission');
+      const source = '${{ needs.verify-nightly-admission.outputs.created_at }}';
+      if (job.uses) expect(job.with?.['created-at'], id).toBe(source);
+      else expect(job.steps?.[0]?.env?.['SHARED_CREATED_AT'], id).toBe(source);
+    }
+  });
+
+  test('each suite has one job after shared admission', () => {
     const groups = [
       'gate',
       ...Object.keys(NIGHTLY_SUITES),
@@ -353,7 +363,9 @@ describe('Verify Nightly workflow', () => {
       'pr-load',
     ];
     expect(Object.keys(nightly.jobs).sort()).toEqual(
-      [...groups, 'end'].map((group) => `verify-nightly-${group}`).sort()
+      [...groups, 'admission', 'end']
+        .map((group) => `verify-nightly-${group}`)
+        .sort()
     );
     for (const [suite, config] of Object.entries(NIGHTLY_SUITES)) {
       const job = nightly.jobs[`verify-nightly-${suite}`]!;

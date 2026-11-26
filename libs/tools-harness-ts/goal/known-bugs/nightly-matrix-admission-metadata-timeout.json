@@ -1,0 +1,4 @@
+{
+  "summary": "Visual shard 1 in Nightly 45868165600 exhausted both metadata reads before checkout. Read the authoritative run timestamp once before fan-out and preserve the same absolute deadline on every runner.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-deadline.test.ts"
+}

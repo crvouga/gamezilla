@@ -26,6 +26,9 @@ on:
         description: A recent Release successfully applied the current shared configuration
         value: ${{ jobs.verify-start.outputs.reuse-shared }}
     inputs:
+      created-at:
+        description: Original workflow creation timestamp supplied by Nightly admission
+        type: string
       deployment:
         description: Verify the production artifacts, integrations and release safeguards
         type: boolean
@@ -127,15 +130,20 @@ jobs:
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
+          SHARED_CREATED_AT: ${{ inputs.created-at }}
           STAGE_SECONDS: "${{ inputs.profile == 'nightly' && 2700 || inputs.require-main && github.job != 'verify-end' && 240 || github.workflow == 'Release' && 480 || 600 }}"
         run: |
           set -euo pipefail
-          read_created() { timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at; }
-          created=$(read_created) || {
-            status=$?
-            (( status == 124 )) || exit "$status"
-            created=$(read_created)
-          }
+          if [[ -n "${SHARED_CREATED_AT:-}" ]]; then
+            created=$SHARED_CREATED_AT
+          else
+            read_created() { timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at; }
+            created=$(read_created) || {
+              status=$?
+              (( status == 124 )) || exit "$status"
+              created=$(read_created)
+            }
+          fi
           created_epoch=$(date -d "$created" +%s)
           deadline=$(( created_epoch + STAGE_SECONDS ))
           remaining=$(( deadline - $(date +%s) ))
