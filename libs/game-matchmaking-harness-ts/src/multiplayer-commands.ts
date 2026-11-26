@@ -8,6 +8,7 @@ import {
   scenarioAction,
 } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { actorLocalSql } from '@libs/harness-ts/identity';
 import { actorHtml } from '@libs/harness-ts/observations';
 import type { DeviceMutations } from '@libs/harness-ts/webview-mutations';
 import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared-ts/permission-policy';
@@ -21,6 +22,7 @@ import type {
   Mutation,
 } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import { multiplayerClient } from './multiplayer-client';
+import { describeCommandWait } from './multiplayer-command-wait';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 import { holdOpponentPool } from './opponent-pool-hold';
 
@@ -124,7 +126,12 @@ export const sendMultiplayerCommand = scenarioAction({
     const result = await pollUntil(s, verdict, {
       maxMs: 5000,
       stepMs: 1,
-      description: 'the multiplayer command verdict',
+      description: () =>
+        describeCommandWait(
+          actorLocalSql(s, actor),
+          s.harness.serverSql.sqlClient,
+          command
+        ),
     });
     let bag = results.get(s);
     if (bag === undefined) {
