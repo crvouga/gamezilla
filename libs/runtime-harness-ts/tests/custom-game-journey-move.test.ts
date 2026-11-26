@@ -35,7 +35,7 @@ function boardIgnoring(ignoredPairs: number): {
     key: unused,
     scroll: unused,
     wait: unused,
-    isVisible: unused,
+    isVisible: async () => id === 'custom-game-board',
     text: unused,
     tap: unused,
     layout: async () => ({ x: 0, y: 0, width: 400, height: 400 }),

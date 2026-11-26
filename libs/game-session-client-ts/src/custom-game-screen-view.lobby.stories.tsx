@@ -1,6 +1,7 @@
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { CustomGameScreenView } from './custom-game-screen-view';
+import { CustomGameStartExample } from './custom-game-start.example';
 import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import {
@@ -43,6 +44,10 @@ type Story = StoryObj<typeof meta>;
 
 /** The host set up a bot opponent: every seat is filled and Start is the one filled command. */
 export const HostReadyToStart: Story = {};
+
+export const StartAndPlay: Story = {
+  render: (args) => <CustomGameStartExample {...args} />,
+};
 
 /** The game's options and the clock are agreed behind their own rows, each showing what is chosen. */
 export const HostWithOptions: Story = { args: FRAME_WITH_OPTIONS };

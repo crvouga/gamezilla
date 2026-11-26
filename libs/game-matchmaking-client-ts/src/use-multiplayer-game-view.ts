@@ -25,6 +25,7 @@ import type {
   MultiplayerOffer,
   MultiplayerRecordView,
 } from './multiplayer-game-view';
+import { timeControlText } from './time-control-name';
 import type { MultiplayerControlsModel } from './use-multiplayer-controls';
 import type { MultiplayerData } from './use-multiplayer-data';
 import type { OwnBoard } from './use-own-board';
@@ -109,6 +110,8 @@ export function useMultiplayerGameView(
       : data.execution()?.started === true;
     const leave: MultiplayerConfirm = started ? 'resign' : 'abort';
     return {
+      timeControl: timeControlText(game.time_control) || undefined,
+      target: presentation(game.fen).frame.target?.(game.fen),
       players: multiplayerPeople(game).length,
       leave: ongoing ? leave : null,
       draw: offerOf(ongoing, offeredTo(game, data.myId(), game.draw_offer_by)),

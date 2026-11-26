@@ -6,12 +6,9 @@ import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import type { JSX } from '@solidjs/web';
 import { createEffect, Show } from 'solid-js';
 import { useRefusalText } from './custom-game-error';
@@ -28,7 +25,6 @@ import {
   FRAME_NO_PLAY,
   FRAME_NO_TABLE,
 } from './game-frame-empty';
-import { frameOverlayPhase } from './game-frame-overlay-view';
 import {
   FrameBoardMount,
   useBoardLineStatus,
@@ -93,8 +89,6 @@ const DENIED_FRAME = {
   place: CUSTOM_GAME_PLACES.home.none,
   onOpen: () => undefined,
   onClose: () => undefined,
-  overlay: NO_STAGE_OVERLAY,
-  onOverlay: () => undefined,
 } satisfies Omit<CustomGameScreenViewProps, 'title' | 'onBack'>;
 
 type FrameProps = {
@@ -166,10 +160,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const review = useCustomGameReview(model);
   const place = useCustomGamePlace(model, review);
   const choices = useGameChoicesName();
-  const stage = useStageOverlay(
-    () => frameOverlayPhase(place.phase()),
-    useTimers()
-  );
   const board = useFrameBoard(model, review);
   const refusal = useRefusalText();
   const status = useStageStatus(model, board);
@@ -205,8 +195,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onClose={() => {
           place.back();
         }}
-        overlay={stage.overlay()}
-        onOverlay={stage.send}
         viewerSide={model.mySide()}
         watchers={watchers()}
         connection={frameConnection(model)}

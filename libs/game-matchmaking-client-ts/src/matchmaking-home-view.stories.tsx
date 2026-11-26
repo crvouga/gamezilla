@@ -10,6 +10,7 @@ import {
   STORY_PARAMETERS,
   storyArgs,
 } from './matchmaking-screen-view.example';
+import { MatchmakingStartExample } from './matchmaking-start.example';
 
 const meta = {
   id: 'screens-matchmaking-home',
@@ -216,4 +217,8 @@ export const KingOfTheHill: Story = {
       canvas.getByRole('radio', { name: 'King of the Hill' })
     ).toBeChecked();
   },
+};
+
+export const FindAndPlay: Story = {
+  render: (args) => <MatchmakingStartExample {...args} />,
 };

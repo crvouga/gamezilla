@@ -23,7 +23,7 @@ import {
 } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 import {
-  assertPuzzleContent,
+  assertPuzzleContentRegistration,
   type PuzzleContent,
 } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
@@ -180,7 +180,7 @@ function assertParts<C extends TurnGameCapabilities>(game: Game<C>): void {
   const id = game.rules.id;
   assertGameId(id);
   if (game.puzzleContent !== undefined)
-    assertPuzzleContent(id, game.puzzleContent);
+    assertPuzzleContentRegistration(id, game.puzzleContent);
   assertTurnGameCapabilities(id, game.capabilities, game.simulation);
   if (!isTurnRules(game.rules) && game.simulation === undefined)
     throw new Error(`${id}: supply turn rules or a simulation capability`);
@@ -228,7 +228,7 @@ export function defineGame<C extends TurnGameCapabilities>(
 ): GameRegistration<C> | PuzzleGameDefinition {
   if (game.rules === undefined) {
     assertGameId(game.id);
-    assertPuzzleContent(game.id, game.puzzleContent);
+    assertPuzzleContentRegistration(game.id, game.puzzleContent);
     return new DefinedPuzzleGame(game);
   }
   assertParts(game);

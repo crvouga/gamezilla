@@ -41,12 +41,20 @@ export async function startCustomGameAgainstBot(ui: Driver): Promise<void> {
   await tap(ui, 'custom-game-play-bot');
 }
 
+async function expectOpenBoard(ui: Driver): Promise<void> {
+  await expectVisible(ui, 'custom-game-board');
+  check(
+    !(await ui.get('custom-game-versus').isVisible()),
+    'An introduction covers the ready custom game'
+  );
+}
+
 export async function expectCustomGameReady(ui: Driver): Promise<void> {
   await ui.get('custom-game-status').expect.text('Your turn.', {
     exact: false,
     timeoutMs: JOURNEY_WAIT_MS,
   });
-  await expectVisible(ui, 'custom-game-board');
+  await expectOpenBoard(ui);
   const box = await ui.get('custom-game-board').layout();
   check(box !== null && box.width > 0 && box.height > 0, 'board has no size');
 }
@@ -243,7 +251,7 @@ export function expectBoardFacing(
   side: 'white' | 'black'
 ): (ui: Driver) => Promise<void> {
   return async (ui) => {
-    await expectVisible(ui, 'custom-game-board');
+    await expectOpenBoard(ui);
     const a1 = await readCornerPosition(ui, 'a1');
     const h8 = await readCornerPosition(ui, 'h8');
     const white = a1.x < h8.x && a1.y > h8.y;

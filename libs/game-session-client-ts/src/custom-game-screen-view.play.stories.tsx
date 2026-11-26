@@ -64,30 +64,6 @@ export const NoMovesYet: Story = {
   render: (args) => onBoard([])(args),
 };
 
-/**
- * The game this device watched begin: the versus card covers the board for
- * its count, the people who play on its two bands; a press goes to the board.
- */
-export const Versus: Story = {
-  args: { record: record([]), overlay: { kind: 'versus', count: 3 } },
-  render: (args) => onBoard([])(args),
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    const card = await canvas.findByTestId('custom-game-versus');
-    await userEvent.click(
-      within(card).getByRole('button', { name: 'Start now' })
-    );
-    await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
-    await expect(canvas.queryByTestId('custom-game-versus')).toBeNull();
-  },
-};
-
-/** The versus card as it opens, still: the count at three. */
-export const VersusCount: Story = {
-  args: { record: record([]), overlay: { kind: 'versus', count: 3 } },
-  render: (args) => onBoard([])(args),
-};
-
 /** The opponent's turn: the turn line is neutral and their strip is the active one. */
 export const OpponentsTurn: Story = {
   render: (args) => onBoard(OPPONENT_TURN_MOVES)(args),

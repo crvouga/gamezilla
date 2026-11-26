@@ -1,10 +1,6 @@
 import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
-import type {
-  StageOverlay,
-  StageOverlayEvent,
-} from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import type { JSX } from '@solidjs/web';
@@ -115,13 +111,6 @@ export type CustomGameScreenViewProps = GameFrameScreenData & {
   readonly onOpen: (place: CustomGamePlace) => void;
   /** One step back, towards the phase's home. */
   readonly onClose: () => void;
-  /**
-   * What lies over the board on this device: the versus card and its
-   * count, the result card, or nothing (`useStageOverlay`).
-   */
-  readonly overlay: StageOverlay;
-  /** The person's own overlay events: `skip`, `dismiss`, `show`. */
-  readonly onOverlay: (event: StageOverlayEvent) => void;
 };
 
 /** What every place is given: the frame's data, and asking for its one confirmation. */

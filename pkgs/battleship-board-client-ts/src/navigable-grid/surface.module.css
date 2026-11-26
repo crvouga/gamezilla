@@ -26,7 +26,7 @@
   .plane [data-battleship-surface="fleet"] [data-emphasis="preview"] > span {
     animation: pickup 100ms ease-out;
   }
-  .plane [data-battleship-surface="target"] [data-emphasis="recent"] > span {
+  .plane [data-shot-arrived] > span {
     animation: settle 140ms ease-out;
   }
 }
