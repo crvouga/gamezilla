@@ -6,20 +6,25 @@ import {
   showFleetSetup,
 } from '@libs/battleship-harness-ts/battleship-actions';
 import {
+  BATTLESHIP_SETUP_BOARD,
   battleshipSetupRefusal,
   battleshipView,
 } from '@libs/battleship-harness-ts/battleship-view';
+import { visible } from '@libs/harness-ts/observations';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { openHarness } from './open-battleship-harness';
 
 // regression: battleship-inert-overview-skips-harness-input
 // Literal feature failure: the overview became inert, so no keyboard input ran.
 // regression: harness-package-tests-default-five-second-timeout
-// Its lineup opens a whole product world (4.5–5.0 s under coverage); it runs
-// under the product-harness wall clock the harness preload sets.
+// regression: battleship-carrier-setup-lineup-timeout
 test('the setup adapter attempts Carrier at G1 through the visible precision controls', async () => {
   await using s = await openHarness();
-  await s.apply(establishBattleship, { ready: false, active: false });
+  await s.apply(establishBattleship, {
+    second: 'open',
+    ready: false,
+    active: false,
+  });
   await s.apply(
     placeBattleshipShip,
     'alice',
@@ -30,6 +35,11 @@ test('the setup adapter attempts Carrier at G1 through the visible precision con
     },
     true
   );
+  expect(
+    await s.read(visible, 'alice', [
+      `${BATTLESHIP_SETUP_BOARD}-precision-cell-g1`,
+    ])
+  ).toBe(true);
   expect(await s.read(battleshipSetupRefusal, 'alice')).toContain('fit');
 });
 

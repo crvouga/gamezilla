@@ -1,0 +1,4 @@
+{
+  "summary": "The Carrier-at-G1 keyboard refusal timed out at five seconds while preparing an opponent who never acts. The host can arrange the same fleet through the real precision controls with the second seat open.",
+  "regressionTest": "libs/battleship-harness-ts/tests/battleship-spatial-input.test.ts"
+}
