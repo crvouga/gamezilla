@@ -8,17 +8,23 @@ import {
   pickGameInSpace,
   tap,
 } from './journey-gestures';
+import { hostDeferringEnd } from './journey-space';
 import type { JourneyWorld } from './journey-types';
 
-const { When, Then } = stepsFor<JourneyWorld>();
+const { Given, When, Then } = stepsFor<JourneyWorld>();
 
-When('they set up Quoridor with an open second seat', (w) =>
-  w.journey.act('setUpQuoridor', async (ui) => {
-    await pickGameInSpace(ui, 'quoridor');
-    await tap(ui, Handles.gameChoice('custom-game'));
-    await tap(ui, 'custom-game-create');
-    await expectVisible(ui, 'custom-game-setup-seats');
-  })
+Given(
+  'a host has set up Quoridor with an open second seat on a fresh device',
+  async (w) => {
+    await w.journey.open('anonymous');
+    await hostDeferringEnd(w);
+    await w.journey.act('setUpQuoridor', async (ui) => {
+      await pickGameInSpace(ui, 'quoridor');
+      await tap(ui, Handles.gameChoice('custom-game'));
+      await tap(ui, 'custom-game-create');
+      await expectVisible(ui, 'custom-game-setup-seats');
+    });
+  }
 );
 
 When('they choose Pong and reopen their space', async (w) => {
