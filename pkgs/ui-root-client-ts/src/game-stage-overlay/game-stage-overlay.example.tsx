@@ -10,9 +10,9 @@ import { DiscDropBoardExample } from '../../storybook/fixtures/disc-drop-board-e
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 export type GameStageOverlayExampleProps = {
-  tone: GameResultOverlayProps['tone'];
-  onDismiss: () => void;
-  onRematch: () => void;
+  tone?: GameResultOverlayProps['tone'];
+  onDismiss?: () => void;
+  onRematch?: () => void;
 };
 
 const WORDS = {
@@ -31,22 +31,21 @@ const WORDS = {
 } as const;
 
 function Result(props: GameStageOverlayExampleProps): JSX.Element {
+  const tone = () => props.tone ?? 'won';
   return (
     <GameResultOverlay
-      tone={props.tone}
-      eyebrow={WORDS[props.tone].eyebrow}
-      title={WORDS[props.tone].title}
-      caption={WORDS[props.tone].caption}
+      tone={tone()}
+      {...WORDS[tone()]}
       live
       dismissLabel="Show the board"
-      onDismiss={props.onDismiss}
+      onDismiss={() => props.onDismiss?.()}
       dataSet={{ testid: 'example-result' }}
       actions={
         <Button
           title="Rematch"
           variant="solid"
           size="sm"
-          onClick={() => props.onRematch()}
+          onClick={() => props.onRematch?.()}
         />
       }
     />
@@ -55,20 +54,14 @@ function Result(props: GameStageOverlayExampleProps): JSX.Element {
 
 /** The board with its result and rematch action. */
 export default function GameStageOverlayExample(
-  props: Partial<GameStageOverlayExampleProps>
+  props: GameStageOverlayExampleProps
 ): JSX.Element {
   return (
     <ExampleRoot>
       <GameBoardStage
         others={<GamePlayerBar name="Atlas" />}
         own={<GamePlayerBar name="River" />}
-        overlay={
-          <Result
-            tone={props.tone ?? 'won'}
-            onDismiss={() => props.onDismiss?.()}
-            onRematch={() => props.onRematch?.()}
-          />
-        }
+        overlay={<Result {...props} />}
       >
         <DiscDropBoardExample interactive={false} />
       </GameBoardStage>

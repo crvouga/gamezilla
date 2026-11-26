@@ -176,7 +176,7 @@ jobs:
           BROWSER_JOURNEY: ${{ inputs.browser-journey }}
           JOURNEY_CAPTURE_STEPS: '1'
         run: |
-          [[ "$BROWSER_JOURNEY" =~ ^specs/journeys/[a-z0-9-]+\.feature$ ]]
+          [[ "$BROWSER_JOURNEY" =~ ^specs/(journeys/[a-z0-9-]+|billing/open-provider-pages)\.feature$ ]]
           bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bunx turbo run test:release-journeys --filter=@apps/product-ts -- "$BROWSER_JOURNEY"
       # Step timelines, screenshots, recordings and traces of every scenario.
       - name: Retain browser reports and traces

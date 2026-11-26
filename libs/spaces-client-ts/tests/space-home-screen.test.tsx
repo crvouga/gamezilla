@@ -46,7 +46,7 @@ const GUESTS: readonly SpaceShellPerson[] = ['sam', 'jo', 'kit', 'lee'].map(
 function chrome(input: {
   role: SpaceRole;
   people: readonly SpaceShellPerson[];
-  onInvite?: () => void;
+  onSettings?: () => void;
   onPeople?: () => void;
 }): SpaceScreenChromeValue {
   return {
@@ -61,18 +61,17 @@ function chrome(input: {
     onBack: noop,
     backLabel: undefined,
     onMembers: input.onPeople ?? noop,
-    onRename: input.role === 'host' ? noop : undefined,
+    onSettings: input.role === 'host' ? (input.onSettings ?? noop) : undefined,
     onMinimize: noop,
     onLeave: noop,
     onEnd: input.role === 'host' ? noop : undefined,
-    onInvite: input.onInvite ?? noop,
     onPersonAction: noop,
     personCapabilities: [],
     testIds: {
       back: Handles.spaceBackToSpaces,
       title: Handles.spaceTitle,
       people: Handles.spaceMembersButton,
-      share: Handles.spaceShare,
+      settings: Handles.spaceSettings,
       minimize: Handles.spaceClose,
       leave: Handles.spaceLeave,
       end: Handles.spaceEnd,
@@ -85,7 +84,7 @@ function mount(input: {
   people: readonly SpaceShellPerson[];
   width?: number;
   onSelectGame?: (id: string) => void;
-  onInvite?: () => void;
+  onSettings?: () => void;
   onPeople?: () => void;
 }): HTMLElement {
   const time = createHarnessClock();
@@ -218,11 +217,11 @@ test('who is here is the top bar\u2019s first action, never a row of faces, at a
 });
 
 // regression: space-games-no-visible-invite
-test('Share is one of the space\u2019s actions and opens the share sheet', () => {
-  const onInvite = mock();
-  mount({ role: 'host', people: [you(AVERY)], onInvite });
-  fireEvent.click(screen.getByTestId(Handles.spaceShare));
-  expect(onInvite).toHaveBeenCalledTimes(1);
+test('Settings opens the space administration for its host', () => {
+  const onSettings = mock();
+  mount({ role: 'host', people: [you(AVERY)], onSettings });
+  fireEvent.click(screen.getByTestId(Handles.spaceSettings));
+  expect(onSettings).toHaveBeenCalledTimes(1);
 });
 
 // regression: space-seats-explained-twice

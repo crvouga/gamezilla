@@ -44,9 +44,9 @@
  *   by mounting one, as today. With none registered, back leaves for the
  *   spaces list (the space goes on, minimized) and the shell says
  *   "Back to spaces".
- * - **Space actions.** People and Share open their sheets. The permissions
- *   for Rename, Leave and End supply their controls. Minimize steps out of
- *   the space from every screen and keeps its game.
+ * - **Space actions.** People opens the roster and sharing. Administrators
+ *   manage the space in Settings. Hosts end it and guests leave it. Minimize
+ *   returns to the lobby from every screen and keeps the game.
  * - **People actions.** `onPersonAction` handles `removeFromSpace` (the
  *   remove confirm), `inviteFriend` (share), `seeDetails` / `seeMyDetails`
  *   (the list of people in the space); a screen handles its own
@@ -62,7 +62,7 @@
  * (`./space-screen-frame`): row 1 and the people row over a fixed stage.
  * It also shows the loading state.
  * The provider owns everything these callbacks open (`./space-screen-overlays`):
- * the share sheet, the people in the space, rename and the remove confirm.
+ * People, Sharing, Settings and the rename and removal confirmations.
  */
 
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
@@ -143,12 +143,10 @@ export type SpaceScreenChromeValue = {
   /** Where back goes, when a screen registered its own back; else unset. */
   readonly backLabel: string | undefined;
   readonly onMembers: () => void;
-  readonly onRename: (() => void) | undefined;
+  readonly onSettings: (() => void) | undefined;
   readonly onLeave: (() => void) | undefined;
   readonly onEnd: (() => void) | undefined;
   readonly onMinimize: () => void;
-  /** Opens the share sheet; unset where the space has none. */
-  readonly onInvite: (() => void) | undefined;
   readonly onPersonAction: (personId: string, action: string) => void;
   /** Optional person actions the product can carry out: none yet. */
   readonly personCapabilities: readonly SpacePersonCapability[];
@@ -252,7 +250,7 @@ function usePersonAction(
   overlays: SpaceOverlays
 ): (personId: string, action: string) => void {
   return (personId, action) => {
-    if (action === 'inviteFriend') overlays.setShareOpen(true);
+    if (action === 'inviteFriend') overlays.openSharing();
     if (action === 'seeDetails' || action === 'seeMyDetails')
       overlays.openMembers();
     if (action !== 'removeFromSpace') return;
@@ -284,7 +282,7 @@ export function SpaceScreenChromeProvider(
   const spaceId = (): string => sessionUi.spaceId;
   const title = useSpaceDisplayTitle(spaceId);
   const canEnd = useSpaceCan(spaceId, PERMISSION.spacesEnd);
-  const canRename = useSpaceCan(spaceId, PERMISSION.spacesRename);
+  const canManage = useSpaceCan(spaceId, PERMISSION.spacesManageMembers);
   const host = useSpaceHostMembershipDisplay(spaceId);
   const hostPerson = useSpacePerson(() => host()?.profileId ?? null);
   const people = useLazy(() => usePeople(spaceId));
@@ -323,8 +321,8 @@ export function SpaceScreenChromeProvider(
       return back.label();
     },
     onMembers: overlays.openMembers,
-    get onRename() {
-      return canRename() ? () => overlays.setRenameOpen(true) : undefined;
+    get onSettings() {
+      return canManage() ? overlays.openSettings : undefined;
     },
     get onLeave() {
       return canLeave() ? sessionUi.onRequestLeave : undefined;
@@ -333,7 +331,6 @@ export function SpaceScreenChromeProvider(
       return canEnd() ? sessionUi.onRequestEnd : undefined;
     },
     onMinimize: () => sessionUi.onPressHome(),
-    onInvite: () => overlays.setShareOpen(true),
     onPersonAction: usePersonAction(people, overlays),
     personCapabilities: [],
     get testIds() {
@@ -341,8 +338,7 @@ export function SpaceScreenChromeProvider(
         back: back.testId(),
         title: Handles.spaceTitle,
         people: Handles.spaceMembersButton,
-        share: Handles.spaceShare,
-        rename: Handles.spaceRename,
+        settings: Handles.spaceSettings,
         minimize: Handles.spaceClose,
         name: Handles.spaceName,
         leave: Handles.spaceLeave,
@@ -355,7 +351,12 @@ export function SpaceScreenChromeProvider(
       <SpaceLiveNoticeContext value={true}>
         {props.children}
       </SpaceLiveNoticeContext>
-      <SpaceScreenOverlays spaceId={spaceId()} overlays={overlays} />
+      <SpaceScreenOverlays
+        spaceId={spaceId()}
+        spaceName={title()}
+        canManage={canManage()}
+        overlays={overlays}
+      />
     </SpaceScreenChromeContext>
   );
 }

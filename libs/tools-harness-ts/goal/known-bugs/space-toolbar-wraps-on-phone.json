@@ -1,0 +1,4 @@
+{
+  "summary": "On a narrow phone the space actions wrapped below Back and the space title, taking a second row away from the game.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/shell/integration.checks.ts"
+}

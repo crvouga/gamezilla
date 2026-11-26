@@ -2,8 +2,8 @@ import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createMemo, mapArray } from 'solid-js';
-import type { SpaceMemberRow } from './space-members-sheet-view';
-import { SpaceMembersSheetView } from './space-members-sheet-view';
+import type { SpaceMemberRow } from './space-member-roster-view';
+import { SpaceMemberRosterView } from './space-member-roster-view';
 import type { SpacePerson } from './space-person-view';
 import { useSpaceRoomClientId } from './space-room-context';
 import { useMemberRole } from './use-member-role';
@@ -13,10 +13,9 @@ import { useClearSpaceQuiet } from './use-space-device-quiet';
 import { useSpaceParticipantColors } from './use-space-participant-colors';
 import { useSpacePerson } from './use-space-people';
 
-export type SpaceMembersListModalProps = {
+export type SpaceMemberRosterProps = {
   spaceId: string;
   visible: boolean;
-  onClose: () => void;
   /** Opens Share, from the empty list's invitation. */
   onShare?: (() => void) | undefined;
   /** Starts removing a guest; offered only to someone who may. */
@@ -24,12 +23,10 @@ export type SpaceMembersListModalProps = {
 };
 
 /**
- * Wires {@link SpaceMembersSheetView} to the room this device holds: who is
+ * Wires {@link SpaceMemberRosterView} to the room this device holds: who is
  * connected, who is idle, who hosts. Opening it clears the quiet marker.
  */
-export function SpaceMembersListModal(
-  props: SpaceMembersListModalProps
-): JSX.Element {
+export function SpaceMemberRoster(props: SpaceMemberRosterProps): JSX.Element {
   const myId = useMyId();
   const presence = useOpenSpacePresence(() => props.spaceId);
   const colors = useSpaceParticipantColors(() => props.spaceId);
@@ -63,9 +60,7 @@ export function SpaceMembersListModal(
   });
 
   return (
-    <SpaceMembersSheetView
-      visible={props.visible}
-      onClose={props.onClose}
+    <SpaceMemberRosterView
       onShare={props.onShare}
       onRemove={canManage() ? props.onRemove : undefined}
       members={members().map((member) => member())}

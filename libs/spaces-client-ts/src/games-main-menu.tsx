@@ -1,8 +1,5 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import type {
-  GameClientDefinition,
-  GameModeOption,
-} from '@libs/spaces-shared-ts/game';
+import type { GameClientDefinition } from '@libs/spaces-shared-ts/game';
 import type { SelectedGameId } from '@libs/spaces-shared-ts/games';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -17,6 +14,7 @@ import {
   Show,
   untrack,
 } from 'solid-js';
+import { GameSetupModeContext } from './game-setup-mode';
 import { useGamesRegistry } from './games-registry-context';
 import { SpaceHomeScreenView } from './space-home-screen-view';
 import { SPACE_GAME_PARAM } from './space-routes';
@@ -51,14 +49,14 @@ function OpenLinkedGame(props: {
 }
 
 /** Every mode of `game`'s family, in the order registered; none for a game with one. */
-export function gameModes(
+function gameModes(
   games: readonly GameClientDefinition[],
   game: GameClientDefinition
-): readonly GameModeOption[] {
+) {
   const family = game.family ?? game.id;
   return games.flatMap((each) =>
     (each.family ?? each.id) === family && each.mode !== undefined
-      ? [{ id: each.id, name: each.mode.name }]
+      ? [{ key: each.id, label: each.mode.name }]
       : []
   );
 }
@@ -130,11 +128,17 @@ export function GamesMainMenu(): JSX.Element {
           <Show when={hostChooses()}>
             <HostChoosesNotice />
           </Show>
-          <game.MainMenu
-            onBackToGames={onBackToGames}
-            modes={gameModes(games, game)}
-            onChooseMode={canSelectGame() ? chooseGame : undefined}
-          />
+          <GameSetupModeContext
+            value={{
+              segments: gameModes(games, game),
+              selected: game.id,
+              get onSelect() {
+                return canSelectGame() ? chooseGame : undefined;
+              },
+            }}
+          >
+            <game.MainMenu onBackToGames={onBackToGames} />
+          </GameSetupModeContext>
         </>
       )}
     </Show>

@@ -132,7 +132,7 @@ each of its states, opened at phone and desktop width in both themes.
 
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
-| `none` | `home` | Choice | Play the bots at once, or set a game up |
+| `none` | `home` | Setup | Choose a mode and edit a seat, open the table, or play the bots |
 | `configuring` | `setup` | Hub | Who sits where, what is agreed, get ready, start |
 | | `seat` (a side) | Choice | Who sits in this seat |
 | | `invite` (a side) | Choice | Which member of the space to invite to it |

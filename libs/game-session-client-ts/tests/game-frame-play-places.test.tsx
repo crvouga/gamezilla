@@ -301,7 +301,7 @@ describe('the play place', () => {
     mountFrame(() =>
       frameProps({
         record: REAL_TIME,
-        playerCount: 3,
+        sides: ['white', 'black', 'red'],
         table: {
           shape: 'rail',
           near: playSeat('white', 'avery'),

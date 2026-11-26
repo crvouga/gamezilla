@@ -1,24 +1,23 @@
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { SpaceMembersSheetView } from './space-members-sheet-view';
+import { PeopleExample } from './space-management.example';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
 import { faces, LONG_NAME, MEMBERS, UNSYNCED } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-members',
   title: 'Screens/Space/Manage/People',
-  component: SpaceMembersSheetView,
+  component: PeopleExample,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
   parameters: { appRouter: true, controls: { exclude: ['members'] } },
   args: {
-    visible: true,
     onClose: fn(),
     onShare: fn(),
     onRemove: fn(),
     members: MEMBERS,
   },
-} satisfies Meta<typeof SpaceMembersSheetView>;
+} satisfies Meta<typeof PeopleExample>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -67,5 +66,25 @@ export const RemoveFromPeople: Story = {
     const [remove] = within(sheet).getAllByRole('button', { name: 'Remove' });
     await userEvent.click(remove as HTMLElement);
     await expect(args.onRemove).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const Settings: Story = {
+  args: { settings: true, onRename: fn() },
+  play: async ({ args, canvasElement }) => {
+    const dialog = within(
+      await within(canvasElement.ownerDocument.body).findByRole('dialog', {
+        name: 'Space settings',
+      })
+    );
+    await userEvent.click(dialog.getByRole('tab', { name: 'People' }));
+    await expect(dialog.getByText('This device')).toBeVisible();
+    await userEvent.click(dialog.getByRole('tab', { name: 'Sharing' }));
+    await expect(
+      dialog.getByRole('button', { name: 'Copy link' })
+    ).toBeVisible();
+    await userEvent.click(dialog.getByRole('tab', { name: 'General' }));
+    await userEvent.click(dialog.getByRole('button', { name: 'Edit name' }));
+    await expect(args.onRename).toHaveBeenCalled();
   },
 };

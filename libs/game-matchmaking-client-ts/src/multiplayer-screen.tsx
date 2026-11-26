@@ -1,7 +1,7 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { useDenialView } from '@libs/permissions-client-ts/denial-surface';
 import { useUnlock } from '@libs/permissions-client-ts/unlock';
-import { useDecision } from '@libs/permissions-client-ts/use-can';
+import { useDecisionRead } from '@libs/permissions-client-ts/use-can';
 import type { MatchedGamesLeft } from '@libs/permissions-shared-ts/matched-game-allowance';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import {
@@ -91,18 +91,22 @@ function useGamesLeft(
 
 /** Whether the person may see this space's game, or its host's search. */
 function useMultiplayerAccess(data: ScreenProps['data']) {
-  const decision = useDecision(PERMISSION.gameMultiplayerWatch, () => ({
-    spacePresence:
-      data.hostId() === data.myId() ? 'host' : data.hostId() ? 'guest' : null,
+  const presence = () => {
+    if (!data.hostId() || !data.myId()) return null;
+    return data.hostId() === data.myId() ? 'host' : 'guest';
+  };
+  const watch = useDecisionRead(PERMISSION.gameMultiplayerWatch, () => ({
+    spacePresence: presence(),
   }));
-  const searchDecision = useDecision(PERMISSION.matchmakingView);
-  return useDenial(
-    () =>
-      data.game() !== null || data.hostId() !== data.myId()
-        ? decision()
-        : searchDecision(),
+  const search = useDecisionRead(PERMISSION.matchmakingView);
+  const read = () =>
+    data.stored() !== null || presence() !== 'host' ? watch : search;
+  const pending = () => data.scopeLoading() || read().isLoading();
+  const denial = useDenial(
+    () => (pending() ? null : read().decision()),
     'multiplayer-access-denial'
   );
+  return { pending, denial };
 }
 
 /**
@@ -170,8 +174,12 @@ function useMultiplayerScreen(props: ScreenProps) {
     online: () => sync.status().online,
     settle: props.controls.settle,
   });
-  const denial = useMultiplayerAccess(props.data);
-  const stage = useMultiplayerStage(props.data, () => denial() !== undefined);
+  const { denial, pending } = useMultiplayerAccess(props.data);
+  const stage = useMultiplayerStage(
+    props.data,
+    () => denial() !== undefined,
+    pending
+  );
   const goal = useGameGoal();
   return {
     denial,
