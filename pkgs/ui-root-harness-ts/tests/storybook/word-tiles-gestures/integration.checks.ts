@@ -133,6 +133,7 @@ test.describe('phone', () => {
       y: anchor.y + dy,
     });
     const first = await centerCell(page).boundingBox();
+    // regression: word-tiles-pinch-midpoint-snaps
     await touch('touchStart', finger(1, -30), finger(2, 30));
     await touch('touchMove', finger(1, -48), finger(2, 48));
     await touch('touchEnd');

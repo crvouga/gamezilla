@@ -21,6 +21,8 @@ export function bindWordNavigation(
   const zoom = (from: Contact, to: Contact, ratio: number) => {
     const before = board.getBoundingClientRect();
     if (!baseWidth) {
+      // Whole-cell snapping would move the pinch midpoint to a neighbouring square.
+      viewport.dataset['gestureZoom'] = 'true';
       baseWidth = before.width;
       viewport.style.height = `${viewport.getBoundingClientRect().height}px`;
       board.style.width = `${baseWidth}px`;
@@ -42,6 +44,7 @@ export function bindWordNavigation(
   const reset = () => {
     scale = 1;
     baseWidth = 0;
+    delete viewport.dataset['gestureZoom'];
     board.style.removeProperty('zoom');
     board.style.removeProperty('width');
     viewport.style.removeProperty('height');

@@ -293,6 +293,9 @@
   user-select: none;
   overflow-anchor: none;
 }
+.viewport[data-gesture-zoom="true"] {
+  scroll-snap-type: none;
+}
 .cell[data-drop-target="true"] {
   outline: 2px dashed var(--ui-color-board-card-ink);
   outline-offset: -2px;
