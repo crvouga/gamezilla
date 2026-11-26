@@ -205,6 +205,8 @@ function encodeState(state: PuzzleState): string {
   return JSON.stringify({ v: 1, played: state.played, score: state.score });
 }
 
+export const INITIAL_WORD_TILES_PUZZLE_STATE = encodeState(EMPTY_STATE);
+
 function decodeState(text: string): PuzzleState | null {
   const raw = parseJson(text);
   if (raw === null || raw['v'] !== 1) return null;
@@ -408,7 +410,7 @@ export const wordTilesPuzzleContent: PuzzleContent = {
     initial: (definition) => {
       const puzzle = decodePuzzle(definition);
       return puzzle.valid
-        ? { accepted: true, state: encodeState(EMPTY_STATE) }
+        ? { accepted: true, state: INITIAL_WORD_TILES_PUZZLE_STATE }
         : { accepted: false, issues: puzzle.issues };
     },
     validateState: (definition, state) => {

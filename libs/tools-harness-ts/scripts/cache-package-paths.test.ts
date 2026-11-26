@@ -8,6 +8,17 @@ type Config = {
   tasks: Record<string, { inputs?: string[]; dependsOn?: string[] }>;
 };
 
+// regression: game-lesson-story-cache-input
+test('editing the catalog walkthrough rebuilds the hosted Storybook', () => {
+  const story = 'libs/games-client-ts/src/game-home-how-to-play.stories.tsx';
+  const build =
+    readTurboTasks(ROOT)['@pkgs/ui-root-harness-ts#storybook:build'];
+  const files = (build?.inputs ?? []).map(
+    (pattern) => new Bun.Glob(pattern.replace('$TURBO_ROOT$/', ''))
+  );
+  expect(files.some((pattern) => pattern.match(story))).toBe(true);
+});
+
 // regression: flattened-checker-cache-dependencies
 test('cache inputs reference existing package owners after package splits', () => {
   const paths = [

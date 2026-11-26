@@ -2224,8 +2224,12 @@
         "@libs/word-tiles-client-ts": "workspace:*",
       },
       "devDependencies": {
+        "@solidjs/web": "catalog:",
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "solid-js": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -3376,6 +3380,7 @@
         "@libs/quoridor-shared-ts": "workspace:*",
       },
       "devDependencies": {
+        "@libs/spaces-harness-ts": "workspace:*",
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/quint-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
