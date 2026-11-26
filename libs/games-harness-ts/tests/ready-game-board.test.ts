@@ -5,8 +5,8 @@ import {
   returnToCustomGames,
 } from '@libs/game-session-harness-ts/custom-game-lineup';
 import { configureCustomGameChoice } from '@libs/game-session-harness-ts/custom-game-ui';
-import { actorUi } from '@libs/harness-ts/actor-ui';
 import { restartApp } from '@libs/harness-ts/actions';
+import { actorUi } from '@libs/harness-ts/actor-ui';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
 import type { OpenHarness } from '@libs/harness-ts/open-harness';
 import { QUORIDOR_HARNESS_GAME } from '@libs/quoridor-harness-ts/quoridor-harness-game';
