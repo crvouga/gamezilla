@@ -30,6 +30,7 @@ const watched = (...checks: SyntheticCheck[]): ContextCoverage => ({
 });
 
 const GAME_JOURNEYS: readonly SyntheticCheck[] = [
+  'journeys.back-from-quoridor',
   'journeys.battleship-game',
   'journeys.chess-puzzle-history',
   'journeys.connect-four-game',
