@@ -23,7 +23,7 @@ const CHOICES: Readonly<Record<string, BotGame>> = {
   'Classic Quoridor': {
     id: 'quoridor',
     seats: 2,
-    readyControl: 'custom-game-board-mode-move',
+    readyControl: 'custom-game-board-action-e2',
   },
   Hearts: { id: 'hearts', seats: 4, readyControl: 'custom-game-board-pass' },
   'Word Tiles': {

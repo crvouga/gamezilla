@@ -6,7 +6,6 @@ import type { JSX } from '@solidjs/web';
 export function CustomGameBack(props: {
   readonly game: CustomGame | null;
   readonly canResign: boolean;
-  readonly label?: string | undefined;
   readonly backWithinGame: () => boolean;
   readonly leave: () => void;
   readonly resign: () => Promise<void>;
@@ -21,7 +20,6 @@ export function CustomGameBack(props: {
           ? t`The round will end in a draw for all players.`
           : t`Resigning ends this game. Its moves stay in the space's history.`
       }
-      label={props.label}
       backWithinGame={props.backWithinGame}
       returnToSpaceScreen={props.leave}
       submit={props.resign}
