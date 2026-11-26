@@ -1,6 +1,6 @@
 @domain:quoridor
 Feature: Learn Quoridor on a practice board
-  When someone wants to learn a game before joining a match, they can try its moves in private.
+  When Alice is new to Quoridor, she wants to try its moves in private, so she can learn before playing with others.
 
   Rule: A practice step advances after the player makes the move it teaches
 
@@ -10,7 +10,7 @@ Feature: Learn Quoridor on a practice board
       When Alice opens its lesson
       Then Alice can move South's pawn from e1 to e2 on the practice board
 
-    Scenario: Moving sideways leaves the forward move to try again
+    Scenario: Alice can try the forward move again after moving sideways
       Given Alice is practising South's first move
       When Alice moves the practice pawn to d1
       Then Alice can still try South's forward move from e1

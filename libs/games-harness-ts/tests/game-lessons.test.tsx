@@ -17,7 +17,7 @@ import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { createSolidDomDriver } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { createSignal } from 'solid-js';
-import { practiceControls } from './lesson-controls';
+import { practiceControls, previewWallWithKeyboard } from './lesson-controls';
 
 function mountMenu(game: GameClientRegistration) {
   const { clock, timers } = createHarnessClock();
@@ -103,7 +103,8 @@ test.each(GAME_CLIENT_DEFINITIONS.map((game) => [game.id, game] as const))(
   }
 );
 
-test('retrying a Quoridor wall discards the preview and keeps the wall exercise', async () => {
+// regression: quoridor-lesson-wall-controls
+test('retrying a Quoridor wall discards the preview and lets the player place it', async () => {
   const game = GAME_CLIENT_DEFINITIONS.find(
     (client) => client.id === 'quoridor'
   )!;
@@ -113,13 +114,23 @@ test('retrying a Quoridor wall discards the preview and keeps the wall exercise'
     await ui.get('game-choice-how-to-play').tap();
     await ui.get('practice-board-action-e2').key('enter');
     await ui.get('practice-next').tap();
-    await ui.get('practice-board-mode-h').tap();
-    await ui.get('practice-board-action-d6h').tap();
+    await previewWallWithKeyboard(ui);
     expect(await ui.get('practice-board-wall-commit').isVisible()).toBe(true);
     await ui.get('practice-retry').tap();
     expect(await ui.get('practice-board-wall-commit').isVisible()).toBe(false);
-    expect(await ui.get('practice-prompt').text()).toContain('Horizontal wall');
+    expect(await ui.get('practice-prompt').text()).toContain(
+      'gap above the right half of d6'
+    );
     expect(await ui.get('practice-next').isVisible()).toBe(false);
+    await previewWallWithKeyboard(ui);
+    await ui.get('practice-board-wall-commit').key('enter');
+    for (const cell of ['d6', 'e6']) {
+      expect(
+        await ui.get(`practice-board-action-${cell}`).attribute('data-edge-top')
+      ).toBe('true');
+    }
+    await ui.get('practice-next').key('enter');
+    expect(await ui.get('practice-prompt').text()).toContain('Move to e9');
   } finally {
     await ui.close();
   }
