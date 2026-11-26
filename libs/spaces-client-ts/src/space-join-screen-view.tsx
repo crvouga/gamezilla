@@ -308,6 +308,7 @@ function useJoinRecoveryCopy(): (status: SpaceJoinStatus) => JoinRecoveryCopy {
         title: t`You can't join this space`,
         body: t`Ask the host to add you or send you the link. If they add you, look under Shared with you in Spaces.`,
         icon: Gamepad2Icon,
+        testId: Handles.spaceJoinUnavailable,
       };
     if (status === 'missing')
       return {

@@ -53,7 +53,7 @@ function liveLinkOpening(shellReads: number, openingPolls: number) {
   let joined = false;
   const taps: string[] = [];
   const shown = (): ReadonlySet<string> => {
-    if (joined) return new Set([Handles.spaceClose]);
+    if (joined) return new Set([Handles.spaceActive, Handles.spaceClose]);
     if (reads <= shellReads)
       return new Set([Handles.spaceClose, Handles.spaceLoading]);
     if (polls < openingPolls) return new Set();
