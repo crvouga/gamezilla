@@ -46,7 +46,8 @@ test('squares print their bonus, tiles their letter, and each state is in its la
 
 test('a rack tile placed on a square becomes tentative there and an empty rack slot', () => {
   const view = example();
-  fireEvent.click(view.getByRole('button', { name: 'S, 1 point' }));
+  const tile = view.getByRole('button', { name: 'S, 1 point' });
+  fireEvent.click(tile);
   expect(
     view
       .getByRole('button', { name: 'S, 1 point' })
@@ -55,9 +56,8 @@ test('a rack tile placed on a square becomes tentative there and an empty rack s
   fireEvent.click(view.getByRole('button', { name: 'e3, empty' }));
   const placed = view.getByRole('button', { name: 'S 1, e3, tentative' });
   expect(placed.getAttribute('data-state')).toBe('tentative');
-  expect(view.getByTestId('example-rack-0').getAttribute('data-placed')).toBe(
-    'true'
-  );
+  expect(tile.isConnected).toBe(true);
+  expect(tile.getAttribute('data-placed')).toBe('true');
 });
 
 test('arrow keys move focus across squares', () => {

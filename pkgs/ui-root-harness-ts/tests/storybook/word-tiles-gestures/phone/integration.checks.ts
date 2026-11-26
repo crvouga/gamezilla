@@ -1,5 +1,5 @@
 // @io-wall-ok — Chromium dispatches the two contacts of a native pinch.
-import { expect, test } from '@playwright/test';
+import { expect, type Page, test } from '@playwright/test';
 import {
   markEvidencePhase,
   observeInput,
@@ -16,7 +16,11 @@ import {
   viewport,
 } from '../board-targets';
 import { measureGestures, saveGestures } from '../gesture-evidence';
-import { observeTouches, saveTouches } from './touch-evidence';
+import {
+  expectRackRelease,
+  observeTouches,
+  saveTouches,
+} from './touch-evidence';
 
 test.use({
   viewport: { width: 390, height: 844 },
@@ -102,6 +106,37 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
     body: await viewport(page).screenshot(),
     contentType: 'image/png',
   });
+  await fitBoard(page);
+  await assertPlacement(page);
+  await page.screenshot({ path: info.outputPath('fitted-after-drop.png') });
+  await expectRackRelease(page);
+});
+
+test('storybook integration: word-tiles gesture phone opens tools immediately after a rack drop', async ({
+  page,
+}) => {
+  await openStory(page, 'four-player-match', 'light');
+  const cdp = await page.context().newCDPSession(page);
+  const source = await point(rackTile(page));
+  const destination = await point(centerCell(page));
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchStart',
+    touchPoints: [source],
+  });
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchMove',
+    touchPoints: [destination],
+  });
+  await cdp.send('Input.dispatchTouchEvent', {
+    type: 'touchEnd',
+    touchPoints: [],
+  });
+  await fitBoard(page);
+  await assertPlacement(page);
+  await expectRackRelease(page);
+});
+
+async function fitBoard(page: Page) {
   await page
     .getByRole('button', {
       name: 'Board tools: zoom and find a square',
@@ -118,6 +153,4 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
       page.getByTestId(`custom-game-board-cell-${square}`)
     ).toBeInViewport({ ratio: 1 });
   }
-  await assertPlacement(page);
-  await page.screenshot({ path: info.outputPath('fitted-after-drop.png') });
-});
+}
