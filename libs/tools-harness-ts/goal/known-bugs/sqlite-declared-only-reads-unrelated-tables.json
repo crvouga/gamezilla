@@ -1,0 +1,4 @@
+{
+  "summary": "A declared-only SQLite reconcile read the columns and indexes of every table in the database, so each schema slice reconciled at boot re-read every other slice's tables, and an unrelated table whose name was not a plain identifier stopped boot. It now reads only the tables it declares.",
+  "regressionTest": "pkgs/db-schema-sqlite-shared-ts/tests/ownership.test.ts"
+}

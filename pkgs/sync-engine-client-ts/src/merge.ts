@@ -5,10 +5,11 @@ import {
   observeSync,
   observeSyncNow,
 } from '@pkgs/observability-root-shared-ts/span';
-import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
-import sql from '@pkgs/sql-root-shared-ts/sql';
-
-import { isMutationError } from '@pkgs/sync-engine-shared-ts/failures';
+import type {
+  SqlClient,
+  SqlTx,
+} from '@pkgs/sql-client-root-shared-ts/interface';
+import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
 
 import type {
   Mutation,
@@ -31,6 +32,7 @@ import {
   clearOptimisticPeerRows,
   healOptimisticPeerOrphans,
 } from './optimistic-peer-rows';
+import { replayWithSavepoints } from './replay-savepoint';
 import type { TableChangeBus } from './table-change-bus';
 
 export type MergeFullInput = {
@@ -147,13 +149,15 @@ type PendingMutation = {
 async function rebasePending(
   tx: SqlClient,
   deps: Pick<MergeApplierDeps, 'registry' | 'env' | 'clientId'>,
-  changed: Set<string>
+  changed: Set<string>,
+  replay: 'all' | 'marked' = 'all'
 ): Promise<void> {
   const pending = await tx.query(sql<PendingMutation>`
     SELECT id, name, args, created_at
     FROM sync_engine_mutations
     WHERE client_id = ${deps.clientId}
       AND deleted_at IS NULL
+    ${replay === 'marked' ? raw('AND cache_replay_required = 1') : raw('')}
     ORDER BY seq ASC
   `);
   activeSpan()?.setAttribute(ATTR.APP_SYNC_BATCH_SIZE, pending.length);
@@ -164,34 +168,30 @@ async function rebasePending(
       'sync_engine_mutations name must be non-empty'
     );
   }
+  const writes: Array<(db: SqlTx) => Promise<void>> = [];
   for (const row of pending) {
-    const m = deps.registry[row.name] as Mutation<unknown> | undefined;
-    // Unknown mutation name after a client upgrade: keep queued; upload rejects.
-    if (m === undefined) continue;
+    const mutation = deps.registry[row.name] as Mutation<unknown> | undefined;
+    // Unknown mutation after an upgrade: keep queued for an upload verdict.
+    if (mutation === undefined) continue;
     let rawArgs: unknown;
     try {
       rawArgs = JSON.parse(row.args);
     } catch {
-      // Keep queued; upload rejects as INVALID_ARGS (same as schema failure).
       continue;
     }
-    const parsed = await parseStandardSchema(m.args, rawArgs);
+    const parsed = await parseStandardSchema(mutation.args, rawArgs);
     if (!parsed.ok) continue;
-    try {
-      const env = {
-        ...deps.env,
-        now: () => new Date(row.created_at),
-      };
-      const wrapped = wrapMutationDb(tx, env);
-      await m.run({ tx: wrapped.tx, env }, parsed.value);
-      for (const t of wrapped.getCapture().tables) changed.add(t);
-    } catch (error) {
-      if (isMutationError(error)) {
-        // Keep queued; hide optimistic effect until upload/reject.
-        continue;
-      }
-      throw error;
-    }
+    const env = { ...deps.env, now: () => new Date(row.created_at) };
+    writes.push(async (db) => {
+      const wrapped = wrapMutationDb(db, env);
+      await mutation.run({ tx: wrapped.tx, env }, parsed.value);
+      for (const table of wrapped.getCapture().tables) changed.add(table);
+    });
+  }
+  await replayWithSavepoints(tx, writes);
+  if (replay === 'marked' && pending.length > 0) {
+    await tx.run(sql`UPDATE sync_engine_mutations SET cache_replay_required = NULL
+      WHERE client_id = ${deps.clientId} AND cache_replay_required = 1 AND deleted_at IS NULL`);
   }
 }
 
@@ -201,12 +201,15 @@ async function rebasePending(
  * would, so what the person wrote and has not sent yet never disappears.
  */
 export async function reapplyPendingAfterWipe(
-  deps: MergeApplierDeps
+  deps: MergeApplierDeps,
+  replay: 'all' | 'marked' = 'all'
 ): Promise<void> {
   await withMergeSingleFlight(deps.db, async () => {
     const changed = new Set<string>();
     await deps.db.transaction(async (tx) => {
-      await observeSync('rebase', () => rebasePending(tx, deps, changed));
+      await observeSync('rebase', () =>
+        rebasePending(tx, deps, changed, replay)
+      );
     });
     if (changed.size > 0)
       observeSyncNow('notify', () => deps.bus.emit([...changed]));

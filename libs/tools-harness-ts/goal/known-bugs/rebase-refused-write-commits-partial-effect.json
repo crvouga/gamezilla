@@ -1,0 +1,4 @@
+{
+  "summary": "Rebasing queued writes after a snapshot or push ran every write in the merge's own transaction and only skipped a write that refused. A queued edit that wrote first and refused afterwards (its folder was deleted on another device) left its write committed, so the device showed the refused edit 'milk' over the server's 'eggs, butter' until the upload was rejected. Each refused replay now rolls back to a savepoint while the queued writes before and after it are still applied.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/rebase-refusal-isolation.test.ts"
+}

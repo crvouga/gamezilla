@@ -1,0 +1,4 @@
+{
+  "summary": "A restart between cache reconstruction and replay left queued offline edits invisible on the next boot.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/cache-recovery.test.ts"
+}

@@ -73,22 +73,28 @@ async function introspectSqliteTable(args: {
   return { table, indexes };
 }
 
-/**
- * Introspect the SQLite database for schema reconciliation.
- */
-export async function readSqliteCatalog(
+export async function readSqliteTableNames(
   client: SqlClient
-): Promise<IntrospectedCatalog> {
-  const tableRows = await client.query<{ name: string }>(
+): Promise<Set<string>> {
+  const rows = await client.query<{ name: string }>(
     raw(
       `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%' ORDER BY name`
     )
   );
-  const allTableNames = new Set(tableRows.map((r) => r.name));
+  return new Set(rows.map((row) => row.name));
+}
+
+/** List all table names, inspecting columns and indexes only for the requested tables. */
+export async function readSqliteCatalog(
+  client: SqlClient,
+  inspect?: ReadonlySet<string>
+): Promise<IntrospectedCatalog> {
+  const allTableNames = await readSqliteTableNames(client);
   const tables = new Map<string, IntrospectedTable>();
   const indexes: IntrospectedIndex[] = [];
 
-  for (const { name } of tableRows) {
+  for (const name of allTableNames) {
+    if (inspect !== undefined && !inspect.has(name)) continue;
     const part = await introspectSqliteTable({ client, name });
     tables.set(name, part.table);
     indexes.push(...part.indexes);

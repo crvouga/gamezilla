@@ -1,0 +1,4 @@
+{
+  "summary": "Interrupted-rebuild recovery treated every `_old_<name>` table as its own staging copy, so a declared-only reconcile dropped a table it did not declare and renamed `_old_<name>` over it. Recovery now restores only staging tables of tables the reconcile owns.",
+  "regressionTest": "pkgs/db-schema-sqlite-shared-ts/tests/ownership.test.ts"
+}

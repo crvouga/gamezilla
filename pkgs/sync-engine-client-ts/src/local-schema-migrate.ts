@@ -1,5 +1,7 @@
 // @sql-vendor-ok — local SQLite client schema uses PRAGMA user_version.
 import type { Schema } from '@pkgs/db-schema-root-shared-ts/types';
+import { readSqliteTableNames } from '@pkgs/db-schema-sqlite-shared-ts/catalog';
+import { dropSqliteTables } from '@pkgs/db-schema-sqlite-shared-ts/driver';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared-ts/reconcile-sqlite-schema';
 import { reconcileOutbox } from '@pkgs/outbox-shared-ts/reconcile';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
@@ -10,6 +12,8 @@ import {
 } from '@pkgs/sync-engine-shared-ts/framework-server-ddl';
 import {
   ensureFrameworkSchema,
+  markPendingForCacheReplay,
+  needsCacheReplay,
   RETIRED_LOCAL_TABLES,
   SCHEMA_EPOCH,
 } from './local-schema';
@@ -34,13 +38,6 @@ export type LocalDomainSchema = {
   readonly cacheTableNames: readonly string[];
 };
 
-function quoteIdent(value: string): string {
-  if (!/^[a-zA-Z_][a-zA-Z0-9_]*$/.test(value)) {
-    throw new Error(`Invalid SQLite identifier: ${value}`);
-  }
-  return `"${value}"`;
-}
-
 function allCacheTableNames(schema: LocalDomainSchema): readonly string[] {
   return [
     ...schema.cacheTableNames.filter((name) => !DURABLE_TABLES.has(name)),
@@ -53,12 +50,6 @@ async function readUserVersion(db: SqlClient): Promise<number> {
     unsafe<{ user_version: number }>('PRAGMA user_version')
   );
   return Number(rows[0]?.user_version ?? 0);
-}
-
-async function dropRetiredTables(db: SqlClient): Promise<void> {
-  for (const name of RETIRED_LOCAL_TABLES) {
-    await db.run(unsafe(`DROP TABLE IF EXISTS ${quoteIdent(name)}`));
-  }
 }
 
 async function ensureDomainTables(
@@ -77,27 +68,13 @@ async function ensureDomainTables(
   }
 }
 
-async function dropCacheTables(
-  db: SqlClient,
-  schema: LocalDomainSchema
-): Promise<void> {
-  try {
-    for (const name of allCacheTableNames(schema)) {
-      await db.run(unsafe(`DROP TABLE IF EXISTS ${quoteIdent(name)}`));
-    }
-    await dropRetiredTables(db);
-  } catch (error) {
-    const detail = error instanceof Error ? error.message : String(error);
-    throw new Error(`dropCacheTables: ${detail}`, { cause: error });
-  }
-}
-
 async function createCurrentSchema(
   db: SqlClient,
-  schema: LocalDomainSchema
+  schema: LocalDomainSchema,
+  tables: ReadonlySet<string>
 ): Promise<void> {
   try {
-    await dropRetiredTables(db);
+    await dropSqliteTables(db, RETIRED_LOCAL_TABLES, tables);
     await ensureFrameworkSchema(db);
     await reconcileOutbox(db);
   } catch (error) {
@@ -105,21 +82,6 @@ async function createCurrentSchema(
     throw new Error(`ensureFrameworkSchema: ${detail}`, { cause: error });
   }
   await ensureDomainTables(db, schema);
-}
-
-async function cacheTablesExist(
-  db: SqlClient,
-  schema: LocalDomainSchema
-): Promise<boolean> {
-  for (const name of allCacheTableNames(schema)) {
-    const rows = await db.query(
-      unsafe<{ name: string }>(
-        `SELECT name FROM sqlite_master WHERE type='table' AND name='${name}'`
-      )
-    );
-    if (rows.length === 0) return false;
-  }
-  return true;
 }
 
 export type LocalMigratePhase =
@@ -139,8 +101,7 @@ export type MigrateLocalSchemaOptions = {
 
 /**
  * Reconciles the local database and applies an epoch-triggered CACHE-only wipe.
- * Resolves `true` when the CACHE tables were (re)created empty, so the
- * caller re-applies queued writes the device still shows.
+ * Resolves `true` if a cache was recreated or an interrupted replay still has work.
  */
 export async function migrateLocalSchema(
   db: SqlClient,
@@ -155,29 +116,24 @@ export async function migrateLocalSchema(
 
   try {
     await onPhase?.('before');
-    // Interrupted epoch bump: CACHE wiped but user_version not advanced — restoreNetwork in place.
-    if (
-      previousEpoch >= epoch &&
-      previous >= targetVersion &&
-      !(await cacheTablesExist(db, schema))
-    ) {
-      await createCurrentSchema(db, schema);
-      await onPhase?.('afterEnsure');
-      await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
-      await onPhase?.('done');
-      return true;
-    }
+    const tables = await readSqliteTableNames(db);
     const wiped = previousEpoch < epoch;
+    const repair =
+      wiped || allCacheTableNames(schema).some((name) => !tables.has(name));
+    if (repair && tables.size > 0) {
+      await markPendingForCacheReplay(db);
+    }
     if (wiped) {
-      await dropCacheTables(db, schema);
+      await dropSqliteTables(db, allCacheTableNames(schema), tables);
       await onPhase?.('afterCacheWipe');
     }
-    await createCurrentSchema(db, schema);
+    await createCurrentSchema(db, schema, tables);
     await onPhase?.('afterEnsure');
-
-    await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
+    if (previous < targetVersion) {
+      await db.run(unsafe(`PRAGMA user_version = ${targetVersion}`));
+    }
     await onPhase?.('done');
-    return wiped;
+    return repair || (await needsCacheReplay(db));
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error);
     throw new Error(
@@ -191,6 +147,8 @@ export async function clearLocalCache(
   db: SqlClient,
   schema: LocalDomainSchema
 ): Promise<void> {
-  await dropCacheTables(db, schema);
-  await createCurrentSchema(db, schema);
+  const tables = await readSqliteTableNames(db);
+  await markPendingForCacheReplay(db);
+  await dropSqliteTables(db, allCacheTableNames(schema), tables);
+  await createCurrentSchema(db, schema, tables);
 }

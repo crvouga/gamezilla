@@ -1,10 +1,12 @@
+import { registerTables } from '@pkgs/db-schema-root-shared-ts/register-tables';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared-ts/reconcile-sqlite-schema';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
-import { unsafe } from '@pkgs/sql-root-shared-ts/sql';
+import sql, { unsafe } from '@pkgs/sql-root-shared-ts/sql';
 
 import {
   SYNC_ENGINE_MUTATIONS,
   syncEngineLocalSchema,
+  syncEngineMutations,
 } from '@pkgs/sync-engine-shared-ts/tables';
 
 /** Bump to wipe CACHE tables on next open (hard-cutoff schema change). */
@@ -51,4 +53,21 @@ export async function ensureFrameworkSchema(db: SqlClient): Promise<void> {
     ownership: 'declared-only',
   });
   await backfillLocalMutationColumns(db);
+}
+
+const queueSchema = registerTables([syncEngineMutations]);
+
+/** Record replay on the queued writes before a cache table can disappear. */
+export async function markPendingForCacheReplay(db: SqlClient): Promise<void> {
+  await reconcileSqliteSchema(db, queueSchema, { ownership: 'declared-only' });
+  await db.run(sql`UPDATE sync_engine_mutations SET cache_replay_required = 1
+    WHERE deleted_at IS NULL AND cache_replay_required IS NULL`);
+}
+
+export async function needsCacheReplay(db: SqlClient): Promise<boolean> {
+  const rows = await db.query(sql<{
+    id: string;
+  }>`SELECT id FROM sync_engine_mutations
+    WHERE cache_replay_required = 1 AND deleted_at IS NULL LIMIT 1`);
+  return rows.length > 0;
 }

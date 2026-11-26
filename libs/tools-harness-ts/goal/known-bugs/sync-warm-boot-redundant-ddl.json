@@ -1,0 +1,4 @@
+{
+  "summary": "Opening a current database sent fourteen redundant table drops and a schema-version write through the SQLite adapter.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/warm-schema-work.test.ts"
+}
