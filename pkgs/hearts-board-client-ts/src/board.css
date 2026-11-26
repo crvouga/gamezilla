@@ -86,3 +86,16 @@
 [data-hearts-table]:has([aria-expanded="false"]) > [data-hearts-navigation] {
   display: none;
 }
+
+/* The hand has room for seven full-size targets beside a wide felt.
+   Keep the pass action with the hand and the zoom control with the felt. */
+@container game-column (min-width: 880px) {
+  [data-game-fixed="true"] [data-hearts-table] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+  [data-game-fixed="true"] [data-hearts-navigation] {
+    grid-column: 1;
+  }
+}

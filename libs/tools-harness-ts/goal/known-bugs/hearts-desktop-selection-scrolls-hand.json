@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440 × 844 choosing three Hearts cards scrolled the table before passing, and at 1280 × 800 trick cards extended below the viewport.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/desktop-table-room/integration.checks.ts"
+}
