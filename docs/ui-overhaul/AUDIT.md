@@ -87,7 +87,7 @@ not-found route `/*all`. Tab roots (`tab: true`) nest under `TabsLayout`
 | `/sso-callback` | `sso-callback.tsx` | none (`Surface` + `LoadingState`) |
 | `/*all` | `not-found.tsx` → `route-stub.tsx` | ContentScreen |
 
-`apps/client-ts` and `apps/product-ts` declare no routes of their own.
+`apps/product-client-ts` and `apps/product-ts` declare no routes of their own.
 
 ### 1b. In-space screens (keyed by `useGameScreen()`, not URLs)
 

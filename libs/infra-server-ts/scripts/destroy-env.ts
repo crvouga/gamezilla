@@ -97,7 +97,7 @@ const missingWorker = (stderr: string): boolean =>
   /does not exist|not found|10007/i.test(stderr);
 
 step('edge: custom domains', env.env, tofuDestroy('edge'));
-for (const worker of [names.worker, ...env.worker.retire]) {
+for (const worker of [names.worker, names.adminWorker, ...env.worker.retire]) {
   step(
     `Worker ${worker}`,
     env.env,

@@ -96,6 +96,18 @@ async function backToGameChoices(
   const ui = await actorUi(s, actor);
   for (let step = 0; step < DEEPEST_SCREEN; step += 1) {
     if (await ui.get(GAME_CHOICES).isVisible()) return true;
+    if (await ui.get('game-back-stay').isVisible()) {
+      await ui.get('game-back-stay').tap();
+      return false;
+    }
+    if (await ui.get('multiplayer-open-commands').isVisible()) {
+      await ui.get('multiplayer-open-commands').tap();
+      if (await ui.get('multiplayer-browse-games').isVisible()) {
+        await ui.get('multiplayer-browse-games').tap();
+        await s.session.waitForIdle();
+        continue;
+      }
+    }
     if (await ui.get(CUSTOM_GAME).isVisible())
       await showCustomGameHome(s, actor);
     if (!(await ui.get(Handles.navBack).isVisible())) return false;

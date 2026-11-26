@@ -127,6 +127,28 @@ export function getApiWorkerSecrets(): readonly Secret[] {
   return SECRETS.filter((s) => s.pushToApiWorker);
 }
 
+export function getAdminWorkerSecrets(): readonly Secret[] {
+  return [
+    AUTH_SECRET,
+    WEB_CLIENT_GOOGLE_CLIENT_ID,
+    WEB_CLIENT_GOOGLE_CLIENT_SECRET,
+    DATABASE_URL,
+    EMQX_JWT_SECRET,
+    ...IOT_SECRETS,
+    S3_ACCESS_KEY_ID,
+    S3_SECRET_ACCESS_KEY,
+    S3_BUCKET,
+    S3_ENDPOINT,
+    S3_REGION,
+    ...SHARED_DATA_SECRETS,
+    OBSERVABILITY_COLLECTOR_URL,
+    OBSERVABILITY_COLLECTOR_USER,
+    OBSERVABILITY_COLLECTOR_TOKEN,
+    OBSERVABILITY_LOGS_URL,
+    OBSERVABILITY_METRICS_URL,
+  ];
+}
+
 /** Secrets OpenTofu writes (`libs/infra-shared-ts/tofu/stacks/foundation/secrets.json`). */
 export function getTofuManagedSecrets(): readonly Secret[] {
   return SECRETS.filter((s) => s.managedBy === 'tofu');

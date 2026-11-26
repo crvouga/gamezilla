@@ -13,7 +13,12 @@
 
 import { resolveIdentityPlaceholders } from '@libs/product-identity-shared-ts/identity-placeholders';
 import type { EnvFile } from './env-file';
-import { apiWorkerVars, authRelayTargets } from './env-file';
+import {
+  adminStateTag,
+  apiWorkerVars,
+  authRelayTargets,
+  envOrigins,
+} from './env-file';
 import { ENV_FILES } from './envs';
 import { GLOBAL } from './global';
 import type { RoomMigration } from './worker-lifecycle';
@@ -161,6 +166,27 @@ export function renderWranglerConfig(
     );
   }
   return rendered;
+}
+
+export function renderAdminWranglerConfig(
+  committed: WranglerConfig,
+  env: EnvFile,
+  hyperdriveId: string
+): WranglerConfig {
+  const config = renderWranglerConfig(committed, env, { hyperdriveId });
+  const origin = envOrigins(env).admin;
+  return {
+    ...config,
+    name: env.worker.admin_name,
+    vars: {
+      ...(config['vars'] as Record<string, string>),
+      API_URL: origin,
+      WEB_CLIENT_ORIGIN: origin,
+      WEB_CLIENT_APEX_ORIGIN: origin,
+      OAUTH_STATE_TAG: adminStateTag(env),
+      ADMIN_ACCOUNT_IDS: JSON.stringify(env.worker.admin_account_ids),
+    },
+  };
 }
 
 /**

@@ -4,10 +4,9 @@ import { useUnlock } from '@libs/permissions-client-ts/unlock';
 import { useDecisionRead } from '@libs/permissions-client-ts/use-can';
 import type { MatchedGamesLeft } from '@libs/permissions-shared-ts/matched-game-allowance';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import {
-  DefineBackButton,
-  useGameChoicesName,
-} from '@libs/spaces-client-ts/spaces-nav-context';
+import { GameStageBack } from '@libs/spaces-client-ts/game-stage-back';
+import { useGameChoicesName } from '@libs/spaces-client-ts/spaces-nav-context';
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useSyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { useGameGoal } from '@pkgs/turn-game-client-ts/turn-games-context';
@@ -48,6 +47,7 @@ type ScreenProps = {
   readonly view: OwnBoard;
   /** Leaves finding an opponent for the game's choices. */
   readonly onLeave: () => void;
+  readonly onBackFromBoard: (personal: boolean) => void;
 };
 
 /** A placeholder for "no denial", which resolves to nothing shown. */
@@ -133,6 +133,8 @@ function LowOnTimeWarning(props: {
 function MatchBoard(
   props: ScreenProps & {
     readonly reviewing: boolean;
+    readonly information: JSX.Element;
+    readonly preparation: JSX.Element;
     readonly setup: ReturnType<typeof useMultiplayerPrivateSetup>;
     readonly onBoardLine: (line: string | null) => void;
   }
@@ -153,6 +155,8 @@ function MatchBoard(
           moving={props.controls.moving()}
           syncKey={props.controls.boardSync()}
           view={props.reviewing ? props.view : live()}
+          information={props.information}
+          preparation={props.preparation}
           onBoardLine={props.onBoardLine}
           onMove={props.controls.play}
         />
@@ -223,6 +227,38 @@ function MatchStatus(
   );
 }
 
+function MatchedGameBack(
+  props: ScreenProps & {
+    screen: ReturnType<typeof useMultiplayerScreen>;
+    leave: () => void;
+  }
+): JSX.Element {
+  const { t } = useLingui();
+  const choices = useGameChoicesName();
+  const home = () =>
+    props.screen.nav.place().screen ===
+    MULTIPLAYER_PLACES.home[props.screen.stage()].screen;
+  return (
+    <GameStageBack
+      gameId={props.data.game()?.id ?? null}
+      action={props.screen.game()?.leave ?? null}
+      message={
+        props.screen.game()?.leave === 'abort'
+          ? t`The game ends with no result and no rating change.`
+          : props.screen.confirm.manyPlayers()
+            ? t`The round will end in a draw for all players.`
+            : t`Your opponent will win this game.`
+      }
+      backWithinGame={props.screen.nav.back}
+      returnToSpaceScreen={props.leave}
+      submit={(action) =>
+        action === 'abort' ? props.controls.abort() : props.controls.resign()
+      }
+      label={home() ? choices() : undefined}
+    />
+  );
+}
+
 /** Reads matchmaking for `MatchmakingScreenView`. */
 function MultiplayerContent(props: ScreenProps): JSX.Element {
   const data = props.data;
@@ -234,18 +270,16 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
     props.view,
     screen.confirm.open
   );
-  const choices = useGameChoicesName();
-  const home = () =>
-    screen.nav.place().screen ===
-    MULTIPLAYER_PLACES.home[screen.stage()].screen;
+  const leave = (): void => {
+    if (data.game() === null) props.onLeave();
+    else
+      props.onBackFromBoard(
+        !data.participant() && data.game()?.outcome === 'ongoing'
+      );
+  };
   return (
     <>
-      <DefineBackButton
-        onPress={() => {
-          if (!screen.nav.back()) props.onLeave();
-        }}
-        label={home() ? choices() : undefined}
-      />
+      <MatchedGameBack {...props} screen={screen} leave={leave} />
       <Show when={data.game()}>
         {(game) => <LowOnTimeWarning game={game()} myId={data.myId()} />}
       </Show>
@@ -287,11 +321,13 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             )}
           </Show>
         }
-        board={() => (
+        board={(slots) => (
           <MatchBoard
             {...props}
             setup={screen.setup}
             reviewing={screen.nav.place().screen === 'moves'}
+            information={slots.information}
+            preparation={slots.setup}
             onBoardLine={screen.boardLine[1]}
           />
         )}
@@ -306,6 +342,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
 export default function MultiplayerScreen(props: {
   gameId: string;
   onBack: () => void;
+  onBackFromBoard: (personal: boolean) => void;
   title: string;
 }): JSX.Element {
   const data = useMultiplayerData(() => props.gameId);
@@ -318,6 +355,7 @@ export default function MultiplayerScreen(props: {
       controls={controls}
       view={view}
       onLeave={props.onBack}
+      onBackFromBoard={props.onBackFromBoard}
     />
   );
 }

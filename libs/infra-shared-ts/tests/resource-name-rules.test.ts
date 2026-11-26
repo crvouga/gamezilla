@@ -29,6 +29,7 @@ function declaredNames(): [ResourceKind, string][] {
     const resources = envResourceNames(env);
     names.push(
       ['cloudflare-worker', resources.worker],
+      ['cloudflare-worker', resources.adminWorker],
       ['cloudflare-r2-bucket', resources.bucket],
       ['cloudflare-hyperdrive', resources.hyperdrive],
       ['dns-label', resources.s3_token],

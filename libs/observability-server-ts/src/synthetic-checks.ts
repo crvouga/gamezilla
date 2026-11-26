@@ -21,6 +21,7 @@ export const SYNTHETIC_CHECKS = [
   'billing.payments',
   'connect-four.connect-four-health',
   'feedback.receiving-bug-reports',
+  'journeys.back-from-quoridor',
   'journeys.battleship-game',
   'journeys.chess-puzzle-history',
   'journeys.connect-four-game',

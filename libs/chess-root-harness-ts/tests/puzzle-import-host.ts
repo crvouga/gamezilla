@@ -5,12 +5,12 @@ import {
   stopPuzzleImport,
 } from '@libs/chess-puzzle-shared-ts/puzzle-import-mutations';
 import { puzzleSourcePartKey } from '@libs/chess-puzzle-shared-ts/puzzle-load-job';
-import { puzzleImportConsumer } from '@libs/chess-root-server-ts/puzzle-import-consumer';
+import { createChessAdminServer } from '@libs/chess-root-server-ts/admin-server';
 import { CHESS_TOPIC_MAP } from '@libs/chess-root-shared-ts/topic-map';
 import { CHESS_TABLES } from '@libs/chess-sub-shared-ts/chess-tables';
 import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
 import { authorizeAppMutation } from '@libs/permissions-shared-ts/authorize-app-mutation';
-import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import { uniqueTables } from '@libs/permissions-shared-ts/world';
 import { reconcilePostgresSchema } from '@pkgs/db-schema-postgres-shared-ts/reconcile-postgres-schema';
 import { registerTables } from '@pkgs/db-schema-root-shared-ts/register-tables';
@@ -58,7 +58,7 @@ export async function openPuzzleImportHost() {
       alreadyInTransaction: false,
     });
     await postgres.db.run(sql`INSERT INTO client_config (id, value, created_at, updated_at)
-      VALUES ('permission_policy', ${JSON.stringify(permissionPolicyForPuzzleManagers(['manager', 'other-manager']))}, ${AT}, ${AT})`);
+      VALUES ('permission_policy', ${JSON.stringify(permissionPolicyForAdmins(['manager', 'other-manager']))}, ${AT}, ${AT})`);
     return importHost(postgres);
   } catch (error) {
     await postgres[Symbol.asyncDispose]();
@@ -96,7 +96,7 @@ function importHost(
       await mutation.run({ tx: wrapped, env: mutationEnv }, args);
     });
   const registry = new OutboxConsumerRegistry();
-  registry.register(puzzleImportConsumer);
+  createChessAdminServer().registerOutbox?.(registry);
   const published: { topic: string; data: unknown }[] = [];
   return {
     published,

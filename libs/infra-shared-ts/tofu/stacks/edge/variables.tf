@@ -68,14 +68,14 @@ variable "suffix" {
 variable "worker" {
   type = object({
     name                = string
+    admin_name          = string
     transfer_rooms_from = optional(string)
     room_namespace_resolution = optional(object({
       source_id = string
       target_id = string
     }))
-    retire                          = optional(list(string), [])
-    puzzle_manager_account_ids      = optional(list(string), [])
-    population_operator_account_ids = optional(list(string), [])
+    retire            = optional(list(string), [])
+    admin_account_ids = optional(list(string), [])
   })
 }
 
@@ -98,6 +98,7 @@ variable "cloudflare" {
 variable "hosts" {
   type = object({
     apex   = string
+    admin  = string
     web    = string
     api    = string
     broker = string

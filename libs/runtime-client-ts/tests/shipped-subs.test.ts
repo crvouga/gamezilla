@@ -30,7 +30,6 @@ const CLIENT_NAMES = [
   'notifications',
   'search',
   'billing',
-  'synthetic-population',
   'observatory',
 ] as const;
 
@@ -94,7 +93,6 @@ const QUERY_NAMES = [
   'chessMultiplayerSpace',
   'chessPuzzleById',
   'chessPuzzleFeedSettings',
-  'chessPuzzleImport',
   'chessPuzzleInteractions',
   'chessPuzzleNearest',
   'chessPuzzlePool',
@@ -188,10 +186,8 @@ const MUTATION_NAMES = [
   'settleMultiplayerClock',
   'shareCancellationFeedback',
   'startPuzzleAttempt',
-  'startPuzzleImport',
   'startPuzzlePlaytest',
   'stopFindingChessOpponent',
-  'stopPuzzleImport',
   'unblockUser',
   'validatePuzzleContentDraft',
   'withdrawPuzzleContent',
@@ -219,6 +215,13 @@ describe('shipped subs', () => {
     expect(Object.keys(await APP.mutations()).sort()).toEqual([
       ...MUTATION_NAMES,
     ]);
+  });
+
+  test('the product router exposes no administrative screens', () => {
+    const { routes } = composeSubClients(APP_SUB_CLIENTS);
+    const paths = routes.map((route) => route.path);
+    expect(paths.filter((path) => /^\/admin(?:\/|$)/.test(path))).toEqual([]);
+    expect(paths).not.toContain('/puzzles');
   });
 
   test('the client list is flat, and search sits between notifications and billing', () => {

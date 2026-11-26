@@ -1,5 +1,3 @@
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { SettingsScreenView } from './settings-screen-view';
@@ -9,7 +7,7 @@ const meta = {
   title: 'Screens/Settings/Settings',
   component: SettingsScreenView,
   tags: ['autodocs'],
-  parameters: { appRouter: true, controls: { exclude: ['subSettings'] } },
+  parameters: { appRouter: true },
   args: {
     theme: 'system',
     muted: false,
@@ -41,20 +39,6 @@ export const WithBilling: Story = { args: { canViewBilling: true } };
 /** Every preference away from its default, as its row values say. */
 export const PreferencesChanged: Story = {
   args: { theme: 'dark', muted: true, offline: true },
-};
-
-/** Sections the composed subs contribute follow the everyday groups. */
-export const WithSubSettings: Story = {
-  render: (args) => (
-    <SettingsScreenView
-      {...args}
-      subSettings={
-        <MenuSection title="Puzzles">
-          <MenuRow title="Puzzle feed" caption="Which puzzles you are shown" />
-        </MenuSection>
-      }
-    />
-  ),
 };
 
 /** On a phone, shaking opens a bug report unless the person turns it off. */

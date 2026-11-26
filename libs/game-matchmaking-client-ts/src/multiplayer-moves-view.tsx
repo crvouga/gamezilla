@@ -3,8 +3,11 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ArrowKeyGroup } from '@pkgs/ui-root-client-ts/arrow-key-group';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CopyToClipboardField } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
-import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { GameActions } from '@pkgs/ui-root-client-ts/game-section';
+import {
+  FixedGameSession,
+  StageDetails,
+} from '@pkgs/ui-root-client-ts/game-session-layout';
 import {
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -19,6 +22,7 @@ import { Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
@@ -34,7 +38,7 @@ import {
 type MovesProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** The seats around the board on the position chosen here. */
-  readonly board: JSX.Element;
+  readonly board: MultiplayerBoardSlot | undefined;
   /** The line that says where the game stands. */
   readonly status: JSX.Element;
   readonly game: MultiplayerGameView;
@@ -203,7 +207,6 @@ function GameRecord(props: {
 function MoveSteps(
   props: StepsProps & {
     readonly flip: MultiplayerGameView['flip'];
-    readonly players: number;
   }
 ): JSX.Element {
   return (
@@ -213,11 +216,6 @@ function MoveSteps(
       onNext={props.commands.stepForward}
       testId="multiplayer-moves"
     >
-      <MultiplayerMoveList
-        moves={props.moves}
-        perTurn={props.players}
-        onChoose={props.commands.chooseMove}
-      />
       <GameActions>
         <ReviewEnds {...props} />
         <ReviewSteps {...props} />
@@ -250,12 +248,31 @@ function MoveSteps(
 export function MultiplayerMovesView(props: MovesProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
-      <GameSessionLayout
-        notices={props.notices}
-        actionsBeside
-        status={
+      <FixedGameSession
+        status={props.status}
+        history={
           <>
-            {props.status}
+            <Show when={props.game.moves}>
+              {(moves) => (
+                <MultiplayerMoveList
+                  moves={moves()}
+                  perTurn={props.game.players}
+                  onChoose={props.commands.chooseMove}
+                />
+              )}
+            </Show>
+            <Show when={props.game.record}>
+              {(record) => (
+                <StageDetails label={t`Game record`}>
+                  <GameRecord record={record()} copy={props.commands.copy} />
+                </StageDetails>
+              )}
+            </Show>
+          </>
+        }
+        notices={
+          <>
+            {props.notices}
             <Show when={props.game.moves}>
               {(moves) => (
                 <Reviewing moves={moves()} commands={props.commands} />
@@ -263,40 +280,20 @@ export function MultiplayerMovesView(props: MovesProps): JSX.Element {
             </Show>
           </>
         }
-        aside={
-          <GameSection
-            title={
-              <Show
-                when={props.game.moves !== null}
-                fallback={<Trans>Game record</Trans>}
-              >
-                <Trans>Moves</Trans>
-              </Show>
-            }
-            fill
-            footer={
-              <Show when={props.game.record}>
-                {(record) => (
-                  <GameRecord record={record()} copy={props.commands.copy} />
-                )}
-              </Show>
-            }
-          >
-            <Show when={props.game.moves}>
-              {(moves) => (
-                <MoveSteps
-                  moves={moves()}
-                  commands={props.commands}
-                  flip={props.game.flip}
-                  players={props.game.players}
-                />
-              )}
-            </Show>
-          </GameSection>
+        actions={
+          <Show when={props.game.moves}>
+            {(moves) => (
+              <MoveSteps
+                moves={moves()}
+                commands={props.commands}
+                flip={props.game.flip}
+              />
+            )}
+          </Show>
         }
       >
-        {props.board}
-      </GameSessionLayout>
+        {(information) => props.board?.({ information }) ?? information}
+      </FixedGameSession>
     </MultiplayerStagePlace>
   );
 }

@@ -2,6 +2,7 @@ import { defineCatalog } from '@pkgs/permissions-shared-ts/catalog';
 
 /** Every boolean capability the product asks about. */
 export const PERMISSION = defineCatalog({
+  adminAccess: 'admin:access',
   observatoryView: 'observatory:view',
   observatoryWatch: 'observatory:watch',
   syntheticPopulationView: 'synthetic-population:view',
@@ -103,13 +104,11 @@ export function isQuotaAction(action: string): action is AppQuota {
  * a role, so no caller can branch on one.
  */
 export const ROLE = defineCatalog({
-  // Operators of the User Observatory; the durable role id predates it.
-  syntheticPopulationOperator: 'synthetic-population:operator',
+  admin: 'admin',
   baseline: 'baseline',
   planGuest: 'plan:guest',
   planFree: 'plan:free',
   planPaid: 'plan:paid',
-  puzzleManager: 'puzzle:manager',
   puzzleAuthor: 'puzzle:author',
   puzzlePlayer: 'puzzle:player',
   spaceMember: 'space:member',

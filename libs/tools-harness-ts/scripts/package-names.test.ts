@@ -35,6 +35,9 @@ describe('a name spells runtime, then language', () => {
     );
     expect(categoryOfName('@pkgs/clock-shared-swift')).toBe('isomorphic');
     expect(categoryOfName('@pkgs/friends-root-server-rust')).toBe('server');
+    expect(categoryOfName('@apps/product-api-ts')).toBe('server');
+    expect(categoryOfName('@apps/admin-api-ts')).toBe('server');
+    expect(categoryOfName('@libs/other-api-ts')).toBeUndefined();
     expect(categoryOfName('@libs/harness-ts')).toBe('harness');
     expect(categoryOfName('@pkgs/glicko2-ts')).toBeUndefined();
   });

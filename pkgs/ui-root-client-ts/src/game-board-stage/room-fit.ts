@@ -143,7 +143,7 @@ function heightAt(
 }
 
 /**
- * A fixed stage (`GameSessionLayout`'s `fixedStage` on a phone) gives the
+ * A fixed game session gives the
  * board a room of a set height. This measures the room, the seats around
  * the board and the board's own shape, and returns the board's widest fit,
  * so a board taller than the room narrows instead of pushing its seats or

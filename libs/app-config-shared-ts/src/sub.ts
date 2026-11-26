@@ -5,7 +5,10 @@
  */
 
 import { defineSub } from '@libs/sub-shared-ts/manifest';
-import { CLIENT_CONFIG_QUERIES } from './client-config-query';
+import {
+  CLIENT_CONFIG_QUERIES,
+  productClientConfig,
+} from './client-config-query';
 import { CLIENT_CONFIG_TABLES } from './tables';
 import { CLIENT_CONFIG_TOPIC_MAP } from './topic-map';
 
@@ -19,4 +22,10 @@ export const CLIENT_CONFIG_SUB = defineSub({
   queries: CLIENT_CONFIG_QUERIES,
   // No writes: this sub's rows are server-materialized.
   mutations: () => Promise.resolve([]),
+});
+
+/** The player app has no account-roster controls. Its synced policy carries no roster entries. */
+export const PRODUCT_CLIENT_CONFIG_SUB = defineSub({
+  ...CLIENT_CONFIG_SUB,
+  queries: [productClientConfig],
 });

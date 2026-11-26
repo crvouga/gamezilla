@@ -27,7 +27,7 @@
     },
     "retire:workers": {
       "cache": false,
-      "dependsOn": ["@apps/product-ts#health"]
+      "dependsOn": ["@apps/admin-api-ts#health", "@apps/product-ts#health"]
     },
     "generate:infra-map": {
       "inputs": [

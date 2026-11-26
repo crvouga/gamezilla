@@ -34,8 +34,13 @@ import { MultiplayerTimeControlView } from './multiplayer-time-control-view';
 import type { MultiplayerSearchView } from './multiplayer-waiting';
 import type { UnfinishedGame } from './use-unfinished-game';
 
-/** The matched game's board with its seats. */
-export type MultiplayerBoardSlot = () => JSX.Element;
+/**
+ * The place supplies the board's information band and any private setup.
+ */
+export type MultiplayerBoardSlot = (slots: {
+  information: JSX.Element;
+  setup?: JSX.Element;
+}) => JSX.Element;
 
 export type MatchmakingScreenViewProps = {
   readonly title: string;
@@ -243,7 +248,7 @@ function PrivateSetupPlace(props: Props): JSX.Element {
           {...frameOf(props)}
           title={props.title}
           setup={props.setup}
-          board={props.board?.()}
+          board={props.board}
           status={props.status}
           game={game()}
           onOpen={props.onOpen}
@@ -261,7 +266,7 @@ function PlayPlace(props: Props): JSX.Element {
         <MatchmakingStageView
           {...frameOf(props)}
           title={props.title}
-          board={props.board?.()}
+          board={props.board}
           // No connection holds the game up: said on the status line, where
           // it stays in view and covers no seat.
           status={
@@ -290,6 +295,7 @@ function CommandsPlace(props: Props): JSX.Element {
           commands={props.commands}
           onOpen={props.onOpen}
           onBack={props.onBack}
+          onBrowse={props.onLeave}
         />
       )}
     </Show>
@@ -304,7 +310,7 @@ function MovesPlace(props: Props): JSX.Element {
         <MultiplayerMovesView
           {...frameOf(props)}
           title={props.title}
-          board={props.board?.()}
+          board={props.board}
           status={props.status}
           game={game()}
           commands={props.commands}

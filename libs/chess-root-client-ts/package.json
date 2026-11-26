@@ -18,7 +18,6 @@
     "@libs/chess-root-shared-ts": "workspace:*",
     "@libs/chess-sub-shared-ts": "workspace:*",
     "@libs/game-menu-client-ts": "workspace:*",
-    "@libs/permissions-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
     "@pkgs/chess-board-root-client-ts": "workspace:*",
     "@pkgs/lingui-solid-client-ts": "workspace:*",

@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./worker-deploy": "./scripts/worker-deploy.ts",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",

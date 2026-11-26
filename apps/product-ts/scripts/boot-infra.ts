@@ -22,8 +22,8 @@ import {
   startS3Server,
 } from '@pkgs/s3-server-ts/s3-server';
 
-import { runLocalMigrate } from '../../server-ts/scripts/run-local-postgres-migrate';
-import { runLocalSeed } from '../../server-ts/scripts/run-local-postgres-seed';
+import { runLocalMigrate } from '../../product-api-ts/scripts/run-local-postgres-migrate';
+import { runLocalSeed } from '../../product-api-ts/scripts/run-local-postgres-seed';
 import type { DatabaseLink } from './database-link';
 import { startDatabaseLink } from './database-link';
 import { reservePort } from './free-port';

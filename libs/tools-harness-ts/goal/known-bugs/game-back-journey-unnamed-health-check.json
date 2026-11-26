@@ -1,0 +1,4 @@
+{
+  "summary": "Health could play the Back and resignation journey but failed to record its result because the feature had no registered check.",
+  "regressionTest": "libs/observability-server-ts/tests/synthetic-checks.test.ts"
+}

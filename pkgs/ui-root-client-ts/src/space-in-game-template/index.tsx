@@ -7,6 +7,7 @@ import { createSignal, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { spaceDataSet } from '../space-data-set';
+import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
   SpaceGame,
@@ -100,6 +101,17 @@ function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
   const play = () => props.game.play;
   return (
     <div class={styles['stage']}>
+      <div class={styles['players']}>
+        <SpacePeople
+          people={props.people}
+          viewer={props.role}
+          phase="inGame"
+          seat={play().seat}
+          gameActions={play().personActions}
+          onPersonAction={props.onPersonAction}
+          capabilities={props.personCapabilities}
+        />
+      </div>
       <StatusLine play={play()} result={props.result} aside={props.aside} />
       <div class={styles['board']} data-space-board="true">
         {play().board}

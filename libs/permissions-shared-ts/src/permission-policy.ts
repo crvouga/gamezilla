@@ -1,7 +1,6 @@
 import type { PermissionPolicy } from '@pkgs/permissions-shared-ts/policy';
 import { definePolicy } from '@pkgs/permissions-shared-ts/policy';
 import type { QuotaGrant } from '@pkgs/permissions-shared-ts/quota-window';
-import { OPERATOR_PERMISSIONS } from './operator-permission-policy';
 import type {
   AppLimit,
   AppPermission,
@@ -10,7 +9,19 @@ import type {
 import { ACTION, LIMIT, PERMISSION, ROLE } from './permission-catalog';
 
 /** Published id of the shipped policy; carried on every decision. */
-export const PERMISSION_POLICY_VERSION = '2026-11-23.1';
+export const PERMISSION_POLICY_VERSION = '2026-11-26.1';
+
+export const ADMIN_PERMISSIONS = [
+  PERMISSION.adminAccess,
+  PERMISSION.puzzlesManage,
+  PERMISSION.observatoryView,
+  PERMISSION.observatoryWatch,
+  PERMISSION.syntheticPopulationView,
+  PERMISSION.syntheticPopulationInspect,
+  PERMISSION.syntheticPopulationConfigure,
+  PERMISSION.syntheticPopulationControl,
+  PERMISSION.syntheticPopulationReplay,
+] as const;
 
 const UNLIMITED: QuotaGrant = { limit: null, window: 'day' };
 
@@ -49,6 +60,8 @@ const ANONYMOUS_MATCHED: QuotaGrant = {
  * policy's `signup` CTA) without knowing why it was denied.
  */
 const ACCOUNT_ONLY: readonly AppPermission[] = [
+  PERMISSION.adminAccess,
+  PERMISSION.puzzlesManage,
   PERMISSION.friendsUse,
   PERMISSION.peopleSearch,
   PERMISSION.notificationsReceive,
@@ -57,7 +70,6 @@ const ACCOUNT_ONLY: readonly AppPermission[] = [
   PERMISSION.billingSubscribe,
   PERMISSION.billingManage,
   PERMISSION.puzzlesCustomizeFeed,
-  PERMISSION.puzzlesManage,
 ];
 
 /**
@@ -186,10 +198,6 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
         [ACTION.matchedGameStart]: UNLIMITED,
       },
     },
-    [ROLE.puzzleManager]: {
-      when: { accountId: [] },
-      permissions: [PERMISSION.puzzlesManage],
-    },
     [ROLE.puzzleAuthor]: {
       permissions: [
         PERMISSION.puzzlesEditContent,
@@ -200,9 +208,9 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
     [ROLE.puzzlePlayer]: {
       permissions: [PERMISSION.puzzlesEditAttempt],
     },
-    [ROLE.syntheticPopulationOperator]: {
-      when: { accountId: [] },
-      permissions: [...OPERATOR_PERMISSIONS],
+    [ROLE.admin]: {
+      when: { auth: 'verified', accountId: [] },
+      permissions: [...ADMIN_PERMISSIONS],
     },
     [ROLE.spaceMember]: {
       permissions: [
@@ -283,6 +291,7 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
       restricted: { titleKey: 'unlock.custom-game.finish.title' },
     },
     [PERMISSION.puzzlesCustomizeFeed]: SIGN_UP_UNLOCK,
+    [PERMISSION.adminAccess]: SIGN_UP_UNLOCK,
     [PERMISSION.puzzlesManage]: {
       ...SIGN_UP_UNLOCK,
       not_granted: { titleKey: 'unlock.puzzle-management.title' },
@@ -317,17 +326,17 @@ export const DEFAULT_PERMISSION_POLICY: PermissionPolicy<
   },
 });
 
-/** The policy materialized for one environment's puzzle-management team. */
-export function permissionPolicyForPuzzleManagers(
+/** The signed-in accounts that can operate this environment. */
+export function permissionPolicyForAdmins(
   accountIds: readonly string[]
 ): PermissionPolicy<AppPolicyKey, AppLimit> {
   return definePolicy<AppPolicyKey, AppLimit>({
     ...DEFAULT_PERMISSION_POLICY,
     roles: {
       ...DEFAULT_PERMISSION_POLICY.roles,
-      [ROLE.puzzleManager]: {
-        when: { accountId: [...new Set(accountIds)].sort() },
-        permissions: [PERMISSION.puzzlesManage],
+      [ROLE.admin]: {
+        when: { auth: 'verified', accountId: [...new Set(accountIds)].sort() },
+        permissions: [...ADMIN_PERMISSIONS],
       },
     },
   });

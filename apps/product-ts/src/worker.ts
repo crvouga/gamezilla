@@ -1,4 +1,4 @@
-import api from '@apps/server-ts/server';
+import api from '@apps/product-api-ts/server';
 import type { ApiWorkerEnv } from '@libs/app-root-shared-ts/env';
 import type {
   ExecutionContext,
@@ -8,7 +8,7 @@ import type {
 export {
   MetricAggregateDurableObject,
   RoomServerDurableObject,
-} from '@apps/server-ts/room';
+} from '@apps/product-api-ts/room';
 export { RoomStorageArchive } from './room-storage-archive';
 
 export type AppWorkerEnv = ApiWorkerEnv & {

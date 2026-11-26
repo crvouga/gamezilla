@@ -27,7 +27,6 @@ export type ComposedSubClients = {
   readonly Session: SubProvider;
   /** Docked widgets above the tab bar, in walk order. */
   readonly tabsDocks: readonly Component[];
-  readonly settings: readonly Component[];
 };
 
 /**
@@ -96,6 +95,5 @@ export function composeSubClients(
     Chrome: nest(subs.flatMap((c) => (c.chrome ? [c.chrome] : []))),
     Session: nest(subs.flatMap((c) => (c.session ? [c.session] : []))),
     tabsDocks: subs.flatMap((c) => (c.tabsDock ? [c.tabsDock] : [])),
-    settings: subs.flatMap((c) => (c.settings ? [c.settings] : [])),
   };
 }

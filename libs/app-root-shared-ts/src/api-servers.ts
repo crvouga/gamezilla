@@ -82,7 +82,7 @@ function readViteApiUrlOrigin(): string {
   const raw = env.VITE_API_URL;
   assert.nonEmptyString(
     raw,
-    'VITE_API_URL is required; run `bun run dev` (with secret store) or set apps/client-ts/.env.local'
+    'VITE_API_URL is required; run `bun run dev` (with secret store) or set apps/product-client-ts/.env.local'
   );
   let origin = '';
   assert.notThrows(

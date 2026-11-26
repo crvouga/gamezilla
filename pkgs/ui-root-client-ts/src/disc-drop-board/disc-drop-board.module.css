@@ -40,25 +40,26 @@
   --ui-color-on-info: var(--ui-color-game-connect-four-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
-/* Beside its rail, the stage is as wide as this board and no wider, so the
-   seats end where it ends and what lies over it covers it exactly. */
-@media (min-width: 768px) {
-  :global([data-game-board-stage]):has(:global([data-game-board]) .board) {
-    max-width: 38rem;
-  }
-}
 .board {
   position: relative;
   display: grid;
   grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 38rem;
+  margin-inline: auto;
   gap: var(--ui-space-hairline);
   padding: var(--ui-space-2);
   border-radius: var(--ui-radius-sheet);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-text);
   overflow: hidden;
+}
+/* On a portrait phone all seven hit targets share the available width.
+   The fixed stage scrolls the board if its instructions need more room. */
+@media (orientation: portrait) and (max-width: 767px) {
+  [data-game-fixed="true"] [data-game-board-content]:has(.board) {
+    max-width: none;
+  }
 }
 .column {
   display: flex;

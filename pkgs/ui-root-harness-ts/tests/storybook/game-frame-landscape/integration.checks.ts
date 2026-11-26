@@ -23,24 +23,28 @@ async function box(page: Page, selector: string, index = 0) {
 async function checkLandscapeFrame(page: Page, theme: string) {
   await page.setViewportSize({ width: 844, height: 390 });
   await openStory(page, 'screens-games-chess-board--your-turn', theme);
-  const board = await box(page, '[data-component="ChessBoard"]');
-  for (const square of ['a1', 'h1', 'a8', 'h8']) {
-    const cell = await box(page, `[data-square="${square}"]`);
-    expect(cell.width).toBeGreaterThanOrEqual(32);
-    expect(cell.y).toBeGreaterThanOrEqual(0);
-    expect(cell.y + cell.height).toBeLessThanOrEqual(390);
+  const board = await box(page, '[data-game-board]');
+  for (const seat of await page
+    .locator('[data-component="GamePlayerBar"]')
+    .all()) {
+    await expect(seat).toBeInViewport({ ratio: 1 });
+    const bounds = await seat.boundingBox();
+    expect(bounds && bounds.y + bounds.height).toBeLessThanOrEqual(board.y);
   }
-  // The game's commands are behind one control, Game menu.
-  const beside = [
-    await box(page, '[data-component="GameHeading"]'),
-    await box(page, '[data-component="GamePlayerBar"]', 0),
-    await box(page, '[data-component="GamePlayerBar"]', 1),
-    await box(page, '[data-testid="custom-game-commands"]'),
-  ];
-  for (const part of beside) {
-    expect(part.x).toBeGreaterThanOrEqual(board.x + board.width);
-    expect(part.y).toBeGreaterThanOrEqual(0);
-    expect(part.y + part.height).toBeLessThanOrEqual(390);
+  // The readable board scrolls within its room if a short screen cannot fit all ranks.
+  const actions = await box(page, '[data-testid="custom-game-commands"]');
+  expect(actions.y).toBeGreaterThanOrEqual(board.y + board.height - 1);
+  expect(actions.y + actions.height).toBeLessThanOrEqual(390);
+  for (const square of ['a1', 'h8']) {
+    const cell = page.locator(`[data-square="${square}"]`);
+    await cell.scrollIntoViewIfNeeded();
+    await expect(cell).toBeInViewport({ ratio: 1 });
+    expect(
+      (await box(page, `[data-square="${square}"]`)).width
+    ).toBeGreaterThanOrEqual(32);
+    expect(await box(page, '[data-testid="custom-game-commands"]')).toEqual(
+      actions
+    );
   }
 }
 

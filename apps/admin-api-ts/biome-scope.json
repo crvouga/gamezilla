@@ -1,0 +1,5 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/import-auth-vendor.grit": [
+    "!**/apps/admin-api-ts/src/worker-boot.ts"
+  ]
+}

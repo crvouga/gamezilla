@@ -1,0 +1,39 @@
+{
+  "overrides[6]": ["apps/product-client-ts/**"],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/apps/product-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/apps/product-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-nested-await.grit": [
+    "**/apps/product-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit": [
+    "**/apps/product-client-ts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit": [
+    "**/apps/product-client-ts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit": [
+    "**/apps/product-client-ts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-fs.grit": [
+    "!**/apps/product-client-ts/src/main.tsx"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-io.grit": [
+    "!**/apps/product-client-ts/src/main.tsx"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/apps/product-client-ts/src/main.tsx"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-ci-verdict.grit": [
+    "!**/apps/product-client-ts/scripts/verify-production-compression.ts"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-boundary-imports.grit": [
+    "!**/apps/product-client-ts/src/main.tsx"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/observability-no-browser-runtime.grit": [
+    "!**/apps/product-client-ts/src/main.tsx"
+  ]
+}
