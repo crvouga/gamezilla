@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Dispatch or report a hosted PR workload benchmark"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec python3 libs/tools-harness-ts/scripts/pr-load-report.py "$@"

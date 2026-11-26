@@ -1,0 +1,3 @@
+[settings]
+# Workspace setup owns installation. A diagnostic must not install the full toolchain.
+task.run_auto_install = false

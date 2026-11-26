@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+#MISE description="Prepare the checkout and install its pinned dependencies"
+set -euo pipefail
+cd "$MISE_PROJECT_ROOT"
+exec ./libs/tools-harness-ts/workspace/setup.sh "$@"

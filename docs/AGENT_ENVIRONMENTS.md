@@ -2,8 +2,10 @@
 
 Open this repository or a Git worktree in your preferred environment. Project
 rules live in [`AGENTS.md`](../AGENTS.md); environment-specific entry points
-refer agents there. Install the tools pinned by `mise.toml` and run `bun install`
-in a cold checkout. Authentication and trust prompts belong to each developer.
+refer agents there. Run `mise run setup` to prepare a cold checkout.
+List workspace operations and descriptions with `mise tasks ls --local`.
+Use `mise run check -- @scope/package` for incremental package verification.
+Use `mise run verify-full -- <published-branch>` for the hosted full gate. Authentication and trust prompts belong to each developer.
 No repository configuration grants automatic tool approval or stores credentials.
 
 ## Coding agents
