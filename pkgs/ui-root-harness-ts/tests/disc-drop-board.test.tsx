@@ -310,10 +310,7 @@ test('the landing preview is an empty dashed outline and the drop slot a hollow 
   const ring = boardRule('.drop[data-disc="1"] .number');
   expect(ring).toMatch(/border-color:\s*var\(--ui-color-destructive\);/);
   expect(ring).not.toMatch(/background/);
-  // The outline breathes, and holds still for reduced motion.
-  expect(boardRule('@media (prefers-reduced-motion: reduce)')).toContain(
-    '.cell[data-preview-disc="1"] .disc'
-  );
+  expect(landing).not.toContain('animation:');
 });
 
 // regression: connect-four-preview-weak — the landing preview was a thin
@@ -328,18 +325,7 @@ test('the landing preview reads against the board yet stays an outline', () => {
     /box-shadow:\s*0 0 0 2px var\(--disc-hole\),\s*inset 0 0 0 2px var\(--ui-color-text-secondary\);/
   );
   expect(landing).not.toMatch(/background/);
-  expect(boardRule('@keyframes disc-preview-breathe')).not.toContain(
-    'opacity: 0.5'
-  );
-  expect(
-    readFileSync(
-      join(
-        import.meta.dirname,
-        '../../ui-root-client-ts/src/disc-drop-board/disc-drop-board.module.css'
-      ),
-      'utf8'
-    )
-  ).toContain('opacity: 0.7;');
+  expect(landing).not.toMatch(/opacity:|animation:/);
 });
 
 // regression: connect-four-prompt-low-contrast — "Pick a column to drop

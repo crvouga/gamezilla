@@ -1,6 +1,7 @@
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, createProjection, For, Show } from 'solid-js';
+import { createBoardArrival } from '../board-arrival';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-board.module.css';
 
@@ -15,6 +16,9 @@ function BoardCell(props: {
   // Unchanged squares keep their object, so this square's bindings rerun
   // only when the square itself changes.
   const cell = createMemo(() => props.cells()[props.index]);
+  const arrived = createBoardArrival(
+    () => cell()?.state === 'committed' || cell()?.state === 'recent'
+  );
   return (
     <SdkButton
       type="button"
@@ -22,6 +26,7 @@ function BoardCell(props: {
       data-index={props.index}
       data-cell={cell()?.id}
       data-testid={`${props.board.testId}-cell-${cell()?.id ?? ''}`}
+      data-arrived={arrived() || undefined}
       data-state={cell()?.state ?? 'empty'}
       data-square={cell()?.square ?? 'none'}
       aria-label={cell()?.label}

@@ -5,6 +5,7 @@ import { definePrimitive } from '@ui-sdk/core';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createParts } from '@ui-sdk/solid/primitive';
 import { createMemo, createSignal, For, Show } from 'solid-js';
+import { createBoardArrival } from '../board-arrival';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
 import quoridor from './cell-grid-board-quoridor.module.css';
@@ -167,6 +168,11 @@ function GridCell(props: {
 }): JSX.Element {
   const cell = () => props.board.cells[props.index];
   const id = () => cell()?.id ?? '';
+  const shotArrived = createBoardArrival(
+    () =>
+      props.board.battleshipSurface !== undefined &&
+      cell()?.emphasis === 'recent'
+  );
   // Squares alternate from a light top-left corner, as a board's do.
   const shade = (): 'light' | 'dark' => {
     const columns = Math.max(1, props.board.columnLabels.length);
@@ -184,6 +190,7 @@ function GridCell(props: {
       data-testid={
         props.board.cellTestId?.(id()) ?? `${props.board.testId}-cell-${id()}`
       }
+      data-shot-arrived={shotArrived() || undefined}
       data-tone={cell()?.tone ?? 'open'}
       data-emphasis={cell()?.emphasis ?? 'none'}
       data-outlined={String(cell()?.outlined === true)}

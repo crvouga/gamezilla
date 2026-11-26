@@ -56,8 +56,12 @@ function boardMessage(
   if (quoridorMustPass(game))
     return t`No legal move or wall. Pass to continue.`;
   const action = previewAction();
-  if (action !== null)
-    return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game, action), game.mode)}`;
+  if (action !== null) {
+    const reason = wallRefusal(game, action);
+    if (reason === null && props.state.tool() === 'move')
+      return t`Tap the wall again to place it.`;
+    return `${quoridorBoundary(action)}. ${quoridorWallMessage(reason, game.mode)}`;
+  }
   // A host refusal explains the last attempt; it outranks standing guidance.
   const refused = props.state.refusal();
   if (refused !== '') return refused;
@@ -114,8 +118,8 @@ function createWallProposal(props: BoardViewProps) {
 }
 
 export function createBoardSelection(props: BoardViewProps) {
-  const game = props.state.game;
-  const tool = props.state.tool;
+  const game = () => props.state.game();
+  const tool = () => props.state.tool();
   const {
     previewAction,
     selected,
