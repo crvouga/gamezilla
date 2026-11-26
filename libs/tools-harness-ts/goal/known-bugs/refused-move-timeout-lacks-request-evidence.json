@@ -1,0 +1,4 @@
+{
+  "summary": "Four refused opening moves in browser partition 65 reached the five-second multiplayer verdict deadline without recording which request, device queue entry or server decision was involved. Capture those observations for the same request when the deadline expires.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/multiplayer-command-wait.test.ts"
+}

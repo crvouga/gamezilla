@@ -97,7 +97,7 @@ export async function actorUi(
 export type PollUntilOptions = {
   readonly maxMs: number;
   readonly stepMs?: number;
-  readonly description: string;
+  readonly description: string | (() => Promise<string>);
   readonly actor?: string;
 };
 
@@ -105,7 +105,11 @@ async function pollTimeout(
   s: ProductHarness,
   opts: PollUntilOptions
 ): Promise<Error> {
-  const prefix = `Timed out after ${String(opts.maxMs)}ms waiting for ${opts.description}`;
+  const description =
+    typeof opts.description === 'string'
+      ? opts.description
+      : await opts.description();
+  const prefix = `Timed out after ${String(opts.maxMs)}ms waiting for ${description}`;
   const actor = opts.actor === undefined ? undefined : s.actors.get(opts.actor);
   if (actor === undefined) return new Error(prefix);
   const place = await describeWhereabouts({
