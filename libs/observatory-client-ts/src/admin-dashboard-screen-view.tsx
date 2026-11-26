@@ -4,6 +4,10 @@ import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
 
+/**
+ * Home screen for signed-in administrators. Each menu row opens a tool through
+ * its callback, and the Sign out action opens the account confirmation.
+ */
 export function AdminDashboardScreenView(props: {
   readonly onObservatory: () => void;
   readonly onPopulation: () => void;
