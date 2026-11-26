@@ -50,6 +50,7 @@ export function dailyClockStepMs(ms: number): number {
 
 /** One accepted move, and the position it led to. */
 export type MultiplayerMove = {
+  readonly action?: string | undefined;
   /** Moves played to reach the position after it: 1 for the first move. */
   readonly ply: number;
   /** The move in algebraic notation: `Nf3`. */
@@ -79,6 +80,7 @@ export function multiplayerMoves(
         ? `${round}${seat === 0 ? '.' : '...'}`
         : `${round}.${seat + 1}.`;
     return {
+      action: move.action,
       ply: index + 1,
       san: move.label,
       numbering: seats === 2 && seat !== 0 ? '' : ordinal,

@@ -1,6 +1,7 @@
 import { findNewOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-new-opponent-mutation';
 import { findOpponentMutation } from '@libs/game-matchmaking-shared-ts/find-opponent-mutation';
 import { SHARED_MATCHMAKING_SCREEN } from '@libs/game-matchmaking-shared-ts/multiplayer-link';
+import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
@@ -14,7 +15,12 @@ import {
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { type Accessor, createMemo, createSignal, Show } from 'solid-js';
-import { type UnfinishedGame, useUnfinishedGame } from './use-unfinished-game';
+import { useShownName } from './use-shown-name';
+import {
+  type DailyMatchPreview,
+  type UnfinishedGame,
+  useUnfinishedGame,
+} from './use-unfinished-game';
 
 /** Seeking refused because a game must be finished first. */
 const SEEKS: readonly string[] = [
@@ -53,7 +59,7 @@ function useRefusedSeek() {
 
 type OfferProps = {
   /** Which game waits. */
-  readonly kind: UnfinishedGame['kind'];
+  readonly game: UnfinishedGame;
   readonly placement: ReturnToGamePlacement;
   /** Said as what must be finished first, in place of seeking. */
   readonly finishFirst: boolean;
@@ -63,7 +69,8 @@ type OfferProps = {
 /** The words of one offer, by the game that waits. Presentational. */
 export function ReturnOffer(props: OfferProps): JSX.Element {
   const { t } = useLingui();
-  const custom = () => props.kind === 'custom';
+  const custom = () => props.game.kind === 'custom';
+  const daily = () => (props.game.kind === 'matched' ? props.game.daily : null);
   const title = () => {
     if (props.finishFirst)
       return custom()
@@ -74,13 +81,63 @@ export function ReturnOffer(props: OfferProps): JSX.Element {
       : t`Your matched game is waiting for you`;
   };
   return (
+    <Show
+      when={daily()}
+      fallback={
+        <ReturnToGame
+          title={title()}
+          action={
+            custom()
+              ? t`Return to the custom game`
+              : t`Return to your matched game`
+          }
+          placement={props.placement}
+          kind={props.game.kind}
+          testId={RETURN_TO_GAME}
+          onReturn={props.onReturn}
+        />
+      }
+    >
+      {(match) => (
+        <DailyReturnCard
+          match={match()}
+          placement={props.placement}
+          finishFirst={props.finishFirst}
+          onReturn={props.onReturn}
+        />
+      )}
+    </Show>
+  );
+}
+
+function DailyReturnCard(
+  props: Omit<OfferProps, 'game'> & { match: DailyMatchPreview }
+): JSX.Element {
+  const { t } = useLingui();
+  const name = useShownName(() => props.match.playerId);
+  const turn = () =>
+    props.match.myTurn ? t`Your move` : t`Waiting for ${name()}`;
+  const title = () =>
+    props.match.playerId
+      ? t`${props.match.game} with ${name()}`
+      : props.match.game;
+  return (
     <ReturnToGame
       title={title()}
-      action={
-        custom() ? t`Return to the custom game` : t`Return to your matched game`
+      turn={turn()}
+      leading={
+        <UserProfileAvatar profileId={props.match.playerId || null} size={48} />
       }
+      caption={[
+        props.match.figures,
+        props.match.lastMove && t`Last move: ${props.match.lastMove}`,
+        props.finishFirst && t`Finish your matched game first`,
+      ]
+        .filter(Boolean)
+        .join(' · ')}
+      action={t`Return to your matched game`}
       placement={props.placement}
-      kind={props.kind}
+      kind="matched"
       testId={RETURN_TO_GAME}
       onReturn={props.onReturn}
     />
@@ -121,7 +178,7 @@ export function ReturnToGameDock(): JSX.Element {
       {(waiting) => (
         <MiniPlayerDock>
           <ReturnOffer
-            kind={waiting.kind}
+            game={waiting}
             placement="dock"
             finishFirst={seek.told()}
             onReturn={onReturn}
@@ -164,7 +221,7 @@ export function ReturnToGameInSpace(): JSX.Element {
           paddingTop="sm"
         >
           <ReturnOffer
-            kind={waiting.kind}
+            game={waiting}
             placement="inline"
             finishFirst={seek.told()}
             onReturn={onReturn}

@@ -1,5 +1,6 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { MiniPlayerDock } from '@pkgs/ui-root-client-ts/mini-player';
 import { ReturnToGame } from '@pkgs/ui-root-client-ts/return-to-game';
 import type { JSX } from '@solidjs/web';
@@ -23,8 +24,10 @@ export default function ReturnToGameExample(): JSX.Element {
       <ExampleSection title="Docked: a long name wraps, the command stays">
         <MiniPlayerDock>
           <ReturnToGame
-            title="Your matched game against Alexandria-Montgomery waits for your move"
-            caption="Connect Four · 3 days per move"
+            leading={<Avatar size={48} initials="AM" />}
+            title="Word Tiles with Alexandria-Montgomery"
+            turn="Your move"
+            caption="Score 0 – 10 · Last move: AERIE h8 10"
             action="Return to your matched game"
             kind="matched"
             onReturn={() => undefined}

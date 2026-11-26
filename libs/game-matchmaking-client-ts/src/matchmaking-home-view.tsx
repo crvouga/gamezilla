@@ -80,7 +80,7 @@ type FindProps = MultiplayerPlaceFrame & {
    * The person's unfinished game, offered in place of the search's command:
    * seeking is never offered while a game is unfinished.
    */
-  readonly returnTo?: UnfinishedGame['kind'] | undefined;
+  readonly returnTo?: UnfinishedGame | undefined;
   /** Goes back to that game's board. */
   readonly onReturn?: (() => void) | undefined;
   /**
@@ -378,10 +378,10 @@ export function MatchmakingHomeView(props: FindProps): JSX.Element {
       {...props}
       dock={
         <Show when={props.returnTo} fallback={<FindDock {...props} />}>
-          {(kind) => (
+          {(game) => (
             <GameLobbyDock>
               <ReturnOffer
-                kind={kind()}
+                game={game()}
                 placement="inline"
                 finishFirst
                 onReturn={() => props.onReturn?.()}

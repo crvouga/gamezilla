@@ -69,7 +69,7 @@ export type MatchmakingScreenViewProps = {
   /** Starts a search, at the chosen time control when the game is timed. */
   readonly onFind: (timeControl: string | undefined) => Promise<void>;
   /** The person's unfinished game, offered in place of the search's command. */
-  readonly returnTo?: UnfinishedGame['kind'] | undefined;
+  readonly returnTo?: UnfinishedGame | undefined;
   /** Goes back to that game's board. */
   readonly onReturn?: (() => void) | undefined;
   /** Today's matched games left, once few are, with the way to unlimited. */

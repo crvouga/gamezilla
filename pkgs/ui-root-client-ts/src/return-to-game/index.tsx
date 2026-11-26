@@ -3,6 +3,7 @@
 import { componentId } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import { Badge } from '../badge';
 import { Button } from '../button';
 import { PlayIcon } from '../icons';
 import { P } from '../text';
@@ -14,7 +15,10 @@ export type ReturnToGamePlacement = 'dock' | 'inline';
 export type ReturnToGameProps = {
   /** What is waiting, in a few words ("Your custom game is under way"). */
   title: JSX.Element;
-  /** One more line: the game, and where it is played. */
+  /** The player pictured beside a daily match. */
+  leading?: JSX.Element;
+  /** Whose turn it is in a daily match. */
+  turn?: JSX.Element;
   caption?: JSX.Element | undefined;
   /** The one command, named by where it leads ("Return to the custom game"). */
   action: JSX.Element;
@@ -88,17 +92,23 @@ export function ReturnToGame(props: ReturnToGameProps): JSX.Element {
       data-layout={mode()}
       data-component={componentId('ReturnToGame')}
     >
-      <div class="box flex-col grow shrink min-w-0">
-        <P variant="bodyBold" lines={2}>
-          {props.title}
-        </P>
-        <Show when={props.caption}>
-          {(caption) => (
-            <P variant="caption" tone="secondary" lines={1}>
-              {caption()}
-            </P>
-          )}
-        </Show>
+      <div class="box flex-row items-center gap-ui-md grow shrink min-w-0">
+        {props.leading}
+        <div class="box flex-col grow shrink min-w-0">
+          <Show when={props.turn}>
+            {(turn) => <Badge size="sm" intent="neutral" label={turn()} />}
+          </Show>
+          <P variant="bodyBold" lines={2}>
+            {props.title}
+          </P>
+          <Show when={props.caption}>
+            {(caption) => (
+              <P variant="caption" tone="secondary">
+                {caption()}
+              </P>
+            )}
+          </Show>
+        </div>
       </div>
       {command()}
     </div>

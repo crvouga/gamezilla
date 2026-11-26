@@ -7,6 +7,7 @@ import {
   multiplayerSideOf,
   multiplayerSides,
 } from '@libs/game-matchmaking-shared-ts/multiplayer-roster';
+import { isDailyTimeControl } from '@libs/game-matchmaking-shared-ts/time-control';
 import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import type { GameFrameBoardProps } from '@pkgs/turn-game-shared-ts/game-frame';
@@ -86,6 +87,9 @@ function gameMark(
     'game-id': props.game.id,
     'can-move': String(props.canMove),
     'board-takes-moves': String(props.canMove && props.view.earlier() === null),
+    'daily-seats': isDailyTimeControl(props.game.time_control)
+      ? String(multiplayerSides(props.game).length)
+      : '',
     revision: String(props.game.revision),
     fen: props.game.fen,
     'shown-position': shown,
@@ -119,6 +123,11 @@ function useStageBoardProps(
         props.view.earlier()?.fen ??
         props.game.fen
       );
+    },
+    get lastAction() {
+      return props.simulation.active()
+        ? null
+        : (props.view.moves()[props.view.shownPly() - 1]?.action ?? null);
     },
     get simulation() {
       return props.simulation.active()

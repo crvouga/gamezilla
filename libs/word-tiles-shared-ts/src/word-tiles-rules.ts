@@ -150,7 +150,12 @@ export function createWordTilesRules(seats: WordTilesSeatCount): GameRules {
       // An accepted history replays in full; anything else is not one.
       if (next === null)
         throw new Error(`Word Tiles cannot replay ${action} at ${position}`);
-      moves.push({ label: next.label, before: position, after: next.position });
+      moves.push({
+        action,
+        label: next.label,
+        before: position,
+        after: next.position,
+      });
       position = next.position;
       history = next.history;
     }
