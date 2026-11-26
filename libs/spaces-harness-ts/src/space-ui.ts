@@ -8,6 +8,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorHtml } from '@libs/harness-ts/observations';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { tapSpaceBarControl } from './space-bar-gestures';
 
 export const SPACE_WAIT_MS = 10_000;
 export const SPACE_HIDDEN_MS = 5_000;
@@ -271,7 +272,7 @@ export async function tapSpaceAction(
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
   if (handle === Handles.spaceRename && !(await ui.get(handle).isVisible())) {
-    await ui.get(Handles.spaceSettings).tap({ timeoutMs: SPACE_WAIT_MS });
+    await tapSpaceBarControl(ui, Handles.spaceSettings, SPACE_WAIT_MS);
   }
-  await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
+  await tapSpaceBarControl(ui, handle, SPACE_WAIT_MS);
 }
