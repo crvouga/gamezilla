@@ -62,6 +62,7 @@ import {
   sendRequestFromProfile,
   viewProfileFromRequest,
 } from './person-actions';
+import { sharedBlockStored } from './relationship-reads';
 import { setupBlock } from './setup-block';
 import { prepareNamedFriend, setupFriendRequest } from './setup-friend-request';
 import { setupFriendsPair } from './setup-friends-pair';
@@ -461,6 +462,9 @@ Given('{actor} has blocked {actor}', async (w, actor: Actor, other: Actor) => {
   if ((await w.s.read(signedInAccountOf, other)) === null)
     await prepareNamedFriend(w.s, other);
   await w.s.apply(setupBlock, actor, other);
+  const blockerId = await accountId(w, actor);
+  const blockedId = await accountId(w, other);
+  await w.s.until((s) => sharedBlockStored(s, blockerId, blockedId));
 });
 
 When(

@@ -1,10 +1,24 @@
 /** Read the relationship state behind search, profile pills, and the inbox. */
 
+import { opponentRestrictions } from '@libs/friends-shared-ts/opponent-restrictions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf, actorLocalSql } from '@libs/harness-ts/identity';
 import type { QuintValue } from '@pkgs/quint-shared-ts/itf';
 import { variant } from '@pkgs/quint-shared-ts/itf';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+
+/** The block subsequent claims and invitations will encounter on the server. */
+export async function sharedBlockStored(
+  s: ProductHarness,
+  blockerId: string,
+  blockedId: string
+): Promise<boolean> {
+  const pairs = await opponentRestrictions(s.harness.serverSql.sqlClient, [
+    blockerId,
+    blockedId,
+  ]);
+  return pairs.some(([from, to]) => from === blockerId && to === blockedId);
+}
 
 /** A sent request has reached the shared state even when its recipient is away. */
 export async function pendingRequestStored(
