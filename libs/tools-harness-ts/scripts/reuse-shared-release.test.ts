@@ -81,8 +81,18 @@ test('Release reuses a completed apply across verification edits and requires fr
   const dir = mkdtempSync(join(cache, 'release-apply-'));
   try {
     execFileSync('git', ['init', '-q', dir]);
-    const sha = commit(dir, ['README.md']);
+    const sha = commit(dir, ['package.json']);
     commit(dir, [
+      // regression: release-reapplies-shared-for-nightly-and-board
+      'README.md',
+      '.github/workflows/verify-nightly.yml',
+      'apps/product-ts/scripts/discover.ts',
+      'apps/product-ts/scripts/test-fuzz.ts',
+      'apps/product-ts/scripts/test-file-command.test.ts',
+      'apps/product-ts/turbo.json',
+      'pkgs/hearts-board-client-ts/src/board.css',
+      'pkgs/ui-root-client-ts/src/game-session-layout/fixed-stage.module.css',
+      'pkgs/ui-root-harness-ts/tests/storybook/desktop-table-room/integration.checks.ts',
       '.github/workflows/verify-pr.yml',
       'libs/tools-harness-ts/scripts/ci-stage.ts',
       'libs/tools-harness-ts/scripts/reuse-shared-release.sh',
