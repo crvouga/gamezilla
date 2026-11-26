@@ -55,14 +55,20 @@ function Result(props: GameStageOverlayExampleProps): JSX.Element {
 
 /** The board with its result and rematch action. */
 export default function GameStageOverlayExample(
-  props: GameStageOverlayExampleProps
+  props: Partial<GameStageOverlayExampleProps>
 ): JSX.Element {
   return (
     <ExampleRoot>
       <GameBoardStage
         others={<GamePlayerBar name="Atlas" />}
         own={<GamePlayerBar name="River" />}
-        overlay={<Result {...props} />}
+        overlay={
+          <Result
+            tone={props.tone ?? 'won'}
+            onDismiss={() => props.onDismiss?.()}
+            onRematch={() => props.onRematch?.()}
+          />
+        }
       >
         <DiscDropBoardExample interactive={false} />
       </GameBoardStage>
