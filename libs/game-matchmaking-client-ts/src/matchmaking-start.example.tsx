@@ -33,8 +33,10 @@ export function MatchmakingStartExample(
             }
           : null
       }
-      board={() => (
+      board={(stage) => (
         <StoryStage
+          information={stage.information}
+          preparation={stage.setup}
           moves={moves()}
           active={ownTurn()}
           onDrop={(column) => setMoves([column])}

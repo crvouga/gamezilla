@@ -154,7 +154,7 @@ export function StoryStage(props: {
   readonly offline?: boolean | undefined;
   /** A draw offered to the person waits for their answer first. */
   readonly answering?: boolean | undefined;
-  readonly information?: JSX.Element;
+  readonly information: JSX.Element;
   readonly preparation?: JSX.Element;
 }): JSX.Element {
   const drops = () =>

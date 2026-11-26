@@ -45,6 +45,7 @@ test('storybook integration: ready game against a bot takes the first move', asy
   });
 });
 
+// regression: matchmaking-first-turn-status-missing
 test('storybook integration: ready game with a matched player takes the first move', async ({
   page,
 }, info) => {
