@@ -73,7 +73,7 @@ for (const mode of ['classic', 'hill'] as const) {
       expect(square('d4').dataset['arriving']).toBe('top');
       tap(160, 212);
       tap(160, 212);
-      expect(view.getByTestId('direct-wall-refusal').textContent).toContain(
+      expect(view.getByTestId('direct-wall-status').textContent).toContain(
         'crosses'
       );
       expect(game().actions).toEqual(['d4h']);
