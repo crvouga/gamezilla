@@ -1,0 +1,4 @@
+{
+  "summary": "The matched-game menu test failed when Game choices added a section because it located Resign by a fixed section index.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-places-view.test.tsx"
+}
