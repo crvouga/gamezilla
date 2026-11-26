@@ -6,6 +6,7 @@ Feature: A matchmaking pair play a lasting multiplayer game
   Rule: Once paired for multiplayer chess, both people go straight to their board
 
     @regression:database-link-unmodeled-tcp-buffering
+    @regression:chess-match-room-initial-delivery
     Scenario: Two accounts are matched and can finish their multiplayer game
       Given Alice and Bob have accounts on fresh devices
       And Alice is finding a 5+0 multiplayer chess opponent

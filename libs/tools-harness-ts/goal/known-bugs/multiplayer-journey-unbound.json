@@ -1,0 +1,4 @@
+{
+  "summary": "The multiplayer chess journeys had steps that the runtime spec suite did not bind",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-journey-runner.test.ts"
+}
