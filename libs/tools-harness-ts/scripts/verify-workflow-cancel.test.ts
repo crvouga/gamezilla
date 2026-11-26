@@ -45,6 +45,7 @@ describe('Verify workflow cancellation', () => {
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
       consumers: '${{ steps.plan.outputs.consumers }}',
+      single_runner: '${{ steps.plan.outputs.single_runner }}',
     });
     expect(start.steps.find((step) => step.id === 'plan')?.run).toContain(
       'verify-plan.ts'
@@ -52,7 +53,9 @@ describe('Verify workflow cancellation', () => {
     const shards = workflow.jobs['verify-shards'];
     expect(shards.needs).toEqual(['verify-start']);
     // An empty matrix fails the workflow; a fully cached plan skips the job.
-    expect(shards.if).toBe("needs.verify-start.outputs.shards != '[]'");
+    expect(shards.if).toBe(
+      "needs.verify-start.outputs.single_runner != '+' && needs.verify-start.outputs.shards != '[]'"
+    );
     expect(shards.strategy.matrix.shard).toBe(
       '${{ fromJSON(needs.verify-start.outputs.shards) }}'
     );
@@ -132,6 +135,7 @@ describe('Verify workflow cancellation', () => {
       (upload) => uploadOf(upload) === 'release-verdict'
     );
     expect(releaseVerdict.map((upload) => upload.if)).toEqual([
+      "always() && !cancelled() && steps.plan.outputs.single_runner == '+'",
       "always() && !cancelled() && env.VERIFY_CI_STAGE == 'release'",
     ]);
     for (const upload of uploads) {
@@ -264,7 +268,9 @@ describe('Verify workflow cancellation', () => {
     ]);
     const end = workflow.jobs['verify-end']!;
     expect(end.needs).toEqual(['verify-start', 'verify-shards']);
-    expect(end.if).toBe('always() && !cancelled()');
+    expect(end.if).toBe(
+      "always() && !cancelled() && needs.verify-start.outputs.single_runner != '+'"
+    );
     expect(end['continue-on-error']).toBeUndefined();
     expect(workflow.jobs['verify-start']!.if).toBe(
       "github.event_name != 'pull_request'"

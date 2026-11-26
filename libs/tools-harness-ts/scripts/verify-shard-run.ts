@@ -43,7 +43,10 @@ const NOTHING_TO_EXECUTE: ShardExecution = {
 const describeTask = (task: { taskId: string; hash: string }): string =>
   `${task.taskId} (${task.hash})`;
 
-export async function runShard(index: number): Promise<number> {
+export async function runShard(
+  index: number,
+  transfer = true
+): Promise<number> {
   const start = process.hrtime.bigint();
   const plan = JSON.parse(
     readFileSync(join(DIRECTORY, 'plan.json'), 'utf8')
@@ -113,7 +116,7 @@ export async function runShard(index: number): Promise<number> {
     diagnosis,
     timings: { actualMs, prefetchMs, executionMs },
   });
-  transferEvidence(index, results, env, verdict !== 0);
+  if (transfer) transferEvidence(index, results, env, verdict !== 0);
   console.log(
     `shard ${index}: ${shard.tasks.length} tasks; estimated ${shard.seconds.toFixed(1)} task-seconds; actual ${(actualMs / 1000).toFixed(3)}s; ${hits} hits; ${misses.length} planned misses; prefetch ${prefetchMs.toFixed(0)}ms`
   );

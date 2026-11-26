@@ -138,6 +138,7 @@ jobs:
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
       consumers: ${{ steps.plan.outputs.consumers }}
+      single_runner: ${{ steps.plan.outputs.single_runner }}
     steps:
       - &budget
         name: Check remaining workflow time
@@ -237,13 +238,44 @@ jobs:
         env:
           VERIFY_ACTIVE_RUNS: ${{ steps.demand.outputs.runs }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
+      # One shard on another runner pays for a second checkout and setup, then
+      # a third runner collects its verdict. This checkout already has Chrome,
+      # the workspace and all the cached verdicts.
+      - name: Run a small deployment plan here
+        if: steps.plan.outputs.single_runner == '+'
+        id: single
+        run: |
+          remaining=$(( CI_STAGE_DEADLINE - $(date +%s) - 20 ))
+          if (( remaining <= 0 )); then
+            echo "::error::No verification time remains before publishing the verdict."
+            exit 1
+          fi
+          timeout --kill-after=5 "$remaining" bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-single-runner.ts
+      - name: Summarize the single runner's results
+        if: always() && !cancelled() && steps.plan.outputs.single_runner == '+'
+        env:
+          START_RESULT: ${{ steps.plan.outcome }}
+          SHARD_RESULT: ${{ steps.single.outcome }}
+        run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
+      - name: Retain the single runner's verdict
+        if: always() && !cancelled() && steps.plan.outputs.single_runner == '+'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: release-verdict
+          path: .cache/verify-ci/verdict.json
+          retention-days: 1
+          overwrite: true
+          include-hidden-files: true
+          if-no-files-found: ignore
       - name: Export immutable plan
+        if: steps.plan.outputs.single_runner != '+'
         run: bun run libs/tools-harness-ts/scripts/verify-plan-transfer.ts --export
       # Transfer artifacts carry state between this run's jobs and are not
       # reports: `verify:end` deletes them, and GitHub expires what a
       # cancelled run left after a day. The nightly profile keeps them,
       # failed reports included.
       - name: Upload immutable plan
+        if: steps.plan.outputs.single_runner != '+'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-plan
@@ -255,6 +287,7 @@ jobs:
       # A shard with nothing to execute starts no runner; its cached verdicts
       # travel from here to `verify:end`.
       - name: Transfer cached shard verdicts
+        if: steps.plan.outputs.single_runner != '+'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-results-cached
@@ -264,6 +297,7 @@ jobs:
           include-hidden-files: true
           if-no-files-found: ignore
       - name: Transfer cached shard evidence
+        if: steps.plan.outputs.single_runner != '+'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-evidence-cached
@@ -275,10 +309,11 @@ jobs:
       # Release stops here on a failed prerequisite. Diagnostic runs collect
       # results for other tasks. Both transfer the prerequisite verdict.
       - name: Build shared prerequisites and warm their cache
+        if: steps.plan.outputs.single_runner != '+'
         continue-on-error: ${{ github.workflow != 'Release' }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
       - name: Transfer prerequisite outputs
-        if: always() && !cancelled()
+        if: always() && !cancelled() && steps.plan.outputs.single_runner != '+'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-evidence-${{ env.VERIFY_SHARDS }}
@@ -289,7 +324,7 @@ jobs:
           if-no-files-found: ignore
 
       - name: Transfer prerequisite verdict
-        if: always() && !cancelled()
+        if: always() && !cancelled() && steps.plan.outputs.single_runner != '+'
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: verify-results-${{ env.VERIFY_SHARDS }}
@@ -311,7 +346,7 @@ jobs:
       group: ${{ inputs.deployment && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}
       queue: max
     # An empty matrix is an error, so a fully cached plan skips the job.
-    if: needs.verify-start.outputs.shards != '[]'
+    if: needs.verify-start.outputs.single_runner != '+' && needs.verify-start.outputs.shards != '[]'
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
@@ -430,7 +465,7 @@ jobs:
   verify-end:
     name: verify:end
     needs: [verify-start, verify-shards]
-    if: always() && !cancelled()
+    if: always() && !cancelled() && needs.verify-start.outputs.single_runner != '+'
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
