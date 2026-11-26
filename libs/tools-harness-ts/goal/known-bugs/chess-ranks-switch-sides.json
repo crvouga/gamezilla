@@ -1,0 +1,4 @@
+{
+  "summary": "A chess board's rank labels stood at the board's end on a wide screen and at its start on a phone, so the same board read differently by window. Every playing chess board, a game's or a puzzle's, wide or phone, now puts the ranks at its end edge, where the squares still start under the screen's title.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/chess-ranks-one-side.test.ts"
+}

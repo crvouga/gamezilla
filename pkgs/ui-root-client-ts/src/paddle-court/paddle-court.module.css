@@ -180,3 +180,63 @@
   font-variant-numeric: tabular-nums;
   line-height: 1;
 }
+
+/* A phone's thumb pad under the court: a tall strip outside the play with
+   a lane per controlled half, each a rail with the paddle's own colour bar
+   level with the paddle, so a thumb steers without covering the court. */
+.pad {
+  display: flex;
+  gap: var(--ui-space-2);
+  height: calc(var(--ui-space-16) * 2.5);
+  /* No padding above or below: a lane's height is the court's, so the
+     marker sits where the thumb is. */
+  padding: 0 var(--ui-space-2);
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.pad[data-interactive="false"] {
+  opacity: var(--ui-opacity-disabled);
+}
+.padLane {
+  position: relative;
+  flex: 1 1 0;
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface-muted);
+}
+/* The rail down the lane's middle. */
+.padLane::before {
+  content: "";
+  position: absolute;
+  top: var(--ui-space-2);
+  bottom: var(--ui-space-2);
+  left: 50%;
+  width: var(--ui-space-1);
+  transform: translateX(-50%);
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-border);
+}
+.padThumb {
+  position: absolute;
+  left: 50%;
+  width: calc(var(--ui-space-16) * 1.5);
+  height: var(--ui-space-3);
+  transform: translate(-50%, -50%);
+  border-radius: var(--ui-radius-full);
+  box-shadow: 0 0 0 2px var(--ui-color-text);
+}
+.padThumb[data-color="player1"] {
+  background: var(--ui-color-player1);
+}
+.padThumb[data-color="player2"] {
+  background: var(--ui-color-player2);
+}
+.padThumb[data-color="player3"] {
+  background: var(--ui-color-player3);
+}
+.padThumb[data-color="player4"] {
+  background: var(--ui-color-player4);
+}

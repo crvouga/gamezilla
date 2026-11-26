@@ -1,7 +1,8 @@
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
-import { type JSX, Show } from 'solid-js';
+import { createSignal, type JSX, Show } from 'solid-js';
 import { EmbeddedScreen } from '../embedded-screen/index';
+import { GameBoardLeadContext } from '../game-board-stage/board-lead';
 import styles from '../game-ui.module.css';
 import { ScreenIntro } from '../screen-intro/index';
 import { createScreenSlot } from '../screen-slot';
@@ -88,16 +89,7 @@ export function GameScreen(props: {
   );
 }
 
-/**
- * The board column and its supporting rail. On phones everything stacks in
- * reading order: setup, the stage, the controls, then the rail. On wide
- * screens the stage is one board-wide column with setup, the controls and
- * the rail beside it, top to bottom, in one narrow column, so none of them
- * pushes the board down and the play commands stay in view beside it. An
- * empty slot takes no room, and toggling the rail, setup or controls never
- * remounts the play surface.
- */
-export function GameLayout(props: {
+export type GameLayoutProps = {
   children: JSX.Element;
   /** Setup, invitation or waiting controls; beside the stage when wide. */
   setup?: JSX.Element | undefined;
@@ -116,8 +108,8 @@ export function GameLayout(props: {
   stagePreview?: boolean | undefined;
   /**
    * The stage is a real-time game's arena, wider than it is tall: on wide
-   * screens it takes the column's room beside a narrow rail (the players),
-   * instead of a square board's measure beside a wide one.
+   * screens it takes its column's room beside the same rail as every game
+   * (the players), instead of a square board's measure.
    */
   arena?: boolean | undefined;
   /**
@@ -125,7 +117,12 @@ export function GameLayout(props: {
    * width, as wide as a board and its rail, with nothing beside it.
    */
   workspace?: boolean | undefined;
-}): JSX.Element {
+};
+
+/** `GameLayout`'s grid, given how far its board sits below the stage's top. */
+function GameLayoutGrid(
+  props: GameLayoutProps & { boardLead: number }
+): JSX.Element {
   const stage = createScreenSlot(() => props.children);
   const setup = createScreenSlot(() => props.setup);
   const controls = createScreenSlot(() => props.controls);
@@ -145,7 +142,10 @@ export function GameLayout(props: {
     >
       <div
         class={styles['layout']}
-        style={{ '--game-rail-rows': String(Math.max(1, railRows())) }}
+        style={{
+          '--game-rail-rows': String(Math.max(1, railRows())),
+          '--game-board-lead': `${props.boardLead}px`,
+        }}
         data-has-stage={stage.present()}
         data-has-setup={setup.present()}
         data-has-aside={aside.present()}
@@ -171,5 +171,25 @@ export function GameLayout(props: {
         </Show>
       </div>
     </Show>
+  );
+}
+
+/**
+ * The board column and its supporting rail. On phones everything stacks in
+ * reading order: setup, the stage, the controls, then the rail. On wide
+ * screens the stage is one board-wide column with setup, the controls and
+ * the rail beside it, top to bottom, in one narrow column, so none of them
+ * pushes the board down and the play commands stay in view beside it. The
+ * rail starts level with the board's top edge (the seat above the board
+ * sits beside nothing). An empty slot takes no room, and toggling the rail,
+ * setup or controls never remounts the play surface.
+ */
+export function GameLayout(props: GameLayoutProps): JSX.Element {
+  // How far the board sits below the stage's top (the seat above it).
+  const [boardLead, setBoardLead] = createSignal(0);
+  return (
+    <GameBoardLeadContext.Provider value={setBoardLead}>
+      <GameLayoutGrid {...props} boardLead={boardLead()} />
+    </GameBoardLeadContext.Provider>
   );
 }

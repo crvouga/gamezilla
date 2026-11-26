@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the Pong court was about 240px tall with half the screen empty under it, and a thumb steered on the court itself, over the play. A thumb pad under the court, outside the play, now steers the person's own paddle, its marker level with the paddle.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-board-layout.test.tsx"
+}

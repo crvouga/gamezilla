@@ -299,6 +299,14 @@ function Hand(
   const byId = createMemo(
     () => new Map(props.hand.map((card) => [card.id, card] as const))
   );
+  // A chosen card shown in the pass in the middle of the table: its face
+  // is there, so the hand keeps only its place (still the button that puts
+  // it back), and the card is never drawn twice.
+  const passing = createMemo(
+    () => new Set((props.pass?.cards ?? []).map((card) => card.id))
+  );
+  const lifted = (id: string): boolean =>
+    byId().get(id)?.selected === true && passing().has(id);
   // The one card reached by Tab: the last one the person was on.
   const [current, setCurrent] = createSignal(0);
   const buttons = () =>
@@ -355,6 +363,7 @@ function Hand(
                 class={styles['card']}
                 style={handCardStyle(index(), suits())}
                 data-refused={String(card().refusal !== undefined)}
+                data-lifted={String(lifted(id))}
                 data-suit={card().suit}
                 data-testid={props.cardTestId(id)}
                 data-card={id}

@@ -309,8 +309,10 @@ describe('game surfaces', () => {
     const columns = grids.find((body) =>
       body.includes('grid-template-columns')
     );
+    // The rail is the grid's last track and the board's column takes the
+    // rest, so the rail always ends at the column's edge.
     expect(columns).toMatch(
-      /grid-template-columns:\s*minmax\(0, var\(--game-board-measure\)\)\s*minmax\(280px, 1fr\);/
+      /grid-template-columns:\s*minmax\(0, 1fr\)\s*var\(--game-rail-measure\);/
     );
     const table = wide.slice(
       wide.indexOf('> .rail\n    [data-layout="table"] {')

@@ -40,6 +40,15 @@
   --ui-color-on-info: var(--ui-color-game-numberlink-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* Beside a light theme's white cards the night board is softened, never
+   inverted: its paths and numbers keep their night colours and contrast,
+   on a slate canvas instead of near-black. */
+:where([data-theme="light"]) .board[data-theme="dark"] {
+  --ui-color-game-numberlink-canvas: var(--ui-color-game-numberlink-day-canvas);
+  --ui-color-game-numberlink-surface: var(
+    --ui-color-game-numberlink-day-surface
+  );
+}
 .board {
   container-type: inline-size;
   position: relative;

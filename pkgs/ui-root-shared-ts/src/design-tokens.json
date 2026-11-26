@@ -702,6 +702,24 @@
           "hex": "#9a6512"
         }
       },
+      "gameBattleshipHit": {
+        "$description": "Battleship board only: a hit, one fill in both themes.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8941, 0.3412, 0.1804],
+          "alpha": 1.0,
+          "hex": "#e4572e"
+        }
+      },
+      "gameBattleshipOnHit": {
+        "$description": "Battleship board only: the mark on a hit, one ink in both themes.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
+        }
+      },
       "gameQuoridorCanvas": {
         "$description": "Quoridor board only: canvas.",
         "$value": {
@@ -769,18 +787,18 @@
         "$description": "Sokoban board only: canvas.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1412, 0.1765, 0.2157],
+          "components": [0.2392, 0.2902, 0.3412],
           "alpha": 1.0,
-          "hex": "#242d37"
+          "hex": "#3d4a57"
         }
       },
       "gameSokobanSurface": {
         "$description": "Sokoban board only: surface.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2235, 0.2824, 0.3294],
+          "components": [0.3216, 0.3804, 0.4353],
           "alpha": 1.0,
-          "hex": "#394854"
+          "hex": "#52616f"
         }
       },
       "gameSokobanInk": {
@@ -889,6 +907,24 @@
           "components": [0.1922, 0.4235, 0.2824],
           "alpha": 1.0,
           "hex": "#316c48"
+        }
+      },
+      "gameNumberlinkDayCanvas": {
+        "$description": "Numberlink board only: its night canvas softened beside a light theme's white cards.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2039, 0.1922, 0.2392],
+          "alpha": 1.0,
+          "hex": "#34313d"
+        }
+      },
+      "gameNumberlinkDaySurface": {
+        "$description": "Numberlink board only: its grid lines on the softened night canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2902, 0.2706, 0.3216],
+          "alpha": 1.0,
+          "hex": "#4a4552"
         }
       },
       "gameWordTilesCanvas": {
@@ -1021,18 +1057,18 @@
         "$description": "Pong board only: canvas.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.1569, 0.1098, 0.2745],
+          "components": [0.2275, 0.1765, 0.3843],
           "alpha": 1.0,
-          "hex": "#281c46"
+          "hex": "#3a2d62"
         }
       },
       "gamePongSurface": {
         "$description": "Pong board only: surface.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.2863, 0.2118, 0.4196],
+          "components": [0.3412, 0.2745, 0.5137],
           "alpha": 1.0,
-          "hex": "#49366b"
+          "hex": "#574683"
         }
       },
       "gamePongInk": {
@@ -1084,18 +1120,18 @@
         "$description": "LightCycles board only: canvas.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0314, 0.1137, 0.1686],
+          "components": [0.0941, 0.1961, 0.2588],
           "alpha": 1.0,
-          "hex": "#081d2b"
+          "hex": "#183242"
         }
       },
       "gameLightCyclesSurface": {
         "$description": "LightCycles board only: surface.",
         "$value": {
           "colorSpace": "srgb",
-          "components": [0.0863, 0.2314, 0.2941],
+          "components": [0.1529, 0.2863, 0.3529],
           "alpha": 1.0,
-          "hex": "#163b4b"
+          "hex": "#27495a"
         }
       },
       "gameLightCyclesInk": {
@@ -1843,6 +1879,24 @@
           "hex": "#f5cd76"
         }
       },
+      "gameBattleshipHit": {
+        "$description": "Battleship board only: a hit, one fill in both themes.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.8941, 0.3412, 0.1804],
+          "alpha": 1.0,
+          "hex": "#e4572e"
+        }
+      },
+      "gameBattleshipOnHit": {
+        "$description": "Battleship board only: the mark on a hit, one ink in both themes.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [1.0, 1.0, 1.0],
+          "alpha": 1.0,
+          "hex": "#ffffff"
+        }
+      },
       "gameQuoridorCanvas": {
         "$description": "Quoridor board only: canvas.",
         "$value": {
@@ -2030,6 +2084,24 @@
           "components": [0.1922, 0.4235, 0.2824],
           "alpha": 1.0,
           "hex": "#316c48"
+        }
+      },
+      "gameNumberlinkDayCanvas": {
+        "$description": "Numberlink board only: its night canvas softened beside a light theme's white cards.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2039, 0.1922, 0.2392],
+          "alpha": 1.0,
+          "hex": "#34313d"
+        }
+      },
+      "gameNumberlinkDaySurface": {
+        "$description": "Numberlink board only: its grid lines on the softened night canvas.",
+        "$value": {
+          "colorSpace": "srgb",
+          "components": [0.2902, 0.2706, 0.3216],
+          "alpha": 1.0,
+          "hex": "#4a4552"
         }
       },
       "gameWordTilesCanvas": {

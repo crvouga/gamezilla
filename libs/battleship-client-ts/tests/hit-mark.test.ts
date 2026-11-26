@@ -42,3 +42,34 @@ test('wide, the Battleship board leaves only the room its switch and key take', 
     /--game-board-chrome-block: calc\(284px \+ var\(--ui-space-12\)\);/
   );
 });
+
+// regression: battleship-hit-differs-by-theme — a hit was salmon on the dark
+// board and oxblood on the light one, so the same board read differently
+// by theme. A hit is one fill with one ink in both themes.
+test('a Battleship hit has one fill and one ink in both themes', () => {
+  const css = read('cell-grid-board/cell-grid-board.module.css');
+  const palette = rule(
+    css,
+    '.board:not([data-board-theme="checkered"]),\n.legendMark'
+  );
+  expect(palette).toMatch(
+    /--ui-color-destructive:\s*var\(--ui-color-game-battleship-hit\);/
+  );
+  expect(palette).toMatch(
+    /--ui-color-on-destructive:\s*var\(--ui-color-game-battleship-on-hit\);/
+  );
+  const tokens = readFileSync(
+    join(UI_SRC, '../../ui-root-shared-ts/src/design-tokens.json'),
+    'utf8'
+  );
+  for (const name of ['gameBattleshipHit', 'gameBattleshipOnHit']) {
+    const hexes = [
+      ...tokens.matchAll(
+        new RegExp(`"${name}": \\{[^}]*?"hex": "(#[0-9a-f]{6})"`, 'g')
+      ),
+    ].map((match) => match[1]);
+    // One definition per theme, the same in each.
+    expect(hexes.length).toBeGreaterThanOrEqual(2);
+    expect(new Set(hexes).size).toBe(1);
+  }
+});

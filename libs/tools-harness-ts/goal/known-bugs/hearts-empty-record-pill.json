@@ -1,0 +1,4 @@
+{
+  "summary": "Before the first move (Hearts while hands are passed) a phone's pinned record strip held a \"No moves yet.\" pill: a row above the board saying there was nothing. The strip now holds only the game's own line then, and with no line of its own there is no strip.",
+  "regressionTest": "libs/game-session-client-ts/tests/game-frame-phone-strip.test.tsx"
+}

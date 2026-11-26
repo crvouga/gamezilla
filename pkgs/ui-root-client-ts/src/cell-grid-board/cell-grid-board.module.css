@@ -28,7 +28,8 @@
   --color-tint-subtle: var(--ui-color-tint-subtle);
   --ui-color-focus-ring: var(--ui-color-game-battleship-accent);
   --color-focus-ring: var(--ui-color-focus-ring);
-  --ui-color-destructive: var(--ui-color-game-battleship-one);
+  /* A hit: one fill and ink in both themes, so the board reads the same. */
+  --ui-color-destructive: var(--ui-color-game-battleship-hit);
   --color-destructive: var(--ui-color-destructive);
   --ui-color-warning: var(--ui-color-game-battleship-two);
   --color-warning: var(--ui-color-warning);
@@ -36,7 +37,7 @@
   --color-success: var(--ui-color-success);
   --ui-color-info: var(--ui-color-game-battleship-accent);
   --color-info: var(--ui-color-info);
-  --ui-color-on-destructive: var(--ui-color-game-battleship-canvas);
+  --ui-color-on-destructive: var(--ui-color-game-battleship-on-hit);
   --color-on-destructive: var(--ui-color-on-destructive);
   --ui-color-on-warning: var(--ui-color-game-battleship-canvas);
   --color-on-warning: var(--ui-color-on-warning);

@@ -83,35 +83,38 @@ test('the scores and the round are said to a listener, not drawn over the arena 
 test('phone: one rider steers from a compact pad right under the arena', () => {
   mount(390);
   const pad = screen.getByTestId('arena-white-pad');
-  expect(pad.getAttribute('data-size')).toBe('sm');
+  // One row: shorter than the arrow keys' T (two 44px rows).
+  expect(pad.getAttribute('data-layout')).toBe('row');
   const hint = screen.getByText(/Swipe the arena or use the pad to steer/);
   const arena = screen.getByTestId('arena-arena');
   const follows = (a: Element, b: Element): boolean =>
     (a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING) !== 0;
   expect(follows(arena, pad)).toBe(true);
   expect(follows(pad, hint)).toBe(true);
-  // Its own centred row, never sharing one with the line.
-  const row = pad.closest('[data-component="StackHorizontal"]');
-  expect(row?.contains(hint)).toBe(false);
-  expect(row?.className).toContain('justify-center');
-  expect(pad.parentElement?.textContent).not.toContain('Comet');
+  // Its own row across the arena's width, never sharing one with the line.
+  expect(pad.contains(hint)).toBe(false);
+  expect(pad.parentElement?.contains(hint)).toBe(true);
+  expect(pad.textContent).not.toContain('Comet');
 });
 
 // regression: light-cycles-phone-pad-outweighs-arena — on a phone the
 // three-row direction pad stood about as tall as the arena's free space
 // under it, and each rider's head was a 12–16px disc whose letter could
-// hardly be read. The pad is the arrow keys' T, a row shorter, every
-// button still 44px; a phone draws each head 1.4 times larger.
-test("phone: the pad is the arrow keys' T and the riders' heads are drawn larger", () => {
+// hardly be read. A phone draws each head 1.4 times larger.
+// regression: light-cycles-phone-pad-small — the pad was then a small 44px
+// T in the middle of the screen, weak for fast play. One rider steers from
+// a bar of four 64px-tall buttons across the arena's width (left, up, down,
+// right), one row: shorter than the T and every target wide.
+test("phone: one rider steers from a full-width bar of large buttons and the riders' heads are drawn larger", () => {
   mount(390);
   const pad = screen.getByTestId('arena-white-pad');
-  expect(pad.getAttribute('data-layout')).toBe('arrows');
-  expect(pad.getAttribute('data-size')).toBe('sm');
+  expect(pad.getAttribute('data-layout')).toBe('row');
+  expect(pad.getAttribute('data-size')).toBe('lg');
   expect(
     [...pad.querySelectorAll('button')].map((b) =>
       b.getAttribute('data-heading')
     )
-  ).toEqual(['up', 'left', 'down', 'right']);
+  ).toEqual(['left', 'up', 'down', 'right']);
   for (const rider of [0, 1, 2])
     expect(
       screen.getByTestId(`arena-arena-rider-${rider}`).getAttribute('transform')
@@ -128,9 +131,15 @@ test("phone: the pad is the arrow keys' T and the riders' heads are drawn larger
     ),
     'utf8'
   );
-  const arrows = css.slice(css.indexOf('.pad[data-layout="arrows"] {'));
-  expect(arrows.slice(0, arrows.indexOf('}'))).toMatch(
-    /grid-template-areas:\s*". up ."\s*"left down right";/
+  const row = css.slice(css.indexOf('.pad[data-layout="row"] {'));
+  expect(row.slice(0, row.indexOf('}'))).toMatch(
+    /grid-template-columns:\s*repeat\(4, minmax\(0, 1fr\)\);[\s\S]*width:\s*100%;/
+  );
+  const tall = css.slice(
+    css.indexOf('.pad[data-layout="row"][data-size="lg"] {')
+  );
+  expect(tall.slice(0, tall.indexOf('}'))).toMatch(
+    /grid-template-rows:\s*var\(--ui-space-16\);/
   );
 });
 
@@ -191,4 +200,22 @@ test("a trail paint's swatch matches its rider's trail token", () => {
       `bg-game-light-cycles-${token ?? ''}`
     );
   });
+});
+
+// regression: light-cycles-captions-loose — on a wide screen "You ride
+// Comet." floated over the arena and the keys line under it, two loose
+// captions. They are one bar over the arena: the status at its start, how
+// to steer at its end. A phone keeps the status above, the hint under its pad.
+test('wide: the steering status and how to steer share one bar over the arena', () => {
+  mount(1440);
+  const header = screen.getByTestId('light-cycles-arena-header');
+  expect(header.contains(screen.getByTestId('arena-status'))).toBe(true);
+  expect(header.textContent).toContain('Steer with the arrow keys');
+  const arena = screen.getByTestId('arena-arena');
+  expect(
+    header.compareDocumentPosition(arena) & Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
+  cleanup();
+  mount(390);
+  expect(screen.queryByTestId('light-cycles-arena-header')).toBeNull();
 });

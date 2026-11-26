@@ -448,6 +448,18 @@ button.card[aria-pressed="true"] {
     var(--ui-shadow-float);
   transform: translateY(calc(-1 * var(--ui-space-2)));
 }
+/* Lifted out to the pass in the middle of the table, where its face now
+   shows: its place in the hand is an empty outline in the selection accent,
+   still the button that puts the card back, so a card is never drawn twice. */
+button.card[data-lifted="true"] {
+  border: 2px dashed var(--ui-color-tint);
+  background: transparent;
+  box-shadow: none;
+  transform: none;
+}
+button.card[data-lifted="true"] > * {
+  visibility: hidden;
+}
 button.card:focus-visible {
   z-index: 2;
   outline: 2px solid var(--ui-color-focus-ring);

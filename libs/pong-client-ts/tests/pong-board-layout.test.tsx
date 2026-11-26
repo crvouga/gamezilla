@@ -79,7 +79,34 @@ test("phone: the paddle's upright slider lies over its own half of the court", (
   );
   // Only the person's own paddle has a slider.
   expect(screen.queryByTestId('pong-black-control')).toBeNull();
-  expect(screen.getByText(/Drag up and down along your edge/)).toBeTruthy();
+  expect(
+    screen.getByText(/Drag up and down in the pad under the court/)
+  ).toBeTruthy();
+});
+
+// regression: pong-phone-no-thumb-area — on a phone the court was about
+// 240px tall with half the screen empty under it, and a thumb steered on
+// the court itself, over the play. A thumb pad under the court, outside the
+// play, steers the person's own paddle: one lane, its marker level with the
+// paddle, its drag the court's own. A wide screen has none.
+test('phone: a thumb pad under the court steers the person’s paddle', () => {
+  mount(390);
+  const pad = screen.getByTestId('pong-thumb-pad');
+  const court = screen.getByTestId('pong');
+  expect(
+    court.compareDocumentPosition(pad) & Node.DOCUMENT_POSITION_FOLLOWING
+  ).toBeTruthy();
+  expect(court.contains(pad)).toBe(false);
+  const lanes = pad.querySelectorAll('[data-side]');
+  expect(lanes).toHaveLength(1);
+  expect(lanes[0]?.getAttribute('data-side')).toBe('first');
+  expect(lanes[0]?.querySelector('[data-color="player1"]')).not.toBeNull();
+  expect(rule('paddle-court/paddle-court.module.css', '.pad')).toMatch(
+    /touch-action:\s*none;/
+  );
+  cleanup();
+  mount(1440);
+  expect(screen.queryByTestId('pong-thumb-pad')).toBeNull();
 });
 
 // regression: pong-markers-unmatched — the players' swatches were blue and

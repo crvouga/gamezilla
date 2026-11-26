@@ -1,0 +1,4 @@
+{
+  "summary": "On a wide screen Light Cycles' \"You ride Comet.\" floated over the arena and the keys line under it, two loose captions. They now share one bar over the arena: the steering status at its start, how to steer at its end.",
+  "regressionTest": "libs/light-cycles-client-ts/tests/light-cycles-board-layout.test.tsx"
+}

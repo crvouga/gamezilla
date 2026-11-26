@@ -172,24 +172,38 @@ test('phone: the plain turn stays with the seat to move, not the strip', () => {
 
 // regression: phone-strip-empty-well — before the first move (Hearts while
 // hands are passed) the pinned strip showed an empty well.
-test('phone: before the first move the strip says there is none yet', () => {
+// regression: hearts-empty-record-pill — the well was then filled with a
+// "No moves yet." pill, a row above the board saying there was nothing.
+// Before the first move the strip holds only the game's own line, and with
+// no line of its own there is no strip at all.
+test('phone: before the first move the strip holds no empty row', () => {
   const time = createHarnessClock();
-  renderWithI18n(() => (
-    <ClockProvider clock={time.clock} timers={time.timers}>
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
-        <GameFrameScreenView
-          {...props(false)}
-          record={{ ...RECORD, moves: [], displayedPly: 0 }}
-        />
-      </ThemeProvider>
-    </ClockProvider>
-  ));
-  expect(screen.getByTestId('custom-game-move-strip').textContent).toBe(
-    'No moves yet.'
+  const mountEmpty = (plainTurn: boolean) =>
+    renderWithI18n(() => (
+      <ClockProvider clock={time.clock} timers={time.timers}>
+        <ThemeProvider
+          colorScheme="dark"
+          fixedLayout={{ width: 390, height: 844 }}
+        >
+          <GameFrameScreenView
+            {...props(plainTurn)}
+            record={{ ...RECORD, moves: [], displayedPly: 0 }}
+          />
+        </ThemeProvider>
+      </ClockProvider>
+    ));
+  mountEmpty(false);
+  expect(screen.getByTestId('custom-game-record-caption').textContent).toBe(
+    FIRED
   );
+  expect(screen.queryByTestId('custom-game-move-strip')).toBeNull();
+  expect(document.body.textContent).not.toContain('No moves yet.');
+  cleanup();
+  mountEmpty(true);
+  expect(screen.queryByTestId('custom-game-record')).toBeNull();
+  expect(
+    document.querySelector('[data-component="GameSessionPinned"]')
+  ).toBeNull();
 });
 
 test('wide: nothing is pinned; the record is the rail beside the board', () => {
