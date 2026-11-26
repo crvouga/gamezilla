@@ -130,8 +130,14 @@ jobs:
           STAGE_SECONDS: "${{ inputs.profile == 'nightly' && 2700 || inputs.require-main && github.job != 'verify-end' && 240 || github.workflow == 'Release' && 480 || 600 }}"
         run: |
           set -euo pipefail
-          created=$(timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
-          deadline=$(( $(date -d "$created" +%s) + STAGE_SECONDS ))
+          read_created() { timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at; }
+          created=$(read_created) || {
+            status=$?
+            (( status == 124 )) || exit "$status"
+            created=$(read_created)
+          }
+          created_epoch=$(date -d "$created" +%s)
+          deadline=$(( created_epoch + STAGE_SECONDS ))
           remaining=$(( deadline - $(date +%s) ))
           if (( remaining <= 0 )); then
             message="Verification incomplete at job admission: $(( STAGE_SECONDS - remaining ))s elapsed since workflow creation (budget: ${STAGE_SECONDS}s)."
@@ -140,6 +146,7 @@ jobs:
             exit 1
           fi
           echo "CI_STAGE_DEADLINE=$deadline" >> "$GITHUB_ENV"
+          echo "utc_day=$(( created_epoch / 86400 ))" >> "$GITHUB_OUTPUT"
           echo "minutes=$(( (remaining + 59) / 60 ))" >> "$GITHUB_OUTPUT"
           mkdir -p "$RUNNER_TEMP/ci-budget"
           cat > "$RUNNER_TEMP/ci-budget/ci-budget-shell" <<'SH'

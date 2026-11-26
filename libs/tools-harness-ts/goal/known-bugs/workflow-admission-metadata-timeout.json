@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly browser shard 1 in run 45860957766 exited 124 on the workflow creation lookup before checkout, cancelling its siblings. Retry a timed-out lookup once against the same creation time.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-deadline.test.ts"
+}
