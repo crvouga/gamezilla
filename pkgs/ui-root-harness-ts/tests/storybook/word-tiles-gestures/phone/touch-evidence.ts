@@ -1,5 +1,5 @@
 // @io-wall-ok — retain the native input path for a hosted phone gesture.
-import type { Page, TestInfo } from '@playwright/test';
+import { expect, type Page, type TestInfo } from '@playwright/test';
 import { retainEvidence } from '../../word-tiles/retained-evidence';
 
 export async function observeTouches(page: Page) {
@@ -31,9 +31,24 @@ export async function observeTouches(page: Page) {
       'touchcancel',
       'click',
     ])
-      window.addEventListener(type, record, true);
+      window.addEventListener(type, record, { capture: true, passive: true });
     window.addEventListener('click', record);
   });
+}
+
+/** The original rack button receives the final native release after becoming an empty slot. */
+export async function expectRackRelease(page: Page) {
+  const events = await page.evaluate(() => {
+    const path = (
+      window as unknown as {
+        wordTileTouches: { target: string | null; type: string }[];
+      }
+    ).wordTileTouches;
+    const rack = path.filter((e) => e.target === 'custom-game-board-rack-11');
+    const types = rack.map((e) => e.type);
+    return types.slice(types.lastIndexOf('pointerdown'));
+  });
+  expect(events).toContain('touchend');
 }
 
 export async function saveTouches(page: Page, info: TestInfo) {

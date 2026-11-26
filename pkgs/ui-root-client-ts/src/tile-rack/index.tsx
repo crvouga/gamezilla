@@ -54,29 +54,29 @@ export function TileRack(props: TileRackProps): JSX.Element {
         data-testid={props.testId}
         {...dataAttrs({ component: 'TileRack' })}
       >
-        <For each={props.tiles}>
+        <For each={props.tiles} keyed={(tile) => tile.id}>
           {(tile) => (
             <SdkButton
               type="button"
               class={styles['tile']}
               data-testid={
-                props.tileTestId?.(tile.id) ?? `${props.testId}-${tile.id}`
+                props.tileTestId?.(tile().id) ?? `${props.testId}-${tile().id}`
               }
-              data-rack-tile={tile.id}
-              data-selected={String(tile.selected)}
-              data-placed={String(tile.placed)}
-              aria-pressed={tile.selected ? 'true' : 'false'}
-              aria-label={tile.label}
-              aria-disabled={tile.enabled ? 'false' : 'true'}
+              data-rack-tile={tile().id}
+              data-selected={String(tile().selected)}
+              data-placed={String(tile().placed)}
+              aria-pressed={tile().selected ? 'true' : 'false'}
+              aria-label={tile().label}
+              aria-disabled={tile().enabled ? 'false' : 'true'}
               onClick={() => {
-                if (tile.enabled) props.onActivate(tile.id);
+                if (tile().enabled) props.onActivate(tile().id);
               }}
             >
               <span class={styles['letter']} aria-hidden="true">
-                {tile.placed ? '' : tile.letter}
+                {tile().placed ? '' : tile().letter}
               </span>{' '}
               <span class={styles['points']} aria-hidden="true">
-                {tile.placed ? '' : tile.points}
+                {tile().placed ? '' : tile().points}
               </span>
             </SdkButton>
           )}
