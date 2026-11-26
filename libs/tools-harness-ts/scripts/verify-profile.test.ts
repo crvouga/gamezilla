@@ -305,27 +305,35 @@ describe('Verify Nightly workflow', () => {
   // regression: nightly-visual-single-runner-timeout
   test('a suite spreads over as many shards as its profile names, each taking its share', () => {
     for (const [suite, config] of Object.entries(NIGHTLY_SUITES)) {
-      const job = nightly.jobs[`verify-nightly-${suite}`]!;
-      const shards = shardList(job);
-      expect(shards, suite).toEqual(
-        Array.from({ length: config.shards }, (_, index) => index + 1)
-      );
-      if (config.shards === 1) {
-        expect(job.strategy, suite).toBeUndefined();
-        continue;
+      const jobs = Object.entries(nightly.jobs)
+        .filter(
+          ([id]) =>
+            id === `verify-nightly-${suite}` ||
+            id.startsWith(`verify-nightly-${suite}-`)
+        )
+        .map(([, job]) => job);
+      expect(
+        jobs.flatMap(shardList).sort((a, b) => a - b),
+        suite
+      ).toEqual(Array.from({ length: config.shards }, (_, index) => index + 1));
+      for (const job of jobs) {
+        if (config.shards === 1) {
+          expect(job.strategy, suite).toBeUndefined();
+          continue;
+        }
+        const place =
+          suite === 'visual'
+            ? '${{ matrix.shard }}/8'
+            : '${{ matrix.shard }}/${{ strategy.job-total }}';
+        expect(job.strategy?.['fail-fast'], suite).toBe(true);
+        expect(job.name).toBe(`verify-nightly:${suite} (${place})`);
+        expect(job.env, suite).toEqual(
+          suite === 'visual'
+            ? { STORYBOOK_SHARD: place }
+            : { NIGHTLY_SHARD: place }
+        );
+        expect(job.steps).toEqual(jobs[0]!.steps);
       }
-      // One red shard makes the group red; the rest stop instead of
-      // spending runners on a verdict already known.
-      expect(job.strategy?.['fail-fast'], suite).toBe(true);
-      expect(job.name).toBe(
-        `verify-nightly:${suite} (\${{ matrix.shard }}/\${{ strategy.job-total }})`
-      );
-      const place = '${{ matrix.shard }}/${{ strategy.job-total }}';
-      expect(job.env, suite).toEqual(
-        suite === 'visual'
-          ? { STORYBOOK_SHARD: place }
-          : { NIGHTLY_SHARD: place }
-      );
     }
   });
 
@@ -355,10 +363,12 @@ describe('Verify Nightly workflow', () => {
     }
   });
 
-  test('each suite has one job after shared admission', () => {
+  test('only the declared suites and diagnostics run after shared admission', () => {
     const groups = [
       'gate',
       ...Object.keys(NIGHTLY_SUITES),
+      'visual-after-short-suites',
+      'visual-after-browser',
       'storybook',
       'pr-load',
     ];

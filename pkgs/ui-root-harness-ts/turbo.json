@@ -98,6 +98,17 @@
     "storybook:mcp:test": {
       "cache": false
     },
+    "storybook:partition": {
+      "dependsOn": ["storybook:build"],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/.github/actions/visual-renderer/action.yml",
+        "$TURBO_ROOT$/turbo-platform-key.json",
+        "$TURBO_ROOT$/mise.toml"
+      ],
+      "env": ["STORYBOOK_SHARD", "BUN_CHROME_PATH"],
+      "outputs": []
+    },
     "test": {
       "dependsOn": ["^src", "storybook:build"]
     },

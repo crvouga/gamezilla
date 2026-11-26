@@ -1,12 +1,14 @@
 import { expect, test } from 'bun:test';
 import { readFileSync } from 'node:fs';
 import { STORYBOOK_PARTS } from './turbo-ci-run';
+import { readTurboTasks } from './turbo-config';
 import {
   failedGroups,
   nightlyGroupNames,
   nightlyGroups,
   tracksNightlyIssue,
 } from './verify-nightly-verdict';
+import { verifyAggregatorTasks } from './verify-profile';
 
 type Step = {
   name?: string;
@@ -61,13 +63,9 @@ test("the Storybook diagnostic runs the gate's browser states, or the selected o
   expect(selected?.run).toBe(
     'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
   );
-  const config = JSON.parse(
-    readFileSync(
-      new URL('../../../pkgs/ui-root-harness-ts/turbo.json', import.meta.url),
-      'utf8'
-    )
-  ) as { tasks: Record<string, { cache?: boolean }> };
-  expect(config.tasks['storybook:test']?.cache).toBe(false);
+  expect(
+    readTurboTasks()['@pkgs/ui-root-harness-ts#storybook:test']?.cache
+  ).toBe(false);
   const upload = job.steps.find((step) =>
     step.uses?.startsWith('actions/upload-artifact@')
   )!;
@@ -79,10 +77,12 @@ test("the Storybook diagnostic runs the gate's browser states, or the selected o
 
 test('manual Storybook diagnostics preserve every ordinary nightly gate', () => {
   const ordinary = Object.fromEntries(
-    nightlyGroupNames().map((name) => [
-      `verify-nightly-${name}`,
-      { result: 'success' },
-    ])
+    Object.keys(workflow.jobs)
+      .filter(
+        (job) =>
+          job !== 'verify-nightly-end' && job !== 'verify-nightly-pr-load'
+      )
+      .map((job) => [job, { result: 'success' }])
   );
   const skipped = {
     ...ordinary,
@@ -107,4 +107,60 @@ test('manual Storybook diagnostics preserve every ordinary nightly gate', () => 
       })
     )
   ).toHaveLength(1);
+});
+
+test('a visual verdict requires successful completion of every scheduled matrix', () => {
+  const visual = Object.keys(workflow.jobs).filter((job) =>
+    job.startsWith('verify-nightly-visual')
+  );
+  const success = Object.fromEntries(
+    visual.map((job) => [job, { result: 'success' }])
+  );
+  for (const selection of ['all', 'visual']) {
+    const groups = (needs: typeof success) =>
+      nightlyGroups(needs, selection).filter((group) =>
+        group.name.startsWith('visual')
+      );
+    expect(groups(success).map(({ name, result }) => [name, result])).toEqual([
+      ['visual', 'success'],
+    ]);
+    for (const job of visual) {
+      const missing = { ...success };
+      delete missing[job];
+      expect(groups(missing)[0]?.result).toBe('missing');
+      for (const result of ['failure', 'cancelled', 'skipped'])
+        expect(groups({ ...success, [job]: { result } })[0]?.result).toBe(
+          result
+        );
+    }
+  }
+});
+
+test('all eight visual partitions execute the same browser checks and the MCP server runs once', () => {
+  const partition = '@pkgs/ui-root-harness-ts#storybook:partition';
+  const mcp = '@pkgs/ui-root-harness-ts#storybook:mcp:test';
+  for (let index = 1; index <= 8; index++) {
+    expect(
+      verifyAggregatorTasks('verify-nightly:visual', [], `${index}/8`)
+    ).toEqual(index === 1 ? [partition, mcp] : [partition]);
+  }
+  expect(verifyAggregatorTasks('verify-nightly:visual', [])).toEqual([
+    partition,
+    mcp,
+  ]);
+  const root = new URL('../../../pkgs/ui-root-harness-ts/', import.meta.url);
+  const { scripts } = JSON.parse(
+    readFileSync(new URL('package.json', root), 'utf8')
+  ) as { scripts: Record<string, string> };
+  const task = readTurboTasks()[partition]!;
+  expect(scripts['storybook:partition']).toBe(scripts['storybook:test']);
+  expect(task.cache ?? true).toBe(true);
+  expect(task).toMatchObject({
+    dependsOn: ['storybook:build'],
+    env: expect.arrayContaining(['STORYBOOK_SHARD', 'BUN_CHROME_PATH']),
+    inputs: expect.arrayContaining([
+      '$TURBO_DEFAULT$',
+      '$TURBO_ROOT$/turbo-platform-key.json',
+    ]),
+  });
 });

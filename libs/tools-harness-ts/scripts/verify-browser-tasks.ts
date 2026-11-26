@@ -6,6 +6,7 @@ import type { VerifyPlan } from './verify-shards';
 const BROWSER_TASKS = new Set([
   '@pkgs/ui-testing-bun-webview-server-ts#test',
   '@pkgs/ui-root-harness-ts#storybook:test',
+  '@pkgs/ui-root-harness-ts#storybook:partition',
   '@pkgs/ui-root-harness-ts#storybook:mcp:test',
 ]);
 

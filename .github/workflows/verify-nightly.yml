@@ -45,7 +45,7 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 # No job runs longer than 45 minutes. A suite too large for one runner is a
 # matrix (`shards` in verify-profile.ts): each runner takes its share from
 # `NIGHTLY_SHARD=<k>/<n>`, keeps its own artifact, and the first red shard
-# stops its siblings, since the group is red either way.
+# stops its siblings within the same matrix.
 
 permissions:
   contents: read # check out the code
@@ -366,9 +366,10 @@ jobs:
         run: 'true'
 
 
+  # Start the long integration-heavy ends of the Playwright partition first.
   verify-nightly-visual:
     needs: verify-nightly-admission
-    name: verify-nightly:visual (${{ matrix.shard }}/${{ strategy.job-total }})
+    name: &visual-name verify-nightly:visual (${{ matrix.shard }}/8)
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
@@ -376,14 +377,14 @@ jobs:
       fail-fast: true
       max-parallel: 2
       matrix:
-        shard: [1, 2, 3, 4, 5, 6, 7, 8]
-    env:
-      STORYBOOK_SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
-    permissions:
+        shard: [1, 8]
+    env: &visual-env
+      STORYBOOK_SHARD: ${{ matrix.shard }}/8
+    permissions: &visual-permissions
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
       actions: read # read the workflow creation time
-    steps:
+    steps: &visual-steps
       - *budget
       - *checkout
       - *setup
@@ -404,6 +405,38 @@ jobs:
       - name: Confirm completion within the workflow deadline
         run: 'true'
 
+
+  # Random and performance have released two runners. A red dependency still releases its slot.
+  verify-nightly-visual-after-short-suites:
+    needs: [verify-nightly-admission, verify-nightly-random, verify-nightly-performance]
+    name: *visual-name
+    if: &visual-continuation ${{ !cancelled() && needs.verify-nightly-admission.result == 'success' && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      max-parallel: 2
+      matrix:
+        shard: [2, 3, 4, 7]
+    env: *visual-env
+    permissions: *visual-permissions
+    steps: *visual-steps
+
+  # The stack browser matrix has released its four runners.
+  verify-nightly-visual-after-browser:
+    needs: [verify-nightly-admission, verify-nightly-browser]
+    name: *visual-name
+    if: *visual-continuation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      max-parallel: 2
+      matrix:
+        shard: [5, 6]
+    env: *visual-env
+    permissions: *visual-permissions
+    steps: *visual-steps
 
   verify-nightly-coverage:
     needs: verify-nightly-admission
@@ -544,6 +577,8 @@ jobs:
       - verify-nightly-random
       - verify-nightly-browser
       - verify-nightly-visual
+      - verify-nightly-visual-after-short-suites
+      - verify-nightly-visual-after-browser
       - verify-nightly-coverage
       - verify-nightly-performance
       - verify-nightly-storybook

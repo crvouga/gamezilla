@@ -50,6 +50,7 @@ test('randomized suites own the runner one worker pool at a time', () => {
   expect(random?.env?.['PBT_CONCURRENCY']).toBe('1');
 });
 
+// regression: nightly-visual-queued-partitions
 // regression: nightly-gate-two-runner-deadline
 // regression: nightly-gate-serial-task-execution
 // regression: nightly-matrices-block-production-startup
@@ -57,18 +58,47 @@ test('a full Nightly leaves at least six account runners for Release and pull re
   const { jobs } = Bun.YAML.parse(
     readFileSync(join(root, '.github/workflows/verify-nightly.yml'), 'utf8')
   ) as {
-    jobs: {
+    jobs: Record<
+      string,
+      {
+        strategy: { 'max-parallel': number; matrix: { shard: number[] } };
+        needs: string[] | string;
+        if: string;
+      }
+    > & {
       'verify-nightly-gate': { with: { shards: number } };
-      'verify-nightly-random': { strategy: { 'max-parallel': number } };
-      'verify-nightly-visual': { strategy: { 'max-parallel': number } };
     };
   };
+  const admission = 'verify-nightly-admission';
+  const early = jobs['verify-nightly-visual']!;
+  const middle = jobs['verify-nightly-visual-after-short-suites']!;
+  const late = jobs['verify-nightly-visual-after-browser']!;
+  expect(early.needs).toBe(admission);
+  expect(early.strategy.matrix.shard).toEqual([1, 8]);
+  expect(middle.needs).toEqual([
+    admission,
+    'verify-nightly-random',
+    'verify-nightly-performance',
+  ]);
+  expect(late.needs).toEqual([admission, 'verify-nightly-browser']);
+  for (const job of [middle, late]) {
+    expect(job.if).toContain('!cancelled()');
+    expect(job.if).toContain(
+      "needs.verify-nightly-admission.result == 'success'"
+    );
+    expect(job.if).toContain(early.if.slice(4, -3).trim());
+  }
+  for (const job of [early, middle, late])
+    expect(job.strategy['max-parallel']).toBe(2);
   const maximum =
     jobs['verify-nightly-gate'].with.shards +
-    jobs['verify-nightly-visual'].strategy['max-parallel'] +
-    jobs['verify-nightly-random'].strategy['max-parallel'] +
-    NIGHTLY_SUITES.browser.shards +
-    2; // coverage and performance
+    early.strategy['max-parallel'] +
+    Math.max(
+      jobs['verify-nightly-random']!.strategy['max-parallel'] + 1,
+      middle.strategy['max-parallel']
+    ) +
+    Math.max(NIGHTLY_SUITES.browser.shards, late.strategy['max-parallel']) +
+    1; // coverage
   expect(maximum).toBeLessThanOrEqual(14);
   expect(jobs['verify-nightly-gate'].with).toMatchObject({
     concurrency: 3,
