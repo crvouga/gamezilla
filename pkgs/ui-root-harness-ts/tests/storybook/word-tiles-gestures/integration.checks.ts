@@ -105,84 +105,81 @@ test.describe('desktop', () => {
       .toBe(before?.width);
   });
 });
-test.describe('phone', () => {
-  test.use({
-    viewport: { width: 390, height: 844 },
-    hasTouch: true,
-    contextOptions: { reducedMotion: 'reduce' },
+
+// regression: word-tiles-pinch-midpoint-snaps
+test('storybook integration: word-tiles gesture phone pinch pan interrupted pickup and drop', async ({
+  page,
+}, info) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  const cdp = await page.context().newCDPSession(page);
+  await cdp.send('Emulation.setTouchEmulationEnabled', {
+    enabled: true,
+    maxTouchPoints: 2,
   });
-  test('storybook integration: word-tiles gesture phone pinch pan interrupted pickup and drop', async ({
-    page,
-  }, info) => {
-    await openStory(page, 'four-player-match', 'light');
-    await measureGestures(page);
-    await retainEvidence(info, 'opening-board.png', {
-      body: await viewport(page).screenshot(),
-      contentType: 'image/png',
-    });
-    const cdp = await page.context().newCDPSession(page);
-    type Finger = { x: number; y: number; id: number };
-    const touch = (
-      type: 'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel',
-      ...touchPoints: Finger[]
-    ) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints });
-    const anchor = await point(centerCell(page));
-    const finger = (id: number, dx: number, dy = 0) => ({
-      id,
-      x: anchor.x + dx,
-      y: anchor.y + dy,
-    });
-    const first = await centerCell(page).boundingBox();
-    // regression: word-tiles-pinch-midpoint-snaps
-    await touch('touchStart', finger(1, -30), finger(2, 30));
-    await touch('touchMove', finger(1, -48), finger(2, 48));
-    await touch('touchEnd');
-    await expect
-      .poll(async () => (await centerCell(page).boundingBox())?.width ?? 0)
-      .toBeGreaterThan((first?.width ?? 0) * 1.2);
-    expect(await squareAt(page, anchor)).toBe('h8');
-    const prior = await point(centerCell(page));
-    await touch('touchStart', finger(1, 0));
-    await touch('touchMove', finger(1, 30, 20));
-    await touch('touchEnd');
-    expect((await point(centerCell(page))).x - prior.x).toBeGreaterThan(15);
-    const src = { ...(await point(rackTile(page))), id: 1 };
-    const dest = { ...(await point(centerCell(page))), id: 1 };
-    await markEvidencePhase(page, 'gesture-drag');
-    for (const finish of ['second finger', 'cancel', 'place']) {
-      await touch('touchStart', src);
-      await touch('touchMove', {
-        x: (src.x + dest.x) / 2,
-        y: (src.y + dest.y) / 2,
-        id: 1,
-      });
-      await touch('touchMove', dest);
-      await expect(centerCell(page)).toHaveAttribute(
-        'data-drop-target',
-        'true'
-      );
-      if (finish === 'second finger')
-        await touch('touchStart', dest, finger(2, 50));
-      await touch(finish === 'cancel' ? 'touchCancel' : 'touchEnd');
-      if (finish !== 'place')
-        await expect(centerCell(page)).toHaveAttribute('data-state', 'empty');
-    }
-    await assertPlacement(page);
-    await saveGestures(page, info);
-    await expect(centerCell(page).locator('span').first()).toHaveCSS(
-      'animation-name',
-      'none'
-    );
-    await retainEvidence(info, 'placed.png', {
-      body: await viewport(page).screenshot(),
-      contentType: 'image/png',
-    });
-    await page
-      .getByRole('button', { name: 'Board tools: zoom and find a square' })
-      .tap();
-    await page.getByRole('button', { name: 'Fit board', exact: true }).tap();
-    await expect(viewport(page)).toHaveAttribute('data-enlarged', 'false');
+  await openStory(page, 'four-player-match', 'light');
+  await measureGestures(page);
+  await retainEvidence(info, 'opening-board.png', {
+    body: await viewport(page).screenshot(),
+    contentType: 'image/png',
   });
+  type Finger = { x: number; y: number; id: number };
+  const touch = (
+    type: 'touchStart' | 'touchMove' | 'touchEnd' | 'touchCancel',
+    ...touchPoints: Finger[]
+  ) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints });
+  const anchor = await point(centerCell(page));
+  const finger = (id: number, dx: number, dy = 0) => ({
+    id,
+    x: anchor.x + dx,
+    y: anchor.y + dy,
+  });
+  const first = await centerCell(page).boundingBox();
+  await touch('touchStart', finger(1, -30), finger(2, 30));
+  await touch('touchMove', finger(1, -48), finger(2, 48));
+  await touch('touchEnd');
+  await expect
+    .poll(async () => (await centerCell(page).boundingBox())?.width ?? 0)
+    .toBeGreaterThan((first?.width ?? 0) * 1.2);
+  expect(await squareAt(page, anchor)).toBe('h8');
+  const prior = await point(centerCell(page));
+  await touch('touchStart', finger(1, 0));
+  await touch('touchMove', finger(1, 30, 20));
+  await touch('touchEnd');
+  expect((await point(centerCell(page))).x - prior.x).toBeGreaterThan(15);
+  const src = { ...(await point(rackTile(page))), id: 1 };
+  const dest = { ...(await point(centerCell(page))), id: 1 };
+  await markEvidencePhase(page, 'gesture-drag');
+  for (const finish of ['second finger', 'cancel', 'place']) {
+    await touch('touchStart', src);
+    await touch('touchMove', {
+      x: (src.x + dest.x) / 2,
+      y: (src.y + dest.y) / 2,
+      id: 1,
+    });
+    await touch('touchMove', dest);
+    await expect(centerCell(page)).toHaveAttribute('data-drop-target', 'true');
+    if (finish === 'second finger')
+      await touch('touchStart', dest, finger(2, 50));
+    await touch(finish === 'cancel' ? 'touchCancel' : 'touchEnd');
+    if (finish !== 'place')
+      await expect(centerCell(page)).toHaveAttribute('data-state', 'empty');
+  }
+  await assertPlacement(page);
+  await saveGestures(page, info);
+  await expect(centerCell(page).locator('span').first()).toHaveCSS(
+    'animation-name',
+    'none'
+  );
+  await retainEvidence(info, 'placed.png', {
+    body: await viewport(page).screenshot(),
+    contentType: 'image/png',
+  });
+  await page
+    .getByRole('button', { name: 'Board tools: zoom and find a square' })
+    .tap();
+  await page.getByRole('button', { name: 'Fit board', exact: true }).tap();
+  await expect(viewport(page)).toHaveAttribute('data-enlarged', 'false');
 });
 
 test('storybook integration: word-tiles gesture assigned blank remains marked after commit', async ({
