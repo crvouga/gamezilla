@@ -1,0 +1,4 @@
+{
+  "summary": "Opening Alice's pack to add River and Valley mounted previews for all 640 shipped Numberlink puzzles. Those starter puzzles could not be added by the pack mutation. The editor timed out before Alice could publish the ordered pack for Bob.",
+  "regressionTest": "specs/journeys/numberlink-packs.feature"
+}

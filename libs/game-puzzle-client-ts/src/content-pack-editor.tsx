@@ -1,3 +1,4 @@
+import { isBundledContent } from '@libs/game-puzzle-shared-ts/bundled-content';
 import { discoverContent } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
@@ -36,6 +37,7 @@ export function ContentPackEditor(props: PackEditorProps): JSX.Element {
     discoverContent(data.content(), game.id).filter(
       (entry) =>
         entry.kind === 'puzzle' &&
+        !isBundledContent(entry.document_id) &&
         !pack()?.items.some((item) => item.puzzleId === entry.document_id)
     )
   );

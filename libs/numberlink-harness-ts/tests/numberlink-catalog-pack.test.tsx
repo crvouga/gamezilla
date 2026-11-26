@@ -15,6 +15,7 @@ import { mountContentExample } from '@libs/game-puzzle-harness-ts/mount-content-
 import { contentDeviceOffline } from '@libs/game-puzzle-harness-ts/offline-actions';
 import { initialNumberlinkDefinition } from '@libs/numberlink-client-ts/numberlink-editor-actions';
 import { numberlinkGameClient } from '@libs/numberlink-client-ts/numberlink-game-client';
+import { numberlinkCatalogPacks } from '@libs/numberlink-shared-ts/numberlink-catalog';
 import { parseNumberlinkNotation } from '@libs/numberlink-shared-ts/numberlink-notation';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
@@ -131,13 +132,36 @@ const playShippedPuzzle = defineAction({
   },
 });
 
-const catalogSystem = defineSystem<ContentHarness>({
+const openNewPack = defineAction({
+  name: 'openNewPack',
+  act: async (s: ContentHarness) => {
+    const view = await mountContentExample(s, 'alice:phone');
+    try {
+      await click(s, view, 'content-create-pack');
+      await click(s, view, 'content-open-created-draft');
+      await click(s, view, 'content-open-board');
+      await waitForContent(
+        s,
+        async () => view.queryByTestId('content-pack-order') !== null
+      );
+      s.notices.set(
+        'pack-candidates',
+        String(view.queryAllByTestId(/^content-add-puzzle-/).length)
+      );
+    } finally {
+      view.unmount();
+    }
+  },
+});
+
+const catalogSystem = defineSystem<ContentHarness, { packLimit?: number }>({
   name: 'numberlink-catalog',
-  actions: [playShippedPuzzle, contentDeviceOffline],
+  args: {},
+  actions: [playShippedPuzzle, contentDeviceOffline, openNewPack],
   runtimes: [
     defineRuntime({ name: 'virtual', default: true, create: syncVirtual }),
   ],
-  create: (session) =>
+  create: (session, { packLimit }) =>
     createContentWorld(
       session,
       { initialContent: true },
@@ -145,7 +169,10 @@ const catalogSystem = defineSystem<ContentHarness>({
         id: 'numberlink',
         title: 'Numberlink',
         client,
-        content: () => numberlinkPuzzleContent,
+        content: () => ({
+          ...numberlinkPuzzleContent,
+          bundledPacks: numberlinkCatalogPacks.slice(0, packLimit),
+        }),
         app: (content) =>
           createContentApp([
             {
@@ -156,6 +183,16 @@ const catalogSystem = defineSystem<ContentHarness>({
           ]),
       }
     ),
+});
+
+// regression: numberlink-pack-editor-offers-starter-catalog
+test('a fresh pack offers no addable puzzles before anyone publishes one', async () => {
+  await using run = await catalogSystem.run({
+    seed: 'numberlink-new-pack',
+    args: { packLimit: 1 },
+  });
+  await run.apply(openNewPack);
+  expect(await run.read((s) => s.notices.get('pack-candidates'))).toBe('0');
 });
 
 test('an offline guest completes a shipped catalog puzzle from its pack and is offered the next', async () => {

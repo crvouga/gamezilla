@@ -4,6 +4,7 @@ Feature: Author and continue Numberlink packs
 
   Rule: An author can share a playtested Numberlink pack through the app
 
+    @regression:numberlink-pack-editor-offers-starter-catalog
     Scenario: Another person discovers the author's ordered Numberlink pack
       When Alice authors, playtests and publishes a Numberlink pack from a fresh device
       Then Bob discovers the Numberlink pack in Alice's chosen order
