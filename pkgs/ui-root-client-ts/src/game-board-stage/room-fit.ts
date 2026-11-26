@@ -202,6 +202,16 @@ type RoomFitParts = {
   readonly view: Window;
 };
 
+/** A single board may cap its own width inside the full-width content box. */
+function drawnBoardWidth(surface: HTMLElement): number {
+  const board = surface.firstElementChild;
+  if (surface.childElementCount === 1 && board instanceof HTMLElement) {
+    const width = board.offsetWidth;
+    if (width > 0) return Math.min(width, surface.offsetWidth);
+  }
+  return surface.offsetWidth;
+}
+
 /** One reading of the room and the board, reported to `report`. */
 function createRoomFitRead(
   parts: RoomFitParts,
@@ -235,7 +245,7 @@ function createRoomFitRead(
         height: cell.clientHeight,
         // Everything in the stage but the board's box: the seats, the gaps.
         chrome: stage.offsetHeight - box.offsetHeight,
-        boardWidth: surface.offsetWidth,
+        boardWidth: drawnBoardWidth(surface),
         boardHeight: surface.offsetHeight,
         smallest: smallestIn(style),
         heightAt: (width) => heightAt(stage, surface, width),
