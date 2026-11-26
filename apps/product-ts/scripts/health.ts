@@ -6,7 +6,7 @@
  * `SECRETS_ENV` names — its Workers, database, bucket, broker, secrets and
  * infrastructure, and the critical journeys in a real browser. `--synthetic`
  * runs only the `@synthetic` features. `--release` (`health:release`, the
- * last step of every deploy) runs those and `RELEASE_JOURNEYS`; the Health
+ * last step of every deploy) runs the release probes and critical journeys; the Health
  * workflow's schedule runs everything. Every decided scenario is recorded as `release`
  * evidence in `.cache/health-report/evidence/`, and each feature's verdict
  * as one sample of the team's checks for the objectives
@@ -27,7 +27,7 @@
  *
  *   health                                              journeys and @synthetic features
  *   health --synthetic                                  @synthetic features only
- *   health --release                                    @synthetic features and RELEASE_JOURNEYS
+ *   health --release                                    release probes and critical journeys
  *   health --target production                          same, with SECRETS_ENV=prd
  *   health specs/auth/sign-in.feature                   one feature (repo-relative)
  *   health --tags '@domain:journeys'                    features narrowed by tags
@@ -95,7 +95,7 @@ type Cli = {
   readonly objectives: boolean;
   /** `--synthetic`: `@synthetic` features only, not the critical journeys. */
   readonly synthetic: boolean;
-  /** `--release`: the `@synthetic` features and `RELEASE_JOURNEYS`. */
+  /** `--release`: the release probes and critical journeys. */
   readonly release: boolean;
   /** `--target`: `dev`/`test` or `prd`/`production`. Sets `SECRETS_ENV`. */
   readonly target: string | undefined;
@@ -176,28 +176,35 @@ export function allSpecs(): readonly string[] {
   ].sort();
 }
 
-/**
- * The journeys that gate a release beside every `@synthetic` feature. Before
- * the deploy, Release ran every other journey against the production build
- * (`test:release-journeys`); live, the Health schedule runs them.
- */
+/** The live browser journeys required before publishing a release. */
 export const RELEASE_JOURNEYS: readonly string[] = [
   'specs/journeys/critical-journeys.feature',
 ];
 
-/**
- * `--synthetic` keeps the tagged features and drops journeys and objectives;
- * `--release` keeps those and `RELEASE_JOURNEYS`.
- */
+/** The release exercises the deployed app. Hourly Health also checks every
+ * game, telemetry indexing, and drift across the full infrastructure stack. */
+const RELEASE_PROBES = [
+  'specs/auth/sign-in.feature',
+  'specs/billing/payments.feature',
+  'specs/runtime/connected-services.feature',
+  'specs/runtime/reaching-the-app.feature',
+  'specs/runtime/serving-people.feature',
+  'specs/runtime/stored-files.feature',
+  'specs/spaces/live-updates.feature',
+  'specs/spaces/spaces.feature',
+];
+
 export function scopedSpecs(cli: Cli): readonly string[] {
+  if (cli.release)
+    return [...RELEASE_PROBES, ...RELEASE_JOURNEYS].map((path) =>
+      join(REPO_ROOT, path)
+    );
   const all = allSpecs();
-  if (!cli.synthetic && !cli.release) return all;
-  const journeys = cli.release ? RELEASE_JOURNEYS : [];
+  if (!cli.synthetic) return all;
   return all.filter(
     (path) =>
       path.endsWith(FEATURE_SUFFIX) &&
-      (journeys.includes(slashPath(relative(REPO_ROOT, path))) ||
-        isSyntheticFeatureSource(readFileSync(path, 'utf8')))
+      isSyntheticFeatureSource(readFileSync(path, 'utf8'))
   );
 }
 

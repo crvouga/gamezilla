@@ -1,5 +1,5 @@
 import type { PlanJson } from './plan-policy';
-import type { PlanOptions, Target, TofuPaths } from './tofu-command';
+import type { PlanOptions, Stack, Target, TofuPaths } from './tofu-command';
 import { planArgs } from './tofu-command';
 
 /**
@@ -12,6 +12,21 @@ export const GRAFANA_SCOPE = [
   'grafana_cloud_stack_service_account.views',
   'grafana_cloud_stack_service_account_token.views',
 ] as const;
+
+/** Only an automatic runtime apply omits the separately managed Grafana views. */
+export function releasePlanExclusions(
+  command: string,
+  stack: Stack,
+  runtimeFoundation: string | undefined
+): readonly string[] {
+  if (
+    command !== 'apply' ||
+    stack !== 'foundation' ||
+    runtimeFoundation !== 'true'
+  )
+    return [];
+  return GRAFANA_SCOPE.map((address) => `-exclude=${address}`);
+}
 
 export function inGrafanaScope(address: string): boolean {
   return GRAFANA_SCOPE.some(

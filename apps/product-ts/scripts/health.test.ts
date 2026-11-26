@@ -551,18 +551,27 @@ describe('synthetic discovery', () => {
     expect(specs.every((path) => path.endsWith('.feature'))).toBe(true);
   });
 
-  // A release gates on the probes and the critical journeys; the Health
-  // schedule runs every journey.
-  test('--release keeps every synthetic feature and the release journeys only', () => {
+  // regression: release-runs-full-multiplayer-games
+  test('Release checks live service probes and critical journeys while Health retains full games and infrastructure drift', () => {
     const release = scopedSpecs(parseCli(['--release'])).map(uri);
-    const synthetic = scopedSpecs(parseCli(['--synthetic'])).map(uri);
-    expect(release.toSorted()).toEqual(
-      [...synthetic, ...RELEASE_JOURNEYS].toSorted()
-    );
-    expect(release).toContain('specs/journeys/critical-journeys.feature');
-    expect(release).not.toContain('specs/journeys/numberlink-packs.feature');
-    const live = allSpecs().map(uri);
-    for (const journey of RELEASE_JOURNEYS) expect(live).toContain(journey);
+    const hourly = scopedSpecs(parseCli([])).map(uri);
+    for (const path of release) expect(hourly).toContain(path);
+    for (const path of [
+      ...RELEASE_JOURNEYS,
+      'specs/runtime/reaching-the-app.feature',
+      'specs/spaces/live-updates.feature',
+      'specs/billing/payments.feature',
+    ])
+      expect(release).toContain(path);
+    for (const path of [
+      'specs/battleship/battleship-health.feature',
+      'specs/connect-four/connect-four-health.feature',
+      'specs/quoridor/quoridor-health.feature',
+      'specs/runtime/declared-environment.feature',
+    ]) {
+      expect(hourly).toContain(path);
+      expect(release).not.toContain(path);
+    }
   });
 
   test('target aliases and the synthetic flag', () => {

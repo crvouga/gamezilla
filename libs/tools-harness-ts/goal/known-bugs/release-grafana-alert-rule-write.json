@@ -1,0 +1,4 @@
+{
+  "summary": "The production foundation in Release 45839922005 contained only three Grafana view changes. Grafana rejected the fast alert rule group with putAlertRuleGroupForbidden (403), preventing the application rollout.",
+  "regressionTest": "libs/infra-server-ts/tests/release-foundation.test.ts"
+}
