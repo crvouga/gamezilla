@@ -19,7 +19,7 @@ import {
   signedInAccountOf,
 } from '@libs/harness-ts/identity';
 import { failNextHarnessObjectWrite } from '@libs/harness-ts/mockingbird-object-store';
-import { partitioned } from '@libs/harness-ts/observations';
+import { partitioned, shownText } from '@libs/harness-ts/observations';
 import { openAccount } from '@libs/harness-ts/shell-actions';
 import { openAccountScreen } from '@libs/harness-ts/sign-in-method-actions';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
@@ -101,9 +101,7 @@ export const confirmDeletion = scenarioAction({
           (await ui.get('privacy-delete-denial').isVisible())
         )
           return true;
-        const modal = (await ui.get('privacy-delete-modal').isVisible())
-          ? await ui.get('privacy-delete-modal').text()
-          : null;
+        const modal = await shownText(s, actor, ['privacy-delete-modal']);
         return modal?.includes('failed') || modal?.includes('Try again')
           ? true
           : null;

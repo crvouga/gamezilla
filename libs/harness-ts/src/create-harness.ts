@@ -11,7 +11,7 @@ import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
-import type { HarnessAppBuild, HarnessAppBuilds } from './app-build';
+import type { HarnessAppBuilds } from './app-build';
 import { createHarnessAppBuilds } from './app-build';
 import type { HarnessBillingProviders } from './billing';
 import {
@@ -125,8 +125,12 @@ export type Harness = {
   dropClient(id: string): Promise<void>;
   clientIds(): readonly string[];
   bumpClientEpoch(): void;
-  /** Put a device on an outdated or the current build of the app. */
-  setAppBuild(id: string, build: HarnessAppBuild): void;
+  /**
+   * Which build of the app each device runs. An in-process client's server
+   * HTTP and a live browser's own page both send what the device's build
+   * sends.
+   */
+  readonly appBuilds: HarnessAppBuilds;
   /**
    * Hold a device's account-ready answer after sign-in (`/identity/refresh`)
    * for `delayMs` of harness time, as production's takes seconds. `0` clears.
@@ -468,7 +472,7 @@ function createHarnessHandle(kernel: HarnessKernel): Harness {
     },
     clientIds: () => [...liveClients.keys()],
     bumpClientEpoch: namespaces.bump,
-    setAppBuild: (id, build) => kernel.appBuilds.set(id, build),
+    appBuilds: kernel.appBuilds,
     setAccountReadyDelay: (id, delayMs) => {
       kernel.accountReadyDelays.set(id, delayMs);
     },

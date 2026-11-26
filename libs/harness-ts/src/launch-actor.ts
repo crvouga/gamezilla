@@ -28,6 +28,7 @@ import { injectWebViewSnapshotAuth } from './inject-webview-snapshot-auth';
 import type { ProductUi } from './ports';
 import { solidActorRoot } from './solid-actor-root';
 import { createHarnessWaitPump } from './wait-pump';
+import { webviewAppBuild } from './webview-app-build';
 import { webviewCheckpoint } from './webview-checkpoint';
 import { webviewLocalSql, webviewSqlStatements } from './webview-local-sql';
 import { webviewMutations } from './webview-mutations';
@@ -144,23 +145,37 @@ async function launchWebview(
   const raw = browser.driver;
   const pageSql = webviewLocalSql(view);
   const localSql = () => pageSql;
-  const closeResources = browser.close;
-  const openLink = (path: string) => view.navigate(`${webOrigin}${path}`);
+  // The device's requests leave its own page, so its build is set there.
+  const appBuild = webviewAppBuild(view, args.harness.appBuilds, args.id);
+  const closeResources = async () => {
+    appBuild.stop();
+    await browser.close();
+  };
+  const openLink = async (path: string) => {
+    await view.navigate(`${webOrigin}${path}`);
+    await appBuild.apply();
+  };
   const currentPath = async () =>
     String(
       await view.evaluate('location.pathname + location.search + location.hash')
     );
   const setViewport = (size: { width: number; height: number }) =>
     view.resize(size.width, size.height);
-  await raw.launch();
-  if (args.snapshot !== undefined) {
-    await injectWebViewSnapshotAuth({
-      view,
-      actorId: args.id,
-      snapshot: args.snapshot,
-      namespace: args.harness.clientNamespace(args.id),
-      origin: webOrigin,
-    });
+  try {
+    await raw.launch();
+    if (args.snapshot !== undefined) {
+      await injectWebViewSnapshotAuth({
+        view,
+        actorId: args.id,
+        snapshot: args.snapshot,
+        namespace: args.harness.clientNamespace(args.id),
+        origin: webOrigin,
+      });
+    }
+    await appBuild.apply();
+  } catch (error) {
+    await closeResources();
+    throw error;
   }
   return {
     raw,

@@ -3,6 +3,7 @@ import {
   CUSTOM_GAME_CONTENT,
   findingAnOpponentHandles,
   findingAnOpponentStep,
+  tapWayIn,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
@@ -75,4 +76,19 @@ test('a second device waits in the join preview and enters when Join appears', (
   expect(findingAnOpponentStep(preview, GAME, false)).toBe(Handles.spaceJoin);
   preview.add(Handles.spaceNotFound);
   expect(findingAnOpponentStep(preview, GAME, false)).toBe('nowhere');
+});
+
+// regression: second-device-join-gone-before-tap
+test('a way in that goes before the tap lands is looked at again, not a failure', async () => {
+  // A second device's Join gives way to the space once its membership arrives.
+  const gone = {
+    tap: () => Promise.reject(new Error('Timed out waiting for space-join')),
+    isVisible: () => Promise.resolve(false),
+  };
+  await tapWayIn(gone);
+  const stuck = {
+    tap: () => Promise.reject(new Error('Timed out waiting for space-join')),
+    isVisible: () => Promise.resolve(true),
+  };
+  await expect(tapWayIn(stuck)).rejects.toThrow('space-join');
 });

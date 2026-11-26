@@ -57,12 +57,7 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
 
   async resolveView(selector: string): Promise<BunWebView> {
     await this.popups.sync();
-    const popup = this.popups.current;
-    if (popup === null) return this.view;
-    const inPopup = await popup.evaluate(
-      `document.querySelector(${JSON.stringify(selector)}) !== null`
-    );
-    return inPopup === true ? popup : this.view;
+    return (await this.popups.showing(selector)) ?? this.view;
   }
 
   /** Per-document setup, re-run whenever the page loads a new document. */

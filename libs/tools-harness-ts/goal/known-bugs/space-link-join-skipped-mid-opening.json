@@ -1,0 +1,4 @@
+{
+  "summary": "Joining a space from its link took a second look for Join after the link settled; while the join prompt was still opening it skipped the press, leaving the guest outside the space.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-loading-outcome.test.ts"
+}

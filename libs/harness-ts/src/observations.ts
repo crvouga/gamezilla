@@ -86,6 +86,20 @@ export async function nodeText(
 }
 
 /**
+ * Text of the node at `path` while it is on screen, else `null` — also when
+ * it goes between the visibility read and the text read (a dialog closing).
+ */
+export async function shownText(
+  s: ProductHarness,
+  actorId: string,
+  path: readonly string[]
+): Promise<string | null> {
+  // regression: deletion-modal-closes-between-reads
+  if (!(await visible(s, actorId, path))) return null;
+  return nodeText(s, actorId, path);
+}
+
+/**
  * Bounding box of the node at `path`. The DOM driver synthesizes layout on
  * read so measured canvases (chess board) become interactive.
  */

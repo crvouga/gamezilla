@@ -230,7 +230,7 @@ jobs:
           if-no-files-found: ignore
 
   verify-nightly-visual:
-    name: verify-nightly:visual (${{ matrix.shard }}/${{ strategy.job-total }})
+    name: verify-nightly:visual (${{ strategy.job-index }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 180

@@ -26,29 +26,38 @@ const POPUP_SIZE = { width: 520, height: 680 } as const;
 /** A popup that closed itself never answers; don't wait on it forever. */
 const POPUP_CALL_MS = 10_000;
 
+/** What a popup window answered, or that it did not within {@link POPUP_CALL_MS}. */
+async function answerOf<T>(
+  timers: Timers,
+  work: Promise<T>
+): Promise<{ readonly value: T } | null> {
+  let timer: ReturnType<Timers['setTimeout']> | undefined;
+  const silent = new Promise<null>((resolve) => {
+    timer = timers.setTimeout(() => resolve(null), POPUP_CALL_MS);
+  });
+  try {
+    return await Promise.race([work.then((value) => ({ value })), silent]);
+  } finally {
+    if (timer !== undefined) timers.clearTimeout(timer);
+  }
+}
+
 async function within<T>(
   timers: Timers,
   work: Promise<T>,
   what: string
 ): Promise<T> {
-  let timer: ReturnType<Timers['setTimeout']> | undefined;
-  const timeout = new Promise<never>((_, reject) => {
-    timer = timers.setTimeout(
-      () => reject(new Error(`popup: ${what} did not answer`)),
-      POPUP_CALL_MS
-    );
-  });
-  try {
-    return await Promise.race([work, timeout]);
-  } finally {
-    if (timer !== undefined) timers.clearTimeout(timer);
-  }
+  const answer = await answerOf(timers, work);
+  if (answer === null) throw new Error(`popup: ${what} did not answer`);
+  return answer.value;
 }
 
 /** Options every popup window is created with (its opener's data store). */
 export type PopupViewOptions = {
   readonly dataStore?: 'ephemeral' | { readonly directory: string };
   readonly backend?: Bun.WebView.Backend;
+  /** Opens the window (a real `Bun.WebView` unless a test stands one in). */
+  readonly createView?: (options: Bun.WebView.ConstructorOptions) => PopupView;
 };
 
 /** Installed into every document the opener loads (idempotent). */
@@ -119,15 +128,6 @@ export class BunWebviewPopups {
     private readonly viewOptions: PopupViewOptions = {}
   ) {}
 
-  /** The most recently opened popup still open, if any. */
-  get current(): BunWebView | null {
-    let latest: OpenPopup | null = null;
-    for (const popup of this.open.values()) {
-      if (latest === null || popup.id > latest.id) latest = popup;
-    }
-    return latest?.view ?? null;
-  }
-
   /**
    * Reconcile popup windows with the opener's `window.open` calls: open new
    * ones, close the ones the opener closed, and mirror each popup's URL back.
@@ -141,6 +141,27 @@ export class BunWebviewPopups {
     const entries = typeof raw === 'string' ? (JSON.parse(raw) as unknown) : [];
     if (!isEntries(entries)) return;
     for (const entry of entries) await this.reconcile(entry);
+  }
+
+  /**
+   * The most recently opened popup, when it shows `selector`, else `null`. A popup that closed
+   * itself never answers: it is forgotten rather than waited on, so the call
+   * that asked goes on with the opener instead of hanging.
+   */
+  async showing(selector: string): Promise<BunWebView | null> {
+    let latest: OpenPopup | null = null;
+    for (const popup of this.open.values())
+      if (latest === null || popup.id > latest.id) latest = popup;
+    if (latest === null) return null;
+    const popup = latest;
+    const answer = await answerOf(
+      this.timers,
+      popup.view.evaluate(
+        `document.querySelector(${JSON.stringify(selector)}) !== null`
+      )
+    );
+    if (answer === null) this.drop(popup.id);
+    return answer?.value === true ? popup.view : null;
   }
 
   async closeAll(): Promise<void> {
@@ -195,10 +216,9 @@ export class BunWebviewPopups {
   }
 
   private async launch(entry: PopupEntry): Promise<void> {
-    const view: PopupView = new Bun.WebView({
-      ...POPUP_SIZE,
-      ...this.viewOptions,
-    });
+    const { createView = (options) => new Bun.WebView(options), ...options } =
+      this.viewOptions;
+    const view = createView({ ...POPUP_SIZE, ...options });
     this.open.set(entry.id, {
       id: entry.id,
       name: entry.name,

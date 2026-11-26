@@ -1,0 +1,4 @@
+{
+  "summary": "On a live browser (HARNESS_MODE=real|stack) updateApp healed the modelled network, which the real-time runtime does not have, so 'Alice updates the app' failed with CapabilityError: runtime lacks 'partition'. A browser device is cut off by the app's own persisted Work offline choice, so updateApp now heals the modelled network only where one exists and otherwise takes the device back online through the reopened app.",
+  "regressionTest": "libs/runtime-harness-ts/tests/update-app.test.ts"
+}

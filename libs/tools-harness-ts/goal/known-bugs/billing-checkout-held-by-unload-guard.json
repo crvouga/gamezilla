@@ -1,0 +1,4 @@
+{
+  "summary": "Pressing Subscribe (or Manage) on the billing screen never reached the payment provider in a browser: the button's mutation was still pending when it assigned the provider's checkout URL, so the pending-navigation guard's `beforeunload` held that departure behind a 'Leave site?' prompt. The page stayed on the app, the browser's committed URL never changed (Nightly: 'no matching navigation within 20000ms (current URL: …/sso-callback…)'), and every later page evaluation hung behind the dialog. `useOpenExternalUrl` now leaves through `PendingNavigation.depart`, during which the unload guard stands down; other departures stay guarded.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pending-navigation.test.tsx"
+}

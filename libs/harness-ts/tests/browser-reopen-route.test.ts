@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import type { ActorBrowserStorage } from '@libs/harness-ts/actor-browser-storage';
+import { createHarnessAppBuilds } from '@libs/harness-ts/app-build';
 import type { Harness } from '@libs/harness-ts/create-harness';
 import { launchActor } from '@libs/harness-ts/launch-actor';
 
@@ -12,14 +13,17 @@ test('reopening the same device boots directly on its saved game address', async
     browser: {
       async open({ initialUrl }: { initialUrl: string }) {
         opened.push(initialUrl);
-        return { view: {}, driver: { launch: async () => {} } };
+        return {
+          view: { evaluate: async () => null },
+          driver: { launch: async () => {} },
+        };
       },
     },
   } as unknown as ActorBrowserStorage;
   await launchActor({
     ui: { kind: 'bun-webview', webOrigin: 'http://localhost:34305' },
     id: 'alice',
-    harness: {} as Harness,
+    harness: { appBuilds: createHarnessAppBuilds() } as unknown as Harness,
     browserStorage: storage,
   });
   expect(opened).toEqual([

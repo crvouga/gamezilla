@@ -1,0 +1,4 @@
+{
+  "summary": "On a live browser the space's loading shell could give way to the join prompt between reading its bar and its loading body, so a space link read as already inside.",
+  "regressionTest": "libs/spaces-harness-ts/tests/space-loading-outcome.test.ts"
+}

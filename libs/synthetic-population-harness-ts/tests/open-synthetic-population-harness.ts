@@ -1,7 +1,9 @@
-import { gameSystem } from '@libs/game-session-harness-ts/game-system';
+import {
+  gameSystem,
+  openGameHarness,
+} from '@libs/game-session-harness-ts/game-system';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
 import type { OpenHarnessOptions } from '@libs/harness-ts/mode';
-import { openHarness as openSystemHarness } from '@libs/harness-ts/open-harness';
 import { OBSERVATORY_HARNESS_SLICE } from '@libs/observatory-actions-harness-ts/observatory-harness-slice';
 import { SYNTHETIC_POPULATION_HARNESS_SLICE } from '@libs/synthetic-population-harness-ts/synthetic-population-harness-slice';
 
@@ -24,5 +26,5 @@ const SYNTHETIC_POPULATION_SYSTEM = gameSystem(
 );
 
 export function openHarness(options?: OpenHarnessOptions) {
-  return openSystemHarness(SYNTHETIC_POPULATION_SYSTEM, options);
+  return openGameHarness(SYNTHETIC_POPULATION_SYSTEM, options);
 }

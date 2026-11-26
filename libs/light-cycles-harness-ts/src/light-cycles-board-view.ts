@@ -1,7 +1,6 @@
 import { actorUi } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
-import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 /** The rider names in seat order; a rider's index on the arena is its seat. */
 export const LIGHT_CYCLES_RIDER_NAMES = [
@@ -91,30 +90,87 @@ function trailCells(d: string | null): string[] {
   return cells;
 }
 
-async function number(ui: Driver, id: string, name: string): Promise<number> {
-  return Number(await ui.get(id).attribute(name));
+/** The opening tag of the element `testId` names, as the page serialized it. */
+function tagOf(html: string, testId: string): string | null {
+  const id = testId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return html.match(new RegExp(`<[^>]*\\sdata-testid="${id}"[^>]*>`))?.[0] ?? null;
 }
 
-async function riderShown(
-  ui: Driver,
-  board: string,
-  index: number
-): Promise<LightCyclesRiderShown> {
-  const head = ui.get(`${board}-arena-rider-${String(index)}`);
-  const score = ui.get(`${board}-score-${SEATS[index]!}`);
+const ENTITIES: Readonly<Record<string, string>> = {
+  amp: '&',
+  quot: '"',
+  apos: "'",
+  lt: '<',
+  gt: '>',
+};
+
+/** One attribute of a serialized tag, decoded; `null` when it is absent. */
+function attributeOf(tag: string | null, name: string): string | null {
+  const value = tag?.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
+  if (value === undefined) return null;
+  return value.replace(
+    /&(amp|quot|apos|lt|gt|#39);/g,
+    (_, entity: string) => (entity === '#39' ? "'" : ENTITIES[entity]!)
+  );
+}
+
+type BoardFacts = Omit<LightCyclesBoardShown, 'overlay'>;
+
+/**
+ * The arena, the riders, the score and the round from one serialized page:
+ * one moment of the game. Reading each attribute on its own took a native
+ * browser one round trip apiece, so a four-rider board took longer than a
+ * countdown, and the round read last no longer matched the riders read
+ * first. `null` when the page shows no such arena.
+ */
+// regression: light-cycles-board-read-outlasts-countdown
+export function lightCyclesBoardFacts(
+  html: string,
+  board: string
+): BoardFacts | null {
+  const tag = (id: string) => tagOf(html, `${board}-${id}`);
+  const arena = tag('arena');
+  if (arena === null) return null;
+  const count = Number(attributeOf(arena, 'data-rider-count'));
+  const riders: LightCyclesRiderShown[] = [];
+  const crashes: string[] = [];
+  for (let index = 0; index < count; index++) {
+    const head = tag(`arena-rider-${String(index)}`);
+    const name = LIGHT_CYCLES_RIDER_NAMES[index]!;
+    riders.push({
+      name,
+      column: Number(attributeOf(head, 'data-x')) + 1,
+      row: Number(attributeOf(head, 'data-y')) + 1,
+      heading: attributeOf(head, 'data-heading') as LightCyclesDirection,
+      next: attributeOf(head, 'data-next') as LightCyclesDirection,
+      riding: attributeOf(head, 'data-alive') === 'true',
+      steeredHere: attributeOf(head, 'data-controlled') === 'true',
+      mark: attributeOf(head, 'data-mark') ?? '',
+      trail: trailCells(
+        attributeOf(tag(`arena-trail-${String(index)}`), 'd')
+      ),
+      score: Number(attributeOf(tag(`score-${SEATS[index]!}`), 'data-score')),
+    });
+    // A crash is drawn only once its rider has crashed.
+    const crash = tag(`arena-crash-${String(index)}`);
+    if (crash !== null)
+      crashes.push(
+        `${name}@${cellName({
+          column: Number(attributeOf(crash, 'data-x')) + 1,
+          row: Number(attributeOf(crash, 'data-y')) + 1,
+        })}`
+      );
+  }
+  const round = tag('round');
   return {
-    name: LIGHT_CYCLES_RIDER_NAMES[index]!,
-    column: Number(await head.attribute('data-x')) + 1,
-    row: Number(await head.attribute('data-y')) + 1,
-    heading: (await head.attribute('data-heading')) as LightCyclesDirection,
-    next: (await head.attribute('data-next')) as LightCyclesDirection,
-    riding: (await head.attribute('data-alive')) === 'true',
-    steeredHere: (await head.attribute('data-controlled')) === 'true',
-    mark: (await head.attribute('data-mark')) ?? '',
-    trail: trailCells(
-      await ui.get(`${board}-arena-trail-${String(index)}`).attribute('d')
-    ),
-    score: Number(await score.attribute('data-score')),
+    board,
+    riders,
+    round: Number(attributeOf(round, 'data-round')),
+    phase: attributeOf(round, 'data-phase') ?? '',
+    targetScore: Number(attributeOf(round, 'data-target')),
+    steering: attributeOf(tag('status'), 'data-steering') ?? '',
+    crashes,
+    live: attributeOf(arena, 'data-dimmed') !== 'true',
   };
 }
 
@@ -127,38 +183,17 @@ export async function lightCyclesBoard(
   const board = await lightCyclesBoardId(s, actor);
   if (board === null) return null;
   const ui = await actorUi(s, actor);
-  const count = await number(ui, `${board}-arena`, 'data-rider-count');
-  const riders: LightCyclesRiderShown[] = [];
-  for (let index = 0; index < count; index++)
-    riders.push(await riderShown(ui, board, index));
-  const crashes: string[] = [];
-  for (let index = 0; index < count; index++) {
-    const crash = ui.get(`${board}-arena-crash-${String(index)}`);
-    if (await crash.isVisible())
-      crashes.push(
-        `${LIGHT_CYCLES_RIDER_NAMES[index]!}@${cellName({
-          column: Number(await crash.attribute('data-x')) + 1,
-          row: Number(await crash.attribute('data-y')) + 1,
-        })}`
-      );
-  }
-  const round = ui.get(`${board}-round`);
+  const html = await ui.snapshotHtml();
+  const facts = html === null ? null : lightCyclesBoardFacts(html, board);
+  if (facts === null) return null;
   const result = ui.get(`${board}-result`);
   return {
-    board,
-    riders,
-    round: Number(await round.attribute('data-round')),
-    phase: (await round.attribute('data-phase')) ?? '',
-    targetScore: Number(await round.attribute('data-target')),
-    steering:
-      (await ui.get(`${board}-status`).attribute('data-steering')) ?? '',
+    ...facts,
     // Countdown covers the arena; round and game results live in its status line.
     overlay:
       ((await result.isVisible())
         ? await result.text()
         : await ui.get(`${board}-arena-overlay`).text()) ?? '',
-    crashes,
-    live: (await ui.get(`${board}-arena`).attribute('data-dimmed')) !== 'true',
   };
 }
 

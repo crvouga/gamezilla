@@ -85,14 +85,14 @@ test('opening the four-move mate already on the board keeps its attempt playable
 }, 120_000);
 
 // regression: named-chess-puzzle-shared-theme
-test('opening coachFork selects its position when another fork is on the board', async () => {
+test('named puzzles stay selectable when three positions share the fork theme', async () => {
   await using s = await openHarness();
   const actor = 'alice';
   const { fork, falseFork } = ASSISTANT_PUZZLES;
   for (const puzzle of [fork, falseFork, ASSISTANT_PUZZLES.exposed])
     await s.apply(
       ingestChessPuzzleCsv,
-      puzzle.csv!.replace('hangingPiece', 'fork')
+      puzzle.csv.replace('hangingPiece', 'fork')
     );
   await s.apply(signInWithGoogle, actor);
   await s.apply(createSpace, actor);

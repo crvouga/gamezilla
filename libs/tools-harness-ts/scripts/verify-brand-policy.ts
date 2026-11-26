@@ -74,10 +74,10 @@ const files = listFiles()
   .map(read);
 const shown = only.length > 0 ? Number.POSITIVE_INFINITY : 400;
 const configured = process.env['VERIFY_BRAND_IDENTITY_JSON'];
-const tokens = new Set(brandTokens(PRODUCT));
-if (configured)
-  for (const token of brandTokens(identityInput(configured))) tokens.add(token);
-const violations = brandViolations(files, [...tokens], exempt);
+const tokens = configured
+  ? brandTokens(PRODUCT, identityInput(configured))
+  : brandTokens(PRODUCT);
+const violations = brandViolations(files, tokens, exempt);
 
 if (problems.length > 0 || violations.length > 0) {
   console.error(

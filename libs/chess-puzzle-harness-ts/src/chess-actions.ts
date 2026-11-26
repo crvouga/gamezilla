@@ -96,7 +96,9 @@ export const openNamedChessPuzzle = scenarioAction({
   name: 'openNamedChessPuzzle',
   act: async (s, actorId: string, puzzleId: string) => {
     if ((await readPuzzleOnBoard(s, actorId)) !== puzzleId) {
-      await openPuzzleLink.act(s, actorId, puzzleLinkTo(puzzleId));
+      await Promise.resolve(
+        openPuzzleLink.act(s, actorId, puzzleLinkTo(puzzleId))
+      );
       await pollUntil(
         s,
         async () =>

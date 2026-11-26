@@ -1,0 +1,4 @@
+{
+  "summary": "A synthetic population scenario with no available opponent left Bob's chess search on the server. The next scenario on the same stack found someone already waiting.",
+  "regressionTest": "libs/synthetic-population-harness-ts/tests/opponent-search-lifecycle.test.ts"
+}

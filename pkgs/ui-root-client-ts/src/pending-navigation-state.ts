@@ -21,6 +21,9 @@ type Departure = {
 export function createPendingNavigation() {
   const [operations, setOperations] = createSignal<Registration[]>([]);
   const [destination, setDestination] = createSignal<Departure | null>(null);
+  // A page the person asked to leave for: the browser's unload guard stands
+  // down while that departure starts.
+  let departing = false;
   const blocked = createMemo(() =>
     operations().some((operation) => operation.pending() && !operation.approved)
   );
@@ -77,6 +80,21 @@ export function createPendingNavigation() {
         (operation) => operation.pending() && !operation.approved
       ),
     confirming: () => destination() !== null,
+    /** Whether the page is leaving on purpose right now (see `depart`). */
+    departing: () => departing,
+    /**
+     * Leave the page on purpose, as a pressed control asks to (a provider's
+     * checkout): the browser dispatches `beforeunload` synchronously inside
+     * `proceed`, and the guard must not hold that departure behind a prompt.
+     */
+    depart: <T>(proceed: () => T): T => {
+      departing = true;
+      try {
+        return proceed();
+      } finally {
+        departing = false;
+      }
+    },
     register,
     request,
     confirm,

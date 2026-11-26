@@ -369,21 +369,36 @@ export const signOut = scenarioAction({
 /** A tab every composition has: Profile, or the harness's bare home. */
 const HOME_TABS = [Handles.tabProfile, Handles.tabHarnessHome] as const;
 
-/** Leave the Account stack so the tab shell is visible again. */
+/** Back presses that can lie between an Account-stack screen and a tab. */
+const TAB_RETURN_PRESSES = 4;
+
+/**
+ * Leave the Account stack so the tab shell is visible again. A compact
+ * screen shows the tab bar only on a tab root, and Account sits under
+ * Settings, so Back is pressed until a tab shows.
+ */
 export const returnToTabs = scenarioAction({
   name: 'returnToTabs',
   act: async (s, actorId: string) => {
     const ui = await actorUi(s, actorId);
-    await ui.get(Handles.navBack).tap();
+    const back = ui.get(Handles.navBack);
+    await back.tap();
+    let presses = 1;
     await pollUntil(
       s,
       async () => {
         for (const tab of HOME_TABS) {
           if (await ui.get(tab).isVisible()) return true;
         }
+        // regression: return-to-tabs-compact-account-stack
+        if (presses < TAB_RETURN_PRESSES && (await back.isVisible())) {
+          presses += 1;
+          // A press on the screen being replaced is lost; the next poll looks again.
+          await back.tap().catch(() => undefined);
+        }
         return null;
       },
-      { maxMs: WAIT_MS, description: 'the tab bar' }
+      { maxMs: WAIT_MS, description: 'the tab bar', actor: actorId }
     );
   },
 });

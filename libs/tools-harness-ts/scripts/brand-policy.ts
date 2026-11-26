@@ -41,8 +41,10 @@ export type BrandViolation = {
  * domain, the technical namespace, every external identifier and every
  * alias. Longest first so a report names the most specific match.
  */
-export function brandTokens(identity: ProductIdentity): string[] {
-  const values = [
+export function brandTokens(
+  ...identities: readonly ProductIdentity[]
+): string[] {
+  const values = identities.flatMap((identity) => [
     identity.brand.name,
     identity.brand.shortName,
     identity.brand.domain,
@@ -58,7 +60,7 @@ export function brandTokens(identity: ProductIdentity): string[] {
       identity.external.sourceRepository,
       ...identity.external.previousSourceRepositories,
     ].map((repository) => repository.split('/')[1] ?? repository),
-  ];
+  ]);
   return [...new Set(values.map((value) => value.toLowerCase()))]
     .filter((value) => value.length >= 3)
     .sort((a, b) => b.length - a.length || a.localeCompare(b));

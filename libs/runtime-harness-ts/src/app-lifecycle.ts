@@ -6,7 +6,8 @@
 
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import { visible } from '@libs/harness-ts/observations';
+import { caps, visible } from '@libs/harness-ts/observations';
+import { chooseOfflineCommand } from '@libs/harness-ts/offline-gestures';
 import { HARNESS_PRIMARY_SERVER_ID } from '@libs/harness-ts/server-nodes';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
@@ -59,21 +60,26 @@ export const leaveAppOutdated = scenarioAction({
   name: 'leaveAppOutdated',
   act: async (s, actorId: string) => {
     await actorUi(s, actorId);
-    s.harness.setAppBuild(actorId, 'outdated');
+    await s.harness.appBuilds.set(actorId, 'outdated');
   },
 });
 
 /**
  * Install the current build and open it: the update comes over the network,
- * so the device is connected afterwards. Its storage is untouched.
+ * so the device is connected afterwards. Its storage is untouched. A host
+ * that models the network heals the device's link; a live browser was cut
+ * off by the app's own Work offline choice, which the device keeps across
+ * the restart, so the reopened app takes it back.
  */
 export const updateApp = scenarioAction({
   name: 'updateApp',
   act: async (s, actorId: string) => {
-    s.harness.setAppBuild(actorId, 'current');
-    s.session.network.heal(HARNESS_PRIMARY_SERVER_ID, actorId);
+    await s.harness.appBuilds.set(actorId, 'current');
+    const modelled = caps(s).includes('partition');
+    if (modelled) s.session.network.heal(HARNESS_PRIMARY_SERVER_ID, actorId);
     await s.runtime.restartActor(actorId);
     await actorUi(s, actorId);
+    if (!modelled) await chooseOfflineCommand(s, actorId, false);
   },
 });
 
