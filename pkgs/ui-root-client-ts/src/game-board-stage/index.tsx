@@ -36,9 +36,7 @@ export function GameBoardStage(props: {
   own?: JSX.Element;
   children: JSX.Element;
   /**
-   * Over the board, covering it and nothing else: who plays whom before
-   * the game (`GameVersusOverlay`), how it ended (`GameResultOverlay`).
-   * The board keeps its place under it; an empty slot covers nothing.
+   * Covers the board with additional content, such as its result.
    */
   overlay?: JSX.Element | undefined;
   /** A thumbnail of the board, before there is play to show. */

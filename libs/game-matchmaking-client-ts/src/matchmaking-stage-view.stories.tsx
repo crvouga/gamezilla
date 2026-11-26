@@ -31,38 +31,6 @@ type Story = StoryObj<typeof meta>;
 export const Matched: Story = {};
 
 /**
- * An opponent was just found: the versus card covers the board for its
- * count, and a press skips to the board.
- */
-export const Versus: Story = {
-  args: {
-    overlay: { kind: 'versus', count: 3 },
-    game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
-  },
-  render: (args) =>
-    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
-  play: async ({ args, canvasElement }) => {
-    const canvas = within(canvasElement);
-    const card = await canvas.findByTestId('multiplayer-versus');
-    await userEvent.click(
-      within(card).getByRole('button', { name: 'Start now' })
-    );
-    await expect(args.onOverlay).toHaveBeenCalledWith({ type: 'skip' });
-    await expect(canvas.queryByTestId('multiplayer-versus')).toBeNull();
-  },
-};
-
-/** The versus card as it opens, still: the count at three. */
-export const VersusCount: Story = {
-  args: {
-    overlay: { kind: 'versus', count: 3 },
-    game: { ...STORY_GAME, leave: 'abort', moves: storyMoves(0) },
-  },
-  render: (args) =>
-    renderStory({ shown: 0, announcement: { title: 'Your turn.' } })(args),
-};
-
-/**
  * A long name beside the turn and the side played: the name is cut short on
  * its one line, the seat keeps its height and the board its full width.
  */

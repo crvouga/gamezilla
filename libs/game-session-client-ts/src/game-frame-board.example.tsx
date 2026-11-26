@@ -3,14 +3,8 @@ import {
   placeBehind,
   placeIn,
 } from '@pkgs/turn-game-client-ts/screen-places';
-import {
-  type StageOverlay,
-  type StageOverlayPhase,
-  stageOverlayAfter,
-  stageOverlayPhaseEvent,
-} from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createSignal, untrack } from 'solid-js';
+import { createSignal, untrack } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
 import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
 import {
@@ -20,11 +14,6 @@ import {
 import { recordReviewing } from './game-frame-moves-view';
 import { record, WON_LINE, WON_MOVES } from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
-
-function overlayPhase(phase: FramePhase): StageOverlayPhase {
-  if (phase === 'active') return 'play';
-  return phase === 'completed' || phase === 'cancelled' ? 'over' : 'setup';
-}
 
 /**
  * The frame as a story shows it: opened on the story's place, and moving
@@ -44,29 +33,9 @@ export function FrameStory(
   > | null>(untrack(() => ({ stage: props.phase, place: props.place })));
   const place = (): CustomGamePlace =>
     placeIn(CUSTOM_GAME_PLACES, props.phase, opened());
-  // The story's overlay starts as given: read once, then events move it.
-  const [overlay, setOverlay] = createSignal<StageOverlay>(
-    untrack(() => props.overlay)
-  );
-  // The story's phase moves the overlay as the app's does; the count is
-  // the story's own (a still card), so no picture depends on time.
-  createEffect(
-    () => overlayPhase(props.phase),
-    (to, seen) => {
-      if (seen === undefined) return;
-      const event = stageOverlayPhaseEvent(seen, to);
-      if (event !== null)
-        setOverlay((state) => stageOverlayAfter(state, event));
-    }
-  );
   return (
     <CustomGameScreenView
       {...props}
-      overlay={overlay()}
-      onOverlay={(event) => {
-        props.onOverlay(event);
-        setOverlay((state) => stageOverlayAfter(state, event));
-      }}
       place={place()}
       onOpen={(next) => {
         props.onOpen(next);

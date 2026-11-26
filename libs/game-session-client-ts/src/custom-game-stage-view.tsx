@@ -19,7 +19,6 @@ import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameMovesCard } from './game-frame-moves-view';
-import { FrameOverlay } from './game-frame-overlay-view';
 import {
   FrameDrawOfferLine,
   FrameErrorView,
@@ -177,9 +176,7 @@ export function FrameStage(props: Props): JSX.Element {
       dataSet={{
         ...props.boardState,
         testid: 'custom-game-public',
-        overlay: props.overlay.kind,
       }}
-      overlay={<FrameOverlay {...props} />}
       others={
         <>
           <FrameOthersView
@@ -245,11 +242,6 @@ function HeldActions(props: Props): JSX.Element {
       </Show>
     </>
   );
-}
-
-/** The versus card still counts in: the game has not reached the board. */
-function counting(props: Props): boolean {
-  return props.overlay.kind === 'versus';
 }
 
 /**
@@ -337,7 +329,6 @@ function LiveActions(props: Props): JSX.Element {
       <Show when={props.play.canOfferDraw && !props.menuMatchCommands}>
         <GameActionButton
           title={<Trans>Offer draw</Trans>}
-          disabled={counting(props)}
           dataSet={{ testid: 'custom-game-offer-draw' }}
           operation={() => props.onChoose({ operation: 'offer' })}
         />
@@ -354,7 +345,6 @@ function LiveActions(props: Props): JSX.Element {
           title={<Trans>Resign</Trans>}
           variant="outline"
           intent="danger"
-          disabled={counting(props)}
           onClick={() => props.onConfirm('resign')}
           dataSet={{ testid: 'custom-game-resign-now' }}
         />
@@ -394,8 +384,7 @@ function allMovesOf(props: Props): GameSessionAllMoves | undefined {
  * The play place: the live position and what playing needs now, in one
  * bar: an answer the game waits for, offering a draw, resigning (confirmed)
  * and the game's menu, where the moves, the history and the rest wait. The
- * board never shows an earlier move here (that is the moves place). A game
- * this device watched begin opens under the versus card (`overlay`).
+ * board never shows an earlier move here (that is the moves place).
  */
 export function CustomGameStagePlace(props: Props): JSX.Element {
   return (

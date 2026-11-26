@@ -161,7 +161,7 @@ describe('SpaceActionBar overflow', () => {
 });
 
 describe('SpaceInGameTemplate slots', () => {
-  test('a result replaces the status and actions; the overlay covers the stage', () => {
+  test('a result replaces the status and actions', () => {
     renderSpace(() => (
       <SpaceInGameTemplate
         {...CHROME}
@@ -169,14 +169,12 @@ describe('SpaceInGameTemplate slots', () => {
         role={GUEST}
         people={[ME, OTHER]}
         result={{ status: 'You won', actions: [action('rematch', 'again')] }}
-        overlay={<p data-testid="countdown">{'3'}</p>}
         aside={{ label: 'Moves', content: () => <p>{'1. e4'}</p> }}
       />
     ));
     expect(screen.getByRole('heading', { name: 'You won' })).toBeDefined();
     expect(screen.getByTestId('again')).toBeDefined();
     expect(screen.queryByRole('button', { name: 'play' })).toBeNull();
-    expect(screen.getByTestId('countdown')).toBeDefined();
     expect(screen.queryByText('1. e4')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Moves' }));
     expect(screen.getByText('1. e4')).toBeDefined();

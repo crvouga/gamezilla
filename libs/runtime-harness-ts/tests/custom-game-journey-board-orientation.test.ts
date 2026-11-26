@@ -26,7 +26,7 @@ function productionBoard(side: 'white' | 'black' | null): Driver {
       key: unused,
       scroll: unused,
       wait: unused,
-      isVisible: unused,
+      isVisible: async () => id === 'custom-game-board',
       text: unused,
       tap: unused,
       expect: { visible: async () => {}, hidden: unused, text: unused },
