@@ -4,23 +4,25 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openCustomGamePlace } from './custom-game-places';
 
 /** The controls that open the moves place: from the live board, and from a result. */
-const MOVES_PLACE_ROWS = [
-  'custom-game-review-jump',
-  'custom-game-review-start',
-];
+const MOVES_PLACE_ROWS = ['custom-game-all-moves', 'custom-game-review-start'];
 
 /** Review the board after `ply` moves of the shown custom game. */
 export const reviewCustomGameMove = scenarioAction({
   name: 'reviewCustomGameMove',
   act: async (s, actor: string, ply: number) => {
     const ui = await actorUi(s, actor);
-    // Stepping through the moves is a place of its own, as a person opens it.
-    for (const row of MOVES_PLACE_ROWS)
-      if (await openCustomGamePlace(s, actor, row, 'custom-game-review-ply'))
-        break;
-    await ui.get('custom-game-review-ply').clear();
-    await ui.get('custom-game-review-ply').input(String(ply));
+    const jump = ui.get('custom-game-review-ply');
+    if (!(await jump.isVisible())) {
+      for (const row of MOVES_PLACE_ROWS)
+        if (await openCustomGamePlace(s, actor, row, 'custom-game-go-to-move'))
+          break;
+      await ui.get('custom-game-go-to-move').tap();
+    }
+    await jump.clear();
+    await jump.input(String(ply));
     await ui.get('custom-game-review-seek').tap();
+    if (!(await ui.get('custom-game-error').isVisible()))
+      await ui.key('escape');
   },
 });
 
