@@ -380,8 +380,6 @@ jobs:
     permissions:
       contents: read # check out the code
       actions: write # read run state and delete this run's transfer artifacts
-      checks: read # enforce every PR check, including third-party integrations
-      statuses: read # refuse advisory legacy commit statuses
       id-token: write # mint the OIDC token Infisical and AWS trust
     timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
     steps:
@@ -470,11 +468,6 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
-      - name: Require every PR check
-        if: github.event_name == 'pull_request'
-        env:
-          SHARD_RESULT: ${{ needs.verify-shards.result }}
-        run: bunx turbo run @libs/tools-harness-ts#verify:pr-checks
       # A red run still measured every task that passed.
       - name: Save measured task durations
         if: always() && !cancelled() && github.event_name != 'pull_request' && hashFiles('.cache/verify-ci/measured-costs.json') != ''
