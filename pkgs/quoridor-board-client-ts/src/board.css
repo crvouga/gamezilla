@@ -155,3 +155,47 @@
     }
   }
 }
+
+/* Four seats leave a shorter board region. Where the controls fit two abreast,
+   the picker and its result share a row under the three orientation buttons. */
+@media (max-width: 767px) {
+  @container quoridor-room (min-width: 22rem) {
+    [data-game-fixed="true"]
+      [data-board-workspace="true"]
+      [data-quoridor-mode="hill"]
+      > [data-quoridor-surface] {
+      --controls-height: calc(
+        2 *
+        (var(--ui-control-size-md) + var(--ui-space-1))
+      );
+      width: min(
+        calc(100% + 2 * var(--game-board-workspace-inset, 0px)),
+        calc(100cqb - var(--controls-height) + var(--ui-space-2))
+      );
+    }
+
+    [data-quoridor-mode="hill"]:has(> [data-quoridor-coordinates]) {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) fit-content(55%);
+      align-items: center;
+    }
+
+    [data-quoridor-mode="hill"]:has(> [data-quoridor-coordinates]) > * {
+      grid-column: 1 / -1;
+    }
+
+    [data-quoridor-mode="hill"]:has(> [data-quoridor-coordinates])
+      > [data-quoridor-coordinates] {
+      grid-area: 3 / 1;
+    }
+
+    [data-quoridor-mode="hill"]:has(> [data-quoridor-coordinates])
+      > :is([role="status"], [data-component="QuoridorWallConfirmation"]) {
+      grid-area: 3 / 2;
+    }
+
+    [data-quoridor-mode="hill"] > [data-component="QuoridorWallConfirmation"] {
+      flex-wrap: nowrap;
+    }
+  }
+}
