@@ -51,11 +51,12 @@ export function useCustomGamePrivateSetup(
       if (id !== undefined) setArranged({ gameId: id, setup });
     },
     complete: (): boolean => setupRules()?.accept(draft()) != null,
-    random: (): void => {
+    random: (): string | undefined => {
       const drawn = setupRules()?.random(random);
       const id = current()?.id;
-      if (drawn !== undefined && id !== undefined)
-        setArranged({ gameId: id, setup: drawn });
+      if (drawn === undefined || id === undefined) return undefined;
+      setArranged({ gameId: id, setup: drawn });
+      return drawn;
     },
   };
 }
