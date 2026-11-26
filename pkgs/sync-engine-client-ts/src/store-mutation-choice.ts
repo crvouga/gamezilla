@@ -8,6 +8,7 @@ export type StoredMutationChoice = {
   readonly args: unknown;
   readonly clientId: string;
   readonly seq: number;
+  readonly optimisticWrites: boolean;
   readonly originTraceparent: string | null;
   readonly originSessionId: string | null;
   readonly originBuildSha: string | null;
@@ -22,12 +23,12 @@ export async function storeMutationChoice(
   await tx.run(sql`
     INSERT INTO sync_engine_mutations (
       id, name, args, client_id, seq, origin_traceparent,
-      origin_session_id, origin_build_sha,
+      origin_session_id, origin_build_sha, optimistic_writes,
       created_at, updated_at, deleted_at
     ) VALUES (
       ${choice.id}, ${choice.name}, ${JSON.stringify(choice.args)},
       ${choice.clientId}, ${choice.seq}, ${choice.originTraceparent},
-      ${choice.originSessionId}, ${choice.originBuildSha},
+      ${choice.originSessionId}, ${choice.originBuildSha}, ${choice.optimisticWrites ? 1 : 0},
       ${choice.createdAt}, ${choice.createdAt}, ${choice.deletedAt}
     )
   `);

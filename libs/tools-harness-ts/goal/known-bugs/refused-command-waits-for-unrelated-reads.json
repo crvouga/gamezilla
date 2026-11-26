@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship recorded CHESS_ILLEGAL_MOVE on the device 111 ms after the move was queued, yet its caller exceeded five seconds waiting for unrelated queries to refresh. Only a choice with possible optimistic device writes needs that barrier.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/refused-command-verdict.test.ts"
+}

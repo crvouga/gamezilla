@@ -217,6 +217,7 @@ async function recordLocalMutationRefusal<A>(
         originBuildSha: args.originBuildSha,
         createdAt,
         deletedAt: createdAt,
+        optimisticWrites: false,
       },
       error
     );
@@ -254,6 +255,7 @@ async function queueMutation<A>(args: QueueMutationArgs<A>): Promise<{
           originBuildSha: args.originBuildSha,
           createdAt,
           deletedAt: null,
+          optimisticWrites: capture.tables.length > 0,
         });
         await recordOptimisticOwnRows(txc, mutationId, capture, createdAt);
       });

@@ -63,6 +63,7 @@ export const syncEngineMutations = defineTable({
     client_id: 'text',
     seq: 'integer',
     cache_replay_required: 'integer',
+    optimistic_writes: 'integer',
     origin_traceparent: 'text',
     origin_session_id: 'text',
     origin_build_sha: 'text',
