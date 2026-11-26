@@ -8,13 +8,16 @@ const app = 'http://127.0.0.1:34305';
 const stripe = 'http://127.0.0.1:34310';
 
 // regression: checkout-input-during-document-replacement
-test('a native subscriber reaches Stripe before typing and returns to the app to read paid access', async () => {
+// regression: billing-resubscribe-completes-on-grace-access
+test('a returning subscriber reaches Stripe before typing and waits for the new membership', async () => {
   let destination = app;
   let loaded = app;
+  let membership = 'ended';
   const values: string[] = [];
   const driver = {
     snapshotHtml: async () =>
-      `<button data-testid="${Handles.billingSubscribe}"></button>`,
+      `<button data-testid="${Handles.billingSubscribe}"></button>
+       <p data-testid="${Handles.billingStatus}" data-state="${membership}"></p>`,
     get: (id: string) => ({
       tap: async () => {
         destination =
@@ -54,12 +57,18 @@ test('a native subscriber reaches Stripe before typing and returns to the app to
         http: { kind: 'stack', billingOrigin: stripe },
         ui: { kind: 'bun-webview', webOrigin: app },
       },
-      scheduler: { virtual: true },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
+      advanceTime: async () => {
+        expect(loaded).toBe(app + '/more/billing');
+        membership = 'trialing';
+      },
+      waitForIdle: async () => {},
       network: { partitions: () => [] },
     },
     harness: { billing: { all: () => [] } },
   } as unknown as ProductHarness;
   await Promise.resolve(subscribeToPlus.act(world, 'alice'));
+  expect(membership).toBe('trialing');
   expect(values).toEqual([
     TEST_CARD.number,
     TEST_CARD.expiry,

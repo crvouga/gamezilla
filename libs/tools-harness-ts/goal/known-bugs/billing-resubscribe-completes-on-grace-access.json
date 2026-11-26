@@ -1,0 +1,4 @@
+{
+  "summary": "After a second checkout, the billing journey accepted paid access from a canceled membership's grace period and canceled the new membership before the app saw it.",
+  "regressionTest": "libs/billing-harness-ts/tests/checkout-navigation.test.ts"
+}
