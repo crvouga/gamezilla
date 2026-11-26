@@ -18,7 +18,11 @@ import {
 } from './turbo-preflight';
 import { resolveRunDeadlineSeconds } from './verify-budget';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
-import { startedFirst, writeSchedule } from './verify-plan-schedule';
+import {
+  deploymentPlan,
+  startedFirst,
+  writeSchedule,
+} from './verify-plan-schedule';
 import { profileManifest } from './verify-profile';
 import type { ShardSizing, VerifyPlan, VerifyTask } from './verify-shards';
 import {
@@ -110,7 +114,7 @@ export function planShards(
       `longest group ${target.longestGroupSeconds.toFixed(0)} s); ` +
       `cap ${env['VERIFY_SHARDS'] ?? '16'}, ${runners} runner share of ${matrixCapacity} across ${activeRuns} active runs`
   );
-  return plan;
+  return env['VERIFY_DEPLOYMENT'] === 'true' ? deploymentPlan(plan) : plan;
 }
 
 export async function createVerifyPlan(): Promise<void> {

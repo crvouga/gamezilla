@@ -5,9 +5,10 @@ import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { archiveEntries } from './verify-evidence-archive';
 import { evidencePaths } from './verify-evidence-selection';
+import { planShards } from './verify-plan';
 import {
   cachedShardResult,
-  canSharePlanningRunner,
+  deploymentPlan,
   shardMatrix,
   startedFirst,
   verifySchedule,
@@ -15,7 +16,6 @@ import {
 } from './verify-plan-schedule';
 import type { VerifyTask } from './verify-shards';
 import { balanceShards, validateShardResult } from './verify-shards';
-import { singleRunnerStages } from './verify-single-runner';
 import { jobResults, summarize } from './verify-verdict';
 
 function task(
@@ -57,7 +57,7 @@ test('the schedule names only the shards with uncached work', () => {
 });
 
 // regression: release-product-build-invalidates-sibling-plan
-test('a cold product build and the admin bundle check use isolated runners', () => {
+test('one Turbo graph owns the product build and admin bundle check before either executes', () => {
   for (const hit of [false, true]) {
     const plan = balanceShards(
       [
@@ -69,7 +69,13 @@ test('a cold product build and the admin bundle check use isolated runners', () 
       ],
       1
     );
-    expect(canSharePlanningRunner(plan, verifySchedule(plan))).toBe(hit);
+    const deployment = planShards(plan.tasks, {
+      GITHUB_WORKFLOW: 'Release',
+      VERIFY_DEPLOYMENT: 'true',
+      VERIFY_SHARDS: '1',
+    });
+    expect(deployment.shards).toHaveLength(1);
+    expect(deployment.shards[0]?.tasks).toEqual(plan.tasks);
   }
 });
 
@@ -92,20 +98,18 @@ test('a one-shard release runs its prerequisites, six cache misses and final con
     6,
     1000
   );
-  const stages = singleRunnerStages(plan);
-  expect(stages).toEqual([6, 0, 7]);
+  const single = deploymentPlan(plan);
+  expect(single.shards).toHaveLength(1);
+  expect(single.shards[0]?.tasks.filter((item) => !item.hit)).toHaveLength(8);
+  expect(single.shards[0]?.tasks).toEqual(plan.tasks);
   expect(
-    stages.flatMap((i) => plan.shards[i]!.tasks.filter((item) => !item.hit))
-  ).toHaveLength(8);
-  expect(singleRunnerStages(balanceShards(CACHED, 6))).toEqual([6]);
-  expect(() =>
-    singleRunnerStages(
-      balanceShards(
-        misses.map((item) => ({ ...item, dependencies: [] })),
-        6
-      )
-    )
-  ).toThrow('Parallel shards');
+    verifySchedule(deploymentPlan(balanceShards(CACHED, 6))).shards
+  ).toEqual([]);
+  const parallel = balanceShards(
+    misses.map((item) => ({ ...item, dependencies: [] })),
+    6
+  );
+  expect(deploymentPlan(parallel)).toBe(parallel);
 });
 
 test('a fan-in stage with uncached work is scheduled after its producers', () => {

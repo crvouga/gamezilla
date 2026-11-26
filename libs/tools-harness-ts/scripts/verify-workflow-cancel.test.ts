@@ -40,9 +40,8 @@ describe('Verify workflow cancellation', () => {
       };
     };
     const start = workflow.jobs['verify-start'];
-    // The shards and the end run on the image the plan was made on
-    // (workflow-native.test.ts), so the plan is the start's only output.
     expect(start.outputs).toEqual({
+      'reuse-shared': '${{ steps.shared.outputs.reuse }}',
       shards: '${{ steps.plan.outputs.shards }}',
       consumers: '${{ steps.plan.outputs.consumers }}',
       single_runner: '${{ steps.plan.outputs.single_runner }}',

@@ -65,17 +65,16 @@ export function shardMatrix(
   );
 }
 
-/** A cold product build writes generated inputs into the planning checkout. */
-export function canSharePlanningRunner(
-  plan: VerifyPlan,
-  schedule: VerifySchedule
-): boolean {
-  return (
-    schedule.shards.length <= 1 &&
-    !plan.tasks.some(
-      (task) => task.taskId === '@apps/product-ts#build' && !task.hit
-    )
-  );
+/** One Turbo invocation hashes the whole graph before its producers write files. */
+export function deploymentPlan(plan: VerifyPlan): VerifyPlan {
+  if (verifySchedule(plan).shards.length > 1) return plan;
+  const seconds = plan.shards.reduce((sum, shard) => sum + shard.seconds, 0);
+  const single: VerifyPlan = {
+    ...plan,
+    shards: [{ index: 0, stage: 'verifications', tasks: plan.tasks, seconds }],
+  };
+  validatePlan(single);
+  return single;
 }
 
 export function verifySchedule(plan: VerifyPlan): VerifySchedule {
@@ -144,11 +143,7 @@ export function writeSchedule(
       schedule,
       Number(process.env['GITHUB_RUN_ID'] ?? 0)
     );
-    if (
-      process.env['VERIFY_DEPLOYMENT'] === 'true' &&
-      canSharePlanningRunner(plan, schedule)
-    )
-      appendFileSync(output, 'single_runner=+\n');
+    if (plan.shards.length === 1) appendFileSync(output, 'single_runner=+\n');
     appendFileSync(
       output,
       `shards=${matrix}\nconsumers=${schedule.consumers ? '+' : '-'}\n`
