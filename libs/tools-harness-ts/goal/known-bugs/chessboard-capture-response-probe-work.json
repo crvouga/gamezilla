@@ -1,0 +1,4 @@
+{
+  "summary": "The e4 by d5 capture took 52.6 ms through the second frame while the test rebuilt probe state and froze the animation inside the input measurement.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/performance.contract.test.ts"
+}
