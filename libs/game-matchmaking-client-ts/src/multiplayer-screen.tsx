@@ -133,6 +133,8 @@ function LowOnTimeWarning(props: {
 function MatchBoard(
   props: ScreenProps & {
     readonly reviewing: boolean;
+    readonly information: JSX.Element;
+    readonly preparation: JSX.Element;
     readonly setup: ReturnType<typeof useMultiplayerPrivateSetup>;
     readonly onBoardLine: (line: string | null) => void;
   }
@@ -153,6 +155,8 @@ function MatchBoard(
           moving={props.controls.moving()}
           syncKey={props.controls.boardSync()}
           view={props.reviewing ? props.view : live()}
+          information={props.information}
+          preparation={props.preparation}
           onBoardLine={props.onBoardLine}
           onMove={props.controls.play}
         />
@@ -287,11 +291,13 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
             )}
           </Show>
         }
-        board={() => (
+        board={(slots) => (
           <MatchBoard
             {...props}
             setup={screen.setup}
             reviewing={screen.nav.place().screen === 'moves'}
+            information={slots.information}
+            preparation={slots.setup}
             onBoardLine={screen.boardLine[1]}
           />
         )}

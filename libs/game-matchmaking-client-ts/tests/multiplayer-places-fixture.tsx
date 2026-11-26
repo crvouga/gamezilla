@@ -150,8 +150,9 @@ export function mountPlaces(options: {
         onChooseTimeControl={setChosen}
         onOpen={nav.open}
         onBack={() => nav.back()}
-        board={() => (
-          <GameBoardStage>
+        board={(slots) => (
+          <GameBoardStage information={slots.information}>
+            {slots.setup}
             <p data-testid="slot-board">board</p>
           </GameBoardStage>
         )}

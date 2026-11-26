@@ -61,7 +61,7 @@ directly.
    | Hub | Rows that lead onward, each with its current value. No form, no board. | `EmbeddedScreen`, `MenuSection`, `MenuRow` |
    | Choice | One short list of choices. Pressing one applies it and returns. | `EmbeddedScreen`, `MenuSection`, `MenuRow` / `GameChoiceGrid` |
    | Form | One form and its one submit. | `EmbeddedScreen`, fields, one `GameActionButton` |
-   | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `GameSessionLayout`, `GameBoardStage` |
+   | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `FixedGameSession`, `GameBoardStage` |
    | Result | What happened, and what to do next: one filled command and at most three quiet ones. | `GameScreen`, `GameResultHeadline`, `GameStandings` |
 
 3. **At most one filled (primary) command per screen.** Everything else is an
@@ -75,28 +75,14 @@ directly.
    empty, failed with a retry, denied, ready); it never infers a state from
    which optional props happen to be set. Connection and refusal notices
    belong to the shell and show on every screen of the template.
-7. **The same screens on every size.** A view does not read the layout mode
-   to pick what it shows. A stage may place its rail beside the board when
-   there is room (`GameLayout`, a container query); that is the only
-   difference between a phone and a desktop.
-8. **A stage is one fixed view, and its board never moves.** Every stage
-   (custom game, matchmaking, puzzles, the moves and the result) is
-   `GameSessionLayout`'s `fixedStage`, top to bottom: the game's facts on
-   one centred line (`Chess · Rated · 10 min`), the line of moves with
-   **All moves** at its end (`allMoves`, there before the first move), the
-   other seats, the board, the person's own seat (highlighted on their
-   turn, with their clock), one status line, and one bar with **every**
-   command of the game (offer a draw, resign in the destructive colour,
-   the game's menu as `⋯`). On a phone the board takes the screen's whole
-   width and sits in the middle of the room left; it is centred once and
-   held there (`GameBoardStage`, `stageCentreOffset`). Every band keeps its
-   height empty or full, and what comes and goes never takes a row: the
-   connection, a refused command and a draw offered lie over the stage's
-   top (`GameStageNotices`), and a finished game's outcome card over its
-   foot (`sheet`). A board taller than the room narrows instead
-   (`GameBoardStage`). A wide window keeps the board beside its rail, at
-   the same measure live and finished. The Storybook check
-   `stage-stability` proves the board's place through a whole game.
+7. **The same screens on every size.** The host keeps the space bar above the game.
+8. **A game stage is one fixed view.** `FixedGameSession` gives custom games,
+   matchmaking and replays one reading order. The players, status and move
+   history precede the full-width board region. Its contents keep their
+   natural proportions. A short window can scroll the board within that
+   region, and the action bar stays at the bottom. The result opens over
+   the final position. The Storybook stage stability checks measure the
+   board and action bar through changes of turn, history and outcome.
 9. **Play opens on the board.** The seats identify the players and the
    stage shows whose turn it is as soon as the game is ready.
 10. **A lobby says what is about to be played and has one command.** It
@@ -207,8 +193,8 @@ finished game. Its names are `idle` (choosing a time control), `searching`
 `home` and `searching` are the same lobby as a custom game's: the mode card
 (Ranked match, the game, how it is won, the players, the clock in words),
 then one docked command (Find an opponent, Stop). Once ready, the game
-shows its board and seats. The result card beside the final board shows
-the rating change, with the moves beside a wide board.
+shows its board and seats. The result card opens over the final board with
+the rating change in its caption. The move history stays above the board.
 
 Two refinements the specs demand. A finished game keeps the search's hub
 one row from its result, because New opponent seeks at the finished game's

@@ -8,6 +8,9 @@
   min-width: 0;
   min-height: 0;
 }
+.players {
+  flex: none;
+}
 .status {
   display: flex;
   flex: none;

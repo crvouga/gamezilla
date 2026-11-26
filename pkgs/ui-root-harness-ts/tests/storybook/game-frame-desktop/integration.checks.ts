@@ -44,18 +44,18 @@ test('storybook integration: game frame keeps the own seat, its actions and a wa
 // and the record rail its fixed width, leaving about 200px of empty band
 // between them at 1440x900.
 // regression: game-frame-desktop-board-rail-gap
-test('storybook integration: game frame rail sits beside the bounded board at 1440x900', async ({
+test('storybook integration: game frame record sits above the full-width board at 1440x900', async ({
   page,
 }) => {
   await page.setViewportSize(DESKTOP);
   await open(page, 'screens-custom-games-stage--your-turn');
-  const board = await page.getByTestId('custom-game-public').boundingBox();
+  const board = await page.locator('[data-game-board]').boundingBox();
   // The rail's Moves card.
   const record = await page
     .locator('[data-component="CustomGameReview"]')
     .first()
     .boundingBox();
   if (board === null || record === null) throw new Error('Frame not shown');
-  expect(record.x - (board.x + board.width)).toBeLessThanOrEqual(48);
+  expect(record.y + record.height).toBeLessThanOrEqual(board.y);
   expect(record.x + record.width).toBeLessThanOrEqual(DESKTOP.width);
 });

@@ -4,7 +4,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -201,11 +201,8 @@ function Onward(props: ResultProps): JSX.Element {
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
-      <GameSessionLayout
+      <FixedGameSession
         notices={props.notices}
-        boardFocus
-        actionsBeside
-        fixedStage
         // The card lies over the stage's foot (heading the rail beside a
         // wide board), so the final board keeps the live board's place.
         sheet={<MultiplayerResultCard result={props.result} />}
@@ -241,7 +238,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             <Review {...props} />
           </GameActionBar>
         }
-        aside={
+        history={
           <Show when={props.game.moves}>
             {(moves) => (
               <GameSection title={<Trans>Moves</Trans>}>
@@ -258,8 +255,8 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
           </Show>
         }
       >
-        {props.board?.()}
-      </GameSessionLayout>
+        {(information) => props.board?.({ information }) ?? information}
+      </FixedGameSession>
     </MultiplayerStagePlace>
   );
 }

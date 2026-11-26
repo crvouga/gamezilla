@@ -89,6 +89,6 @@ test('storybook integration: game frame fit 1440x900 keeps a finished board at i
     .getByRole('button', { name: /^Rematch/ })
     .boundingBox();
   if (!board || !rematch) throw new Error('Missing board or Rematch');
-  expect(rematch.x).toBeGreaterThanOrEqual(board.x + board.width);
+  expect(rematch.y).toBeGreaterThanOrEqual(board.y + board.height - 1);
   expect(rematch.y + rematch.height).toBeLessThanOrEqual(900);
 });

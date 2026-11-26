@@ -154,11 +154,14 @@ export function StoryStage(props: {
   readonly offline?: boolean | undefined;
   /** A draw offered to the person waits for their answer first. */
   readonly answering?: boolean | undefined;
+  readonly information?: JSX.Element;
+  readonly preparation?: JSX.Element;
 }): JSX.Element {
   const drops = () =>
     props.moves ?? DROPS.slice(0, props.shown ?? DROPS.length);
   return (
     <GameBoardStage
+      information={props.information}
       others={
         <GamePlayerBar
           name="Bob (1487)"
@@ -216,6 +219,7 @@ export function StoryStage(props: {
         />
       }
     >
+      {props.preparation}
       <ConnectFourStoryBoard
         onDrop={props.onDrop}
         moves={drops()}
@@ -406,7 +410,7 @@ export function renderStory(slots: StorySlots = {}) {
   return (args: MatchmakingScreenViewProps): JSX.Element => (
     <StoryPlaces
       {...args}
-      board={() => (
+      board={(stage) => (
         <StoryStage
           shown={slots.shown}
           ownName={slots.ownName}
@@ -414,6 +418,8 @@ export function renderStory(slots: StorySlots = {}) {
           offline={slots.offline}
           answering={slots.announcement?.answer === true}
           active={slots.announcement !== undefined}
+          information={stage.information}
+          preparation={stage.setup}
         />
       )}
       status={
