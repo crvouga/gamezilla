@@ -8,13 +8,23 @@ const root = join(import.meta.dirname, '../../..');
 
 // regression: nightly-random-missing-conftest
 test('the random suite installs conftest for plan-policy.property.test.ts', () => {
-  const { jobs } = Bun.YAML.parse(
+  const workflow = Bun.YAML.parse(
     readFileSync(join(root, '.github/workflows/verify-nightly.yml'), 'utf8')
   );
-  const steps: { uses?: string; with?: { tools?: string } }[] =
-    jobs['verify-nightly-random'].steps;
-  const setup = steps.find((step) => step.uses === './.github/actions/setup');
-  expect(setup?.with?.tools?.split(/\s+/)).toContain('conftest');
+  expect(workflow).toMatchObject({
+    jobs: {
+      'verify-nightly-random': {
+        steps: expect.arrayContaining([
+          expect.objectContaining({
+            uses: './.github/actions/setup',
+            with: expect.objectContaining({
+              tools: expect.stringMatching(/(?:^|\s)conftest(?:\s|$)/),
+            }),
+          }),
+        ]),
+      },
+    },
+  });
 });
 
 // regression: nightly-random-nested-worker-contention
