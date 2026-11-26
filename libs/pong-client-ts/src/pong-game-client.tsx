@@ -4,6 +4,7 @@ import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { PongBoard } from './pong-board';
 import { pongFrame } from './pong-frame';
+import { pongLesson } from './pong-lesson';
 
 export const pongGameClient = defineGameClient({
   shared: pongGameShared,
@@ -11,13 +12,7 @@ export const pongGameClient = defineGameClient({
   caption: 'Keep the rally alive with friends or bots',
   tile: 'court',
   subtitle: () => <Trans>Two paddles. One ball. Every return counts.</Trans>,
-  instructions: () => (
-    <Trans>
-      Move your paddle to return the ball. A ball past the other paddle scores a
-      point. Reach the chosen score to win. Play with a bot, share a device,
-      invite someone, or find an opponent.
-    </Trans>
-  ),
+  lesson: pongLesson,
   presentation: {
     name: () => t`Pong`,
     goal: () => t`Get the ball past the other paddle. First to the score wins.`,
