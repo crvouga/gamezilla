@@ -1,0 +1,4 @@
+{
+  "summary": "The administration story frame requested the story again when it switched to the measured desktop layout. Its content region became empty, so neither stopping a load or upload, opening the source, nor saving the chosen file could begin in the four puzzle-import stories.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}
