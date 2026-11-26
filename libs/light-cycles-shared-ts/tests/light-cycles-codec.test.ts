@@ -84,6 +84,24 @@ function withField(encoded: string, index: number, value: string): string {
   return fields.join(';');
 }
 
+test('a running arena accepts only its own rider marks anywhere on the trail', () => {
+  for (const count of [2, 3, 4] as const) {
+    const start = initialLightCyclesState(config, LIGHT_CYCLES_SEATS[count]);
+    for (const mark of ['.', '0', '1', '2', '3', '4', '\n']) {
+      const state = {
+        ...start,
+        phase: 'running' as const,
+        trails: start.trails.slice(0, -1) + mark,
+      };
+      if (mark === '.' || ('0123'.includes(mark) && Number(mark) < count)) {
+        expect(codec.decode(codec.encode(state))).toEqual(state);
+      } else {
+        expect(() => codec.encode(state)).toThrow();
+      }
+    }
+  }
+});
+
 test('decode refuses malformed and inconsistent encodings', () => {
   const initial = initialLightCyclesState(config, LIGHT_CYCLES_SEATS[2]);
   const valid = codec.encode(initial);
