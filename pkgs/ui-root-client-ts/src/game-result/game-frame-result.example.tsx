@@ -58,7 +58,7 @@ function EightPlayers(): JSX.Element {
       <StackVertical gap="lg">
         <GameResultHeadline
           title="Erin wins"
-          caption="Host starts the rematch"
+          caption="Host starts the rematch."
         />
         <GameStandings
           aria-label="Standings"

@@ -34,11 +34,12 @@ export function MultiplayerStatusView(
           <EmptyState
             variant="compact"
             role="status"
-            title={<Trans>No game to watch here</Trans>}
+            title={<Trans>No game here yet</Trans>}
             body={
               <Trans>
                 No multiplayer game is available to you. The host of this space
-                has not found an opponent.
+                has not found an opponent yet; when they do, the game opens
+                here.
               </Trans>
             }
             action={{
