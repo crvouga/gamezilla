@@ -18,8 +18,6 @@ const actions = readFileSync(
 const imports = readFileSync(join(TOFU, 'stacks/bootstrap/imports.tf'), 'utf8');
 
 // regression: repository-ruleset-solo-approval
-// regression: repository-policy-codeql-count
-// regression: repository-policy-codeql-language-registry
 test('main requires verified PRs without approvals a solo maintainer cannot give and refuses deletion and force-pushes', () => {
   expect(repository).toMatch(/resource "github_repository_ruleset" "main"/);
   for (const rule of [
@@ -43,9 +41,8 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
     /strict_required_status_checks_policy\s*=\s*false/
   );
   expect(repository).toContain(
-    'for_each = { for check in local.ruleset_checks'
+    'for_each = { for check in local.required_checks'
   );
-  expect(repository).toContain('check if !try(check.outage_tolerant, false)');
   expect(repository).toContain(
     'integration_id = required_check.value.integration_id'
   );
@@ -55,47 +52,10 @@ test('main requires verified PRs without approvals a solo maintainer cannot give
       JSON.parse(readFileSync(join(directory, file), 'utf8')) as {
         readonly context: string;
         readonly integration_id: number;
-        readonly outage_tolerant?: boolean;
       }
   );
-  // regression: codeql-bundle-download-504 — enforced by verify:end instead.
-  expect(checks.sort((a, b) => a.context.localeCompare(b.context))).toEqual([
-    {
-      context: 'Analyze (actions)',
-      integration_id: 15368,
-      outage_tolerant: true,
-    },
-    {
-      context: 'Analyze (c-cpp)',
-      integration_id: 15368,
-      outage_tolerant: true,
-    },
-    {
-      context: 'Analyze (java-kotlin)',
-      integration_id: 15368,
-      outage_tolerant: true,
-    },
-    {
-      context: 'Analyze (javascript-typescript)',
-      integration_id: 15368,
-      outage_tolerant: true,
-    },
-    {
-      context: 'Analyze (python)',
-      integration_id: 15368,
-      outage_tolerant: true,
-    },
-    {
-      context: 'Analyze (swift)',
-      integration_id: 15368,
-      outage_tolerant: true,
-    },
-    { context: 'CodeQL', integration_id: 57789, outage_tolerant: true },
-    { context: 'verify:end', integration_id: 15368 },
-  ]);
-  expect(new Set(checks.map((check) => check.context)).size).toBe(
-    checks.length
-  );
+  expect(checks).toEqual([{ context: 'verify:end', integration_id: 15368 }]);
+  expect(repository).not.toContain('required_code_scanning {');
   // The only bypass: repository admins, and only through a pull request.
   const bypasses = [...repository.matchAll(/bypass_actors\s*\{([^}]*)\}/g)].map(
     (match) => match[1]?.replace(/\s+/g, ' ').trim()

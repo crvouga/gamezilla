@@ -1,4 +1,0 @@
-{
-  "summary": "The required PR checks test read its check files in directory order, which a filesystem is free to choose: on a btrfs workstation CodeQL was read before Analyze (actions), so the expected warnings arrived in the other order and @libs/tools-harness-ts#test failed there while passing on the hosted runner. The test now sorts the file names it reads.",
-  "regressionTest": "libs/tools-harness-ts/scripts/required-codeql-checks.test.ts"
-}

@@ -297,7 +297,7 @@ Four workflows, one contract each. Details:
   and closed by the first Release that verifies the check green
   (`ci-check-issues.ts`). Fix one issue per pull request; never close one by
   hand.
-- **The required status is `verify:end`.** A pull request runs its Turbo tasks and external check policy on one runner. Release, dispatch and Nightly use the distributed planner and shards. Every CI job runs on a standard GitHub-hosted `ubuntu-24.04` runner: a fresh
+- **The required status is `verify:end`.** A pull request runs its Turbo tasks on one runner. Release, dispatch and Nightly use the distributed planner and shards. Every CI job runs on a standard GitHub-hosted `ubuntu-24.04` runner: a fresh
   VM per job, never a machine that keeps files between jobs
   (the repository is public, so pull-request code is untrusted and must not
   run where a deploy later runs). CI does not check native packages or
