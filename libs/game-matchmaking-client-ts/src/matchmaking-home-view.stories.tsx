@@ -9,6 +9,7 @@ import {
   STORY_PARAMETERS,
   storyArgs,
 } from './matchmaking-screen-view.example';
+import { MatchmakingStartExample } from './matchmaking-start.example';
 
 const meta = {
   id: 'screens-matchmaking-home',
@@ -179,4 +180,8 @@ export const OpenRatings: Story = {
       await canvas.findByTestId('multiplayer-rating-blitz-value')
     ).toHaveTextContent('1623');
   },
+};
+
+export const FindAndPlay: Story = {
+  render: (args) => <MatchmakingStartExample {...args} />,
 };

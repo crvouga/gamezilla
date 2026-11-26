@@ -49,12 +49,12 @@ for (const phone of [true, false]) {
       const cell = (id: string) => board.locator(`[data-cell="${id}"]`);
       const driver = await input(page, phone);
       const anchor = await center(cell('e5'));
-      const legal = await center(cell('e2'));
+      const pinchAnchor = await center(cell('e2'));
       if (phone) {
-        await driver.touch('touchStart', [legal]);
-        await driver.touch('touchStart', [legal, anchor]);
+        await driver.touch('touchStart', [pinchAnchor]);
+        await driver.touch('touchStart', [pinchAnchor, anchor]);
         await driver.touch('touchMove', [
-          legal,
+          pinchAnchor,
           { x: anchor.x, y: anchor.y - 65 },
         ]);
         await driver.touch('touchEnd', []);
@@ -67,7 +67,7 @@ for (const phone of [true, false]) {
       await expect(
         page.getByRole('button', { name: 'Fit board' })
       ).toBeVisible();
-      const fixed = phone ? legal : anchor;
+      const fixed = phone ? pinchAnchor : anchor;
       const projected = await center(cell(phone ? 'e2' : 'e5'));
       expect(
         Math.hypot(projected.x - fixed.x, projected.y - fixed.y)
@@ -103,13 +103,14 @@ for (const phone of [true, false]) {
       await page.getByTestId('custom-game-board-wall-cancel').click();
       await page.getByTestId('custom-game-board-mode-move').click();
       const pawn = await center(cell('e1'));
+      const destination = await center(cell('e2'));
       if (phone) {
         await driver.touch('touchStart', [pawn]);
-        await driver.touch('touchMove', [legal]);
+        await driver.touch('touchMove', [destination]);
         await driver.touch('touchCancel', []);
         await expect(cell('e1')).toHaveAttribute('data-identity', 'one');
       }
-      await driver.drag(pawn, legal, async () => {
+      await driver.drag(pawn, destination, async () => {
         await expect(cell('e1')).toHaveAttribute('data-lifted', 'true');
         await capture('lifted-pawn');
       });

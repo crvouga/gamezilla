@@ -6,14 +6,17 @@ import precision from '../game-screen/game-screen.module.css';
 import { GameStageOverlayFrame } from '../game-stage-overlay/index';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
-import { GameBoardPreviewContext } from './board-preview';
+import { GameBoardPreviewContext } from './board-presentation';
 import componentStyles from './game-board-stage.module.css';
 import { createBoardRegionFill } from './region-fill';
 import { createStageRoomFit } from './room-fit';
 import { createStageCentre } from './stage-centre';
 import { createViewportSquareFit } from './viewport-fit';
 
-export { GameBoardPreviewContext, useGameBoardPreview } from './board-preview';
+export {
+  GameBoardPreviewContext,
+  useGameBoardPreview,
+} from './board-presentation';
 
 /**
  * The play surface and the people around it. The game supplies the
@@ -36,9 +39,7 @@ export function GameBoardStage(props: {
   own?: JSX.Element;
   children: JSX.Element;
   /**
-   * Over the board, covering it and nothing else: who plays whom before
-   * the game (`GameVersusOverlay`), how it ended (`GameResultOverlay`).
-   * The board keeps its place under it; an empty slot covers nothing.
+   * Covers the board with additional content, such as its result.
    */
   overlay?: JSX.Element | undefined;
   /** A thumbnail of the board, before there is play to show. */

@@ -21,7 +21,7 @@ import { timeControlWords } from './time-control-name';
  * card: ranked, rated, its clock), what the search is looking for
  * and how long it has looked, over its one command, stopping it, held at
  * the foot of the screen. An opponent found changes the stage, and the
- * game takes this place under its versus card.
+ * game's board takes this place once setup is complete.
  */
 export function MultiplayerSearchingView(
   props: MultiplayerPlaceFrame & {

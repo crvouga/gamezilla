@@ -1,10 +1,14 @@
-import { useArgs } from 'storybook/preview-api';
-import { expect, fn, userEvent, within } from 'storybook/test';
-import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { chessLesson } from '@libs/chess-root-client-ts/chess-lesson';
+import { connectFourLesson } from '@libs/connect-four-client-ts/connect-four-lesson';
 import {
   GameHomeScreenView,
   type GameMenuChoiceView,
-} from './game-home-screen-view';
+} from '@libs/game-menu-client-ts/game-home-screen-view';
+import { heartsLesson } from '@libs/hearts-client-ts/hearts-lesson';
+import { numberlinkLesson } from '@libs/numberlink-client-ts/numberlink-lesson';
+import { useArgs } from 'storybook/preview-api';
+import { expect, fn, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 
 /** The shared choices of a two-player game named `name`. */
 function sharedChoices(name: string): readonly GameMenuChoiceView[] {
@@ -51,14 +55,13 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     appRouter: true,
-    controls: { exclude: ['choices', 'subtitle', 'instructions'] },
+    controls: { exclude: ['choices', 'subtitle', 'lesson'] },
   },
   args: {
     title: 'Connect Four',
     tile: 'discs',
     subtitle: 'Drop discs and line up four',
-    instructions:
-      'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
+    lesson: connectFourLesson,
     choices: CHOICES,
     onChoose: fn(),
     place: { screen: 'home' },
@@ -77,7 +80,7 @@ export const WithPuzzlesAndSettings: Story = {
     title: 'Chess',
     tile: 'checkered',
     subtitle: 'The classic game of kings',
-    instructions: undefined,
+    lesson: chessLesson,
     choices: PUZZLE_CHOICES,
   },
 };
@@ -86,6 +89,7 @@ export const WithPuzzlesAndSettings: Story = {
 export const ManyPlayers: Story = {
   args: {
     title: 'Hearts',
+    lesson: heartsLesson,
     tile: 'cards',
     subtitle: 'Avoid hearts and the queen of spades',
     choices: [
@@ -103,13 +107,13 @@ export const ManyPlayers: Story = {
   },
 };
 
-/** A puzzle-only game: one choice, and no how to play when the game says nothing. */
+/** A puzzle-only game: the puzzle library and a lesson. */
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
     tile: 'paths',
     subtitle: 'Connect every pair of numbers',
-    instructions: undefined,
+    lesson: numberlinkLesson,
     choices: [
       {
         screen: 'puzzle-library',
@@ -164,8 +168,6 @@ export const OpenHowToPlay: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
-    await expect(
-      await canvas.findByText(/Take turns dropping a disc/)
-    ).toBeVisible();
+    await expect(await canvas.findByTestId('practice-prompt')).toBeVisible();
   },
 };

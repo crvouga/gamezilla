@@ -48,6 +48,8 @@ export type MultiplayerConfirm = 'resign' | 'abort';
 
 /** The matched game as this person may act on it: only what its state allows. */
 export type MultiplayerGameView = {
+  readonly timeControl?: string | undefined;
+  readonly target?: string | undefined;
   /** How many people it seats. */
   readonly players: number;
   /** Leaving an unfinished game: aborting before play begins, resigning after. */

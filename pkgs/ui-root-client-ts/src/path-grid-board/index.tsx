@@ -11,6 +11,7 @@ import {
   untrack,
 } from 'solid-js';
 import { cellGridStep } from '../cell-grid-board/index';
+import { createBoardArrival } from '../game-board-stage/board-presentation';
 import type {
   PathGridBoardProps,
   PathGridEndpoint,
@@ -55,6 +56,7 @@ function PathCell(props: {
   onKey: (event: KeyboardEvent) => void;
 }): JSX.Element {
   // Only a cell whose description changed is rewritten during a drawing.
+  const joined = createBoardArrival(() => props.endpoint?.connected === true);
   const label = createMemo(() => props.board.cellLabel(props.index));
   return (
     <SdkButton
@@ -63,6 +65,7 @@ function PathCell(props: {
       data-cell={props.index}
       data-testid={`${props.board.testId}-cell-${props.index}`}
       data-tone={props.endpoint?.tone}
+      data-joined={joined() || undefined}
       data-connected={String(props.endpoint?.connected === true)}
       data-selected={String(props.index === props.board.selectedCell)}
       aria-current={

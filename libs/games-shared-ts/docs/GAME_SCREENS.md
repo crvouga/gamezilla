@@ -97,10 +97,8 @@ directly.
    (`GameBoardStage`). A wide window keeps the board beside its rail, at
    the same measure live and finished. The Storybook check
    `stage-stability` proves the board's place through a whole game.
-9. **What interrupts the board lies over the board.** Who plays whom before
-   the game (`GameVersusOverlay`) and how it ended (`GameResultOverlay`) are
-   the stage's `overlay`: they cover the board and nothing else, so nothing
-   around it shifts. Which one shows is a state machine of its own (below).
+9. **Play opens on the board.** The seats identify the players and the
+   stage shows whose turn it is as soon as the game is ready.
 10. **A lobby says what is about to be played and has one command.** It
     opens with the mode card (`GameModeCard`: the mode, the game's name, how
     it is won in a sentence, and what is agreed as three facts), then the
@@ -138,26 +136,6 @@ stage, and each place's parent.
   stage, the place and `onOpen(place)`. Stories pass both as args, so every
   place of every stage is a story.
 
-## The stage's overlay: a second explicit machine
-
-What lies over the board is `StageOverlay`
-(`@pkgs/turn-game-client-ts/stage-overlay`), a pure transition function
-with four states:
-
-| State | Shows | Leaves on |
-| --- | --- | --- |
-| `none` | The board | `began` (to `versus`), `ended` (to `outcome`) |
-| `versus` (a count, 3 to 1) | Who plays whom, counting down | `tick` at 1, `skip` (a press), `ended` |
-| `outcome` | The result card | `dismiss` (to `board`), `reset` |
-| `board` | The final board, the card closed | `show` (back to `outcome`), `reset` |
-
-`useStageOverlay` feeds it from the template's stage and from injected
-timers (`useTimers`), one tick a second. A game this device watched begin
-plays the versus card; a game already under way when the screen opened
-does not, and a game already over opens under its result card. The views
-take the state and one `onOverlay(event)`, so every state is a story and
-no view keeps a timer or a flag of its own.
-
 ## The catalogue
 
 Story ids are `screens-<mode>-<screen>` (`screens-custom-games-stage`,
@@ -191,10 +169,8 @@ notice that says why. The lobby's one filled command is the next thing to do: ta
 seat, arrange an incomplete private setup, get ready, then start. It sits in
 the lobby's dock, under the mode card and the roster.
 
-`stage` opens under the versus card when the game starts on this device, and
-`result` is the final board under the result card: the headline, the
-standings and, once the card is closed, a line that brings it back. The
-commands for what next are the bar under the board on both.
+`stage` shows the live board. In `result`, the card beside the final
+board holds the headline and standings. The action bar offers the next game.
 
 Code: `libs/game-session-client-ts/src/custom-game-places.ts` (the machine),
 `custom-game-screen-view.tsx` (the switch), `custom-games-home-view.tsx`,
@@ -230,10 +206,9 @@ finished game. Its names are `idle` (choosing a time control), `searching`
 
 `home` and `searching` are the same lobby as a custom game's: the mode card
 (Ranked match, the game, how it is won, the players, the clock in words),
-then one docked command (Find an opponent, Stop). A game found on this
-device opens under the versus card with both ratings; `result` lays the
-result card over the final board, with the rating change in its caption and
-the moves beside a wide board.
+then one docked command (Find an opponent, Stop). Once ready, the game
+shows its board and seats. The result card beside the final board shows
+the rating change, with the moves beside a wide board.
 
 Two refinements the specs demand. A finished game keeps the search's hub
 one row from its result, because New opponent seeks at the finished game's
@@ -309,11 +284,11 @@ dialogs) shows on every builder place. The story ids are
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
 | `open` | `home` | Hub | The template screens the game's capabilities offer, one emphasised |
-| | `how-to-play` | Hub | The game's own words on how it is played |
+| | `how-to-play` | Hub | The selected mode's guided practice board |
 
 The menu holds rows that lead onward and nothing else. Choosing a template
 screen moves the whole space (`useGameScreen`); how to play is this
-device's own place behind the menu, offered as a row when the game says how.
+device's own place behind the menu, with steps supplied by the selected game client.
 
 ### A game's settings (`settings`)
 
