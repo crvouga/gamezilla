@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import {
-  openPuzzleByTheme,
+  openNamedChessPuzzle,
   playUntilSolved,
 } from '@libs/chess-puzzle-harness-ts/chess-actions';
 import {
@@ -24,6 +24,7 @@ import {
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import { openHarness } from './open-chess-harness';
+import { ASSISTANT_PUZZLES } from './steps/assistant-fixtures';
 
 // regression: puzzle-catalog-fixtures-withhold-push
 test('an open puzzle pool receives newly ingested rows and retirement tombstones', async () => {
@@ -77,8 +78,31 @@ test('opening the four-move mate already on the board keeps its attempt playable
     maxMs: 20_000,
     pred: (id) => id === puzzle.id,
   });
-  await s.apply(openPuzzleByTheme, actor, puzzle.theme, puzzle.id);
+  await s.apply(openNamedChessPuzzle, actor, puzzle.id);
   expect(await s.read(readPuzzleOnBoard, actor)).toBe('01Xbe');
   await s.apply(playUntilSolved, actor);
   await s.until((world) => isPuzzleSolved(world, actor), { maxMs: 15_000 });
+}, 120_000);
+
+// regression: named-chess-puzzle-shared-theme
+test('opening coachFork selects its position when another fork is on the board', async () => {
+  await using s = await openHarness();
+  const actor = 'alice';
+  const { fork, falseFork } = ASSISTANT_PUZZLES;
+  for (const puzzle of [fork, falseFork, ASSISTANT_PUZZLES.exposed])
+    await s.apply(
+      ingestChessPuzzleCsv,
+      puzzle.csv!.replace('hangingPiece', 'fork')
+    );
+  await s.apply(signInWithGoogle, actor);
+  await s.apply(createSpace, actor);
+  await s.apply(openPuzzleLink, actor, puzzleLinkTo(falseFork.id));
+  await s.until((world) => readPuzzleOnBoard(world, actor), {
+    maxMs: 20_000,
+    pred: (id) => id === falseFork.id,
+  });
+  await s.apply(openNamedChessPuzzle, actor, fork.id);
+  expect(await s.read(readPuzzleOnBoard, actor)).toBe('coachFork');
+  await s.apply(openNamedChessPuzzle, actor, falseFork.id);
+  expect(await s.read(readPuzzleOnBoard, actor)).toBe(falseFork.id);
 }, 120_000);

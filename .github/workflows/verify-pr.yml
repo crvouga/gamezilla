@@ -76,6 +76,8 @@ env:
   TURBO_UI: stream
   TURBO_CACHE_DIR: .turbo/cache
   RAYON_NUM_THREADS: 1
+  # Check source spellings against the deployment identity even on fixture builds.
+  VERIFY_BRAND_IDENTITY_JSON: ${{ vars.PRODUCT_IDENTITY_JSON }}
   VERIFY_LINT_THREADS: 1
   VERIFY_TEST_CONCURRENCY: 1
   GOMAXPROCS: 1

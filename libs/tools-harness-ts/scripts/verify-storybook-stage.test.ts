@@ -7,7 +7,11 @@ import {
   STORYBOOK_TASKS,
 } from './turbo-ci-run';
 import { balanceShards, type VerifyTask } from './verify-shards';
-import { publishedTasks, requiredTasks } from './verify-stage-cache';
+import {
+  executionRoots,
+  publishedTasks,
+  requiredTasks,
+} from './verify-stage-cache';
 
 // regression: uncached-storybook-coverage-prerequisite
 test('uncached Storybook coverage stays with its gate while units and the other browser parts restore the build', () => {
@@ -52,6 +56,16 @@ test('uncached Storybook coverage stays with its gate while units and the other 
       (task) => task.taskId
     )
   ).toContain(coverage);
+  // regression: cached-storybook-consumer-false-timeout
+  const warm = tasks.map((task) => ({
+    ...task,
+    cacheable: task.taskId !== coverage,
+    hit: task.taskId !== coverage,
+  }));
+  expect(executionRoots(warm).map((task) => task.taskId)).toEqual([
+    coverage,
+    first!,
+  ]);
   for (const part of rest)
     expect(
       requiredTasks(plan, [tasks.find((task) => task.taskId === part)!]).map(

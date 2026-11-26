@@ -58,7 +58,7 @@ export async function runShard(index: number): Promise<number> {
   env[VERIFY_TIME_SCALE_ENV] ??= String(SLOW_RUNNER_MULTIPLIER);
   const misses = shard.tasks.filter((task) => !task.hit);
   const prefetchStart = process.hrtime.bigint();
-  const { dependencies, missing, blocked } = await prepareStage(
+  const { roots, dependencies, missing, blocked } = await prepareStage(
     plan,
     shard,
     env,
@@ -69,7 +69,7 @@ export async function runShard(index: number): Promise<number> {
       `Missing prerequisite artifact: ${describeTask(task)}; dependent tasks fail without duplicate execution`
     );
   const needed = new Set(dependencies.map((task) => task.taskId));
-  const execute = misses
+  const execute = roots
     .filter((task) => !blocked.has(task.taskId))
     .map((task) => task.taskId);
   const prefetchMs = Number(process.hrtime.bigint() - prefetchStart) / 1e6;

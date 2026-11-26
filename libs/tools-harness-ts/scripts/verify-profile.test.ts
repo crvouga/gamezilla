@@ -263,6 +263,17 @@ describe('Verify Nightly workflow', () => {
     });
   });
 
+  // regression: nightly-visual-single-runner-timeout
+  test('the visual matrix runs every Playwright shard and retains each result', () => {
+    expect(nightly.jobs['verify-nightly-visual']).toMatchObject({
+      strategy: {
+        'fail-fast': false,
+        matrix: { shard: [1, 2, 3, 4, 5, 6, 7, 8] },
+      },
+      env: { STORYBOOK_SHARD: '${{ matrix.shard }}/${{ strategy.job-total }}' },
+    });
+  });
+
   test('every suite is one job, and every job is a suite', () => {
     const groups = [
       'gate',
@@ -294,7 +305,9 @@ describe('Verify Nightly workflow', () => {
       )!;
       expect(upload.if).toBe('always() && !cancelled()');
       expect(upload.with?.['name']).toBe(
-        `verify-nightly-${suite}-\${{ github.run_id }}`
+        suite === 'visual'
+          ? 'verify-nightly-visual-${{ github.run_id }}-${{ matrix.shard }}'
+          : `verify-nightly-${suite}-\${{ github.run_id }}`
       );
       expect(job.steps!.some((step) => 'continue-on-error' in step)).toBe(
         false

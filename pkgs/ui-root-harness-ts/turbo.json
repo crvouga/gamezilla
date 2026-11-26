@@ -87,6 +87,7 @@
       "passThroughEnv": [
         "STORYBOOK_TEST_PORT",
         "STORYBOOK_PATTERN",
+        "STORYBOOK_SHARD",
         "GITHUB_SHA"
       ]
     },

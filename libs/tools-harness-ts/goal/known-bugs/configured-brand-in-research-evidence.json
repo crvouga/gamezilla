@@ -1,0 +1,4 @@
+{
+  "summary": "Research evidence links spelled the configured repository name. The fixture gate passed and Health failed before its probes started.",
+  "regressionTest": "libs/tools-harness-ts/scripts/brand-policy.test.ts"
+}

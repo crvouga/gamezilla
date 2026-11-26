@@ -16,10 +16,20 @@ export function requiredTasks(plan: VerifyPlan, roots: VerifyShard['tasks']) {
   return plan.tasks.filter((task) => needed.has(task.taskId));
 }
 
+/** A cached consumer's start confirms its uncached prerequisite has finished. */
+export function executionRoots(tasks: VerifyShard['tasks']) {
+  const uncached = new Set(
+    tasks.filter((task) => task.cacheable === false).map((task) => task.taskId)
+  );
+  return tasks.filter(
+    (task) => !task.hit || task.dependencies.some((id) => uncached.has(id))
+  );
+}
+
 export function publishedTasks(plan: VerifyPlan, shard: VerifyShard) {
   const otherRoots = plan.shards
     .filter((item) => item.index !== shard.index)
-    .flatMap((item) => item.tasks.filter((task) => !task.hit));
+    .flatMap((item) => executionRoots(item.tasks));
   const needed = new Set(
     requiredTasks(plan, otherRoots).map((task) => task.taskId)
   );
@@ -62,10 +72,8 @@ export async function prepareStage(
   env: NodeJS.ProcessEnv,
   root: string
 ) {
-  const dependencies = requiredTasks(
-    plan,
-    shard.tasks.filter((task) => !task.hit)
-  );
+  const roots = executionRoots(shard.tasks);
+  const dependencies = requiredTasks(plan, roots);
   const own = new Set(shard.tasks.map((task) => task.taskId));
   const external = dependencies.filter((task) => !own.has(task.taskId));
   const publish = publishedTasks(plan, shard);
@@ -96,15 +104,13 @@ export async function prepareStage(
   );
   const absent = new Set(missing.map((task) => task.taskId));
   const blocked = new Set(
-    shard.tasks
-      .filter(
-        (task) =>
-          !task.hit &&
-          requiredTasks(plan, [task]).some((dep) => absent.has(dep.taskId))
+    roots
+      .filter((task) =>
+        requiredTasks(plan, [task]).some((dep) => absent.has(dep.taskId))
       )
       .map((task) => task.taskId)
   );
-  return { dependencies, publish, missing, blocked };
+  return { roots, dependencies, publish, missing, blocked };
 }
 
 /** Files for consumers, even if remote upload is unavailable. */

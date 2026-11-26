@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly exhausted the two-hour visual budget running the complete Storybook matrix on one runner.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-profile.test.ts"
+}
