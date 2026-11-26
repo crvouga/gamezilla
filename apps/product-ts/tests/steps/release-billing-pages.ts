@@ -23,55 +23,63 @@ async function showAction(w: LiveWorld, button: string): Promise<void> {
     );
 }
 
-// Observe the app's own guard while its real provider request is pending.
-// A synthetic cancelable event exercises listeners without navigating the tab.
-function observePendingDeparture(timeoutMs: number): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const pending = () =>
-      !window.dispatchEvent(new Event('beforeunload', { cancelable: true }));
-    if (pending()) throw new Error('The app already has pending work');
-    const deadline = AbortSignal.timeout(timeoutMs);
-    const observer = new MutationObserver(() => {
-      if (!pending()) return;
-      observer.disconnect();
-      resolve();
-    });
-    observer.observe(document.body, {
-      subtree: true,
-      attributes: true,
-      childList: true,
-    });
-    deadline.onabort = () => {
-      observer.disconnect();
-      reject(new Error('The billing action did not guard pending work'));
-    };
-    window.addEventListener(
-      'pagehide',
-      () =>
-        reject(
-          new Error('Billing left before its pending-work guard was observed')
-        ),
-      { once: true }
-    );
-  });
+// Run in the disposable tab. The real API and simulated provider still handle
+// the POST. Only delivery of this one response waits for the pending-state capture.
+function holdResponse(url: string, release: string): void {
+  const fetchResponse = window.fetch.bind(window);
+  const released = new Promise<void>((resolve) =>
+    window.addEventListener(release, () => resolve(), { once: true })
+  );
+  window.fetch = async (...args) => {
+    const response = await fetchResponse(...args);
+    if (response.url === url) {
+      window.fetch = fetchResponse;
+      await released;
+    }
+    return response;
+  };
 }
 
-async function openProvider(
+const releaseResponse = 'release-billing-provider-response';
+const canLeave =
+  "window.dispatchEvent(new Event('beforeunload', { cancelable: true }))";
+
+async function choose(
   w: LiveWorld,
-  button: string,
-  origin: string
+  action: 'checkout' | 'portal'
+): Promise<void> {
+  const view = w.hostView();
+  if ((await view.evaluate(canLeave)) !== true)
+    throw new Error('The app already has pending work');
+  const url = new URL(`/api/billing/${action}`, w.origins.api).href;
+  await view.evaluate(
+    `(${holdResponse.toString()})(${JSON.stringify(url)}, ${JSON.stringify(releaseResponse)})`
+  );
+  const button =
+    action === 'checkout' ? Handles.billingSubscribe : Handles.billingManage;
+  await w.journey.act('choose the billing action', (ui) => tap(ui, button));
+  if ((await view.evaluate(canLeave)) !== false)
+    throw new Error(`The pending ${action} did not guard departure`);
+}
+
+async function arrive(
+  w: LiveWorld,
+  origin: string,
+  control: string
 ): Promise<void> {
   const browser = w.journey.browser;
   if (!browser) throw new Error('The billing handoff needs a browser');
-  await Promise.all([
-    w
-      .hostView()
-      .evaluate(`(${observePendingDeparture.toString()})(${JOURNEY_WAIT_MS})`),
-    w.journey.act('choose the billing action', (ui) => tap(ui, button)),
-  ]);
+  await w
+    .hostView()
+    .evaluate(
+      `window.dispatchEvent(new Event(${JSON.stringify(releaseResponse)}))`
+    );
   await browser.waitForNavigation(
     (url) => new URL(url).origin === origin,
     JOURNEY_WAIT_MS
+  );
+  await w.journey.act('see the provider page', (ui) =>
+    expectVisible(ui, control)
   );
 }
 
@@ -84,20 +92,14 @@ export function registerReleaseBillingPages(providerOrigin: string): void {
       await showAction(w, Handles.billingSubscribe);
     },
     leaveCheckout: async (w) => {
-      await openProvider(w, Handles.billingSubscribe, providerOrigin);
+      await choose(w, 'checkout');
+      await arrive(w, providerOrigin, checkoutCard);
       await w.journey.act('leave checkout', (ui) => tap(ui, cancelCheckout));
       await showAction(w, Handles.billingManage);
     },
-    openCheckout: (w) =>
-      openProvider(w, Handles.billingSubscribe, providerOrigin),
-    seeCheckout: (w) =>
-      w.journey.act('see the checkout form', (ui) =>
-        expectVisible(ui, checkoutCard)
-      ),
-    openPortal: (w) => openProvider(w, Handles.billingManage, providerOrigin),
-    seePortal: (w) =>
-      w.journey.act('see the portal return action', (ui) =>
-        expectVisible(ui, portalReturn)
-      ),
+    openCheckout: (w) => choose(w, 'checkout'),
+    seeCheckout: (w) => arrive(w, providerOrigin, checkoutCard),
+    openPortal: (w) => choose(w, 'portal'),
+    seePortal: (w) => arrive(w, providerOrigin, portalReturn),
   });
 }
