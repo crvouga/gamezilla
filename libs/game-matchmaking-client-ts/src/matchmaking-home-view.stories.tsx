@@ -1,3 +1,4 @@
+import { GameSetupModeContext } from '@libs/spaces-client-ts/game-setup-mode';
 import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -178,5 +179,33 @@ export const OpenRatings: Story = {
     await expect(
       await canvas.findByTestId('multiplayer-rating-blitz-value')
     ).toHaveTextContent('1623');
+  },
+};
+
+export const KingOfTheHill: Story = {
+  args: {
+    title: 'Quoridor: King of the Hill',
+    goal: 'Reach the central hill first.',
+    find: { players: 4, timed: true, timeControl: '5+0' },
+  },
+  render: (args) => (
+    <GameSetupModeContext
+      value={{
+        segments: [
+          { key: 'quoridor', label: 'Classic' },
+          { key: 'quoridor-hill', label: 'King of the Hill' },
+        ],
+        selected: 'quoridor-hill',
+        onSelect: fn(),
+      }}
+    >
+      {renderStory()(args)}
+    </GameSetupModeContext>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('radio', { name: 'King of the Hill' })
+    ).toBeChecked();
   },
 };

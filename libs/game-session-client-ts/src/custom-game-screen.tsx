@@ -74,7 +74,7 @@ const DENIED_FRAME = {
   stopped: false,
   status: null,
   canCreate: false,
-  playerCount: 2,
+  sides: ['white', 'black'],
   setup: null,
   table: FRAME_NO_TABLE,
   play: FRAME_NO_PLAY,
@@ -213,7 +213,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onReopen={() => model.simulation.restart()}
         status={status()}
         canCreate={model.canCreate()}
-        playerCount={model.playerCount()}
+        sides={model.sides()}
         setup={setup()}
         table={table()}
         play={play()}

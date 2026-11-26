@@ -128,12 +128,7 @@ class DefinedGameClient implements GameClientDefinition {
     if (game.puzzleContent !== undefined)
       this.puzzleContent = game.puzzleContent;
     this.MainMenu = (props) => (
-      <GameMenu
-        game={game}
-        onBackToGames={props.onBackToGames}
-        modes={props.modes}
-        onChooseMode={props.onChooseMode}
-      />
+      <GameMenu game={game} onBackToGames={props.onBackToGames} />
     );
     const puzzles = game.puzzles;
     if (puzzles !== undefined) {

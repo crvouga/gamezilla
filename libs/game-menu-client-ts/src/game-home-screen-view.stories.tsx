@@ -11,12 +11,12 @@ function sharedChoices(name: string): readonly GameMenuChoiceView[] {
   return [
     {
       screen: 'custom-game',
-      title: 'Play with friends',
+      title: 'Custom games',
       caption: 'With the people in this space, or bots',
     },
     {
       screen: 'multiplayer',
-      title: 'Find an opponent',
+      title: 'Match making',
       caption: `Meet another ${name} player`,
     },
     {
@@ -91,12 +91,12 @@ export const ManyPlayers: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Play with friends',
+        title: 'Custom games',
         caption: 'With the people in this space, or bots',
       },
       {
         screen: 'multiplayer',
-        title: 'Find players',
+        title: 'Match making',
         caption: 'Meet 3 other Hearts players',
       },
     ],
@@ -140,7 +140,7 @@ export const LongContent: Story = {
 export const OpenChoice: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Find an opponent'));
+    await userEvent.click(await canvas.findByText('Match making'));
     await expect(args.onChoose).toHaveBeenCalledWith('multiplayer');
   },
 };
@@ -167,5 +167,23 @@ export const OpenHowToPlay: Story = {
     await expect(
       await canvas.findByText(/Take turns dropping a disc/)
     ).toBeVisible();
+  },
+};
+
+export const ClassicQuoridor: Story = {
+  args: {
+    title: 'Classic Quoridor',
+    tile: 'walls',
+    subtitle: 'Race your pawn across the board. Shape the path with walls.',
+    instructions:
+      'Move one square or place one wall each turn. The first to reach the opposite home row wins.',
+    choices: [
+      {
+        screen: 'multiplayer',
+        title: 'Match making',
+        caption: 'Find players for your chosen mode',
+      },
+      ...CHOICES.filter((choice) => choice.screen !== 'multiplayer'),
+    ],
   },
 };

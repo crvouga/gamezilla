@@ -68,7 +68,7 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly status: FrameStatus | null;
   /** May create a game (before there is one). */
   readonly canCreate: boolean;
-  readonly playerCount: number;
+  readonly sides: readonly GameSide[];
   /** While the game is set up. */
   readonly setup: FrameSetup | null;
   /** The seats around the board once the game is played. */
@@ -195,7 +195,7 @@ function FramePlaces(
           <FrameCommandsPlace {...props} />
         </Show>
       </Match>
-      <Match when={over()}>
+      <Match when={over() && screen() !== 'home'}>
         <FrameResultPlace {...props} confirming={props.confirming} />
       </Match>
     </Switch>

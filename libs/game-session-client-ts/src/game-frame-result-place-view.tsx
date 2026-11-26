@@ -74,19 +74,20 @@ function NextActions(props: Props): JSX.Element {
                   dataSet={{ testid: 'custom-game-rematch' }}
                   operation={() => props.onChoose({ operation: 'rematch' })}
                 />
-                <GameActionButton
+                <Button
                   title={<Trans>New game</Trans>}
+                  variant="outline"
                   dataSet={{ testid: 'custom-game-new' }}
-                  operation={() => props.onChoose({ operation: 'create' })}
+                  onClick={() => props.onOpen({ screen: 'home' })}
                 />
               </>
             }
           >
-            <GameActionButton
+            <Button
               title={<Trans>New game</Trans>}
               variant="solid"
               dataSet={{ testid: 'custom-game-new' }}
-              operation={() => props.onChoose({ operation: 'create' })}
+              onClick={() => props.onOpen({ screen: 'home' })}
             />
             <GameActionButton
               title={<Trans>Rematch</Trans>}

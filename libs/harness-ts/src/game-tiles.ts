@@ -1,8 +1,8 @@
 /**
  * A game is offered once in a space's game choice, whatever its modes: its
  * one tile opens the mode whose id is the game's family, and the other modes
- * are chosen among the game's choices. A person picking a mode taps its
- * game's tile, then the mode.
+ * are chosen during setup. A person picking a mode taps its
+ * game's tile, opens a setup, then picks the mode.
  */
 
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -24,8 +24,8 @@ export function gameTile(s: ProductHarness, gameId: string): string {
 }
 
 /**
- * On the game's choices, set up the mode `gameId` when another mode of its
- * game is set up. Whether it tapped: the choices then change to that mode.
+ * On a setup screen, choose the mode `gameId` when another mode of its
+ * game is set up. Whether it tapped: the setup then changes to that mode.
  */
 export async function chooseGameMode(
   ui: { get(testId: string): DriverNode },
@@ -38,22 +38,17 @@ export async function chooseGameMode(
   return true;
 }
 
-/** Whether the game's choices show the mode `gameId`, or a game with one mode. */
-export async function gameModeShown(
+export async function selectedSetupMode(
   ui: { get(testId: string): DriverNode },
   gameId: string
 ): Promise<boolean> {
-  if (!(await ui.get(Handles.gameModes).isVisible())) return true;
   return (
     (await ui.get(Handles.gameMode(gameId)).attribute('aria-checked')) ===
     'true'
   );
 }
 
-/**
- * On the game's choices `actor` sees, set up the mode `gameId` and wait
- * until the choices are that mode's.
- */
+/** Choose a mode on the setup screen and wait for the room to show it. */
 export async function setUpGameMode(
   s: ProductHarness,
   ui: { get(testId: string): DriverNode },
@@ -62,10 +57,10 @@ export async function setUpGameMode(
   await pollUntil(
     s,
     async () => {
-      if (await gameModeShown(ui, gameId)) return true;
+      if (await selectedSetupMode(ui, gameId)) return true;
       await chooseGameMode(ui, gameId);
       return null;
     },
-    { maxMs: 15_000, stepMs: 1, description: `the choices of ${gameId}` }
+    { maxMs: 15_000, stepMs: 1, description: `the setup of ${gameId}` }
   );
 }

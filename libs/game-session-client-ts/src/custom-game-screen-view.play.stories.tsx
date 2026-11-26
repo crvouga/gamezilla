@@ -168,7 +168,7 @@ export const Watching: Story = {
 export const FourSeats: Story = {
   render: (args) => onBoard(MID_GAME_MOVES)(args),
   args: {
-    playerCount: 4,
+    sides: ['white', 'black', 'red', 'blue'],
     status: status({
       lineup:
         'Red circle: avery. Yellow diamond: jordan_plays. Third seat: morgan. Fourth seat: Bot.',

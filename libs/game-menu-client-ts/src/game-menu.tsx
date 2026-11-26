@@ -13,7 +13,6 @@ import {
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
-import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import {
@@ -35,8 +34,6 @@ function GameChoices(props: {
   offers: Offers;
   navigation: GameScreen;
   onBackToGames: () => void;
-  modes?: readonly GameModeOption[] | undefined;
-  onChooseMode?: ((id: string) => void) | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
@@ -69,9 +66,6 @@ function GameChoices(props: {
         onChoose={(screen) => props.navigation.show(screen)}
         place={nav.place()}
         onOpen={nav.open}
-        modes={props.modes}
-        mode={props.game.shared.id}
-        onChooseMode={props.onChooseMode}
       />
     </>
   );
@@ -144,9 +138,6 @@ function GameFrame(props: {
 export function GameMenu(props: {
   game: GameClient;
   onBackToGames: () => void;
-  /** The game's modes, when it has several; switching one sets it up instead. */
-  modes?: readonly GameModeOption[] | undefined;
-  onChooseMode?: ((id: string) => void) | undefined;
 }): JSX.Element {
   const navigation = useGameScreen();
   const offers: Offers = (capability) =>
@@ -167,8 +158,6 @@ export function GameMenu(props: {
       offers={offers}
       navigation={navigation}
       onBackToGames={props.onBackToGames}
-      modes={props.modes}
-      onChooseMode={props.onChooseMode}
     />
   );
   const Shown = dynamic(() => screens().get(navigation.screen()) ?? choices);

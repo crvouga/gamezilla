@@ -75,7 +75,7 @@ function props(): CustomGameScreenViewProps {
       increment: 0,
     },
     canCreate: false,
-    playerCount: 3,
+    sides: ['white', 'black', 'red'],
     setup: null,
     table: {
       shape: 'rail',

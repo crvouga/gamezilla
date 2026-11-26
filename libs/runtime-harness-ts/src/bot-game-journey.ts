@@ -1,11 +1,10 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   check,
   endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
-  pickGameInSpace,
+  openGameSetupInSpace,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
@@ -73,8 +72,7 @@ export async function startBotGameJourney(
   host.defer('bot-game-space', endActiveSpace);
   await host.act('hostBotGameSpace', hostSpace);
   await host.act('startChosenBotGame', async (ui) => {
-    await pickGameInSpace(ui, game.id, game.family);
-    await tap(ui, Handles.gameChoice('custom-game'));
+    await openGameSetupInSpace(ui, game.id, 'custom-game', game.family);
     await ui.get('custom-game-connection-needed').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,
     });

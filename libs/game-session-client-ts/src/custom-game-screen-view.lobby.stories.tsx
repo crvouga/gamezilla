@@ -260,7 +260,7 @@ export const PrivateSetupIncomplete: Story = {
 /** A guest on this device and a closed seat, the other ways to fill a place. */
 export const LocalAndClosedSeats: Story = {
   args: {
-    playerCount: 3,
+    sides: ['white', 'black', 'red'],
     setup: setup(
       [
         HOST_SEAT,

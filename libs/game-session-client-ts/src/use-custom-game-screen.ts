@@ -175,7 +175,7 @@ export function useCustomGameScreen(
   );
   return {
     myId,
-    playerCount: () => gameSides(rules.byId(gameId())).length,
+    sides: () => gameSides(rules.byId(gameId())),
     games,
     current,
     members,

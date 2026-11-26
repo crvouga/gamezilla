@@ -176,7 +176,7 @@ export function frameProps(
     stopped: false,
     status: status(),
     canCreate: true,
-    playerCount: 2,
+    sides: ['white', 'black'],
     setup: null,
     table: {
       shape: 'strip',

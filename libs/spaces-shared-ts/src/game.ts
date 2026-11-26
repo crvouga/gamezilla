@@ -216,19 +216,9 @@ export type GameClientMode = {
   readonly name: string;
 };
 
-/** A mode the selected game's choices offer to switch to. */
-export type GameModeOption = {
-  readonly id: string;
-  readonly name: string;
-};
-
 export type GameClientMenuProps = {
   /** Called by the game's main menu when the user asks to return to the games picker. */
   onBackToGames: () => void;
-  /** Every mode of the selected game, in the order registered; empty for a game with one. */
-  modes?: readonly GameModeOption[] | undefined;
-  /** Switches the space to another mode; unset where only the host may. */
-  onChooseMode?: ((id: string) => void) | undefined;
 };
 
 /**
