@@ -133,14 +133,27 @@ export const CommandRefused: Story = {
   args: { error: 'Multiplayer game could not accept that command.' },
 };
 
-/** The moves are one row away, and Back returns to the result. */
+/** Review a finished game, copy its record, then return to its moves. */
 export const OpenMoves: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('multiplayer-open-moves'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'moves' });
+    await userEvent.click(
+      await canvas.findByRole('button', { name: 'Game record' })
+    );
+    const record = within(
+      await canvas.findByRole('dialog', { name: 'Game record' })
+    );
+    const copy = record.getByTestId('multiplayer-copy-game-record');
+    await expect(copy).toBeVisible();
+    await userEvent.click(copy);
+    await expect(args.commands.copy).toHaveBeenCalledWith(
+      STORY_FINISHED_GAME.record?.record
+    );
+    await userEvent.click(record.getByRole('button', { name: 'Close' }));
     await expect(
-      await canvas.findByTestId('multiplayer-copy-game-record')
+      await canvas.findByRole('button', { name: 'Back one move' })
     ).toBeVisible();
   },
 };

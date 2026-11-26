@@ -1,0 +1,4 @@
+{
+  "summary": "Opening moves from a finished Connect Four result failed in light and dark at 390 and 1440 pixels because the story looked for Copy before opening Game record.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}
