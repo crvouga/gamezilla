@@ -263,7 +263,12 @@ export async function showMultiplayerMoveList(
   actor: string
 ): Promise<boolean> {
   const ui = await actorUi(s, actor);
-  if (await ui.get('multiplayer-move-list').isVisible()) return false;
+  // The finished board's history stays mounted behind the result dialog.
+  if (
+    !(await ui.get('game-result-close').isVisible()) &&
+    (await ui.get('multiplayer-move-list').isVisible())
+  )
+    return false;
   return (await openMultiplayerPlace(s, actor, 'moves')) === 'opened';
 }
 

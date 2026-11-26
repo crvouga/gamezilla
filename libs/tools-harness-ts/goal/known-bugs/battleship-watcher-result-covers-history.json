@@ -1,0 +1,4 @@
+{
+  "summary": "A watcher reviewing a finished Battleship game tapped the first move behind the result dialog because the underlying history still had visible bounds.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/multiplayer-result-review.test.ts"
+}
