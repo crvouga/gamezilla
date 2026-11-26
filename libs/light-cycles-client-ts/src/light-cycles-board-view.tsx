@@ -295,6 +295,8 @@ function Arena(props: {
         </P>
       </VisuallyHidden>
       <TrailArena
+        round={props.state.round}
+        inspectable={ownSteering() === 'watching' && !away()}
         touchRegions={
           controlled().length === 2 && controlled().some(steerable)
             ? [
