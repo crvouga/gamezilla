@@ -1,0 +1,3365 @@
+{
+  "format": 1,
+  "packs": [
+    {
+      "id": "numberlink-first-threads",
+      "title": "First threads",
+      "description": "Small square boards for learning to join every pair and fill every cell.",
+      "difficulty": "Beginner",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A1AB/C1D1/2B1/C2D",
+          "solution": "AAAB/CDDB/CDBB/CDDD"
+        },
+        {
+          "id": "02",
+          "board": "NL1:A1AB/CD2/1C2/D2B",
+          "solution": "AAAB/CDDB/CCDB/DDDB"
+        },
+        {
+          "id": "03",
+          "board": "NL1:ABC1/2B1/1D1C/1A1D",
+          "solution": "ABCC/ABBC/ADDC/AADD"
+        },
+        {
+          "id": "04",
+          "board": "NL1:A3/B1C1/CB2/3A",
+          "solution": "AAAA/BBCA/CBCA/CCCA"
+        },
+        {
+          "id": "05",
+          "board": "NL1:4/2A1/2BC/CA1B",
+          "solution": "CCCC/CAAC/CABC/CABB"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A2A/2BC/1C2/3B",
+          "solution": "AAAA/BBBC/BCCC/BBBB"
+        },
+        {
+          "id": "07",
+          "board": "NL1:4/1A2/BCA1/C1B1",
+          "solution": "BBBB/BAAB/BCAB/CCBB"
+        },
+        {
+          "id": "08",
+          "board": "NL1:4/1AB1/4/CABC",
+          "solution": "CCCC/CABC/CABC/CABC"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A3A/1BC1D/1E1C1/1B1E1/D4",
+          "solution": "AAAAA/BBCCD/BEECD/BBEED/DDDDD"
+        },
+        {
+          "id": "10",
+          "board": "NL1:A2B1/1C1D1/CEA2/D1E2/4B",
+          "solution": "AAABB/CCADB/CEADB/DEEDB/DDDDB"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A3B/CD1A1/1C1E1/D4/E3B",
+          "solution": "AAAAB/CDDAB/CCDEB/DDDEB/EEEEB"
+        },
+        {
+          "id": "12",
+          "board": "NL1:A1BC1/1BD2/2C2/EA1D1/1E3",
+          "solution": "ABBCC/ABDDC/AACDC/EACDC/EECCC"
+        },
+        {
+          "id": "13",
+          "board": "NL1:A1B1C/BA2D/5/5/CD3",
+          "solution": "AABCC/BABCD/BBBCD/CCCCD/CDDDD"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A4/B1C1A/C1D2/1B1D1/5",
+          "solution": "AAAAA/BBCCA/CBDCC/CBDDC/CCCCC"
+        },
+        {
+          "id": "15",
+          "board": "NL1:4A/2B1C/2DCA/1B1D1/5",
+          "solution": "AAAAA/ABBCC/ABDCA/ABDDA/AAAAA"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A4/3B1/B1C2/DCA1D/5",
+          "solution": "AAAAA/BBBBA/BCCAA/DCAAD/DDDDD"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A2BC/5/2CBD/A4/D4",
+          "solution": "ABBBC/ABCCC/ABCBD/ABBBD/DDDDD"
+        },
+        {
+          "id": "18",
+          "board": "NL1:1AB1B/1C1D1/2CA1/D4/5",
+          "solution": "AABBB/ACCDD/AACAD/DAAAD/DDDDD"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A4/3BA/1C3/3D1/D1CB1",
+          "solution": "AAAAA/DDDBA/DCDBB/DCDDB/DCCBB"
+        },
+        {
+          "id": "20",
+          "board": "NL1:A4/2BCA/1C2D/3B1/D4",
+          "solution": "AAAAA/BBBCA/BCCCD/BBBBD/DDDDD"
+        },
+        {
+          "id": "21",
+          "board": "NL1:A2AB/C2C1/2BD1/1D3/5",
+          "solution": "AAAAB/CCCCB/BBBDB/BDDDB/BBBBB"
+        },
+        {
+          "id": "22",
+          "board": "NL1:5/3A1/BAB2/CD2D/4C",
+          "solution": "BBBBB/BAAAB/BABBB/CDDDD/CCCCC"
+        },
+        {
+          "id": "23",
+          "board": "NL1:3AB/1CD2/2C2/1DA2/B4",
+          "solution": "DDDAB/DCDAB/DCCAB/DDAAB/BBBBB"
+        },
+        {
+          "id": "24",
+          "board": "NL1:5/3AB/B1CD1/A2C1/D4",
+          "solution": "BBBBB/BAAAB/BACDD/AACCD/DDDDD"
+        },
+        {
+          "id": "25",
+          "board": "NL1:A1B2/C4/2C2/DA3/1DB2",
+          "solution": "AABBB/CAAAB/CCCAB/DAAAB/DDBBB"
+        },
+        {
+          "id": "26",
+          "board": "NL1:3A1/1B1C1/5/4A/DBD1C",
+          "solution": "DDDAA/DBDCA/DBDCA/DBDCA/DBDCC"
+        },
+        {
+          "id": "27",
+          "board": "NL1:5/5/1AB2/3A1/CBC2",
+          "solution": "CCCCC/CAAAC/CABAC/CBBAC/CBCCC"
+        },
+        {
+          "id": "28",
+          "board": "NL1:4A/1B1AC/5/3D1/1C1BD",
+          "solution": "CCCAA/CBCAC/CBCCC/CBBDD/CCBBD"
+        },
+        {
+          "id": "29",
+          "board": "NL1:5/1A1AB/1C3/B2D1/D1C2",
+          "solution": "BBBBB/BAAAB/BCCCC/BDDDC/DDCCC"
+        },
+        {
+          "id": "30",
+          "board": "NL1:A3A/1B3/1C1D1/1B3/D2C1",
+          "solution": "AAAAA/BBCCC/BCCDC/BBDDC/DDDCC"
+        },
+        {
+          "id": "31",
+          "board": "NL1:5/AB3/2C1A/1D3/1C1DB",
+          "solution": "AAAAA/ABBBA/CCCBA/CDDBB/CCDDB"
+        },
+        {
+          "id": "32",
+          "board": "NL1:5/1A3/2BA1/1BCDC/4D",
+          "solution": "CCCCC/CAAAC/CBBAC/CBCDC/CCCDD"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-pocket-boards",
+      "title": "Pocket boards",
+      "description": "Short, tall boards that fit a phone in one hand.",
+      "difficulty": "Beginner",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A3/B3/1C2/1DB1/2D1/CA2",
+          "solution": "AAAA/BBBA/CCBA/CDBA/CDDA/CAAA"
+        },
+        {
+          "id": "02",
+          "board": "NL1:1A1B/1B1C/1AD1/1C2/1D2/4",
+          "solution": "AABB/ABBC/AADC/CCDC/CDDC/CCCC"
+        },
+        {
+          "id": "03",
+          "board": "NL1:1AB1/1C2/1A2/4/2D1/CDB1",
+          "solution": "AABB/ACCB/AACB/CCCB/CDDB/CDBB"
+        },
+        {
+          "id": "04",
+          "board": "NL1:3A/2BC/2C1/A3/2D1/DB2",
+          "solution": "AAAA/ABBC/ABCC/ABBB/DDDB/DBBB"
+        },
+        {
+          "id": "05",
+          "board": "NL1:AB2/4/1C1B/1DAC/2D1/4",
+          "solution": "ABBB/AAAB/CCAB/CDAC/CDDC/CCCC"
+        },
+        {
+          "id": "06",
+          "board": "NL1:4/ABC1/4/1C2/1A2/3B",
+          "solution": "AAAA/ABCA/BBCA/BCCA/BAAA/BBBB"
+        },
+        {
+          "id": "07",
+          "board": "NL1:1A1B/3C/2C1/4/2A1/B3",
+          "solution": "AABB/ABBC/ABCC/ABBB/AAAB/BBBB"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A1BC/C3/4/2B1/2A1/4",
+          "solution": "AABC/CABC/CABC/CABC/CAAC/CCCC"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A4/BC1D1/1EC2/2B2/1E3/3DA",
+          "solution": "AAAAA/BCCDA/BECDA/BEBDA/BEBDA/BBBDA"
+        },
+        {
+          "id": "10",
+          "board": "NL1:4A/1BC1D/3DB/2C2/4A/5",
+          "solution": "AAAAA/ABCDD/ABCDB/ABCBB/ABBBA/AAAAA"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A3B/BC3/1DC2/2D2/1A3/5",
+          "solution": "AAAAB/BCCAB/BDCAB/BDDAB/BAAAB/BBBBB"
+        },
+        {
+          "id": "12",
+          "board": "NL1:5/A2B1/CB1D1/5/1DA1C/5",
+          "solution": "AAAAA/ABBBA/CBDDA/CDDAA/CDAAC/CCCCC"
+        },
+        {
+          "id": "13",
+          "board": "NL1:AB3/2C2/CAD2/5/1D3/3B1",
+          "solution": "ABBBB/AACCB/CADCB/CDDCB/CDCCB/CCCBB"
+        },
+        {
+          "id": "14",
+          "board": "NL1:3A1/1B3/5/1C3/3D1/DCBA1",
+          "solution": "DDDAA/DBDDA/DBBDA/DCBDA/DCBDA/DCBAA"
+        },
+        {
+          "id": "15",
+          "board": "NL1:AB1C1/3B1/C1D2/2A2/1D3/5",
+          "solution": "ABBCC/AABBC/CADDC/CAADC/CDDDC/CCCCC"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A1AB1/1CDC1/1D3/5/BE1E1/5",
+          "solution": "AAABB/CCDCB/CDDCB/CCCCB/BEEEB/BBBBB"
+        },
+        {
+          "id": "17",
+          "board": "NL1:1ABC1/1C3/5/1D3/A2B1/D4",
+          "solution": "AABCC/ACBBC/ACCBC/ADCBC/ADCBC/DDCCC"
+        },
+        {
+          "id": "18",
+          "board": "NL1:A4/B4/5/1C1BA/3DC/D4",
+          "solution": "AAAAA/BBBBA/DDDBA/DCDBA/DCDDC/DCCCC"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A4/B3A/5/1C1DB/4C/4D",
+          "solution": "AAAAA/BBBBA/DDDBB/DCDDB/DCCCC/DDDDD"
+        },
+        {
+          "id": "20",
+          "board": "NL1:1A3/3AB/1B2C/3D1/CD3/5",
+          "solution": "AABBB/ABBAB/ABAAC/AAADC/CDDDC/CCCCC"
+        },
+        {
+          "id": "21",
+          "board": "NL1:1ABCA/1D3/2BC1/3D1/5/5/EF1FE",
+          "solution": "AABCA/ADBCA/ADBCA/ADDDA/AAAAA/EEEEE/EFFFE"
+        },
+        {
+          "id": "22",
+          "board": "NL1:A1ABC/D1E2/2B2/D2E1/5/1C1F1/1F3",
+          "solution": "AAABC/DEEBC/DEBBC/DEEEC/FFFFC/FCCFC/FFCCC"
+        },
+        {
+          "id": "23",
+          "board": "NL1:2AB1/1C1D1/2DE1/5/3B1/1C3/3AE",
+          "solution": "AAABB/ACDDB/ACDEB/ACEEB/ACEBB/ACEEE/AAAAE"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A2B1/CB1A1/5/1D1EC/2ED1/5/5",
+          "solution": "AAABB/CBAAB/CBBBB/CDEEC/CDEDC/CDDDC/CCCCC"
+        },
+        {
+          "id": "25",
+          "board": "NL1:AB1CD/5/4B/5/2CD1/5/4A",
+          "solution": "ABCCD/ABCDD/ABCDB/ABCDB/ABCDB/ABBBB/AAAAA"
+        },
+        {
+          "id": "26",
+          "board": "NL1:AB3/2CD1/1BD2/1AEF1/1F3/1E3/4C",
+          "solution": "ABCCC/ABCDC/ABDDC/AAEFC/FFEFC/FEEFC/FFFFC"
+        },
+        {
+          "id": "27",
+          "board": "NL1:1A3/1B1A1/5/CD3/1E1D1/1C1E1/B4",
+          "solution": "AABBB/ABBAB/AAAAB/CDDDB/CEEDB/CCEEB/BBBBB"
+        },
+        {
+          "id": "28",
+          "board": "NL1:A1BC1/D4/2A2/5/B1D2/C4/5",
+          "solution": "AABCC/DABBC/DAABC/DDDBC/BBDBC/CBBBC/CCCCC"
+        },
+        {
+          "id": "29",
+          "board": "NL1:1A1BC/1D1C1/5/5/2A2/BD3/5",
+          "solution": "AABBC/ADBCC/ADBBB/ADDDB/AAADB/BDDDB/BBBBB"
+        },
+        {
+          "id": "30",
+          "board": "NL1:3AB/1C1C1/3D1/DA3/4E/5/BE3",
+          "solution": "AAAAB/ACCCB/AADDB/DADBB/DDDBE/BBBBE/BEEEE"
+        },
+        {
+          "id": "31",
+          "board": "NL1:5/ABC2/D1B2/2D2/5/1E1E1/2CA1",
+          "solution": "AAAAA/ABCCA/DBBCA/DDDCA/CCCCA/CEEEA/CCCAA"
+        },
+        {
+          "id": "32",
+          "board": "NL1:A4/3B1/B4/2C2/1DE2/3E1/1A1DC",
+          "solution": "AAAAA/BBBBA/BAAAA/AACCC/ADEEC/ADDEC/AADDC"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-garden-plots",
+      "title": "Garden plots",
+      "description": "Six by six squares where paths begin to wind around each other.",
+      "difficulty": "Easy",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A5/1BC3/3D2/2C3/A1E1E1/D1B3",
+          "solution": "ABBBBB/ABCCCB/ADDDCB/ADCCCB/ADEEEB/DDBBBB"
+        },
+        {
+          "id": "02",
+          "board": "NL1:1AB2C/1DEC2/4B1/6/1D2EA/6",
+          "solution": "AABBBC/ADECBC/ADECBC/ADECCC/ADEEEA/AAAAAA"
+        },
+        {
+          "id": "03",
+          "board": "NL1:A3AB/3C2/1DE2C/2DE2/1B4/6",
+          "solution": "AAAAAB/CCCCBB/CDEEBC/CDDEBC/CBBBBC/CCCCCC"
+        },
+        {
+          "id": "04",
+          "board": "NL1:4A1/1B4/3B2/CDED2/1E2C1/4A1",
+          "solution": "DDDDAA/DBBDDA/DDBBDA/CDEDDA/CEECCA/CCCCAA"
+        },
+        {
+          "id": "05",
+          "board": "NL1:AB4/4A1/B5/1C3D/1D1E2/4CE",
+          "solution": "ABBBBB/AAAAAB/BBBBBB/CCDDDD/CDDEEE/CCCCCE"
+        },
+        {
+          "id": "06",
+          "board": "NL1:3A1B/5C/2D3/3ED1/1AB1E1/C5",
+          "solution": "AAAABB/ABBBBC/ABDDDC/ABBEDC/AABEEC/CCCCCC"
+        },
+        {
+          "id": "07",
+          "board": "NL1:5A/1B3B/3A1C/D2E1E/2C3/D5",
+          "solution": "AAAAAA/ABBBBB/AAAACC/DEEECE/DECCCE/DEEEEE"
+        },
+        {
+          "id": "08",
+          "board": "NL1:2AB1C/1D3E/1ADB2/6/1E4/5C",
+          "solution": "AAABCC/ADDBCE/AADBCE/CCCCCE/CEEEEE/CCCCCC"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A5/B1C1DC/2D1EF/6/2EF2/B4A",
+          "solution": "AACCCC/BACDDC/BADDEF/BAEEEF/BAEFFF/BAAAAA"
+        },
+        {
+          "id": "10",
+          "board": "NL1:6/5A/2B3/2CBD1/1E1E2/1AD2C",
+          "solution": "AAAAAA/ACCCCA/ACBBCC/ACCBDC/AEEEDC/AADDDC"
+        },
+        {
+          "id": "11",
+          "board": "NL1:5A/3B1C/5D/1BCE2/1D2E1/2A3",
+          "solution": "AAAAAA/ABBBCC/ABCCCD/ABCEED/ADDDED/AAADDD"
+        },
+        {
+          "id": "12",
+          "board": "NL1:3ABC/A5/B5/3D2/1E1EF1/1CF2D",
+          "solution": "AAAABC/ABBBBC/BBCCCC/CCCDDD/CEEEFD/CCFFFD"
+        },
+        {
+          "id": "13",
+          "board": "NL1:6/2A1B1/6/3C1D/1A1E2/1C1BED",
+          "solution": "CCCCCC/CAABBC/CABBCC/CABCCD/CABEED/CCBBED"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A1A3/1BC1DE/3E2/5D/1C1FBF/6",
+          "solution": "AAAEEE/BBCEDE/BCCEDD/BCBBBD/BCBFBF/BBBFFF"
+        },
+        {
+          "id": "15",
+          "board": "NL1:1A4/A2BC1/D5/3EC1/1FB1EF/5D",
+          "solution": "AAFFFF/AFFBCF/DFBBCF/DFBECF/DFBEEF/DDDDDD"
+        },
+        {
+          "id": "16",
+          "board": "NL1:5A/1B1C2/3D1A/5E/1BC3/4ED",
+          "solution": "EEEEEA/EBCCEA/EBCDEA/EBCDEE/EBCDDD/EEEEED"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A1B2C/DAD2B/6/6/1C4/6",
+          "solution": "AABBCC/DADBCB/DDDBCB/BBBBCB/BCCCCB/BBBBBB"
+        },
+        {
+          "id": "18",
+          "board": "NL1:A5/BA2C1/6/DB2DE/3CE1/F4F",
+          "solution": "AADDDD/BADCCD/BBDCDD/DBDCDE/DDDCEE/FFFFFF"
+        },
+        {
+          "id": "19",
+          "board": "NL1:3A2/1B2C1/C5/6/1D3A/1EDE1B",
+          "solution": "CCCAAA/CBCCCA/CBBBBA/EEEEBA/EDDEBA/EEDEBB"
+        },
+        {
+          "id": "20",
+          "board": "NL1:5A/5B/6/1BCD2/1E1ED1/3AC1",
+          "solution": "AAAAAA/ABBBBB/ABCCCC/ABCDDC/AEEEDC/AAAACC"
+        },
+        {
+          "id": "21",
+          "board": "NL1:6/4A1/B1C3/2D3/1C1D2/1A3B",
+          "solution": "BBBBBB/BAAAAB/BACCCB/AADDCB/ACCDCB/AACCCB"
+        },
+        {
+          "id": "22",
+          "board": "NL1:6/6/1A1B2/C2D2/2D1A1/BC4",
+          "solution": "CCCCCC/CAAAAC/CABBAC/CBBDAC/BBDDAC/BCCCCC"
+        },
+        {
+          "id": "23",
+          "board": "NL1:A5/BA2C1/2D1B1/D1C3/6/6",
+          "solution": "AADDDD/BADCCD/BBDCBD/DBCCBD/DBBBBD/DDDDDD"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A3B1/2C1D1/3E2/6/5B/1AEC1D",
+          "solution": "AEEEBB/AECEDB/AECEDB/AECCDB/AEECDB/AAECDD"
+        },
+        {
+          "id": "25",
+          "board": "NL1:6/1A1BC1/6/4D1/1A2CB/1D4",
+          "solution": "DDDDDD/DABBCD/DABCCD/DABCDD/DABCCB/DDBBBB"
+        },
+        {
+          "id": "26",
+          "board": "NL1:6/1A2B1/2C3/2D3/DEBA2/E4C",
+          "solution": "CCCCCC/CAAABC/CCCABC/DDDABC/DEBABC/EEBBBC"
+        },
+        {
+          "id": "27",
+          "board": "NL1:6/AB2C1/6/B2D2/A5/C2D2",
+          "solution": "AAADDD/ABADCD/BBADCD/BAADCD/AACCCD/CCCDDD"
+        },
+        {
+          "id": "28",
+          "board": "NL1:6/5A/2AB2/5C/1C1D2/4DB",
+          "solution": "AAAAAA/ACCCCA/ACABCC/ACABBC/ACADBB/AAADDB"
+        },
+        {
+          "id": "29",
+          "board": "NL1:1AB3/6/3C2/6/1DC1EB/2AD1E",
+          "solution": "AABBBB/ADDDDB/ADCCDB/ADCDDB/ADCDEB/AAADEE"
+        },
+        {
+          "id": "30",
+          "board": "NL1:6/1AB3/4B1/6/1C2DA/CD4",
+          "solution": "DDDDDD/DABBBD/DAAABD/DDDADD/CCDADA/CDDAAA"
+        },
+        {
+          "id": "31",
+          "board": "NL1:A5/4B1/6/AC1CDE/B2D2/E5",
+          "solution": "ACCCCC/ACBBBC/ACBCCC/ACBCDE/BBBDDE/EEEEEE"
+        },
+        {
+          "id": "32",
+          "board": "NL1:5A/6/4B1/A5/C3D1/B3CD",
+          "solution": "AAAAAA/ACCCCC/ACBBBC/ACBCCC/CCBCDD/BBBCCD"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-ribbons",
+      "title": "Ribbons",
+      "description": "Long, narrow strips where every turn counts.",
+      "difficulty": "Easy",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:8/A5B1/B1A5",
+          "solution": "AAAAAAAA/ABBBBBBA/BBAAAAAA"
+        },
+        {
+          "id": "02",
+          "board": "NL1:4A2A/1B6/1C4BC",
+          "solution": "CCCCAAAA/CBBCCCCC/CCBBBBBC"
+        },
+        {
+          "id": "03",
+          "board": "NL1:5A1B/1C4A1/2B1C3",
+          "solution": "BBBBBAAB/BCCCBBAB/BBBCCBBB"
+        },
+        {
+          "id": "04",
+          "board": "NL1:3A4/1B4C1/C4BA1",
+          "solution": "CCCAAAAA/CBCCCCCA/CBBBBBAA"
+        },
+        {
+          "id": "05",
+          "board": "NL1:ABA5/6B1/8",
+          "solution": "ABAAAAAA/ABBBBBBA/AAAAAAAA"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A4BAC/1B6/3C4",
+          "solution": "ABBBBBAC/ABAAAAAC/AAACCCCC"
+        },
+        {
+          "id": "07",
+          "board": "NL1:1A3B3/1C1A3C1/4B4",
+          "solution": "AACCCBBBB/ACCACCCCB/AAAABBBBB"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A3B4/1CB4C1/1A7",
+          "solution": "ACCCBBBBB/ACBCCCCCB/AABBBBBBB"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A5A1B/CB6C/9",
+          "solution": "AAAAAAABB/CBBBBBBBC/CCCCCCCCC"
+        },
+        {
+          "id": "10",
+          "board": "NL1:8A/1B4AC1/4CB3",
+          "solution": "CCCCCCCCA/CBBBBBACA/CCCCCBAAA"
+        },
+        {
+          "id": "11",
+          "board": "NL1:7AB/1C2B4/2A5C",
+          "solution": "AAAAAAAAB/ACCCBBBBB/AAACCCCCC"
+        },
+        {
+          "id": "12",
+          "board": "NL1:6AB1/1BC4C1/A8",
+          "solution": "AAAAAAABB/ABCCCCCCB/ABBBBBBBB"
+        },
+        {
+          "id": "13",
+          "board": "NL1:5A2/1A4B1/1C6/1B5C",
+          "solution": "BBBBBAAA/BAAABBBA/BCCAAAAA/BBCCCCCC"
+        },
+        {
+          "id": "14",
+          "board": "NL1:1AB4B/2C3DE/1CA1E3/7D",
+          "solution": "AABBBBBB/ACCDDDDE/ACADEEEE/AAADDDDD"
+        },
+        {
+          "id": "15",
+          "board": "NL1:6AB/1BCA4/5D2/6CD",
+          "solution": "CCCAAAAB/CBCABBBB/CBBBBDDD/CCCCCCCD"
+        },
+        {
+          "id": "16",
+          "board": "NL1:8/1A1BC3/5DC1/D3AB2",
+          "solution": "DDDBBBBB/DADBCCCB/DADDDDCB/DAAAABBB"
+        },
+        {
+          "id": "17",
+          "board": "NL1:6A1/1AB2CB1/8/2C5",
+          "solution": "CCCCCCAA/CABBBCBA/CAAABBBA/CCCAAAAA"
+        },
+        {
+          "id": "18",
+          "board": "NL1:7A/1BC2CD1/6B1/5DA1",
+          "solution": "DDDDDDDA/DBCCCCDA/DBBBBBBA/DDDDDDAA"
+        },
+        {
+          "id": "19",
+          "board": "NL1:AB1C5/1C4DE1/4B1E2/2A3D2",
+          "solution": "ABBCCCDDD/ACBBBCDED/ACCCBCEED/AAACCCDDD"
+        },
+        {
+          "id": "20",
+          "board": "NL1:3A5/BC1D5/C5BD1/A8",
+          "solution": "BBBAAAAAA/BCBDDDDDA/CCBBBBBDA/AAAAAAAAA"
+        },
+        {
+          "id": "21",
+          "board": "NL1:ABC6/2B5D/1C2D1EAE/9",
+          "solution": "ABCCDDDDD/ABBCDAAAD/ACCCDAEAE/AAAAAAEEE"
+        },
+        {
+          "id": "22",
+          "board": "NL1:6AB1/1CB1D2D1/2C4A1/9",
+          "solution": "BBBAAAABB/BCBADDDDB/BCCAAAAAB/BBBBBBBBB"
+        },
+        {
+          "id": "23",
+          "board": "NL1:AB5C1/2D3DA1/2B1C4/9",
+          "solution": "ABDDDDDCC/ABDAAADAC/ABBACAAAC/AAAACCCCC"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A8/BC7/2A2D1E1/B4EDC1",
+          "solution": "AAACCCCCC/BCACEEEEC/BCACEDDEC/BCCCEEDCC"
+        },
+        {
+          "id": "25",
+          "board": "NL1:8A/7B1/1CD2D2B/6A1C",
+          "solution": "AAAAAAAAA/ACCCCCCBB/ACDDDDCCB/AAAAAAACC"
+        },
+        {
+          "id": "26",
+          "board": "NL1:1A4B3/3C3DC1/1DB7/2A7",
+          "solution": "AADDDDBBBB/ADDCCDDDCB/ADBBCCCCCB/AAABBBBBBB"
+        },
+        {
+          "id": "27",
+          "board": "NL1:1AB5C1/1B6D1/1D3C2A1/10",
+          "solution": "AABDDDDDCC/ABBDAAADDC/ADDDACAAAC/AAAAACCCCC"
+        },
+        {
+          "id": "28",
+          "board": "NL1:A4B1CAD/2C4E2/4BE4/9D",
+          "solution": "ABBBBBCCAD/ABCCCCCEAD/ABBBBEEEAD/AAAAAAAAAD"
+        },
+        {
+          "id": "29",
+          "board": "NL1:2A2B3C/1D2C2E2/A1BF4F1/D1E7",
+          "solution": "AAABBBCCCC/ADBBCCCEEE/ADBFFFFFFE/DDEEEEEEEE"
+        },
+        {
+          "id": "30",
+          "board": "NL1:AB4C1D1/4E1D1C1/BA6E1/10",
+          "solution": "ABBDDDCCDD/AABDEDDCCD/BABDEEEEED/BBBDDDDDDD"
+        },
+        {
+          "id": "31",
+          "board": "NL1:A9/2B5BC/4D5/2A5CD",
+          "solution": "ACCCCCCCCC/ACBBBBBBBC/ACCCDDDDDD/AAACCCCCCD"
+        },
+        {
+          "id": "32",
+          "board": "NL1:9A/1BCDE1ED1B/2A7/C9",
+          "solution": "CCCDDDDDAA/CBCDEEEDAB/CBAAAAAAAB/CBBBBBBBBB"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-lucky-sevens",
+      "title": "Lucky sevens",
+      "description": "Seven by seven boards with room for longer detours.",
+      "difficulty": "Easy",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:7/AB2CAD/7/BE5/4DC1/1F5/E5F",
+          "solution": "AAADDDD/ABADCAD/BBADCAA/BEADCCA/EEADDCA/EFAAAAA/EFFFFFF"
+        },
+        {
+          "id": "02",
+          "board": "NL1:6A/7/1BC2C1/2AD3/4E2/FGFE3/G1D2B1",
+          "solution": "AAAAAAA/ABBBBBB/ABCCCCB/AAADDDB/FFFEEDB/FGFEDDB/GGDDDBB"
+        },
+        {
+          "id": "03",
+          "board": "NL1:7/AB3C1/B6/D6/CD2EF1/7/A3FE1",
+          "solution": "AAAAAAA/ABCCCCA/BBCAAAA/DDCAEEE/CDCAEFE/CCCAFFE/AAAAFEE"
+        },
+        {
+          "id": "04",
+          "board": "NL1:7/3A1B1/CAB2C1/7/5D1/E1F2F1/D1E4",
+          "solution": "CCCCCCC/CAAABBC/CABBBCC/EEEEEEE/EDDDDDE/EDFFFFE/DDEEEEE"
+        },
+        {
+          "id": "05",
+          "board": "NL1:A4B1/CA1D3/4D2/3E3/3F1B1/1FEG1CG/7",
+          "solution": "AACCCBB/CACDCCB/CCCDDCB/EEEECCB/EFFFCBB/EFEGCCG/EEEGGGG"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A6/1B3C1/1C5/4D1D/7/B4E1/A1FEF2",
+          "solution": "AAAAAAA/BBCCCCA/BCCAAAA/BAAADDD/BAFFFFF/BAFEEEF/AAFEFFF"
+        },
+        {
+          "id": "07",
+          "board": "NL1:1A1B1AC/1B3C1/7/3D1E1/D6/EF5/3F3",
+          "solution": "AABBAAC/ABBAACC/AAAAFFF/DDDDFEF/DFFFFEF/EFEEEEF/EEEFFFF"
+        },
+        {
+          "id": "08",
+          "board": "NL1:7/2ABCD1/7/3EFD1/5E1/1A2G2/2B1FGC",
+          "solution": "BBBBCCC/BAABCDC/BAFFFDC/BAFEFDC/BAFEEEC/BAFFGGC/BBBFFGC"
+        },
+        {
+          "id": "09",
+          "board": "NL1:4A1B/2C2A1/3D3/7/2D1E2/1CF1BE1/5F1",
+          "solution": "BBBBAAB/BCCBBAB/BCDDBBB/BCDFFFF/BCDFEEF/BCFFBEF/BBBBBFF"
+        },
+        {
+          "id": "10",
+          "board": "NL1:6A/5BC/2D1E2/7/3F3/EA2D2/3FB1C",
+          "solution": "AAAAAAA/AEEEEBC/AEDDEBC/AEEDDBC/AAEFDBC/EAEFDBC/EEEFBBC"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A5A/3B2C/1C3D1/7/2B1E2/1F1E3/3F1D1",
+          "solution": "AAAAAAA/BBBBCCC/BCCCCDD/BFFFFFD/BFBEEFD/BFBEFFD/BBBFFDD"
+        },
+        {
+          "id": "12",
+          "board": "NL1:3A2A/1B3CB/7/6D/2E4/4F1E/2C1D1F",
+          "solution": "CCCAAAA/CBCCCCB/CBBBBBB/CDDDDDD/CDEEEEE/CDDDFFE/CCCDDFF"
+        },
+        {
+          "id": "13",
+          "board": "NL1:5AB/1C5/2A2D1/CE5/2E1F2/F6/5BD",
+          "solution": "AAAAAAB/ACCCBBB/AAACBDD/CEECBBD/CCECFBD/FCCCFBD/FFFFFBD"
+        },
+        {
+          "id": "14",
+          "board": "NL1:6A/7/1B1C2A/3D2C/5BD/1EF4/F5E",
+          "solution": "CCCCCCA/CBBBBCA/CBCCBCA/CCCDBCC/FFFDBBD/FEFDDDD/FEEEEEE"
+        },
+        {
+          "id": "15",
+          "board": "NL1:A5B/6C/1B5/1D1E1F1/5E1/1DA2FC/7",
+          "solution": "ABBBBBB/ABCCCCC/ABCEEEE/ADCEFFE/ADCCFEE/ADACFFC/AAACCCC"
+        },
+        {
+          "id": "16",
+          "board": "NL1:7/1AB4/7/4A2/2C1D2/1E2EBD/6C",
+          "solution": "DDDDDDD/DABBBBD/DAAAABD/DDDDABD/CCCDDBD/CEEEEBD/CCCCCCC"
+        },
+        {
+          "id": "17",
+          "board": "NL1:1A5/1BC2B1/5D1/1E1E3/2F3D/F1A2C1/7",
+          "solution": "AACCCCC/ABCBBBC/ABBBDDC/AEEEDCC/AAFFDCD/FAAFDCD/FFFFDDD"
+        },
+        {
+          "id": "18",
+          "board": "NL1:A6/B2CD2/2D1E2/2C3A/1F5/1B3E1/F6",
+          "solution": "AAAAAAA/BCCCDDA/BCDDEDA/BCCDEDA/BFFDEDD/BBFDEED/FFFDDDD"
+        },
+        {
+          "id": "19",
+          "board": "NL1:3A1BC/1B3C1/7/DE1F3/1G1GA2/2E2F1/D6",
+          "solution": "AAAABBC/ABBBBCC/AAAAAAA/DEEFFFA/DGEGAFA/DGEGAFA/DGGGAAA"
+        },
+        {
+          "id": "20",
+          "board": "NL1:A1B3C/B4D1/1EA4/4F2/7/1E2C2/4FD1",
+          "solution": "AABBCCC/BAABCDD/BEABCCD/BEBBFCD/BEBFFCD/BEBFCCD/BBBFFDD"
+        },
+        {
+          "id": "21",
+          "board": "NL1:6A/1B2CAD/1D2E2/5E1/F4B1/7/1F4C",
+          "solution": "CCCCCAA/CBBBCAD/CDDBEED/CCDBBED/FCDDBBD/FCCDDDD/FFCCCCC"
+        },
+        {
+          "id": "22",
+          "board": "NL1:3A3/1BC2B1/5D1/2D2A1/E5C/7/F4FE",
+          "solution": "CCCAAAA/CBCBBBA/CBBBDDA/CCDDDAA/ECCCCCC/EEEEEEE/FFFFFFE"
+        },
+        {
+          "id": "23",
+          "board": "NL1:3A2B/1C2ABD/2CEF2/7/1D1E3/3G1F1/G6",
+          "solution": "EEEAABB/ECEEABD/ECCEFFD/EDDDDFD/EDEEDFD/EEEGDFD/GGGGDDD"
+        },
+        {
+          "id": "24",
+          "board": "NL1:6A/BC2DE1/5D1/5E1/2F4/2BC1AF/7",
+          "solution": "BBBEEEA/BCBEDEA/CCBEDDA/CBBEEEA/CBFFFAA/CBBCFAF/CCCCFFF"
+        },
+        {
+          "id": "25",
+          "board": "NL1:AB3C1/1D5/3DE1C/1F5/1GEA1G1/7/F5B",
+          "solution": "ABBBBCC/ADDDBBC/AAADEBC/FFAAEBB/FGEAEGB/FGEEEGB/FGGGGGB"
+        },
+        {
+          "id": "26",
+          "board": "NL1:AB3CD/5D1/1E5/5B1/2C4/5AE/7",
+          "solution": "ABBBCCD/AAABCDD/EEABCCC/EAABBBC/EACCCCC/EAAAAAE/EEEEEEE"
+        },
+        {
+          "id": "27",
+          "board": "NL1:A2B2C/DB1A2E/7/7/1C5/3F1ED/F6",
+          "solution": "AAABBCC/DBAABCE/DBBBBCE/DCCCCCE/DCDDDEE/DDDFDED/FFFFDDD"
+        },
+        {
+          "id": "28",
+          "board": "NL1:2A3B/2C4/2B1DE1/2A4/3C1E1/5D1/F5F",
+          "solution": "AAABBBB/ACCBDDD/ACBBDED/ACAAAED/ACCCAED/AAAAADD/FFFFFFF"
+        },
+        {
+          "id": "29",
+          "board": "NL1:2A4/4AB1/1C5/3B2C/7/1DEF1G1/E2DGF1",
+          "solution": "AAACCCC/ACCCABC/ACAAABC/AAABBBC/EEEFFFF/EDEFGGF/EDDDGFF"
+        },
+        {
+          "id": "30",
+          "board": "NL1:6A/1B3C1/3C2A/BD5/7/EF3D1/1E1F3",
+          "solution": "CCCCCCA/CBBBBCA/CCCCBBA/BDDDDBB/BBBBDDB/EFFBBDB/EEFFBBB"
+        },
+        {
+          "id": "31",
+          "board": "NL1:7/A4B1/2C1A2/1D4E/1B3C1/F2F1D1/E6",
+          "solution": "AAAAAAA/ABBBBBA/BBCCAAA/BDDCCCE/BBDDDCE/FFFFDDE/EEEEEEE"
+        },
+        {
+          "id": "32",
+          "board": "NL1:A5A/5B1/5C1/2D1B2/4ED1/1E1F1F1/1C5",
+          "solution": "AAAAAAA/CCCCCBB/CEEECCB/CEDEBBB/CEDEEDD/CEDFFFD/CCDDDDD"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-towers",
+      "title": "Towers",
+      "description": "Tall boards that read from top to bottom.",
+      "difficulty": "Medium",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:AB3/3A1/5/1C3/B1DE1/ED3/3C1/F3F",
+          "solution": "ABBBB/AAAAB/BBBBB/BCCCC/BDDEC/EDEEC/EEECC/FFFFF"
+        },
+        {
+          "id": "02",
+          "board": "NL1:A1B2/C4/1CD2/5/2B2/2A2/5/4D",
+          "solution": "AABBB/CAAAB/CCDAB/DDDAB/DBBAB/DBAAB/DBBBB/DDDDD"
+        },
+        {
+          "id": "03",
+          "board": "NL1:5/1A1A1/1B1BC/4D/2E2/5/1F3/1CEFD",
+          "solution": "CCCCC/CAAAC/CBBBC/CFFFD/CFEFD/CFEFD/CFEFD/CCEFD"
+        },
+        {
+          "id": "04",
+          "board": "NL1:5/5/2A1B/B3C/5/2DE1/1DC2/3EA",
+          "solution": "BBBBB/BCCCB/BCACB/BCACC/CCAAA/CDDEA/CDCEA/CCCEA"
+        },
+        {
+          "id": "05",
+          "board": "NL1:4A/1BC2/3D1/AE3/5/5/1B3/ED1C1",
+          "solution": "AAAAA/ABCCC/ABBDC/AEBDC/EEBDC/EBBDC/EBDDC/EDDCC"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A4/2BC1/1C3/5/AD1B1/1E3/2ED1/5",
+          "solution": "AAAAA/BBBCA/BCCCA/BBBBA/ADDBA/AEDDA/AEEDA/AAAAA"
+        },
+        {
+          "id": "07",
+          "board": "NL1:3AB/1C1B1/1D3/3E1/2EC1/2A2/3D1/5",
+          "solution": "AAAAB/ACCBB/ADCCC/ADEEC/ADECC/ADAAA/ADDDA/AAAAA"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A2BC/1B3/3D1/2A2/2E1D/5/1C1E1/5",
+          "solution": "ABBBC/ABCCC/ACCDD/ACAAD/ACEAD/ACEAA/ACEEA/AAAAA"
+        },
+        {
+          "id": "09",
+          "board": "NL1:4A/4B/2C1C/1B1DE/5/2E1F/5/1F1D1/1A3",
+          "solution": "AAAAA/ABBBB/ABCCC/ABDDE/ADDEE/ADEEF/ADDDF/AFFDF/AAFFF"
+        },
+        {
+          "id": "10",
+          "board": "NL1:A1B1B/C4/3D1/5/C2E1/3F1/D4/EAF2/5",
+          "solution": "AABBB/CAAAA/CDDDA/CDAAA/CDAEE/DDAFE/DAAFE/EAFFE/EEEEE"
+        },
+        {
+          "id": "11",
+          "board": "NL1:5/1AB2/5/1C1B1/3A1/D2ED/3F1/1G1E1/C2GF",
+          "solution": "DDDDD/DABBD/DAABD/DCABD/DCAAD/DCEED/CCEFF/CGEEF/CGGGF"
+        },
+        {
+          "id": "12",
+          "board": "NL1:A4/BCDC1/5/2D2/5/1A3/5/3E1/EB3",
+          "solution": "AAAAA/BCDCA/BCDCA/BCDCA/BCCCA/BAAAA/BBBBB/EEEEB/EBBBB"
+        },
+        {
+          "id": "13",
+          "board": "NL1:5/AB3/C1CB1/5/2D1E/4A/2ED1/5/5",
+          "solution": "AAAAA/ABBBA/CCCBA/AAAAA/ADDEE/ADEEA/ADEDA/ADDDA/AAAAA"
+        },
+        {
+          "id": "14",
+          "board": "NL1:1A3/3B1/1C3/1B1D1/2E2/A1F2/5/1F1DC/4E",
+          "solution": "AACCC/ACCBC/ACBBC/ABBDC/AEEDC/AEFDC/EEFDC/EFFDC/EEEEE"
+        },
+        {
+          "id": "15",
+          "board": "NL1:4A/1BCAD/5/1E3/5/D4/1CE2/1B3/5",
+          "solution": "CCCAA/CBCAD/CBBBD/CEEBD/CCEBD/DCEBD/DCEBD/DBBBD/DDDDD"
+        },
+        {
+          "id": "16",
+          "board": "NL1:4A/1BC1D/5/3D1/5/2EB1/5/2E2/C3A",
+          "solution": "CCCAA/CBCAD/CBAAD/CBADD/CBAAA/CBEBA/CBEBA/CBEBA/CBBBA"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A5/1BCDE1/1F4/6/1F4/4E1/2A1D1/6/B4C",
+          "solution": "AAAAAA/BBCDEA/BFCDEA/BFCDEA/BFCDEA/BCCDEA/BCADDA/BCAAAA/BCCCCC"
+        },
+        {
+          "id": "18",
+          "board": "NL1:3A1B/1C3D/B2A2/6/6/6/2E1C1/1D2F1/3F1E",
+          "solution": "BBBABB/BCBABD/BCBABD/CCBBBD/CDDDDD/CDEEEE/CDECCE/CDCCFE/CCCFFE"
+        },
+        {
+          "id": "19",
+          "board": "NL1:AB4/4C1/3DA1/6/6/5E/1C4/1D4/4BE",
+          "solution": "ABBBBB/ACCCCB/ACDDAB/ACDAAB/ACDABB/ACDABE/ACDABE/ADDABE/AAAABE"
+        },
+        {
+          "id": "20",
+          "board": "NL1:5A/1BCD2/6/4C1/AE2B1/1F2GD/1E2H1/2F1G1/H5",
+          "solution": "AAAAAA/ABCDDD/ABCCCD/ABBBCD/AEEBBD/FFEGGD/FEEGHH/FFFGGH/HHHHHH"
+        },
+        {
+          "id": "21",
+          "board": "NL1:5A/1B1C2/D2A2/4D1/6/4BE/6/1C2F1/4EF",
+          "solution": "DDDDDA/DBCCDA/DBCADA/BBCADA/BCCAAA/BCBBBE/BCBEEE/BCBEFF/BBBEEF"
+        },
+        {
+          "id": "22",
+          "board": "NL1:A4B/3C2/1D2AB/3DE1/FG4/3F2/3E2/1G2C1/6",
+          "solution": "AAAAAB/CCCCAB/CDDDAB/CCCDEE/FGCCCE/FGFFCE/FGFECE/FGFECE/FFFEEE"
+        },
+        {
+          "id": "23",
+          "board": "NL1:AB3C/6/3DE1/5D/6/AE4/3B2/1C4/6",
+          "solution": "ABCCCC/ABCDDD/ABCDED/ABCCED/ABBCEE/AEBCCE/EEBBCE/ECCCCE/EEEEEE"
+        },
+        {
+          "id": "24",
+          "board": "NL1:6/AB4/3C2/1D4/C2A2/5B/4E1/D1E1F1/F5",
+          "solution": "AAAAAA/ABBBBA/CCCCBA/CDBBBA/CDBAAA/DDBBBB/DFFFEE/DFEFFE/FFEEEE"
+        },
+        {
+          "id": "25",
+          "board": "NL1:4AB/1C1B2/3D1D/E4F/2E2C/1A4/6/6/1F4/6",
+          "solution": "AAAAAB/ACCBBB/AACDDD/EACCFF/EAECFC/EAECFC/EEECFC/CCCCFC/CFFFFC/CCCCCC"
+        },
+        {
+          "id": "26",
+          "board": "NL1:6/1AB1B1/4AC/6/4D1/6/5E/4ED/4F1/CF4",
+          "solution": "CCCCCC/CABBBC/CAAAAC/CFFFFF/CFDDDF/CFDFFF/CFDFEE/CFDFED/CFDFFD/CFDDDD"
+        },
+        {
+          "id": "27",
+          "board": "NL1:5A/1BC1D1/6/6/EDF1C1/6/B2F2/3E2/6/A5",
+          "solution": "DDDDDA/DBCCDA/DBBCCA/DDBBCA/EDFBCA/EEFBBA/BEFFBA/BEEEBA/BBBBBA/AAAAAA"
+        },
+        {
+          "id": "28",
+          "board": "NL1:4AB/6/2CD1E/6/2D3/1A4/E2FB1/2F1C1/6/6",
+          "solution": "AAAAAB/ADDDBB/ADCDBE/ADCCBE/ADDCBE/AACCBE/ECCFBE/ECFFCE/ECCCCE/EEEEEE"
+        },
+        {
+          "id": "29",
+          "board": "NL1:5A/1A3B/1C4/DE4/3C2/6/4F1/1G4/1EG1F1/D3B1",
+          "solution": "CCCCAA/CAACAB/CCACAB/DEACAB/DEACAB/DEAAAB/DEEEFB/DGGEFB/DEGEFB/DEEEBB"
+        },
+        {
+          "id": "30",
+          "board": "NL1:2A3/1B2C1/1C3B/6/1DE3/2F3/E2F2/3A2/D5/6",
+          "solution": "AAABBB/ABBBCB/ACCCCB/ADDDDD/ADEEED/AAFFED/EAAFED/EEAAED/DEEEED/DDDDDD"
+        },
+        {
+          "id": "31",
+          "board": "NL1:1AB3/4C1/2D1D1/2CE2/6/4E1/1B2A1/4F1/6/5F",
+          "solution": "AABBBB/ACCCCB/ACDDDB/ACCEEB/AAAAEB/FFFAEB/FBFAAB/FBFFFB/FBBBBB/FFFFFF"
+        },
+        {
+          "id": "32",
+          "board": "NL1:1A4/1B1C2/6/2D1C1/6/2E2E/2F3/D5/A3B1/F5",
+          "solution": "AABBBB/ABBCCB/AAAACB/DDDACB/DAAABB/DAEEBE/DAFEBE/DAFEBE/AAFEBE/FFFEEE"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-slow-turns",
+      "title": "Slow turns",
+      "description": "Few pairs on a roomy board: each path has to travel a long way.",
+      "difficulty": "Medium",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:2A3/1B2C1/AC4/5B/1D2ED/2E3",
+          "solution": "AAABBB/ABBBCB/ACCCCB/EEEEEB/EDDDED/EEEDDD"
+        },
+        {
+          "id": "02",
+          "board": "NL1:3A1B/1CD1BA/6/6/C3D1/6",
+          "solution": "DDDABB/DCDABA/DCCAAA/DDCCCC/CDDDDC/CCCCCC"
+        },
+        {
+          "id": "03",
+          "board": "NL1:3ABC/1C4/2D3/2E3/1D2B1/AE4",
+          "solution": "AAAABC/ACCCBC/ADDCBC/ADECBC/ADECBC/AEECCC"
+        },
+        {
+          "id": "04",
+          "board": "NL1:1A3B/3C2/3AD1/6/1B2C1/5D",
+          "solution": "AABBBB/ABBCCC/ABAADC/ABADDC/ABADCC/AAADDD"
+        },
+        {
+          "id": "05",
+          "board": "NL1:2A2B/1C2D1/1B4/3C2/6/4AD",
+          "solution": "AAABBB/ACCBDD/ABCBBD/ABCCBD/ABBBBD/AAAAAD"
+        },
+        {
+          "id": "06",
+          "board": "NL1:6/1A1BC1/2DC2/6/1B2A1/2D3",
+          "solution": "DDDBBB/DADBCB/DADCCB/DAAAAB/DBBBAB/DDDBBB"
+        },
+        {
+          "id": "07",
+          "board": "NL1:A4A/4BC/1C4/2DB1D/6/6",
+          "solution": "AAAAAA/DDDBBC/DCDBCC/DCDBCD/DCCCCD/DDDDDD"
+        },
+        {
+          "id": "08",
+          "board": "NL1:3A2/1B1C2/6/2BD2/1AC3/D5",
+          "solution": "DDDAAA/DBDCCA/DBDDCA/DBBDCA/DACCCA/DAAAAA"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A5/2B3/3A2/3CB1/1D2D1/5C",
+          "solution": "ADDDDD/ADBBBD/ADAABD/ADACBD/ADACDD/AAACCC"
+        },
+        {
+          "id": "10",
+          "board": "NL1:A4B/5C/3D2/4C1/3BD1/5A",
+          "solution": "ABBBBB/ABCCCC/ABCDDD/ABCCCD/ABBBDD/AAAAAA"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A3BC/6/6/2CAD1/1BD3/6",
+          "solution": "ABBBBC/ABCCCC/ABCAAA/ABCADA/ABDDDA/AAAAAA"
+        },
+        {
+          "id": "12",
+          "board": "NL1:6/6/3A2/6/B2CA1/C4B",
+          "solution": "BBBBBB/BCCCCB/BCAACB/BCACCB/BCACAB/CCAAAB"
+        },
+        {
+          "id": "13",
+          "board": "NL1:7/1A4B/7/2CD3/4E2/1DE2B1/4CA1",
+          "solution": "BBBBBBB/BAAAAAB/BBBBBAA/CCCDBBA/CDDDEBA/CDEEEBA/CCCCCAA"
+        },
+        {
+          "id": "14",
+          "board": "NL1:6A/1B3C1/3D3/4D1C/1B1AE1E/1F3F1/7",
+          "solution": "AAAAAAA/ABFFFCC/ABFDFFC/ABFDDFC/ABFAEFE/AFFAEFE/AAAAEEE"
+        },
+        {
+          "id": "15",
+          "board": "NL1:7/1A5/1BC1D2/3D3/3E1E1/2A4/C5B",
+          "solution": "BBBBBBB/BAAAAAB/BBCDDAB/CCCDAAB/CEEEAEB/CEAAAEB/CEEEEEB"
+        },
+        {
+          "id": "16",
+          "board": "NL1:3A3/5B1/2B4/1C2DEC/4F1F/1DA1E2/7",
+          "solution": "AAAACCC/ACCCCBC/ACBBBBC/ACDDDEC/ADDFFEF/ADAFEEF/AAAFFFF"
+        },
+        {
+          "id": "17",
+          "board": "NL1:7/5A1/1BCB3/3D1EC/2D4/5A1/3E3",
+          "solution": "EEEEEEE/EBBBAAE/EBCBAEE/ECCDAEC/ECDDAAC/ECCCCAC/EEEECCC"
+        },
+        {
+          "id": "18",
+          "board": "NL1:7/1AB4/5BC/3D1D1/5E1/C6/A5E",
+          "solution": "CCCCCCC/CABBBBC/CAEEEBC/CAEDEDD/CAEDEED/CAEDDDD/AAEEEEE"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A6/7/1B2BC1/1DA4/7/1E3E1/4CD1",
+          "solution": "AAAAAAA/CCCCCCA/CBBBBCA/CDAAAAA/CDDDDDD/CEEEEED/CCCCCDD"
+        },
+        {
+          "id": "20",
+          "board": "NL1:3A1B1/1C3D1/7/1EC4/2BE3/1A3D1/7",
+          "solution": "EEEAABB/ECEEADB/ECCEADB/EECEADB/BBBEADB/BAAAADB/BBBBBBB"
+        },
+        {
+          "id": "21",
+          "board": "NL1:6A/3BC2/1B1D3/1E1C3/5F1/F2E1D1/A6",
+          "solution": "FFFFFFA/FBBBCFA/FBDDCFA/FEDCCFA/FEDDDFA/FEEEDDA/AAAAAAA"
+        },
+        {
+          "id": "22",
+          "board": "NL1:6A/5AB/2C4/1D5/1E2CF1/2EBF2/4D2",
+          "solution": "BBBBBAA/BDDDBAB/BDCDBBB/BDCDDDD/BECCCFD/BEEBFFD/BBBBDDD"
+        },
+        {
+          "id": "23",
+          "board": "NL1:7/1A5/4B2/2C4/D2AD2/EB5/5EC",
+          "solution": "DDDDDDD/DAAAAAD/DBBBBAD/DBCAAAD/DBCADDD/EBCCCCC/EEEEEEC"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A5B/C6/2D4/5A1/1DB4/5CE/5E1",
+          "solution": "AAAAAAB/CBBBBAB/CBDDBAB/CBBDBAB/CDBDBBB/CDDDCCE/CCCCCEE"
+        },
+        {
+          "id": "25",
+          "board": "NL1:6A/1B1B3/2AC1D1/D6/2E4/2C4/4E2",
+          "solution": "AAAAAAA/ABBBEEE/AAACEDE/DCCCEDE/DCEEEDE/DCCDDDE/DDDDEEE"
+        },
+        {
+          "id": "26",
+          "board": "NL1:7/7/1A5/3BC2/2D1B2/3A3/EC2DE1",
+          "solution": "EEEEEEE/EAAAAAE/EACCCAE/ECCBCAE/ECDBBAE/ECDAAAE/ECDDDEE"
+        },
+        {
+          "id": "27",
+          "board": "NL1:A5B/7/2CA1D1/3B3/7/CD5/7",
+          "solution": "ABBBBBB/ABCCCCC/ABCAADC/ABBBADC/AAAAADC/CDDDDDC/CCCCCCC"
+        },
+        {
+          "id": "28",
+          "board": "NL1:3A3/1B3C1/3BA2/7/2D4/2E1CD1/4E2",
+          "solution": "CCCAAAA/CBCCCCA/CBBBAAA/CEEEEEE/CEDDDDE/CEECCDE/CCCCEEE"
+        },
+        {
+          "id": "29",
+          "board": "NL1:7/1AB1CD1/2A4/7/2C4/1E1BD2/3E3",
+          "solution": "BBBEEEE/BABECDE/BAAECDE/BEEECDE/BECCCDE/BEBBDDE/BBBEEEE"
+        },
+        {
+          "id": "30",
+          "board": "NL1:A6/7/3BC2/7/3A3/2CB1D1/D6",
+          "solution": "AAAAAAA/DDDDDDA/DBBBCDA/DBCCCDA/DBCAADA/DBCBADA/DBBBAAA"
+        },
+        {
+          "id": "31",
+          "board": "NL1:7/1A5/7/A1BC3/7/1BCD3/6D",
+          "solution": "DDDDDDD/DAAAAAD/DDDDDAD/ABBCDAD/ABCCDAD/ABCDDAD/AAAAAAD"
+        },
+        {
+          "id": "32",
+          "board": "NL1:A6/7/3BCD1/7/1E2E2/1AD2C1/B6",
+          "solution": "AEEEEEE/AEDDDDE/AEDBCDE/AEDBCCE/AEDBECE/AADBECE/BBBBEEE"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-checkerboards",
+      "title": "Checkerboards",
+      "description": "Eight by eight boards, the size of a chessboard.",
+      "difficulty": "Medium",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:3A3B/1B2C2D/2A5/8/1CE3F1/2FE1G2/1H1H1DG1/8",
+          "solution": "CCCAAABB/CBCCCABD/CBAAAABD/CBBBBBBD/CCEEFFFD/FFFEFGGD/FHHHFDGD/FFFFFDDD"
+        },
+        {
+          "id": "02",
+          "board": "NL1:A2B4/1C2D1E1/8/1A3FBG/1C6/5D2/1E3F2/5G2",
+          "solution": "AAABBBBB/CCADDEEB/CAADEEBB/CADDEFBG/CCDEEFFG/DDDEDDFG/DEEEDFFG/DDDDDGGG"
+        },
+        {
+          "id": "03",
+          "board": "NL1:5ABC/5D2/2E1B3/5F2/1A1F1E2/1C6/1D6/4G2G",
+          "solution": "AAAAAABC/ADDDDDBC/ADEEBBBC/ADDEEFFC/AADFEEFC/CCDFFFFC/CDDCCCCC/CCCCGGGG"
+        },
+        {
+          "id": "04",
+          "board": "NL1:2A4B/AC6/1D1BE1F1/3G1F2/2E2G1H/8/1H1CI1I1/D7",
+          "solution": "AAABBBBB/ACCBEEEE/DDCBEFFE/DCCGGFEE/DCEEGGEH/DCCEEEEH/DHCCIIIH/DHHHHHHH"
+        },
+        {
+          "id": "05",
+          "board": "NL1:8/1ABC2D1/6B1/5DE1/2CF4/1GH2F2/1H1EA3/2G5",
+          "solution": "CCCCBBBB/CABCBDDB/CABBBDBB/CAAAADEE/CCCFAAAE/GGHFFFAE/GHHEAAAE/GGGEEEEE"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A7/3B4/CD1E4/4CE2/5F2/5D2/1F1AB3/8",
+          "solution": "AAAAAAAA/CCCBBBBA/CDCEEEBA/DDCCCEBA/DFFFFFBA/DFDDDDBA/DFDABBBA/DDDAAAAA"
+        },
+        {
+          "id": "07",
+          "board": "NL1:6AB/3BC3/4D2E/3F4/4CF2/8/3D4/A4E2",
+          "solution": "AAAAAAAB/ABBBCCBB/ABDDDCBE/ABDFCCBE/ABDFCFBE/ABDFFFBE/ABDDBBBE/ABBBBEEE"
+        },
+        {
+          "id": "08",
+          "board": "NL1:1A2BC1D/1E1FD1C1/4G3/1E6/1A4F1/8/1G5B/5H1H",
+          "solution": "AABBBCCD/AEBFDDCD/AEBFGDDD/AEBFGGGG/AABFFFFG/BBBGGGGG/BGGGBBBB/BBBBBHHH"
+        },
+        {
+          "id": "09",
+          "board": "NL1:1AB5/5CD1/2E1C3/1D4F1/4AG2/1E2G3/8/F3B3",
+          "solution": "AABBBBBB/ADDDCCDB/ADEDCDDB/ADEDDDFB/AEEAAGFB/AEAAGGFB/AAAFFFFB/FFFFBBBB"
+        },
+        {
+          "id": "10",
+          "board": "NL1:A7/B4C2/D3EA1E/F1B4G/5F2/8/1D2G3/7C",
+          "solution": "AAAAEEEE/BBBAECCE/DDBAEACE/FDBAAACG/FDFFFFCG/FDFCCCCG/FDFCGGGG/FFFCCCCC"
+        },
+        {
+          "id": "11",
+          "board": "NL1:8/AB1B2CA/C4D2/5EF1/8/2G2G2/5D1F/3E4",
+          "solution": "AAAAAAAA/ABBBCCCA/CCCCCDDD/EEEEEEFD/EFFFFFFD/EFGGGGDD/EFFFFDDF/EEEEFFFF"
+        },
+        {
+          "id": "12",
+          "board": "NL1:5AB1/CD2E1E1/8/1C3F2/1DG1HA2/5G2/1F3H2/7B",
+          "solution": "CCCAAABB/CDCAEEEB/DDCAAAAB/DCCFFFAB/DDGFHAAB/GGGFHGGB/GFFFHHGB/GGGGGGGB"
+        },
+        {
+          "id": "13",
+          "board": "NL1:4A2B/7C/2AD3E/6F1/4F3/8/1D3C2/3B3E",
+          "solution": "AAAAABBB/ADDDBBCC/ADADBCCE/ADABBCFE/ADABFCFE/ADABFCFE/ADABFCFE/AAABFFFE"
+        },
+        {
+          "id": "14",
+          "board": "NL1:2A3BC/1DB1E1C1/2F5/8/2G5/2AH4/1G1DH3/6FE",
+          "solution": "AAABBBBC/ADBBEECC/ADFFFEEE/ADDDFFFE/AGGDDDFE/AGAHHDFE/AGADHDFE/AAADDDFE"
+        },
+        {
+          "id": "15",
+          "board": "NL1:AB1C3C/1A1D1D1E/F6B/G2E4/8/6G1/8/F7",
+          "solution": "ABBCCCCC/AABDDDEE/FFBEEEEB/GFBEBBBB/GFBBBFFF/GFFFFFGF/GGGGGGGF/FFFFFFFF"
+        },
+        {
+          "id": "16",
+          "board": "NL1:1AB5/AB1C4/5D2/1CEF4/2D5/2F5/7E/8",
+          "solution": "AABCCCCC/ABBCFFFC/EEEFFDFC/ECEFDDFC/ECDDDFFC/ECFFFFCC/ECCCCCCE/EEEEEEEE"
+        },
+        {
+          "id": "17",
+          "board": "NL1:4A1BC/1B4D1/1E3F2/8/5F2/1CGA2D1/6E1/3G4",
+          "solution": "AAAAABBC/ABBBBBDC/AEEEEFDC/AAAAEFDC/GGGAEFDC/GCGAEEDC/GCCCCEEC/GGGGCCCC"
+        },
+        {
+          "id": "18",
+          "board": "NL1:A3B3/2A1C1D1/4E3/1B2CD2/4FG2/7F/1G3E2/8",
+          "solution": "ABBBBEEE/ABACCEDE/ABACEEDE/ABACCDDE/AAAFFGEE/FFFFGGEF/FGGGGEEF/FFFFFFFF"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A7/B4C2/1D3E1F/7C/1BG4E/5A2/GD4F1/8",
+          "solution": "AAAAFFFF/BBBAFCCF/DDBAFECF/DBBAFECC/DBGAFEEE/DDGAFAAA/GDGAFFFA/GGGAAAAA"
+        },
+        {
+          "id": "20",
+          "board": "NL1:A7/B1C5/2D1E3/4FEF1/4CA2/2D5/5G1H/3B1H1G",
+          "solution": "AAAAAAAA/BCCFFFFA/BCDFEEFA/BCDFFEFA/BCDCCAAA/BCDCHHHH/BCCCHGGH/BBBBHHGG"
+        },
+        {
+          "id": "21",
+          "board": "NL1:1A6/1B6/2C2D2/2E2E2/8/2A3BF/FG1GC1D1/8",
+          "solution": "AABBBBBB/ABBEEEEB/ACCEDDEB/ACEEDEEB/ACCCDDBB/AAACCDBF/FGGGCDDF/FFFFFFFF"
+        },
+        {
+          "id": "22",
+          "board": "NL1:2A4B/2C3DE/8/3F1EF1/8/A7/3BG1D1/CG6",
+          "solution": "AAABBBBB/ACCBDDDE/ACBBDEEE/ACBFDEFF/ACBFDDDF/ACBFFFDF/CCBBGFDF/CGGGGFFF"
+        },
+        {
+          "id": "23",
+          "board": "NL1:A4B1B/7C/1DA2E2/8/2C5/8/1F2F1E1/6D1",
+          "solution": "AAAAABBB/EEEEAAAC/EDAEEEAC/EDAAAAAC/EDCCCCCC/EDDDDDDD/EFFFFEED/EEEEEEDD"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A2B4/6AC/6D1/1B2E1E1/8/F2G1G2/5C2/F6D",
+          "solution": "ABBBCCCC/ABCCCAAC/ABCAAADD/ABCAEEED/AACAAAAD/FACGGGAD/FACCCCAD/FAAAAAAD"
+        },
+        {
+          "id": "25",
+          "board": "NL1:A7/B5B1/2CD4/2E2F2/2D3E1/6FA/1G4H1/4C1GH",
+          "solution": "AAAAAAAA/BBBBBBBA/CCCDEEEA/CEEDEFEA/CEDDEFEA/CEEEEFFA/CGGGGGHH/CCCCCGGH"
+        },
+        {
+          "id": "26",
+          "board": "NL1:A3BC1D/6DE/1B1F4/1G3E2/1AF5/8/HI1GH1C1/I7",
+          "solution": "ABBBBCDD/ABGGGCDE/ABGFGCCE/AGGFGECE/AAFFGECE/HHHGGECE/HIHGHECE/IIHHHEEE"
+        },
+        {
+          "id": "27",
+          "board": "NL1:7A/1B3CD1/6C1/2EA4/2FG1G2/2E5/4F2D/7B",
+          "solution": "AAAAAAAA/ABBBBCDD/AAAABCCD/EEEABBBD/EFFGGGBD/EFEEEEBD/EFFFFEBD/EEEEEEBB"
+        },
+        {
+          "id": "28",
+          "board": "NL1:A3BC2/1DE5/AE6/8/1F1G1D2/8/H3B1H1/F1G4C",
+          "solution": "ADDDBCCC/ADEDBBBC/AEEDDDBC/HHHHHDBC/HFGGHDBC/HFGHHBBC/HFGHBBHC/FFGHHHHC"
+        },
+        {
+          "id": "29",
+          "board": "NL1:8/6AB/3CDAEF/8/3EG3/2CF4/6G1/3BD3",
+          "solution": "BBBBBBBB/BDDDDAAB/BDCCDAEF/BDCEEEEF/BDCEGGGF/BDCFFFGF/BDDDDFGF/BBBBDFFF"
+        },
+        {
+          "id": "30",
+          "board": "NL1:A6A/2BC1C1D/7E/2FE4/4FG2/6D1/1G6/7B",
+          "solution": "AAAAAAAA/BBBCCCDD/BDDDDDDE/BDFEEEEE/BDFFFGGG/BDDDDDDG/BGGGGGGG/BBBBBBBB"
+        },
+        {
+          "id": "31",
+          "board": "NL1:2A5/4BCD1/2B5/8/3E2D1/AF6/5GC1/GE2F3",
+          "solution": "AAAFFFFF/AFFFBCDF/AFBBBCDF/AFGGGCDF/AFGEGCDF/AFGEGCCF/GGGEGGCF/GEEEFFFF"
+        },
+        {
+          "id": "32",
+          "board": "NL1:3A3B/CD6/6AB/3E4/6F1/1G2DG2/1E6/4FC2",
+          "solution": "CCCAAAAB/CDCCCCAB/DDGGGCAB/DGGEGCCC/DGEEGGFC/DGEDDGFC/DEEDFFFC/DDDDFCCC"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-busy-market",
+      "title": "Busy market",
+      "description": "Crowded boards full of short paths that must squeeze past each other.",
+      "difficulty": "Medium",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A1B4C/1B2DE2/1F4F1/2A1C1E1/1GD5/GH6/H1IJ1KL1/J3KL1I",
+          "solution": "ABBFFFFC/ABFFDEFC/AFFDDEFC/AAADCEEC/GGDDCCCC/GHIIIIII/HHIJKKLI/JJJJKLLI"
+        },
+        {
+          "id": "02",
+          "board": "NL1:A2B1BC1/D7/E3FAF1/1G4H1/3I1I2/EG2D3/2J3C1/JH2K2K",
+          "solution": "AAABBBCC/DDAAFFFC/EDDAFAFC/EGDAAAHC/EGDIIIHC/EGDDDHHC/JJJHHHCC/JHHHKKKK"
+        },
+        {
+          "id": "03",
+          "board": "NL1:7A/1B1B1AC1/1D1E2D1/3FG1H1/1F4C1/1I3HI1/EJ1GK1K1/J7",
+          "solution": "DDDDDAAA/DBBBDACC/DDEEDDDC/EEEFGHHC/EFFFGHCC/EIIGGHII/EJIGKKKI/JJIIIIII"
+        },
+        {
+          "id": "04",
+          "board": "NL1:AB4BC/2DEF1F1/2E5/2G2H2/1D2IJ2/2GC3H/K1A1K1JL/4I1L1",
+          "solution": "ABBBBBBC/ADDEFFFC/ADEECCCC/ADGCCHHH/ADGCIJJH/AAGCIIJH/KAAKKIJL/KKKKIILL"
+        },
+        {
+          "id": "05",
+          "board": "NL1:AB4CD/6D1/1EF4G/EF1A1BC1/2H5/7I/2I2J1J/HGK4K",
+          "solution": "ABBBBCCD/AAAABCDD/EEFABCCG/EFFABBCG/HHHGGGGG/HGGGIIII/HGIIIJJJ/HGKKKKKK"
+        },
+        {
+          "id": "06",
+          "board": "NL1:8/AB3CD1/B1A2E1F/G6D/H2I3E/2F5/4J1K1/HGIJ1KC1",
+          "solution": "AAAFFFFF/ABAFCCDF/BBAFCEDF/GGFFCEDD/HGFICEEE/HGFICCCC/HGIIJKKC/HGIJJKCC"
+        },
+        {
+          "id": "07",
+          "board": "NL1:A1BC3C/3D1EF1/1B1GE1H1/1I6/3HG2J/2D5/4IJF1/1AK1K3",
+          "solution": "ABBCCCCC/ABDDEEFF/ABDGEHHF/AIDGGHFF/AIDHGHFJ/AIDHHHFJ/AIIIIJFJ/AAKKKJJJ"
+        },
+        {
+          "id": "08",
+          "board": "NL1:1AB3C1/4D2C/1BE2DEF/2AF4/7G/G5H1/I1J1H1I1/K1KJ4",
+          "solution": "AABEEECC/ABBEDEEC/ABEEDDEF/AAAFFFFF/GGGGGGGG/GIIIIIHH/IIJJHIIH/KKKJHHHH"
+        },
+        {
+          "id": "09",
+          "board": "NL1:8/1A2B1C1/3DC1E1/1A5F/1B1G1HD1/1IJ1G3/E1K1JKH1/I5F1",
+          "solution": "EEEEEEEE/EABBBCCE/EABDCCEE/EABDDDDF/EBBGGHDF/EIJJGHHF/EIKJJKHF/IIKKKKFF"
+        },
+        {
+          "id": "10",
+          "board": "NL1:1AB4C/1D2E1F1/A3G1EF/D7/4G1HI/1J1CK3/1B1J4/L2L1KIH",
+          "solution": "AABCCCCC/ADBCEEFF/ADBCGEEF/DDBCGIII/BBBCGIHI/BJJCKIHH/BBJJKIIH/LLLLKKIH"
+        },
+        {
+          "id": "11",
+          "board": "NL1:AB1C1D1E/1A3E1F/3C4/1G1G2H1/6F1/IB1J4/1KDL1LJH/I6K",
+          "solution": "ABBCDDEE/AABCDEEF/BBBCDFFF/BGGGDFHH/BBDDDFFH/IBDJJJJH/IKDLLLJH/IKKKKKKK"
+        },
+        {
+          "id": "12",
+          "board": "NL1:ABC5/2B3DC/2E1F3/1ED1G1G1/4H1I1/1H6/3J3K/AIJ1FK2",
+          "solution": "ABCCCCCC/ABBDDDDC/AEEDFFFF/AEDDGGGF/AHHHHIIF/AHIIIIFF/AIIJFFFK/AIJJFKKK"
+        },
+        {
+          "id": "13",
+          "board": "NL1:A3BC1D/2E2BC1/6F1/3G1GH1/1F5D/A2IJ2K/JE4H1/3I2K1",
+          "solution": "AFFFBCCD/AFEFBBCD/AFEFFFFD/AFEGGGHD/AFEIIIHD/AEEIJIHK/JEJJJIHK/JJJIIIKK"
+        },
+        {
+          "id": "14",
+          "board": "NL1:AB1C2CD/1A1EF3/GB4H1/1G2F1D1/8/1I2J1HK/1E4I1/J2L2LK",
+          "solution": "ABBCCCCD/AABEFDDD/GBBEFDHH/GGEEFDDH/EEEIIIHH/EIIIJIHK/EEJJJIIK/JJJLLLLK"
+        },
+        {
+          "id": "15",
+          "board": "NL1:1ABC3D/AB3E2/5F2/1GH2IF1/2G3I1/4D3/1J2E1K1/JH4CK",
+          "solution": "AABCDDDD/ABBCDEEE/HHHCDFFE/HGHCDIFE/HGGCDIIE/HHHCDEEE/JJHCEEKK/JHHCCCCK"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A4BC1/4A1BC/1D5E/1FD1G2H/2IGEF2/8/I1J3K1/K5JH",
+          "solution": "AAAAABCC/FFFFABBC/FDDFFFEE/FFDGGFEH/IIIGEFEH/IKKKEEEH/IKJKKKKH/KKJJJJJH"
+        },
+        {
+          "id": "17",
+          "board": "NL1:1A5B1/1C2DE1FB/4E3D/1CF4G1/AH2HI3/6J2/JK1I5/1L1GM2M1/LK7",
+          "solution": "AAFFFFFBB/ACFDDEFFB/ACFDEEDDD/ACFDDDDGG/AHHHHIIIG/JJJJJJJIG/JKKIIIIIG/LLKGMMMMG/LKKGGGGGG"
+        },
+        {
+          "id": "18",
+          "board": "NL1:A1B1C1D1E/1B2D1E1F/1A1GH4/6IH1/4G1J1F/2K3L2/1M2M2N1/2O1I1L2/COK1N3J",
+          "solution": "ABBCCDDEE/ABCCDDEEF/AACGHHHHF/CCCGGIIHF/CMMMGIJJF/CMKMMILJJ/CMKKMILNJ/COOKIILNJ/COKKNNNNJ"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A1B3C2/4D2E1/3D3F1/2GH1G3/A2IHE1F1/JB7/1I1KL1J2/1M2ML1K1/7C1",
+          "solution": "ABBGGGCCC/ABGGDGEEC/ABGDDGEFC/ABGHHGEFC/ABIIHEEFC/JBIKKKKKC/JIIKLLJKC/JMMMMLJKC/JJJJJJJCC"
+        },
+        {
+          "id": "20",
+          "board": "NL1:4ABC1D/7DE/2F2C3/5FB1G/1AH6/H5IE1/JK2L2L1/1J5MG/K2N1NI1M",
+          "solution": "AAAAABCDD/ABBBBBCDE/ABFFFCCEE/ABBBFFBEG/AAHBBBBEG/HHHIIIIEG/JKKILLLLG/JJKIIIIMG/KKKNNNIMM"
+        },
+        {
+          "id": "21",
+          "board": "NL1:A1B4CD/E2CF1D2/4AF2G/2B1HG1I1/5J1JI/8K/2L3M1M/3HL3K/8E",
+          "solution": "AABCCCCCD/EABCFFDDD/EABAAFGGG/EABAHGGII/EAAAHJJJI/EHHHHKKKK/EHLLLKMMM/EHHHLKKKK/EEEEEEEEE"
+        },
+        {
+          "id": "22",
+          "board": "NL1:8A/5B2C/D6A1/B3E2C1/4F4/1E2G1GHD/1I4I2/4JK1LH/FJM2MK1L",
+          "solution": "DDDDDDDAA/DBBBBBDAC/DBFFFFDAC/BBFEEFDCC/FFFEFFDDD/FEEEGGGHD/FIIIIIIHH/FJJJJKKLH/FJMMMMKLL"
+        },
+        {
+          "id": "23",
+          "board": "NL1:7AB/1C7/6D2/EF2CB1G1/1E2AG1D1/F8/2H1IJ2K/1K4L2/HM2MI1LJ",
+          "solution": "AAAAAAAAB/ACCCCBBBB/AAAACBDDD/EFFACBGGD/EEFAAGGDD/FFFKKKKKK/HHHKIJJJK/HKKKIILJJ/HMMMMILLJ"
+        },
+        {
+          "id": "24",
+          "board": "NL1:3A3B1/CD1E3FB/D1C1G4/1H5A1/3E1I3/H1J5K/L1FJI2KM/1G4M2/8L",
+          "solution": "CCCAAAABB/CDCEEEAFB/DDCGGEAFF/HHGGEEAAF/HGGEEIFFF/HGJJIIFKK/LGFJIFFKM/LGFFFFMMM/LLLLLLLLL"
+        },
+        {
+          "id": "25",
+          "board": "NL1:A1A4B1/C4D1E1/FCEG1HB2/6I2/1J7/6DH1/2G1K3I/J2F2L2/K4M1LM",
+          "solution": "AAAEEEEBB/CCEEDDEEB/FCEGDHBBB/FFFGDHIII/JJFGDHHHI/JFFGDDDHI/JFGGKMMMI/JFFFKMLMM/KKKKKMLLM"
+        },
+        {
+          "id": "26",
+          "board": "NL1:A1A3B1C/D1D1E2CF/G1G1BH3/4I1H2/1J3FE2/4J4/2K5L/1M1K1I1LN/5M1N1",
+          "solution": "AAABBBBCC/DDDBEEECF/GGGBBHEEF/IIIIIHHEF/IJJJJFEEF/IMMMJFFFF/IMKMMMMLL/IMKKIIMLN/IIIIIMMNN"
+        },
+        {
+          "id": "27",
+          "board": "NL1:4AB3/1C1C3D1/5E3/F1GA5/DF3EG2/9/HI3JKL1/1HIJM3B/N3NMK1L",
+          "solution": "AAAAABBBB/ACCCGGGDB/AAAAGEGDB/FFGAGEGDB/DFGGGEGDB/DDDDDDDDB/HIIJJJKLB/HHIJMMKLB/NNNNNMKLL"
+        },
+        {
+          "id": "28",
+          "board": "NL1:1A2B3C/AD4E2/D2FE2F1/G5H1C/IGJ3B1K/1L7/5HJM1/1NI6/NL2M3K",
+          "solution": "AABBBFFFC/ADBFFFEFC/DDBFEEEFC/GGBBBBHHC/IGJJJBBHK/ILLLJHHHK/IIILJHJMK/NNILJJJMK/NLLLMMMMK"
+        },
+        {
+          "id": "29",
+          "board": "NL1:A7B/C5D2/2EC3B1/1F1FA4/E2GHIDI1/J1K6/2G6/1J1L1M1M1/L2K1H3",
+          "solution": "AAAAABBBB/CCCCABDDD/EEECABBBD/EFFFAIIID/EGGGHIDID/JGKKHHDDD/JGGKKHHHH/JJLLKMMMH/LLLKKHHHH"
+        },
+        {
+          "id": "30",
+          "board": "NL1:2A4BC/2D2E3/2F1EG1BC/2DH5/6IJ1/3AH3F/KL1M1GI1N/L4MK2/O1O4JN",
+          "solution": "AAAFFFFBC/ADDFEEFBC/ADFFEGFBC/ADDHHGFFF/AAAAHGIJF/KKKAHGIJF/KLKMMGIJN/LLKKMMKJN/OOOKKKKJN"
+        },
+        {
+          "id": "31",
+          "board": "NL1:1A2BC2C/ADB1E3F/D3F1GH1/I6J1/4KL3/1E1K1J3/1M4G2/2MN5/1IN2LH2",
+          "solution": "AABBBCCCC/ADBEEFFFF/DDEEFFGHH/IEELLLGJH/IELLKLGJH/IELKKJGJH/IMLLLJGJH/IMMNLJJJH/IINNLLHHH"
+        },
+        {
+          "id": "32",
+          "board": "NL1:2A3BC1/4D2B1/1EAF2GHC/8H/I3D4/1F4J1G/4KL3/1EI1M2L1/4K1MJ1",
+          "solution": "AAAEEEBCC/AEEEDEBBC/AEAFDEGHC/AAAFDEGHH/IFFFDEGGG/IFEEEEJJG/IEEKKLLJJ/IEIKMMLLJ/IIIKKMMJJ"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-open-fields",
+      "title": "Open fields",
+      "description": "Only the pairs need joining here: cells may stay empty, but paths still cannot cross.",
+      "difficulty": "Medium",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:3AB2/1CDB2D/7/2E3A/2C1E2/7/7;cover=pairs",
+          "solution": "AAAAB../ACDBB.D/ACDDDDD/ACEE..A/ACCEE.A/A.....A/AAAAAAA"
+        },
+        {
+          "id": "02",
+          "board": "NL1:AB5/5C1/1D5/1A2CB1/7/1D1E1E1/7;cover=pairs",
+          "solution": "ABBB.../AAAB.C./DDABCC./DAABCB./D..BBB./DD.EEE./......."
+        },
+        {
+          "id": "03",
+          "board": "NL1:5A1/7/7/2B4/2C1D1B/A6/D1E2EC;cover=pairs",
+          "solution": "....AA./.AAAA../.ABBBBB/.ABCCCB/AACCDCB/ADDDDCC/DDEEEEC"
+        },
+        {
+          "id": "04",
+          "board": "NL1:7/4A2/2B4/5C1/4BA1/1CD2E1/5DE;cover=pairs",
+          "solution": "....AAA/.CCCA.A/.CBC..A/.CBCCCA/.CBBBAA/.CDDDEE/....DDE"
+        },
+        {
+          "id": "05",
+          "board": "NL1:A4A1/2BC3/3B3/7/3DE2/1CDE3/7;cover=pairs",
+          "solution": "ACCCAA./ACBCA../ACBBAAA/AC....A/ACDDE.A/ACDEE.A/AAAAAAA"
+        },
+        {
+          "id": "06",
+          "board": "NL1:2A4/6B/5C1/7/1D3B1/1A5/E1E1DC1;cover=pairs",
+          "solution": "AAABBBB/ABBB..B/AB...CC/ABBBBBC/ADD..BC/AADD..C/EEEDDCC"
+        },
+        {
+          "id": "07",
+          "board": "NL1:7/4AB1/7/1BAC2D/6E/1D5/C5E;cover=pairs",
+          "solution": "BBBBBB./B..AAB./B.AA.../BBAC.DD/CCCC.DE/CD...DE/CDDDDDE"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A6/1B5/3C3/2D2C1/7/1D3BE/1A3E1;cover=pairs",
+          "solution": "ABBBBBB/AB....B/A..CCCB/A.DDDCB/A...DBB/ADD.DBE/AADDDEE"
+        },
+        {
+          "id": "09",
+          "board": "NL1:7/7/2A4/4BC1/2D2B1/E1AD1E1/5C1;cover=pairs",
+          "solution": "......./......./AAA..../A...BCC/AADDBBC/EAADEEC/EEEEECC"
+        },
+        {
+          "id": "10",
+          "board": "NL1:4A2/A5B/7/5C1/2D1DB1/E5C/6E;cover=pairs",
+          "solution": "AAAAA../A.....B/......B/.CCCCCB/.CDDDBB/ECCCCCC/EEEEEEE"
+        },
+        {
+          "id": "11",
+          "board": "NL1:8/8/2A1B2C/3D4/3B2E1/1D2F3/2CA4/F6E;cover=pairs",
+          "solution": "CCCCC.../CDDDCCC./CDADB.CC/CDADB.../CDABB.E./CDAAF.E./CCCAF.EE/FFFFF..E"
+        },
+        {
+          "id": "12",
+          "board": "NL1:1AB1C2D/1B6/4C3/EF6/8/E7/AF4D1/8;cover=pairs",
+          "solution": "AAB.C..D/ABB.C..D/AAA.C..D/EFA....D/EFADDDDD/EFAD..../AFAD.DD./AAADDD.."
+        },
+        {
+          "id": "13",
+          "board": "NL1:A4ABC/1D6/1B1C4/8/6E1/1F1F1E2/8/6D1;cover=pairs",
+          "solution": "AAAAAABC/DDBBBBBC/DBBCCCCC/DDDDDDDD/......ED/.FFF.EED/.......D/......DD"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A1A5/2B3C1/8/2B4C/4D3/8/E2E1F2/F4D2;cover=pairs",
+          "solution": "A.AA..../A.BACCC./A.BAC.../A.BACCCC/A..AD.../AAAADDD./EEEEFFD./FFFFFDD."
+        },
+        {
+          "id": "15",
+          "board": "NL1:8/1A4B1/5A2/6B1/1C1D4/3E4/E3DCF1/F7;cover=pairs",
+          "solution": "......../.AAAAAB./.CCCCAB./.C..CCB./.C.DDC../...EDC../EEEEDCF./FFFFFFF."
+        },
+        {
+          "id": "16",
+          "board": "NL1:A7/2BC2B1/8/8/8/1C6/2ADE1F1/D5EF;cover=pairs",
+          "solution": "A..CCCCC/A.BCBBBC/A.BBB.CC/A.....C./A...CCC./ACCCC.../AAADE.FF/DDDDEEEF"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A3B3/CA6/4DE2/BC5F/8/8/6E1/1D1F4;cover=pairs",
+          "solution": "AABBB.../CAB...../CCB.DE../BCB.DE.F/BBB.DE.F/....DE.F/..DDDEEF/.DDFFFFF"
+        },
+        {
+          "id": "18",
+          "board": "NL1:8/8/4AB2/3CB1D1/1E4C1/5A2/1EFD3F/8;cover=pairs",
+          "solution": "......../......../..AAAB../..ACBBDD/.EACCCCD/.EAAAADD/.EFDDDDF/..FFFFFF"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A4B2/8/5C2/7B/2D1EA1F/3D2F1/6EC/8;cover=pairs",
+          "solution": "AAAAABBB/CCCCAAAB/C..CCCAB/C.....AB/C.DDEAAF/C..DEEFF/C....EEC/CCCCCCCC"
+        },
+        {
+          "id": "20",
+          "board": "NL1:8/8/2A5/2B5/2CB1AC1/8/DE2F3/E5DF;cover=pairs",
+          "solution": "CCCCCCCC/C......C/C.AAAA.C/C.BB.ACC/CCCB.AC./DDD...../DED.FFFF/EEDDDDDF"
+        },
+        {
+          "id": "21",
+          "board": "NL1:8/1AB3C1/5D2/7D/1EC5/1A5F/8/3E1B1F;cover=pairs",
+          "solution": "CCCCCC../CABBBCC./CAAABD../CCCABD.D/EECABDDD/EAAABBBF/EEEE..BF/...E.BBF"
+        },
+        {
+          "id": "22",
+          "board": "NL1:AB5C1/2A6/2D6/D8/9/BE1C4F/8G/5H1F1/5E1HG;cover=pairs",
+          "solution": "ABBB...CC/AAAB....C/DDDB...CC/DBBB.CCC./BB...C.../BE.CCC.FF/EE.....FG/E....HHFG/EEEEEEHHG"
+        },
+        {
+          "id": "23",
+          "board": "NL1:8A/1BC3D2/2B2E3/1F7/4G4/E1F2G3/2C1D4/4H1H2/8A;cover=pairs",
+          "solution": ".....EEEA/.BCC.EDEA/.BBC.EDEA/.FFC..DEA/..FCG.DEA/E.FCGGDEA/EECCDDDEA/.EEEHHHEA/...EEEEEA"
+        },
+        {
+          "id": "24",
+          "board": "NL1:9/AB5C1/B4D3/4E4/9/2D3E2/8C/1A2FG1GF/H2H5;cover=pairs",
+          "solution": "AAAAA..../AB..A.CC./BB.AADC../AAAAEDCCC/A...EDDDC/A.DDEEEDC/A..DDDDDC/AA..FGGGF/HHHHFFFFF"
+        },
+        {
+          "id": "25",
+          "board": "NL1:1A2B2CD/1B5D1/9/C2E1F3/1GA6/2E1H4/1G4F2/7H1/9;cover=pairs",
+          "solution": "AA..BBCCD/ABB..BCDD/AABBBBCCC/CAAE.FFFC/CGAE...FC/CGEEHH.FC/CGCCCHFFC/CCC.CHHHC/....CCCCC"
+        },
+        {
+          "id": "26",
+          "board": "NL1:4A4/1B1AC4/7DE/2F6/C5DE1/9/1G2F1G2/1H2B4/H8;cover=pairs",
+          "solution": "CCCAA..../CBCAC..../CBCCC..DE/CBFFF.DDE/CBBBF.DEE/...BF.GGG/.GGBF.G.G/.HGBB...G/HHGGGGGGG"
+        },
+        {
+          "id": "27",
+          "board": "NL1:9/1A2B1BA1/1C7/3D5/E1C4F1/9/2G1E4/1GD4H1/6F1H;cover=pairs",
+          "solution": "........./.AAABBBA./.CCAAAAA./..CDFFFF./E.CDF..F./E..DFF.../EGGDEF.../EGDDEF.H./EEEEEFFHH"
+        },
+        {
+          "id": "28",
+          "board": "NL1:9/1A1BC2D1/2E6/2A6/2E3FD1/G6F1/3GH4/7C1/H7B;cover=pairs",
+          "solution": "...BBBBBB/.A.BCCCDB/.AEE..CDB/.AAE.CCDB/..EE.CFDB/G....CFFB/GGGGHC..B/HHHHHC.CB/H....CCCB"
+        },
+        {
+          "id": "29",
+          "board": "NL1:9/4A4/B5C2/4DC3/AE4F2/2DGH4/6FB1/1G2E2H1/9;cover=pairs",
+          "solution": "BBBBBBBBB/BAAAA...B/BA....C.B/AA.DDCC.B/AEDD..F.B/EEDGH.F.B/EGGGHHFBB/EGEEEHHH./EEE......"
+        },
+        {
+          "id": "30",
+          "board": "NL1:A8/BACB5/9/5D1D1/1E7/4F2GH/3C5/1H1F1E1G1/9;cover=pairs",
+          "solution": "AACCC..../BACBC..../BBBBC..../CCCCCDDD./CEEEEE.../CCCCFE.GH/...CFE.GH/.H.FFE.GH/.HHHHHHHH"
+        },
+        {
+          "id": "31",
+          "board": "NL1:8A/1BC2C2D/5E1D1/4F4/1B7/9/2A1E1G2/9/3H1H1GF;cover=pairs",
+          "solution": "AAAAAAAAA/ABCCCC..D/AB...E.DD/AB.FFE.../AB.FEE.../A..FEFFF./A.AFEFGF./A.AFFFGFF/AAAHHHGGF"
+        },
+        {
+          "id": "32",
+          "board": "NL1:6A2/1BC1D2E1/7A1/1B6D/9/F8/2F3GC1/1H7/2HE4G;cover=pairs",
+          "solution": "EEEEEEAAA/EBC.DEEEA/EBC.DDDAA/EBC...DDD/EECCC..../FEEEC.GGG/FFFEC.GCG/.HHEC..CG/..HECCCCG"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-nine-squares",
+      "title": "Nine squares",
+      "description": "Nine by nine boards that reward planning a few moves ahead.",
+      "difficulty": "Hard",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:9/1AB1C2D1/9/1EA3FG1/2E4DG/5H3/2C6/6HB1/5F3",
+          "solution": "FFFFFFFFF/FABBCDDDF/FAABCDFFF/FEABCDFGG/FEEBCDDDG/FBBBCHHHH/FBCCCBBBH/FBBBBBHBH/FFFFFFHHH"
+        },
+        {
+          "id": "02",
+          "board": "NL1:7A1/5B1CA/2D5C/5B3/EFG6/D1F6/5H3/7G1/EH7",
+          "solution": "EEEEEEEAA/EGGGGBECA/EGDDGBECC/EGGDGBEEE/EFGDGGGGE/DFFDEEEGE/DDDDEHEGE/EEEEEHEGE/EHHHHHEEE"
+        },
+        {
+          "id": "03",
+          "board": "NL1:A8/6BC1/2D6/8E/F2G5/9/9/1FAG1CEB1/1D7",
+          "solution": "AAAAAEEEE/FFFFAEBCE/FDDFAEBCE/FDFFAEBCE/FDFGAEBCC/DDFGAEBBC/DFFGAEEBC/DFAGACEBC/DDAAACCCC"
+        },
+        {
+          "id": "04",
+          "board": "NL1:1A7/9/AB4C2/1D1ECF3/7G1/6GH1/3I1EB2/1F2DI1H1/9",
+          "solution": "AABBBBBBB/ABBFFFFFB/ABFFCCCFB/DDFECFFFB/DFFEEEGGB/DFDDDEGHB/DFDIDEBHB/DFDIDIBHB/DDDIIIBBB"
+        },
+        {
+          "id": "05",
+          "board": "NL1:5AB2/7A1/2C6/1D2E1F2/EC5D1/2GH1B3/2F5I/2H6/G4I3",
+          "solution": "EEEEEABBB/EDDDEAAAB/EDCDEBBBB/EDCDEBFFF/ECCDDBDDF/GGGHDBDFF/GFFHDDDFI/GFHHFFFFI/GFFFFIIII"
+        },
+        {
+          "id": "06",
+          "board": "NL1:5A2B/1C7/2D6/3EF4/3F4B/GD2E4/9/1A5G1/5C3",
+          "solution": "GGGGGAAAB/GCCCGGGAB/GDDCCCGAB/GDEEFCGAB/GDEFFCGAB/GDEEECGAA/CCCCCCGGA/CAAAAAAGA/CCCCCCAAA"
+        },
+        {
+          "id": "07",
+          "board": "NL1:9/2AB2AC1/2D1E4/B2D3F1/CG7/9/1G1EF4/8H/H8",
+          "solution": "BBBBEEEEE/BAABEAACE/BADDEACCE/BAADAACFE/CGAAACCFE/CGCCCCFFE/CGCEFFFEE/CCCEEEEEH/HHHHHHHHH"
+        },
+        {
+          "id": "08",
+          "board": "NL1:8A/1BC3DE1/9/3D1AFG1/5H3/3I5/1C5F1/EB2I2G1/8H",
+          "solution": "CCCEEEEEA/CBCEDDDEA/CBEEDAAAA/CBEDDAFGG/CBEEEHFFG/CBBIEHHFG/CCBIEEHFG/EBBIIEHGG/EEEEEEHHH"
+        },
+        {
+          "id": "09",
+          "board": "NL1:8A/4B1B2/2C2D3/6EF1/2G6/1F5A1/1G7/E1H4D1/H1C6",
+          "solution": "EEEEEEEEA/EFFFBBBEA/EFCFFDEEA/EFCCFDEFA/EFGCFDFFA/EFGCFDFAA/EGGCFDFFF/EHHCFDDDF/HHCCFFFFF"
+        },
+        {
+          "id": "10",
+          "board": "NL1:7AB/4B4/2C1D4/9/1E7/1AC1D4/F3G1G2/1H5E1/HI1I1F3",
+          "solution": "AAAAAAAAB/AEEEBBBBB/AECEDDDDD/AECEEEEED/AECGGGGED/AACGDDGED/FFFGGDGED/HHFFFDDED/HIIIFFDDD"
+        },
+        {
+          "id": "11",
+          "board": "NL1:3AB4/2CB2D2/A3E4/6F2/CGE1G4/2HD2F2/1I7/3I3H1/9",
+          "solution": "AAAABFFFF/ACCBBFDDF/ACEEEFFDF/CCEDDDFDF/CGEDGDDDF/GGHDGGFFF/GIHHHGGGG/GIIIHHHHG/GGGGGGGGG"
+        },
+        {
+          "id": "12",
+          "board": "NL1:5A2A/3B5/1BC4DC/8E/F4G3/1H7/H6E1/DFI2I1JG/8J",
+          "solution": "CCCCCAAAA/CBBBCCCCC/CBCDDDDDC/CCCDEEEEE/FFFDEGGGG/HHFDEEEEG/HFFDDDDEG/DFIIIIDJG/DDDDDDDJJ"
+        },
+        {
+          "id": "13",
+          "board": "NL1:1A1BC4/7D1/4E4/5A2F/4G4/6F2/2C4E1/1B7/3G4D",
+          "solution": "AABBCEEEE/ABBCCEDDE/ABCCEEDEE/ABCAAADEF/ABCAGDDEF/ABCAGDFEF/ABCAGDFEF/ABAAGDFFF/AAAGGDDDD"
+        },
+        {
+          "id": "14",
+          "board": "NL1:9/AB7/4CDE1D/1A7/2FG3G1/2H1H4/2C3E2/9/2BF5",
+          "solution": "AAADDDDDD/ABADCCCCD/BBADCDECD/BAADDDECC/BFFGGGEGC/BFHHHGEGC/BFCCCGEGC/BFFFCGGGC/BBBFCCCCC"
+        },
+        {
+          "id": "15",
+          "board": "NL1:9/1A1AB2C1/1D5E1/BC7/6F2/F5G2/2H1HD3/1I3I1E1/5G3",
+          "solution": "BBBBBDDDD/BAAABDCCD/BDDDDDCED/BCCCCCCED/FFFFFFFED/FGGGGGGED/GGHHHDDED/GIIIIIDED/GGGGGGDDD"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A8/B8/1CB6/4DE3/1F1G5/1C1H1D3/6F2/1H2G1A2/8E",
+          "solution": "AAAAAAAAA/BBBFFFFFA/CCBFDDDFA/CFFFDEDFA/CFGGEEDFA/CCGHEDDFA/GGGHEEFFA/GHHHGEAAA/GGGGGEEEE"
+        },
+        {
+          "id": "17",
+          "board": "NL1:8A/1B6C/2D1E2A1/4F4/1G7/3E2GH1/3B5/4F2D1/2C5H",
+          "solution": "CCCCCCCAA/CBDDDDCAC/CBDEEDCAC/CBBEFDCCC/CGBEFDDDD/CGBEFGGHD/CGBBFGHHD/CGGGFGHDD/CCCGGGHHH"
+        },
+        {
+          "id": "18",
+          "board": "NL1:9/AB2C2DE/9/1F5E1/9/3D1CGH1/7A1/1FB1G4/6H2",
+          "solution": "AAADDDEEE/ABADCDEDE/BBADCDEDD/BFADCDEED/BFADCDDDD/BFADCCGHH/BFAAGGGAH/BFBAGAAAH/BBBAAAHHH"
+        },
+        {
+          "id": "19",
+          "board": "NL1:9/3A3B1/1A7/3C2D2/3E2E2/6F2/4FG3/3C5/GB6D",
+          "solution": "GGGGGGGGG/GAAABBBBG/GABBBGGGG/GBBCCGDDD/GBEECGEED/GBECCGFED/GBECFGFED/GBECFFFED/GBEEEEEED"
+        },
+        {
+          "id": "20",
+          "board": "NL1:9/8A/5B2C/1C1D5/7E1/FA3E3/2G3H2/1GF6/3HDB3",
+          "solution": "AAAAAAAAA/ACCCCCCCA/ACHHHBBCC/ACHDHHBBB/AAHDDHHEB/FAHHDEHEB/FGGHDEHEB/FGFHDEEEB/FFFHDBBBB"
+        },
+        {
+          "id": "21",
+          "board": "NL1:A8/BA1C3D1/9/1E3F2G/1C5F1/4H2IG/2H4D1/7I1/3EB4",
+          "solution": "AABBBFFFF/BABCBFDDF/BBBCBFDFF/EECCBFDFG/ECCBBDDFG/EBBBHDIIG/EBHHHDIDD/EBBBBDIID/EEEEBDDDD"
+        },
+        {
+          "id": "22",
+          "board": "NL1:A7B/7BC/2DAE4/8F/5G1D1/4FHG2/6H1E/1C7/9",
+          "solution": "ACCCCCCBB/ACDDDDCBC/ACDAEDCCC/ACAAEDDDF/ACAEEGGDF/ACAEFHGFF/ACAEFHHFE/ACAEFFFFE/AAAEEEEEE"
+        },
+        {
+          "id": "23",
+          "board": "NL1:9/1A5B1/9/3C1D2E/3B1E1F1/7D1/1G7/1C1G2H2/A6FH",
+          "solution": "CCCCCCCCC/CABBBBBBC/CABCCCCCC/CABCDDEEE/CABBDEEFF/CAAADDDDF/CGGAAFFFF/CCGGAFHHH/AAAAAFFFH"
+        },
+        {
+          "id": "24",
+          "board": "NL1:9/2A1B4/1A2C1D2/3E1F3/1B7/9/4D4/1G2F2EG/2C6",
+          "solution": "EEEEEEEEE/EAABBFFFE/EABBCFDFE/EBBECFDFE/EBEECDDFE/EEECCDFFE/CCCCDDFEE/CGGGFFFEG/CCCGGGGGG"
+        },
+        {
+          "id": "25",
+          "board": "NL1:9/6AB1/9/3C5/1A3D3/EF3G3/F5D2/1H2B1EG1/HC7",
+          "solution": "EEEEEEEEE/EAAAAAABE/EABBBBBBE/EABCGGGGE/EABCGDDGE/EFBCGGDGE/FFBCCCDGE/HHBBBCEGE/HCCCCCEEE"
+        },
+        {
+          "id": "26",
+          "board": "NL1:A8/7B1/1C7/1B5DE/1F5G1/1H5I1/6IE1/3C4G/AH1F4D",
+          "solution": "ACCCCCCCC/ACBBBBBBC/ACBCCCCCC/ABBCDDDDE/AFFCDGGGE/AHFCDGIIE/AHFCDGIEE/AHFCDGGGG/AHFFDDDDD"
+        },
+        {
+          "id": "27",
+          "board": "NL1:7A1/1B3C2A/1D4C2/EF5B1/6G2/3D2F2/3H5/8H/E7G",
+          "solution": "DDDDHHHAA/DBBDHCHHA/DDBDHCCHH/EFBDHBBBH/EFBDHBGGH/EFBDHBFGH/EFBHHBFGH/EFBBBBFGH/EFFFFFFGG"
+        },
+        {
+          "id": "28",
+          "board": "NL1:8A/8B/A8/B1CDC2E1/2F4G1/9/2H1H4/4EGD2/8F",
+          "solution": "AAAAAAAAA/ABBBBBBBB/ABCCCDDDD/BBCDCDEED/FFFDDDEGD/FEEEEEEGD/FEHHHGGGD/FEEEEGDDD/FFFFFFFFF"
+        },
+        {
+          "id": "29",
+          "board": "NL1:3A4B/1C3D3/7E1/3A1DF2/9/9/2E4GC/2F1G4/B8",
+          "solution": "BBBABBBBB/BCBABDFFF/BCBABDFEF/BCBABDFEF/BCBBBEEEF/BCEEEEFFF/BCEFFFFGC/BCFFGGGGC/BCCCCCCCC"
+        },
+        {
+          "id": "30",
+          "board": "NL1:4A4/1BC1D2A1/7D1/9/E7B/2C6/F1G2F3/6GE1/9",
+          "solution": "CCCAADDDD/CBCADDAAD/CBBAAAADD/CCBBBBBBB/ECCGGGGGB/EECGEEEGG/FEGGEFEEG/FEEEEFGEG/FFFFFFGGG"
+        },
+        {
+          "id": "31",
+          "board": "NL1:ABC6/2B1D4/6E2/2F2E3/8D/5A3/7G1/1H4G2/4C2HF",
+          "solution": "ABCCDDDDD/ABBCDFFFD/ACCCFFEFD/ACFFFEEFD/ACCCCCCFD/AAAAAACFF/CCCCCCCGF/CHHHHHGGF/CCCCCHHHF"
+        },
+        {
+          "id": "32",
+          "board": "NL1:3A5/1B7/9/1C2D2E1/4F2F1/3BD2G1/2H6/3GA3H/EC7",
+          "solution": "EEEAAAAAA/EBEEEEEEA/EBBFFFFEA/ECBFDDFEA/ECBFFDFFA/ECBBDDGGA/ECHGGGGAA/ECHGAAAAH/ECHHHHHHH"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-panorama",
+      "title": "Panorama",
+      "description": "Wide boards for turning a tablet or phone on its side.",
+      "difficulty": "Hard",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:10/2A1B1CD2/2E2CFB2/8D1/5GF3/1G1A5E",
+          "solution": "GGGGBBBBBB/GAAGBCCDDB/GAEGGCFBDB/GAEEGGFBDB/GAAEEGFBBB/GGAAEEEEEE"
+        },
+        {
+          "id": "02",
+          "board": "NL1:AB8/1A2C1DE2/F6F2/E1BG1CG3/10/9D",
+          "solution": "ABBGGGDDDD/AABGCGDEED/FFBGCGGFED/EFBGCCGFED/EFFFFFFFED/EEEEEEEEED"
+        },
+        {
+          "id": "03",
+          "board": "NL1:5A4/1BCABD2E1/C7F1/3G2HE2/1F2D5/2G3H3",
+          "solution": "CCCAAAHHHH/CBCABDHEEH/CBBBBDHEFH/GGGGDDHEFH/GFFFDFFFFH/GGGFFFHHHH"
+        },
+        {
+          "id": "04",
+          "board": "NL1:A9/4B4C/3DE2F1G/A6E2/4B2FG1/CD4H2H",
+          "solution": "ACCCCCCCCC/ACBBBEEEEC/ACBDEEFFEG/ACBDDDFEEG/CCBBBDFFGG/CDDDDDHHHH"
+        },
+        {
+          "id": "05",
+          "board": "NL1:6A3/6BCD1/2AE6/5F4/F2E3CD1/B9",
+          "solution": "FFFFFFAAAA/FBBBBFBCDA/FBAEBFBCDA/FBAEBFBCDA/FBAEBBBCDA/BBAAAAAAAA"
+        },
+        {
+          "id": "06",
+          "board": "NL1:AB1C4DE/1A8/10/1FC2E2G1/3F3GD1/9B",
+          "solution": "ABBCDDDDDE/AABCDEEEEE/BBBCDEDDDD/BFCCDEDGGD/BFFFDDDGDD/BBBBBBBBBB"
+        },
+        {
+          "id": "07",
+          "board": "NL1:4A4B/1C1A2D2E/5D4/4C1E3/1F1FG1G1B1/10",
+          "solution": "GGGAAGGGBB/GCGAGGDGBE/GCGGGDDGBE/GCCCCEEGBE/GFFFGEGGBE/GGGGGEEEEE"
+        },
+        {
+          "id": "08",
+          "board": "NL1:10/1A1BC3C1/10/3D3BE1/E2F1D4/A8F",
+          "solution": "EEEBBBBBBB/EAEBCCCCCB/EAEEEEEEEB/EADDFFFBEB/EADFFDFBBB/AADDDDFFFF"
+        },
+        {
+          "id": "09",
+          "board": "NL1:8A1B/1C8D/A6E1B1/7F1G1/1F2EH1C3/5I2HG1/I4D5",
+          "solution": "AAAAAAAAABB/ACCCCCCCCBD/AEEEEEEECBD/EEFFFFFFCGD/EFFEEHHCCGD/EEEEIIHHHGD/IIIIIDDDDDD"
+        },
+        {
+          "id": "10",
+          "board": "NL1:11/4A4B1/C1DB3E1F1/6EGFD1/1C6G2/1H9/2A1H6",
+          "solution": "CCCCCCCCCCC/CAAAABBBBBC/CADBBBEEFFC/AADDDDEGFDC/ACCCCDDGGDC/AHHHCCDDDDC/AAAHHCCCCCC"
+        },
+        {
+          "id": "11",
+          "board": "NL1:2A5B2/1C2D4CB/3A1E5/11/2F8/1FG1EHDH1G1/11",
+          "solution": "AAACCCCCBBB/ACCCDDDCCCB/AAAAEEDDDDD/EEEEEGGGGGD/EFFGGGDDDGD/EFGGEHDHDGD/EEEEEHHHDDD"
+        },
+        {
+          "id": "12",
+          "board": "NL1:A9B/2C1DE2EF1/7G1D1/5H1I3/2C4HG2/2B5I2/2A7F",
+          "solution": "ABBBBBBBBBB/ABCDDEEEEFF/ABCDIIIGGDF/ABCDIHIIGDF/ABCDIHHHGDF/ABBDIIIIIDF/AAADDDDDDDF"
+        },
+        {
+          "id": "13",
+          "board": "NL1:1A6B2/1C1D7/5E2F2/2F3E3B/11/1A1C5G1/D2H1G4H",
+          "solution": "AACCCCCCBBB/ACCDFFFCCCB/ADDDFEFFFCB/ADFFFEECCCB/ADDCCCCCHHH/AADCHHHHHGH/DDDHHGGGGGH"
+        },
+        {
+          "id": "14",
+          "board": "NL1:9A1/1B3C1D1E1/2F1CD1G3/F1H8/I3H2A3/1BE5JG1/4IJ5",
+          "solution": "FFFEEEEEEAA/FBFECCDDEEA/FBFECDDGGGA/FBHEEEJJJGA/IBHHHEJAJGA/IBEEEEJAJGA/IIIIIJJAAAA"
+        },
+        {
+          "id": "15",
+          "board": "NL1:5A5/1B1A7/8C2/2BDE6/7F3/2E4G1H1/H3DF1C2G",
+          "solution": "HHHAAAHHHHH/HBHAHHHFFFH/HBHHHFFFCFH/HBBDEFCCCFH/HDDDEFCFFFH/HDEEEFCGGHH/HDDDDFCCGGG"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A9B/CA4D4/4E3D2/2F8/4FG5/1B4G2C1/3E7",
+          "solution": "AACCCCCCCCB/CACBBBDDDCB/CCCBEBBBDCB/FFFBEEEBBCB/FBBBFGEEBCB/FBFFFGGEBCB/FFFEEEEEBBB"
+        },
+        {
+          "id": "17",
+          "board": "NL1:5AB3CD/1EC9/6B2F2/10D1/2AG4H1H1/1G4F3I1/3EI7",
+          "solution": "AAAAAABCCCCD/AECCCCBCDDDD/AEEEECBCDFFF/AGGGECCCDDDF/AGAGEIIIHHHF/AGAEEIFIIIIF/AAAEIIFFFFFF"
+        },
+        {
+          "id": "18",
+          "board": "NL1:ABC9/2D3E3F1/3C2F3G1/7H1D2/12/2A1I4HE1/I3B6G",
+          "solution": "ABCCDDDDDDDD/ABDCDEEFFFFD/ABDCDEFFGGGD/ABDDDEEHGDDD/ABBBBBEHGGGG/AAAIIBEHHHEG/IIIIBBEEEEEG"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A1A9/B3C5D1/EFB4C1G2/5H6/1G4I3H1/2F9/E6DI3",
+          "solution": "AAAGGGGGGGGG/BBBGCCCCDDDG/EFBGDDDCDGGG/EFFGDHDDDIII/EGFGDHIIIIHI/EGFGDHHHHHHI/EGGGDDDDIIII"
+        },
+        {
+          "id": "20",
+          "board": "NL1:A4B1BC3/2C4D2EF/12/12/G2A3H4/1E3I2HDF1/2GI8",
+          "solution": "ADDDDBBBCFFF/ADCCDDDDCFEF/ADDCCCCCCFEE/AADDDDDDDFFE/GAAAEEEHDDFE/GEEEEIEHHDFE/GGGIIIEEEEEE"
+        },
+        {
+          "id": "21",
+          "board": "NL1:A11/BAC6D2/4C4E2/2F3G5/4B4H2/1E1F5DH1/3G8",
+          "solution": "AACCCCCCCCCC/BACEEEEEEDDC/BEEECCCCEEDC/BEFFFFGCDDDC/BEBBBFGCDHHC/BEBFFFGCDDHC/BBBGGGGCCCCC"
+        },
+        {
+          "id": "22",
+          "board": "NL1:4A3AB2/1C6D1D1/1E4F1GB2/3H7C/7I1I2/4E2G4/3HF7",
+          "solution": "HHHHAAAAABBB/HCCHCCCCDDDB/HECHCFFCGBBB/HECHCFCCGGGC/HECCCFCIIIGC/HEEEEFCGGGGC/HHHHFFCCCCCC"
+        },
+        {
+          "id": "23",
+          "board": "NL1:AB8CD/3A2D5/6C5/6E5/2F6G2/1E1H7H/1B3G5F",
+          "solution": "ABBBBCCCCCCD/AAAABCDDDDDD/BBBBBCCHHHHH/BEEEEEEHFFFH/BEFHHHHHFGFH/BEFHFFFFFGFH/BBFFFGGGGGFF"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A8B2/2C1D2E2D1/7C4/12/1E6FGA1/1B1H3H1F2/11G",
+          "solution": "AEEEDDDDDBBB/AECEDEEEDDDB/AECEEECCBBBB/AECCCCCBBGGG/AEBBBBBBFGAG/ABBHHHHHFFAG/AAAAAAAAAAAG"
+        },
+        {
+          "id": "25",
+          "board": "NL1:1A2BC2D3/5A2E1F1/1B10/3G5H2/I11/1G4EF2D1/1C1IH7/12",
+          "solution": "AABBBCCDDHHH/ABBAAACDEHFH/ABAACCCDEHFH/AAAGCDDDEHFH/IGGGCDEEEFFH/IGCCCDEFFFDH/ICCIHDDDDDDH/IIIIHHHHHHHH"
+        },
+        {
+          "id": "26",
+          "board": "NL1:11A/7B1C1D/12/1EF1G1H4D/4IF1J4/1G9A/1HI6K1B/C3J2E3K",
+          "solution": "CCCCCCCCCCAA/CEEEEEEBBCAD/CEFFFFEEBBAD/CEFGGFHEEBAD/CGGGIFHJEBAA/CGIIIHHJEBBA/CHIHHHJJEKBB/CHHHJJJEEKKK"
+        },
+        {
+          "id": "27",
+          "board": "NL1:1A9B/8C2D/4EF1G4/3H8/1E3H6/1F4CI1D2/1G2A1I3B1/12",
+          "solution": "AAEEEEEGGGBB/AEEFFFEGCGBD/AEFFEFEGCGBD/AEFHEEECCGBD/AEFHHHCCGGBD/AFFGGGCIGDBD/AGGGAGIIGDBD/AAAAAGGGGDDD"
+        },
+        {
+          "id": "28",
+          "board": "NL1:8A3/1B2A1C5/2D1E4F2/7E4/3GC7/2B3H1HF2/8DG2/12",
+          "solution": "AAAAAEEEAAAA/ABBBAECEGGGA/ADDBEECEGFGA/ADBBCCCEGFGA/ADBGCGGGGFGA/ADBGGGHHHFGA/ADDDDDDDDGGA/AAAAAAAAAAAA"
+        },
+        {
+          "id": "29",
+          "board": "NL1:4A7/1B10/2C1DE3F2/4AF6/1G7D2/2H4B4/2I2IH3G1/C7E3",
+          "solution": "CCCAADDDDDDD/CBCADDEEEEED/CBCADEEFFFED/CBBAAFFFEEED/CGBBBBBBEDDD/CGHHHHHBEEEE/CGIIIIHGGGGE/CGGGGGGGEEEE"
+        },
+        {
+          "id": "30",
+          "board": "NL1:6A5/6B1C1D1/2A6DE1/F2EF2G4/H9B1/2I3I1G3/10C1/5H6",
+          "solution": "FFFFFAABBBBB/FEEEFABBCDDB/FEAEFACCCDEB/FEAEFACGGEEB/HEAAAACCGEBB/HEIIIIICGEEE/HEEEEEECCCCE/HHHHHHEEEEEE"
+        },
+        {
+          "id": "31",
+          "board": "NL1:8A3/10B1/2C2C3D2/9E2/6F4A/B3GH3I2/E8HG1/D5F4I",
+          "solution": "BBBBBBBBAAAA/BEEEEEEBBBBA/BECCCCEEEDDA/BEDDDDDDEEDA/BEDFFFFDDDDA/BEDFGHHHHIII/EEDFGGGGHHGI/DDDFFFFGGGGI"
+        },
+        {
+          "id": "32",
+          "board": "NL1:12/9A2/1B5C1D2/3D3E4/F9A1/2G5B3/GHIF5CE1/H4I6",
+          "solution": "CCCCCCCCDDDD/CBBBBBBCDAAD/CBCCCCBCDDAD/CCCDDCBEEEAD/FFFFDCBBBEAD/GGGFDCCCBEED/GHIFDDDCCCED/HHIIIIDDDDDD"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-ten-squares",
+      "title": "Ten squares",
+      "description": "Ten by ten boards with long, interlocking paths.",
+      "difficulty": "Hard",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A9/3BA1C3/6DEC1/BE8/3FG5/4H5/5I1J2/3G2JH2/10/D2F1IK2K",
+          "solution": "AAAAAEEEEE/BBBBAECCCE/BEEEEEDECE/BEDDDDDEEE/DDDFGGGGGG/DFFFHHHHHG/DFIIIIJJHG/DFIGGGJHHG/DFIIIGGGGG/DFFFIIKKKK"
+        },
+        {
+          "id": "02",
+          "board": "NL1:7A2/5A2B1/3CD5/2C7/2E1F3F1/6G2E/4B1DH2/8I1/1G5I2/5H4",
+          "solution": "BBBBBBBAAA/BDDDDABBBA/BDCCDAAAAA/BDCEEEEEEE/BDEEFFFFFE/BDDDDDGGGE/BBBBBDDHGG/HHHHHHHHIG/HGGGGGGIIG/HHHHHHGGGG"
+        },
+        {
+          "id": "03",
+          "board": "NL1:10/1A3BC1C1/2DA1D4/5EB2F/8G1/2H7/2E4HI1/7GJ1/1F2I2J2/10",
+          "solution": "DDDDDBBBBB/DAAADBCCCB/DDDADDBBBB/EEEEEEBFFF/EFFFFFFFGG/EFHHIIIIIG/EFEHIHHHIG/EFEHIHGGJG/EFEHIHGJJG/EEEHHHGGGG"
+        },
+        {
+          "id": "04",
+          "board": "NL1:10/1A4BA2/3C3C2/9B/1DE4FGH/3FI5/I6H2/5D4/1E2GJ2J1/10",
+          "solution": "CCCCCCBBBB/CAAAACBAAB/CCCCACCCAB/IIIIAAAAAB/IDEIIFFFGH/IDEFIFGGGH/IDEFFFGHHH/DDEDDDGGGG/DEEDGJJJJG/DDDDGGGGGG"
+        },
+        {
+          "id": "05",
+          "board": "NL1:7A2/7B2/2C7/3D2DE2/1F5B2/10/1G3FE2H/10/2H5A1/GC8",
+          "solution": "EEEEEEEAAA/EDDDDDEBBA/EDCCCDEEBA/EDDDCDDEBA/EFFFCCCBBA/EEEFFFCCAA/GGEEEFECAH/GCCCEEECAH/GCHCCCCCAH/GCHHHHHHHH"
+        },
+        {
+          "id": "06",
+          "board": "NL1:1A4B3/3B1C2D1/2D4E2/2C7/1E8/6F3/1G6G1/1A1H6/FI5HI1/10",
+          "solution": "AACCCCBEEE/ACCBBCBEDE/ACDDBBBEDE/ACCDDDDDDE/AEEEEEEEEE/AGGGGGFFFF/AGIIIGGGGF/AAIHIIIIIF/FIIHHHHHIF/FFFFFFFFFF"
+        },
+        {
+          "id": "07",
+          "board": "NL1:10/1A2B2C2/9D/E1EF2A2C/10/1B1G3H2/5F4/2I3G3/1D6H1/1I8",
+          "solution": "EEEFFFDDDD/EAEFBFDCCD/EAEFBFDDCD/EAEFBFADCC/AABBBFADDD/ABBGGFAHHD/AAAAGFAAHD/IIIAGGGAHD/IDDAAAAAHD/IIDDDDDDDD"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A9/2B2CD1E1/10/2B1F3FG/2D4EG1/10/2H5AI/3C1J4/1J3H2I1/10",
+          "solution": "ACCCFFFFFF/ACBCFCDEEF/ACBCFCDEFF/ACBCFCDEFG/ACDCCCDEGG/ACDDDDDIII/ACHHHHHIAI/ACCCJJHIAA/AJJJJHHIIA/AAAAAAAAAA"
+        },
+        {
+          "id": "09",
+          "board": "NL1:10/AB6C1/7DE1/1F1E6/4C2GA1/2F7/3H1DI3/2BJ3G2/1H2I5/4J5",
+          "solution": "AAAEEEEEEE/ABAECCCCCE/BBAECDDDEE/BFAECDIIII/BFAACDIGAI/BFFAADIGAI/BHHHADIGAI/BHBJAAAGAI/BHBJIIAAAI/BBBJJIIIII"
+        },
+        {
+          "id": "10",
+          "board": "NL1:10/1A1B4C1/7D2/E5CF2/G1B5H1/2E3I3/2D5J1/3JH1I1F1/1G2K3K1/A9",
+          "solution": "EEEEEDDDDD/EABBEDCCCD/EABEEDCDDD/EABEDDCFFF/GABEDHHHHF/GAEEDHIFFF/GADDDHIFJJ/GAAJHHIFFJ/GGAJKKKKKJ/AAAJJJJJJJ"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A9/1B5CD1/1C5D2/1E2F5/4G5/E5H3/10/1A1H1IJF2/3K3I2/K4JG2B",
+          "solution": "ABBBBBBBBB/ABCCCCCCDB/ACCGGGGDDB/AEEGFFGGGB/AAEGGFFFGB/EAEHHHHFGB/EAEHJJJFGB/EAEHJIJFGB/EEEKJIIIGB/KKKKJJGGGB"
+        },
+        {
+          "id": "12",
+          "board": "NL1:2AB6/8C1/10/3D1E3F/3G6/1C2D1H3/10/H4F4/2AB1G2E1/10",
+          "solution": "AAABBBBBBB/ACCCCCCCCB/ACBBBBBBBB/ACBDDEEEEF/ACBGDFFFEF/ACBGDFHFEF/AABGGFHFEF/HABBGFHFEF/HAABGGHFEF/HHHHHHHFFF"
+        },
+        {
+          "id": "13",
+          "board": "NL1:A7B1/10/1CD7/6D3/4C5/2E4F2/3G1F1H1B/9A/10/1H6GE",
+          "solution": "AAAAAAAABB/HHHHHHHAAB/HCDDDDHHAB/HCCCCDDHAB/HGGGCHHHAB/HGEGHHFFAB/HGEGHFFHAB/HGEEHHHHAA/HGGEEEEEEE/HHGGGGGGGE"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A9/BA8/4C2D2/1EF3G3/2B3D3/6HG2/1I2HJE3/3CI2F2/3K5J/K9",
+          "solution": "AAEEEEEEEE/BAEFFFFFFE/BEEFCDDDFE/BEFFCDGGFE/BBBCCDDGFE/KKKCHHHGFE/KIKCHJEFFE/KIKCIJEFEE/KIKKIJEEEJ/KIIIIJJJJJ"
+        },
+        {
+          "id": "15",
+          "board": "NL1:10/1A4BC2/4D2E2/4A5/1E8/1B7D/10/5F4/1GHF1G1CH1/10",
+          "solution": "DDDDDDDDDD/DAAAAABCCD/DDDDDABECD/BBBBAABECD/BEEBBBBECD/BBEEEEEECD/HHHHHHHHCC/HGGGGFFHHC/HGHFGGFCHC/HHHFFFFCCC"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A8B/2C7/4DEB3/2D7/C2F6/5G4/1H8/7F2/G2E2A3/H9",
+          "solution": "AAAAAAAAAB/CCCFFFFFAB/CFFFDEBFAB/CFDDDEBFAB/CFFFEEBFAB/GGGEEGBFAB/GHGEGGBFAB/GHGEGBBFAB/GHGEGBAAAB/HHGGGBBBBB"
+        },
+        {
+          "id": "17",
+          "board": "NL1:10/5A1B2/2C4D2/2DC1E4/3F6/2B7/6E2G/2F1HA4/I6I2/8HG",
+          "solution": "AAAAAAEEEE/ADDDDAEBBE/ADCCDEEDBE/ADDCDEDDBE/AFFFDDDBBE/AFBBBBBBEE/AFFAAAEEEG/AAFAHAHHHG/IAAAHHHIHG/IIIIIIIIHG"
+        },
+        {
+          "id": "18",
+          "board": "NL1:6A3/1B6C1/2D7/4E5/8F1/2GB6/7H2/1E2H3D1/1G4C1A1/8F1",
+          "solution": "AAAAAAADDD/ABDDDDDDCD/ABDBBBCCCD/ABBBEBCDDD/AEEEEBCDFF/AEGBBBCDDF/AEGCCCCHDF/AEGCHHHHDF/AGGCCCCAAF/AAAAAAAAFF"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A9/5B1C2/1B1D1A4/10/3E1E1F2/1G1C3H2/6H3/2G4D2/1F1I6/1I8",
+          "solution": "ABBBBBFFFF/ABAAABFCCF/ABADAAFFCF/AAADDDDFCF/IIIEEEDFCF/IGICCDDHCF/IGIICDHHCF/IGGICDDDCF/IFFICCCCCF/IIFFFFFFFF"
+        },
+        {
+          "id": "20",
+          "board": "NL1:10/10/8A1/3B1C2D1/5E4/6F2F/3D6/G2A2H3/3I2E1H1/1G1CI1B3",
+          "solution": "CCCCCCCCCC/CAAAAAAAAC/CADDDDDDAC/CADBBCCDDC/CADDBECCCC/CAADBEFFFF/CCADBEEEEE/GCAABBHHHE/GCCIIBEEHE/GGCCIBBEEE"
+        },
+        {
+          "id": "21",
+          "board": "NL1:6A3/1BC1D2E2/C1F7/10/1G1H4E1/8A1/3F4B1/1G6I1/1H1I4D1/10",
+          "solution": "CCCIIIAAAA/CBCIDIIEEA/CBFIDDIIEA/BBFIIDDIEA/BGFHIIDIEA/BGFHHIDIAA/BGFFHIDIBB/BGHHHIDIIB/BHHIIIDDDB/BBBBBBBBBB"
+        },
+        {
+          "id": "22",
+          "board": "NL1:4A3BC/1D8/6CE2/2F5B1/10/4G5/7HI1/3AFD1E2/1G8/3IH5",
+          "solution": "AAAAABBBBC/ADDDDBCCCC/AGGGDBCEEE/AGFGDBBBBE/AGFGDDEEEE/AGFGGDEHHH/AGFFFDEHIH/AGAAFDEEIH/AGAIIIIIIH/AAAIHHHHHH"
+        },
+        {
+          "id": "23",
+          "board": "NL1:A5B3/8C1/1B8/4D2EF1/2C3G2H/8I1/3E6/3G3I2/5DH1F1/A9",
+          "solution": "ABBBBBBHHH/ABHHHHHHCH/ABHCCCCCCH/AHHCDEEEFH/AHCCDEGFFH/AHDDDEGFII/AHDEEEGFFI/AHDGGGGIFI/AHDDDDHIFI/AHHHHHHIII"
+        },
+        {
+          "id": "24",
+          "board": "NL1:10/1ABCD3C1/2D3E1FE/10/10/2G7/1B4H3/3I6/1IGJ3FA1/3H2J3",
+          "solution": "BBBCCCEEEE/BABCDCECCE/BADDDCECFE/BAAAACCCFF/BBBBAAAAAF/GGGBJJJJAF/GBBBJHHJAF/GIIIJHJJAF/GIGJJHJFAF/GGGHHHJFFF"
+        },
+        {
+          "id": "25",
+          "board": "NL1:5A4/BC5DE1/10/10/2A3E1F1/5DG1G1/1F6H1/1H3B2I1/7I2/C9",
+          "solution": "BBBAAAGGGG/BCBAGGGDEG/CCBAGDDDEG/CBBAGDEEEG/CBAAGDEFFG/CBBBGDGFGG/CFFBGGGFHH/CHFBBBFFIH/CHFFFFFIIH/CHHHHHHHHH"
+        },
+        {
+          "id": "26",
+          "board": "NL1:6AB1B/1CDECE4/5FAFG1/6G3/2H7/6I3/10/J9/2D2KJ1KI/9H",
+          "solution": "DDDEEEABBB/DCDECEAFFF/DCCCCFAFGF/DKKKKFGGGF/DKHHKFFFFF/DKKHKKIIII/DDKHHKKKKI/JDKKHHHHKI/JDDKKKJHKI/JJJJJJJHHH"
+        },
+        {
+          "id": "27",
+          "board": "NL1:1A6B1/1C6D1/5E4/5F4/10/7B2/1CD3G3/4HAH3/G7E1/I1I5F1",
+          "solution": "AADDDDDDBB/ACDBBBBDDB/ACDBEEBBBB/ACDBEFFFFF/ACDBEEEEEF/ACDBBBBBEF/ACDAAAGGEF/AAAAHAHGEF/GGGGHHHGEF/IIIGGGGGFF"
+        },
+        {
+          "id": "28",
+          "board": "NL1:A9/1BC2D2A1/1C1B6/1DE7/10/1F7G/4H5/I7G1/4FE2H1/I9",
+          "solution": "ABBBEEEGGG/ABCBEDEGAG/ACCBEDEGAG/ADEEEDEGAG/ADDDDDEGAG/AFFEEEEGAG/AAFEHHHGAA/IAFEEEHGGA/IAFFFEHHHA/IAAAAAAAAA"
+        },
+        {
+          "id": "29",
+          "board": "NL1:10/7AB1/2C1D2B2/10/6E3/4F1GEAF/5C3G/2H5D1/2I3H1I1/10",
+          "solution": "DDDDDFFFFF/DFFFDFAABF/DFCFDFABBF/DFCFFFAAAF/DFCCCCEEAF/DFFFFCGEAF/DIIIICGGGG/DIHHIIIIDD/DIIHHHHIID/DDDDDDDDDD"
+        },
+        {
+          "id": "30",
+          "board": "NL1:8A1/10/1BC7/1DEF1CF3/3E6/8G1/10/4H4A/5IB1IH/GD8",
+          "solution": "GGGGGGGGAA/GBBBBBBGGA/GBCCCCBBGA/GDEFFCFBGA/GDEEFFFBGA/GDBBBBBBGA/GDBIIIIIIA/GDBIHHHHIA/GDBIIIBHIH/GDBBBBBHHH"
+        },
+        {
+          "id": "31",
+          "board": "NL1:9A/6BCAB/2D1E5/10/3F6/7F2/7G2/E4G1DH1/HI4I3/8C1",
+          "solution": "EEEEECCCAA/EGGGECBCAB/EGDGECBBBB/EGDGGCCCCC/EGDFGGGGGC/EGDFFFFFGC/EGDDDDDGGC/EGGGGGDDHC/HIIIIIIHHC/HHHHHHHHCC"
+        },
+        {
+          "id": "32",
+          "board": "NL1:10/1A2B3C1/6D2D/3E1EB3/10/10/3F2GA2/5HI3/1H5FI1/5G3C",
+          "solution": "FFFDDDDDDD/FAFDBBBBCD/FAFDDDDBCD/FAFEEEBBCC/FAFFFFFFFC/FAAAAAAAFC/FFFFGGGAFC/GGGGGHIFFC/GHHHHHIFIC/GGGGGGIIIC"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-winding-roads",
+      "title": "Winding roads",
+      "description": "Big boards with only a handful of pairs: the paths snake across everything.",
+      "difficulty": "Hard",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:9/2A6/4B1C2/4DE3/4C4/F8/3G1GD2/1F1E5/AB7",
+          "solution": "FFFFBBBBB/FAAFBEEEB/FAFFBECEB/FAFDDECEB/FAFDCCCEB/FAFDDDDEB/AAFGGGDEB/AFFEEEEEB/ABBBBBBBB"
+        },
+        {
+          "id": "02",
+          "board": "NL1:7A1/1B2A2C1/9/3D4E/3F5/3G5/E2BD1FC1/7G1/9",
+          "solution": "DDDCCCCAA/DBDCAACCA/DBDCCAAAA/DBDDCCCCE/DBBFFFFCE/DDBGGGFCE/EDBBDGFCE/EDDDDGGGE/EEEEEEEEE"
+        },
+        {
+          "id": "03",
+          "board": "NL1:A8/1BC1D2E1/2F6/9/6G2/B3E1H1G/9/1C1D1A1H1/3F5",
+          "solution": "AAAAAAGGG/BBCCDAGEG/BFFCDAGEG/BFCCDAGEG/BFCDDAGEG/BFCDEAHEG/FFCDEAHEE/FCCDEAHHE/FFFFEEEEE"
+        },
+        {
+          "id": "04",
+          "board": "NL1:1A6B/1C4A2/6D2/9/6E2/5B2C/3E5/9/D8",
+          "solution": "AACCCCCCB/ACCAAAACB/AAAADDDCB/DDDDDCCCB/DCCCCCEBB/DCBBBBEBC/DCBEEEEBC/DCBBBBBBC/DCCCCCCCC"
+        },
+        {
+          "id": "05",
+          "board": "NL1:A1BC4D/7DC/3EF4/9/5G3/3EFB3/5H3/9/AG6H",
+          "solution": "ABBCCCCDD/ABHHHHCDC/ABHEFHCCC/ABHEFHHHH/ABHEFGGGH/ABHEFBBGH/ABHHHHBGH/ABBBBBBGH/AGGGGGGGH"
+        },
+        {
+          "id": "06",
+          "board": "NL1:9/5A1B1/2B6/A1C6/D8/5E2E/1DFC4G/HG5F1/5H3",
+          "solution": "AAAAAAFFF/AFFFFAFBF/AFBBFFFBF/AFCBBBBBF/DFCCFFFFF/DFFCFEEEE/DDFCFFFFG/HGGGGGGFG/HHHHHHGGG"
+        },
+        {
+          "id": "07",
+          "board": "NL1:7A1/9/1AB6/7C1/2D6/6E1F/2E3B2/1CD6/F8",
+          "solution": "CCCCCCCAA/CAAAAACCA/CABBBAACA/CEEEBBACA/CEDEEBAAA/CEDDEBEEF/CEEDEBBEF/CCDDEEEEF/FFFFFFFFF"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A8/1BC4D1/1D7/2C6/7A1/7E1/1F2G4/1B5E1/FH3HG2",
+          "solution": "AAAAAAAAA/BBCDDDDDA/BDCDAAAAA/BDCDAGGGG/BDDDAGAAG/BBBAAGAEG/FFBAGGAEG/FBBAAAAEG/FHHHHHGGG"
+        },
+        {
+          "id": "09",
+          "board": "NL1:9/2A6/2B2CD2/5E3/1A1E4F/7CB/1FG1H4/1H4GD1/9",
+          "solution": "BBBBFFFFF/BAABFCCCF/BABBFCDCF/BAFFFEDCF/BAFEEEDCF/BFFGGGDCB/BFGGHGDDB/BHHHHGGDB/BBBBBBBBB"
+        },
+        {
+          "id": "10",
+          "board": "NL1:9/5A3/2B3C2/9/9/C1D4E1/7D1/EB5A1/9",
+          "solution": "DDDDDDDDD/DCCCCAAAD/DCBBCCCAD/DCCBBAAAD/DDCCBADDD/CDDCBADEE/CCCCBADDE/EBBBBAAAE/EEEEEEEEE"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A8/4B2C1/4D4/1EF6/BF7/5A3/9/1D7/3C3E1",
+          "solution": "AAAAAAEEE/BBBBBAECE/BEEEDAECE/BEFEDAECE/BFFEDAECE/EEEEDAECE/EDDDDEECE/EDEEEECCE/EEECCCCEE"
+        },
+        {
+          "id": "12",
+          "board": "NL1:9/6A2/2BC5/3D5/4D4/4EFB2/5A3/1F5E1/C8",
+          "solution": "FFFFFBBBB/FCCCFBAAB/FCBCFBBAB/FCBDFFBAB/FCBDDFBAB/FCBBEFBAB/FCCBEAAAB/FFCBEEEEB/CCCBBBBBB"
+        },
+        {
+          "id": "13",
+          "board": "NL1:7A1/1B3A1C1/1D7/9/8C/8B/3DEF3/GE5G1/F8",
+          "solution": "GGGGCCCAA/GBBGCACCA/GDBGCAAAA/GDBGCCCCC/GDBGGGGGC/GDBBBBBGB/GDDDEFBGB/GEEEEFBGB/FFFFFFBBB"
+        },
+        {
+          "id": "14",
+          "board": "NL1:9/9/2AB1C3/9/2D4E1/3E5/9/1B3A1C1/7D1",
+          "solution": "DDDDDDDDD/DBBBEEEED/DBABECCED/DBAAEECED/DBDAAECED/DBDEAECCD/DBDEAEECD/DBDEAAECD/DDDEEEEDD"
+        },
+        {
+          "id": "15",
+          "board": "NL1:3A5/7B1/6CD1/9/4E2D1/9/9/3E1FG2/2AB2FGC",
+          "solution": "AAAAEEEEE/AEEEEBBBE/AEBBBBCDE/AEBCCCCDE/AEBCEEEDE/AEBCCCEEE/AEBBBCCCC/AEEEBFGGC/AAABBFFGC"
+        },
+        {
+          "id": "16",
+          "board": "NL1:9/9/7AB/3C5/4D3D/9/5E3/1E4BA1/3C5",
+          "solution": "BBBBBBBBB/BAAAAAAAB/BADDDDDAB/BADCCCDDD/BADDDCCCD/BAAAAAACC/BEEEEEAAC/BEBBBBBAC/BBBCCCCCC"
+        },
+        {
+          "id": "17",
+          "board": "NL1:3AB5/1C7D/7C1E/1F8/4B5/4E2G2/5HD3/4H1G3/F9/A9",
+          "solution": "AAAABDDDDD/ACCCBDEEED/AAACBDECEE/FFACBDECCC/FAACBDEEEC/FACCEDDGEC/FACEEHDGEC/FACEHHGGEC/FACEEEEEEC/AACCCCCCCC"
+        },
+        {
+          "id": "18",
+          "board": "NL1:4A5/1B3C2C1/1D5E2/2F4A2/10/1DF3G3/1HI7/6B3/2H5G1/1IE7",
+          "solution": "IIIIAAAEEE/IBBIICAECE/IDBBICAECE/IDFBICAACE/IDFBICCCCE/IDFBIIGGGE/IHIBBIIIGE/IHIIBBBIGE/IHHIIIIIGE/IIEEEEEEEE"
+        },
+        {
+          "id": "19",
+          "board": "NL1:10/8A1/B9/CA3C4/4DE1F2/1B5G2/3H2I3/7F2/1D3GIE1H/10",
+          "solution": "BBBBBBBBBB/BAAAAAAAAB/BABBBBBBBB/CABCCCEEEE/CBBCDEEFFE/CBCCDGGGFE/CCCHDGIFFE/HHHHDGIFEE/HDDDDGIEEH/HHHHHHHHHH"
+        },
+        {
+          "id": "20",
+          "board": "NL1:7AB1/4C3D1/A9/10/1E1BF3GF/10/C2EH5/5G1H2/1D8/10",
+          "solution": "AAAAAAAABB/ACCCCDDDDB/ACDDDDBBBB/CCDBBBBFFF/CEDBFFFFGF/CEDDDDDDGG/CEEEHHHDDG/GGGGGGHHDG/GDDDDDDDDG/GGGGGGGGGG"
+        },
+        {
+          "id": "21",
+          "board": "NL1:6ABCD/1E8/10/3C6/10/4F1A3/3B4F1/G6EG1/10/7D2",
+          "solution": "AAAAAAABCD/AEBBBBBBCD/AEBCCCCCCD/AEBCFFFFFD/AEBBFEEEFD/AEEBFEAEFD/AAEBEEAEFD/GAEEEAAEGD/GAAAAAGGGD/GGGGGGGDDD"
+        },
+        {
+          "id": "22",
+          "board": "NL1:10/7A2/1BA6C/1D8/4DE2B1/1FC7/1G1H5I/7F2/1G2E5/6HI2",
+          "solution": "CCCCCCCCCC/CBBBBBBAAC/CBAAAABBAC/CDDDDAABAA/CFFFDEABBA/CFCFFEAAAA/CGCHFEEEEI/CGCHFFFFEI/CGCHEEEEEI/CCCHHHHIII"
+        },
+        {
+          "id": "23",
+          "board": "NL1:10/3A1BC1D1/3E6/9F/7A2/5G1H2/5B4/2ED2GH2/10/3CF5",
+          "solution": "CCCCCBBBBB/CAAACBCDDB/CAEECCCDBB/CAEDDDDDBF/CAEDAAAABF/CAEDAGGHBF/CAEDABGHBF/CAEDABGHBF/CAAAABBBBF/CCCCFFFFFF"
+        },
+        {
+          "id": "24",
+          "board": "NL1:10/1A6B1/9C/3B1D4/2ED1A4/10/5F4/4CG4/1F6E1/1G8",
+          "solution": "CCCCCCCCCC/CAEEEEEEBC/CAEBBBBEBC/CAEBDDBEBB/CAEDDABEEB/CAAAAABBEB/CCCCCFFBEB/GGGGCGFBEB/GFFGGGFBEB/GGFFFFFBBB"
+        },
+        {
+          "id": "25",
+          "board": "NL1:7A1B/9A/5CD3/3D6/10/3EFE1B2/3G4G1/8C1/1F8/10",
+          "solution": "AAAAAAAABB/AFFFFFFFBA/AFCCCCDFBA/AFCDDDDFBA/AFCEEEFFBA/AFCEFEFBBA/AFCGFFFGGA/AFCGGGGGCA/AFCCCCCCCA/AAAAAAAAAA"
+        },
+        {
+          "id": "26",
+          "board": "NL1:4A5/2B7/2AC4D1/8C1/10/4E5/F2D6/BG5F2/2GE6/10",
+          "solution": "DDDDAAAAAA/DBBDDDDDDA/DBACCCCCDA/DBAAAAACCA/DBBBBBAAAA/DDDDEBBBBB/FFFDEEEEEB/BGFFFFFFEB/BGGEEEEEEB/BBBBBBBBBB"
+        },
+        {
+          "id": "27",
+          "board": "NL1:4A5/8B1/4C5/6D1E1/10/3BD5/1F4G3/1H7E/1A1GC3FI/H2I6",
+          "solution": "AAAAAFFFFF/AFFFFFBBBF/AFCCCBBFFF/AFCBBBDFEE/AFCBDDDFFE/AFCBDCCCFE/AFCCCCGCFE/AHHGGGGCFE/AAHGCCCCFI/HHHIIIIIII"
+        },
+        {
+          "id": "28",
+          "board": "NL1:10/1A4B3/2B4C1C/2D3E2F/G3A5/5D4/3HE1G3/10/1H1F6/10",
+          "solution": "GGGGGCCCCC/GAAAGCBBBC/GBBAGCCCBC/GBDAGGEEBF/GBDAAGGEBF/BBDDDDGEBF/BHHHEEGEBF/BHBBBEEEBF/BHBFBBBBBF/BBBFFFFFFF"
+        },
+        {
+          "id": "29",
+          "board": "NL1:6A3/8B1/2C3A3/10/1D7E/6F2F/E2DG1HC1G/7H2/1B8/10",
+          "solution": "EEEEEEAEEE/EBBBBEAEBE/EBCCBEAEBE/EBBCBEEEBE/EDBCBBBBBE/EDBCCCFFFF/EDBDGCHCCG/DDBDGCHHCG/DBBDGCCCCG/DDDDGGGGGG"
+        },
+        {
+          "id": "30",
+          "board": "NL1:8AB/1C8/4B5/D7A1/E3E2F2/6C1F1/3G2G3/7D2/10/10",
+          "solution": "DDDAAAAAAB/DCDABBBBBB/DCDABEEEEE/DCDAEEAAAE/ECDAEAAFFE/ECDAAACCFE/ECDGGGGCCE/ECDDDDDDCE/ECCCCCCCCE/EEEEEEEEEE"
+        },
+        {
+          "id": "31",
+          "board": "NL1:6AB2/1B2C3C1/7AD1/10/10/1E5F2/3FG5/3H4D1/1G3HE3/6I2I",
+          "solution": "FFFAAAABBB/FBFACCCCCB/FBFAAAAADB/FBFFFFFFDB/FBBBBBBFDB/FEEEEEBFDB/FFFFGEBBDB/HHHHGEEBDB/HGGGGHEBBB/HHHHHHIIII"
+        },
+        {
+          "id": "32",
+          "board": "NL1:A6BC1/10/2D4E2/4D5/10/C3F5/4E1GA2/2B4G2/4F5/10",
+          "solution": "ABBBBBBBCC/ABDDDDDDDC/ABDEEEEEDC/ABBEDDDDDC/AABEFFFFFC/CABEFAAAFC/CABEEAGAFC/CABAAAGGFC/CAAAFFFFFC/CCCCCCCCCC"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-skyline",
+      "title": "Skyline",
+      "description": "Very tall boards that fill a phone screen from top to bottom.",
+      "difficulty": "Expert",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:3ABA1/1C1D1B1/1E2E2/2C1D2/7/5F1/7/7/3GHI1/7/1F5/3HIG1",
+          "solution": "AAAABAA/ACCDBBA/AECDEEA/AECDDEA/AEEEEEA/AFFFFFA/AFAAAAA/AFAGGGG/AFAGHIG/AFAHHIG/AFAHIIG/AAAHIGG"
+        },
+        {
+          "id": "02",
+          "board": "NL1:3A2B/1C1D3/3BD2/2E2A1/3C3/6F/2G4/2H4/7/3I1H1/1F3EG/6I",
+          "solution": "EEEAAAB/ECEDDAB/ECEBDAB/ECEBBAB/ECCCBBB/EFFFFFF/EFGGGGG/EFHHHHG/EFEEEHG/EFEIEHG/EFEIEEG/EEEIIII"
+        },
+        {
+          "id": "03",
+          "board": "NL1:7/5A1/3B1C1/2BC3/6D/7/2E2F1/5A1/2G2G1/2H1D2/2F1HI1/5EI",
+          "solution": "FFFFFFF/FAAAAAF/FABBCCF/FABCCFF/FAAAAFD/FFFFAFD/EEEFAFD/EFFFAAD/EFGGGGD/EFHHDDD/EFFHHII/EEEEEEI"
+        },
+        {
+          "id": "04",
+          "board": "NL1:7/2A2B1/2C4/3D3/1E1B3/7/7/7/F1G1E2/H2C3/2GA1F1/H5D",
+          "solution": "CCCCDDD/CAACDBD/CACCDBD/CAADDBD/CEABBBD/CEAAAAD/CEEEEAD/CCCCEAD/FFGCEAD/HFGCAAD/HFGAAFD/HFFFFFD"
+        },
+        {
+          "id": "05",
+          "board": "NL1:4A1B/1C3BC/3A3/1D5/7/2E1F2/7/3G3/3F3/3G3/2EH3/D3IHI",
+          "solution": "AAAAABB/ACCCCBC/AAAACCC/DDIIIII/DIIGGGI/DIEGFGI/DIEGFGI/DIEGFGI/DIEFFGI/DIEGGGI/DIEHHHI/DIIIIHI"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A1B2BC/D1EF1G1/1A1E2C/1F5/5H1/G6/7/1DH2I1/7/3JK2/1K2I2/2J4",
+          "solution": "AABBBBC/DAEFFGC/DAEEFGC/DFFFFGG/DDHHHHG/GDHGGGG/GDHGKKK/GDHGKIK/GGGGKIK/JJJJKIK/JKKKIIK/JJJKKKK"
+        },
+        {
+          "id": "07",
+          "board": "NL1:A6/1BC4/1C2D2/2B4/DE5/7/3F3/1G1H3/3GF2/7/1I2A2/IH4E",
+          "solution": "AAAAAAA/BBCEEEA/BCCEDEA/BBBEDEA/DEEEDEA/DDDDDEA/HHHFFEA/HGHHFEA/HGGGFEA/HHHEEEA/IIHEAAA/IHHEEEE"
+        },
+        {
+          "id": "08",
+          "board": "NL1:6A/1B3CD/5D1/7/7/3E1AC/3F3/7/1G5/2FH3/I1I3E/H3G1B",
+          "solution": "FFFAAAA/FBFACCD/FBFACDD/FBFACCC/FBFAAAC/FBFEEAC/FBFFEEE/FBBBBBE/FGGGGBE/FFFHGBE/IIIHGBE/HHHHGBB"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A6B/C1C5/A5D1/1E3F2/8/2GDGF2/5H1H/7I/1BI5/1J6/1K3EK1/6J1",
+          "solution": "AAAABBBB/CCCABFFF/AAAABFDF/EEBBBFDF/EBBDDDDF/EBGDGFFF/EBGGGHHH/EBIIIIII/EBIJJJJJ/EJJJKKKJ/EKKKKEKJ/EEEEEEJJ"
+        },
+        {
+          "id": "10",
+          "board": "NL1:7A/8/1BC1D3/2A2E2/8/1E4B1/4F3/6GD/8/2G3H1/2I1HI2/C6F",
+          "solution": "AAAAAAAA/ABBBBBBB/ABCCDDDB/AAACEEDB/CCCCEDDB/CEEEEDBB/CFFFFDDD/CFGGGGGD/CFGIIIII/CFGIHHHI/CFIIHIII/CFFFFFFF"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A7/5B2/1C1D4/1EF5/8/2G2F2/5D2/2E5/2B1HI2/2CI1H2/A7/G7",
+          "solution": "ACCCCCCC/ACFFFBBC/ACFDFFBC/AEFDDFBC/AEEEDFBC/AGGEDFBC/AGEEDDBC/AGEBBBBC/AGBBHIIC/AGCIHHIC/AGCIIIIC/GGCCCCCC"
+        },
+        {
+          "id": "12",
+          "board": "NL1:8/1A2B1C1/2B1A3/3D4/5EC1/1F4E1/D2G4/4F1H1/3I4/2J5/1GH3J1/3I4",
+          "solution": "BBBBBFFF/BAAABFCF/BBBAAFCF/DDDDFFCF/DFFFFECF/DFHHHEEF/DHHGHHHF/HHGGFFHF/HGGIIFFF/HGJJIIII/HGHJJJJI/HHHIIIII"
+        },
+        {
+          "id": "13",
+          "board": "NL1:A7/1BCA2D1/6E1/5E2/7F/1C4G1/5G2/D4B2/HI2J2J/1H2F3/I6K/K7",
+          "solution": "ABBBBBBB/ABCADDDB/ACCADEEB/ACAADEBB/ACADDBBF/ACADBBGF/AAADBGGF/DDDDBBFF/HIIJJFFJ/HHIJFFJJ/IIIJJJJK/KKKKKKKK"
+        },
+        {
+          "id": "14",
+          "board": "NL1:8/6A1/2B1B3/2C1D3/E3C3/8/3FG3/1AH1F2I/3G4/J4IE1/8/2JD3H",
+          "solution": "EEEEEEEE/ECCCCCAE/ECBBBCAE/ECCDDCAE/EDDDCCAE/DDAAAAAE/DAAFGGEE/DAHFFGEI/DDHGGGEI/JDHHHIEI/JDDDHIII/JJJDHHHH"
+        },
+        {
+          "id": "15",
+          "board": "NL1:5AB1/1C1AD1E1/3D1EB1/8/8/3F1G2/H1H2C2/1IJ1K1K1/1J1G4/5L2/FL4I1/8",
+          "solution": "FFFAAABB/FCFADEEB/FCFDDEBB/FCFFFFFF/FCCCCCCF/FFFFGGCF/HHHGGCCF/IIJGKKKF/IJJGIIIF/IIIIILIF/FLLLLLIF/FFFFFFFF"
+        },
+        {
+          "id": "16",
+          "board": "NL1:8/6A1/1BCA2D1/8/1C6/3B4/EF6/8/G1DH2F1/2GI3J/1E1H1I2/7J",
+          "solution": "FFFFFFFF/FBBBBAAF/FBCABADF/FCCABADF/FCAABADF/FFABBADF/EFAAAADF/EEDDDDDF/GEDHHHFF/GEGIIHHJ/GEGHIIHJ/GGGHHHHJ"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A7/2B3BC/8/2C5/D4E2/8/FG1E4/1F1D4/1H6/1I2J1I1/2G1H3/6AJ/8",
+          "solution": "ACCCCCCC/ACBBBBBC/ACCAAAAA/AACADDDA/DAAADEDA/DDDDDEDA/FGGEEEDA/FFGDDDDA/HHGIIIIA/HIGIJJIA/HIGIHJAA/HIIIHJAJ/HHHHHJJJ"
+        },
+        {
+          "id": "18",
+          "board": "NL1:1A5B/4C1BD/2C1E3/8/2F5/G2F4/8/8/2H5/6I1/1JAE2D1/3H2IJ/1G6",
+          "solution": "AAHHHHBB/AHHCCHBD/AHCCEHHD/AHHHEEHD/AAFHHEHD/GAFFHEHD/GAHHHEHD/GAHEEEHD/GAHEHHHD/GAAEHIID/GJAEHIDD/GJJHHIIJ/GGJJJJJJ"
+        },
+        {
+          "id": "19",
+          "board": "NL1:8/1A1BC3/7B/1A2D3/EF4G1/F4C2/5H2/6D1/5H2/3I4/2J1IEK1/4G3/6KJ",
+          "solution": "EEEBBBBB/EAEBCCCB/EAEGGGCB/EAEGDGCC/EFEGDGGC/FFEGDCCC/EEEGDHHH/EGGGDDDH/EGJJJHHH/EGJIJJJJ/EGJIIEKJ/EGGGGEKJ/EEEEEEKJ"
+        },
+        {
+          "id": "20",
+          "board": "NL1:5AB1/1CD5/8/A3E1D1/2F1F1C1/8/2G5/2H1H3/2IG2J1/8/1J6/1K2EKI1/4B3",
+          "solution": "AAAAAABB/ACDDDDDB/ACCCCCDB/AEEEECDB/EEFFFCCB/EJJJJJJB/EJGGGGJB/EJHHHGJB/EJIGGGJB/EJIIIIIB/EJKKKKIB/EKKEEKIB/EEEEBBBB"
+        },
+        {
+          "id": "21",
+          "board": "NL1:A7/B7/CB1D1DE1/6A1/F3G3/2E5/2H2I2/5C2/2I5/4G3/1H6/1J6/6FJ",
+          "solution": "AAAAAAAA/BBEEEEEA/CBEDDDEA/CCEHHHAA/FCEHGHHH/FCEHGGGH/FCHHIIGH/FCIIICGH/FCICCCGH/FCCCGGGH/FHHHHHHH/FJJJJJJJ/FFFFFFFJ"
+        },
+        {
+          "id": "22",
+          "board": "NL1:A5BC/1BD5/1D5E/5F2/2AG4/1C2H3/8/4G3/1I6/1HI5/2J2KJ1/1E2K3/6F1",
+          "solution": "ABBBBBBC/ABDCCCCC/ADDCEEEE/ACCCEFFF/ACAGEEEF/ACAGHHEF/AAAGGHEF/HHHHGHEF/HIIHHHEF/HHIEEEEF/JJJEKKJF/JEEEKJJF/JJJJJJFF"
+        },
+        {
+          "id": "23",
+          "board": "NL1:3A4/1B4CA/8/3C1D2/E2F1E2/8/1D6/8/6B1/1G1FH3/7I/3JH1K1/1J2G1IK",
+          "solution": "EEEAAAAA/EBECCCCA/EBECFFFF/EBECFDDF/EBEFFEDF/BBEEEEDF/BDDDDDDF/BBBBBBBF/JJJFFFBF/JGJFHFFF/JGJJHIII/JGGJHIKK/JJGGGIIK"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A6B/1C6/3D4/A2E4/3F2C1/1E6/2G4F/8/3H2B1/3I4/3D1G1J/1H2I3/6J1",
+          "solution": "ACCCCCCB/ACGGGGCB/AGGDDGCB/AGEEDGCB/GGEFDGCB/GEEFDGBB/GGGFDGBF/FFFFDGBF/FHHHDGBF/FHIIDGFF/FHIDDGFJ/FHIIIFFJ/FFFFFFJJ"
+        },
+        {
+          "id": "25",
+          "board": "NL1:A2B3B/1C3DE1/3FA1G1/2D5/8/8/4H2I/4EG2/8/8/3C2I1/F2J4/1J4K1/3K2H1",
+          "solution": "AAABBBBB/CCAAADEE/CFFFADGE/CFDDDDGE/CFGGGGGE/CFGEEEEE/CFGEHHHI/CFGEEGHI/CFGGGGHI/CFFFFHHI/CCCCFHII/FJJJFHHH/FJFFFKKH/FFFKKKHH"
+        },
+        {
+          "id": "26",
+          "board": "NL1:8/8/6A1/4B3/1ACB1DC1/1E3F2/3E4/GH5I/3H4/1I4J1/8/G1K1D3/KJ4L1/3L3F",
+          "solution": "IIIIIIII/IAAAAAAI/IACCCCAI/IACBBCCI/IACBDDCI/IEEEDFFI/IIIEDDFI/GHIIIDFI/GHHHIDFF/GIIIIDJF/GJJJDDJF/GJKJDJJF/KJKJJJLF/KKKLLLLF"
+        },
+        {
+          "id": "27",
+          "board": "NL1:A6B/2C2D2/A5E1/FG2H3/7D/1CG5/3FH2E/I7/8/3J4/2K3L1/6B1/2I3KJ/L7",
+          "solution": "AGGGBBBB/AGCGBDDD/AGCGBBED/FGCGHBED/FCCGHBED/FCGGHBEE/FFFFHBBE/ILLLLLBB/ILKKKLLB/ILKJKKLB/ILKJJKLB/ILLLJKBB/IIILJKKJ/LLLLJJJJ"
+        },
+        {
+          "id": "28",
+          "board": "NL1:A7/1B4C1/3D4/4DA2/1E3F2/1G3H2/1I6/8/2J5/8/I4H2/7B/1FJG2K1/E5CK",
+          "solution": "ABBBBBBB/ABAAAACB/AAADDACB/GGGGDACB/GEEGFFCB/GGEGFHCB/IIEGFHCB/IEEGFHCB/IEJGFHCB/IEJGFHCB/IEJGFHCB/EEJGFCCB/EFJGFCKK/EFFFFCCK"
+        },
+        {
+          "id": "29",
+          "board": "NL1:2A2BC1/1B6/5D2/ED6/8/4F3/8/3G3C/3A1H2/1G1F2I1/5JK1/HEI5/1J2K3/8",
+          "solution": "AAABBBCC/ABBBAAAC/AAAAADAC/EDDDDDAC/EGGGGGAC/EGFFFGAC/EGFGGGAC/EGFGAAAC/EGFAAHHH/EGFFIIIH/EEIIIJKH/HEIJJJKH/HJJJKKKH/HHHHHHHH"
+        },
+        {
+          "id": "30",
+          "board": "NL1:7A/BC2DEF1/6E1/5A2/1BF5/6G1/8/3H4/4IH2/5J2/3J4/K2LGL2/1C4ID/1K6",
+          "solution": "BBBFFFFA/BCBFDEFA/CCBFDEEA/CBBFDAAA/CBFFDIII/CDDDDIGI/CDIIIIGI/CDIHHHGI/CDIIIHGI/CDDJJJGI/CCDJGGGI/KCDLGLII/KCDLLLID/KKDDDDDD"
+        },
+        {
+          "id": "31",
+          "board": "NL1:8/1A5B/5C2/2D5/2AB4/1E2E3/1DF5/4G3/1C4H1/2I5/2G3J1/8/IKJH4/K6F",
+          "solution": "DDDBBBBB/DADBFFFB/DADBFCFF/DADBFCCF/DAABFFCF/DEEEEFCF/DDFFFFCF/IIIGGCCF/ICIGCCHF/ICIGCHHF/ICGGCHJF/ICCCCHJF/IKJHHHJF/KKJJJJJF"
+        },
+        {
+          "id": "32",
+          "board": "NL1:4A3/1B4C1/3A1B2/8/8/D4E2/F2G4/3F4/8/4H3/1EHI2G1/2I5/J2C2KD/1J5K",
+          "solution": "DDDAADDD/DBDADDCD/DBDADBCD/DBDDDBCD/DBBBBBCD/DFFFFECD/FFGGFECD/GGGFFECD/GEEEEECD/GEHHHCCD/GEHICCGD/GGIICGGD/JGGCCGKD/JJGGGGKK"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-eleven-squares",
+      "title": "Eleven squares",
+      "description": "Eleven by eleven boards for patient solvers.",
+      "difficulty": "Expert",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A5B2BC/4D6/7E3/2D1A2FGF1/2HEIJ5/3I4K2/2H5G1K/11/1JC3L4/6M2L1/9M1",
+          "solution": "ACCCCCBBBBC/ACDDDCCCCCC/ACDEEEEEGGG/ACDEAAAFGFG/ACHEIJAFFFG/ACHIIJAKKGG/ACHJJJAKGGK/ACCJAAAKKKK/AJCJALLMMMM/AJJJALMMLLM/AAAAALLLLMM"
+        },
+        {
+          "id": "02",
+          "board": "NL1:A2B2A4/1B7C1/6C2DE/E3F6/9F1/1G9/2HD1I1J3/3G3KL2/8K2/1LJI7/1H9",
+          "solution": "ABBBAAAEEEE/ABAAAEEECCE/AAAEEECCCDE/EEEEFFFFFDD/HHHDDDDDFFD/HGHDLLLDDDD/HGHDLILJJJJ/HGGGLILKLLJ/HLLLLILKKLJ/HLJIIILLLLJ/HHJJJJJJJJJ"
+        },
+        {
+          "id": "03",
+          "board": "NL1:11/A3B1B2C1/DED1C3F2/5A5/11/1G4H1I1I/1J2H1J4/1E7KL/7L3/1G4M2M1/5FK4",
+          "solution": "AAAAAAAAFFF/AEEEBBBAFCF/DEDECAAAFCF/DDDECACCCCF/EEEECCCFFFF/EGGGHHHFIII/EJJGHJJFLLL/EEJGJJFFLKL/JJJGJFFLLKK/JGGGJFMMMMK/JJJJJFKKKKK"
+        },
+        {
+          "id": "04",
+          "board": "NL1:10A/8B1C/1D4B4/5EA4/2F1G1H1D2/1IJ1E6/3JG2K1C1/2IL5KM/9H1/1NFO1N2M2/6O3L",
+          "solution": "BBBBBBBBBAA/BDDDDDDDBAC/BDBBBBBDDAC/BBBEEEAADAC/FFFEGGHADAC/FIJEEGHAAAC/FIJJGGHKKCC/FIILLLHHKKM/FNNNNLLHHHM/FNFONNLLMMM/FFFOOOOLLLL"
+        },
+        {
+          "id": "05",
+          "board": "NL1:7A3/3BC2D1E1/4E2F3/3C7/8D2/4G6/5H5/1I2B6/2J1A1IK1G1/1J4K2H1/3F7",
+          "solution": "AAAAAAAAFFF/ABBBCCDDFEF/ABEEECDFFEF/ABECCCDDDEF/ABEEEEEEDEF/ABBBGGGEEEF/AAABBHGGGGF/IIAABHHHHGF/IJJAAIIKHGF/IJIIIIKKHHF/IIIFFFFFFFF"
+        },
+        {
+          "id": "06",
+          "board": "NL1:3ABC1D2E/1F6G2/11/5A1C3/2H8/5G5/2FI3J3/9EK/2JH3L3/1I4DK1L1/7B3",
+          "solution": "BBBABCCDDDE/BFBABBCCGDE/BFBAABBCGDE/BFBBAABCGDE/BFHBBBBGGDE/BFHHHGGGDDE/BFFIHJJJDEE/BIIIHJDDDEK/BIJHHJDLLLK/BIJJJJDKKLK/BBBBBBBBKKK"
+        },
+        {
+          "id": "07",
+          "board": "NL1:A10/BA9/2C1D4E1/D2E2F2G1/1HB3I4/11/1H3J1J3/7I3/1KG2C5/1F9/10K",
+          "solution": "AACCCCCCCCC/BACEEEEEEEC/BBCEDGGGGEC/DBBEDGFFGGC/DHBDDGIFFFC/DHDDGGIIIFC/DHDGGJJJIFC/DDDGFFFIIFC/KKGGFCFFFFC/KFFFFCCCCCC/KKKKKKKKKKK"
+        },
+        {
+          "id": "08",
+          "board": "NL1:10A/2B1C1D2E1/9A1/1B7F1/1G4H4/9HI/1D2G1F4/4J6/K1J3C1E2/4I6/5K5",
+          "solution": "GGGGGGGGAAA/GBBCCDDGAEE/GBCCDDGGAAE/GBCDDGGFFFE/GGCDGGHFEEE/CCCDGHHFEHI/CDDDGHFFEHI/CCJJJHHHEHI/KCJCCCCHEHI/KCCCIIIHHHI/KKKKKKIIIII"
+        },
+        {
+          "id": "09",
+          "board": "NL1:10A/BCB2D2E2/2F1D3G2/4H3I2/C10/4FJ5/1E2K6/9AL/1GK6L1/1J8H/10I",
+          "solution": "BBBHHHHHHHA/BCBHDDEEEHA/CCFHDEEGGHA/CFFHHEGGIHA/CFEEEEGIIHA/FFEFFJGIHHA/FEEFKJGIHAA/FFFFKJGIHAL/GGKKKJGIHLL/GJJJJJGIHHH/GGGGGGGIIII"
+        },
+        {
+          "id": "10",
+          "board": "NL1:8A1B/10C/4DE2AB1/3FE1GH3/9I1/11/3H4F2/1JG1J2D3/9K1/5C1K3/I10",
+          "solution": "HHHHHHHHABB/HGGGGGGHABC/HGDDDEGHABC/HGDFEEGHCCC/HGDFFFFFCII/HGDDDDDFCCI/HGGHHHDFFCI/HJGJJHDDCCI/HJJJHHCCCKI/HHHHHCCKKKI/IIIIIIIIIII"
+        },
+        {
+          "id": "11",
+          "board": "NL1:7A3/9B1/2C3D2E1/5F2B2/2E3F4/5CG4/1H3G3IJ/K1H5IJ1/2L7D/1M2M4A1/4L2K3",
+          "solution": "EEEEEEEAAAA/EDDDDDEEBBA/EDCCCDDEBEA/EDDDCFFEBEA/EEEDCCFEEEA/KKKDDCGAAAA/KHKKDGGAIIJ/KHHKDDDAIJJ/LLLKKKDAAAD/LMMMMKDDDAD/LLLLLKKKDDD"
+        },
+        {
+          "id": "12",
+          "board": "NL1:11/1AB3B4/8C2/2D3E2D1/4F3G2/2A2HF4/I1J8/2IJ5H1/11/6G1CE1/11",
+          "solution": "GGGGGGGGGGG/GABBBBBDDDG/GADDDDDDCDG/GADEEEECCDG/GAAEFFFCGGG/GGAEEHFCCCC/IGJJEHHHHHC/IGIJEEEEEHC/IGIIIIIIEEC/IGGGGGGICEC/IIIIIIIICCC"
+        },
+        {
+          "id": "13",
+          "board": "NL1:11/2AB5CD/1A3D1E3/1F1G5H1/4G4I1/11/2JHCBI4/11/11/1F4J4/8E2",
+          "solution": "IIIIIDDDDDD/IAABIDCCCCD/IABBIDCEEEE/IFBGIICCHHE/IFBGGIICHIE/IFBBBBICHIE/IFJHCBICHIE/IFJHCCCCHIE/IFJHHHHHHIE/IFJJJJJIIIE/IIIIIIIIEEE"
+        },
+        {
+          "id": "14",
+          "board": "NL1:3A7/1B4C4/2BD4E2/2C3FA3/G1DH4E2/9I1/4H6/1J4I4/11/5KF2K1/1LJL3G3",
+          "solution": "DDDAAAAAAAA/DBDDCCCIIIA/DBBDCIIIEIA/DDCCCIFAEIA/GDDHHIFAEIA/GGGGHIFAAIA/LLLGHIFFAAA/LJLGGIIFFFF/LJLLGKKKKKF/LJJLGKFFFKF/LLJLGGGGFFF"
+        },
+        {
+          "id": "15",
+          "board": "NL1:9A1/1B4CA1C1/11/2D8/1E4BFG2/1H3F2EG1/9I1/6JK3/HL2JK2I2/7DL1M/M10",
+          "solution": "LLLLLLCCCAA/LBBBBLCACCA/LEEEBLLAAAA/LEDEBBLLLLL/LEDEEBBFGGL/LHDDEFFFEGL/LHHDEEEEEIL/LLHDJJJKIIL/HLHDJKKKILL/HHHDDDDDLLM/MMMMMMMMMMM"
+        },
+        {
+          "id": "16",
+          "board": "NL1:11/1A3A5/4B3C2/2D1CB5/5DE2F1/11/1G9/H7I2/J2K1G2F2/HK1J1E3I1/11",
+          "solution": "HHHHHHHHHHH/HAAAAAEEEEH/HCCCBBECCEH/HCDCCBECEEH/HCDDDDECEFH/HCCCCCCCEFH/HGGGGGEEEFH/HJJJJGEIIFH/JJKKJGEIFFH/HKKJJEEIIIH/HHHHHHHHHHH"
+        },
+        {
+          "id": "17",
+          "board": "NL1:AB3CD3E/9D1/1B5C1F1/3F7/G4H5/2I1E2J3/2A2J5/11/K5H4/1LK8/LG8I",
+          "solution": "ABCCCCDDDDE/ABCFFFFFFDE/ABCFCCCCFFE/AACFCHHHHHE/GACCCHEEEHE/GAIIEEEJEHE/GAAIIJJJEHE/GGGGIEEEEHE/KKKGIEHHHHE/LLKGIEEEEEE/LGGGIIIIIII"
+        },
+        {
+          "id": "18",
+          "board": "NL1:7A2B/1C1D1E5/1D8B/1FC8/5GH2I1/1JH3GE3/5F5/K6I3/2L1LM3J1/2A8/K9M",
+          "solution": "DDDDJJJAAAB/DCCDJEJJJAB/DDCJJEEEJAB/FFCJHHHEJAA/FJJJHGHEJIA/FJHHHGGEJIA/FFFFFFJJJIA/KMMMMMJIIIA/KMLLLMJJJJA/KMAAAAAAAAA/KMMMMMMMMMM"
+        },
+        {
+          "id": "19",
+          "board": "NL1:1ABA7/1B3C5/7D3/E4F1G3/2H8/1IE2J5/2F8/2D5K1J/3G3L1CH/1I3L3K1/11",
+          "solution": "AABAJJJJJJJ/ABBAJCCCCCJ/AAAAJJJDDCJ/EEEEFFJGDCJ/HHHEFJJGDCJ/HIEEFJGGDCJ/HIFFFGGDDCJ/HIDGGGDDKCJ/HIDGDDDLKCH/HIDDDLLLKKH/HHHHHHHHHHH"
+        },
+        {
+          "id": "20",
+          "board": "NL1:3AB6/CD5E1B1/D8E1/3F7/5G3H1/7I3/3G5H1/1C2J6/3J2F4/1IA6K1/6L1KL1",
+          "solution": "CCCABBBEEEE/CDCAAABEBBE/DDCCCABBBEE/FFFFCAAAAAA/FCCCCGGGGHA/FCIIIIIIGHA/FCIGGGGGGHA/FCIJJAAAAAA/FIIJAAFLLLL/FIAAAFFLKKL/FFFFFFLLKLL"
+        },
+        {
+          "id": "21",
+          "board": "NL1:11/9A1/3B2C4/2BD2EA1F1/7G2F/1H4IJ2C/E1K4I3/D5G4/3J2K1LM1/1H2M4L1/11",
+          "solution": "EEEEEECCCCC/EKKKKECAAAC/EKBBKECACCC/EKBDKEEACFF/EKKDKGGGCCF/EHKDKGIJJCC/EHKDKGIIJJJ/DHDDKGGMMMJ/DHDJKKKMLMJ/DHDJMMMMLLJ/DDDJJJJJJJJ"
+        },
+        {
+          "id": "22",
+          "board": "NL1:A1B1C6/DAE4C1D1/1E1B1F2G2/6H4/H10/8I2/1G1J7/1K3F1L3/11/1J2I3L2/K10",
+          "solution": "AABBCCCCGGG/DAEBDDDCGDG/DEEBDFDDGDG/DDDDDFHDDDG/HHHHHFHLLLG/JJJJHFHLILG/JGGJHFHLILG/JKGGHFHLILG/JKKGHHHIILG/JJKGIIIILLG/KKKGGGGGGGG"
+        },
+        {
+          "id": "23",
+          "board": "NL1:9A1/7B1C1/D10/3E1D5/1F9/6G1HI1/3JE4KA/7G3/11/B1JC2I1KH1/F10",
+          "solution": "DDDDDDDDDAA/DBBBBBBBDCA/DBCCCDDDDCA/BBCECDCCCCA/BFCECCCIIIA/BFCEEGGIHIA/BFCJEGIIHKA/BFCJJGIGHKK/BFCCJGIGHHK/BFJCJGIGKHK/FFJJJGGGKKK"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A10/1B7C1/3D7/4E3F2/3G1D2HC1/6I2F1/4A1B3H/1E5JK1K/2I2J3LM/6G2M1/10L",
+          "solution": "ABBBBBBBFFF/ABIIIIIBFCF/AIIDDDIBFCF/AIEEEDIBFCF/AIEGGDIBHCF/AIEEGGIBHFF/AIIEAGBBHHH/AEIEAGGJKKK/AEIEAJGJLLM/AEEEAJGJLMM/AAAAAJJJLLL"
+        },
+        {
+          "id": "25",
+          "board": "NL1:11/1A3B5/2C4DE2/F4A5/1F1B2C3G/11/1H3D1G1E1/1I6J2/1KHI4L2/1L3K1J3/11",
+          "solution": "BBBBBBGGGGG/BAAAABGDDDG/BBCCAAGDEDG/FBBCCAGGEDG/FFBBCCCGEDG/IIIILLLGEDD/IHHILDLGEED/IIHILDLLJJD/KKHILDDLLJD/KLLLLKDJJJD/KKKKKKDDDDD"
+        },
+        {
+          "id": "26",
+          "board": "NL1:A1BCD5E/2C4F2G/7H3/1IB1A6/2D5JE1/11/1I9/8F2/4K1J1K2/GL4H4/L10",
+          "solution": "ABBCDJJJJEE/ABCCDJFFJEG/ABBDDJFHJEG/AIBDAJFHJEG/AIDDAJFHJEG/AIAAAJFHHHG/AIAJJJFFFHG/AAAJKKKKFHG/GGGJKJJKKHG/GLGJJJHHHHG/LLGGGGGGGGG"
+        },
+        {
+          "id": "27",
+          "board": "NL1:11/4A6/6B4/2CD4B2/5E1F3/1E5C1G1/4D6/A3H6/11/HI1J1JI2G1/F10",
+          "solution": "EEEEEEEEEEE/EAAAACCCCCE/EACCCCBBBCE/EACDFFFFBCE/EAADFEEFCCE/EEADFFECCGE/AAADDFEEEGE/AHHHHFFFEGE/HHIIIIIFEGE/HIIJJJIFEGE/FFFFFFFFEEE"
+        },
+        {
+          "id": "28",
+          "board": "NL1:8A2/1B4C1D2/2E8/2F6D1/3B5A1/5G3HI/2F6J1/4G6/2KH4J1K/3EC2I3/11",
+          "solution": "KKKKKHHHAAA/KBBBKHCHDDA/KEEBKHCHHDA/KEFBKHCCHDA/KEFBKHHCHAA/KEFKKGHCHHI/KEFKGGHCJJI/KEKKGHHCJII/KEKHHHCCJIK/KEEECCCIIIK/KKKKKKKKKKK"
+        },
+        {
+          "id": "29",
+          "board": "NL1:A10/1B7C1/1D3EDB2F/7F3/1G3H5/GA1E6C/I10/6J4/2K5L2/2IJH6/LK9",
+          "solution": "ABBBBBBBFFF/ABDDDDDBFCF/ADDEEEDBFCF/AAAEIIIFFCC/GGAEIHIIIIC/GAAEIHHHHIC/IIIIILLLHII/LLLLLLJLHHI/LKKJJJJLLHI/LKIJHHHHHHI/LKIIIIIIIII"
+        },
+        {
+          "id": "30",
+          "board": "NL1:A1AB7/2C2D3E1/1F9/1BF5G2/11/7H3/I1J5H2/G2D4E2/4KJ2K2/2I3C4/11",
+          "solution": "AAABCCCCCCC/CCCBCDEEEEC/CFFBCDECCCC/CBFBCDECGGG/CBBBCDECCCG/CCCCCDEHHCG/IIJDDDEEHCG/GIJDKKKEECG/GIJJKJKKKCG/GIIJJJCCCCG/GGGGGGGGGGG"
+        },
+        {
+          "id": "31",
+          "board": "NL1:11/3AB6/2C5D2/3A1E5/11/2FG4G1H/3F3IH2/11/1JI8/B2ED2C3/J10",
+          "solution": "BBBBBCCCCCC/BAAABCGGGGC/BACCCCGDDGC/BAAAEEGDGGC/BEEEEGGDGCC/BEFGGGDDGCH/BEFFDDDIHCH/BEEEDIIIHCH/BJIEDIHHHCH/BJIEDIHCCCH/JJIIIIHHHHH"
+        },
+        {
+          "id": "32",
+          "board": "NL1:AB9/6C2B1/3D5A1/9C1/2E8/4E5F/D7G1H/5I2H2/1J2G3K2/2K8/F4J4I",
+          "solution": "ABBBBBCCCCC/AAAAABCBBBC/DDDDABBBAAC/DFFFAAAAACC/DFEFFFFFFFF/DFEEEKKKKKF/DFKKKKGGGKH/FFKIIIGHHKH/FJKIGGGHKKH/FJKIIIIHHHH/FJJJJJIIIII"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-twelve-squares",
+      "title": "Twelve squares",
+      "description": "Twelve by twelve boards with paths that cross the whole board.",
+      "difficulty": "Expert",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:10AB/1C3D6/2E4F4/2CG2A5/2ED8/8HG2/4IJ3F2/HKJ6L2/12/2MK8/1MI4L2N1/10BN",
+          "solution": "EEEGGGGGGGAB/ECEGDDHHHGAB/ECEGDHHFHGAB/ECCGDHAFHGAB/EEEDDHAFHGAB/HHHHHHAFHGAB/HKKKIJAFFFAB/HKJKIJALLLAB/JJJKIJALAAAB/JMMKIJALABBB/JMIIIJALABNN/JJJJJJAAABBN"
+        },
+        {
+          "id": "02",
+          "board": "NL1:6A5/1B2CD2E1F1/8G3/4H7/12/4GE4H1/12/9DI1/2C9/2I2J6/1B6JAFK/3K8",
+          "solution": "AAAAAAAHHHHH/ABCCCDHHEEFH/ABCDDDHGGEFH/ABCDHHHGEEFH/ABCDGGGGEFFH/ABCDGEEEEFHH/ABCDDDDDDFFF/ABCIIIIIDDIF/ABCIAAAIIIIF/ABIIAJAAAAFF/ABAAAJJJJAFK/AAAKKKKKKKKK"
+        },
+        {
+          "id": "03",
+          "board": "NL1:3A4BC2/A4D1B2E1/2FG8/5C4H1/7I4/1F5J1K2/4L7/5M3IH1/2MG8/6J5/1L7KD1/8E3",
+          "solution": "AAAAEEEBBCCC/AEEEEDEBEEEC/EEFGDDEEECCC/EFFGDCCCCCHH/EFGGDDDIIIIH/EFGMMMDJKKIH/EGGMLMDJKIIH/EGMMLMDJKIHH/EGMGLDDJKKKK/EGGGLDJJDDDK/ELLLLDDDDKDK/EEEEEEEEEKKK"
+        },
+        {
+          "id": "04",
+          "board": "NL1:3A7B/1C4DE4/5F2G3/3H3G4/IH7J1B/4K2L4/12/2AC5L2/8ED2/5K6/FM1M4IJ2/12",
+          "solution": "HHHAAFFFFFFB/HCHHAFDEEEFB/HCCHAFDGGEFB/HHCHADDGEEFB/IHCAADEEEJFB/ICCAKDELLJFF/ICAAKDEELJJF/ICACKDDELLJF/ICCCKKDEEDJF/IIIIIKDDDDJF/FMMMIIIIIJJF/FFFFFFFFFFFF"
+        },
+        {
+          "id": "05",
+          "board": "NL1:3A3B3C/1D4E5/3A2C3F1/12/5D6/3G1HIH1F1J/K11/E3GL6/9I2/M1KB1J3L2/5M6/12",
+          "solution": "BBBABBBBCCCC/BDBABEECCEEE/BDBABECCEEFE/BDBBBEEEEFFE/BDDDDDIIIFEE/BBBGGHIHIFEJ/KKBBGHHHIIEJ/EKKBGLLLLIEJ/EEKBEEEELIEJ/MEKBEJJELLEJ/MEEEEMJEEEEJ/MMMMMMJJJJJJ"
+        },
+        {
+          "id": "06",
+          "board": "NL1:AB10/1C4D3E1/2A9/5F2E1G1/1H1IB3J1K1/2I1L7/8K1M1/3L1N6/O1HC5G1P/5N6/2OF5D2/J5M4P",
+          "solution": "ABBBBJJJJJJJ/ACCCBJDDEEEJ/AAACBJJDEJJJ/CCCCBFJDEJGG/CHIIBFJDJJKG/CHILLFJDKKKG/CHHLFFJDKMMG/CCHLFNJDMMGG/OCHCFNJDMGGP/OCCCFNJDMMMP/OOOFFJJDDDMP/JJJJJJMMMMMP"
+        },
+        {
+          "id": "07",
+          "board": "NL1:10A1/4B7/2C4D1EF1/3G6D1/B1CH2I5/E1J4KL2M/4G2L4/3HJ2K2A1/7MN3/3F6N1/7OP3/I5O4P",
+          "solution": "BBBBBFFFFFAA/BFFFBFEEEFFA/BFCFFFEDEEFA/BFCGGEEDDDDA/BFCHGEIKKKAA/EFJHGEIKLKAM/EFJHGEILLKAM/EFJHJEIKKKAM/EFJJJEIMNNNM/EFFFEEIMMMNM/EEEEEIIOPMMM/IIIIIIOOPPPP"
+        },
+        {
+          "id": "08",
+          "board": "NL1:12/1ABCDE6/B4DF5/2G9/1H5IA3/4H1J5/1CK1I1L5/1M7EF1/3M1L6/2K2J3G2/11N/9N2",
+          "solution": "BBBCCCCCCCCC/BABCDEEEEEEC/BAAADDFFFFEC/GGGAAAAAAFEC/GHHHHIIIAFEC/GGGGHIJJFFEC/CCKGIILJFEEC/CMKGGLLJFEFC/CMKMGLJJFFFC/CMKMGJJGGGCC/CMMMGGGGCCCN/CCCCCCCCCNNN"
+        },
+        {
+          "id": "09",
+          "board": "NL1:12/7A2BC/A9D1/3EF6D/5G6/C5F3H1/5IJ5/H7JKG1/5EL1B3/3M5N2/1IM1L2N1K2/12",
+          "solution": "AAAAAAAACCCC/ACCCCCCACBBC/ACHHHHCCCBDD/CCHEFHHHHBBD/CHHEFGGGHHBB/CHEEFFFGGHHB/HHEIIIJJGGGB/HEEILLLJJKGB/EEIILELBBKKB/EIIMLEBBNNKB/EIMMLEBNNKKB/EEEEEEBBBBBB"
+        },
+        {
+          "id": "10",
+          "board": "NL1:7ABC2/1B1DA5E1/1F10/7G3D/8CG2/4HI5J/12/12/1F1K1H4L1/1E4I5/4M1K2LJ1/M11",
+          "solution": "DDDDAAAABCCC/DBBDABBBBEEC/DFBBBBEEEECC/DFEEEEEGCCCD/DFEKKKKGCGDD/DFEKHIKGGGDJ/DFEKHIKKDDDJ/DFEKHIIKDJJJ/DFEKHHIKDJLL/DEEDDDIKDJJL/DDDDMDKKDLJL/MMMMMDDDDLLL"
+        },
+        {
+          "id": "11",
+          "board": "NL1:4A4BC1/1CB5DEF1/7E4/9D2/3G5F2/1H5I4/10JK/GA5LM3/6H3M1/12/1I5J2KL/12",
+          "solution": "AAAAABBBBBCC/ACBBBBDDDEFC/ACCCCCDEEEFC/AHHHHCDDDDFC/AHGGHCCCCFFC/AHGHHIIICCCC/AAGHIIJJJJJK/GAGHIJJLMMMK/GGGHIJHLLLMK/HHHHIJHHHLKK/HIIIIJJJHLKL/HHHHHHHHHLLL"
+        },
+        {
+          "id": "12",
+          "board": "NL1:2A9/1B10/2C2D3E2/A11/5F4G1/1H2I1JD1I2/3J5EG1/5KL5/9M2/3M3L1N2/1H3N4F1/3CK5B1",
+          "solution": "AAABBBBBBBBB/ABBBIIIIIIIB/ACCIIDDDEEIB/ACIIJJJDEIIB/CCIJJFJDEIGB/CHIJIFJDEIGB/CHIJIFFFEEGB/CHIIIKLFFFFB/CHKKKKLLMMFB/CHKMMMMLMNFB/CHKKKNMMMNFB/CCCCKNNNNNBB"
+        },
+        {
+          "id": "13",
+          "board": "NL1:7A4/1B4C5/1D2E4FBA/3G8/4F5H1/12/6H5/8I3/12/J3C4E2/1K1GD7/KJ5I4",
+          "solution": "CCCCCCCAAAAA/CBBBBBCBBBBA/CDEEEBBBFFBA/CDEGFFFFFGGG/CDEGFGGGGGHG/CDEGGGHHHHHG/CDEEEEHGGGGG/CDDDDEEGIIII/CCCCDDEGGGGI/JJJCCDEEEEGI/KKJGDDGGGGGI/KJJGGGGIIIII"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A4B6/3C1D4C1/7DB3/2E2F3G2/3H3H1A2/9E2/6F5/1IJ3KJK3/3LM7/2LI8/6M5/8G3",
+          "solution": "AAAAABBBBGGG/CCCCADDDBGCG/CFFFAAADBGCG/CFEFFFAAAGCG/CFEHHHHHAACG/CFEEEEEEEECG/CFFFFFFJJJCG/CIJJJJKJKJCG/CILLMJKKKJCG/CILIMJJJJJCG/CIIIMMMCCCCG/CCCCCCCCGGGG"
+        },
+        {
+          "id": "15",
+          "board": "NL1:11A/7BA3/2C7D1/7E1F2/5G5F/2GHI3EIDC/1H10/12/1J3KJ5/1L1M4BL2/1M10/11K",
+          "solution": "BBBBBBBBAAAA/BIIIIIIBAFFF/BICCCCIIIFDF/BIIIICCEIFDF/BHHHIGCEIIDF/BHGHIGCEEIDC/BHGGGGCCCCCC/BJJJJJJKKKKK/BJLLLKJKBBBK/BLLMLKKKBLBK/BMMMLLLLLLBK/BBBBBBBBBBBK"
+        },
+        {
+          "id": "16",
+          "board": "NL1:7A1B1C/7D2CE/2F1G7/12/4H2GF3/9H2/9A2/8I3/1JK9/2D2E4B1/1J4L1L1I1/6K5",
+          "solution": "DDDDDDDAABCC/DAAAAADDABCE/DAFGGAAAABBE/DAFGHHHHHHBE/DAFGHGGGFHBE/DAFGGGFFFHBE/DAFFFFFAAABE/DAAAAAAAIIBE/DJKKLLLLLIBE/DJDKLEEELIBE/DJDKLLLELIIE/DDDKKKKEEEEE"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A10B/1C10/4DE2F3/2G4D4/7H4/1A4I1J3/CG6B3/KH2EK4J1/12/6IF4/2L2M1MN1N1/OLO9",
+          "solution": "AAAHHHHHHHHB/CCAHDDDDDDHB/CAAHDEFFFDHB/CAGHEEFDDDHB/CAGHEFFHHHHB/CAGHEFIIJJJB/CGGHEFFIBBJB/KHHHEKFIIBJB/KKKKKKFFIBBB/OOOOIIIFIIII/OLLOIMMMNNNI/OLOOIIIIIIII"
+        },
+        {
+          "id": "18",
+          "board": "NL1:AB6B3/1C7DE1/2A9/4E1F5/2G6H2/1G5I4/5JK5/1IL1M7/7M4/2CFNJ6/1L1H2NK2D1/12",
+          "solution": "ABBBBBBBBDDD/ACCCEEEEEDED/AAACEIIIEEED/CCCCEIFIDDDD/CGGIIIFIDHHH/CGIIFFFIDDDH/CIIFFJKKKKDH/CILFMJJJJKDH/CLLFMMMMJKDH/CLCFNJJJJKDH/CLCHNNNKKKDH/CCCHHHHHHHHH"
+        },
+        {
+          "id": "19",
+          "board": "NL1:7AB3/1C6D3/1EF1G4AD1/2GF8/6H5/2I1J4H2/1E5KC3/4LM2N1B1/4O1L4J/3M5PK1/1I3O2N1P1/12",
+          "solution": "JJJJJJJABBBB/JCCCCCJADDDB/JEFFGCJAAADB/JEGFGCJJJJJB/JEGGGCHHHHJB/JEIJJCCCCHJB/JEIJLLLKCJJB/JIIJLMLKNJBB/JIJJOMLKNJJJ/JIJMOMMKNPKK/JIJMOOMKNPPK/JJJMMMMKKKKK"
+        },
+        {
+          "id": "20",
+          "board": "NL1:7A4/1B5CD1D1/3E5CF1/1G1H3F4/7I2J1/8H3/3A8/1EK1K7/7LB3/M4I6/GM6L1J1/12",
+          "solution": "HHHHHHHAAAAA/HBBBBBHCDDDA/HHHEEBHCCCFA/GGHHEBHFFFFA/GEEEEBHIIIJA/GEKKKBHHHIJA/GEKAKBIIIIJA/GEKAKBILLLJA/GGGABBILBLJA/MMGABIIBBLJA/GMGABBBBLLJA/GGGAAAAAAAAA"
+        },
+        {
+          "id": "21",
+          "board": "NL1:12/1AB1C5DE/7C1F1F/1GA2H1I4/B1GE6I1/J6D4/3H6JK/LM8N1/9NO1/5K3P2/1LM1OP6/12",
+          "solution": "BBBEEEEEEEEE/BABECCCCDDDE/BAAEJJJCDFFF/BGAEJHJIDDDD/BGGEJHJIIIID/JJJJJHJDDDDD/LLLHHHJJJJJK/LMLPPPPPPNNK/MMLPOOOOPNOK/MLLPOKKOPPOK/MLMPOPKOOOOK/MMMPPPKKKKKK"
+        },
+        {
+          "id": "22",
+          "board": "NL1:8A3/8BCB1/1D1A8/5E2DC2/4E7/FG5F1HI1/12/1J2K7/7HLM2/JNGLN5I1/8K1M1/12",
+          "solution": "AAAAAAAAACCC/ADDDDDDDBCBC/ADAAFFFDBBBC/AAAFFEFDDCCC/FFFFEEFFJJJJ/FGJJJJJFJHIJ/GGJLLLJJJHIJ/GJJLKLLHHHIJ/GGGLKKLHLMIJ/JNGLNKLLLMIJ/JNNNNKKKKMMJ/JJJJJJJJJJJJ"
+        },
+        {
+          "id": "23",
+          "board": "NL1:4A5BC/AB10/7D2E1/FGH3H3CE/2I4DFJ1J/1K10/1LI5M3/3L8/12/1NO4K4/1O1N8/10MG",
+          "solution": "AAAAABBBBBBC/ABBBBBFFFCCC/FFFFFFFDFCEE/FGHHHHHDFCCE/GGIIIIIDFJJJ/GKKKKKIGGGGG/GLIIIKIGMMMG/GLLLIKIGGGMG/GNNNIKIIIGMG/GNONIKKKIGMG/GOONIIIIIGMG/GGGGGGGGGGMG"
+        },
+        {
+          "id": "24",
+          "board": "NL1:12/1A1B1C4DE/1FAG5H2/12/1F7E2/1I2C7/9H2/5J3K2/B7LJDK/2G9/IM1NO5L1/M1NO8",
+          "solution": "BBBBDDDEEEEE/BAABDCDEDDDE/BFAGDCDEDHHH/BFGGDCDEDDDH/BFGDDCDEEEDH/BIGDCCDDDDDH/BIGDLLLLLHHH/BIGDLJJJLKKK/BIGDLLLJLJDK/IIGDDDLJJJDD/IMNNODLLLLLD/MMNOODDDDDDD"
+        },
+        {
+          "id": "25",
+          "board": "NL1:1A4B5/AC1D2D5/9E2/3FG1H5/12/1F1I5B2/5J4K1/4L3K3/3J6L1/3IGC2E3/6M3H1/8M3",
+          "solution": "AABBBBBHHHHH/ACBDDDDHBBBH/CCBBBBHHBEBH/CFFFGBHBBEBH/CFGGGBBBEEBH/CFGILLLEEBBH/CGGILJLEKKKH/CGIILJLEKHHH/CGIJJJLEEHLL/CGIIGCLLEHHL/CGGGGCMLLLHL/CCCCCCMMMLLL"
+        },
+        {
+          "id": "26",
+          "board": "NL1:11A/BC3D6/1E8A1/10F1/2GH3BF3/1C3I1D3J/4K4KJL/M3I5N1/2G9/3E1NL1O3/1O8H1/2M9",
+          "solution": "BBBBAAAAAAAA/BCCBADDDDDDD/EECBAAAAAAAD/ECCBBBBBFFFD/ECGHKKKBFDDD/ECGHKIKDDDJJ/EEGHKIKKKKJL/MEGHIINNNNNL/MEGHHNNLLLLL/MEEEHNLLOOOO/MOOOHHHHHHHO/MMMOOOOOOOOO"
+        },
+        {
+          "id": "27",
+          "board": "NL1:3A6B1/1C2D5D1/2EA2F5/6G1H3/10I1/4F2C1J2/12/12/E10J/2IK2BG4/1K8H1/12",
+          "solution": "EEEADDDDDDBB/ECEADBBBBDDB/ECEABBFFBBBB/ECBBBGGFHJJJ/ECBGGGFFHJIJ/ECBGFFFCHJIJ/ECBGGGGCHHIJ/ECBBBBGCCHIJ/ECCCCBGGCHIJ/IIIKCBBGCHII/IKKKCCCCCHHI/IIIIIIIIIIII"
+        },
+        {
+          "id": "28",
+          "board": "NL1:12/1A2B5C1/4D1E2F2/9G2/1A1H4BE2/HI8C1/3I2J1JF2/5K1L4/2M4NLON1/5D6/1G1M1O4K1/12",
+          "solution": "HHHGGGGGGFFF/HAHGBBBBGFCF/HAHGDDEBGFCF/HAHGGDEBGGCF/HAHHGDEBBECF/HIGGGDEEEECF/IIGIDDJJJFFF/IGGIDKKLLOOO/IGMIDDKNLONO/IGMIIDKNNNNO/IGMMIOKKKKKO/IIIIIOOOOOOO"
+        },
+        {
+          "id": "29",
+          "board": "NL1:A9BC/2A4D1BE1/5FG5/4F7/9H2/1E2D2IH3/4JK2GK2/5J1L4/1C6LI2/12/4M7/2M9",
+          "solution": "AEEEEEEEEBBC/AEAGGGGDEBEC/AEAGFFGDEEEC/AEAGFDDDKKKC/AEAGDDKKKHKC/AEAGDKKIHHKC/AAAGJKIIGKKC/MMMGJJILGGGC/MCMGGGILLIGC/MCMMMGIIIIGC/MCCCMGGGGGGC/MMMCCCCCCCCC"
+        },
+        {
+          "id": "30",
+          "board": "NL1:AB8CD/6E2CF1/2G1H1I2F2/1H2A5B1/12/12/1JE7K1/4G7/4L4M2/5I5L/3J3D4/10MK",
+          "solution": "ABBBBBBBBCCD/AAAAAAEEBCFD/GGGHHAIEBFFD/GHHHAAIEBBBD/GGGGGIIEDDDD/LLLLGIEEDLLL/LJELGIEDDLKL/LJELGIEDLLKL/LJELLIEDLMKL/LJEEEIEDLMKL/LJJJEEEDLMKK/LLLLLLLLLMMK"
+        },
+        {
+          "id": "31",
+          "board": "NL1:1AB9/8C2A/1B4D2E2/3F5G2/9H2/H7D3/2I3F5/1J1K2E5/12/2JI6G1/1C10/11K",
+          "solution": "AABAAAAAAAAA/ABBAFFFFCCCA/ABAAFDDFEECC/AAAFFDFFEGGC/HHHHHDFEEHGC/HKKKHDFEDHGC/KKIKHDFEDHGC/KJIKHDEEDHGC/KJIIHDDDDHGC/KJJIHHHHHHGC/KCCCCCCCCCCC/KKKKKKKKKKKK"
+        },
+        {
+          "id": "32",
+          "board": "NL1:12/3A6B1/2CD3E4/1A2C2F3G/4HE3I2/2B9/6F5/D1JK1H1L2M1/3N5I2/8G2O/2K1L1MO4/J10N",
+          "solution": "DDDDDEEEEEEE/DAAADEBBBBBE/DACDDEBEEEEE/DACCCEBFMMMG/DHHHHEBFMIMG/DHBBBBBFMIMG/DHHHHHFFMIMG/DJJKKHLLMIMG/JJNNKLLMMIGG/JNNKKLMMGGGO/JNKKLLMOOOOO/JNNNNNNNNNNN"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-crowded-harbor",
+      "title": "Crowded harbor",
+      "description": "Large boards packed with pairs, where every gap matters.",
+      "difficulty": "Expert",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:5A5/5BC4/3D2BEF2/AG1G5E1/3HI1J2K1/2L3F2C1/1L3M3N1/1D1O1IM3N/5HP1J2/1O3Q3P1/6QK3",
+          "solution": "AAAAAACCCCC/AGGGGBCEEEC/AGDDGBBEFEC/AGDGGFFFFEC/DDDHIFJJKKC/DLLHIFFJKCC/DLHHIMMJKNN/DDHOIIMJKKN/HHHOHHPJJKK/HOOOHQPPPPK/HHHHHQQKKKK"
+        },
+        {
+          "id": "02",
+          "board": "NL1:10A/1BC3C1AD1/3EF4GD/1H7I1/3E3J1J1/KH7G1/4K1LMI2/1N8M/1B4OP1O1/2Q6P1/QN2F1L4",
+          "solution": "KKKKKKKKAAA/KBCCCCCKADD/KBBEFKKKGGD/KHBEFKGGGII/KHBEFKGJJJI/KHBFFKGGGGI/BBBFKKLMIII/BNNFFLLMMMM/BBNNFLOPPOO/QQQNFLOOPPO/QNNNFLLOOOO"
+        },
+        {
+          "id": "03",
+          "board": "NL1:11/1A4BCDE1/3FA6/CFE4G3/3HI1GD3/1JK3H3B/2J5LM1/4NOI2P1/2N3O1L2/6K1MP1/11",
+          "solution": "CCCCCCBBBBB/CAAAACBCDEB/CFFFACCCDEB/CFEHHHGGDEB/EEEHIHGDDEB/EJKKIHHEEEB/EJJKIIIELMM/EKKKNOIELPM/EKNNNOOELPM/EKKKKKKEMPM/EEEEEEEEMMM"
+        },
+        {
+          "id": "04",
+          "board": "NL1:9AB/1C3DE2B1/2F2G5/5DH2I1/1C1H4IE1/4J1G1K2/L1F1A1JM3/6N1O2/P1Q1P2OM2/1Q6NK1/3L1R4R",
+          "solution": "FFFAAAAAAAB/FCFADDEEEBB/FCFADGGGEEE/FCAADDHGIIE/FCAHHHHGIEE/FFAAJJGGKKK/LFFAAJJMMMK/LLLLLLNOOMK/PQQPPLNOMMK/PQPPLLNNNKK/PPPLLRRRRRR"
+        },
+        {
+          "id": "05",
+          "board": "NL1:ABC3CD1E1/2F6GE/1B4H4/1A9/1I2J4D1/1H5K3/5LM3G/NO5L3/4M1F2PJ/1O4I1Q2/1N5K1QP",
+          "solution": "ABCCCCCDDEE/ABFFFFFFDGE/ABHHHHHFDGG/AAHFFFFFDDG/IIHFJJJJJDG/IHHFMMMKJJG/IIIFMLMKKJG/NOIFMLLLKJJ/NOIFMFFKKPJ/NOIFFFIKQPP/NNIIIIIKQQP"
+        },
+        {
+          "id": "06",
+          "board": "NL1:A1B4CD1D/EA3E5/7F1F1/G1B1H4I1/J2K3H3/1G3L4M/3IL6/N2O7/5CO1K2/7P2M/1NJ7P",
+          "solution": "AABBBBBCDDD/EAEEEEBCCCC/EEEBBBBFFFC/GGBBHHHHIIC/JGKKIIIHICC/JGKIILIIICM/JJKILLCCCCM/NJKOOCCPPPM/NJKKOCOPKPM/NJJKOOOPKPM/NNJKKKKKKPP"
+        },
+        {
+          "id": "07",
+          "board": "NL1:7A3/2B8/2CDE2FG2/3E1DFG3/11/3HI1J2K1/1K2H1LJ1C1/3I3M1M1/B1NO4PQ1/2O1LP2Q2/NA9",
+          "solution": "KKKKKKKAAAA/KBBDDDKKKKA/KBCDEDFFGKA/KBCEEDFGGKA/KBCCCCCCCKA/KBBHIIJJCKA/KKBHHILJCCA/BBBIIILMMMA/BNNOLLLPPQA/NNOOLPPPQQA/NAAAAAAAAAA"
+        },
+        {
+          "id": "08",
+          "board": "NL1:1A1BC1D4/1EB3F2G1/4D4H1/A1CI7/2I1G1E4/1J4H1FK1/3LM4N1/4L1O1NP1/3PMO2Q2/1J5Q3/10K",
+          "solution": "AABBCDDFFFF/AEBCCDFFGGF/AECCDDGGGHF/AECIGGGHHHF/EEIIGEEHFFF/EJEEEEHHFKK/EJELMMMMNNK/EJELLOOMNPK/EJEPMOMMQPK/EJEPMMMQQPK/EEEPPPPPPPK"
+        },
+        {
+          "id": "09",
+          "board": "NL1:10A/1B1C6D/1C3EF4/F7B1D/2GHI1J4/1H3JKL3/8MEA/NG9/7O1P1/KNI2O2PM1/7LQ1Q",
+          "solution": "CCCCBBBBBAA/CBBCBEEEBAD/CCBBBEFEBAD/FFFFFFFEBAD/GGGHIJJEEAA/GHHHIJKLEEA/GGIIIKKLMEA/NGIKKKLLMMM/NNIKLLLOPPM/KNIKLOOOPMM/KKKKLLLLQQQ"
+        },
+        {
+          "id": "10",
+          "board": "NL1:AB1C5D1/1A4E4/4F1B1E1D/2GH6I/2JK1H1L3/3J1K5/F9I/4M1N4/1O2P1Q2G1/2P1R3LQ1/MOR1N5C",
+          "solution": "ABBCCCCCCDD/AABBBBEECCD/FFFFFBBEECD/FGGHHHGGGCI/FGJKKHGLGCI/FGJJKKGLGCI/FGGGGGGLGCI/MMMMMNNLGCC/MOPPPNQLGGC/MOPRRNQLLQC/MORRNNQQQQC"
+        },
+        {
+          "id": "11",
+          "board": "NL1:1AB6CB/1D3EF4/2AG2E2C1/11/1H3H5/6D2I1/JG1K4L2/1M1N7/6IL3/3F1KO2P1/J2M3N1OP",
+          "solution": "AABBBBBBBCB/ADDDDEFFBCB/AAAGDEEFBCB/GGGGDDDFBBB/GHHHHHDFLLL/GGFFFFDFLIL/JGFKKFFFLIL/JMFNKKIIIIL/JMFNNKILLLL/JMFFNKOOOPP/JMMMNNNNOOP"
+        },
+        {
+          "id": "12",
+          "board": "NL1:10A/1B2CD5/4E3F2/G1BC2H1I2/3D4HFI/5AE4/J1KG4L2/M2K4N1O/2M1O6/2J1N1P3L/4Q3Q1P",
+          "solution": "DDDDDDAAAAA/DBBCCDAIIII/DDBCEAAIFFI/GDBCEAHIIFI/GDDDEAHHHFI/GGGGEAEOOOO/JJKGEEEOLLO/MJKKOOOONLO/MJMMONNNNLL/MJJMNNPPPPL/MMMMQQQQQPP"
+        },
+        {
+          "id": "13",
+          "board": "NL1:A2BCD5/EABF7/1F2C2GH1I/EJ2K6/1L1KM1N2H1/LJ9/1OM1D4P1/9Q1/7I3/3Q7/ON2G5P",
+          "solution": "AABBCDIIIII/EABFCDIGGGI/EFFFCDIGHGI/EJJKKDIIHGG/LLJKMDNIHHG/LJJMMDNIGGG/OOMMDDNIGPP/ONNNNNNIGQP/ONGGGGGIGQP/ONGQQQGGGQP/ONGGGQQQQQP"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A9B/BA5CD1D/11/2E2F5/E4GF1H1G/2I8/CJK3H2LI/4M2N2M/11/2O1N1L3P/JK2O3P2",
+          "solution": "AABBBBBBBBB/BABCCCCCDDD/BBBCGGGGGGG/EEECGFFIIIG/ECCCGGFIHIG/CCIIIIIIHII/CJKNNNHHHLI/JJKNMNNNLLM/JKKNMMLLLMM/JKONNMLMMMP/JKOOOMMMPPP"
+        },
+        {
+          "id": "15",
+          "board": "NL1:5A2B1C/1D1E2BA1CF/2D8/G9H/2G2I5/11/1JI3E3H/8KFL/2MN2M4/5NJ1O2/1K7LO",
+          "solution": "KKKKKAAABCC/KDDEKKBABCF/KKDEEKBBBFF/GKKKEKKKKFH/GGGKEIIIKFH/KKKKEEEIKFH/KJIIIIEIKFH/KJMMMIIIKFL/KJMNMMMLLLL/KJJNNNJLOOO/KKJJJJJLLLO"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A4B1B3/2C2DEF1D1/11/1A4E4/G8H1/IG9/1I4J1K2/LM2KC5/2N3LOJ2/2MN1PO1P2/9FH",
+          "solution": "AKKKKBBBFFF/AKCCKDEFFDF/AKKCKDEDDDF/AAKCKDEDFFF/GGKCKDDDFHH/IGKCKKKKFFH/IIKCCCJKKFH/LMKKKCJJJFH/LMNNLLLOJFH/LMMNLPOOPFH/LLLLLPPPPFH"
+        },
+        {
+          "id": "17",
+          "board": "NL1:A5B4C/1D3D5E/1F1A3G1BC1/4HG6/9H2/1I6F3/1J1I6J1/K1L2M3NE1/O5P5/4KM4QR/OLS1P4R1Q/S10N",
+          "solution": "ADDDDDBBBBCC/ADFFFDFFFBCE/AFFAFFFGFBCE/AAAAHGGGFFFE/JJJJHHHHHHFE/JIIJJJJJFFFE/JJIILLLJJJJE/KKLLLMLLNNEE/OKKKKMPLNRRR/OLLLKMPLNRQR/OLSLPPPLNRQQ/SSSLLLLLNNNN"
+        },
+        {
+          "id": "18",
+          "board": "NL1:7A1A1B/1C2D5BE/2F1E1D1G3/11H/1FC1I2J1K1K/6L4H/6J5/1IM4N1NO1/5P6/1Q2O1M5/QR2P4S2/R6G2LS",
+          "solution": "FFFEEEEAAABB/FCFEDDEEEEBE/FCFEEDDGGEEE/FCCGGGGGHHHH/FFCGIJJJHKKK/GGGGIJLLHHHH/GIIIIJJLLLLL/GIMMMMMNNNOL/GGGPPPMOOOOL/QQGPOOMOLLLL/QRGPPOOOLSSS/RRGGGGGGLLLS"
+        },
+        {
+          "id": "19",
+          "board": "NL1:A3B7/1CA3DE1EF1/1B5G4/C5H5/6I2FJK/J2LM3G3/4D1I3N1/1L8O1/1P1Q2PQ4/1R3S1S2ON/3R3M2KT/5H3T2",
+          "solution": "AAABBJJJJJJJ/CCABJJDEEEFJ/CBBBJDDGGFFJ/CJJJJDHHGFJJ/JJMMMDIHGFJK/JMMLMDIHGKKK/MMLLDDIHHKNN/MLLQQQQQHKON/MPPQPPPQHKON/MRPPPSSSHKON/MRRRMMMMHKKT/MMMMMHHHHTTT"
+        },
+        {
+          "id": "20",
+          "board": "NL1:A1B3C1CD1E/2FEG2D3H/1B3I6/6J5/2G2K2KHJ1/A11/4I1LMF3/1L8N1/2O4N4/4P7/1P3QR2RQ1/2OM8",
+          "solution": "ABBEEECCCDEE/ABFEGEEDDDEH/ABFGGIEEEEEH/AFFGIIJJJJJH/AFGGIKKKKHJH/AFFFIFFFFHHH/OOOFIFLMFMMM/OLOFFFLMMMNM/OLOLLLLNNNNM/OLLLPQQQQQQM/OPPPPQRRRRQM/OOOMMMMMMMMM"
+        },
+        {
+          "id": "21",
+          "board": "NL1:A6BC3/D8EFE/1A2G1F4H/DI2I1J5/6GK4/8L3/2M1N3K1J1/4ON1LP1P1/2M4Q1Q2/2BCO1H4R/12/S2SR2T3T",
+          "solution": "AABBBBBBCEEE/DABCCCCCCEFE/DABCGGFFFFFH/DIBCIGJJJJJH/IIBCIGGKKKJH/IBBCIIILLKJH/IBMCNNILKKJH/IBMCONILPPPH/IBMCOIIQQQHH/IBBCOIHHHHHR/IIIIIIRRRRRR/SSSSRRRTTTTT"
+        },
+        {
+          "id": "22",
+          "board": "NL1:6A2ABC/DE2F7/E1D4G4/4H1GI1J2/1KL4M2I1/2N2H1F2J1/9C2/3O1MPB4/L2Q8/9RP1/1N4OS2R1/2K2QS5",
+          "solution": "DDDBBBAAAABC/DEDBFBBBBBBC/EEDBFFGGIIIC/LLLBHFGIIJIC/LKLBHFFMMJIC/LKNBHHFFMJJC/LKNBBBBBMCCC/LKNOOMPBMMMM/LKNQOMPPPPPM/KKNQOMMMMRPM/KNNQOOOSMRRM/KKKQQQSSMMMM"
+        },
+        {
+          "id": "23",
+          "board": "NL1:12/AB1B1CA5/8D2C/E1F3G1H2I/2J1K5G1/1L1J1M1HE1D1/2LN5OI1/N11/5P1Q1R2/4SRP2M2/1F7Q2/3K1S5O",
+          "solution": "AAAAACCCCCCC/ABBBACAGGGGC/EEEEAAAGDDGC/EFFEEEGGHDGI/FFJJKEEHHDGI/FLLJKMEHEDDI/FFLNKMEEEOII/NFNNKMMMMOOO/NFNKKPPQMRRO/NFNKSRPQMMRO/NFNKSRRQQQRO/NNNKSSRRRRRO"
+        },
+        {
+          "id": "24",
+          "board": "NL1:7A1B1C/1D1AE6F/5E4G1/7CH3/4I1B1J3/1K1D1LI1H3/1L1M5J2/K3N3OG1F/12/MP4QR1SQS/P3R6T/N6OT3",
+          "solution": "LLLAAAAABBCC/LDLAEEBBBCCF/LDLLLEBCCCGF/LDDDLLBCHHGF/LLLDILBJJHGF/KKLDILIJHHGF/KLLMIIIJJJGF/KMMMNOOOOGGF/MMNNNOQQQSSS/MPNOOOQRQSQS/PPNORRRRQQQT/NNNOOOOOTTTT"
+        },
+        {
+          "id": "25",
+          "board": "NL1:A5B2C1D/6E3DF/3G2H2CI1/2J2K6/A6B4/L1G8M/4K3M1F1/1L2E2IN3/H9OP/4N7/2QR2P4S/JQR1OS6",
+          "solution": "AHHHHHBBBCDD/AHJJJHEEBCDF/AHJGJHHEBCIF/AHJGJKEEBIIF/AHGGJKEBBIFF/LHGJJKEIIIFM/LHHJKKEIMMFM/LLHJEEEINMMM/HHHJNNNNNOOP/JJJJNOOOOOPP/JQQROOPPPPPS/JQRROSSSSSSS"
+        },
+        {
+          "id": "26",
+          "board": "NL1:3AB4CDE/1F4G2H2/I2A4C2E/J3B7/10K1/3L3MI2D/N5H3KG/4L2M4/12/2J1O2FP1QR/1SO1P7/N7S1RQ",
+          "solution": "IIIABHHHCCDE/IFIABHGHCHDE/IFIABHGHCHDE/JFIIBHGHHHDD/JFFIIHGGGGKD/JJFLIHHMIGKD/NJFLIIHMIGKG/NJFLLIIMIGGG/NJFFFFIIIRRR/NJJOOFFFPRQR/NSOOPPPPPRQQ/NSSSSSSSSRRQ"
+        },
+        {
+          "id": "27",
+          "board": "NL1:A10B/6BC1DE1/1F1G2H3D1/7H2C1/I4I6/6F5/6E2J2/1GA6K2/10J1/3L2M1N1O1/LP1Q2R1M3/P1QS1N1RK1OS",
+          "solution": "AFFFFFBBBBBB/AFAAAFBCCDEE/AFAGAFHHCDDE/AAAGAFFHCCCE/IGGGAIFEEEEE/IGAAAIFESSSS/IGAIIIEESJJS/IGAISSSSSKJS/IIIISNNNNKJS/LLLLSNMMNKOS/LPQQSNRMMKOS/PPQSSNRRKKOS"
+        },
+        {
+          "id": "28",
+          "board": "NL1:3AB7/1C2A3DEF1/3D2F5/2G9/4H2E4/3H1C4I1/1J6G1KI/1L2LB6/9MNK/1O1P2Q1N3/1RPSJ3Q1M1/O1R2S6",
+          "solution": "GGGABBBBBBBB/GCGAADDDDEFB/GCGDDDFEEEFB/GCGCCCFEFFFB/GCCCHCFEFBBB/GGGHHCFFFBII/JJGGGGGGGBKI/JLLLLBBBBBKK/JJJJJNNNNMNK/OOPPJNQQNMNN/ORPSJNNQQMMN/ORRSSSNNNNNN"
+        },
+        {
+          "id": "29",
+          "board": "NL1:A1B6C1D/EA6FDC1/5G6/2F2H6/6H5/1I6JK2/4LM1JL3/12/1I1NO1MGK3/4P1P5/EB2Q5Q1/N2R1RO5",
+          "solution": "AABFFFFFFCCD/EABFOOOOFDCD/EBBFOGGOODDD/EBFFOHGGOOOO/EBBOOHHGGGGO/EIBOLLLJJKGO/EIBOLMLJLKGO/EIBOOMLLLKGO/EIBNOMMGKKGO/EBBNPPPGGGGO/EBNNQQQQQQQO/NNNRRROOOOOO"
+        },
+        {
+          "id": "30",
+          "board": "NL1:1A1B5C2/1B1D3E4/2F9/1FD5GH2/7GI3/3J3HK3/1L1MJE5C/7NI3/2O1P4KQ1/2L5N3/1OR1M1P5/R5Q4A",
+          "solution": "AABBAAAAACCC/ABBDAEEEAAAC/AFFDAEHHHHAC/AFDDAEHGGHAC/AAAAAEHGIIAC/OOOJJEHHKIAC/OLOMJEKKKIAC/OLOMMMKNIIAA/OLOPPMKNNKQA/OLLPMMKKNKQA/OORPMPPKKKQA/RRRPPPQQQQQA"
+        },
+        {
+          "id": "31",
+          "board": "NL1:AB1B3C1CDE/5F2G3/3H6E1/1IF2A3J2/2IK6L1/2K8J/M1G3N2D2/2O3P3Q1/9QL1/2O2N3P1R/2H6M2/4S1S4R",
+          "solution": "ABBBAAACCCDE/AAAAAFAGGDDE/HHHHFFAGDDEE/HIFFFAAGDJJJ/HIIKGGGGDDLJ/HHKKGMMMMDLJ/MHGGGMNNMDLL/MHOMMMPNMQQL/MHOMPPPNMQLL/MHOMPNNNMPPR/MHHMPPPPMMPR/MMMMSSSPPPPR"
+        },
+        {
+          "id": "32",
+          "board": "NL1:12/4A2AB1CD/2E3F4C/8D3/5E2G1F1/2H2I6/1HJ4G4/2K5L3/1KMJ3NO1PO/6I2Q2/R1B1M2LN1SP/7RQ2S",
+          "solution": "BBBBBBBBBDDD/BLLLAAAABDCD/BLELLLFFDDCC/BLEEELLFDGGG/BLLLEELFGGFG/BHHLLILFFFFG/BHJJLILGGGGG/BKKJLILLLOOO/BKMJLIINOOPO/BBMMLLINNQPP/RBBMMLLLNQSP/RRRRRRRRQQSS"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-grand-weave",
+      "title": "Grand weave",
+      "description": "Thirteen and fourteen square boards: long sessions, many pairs.",
+      "difficulty": "Master",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:13/1A2B1CD5/E9F1C/3GD6HF/8B4/5IJ4KH/3L3J5/6M4K1/3I3G1L3/13/5NA5M/4E4O1PO/Q1Q3N2P3",
+          "solution": "EEEDDDDDCCCCC/EAEDBBCDCHHHC/EAEDDBCCCHFHC/AAEGDBBBBHFHF/AEEGLLLLBHFFF/AEGGLIJLLHHKH/AEGLLIJJLLHKH/AEGIIIMMMLHKH/AEGIGGGGMLHHH/AEGGGNNNMMMMM/AEEEENANPPPPM/AAAAEAANPOOPO/QQQAAANNPPOOO"
+        },
+        {
+          "id": "02",
+          "board": "NL1:A4B7/2CD1E4F2/8G1H2/7FE4/5IG3H2/13/1JI1JD1K1L1K1/9ML2/6N6/2C7NA1/13/1M9O1/6OB5",
+          "solution": "AIIIIBBBBBBBB/AICDIEEEEEFFB/AICDIIGGGEHFB/AICDDIGFEEHFB/AICCDIGFFFHFB/AIICDDMMMFFFB/AJICJDMKMLLKB/AJCCJMMKMMLKB/AJCJJMNKKKKKB/AJCJMMNNNNNAB/AJJJMAAAAAAAB/AMMMMAOOOOOOB/AAAAAAOBBBBBB"
+        },
+        {
+          "id": "03",
+          "board": "NL1:13/1A8BC1/6D3E2/7A2C1F/3G9/4E6H1/2D3G2I3/2J5IHK2/1JFL1M7/10NK1/O9P2/1Q1LPR1BM2N1/QO1R9",
+          "solution": "FFFFFFFFFFFFF/FAAAAAAABBBCF/FDDDDDDABEECF/FDBBBBBABECCF/FDBGGGBBBEKKK/FDBBEGGEEEKHK/FDDBEEGEIIKHK/FJJBBEEEIHKHK/FJFLBMMMMHHHK/FFFLBBBBMNNKK/OOOLPPPBMNPPP/QQOLPRPBMNNNP/QOORRRPPPPPPP"
+        },
+        {
+          "id": "04",
+          "board": "NL1:5A7/5BC6/2D5E4/1F4E2B1C1/4G6H1/IJ8K2/2D5J1H2/L7G1KA1/5M7/1I2N1M6/2F10/N5OL1O1P1/5P7",
+          "solution": "JJJJJAAAAAAAA/JFFFJBCCCCCCA/JFDFJBBBEEECA/JFDFJJEBBBECA/JJDFGJEEEEEHA/IJDFGJJJJKKHA/IIDFGGGGJKHHA/LIFFLLLGGKKAA/LIFLLMLLLLLLL/LIFLNMMPPPPPL/LLFLNPPPLLLPL/NLLLNPOLLOLPL/NNNNNPOOOOLLL"
+        },
+        {
+          "id": "05",
+          "board": "NL1:12A/1B11/2C1D7C/2D1E1FG5/2H6F3/10I2/2H2J1K5/5IK3G2/1L1E8M/6N2OPM1/2QL2OB3R1/3Q4J2P1/A5N3R2",
+          "solution": "AAAAAAAAAAAAA/ABCCCCCCCCCCC/ABCDDIIIIIIIC/ABDDEIFGGGGII/ABHEEIFFFFGGI/ABHEIIJJJIIGI/ABHEIJJKJIGGI/ABBEIIKKJIGII/ALBEBBBBJIIIM/ALBBBNNBJOPMM/ALQLLNOBJOPRR/ALQQLNOOJOPPR/ALLLLNNOOORRR"
+        },
+        {
+          "id": "06",
+          "board": "NL1:13/1A4B2C1CD/1E8F2/2ABGH7/13/6I1D4/2J4KI1H2/1L11/2J10/M1GL3K2N2/4N5E2/OP9M1/1O1P7F1",
+          "solution": "GGGGGGGGDDDDD/GAABBBBGDCCCD/GEABGGGGDDFFF/GEABGHHHHDDDF/GEEEEKKKHHHDF/GLLLEKIKDDHDF/GLJLEKIKIDHDF/GLJLEKIIIDDDF/GGJLEKKKEEEEF/MGGLEEEKENNEF/MMMMNNEEENEEF/OPPMMNNNNNMMF/OOPPMMMMMMMFF"
+        },
+        {
+          "id": "07",
+          "board": "NL1:12A/BC7DE2/F4GH1E4/8I4/10H2/2B1I2J1K2L/10KA1/4M1N6/C6M3OP/3Q2N6/9J1OP/1F7G3/6Q4DL",
+          "solution": "BBBIIIIIIIIIA/BCBIDDDDDDEIA/FCBIDGHHEEEIA/FCBIDGGHIIIIA/FCBIDDGHHHHAA/FCBIIDGJJKKAL/FCCDDDGGJJKAL/FFCDMMNGGJLLL/CFCDDMNMGJLOP/CFCQDMNMGJLOP/CFCQDMMMGJLOP/CFCQDDDDGGLLL/CCCQQQQDDDDDL"
+        },
+        {
+          "id": "08",
+          "board": "NL1:A12/1B4C1D2E1/3FCG7/2F10/1G6B1H1I/1A3J7/13/1KL2M2N1MH1/3J6O2/4LI1P2E1P/2N4K2O2/12D/13",
+          "solution": "ABBBBBBBBBIII/ABGGGGCDDBIEI/AGGFCGCDBBIEI/AGFFCCCDBIIEI/AGDDDDDDBIHEI/AADJJJIIIIHEE/DDDJIIIMMMHHE/DKLJIMMMNMMHE/DKLJIINNNOOEE/DKLLLINPPOEEP/DKNNNNNKPOOPP/DKKKKKKKPPPPD/DDDDDDDDDDDDD"
+        },
+        {
+          "id": "09",
+          "board": "NL1:5A7/1B1CD8/1D5EF1G1H/1I3A7/1J9G1/8H1K2/C8FLK1/4M2B5/2J9N/13/2I2LE5M/O10N1/9O3",
+          "solution": "DDDDDAHHHHHHH/DBBCDAHEEEEEH/DDBCCAHEFFGEH/IIBBCAHHHFGEE/IJJBCCCCHFGGE/IIJBBBBCHFKKE/CIJCCCBCCFLKE/CIJCMCBBCLLEE/CIJCMCCCCLEEN/CIICMLLLLLENN/CCICMLEEEEENM/OCCCMMMMMMMNM/OOOOOOOOOOMMM"
+        },
+        {
+          "id": "10",
+          "board": "NL1:A12/2B1C3D4/2E3F3G2/1CB10/9HFD1/7IG4/2JK6L2/3J1LM2NH2/6KO5/2O3I6/4P3QNM2/2P3Q6/A3E8",
+          "solution": "AEEEEEEEEEEEE/AEBBCGGGDDDDE/AEEBCGFGGGGDE/ACBBCGFFFFFDE/ACCCCGGGGHFDE/AIIIIIIIGHHHE/AIJKKLLLLLLHE/AIJJKLMMMNHHE/AIIIKKKOMNNNE/AOOIIIIOMMMNE/AOPPPOOOQNMNE/AOPOOOQQQNNNE/AOOOEEEEEEEEE"
+        },
+        {
+          "id": "11",
+          "board": "NL1:A12/11B1/CD1D1E7/F1F2GCB5/1HI1G5J2/1I5K5/4H4L3/1M10E/1N1O1N2KL3/1O2PQ5R1/7A1MJ2/1PQ8R1/13",
+          "solution": "AAAAAAAAAAAAA/CCCCCCCBBBBBA/CDDDEECBAAAAA/FFFEEGCBAEEEE/HHIEGGAAAEJJE/HIIEEEAKKEEJE/HHHHHEAAKLEJE/MMNNNEEAKLEJE/MNNONNEAKLEJJ/MOOOPQEAEEERJ/MPPPPQEAEMJRJ/MPQQQQEEEMJRJ/MMMMMMMMMMJJJ"
+        },
+        {
+          "id": "12",
+          "board": "NL1:12A/5B5C1/2D5E4/8A3F/1B8D2/GC2H4F3/5I4E2/1JK3HI4L/2M7N2/2O3P3Q1Q/4J1K6/1MO1P6L1/4GN7",
+          "solution": "BBBBBBCCCCCCA/BCCCCBCAAAACA/BCDDCCCAEEAAA/BCCDDDDAAEEEF/BBCJJJDDDDDEF/GCCJHJJJJFEEF/GJJJHIIIJFEFF/GJKKHHHIJFFFL/GMMKKKKKJNNLL/GMOPPPPKJNQLQ/GMOPJJKKJNQLQ/GMOPPJJJJNQLQ/GGGGGNNNNNQQQ"
+        },
+        {
+          "id": "13",
+          "board": "NL1:A12/9B1C1/1BD4E4F/4GE7/7A3F1/4H6D1/5I4JK1/2I1LM1K1JM2/13/1G3N1N5/10OL1/1P5O5/1H3P5C1",
+          "solution": "ABBBBBBBBBFFF/ABDDDDDDDBFCF/ABDAAAAEDDFCF/AAAAGEAEEDFCC/GGGGGEAAEDFFC/GHHHHEEEEDDDC/GHIIIIMMMJJKC/GHILLMMKMJMKC/GHHLKKKKMMMKC/GGHLKNNNKKKKC/HHHLKKKKKOOLC/HPPLLLLOOOLLC/HHPPPPLLLLLCC"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A12/1B2C1D6/4E3F1F2/2G2C7/1A1B4HE3/13/I8J3/1K3L4HL1/4D4G3/2M7NOP/3KQ8/1IM1JQ2O2P1/12N",
+          "solution": "AAAGGGGGGGGGG/BBAGCCDLLLLLG/BAAGECDLFFFLG/BAGGECDLHHHLG/BABBEDDLHEHLG/BBBEEDLLEEHLG/IIIEDDLEEJHLG/KKIEDLLEJJHLG/KIIEDEEEJGGGG/KIMEEEJJJNNOP/KIMKQQJNNNOOP/KIMKJQJNOOOPP/KKKKJJJNNNNNN"
+        },
+        {
+          "id": "15",
+          "board": "NL1:A3B4C3/2D3E1E2F1/2BD9/2G8H1/4H8/3I6JK1/7L5/3G6M2/11LI/1N2O6M1/10P2/1ANOC2FJ1KP1/13",
+          "solution": "ABBBBCCCCCHHH/ABDDCCEEEHHFH/ABBDCHHHHHFFH/AGGCCHFFFFFHH/AGCCHHFLLLLLL/AGCIIIFLJJJKL/AGCCCIFLJKKKL/AGGGCIFFJKMLL/AAACCIIFJKMLI/NNACOOIFJKMMI/NAACCOIFJKPPI/NANOCOIFJKKPI/NNNOOOIIIIIII"
+        },
+        {
+          "id": "16",
+          "board": "NL1:12A/1BC1D5E2/13/CF1G1HB1G4/6H6/F5I6/3JK2L1EA2/3M9/2I5L4/MJ3K7/13/NO7D3/O6N5",
+          "solution": "CCCGGGGGGDDDA/CBCGDDDDGDEDA/CBBGBBBDGDEDA/CFBGBHBDGDEDA/FFBBBHHDDDEDA/FMMMMMIIIEEDA/MMJJKMMLIEADA/MJJMKKMLIIADA/MJIMMKMLLIADA/MJIIMKMIIIADA/NNNIMMMIAAADA/NONIIIIIADDDA/OONNNNNNAAAAA"
+        },
+        {
+          "id": "17",
+          "board": "NL1:1A2B9/A5C2D1EF1/11F2/1G3G6H1/4I9/J2C3I1K1K2/L4M1N2DH1E/8B4N/1O1O5M3P/3L5Q1R2/5S1Q1T4/9J3P/2T9UR/S8U4",
+          "solution": "AABBBGGGKKKEEE/ABBGGGCGKDKEFE/BBGGCCCGKDKFFE/BGGCCGGGKDKKHE/BBBCIIIIKDDKHE/JJBCBBBIKKDKHE/LJBBBMBNNNDHHE/LJJJJMBBBNNNNN/LOOOJMMMMMUUUP/LLLLJJJQQQURUP/SSSSSSJQTTURUP/SJJJJJJTTJURUP/SJTTTTTTJJURUR/SJJJJJJJJUURRR"
+        },
+        {
+          "id": "18",
+          "board": "NL1:A13/1B7C1DE1/3FG1HI1D4/4I5C3/1G8E2J/1F2K9/2A6L4/3M2N1KNH2O/1P12/3QR4Q4/5L8/8SP2OS/6R2B2J1/1M12",
+          "solution": "ABBBBBBBBBBBBB/ABGGGIIICCDDEB/AGGFGIHICDDEEB/AGFFIIHHCCCEBB/AGFLLLLHHHEEBJ/AFFLKKLLLHHBBJ/AAALLKKKLLHBJJ/MMMMLLNKKNHBJO/MPRRRLNNNNBBJO/MPRQRLQQQQBJJO/MPRQQLQPPPBJOO/MPRRQQQPSPBJOS/MPPRRRRPSBBJJS/MMPPPPPPSSSSSS"
+        },
+        {
+          "id": "19",
+          "board": "NL1:6A4BCD/6E1FG4/3H1A4F3/EI1J2G2B4/4K4L4/10M3/1J4M1N5/1O1N5I4/3C10/6P7/6Q7/2HO4L5/PK9RQ1/12RD",
+          "solution": "EEEEEEAAFFFBCD/EIIIIEEAFGFBCD/EIHHIAAAGGFBCD/EIHJIIGGGBBBCD/HHHJKIIIILLLCD/HJJJKNNNIIMLCD/HJKKKNMNNIMLCD/HOKNNNMMMIMLCD/HOKCCCCCMMMLCD/HOKKKPPCLLLLCD/HOOOKPQCLCCCCD/HHHOKPQCLCQQQD/PKKKKPQCCCQRQD/PPPPPPQQQQQRRD"
+        },
+        {
+          "id": "20",
+          "board": "NL1:5A8/1B7C2D1/3C4E5/2F5G2H2/2G1I1IJ6/9D1F2/6E2K4/3LM5N3/10K1HO/4P1PM6/1NB2J8/7AO2L2/14/Q7Q5",
+          "solution": "AAAAAAFFFFFHHH/ABFFFFFCCCFHDH/ABFCCCCCEEFHDH/ABFGGGGGGEFHDH/ABGGIIIJEEFFDH/ABJJJJJJEDDFDH/ABJLLLEEEKDDDH/ABJLMLLLLKNNHH/ABJJMMMMLKKNHO/ABBJPPPMLLLNNO/ANBJJJNNNNLLNO/ANNNNNNAONNLNO/AAAAAAAAOONNNO/QQQQQQQQQOOOOO"
+        },
+        {
+          "id": "21",
+          "board": "NL1:AB10C1/1A1D3E4F1/1G3H2IJ1D2/6BEJ5/14/2K5I1K2L/4M9/4N4OFC2/P5P7/4G1Q2O1RS1/9L2TS/2NM3T1U4/5Q3HU1R1/14",
+          "solution": "ABBDDDDDDDDDCC/AABDBBBEIIIDFC/GGBBBHBEIJIDFC/GHHHHHBEJJIFFC/GHKKKKKKIIIFCC/GHKHHHHKIKKFCL/GHHHMMHKKKFFCL/GGNNNMHHHOFCCL/PGNMMMPPHOLLLL/PGNMGQQPHOLRSS/PGNMGQPPHLLRTS/PGNMGQPTHUURTT/PGGGGQPTHHURRT/PPPPPPPTTTTTTT"
+        },
+        {
+          "id": "22",
+          "board": "NL1:A9B3/1C2D3E1E1FG/1A2HD8/1I12/4J3K2L2/IC7MB3/6N7/ON8G3/7K1L4/3P7Q2/2PH1M2R1R3/6FSTSQ3/2O2T8/J13",
+          "solution": "AAANNNNBBBBGGG/CCANDDNBEEEGFG/CAANHDNBBBBGFF/CIINHHNMMMBGGF/CCINJHNMKMBLGF/ICINJHNMKMBLGF/IIINJHNMKLLLGF/ONNNJHMMKLGGGF/OJJJJHMKKLSSSF/OJPPHHMSSSSQSF/OJPHHMMSRRRQSF/OJJJFFFSTSQQSF/OOOJFTTTTSSSSF/JJJJFFFFFFFFFF"
+        },
+        {
+          "id": "23",
+          "board": "NL1:AB6C1D3/4E3D3C1/6EB6/1F8A1GH/3F10/11I1J/K1K7L3/G5H5M1/2MN10/7O6/3P3Q2R2O/3I3R6/1NPL4Q2J2/14",
+          "solution": "ABBBBBBBCCDDDD/AAAAEEEBDCCCCD/GGGAAAEBDDDDDD/GFGGGAAAAAAGGH/GFFFGGGGGGGGHH/GGGGIIIIIIIIHJ/KKKGILLLLLLHHJ/GGGGILHHHHHHMJ/MMMNILMMMMMMMJ/MNNNILMOOOOOJJ/MNPPILMQQRROJO/MNPIILMRQROOJO/MNPLLLMRQROJJO/MMMMMMMRRROOOO"
+        },
+        {
+          "id": "24",
+          "board": "NL1:A13/1B10CD/1A5E1B2F1/1G3H8/5I1EJF4/9KL1C1/14/1DJ1M2N1N4/9LO1O1/2K1M2I6/6P3Q1QR/8P1G1S1/T4H6R1/2T10S",
+          "solution": "ABBBBBBBBBDDDD/ABDDDDDDDBDCCD/AADJJJJEDBDCFF/GGDJHHJEDDDCCF/GDDJHIJEJFFFCF/GDJJHIJJJKLFCF/GDJHHIKKKKLFFF/GDJHMIKNNNLLLL/GHHHMIKKKLOOOL/GHKKMIIIKLLLLL/GHHKKKPPKKQQQR/GGHHHKKPPKGSSR/TGGGHHKKKKGSRR/TTTGGGGGGGGSSS"
+        },
+        {
+          "id": "25",
+          "board": "NL1:A8BC3/7D4B1/3EFAG1GH4/2I6J2K1/F4ID7/3H7L2/9L1M2/5N8/3J5K1O2/2N8C2/14/3E2O3P3/12Q1/MQ7P4",
+          "solution": "AAAAAAGGGBCCCC/FFFFFAGDGBBBBC/FEEEFAGDGHHCCC/FEIIIIDDJJHCKK/FEJJJIDJJHHCCK/EEJHJJJJHHLLCK/EJJHHHHHHLLMCK/EJNNNNMMMMMMCK/EJNJMMMKKKOOCK/EJNJMKKKOOOCCK/EJJJMKOOOKKKKK/EEEEMKOKKKPPPP/MMMMMKKKQQQQQP/MQQQQQQQQPPPPP"
+        },
+        {
+          "id": "26",
+          "board": "NL1:14/1AB11/3CD3C2E2/4F2E2DF2/2AB3G1H4/5I7J/1K4L4M2/1N1O1LI5JM/4NG3HP2P/1O12/6QR1R4/4S6T2/1T10S1/1QK11",
+          "solution": "CCCCDDDDDDDDDD/CABCDFFFFFFFFD/CABCDFCCCEEEFD/CABBFFCEEEDFFD/CAABCCCGGHDDDD/CCCCCIIIGHJJJJ/KKNNNLLIGHJMMM/KNNONLIIGHJJJM/KOOONGGGGHPPPP/KOKKKKKKKKKKKK/KKKQQQQRRRSSSK/QQQQSSSSSSSTSK/QTTTTTTTTTTTSK/QQKKKKKKKKKKKK"
+        },
+        {
+          "id": "27",
+          "board": "NL1:9A4/1BC4D5A/4EF3G1H2/1I10J1/1GI11/B8K1D2/1L12/1M1N10/L6F2H3/5EJ7/N4O1C1P3K/OMQ6R4/1Q3P2R3ST/11T1S",
+          "solution": "GGGGGGGGGAAAAA/GBCCCCCDGGKKKA/GBBBEFCDDGKHKK/GIIBEFCCDKKHJK/GGIBEFFCDKHHJK/BBBBEEFCDKHDJK/LLMMMEFCDDHDJK/LMMNMEFCCDHDJK/LNNNMEFFCDHDJK/NNMMMEJCCDDDJK/NMMOOOJCPPJJJK/OMQOJJJPPRJTTT/OQQOJPPPRRJTST/OOOOJJJJJJJTSS"
+        },
+        {
+          "id": "28",
+          "board": "NL1:A13/B1B2C3CD1E1/F11G1/HAF11/10I3/6EJK3L1/1M2D1K2J2N1/11GO1/5H1NO5/5L8/3I10/7P1M4/9Q1RSP/7Q2S2R",
+          "solution": "AAAALLLLLLLLLL/BBBALCCCCCDEEL/FFFALDDDDDDEGL/HAFALDEEEEEEGL/HAAALDEJJJIGGL/HHHLLDEJKJIGLL/MMHLDDKKKJIGNN/MHHLIIIIIIIGON/MHLLIHHNOOOOON/MHLIILHNNNNNNN/MHLILLHPPPPPPP/MHLLLHHPMMSSSP/MHHHHHMMMQSRSP/MMMMMMMQQQSRRR"
+        },
+        {
+          "id": "29",
+          "board": "NL1:A13/2B7CD2/6E7/1F1F3G5H/3B5I1G2/JAH11/2KL5MN3/1K1J4I1ON2/3L1C8/4PQ1M2D3/1R2Q3O5/11ES1/1TP2U7U/TR11S",
+          "solution": "AFFFHHHHHHHHHH/AFBFHCCCCCCDDH/AFBFHCEGGGGGDH/AFBFHCEGOOOGDH/AABBHCEOOIOGDD/JAHHHCEOIIOOOD/JKKLLCEOIMNNOD/JKJJLCEOIMONOD/JJJLLCEOOMOOOD/PPPPPQEMOMDDDD/PRRRQQEMOMUUUU/PPPREEEMMMUESU/TTPREUUUUUUESU/TRRREEEEEEEESS"
+        },
+        {
+          "id": "30",
+          "board": "NL1:14/3A4B3C1/3DEF4G3/9C1H2/3F10/5I4E3/2J1I8K/5DL4M2/1H1A4L5/N2O10/4PQJ7/3Q2P7/1O6MGB3/6N3K3",
+          "solution": "HHHHHHHHBBBBBB/HAAAEEEHBCCCCB/HADDEFEHHCGGGB/HADFFFEEHCHHGB/HADFDDDEHHHGGB/HADDDIDEEEEGBB/HAJJIIDDDDGGBK/HAAJJDLLLDGMBK/HHAAJDDDLDGMBK/NOOOJJJDDDGMBK/NOPPPQJGGGGMBK/NOPQQQPGMMMMBK/NOPPPPPGMGBBBK/NNNNNNNGGGKKKK"
+        },
+        {
+          "id": "31",
+          "board": "NL1:8A5/1B8C1D1/2E2F1F2G3/6H7/2AIJ3K5/2I1B9/8C3L1/8K3M1/N1H11/4O1P2J4/9M2L1/5EP7/1O1Q6G1N1/5Q6D1",
+          "solution": "EEEAAAAAAJJJJJ/EBEAJJJJJJCCDJ/EBEAJFFFGGGCDJ/EBAAJHHGGCCCDJ/EBAIJHGGKCDDDJ/EBIIBHGKKCDJJJ/EBBBBHGKCCDJLL/EEHHHHGKKDDJML/NEHEEEGGDDJJML/NEEEOEPGDJJMML/NOOOOEPGDMMMLL/NONNNEPGDDDDDD/NONQNNNGGGGNND/NNNQQQNNNNNNDD"
+        },
+        {
+          "id": "32",
+          "board": "NL1:3A8BC/9D1E2/6F2G2CH/8H1DE2/4I3F4J/3KG1KJ6/13L/3M2N2OP3/8Q5/10O3/5R2I2PQL/3N4S3M1/10S1R1/A6B6",
+          "solution": "AAAABBBBBBBBBC/ABBBBGGGGDDECC/ABGGGGFFGGDECH/ABGKKKKFHHDEHH/ABGKIIKFFHHHHJ/ABGKGIKJJJJJJJ/ABGGGIIIQQQQQL/ABMMNNNIQOPPQL/ABMNNIIIQOOPQL/ABMNIIRRRROPQL/ABMNIRRIIRRPQL/ABMNIIIISSRRMM/ABMMMMMMMSSRRM/ABBBBBBBMMMMMM"
+        }
+      ]
+    },
+    {
+      "id": "numberlink-marathon",
+      "title": "Marathon",
+      "description": "Fifteen by fifteen boards: the largest in the collection.",
+      "difficulty": "Master",
+      "puzzles": [
+        {
+          "id": "01",
+          "board": "NL1:A4B2C5D/E5E5F2/G1G8H3/9H1FD2/I1J2A9/J11BK1/3L11/1M1MN2N2O2O1/3PQR9/1P3I7KC/1Q9S3/4R3T4U1/8S2VW2/1V5U4TW1/5L9",
+          "solution": "AAAAABBBCHHHHHD/EEEEAAEBCHFFFHD/GGGEEAEBCHFHHHD/IIIIEAEBCHFFDDD/IJJIEAEBCCCCCCC/JJIIEEEBBBBBBKC/IIILLLLLLKKKKKC/IMMMNNNNLKOOOOC/IPPPQRRLLKKKKKC/IPQQQIRLTTTTTKC/IQQIIIRLTSSSTTT/IIIIRRRLTSUUUUT/LLLLLLLLSSUVWWT/LVVVVVVUUUUVTWT/LLLLLLVVVVVVTTT"
+        },
+        {
+          "id": "02",
+          "board": "NL1:10AB2C/1DE1F5C1G2/2D6G2B2/1H3H9/2I5J6/IE4K1FJ5/6L4MN2/2K2L5N1M1/6O2P2O2/2Q1R3Q1S4/2A2R6T2/1P8U4/1V6WU1TS2/7V2W4/15",
+          "solution": "EEEAAAAAAAABBBC/EDEAFFFFCCCGGBC/EDDAAAAFCGGGBBC/EHHHHHAFCCCCCCC/EEIAAAAFJJOOOOO/IEIAKKKFFJOMMMO/IIIAKLLOOOOMNMO/KKKAKLOOKKKNNMO/KAAAKKOKKPKKOOO/KAQQRKKKQPSKKKK/KAAQRRQQQPSSTTK/KPPQQQQPPPUSSTK/KVPPPPPPWUUTSTK/KVVVVVVVWWWTTTK/KKKKKKKKKKKKKKK"
+        },
+        {
+          "id": "03",
+          "board": "NL1:14A/1B2C1D1E1EF1GH/4A1C1G6/8D1I4/3J1K9/3L7F3/I14/JB3M1N5O1/5P3MOQ1R1/1N7P1S3/1L4S8/3K6T1URH/UV3T1Q7/13V1/15",
+          "solution": "IIIAAAAAAAAAAAA/IBIACCDDEEEFFGH/IBIAACCDGGGGFGH/IBIIIIIDDIIGFGH/IBJJKKIIIIGGFGH/IBJLKMMMMMGFFGH/IBJLKMPPPMGGGGH/JBJLKMPNPMOOOOH/JJJLKPPNPMOQQRH/NNLLKNNNPPSSQRH/NLLKKNSSSSSQQRH/NNNKNNTTTTTQURH/UVNNNTTQQQQQUUU/UVVVVVVVVVVVVVU/UUUUUUUUUUUUUUU"
+        },
+        {
+          "id": "04",
+          "board": "NL1:3A9BC/1D6E1F2C1/5G4E4/HI5JAFK3B/4LG9/1D5M7/8NK2MJ1/3O1HP2L1Q3/2RS1I2N3T2/2S1P6TQ2/6OU7/3R11/VW5V2W1XY1/7XU3Y2/15",
+          "solution": "HHHAAAAAEEEEBBC/HDHHLLLAEFFEBCC/HDDHLGLAAFEEBBB/HIDHLGLJAFKKKKB/IIDHLGLJJJJJJKK/IDDHHHLMMMMMJJK/IIIIIHLLNKKMMJK/OOOOIHPLNLKQQQK/ORRSIIPLNLKTTQK/ORSSPPPLLLKTQQK/ORRROOOUUUKKKKK/OOOROWWWWUUUXXX/VWOOOWVVWWWUXYX/VWWWWWVXUUUUYYX/VVVVVVVXXXXXXXX"
+        },
+        {
+          "id": "05",
+          "board": "NL1:AB8C3C/1D1E1F2E4G1/6B6F1/D1A7H1IH1/15/7J7/1G1KL10/5I4M1N2/O2K1L5PQ2/8R4N1/10S2Q1/4T4M2U2/4VUP5R2/1JS2V9/2O2T9",
+          "solution": "ABBBBBBFFFCCCCC/ADDEEFBFEFFFFGG/AADDEFBFEIIIFFG/DAADEFFFEIHIIHG/DDDDEEEEEIHHHHG/JJJJJJJJIIGGGGG/JGGKLIIIIGGPPPP/JJGKLIGGGGMPNNP/OJGKLLGSSSMPQNP/OJGGGGGSRSMMQNP/OJSSSSSSRSSMQQP/OJSTTUUURMMMUUP/OJSTVUPURRRRRUP/OJSTVVPUUUUUUUP/OOOTTTPPPPPPPPP"
+        },
+        {
+          "id": "06",
+          "board": "NL1:AB2C7D2/6E5F2/C1AB6E4/G5H1I1HJ3/2KLM8F1/2L6NM2O1/8K1N4/1P13/2Q2R2S2I3/2T1U7P2/12O2/3TR2UQ3D2/7J6V/5G4S2W1/X7X4VW",
+          "solution": "ABBBCIIIIIIIDDD/AAABCIEEEEEIFFD/CCABCIHHHHEIIFD/GCCCCIHIIHHJIFD/GKKLMIIIMMMJIFD/GKLLMMMMMNMJIOD/GKKKKKKKKNNJIOD/GPQQQQQJJJJJIOD/GPQRRRQJSSSIIOD/GPTRUUQJJJSPPOD/GPTRRUQQQJSPOOD/GPTTRUUUQJSPDDD/GPPPPPPJJJSPVVV/GGGGGGPPPPSPVWW/XXXXXXXXXPPPVVW"
+        },
+        {
+          "id": "07",
+          "board": "NL1:15/1AB1CD2E2F1F1/12G2/2B2HCI3JK2/3L5K1I3/1M1A2D1E6/9NO1PG1/1Q1RS5J4/7R7/11T3/4Q1M6P1/U2V1S9/H2L8T2/6UV4O2/10N4",
+          "solution": "LLLLCCCIIIJJJJJ/LABLCDCIEIJFFFJ/LABLDDCIEIJJGGJ/LABLDHCIEIIJKGJ/LAALDHHHEKIIKGJ/LMAADDDHEKKKKGJ/LMMRRRRHHNOOPGJ/LQMRSSRRHNJOPPJ/LQMMMSSRHNJOOPJ/LQQQMMSSHNJTOPJ/LLLQQMMSHNJTOPJ/UULVVSSSHNJTOOJ/HULLVVVVHNJTTOJ/HUUUUUUVHNJJOOJ/HHHHHHHHHNNJJJJ"
+        },
+        {
+          "id": "08",
+          "board": "NL1:4A9B/1CA1D2E7/7B2FG3/2H4I3J1G1/7E7/1C1K1H2L3FM1/6I1N4J1/2O3P4Q3/3R5S2N2/11Q3/15/4P5MTUS1/2V1W2L5U1/2W1O3K4T1/D3VR9",
+          "solution": "DDDDAABBBBBBBBB/DCADDABEEJJJJJJ/DCAAAABBEJFGGGJ/DCHHHHIIEJFJJGJ/DCPPPHIEEJFFJJJ/DCPKPHILLJJFFMM/DPPKPPILNNJJJJM/DPOKKPPLLNNQQQM/DPORKKKKLSNNNQM/DPORRRRKLSSQQQM/DPOOOORKLLSSSSM/DPPPPORKKLMTUSM/DVVWWORLKLMTUUM/DVWWOORLKLMTTTM/DVVVVRRLLLMMMMM"
+        },
+        {
+          "id": "09",
+          "board": "NL1:A13B/C2DE1F4GH2/6I1J6/12K2/C1A2L2I1GF3/7BJ3K2/2M2N9/E1O1M8L1/3D1PQ3R1Q2/1O8N4/12R2/S2S1T1P7/2UVW4X5/1V2U1WHY4XY/7T7",
+          "solution": "AAEEEBBBBBBBBBB/CAEDEBFFFFFGHHH/CAEDDBIIJJFGGGH/CAEEDBBIIJFFKGH/CAAEDLBBIJGFKGH/EEEEDLLBJJGGKGH/EMMDDNLLLLLGGGH/EMODMNNNNNLLLLH/MMODMPQQQNRRQQH/MOOMMPPPQNNRRQH/MMMMWWWPQQQQRQH/SSSSWTWPHHHQQQH/UUUVWTWHHXHHHHH/UVVVUTWHYXXXXXY/UUUUUTTTYYYYYYY"
+        },
+        {
+          "id": "10",
+          "board": "NL1:5A9/8B3C2/1DE1F5C1A2/8G6/1EH6G3I1/2I12/4J7D2/3K11/1K4LM7/3N6OPB2/7L6Q/1RNS1R4O1QPM/1HT2U4F4/3V1SU2W3W1/TV2J10",
+          "solution": "IIIIIAAABBBBBBB/IDDDIIIABAAACCB/IDEDFFIAAACAACB/IEEDDFIIGGCCCCB/IEHHDFFIIGIIIIB/IIIHDDFFIIIFFFB/HHHHJDDFFFFFDFB/HKKKJJDDDDDDDFB/HKRRRJLMMFFFFFB/HRRNRJLLMFOPBBB/HRNNRJJLMFOPQQQ/HRNSRRJJMFOPQPM/HHTSSUUJMFFPPPM/TTTVSSUJMWWWWWM/TVVVJJJJMMMMMMM"
+        },
+        {
+          "id": "11",
+          "board": "NL1:6AB1C5/1D2E4FG2H1/I1I7HG3/J1D2E1A1F4K/4L4M2N2/1O6BO5/3P9K1/4Q4R5/P5J6N1/Q1STU5C4/S3T10/3U3RV6/1L1W3V4XY1/5M9/12YXW",
+          "solution": "IIIOOOABBCCCCCC/IDIOEOAABFGGHHC/IDIOEOOABFHGHCC/JDDOEEOABFHHHCK/JOOOLLOOBMMNNCK/JOJJJLLOBOMNCCK/JJJPJJLOOOMNCKK/PPPPQJLLRRMNCCC/PQQQQJJLRMMNNNC/QQSTUULLRMCCCCC/SSSTTULRRMWWWWW/WWWUUULRVMWYYYW/WLWWLLLVVMWYXYW/WLLLLMMMMMWYXXW/WWWWWWWWWWWYYXW"
+        },
+        {
+          "id": "12",
+          "board": "NL1:3A11/1B3C7D1/1E1C2BF1GH1I2/3ED5IH2J/K7A6/9GL1L2/7MK6/7N5O1/1P3QP2R1S1T1/3U7O3/1QM8RS2/10V4/W4FV2NT1XU1/1Y6X6/YW12J",
+          "solution": "AAAABBBFFFFFFFF/ABBBBCBFDDDDDDF/AEECCCBFDGHHIFF/AAEEDDDDDGIHIFJ/KAAAAAAAAGIIIFJ/KKKKKKKKKGLLLFJ/MMMMMMMMKFFFFFJ/MPPPPPPNFFOOOOJ/MPQQQQPNFROSSTJ/MQQUNNNNFROOSTJ/MQMUNFFFFRRRSTJ/MMMUNFVVVVVTTTJ/WWWUNFVNNNTTXUJ/YYWUNNNNXXXXXUJ/YWWUUUUUUUUUUUJ"
+        },
+        {
+          "id": "13",
+          "board": "NL1:2AB4C6/1B3D3E3F1/5E7G1/5H2I3J2/1K1A5L5/6M2N1F3/7L7/H2O4I2P3/K1Q5N2R3/9MG2J1/1ST5U1P4/2V2Q6W1C/2S2T3R1X3/1V2Y1DU2X2W1/4O3Y6",
+          "solution": "AAABEEEECCCCCCC/ABBBEDDEEEFFFFC/AAAAEEDLLLFGGGC/HHHAHHDLILFGJJC/HKHAHDDLILFGGJC/HKHHHDMLINFFGJC/HKQQQDMLINGGGJC/HKQOQDMMINGPPJC/KKQOQDDMNNGRPJC/OOOOQQDMMMGRPJC/OSTTTQDUUPPRPPC/OSVVTQDUPPRRWPC/OSSVTTDUPRRXWPP/OVVVYYDUPPXXWWP/OOOOOYYYYPPPPPP"
+        },
+        {
+          "id": "14",
+          "board": "NL1:A5A4B3/C2C2D2E1F3/9G1H1F1/2E6I3B1/2G10J1/6K2L3H1/1M4N2N5/3D5O3I1/3P7Q1J1/6K2R3S1/1TPU4V4W1/8X2Q3/2MUY2L7/1Y3T1RX1V1W2/10O1S2",
+          "solution": "AAAAAAAGGGGBBBB/CCCCDDDGEEGFFFB/DDDDDGGGEGGHHFB/DEEGGGEEEIIIHBB/DEGGEEENNNNIHJJ/DEEEEKKNLLNIHHJ/DMMMMKNNLNNIIIJ/DDDDMKKLLOOOOIJ/PPPPMMKLVVVQOJJ/PTTTTMKLVRVQOSS/PTPUTMMLVRVQOWS/PPPUTTMLXRVQOWS/MMMUYTMLXRVOOWS/MYYYYTMRXRVOWWS/MMMMMMMRRROOSSS"
+        },
+        {
+          "id": "15",
+          "board": "NL1:5A9/1B5CD6/3E5FG1HDG/4I2C6H/15/4FI7J1/K8L1LM2/1N2A5O2M1/K5E4J3/N5P3Q1Q2/4R1S1OT5/12UV1/2W3X5Y2/3WR2PX1TY1V1/1B4SU7",
+          "solution": "AAAAAAFFFFGGGGG/ABFFFFFCDFGDDDG/ABFEEEECDFGDHDG/ABFFIIECDDDDHHH/ABBFFIETTTTTTTT/AABBFIETJJJJJJT/KAABBBETJLLLMMT/KNAAABETJJOOOMT/KNBBBBETTJJJOOT/NNBSSSPPTTQQQOT/BBBSRSSPOTOOOOT/BSSSRPPPOOOUUVT/BSWWRPXXXUUUYVT/BSSWRPPPXUTYYVT/BBSSSSSUUUTTTTT"
+        },
+        {
+          "id": "16",
+          "board": "NL1:A2B11/CD3D7EB/2A4F1G5/8G3HI1/2J2F4K1I2/L2E11/5M2NM5/3ON4PQ2HJ/7Q2P4/R3S8T1/2S6U3K1/5C3VTO3/2W12/12UV1/R4LW8",
+          "solution": "AAABBBBBBBBBBBB/CDADDDEEEEEEEEB/CDADEEEFGGJJJJJ/CDDDEFFFGJJHHIJ/CCJEEFJJJJKHIIJ/LCJEJJJMMMKHHHJ/LCJJJMMMNMKKKHJ/LCCONNNNNPQQKHJ/LLCOOOOQQPPQKKK/RLCCSSOOQQQQTTK/RLSCCSSOUUTTTKK/RLSSCCSOUVTOOOO/RLWSSSSOUVVVVVO/RLWWWWWOUUUUUVO/RLLLLLWOOOOOOOO"
+        },
+        {
+          "id": "17",
+          "board": "NL1:AB9C2D/3E4FG1HDC1/1B5E2I4/15/1J6H1K2L1/5F5K3/2I6M5/3NO4P5/3L2P2M5/15/2N2O6QR1/2A12/1J3S1G5S1/TU1T1U3V1R3/4V8Q1",
+          "solution": "ABIIIIIIIIICCCD/ABIEEFFFFGIHDCD/ABIIEFEEGGIHDDD/AAAIEFEGGHHHGGG/JJAIEFEGHHKKGLG/JAAIEFEGGGGKGLG/JAIIEEEMMMGGGLG/JANNOMMMPPLLLLG/JANLOMPPPMLGGGG/JANLOMMMMMLGQQQ/JANLOOLLLLLGQRQ/JAALLLLGGGGGRRQ/JJUUUSSGSSSRRSQ/TUUTUUSSSVSRSSQ/TTTTVVVVVVSSSQQ"
+        },
+        {
+          "id": "18",
+          "board": "NL1:15/2AB3C5DE/5B1F1G2H2/3C9DH/14I/2J4K1L2MN1/4O2P7/1A11M1/4Q6R1SN/4F4L2I2/5T7U1/E9R4/2QTO6K1SV/1W1P2WV3G1U1/1J13",
+          "solution": "EEEEEEEEEEEEEEE/EAABCCCCKKKDDDE/EABBCBFFKGKDHHH/EABCCBFKKGKDDDH/EABBBBFKGGKIIII/EAJFFFFKGLKIMNN/EAJFOOOPGLKIMMN/EAJFFFOPGLKIIMN/EJJQQFOPGLKRISN/EJQQFFOPGLKRISS/EJQTTTOPGKKRUUS/EJQTOOOPGKRRUSS/JJQTOPPPGKKKUSV/JWWPPPWVGGGGUUV/JJWWWWWVVVVVVVV"
+        },
+        {
+          "id": "19",
+          "board": "NL1:15/1AB1C1D8/5E1F7/9G3F1/H9I2J1/1K5L7/2K1A6D3/1MC1N1O1O6/6BL4P2/2H2I3G2QP1/3M1R2SJ5/QT5R3SU2/2V2W4U4/1V2WN2E6/2T12",
+          "solution": "CCCCCEEEEEEEEEE/CABBCEDFFFFFFFE/CAABBEDFDDDDDFE/CCAABBDDDGGGDFE/HCCAABOOOIIGDJE/HKCCABOLOIGGDJE/HKKCABOLOIGDDJE/HMCCNBOLOIGJJJE/HMMMNBBLIIGJPPE/HHHMNIIIIGGJQPE/QQQMNRRRSJJJQQE/QTQQNNNRSSSSUQE/TTVQWWNQQQUUUQE/TVVQWNNQEQQQQQE/TTTQQQQQEEEEEEE"
+        },
+        {
+          "id": "20",
+          "board": "NL1:A12B1/CD5E5A1/3F1G9/3HF7I2/12H2/3J1K1L1G5/3I7EM2/5J2N1M2BN/3O1P2L6/10Q2R1/8O2S1T1/3U3S2Q4/1C2P3K4T1/D3U6R1V1/V14",
+          "solution": "AAAAAAAAAAAAABB/CDIIIIIEEEEEAAB/CDIFFGIIIIIEEEB/CDIHFGGGGGIIIEB/CDIHHHHHHGHHHEB/CDIJJKKLHGHEEEB/CDIIJJKLHHHEMBB/CDPPPJKLNNMMMBN/CDPOPPKLLNNNNNN/CDPOOOKSSSQQQRR/CDPPPOKSOSSSQTR/CDDUPOKSOOQQQTR/CCDUPOKKKOVVVTR/DDDUUOOOOOVRVVR/VVVVVVVVVVVRRRR"
+        },
+        {
+          "id": "21",
+          "board": "NL1:8AB5/1CDEF2B3G2H/2F12/10I2H1/2JK11/6L4M3/8N1AE3/1C5O7/5P9/QD4P4R3/1Q7O1MR2/K4ST8/5T3S1IL2/1U1U1V3V3GN/3J11",
+          "solution": "DDDEEEAAABHHHHH/DCDEFEABBBHGGGH/DCFFFEAAAAHHHGG/DCJJJEEEEAIIHHG/DCJKJNNNEAAIIIG/DCKKJNLNEEAMMIG/DCKJJNLNNEAEMIG/DCKJNNLOOEEEMIG/DDKJNPLLOOMMMIG/QDKJNPPLLOMRRIG/QQKJNSSSLOMMRIG/KKKJNSTSLLLIIIG/JJJJNTTSSSLILGG/JUUUNVVVVVLLLGN/JJJJNNNNNNNNNNN"
+        },
+        {
+          "id": "22",
+          "board": "NL1:15/1A2B10/2C1A2D4EF1/2B3G3HI1H1/4J3K2E3/4F1K8/L14/8JID4/4C1M5N2/10OP3/1Q1RG6S2O/6R2M5/2T1U4T5/Q2UV7NP1/L6V2S4",
+          "solution": "GGGGGGGDDDDDDDD/GAAABBGDFFFFFFD/GCCAABGDFIIIEFD/GCBBBBGFFIHIEHD/GCCJJFFFKIHEEHD/GGCJFFKKKIHHHHD/LGCJJJJJJIDDDDD/LGCCCVVVJIDOOOO/LGGGCVMVVVOONNO/LLLGGVMMMVOPPNO/QQLRGVVVMVVSPNO/QLLRRRRVMMVSPNN/QLTUUVVVTTVSPPN/QLTUVVTTTVVSNPN/LLTTTTTVVVSSNNN"
+        },
+        {
+          "id": "23",
+          "board": "NL1:4A2B2CD3/1EF9GH1/15/5I5C3/1J6K6/1K2E8H1/J2LM2F7/L9A2DN/4O10/O5P2M2G1Q/5R9/5S9/2Q5P3B2/1R2T1S1TU2IN1/6U8",
+          "solution": "KKKKAAABBBCDDDD/KEFKKKAAABCCGHD/KEFFFKKKABBCGHD/KEEEFIIKAABCGHD/KJJEFFIKKABBGHD/KKJEEFIIIAABGHD/JJJLMFFFIIABGDD/LLLLMMMMMIABGDN/OOOOOQQQMIIBGNN/OQQQQQPQMMIBGNQ/QQRRRRPQQQIBBNQ/QRRSSSPPPQIIBNQ/QRQSTTTTPQQIBNQ/QRQSTSSTTUQIINQ/QQQSSSUUUUQQQQQ"
+        },
+        {
+          "id": "24",
+          "board": "NL1:5AB8/4C3D6/2E2BA1F3G1D/4H3G2IJ2/2H4KI4J1/2L2M7N1/2O2KPM7/10Q4/4O10/9RQS3/1T1TL3U3P2/3S5RV2N1/2E4W3V1X1/6X2WU4/7C6F",
+          "solution": "CCCCCABBDDDDDDD/CHHHCAABDFFFFFD/CHEHHBABFFGGGFD/CHEEHBBBGGGIJFF/CHHEKKKKIIIIJJF/CLLEKMMMPPPPPNF/CLOEKKPMPSSSPNF/CLOEEEPPPSQSPNF/CLOOOESSSSQSPNF/CLLLLESRRRQSPNF/CTTTLESRUUUUPNF/CSSSEESRRRVUUNF/CSEEESSWWWVVUXF/CSSSSSXXXWUUUXF/CCCCCCCCXXXXXXF"
+        },
+        {
+          "id": "25",
+          "board": "NL1:12A2/1B11C1/8DE1FG2/1H2IE4B1F2/15/1GJ3K8/1J4A2L3C1/2H8M3/N1I1O2KP6/2O1D8Q1/11R3/8R1P4/6S3M4/1TN1UV1Q5L1/TS3U8V",
+          "solution": "GGGGGGGGGGGGAAA/GBBBBBBBBBBGGCA/GGGDDDDDDEBFGCA/HHGDIEEEEEBFFCA/HGGDIAAAAAAAACA/HGJDIAKKMMMMACA/HJJDIAAKMLLMACA/HHHDIIIKMMLMAAA/NIIDOOIKPMLLLLL/NIODDOIPPMMMMQL/NIOOOOIPRRRRMQL/NIIIIIIPRPPMMQL/NNNSSSSPPPMMQQL/TTNSUVVQQQQQQLL/TSSSUUVVVVVVVVV"
+        },
+        {
+          "id": "26",
+          "board": "NL1:A1A3B5B1C/4D1E4F1CG/HI13/I6JK3E2/1L2MN8G/6M1J6/4K8O1/1D1P10Q/5L4F4/R2P2S8/6H2T5/9N1T3/1U3Q1V7/R2V3S7/U9O4",
+          "solution": "AAAHHHBBBBBBBCC/HHHHDHEEEEEFFCG/HIDDDHNNNNEEFFG/IIDHHHNJKNNEEFG/LLDHMNNJKKNFFFG/LDDHMMMJJKNFQQQ/LDHHKKKKKKNFQOQ/LDHPSSSSSNNFQOQ/LLHPSLLLSNFFQOO/RLHPSSSLSNNNQQO/RLHHHHHLSTTNNQO/RLLLLLLLSNTTNQO/RUQQQQVVSNNNNQO/RUQVVVVSSQQQQQO/UUQQQQQQQQOOOOO"
+        },
+        {
+          "id": "27",
+          "board": "NL1:A4B9/3C1D9/1ECF8ED1/4G4G3H1/2I4H7/12J2/AK1JL10/K5M1M1N1O2/15/1L1P1F1N7/P9Q3R/ST1S4U6/4T2V3Q2B/O9I2R1/7VU6",
+          "solution": "AEEEEBBBBBBBBBB/AECCEDDDDDDDDDB/AECFEEEEEEEEEDB/AFFFGGGGGGHHHHB/AFIIIIIHHHHIIIB/AFFJJJIIIIIIJIB/AKFJLJJJJJJJJIB/KKFFLLMMMNNOOIB/PPPFFLLNNNOOIIB/PLPPFFLNOOOIIBB/PLLLLLLOOQQIBBR/STTSSSOOUQIIBRR/SSTTTSOVUQIQBRB/OSSSSSOVUQIQBRB/OOOOOOOVUQQQBBB"
+        },
+        {
+          "id": "28",
+          "board": "NL1:7AB4CD/2E4F2G2D1/2H2F3I5/4A10/1E6J6/1KHL3M3C3/7N4OI1/2B4M1J5/2L4NP3Q2/1R8S2P1/12O2/T1RK2U1G6/12S2/1V1VT10/7Q1U5",
+          "solution": "BBBBAAAABIIICCD/BEEBAFFFBIGICDD/BEHBAFBBBIGICCC/BEHBABBGGGGIIIC/BEHBBBGGJJOOOIC/BKHLLGGMMJOCOIC/BKKKLGNNMJOCOIC/BBBKLGNMMJOCCCC/LLLKLGNNPPOOQQQ/LRRKLGGGGPSOOPQ/LLRKLQQQGPSSOPQ/TLRKLQUQGPPSSPQ/TLLLLQUQQQPPSPQ/TVVVTQUUUQQPPPQ/TTTTTQQQUUQQQQQ"
+        },
+        {
+          "id": "29",
+          "board": "NL1:3AB5B4/1C11D1/6EFA4G1/4H3I2J3/K8G5/4K7LD1/15/C1MN1H1O5O1/P2Q3N5R1/2M1S5IL3/7S7/1P9T3/3UVUV4JT2/1Q8FR3/2E12",
+          "solution": "KKKABBBBBBBGGGG/KCKAAAAAAGGGDDG/KCKEEEEFAGDDDGG/KCKEHHHFIGDJJJJ/KCKEEEHFIGDDDDJ/CCKKKEHFIIILLDJ/CEEEEEHFFFILJJJ/CEMNNHHOOFILJOO/PEMQNNNNOFILJRO/PEMQSSSSOFILJRO/PEEQQQQSOFJJJRO/PPEUUUQQOFJTTRO/EEEUVUVQOFJJTRO/EQQQVVVQOFFRRRO/EEEQQQQQOOOOOOO"
+        },
+        {
+          "id": "30",
+          "board": "NL1:11A3/7B5C1/2D2D3E2F2/2C7F4/3G3H5H1/1A1I1G1I7/1J4K2L4M/B3N4K5/1OP3Q1L3MR1/1J2P5S2E1/13S1/1TU4N7/6U2Q2V2/4O8RV/W4W8T",
+          "solution": "BBBBBBBBAAAAEEE/BAAAAAABAEEEECE/BADDDDAAAEFFFCE/BACCCCCCCCFCCCE/BAGGIIIHHCCCHHE/BAGIIGIIHHHHHEE/BJGGGGKKKLLEEEM/BJJJNNNNKKLEMMM/OOPJJJQNLLLEMRR/OJPPPJQNNNSEEER/OJJJJJQQQNSSSSR/OTUUUUUNQNNRRRR/OTTTTTUNQQNRVVV/OOOOOTTNNNNRRRV/WWWWWWTTTTTTTTT"
+        },
+        {
+          "id": "31",
+          "board": "NL1:A3B4B5/2C2D6EF1/5G9/6H6I1/1A4J5K2/1G2JC7I1/1H13/8E3L2/1M4N8/1D1O1N8P/1O5Q1P4K/15/RM1S1T4U4/1R1Q2UV4V2/W2WS2TF5L",
+          "solution": "AHHHBBBBBBPPPPP/AHCHHDDDDPPEEFP/AHCCHGGGDPEEFFP/AHHCHHHGDPEFFIP/AAHCJJJGDPEFKIP/GGHCJCGGDPEFKIP/GHHCCCGDDPEFKKP/GGGGGGGDEPEFLKP/MMDDDNNDEPEFLKP/MDDODNDDEPEFLKP/MOOODDDQEPEFLKK/MMQQQQQQEEEFLLL/RMQSSTUUUUUFFFL/RRQQSTUVVVVVVFL/WWWWSTTTFFFFFFL"
+        },
+        {
+          "id": "32",
+          "board": "NL1:8AB2C1D/6E3B1D1F/2GH2H1I6/1E2J7F2/2K1G3L1J4/6M3L2C1/15/4NO4A3K/3M3P3QR2/4N10/3RO5S4/1T5UP1V4/8W1UVS2/3I2WQ7/T14",
+          "solution": "IIIIIIIIABBCCDD/IEEEEEEIAABCDDF/IEGHHHHIIAACCCF/IEGGJJJJJJAAFCF/IKKGGRRRLJJAFCF/IKRRRRMRLLLAFCF/IKRMMMMRRRAAFFF/IKRMNOUUURAQQQK/IKRMNOUPURRQRQK/IKRRNOUPUURRRQK/IKKROOUPPUSSSQK/ITKKKKUUPUVVSQK/ITTTTKWWWUUVSQK/IIIITKWQQQQQQQK/TTTTTKKKKKKKKKK"
+        }
+      ]
+    }
+  ]
+}
