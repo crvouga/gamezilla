@@ -131,6 +131,11 @@ export function writeSchedule(
       schedule,
       Number(process.env['GITHUB_RUN_ID'] ?? 0)
     );
+    if (
+      process.env['VERIFY_DEPLOYMENT'] === 'true' &&
+      schedule.shards.length <= 1
+    )
+      appendFileSync(output, 'single_runner=+\n');
     appendFileSync(
       output,
       `shards=${matrix}\nconsumers=${schedule.consumers ? '+' : '-'}\n`

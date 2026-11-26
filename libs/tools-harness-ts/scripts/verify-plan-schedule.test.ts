@@ -14,6 +14,7 @@ import {
 } from './verify-plan-schedule';
 import type { VerifyTask } from './verify-shards';
 import { balanceShards, validateShardResult } from './verify-shards';
+import { singleRunnerStages } from './verify-single-runner';
 import { jobResults, summarize } from './verify-verdict';
 
 function task(
@@ -52,6 +53,41 @@ test('the schedule names only the shards with uncached work', () => {
     ...Array.from({ length: 30 }, (_, i) => i + 2),
     33,
   ]);
+});
+
+// regression: release-single-shard-runner-handoffs
+test('a one-shard release runs its prerequisites, six cache misses and final consumer on the planner', () => {
+  const misses = Array.from({ length: 6 }, (_, i) =>
+    task(`p${i}#test`, false, ['shared#build'])
+  );
+  const plan = balanceShards(
+    [
+      ...CACHED,
+      task('shared#build', false),
+      ...misses,
+      task(
+        'report#prepare',
+        false,
+        misses.map((miss) => miss.taskId)
+      ),
+    ],
+    6,
+    1000
+  );
+  const stages = singleRunnerStages(plan);
+  expect(stages).toEqual([6, 0, 7]);
+  expect(
+    stages.flatMap((i) => plan.shards[i]!.tasks.filter((item) => !item.hit))
+  ).toHaveLength(8);
+  expect(singleRunnerStages(balanceShards(CACHED, 6))).toEqual([6]);
+  expect(() =>
+    singleRunnerStages(
+      balanceShards(
+        misses.map((item) => ({ ...item, dependencies: [] })),
+        6
+      )
+    )
+  ).toThrow('Parallel shards');
 });
 
 test('a fan-in stage with uncached work is scheduled after its producers', () => {

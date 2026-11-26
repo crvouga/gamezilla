@@ -25,6 +25,7 @@ test('Verification transfers the immutable plan as a CI artifact rather than a m
   expect(Object.keys(jobs['verify-start']!.outputs ?? {})).toEqual([
     'shards',
     'consumers',
+    'single_runner',
   ]);
   const upload = jobs['verify-start']!.steps.find(
     (step) =>
