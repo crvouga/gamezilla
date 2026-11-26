@@ -43,3 +43,18 @@ full verification and both independent reviewer verdicts remain required.
 
 Immutable rounds, uploaded screenshots/videos, measurements and check outcomes
 belong to pull request #288, not this note.
+
+Penalty cards in the hand show their value before the player chooses. The
+card's accessible name includes the penalty points, alongside its rank and suit.
+A check marks each selected pass card, including when motion is reduced.
+The trick winner's seat carries the same accent as the labelled winning card.
+
+The table can be inspected while the hand stays fitted and live. Pinch on the
+felt, use a trackpad pinch, or choose Zoom table. Drag to pan while enlarged.
+Fit table or Escape restores the original view. Arrow keys pan when the
+navigation button has focus. A card can be tapped, activated by keyboard, or
+dragged into the felt. Releasing elsewhere, adding a finger, cancelling the
+pointer or pressing Escape cancels the pickup. Played cards settle at their
+owner's place. Reduced motion leaves the same card and winner cues visible.
+The winner's seat shows the points from this trick beside its deal and match
+totals. The board announces the captured points with its trick result.

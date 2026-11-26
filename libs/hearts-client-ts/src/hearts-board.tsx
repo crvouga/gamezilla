@@ -4,6 +4,7 @@ import {
   passDirection,
 } from '@libs/hearts-shared-ts/hearts-position';
 import { t } from '@lingui/core/macro';
+import { createHeartsInput } from '@pkgs/hearts-board-client-ts/input';
 import type { GamePlayerName } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
@@ -98,7 +99,8 @@ function boardCenter(
   return tableCenter(
     props,
     props.hand === null ? null : props.orientation,
-    nameOf
+    nameOf,
+    true
   );
 }
 
@@ -154,6 +156,11 @@ function handInstruction(
     : undefined;
 }
 
+function togglePassCard(cards: readonly string[], card: string) {
+  if (cards.includes(card)) return cards.filter((other) => other !== card);
+  return cards.length < 3 ? [...cards, card] : cards;
+}
+
 /**
  * The Hearts table: four seats around the trick, the viewer nearest, and
  * the viewer's own hand. While passing, three cards are chosen and passed
@@ -161,6 +168,7 @@ function handInstruction(
  * one they refuse says why. A watcher sees the table and no hand.
  */
 export function HeartsBoard(props: GameBoardProps): JSX.Element {
+  const input = createHeartsInput();
   // Memos, so a prop read again with the same value resets nothing.
   const position = createMemo(() => props.position);
   const commitment = createMemo(() => props.commitment);
@@ -181,35 +189,37 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
     return false;
   });
   const passing = () => decodeHearts(props.position)?.phase === 'pass';
-  const held = () => parseCards(props.hand ?? '') ?? [];
+  const held = createMemo(() => parseCards(props.hand ?? '') ?? []);
   // Only cards still held are ever chosen.
-  const chosen = () =>
-    selected().filter((card) => held().includes(card as never));
+  const chosen = createMemo(() =>
+    selected().filter((card) => held().includes(card as never))
+  );
   const choose = (card: string): void => {
     if (!props.interactive || sending()) return;
     if (!passing()) {
       props.onAction(card);
       return;
     }
-    setSelected((now) =>
-      now.includes(card)
-        ? now.filter((other) => other !== card)
-        : now.length < 3
-          ? [...now, card]
-          : now
-    );
+    setSelected((now) => togglePassCard(now, card));
   };
   const players = useSeatPlayers();
   const nameOf = (side: GameSide) => players?.nameOf(side) ?? null;
+  const seats = createMemo(() => tableSeats(props, players?.content));
+  const hand = createMemo(() =>
+    handCards(props, chosen()).map((card) =>
+      sending() ? { ...card, enabled: false } : card
+    )
+  );
   // A seated player whose cards are still on their way, told so rather
   // than shown an empty hand.
   const awaitingHand = () => props.interactive && props.hand === null;
   return (
     <CardTable
+      hearts={{ input, zoom: t`Zoom table`, fit: t`Fit table` }}
       label={t`Hearts table`}
       tableSummary={t`Players and scores`}
       testId={props.testId}
-      seats={tableSeats(props, players?.content)}
+      seats={seats()}
       center={boardCenter(props, sending(), awaitingHand(), nameOf)}
       // The game's turn line beside the table says the same sentence.
       centerSpokenOnly={!awaitingHand()}
@@ -219,10 +229,7 @@ export function HeartsBoard(props: GameBoardProps): JSX.Element {
           ? passShown(props, chosen(), recipientOf(props, players))
           : undefined
       }
-      hand={handCards(props, chosen()).map((card) =>
-        // A pass on its way locks the hand: the chosen cards stay lifted.
-        sending() ? { ...card, enabled: false } : card
-      )}
+      hand={hand()}
       handLabel={t`Your hand`}
       handInstruction={handInstruction(props, passing())}
       handWaiting={heartsWaiting(props, nameOf)}

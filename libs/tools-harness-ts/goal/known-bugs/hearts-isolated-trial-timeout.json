@@ -1,0 +1,4 @@
+{
+  "summary": "Five 390×900 Hearts timing trials at 4× CPU throttle in light and dark mode exceeded a shared 30-second deadline during legal card play.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/hearts-overhaul/isolated-performance/phone/integration.checks.ts"
+}

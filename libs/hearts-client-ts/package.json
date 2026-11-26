@@ -18,6 +18,7 @@
     "@libs/game-menu-client-ts": "workspace:*",
     "@libs/hearts-shared-ts": "workspace:*",
     "@lingui/core": "catalog:",
+    "@pkgs/hearts-board-client-ts": "workspace:*",
     "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/turn-game-shared-ts": "workspace:*",
     "@pkgs/ui-root-client-ts": "workspace:*",

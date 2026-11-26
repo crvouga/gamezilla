@@ -1,5 +1,6 @@
 import {
   type Card,
+  cardPoints,
   parseCards,
   suitOf,
 } from '@libs/hearts-shared-ts/hearts-cards';
@@ -70,6 +71,10 @@ function shownTrick(position: HeartsPosition) {
   return tricks.at(-1) ?? null;
 }
 
+function trickPoints(cards: readonly Card[]): number {
+  return cards.reduce((sum, card) => sum + cardPoints(card), 0);
+}
+
 /**
  * What a seat holds and has scored: its cards left, its score, and while
  * tricks are played the points it has taken this deal.
@@ -118,11 +123,16 @@ export function tableSeats(
     const index = trick === null ? -1 : (seat - trick.leader + 4) % 4;
     const played = trick?.cards[index];
     const name = heartsSeatName(side);
+    const facts = seatFacts(position, seat);
+    if (taker === seat && trick) {
+      const points = trickPoints(trick.cards);
+      facts.push(t`This trick +${points}`);
+    }
     return {
       position: place,
       // A player's own seat says so; a watcher has no seat of their own.
       name: offset === 0 && board.hand !== null ? t`${name} (you)` : name,
-      facts: seatFacts(position, seat),
+      facts,
       status: seatStatus(position, seat, board.committed),
       player: player?.(side),
       active:
@@ -223,7 +233,8 @@ export function heartsWaiting(
 export function tableCenter(
   board: Pick<GameBoardProps, 'position' | 'commitment' | 'committed'>,
   viewer: GameSide | null,
-  nameOf: GamePlayerName
+  nameOf: GamePlayerName,
+  boardDetail = false
 ): string {
   const position = decodeHearts(board.position);
   if (position === null) return '';
@@ -251,9 +262,17 @@ export function tableCenter(
     const named = cardName(winning);
     // The card's name inside the sentence: `the king of diamonds`.
     const card = `${named.charAt(0).toLocaleLowerCase()}${named.slice(1)}`;
-    return sideOfSeat(winner) === viewer
-      ? t`You took the trick with the ${card} and lead.`
-      : t`${taker} took the trick with the ${card} and leads.`;
+    const outcome =
+      sideOfSeat(winner) === viewer
+        ? t`You took the trick with the ${card} and lead.`
+        : t`${taker} took the trick with the ${card} and leads.`;
+    if (!boardDetail || !trick) return outcome;
+    const points = trickPoints(trick.cards);
+    const detail = plural(points, {
+      one: 'This trick added # deal point.',
+      other: 'This trick added # deal points.',
+    });
+    return `${outcome} ${detail}`;
   }
   const broken = heartsBroken(position) ? t`Hearts are broken.` : '';
   const turn =
@@ -281,28 +300,39 @@ export function handCards(
   const passed = parseCards(board.commitment ?? '') ?? [];
   const chosen = board.commitment === null ? selected : passed;
   const seat = seatOfSide(board.orientation);
+  const myTurn = position?.phase === 'play' && seatToPlay(position) === seat;
   const refusal = (card: Card): string | undefined => {
-    if (position?.phase !== 'play') return undefined;
+    if (!myTurn) return undefined;
     // Not this seat's turn: the hand waits as a whole (`heartsWaiting`),
     // no card is refused by a rule.
-    if (seatToPlay(position) !== seat) return undefined;
     const reason = cardRefusal(position, seat, held, card);
     return reason === null ? undefined : heartsRefusal(reason);
   };
-  return [...held]
-    .sort(
-      (a, b) =>
-        Number(refusal(a) !== undefined) - Number(refusal(b) !== undefined)
-    )
+  return held
     .map((card) => {
       const reason = refusal(card);
+      const points = cardPoints(card);
       return {
         ...tableCard(card),
+        points:
+          points > 0
+            ? {
+                mark: `+${points}`,
+                label: plural(points, {
+                  one: '# penalty point',
+                  other: '# penalty points',
+                }),
+              }
+            : undefined,
         enabled: passing
           ? board.interactive && board.commitment === null
           : board.interactive && reason === undefined,
         selected: passing ? chosen.includes(card) : null,
         refusal: reason,
       };
-    });
+    })
+    .sort(
+      (a, b) =>
+        Number(a.refusal !== undefined) - Number(b.refusal !== undefined)
+    );
 }

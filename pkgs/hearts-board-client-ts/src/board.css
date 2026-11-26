@@ -1,0 +1,88 @@
+/* An inset oval rail surrounds the four seats without consuming hand space. */
+[data-hearts-table] [data-table-felt] {
+  isolation: isolate;
+  background: var(--ui-color-game-hearts-canvas);
+  border-color: var(--ui-color-game-hearts-muted);
+}
+[data-hearts-table] [data-table-felt]::before {
+  content: "";
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  inset: var(--ui-space-1);
+  border-radius: 50%;
+  background: var(--ui-color-game-hearts-surface);
+  border: 1px solid var(--ui-color-game-hearts-muted);
+}
+[data-hearts-table] section[data-position] {
+  font-variant-numeric: tabular-nums;
+}
+[data-hearts-table] section[data-winner="true"] {
+  box-shadow: inset 0 calc(-1 * var(--ui-space-1))
+    var(--ui-color-game-hearts-accent);
+}
+[data-hearts-table] [role="toolbar"] {
+  background: var(--ui-color-surface-sunken);
+  border-radius: var(--ui-radius-control);
+}
+[data-hearts-table] [data-pass-tray] {
+  background: var(--ui-color-game-hearts-canvas);
+  border-radius: var(--ui-radius-control);
+  padding-inline: var(--ui-space-1);
+}
+[data-hearts-table] button[aria-pressed="true"]::before {
+  content: "✓" / "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding-inline: var(--ui-space-1);
+  background: var(--ui-color-tint);
+  color: var(--ui-color-on-primary);
+  font-weight: var(--ui-font-weight-bold);
+}
+[data-hearts-points] {
+  position: absolute;
+  bottom: var(--ui-space-1);
+  left: var(--ui-space-1);
+  font-size: var(--ui-font-size-xs);
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+[data-hearts-viewport] {
+  overflow: clip;
+  border-radius: var(--ui-radius-sheet);
+  touch-action: none;
+}
+[data-hearts-viewport] > [data-table-felt] {
+  transform-origin: top left;
+  transform: translate(var(--hearts-pan-x), var(--hearts-pan-y))
+    scale(var(--hearts-scale));
+}
+[data-hearts-table] button[data-card] {
+  touch-action: none;
+}
+[data-hearts-table] button[data-picked-up] {
+  z-index: 3;
+  pointer-events: none;
+  box-shadow: var(--ui-shadow-float);
+}
+[data-hearts-table][data-dragging] [data-hearts-viewport] {
+  outline: 2px dashed var(--ui-color-focus-ring);
+}
+@media (prefers-reduced-motion: no-preference) {
+  [data-hearts-table] [data-position] > [data-card] {
+    animation: hearts-land var(--ui-duration-fast) var(--ui-easing-standard);
+  }
+}
+@keyframes hearts-land {
+  from {
+    transform: translateY(calc(-1 * var(--ui-space-2))) scale(0.94);
+  }
+  to {
+    transform: none;
+  }
+}
+[data-hearts-table]:has([aria-expanded="false"]) > [data-hearts-navigation] {
+  display: none;
+}

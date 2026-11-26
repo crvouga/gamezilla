@@ -63,6 +63,7 @@ export type CardTableSeat = {
 };
 
 export type CardTableHandCard = CardTableCard & {
+  readonly points?: { mark: string; label: string } | undefined;
   /** Whether the rules allow this card now. */
   readonly enabled: boolean;
   /** Whether it is chosen, while cards are chosen (`null` when a card acts at once). */
@@ -84,6 +85,15 @@ export type CardTableAction = {
 
 export type CardTableProps = {
   readonly label: string;
+  readonly hearts?: {
+    zoom: string;
+    fit: string;
+    input: {
+      view: () => { x: number; y: number; scale: number };
+      bind: (element: HTMLElement) => void;
+      toggle: () => void;
+    };
+  };
   /** Disclosure label for the player table while passing on short phones. */
   readonly tableSummary?: string | undefined;
   readonly testId: string;
@@ -174,6 +184,7 @@ function Seat(props: { seat: () => CardTableSeat; trick: boolean }) {
   return (
     <section
       class={[styles['seat'], componentStyles['seat']]}
+      data-winner={String(seat().won !== undefined)}
       data-trick={String(props.trick)}
       data-player={String(seat().player !== undefined)}
       data-position={seat().position}
@@ -329,6 +340,21 @@ function handCardStyle(
   };
 }
 
+function HandCardFace(props: { card: CardTableHandCard }): JSX.Element {
+  return (
+    <>
+      <CardFace card={props.card} />
+      <Show when={props.card.points?.mark}>
+        {(mark) => (
+          <span data-hearts-points="" aria-hidden="true">
+            {mark()}
+          </span>
+        )}
+      </Show>
+    </>
+  );
+}
+
 function createHandFocus(
   ids: () => readonly string[],
   row: () => HTMLDivElement | undefined
@@ -418,7 +444,9 @@ function Hand(
                   data-suit={card().suit}
                   data-testid={props.cardTestId(id)}
                   data-card={id}
-                  aria-label={spokenName(card())}
+                  aria-label={[spokenName(card()), card().points?.label]
+                    .filter(Boolean)
+                    .join(', ')}
                   aria-pressed={ariaBoolean(card().selected ?? undefined)}
                   aria-disabled={ariaBoolean(!card().enabled)}
                   aria-describedby={props.reasonId(
@@ -438,7 +466,7 @@ function Hand(
                     }
                   }}
                 >
-                  <CardFace card={card()} />
+                  <HandCardFace card={card()} />
                 </SdkButton>
               </>
             )}
@@ -467,7 +495,7 @@ function PassArea(props: { pass: CardTablePass }): JSX.Element {
       <span class={[styles['passLabel'], componentStyles['passLabel']]}>
         {props.pass.label}
       </span>
-      <span class={styles['passPlaces']}>
+      <span class={styles['passPlaces']} data-pass-tray="">
         <For keyed={false} each={places()}>
           {(card) => (
             <span class={styles['slot']} data-filled={String(card() !== null)}>
@@ -666,6 +694,10 @@ export function CardTable(props: CardTableProps): JSX.Element {
   return (
     <div
       class={styles['root']}
+      data-hearts-table={props.hearts ? '' : undefined}
+      ref={(element) => {
+        props.hearts?.input.bind(element);
+      }}
       data-testid={props.testId}
       {...dataAttrs({ component: 'CardTable', ...props.dataSet })}
     >
@@ -675,43 +707,69 @@ export function CardTable(props: CardTableProps): JSX.Element {
         testId={props.testId}
       >
         <div
-          class={[
-            styles['table'],
-            componentStyles['table'],
-            { [componentStyles['felt'] ?? '']: true },
-          ]}
-          role="group"
-          aria-label={props.label}
+          data-hearts-viewport={props.hearts ? '' : undefined}
+          style={
+            props.hearts && {
+              '--hearts-pan-x': `${props.hearts.input.view().x * 100}%`,
+              '--hearts-pan-y': `${props.hearts.input.view().y * 100}%`,
+              '--hearts-scale': String(props.hearts.input.view().scale),
+            }
+          }
         >
-          <For each={seatIds()}>
-            {(id) => (
-              <Seat
-                seat={() => {
-                  const seat = seatsById().get(id);
-                  if (!seat) throw new Error('A rendered seat must exist');
-                  return seat;
-                }}
-                trick={props.trick === true}
-              />
-            )}
-          </For>
-          <Show when={props.seats.length > 0}>
-            <Trick seats={props.seats} trick={props.trick === true} />
-          </Show>
-          <Show when={props.trick !== true && props.pass}>
-            {(pass) => <PassArea pass={pass()} />}
-          </Show>
-          <p
-            class={[styles['center'], componentStyles['center']]}
-            data-spoken-only={String(props.centerSpokenOnly === true)}
-            aria-live="polite"
-            data-testid={`${props.testId}-center`}
+          <div
+            class={[
+              styles['table'],
+              componentStyles['table'],
+              { [componentStyles['felt'] ?? '']: true },
+            ]}
+            data-table-felt=""
+            role="group"
+            aria-label={props.label}
           >
-            {props.center}
-          </p>
+            <For each={seatIds()}>
+              {(id) => (
+                <Seat
+                  seat={() => {
+                    const seat = seatsById().get(id);
+                    if (!seat) throw new Error('A rendered seat must exist');
+                    return seat;
+                  }}
+                  trick={props.trick === true}
+                />
+              )}
+            </For>
+            <Show when={props.seats.length > 0}>
+              <Trick seats={props.seats} trick={props.trick === true} />
+            </Show>
+            <Show when={props.trick !== true && props.pass}>
+              {(pass) => <PassArea pass={pass()} />}
+            </Show>
+            <p
+              class={[styles['center'], componentStyles['center']]}
+              data-spoken-only={String(props.centerSpokenOnly === true)}
+              aria-live="polite"
+              data-testid={`${props.testId}-center`}
+            >
+              {props.center}
+            </p>
+          </div>
         </div>
       </CardTableContext>
       <HandTray {...props} />
+      <Show when={props.hearts}>
+        {(labels) => (
+          <div data-hearts-navigation="">
+            <Button
+              size="sm"
+              variant="ghost"
+              title={
+                labels().input.view().scale > 1 ? labels().fit : labels().zoom
+              }
+              onClick={labels().input.toggle}
+            />
+          </div>
+        )}
+      </Show>
     </div>
   );
 }
