@@ -1,8 +1,11 @@
-import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { BugReportFormView } from './bug-report-form';
-import { autoScreenshot, fullScreenshots } from './bug-report-form.example';
+import {
+  autoScreenshot,
+  EditableBugReport,
+  fullScreenshots,
+} from './bug-report-form.example';
 import { DISCARD } from './copy';
 
 const meta = {
@@ -109,18 +112,7 @@ export const Failed: Story = {
 
 /** Typing describes the bug; sending hands it over. */
 export const DescribeAndSend: Story = {
-  render: (args) => {
-    const [, updateArgs] = useArgs();
-    return (
-      <BugReportFormView
-        {...args}
-        onDescribe={(description) => {
-          args.onDescribe(description);
-          updateArgs({ description });
-        }}
-      />
-    );
-  },
+  render: (args) => <EditableBugReport {...args} />,
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.type(
