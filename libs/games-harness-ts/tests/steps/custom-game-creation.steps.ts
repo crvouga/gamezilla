@@ -1,11 +1,12 @@
 import { expect } from 'bun:test';
 import { createCustomGameIn } from '@libs/game-session-harness-ts/custom-game-controls';
 import { customGameShownUnrated } from '@libs/game-session-harness-ts/custom-game-reads';
+import { switchSpaceGame } from '@libs/game-session-harness-ts/game-navigation';
 import { initialHarnessPosition } from '@libs/game-session-harness-ts/simulation-fixtures';
 import { Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { current, identityOf, toldOf } from './custom-game-set-up-world';
-import { before, gameOf, hostOf } from './game-world';
+import { anotherGame, before, gameOf, hostOf, view } from './game-world';
 
 /** The host of the space the scenario is in, however it was set up. */
 function spaceHostOf(w: HarnessWorld): string {
@@ -54,4 +55,18 @@ Then(
 Then(
   '{actor} is told the custom game must finish or be cancelled first',
   async (w, actor: string) => toldOf(w, actor, 'finish or cancel first')
+);
+
+When(
+  '{actor} opens custom games for a different game',
+  async (w, actor: string) =>
+    w.s.apply(switchSpaceGame, actor, anotherGame(w, 'custom-games').shared.id)
+);
+Then(
+  '{actor} sees the game she/he was setting up with its seats unchanged',
+  async (w, actor: string) => {
+    const original = before(w).current;
+    expect(original?.status).toBe('configuring');
+    expect((await view(w, actor)).current).toEqual(original);
+  }
 );
