@@ -2,6 +2,7 @@ import {
   StoryPackAttempt,
   type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
+import type { PuzzlePlayerProps } from '@libs/game-puzzle-client-ts/puzzle-content-client';
 import { numberlinkPuzzleContent } from '@libs/numberlink-shared-ts/numberlink-puzzle-content';
 import type { JSX } from '@solidjs/web';
 import { createSignal, untrack } from 'solid-js';
@@ -50,33 +51,35 @@ function figures(definition: string, state: string) {
 }
 
 /** The shipped puzzle under the real rules: each committed gesture is applied and shown. */
-function CatalogAttempt(props: {
-  readonly packIndex: number;
-  readonly position: number;
-  readonly solved?: boolean;
-}): JSX.Element {
-  const entry = untrack(() => shipped(props.packIndex, props.position));
-  const definition = entry.puzzle.definition;
-  const [state, setState] = createSignal(
-    played(entry.puzzle, untrack(() => props.solved) === true)
-  );
+function CatalogAttempt(
+  props: PuzzlePlayerProps & {
+    readonly entry: ReturnType<typeof shipped>;
+  }
+): JSX.Element {
+  const entry = untrack(() => props.entry);
+
+  const [state, setState] = createSignal(untrack(() => props.state));
   const onAction = (action: string) => {
-    const next = rules.apply(definition, state(), action);
+    const next = rules.apply(props.definition, state(), action);
     if (next.accepted) setState(next.state);
+    props.onAction(action);
   };
-  const player = { definition, disabled: false, onAction };
   return (
     <StoryPackAttempt
       puzzle={entry.story}
-      complete={rules.complete(definition, state())}
+      complete={rules.complete(props.definition, state())}
       played={state() !== played(entry.puzzle, false)}
-      figures={figures(definition, state())}
+      figures={figures(props.definition, state())}
       figuresPlacement={numberlinkContentFrame.figuresPlacement}
       {...(entry.next === undefined
         ? {}
         : { next: { title: entry.next, open: fn() } })}
-      player={<NumberlinkPlayer {...player} state={state()} />}
-      support={<NumberlinkSupport {...player} state={state()} />}
+      player={
+        <NumberlinkPlayer {...props} onAction={onAction} state={state()} />
+      }
+      support={
+        <NumberlinkSupport {...props} onAction={onAction} state={state()} />
+      }
     />
   );
 }
@@ -84,26 +87,40 @@ function CatalogAttempt(props: {
 const meta = {
   id: 'screens-games-numberlink-catalog',
   title: 'Screens/Space/Boards/Numberlink/Catalog',
-  component: CatalogAttempt,
+  component: NumberlinkPlayer,
   tags: ['autodocs'],
   parameters: { appRouter: true },
-  args: { packIndex: 0, position: 9 },
-} satisfies Meta<typeof CatalogAttempt>;
+} satisfies Meta<typeof NumberlinkPlayer>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
+function catalogStory(packIndex: number, position: number, solved = false) {
+  const entry = shipped(packIndex, position);
+  return {
+    args: {
+      definition: entry.puzzle.definition,
+      state: played(entry.puzzle, solved),
+      disabled: false,
+      onAction: fn(),
+    },
+    render: (args: PuzzlePlayerProps) => (
+      <CatalogAttempt {...args} entry={entry} />
+    ),
+  } satisfies Story;
+}
+
 /** The first five-by-five board of the first pack, ready to draw. */
-export const FirstThreads: Story = {};
+export const FirstThreads: Story = { ...catalogStory(0, 9) };
 
 /** A shipped open-field board, joined by its witness: empty cells may stay. */
 export const OpenFieldsSolved: Story = {
-  args: { packIndex: 9, position: 1, solved: true },
+  ...catalogStory(9, 1, true),
 };
 
 /** The first fifteen-by-fifteen marathon board, fresh. */
-export const Marathon: Story = { args: { packIndex: 19, position: 1 } };
+export const Marathon: Story = { ...catalogStory(19, 1) };
 
 /** The same marathon board joined by its witness. */
 export const MarathonSolved: Story = {
-  args: { packIndex: 19, position: 1, solved: true },
+  ...catalogStory(19, 1, true),
 };
