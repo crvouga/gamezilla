@@ -327,7 +327,7 @@ test('a cold corpus stays bounded at both forty and sixty-four runners', () => {
   // Verify run 38328597240: 27 solver runners inside a cap of 40 packed the
   // other 5034 estimated seconds into shards of 376s, which were still
   // running at the 1200s deadline. Sharing spare proof capacity now keeps
-  // both caps under a quarter of that deadline, with every task retained.
+  // the heaviest shard near the average at both caps, with every task retained.
   const solvers = [
     task('@apps/product-ts#test:contract', 86),
     ...Array.from({ length: 26 }, (_, index) =>
@@ -354,8 +354,16 @@ test('a cold corpus stays bounded at both forty and sixty-four runners', () => {
     );
     return Math.max(...bins.map((shard) => shard.seconds));
   };
-  expect(heaviest(40) * 4).toBeLessThanOrEqual(CI_RUN_DEADLINE_SECONDS);
-  expect(heaviest(64) * 4).toBeLessThanOrEqual(CI_RUN_DEADLINE_SECONDS);
+  const total = [...solvers, ...packed].reduce(
+    (sum, item) => sum + item.seconds,
+    0
+  );
+  for (const runners of [40, 64]) {
+    const largest = heaviest(runners);
+    // After placing proofs, every remaining task costs six seconds.
+    expect(largest).toBeLessThanOrEqual(Math.ceil(total / runners) + 6);
+    expect(largest).toBeLessThanOrEqual(CI_RUN_DEADLINE_SECONDS);
+  }
 });
 
 test('renderer setup only serves uncached native browser tasks', () => {
