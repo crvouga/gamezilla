@@ -65,11 +65,11 @@ on:
         type: string
         default: enforce
 
-# A newer push supersedes a pull request's run; dispatched and release runs
-# each own a group and never cancel one another.
+# Repeated branch validations replace earlier requests with the same settings.
+# Reusable calls inherit the caller's workflow name and keep a per-run group.
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || format('verify-run-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch') }}
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -89,8 +89,10 @@ env:
   # Compare migrations to an immutable earlier revision, never main at HEAD.
   PR_BASE: ${{ github.event.pull_request.base.sha || github.event.before || format('{0}^', github.sha) }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
+  # Hosted PR shards spend about 90 s outside verification (CI_REQUIREMENTS.md).
+  VERIFY_SHARD_SETUP_SECONDS: ${{ vars.VERIFY_SHARD_SETUP_SECONDS || (github.event_name == 'pull_request' && '90' || '30') }}
   # A cap, not the count. The plan sizes shards to the work: each holds at
-  # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`, 30 s)
+  # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`)
   # and no less than the longest indivisible task group, and it starts no
   # more than the cap unless the shard deadline needs more
   # (libs/tools-harness-ts/scripts/verify-plan.ts). The log's `shards:` line

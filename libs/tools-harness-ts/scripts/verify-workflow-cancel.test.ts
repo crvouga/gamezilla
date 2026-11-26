@@ -155,15 +155,15 @@ describe('Verify workflow cancellation', () => {
     );
   });
   // regression: concurrent-verify-run-isolation
-  test('a newer push supersedes its PR run; dispatched and release runs never cancel one another', () => {
+  test('only repeat validations of the same PR or the same branch and settings supersede work', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       concurrency: { group: string; 'cancel-in-progress': string };
     };
     expect(workflow.concurrency.group).toBe(
-      "${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || format('verify-run-{0}', github.run_id) }}"
+      "${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}"
     );
     expect(workflow.concurrency['cancel-in-progress']).toBe(
-      "${{ github.event_name == 'pull_request' }}"
+      "${{ github.event_name == 'pull_request' || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch') }}"
     );
   });
   // regression: release-cold-slow-suites

@@ -10,6 +10,8 @@ import {
 } from './ci-stats-concurrency';
 import {
   arrivalsByHour,
+  type Distribution,
+  distribution,
   type FamilyStats,
   familyStats,
   type JobRecord,
@@ -34,12 +36,14 @@ export type HistoryStats = {
   readonly days: number;
   readonly runs: number;
   readonly jobs: number;
+  readonly prValidationSeconds: Distribution;
+  readonly prJobQueueSeconds: Distribution;
   readonly placement: readonly Placement[];
   readonly workflows: readonly WorkflowStats[];
   readonly families: readonly FamilyStats[];
   /** Jobs running on self-hosted runners: capped by the fleet's size. */
   readonly running: ConcurrencyStats;
-  /** Jobs running on GitHub-hosted VMs: the workflows' uncapped parallelism. */
+  /** Jobs running on GitHub-hosted VMs. */
   readonly runningHosted: ConcurrencyStats;
   /** Jobs running anywhere. */
   readonly runningAll: ConcurrencyStats;
@@ -59,8 +63,7 @@ const STEP_FAMILIES = ['verify:start', SHARD_FAMILY, 'verify:end'];
 /**
  * Per-run and per-job measures read every job that ran, self-hosted or
  * GitHub-hosted, and name the kind where hardware matters. Concurrency is
- * kept apart per kind: self-hosted is capped by the fleet, GitHub-hosted is
- * not. Demand also counts jobs that waited for a runner and were cancelled.
+ * kept apart per kind: each pool has its own capacity. Demand also counts jobs that waited for a runner and were cancelled.
  */
 export function buildHistory(
   runs: readonly RunRecord[],
@@ -71,6 +74,14 @@ export function buildHistory(
   const own = ran.filter((job) => runnerKind(job) === 'self-hosted');
   const hosted = ran.filter((job) => runnerKind(job) === 'github-hosted');
   const wanted = jobs.filter((job) => job.conclusion !== 'skipped');
+  const pullRequests = new Map(
+    runs
+      .filter(
+        (run) => run.workflow === 'Verify PR' && run.event === 'pull_request'
+      )
+      .map((run) => [run.id, run])
+  );
+  const prJobs = ran.filter((job) => pullRequests.has(job.runId));
   const seconds = secondsBetween(window.from, window.to) ?? 0;
   const days = Math.max(MIN_WINDOW_SECONDS, seconds) / SECONDS_PER_DAY;
   return {
@@ -78,6 +89,26 @@ export function buildHistory(
     days: round(days),
     runs: runs.length,
     jobs: jobs.length,
+    prValidationSeconds: distribution(
+      prJobs
+        .filter(
+          (job) =>
+            job.name === 'verify:end' &&
+            ['success', 'failure'].includes(job.conclusion ?? '')
+        )
+        .map((job) =>
+          secondsBetween(
+            pullRequests.get(job.runId)!.createdAt,
+            job.completedAt
+          )
+        )
+        .filter((seconds) => seconds !== undefined)
+    ),
+    prJobQueueSeconds: distribution(
+      prJobs
+        .map((job) => secondsBetween(job.createdAt, job.startedAt))
+        .filter((seconds) => seconds !== undefined)
+    ),
     placement: placement(jobs),
     workflows: workflowStats(runs, ran, days),
     families: familyStats(ran),
