@@ -1,4 +1,4 @@
 {
   "summary": "Pinching around H8 on the enlarged phone board snapped the midpoint to I8.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-gestures/integration.checks.ts"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-gestures/phone/integration.checks.ts"
 }
