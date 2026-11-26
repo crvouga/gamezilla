@@ -212,7 +212,16 @@ function GridCell(props: {
         props.board.onPreview?.(id());
       }}
       onBlur={() => props.board.onPreview?.(null)}
-      onPointerEnter={() => props.board.onPreview?.(id())}
+      onPointerEnter={(event) => {
+        // Touching a hull starts direct manipulation. A mouse-style hover
+        // would reflow placement guidance underneath the moving finger.
+        if (
+          event.pointerType === 'touch' &&
+          props.board.battleshipSurface === 'fleet'
+        )
+          return;
+        props.board.onPreview?.(id());
+      }}
       onPointerLeave={() => props.board.onPreview?.(null)}
       onKeyDown={(event) => props.onKey(event, props.index)}
       onClick={() => {

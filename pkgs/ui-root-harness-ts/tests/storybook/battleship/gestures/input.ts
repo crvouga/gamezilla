@@ -49,6 +49,7 @@ export async function dragShip(
   try {
     if (phone) {
       await input.send('touchStart', [from]);
+      expect(await center(grid.locator('[data-cell="c2"]'))).toEqual(to);
       await input.send('touchMove', [to]);
     } else {
       await page.mouse.move(from.x, from.y);

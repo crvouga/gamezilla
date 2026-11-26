@@ -1,0 +1,4 @@
+{
+  "summary": "Touching the Carrier at C1 on the 390px full fleet board showed the Cruiser hover refusal and shifted C2 away from the drag destination.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/gestures/phone/integration.checks.ts"
+}

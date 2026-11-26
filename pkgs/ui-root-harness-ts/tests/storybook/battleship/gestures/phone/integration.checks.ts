@@ -10,6 +10,7 @@ test.use({
   trace: 'on',
 });
 
+// regression: battleship-touch-hover-shifts-board
 // regression: battleship-drag-mounted-document
 test('Battleship board gestures: drag the Carrier from C1 to C2 and cancel interrupted placement', async ({
   page,
