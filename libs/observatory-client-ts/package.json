@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "exports": {
+    "./admin-dashboard-screen-view": "./src/admin-dashboard-screen-view.tsx",
     "./*": [
       "./src/*.ts",
       "./src/*.tsx",

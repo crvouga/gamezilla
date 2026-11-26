@@ -4,19 +4,14 @@ import {
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { lazy } from 'solid-js';
-import { LiveSessionReporter } from './live-session-reporter';
-import { ObservatorySettings } from './observatory-settings';
 
 /**
- * The User Observatory and every app's online-now report: a hub linking to
+ * The User Observatory: a hub linking to
  * Online now (whoever is online now, people and Synthetic Users, as a table)
  * and watching any of them live.
  */
 export const OBSERVATORY_CLIENT = defineSubClient({
   name: 'observatory',
-  settings: ObservatorySettings,
-  // Every app reports that it is online now, a person's or a Synthetic User's.
-  session: LiveSessionReporter,
   routes: [
     {
       path: OBSERVATORY_PATH,

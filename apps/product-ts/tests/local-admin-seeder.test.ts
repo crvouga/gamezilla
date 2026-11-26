@@ -3,7 +3,7 @@ import { LOCAL_ADMIN_ACCOUNTS } from '@apps/product-ts/scripts/local-admin-accou
 import { LocalAdminSeeder } from '@apps/product-ts/scripts/local-admin-seeder';
 import { EnsureInternalAccountUseCase } from '@libs/auth-shared-ts/ensure-internal-account-use-case';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import { HARNESS_AUTH_SECRET } from '@libs/sub-shared-ts/harness-constants';
 import { createAuthServerAdapter } from '@pkgs/auth-inhouse-server-ts/create-auth-server-adapter';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
@@ -13,7 +13,7 @@ import { localAdminFixture } from './local-admin-fixture';
 
 // regression: local-oauth-missing-admin-accounts
 test.each(['google', 'apple'] as const)(
-  'local admin %s sign-ins resolve to the seeded puzzle managers across restarts',
+  'local admin %s sign-ins resolve to the seeded admins across restarts',
   async (provider) => {
     const { db, ports, signIn, identities } = await localAdminFixture();
     try {
@@ -35,7 +35,7 @@ test.each(['google', 'apple'] as const)(
       expect(originalIds).toContain(existingId);
       await seeder.seed({ sqlClient: db, logger: createNoopLogger() });
       expect(seeder.accountIds).toEqual(originalIds);
-      const policy = permissionPolicyForPuzzleManagers(seeder.accountIds);
+      const policy = permissionPolicyForAdmins(seeder.accountIds);
       for (const email of [
         ...LOCAL_ADMIN_ACCOUNTS.map((a) => a.email),
         'alice@gmail.com',

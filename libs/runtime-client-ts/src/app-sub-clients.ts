@@ -18,12 +18,11 @@ import { createPuzzleLinkClient } from '@libs/game-puzzle-client-ts/puzzle-link-
 import { GAME_CLIENT_DEFINITIONS } from '@libs/games-client-ts/game-plugins.client';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { NOTIFICATIONS_CLIENT } from '@libs/notifications-client-ts/sub-client';
-import { OBSERVATORY_CLIENT } from '@libs/observatory-client-ts/sub-client';
+import { LIVE_REPORTING_CLIENT } from '@libs/observatory-client-ts/reporting-client';
 import { PROFILE_CLIENT } from '@libs/profile-client-ts/sub-client';
 import { SEARCH_CLIENT } from '@libs/search-client-ts/sub-client';
 import { createSpacesClient } from '@libs/spaces-client-ts/sub-client';
 import type { SubClient } from '@libs/sub-client-ts/client';
-import { createSyntheticPopulationClient } from '@libs/synthetic-population-client-ts/sub-client';
 
 /**
  * Games depend on spaces, so the composition root hands spaces its plugin
@@ -50,10 +49,5 @@ export const APP_SUB_CLIENTS: readonly SubClient[] = [
   NOTIFICATIONS_CLIENT,
   SEARCH_CLIENT,
   BILLING_CLIENT,
-  // The Synthetic Population panel names Synthetic Users' favorite games as
-  // the menu does.
-  createSyntheticPopulationClient({ games: GAME_CLIENT_DEFINITIONS }),
-  // The User Observatory; every app, a person's or a Synthetic User's,
-  // reports from it that it is online now.
-  OBSERVATORY_CLIENT,
+  LIVE_REPORTING_CLIENT,
 ];

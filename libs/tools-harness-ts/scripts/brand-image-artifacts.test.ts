@@ -19,8 +19,8 @@ import { readTurboTasks } from './turbo-config';
 const ROOT = join(import.meta.dirname, '../../..');
 
 test('every web install image and source icon belongs to the generated catalog', () => {
-  const pwa = 'apps/client-ts/public/pwa';
-  const source = 'apps/client-ts/src';
+  const pwa = 'apps/product-client-ts/public/pwa';
+  const source = 'apps/product-client-ts/src';
   const actual = [
     ...readdirSync(join(ROOT, pwa))
       .filter((name) => /\.(png|svg|ico)$/.test(name))
@@ -28,7 +28,7 @@ test('every web install image and source icon belongs to the generated catalog',
     ...readdirSync(join(ROOT, source))
       .filter((name) => name.includes('icon') && name.endsWith('.png'))
       .map((name) => `${source}/${name}`),
-    'apps/client-ts/public/favicon.ico',
+    'apps/product-client-ts/public/favicon.ico',
     'apps/product-ts/public/favicon.ico',
   ];
   const declared = [

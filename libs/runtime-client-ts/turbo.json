@@ -17,8 +17,7 @@
         "@libs/profile-client-ts#src",
         "@libs/search-client-ts#src",
         "@libs/spaces-client-ts#src",
-        "@libs/sub-client-ts#src",
-        "@libs/synthetic-population-client-ts#src"
+        "@libs/sub-client-ts#src"
       ]
     }
   }

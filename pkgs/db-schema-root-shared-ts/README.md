@@ -137,8 +137,8 @@ Two committed artifacts enforce it through package-owned Turbo tasks in the Veri
   evolution of the snapshot on the comparison ref (`origin/main` / `PR_BASE`).
   Regenerate with `bun run --filter @libs/runtime-server-ts schema:snapshot`, which refuses
   to write an illegal evolution.
-- `apps/server-ts/contract-manifest.json` +
-  `apps/server-ts/tests/contract-manifest.test.ts` — the query/mutation **name set
+- `apps/product-api-ts/contract-manifest.json` +
+  `apps/product-api-ts/tests/contract-manifest.test.ts` — the query/mutation **name set
   is append-only**. Renaming one silently deletes every offline client's queued
   writes (`UNKNOWN_MUTATION` ⇒ permanent rejection ⇒ queue row dropped).
 

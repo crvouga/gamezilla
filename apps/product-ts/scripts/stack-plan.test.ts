@@ -42,6 +42,8 @@ describe('stack plan', () => {
     ]);
     const all = [
       ports.api,
+      ports.adminApi,
+      ports.adminWeb,
       ports.google,
       ports.apple,
       ports.billing,
@@ -66,6 +68,7 @@ describe('stack plan', () => {
     const planned = await plan(['--no-web']);
     expect(planned.ports.web).toBeNull();
     expect(planned.webOrigin).toBeNull();
+    expect(planned.adminOrigin).toBeNull();
   });
 
   test('each task reads back the plan the boot wrote', async () => {

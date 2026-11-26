@@ -34,7 +34,7 @@ describe('secretLookingPaths', () => {
   test('flags env files, keys, and the local secrets cache', () => {
     expect(
       secretLookingPaths([
-        'apps/client-ts/.env.local',
+        'apps/product-client-ts/.env.local',
         '.env',
         'certs/server.pem',
         '.cache/secrets/dev.json',

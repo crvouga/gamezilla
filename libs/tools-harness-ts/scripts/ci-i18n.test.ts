@@ -20,18 +20,18 @@ describe('lingui catalog scope', () => {
   test('underCatalogSource matches files inside a source dir only', () => {
     expect(underCatalogSource('libs/spaces-client-ts/src/x.tsx')).toBe(true);
     expect(underCatalogSource('libs/spaces-extra/src/x.tsx')).toBe(false);
-    expect(underCatalogSource('apps/server-ts/src/api.ts')).toBe(false);
+    expect(underCatalogSource('apps/product-api-ts/src/api.ts')).toBe(false);
   });
 
   test('macrosOutsideCatalog lists macro files the extractor would skip', () => {
     expect(
       macrosOutsideCatalog([
         { path: 'libs/spaces-client-ts/src/spaces-screen.tsx', text: MACRO },
-        { path: 'apps/server-ts/src/untranslated.tsx', text: MACRO },
-        { path: 'apps/server-ts/src/plain.ts', text: 'export {};' },
-        { path: 'apps/server-ts/tests/fixture.test.tsx', text: MACRO },
+        { path: 'apps/product-api-ts/src/untranslated.tsx', text: MACRO },
+        { path: 'apps/product-api-ts/src/plain.ts', text: 'export {};' },
+        { path: 'apps/product-api-ts/tests/fixture.test.tsx', text: MACRO },
       ])
-    ).toEqual(['apps/server-ts/src/untranslated.tsx']);
+    ).toEqual(['apps/product-api-ts/src/untranslated.tsx']);
   });
 
   test('the catalog sources are sorted, so new packages do not all append to one line', () => {

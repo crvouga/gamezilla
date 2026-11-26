@@ -1,0 +1,41 @@
+{
+  "$schema": "https://v2-11-3.turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "verify:worker-bundle": {
+      "dependsOn": ["^src", "@apps/admin-client-ts#build"],
+      "inputs": ["$TURBO_EXTENDS$"],
+      "outputs": []
+    },
+    "deploy": {
+      "cache": false,
+      "dependsOn": ["verify:worker-bundle", "@libs/runtime-server-ts#migrate"],
+      "passThroughEnv": ["*"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-root-server-ts#src",
+        "@libs/app-root-shared-ts#src",
+        "@libs/auth-server-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/chess-root-server-ts#src",
+        "@libs/db-shared-ts#src",
+        "@libs/moderation-shared-ts#src",
+        "@libs/observatory-server-ts#src",
+        "@libs/permissions-shared-ts#src",
+        "@libs/runtime-shared-ts#src",
+        "@libs/sub-shared-ts#src",
+        "@libs/synthetic-population-server-ts#src",
+        "@pkgs/assert-root-shared-ts#src",
+        "@pkgs/auth-inhouse-server-ts#src",
+        "@pkgs/auth-root-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/logger-shared-ts#src",
+        "@pkgs/secret-store-shared-ts#src",
+        "@pkgs/sql-client-root-shared-ts#src",
+        "@pkgs/uuid-shared-ts#src"
+      ]
+    }
+  }
+}

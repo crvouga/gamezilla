@@ -78,7 +78,6 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
   'screens-shell-sso-callback': '/sso-callback',
   'screens-matchmaking-link': '/chess/multiplayer',
   'screens-puzzles-link': '/chess/puzzle/story-puzzle',
-  'screens-puzzles-import-routed': '/more/puzzles',
   // A space's own pages and sheets live under its route, so the Spaces tab
   // stays the active one, as it does in the product.
   'screens-space-join': '/space/story-room',
@@ -90,25 +89,6 @@ const STACK_ROUTES: Readonly<Record<string, string>> = {
   'screens-spaces-remove-person': '/space/story-room',
   'screens-spaces-rename': '/space/story-room',
   'screens-spaces-share': '/space/story-room',
-  'screens-admin-user-observatory': '/admin/observatory',
-  'screens-admin-online-now': '/admin/observatory/online',
-  'screens-admin-synthetic-population': '/admin/observatory/synthetic-users',
-  'screens-admin-synthetic-users':
-    '/admin/observatory/synthetic-users/directory',
-  'screens-admin-synthetic-population-workers':
-    '/admin/observatory/synthetic-users/workers',
-  'screens-admin-synthetic-population-events':
-    '/admin/observatory/synthetic-users/events',
-  'screens-admin-synthetic-population-config':
-    '/admin/observatory/synthetic-users/settings',
-  'screens-admin-synthetic-user':
-    '/admin/observatory/synthetic-users/story-person',
-  'screens-admin-synthetic-user-events':
-    '/admin/observatory/synthetic-users/story-person/events',
-  'screens-admin-synthetic-user-replay':
-    '/admin/observatory/synthetic-users/story-person/replay',
-  'screens-admin-synthetic-user-inspector':
-    '/admin/observatory/synthetic-users/story-person/inspector',
 };
 
 // These views are mounted under SpaceScreenFrame in the product; the story

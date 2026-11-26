@@ -26,6 +26,7 @@ import {
   startWeb,
   stopChild,
 } from './boot-stack';
+import { startAdminApi, startAdminClient } from './dev-admin-services';
 import { waitForHttp } from './free-port';
 import { startLoadBalancer } from './load-balancer';
 import { configureLocalPopulation } from './local-population';
@@ -146,6 +147,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
   async idp({ plan }) {
     const idps = await startStackIdps({
       apiOrigin: plan.apiOrigin,
+      adminOrigin: plan.adminOrigin,
       ports: { google: plan.ports.google, apple: plan.ports.apple },
       state: resolveIdpState(plan.options, plan.dataDir),
     });
@@ -195,7 +197,6 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
       options: plan.options,
       apiOrigin: plan.apiOrigin,
       idpEnv: idp.apiEnv,
-      adminIdentities: idp.adminIdentities,
       billing,
       webOrigin: plan.webOrigin,
       infraEnv: infraEnv({
@@ -216,7 +217,10 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
     });
     await waitForHttp(`${balancer.origin}/api/health`);
     return {
-      value: { apiOrigin: balancer.origin, nodes: tier.backends },
+      value: {
+        apiOrigin: balancer.origin,
+        nodes: tier.backends,
+      },
       children: tier.children,
       async stop() {
         await Promise.all(tier.children.map(stopChild));
@@ -256,6 +260,8 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
 
   /** The product web app (`/`, `/simulator`): Vite itself. */
   web: createWebStarter(startWeb),
+  'admin-api': startAdminApi,
+  'admin-client': startAdminClient,
 };
 
 /** Start `name`; null when the stack's options turn it off. */

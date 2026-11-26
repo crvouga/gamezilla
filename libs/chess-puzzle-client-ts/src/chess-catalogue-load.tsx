@@ -67,7 +67,6 @@ function useChessCatalogueLoad(): CatalogueLoad {
   };
 }
 
-/** Chess's puzzle loader, as its settings and `/more/puzzles` open it. */
 export const chessCatalogueLoad: CatalogueLoadClient = {
   useLoad: useChessCatalogueLoad,
   copy: {

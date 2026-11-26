@@ -15,7 +15,7 @@ export const SECURITY_CONTACT = PRODUCT.brand.securityContact.replace(
   ''
 );
 
-/** Marketing version (mirrors `apps/client-ts/package.json` `version`). */
+/** Marketing version (mirrors `apps/product-client-ts/package.json` `version`). */
 export const APP_VERSION = '1.0.0';
 
 type CommitEnv = {
@@ -49,12 +49,12 @@ export function getCommitHash(): string {
   const raw = commitEnv().VITE_COMMIT_HASH;
   assert.string(
     raw,
-    'VITE_COMMIT_HASH is required; run `bun run dev` (with secret store) or set apps/client-ts/.env.local'
+    'VITE_COMMIT_HASH is required; run `bun run dev` (with secret store) or set apps/product-client-ts/.env.local'
   );
   const normalized = raw.trim().toLowerCase();
   assert.nonEmptyString(
     normalized,
-    'VITE_COMMIT_HASH is required; run `bun run dev` (with secret store) or set apps/client-ts/.env.local'
+    'VITE_COMMIT_HASH is required; run `bun run dev` (with secret store) or set apps/product-client-ts/.env.local'
   );
   assert.ok(
     COMMIT_HASH_HEX_REGEX.test(normalized),
@@ -75,7 +75,7 @@ export function getCommitDate(): string {
   const raw = commitEnv().VITE_COMMIT_DATE;
   assert.string(
     raw,
-    'VITE_COMMIT_DATE is required; run `bun run dev` (with secret store) or set apps/client-ts/.env.local'
+    'VITE_COMMIT_DATE is required; run `bun run dev` (with secret store) or set apps/product-client-ts/.env.local'
   );
   const normalized = raw.trim();
   assertCommitDateIso(normalized);

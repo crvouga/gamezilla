@@ -130,7 +130,8 @@ describe('designProfile', () => {
   test('names the profile of each kind of UI package', () => {
     expect(designProfile('pkgs/ui-root-client-ts')).toBe('design-system');
     expect(designProfile('libs/spaces-client-ts')).toBe('product');
-    expect(designProfile('apps/client-ts')).toBe('product');
+    expect(designProfile('apps/admin-client-ts')).toBe('product');
+    expect(designProfile('apps/product-client-ts')).toBe('product');
     expect(designProfile('pkgs/feedback-client-ts')).toBe('product');
     expect(designProfile('pkgs/chess-board-root-client-ts')).toBe('component');
     expect(designProfile('libs/spaces-shared-ts')).toBeNull();

@@ -5,6 +5,7 @@ import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 
 const desired: DesiredClientConfig = {
+  kind: 'complete',
   google: true,
   apple: true,
   billing: true,

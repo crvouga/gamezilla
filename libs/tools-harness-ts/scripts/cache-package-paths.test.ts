@@ -52,7 +52,7 @@ test('cache inputs reference existing package owners after package splits', () =
  * this test says which.
  */
 const GAME_MANIFEST_TASKS: readonly string[] = [
-  '@apps/client-ts#test',
+  '@apps/product-client-ts#test',
   '@libs/games-harness-ts#test',
   '@libs/games-harness-ts#test:contract',
   '@libs/games-harness-ts#test:contract:0',

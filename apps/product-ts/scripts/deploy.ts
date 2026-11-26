@@ -14,6 +14,10 @@ import {
 import { ok } from '@libs/secrets-server-ts/fmt';
 import { REPO_ROOT } from '@libs/secrets-server-ts/paths';
 import { runAsync, runCapture } from '@libs/secrets-server-ts/subprocess';
+import {
+  hyperdriveId,
+  workerSecrets,
+} from '@libs/secrets-server-ts/worker-secrets';
 import { withNodeMaxOldSpaceSize } from '@libs/secrets-shared-ts/node-options';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -27,7 +31,6 @@ import {
 } from '../../../libs/infra-server-ts/scripts/worker-deploy';
 import { workerState } from '../../../libs/infra-shared-ts/scripts/worker-state';
 import { distHeadersFile } from './dist-headers';
-import { hyperdriveId, workerSecrets } from './worker-secrets';
 
 const productDir = join(import.meta.dirname, '..');
 

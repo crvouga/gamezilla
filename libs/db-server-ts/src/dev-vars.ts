@@ -4,8 +4,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), '../../..');
-/** Wrangler worker secrets written by `apps/server-ts/scripts/setup-dev-vars.ts`. */
-export const DEV_VARS_PATH = join(REPO_ROOT, 'apps/server-ts/.dev.vars');
+/** Wrangler worker secrets written by `apps/product-api-ts/scripts/setup-dev-vars.ts`. */
+export const DEV_VARS_PATH = join(REPO_ROOT, 'apps/product-api-ts/.dev.vars');
 
 /** Decode a value written by {@link encodeDevVarValue}. */
 export function decodeDevVarValue(raw: string): string {

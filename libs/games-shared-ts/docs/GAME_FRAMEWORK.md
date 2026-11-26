@@ -276,10 +276,7 @@ supplies no screen: `defineGameClient` has no `Screen`, `choices`,
 `settings` is data (`game-settings`): a caption for the menu and a tree of
 rows, each with a slug `key`, a rendered `title` and `caption`, an optional
 `permission` (`@libs/permissions-shared-ts`) that hides the row from a
-person it is denied, and what the row `opens`: a nested group of rows, or
-one of the platform's template screens (today the catalogue loader,
-`{ kind: 'catalogue-load', load }`, fed by the game's own
-`CatalogueLoadClient`: a hook returning facts and commands, and its copy).
+person it is denied, and the nested group the row opens.
 The platform draws the settings hub and every screen behind it; a row is
 pressed by `<game id>-<group>-<row key>`. The platform wraps a
 puzzle-offering game's screens in its puzzle frame (the feed, a puzzle

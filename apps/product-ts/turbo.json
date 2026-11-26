@@ -142,7 +142,7 @@
     },
     "src": {
       "dependsOn": [
-        "@apps/server-ts#src",
+        "@apps/product-api-ts#src",
         "@libs/app-config-shared-ts#src",
         "@libs/app-env-client-ts#src",
         "@libs/app-root-client-ts#src",
@@ -230,6 +230,8 @@
         "dev:server",
         "dev:population",
         "dev:web",
+        "dev:admin-api",
+        "dev:admin-client",
         "@pkgs/ui-root-harness-ts#dev:storybook"
       ],
       "persistent": true,
@@ -280,6 +282,16 @@
       "persistent": true,
       "cache": false
     },
+    "dev:admin-api": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:admin-client": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
     "dev:web": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
@@ -300,7 +312,7 @@
       "dependsOn": [
         "@libs/runtime-server-ts#migrate",
         "@libs/chess-puzzle-server-ts#initialize:catalog",
-        "@apps/server-ts#verify:api",
+        "@apps/product-api-ts#verify:api",
         "@apps/product-ts#verify:offline-shell",
         "@apps/product-ts#verify:worker-bundle",
         "@apps/product-ts#verify:rendered-worker"

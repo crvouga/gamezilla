@@ -5,20 +5,20 @@ import {
   GameSettingsScreenView,
 } from './game-settings-screen-view';
 
-const DEVELOPER: GameSettingsRowView = {
-  key: 'developer',
-  title: 'Developer',
-  caption: 'Puzzle import tools.',
-  testId: 'chess-settings-developer',
-  opens: { screen: 'settings/developer' },
+const APPEARANCE: GameSettingsRowView = {
+  key: 'appearance',
+  title: 'Appearance',
+  caption: 'Board and piece appearance.',
+  testId: 'chess-settings-appearance',
+  opens: { screen: 'settings/appearance' },
 };
 
-const PUZZLES: GameSettingsRowView = {
-  key: 'puzzles',
-  title: 'Load chess puzzles',
-  caption: 'Load Lichess CSV, follow progress, and stop loading.',
-  testId: 'chess-developer-puzzles',
-  opens: { screen: 'settings/developer/puzzles' },
+const COLOURS: GameSettingsRowView = {
+  key: 'colors',
+  title: 'Square colors',
+  caption: 'Choose the colors of light and dark squares.',
+  testId: 'chess-appearance-colors',
+  opens: { screen: 'settings/appearance/colors' },
 };
 
 const meta = {
@@ -30,8 +30,8 @@ const meta = {
   args: {
     place: { screen: 'settings' },
     title: 'Settings',
-    subtitle: 'Developer tools.',
-    rows: [DEVELOPER],
+    subtitle: 'How this game looks on your device.',
+    rows: [APPEARANCE],
     onOpen: fn(),
   },
 } satisfies Meta<typeof GameSettingsScreenView>;
@@ -44,10 +44,10 @@ export const Root: Story = {};
 /** A nested group, opened by its row: named by that row, with its own rows. */
 export const NestedGroup: Story = {
   args: {
-    place: { screen: 'settings/developer' },
-    title: 'Developer',
-    subtitle: 'Import and manage puzzle content.',
-    rows: [PUZZLES],
+    place: { screen: 'settings/appearance' },
+    title: 'Appearance',
+    subtitle: 'Board and piece appearance.',
+    rows: [COLOURS],
   },
 };
 
@@ -57,16 +57,16 @@ export const NestedGroup: Story = {
  */
 export const PermissionHiddenRows: Story = {
   args: {
-    place: { screen: 'settings/developer' },
-    title: 'Developer',
-    subtitle: 'Import and manage puzzle content.',
+    place: { screen: 'settings/appearance' },
+    title: 'Appearance',
+    subtitle: 'Board and piece appearance.',
     rows: [
       {
         key: 'board',
         title: 'Board and pieces',
         caption: 'How the board is drawn on this device.',
-        testId: 'chess-developer-board',
-        opens: { screen: 'settings/developer/board' },
+        testId: 'chess-appearance-board',
+        opens: { screen: 'settings/appearance/board' },
       },
     ],
   },
@@ -75,9 +75,9 @@ export const PermissionHiddenRows: Story = {
 /** A group none of whose rows the person may see says so, with the way out. */
 export const EmptyGroup: Story = {
   args: {
-    place: { screen: 'settings/developer' },
-    title: 'Developer',
-    subtitle: 'Import and manage puzzle content.',
+    place: { screen: 'settings/appearance' },
+    title: 'Appearance',
+    subtitle: 'Board and piece appearance.',
     rows: [],
   },
 };
@@ -87,15 +87,15 @@ export const LongContent: Story = {
   args: {
     title: 'Settings for the extended tournament edition',
     subtitle:
-      'Everything that changes how this game looks, sounds and loads its content on this device.',
+      'Everything that changes how this game looks and sounds on this device.',
     rows: [
       {
-        ...DEVELOPER,
-        title: 'Developer tools for importing and checking puzzle content',
+        ...APPEARANCE,
+        title: 'Board appearance during tournament play',
         caption:
-          'Load a shared source file, follow how far the load is, stop it, and see what the last load added, updated and found broken.',
+          'Choose how the board, pieces, coordinates and last move appear when you play in a tournament.',
       },
-      PUZZLES,
+      COLOURS,
     ],
   },
 };
@@ -105,10 +105,10 @@ export const OpenRow: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('chess-settings-developer')
+      await canvas.findByTestId('chess-settings-appearance')
     );
     await expect(args.onOpen).toHaveBeenCalledWith({
-      screen: 'settings/developer',
+      screen: 'settings/appearance',
     });
   },
 };

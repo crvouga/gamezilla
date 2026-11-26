@@ -6,8 +6,7 @@ import {
   SYNTHETIC_USERS_PATH,
 } from '@libs/observatory-shared-ts/observatory-routes';
 import { defineSubClient, type SubClient } from '@libs/sub-client-ts/client';
-import type { JSX } from '@solidjs/web';
-import { createComponent, lazy } from 'solid-js';
+import { type Component, createComponent, lazy } from 'solid-js';
 import { type GameName, GameNamesProvider } from './game-names';
 
 /**
@@ -17,80 +16,84 @@ import { type GameName, GameNamesProvider } from './game-names';
  * game.
  */
 export function createSyntheticPopulationClient(options: {
-  readonly games: readonly GameName[];
+  readonly loadGames: () => Promise<readonly GameName[]>;
 }): SubClient {
-  const games = options.games.map(({ id, title }) => ({ id, title }));
-  function GameNames(props: { readonly children: JSX.Element }): JSX.Element {
-    return createComponent(GameNamesProvider, {
-      games,
-      get children() {
-        return props.children;
-      },
+  function screen(load: () => Promise<{ default: Component }>): Component {
+    return lazy(async () => {
+      const [games, module] = await Promise.all([options.loadGames(), load()]);
+      return {
+        default: () =>
+          createComponent(GameNamesProvider, {
+            games,
+            get children() {
+              return createComponent(module.default, {});
+            },
+          }),
+      };
     });
   }
   return defineSubClient({
     name: 'synthetic-population',
-    chrome: GameNames,
     routes: [
       {
         path: SYNTHETIC_USERS_PATH,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-population-screen'))
             .SyntheticPopulationScreen,
         })),
       },
       {
         path: SYNTHETIC_USER_DIRECTORY_PATH,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-users-screen'))
             .SyntheticUsersScreen,
         })),
       },
       {
         path: SYNTHETIC_POPULATION_WORKERS_PATH,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-population-workers-screen'))
             .SyntheticPopulationWorkersScreen,
         })),
       },
       {
         path: SYNTHETIC_POPULATION_EVENTS_PATH,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-population-events-screen'))
             .SyntheticPopulationEventsScreen,
         })),
       },
       {
         path: SYNTHETIC_POPULATION_SETTINGS_PATH,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-population-settings-screen'))
             .SyntheticPopulationSettingsScreen,
         })),
       },
       {
         path: `${SYNTHETIC_USERS_PATH}/:id`,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-user-screen'))
             .SyntheticUserScreen,
         })),
       },
       {
         path: `${SYNTHETIC_USERS_PATH}/:id/events`,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-user-events-screen'))
             .SyntheticUserEventsScreen,
         })),
       },
       {
         path: `${SYNTHETIC_USERS_PATH}/:id/replay`,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-user-replay-screen'))
             .SyntheticUserReplayScreen,
         })),
       },
       {
         path: `${SYNTHETIC_USERS_PATH}/:id/inspector`,
-        component: lazy(async () => ({
+        component: screen(async () => ({
           default: (await import('./synthetic-user-inspector-screen'))
             .SyntheticUserInspectorScreen,
         })),

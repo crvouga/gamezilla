@@ -193,7 +193,7 @@ function appendGameReactions(input: {
 
 /**
  * Builds the composed real-time state module for a space, given a registry
- * of games. The composition root (`apps/server-ts/src/api.ts`) supplies the
+ * of games. The composition root (`apps/product-api-ts/src/api.ts`) supplies the
  * registry; `@libs/spaces` never imports a specific game module.
  *
  * Adding a new game means dropping a `GameDefinition` into the registry —

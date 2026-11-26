@@ -7,7 +7,7 @@ names and no toolchain yet.
 
 What exists today is a foundation, not a second product: one portable Swift
 package (`@pkgs/clock-shared-swift`) and one SwiftUI iOS shell
-(`@apps/client-swift`) that shows the product name. There is no native
+(`@apps/product-client-swift`) that shows the product name. There is no native
 business logic, no game, no sync engine, no networking and no generated
 contract in Swift yet.
 
@@ -143,7 +143,7 @@ substitutes another compiler. Bump Swift and Xcode together.
 
 Check a machine with the tasks themselves:
 `bunx turbo run tc --filter=@pkgs/clock-shared-swift` (Swift) and
-`bunx turbo run build --filter=@apps/client-swift` (Xcode).
+`bunx turbo run build --filter=@apps/product-client-swift` (Xcode).
 
 ## Hosts
 
@@ -166,8 +166,8 @@ never reported built from Linux.
 mise install                                        # Bun and the rest; Swift on Linux arrives lazily
 bun install                                         # links the workspace, including native packages
 bunx turbo run tc test --filter=@pkgs/clock-shared-swift
-bunx turbo run lint --filter=@apps/client-swift
-bunx turbo run build test --filter=@apps/client-swift   # macOS + Xcode only
+bunx turbo run lint --filter=@apps/product-client-swift
+bunx turbo run build test --filter=@apps/product-client-swift   # macOS + Xcode only
 bun fmt                                             # includes `swift format` over every Swift file
 ```
 
@@ -180,7 +180,7 @@ bun fmt                                             # includes `swift format` ov
 
 Builds go to the package's `.cache/` (gitignored), one directory per
 toolchain and host. Open the app with `open
-apps/client-swift/apple-client.xcodeproj`; the shared `apple-client`
+apps/product-client-swift/apple-client.xcodeproj`; the shared `apple-client`
 scheme builds the `AppleClient` app and its UI smoke tests, and Xcode resolves
 the local `clock-shared-swift` package by itself. The bundle identifier
 (`external.appleBundleId` in
@@ -214,7 +214,7 @@ runner.
 
 An Xcode app package holds exactly one `<name>.xcodeproj` with a shared
 `<name>` scheme, and uses `xcode-task.ts` for `build` and `test` (see
-`apps/client-swift`).
+`apps/product-client-swift`).
 
 ## CI
 
@@ -226,7 +226,7 @@ so CI checks only what builds there.
   `platforms` (`turbo-ci-run.ts verify:ci`).
 - **Native packages are not checked in CI.** The iOS app needs Xcode, which
   only a macOS runner has (ten times the free minutes), so `@pkgs/clock-shared-swift` and
-  `@apps/client-swift` run only from explicit native verification on a host that builds them
+  `@apps/product-client-swift` run only from explicit native verification on a host that builds them
   (Linux or macOS for the Swift package, a Mac with the pinned Xcode for the
   app). A pull request can break them and still pass `verify:end`.
 

@@ -12,7 +12,7 @@
 | Schema safety model (no dangerous edit, no lost or rewritten value, tombstones permanent) | `pkgs/db-schema-root-harness-ts/tests/quint/schema-safety.qnt` | `bun test pkgs/db-schema-root-harness-ts/tests/quint/schema-safety.test.ts` |
 | Transaction/rebuild reference validity, without adapter replay | `../db-schema-harness/tests/quint/reconciliation-contracts.test.ts` | `bun test pkgs/db-schema-root-harness-ts/tests/quint/reconciliation-contracts.test.ts` |
 | Evolution gate (CI) | `libs/runtime-server-ts/scripts/verify-schema-evolution.ts` | `bun run --filter @libs/runtime-server-ts verify:schema-evolution` |
-| Append-only names (CI) | `apps/server-ts/tests/contract-manifest.test.ts` | `bun run --filter @apps/server-ts test` |
+| Append-only names (CI) | `apps/product-api-ts/tests/contract-manifest.test.ts` | `bun run --filter @apps/product-api-ts test` |
 
 ## Invariants (oracles)
 
@@ -28,7 +28,7 @@ New normative examples, model scope and unbound implementation checks:
 7. **Idempotence** — apply(S) twice emits no DDL; apply → introspect → re-plan is empty.
 8. **snake_case** — all schema identifiers validated at authoring time (runtime + type-level).
 9. **Evolution gate** — removing/renaming/retyping without a tombstone, weakening a tombstone, or dropping a tombstone fails `assertEvolvable`. The Quint model `pkgs/db-schema-root-harness-ts/tests/quint/schema-safety.qnt` is the composition oracle: every sequence of adds, fills, copies and retires keeps a filled value, freezes kinds, and never drops a tombstone; a dangerous edit is refused and leaves both copies unchanged. Apalache checks that up to 6 steps, and each drawn trace is replayed through `assertEvolvable`.
-10. **Append-only contract names** — removing or renaming a registered query/mutation name fails `apps/server-ts/tests/contract-manifest.test.ts`.
+10. **Append-only contract names** — removing or renaming a registered query/mutation name fails `apps/product-api-ts/tests/contract-manifest.test.ts`.
 
 ## Backends
 

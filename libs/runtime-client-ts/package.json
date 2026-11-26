@@ -30,8 +30,7 @@
     "@libs/profile-client-ts": "workspace:*",
     "@libs/search-client-ts": "workspace:*",
     "@libs/spaces-client-ts": "workspace:*",
-    "@libs/sub-client-ts": "workspace:*",
-    "@libs/synthetic-population-client-ts": "workspace:*"
+    "@libs/sub-client-ts": "workspace:*"
   },
   "devDependencies": {
     "@libs/app-root-shared-ts": "workspace:*",

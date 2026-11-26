@@ -19,7 +19,7 @@ import { createChessServer } from '@libs/chess-root-server-ts/sub-server';
 import { FRIENDS_SERVER } from '@libs/friends-server-ts/sub-server';
 import { FRIENDS_BLOCK_RELATION } from '@libs/friends-shared-ts/block-relation';
 import { NOTIFICATIONS_SERVER } from '@libs/notifications-server-ts/sub-server';
-import { createObservatoryServer } from '@libs/observatory-server-ts/sub-server';
+import { createLiveReportingServer } from '@libs/observatory-server-ts/sub-server';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 import { createSpacesServer } from '@libs/spaces-server-ts/sub-server';
 import type { SubServer } from '@libs/sub-shared-ts/server';
@@ -47,7 +47,7 @@ export function appSubServers(deps: AppSubServerDeps): readonly SubServer[] {
     NOTIFICATIONS_SERVER,
     SYNTHETIC_POPULATION_SERVER,
     // The Synthetic Population tells the User Observatory who its users are.
-    createObservatoryServer(syntheticPopulationForObservatory),
+    createLiveReportingServer(syntheticPopulationForObservatory),
     createBillingServer(deps.billing),
   ];
 }

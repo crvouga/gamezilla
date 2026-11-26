@@ -27,12 +27,15 @@ export type StackPlan = {
   readonly apiOrigin: string;
   /** Null when the stack runs without the web app. */
   readonly webOrigin: string | null;
+  readonly adminOrigin: string | null;
   readonly ports: {
     readonly api: number;
     readonly google: number;
     readonly apple: number;
     readonly billing: number;
     readonly web: number | null;
+    readonly adminWeb: number;
+    readonly adminApi: number;
     readonly postgres: number;
     readonly openAi: number;
     readonly s3: number;
@@ -80,6 +83,8 @@ export async function createStackPlan(
       apple: take(),
       billing: take(),
       web: options.withWeb ? take(options.webPort ?? 0) : null,
+      adminWeb: take(),
+      adminApi: take(),
       postgres: take(),
       openAi: take(),
       s3: take(),
@@ -97,6 +102,7 @@ export async function createStackPlan(
       dataDir,
       apiOrigin: loopback(ports.api),
       webOrigin: ports.web === null ? null : loopback(ports.web),
+      adminOrigin: options.withWeb ? loopback(ports.adminWeb) : null,
       ports,
     };
     writeFileSync(
