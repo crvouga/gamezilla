@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45892130856 timed out the two-seat Word Tiles bot law. Each turn searched beyond the four legal examples it used and repeated geometry and dictionary checks on generated placements.",
+  "regressionTest": "libs/word-tiles-shared-ts/tests/word-tiles-moves.test.ts"
+}

@@ -2,12 +2,12 @@ import type { PlacedLetter, ProposedTile } from './word-tiles-action';
 import { BOARD_SIZE, CENTER_CELL, cellAt } from './word-tiles-board';
 import {
   boardIsEmpty,
-  evaluatePlacement,
+  type Direction,
   isOccupied,
-  unknownWords,
+  scoreGeneratedLine,
 } from './word-tiles-placement';
 import { BLANK, tileOf } from './word-tiles-tiles';
-import { ROOT_NODE, trieHas, type WordTrie } from './word-tiles-trie';
+import { ROOT_NODE, type WordTrie } from './word-tiles-trie';
 
 /**
  * Every placement a rack allows on a board, found the way word-game
@@ -16,7 +16,7 @@ import { ROOT_NODE, trieHas, type WordTrie } from './word-tiles-trie';
  * through the trie, honouring each cell's cross-check (the letters that keep
  * its perpendicular word in the word list), the rack's multiplicities and
  * every letter a blank may play. Each found placement is scored by the
- * game's own `evaluatePlacement`. The search is bounded by `budget` trie
+ * same word scorer used by the authority. The search is bounded by `budget` trie
  * steps, deterministic, and reports whether it finished.
  */
 
@@ -28,7 +28,7 @@ export type GeneratedMove = {
 
 export type MoveSearch = {
   readonly moves: readonly GeneratedMove[];
-  /** `false` when the budget ran out before every anchor was searched. */
+  /** `false` when a search limit stopped exploration. */
   readonly complete: boolean;
 };
 
@@ -39,6 +39,7 @@ type RackTiles = {
 };
 
 type Line = {
+  readonly direction: Direction;
   /** Cells of the row (across) or column (down), in order. */
   readonly cells: readonly number[];
   /** Per index: the letters allowed by its cross word, or `null` for any. */
@@ -51,8 +52,8 @@ type Search = {
   readonly rack: RackTiles;
   readonly anchors: ReadonlySet<number>;
   readonly found: Map<string, GeneratedMove>;
-  steps: number;
-  readonly budget: number;
+  remainingSteps: number;
+  readonly maxMoves: number;
 };
 
 function letterIndex(letter: string): number {
@@ -116,24 +117,36 @@ function crossCheck(
   return allowed;
 }
 
-function linesOf(search: Pick<Search, 'board' | 'trie'>): readonly Line[] {
-  const lines: Line[] = [];
-  for (const across of [true, false])
-    for (let n = 0; n < BOARD_SIZE; n++) {
-      const cells = Array.from({ length: BOARD_SIZE }, (_, i) =>
-        across ? n * BOARD_SIZE + i : i * BOARD_SIZE + n
-      );
-      const perpendicular: readonly [number, number] = across ? [1, 0] : [0, 1];
-      lines.push({
-        cells,
-        allowed: cells.map((cell) =>
-          isOccupied(search.board, cell)
-            ? null
-            : crossCheck(search, cell, perpendicular)
-        ),
-      });
+/** Rows first, then columns, in the order the bounded search visits them. */
+const BOARD_LINES = (['across', 'down'] as const).flatMap((direction) =>
+  Array.from({ length: BOARD_SIZE }, (_, line) => ({
+    direction,
+    cells: Array.from({ length: BOARD_SIZE }, (_, i) =>
+      direction === 'across' ? line * BOARD_SIZE + i : i * BOARD_SIZE + line
+    ),
+  }))
+);
+
+function searchLines(search: Search): void {
+  for (const { direction, cells } of BOARD_LINES) {
+    if (search.remainingSteps <= 0) return;
+    if (!cells.some((cell) => search.anchors.has(cell))) continue;
+    const perpendicular: readonly [number, number] =
+      direction === 'across' ? [1, 0] : [0, 1];
+    const line: Line = {
+      direction,
+      cells,
+      allowed: cells.map((cell) =>
+        isOccupied(search.board, cell)
+          ? null
+          : crossCheck(search, cell, perpendicular)
+      ),
+    };
+    for (const [index, cell] of cells.entries()) {
+      if (search.remainingSteps <= 0) return;
+      if (search.anchors.has(cell)) searchAnchor(search, line, index);
     }
-  return lines;
+  }
 }
 
 function isAnchor(board: string, cell: number): boolean {
@@ -156,7 +169,8 @@ type Path = {
   readonly anchor: number;
 };
 
-function record(search: Search, tiles: readonly ProposedTile[]): void {
+function record(search: Search, path: Path): void {
+  const { tiles } = path;
   const placed = tiles.map(
     (t): PlacedLetter => ({
       cell: t.cell,
@@ -166,19 +180,21 @@ function record(search: Search, tiles: readonly ProposedTile[]): void {
   );
   const key = placed
     .map((p) => `${p.cell}${p.blank ? p.letter.toLowerCase() : p.letter}`)
-    .sort()
     .join('.');
   if (search.found.has(key)) return;
-  const evaluation = evaluatePlacement(search.board, placed);
+  // The trie accepted the full line and every perpendicular word.
+  const evaluation = scoreGeneratedLine(
+    search.board,
+    placed,
+    path.line.direction
+  );
   if (!evaluation.ok) return;
-  // The trie path proves the main word; every cross word is checked again.
-  if (unknownWords(evaluation.score, (w) => trieHas(search.trie, w)).length > 0)
-    return;
   search.found.set(key, {
     tiles: [...tiles],
     placed,
     score: evaluation.score.total,
   });
+  if (search.found.size >= search.maxMoves) search.remainingSteps = 0;
 }
 
 function canSpend(rack: RackTiles, letter: number): boolean {
@@ -226,7 +242,7 @@ function extendThrough(search: Search, path: Path, node: number): void {
 }
 
 function extendRight(search: Search, path: Path): void {
-  if (search.steps++ >= search.budget) return;
+  if (search.remainingSteps-- <= 0) return;
   const { line, index, node } = path;
   const cell = line.cells[index];
   const filled = cell !== undefined && isOccupied(search.board, cell);
@@ -236,7 +252,7 @@ function extendRight(search: Search, path: Path): void {
     path.tiles.length > 0 &&
     search.trie.terminal(node)
   )
-    record(search, path.tiles);
+    record(search, path);
   if (cell === undefined) return;
   if (filled) {
     const next = search.trie.child(node, letterIndex(search.board[cell]!));
@@ -271,7 +287,7 @@ function leftPart(
   partial: readonly Spent[],
   limit: number
 ): void {
-  if (search.steps++ >= search.budget) return;
+  if (search.remainingSteps-- <= 0) return;
   const { line, anchor, node } = at;
   const tiles = partial.map((p, i) =>
     placeAt(
@@ -323,7 +339,12 @@ export function generateMoves(input: {
   readonly rack: readonly number[];
   readonly trie: WordTrie;
   readonly budget: number;
+  /** Stop once this many distinct placements have been found. */
+  readonly maxMoves?: number;
 }): MoveSearch {
+  const maxMoves = input.maxMoves ?? Number.POSITIVE_INFINITY;
+  if (!(input.budget > 0 && maxMoves > 0))
+    return { moves: [], complete: false };
   const search: Search = {
     board: input.board,
     trie: input.trie,
@@ -336,16 +357,12 @@ export function generateMoves(input: {
           )
     ),
     found: new Map(),
-    steps: 0,
-    budget: input.budget,
+    remainingSteps: input.budget,
+    maxMoves,
   };
-  for (const line of linesOf(search))
-    line.cells.forEach((cell, index) => {
-      if (search.steps < search.budget && search.anchors.has(cell))
-        searchAnchor(search, line, index);
-    });
+  searchLines(search);
   return {
     moves: [...search.found.values()],
-    complete: search.steps < search.budget,
+    complete: search.remainingSteps > 0,
   };
 }

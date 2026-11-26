@@ -106,8 +106,9 @@ function exampleProposals(position: string, hand: string): readonly string[] {
     rack,
     trie: requireLexicon(decoded.lexicon).trie,
     budget: 2_000,
+    maxMoves: 4,
   });
-  for (const move of search.moves.slice(0, 4))
+  for (const move of search.moves)
     examples.push(formatProposal({ kind: 'place', tiles: move.tiles }));
   return examples;
 }
