@@ -81,15 +81,19 @@ describe('WORKFLOW_DISPATCH', () => {
       'deploy-verify',
       'deploy-await-health',
     ]);
-    expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
+    expect(deploy.jobs['deploy-dev']!.needs).toEqual([
+      'deploy-verify',
+      'deploy-await-health',
+      'deploy-fleet',
+    ]);
     expect(deploy.jobs['deploy-prd']!.needs).toEqual([
+      'deploy-verify',
+      'deploy-await-health',
       'deploy-fleet',
       'deploy-repository-policy',
     ]);
-    expect(deploy.jobs['deploy-release']!.needs).toEqual([
-      'deploy-prd',
-      'deploy-repository-policy',
-    ]);
+    expect(deploy.jobs['deploy-release']!.needs).toBe('deploy-prd');
+    expect(deploy.jobs['deploy-release']!.if).toContain("needs.deploy-prd.result == 'success'");
   });
 
   test('every Release job stops within 10 minutes, and a rehearsal is titled apart', () => {

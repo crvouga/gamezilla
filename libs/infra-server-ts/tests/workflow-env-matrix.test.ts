@@ -82,6 +82,8 @@ test('Release has one job per env file, production independent of development', 
   }
   for (const env of production) {
     expect(workflow.jobs[`deploy-${env}`]?.needs).toEqual([
+      'deploy-verify',
+      'deploy-await-health',
       'deploy-fleet',
       'deploy-repository-policy',
     ]);

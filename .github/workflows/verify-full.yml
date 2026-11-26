@@ -21,6 +21,10 @@ on:
         options: [normal, cold]
         default: normal
   workflow_call:
+    outputs:
+      reuse-shared:
+        description: A recent Release successfully applied the current shared configuration
+        value: ${{ jobs.verify-start.outputs.reuse-shared }}
     inputs:
       deployment:
         description: Verify the production artifacts, integrations and release safeguards
@@ -112,6 +116,7 @@ jobs:
     # One entry per shard with work, naming none of them: GitHub drops a job
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
+      reuse-shared: ${{ steps.shared.outputs.reuse }}
       shards: ${{ steps.plan.outputs.shards }}
       consumers: ${{ steps.plan.outputs.consumers }}
       single_runner: ${{ steps.plan.outputs.single_runner }}
@@ -162,6 +167,15 @@ jobs:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
+      - name: Check for a recent successful shared reconciliation
+        if: inputs.require-main && github.event_name == 'push'
+        id: shared
+        run: |
+          if timeout 12 bash libs/tools-harness-ts/scripts/reuse-shared-release.sh; then
+            echo 'reuse=+' >> "$GITHUB_OUTPUT"
+          else
+            echo 'This Release will reconcile shared services and repository policy.'
+          fi
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
@@ -220,6 +234,7 @@ jobs:
         if: steps.plan.outputs.single_runner == '+'
         id: single
         run: |
+          GITHUB_TOKEN="$GH_TOKEN" bun run libs/tools-harness-ts/scripts/verify-single-runner.ts --install-tools
           remaining=$(( CI_STAGE_DEADLINE - $(date +%s) - 20 ))
           if (( remaining <= 0 )); then
             echo "::error::No verification time remains before publishing the verdict."

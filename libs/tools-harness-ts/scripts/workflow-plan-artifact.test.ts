@@ -63,3 +63,14 @@ test('artifact transport preserves metadata containing arbitrary masked substrin
     })
   );
 });
+
+// regression: release-tool-install-rate-limit
+test('mise authenticates tool downloads before starting fixture verification', () => {
+  const workflow = readFileSync(
+    join(import.meta.dirname, '../../../.github/workflows/verify-full.yml'),
+    'utf8'
+  );
+  expect(workflow).toMatch(
+    /GITHUB_TOKEN="\$GH_TOKEN" [^\n]+--install-tools\n[^]*?secrets-run\.ts --fixture -- [^\n]+verify-single-runner\.ts/
+  );
+});
