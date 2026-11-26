@@ -9,6 +9,12 @@ for (const phone of [true, false]) {
         ? { width: 390, height: 844 }
         : { width: 1440, height: 1024 },
       hasTouch: phone,
+      video: {
+        mode: 'on',
+        size: phone
+          ? { width: 390, height: 844 }
+          : { width: 1440, height: 1024 },
+      },
     });
     test('storybook integration: Quoridor gaps place both walls and a pawn travels from its previous square', async ({
       page,
