@@ -55,15 +55,28 @@ export const PlaceAWall: Story = {
       await canvas.findByTestId('practice-board-action-e2')
     );
     await userEvent.click(await canvas.findByTestId('practice-next'));
-    await userEvent.click(await canvas.findByTestId('practice-board-mode-h'));
-    await userEvent.click(
-      await canvas.findByTestId('practice-board-action-d6h')
-    );
-    await userEvent.click(
-      await canvas.findByTestId('practice-board-wall-commit')
-    );
+    const d6 = canvas.getByTestId('practice-board-action-d6');
+    const tapGap = () => {
+      const lower = d6.getBoundingClientRect();
+      const upper = canvas
+        .getByTestId('practice-board-action-d7')
+        .getBoundingClientRect();
+      return userEvent.pointer({
+        target: canvas.getByTestId('practice-board'),
+        coords: {
+          clientX: lower.left + lower.width * 0.75,
+          clientY: (upper.bottom + lower.top) / 2,
+        },
+        keys: '[MouseLeft]',
+      });
+    };
+    await tapGap();
+    await expect(d6).toHaveAttribute('data-preview-edge-top', 'true');
+    await tapGap();
+    await expect(d6).toHaveAttribute('data-edge-top', 'true');
     await expect(
-      await canvas.findByTestId('practice-board-action-d6')
+      canvas.getByTestId('practice-board-action-e6')
     ).toHaveAttribute('data-edge-top', 'true');
+    await expect(canvas.getByTestId('practice-next')).toBeEnabled();
   },
 };

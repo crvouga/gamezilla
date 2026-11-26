@@ -25,7 +25,7 @@ export function quoridorLesson(hill: boolean): GameLesson {
       before: hill ? ['e2', 'a4', 'e8', 'i4'] : ['e2', 'e8'],
       action: 'd6h',
       prompt: () =>
-        t`Slow North down. Choose Horizontal wall, select d6 and confirm Place wall.`,
+        t`Tap the gap above the right half of d6 to preview a wall. Tap the same gap again to place it. With a keyboard, open Coordinates and choose Horizontal wall, d6, then Place wall.`,
       success: () =>
         t`The wall blocks two crossings. Each pawn still has a route to its goal.`,
     }),

@@ -13,10 +13,14 @@ function chess(from: string, to: string): Action {
     await ui.get(`practice-board-square-${to}`).key('enter');
   };
 }
+export async function previewWallWithKeyboard(ui: Driver) {
+  await ui.get('practice-board-coordinates').key('enter');
+  await ui.get('practice-board-mode-h').key('enter');
+  await ui.get('practice-board-action-d6h').key('enter');
+}
 async function placeWall(ui: Driver) {
-  await ui.get('practice-board-mode-h').tap();
-  await ui.get('practice-board-action-d6h').tap();
-  await ui.get('practice-board-wall-commit').tap();
+  await previewWallWithKeyboard(ui);
+  await ui.get('practice-board-wall-commit').key('enter');
 }
 function shot(cell: string): Action {
   return async (ui) => {
