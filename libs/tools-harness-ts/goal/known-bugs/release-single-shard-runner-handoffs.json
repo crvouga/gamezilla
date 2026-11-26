@@ -1,0 +1,4 @@
+{
+  "summary": "Release rehearsal 45833525355 started three verification runners for one shard with six cache misses. Its shard executed in 6.8 seconds and verification took over three minutes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-plan-schedule.test.ts"
+}
