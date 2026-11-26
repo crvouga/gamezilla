@@ -12,11 +12,14 @@ import {
   replaceRunningCheck,
   stopStartedRelease,
 } from '@libs/runtime-harness-ts/environment-release-actions';
-import { readReleasePolicy } from '../environment-release-policy';
+import {
+  readPreparationPolicy,
+  readReleasePolicy,
+} from '../environment-release-policy';
 
 Given('preparation of the environment cannot finish', () => undefined);
 When('the team prepares that environment', async (w) => {
-  await w.s.apply(prepareDespiteFailure, await readReleasePolicy());
+  await w.s.apply(prepareDespiteFailure, await readPreparationPolicy());
 });
 Then('the team is told preparation could not finish', async (w) => {
   expect((await w.s.read(environmentView)).openState).toBe('told-and-open');

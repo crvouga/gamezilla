@@ -1,36 +1,14 @@
-import type { ReleasePolicy } from '@libs/runtime-server-ts/environment-release';
+import type {
+  PreparationPolicy,
+  ReleasePolicy,
+} from '@libs/runtime-server-ts/environment-release';
 
 const ROOT = `${import.meta.dir}/../../..`;
 
-type Job = { readonly needs?: string | readonly string[] };
-
-function needsCheck(needs: Job['needs']): boolean {
-  if (needs === 'deploy-verify') return true;
-  return Array.isArray(needs) && needs.includes('deploy-verify');
-}
-
-/** Facts read from the shipped preparation and release definitions. */
-export async function readReleasePolicy(): Promise<ReleasePolicy> {
-  const deployText = await Bun.file(
-    `${ROOT}/.github/workflows/deploy.yml`
-  ).text();
-  const checkText = await Bun.file(
-    `${ROOT}/.github/workflows/verify-pr.yml`
-  ).text();
+export async function readPreparationPolicy(): Promise<PreparationPolicy> {
   const workspace = `${ROOT}/libs/tools-harness-ts/workspace`;
   const preparation = await Bun.file(`${workspace}/setup.sh`).text();
   const opening = await Bun.file(`${workspace}/prepare.sh`).text();
-  const deploy = Bun.YAML.parse(deployText) as {
-    concurrency: { 'cancel-in-progress': boolean };
-    jobs: Record<string, Job>;
-  };
-  const check = Bun.YAML.parse(checkText) as {
-    on: Record<string, unknown>;
-    concurrency: { 'cancel-in-progress': boolean };
-  };
-  const full = Bun.YAML.parse(
-    await Bun.file(`${ROOT}/.github/workflows/verify-full.yml`).text()
-  ) as { concurrency: { 'cancel-in-progress': string } };
   const reportsFailure =
     preparation.includes('if ! workspace_system; then') &&
     preparation.includes('!!! mise install failed');
@@ -43,19 +21,73 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   const toldAt = opening.indexOf('!!! environment preparation is incomplete');
   const openAt = opening.indexOf('==> workspace may be opened');
   return {
-    shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
-    newerProposalReplacesCheck:
-      Object.hasOwn(check.on, 'pull_request') &&
-      check.concurrency['cancel-in-progress'],
-    releaseCheckIsNotReplaced:
-      full.concurrency['cancel-in-progress'] ===
-      "${{ github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' }}",
-    underwayIsNotCancelled: deploy.concurrency['cancel-in-progress'] === false,
-    noUndoOfStartedRelease:
-      deploy.concurrency['cancel-in-progress'] === false &&
-      !Object.keys(deploy.jobs).some((name) => name.includes('rollback')),
     preparationFailureIsTold: reportsFailure && toldAt >= 0,
     preparationFailureStillOpens:
       openingHandlesFailure && toldAt >= 0 && openAt > toldAt,
+  };
+}
+
+type Concurrency =
+  | string
+  | { readonly 'cancel-in-progress'?: boolean | string };
+type Job = {
+  readonly needs?: string | readonly string[];
+  readonly uses?: string;
+  readonly concurrency?: Concurrency;
+};
+type Workflow = {
+  readonly on: Record<string, unknown>;
+  readonly jobs: Record<string, Job>;
+  readonly concurrency?: Concurrency;
+};
+
+function keepsActiveRun(owner: {
+  readonly concurrency?: Concurrency;
+}): boolean {
+  const setting = owner.concurrency;
+  return (
+    typeof setting !== 'object' ||
+    (setting['cancel-in-progress'] ?? false) === false
+  );
+}
+
+function needsCheck(needs: Job['needs']): boolean {
+  if (needs === 'deploy-verify') return true;
+  return Array.isArray(needs) && needs.includes('deploy-verify');
+}
+
+async function workflow(file: string): Promise<Workflow> {
+  return Bun.YAML.parse(
+    await Bun.file(`${ROOT}/.github/workflows/${file}`).text()
+  ) as Workflow;
+}
+
+export async function readReleasePolicy(): Promise<ReleasePolicy> {
+  const [deploy, check, verifier] = await Promise.all([
+    workflow('deploy.yml'),
+    workflow('verify-pr.yml'),
+    workflow('verify-full.yml'),
+  ]);
+  const releaseCheck = deploy.jobs['deploy-verify'];
+  const activeReleaseIsProtected =
+    typeof deploy.concurrency === 'object' &&
+    deploy.concurrency['cancel-in-progress'] === false;
+  return {
+    shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
+    newerProposalReplacesCheck:
+      Object.hasOwn(check.on, 'pull_request') &&
+      typeof check.concurrency === 'object' &&
+      check.concurrency['cancel-in-progress'] === true,
+    releaseCheckIsNotReplaced:
+      activeReleaseIsProtected &&
+      releaseCheck?.uses === './.github/workflows/verify-full.yml' &&
+      keepsActiveRun(releaseCheck) &&
+      Object.hasOwn(verifier.on, 'workflow_call') &&
+      keepsActiveRun(verifier) &&
+      Object.values(verifier.jobs).every(keepsActiveRun),
+    underwayIsNotCancelled: activeReleaseIsProtected,
+    noUndoOfStartedRelease:
+      activeReleaseIsProtected &&
+      !Object.keys(deploy.jobs).some((name) => name.includes('rollback')),
   };
 }
