@@ -149,3 +149,13 @@
     --under: calc(var(--ui-control-size-md) * 3);
   }
 }
+
+/* The wide picker and confirmation already share the second row. Keep
+   that same two-row allowance when switching between direct and precise play. */
+@container game-column (min-width: 880px) {
+  [data-game-fixed="true"]
+    [data-board-workspace="true"]
+    [data-quoridor-surface]:has(~ * [aria-pressed]) {
+    --under: calc(var(--ui-control-size-md) * 2);
+  }
+}

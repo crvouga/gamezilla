@@ -194,6 +194,20 @@
   }
 }
 
+/* On a wide Quoridor table the two player strips fit beside one another,
+   as do the turn and history. Leave the remaining height for the nine ranks. */
+@container game-column (min-width: 880px) {
+  .stage:has([data-quoridor-mode]) :is([data-game-players], .information) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .stage:has([data-quoridor-mode]) :is([data-game-players], .information) > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+
 /* Six complete tile rows, the view tools and rack fit a 320 × 740 phone
    with the compact heading and command heights used on short screens. */
 @media (max-width: 359px) and (max-height: 760px) {

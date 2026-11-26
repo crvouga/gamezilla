@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440 × 900 the Classic opening grid was 428px wide and shrank to 384px when the wall picker opened.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/desktop-table-room/integration.checks.ts"
+}
