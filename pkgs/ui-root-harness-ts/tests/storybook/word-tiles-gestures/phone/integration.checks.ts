@@ -16,6 +16,7 @@ import {
   viewport,
 } from '../board-targets';
 import { measureGestures, saveGestures } from '../gesture-evidence';
+import { observeTouches, saveTouches } from './touch-evidence';
 
 test.use({
   viewport: { width: 390, height: 844 },
@@ -24,8 +25,14 @@ test.use({
   video: 'on',
   trace: 'on',
 });
-test.beforeEach(async ({ page }) => observeInput(page));
-test.afterEach(async ({ page }, info) => recordEvidence(page, info));
+test.beforeEach(async ({ page }) => {
+  await observeInput(page);
+  await observeTouches(page);
+});
+test.afterEach(async ({ page }, info) => {
+  await saveTouches(page, info);
+  await recordEvidence(page, info);
+});
 
 // regression: word-tiles-pinch-midpoint-snaps
 // regression: word-tiles-phone-fit-after-drop
