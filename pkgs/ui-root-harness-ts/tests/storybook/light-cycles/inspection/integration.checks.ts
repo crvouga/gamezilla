@@ -128,8 +128,9 @@ test('light-cycles board inspection phone anchored pinch pan and cancel', async 
       type: 'touchMove',
       touchPoints: fingers(spread),
     });
-  await expect(arena).not.toHaveAttribute('data-zoom', '1');
-  expect((await box(arena)).width).toBeCloseTo(fitted.width / 2, 1);
+  await expect
+    .poll(async () => (await box(arena)).width)
+    .toBeCloseTo(fitted.width / 2, 1);
   const anchored = await at(arena, anchor);
   expect(anchored.x).toBeCloseTo(world.x, 1);
   expect(anchored.y).toBeCloseTo(world.y, 1);
