@@ -1,4 +1,6 @@
 import { expect, test } from 'bun:test';
+import { join } from 'node:path';
+import { discoverPbtTests, discoverSeededTests } from './discover';
 import { owningPackagePath, testFileCommand } from './test-file-command';
 
 test('selected Solid tests retain compiler config in both supported flag forms', () => {
@@ -68,4 +70,25 @@ test('a Windows-separated selection resolves to its owning package', () => {
     packagePath: 'libs/profile-client-ts',
     argv: ['test', '--timeout', '5000', './tests/use-synced-profiles.test.tsx'],
   });
+});
+
+// regression: nightly-fuzz-repeats-seed-independent-tests
+test('each randomized suite selects tests that consume its seed', async () => {
+  const root = join(import.meta.dir, '../../..');
+  const seeded = await discoverSeededTests(root);
+  expect(seeded).toContain(
+    'pkgs/room-root-harness-ts/tests/purity-and-seed.test.ts'
+  );
+  expect(seeded).toContain(
+    'pkgs/room-root-harness-ts/tests/hash-canonicality.test.ts'
+  );
+  expect(seeded).not.toContain(
+    'libs/infra-server-ts/tests/observability-status.test.ts'
+  );
+  expect(seeded).not.toContain(
+    'pkgs/ui-root-harness-ts/tests/storybook-index.test.ts'
+  );
+  expect(await discoverPbtTests(root)).toContain(
+    'libs/infra-server-ts/tests/observability-status.property.test.ts'
+  );
 });

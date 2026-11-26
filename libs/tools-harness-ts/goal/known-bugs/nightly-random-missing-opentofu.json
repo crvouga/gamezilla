@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly random shard 2/4 could not evaluate the observability stack predicate because it lacked the pinned OpenTofu console.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

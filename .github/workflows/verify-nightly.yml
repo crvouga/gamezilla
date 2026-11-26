@@ -180,7 +180,7 @@ jobs:
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
-          tools: bun node conftest
+          tools: bun node conftest opentofu
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}

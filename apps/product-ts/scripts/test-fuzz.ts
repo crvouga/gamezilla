@@ -1,54 +1,15 @@
 #!/usr/bin/env bun
 // @io-wall-ok
 import { spawnSync } from 'node:child_process';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, sep } from 'node:path';
+import { readFileSync } from 'node:fs';
+import { join, relative } from 'node:path';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
+import { discoverSeededTests } from './discover';
 import { formatShard, nightlyShard, shareOf } from './nightly-shard';
 import { recordSeeds } from './seed-record';
 import { owningPackagePath, testFileCommand } from './test-file-command';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
-
-function collectHarnessTests(): string[] {
-  const roots = [join(REPO_ROOT, 'pkgs'), join(REPO_ROOT, 'libs')];
-  const files: string[] = [];
-  function walk(dir: string): void {
-    let entries: string[];
-    try {
-      entries = readdirSync(dir);
-    } catch {
-      return;
-    }
-    for (const name of entries) {
-      const path = join(dir, name);
-      const st = statSync(path);
-      if (st.isDirectory()) {
-        if (
-          name === 'node_modules' ||
-          name === '.git' ||
-          name === 'dist' ||
-          name === '.turbo'
-        ) {
-          continue;
-        }
-        walk(path);
-        continue;
-      }
-      // Prefer package-level tests/ suites.
-      const underTests = path.includes(`${sep}tests${sep}`);
-      if (
-        underTests &&
-        (name.endsWith('.test.ts') || name.endsWith('.test.tsx')) &&
-        !name.endsWith('.contract.test.ts')
-      ) {
-        files.push(path);
-      }
-    }
-  }
-  for (const root of roots) walk(root);
-  return files.toSorted();
-}
 
 // `--seed-count=` wins; `HARNESS_FUZZ_SEEDS` is the budget a check profile
 // sets (`libs/tools-harness-ts/scripts/verify-profile.ts`).
@@ -62,9 +23,11 @@ const seedCount = Number(
 // `HARNESS_SEED=<seed>` replays the one seed a failed run printed.
 const replaySeed = process.env['HARNESS_SEED'];
 
-const allFiles = collectHarnessTests();
+const allFiles = (await discoverSeededTests(REPO_ROOT)).map((file) =>
+  join(REPO_ROOT, file)
+);
 if (allFiles.length === 0) {
-  console.error('No harness test files found under tests/');
+  console.error('No harness tests consume HARNESS_SEED');
   process.exit(1);
 }
 // Verify Nightly spreads the files over its runners; each draws its own seeds.
