@@ -33,6 +33,18 @@ test('nightly and local verification retain the complete catalog', () => {
     expect(ciStageTasks(MAIN_VERIFY_TASKS, stage)).toEqual(MAIN_VERIFY_TASKS);
 });
 
+// regression: nightly-storybook-runs-twice
+test('the full visual matrix owns browser execution and the gate retains story coverage', () => {
+  const tasks = ciStageTasks(MAIN_VERIFY_TASKS, 'nightly', true);
+  expect(tasks).toEqual([
+    ...ciStageTasks(MAIN_VERIFY_TASKS, 'release'),
+    '@pkgs/ui-root-harness-ts#storybook:coverage',
+  ]);
+  expect(verifyWorkflow().env['VERIFY_NIGHTLY_VISUAL_MATRIX']).toBe(
+    '${{ inputs.visual-matrix }}'
+  );
+});
+
 test('a pull request runs only the tasks that cannot wait for Release', () => {
   const pr = ciStageTasks(MAIN_VERIFY_TASKS, 'pr');
   expect([...pr].sort()).toEqual([...PR_TASKS].sort());

@@ -26,6 +26,10 @@ on:
         description: A recent Release successfully applied the current shared configuration
         value: ${{ jobs.verify-start.outputs.reuse-shared }}
     inputs:
+      visual-matrix:
+        description: The caller runs the whole Storybook suite in its visual matrix
+        type: boolean
+        default: false
       created-at:
         description: Original workflow creation timestamp supplied by Nightly admission
         type: string
@@ -98,6 +102,7 @@ env:
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_DEPLOYMENT: ${{ inputs.deployment && 'true' || 'false' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
+  VERIFY_NIGHTLY_VISUAL_MATRIX: ${{ inputs.visual-matrix }}
   VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
 

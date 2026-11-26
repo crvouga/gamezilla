@@ -1,0 +1,4 @@
+{
+  "summary": "Full Nightly 45868165600 scheduled the filtered Storybook tests on gate workers alongside Pong and again in the complete visual matrix. The visual matrix owns those tests on a full night, while a gate-only diagnostic retains the filtered tasks.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stage.test.ts"
+}
