@@ -1,101 +1,83 @@
+import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
 import { NoteActivity } from '@libs/spaces-shared-ts/space-activity';
 import { isViewingSpaceClient } from '@libs/spaces-shared-ts/space-presence-client-id';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createSignal, Show } from 'solid-js';
+import { createSignal, Show } from 'solid-js';
 import { RemoveSpacePersonModal } from './remove-space-person-modal';
 import { RenameSpaceModal } from './rename-space-modal';
-import { useSpaceMembersDialog } from './space-members-dialog-context';
-import { SpaceMembersListModal } from './space-members-list-modal';
+import { SpaceManagement } from './space-management';
+import {
+  type SpaceManagementPage,
+  useSpaceManagement,
+} from './space-management-context';
 import type { SpacePerson } from './space-person-view';
 import { useSpaceRoomClientId } from './space-room-context';
-import { useSpaceShareDialog } from './space-share-dialog-context';
-import { SpaceShareSheet } from './space-share-sheet';
+import { useSpaceCan } from './use-space-can';
 import { useSpaceRoomDispatch } from './use-space-room-selector';
 
-/**
- * The sheets and confirms a space's chrome opens over every screen in it:
- * share, the people in the space, rename, and removing a person.
- */
-export type SpaceOverlays = {
-  readonly shareOpen: Accessor<boolean>;
-  readonly setShareOpen: (open: boolean) => void;
-  readonly membersOpen: Accessor<boolean>;
-  readonly setMembersOpen: (open: boolean) => void;
-  /** Opens the people in the space; looking counts as activity in it. */
-  readonly openMembers: () => void;
-  readonly renameOpen: Accessor<boolean>;
-  readonly setRenameOpen: (open: boolean) => void;
-  readonly removing: Accessor<SpacePerson | null>;
-  readonly setRemoving: (person: SpacePerson | null) => void;
-};
-
-/**
- * The overlays' state. Share and the people list keep the route's state, so
- * the view a person chose survives the chrome rebuilding while the space
- * reconnects; a screen outside the route keeps its own Share.
- */
-export function useSpaceOverlays(): SpaceOverlays {
+export function useSpaceOverlays() {
   const clock = useClock();
-  const members = useSpaceMembersDialog();
+  const [page, navigate] = useSpaceManagement();
   const dispatch = useSpaceRoomDispatch();
   const clientId = useSpaceRoomClientId();
-  const shareDialog = useSpaceShareDialog();
-  const [ownShareOpen, setOwnShareOpen] = createSignal(false);
-  const [renameOpen, setRenameOpen] = createSignal(false);
   const [removing, setRemoving] = createSignal<SpacePerson | null>(null);
+  function openMembers(): void {
+    const id = clientId();
+    if (id !== null && isViewingSpaceClient(id)) {
+      dispatch(NoteActivity({ clientId: id, at: clock.now() }));
+    }
+    navigate({ area: 'people', tab: 'people' });
+  }
   return {
-    shareOpen: () => shareDialog?.open() ?? ownShareOpen(),
-    setShareOpen: (open) => {
-      if (shareDialog === null) setOwnShareOpen(open);
-      else shareDialog.setOpen(open);
-    },
-    membersOpen: members.open,
-    setMembersOpen: (open) => members.setOpen(open),
-    openMembers: () => {
-      const id = clientId();
-      if (id !== null && isViewingSpaceClient(id)) {
-        dispatch(NoteActivity({ clientId: id, at: clock.now() }));
-      }
-      members.setOpen(true);
-    },
-    renameOpen,
-    setRenameOpen,
+    page,
+    navigate,
+    openMembers,
     removing,
     setRemoving,
+    openSharing: () => navigate({ area: 'people', tab: 'sharing' }),
+    openSettings: () => navigate({ area: 'settings', tab: 'general' }),
   };
 }
 
-/** Renders the overlays of {@link useSpaceOverlays} for one space. */
+export type SpaceOverlays = ReturnType<typeof useSpaceOverlays>;
+
 export function SpaceScreenOverlays(props: {
   readonly spaceId: string;
+  readonly spaceName: string;
+  readonly canManage: boolean;
   readonly overlays: SpaceOverlays;
 }): JSX.Element {
+  const canRename = useSpaceCan(() => props.spaceId, PERMISSION.spacesRename);
+  const [renaming, setRenaming] = createSignal(false);
+  const page = (): SpaceManagementPage | null => {
+    const current = props.overlays.page();
+    if (current?.area === 'settings' && !props.canManage) return null;
+    return current;
+  };
+  const editing = () =>
+    page()?.area === 'settings' && canRename() && renaming();
   return (
     <>
-      <SpaceMembersListModal
-        spaceId={props.spaceId}
-        visible={props.overlays.membersOpen()}
-        onClose={() => props.overlays.setMembersOpen(false)}
-        onShare={() => {
-          props.overlays.setMembersOpen(false);
-          props.overlays.setShareOpen(true);
-        }}
-        onRemove={(person) => {
-          props.overlays.setMembersOpen(false);
-          props.overlays.setRemoving(person);
-        }}
-      />
-      <SpaceShareSheet
-        spaceId={props.spaceId}
-        open={props.overlays.shareOpen()}
-        onOpenChange={props.overlays.setShareOpen}
-      />
-      <RenameSpaceModal
-        spaceId={props.spaceId}
-        visible={props.overlays.renameOpen()}
-        onClose={() => props.overlays.setRenameOpen(false)}
-      />
+      <Show when={!editing() && page()}>
+        {(current) => (
+          <SpaceManagement
+            spaceId={props.spaceId}
+            spaceName={props.spaceName}
+            page={current()}
+            onNavigate={props.overlays.navigate}
+            onClose={() => props.overlays.navigate(null)}
+            onRename={canRename() ? () => setRenaming(true) : undefined}
+          />
+        )}
+      </Show>
+      <Show when={editing()}>
+        <RenameSpaceModal
+          spaceId={props.spaceId}
+          visible
+          onClose={() => setRenaming(false)}
+        />
+      </Show>
       <Show when={props.overlays.removing()} keyed>
         {(person) => (
           <RemoveSpacePersonModal

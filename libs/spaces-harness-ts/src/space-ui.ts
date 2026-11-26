@@ -272,5 +272,8 @@ export async function tapSpaceAction(
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
+  if (handle === Handles.spaceRename && !(await ui.get(handle).isVisible())) {
+    await ui.get(Handles.spaceSettings).tap({ timeoutMs: SPACE_WAIT_MS });
+  }
   await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
 }

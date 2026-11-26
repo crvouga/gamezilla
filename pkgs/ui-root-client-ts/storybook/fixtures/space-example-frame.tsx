@@ -24,12 +24,11 @@ export function SpaceExampleFrame(props: {
 export type SpaceExampleSpies = {
   onBack: () => void;
   onMembers: () => void;
-  onRename: () => void;
+  onSettings: () => void;
   onMinimize: () => void;
   onLeave: () => void;
   onEnd: () => void;
   onPersonAction: (personId: string, action: string) => void;
-  onInvite: () => void;
 };
 
 /** Row 1 of bob's space and the people row's callbacks. */
@@ -40,11 +39,10 @@ export function spaceExampleChrome(
     spaceName: 'bob’s space',
     onBack: spies.onBack,
     onMembers: spies.onMembers,
-    onRename: spies.role === 'host' ? spies.onRename : undefined,
+    onSettings: spies.role === 'host' ? spies.onSettings : undefined,
     onLeave: spies.onLeave,
     onEnd: spies.role === 'host' ? spies.onEnd : undefined,
     onMinimize: spies.onMinimize,
     onPersonAction: spies.onPersonAction,
-    onInvite: spies.onInvite,
   };
 }

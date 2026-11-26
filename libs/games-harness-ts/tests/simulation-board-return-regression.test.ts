@@ -27,7 +27,7 @@ test.each([
     await using s = await openConformanceHarness();
     await s.apply(establishCustomGame, game.shared.id, {});
     await s.apply(focusActor, actor);
-    expect(await s.read(leaveOffered, actor)).toBe(true);
+    expect(await s.read(leaveOffered, actor)).toBe(actor !== 'alice');
     expect(await s.read(renameOffered, actor)).toBe(actor === 'alice');
     expect(await s.read(endOffered, actor)).toBe(actor === 'alice');
     const link = await s.read(readSpaceLink, actor);
