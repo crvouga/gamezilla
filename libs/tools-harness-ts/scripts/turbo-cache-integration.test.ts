@@ -138,6 +138,7 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
           !Array.isArray(body.hashes)
         )
           return new Response(null, { status: 400 });
+        if (body.hashes.length > 2) return new Response(null, { status: 400 });
         const hashes = body.hashes.filter((hash) => typeof hash === 'string');
         return Response.json(
           Object.fromEntries(

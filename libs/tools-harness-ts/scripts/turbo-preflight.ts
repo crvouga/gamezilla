@@ -7,7 +7,7 @@
  * cache only (~4s): with `remote:` in `--cache` turbo also asks the remote
  * about every task one request at a time, ~70s for the whole gate even when
  * every task is a local hit. The remote is then asked only about the local
- * misses, in one batch (`POST /v8/artifacts`, `resolveRemoteHits`).
+ * misses, in batches (`POST /v8/artifacts`, `resolveRemoteHits`).
  * Two things follow:
  *
  * - **Nothing to execute → nothing to run.** When every task is a HIT the gate
@@ -241,7 +241,7 @@ export function wallArtifactQuery(
   observe?: (status: number, hash: string) => void
 ): (hashes: readonly string[]) => Promise<ReadonlySet<string>> {
   const url = artifactUrl(env['TURBO_API'] ?? '', env['TURBO_TEAM'] ?? '');
-  return async (hashes) => {
+  async function batch(hashes: readonly string[]): Promise<Set<string>> {
     const res = await retryRateLimited(() =>
       fetch(url, {
         method: 'POST',
@@ -253,6 +253,11 @@ export function wallArtifactQuery(
         signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
       })
     ).catch(() => null);
+    if (res?.status === 400 && hashes.length > 1) {
+      const middle = Math.ceil(hashes.length / 2);
+      const left = await batch(hashes.slice(0, middle));
+      return left.union(await batch(hashes.slice(middle)));
+    }
     const data: unknown = res?.ok ? await res.json().catch(() => null) : null;
     const entries = new Map(
       Object.entries(typeof data === 'object' && data !== null ? data : {})
@@ -266,6 +271,23 @@ export function wallArtifactQuery(
         res?.ok ? (hit ? 200 : entry === null ? 404 : 0) : (res?.status ?? 0),
         hash
       );
+    }
+    return found;
+  }
+  return async (hashes) => {
+    const found = new Set<string>();
+    const batchSize = 32;
+    const waveSize = 4 * batchSize;
+    for (let start = 0; start < hashes.length; start += waveSize) {
+      const requests = [];
+      for (
+        let i = start;
+        i < Math.min(start + waveSize, hashes.length);
+        i += batchSize
+      )
+        requests.push(batch(hashes.slice(i, i + batchSize)));
+      for (const entries of await Promise.all(requests))
+        for (const hash of entries) found.add(hash);
     }
     return found;
   };
