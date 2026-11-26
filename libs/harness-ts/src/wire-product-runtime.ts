@@ -34,7 +34,7 @@ export function wireProductRuntime(
   const damagedBrowserDevices = new Set<string>();
   const extra = productExtra(surface);
   const runtime: ProductRuntime = {
-    async launchActor(id) {
+    async launchActor(id, initialPath) {
       let browserStorage = browserDevices.get(id);
       if (extra.ui.kind === 'bun-webview' && browserStorage === undefined) {
         browserStorage = await createActorBrowserStorage(id);
@@ -51,6 +51,7 @@ export function wireProductRuntime(
         ui: extra.ui,
         harness: surface.harness,
         id,
+        initialPath,
         ...(browserStorage === undefined ? {} : { browserStorage }),
         ...(options?.snapshot !== undefined
           ? { snapshot: options.snapshot }

@@ -14,7 +14,7 @@ export async function injectWebViewSnapshotAuth(args: {
   readonly actorId: string;
   readonly snapshot: HarnessSystemSnapshot;
   readonly namespace: string;
-  readonly origin: string;
+  readonly url: string;
 }): Promise<void> {
   const slice = args.snapshot.clients[args.actorId];
   if (slice === undefined) return;
@@ -32,5 +32,5 @@ export async function injectWebViewSnapshotAuth(args: {
       }
     })()`
   );
-  await args.view.navigate(args.origin);
+  await args.view.navigate(args.url);
 }

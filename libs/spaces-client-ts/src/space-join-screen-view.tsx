@@ -280,6 +280,7 @@ function SpaceJoinLiveBody(props: {
         <LoadingState
           variant="compact"
           caption={<Trans>Checking the host’s connection…</Trans>}
+          dataSet={{ testid: Handles.spaceJoinCheckingHost }}
         />
       </Show>
     </StackVertical>
@@ -302,7 +303,8 @@ type JoinRecoveryCopy = {
 function useJoinRecoveryCopy(): (status: SpaceJoinStatus) => JoinRecoveryCopy {
   const { t } = useLingui();
   return (status) => {
-    if (status === 'loading') return { title: t`Opening the space…` };
+    if (status === 'loading')
+      return { title: t`Opening the space…`, testId: Handles.spaceJoinOpening };
     if (status === 'unavailable')
       return {
         title: t`You can't join this space`,

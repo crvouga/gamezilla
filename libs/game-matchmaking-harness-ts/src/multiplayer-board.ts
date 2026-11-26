@@ -55,7 +55,6 @@ export async function multiplayerBoardShown(
 export const joinMultiplayerSpace = scenarioAction({
   name: 'joinMultiplayerSpace',
   act: async (s, watcher: string, host: string) => {
-    await ensureActor(s, watcher);
     const spaceId = await multiplayerSpaceId(s, host);
     if (spaceId === null) throw new Error('The multiplayer host has no space');
     const { opened, afterJoin } = await joinSpaceFromLink(

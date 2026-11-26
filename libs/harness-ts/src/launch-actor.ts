@@ -82,11 +82,13 @@ async function createSolidDomClientDriver(args: {
 
 async function actorHistory(
   harness: Harness,
-  id: string
+  id: string,
+  initialPath?: string
 ): Promise<MemoryHistoryAdapter> {
   const history = memoryHistory();
-  const savedHref = await readEmbeddedHref((await harness.client(id)).kv);
-  if (savedHref !== null) history.set({ value: savedHref, replace: true });
+  const href =
+    initialPath ?? (await readEmbeddedHref((await harness.client(id)).kv));
+  if (href !== null) history.set({ value: href, replace: true });
   return history;
 }
 
@@ -111,6 +113,7 @@ type LaunchActorArgs = {
   readonly ui: ProductUi;
   readonly harness: Harness;
   readonly id: string;
+  readonly initialPath?: string | undefined;
   readonly snapshot?: HarnessSystemSnapshot;
   readonly browserStorage?: ActorBrowserStorage;
 };
@@ -125,8 +128,9 @@ async function launchWebview(
   if (args.browserStorage === undefined)
     throw new Error('Browser devices require persistent device storage');
   const { dataStore, reopenPath } = args.browserStorage;
+  const initialUrl = webOrigin + (args.initialPath ?? reopenPath ?? '/');
   const browser = await args.browserStorage.browser.open({
-    initialUrl: webOrigin + (reopenPath ?? '/'),
+    initialUrl,
     actorId: args.id,
     dataStore,
   });
@@ -169,7 +173,7 @@ async function launchWebview(
         actorId: args.id,
         snapshot: args.snapshot,
         namespace: args.harness.clientNamespace(args.id),
-        origin: webOrigin,
+        url: initialUrl,
       });
     }
     await appBuild.apply();
@@ -209,7 +213,7 @@ async function launchSolid(
     );
   }
   const runFor = args.ui.runFor;
-  const history = await actorHistory(args.harness, args.id);
+  const history = await actorHistory(args.harness, args.id, args.initialPath);
   const device = inProcessDevice(await args.harness.client(args.id));
   const stored = (key: string) => async () => {
     const value = (await args.harness.client(args.id)).secureStorage.getValue(

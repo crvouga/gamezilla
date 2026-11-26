@@ -55,7 +55,7 @@ export type HarnessActor = {
 };
 
 export type ProductRuntime = {
-  launchActor: (id: string) => Promise<HarnessActor>;
+  launchActor: (id: string, initialPath?: string) => Promise<HarnessActor>;
   resetActor: (id: string) => Promise<void>;
   /** App killed and reopened on the same device: storage and session survive. */
   restartActor: (id: string) => Promise<void>;

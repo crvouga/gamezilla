@@ -58,10 +58,11 @@ async function waitForWallChromeSettled(
 
 export async function ensureActor(
   s: ProductHarness,
-  actorId: string
+  actorId: string,
+  initialPath?: string
 ): Promise<void> {
   if (s.actors.has(actorId)) return;
-  const handle = await s.runtime.launchActor(actorId);
+  const handle = await s.runtime.launchActor(actorId, initialPath);
   await s.session.waitForIdle();
   // Boot gates (SQLite / fonts / assets) can paint before the global menu.
   // Spawn is not complete until chrome is addressable for properties +
