@@ -32,7 +32,7 @@ export default function SpaceInGameChessExample(
   return (
     <SpaceExampleFrame>
       <SpaceInGameTemplate
-        {...spaceExampleChrome(props, false)}
+        {...spaceExampleChrome(props)}
         game={game()}
         role={props.role}
         people={spaceChessPeople(props.role)}

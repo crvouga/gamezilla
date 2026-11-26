@@ -12,7 +12,7 @@ function linkOpening(loadingPolls: number) {
   let polls = 0;
   const shown = (): ReadonlySet<string> =>
     polls < loadingPolls
-      ? new Set([Handles.spaceChromeOverflow, Handles.spaceLoading])
+      ? new Set([Handles.spaceClose, Handles.spaceLoading])
       : new Set([Handles.spaceJoin]);
   const ui = {
     get: (handle: string) => ({
@@ -53,9 +53,9 @@ function liveLinkOpening(shellReads: number, openingPolls: number) {
   let joined = false;
   const taps: string[] = [];
   const shown = (): ReadonlySet<string> => {
-    if (joined) return new Set([Handles.spaceChromeOverflow]);
+    if (joined) return new Set([Handles.spaceClose]);
     if (reads <= shellReads)
-      return new Set([Handles.spaceChromeOverflow, Handles.spaceLoading]);
+      return new Set([Handles.spaceClose, Handles.spaceLoading]);
     if (polls < openingPolls) return new Set();
     return new Set([Handles.spaceJoin]);
   };

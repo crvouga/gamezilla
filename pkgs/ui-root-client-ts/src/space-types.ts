@@ -9,7 +9,6 @@
 
 import type { JSX } from '@solidjs/web';
 import type { AvatarSeatColor } from './avatar/index';
-import type { IconComponent } from './create-icon/index';
 import type { GameOptionFieldProps } from './game-option-field/index';
 import type { GameSeatLook } from './game-seat-swatch/index';
 import type { GameTileMotif } from './game-tile/index';
@@ -96,29 +95,6 @@ export type SpaceGameAction = {
   disabled?: boolean | undefined;
   onPress: () => void;
   /** The control's `data-testid`, for harness bindings. */
-  testId?: string | undefined;
-};
-
-/**
- * One row of a space menu: the space menu behind row 1's button, the
- * action bar's More sheet. Labels say what will happen (`Rename space`).
- */
-export type SpaceMenuItem = {
-  /** Stable within its menu; shipped as `data-action`. */
-  id: string;
-  label: string;
-  /**
-   * A word for it beside its icon in row 1 on a wide layout ("People" for
-   * "People in this space"); `label` when unset, and its accessible name
-   * either way.
-   */
-  shortLabel?: string | undefined;
-  /** The row's picture in the space menu. */
-  icon?: IconComponent | undefined;
-  tone?: 'default' | 'destructive' | undefined;
-  disabled?: boolean | undefined;
-  onPress: () => void;
-  /** The row's `data-testid`, for harness bindings. */
   testId?: string | undefined;
 };
 

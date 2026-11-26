@@ -3,8 +3,8 @@ import { createContext, useContext } from 'solid-js';
 
 export type SpaceSessionUiValue = {
   readonly spaceId: string;
-  readonly onRequestEnd: () => void;
-  readonly onRequestLeave: () => void;
+  readonly onRequestEnd?: () => void;
+  readonly onRequestLeave?: () => void;
   readonly onPressHome: () => void;
 };
 
