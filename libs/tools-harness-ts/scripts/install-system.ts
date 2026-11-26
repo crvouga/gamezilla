@@ -29,7 +29,6 @@
  *
  * The bumps land in `mise.toml`, `package.json` files and `bun.lock` — commit
  * them so CI (`jdx/mise-action`, `bun install`) runs the same versions.
- * `@libs/tools-harness-ts#install:cli` stays a plain `mise install` of those pins.
  */
 import {
   copyFileSync,

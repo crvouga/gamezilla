@@ -68,6 +68,22 @@ function chainCorpus(
   ];
 }
 
+// regression: release-queued-shards-after-deadline
+test('Release fits its 64 requested shards into one wave of 12 runners', () => {
+  const plan = planShards(coldCorpus(), {
+    GITHUB_WORKFLOW: 'Release',
+    VERIFY_SHARDS: '64',
+    VERIFY_MAX_PARALLEL: '12',
+  });
+  validatePlan(plan);
+  const running = plan.shards.filter(
+    (shard) =>
+      shard.stage === 'verifications' && shard.tasks.some((item) => !item.hit)
+  );
+  expect(running.length).toBeLessThanOrEqual(12);
+  expect(plan.tasks).toHaveLength(coldCorpus().length);
+});
+
 test('two capped runners keep the literal small producer corpus within its deadline', () => {
   // regression: verify-solver-reservations-overfill-cold-shards
   const plan = balanceShards(chainCorpus(2, 1, 151), 2, 180);

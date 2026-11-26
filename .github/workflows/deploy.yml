@@ -126,6 +126,7 @@ jobs:
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
+          tools: bun node gh opentofu conftest infisical
           tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
@@ -185,6 +186,7 @@ jobs:
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
+          tools: bun node gh opentofu conftest infisical
           tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
@@ -205,15 +207,9 @@ jobs:
         run: 'true'
 
 
-  # A Health check already running journeys as the synthetic accounts would
-  # take this release's matches. health.yml yields to a Release under way (so
-  # none starts after this run does); this waits out one that started first,
-  # alongside verification, and stops it when verification is about done, so
-  # the release keeps its time limit. Health plans OpenTofu without the state
-  # lock (libs/infra-shared-ts/src/tofu-command.ts), so stopping it strands
-  # no lock; the next hourly check runs again. Its own job: waiting inside an
-  # environment's job spent that job's timeout, and a release behind a
-  # 27-minute check was cancelled mid-deploy (run 43491905631).
+  # Health uses the same synthetic accounts. Stop a running check alongside
+  # verification, then confirm it has stopped before changing the shared fleet.
+  # Health plans without a state lock and runs again on its hourly schedule.
   # regression: release-timeout-spent-waiting-for-health
   deploy-await-health:
     name: Wait for a running Health check
@@ -232,18 +228,16 @@ jobs:
             gh run list --repo "$GITHUB_REPOSITORY" --workflow health.yml \
               --json databaseId,status --jq '.[] | select(.status == "in_progress") | .databaseId'
           }
-          for _ in $(seq 1 6); do
-            [ -z "$(running)" ] && exit 0
-            echo "A Health check is running; waiting for it to finish."
-            sleep 30
-          done
-          for id in $(running); do
+          ids=$(running)
+          [[ -z "$ids" ]] && exit 0
+          for id in $ids; do
             echo "::warning::Stopping Health run $id so this release keeps its time limit."
             gh run cancel "$id" --repo "$GITHUB_REPOSITORY" || true
           done
           for _ in $(seq 1 12); do
-            [ -z "$(running)" ] && exit 0
-            sleep 10
+            ids=$(running)
+            [[ -z "$ids" ]] && exit 0
+            sleep 5
           done
           echo "::error::A Health check is still running after it was stopped."
           exit 1
@@ -275,6 +269,7 @@ jobs:
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
+          tools: bun node gh opentofu conftest infisical
           tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
@@ -321,6 +316,7 @@ jobs:
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
+          tools: bun node infisical
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
           secrets-environment: shared
@@ -356,6 +352,7 @@ jobs:
         uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
+          tools: bun node gh opentofu conftest infisical
           tofu-providers: 'true'
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           product-identity-mode: configured
