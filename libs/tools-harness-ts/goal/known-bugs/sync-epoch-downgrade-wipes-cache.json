@@ -1,0 +1,4 @@
+{
+  "summary": "Opening a newer local database in an older app lowered its schema epoch and erased cached notes on return to the newer version.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/cache-recovery.test.ts"
+}

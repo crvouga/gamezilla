@@ -1,0 +1,4 @@
+{
+  "summary": "An epoch change rebuilt the cache from the previous epoch's interrupted SQLite rebuild, resurrecting rows that the reset discarded.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/cache-recovery.test.ts"
+}

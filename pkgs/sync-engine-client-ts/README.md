@@ -33,6 +33,23 @@ The initial local `bun obs slow` and widened 24-hour search on 2026-10-30 found
 no recorded activity. The optimizations therefore target code-level redundant
 work; production latency improvements still require representative traces.
 
+## Local schema recovery and replay
+
+The SQLite schema adapter discovers table names once per catalog read and inspects
+the columns and indexes of each declared table. It owns the staging-table names
+used for interrupted rebuilds. The sync engine supplies the list of cache tables
+to discard on reset.
+
+Before a reset, the client marks outstanding writes in its durable queue. Replay
+clears those marks in the same transaction that restores their local effects.
+An offline restart can finish the work after the schema version has advanced.
+
+A rebase groups queued edits under a SQLite savepoint. On a domain refusal it
+restores the preceding successful SQL with its original bindings. Each mutation
+handler runs once per rebase. The group closes after a refusal or once a completed
+mutation brings the group to 128 recorded statements. The ordinary tests cover
+rollback, SQL statement counts, and recovery through both local database adapters.
+
 ## Performance implementation and evidence limits
 
 The telemetry root injects `monotonicNow`; no wall-clock fallback is used.

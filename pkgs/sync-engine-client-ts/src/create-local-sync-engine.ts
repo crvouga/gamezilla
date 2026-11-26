@@ -158,7 +158,7 @@ function readState(ref: LocalEngineStateRef): LocalEngineState {
   return ref.current;
 }
 
-function mergeDeps(state: LocalEngineState) {
+function mergeDeps(state: Pick<LocalEngineState, 'options' | 'bus'>) {
   return {
     db: state.options.db,
     registry: state.options.mutationRegistry,
@@ -241,8 +241,10 @@ function relayExternalDbChanges(
   });
 }
 
-function createState(options: CreateLocalSyncEngineOptions): LocalEngineState {
-  const bus = createTableChangeBus();
+function createState(
+  options: CreateLocalSyncEngineOptions,
+  bus: LocalEngineState['bus']
+): LocalEngineState {
   const appDb = createTableChangeSqlClient(options.db, bus);
   const status = createLocalSyncStatusStore();
   const stateRef: LocalEngineStateRef = { current: null };
@@ -491,7 +493,10 @@ async function clearState(
     'sync_engine_scope_meta',
     'sync_engine_write_rejections',
   ]);
-  await reapplyPendingAfterWipe(mergeDeps(state));
+  await reapplyPendingAfterWipe(
+    mergeDeps(state),
+    reason === 'cache' ? 'marked' : 'all'
+  );
   if (reconnect) await connectState(state);
 }
 
@@ -553,15 +558,16 @@ export async function createLocalSyncEngine(
     ...options,
     mutationRegistry: withFrameworkMutations(options.mutationRegistry),
   };
-  const wiped = await migrateLocalSchema(merged.db, merged.localSchema, {
-    ...(merged.schemaEpoch !== undefined
-      ? { schemaEpoch: merged.schemaEpoch }
-      : {}),
-    ...(merged.onLocalMigratePhase !== undefined
-      ? { onLocalMigratePhase: merged.onLocalMigratePhase }
-      : {}),
-  });
-  const state = createState(merged);
-  if (wiped) await reapplyPendingAfterWipe(mergeDeps(state));
-  return toEngine(state);
+  const needsReplay = await migrateLocalSchema(
+    merged.db,
+    merged.localSchema,
+    merged
+  );
+  const bus = createTableChangeBus();
+  if (needsReplay)
+    await reapplyPendingAfterWipe(
+      mergeDeps({ options: merged, bus }),
+      'marked'
+    );
+  return toEngine(createState(merged, bus));
 }

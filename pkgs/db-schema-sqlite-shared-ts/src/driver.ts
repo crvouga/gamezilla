@@ -27,12 +27,40 @@ export type SqliteDriver = {
 const STAGING_PREFIX = '_old_';
 
 /**
+ * A cache reset discards the current table and any interrupted rebuild of it.
+ * Keep the staging convention inside the SQLite adapter.
+ */
+export async function dropSqliteTables(
+  client: SqlClient,
+  names: readonly string[],
+  existing: ReadonlySet<string>
+): Promise<void> {
+  const physical = new Map(
+    Array.from(existing, (name) => [name.toLowerCase(), name])
+  );
+  for (const name of names) {
+    const key = name.toLowerCase();
+    for (const candidate of [key, STAGING_PREFIX + key]) {
+      const table = physical.get(candidate);
+      if (table !== undefined) {
+        await client.run(
+          raw(`DROP TABLE IF EXISTS "${asPhysicalIdent(table)}"`)
+        );
+      }
+    }
+  }
+}
+
+/**
  * Finish any rebuild interrupted between `RENAME` and `DROP`.
  *
  * A staging table only ever holds the pre-rebuild rows, including retired
  * columns, so it always wins: drop whatever partial table exists under the real
  * name, rename staging back, and let the normal plan converge from a clean
  * state. Recovery therefore cannot lose data.
+ *
+ * Only staging tables of owned tables are recovered: under `declared-only`
+ * another owner's `_old_<name>` is not ours to rename over its `<name>`.
  *
  * Runs inside the same pragma bracket `runRebuild` uses: with `foreign_keys`
  * ON (the real client default) the `DROP` would delete the partial table's rows
@@ -41,28 +69,31 @@ const STAGING_PREFIX = '_old_';
  */
 async function recoverStagedRebuilds(
   client: SqlClient,
-  foreignKeysWasOn: boolean
+  foreignKeysWasOn: boolean,
+  owns: (table: string) => boolean
 ): Promise<void> {
   const rows = await client.query<{ name: string }>(
     raw(
       `SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE '\\_old\\_%' ESCAPE '\\' ORDER BY name`
     )
   );
-  if (rows.length === 0) return;
+  const staged = rows.flatMap((row) => {
+    const base = row.name.slice(STAGING_PREFIX.length);
+    if (!owns(base)) return [];
+    try {
+      return [{ staging: row.name, table: asPhysicalIdent(base) }];
+    } catch {
+      return [];
+    }
+  });
+  if (staged.length === 0) return;
   await setPragma(client, 'PRAGMA foreign_keys = OFF');
   await setPragma(client, 'PRAGMA legacy_alter_table = ON');
   try {
-    for (const row of rows) {
-      const base = row.name.slice(STAGING_PREFIX.length);
-      let branded: string;
-      try {
-        branded = asPhysicalIdent(base);
-      } catch {
-        continue;
-      }
-      await client.run(sql`DROP TABLE IF EXISTS ${ident(branded)}`);
+    for (const { staging, table } of staged) {
+      await client.run(sql`DROP TABLE IF EXISTS ${ident(table)}`);
       await client.run(
-        sql`ALTER TABLE ${ident(row.name)} RENAME TO ${ident(branded)}`
+        sql`ALTER TABLE ${ident(staging)} RENAME TO ${ident(table)}`
       );
     }
   } finally {
@@ -135,13 +166,20 @@ export function sqlite(
   return {
     async reconcile(): Promise<void> {
       const declared = schema._declared;
+      const declaredNames = new Set(Object.keys(declared.tables));
       const foreignKeysWasOn = await readForeignKeysEnabled(client);
-      await recoverStagedRebuilds(client, foreignKeysWasOn);
+      await recoverStagedRebuilds(
+        client,
+        foreignKeysWasOn,
+        (table) => ownership === 'whole-db' || declaredNames.has(table)
+      );
       // Do not wrap in `client.transaction()`: SQLite auto-commits DDL
       // (CREATE/ALTER/DROP), which fights the web SQLite backend's BEGIN/COMMIT
       // and surfaces as "Error finalizing statement" on OPFS. Interrupted
       // rebuilds are recovered by the staging sweep above.
-      const catalog = await readSqliteCatalog(client);
+      // The plan reads columns and indexes of declared tables only; undeclared
+      // tables need just their names (dropped under `whole-db`).
+      const catalog = await readSqliteCatalog(client, declaredNames);
       const plan = planClient(declared, catalog, { ownership });
       if (!plan.ok) {
         const detail = plan.drift

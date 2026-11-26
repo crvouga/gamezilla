@@ -62,11 +62,12 @@ export const syncEngineMutations = defineTable({
     args: 'text',
     client_id: 'text',
     seq: 'integer',
+    cache_replay_required: 'integer',
     origin_traceparent: 'text',
     origin_session_id: 'text',
     origin_build_sha: 'text',
   },
-  indexes: [['client_id', 'seq']],
+  indexes: [['client_id', 'seq'], 'cache_replay_required'],
 });
 
 /** Append-only server event truth for offline mutation causality. */
