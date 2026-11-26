@@ -42,6 +42,8 @@ const GAME_JOURNEYS: readonly SyntheticCheck[] = [
   'journeys.numberlink-packs',
   'journeys.pong-game',
   'journeys.quoridor-game',
+  'journeys.recover-custom-game',
+  'journeys.return-to-quoridor',
   'journeys.sokoban-packs',
   'journeys.word-tiles-start',
 ];
@@ -110,7 +112,8 @@ export const SPEC_COVERAGE: Readonly<Record<string, ContextCoverage>> = {
   spaces: watched(
     'spaces.spaces',
     'spaces.live-updates',
-    'journeys.join-and-offline'
+    'journeys.join-and-offline',
+    'journeys.return-to-quoridor'
   ),
   'sync-engine': watched(
     'journeys.join-and-offline',
