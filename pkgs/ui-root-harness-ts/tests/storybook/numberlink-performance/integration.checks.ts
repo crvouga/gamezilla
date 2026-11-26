@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import {
   attachJson,
   capture,
-  mousePath,
+  center,
   openBoard,
 } from '../numberlink-board/evidence';
 import {
@@ -53,10 +53,14 @@ for (const width of [390, 1440])
           const started = Date.now();
           for (let row = half.rows[0]; row < half.rows[1]; row++) {
             const routeStart = Date.now();
-            await mousePath(
-              page,
-              Array.from({ length: 20 }, (_, column) => row * 20 + column)
-            );
+            // A straight row has equally spaced cells. Read its endpoints
+            // before pickup so geometry queries never interrupt the stroke.
+            const start = await center(page, row * 20);
+            const end = await center(page, row * 20 + 19);
+            await page.mouse.move(start.x, start.y);
+            await page.mouse.down();
+            await page.mouse.move(end.x, end.y, { steps: 19 });
+            await page.mouse.up();
             process.stdout.write(
               `numberlink-dense-route ${width} ${theme} row=${row + 1} ms=${Date.now() - routeStart} total=${Date.now() - started}\n`
             );
