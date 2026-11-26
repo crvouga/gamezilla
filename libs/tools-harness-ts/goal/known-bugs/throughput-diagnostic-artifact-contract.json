@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45755911736 rejected the PR throughput diagnostic's artifact contract. A rerun must replace its named measurements and fail when the requested metrics are missing.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
+}
