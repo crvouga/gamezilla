@@ -4,6 +4,12 @@ import { expect, userEvent, within } from 'storybook/test';
 export async function expectQuoridorWorkingArea(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   const board = await canvas.findByTestId('custom-game-board');
+  const coordinates = canvas.queryByTestId('custom-game-board-coordinates');
+  if (coordinates) {
+    await expectQuoridorTargetVisible(board);
+    await expectQuoridorTargetVisible(coordinates);
+    return;
+  }
   const tools = canvas.getByTestId('custom-game-board-tools');
   const picker = canvas.getByTestId('custom-game-board-precise-target');
   const boardRect = board.getBoundingClientRect();

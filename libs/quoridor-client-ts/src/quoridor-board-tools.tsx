@@ -6,7 +6,7 @@ import type { FocusTarget } from '@pkgs/ui-root-client-ts/focus';
 import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
-import { For } from 'solid-js';
+import { For, Show } from 'solid-js';
 import { type QuoridorTool, quoridorBoundary } from './quoridor-board-cells';
 
 /** The same tools in every host, directly beside the working board. */
@@ -14,6 +14,7 @@ export function QuoridorBoardTools(props: {
   testId: string;
   actions: readonly GameFrameAction[];
   /** Held by whichever tool is pressed, so focus can return to the active tool. */
+  close?: () => void;
   focusTarget?: FocusTarget | undefined;
 }): JSX.Element {
   return (
@@ -40,6 +41,13 @@ export function QuoridorBoardTools(props: {
           />
         )}
       </For>
+      <Show when={props.close}>
+        <Button
+          title={t`Done`}
+          variant="ghost"
+          onClick={() => props.close?.()}
+        />
+      </Show>
     </StackHorizontal>
   );
 }

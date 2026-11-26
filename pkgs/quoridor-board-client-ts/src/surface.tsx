@@ -1,14 +1,18 @@
 import type { JSX } from '@solidjs/web';
 import { createEffect, createSignal } from 'solid-js';
 import { BoardCamera } from './board-camera';
+import { type BoardMove, paintMove } from './board-move';
 import { BoardContacts, type BoardInput } from './contacts';
 import './board.css';
+
+export type { BoardMove } from './board-move';
 
 type SurfaceProps = BoardInput & {
   readonly children: JSX.Element;
   readonly zoomLabel: string;
   readonly fitLabel: string;
   readonly revision: string;
+  readonly transition: BoardMove | null;
   readonly syncKey: number;
 };
 
@@ -145,8 +149,19 @@ export function QuoridorSurface(props: SurfaceProps): JSX.Element {
     return () => controls?.dispose();
   });
   createEffect(
-    () => [props.revision, props.syncKey, props.interactive, props.tool],
+    () => [
+      props.revision,
+      props.syncKey,
+      props.interactive,
+      props.tool,
+      props.direct,
+    ],
     () => controls?.cancel()
+  );
+  createEffect(
+    () => [host(), props.transition] as const,
+    ([element, move]) =>
+      element && move ? paintMove(element, move) : undefined
   );
   return (
     <div
