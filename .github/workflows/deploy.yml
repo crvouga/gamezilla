@@ -168,7 +168,7 @@ jobs:
 
   deploy-repository-policy:
     name: Enforce repository policy
-    if: ${{ !inputs.rehearsal && github.ref == 'refs/heads/main' }}
+    if: ${{ !inputs.rehearsal && github.ref == 'refs/heads/main' && needs.deploy-verify.outputs.reuse-shared != '+' }}
     needs: deploy-verify
     runs-on: ubuntu-24.04
     timeout-minutes: 10
@@ -255,7 +255,7 @@ jobs:
   # secrets environment. It runs before any environment deploys.
   deploy-fleet:
     name: Release shared services
-    if: ${{ !inputs.rehearsal }}
+    if: ${{ !inputs.rehearsal && needs.deploy-verify.outputs.reuse-shared != '+' }}
     needs: [deploy-verify, deploy-await-health]
     runs-on: ubuntu-24.04
     permissions:
@@ -335,7 +335,12 @@ jobs:
 
   deploy-dev:
     name: Release development
-    needs: deploy-fleet
+    needs: [deploy-verify, deploy-await-health, deploy-fleet]
+    if: >-
+      !cancelled() && !inputs.rehearsal && github.ref == 'refs/heads/main' &&
+      needs.deploy-verify.result == 'success' && needs.deploy-await-health.result == 'success' &&
+      (needs.deploy-fleet.result == 'success' ||
+       (needs.deploy-verify.outputs.reuse-shared == '+' && needs.deploy-fleet.result == 'skipped'))
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
@@ -419,7 +424,12 @@ jobs:
 
   deploy-prd:
     name: Release production
-    needs: [deploy-fleet, deploy-repository-policy]
+    needs: [deploy-verify, deploy-await-health, deploy-fleet, deploy-repository-policy]
+    if: >-
+      !cancelled() && !inputs.rehearsal && github.ref == 'refs/heads/main' &&
+      needs.deploy-verify.result == 'success' && needs.deploy-await-health.result == 'success' &&
+      ((needs.deploy-fleet.result == 'success' && needs.deploy-repository-policy.result == 'success') ||
+       (needs.deploy-verify.outputs.reuse-shared == '+' && needs.deploy-fleet.result == 'skipped' && needs.deploy-repository-policy.result == 'skipped'))
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
@@ -435,7 +445,8 @@ jobs:
 
   deploy-release:
     name: Publish release
-    needs: [deploy-prd, deploy-repository-policy]
+    needs: deploy-prd
+    if: ${{ !cancelled() && needs.deploy-prd.result == 'success' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 5
     permissions:

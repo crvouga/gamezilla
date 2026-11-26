@@ -10,9 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 permissions:
-  contents: read
-  actions: read
-  id-token: write
+  contents: read # check out the proposed change
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -39,6 +37,10 @@ jobs:
     name: verify:end
     runs-on: ubuntu-24.04
     timeout-minutes: 3
+    permissions:
+      contents: read # check out the proposed change
+      actions: read # read the workflow deadline
+      id-token: write # authenticate to the dev verification secret store
     steps:
       - name: Check remaining workflow time
         id: budget

@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45836927918 installed EMQX inside the verification fixture. Mise's unauthenticated attestation request hit the GitHub runner IP rate limit and prevented all checks from running.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-plan-artifact.test.ts"
+}

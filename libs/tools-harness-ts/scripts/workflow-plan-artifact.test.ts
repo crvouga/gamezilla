@@ -21,8 +21,9 @@ test('Verification transfers the immutable plan as a CI artifact rather than a m
     'utf8'
   );
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };
-  // The only output is the shard matrix, which holds no plan data.
+  // Scheduling outputs hold no plan data.
   expect(Object.keys(jobs['verify-start']!.outputs ?? {})).toEqual([
+    'reuse-shared',
     'shards',
     'consumers',
     'single_runner',
@@ -61,5 +62,16 @@ test('artifact transport preserves metadata containing arbitrary masked substrin
       const files = { 'context.json': JSON.stringify({ value }) };
       expect(decodePlan(encodePlan(files))).toEqual(files);
     })
+  );
+});
+
+// regression: release-tool-install-rate-limit
+test('mise authenticates tool downloads before starting fixture verification', () => {
+  const workflow = readFileSync(
+    join(import.meta.dirname, '../../../.github/workflows/verify-full.yml'),
+    'utf8'
+  );
+  expect(workflow).toMatch(
+    /GITHUB_TOKEN="\$GH_TOKEN" [^\n]+--install-tools\n[^]*?secrets-run\.ts --fixture -- [^\n]+verify-single-runner\.ts/
   );
 });
