@@ -55,6 +55,9 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
     expect(readFileSync(env.GITHUB_ENV, 'utf8')).toBe(
       'CI_STAGE_DEADLINE=4070908980\n'
     );
+    expect(readFileSync(env.GITHUB_OUTPUT, 'utf8').split('\n')).toContain(
+      'utc_day=47117'
+    );
     const shell = join(dir, 'ci-budget/ci-budget-shell');
     const body = join(dir, 'body');
     writeFileSync(body, 'exit 7');

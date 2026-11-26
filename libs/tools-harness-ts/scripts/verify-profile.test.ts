@@ -283,21 +283,15 @@ describe('Verify Nightly workflow', () => {
     return JSON.parse(all![1]!) as number[];
   }
 
+  // regression: nightly-browser-day-contract
   test('a browser runner takes the night of its run, or the partition a person names', () => {
     const browser = nightly.jobs['verify-nightly-browser']!;
-    const steps = browser.steps!;
-    const night = steps.findIndex((step) =>
-      step.run?.includes('NIGHTLY_NIGHT=')
-    );
-    const run = steps.findIndex(
+    const run = browser.steps?.find(
       (step) => step.name === 'verify-nightly:browser'
     );
-    expect(night).toBeGreaterThan(-1);
-    expect(night).toBeLessThan(run);
-    // The run's creation day, not the clock: every runner of a run agrees.
-    expect(steps[night]!.run).toContain('actions/runs/$GITHUB_RUN_ID');
     expect(browser.permissions?.['actions']).toBe('read');
-    expect(steps[run]!.env).toEqual({
+    expect(run?.env).toEqual({
+      NIGHTLY_NIGHT: '${{ steps.budget.outputs.utc_day }}',
       BROWSER_PARTITION: '${{ inputs.browser-partition }}',
     });
     const inputs = (
