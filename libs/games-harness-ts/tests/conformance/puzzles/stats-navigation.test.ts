@@ -18,9 +18,11 @@ function statsSurface(entryScreen: string, gameId: string) {
       return [Handles.tabSpaces, Handles.spaceCreate, card].includes(handle);
     }
     if (screen === 'join') return handle === Handles.spaceJoin;
-    if (screen === 'games') {
-      return [Handles.spaceClose, Handles.gameMenu(gameId)].includes(handle);
-    }
+    if (screen === 'loading')
+      return handle === Handles.spaceClose || handle === Handles.spaceLoading;
+    if (handle === Handles.spaceClose || handle === Handles.spaceActive)
+      return true;
+    if (screen === 'games') return handle === Handles.gameMenu(gameId);
     if (screen === 'game-menu') return handle === Handles.gameChoice('stats');
     return screen === 'stats' && handle === Handles.chessStatsElo;
   };
@@ -61,6 +63,7 @@ function statsSurface(entryScreen: string, gameId: string) {
 
 forEveryTurnGame(import.meta.path, (game) => {
   // regression: chess-stats-host-auto-entry
+  // regression: puzzle-stats-fixture-missing-active-space
   test.each(['games', 'loading', 'join'])(
     'stats navigation when host entry initially shows %s',
     async (entryScreen) => {
