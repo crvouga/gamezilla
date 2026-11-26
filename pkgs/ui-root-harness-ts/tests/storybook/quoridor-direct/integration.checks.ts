@@ -2,6 +2,8 @@ import { expect, test } from '@playwright/test';
 import { center, input } from '../quoridor-gestures/native';
 import { expectQuoridorStoryPasses } from '../quoridor-overhaul/evidence';
 
+test.use({ video: { mode: 'on', size: { width: 1440, height: 1024 } } });
+
 for (const phone of [true, false]) {
   test.describe(phone ? 'touch' : 'mouse', () => {
     test.use({
@@ -9,12 +11,6 @@ for (const phone of [true, false]) {
         ? { width: 390, height: 844 }
         : { width: 1440, height: 1024 },
       hasTouch: phone,
-      video: {
-        mode: 'on',
-        size: phone
-          ? { width: 390, height: 844 }
-          : { width: 1440, height: 1024 },
-      },
     });
     test('storybook integration: Quoridor gaps place both walls and a pawn travels from its previous square', async ({
       page,
