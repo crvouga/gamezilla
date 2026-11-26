@@ -54,13 +54,19 @@ export async function playPongJourney(
   while ((await host.now()) < deadline) {
     let finished = false;
     await host.act('guidePongBall', async (ui) => {
-      finished = await guidePongJourney(ui, start.side, true);
+      finished = await guidePongJourney(
+        ui,
+        start.side,
+        true,
+        start.courtHeight
+      );
     });
     if (finished) return start;
     await host.actAsGuest('guidePongBall', async (ui) => {
-      await guidePongJourney(ui, other, false);
+      await guidePongJourney(ui, other, false, start.courtHeight);
     });
-    await host.elapse(50);
+    // Refresh both sliders inside the game's 300 ms input lease.
+    await host.elapse(200);
   }
   throw new Error('Pong did not reach its target score within 90 seconds');
 }

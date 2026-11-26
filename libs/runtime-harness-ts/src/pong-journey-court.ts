@@ -8,6 +8,7 @@ export type PongJourneyStart = {
   readonly gameId: string;
   readonly side: PongJourneySide;
   readonly targetScore: number;
+  readonly courtHeight: number;
 };
 
 export const pongJourneyCourt = (ui: Driver) => readPongCourt(ui, BOARD);
@@ -24,10 +25,12 @@ export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
   await ui.get(`${BOARD}-${side}-control`).wait('enabled', {
     timeoutMs: JOURNEY_WAIT_MS,
   });
+  const court = await pongJourneyCourt(ui);
   return {
     gameId,
     side,
-    targetScore: (await pongJourneyCourt(ui)).targetScore,
+    targetScore: court.targetScore,
+    courtHeight: court.height,
   };
 }
 
@@ -35,20 +38,27 @@ export async function pongJourneyStart(ui: Driver): Promise<PongJourneyStart> {
 export async function guidePongJourney(
   ui: Driver,
   side: PongJourneySide,
-  following: boolean
+  following: boolean,
+  courtHeight: number
 ): Promise<boolean> {
-  const court = await pongJourneyCourt(ui);
-  if (court.stage === 'finished') return true;
+  const status = ui.get(`${BOARD}-status`);
+  const finished = async () =>
+    (await status.attribute('data-stage')) === 'finished';
+  await status.expect.visible();
+  if (await finished()) return true;
+  const ball = await ui.get(`${BOARD}-ball`).attribute('data-ball-y');
+  const y = Number(ball);
+  check(ball !== null && Number.isFinite(y), 'No Pong ball is shown');
   const target = following
-    ? Math.round((court.ball.y / court.height) * 1000)
-    : court.ball.y < court.height / 2
+    ? Math.round((y / courtHeight) * 1000)
+    : y < courtHeight / 2
       ? 1000
       : 0;
   try {
     await ui.get(`${BOARD}-${side}-control`).input(String(target));
   } catch (error) {
     // The point that ends the game can land between reading and moving.
-    if ((await pongJourneyCourt(ui)).stage === 'finished') return true;
+    if (await finished()) return true;
     throw error;
   }
   return false;

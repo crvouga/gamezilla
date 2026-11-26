@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45899486374 reached Bob's rematch offer just before the 240-second deadline. The journey reread both full courts and steered each paddle every 50 ms during the first game.",
+  "regressionTest": "specs/journeys/pong-game.feature"
+}
