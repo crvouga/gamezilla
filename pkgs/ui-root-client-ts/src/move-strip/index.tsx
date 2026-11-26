@@ -101,7 +101,7 @@ export function MoveStrip(props: MoveStripProps): JSX.Element {
 
 /**
  * `MoveStripSlot` -- the move still to come, after the last move in a
- * `MoveStrip`: a dashed empty chip naming whose it is (`Your move`), so a
+ * `MoveStrip`: whose it is (`Your move`) after a small accent dot, so a
  * line of one move reads as a line in progress rather than unfinished.
  */
 export function MoveStripSlot(props: {

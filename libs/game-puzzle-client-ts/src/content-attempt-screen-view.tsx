@@ -9,6 +9,7 @@ import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { MetricStrip } from '@pkgs/ui-root-client-ts/metric-strip';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ProgressBar } from '@pkgs/ui-root-client-ts/progress-bar';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { type JSX, Match, Show, Switch } from 'solid-js';
@@ -35,6 +36,10 @@ export type ContentAttemptPack = {
   /** The puzzle's place in the pack, from 1. */
   readonly position: number;
   readonly total: number;
+  /** How many of the pack's puzzles the person has solved. */
+  readonly solved: number;
+  /** The title of the pack's puzzle after this one; absent for the last. */
+  readonly next?: string | undefined;
 };
 
 export type ContentAttemptScreenViewProps = {
@@ -77,19 +82,28 @@ export type AttemptFigure = {
   readonly value: string;
 };
 
-/** Where the attempt stands in the game's own figures, under the pack's bar. */
+/**
+ * Where this puzzle stands in the game's own figures ("Covered cells 13
+ * of 25"), under a label of its own ("On this board"), apart from the
+ * pack's progress.
+ */
 function AttemptFigures(props: ContentAttemptScreenViewProps): JSX.Element {
   const { t } = useLingui();
   return (
     <Show when={(props.figures?.length ?? 0) > 0}>
-      <MetricStrip
-        aria-label={t`This attempt`}
-        dataSet={{ testid: 'puzzle-attempt-figures' }}
-        metrics={(props.figures ?? []).map((figure) => ({
-          label: figure.label,
-          value: figure.value,
-        }))}
-      />
+      <StackVertical gap="xs">
+        <P variant="caption" tone="secondary">
+          <Trans>On this board</Trans>
+        </P>
+        <MetricStrip
+          aria-label={t`This attempt`}
+          dataSet={{ testid: 'puzzle-attempt-figures' }}
+          metrics={(props.figures ?? []).map((figure) => ({
+            label: figure.label,
+            value: figure.value,
+          }))}
+        />
+      </StackVertical>
     </Show>
   );
 }
@@ -169,16 +183,46 @@ function PackPlace(props: { pack: ContentAttemptPack }): JSX.Element {
   );
 }
 
-/** How far through its pack this puzzle is, as a bar under its place. */
+/**
+ * How much of the pack is solved, as a bar labelled with its count ("2 of
+ * 5 solved"), so it never reads as the puzzle's place; then the pack's
+ * next puzzle, when there is one.
+ */
 function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
   const { t } = useLingui();
+  const solved = (): string =>
+    t`${props.pack.solved} of ${props.pack.total} solved`;
   return (
-    <ProgressBar
-      size="sm"
-      progress={props.pack.position / Math.max(1, props.pack.total)}
-      accessibleLabel={t`Puzzle ${props.pack.position} of ${props.pack.total}`}
-      dataSet={{ testid: 'puzzle-attempt-pack-track' }}
-    />
+    <StackVertical gap="xs">
+      <StackHorizontal gap="md" align="center">
+        <StackVertical grow>
+          <ProgressBar
+            size="sm"
+            progress={props.pack.solved / Math.max(1, props.pack.total)}
+            accessibleLabel={t`Pack progress: ${solved()}`}
+            dataSet={{ testid: 'puzzle-attempt-pack-track' }}
+          />
+        </StackVertical>
+        <P
+          variant="caption"
+          tone="secondary"
+          testId="puzzle-attempt-pack-solved"
+        >
+          {solved()}
+        </P>
+      </StackHorizontal>
+      <Show when={props.pack.next}>
+        {(next) => (
+          <P
+            variant="caption"
+            tone="secondary"
+            testId="puzzle-attempt-pack-next"
+          >
+            {t`Up next in the pack: ${next()}`}
+          </P>
+        )}
+      </Show>
+    </StackVertical>
   );
 }
 
@@ -186,9 +230,10 @@ function PackTrack(props: { pack: ContentAttemptPack }): JSX.Element {
  * The puzzle panel: beside the board when wide, under it on a phone, as a
  * game's record is. Compact, what is useful first: its heading says where
  * the puzzle sits in its pack ("Puzzle 3 of 4 in Warehouse basics", or
- * "This puzzle" on its own) over a bar of how far through the pack it is,
- * then the game's own figures for the attempt, a playtest's note and the completion, and last the save status in
- * one short quiet line. It is secondary: the attempt's commands sit with
+ * "This puzzle" on its own) over a bar of how much of the pack is solved,
+ * labelled with its count, and the pack's next puzzle; then, under a label
+ * of their own, the game's figures for this puzzle, a playtest's note and
+ * the completion, and last the save status in one short quiet line. It is secondary: the attempt's commands sit with
  * the board, not at the panel's foot.
  */
 function AttemptPanel(props: ContentAttemptScreenViewProps): JSX.Element {

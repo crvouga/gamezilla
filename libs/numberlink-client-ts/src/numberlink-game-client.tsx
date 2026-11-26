@@ -1,4 +1,5 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
+import { decodeNumberlinkDefinition } from '@libs/numberlink-shared-ts/numberlink-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
@@ -29,6 +30,19 @@ export const numberlinkGameClient = defineGameClient({
       stats: {
         connectedPairs: () => t`Connected pairs`,
         coveredCells: () => t`Covered cells`,
+      },
+      // Pairs out of every pair; cells out of the board's, when the puzzle
+      // asks for every cell to be covered.
+      totals: (definition) => {
+        const board = decodeNumberlinkDefinition(definition);
+        if (!board.valid) return {};
+        const pairs = board.value.pairs.length;
+        return board.value.coverage === 'all'
+          ? {
+              connectedPairs: pairs,
+              coveredCells: board.value.width * board.value.height,
+            }
+          : { connectedPairs: pairs };
       },
       turnStatus: () => null,
     },

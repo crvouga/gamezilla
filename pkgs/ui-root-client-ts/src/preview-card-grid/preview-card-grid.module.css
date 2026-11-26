@@ -72,7 +72,9 @@
 @container preview-card-grid (min-width: 640px) {
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr));
+    /* Four cards across a 960px column, so each picture is a small
+       board (about 120px tall) rather than a close-up of a few squares. */
+    grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
     /* Every row as tall as the tallest, so cards are one height. */
     grid-auto-rows: 1fr;
     gap: var(--ui-space-4);

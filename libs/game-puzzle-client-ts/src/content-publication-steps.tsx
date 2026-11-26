@@ -1,6 +1,7 @@
 import type { ContentKind } from '@libs/game-puzzle-shared-ts/content-types';
 import { useLingui } from '@lingui/solid/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { ChevronDownIcon, ChevronUpIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import {
   StepTrack,
@@ -10,6 +11,7 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import {
   createEffect,
   createMemo,
+  createSignal,
   type JSX,
   onCleanup,
   Show,
@@ -183,74 +185,154 @@ function useLeadPlace(lead: () => JSX.Element): () => boolean {
   return away;
 }
 
+/** The steps in order, by kind: a pack's puzzles or a puzzle's playtest first. */
+function stepOrder(kind: ContentKind): readonly PublicationStep[] {
+  return kind === 'pack'
+    ? ['puzzles', 'validate', 'publish']
+    : ['playtest', 'validate', 'publish'];
+}
+
 /**
- * Where the draft stands on its way to publishing: the one next step's
- * action, filled, the one thing to press, with a line beside it saying
- * why (under it where the row is narrow; the action in the screen's title
- * row where the screen asks for it); then every step in order as
- * status, each one short line: its number, its name and its state (done,
- * next or locked). A step behind the person keeps its action as an
- * outline; a step that waits keeps its action locked (muted, still
- * pressable, so it can say what is missing).
+ * Every step in order as a checklist, each one short line: its number, its
+ * name and its state (done, next or locked), opened from the summary line.
+ */
+function StepChecklist(props: PublicationStepsProps): JSX.Element {
+  const { t } = useLingui();
+  const names = (): Readonly<Record<PublicationStep, string>> => ({
+    puzzles: t`Publish puzzles`,
+    playtest: t`Playtest`,
+    validate: t`Validate`,
+    publish: t`Publish`,
+  });
+  const steps = (): StepTrackStep[] =>
+    stepOrder(props.kind).map((step) => ({
+      key: step,
+      label: names()[step],
+      state:
+        step === 'validate' && props.validation === 'valid'
+          ? 'done'
+          : stateOf(step, props.next),
+    }));
+  return (
+    <StepTrack
+      label={t`Steps to publish`}
+      stateNames={{ done: t`Done`, current: t`Next`, upcoming: t`Locked` }}
+      steps={steps()}
+      dataSet={{ testid: 'content-publication-steps' }}
+    />
+  );
+}
+
+/**
+ * Where the draft stands, one quiet line: "Step 1 of 3 · Playtest", which
+ * opens the whole checklist under it.
+ */
+function StepSummary(props: {
+  steps: PublicationStepsProps;
+  open: boolean;
+  onToggle: () => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  const names = (): Readonly<Record<PublicationStep, string>> => ({
+    puzzles: t`Publish puzzles`,
+    playtest: t`Playtest`,
+    validate: t`Validate`,
+    publish: t`Publish`,
+  });
+  const line = (): string => {
+    const order = stepOrder(props.steps.kind);
+    const step = String(order.indexOf(props.steps.next) + 1);
+    const total = String(order.length);
+    const name = names()[props.steps.next];
+    return t`Step ${step} of ${total} · ${name}`;
+  };
+  return (
+    <Button
+      title={line()}
+      intent="neutral"
+      variant="ghost"
+      size="sm"
+      endIcon={
+        props.open ? <ChevronUpIcon size={16} /> : <ChevronDownIcon size={16} />
+      }
+      aria-expanded={props.open}
+      onClick={() => props.onToggle()}
+      dataSet={{ testid: 'content-publication-summary' }}
+    />
+  );
+}
+
+/**
+ * The steps' own actions that are not the lead, small and quiet: a step
+ * behind the person an outline, a step that waits locked (muted, still
+ * pressable, so pressing it says what is missing). Each sits in a group
+ * named for its step, which says what that step has proven.
+ */
+function OtherActions(props: {
+  steps: PublicationStepsProps;
+  actions: ReturnType<typeof useTrackActions>;
+}): JSX.Element {
+  return (
+    <StackHorizontal gap="xs" wrap align="center">
+      <Show when={props.steps.kind === 'puzzle'}>
+        <StackHorizontal
+          align="center"
+          dataSet={{
+            testid: 'content-proof',
+            proven: String(props.steps.proven),
+          }}
+        >
+          {props.actions.playtest()}
+        </StackHorizontal>
+      </Show>
+      <StackHorizontal
+        align="center"
+        dataSet={{
+          testid:
+            props.steps.validation === 'valid'
+              ? 'content-validation-passed'
+              : 'content-validation-step',
+        }}
+      >
+        {props.actions.validate()}
+      </StackHorizontal>
+      {props.actions.publish()}
+    </StackHorizontal>
+  );
+}
+
+/**
+ * Where the draft stands on its way to publishing, in one quiet row: the
+ * step it is on ("Step 1 of 3 · Playtest", which opens every step as a
+ * checklist), a line saying why that step is next, and the other steps'
+ * actions, small (a step that waits locked, still pressable, so pressing
+ * Publish says what is missing). The one next step's action, filled, is
+ * drawn in the screen's title row where the screen asks for it, else at
+ * the start of the row.
  */
 export function PublicationSteps(props: PublicationStepsProps): JSX.Element {
-  const { t } = useLingui();
   const next = createMemo(() => props.next);
   const lead = useLead(props, next);
   const away = useLeadPlace(lead);
   const actions = useTrackActions(props, next);
-  const steps = (): StepTrackStep[] => [
-    ...(props.kind === 'pack'
-      ? [
-          {
-            key: 'puzzles',
-            label: t`Publish puzzles`,
-            state: stateOf('puzzles', next()),
-            dataSet: { testid: 'content-pack-puzzles-step' },
-          },
-        ]
-      : [
-          {
-            key: 'playtest',
-            label: t`Playtest`,
-            state: stateOf('playtest', next()),
-            action: actions.playtest(),
-            dataSet: {
-              testid: 'content-proof',
-              proven: String(props.proven),
-            },
-          },
-        ]),
-    {
-      key: 'validate',
-      label: t`Validate`,
-      state:
-        props.validation === 'valid' ? 'done' : stateOf('validate', next()),
-      action: actions.validate(),
-      dataSet:
-        props.validation === 'valid'
-          ? { testid: 'content-validation-passed' }
-          : { testid: 'content-validation-step' },
-    },
-    {
-      key: 'publish',
-      label: t`Publish`,
-      state: stateOf('publish', next()),
-      action: actions.publish(),
-    },
-  ];
+  const [open, setOpen] = createSignal(false);
   return (
-    <StackVertical gap="md">
-      <StackHorizontal gap="md" wrap align="center">
+    <StackVertical gap="sm">
+      <StackHorizontal gap="md" wrap align="center" justify="between">
         <Show when={!away()}>{lead()}</Show>
-        <NextLine {...props} />
+        <StackVertical gap="none">
+          <StepSummary
+            steps={props}
+            open={open()}
+            onToggle={() => setOpen((was) => !was)}
+          />
+          <NextLine {...props} />
+        </StackVertical>
+        <OtherActions steps={props} actions={actions} />
       </StackHorizontal>
-      <StepTrack
-        label={t`Steps to publish`}
-        stateNames={{ done: t`Done`, current: t`Next`, upcoming: t`Locked` }}
-        steps={steps()}
-        dataSet={{ testid: 'content-publication-steps' }}
-      />
+      <Show when={open()}>
+        <StepChecklist {...props} />
+      </Show>
     </StackVertical>
   );
 }

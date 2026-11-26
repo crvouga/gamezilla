@@ -109,9 +109,15 @@ export const sokobanPuzzleContent: PuzzleContent = {
   validatePublication,
   statistics: (definition, state) => {
     const read = readPosition(definition, state);
-    return read.valid
-      ? { moves: read.value.position.moves, pushes: read.value.position.pushes }
-      : {};
+    if (!read.valid) return {};
+    const { board, position } = read.value;
+    return {
+      moves: position.moves,
+      pushes: position.pushes,
+      cratesPlaced: position.crates.filter(
+        (crate) => board.squares[crate.y * board.width + crate.x] === 'goal'
+      ).length,
+    };
   },
   bundledPacks: [sokobanStarterPack],
 };

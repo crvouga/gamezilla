@@ -26,7 +26,13 @@ function mount(width: number, figures: readonly AttemptFigure[] = []): void {
           difficulty: 'Easy',
           description: 'Push each of the two crates onto its own goal.',
         }}
-        pack={{ title: 'Warehouse basics', position: 3, total: 4 }}
+        pack={{
+          title: 'Warehouse basics',
+          position: 3,
+          total: 4,
+          solved: 2,
+          next: 'Corner push',
+        }}
         playtest={false}
         saving={false}
         changeError={null}
@@ -119,8 +125,13 @@ for (const width of [390, 1440]) {
 // board the "Puzzle 3 of 4" panel held only a two-line note, "Progress
 // saved on this device. Changes share when connected.", so it was mostly
 // filler and outweighed the puzzle's progress. Under its place the panel
-// now shows how far through the pack the puzzle is, as a bar, and the
-// save status is one short line.
+// now shows the pack's progress, as a bar, and the save status is one
+// short line.
+// regression: puzzle-progress-bar-unlabelled — the bar under "Puzzle 2 of
+// 5" filled to the puzzle's place in its pack, beside the board's own
+// counts, with nothing saying which quantity it measured. It now measures
+// how much of the pack is solved and says so beside it ("2 of 4 solved"),
+// apart from the puzzle's place in the heading.
 for (const width of [390, 1440]) {
   test(`at ${width}px the panel shows the pack's progress over one short save line`, () => {
     mount(width);
@@ -128,8 +139,16 @@ for (const width of [390, 1440]) {
     const track = screen.getByTestId('puzzle-attempt-pack-track');
     expect(panel.contains(track)).toBe(true);
     const bar = track.querySelector('[role="progressbar"]');
-    expect(bar?.getAttribute('aria-label')).toBe('Puzzle 3 of 4');
-    expect(bar?.getAttribute('aria-valuenow')).toBe('0.75');
+    expect(bar?.getAttribute('aria-label')).toBe(
+      'Pack progress: 2 of 4 solved'
+    );
+    expect(bar?.getAttribute('aria-valuenow')).toBe('0.5');
+    expect(screen.getByTestId('puzzle-attempt-pack-solved').textContent).toBe(
+      '2 of 4 solved'
+    );
+    expect(screen.getByTestId('puzzle-attempt-pack-next').textContent).toBe(
+      'Up next in the pack: Corner push'
+    );
     const save = screen.getByTestId('content-position-save-status');
     expect(follows(track, save)).toBe(true);
     expect(save.textContent).toBe('Progress saved on this device.');
@@ -143,8 +162,8 @@ for (const width of [390, 1440]) {
 // the pack's bar, and shows nothing more when the game gives none.
 test("the puzzle panel shows the game's own figures for the attempt", () => {
   mount(1440, [
-    { key: 'connectedPairs', label: 'Connected pairs', value: '2' },
-    { key: 'coveredCells', label: 'Covered cells', value: '13' },
+    { key: 'connectedPairs', label: 'Connected pairs', value: '2 of 5' },
+    { key: 'coveredCells', label: 'Covered cells', value: '13 of 25' },
   ]);
   const panel = screen.getByTestId('puzzle-attempt-panel');
   const figures = screen.getByTestId('puzzle-attempt-figures');
@@ -153,8 +172,13 @@ test("the puzzle panel shows the game's own figures for the attempt", () => {
   expect(
     [...figures.querySelectorAll('dt')].map((term) => term.textContent)
   ).toEqual(['Connected pairs', 'Covered cells']);
-  expect(figures.textContent).toContain('2');
-  expect(figures.textContent).toContain('13');
+  expect(figures.textContent).toContain('2 of 5');
+  expect(figures.textContent).toContain('13 of 25');
+  // The board's own counts sit under a label of their own, apart from the
+  // pack's progress.
+  expect(figures.parentElement?.textContent?.startsWith('On this board')).toBe(
+    true
+  );
   expect(
     follows(screen.getByTestId('puzzle-attempt-pack-track'), figures)
   ).toBe(true);

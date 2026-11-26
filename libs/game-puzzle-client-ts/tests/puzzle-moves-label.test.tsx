@@ -140,7 +140,7 @@ function mountLine(awaiting: boolean): void {
 
 // regression: puzzle-move-list-lone-chip — with one move played, the move
 // list was a lone highlighted chip ("4… g6") in an empty row, which read as
-// unfinished. While the solver is to move at the line's end, a dashed
+// unfinished. While the solver is to move at the line's end, a
 // "Your move" slot follows the last move, so the line reads as in progress.
 test("while the solver is to move, a 'Your move' slot follows the last move", () => {
   mountLine(true);

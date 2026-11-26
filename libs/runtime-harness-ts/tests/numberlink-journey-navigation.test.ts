@@ -19,7 +19,7 @@ test.each(['games', 'numberlink', 'library', 'loading-library'])(
       (screen === 'games' && id === Handles.gameMenu('numberlink')) ||
       (screen === 'numberlink' &&
         id === Handles.gameChoice('puzzle-library')) ||
-      (screen === 'library' && id === 'content-create-puzzle');
+      (screen === 'library' && id === 'content-library-tab');
     const visible = (id: string): void => {
       if (!shown(id)) throw new Error(`${id} is unavailable on ${screen}`);
     };
@@ -68,6 +68,6 @@ test.each(['games', 'numberlink', 'library', 'loading-library'])(
       },
       '/space/saved-numberlink-space'
     );
-    expect(await ui.get('content-create-puzzle').isVisible()).toBe(true);
+    expect(await ui.get('content-library-tab').isVisible()).toBe(true);
   }
 );

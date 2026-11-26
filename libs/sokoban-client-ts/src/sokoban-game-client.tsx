@@ -1,5 +1,6 @@
 import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { initialSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-board-edits';
+import { validateSokobanDefinition } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { sokobanGameShared } from '@libs/sokoban-shared-ts/sokoban-game';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@lingui/solid/macro';
@@ -27,7 +28,16 @@ export const sokobanGameClient = defineGameClient({
     Player: SokobanPlayer,
     Preview: SokobanPreview,
     frame: {
-      stats: { moves: () => t`Moves`, pushes: () => t`Pushes` },
+      stats: {
+        cratesPlaced: () => t`Crates on goals`,
+        moves: () => t`Moves`,
+        pushes: () => t`Pushes`,
+      },
+      // Crates on goals out of every crate on the board.
+      totals: (definition) => {
+        const board = validateSokobanDefinition(definition);
+        return board.valid ? { cratesPlaced: board.value.crates.length } : {};
+      },
       turnStatus: () => null,
     },
     authoring: {

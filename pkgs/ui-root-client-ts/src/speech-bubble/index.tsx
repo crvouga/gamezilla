@@ -10,8 +10,19 @@ const BUBBLE_PADDING_HORIZONTAL = 16;
 const BUBBLE_LINE_HEIGHT = 24;
 const DEFAULT_NUMBER_OF_LINES = 2;
 
-/** Minimum coach status header row height (e.g. chess puzzle status). */
-export const SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT = 22;
+/**
+ * Minimum coach status header row height (e.g. chess puzzle status): a
+ * status pill and the row's foot padding, so a header row never grows the
+ * bubble past the room reserved for it.
+ */
+export const SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT = 28;
+
+/** `success`: the bubble takes the success tint (a right move). */
+export type SpeechBubbleTone = 'neutral' | 'success';
+
+/** The success tint laid over the bubble's own opaque surface. */
+const SUCCESS_TINT =
+  'linear-gradient(var(--ui-color-success-surface), var(--ui-color-success-surface))';
 
 export type SpeechBubbleProps = {
   text: string;
@@ -24,6 +35,8 @@ export type SpeechBubbleProps = {
   numberOfLines?: number | undefined;
   /** When `true` and no text is available, renders the typing dots. Defaults to `false`. */
   loading?: boolean | undefined;
+  /** Defaults to `neutral`; `success` tints the bubble and its tail. */
+  tone?: SpeechBubbleTone | undefined;
 };
 
 /** Words stay readable while speech loads. The live region remains mounted
@@ -35,6 +48,10 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
     lines() * BUBBLE_LINE_HEIGHT +
     2 * BUBBLE_PADDING_VERTICAL +
     (props.header !== undefined ? SPEECH_BUBBLE_HEADER_EXTRA_HEIGHT : 0);
+  // Over the opaque surface, so where the tail meets the bubble the tint
+  // never doubles.
+  const tint = (): string | undefined =>
+    props.tone === 'success' ? SUCCESS_TINT : undefined;
 
   return (
     <div class="box flex-1 flex-row items-center" data-component="SpeechBubble">
@@ -44,6 +61,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
           width: `${TAIL_SIZE}px`,
           height: `${TAIL_SIZE}px`,
           'margin-right': `${-TAIL_SIZE / 2}px`,
+          'background-image': tint(),
         }}
         aria-hidden="true"
       />
@@ -55,6 +73,7 @@ export function SpeechBubble(props: SpeechBubbleProps): JSX.Element {
           'padding-left': `${BUBBLE_PADDING_HORIZONTAL}px`,
           'padding-right': `${BUBBLE_PADDING_HORIZONTAL}px`,
           'min-height': `${bubbleHeight()}px`,
+          'background-image': tint(),
         }}
       >
         {props.header}

@@ -6,7 +6,7 @@ async function returnToLibrary(
   backId: string
 ): Promise<void> {
   for (let depth = 0; depth < 8; depth++) {
-    if (await device.ui.get('content-create-puzzle').isVisible()) return;
+    if (await device.ui.get('content-library-tab').isVisible()) return;
     await contentTap(device, backId);
   }
   throw new Error(

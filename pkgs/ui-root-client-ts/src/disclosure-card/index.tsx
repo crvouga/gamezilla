@@ -29,8 +29,9 @@ export type DisclosureCardProps = {
  * `DisclosureCard` -- a card that keeps settings out of the way of the
  * work they describe.
  *
- * Closed, it is one row: the title, a one-line summary of what it holds
- * and a chevron, the whole row a button (`aria-expanded`). Open, its body
+ * Closed, it is one row: the title, then on the same line a summary of
+ * what it holds (cut short where it is long) and a chevron, the whole row
+ * a button (`aria-expanded`). Open, its body
  * follows under the row. Use it for details a person sets once and then
  * works beside (a draft's title and description above its editor), so the
  * work itself is what fills the screen.

@@ -12,7 +12,7 @@ export function cleanupDriver() {
   };
   const shown = (id: string): boolean =>
     (screen === 'library' &&
-      ['content-create-puzzle', 'content-draft-river-document'].includes(id)) ||
+      ['content-library-tab', 'content-draft-river-document'].includes(id)) ||
     (screen === 'author' && id === 'content-withdraw') ||
     (screen === 'confirm' && id === 'content-withdraw-confirm') ||
     (screen === 'success' && id === 'content-withdraw-dismiss');

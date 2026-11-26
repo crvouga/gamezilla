@@ -38,6 +38,8 @@
 .tool[aria-checked="true"] {
   background: var(--ui-color-tint-subtle);
   border-color: var(--ui-color-primary-strong);
+  /* A ring two pixels deep, so the chosen tool reads at a glance. */
+  box-shadow: inset 0 0 0 1px var(--ui-color-primary-strong);
   color: var(--ui-color-on-primary-soft);
 }
 .tool:focus-visible {
@@ -69,12 +71,14 @@
   font-size: var(--ui-font-size-xs);
   line-height: 1;
 }
+/* Wide, each swatch is a 40px square in its frame, so a tool reads at the
+   size of the squares it lays down, not as a small icon in a large tile. */
 @container cell-grid-palette (min-width: 400px) {
   .tool {
     padding: var(--ui-space-2) var(--ui-space-1);
   }
   .swatch {
-    width: var(--ui-space-8);
+    width: var(--ui-space-12);
   }
 }
 /* On a phone the step heading over the editor already names the stage, so

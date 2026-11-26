@@ -46,8 +46,9 @@ export function continuePicks(
 
 /**
  * Under a sparse Continue: "More to play", Browse's next puzzles and packs
- * as the same cards Browse shows, so the tab never ends in a band of empty
- * page after one or two rows.
+ * as rows in the same columns as the puzzles to continue above them (a
+ * small picture of each board beside its words), so the tab never ends in
+ * a band of empty page, and two picks never sit alone in a grid of four.
  */
 export function ContentMoreToPlay(props: {
   readonly picks: readonly ContentPick[];
@@ -57,6 +58,7 @@ export function ContentMoreToPlay(props: {
   return (
     <Show when={props.picks.length > 0}>
       <PreviewCardGrid
+        layout="rows"
         title={<Trans>More to play</Trans>}
         dataSet={{ testid: 'content-library-more-to-play' }}
       >
