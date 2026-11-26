@@ -23,10 +23,6 @@
   .stack[data-placement="bottom"] {
     bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
   }
-  /* Over a game's command bar (its status line and commands). */
-  .stack[data-placement="above-commands"] {
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 136px);
-  }
   /* Over a tab bar and a floating command (a lobby's New space), or a
      lobby's docked commands. */
   .stack[data-placement="above-actions"] {
@@ -51,6 +47,10 @@
     top: calc(var(--ui-space-6) + 56px);
     bottom: auto;
   }
+}
+/* The bottom command bar spans the stage on phones and wide screens. */
+.stack[data-placement="above-commands"] {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 136px);
 }
 /* Each alert is its own floating card: opaque, raised with the one float
    shadow, and dismissible as a whole by the stack's own close. */

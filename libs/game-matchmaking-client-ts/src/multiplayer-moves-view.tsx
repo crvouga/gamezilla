@@ -249,7 +249,17 @@ export function MultiplayerMovesView(props: MovesProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
       <FixedGameSession
-        status={props.status}
+        notices={props.notices}
+        status={
+          <>
+            {props.status}
+            <Show when={props.game.moves}>
+              {(moves) => (
+                <Reviewing moves={moves()} commands={props.commands} />
+              )}
+            </Show>
+          </>
+        }
         history={
           <>
             <Show when={props.game.moves}>
@@ -269,16 +279,6 @@ export function MultiplayerMovesView(props: MovesProps): JSX.Element {
                 >
                   <GameRecord record={record()} copy={props.commands.copy} />
                 </StageDetails>
-              )}
-            </Show>
-          </>
-        }
-        notices={
-          <>
-            {props.notices}
-            <Show when={props.game.moves}>
-              {(moves) => (
-                <Reviewing moves={moves()} commands={props.commands} />
               )}
             </Show>
           </>
