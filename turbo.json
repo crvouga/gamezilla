@@ -12,7 +12,6 @@
     "GITHUB_*",
     "GH_TOKEN",
     "BUN_CHROME_PATH",
-    "FEEDBACK_*",
     "POST_DEPLOY_*",
     "VITE_*",
     "PREVIEW_PORT",

@@ -18,11 +18,16 @@
   },
   "dependencies": {
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/db-schema-postgres-shared-ts": "workspace:*",
+    "@pkgs/db-schema-root-shared-ts": "workspace:*",
     "@pkgs/feedback-shared-ts": "workspace:*",
     "@pkgs/http-client-shared-ts": "workspace:*",
     "@pkgs/object-store-node-fs-server-ts": "workspace:*",
     "@pkgs/object-store-root-shared-ts": "workspace:*",
-    "@pkgs/observability-root-shared-ts": "workspace:*"
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/sql-client-postgres-server-ts": "workspace:*",
+    "@pkgs/sql-client-root-shared-ts": "workspace:*",
+    "@pkgs/sql-root-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@crvouga/mockingbird-service-github": "catalog:",

@@ -1,4 +1,5 @@
 import { MAX_RETRY_MS } from '@pkgs/feedback-client-ts/controller';
+import { LONGEST_RETRY_MS } from '@pkgs/feedback-server-ts/file-bug-report-issues';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineRuntime } from '@pkgs/harness-root-shared-ts/define-runtime';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
@@ -221,6 +222,19 @@ export const teamReceivesAgain = defineAction({
     return world.alice.wait(MAX_RETRY_MS);
   },
 });
+export const listOfWorkUnavailable = defineAction({
+  name: 'listOfWorkUnavailable',
+  act: (world: World) => world.app.team.setListOfWorkAvailable(false),
+});
+/** The list of work is back, and the filing job gets round to trying again. */
+export const listOfWorkAvailableAgain = defineAction({
+  name: 'listOfWorkAvailableAgain',
+  act: async (world: World) => {
+    world.app.team.setListOfWorkAvailable(true);
+    await world.alice.wait(LONGEST_RETRY_MS);
+    await world.app.team.file();
+  },
+});
 /** The device sends once more what it last sent, as after an answer that got lost. */
 export const deviceSendsAgain = defineAction({
   name: 'deviceSendsAgain',
@@ -286,7 +300,7 @@ const describedIn = (issue: string): string =>
 export const readTeamBugReportCount = async (world: World) =>
   (await world.app.team.received()).length;
 
-/** How many bug reports on the team's list of work say exactly this. */
+/** How many bug reports the team has that say exactly this. */
 export const readTeamBugReportsSaying = async (
   world: World,
   description: string
@@ -295,7 +309,13 @@ export const readTeamBugReportsSaying = async (
     (received) => describedIn(received.issue) === description
   ).length;
 
-/** How many bug reports landed on the team's list of work today, as the team counts days. */
+/** How many bug reports on the team's list of work say exactly this. */
+export const readListOfWorkSaying = async (world: World, description: string) =>
+  (await world.app.team.listOfWork()).filter(
+    (onList) => describedIn(onList.issue) === description
+  ).length;
+
+/** How many bug reports the team received today, as the team counts days. */
 export const readTeamBugReportsToday = async (world: World) => {
   const today = new Date(world.session.ports.clock.now())
     .toISOString()
@@ -314,7 +334,7 @@ function sentBy(issue: string) {
   };
 }
 
-/** The newest bug report on the team's list of work, read off the issue itself. */
+/** The newest bug report the team has, read off what the team reads of it. */
 export const readTeamBugReport = async (world: World) => {
   const newest = (await world.app.team.received()).at(-1);
   if (!newest) return null;
@@ -394,6 +414,8 @@ export const feedbackReportingSystem = defineSystem<World>({
     connection,
     teamStopsReceiving,
     teamReceivesAgain,
+    listOfWorkUnavailable,
+    listOfWorkAvailableAgain,
     deviceSendsAgain,
   ],
 });

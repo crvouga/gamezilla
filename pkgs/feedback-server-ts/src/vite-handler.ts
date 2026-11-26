@@ -8,12 +8,27 @@ import {
   createBugReportHttpApp,
   MAX_REQUEST_BYTES,
 } from '@pkgs/feedback-server-ts/bug-report-http-app';
+import { fileBugReportIssues } from '@pkgs/feedback-server-ts/file-bug-report-issues';
 import { localIssueReporter } from '@pkgs/feedback-server-ts/local-issue-reporter';
+import { reconcileFeedbackPostgres } from '@pkgs/feedback-server-ts/reconcile';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import { SqlClientImplMockingbirdPostgres } from '@pkgs/sql-client-postgres-server-ts/impl-mockingbird-postgres';
+import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 
 export { BUG_REPORT_PATH };
+
+/** The queue lives in this process: `.feedback/` is what development keeps. */
+async function openDevQueue(): Promise<SqlClient> {
+  const db = SqlClientImplMockingbirdPostgres.open({
+    seed: 1,
+    now: () => new Date(wallClock.now()),
+  });
+  await db.connect();
+  await reconcileFeedbackPostgres(db);
+  return db;
+}
 
 export function createDevReportDispatcher(repoRoot: string) {
   const store = createNodeFsObjectStore({
@@ -21,14 +36,15 @@ export function createDevReportDispatcher(repoRoot: string) {
     fs: wallNodeFs(),
     layout: 'tree',
   });
-  return (request: IncomingMessage, response: ServerResponse) =>
-    dispatch(request, response, store);
+  const queue = openDevQueue();
+  return async (request: IncomingMessage, response: ServerResponse) =>
+    dispatch(request, response, { store, db: await queue });
 }
 
 async function dispatch(
   req: IncomingMessage,
   res: ServerResponse,
-  store: ObjectStore
+  backend: { readonly store: ObjectStore; readonly db: SqlClient }
 ): Promise<void> {
   const origin = `http://${req.headers.host ?? 'localhost'}`;
   const hostname = new URL(origin).hostname;
@@ -66,11 +82,18 @@ async function dispatch(
     ...(method === 'POST' ? { body } : {}),
   });
   const response = await createBugReportHttpApp({
-    reporter: localIssueReporter,
-    store,
+    ...backend,
     clock: wallClock,
     allowedOrigins: [origin],
   })(request);
+  // Development files at once: the archive under `.feedback/` is the issue.
+  if (response.status === 201)
+    await fileBugReportIssues({
+      ...backend,
+      reporter: localIssueReporter,
+      clock: wallClock,
+      limit: 10,
+    });
   res.statusCode = response.status;
   response.headers.forEach((value, name) => res.setHeader(name, value));
   res.end(new Uint8Array(await response.arrayBuffer()));

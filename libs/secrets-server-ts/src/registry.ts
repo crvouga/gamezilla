@@ -14,10 +14,6 @@ import {
 import { CLOUDFLARE_ACCOUNT_ID } from '@libs/secrets-shared-ts/cf-account-id';
 import { CLOUDFLARE_API_TOKEN } from '@libs/secrets-shared-ts/cf-api-token';
 import { CI_ARTIFACTS_SECRETS } from '@libs/secrets-shared-ts/ci-artifacts-credentials';
-import {
-  FEEDBACK_GITHUB_REPOSITORY,
-  FEEDBACK_GITHUB_TOKEN,
-} from '@libs/secrets-shared-ts/feedback-secrets';
 import { HYPERDRIVE_ID } from '@libs/secrets-shared-ts/hyperdrive-id';
 import {
   GITHUB_ADMIN_TOKEN,
@@ -72,8 +68,6 @@ import {
  */
 export const SECRETS: readonly Secret[] = [
   PRODUCT_IDENTITY_JSON,
-  FEEDBACK_GITHUB_TOKEN,
-  FEEDBACK_GITHUB_REPOSITORY,
   CLOUDFLARE_API_TOKEN,
   RAILWAY_TOKEN,
   CLOUDFLARE_ACCOUNT_ID,

@@ -14,6 +14,13 @@ run-name: "PR Hygiene · ${{ github.event_name == 'schedule' && 'schedule' || 'm
 # - A PR with no activity for 2 days gets `stale`; 3 days later it is closed.
 #   `hotfix` PRs are exempt.
 #
+# It also files the bug reports each environment has received as GitHub
+# issues (`pr-hygiene-bug-reports`, one `pr-hygiene:<env>` job per environment). The app only keeps a bug report, in the
+# environment's Postgres and bucket; this job reads them back with that
+# environment's secrets and opens one issue per report with the built-in
+# workflow token, so GitHub is never on the path of a person's report and the
+# app holds no GitHub credential (pkgs/feedback-client-ts/README.md).
+#
 # Scheduled only, never on pull_request: Verify PR's final gate refuses any
 # PR check that is not a required check (required-pr-checks.ts), and scheduled
 # runs are not PR checks. Behind-but-clean PRs are left alone: main does not
@@ -129,3 +136,67 @@ jobs:
           close-pr-message: Closed after 5 days without activity. Reopen it, or open a fresh PR from current main.
           delete-branch: false
           operations-per-run: 100
+
+  pr-hygiene-bug-reports-matrix:
+    name: pr-hygiene:bug-reports-matrix
+    # Only main may enter the production environment, whose secrets it reads.
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: read # check out the env files
+    outputs:
+      production: ${{ steps.envs.outputs.production }}
+      all: ${{ steps.envs.outputs.all }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          tools: bun
+      # One job per environment in libs/infra-shared-ts/tofu/envs, as Health does.
+      - name: envs
+        id: envs
+        run: bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
+
+  pr-hygiene-bug-reports:
+    name: pr-hygiene:${{ matrix.env }}
+    needs: pr-hygiene-bug-reports-matrix
+    if: needs.pr-hygiene-bug-reports-matrix.outputs.all != '[]'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    environment: ${{ contains(fromJSON(needs.pr-hygiene-bug-reports-matrix.outputs.production), matrix.env) && 'production' || '' }}
+    permissions:
+      contents: read # check out the code
+      issues: write # open one issue per received bug report
+      id-token: write # mint the OIDC token the secret store trusts
+    concurrency:
+      group: bug-reports-${{ matrix.env }}
+      cancel-in-progress: false
+    strategy:
+      # One environment that cannot file should not hide another's reports.
+      fail-fast: false
+      matrix:
+        env: ${{ fromJSON(needs.pr-hygiene-bug-reports-matrix.outputs.all) }}
+    env:
+      SECRETS_ENV: ${{ matrix.env }}
+      SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+        with:
+          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          product-identity-mode: configured
+          tools: bun
+          secrets-environment: ${{ matrix.env }}
+          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
+          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      # The environment's DATABASE_URL and S3_* come from the secrets above;
+      # GitHub only from this job's own token.
+      - name: File received bug reports as issues
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bunx turbo run @apps/server-ts#feedback:file-issues --only

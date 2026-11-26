@@ -64,10 +64,6 @@ export type ApiWorkerEnv = {
   PUZZLE_MANAGER_ACCOUNT_IDS?: string;
   POPULATION_OPERATOR_ACCOUNT_IDS?: string;
   BUILD_SHA?: string;
-  FEEDBACK_GITHUB_TOKEN?: string;
-  FEEDBACK_GITHUB_REPOSITORY?: string;
-  /** A simulated GitHub's address; unset wherever GitHub itself is meant. */
-  FEEDBACK_GITHUB_API_ORIGIN?: string;
   ROOM?: RoomNamespace;
   /**
    * Hyperdrive in front of the environment's Postgres (rendered by

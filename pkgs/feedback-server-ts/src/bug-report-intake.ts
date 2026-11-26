@@ -9,18 +9,20 @@ import {
 import type {
   BugReport,
   BugReportSubmission,
-  IssueReporter,
   Screenshot,
 } from '@pkgs/feedback-shared-ts/types';
-import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
+import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import type { ObjectStore } from '@pkgs/object-store-root-shared-ts/interface';
+import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
+import { countReceived, findReceived, recordReceived } from './bug-report-ledger';
 import { bugReportIssue } from './issue-body';
 
 /** Every device together, a day: a backstop against one sender posing as many. */
 export const DAILY_BUG_REPORT_CEILING = 500;
 
 export type IntakeOptions = {
-  readonly reporter: IssueReporter;
+  /** Where received bug reports wait to be filed: the `feedback_bug_reports` table. */
+  readonly db: SqlTx;
   readonly store: ObjectStore;
   readonly clock: Clock;
   /** Where this report's pictures and JSON are read back, without a trailing slash. */
@@ -32,11 +34,6 @@ export type IntakeOptions = {
 export type IntakeOutcome =
   | { readonly status: 200 | 201; readonly id: string }
   | { readonly status: 400 | 409 | 429 | 503; readonly error: string };
-
-/** Where the bug reports taken from one device on one day (`2026-03-02`, UTC) are counted. */
-function takenFromDevice(day: string, reporterId: string): string {
-  return `limits/${day}/reporters/${reporterId}/`;
-}
 
 type Picture = { readonly contentType: string; readonly bytes: Uint8Array };
 
@@ -70,20 +67,14 @@ async function readSubmission(
 }
 
 async function alreadyReceived(
-  store: ObjectStore,
+  db: SqlTx,
   submission: BugReportSubmission
 ): Promise<IntakeOutcome | null> {
-  const archived = await readUtf8(
-    store,
-    `reports/${submission.id}/report.json`
-  );
-  if (archived === null) return null;
-  const report = JSON.parse(archived) as BugReport;
-  if (report.reporterId !== submission.reporterId)
-    return { status: 409, error: 'Bug report id already used' };
-  return (await store.head(`reports/${submission.id}/receipt.json`))
+  const received = await findReceived(db, submission.id);
+  if (received === null) return null;
+  return received.reporterId === submission.reporterId
     ? { status: 200, id: submission.id }
-    : null;
+    : { status: 409, error: 'Bug report id already used' };
 }
 
 async function storePictures(
@@ -107,53 +98,70 @@ async function storePictures(
   return screenshots;
 }
 
-async function receive(
+async function archive(
   options: IntakeOptions,
   submission: BugReportSubmission,
   pictures: readonly Picture[]
-): Promise<IntakeOutcome> {
-  const { store } = options;
-  const received = await alreadyReceived(store, submission);
-  if (received) return received;
-  const day = new Date(options.clock.now()).toISOString().slice(0, 10);
-  const own = takenFromDevice(day, submission.reporterId);
-  const all = `limits/${day}/all/`;
-  if ((await store.listKeys(own)).length >= DAILY_BUG_REPORT_LIMIT)
-    return { status: 429, error: 'Daily bug report limit reached' };
-  if ((await store.listKeys(all)).length >= DAILY_BUG_REPORT_CEILING)
-    return { status: 503, error: 'Bug reports cannot be received right now' };
+): Promise<string> {
   const report: BugReport = {
     ...submission,
     screenshots: await storePictures(options, submission.id, pictures),
   };
   const folder = `reports/${report.id}`;
   await writeUtf8(
-    store,
+    options.store,
     `${folder}/report.json`,
     JSON.stringify(report),
     JSON_TYPE
   );
   await writeUtf8(
-    store,
+    options.store,
     `${folder}/report.md`,
     bugReportIssue(report).body,
     'text/markdown; charset=utf-8'
   );
-  const issue = await options.reporter.create(report);
-  await writeUtf8(
-    store,
-    `${folder}/receipt.json`,
-    JSON.stringify(issue),
-    JSON_TYPE
+  return folder;
+}
+
+async function receive(
+  options: IntakeOptions,
+  submission: BugReportSubmission,
+  pictures: readonly Picture[]
+): Promise<IntakeOutcome> {
+  const { db } = options;
+  const received = await alreadyReceived(db, submission);
+  if (received) return received;
+  const receivedAt = new Date(options.clock.now()).toISOString();
+  const counted = await countReceived(
+    db,
+    receivedAt.slice(0, 10),
+    submission.reporterId
   );
-  await writeUtf8(store, `${own}${report.id}`, '', 'text/plain');
-  await writeUtf8(store, `${all}${report.id}`, '', 'text/plain');
-  return { status: 201, id: report.id };
+  if (counted.fromDevice >= DAILY_BUG_REPORT_LIMIT)
+    return { status: 429, error: 'Daily bug report limit reached' };
+  if (counted.all >= DAILY_BUG_REPORT_CEILING)
+    return { status: 503, error: 'Bug reports cannot be received right now' };
+  // The archive first, then the row: a row always has its report to file.
+  const archiveKey = await archive(options, submission, pictures);
+  const recorded = await recordReceived(db, {
+    id: submission.id,
+    reporterId: submission.reporterId,
+    receivedAt,
+    archiveKey,
+  });
+  if (recorded) return { status: 201, id: submission.id };
+  return (
+    (await alreadyReceived(db, submission)) ?? {
+      status: 503,
+      error: 'Bug reports cannot be received right now',
+    }
+  );
 }
 
 /**
- * Takes a bug report in and makes it an issue exactly once: a report sent
- * again, because its sender never heard back, gets the first answer.
+ * Takes a bug report in exactly once, keeping it until it is filed as an
+ * issue: a report sent again, because its sender never heard back, gets the
+ * first answer. Filing is `fileBugReportIssues`, never the sender's wait.
  */
 export function createBugReportIntake(options: IntakeOptions) {
   const receiving = new Map<string, Promise<IntakeOutcome>>();

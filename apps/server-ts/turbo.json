@@ -5,6 +5,9 @@
     "contract:write": {
       "cache": false
     },
+    "feedback:file-issues": {
+      "cache": false
+    },
     "build": {
       "outputs": []
     },

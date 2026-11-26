@@ -3,7 +3,10 @@ import type { FeedbackReportingWorld } from '@pkgs/feedback-harness-ts/feedback'
 import {
   connection,
   describeBug,
+  listOfWorkAvailableAgain,
+  listOfWorkUnavailable,
   passDay,
+  readListOfWorkSaying,
   readNotice,
   readTeamBugReportsSaying,
   reopenApp,
@@ -62,6 +65,16 @@ Given("Alice's device has gone offline and come back online", async (w) => {
   await w.apply(connection, false);
   await w.apply(connection, true);
 });
+Given("the team's list of work is unavailable", (w) =>
+  w.apply(listOfWorkUnavailable)
+);
+Given(
+  "Alice has sent a bug report saying {string} while the team's list of work was unavailable",
+  async (w, description: string) => {
+    await w.apply(listOfWorkUnavailable);
+    await w.apply(sendBugReportSaying, description);
+  }
+);
 When('the next day starts', (w) => w.apply(passDay));
 When('Alice sends the bug report from the other device', (w) =>
   w.apply(sendBugReport)
@@ -70,6 +83,9 @@ When('Alice reopens the app', (w) => w.apply(reopenApp));
 When("Alice's device is back online", (w) => w.apply(connection, true));
 When('the team can receive bug reports again', (w) =>
   w.apply(teamReceivesAgain)
+);
+When("the team's list of work is available again", (w) =>
+  w.apply(listOfWorkAvailableAgain)
 );
 Then(
   'Alice is told the bug report will be sent when Alice is back online',
@@ -91,4 +107,14 @@ Then(
   'the team has exactly one bug report from Alice saying {string}',
   async (w, description: string) =>
     expect(await w.read(readTeamBugReportsSaying, description)).toBe(1)
+);
+Then(
+  "the team's list of work has exactly one bug report from Alice saying {string}",
+  async (w, description: string) =>
+    expect(await w.read(readListOfWorkSaying, description)).toBe(1)
+);
+Then(
+  "the team's list of work has no bug report from Alice saying {string}",
+  async (w, description: string) =>
+    expect(await w.read(readListOfWorkSaying, description)).toBe(0)
 );
