@@ -221,31 +221,36 @@ describe('spaceGameFit', () => {
 });
 
 describe('SpaceShell', () => {
-  test('Leave and End have distinct confirm actions', () => {
-    const leave = mock();
-    const end = mock();
-    renderUi(() => (
-      <SpaceShell
-        spaceName="bob's space"
-        role={HOST_ROLE}
-        onBack={mock()}
-        onMembers={mock()}
-        onMinimize={mock()}
-        onLeave={leave}
-        onEnd={end}
-      >
-        <p>{'stage'}</p>
-      </SpaceShell>
-    ));
-    fireEvent.click(screen.getByRole('button', { name: 'Leave space' }));
-    expect(leave).toHaveBeenCalledTimes(1);
-    expect(end).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'End space' }));
-    expect(end).toHaveBeenCalledTimes(1);
-    expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
-      "bob's space"
-    );
-  });
+  test.each(['host', 'guest'] as const)(
+    '%s sees one destructive action',
+    (role) => {
+      const leave = mock();
+      const end = mock();
+      renderUi(() => (
+        <SpaceShell
+          role={role}
+          spaceName="Game night"
+          onBack={mock()}
+          onMembers={mock()}
+          onMinimize={mock()}
+          onLeave={leave}
+          onEnd={role === 'host' ? end : undefined}
+        >
+          <p>{'Board'}</p>
+        </SpaceShell>
+      ));
+      const host = role === 'host';
+      expect(
+        screen.queryByRole('button', {
+          name: host ? 'Leave space' : 'End space',
+        })
+      ).toBeNull();
+      fireEvent.click(
+        screen.getByRole('button', { name: host ? 'End space' : 'Leave space' })
+      );
+      expect(host ? end : leave).toHaveBeenCalledTimes(1);
+    }
+  );
 });
 
 describe('SpacePeopleRow', () => {
@@ -357,7 +362,6 @@ describe('SpaceInGameTemplate', () => {
         onMembers={() => {}}
         onMinimize={() => {}}
         onPersonAction={() => {}}
-        onInvite={() => {}}
       />
     ));
     expect(screen.getByRole('heading', { name: 'Your move' })).toBeDefined();

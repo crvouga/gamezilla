@@ -40,9 +40,7 @@ When('Alice moves to e2 and sees the bot reply', async (w) => {
     w.memo.set('quoridor-turn', board.turn);
     for (const action of [
       Handles.spaceMembersButton,
-      Handles.spaceShare,
-      Handles.spaceRename,
-      Handles.spaceLeave,
+      Handles.spaceSettings,
       Handles.spaceEnd,
       Handles.spaceClose,
     ]) {

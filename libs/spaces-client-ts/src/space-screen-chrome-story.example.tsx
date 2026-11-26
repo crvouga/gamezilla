@@ -26,19 +26,17 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
   onBack: fn(),
   backLabel: undefined,
   onMembers: fn(),
-  onRename: fn(),
+  onSettings: fn(),
   onMinimize: fn(),
   onLeave: fn(),
   onEnd: fn(),
-  onInvite: fn(),
   onPersonAction: fn(),
   personCapabilities: [],
   testIds: {
     back: Handles.spaceBackToSpaces,
     title: Handles.spaceTitle,
     people: Handles.spaceMembersButton,
-    share: Handles.spaceShare,
-    rename: Handles.spaceRename,
+    settings: Handles.spaceSettings,
     minimize: Handles.spaceClose,
     name: Handles.spaceName,
     leave: Handles.spaceLeave,
@@ -60,7 +58,7 @@ export function StorySpaceFrame(props: {
   const value: SpaceScreenChromeValue = {
     ...STORY_SPACE_CHROME,
     ...(props.guest
-      ? { role: 'guest' as const, onRename: undefined, onEnd: undefined }
+      ? { role: 'guest' as const, onSettings: undefined, onEnd: undefined }
       : {}),
     spaceName: props.spaceName ?? STORY_SPACE_CHROME.spaceName,
     title: props.title ?? STORY_SPACE_CHROME.title,

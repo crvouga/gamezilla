@@ -3,8 +3,8 @@
 
 import { afterEach, expect, test } from 'bun:test';
 import { useRemoveSpacePersonStep } from '@libs/spaces-client-ts/remove-space-person-step';
+import { SharingExample } from '@libs/spaces-client-ts/space-management.example';
 import type { SpacePerson } from '@libs/spaces-client-ts/space-person-view';
-import { SpaceShareSheetView } from '@libs/spaces-client-ts/space-share-sheet-view';
 import { AVERY, JORDAN } from '@libs/spaces-client-ts/spaces-story.example';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -28,8 +28,7 @@ function SharingAsHost(): JSX.Element {
     operation: () => Promise.resolve(),
   });
   return (
-    <SpaceShareSheetView
-      open
+    <SharingExample
       onClose={() => undefined}
       onCopyLink={() => Promise.resolve()}
       canManage
@@ -76,7 +75,9 @@ test('Remove swaps the Share dialog to the confirm, and Cancel brings the list b
   fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
   flush();
   expect(screen.getAllByRole('dialog')).toHaveLength(1);
-  expect(screen.getByRole('dialog', { name: 'Share space' })).toBeDefined();
+  expect(
+    screen.getByRole('dialog', { name: 'People in this space' })
+  ).toBeDefined();
   expect(
     screen.getByTestId(Handles.spaceRemovePerson(JORDAN.id))
   ).toBeDefined();

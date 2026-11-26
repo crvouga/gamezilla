@@ -32,5 +32,6 @@ export const cancelRenameSpace = scenarioAction({
     if (!(await cancel.isVisible())) return;
     await cancel.tap();
     await cancel.expect.hidden();
+    await ui.get(Handles.spaceMembersClose).tap();
   },
 });

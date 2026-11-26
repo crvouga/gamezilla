@@ -66,7 +66,7 @@ const GAME: SpaceGame & { play: SpaceGamePlay } = {
 
 describe('SpaceShell slots', () => {
   test('test ids, the back label, the notice and the space controls', () => {
-    const rename = mock();
+    const settings = mock();
     const people = mock();
     const onLeave = mock();
     renderSpace(() => (
@@ -77,13 +77,13 @@ describe('SpaceShell slots', () => {
         backLabel="Back to Chess"
         title="Chess"
         onMembers={people}
-        onRename={rename}
+        onSettings={settings}
         notice={<p data-testid="notice">{'The host is offline'}</p>}
         testIds={{
           back: 'b',
           title: 't',
           people: 'p',
-          rename: 'r',
+          settings: 'r',
           leave: 'l',
         }}
       >
@@ -102,7 +102,7 @@ describe('SpaceShell slots', () => {
     expect(people).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('notice')).toBeDefined();
     fireEvent.click(screen.getByTestId('r'));
-    expect(rename).toHaveBeenCalledTimes(1);
+    expect(settings).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByTestId('l'));
     expect(onLeave).toHaveBeenCalledTimes(1);
   });

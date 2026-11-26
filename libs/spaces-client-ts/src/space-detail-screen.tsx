@@ -6,11 +6,10 @@ import { useReopenLostHostSession } from './reopen-lost-host-session';
 import { SpaceDetailInitialLoading } from './space-detail-initial-loading';
 import { SpaceEndedScreen } from './space-ended-screen';
 import { SpaceJoinPrompt } from './space-join-prompt';
-import { SpaceMembersDialogProvider } from './space-members-dialog-context';
+import { SpaceManagementProvider } from './space-management-context';
 import { ReachableSpace } from './space-reachability';
 import { SpaceRoomProvider } from './space-room-context';
 import { useSpaceRouteId } from './space-routes';
-import { SpaceShareDialogProvider } from './space-share-dialog-context';
 import { SpacesNavProvider } from './spaces-nav-context';
 import { useSpaceByLink } from './use-space-by-link';
 
@@ -20,18 +19,16 @@ export function SpaceDetailScreen(): JSX.Element {
 
   return (
     <SpacesNavProvider>
-      <SpaceMembersDialogProvider spaceId={spaceId()}>
-        <SpaceShareDialogProvider spaceId={spaceId()}>
-          <Show
-            when={spaceId().length > 0}
-            fallback={<SpaceDetailInitialLoading spaceId="" />}
-          >
-            <SpaceRoomProvider spaceId={spaceId()}>
-              <SpaceDetailBody spaceId={spaceId()} />
-            </SpaceRoomProvider>
-          </Show>
-        </SpaceShareDialogProvider>
-      </SpaceMembersDialogProvider>
+      <SpaceManagementProvider spaceId={spaceId()}>
+        <Show
+          when={spaceId().length > 0}
+          fallback={<SpaceDetailInitialLoading spaceId="" />}
+        >
+          <SpaceRoomProvider spaceId={spaceId()}>
+            <SpaceDetailBody spaceId={spaceId()} />
+          </SpaceRoomProvider>
+        </Show>
+      </SpaceManagementProvider>
     </SpacesNavProvider>
   );
 }
