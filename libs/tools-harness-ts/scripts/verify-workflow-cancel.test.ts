@@ -34,6 +34,7 @@ describe('Verify workflow cancellation', () => {
           needs: string[];
           if: string;
           env: Record<string, string>;
+          concurrency: { group: string; queue: string };
           strategy: { matrix: { shard: string } };
         };
       };
@@ -54,10 +55,13 @@ describe('Verify workflow cancellation', () => {
     expect(shards.strategy.matrix.shard).toBe(
       '${{ fromJSON(needs.verify-start.outputs.shards) }}'
     );
-    // The matrix names no shard (`shardMatrix`), so nothing reads its values.
+    // The matrix selects the shared slot. The job index identifies the shard.
     expect(shards.name).toBe('verify:shards (${{ strategy.job-index }})');
     expect(shards.env['VERIFY_SHARD']).toBe('${{ strategy.job-index }}');
-    expect(readFileSync(WORKFLOW, 'utf8')).not.toContain('matrix.shard');
+    expect(shards.concurrency).toEqual({
+      group: "verify-full-shard-${{ matrix.shard['-'] }}",
+      queue: 'max',
+    });
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
     expect(shardCounts.every((count) => count >= 1 && count <= 64)).toBe(true);
     // Verify run 38328597240 missed every cache. Twenty-seven solver runners

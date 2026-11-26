@@ -12,7 +12,7 @@ test.each(['verify', 'verify-nightly', 'lint'])(
   (command) => {
     const filters = rootExcludeFiltersFor(flattenVerifyAggregators([command]));
     expect(filters).toContain('--filter=!@pkgs/clock-shared-swift');
-    expect(filters).toContain('--filter=!@apps/client-swift');
+    expect(filters).toContain('--filter=!@apps/product-client-swift');
   }
 );
 

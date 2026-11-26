@@ -26,8 +26,7 @@ function UserObservatoryLinks(
     <MenuScreen
       screenId="user-observatory"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, href: '/profile' },
-        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Administration</Trans>, href: '/' },
         { name: <Trans>User Observatory</Trans> },
       ]}
     >

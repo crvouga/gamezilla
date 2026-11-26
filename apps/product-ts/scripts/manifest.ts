@@ -33,6 +33,7 @@ export type StackManifest = {
     readonly origin: string;
   }[];
   readonly webOrigin: string;
+  readonly adminOrigin: string | null;
   /** Simulated Google and Apple, each on its own origin with its own state. */
   readonly idpOrigins: {
     readonly google: string;

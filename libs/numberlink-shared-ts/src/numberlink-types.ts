@@ -77,3 +77,32 @@ export function neighbors(board: NumberlinkDefinition, cell: Cell): Cell[] {
     { x: cell.x, y: cell.y + 1 },
   ].filter((candidate) => inBounds(board, candidate));
 }
+
+/**
+ * Validator outputs are frozen through and remembered by identity, so a
+ * value a validator already accepted is never checked again: one move
+ * reads its board and progress once instead of at every step.
+ */
+const accepted = new WeakMap<object, object>();
+/** The context of an accepted board, so a board is never taken for progress. */
+const BOARD = Object.freeze({});
+
+function freezeDeep<T>(value: T): T {
+  if (typeof value === 'object' && value !== null && !Object.isFrozen(value)) {
+    for (const child of Object.values(value)) freezeDeep(child);
+    Object.freeze(value);
+  }
+  return value;
+}
+
+/** Marks a fresh validator output as accepted on `board`, or as a board itself. */
+export function accept<T extends object>(value: T, board?: object): T {
+  accepted.set(freezeDeep(value), board ?? BOARD);
+  return value;
+}
+
+/** Whether `value` is an output a validator accepted on `board`, or as a board. */
+export function wasAccepted(value: unknown, board?: object): boolean {
+  if (typeof value !== 'object' || value === null) return false;
+  return accepted.get(value) === (board ?? BOARD);
+}

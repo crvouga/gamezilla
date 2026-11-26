@@ -39,6 +39,7 @@ export function developmentManifest(
     apiOrigin: services.server?.apiOrigin ?? plan.apiOrigin,
     apiNodes: services.server?.nodes ?? [],
     webOrigin: services.web?.origin ?? '',
+    adminOrigin: services['admin-client']?.origin ?? null,
     idpOrigins: {
       google: services.idp?.google ?? loopback(plan.ports.google),
       apple: services.idp?.apple ?? loopback(plan.ports.apple),

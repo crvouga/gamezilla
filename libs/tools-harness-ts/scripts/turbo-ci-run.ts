@@ -169,6 +169,7 @@ export const MAIN_VERIFY_TASKS = [
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
   ...RELEASE_JOURNEY_TASKS,
+  '@apps/admin-api-ts#verify:worker-bundle',
   '@apps/auth-relay-ts#verify:worker-bundle',
   '@apps/product-ts#verify:worker-bundle',
   '@apps/product-ts#verify:rendered-worker',

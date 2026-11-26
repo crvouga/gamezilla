@@ -81,19 +81,20 @@ export const Handles = {
   spaceMemberIdle: (memberId: string) => `space-member-idle-${memberId}`,
   /** This device's last activity in the space, for the harness clock. */
   spaceOwnActivity: 'space-own-activity',
-  /** Minimize space, in the space settings sheet. */
+  /** Minimize, the trailing action in an open space. */
   spaceClose: 'space-close',
   /** Back with no screen's own way back: to Spaces (the space goes on, small). */
   spaceBackToSpaces: 'space-back-to-spaces',
   /** A space's body while it is still finding out whether this person is in it. */
   spaceLoading: 'space-loading',
-  /** The gear in a space's top row that opens the space settings sheet. */
-  spaceChromeOverflow: 'space-chrome-overflow-menu',
   spaceLeave: 'space-leave',
   spaceEnd: 'space-end',
   spaceLeaveConfirm: 'space-leave-confirm',
   spaceEndConfirm: 'space-end-confirm',
-  spaceShare: 'space-share',
+  spaceSettings: 'space-settings',
+  spaceManagementTabs: 'space-management-tabs',
+  spaceCopyLink: 'space-copy-link',
+  spaceSettingsName: 'space-settings-name',
   spaceInviteFriends: 'space-invite-friends',
   spaceShareClose: 'space-share-close',
   spaceAddTrigger: 'space-add-trigger',
@@ -108,7 +109,7 @@ export const Handles = {
   spaceMiniplayerOpen: (spaceId: string) => `space-miniplayer-open-${spaceId}`,
   /** MutationModal success-state dismiss (Done) for space leave/end flows. */
   spaceMutationDismiss: 'space-mutation-dismiss',
-  /** People in this space, in the space settings sheet: opens the members list. */
+  /** People opens the list of space members. */
   spaceMembersButton: 'space-members-button',
   /** One row in the space members list modal, scoped by member id. */
   spaceMemberRow: (memberId: string) => `space-member-row-${memberId}`,
@@ -156,8 +157,8 @@ export const Handles = {
   spaceUnreachableBack: 'space-unreachable-back',
   /** What the showing screen is, in the space's top bar. */
   spaceTitle: 'space-title',
-  /** The space's name, heading the space menu. */
-  spaceMenuName: 'space-menu-name',
+  /** The name of the open space in its top bar. */
+  spaceName: 'space-name',
   /** Rename action in the space chrome (host only). */
   spaceRename: 'space-rename',
   spaceRenameInput: 'space-rename-input',

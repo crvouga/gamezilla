@@ -24,11 +24,12 @@ function syntheticEnv(
       env: name,
       display_name: `Synthetic ${name}`,
       suffix: `${name}-synthetic`,
-      worker: { name: `app-${name}` },
+      worker: { name: `app-${name}`, admin_name: `admin-${name}` },
       protection,
       cloudflare: { account_id: 'acct', zone_name: 'example.test' },
       hosts: {
         apex: `${name}.example.test`,
+        admin: `admin-${name}.example.test`,
         web: `www-${name}.example.test`,
         api: `api-${name}.example.test`,
         broker: `emqx-${name}.example.test`,
@@ -65,7 +66,7 @@ describe('environment protection', () => {
     );
     expect(sharedIdentities(envs)).toEqual([]);
     expect(apiWorkerVars(staging)['OAUTH_STATE_TAG']).toBe('staging');
-    expect(apiWorkerVars(staging)['PUZZLE_MANAGER_ACCOUNT_IDS']).toBe('[]');
+    expect(apiWorkerVars(staging)['ADMIN_ACCOUNT_IDS']).toBeUndefined();
   });
 
   test('every rendered Worker carries its env file protection', () => {

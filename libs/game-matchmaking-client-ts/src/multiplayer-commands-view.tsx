@@ -21,6 +21,7 @@ type CommandsProps = MultiplayerPlaceFrame & {
   readonly onOpen: (place: MultiplayerPlace) => void;
   /** Returns to the game. */
   readonly onBack: () => void;
+  readonly onBrowse: () => void;
 };
 
 /**
@@ -176,6 +177,17 @@ export function MultiplayerCommandsView(props: CommandsProps): JSX.Element {
               />
             </Show>
             <BoardRows {...props} busy={draw.sending()} />
+          </MenuSection>
+        </Show>
+        <Show when={props.game.leave !== null}>
+          <MenuSection>
+            <MenuRow
+              title={<Trans>Game choices</Trans>}
+              caption={<Trans>Keep this game to return to later.</Trans>}
+              disabled={draw.sending()}
+              onClick={props.onBrowse}
+              dataSet={{ testid: 'multiplayer-browse-games' }}
+            />
           </MenuSection>
         </Show>
         <LeaveRows {...props} busy={draw.sending()} />

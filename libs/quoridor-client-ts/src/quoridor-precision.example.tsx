@@ -4,6 +4,12 @@ import { expect, userEvent, within } from 'storybook/test';
 export async function expectQuoridorWorkingArea(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
   const board = await canvas.findByTestId('custom-game-board');
+  const coordinates = canvas.queryByTestId('custom-game-board-coordinates');
+  if (coordinates) {
+    await expectQuoridorTargetVisible(board);
+    await expectQuoridorTargetVisible(coordinates);
+    return;
+  }
   const tools = canvas.getByTestId('custom-game-board-tools');
   const picker = canvas.getByTestId('custom-game-board-precise-target');
   const boardRect = board.getBoundingClientRect();
@@ -16,7 +22,12 @@ export async function expectQuoridorWorkingArea(canvasElement: HTMLElement) {
   await expect(
     picker.getBoundingClientRect().top - tools.getBoundingClientRect().bottom
   ).toBeLessThanOrEqual(44);
-  for (const element of [board, picker, ...tools.querySelectorAll('button')])
+  for (const element of [
+    board,
+    picker,
+    canvas.getByRole('button', { name: 'Done' }),
+    ...tools.querySelectorAll('button'),
+  ])
     await expectQuoridorTargetVisible(element);
 }
 
@@ -136,10 +147,11 @@ export async function expectQuoridorBoardUsesColumn(
   if (!view) throw new Error('The story requires a browser window');
   if (view.innerWidth < 700 || view.innerHeight < 1000) return;
   const canvas = within(canvasElement);
-  const board = canvas.getByTestId('custom-game-board').getBoundingClientRect();
-  const column = canvas
-    .getByTestId('custom-game-board-tools')
-    .parentElement?.getBoundingClientRect();
+  const grid = canvas.getByTestId('custom-game-board');
+  const board = grid.getBoundingClientRect();
+  const column = grid
+    .closest('[data-quoridor-surface]')
+    ?.parentElement?.getBoundingClientRect();
   if (!column) throw new Error('The board column is missing');
   await expect(board.width).toBeGreaterThanOrEqual(440);
   await expect(

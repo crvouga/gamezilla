@@ -89,6 +89,21 @@ export const YourTurn: Story = {
   parameters: { table: { moves: moves(MID_GAME) } satisfies GameTableStory },
 };
 
+/** The four- and eight-move positions reported from a game against the bot. */
+export const BothPawnsAdvanced: Story = {
+  args: { position: classic('e2 e8 e3 e7') },
+  parameters: {
+    table: { moves: moves('e2 e8 e3 e7') } satisfies GameTableStory,
+  },
+};
+
+export const PawnsPassed: Story = {
+  args: { position: classic('e2 e8 e3 e7 e4 e6 e5 e4') },
+  parameters: {
+    table: { moves: moves('e2 e8 e3 e7 e4 e6 e5 e4') } satisfies GameTableStory,
+  },
+};
+
 /** North is deciding: the board is read-only and the tools are off. */
 export const WaitingForOpponent: Story = {
   args: { position: classic(`${MID_GAME} c3v`), interactive: false },
@@ -118,6 +133,7 @@ export const NoWallsLeft: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expect(canvas.getByTestId('custom-game-board-mode-h')).toBeDisabled();
     await expect(canvas.getByTestId('custom-game-board-mode-v')).toBeDisabled();
     await expect(
@@ -168,6 +184,7 @@ export const PlaceAWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-h')
@@ -209,6 +226,7 @@ export const RefuseACrossingWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     const page = within(canvasElement.ownerDocument.body);
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-v')
@@ -268,6 +286,7 @@ export const KeepAPathOpen: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await userEvent.click(
       await canvas.findByTestId('custom-game-board-mode-v')
     );
@@ -331,6 +350,7 @@ export const PreciseCoordinates: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectQuoridorGoalMarker(canvasElement, 'a9');
     await chooseQuoridorCoordinate(canvasElement, 'e2');
@@ -360,6 +380,7 @@ export const RotateWallPreview: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
     await expectQuoridorSpatialArea(canvasElement);

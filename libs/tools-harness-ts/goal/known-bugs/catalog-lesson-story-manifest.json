@@ -1,0 +1,4 @@
+{
+  "summary": "The game home and walkthrough rendered in Chromium but their generated Storybook contracts could not locate the production menu view.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/board-story-manifests.test.ts"
+}

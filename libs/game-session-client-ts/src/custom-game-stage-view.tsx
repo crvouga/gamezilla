@@ -3,23 +3,23 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import {
+  FixedGameSession,
   type GameSessionAllMoves,
-  GameSessionLayout,
 } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
+
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P } from '@pkgs/ui-root-client-ts/text';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
+
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameMovesCard } from './game-frame-moves-view';
-import { FrameOverlay } from './game-frame-overlay-view';
+import { FrameStage } from './game-frame-stage';
 import {
   FrameDrawOfferLine,
   FrameErrorView,
@@ -29,12 +29,7 @@ import {
   frameStageHeldUp,
   frameWatchersLabel,
 } from './game-frame-status-view';
-import {
-  FrameBoardSeatView,
-  FrameNearSeatView,
-  FrameOthersView,
-} from './game-frame-table-view';
-import type { FramePlaySeat, FrameTable } from './game-frame-view-types';
+import type { FramePlaySeat } from './game-frame-view-types';
 
 type Props = FramePlaceProps;
 
@@ -54,62 +49,12 @@ export function FrameFacts(props: Props): JSX.Element {
   );
 }
 
-/**
- * The seats as the stage shows them: a stopped game has no one to move, so
- * no seat says "Your move" while Reopen game is the way on. A draw offered
- * to the person keeps their seat to move: the board still takes their move
- * (playing on declines it), so their seat keeps its tint and edge.
- */
-function stageTable(props: Props): FrameTable {
-  const table = props.table;
-  const still = (seat: FramePlaySeat): FramePlaySeat =>
-    seat.deciding ? { ...seat, deciding: false } : seat;
-  if (!props.stopped) return table;
-  return {
-    ...table,
-    near: table.near === null ? null : still(table.near),
-    others: table.others.map(still),
-  };
-}
-
 /** The name of the one seat to move, for a watcher's line. */
 function moverName(props: Props): string | null {
   const seats = [props.table.near, ...props.table.others].filter(
     (seat): seat is FramePlaySeat => seat !== null && seat.deciding
   );
   return seats.length === 1 ? (seats[0]?.plainName ?? null) : null;
-}
-
-/**
- * The board as the game draws it. A board that seats every player itself
- * (`table.shape === 'board'`) is lent each of them.
- */
-export function FrameBoard(props: Props): JSX.Element {
-  return (
-    <Show when={props.table.shape === 'board'} fallback={props.board}>
-      <GameTableSeats
-        seat={(side) => ({
-          get name() {
-            const table = stageTable(props);
-            const seat = [table.near, ...table.others].find(
-              (player) => player?.side === side
-            );
-            return seat?.plainName ?? null;
-          },
-          content: (
-            <FrameBoardSeatView
-              table={stageTable(props)}
-              people={props.people}
-              viewerSide={props.viewerSide}
-              side={side}
-            />
-          ),
-        })}
-      >
-        {props.board}
-      </GameTableSeats>
-    </Show>
-  );
 }
 
 /** A game played in real time: no turns, so no moves and no seat to move. */
@@ -159,54 +104,6 @@ function PlayLine(props: Props): JSX.Element {
   );
 }
 
-/**
- * The board and the people around it: the other seats above, the game's
- * required choice, the board, then the person's own seat nearest them. The
- * live position while the game is played, the final one once it is over.
- */
-export function FrameStage(props: Props): JSX.Element {
-  // The seats' density only: chips on a phone at a bigger table, strips
-  // otherwise. What the stage shows is the same on every size.
-  const mode = useLayoutMode();
-  const compact = (): boolean => mode() !== 'wide';
-  return (
-    <GameBoardStage
-      viewportFit={props.boardFit}
-      align={props.boardAlign}
-      workspace={props.boardWorkspace}
-      dataSet={{
-        ...props.boardState,
-        testid: 'custom-game-public',
-        overlay: props.overlay.kind,
-      }}
-      overlay={<FrameOverlay {...props} />}
-      others={
-        <>
-          <FrameOthersView
-            table={stageTable(props)}
-            people={props.people}
-            onChoose={props.onChoose}
-            viewerSide={props.viewerSide}
-            compact={compact()}
-          />
-          <GameActionBar items={props.play.leadingBoardActions} />
-        </>
-      }
-      own={
-        <FrameNearSeatView
-          table={stageTable(props)}
-          people={props.people}
-          onChoose={props.onChoose}
-          viewerSide={props.viewerSide}
-          compact={compact()}
-        />
-      }
-    >
-      <FrameBoard {...props} />
-    </GameBoardStage>
-  );
-}
-
 /** Whether the game's commands place holds anything for this viewer. */
 export function commandsOffered(props: Props): boolean {
   return (
@@ -245,11 +142,6 @@ function HeldActions(props: Props): JSX.Element {
       </Show>
     </>
   );
-}
-
-/** The versus card still counts in: the game has not reached the board. */
-function counting(props: Props): boolean {
-  return props.overlay.kind === 'versus';
 }
 
 /**
@@ -337,7 +229,6 @@ function LiveActions(props: Props): JSX.Element {
       <Show when={props.play.canOfferDraw && !props.menuMatchCommands}>
         <GameActionButton
           title={<Trans>Offer draw</Trans>}
-          disabled={counting(props)}
           dataSet={{ testid: 'custom-game-offer-draw' }}
           operation={() => props.onChoose({ operation: 'offer' })}
         />
@@ -354,7 +245,6 @@ function LiveActions(props: Props): JSX.Element {
           title={<Trans>Resign</Trans>}
           variant="outline"
           intent="danger"
-          disabled={counting(props)}
           onClick={() => props.onConfirm('resign')}
           dataSet={{ testid: 'custom-game-resign-now' }}
         />
@@ -394,8 +284,7 @@ function allMovesOf(props: Props): GameSessionAllMoves | undefined {
  * The play place: the live position and what playing needs now, in one
  * bar: an answer the game waits for, offering a draw, resigning (confirmed)
  * and the game's menu, where the moves, the history and the rest wait. The
- * board never shows an earlier move here (that is the moves place). A game
- * this device watched begin opens under the versus card (`overlay`).
+ * board never shows an earlier move here (that is the moves place).
  */
 export function CustomGameStagePlace(props: Props): JSX.Element {
   return (
@@ -405,7 +294,7 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
       compactInset={props.table.compactInset}
       facts={<FrameFacts {...props} />}
     >
-      <GameSessionLayout
+      <FixedGameSession
         dataSet={{
           component: 'CustomGameContent',
           testid: 'custom-game-content',
@@ -427,9 +316,6 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
             <FrameErrorView text={props.error} />
           </>
         }
-        boardFocus
-        actionsBeside
-        fixedStage
         status={
           // Someone watching is told so on the bar's own status line, so
           // their board keeps the players' full width and place.
@@ -483,11 +369,11 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           </Show>
         }
         actions={<PlayActions {...props} />}
-        aside={<FrameMovesCard {...props} />}
+        history={<FrameMovesCard {...props} />}
         allMoves={allMovesOf(props)}
       >
-        <FrameStage {...props} />
-      </GameSessionLayout>
+        {(information) => <FrameStage {...props} information={information} />}
+      </FixedGameSession>
     </GameScreen>
   );
 }

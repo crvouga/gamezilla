@@ -8,7 +8,6 @@ import {
   MORGAN as MORGAN_PERSON,
   ROBIN as ROBIN_PERSON,
 } from '@libs/spaces-client-ts/spaces-story.example';
-import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
@@ -265,7 +264,7 @@ export function frameArgs(): CustomGameScreenViewProps {
     stopped: false,
     status: null,
     canCreate: true,
-    playerCount: 2,
+    sides: ['white', 'black'],
     setup: null,
     table: FRAME_NO_TABLE,
     play: FRAME_NO_PLAY,
@@ -285,8 +284,6 @@ export function frameArgs(): CustomGameScreenViewProps {
     place: { screen: 'home' },
     onOpen: fn(),
     onClose: fn(),
-    overlay: NO_STAGE_OVERLAY,
-    onOverlay: fn(),
   };
 }
 
@@ -305,7 +302,6 @@ export const FRAME_CONTROLS_EXCLUDE = [
   'next',
   'record',
   'status',
-  'overlay',
 ];
 
 /** A two-seat game in play with the viewer to move. */
@@ -343,7 +339,6 @@ export const FRAME_HELD: Partial<CustomGameScreenViewProps> = {
 export const FRAME_OVER: Partial<CustomGameScreenViewProps> = {
   phase: 'completed',
   place: { screen: 'result' },
-  overlay: { kind: 'outcome' },
   viewerSide: 'white',
   status: status({
     description: 'Red circle wins by four in a row.',

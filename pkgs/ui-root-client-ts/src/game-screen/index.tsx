@@ -61,6 +61,7 @@ export function GameScreen(props: {
     >
       <div
         class={`${styles['column']} ${componentStyles['column']}`}
+        data-game-column
         {...dataAttrs({ component: 'GameColumn' })}
       >
         <Show
@@ -75,6 +76,7 @@ export function GameScreen(props: {
         >
           <div
             class={componentStyles['heading']}
+            data-game-heading
             data-keep-title={String(props.keepTitle === true)}
             {...dataAttrs({ component: 'GameHeading' })}
           >

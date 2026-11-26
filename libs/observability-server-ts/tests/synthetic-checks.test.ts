@@ -44,6 +44,25 @@ describe('the check names', () => {
     expect([...named].sort()).toEqual([...SYNTHETIC_CHECKS].sort());
   });
 
+  // regression: space-return-journeys-unnamed-health-checks
+  test('report both space recovery journeys by name', () => {
+    expect(
+      checkResults([
+        {
+          featureUri: 'specs/journeys/return-to-quoridor.feature',
+          statuses: ['pass'],
+        },
+        {
+          featureUri: 'specs/journeys/recover-custom-game.feature',
+          statuses: ['fail'],
+        },
+      ])
+    ).toEqual([
+      { check: 'journeys.return-to-quoridor', passed: true },
+      { check: 'journeys.recover-custom-game', passed: false },
+    ]);
+  });
+
   test('read a feature path, and nothing else', () => {
     expect(checkOfFeature('specs/auth/sign-in.feature')).toBe('auth.sign-in');
     expect(checkOfFeature('specs/auth/sign-in.openslo.yaml')).toBeNull();
@@ -52,6 +71,18 @@ describe('the check names', () => {
 });
 
 describe("a run's results", () => {
+  // regression: game-back-journey-unnamed-health-check
+  test('records the result of leaving a Quoridor board and returning to the space', () => {
+    expect(
+      checkResults([
+        {
+          featureUri: 'specs/journeys/back-from-quoridor.feature',
+          statuses: ['pass'],
+        },
+      ])
+    ).toEqual([{ check: 'journeys.back-from-quoridor', passed: true }]);
+  });
+
   test('pass a feature only when it decided scenarios and all of them passed', () => {
     expect(
       checkResults([

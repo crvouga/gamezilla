@@ -19,12 +19,12 @@ function chunk(
 
 const bundle = {
   'assets/index.js': chunk('assets/index.js', {
-    facadeModuleId: '/repo/apps/client-ts/index.html',
+    facadeModuleId: '/repo/apps/product-client-ts/index.html',
     isEntry: true,
     imports: ['assets/runtime.js'],
   }),
   'assets/main.js': chunk('assets/main.js', {
-    facadeModuleId: '/repo/apps/client-ts/src/main.tsx',
+    facadeModuleId: '/repo/apps/product-client-ts/src/main.tsx',
     isDynamicEntry: true,
     imports: ['assets/index.js', 'assets/runtime.js'],
     viteMetadata: { importedCss: new Set(['assets/main.css']) },

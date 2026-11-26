@@ -72,6 +72,26 @@ test('the own grid shows the viewer’s fleet from its setup and the shots fired
   expect(own('a1').getAttribute('data-tone')).toBe('open');
 });
 
+// regression: battleship-incoming-shot-motion
+test('the incoming hit settles on the fleet and leaves the earlier miss still', () => {
+  const { setPosition } = board({
+    setup: FLEET,
+    position: encodeBattleshipPosition([
+      'a1:hit',
+      'e5:miss',
+      'b1:sunk:destroyer',
+    ]),
+  });
+  expect(own('e5').hasAttribute('data-shot-arrived')).toBe(false);
+  setPosition(POSITION);
+  flush();
+  expect(own('c3').getAttribute('aria-label')).toBe(
+    'C3: your Carrier, hit, latest shot'
+  );
+  expect(own('c3').hasAttribute('data-shot-arrived')).toBe(true);
+  expect(own('e5').hasAttribute('data-shot-arrived')).toBe(false);
+});
+
 test('the targeting grid shows only the public shots, never a ship that was not hit', () => {
   board({ setup: FLEET });
   const fired = new Set(['a1', 'b1']);

@@ -29,7 +29,7 @@ test('storybook integration: game frame 320 keeps its latest move whole on the l
   ).toHaveCount(0);
   const edges = await page.evaluate(() => {
     const record = document.querySelector('[data-testid="custom-game-record"]');
-    const stage = document.querySelector('[data-component="GameBoardStage"]');
+    const stage = document.querySelector('[data-game-board]');
     if (!record || !stage) throw new Error('Missing the moves line or board');
     const line = record.getBoundingClientRect();
     const moves = [

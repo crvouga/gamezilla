@@ -344,6 +344,9 @@ terms:
   - term: space
     from: spaces
 
+  - term: host
+    from: spaces
+
   - term: join
     from: spaces
 

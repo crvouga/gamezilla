@@ -4,6 +4,12 @@ purpose: >-
   Users alike, and watch anyone live, without ever seeing a person's private
   details.
 terms:
+  - term: administration site
+    definition: >-
+      The separate place where a person signed in with an account marked as
+      an administrator can use the dashboard, observe activity, manage
+      Synthetic Users and load chess puzzles. These controls are absent
+      from the app where people play.
   - term: User Observatory
     definition: >-
       Where authorized people see whoever is online now, each with its

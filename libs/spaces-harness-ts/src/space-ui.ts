@@ -40,7 +40,7 @@ export async function waitActiveSpace(
   await waitForOneOf(
     s,
     actorId,
-    [Handles.spaceChromeOverflow],
+    [Handles.spaceClose],
     `${actorId} inside the space`
   );
 }
@@ -48,7 +48,7 @@ export async function waitActiveSpace(
 type Ui = Awaited<ReturnType<typeof actorUi>>;
 
 /**
- * Whether `handle` shows. The space's top row (its gear) also tops the shell a
+ * Whether `handle` shows. The space's top row (Minimize) also tops the shell a
  * space shows while it is still finding out whether this person is in it,
  * so the bar means inside only once that loading body is gone. Each read is
  * its own look at a live page: the loading body is read on both sides of the
@@ -56,7 +56,7 @@ type Ui = Awaited<ReturnType<typeof actorUi>>;
  * reads never passes for being inside.
  */
 async function outcomeShown(ui: Ui, handle: string): Promise<boolean> {
-  if (handle !== Handles.spaceChromeOverflow) return ui.get(handle).isVisible();
+  if (handle !== Handles.spaceClose) return ui.get(handle).isVisible();
   // regression: space-loading-shell-reads-as-inside
   // regression: space-loading-shell-gone-between-reads
   const loading = () => ui.get(Handles.spaceLoading).isVisible();
@@ -210,8 +210,8 @@ export async function confirmSpaceMutation(
 /** Every screen a space link or a start can settle on. */
 const SPACE_OUTCOMES = [
   Handles.spaceJoin,
-  // Inside: the space's top row, whose gear is on it on every screen and size.
-  Handles.spaceChromeOverflow,
+  // Inside: the space's top row, with Minimize on every screen and size.
+  Handles.spaceClose,
   Handles.spaceEnded,
   Handles.spaceHostOffline,
   Handles.spaceNotFound,
@@ -259,41 +259,21 @@ export async function expectJoinPrompt(
   link: string
 ): Promise<void> {
   const outcome = await waitSpaceOutcome(s, actorId, `space link ${link}`);
-  if (outcome === Handles.spaceJoin || outcome === Handles.spaceChromeOverflow)
-    return;
+  if (outcome === Handles.spaceJoin || outcome === Handles.spaceClose) return;
   throw new Error(
     `${actorId} opened ${link} and saw ${outcome} instead of the join prompt`
   );
 }
 
-/**
- * Tap a space chrome action that may be in the space settings sheet: straight
- * when it shows, through the menu otherwise.
- */
-export async function tapChromeOrOverflow(
+/** Press an action in the open space's top bar. */
+export async function tapSpaceAction(
   s: ProductHarness,
   actorId: string,
   handle: string
 ): Promise<void> {
   const ui = await actorUi(s, actorId);
-  if (await ui.get(handle).isVisible()) {
-    await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
-    return;
-  }
-  await ui
-    .get(Handles.spaceChromeOverflow)
-    .expect.visible({ timeoutMs: SPACE_WAIT_MS })
-    .catch(async (error) => {
-      const live = await s.harness.spawnClient(actorId);
-      const engine = live.syncEnginePool.peekReady(
-        live.env.resolveDatabaseName({ userId: '' })
-      );
-      throw new Error(
-        `${String(error)}; sync=${JSON.stringify(engine?.status.getSnapshot())}`
-      );
-    });
-  if (!(await ui.get(handle).isVisible())) {
-    await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs: SPACE_WAIT_MS });
+  if (handle === Handles.spaceRename && !(await ui.get(handle).isVisible())) {
+    await ui.get(Handles.spaceSettings).tap({ timeoutMs: SPACE_WAIT_MS });
   }
   await ui.get(handle).tap({ timeoutMs: SPACE_WAIT_MS });
 }

@@ -66,8 +66,7 @@ export type ApiWorkerEnv = {
    */
   DEPLOYMENT_PROTECTION?: string;
   /** JSON array rendered from this environment's infrastructure file. */
-  PUZZLE_MANAGER_ACCOUNT_IDS?: string;
-  POPULATION_OPERATOR_ACCOUNT_IDS?: string;
+  ADMIN_ACCOUNT_IDS?: string;
   BUILD_SHA?: string;
   /** Repository admin token; the API Worker opens bug report issues with it. */
   GITHUB_ADMIN_TOKEN?: string;
@@ -149,28 +148,11 @@ export function readOptionalApiUrlOverride(env: ApiWorkerEnv): string | null {
   return readOptionalBinding(env.API_URL);
 }
 
-export function readPuzzleManagerAccountIds(
-  env: Pick<ApiWorkerEnv, 'PUZZLE_MANAGER_ACCOUNT_IDS'>
+export function readAdminAccountIds(
+  env: Pick<ApiWorkerEnv, 'ADMIN_ACCOUNT_IDS'>
 ): readonly string[] {
-  return readAccountIds(
-    env.PUZZLE_MANAGER_ACCOUNT_IDS,
-    'PUZZLE_MANAGER_ACCOUNT_IDS'
-  );
-}
-
-export function readSyntheticPopulationOperatorAccountIds(
-  env: Pick<ApiWorkerEnv, 'POPULATION_OPERATOR_ACCOUNT_IDS'>
-): readonly string[] {
-  return readAccountIds(
-    env.POPULATION_OPERATOR_ACCOUNT_IDS,
-    'POPULATION_OPERATOR_ACCOUNT_IDS'
-  );
-}
-
-function readAccountIds(
-  value: string | undefined,
-  name: string
-): readonly string[] {
+  const name = 'ADMIN_ACCOUNT_IDS';
+  const value = env.ADMIN_ACCOUNT_IDS;
   const raw = readOptionalBinding(value);
   if (raw === null) return [];
   let parsed: unknown;

@@ -1,5 +1,6 @@
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import type { JSX } from '@solidjs/web';
+import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
 import { MultiplayerCommandsControl } from './matchmaking-stage-view';
 import type { MultiplayerGameView } from './multiplayer-game-view';
 import {
@@ -21,7 +22,7 @@ export function MatchmakingPrivateSetupView(
     /** The person's own setup, its commands and who is ready. */
     readonly setup: JSX.Element;
     /** The seats around the board. */
-    readonly board: JSX.Element;
+    readonly board: MultiplayerBoardSlot | undefined;
     /** The line that says who is still getting ready. */
     readonly status: JSX.Element;
     readonly game: MultiplayerGameView;
@@ -30,10 +31,8 @@ export function MatchmakingPrivateSetupView(
 ): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
-      <GameSessionLayout
+      <FixedGameSession
         notices={props.notices}
-        setup={props.setup}
-        actionsBeside
         status={props.status}
         actions={
           <MultiplayerCommandsControl
@@ -43,8 +42,15 @@ export function MatchmakingPrivateSetupView(
           />
         }
       >
-        {props.board}
-      </GameSessionLayout>
+        {(information) =>
+          props.board?.({ information, setup: props.setup }) ?? (
+            <>
+              {information}
+              {props.setup}
+            </>
+          )
+        }
+      </FixedGameSession>
     </MultiplayerStagePlace>
   );
 }

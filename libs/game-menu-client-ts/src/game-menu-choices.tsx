@@ -6,7 +6,10 @@ import { PuzzleReviewScreen } from '@libs/game-puzzle-client-ts/puzzle-review-sc
 import { PuzzleStatsScreen } from '@libs/game-puzzle-client-ts/puzzle-stats-screen';
 import { CustomGameScreen } from '@libs/game-session-client-ts/custom-game-screen';
 import { GameHistory } from '@libs/game-session-client-ts/game-history';
-import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
+import type {
+  GameScreen,
+  VisitedGameScreen,
+} from '@libs/spaces-client-ts/use-game-screen';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import {
@@ -56,7 +59,7 @@ function historyHub(game: GameClient, offers: Offers): boolean {
 export function sharedScreens(
   game: GameClient,
   offers: Offers,
-  navigation: GameScreen
+  navigation: VisitedGameScreen
 ): readonly SharedScreen[] {
   const back = navigation.showChoices;
   const id = game.shared.id;
@@ -73,7 +76,12 @@ export function sharedScreens(
           {
             screen: SHARED_GAME_SCREEN.matchmakingHome,
             Screen: () => (
-              <MultiplayerScreen gameId={id} title={game.title} onBack={back} />
+              <MultiplayerScreen
+                gameId={id}
+                title={game.title}
+                onBack={back}
+                onBackFromBoard={navigation.backFromBoard}
+              />
             ),
           },
         ]
@@ -87,6 +95,7 @@ export function sharedScreens(
                 gameId={id}
                 title={game.title}
                 onBack={back}
+                onBackFromBoard={navigation.backFromBoard}
                 {...history}
               />
             ),
@@ -244,21 +253,21 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.matchmakingHome,
-            title: () =>
-              playerCount > 2 ? (
-                <Trans>Find players</Trans>
-              ) : (
-                <Trans>Find an opponent</Trans>
-              ),
+            title: () => <Trans>Match making</Trans>,
             caption: () => (
               <FindOpponentOffer>
                 <Show
-                  when={playerCount > 2}
-                  fallback={<Trans>Meet another {name} player</Trans>}
+                  when={game.mode === undefined}
+                  fallback={<Trans>Find players for your chosen mode</Trans>}
                 >
-                  <Trans>
-                    Meet {playerCount - 1} other {name} players
-                  </Trans>
+                  <Show
+                    when={playerCount > 2}
+                    fallback={<Trans>Meet another {name} player</Trans>}
+                  >
+                    <Trans>
+                      Meet {playerCount - 1} other {name} players
+                    </Trans>
+                  </Show>
                 </Show>
               </FindOpponentOffer>
             ),
@@ -269,9 +278,7 @@ function sharedChoices(game: GameClient, offers: Offers): GameChoiceItem[] {
       ? [
           {
             screen: SHARED_GAME_SCREEN.customGamesHome,
-            // Short enough to keep the lead's tag beside it on a phone's
-            // row; the caption says bots are welcome too.
-            title: () => <Trans>Play with friends</Trans>,
+            title: () => <Trans>Custom games</Trans>,
             // The game menu is always inside a space: its people are who
             // plays a custom game, beside any bots.
             caption: () => (

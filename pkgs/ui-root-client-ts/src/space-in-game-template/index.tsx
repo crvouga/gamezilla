@@ -7,6 +7,7 @@ import { createSignal, Show } from 'solid-js';
 import { Button } from '../button/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { spaceDataSet } from '../space-data-set';
+import { SpacePeople } from '../space-person-menu/space-people';
 import { type SpaceScreenChrome, SpaceShell } from '../space-shell/index';
 import type {
   SpaceGame,
@@ -32,11 +33,6 @@ export type SpaceInGameTemplateProps = SpaceScreenChrome & {
   role: SpaceRole;
   /** Everyone in the space; the game gives each a color, turn and data. */
   people: readonly SpacePerson[];
-  /**
-   * Over the stage, under nothing: a countdown, the versus card. Rendered
-   * once; covers the board while it renders anything.
-   */
-  overlay?: JSX.Element | undefined;
   /**
    * The game is over: its outcome replaces the status line and its actions
    * (Rematch, Back to games) replace the game's; the board stays.
@@ -105,6 +101,17 @@ function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
   const play = () => props.game.play;
   return (
     <div class={styles['stage']}>
+      <div class={styles['players']}>
+        <SpacePeople
+          people={props.people}
+          viewer={props.role}
+          phase="inGame"
+          seat={play().seat}
+          gameActions={play().personActions}
+          onPersonAction={props.onPersonAction}
+          capabilities={props.personCapabilities}
+        />
+      </div>
       <StatusLine play={play()} result={props.result} aside={props.aside} />
       <div class={styles['board']} data-space-board="true">
         {play().board}
@@ -116,9 +123,6 @@ function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
         }
         moreTestId={props.moreTestId}
       />
-      <div class={styles['overlay']} data-space-overlay="true">
-        {props.overlay}
-      </div>
     </div>
   );
 }
@@ -133,8 +137,7 @@ function InGameStage(props: SpaceInGameTemplateProps): JSX.Element {
  * the fixed action bar, and the people row with player-color rings and the
  * turn badge. Invite is hidden while a game runs.
  *
- * The session adds what no game owns: an `overlay` over the stage (the
- * countdown), the `result` once the game is over (its status and next
+ * The session adds the `result` once the game is over (its status and next
  * actions in place of the game's), and an `aside` the status line opens
  * (the move list, commands).
  */
@@ -148,7 +151,9 @@ export function SpaceInGameTemplate(
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
-      menu={props.menu}
+      onMembers={props.onMembers}
+      onSettings={props.onSettings}
+      onMinimize={props.onMinimize}
       onLeave={props.onLeave}
       onEnd={props.onEnd}
       notice={props.notice}

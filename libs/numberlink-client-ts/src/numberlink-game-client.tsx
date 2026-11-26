@@ -2,10 +2,10 @@ import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { decodeNumberlinkDraft } from '@libs/numberlink-shared-ts/numberlink-definition';
 import { numberlinkGameShared } from '@libs/numberlink-shared-ts/numberlink-game';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { P } from '@pkgs/ui-root-client-ts/text';
 import { numberlinkContentFrame } from './numberlink-content-frame';
 import { NumberlinkEditor } from './numberlink-editor';
 import { initialNumberlinkDefinition } from './numberlink-editor-actions';
+import { numberlinkLesson } from './numberlink-lesson';
 import {
   NumberlinkPlayer,
   NumberlinkPreview,
@@ -18,15 +18,7 @@ export const numberlinkGameClient = defineGameClient({
   caption: 'Connect matching endpoints',
   tile: 'paths',
   subtitle: () => <Trans>Connect each matching pair and fill the board.</Trans>,
-  instructions: () => (
-    <P>
-      <Trans>
-        Join matching endpoints with paths that move horizontally or vertically.
-        Paths never cross or overlap. Cover every cell unless the puzzle
-        explicitly uses pairs-only coverage.
-      </Trans>
-    </P>
-  ),
+  lesson: numberlinkLesson,
   puzzleContent: {
     Player: NumberlinkPlayer,
     Support: NumberlinkSupport,

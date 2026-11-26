@@ -55,6 +55,7 @@ test('a harness request preserves a thrown database route error', async () => {
   try {
     await reconcileSqliteSchema(db, registerTables(CLIENT_CONFIG_TABLES));
     const app = requestApp(db, {
+      kind: 'complete',
       google: false,
       apple: false,
       billing: false,
@@ -97,6 +98,48 @@ test('the first request to a fixture API preserves the deployment operator polic
         }>`SELECT id, value FROM client_config ORDER BY id`
       )
     ).toEqual(before);
+  } finally {
+    await db.disconnect();
+  }
+});
+
+test('each application refreshes only the configuration it owns', async () => {
+  const db = SqlClientImplBunSqlite.open(':memory:');
+  await db.connect();
+  try {
+    await reconcileSqliteSchema(db, registerTables(CLIENT_CONFIG_TABLES));
+    const admin = {
+      kind: 'admin',
+      permissionPolicy: { version: 'staff' },
+    } as const;
+    const product = {
+      kind: 'product',
+      google: true,
+      apple: false,
+      billing: false,
+      tts: false,
+      llm: false,
+      googleWebClientId: null,
+      emqxWssUrl: 'wss://broker.invalid',
+      billingGracePeriodMs: 0,
+    } as const;
+    for (const owner of [product, admin, product, admin]) {
+      expect((await requestApp(db, owner).request('/read')).status).toBe(200);
+    }
+    expect(
+      await db.query(
+        sql<{
+          id: string;
+          value: string;
+        }>`SELECT id, value FROM client_config WHERE id IN ('permission_policy', 'emqx_wss_url') ORDER BY id`
+      )
+    ).toEqual([
+      { id: 'emqx_wss_url', value: JSON.stringify(product.emqxWssUrl) },
+      {
+        id: 'permission_policy',
+        value: JSON.stringify(admin.permissionPolicy),
+      },
+    ]);
   } finally {
     await db.disconnect();
   }

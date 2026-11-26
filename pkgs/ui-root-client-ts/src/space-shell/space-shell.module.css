@@ -1,8 +1,6 @@
-/* The two rows of every space screen. Row 1 has a fixed height and never
-   moves; row 2 takes everything left. Nothing is ruled between them (the
-   shell can be narrower than the screen, where a rule would stop short);
-   both share the canvas, and cards inside the stage take the surface. */
+/* The stage fills the space below the header. */
 .shell {
+  container-type: inline-size;
   display: flex;
   flex: 1;
   flex-direction: column;
@@ -14,48 +12,44 @@
   color: var(--ui-color-text);
 }
 
-/* Row 1: space actions, the same controls in the same places everywhere. */
+/* The title gives up room before the tools. */
 .actions {
   display: flex;
   flex: none;
   align-items: center;
-  gap: var(--ui-space-1);
-  height: 56px;
-  padding: 0 var(--ui-space-2);
+  column-gap: var(--ui-space-1);
+  min-height: 56px;
+  padding: var(--ui-space-1) var(--ui-space-2);
 }
-/* In the app's frame on desktop the bar sits on the frame column's edge, the edge every
-   screen's content starts on: back and the last action are drawn so their
-   glyphs, not their tap targets, line up with the content below. */
-[data-component="AppFrame"] .shell[data-layout="wide"] .actions {
-  padding-inline: 0;
-}
-[data-component="AppFrame"] .shell[data-layout="wide"] .actions > :first-child {
-  margin-inline-start: -12px;
-}
-[data-component="AppFrame"] .shell[data-layout="wide"] .tools {
-  margin-inline-end: -12px;
-}
-.where {
+
+.context,
+.tools {
   display: flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+}
+
+.context {
   flex: 1;
-  flex-direction: column;
   min-width: 0;
 }
 
-/* The space's actions: as many as fit, then the space menu. */
-.tools {
+.where {
   display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--ui-space-1);
+  align-items: baseline;
+  gap: var(--ui-space-2);
+  flex: 1;
+  min-width: 0;
 }
 
-/* The app's own status, ahead of the space's actions. */
-.status {
-  display: flex;
+.tools {
+  justify-content: flex-end;
   flex: none;
-  align-items: center;
-  gap: var(--ui-space-1);
+  margin-inline-start: auto;
+}
+
+[data-component="AppFrame"] .shell[data-layout="wide"] .actions {
+  padding-inline: 0;
 }
 
 /* Row 2: the stage. Scrolls on its own unless its content owns the room. */
@@ -71,4 +65,26 @@
 }
 .stage[data-scroll="fixed"] {
   overflow: hidden;
+}
+
+/* On a phone the game gets the available title space. The full space name
+   is available to assistive technology and in Settings. */
+@container (max-width: 600px) {
+  .where > :nth-child(2) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
+}
+
+@container (max-width: 320px) {
+  .where {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+  }
 }

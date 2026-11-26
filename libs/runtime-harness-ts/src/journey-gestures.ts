@@ -55,23 +55,23 @@ export async function tap(ui: Driver, testId: string): Promise<void> {
 const MODE_READS = 50;
 
 /**
- * Pick `gameId` in the space: its game's one tile (`family`, which opens
- * the mode of the same id), then, for another mode, that mode among the
- * game's choices. Choosing applies at once on this device.
+ * Open the game’s setup from its family tile and select the requested mode.
  */
-export async function pickGameInSpace(
+export async function openGameSetupInSpace(
   ui: Driver,
   gameId: string,
+  destination: 'custom-game' | 'multiplayer',
   family: string = gameId
 ): Promise<void> {
   await tap(ui, Handles.gameMenu(family));
   await expectVisible(ui, Handles.gameChoices);
+  await tap(ui, Handles.gameChoice(destination));
   if (gameId === family) return;
   const mode = ui.get(Handles.gameMode(gameId));
   await mode.tap({ timeoutMs: JOURNEY_WAIT_MS });
   for (let read = 0; read < MODE_READS; read += 1) {
     if ((await mode.attribute('aria-checked')) === 'true') return;
-    await expectVisible(ui, Handles.gameChoices);
+    await mode.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   }
   throw new Error(`${gameId} is not set up after choosing it`);
 }
@@ -118,30 +118,9 @@ export async function openTab(ui: Driver, tab: string): Promise<void> {
 const ENTER_POLLS = 3;
 const ENTER_SETTLE_MS = 5_000;
 
-/** Whether End shows on the space's bar within `timeoutMs`. */
-async function endOnBar(ui: Driver, timeoutMs: number): Promise<boolean> {
-  try {
-    await ui.get(Handles.spaceEnd).expect.visible({ timeoutMs });
-    return true;
-  } catch {
-    return false;
-  }
-}
-
-/**
- * End is up: on the bar, or in the overflow menu when the bar has no room.
- * The bar lays out a moment after the space opens. Opening the menu in that
- * moment leaves its full-screen backdrop over End once End lands on the bar,
- * so no tap reaches it (Windows, Verify run 40653277467). Give the bar its
- * moment first, and open the menu only when End still is not on it.
- */
+/** End becomes available once the host's membership is ready. */
 async function endIsUp(ui: Driver): Promise<boolean> {
   try {
-    if (!(await endOnBar(ui, ENTER_SETTLE_MS))) {
-      if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
-        await tap(ui, Handles.spaceChromeOverflow);
-      }
-    }
     await ui
       .get(Handles.spaceEnd)
       .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
@@ -164,7 +143,7 @@ async function enterHostedSpace(ui: Driver): Promise<void> {
   const join = ui.get(Handles.spaceJoin);
   for (let attempt = 0; attempt < ENTER_POLLS; attempt += 1) {
     if (await end.isVisible()) return;
-    if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
+    if (await ui.get(Handles.spaceClose).isVisible()) {
       if (await endIsUp(ui)) return;
     }
     if (!(await join.isVisible())) {
@@ -259,6 +238,5 @@ export async function hostSpace(ui: Driver): Promise<void> {
   await releaseLeftoverHostedSpaces(ui);
   await openTab(ui, Handles.tabSpaces);
   await tap(ui, Handles.spaceCreate);
-  // The space settings gear is in the space's top row on every screen.
-  await expectVisible(ui, Handles.spaceChromeOverflow);
+  await expectVisible(ui, Handles.spaceClose);
 }

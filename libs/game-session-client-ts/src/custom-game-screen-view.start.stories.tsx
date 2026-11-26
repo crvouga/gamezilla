@@ -1,3 +1,4 @@
+import { GameSetupModeContext } from '@libs/spaces-client-ts/game-setup-mode';
 import { KeyRoundIcon } from '@pkgs/ui-root-client-ts/icons';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -29,7 +30,7 @@ export const NoGame: Story = {};
  */
 // regression: mode-card-words-squeezed-without-picture
 export const NoGameManyPlayers: Story = {
-  args: { playerCount: 4 },
+  args: { sides: ['white', 'black', 'red', 'blue'] },
   play: async ({ canvasElement }) => {
     const card = await within(canvasElement).findByTestId('custom-game-mode');
     const heading = within(card).getByRole('heading');
@@ -71,5 +72,41 @@ export const PlayBot: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('custom-game-play-bot'));
     await expect(args.onPlayBot).toHaveBeenCalledTimes(1);
+  },
+};
+
+export const KingOfTheHill: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Quoridor: King of the Hill',
+    },
+  },
+  args: {
+    title: 'Quoridor: King of the Hill',
+    goal: 'Reach the central hill first. Walls slow the others down.',
+    sides: ['white', 'black', 'red', 'blue'],
+  },
+  render: (args) => (
+    <GameSetupModeContext
+      value={{
+        segments: [
+          { key: 'classic', label: 'Classic' },
+          { key: 'hill', label: 'King of the Hill' },
+        ],
+        selected: 'hill',
+        onSelect: fn(),
+      }}
+    >
+      <FrameStory {...args} />
+    </GameSetupModeContext>
+  ),
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('radio', { name: 'King of the Hill' })
+    ).toBeChecked();
   },
 };

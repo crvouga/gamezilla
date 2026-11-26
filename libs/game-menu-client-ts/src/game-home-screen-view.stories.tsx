@@ -3,20 +3,22 @@ import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   GameHomeScreenView,
+  type GameHomeScreenViewProps,
   type GameMenuChoiceView,
 } from './game-home-screen-view';
+import { storyGame } from './game-menu-catalog.example';
 
 /** The shared choices of a two-player game named `name`. */
 function sharedChoices(name: string): readonly GameMenuChoiceView[] {
   return [
     {
       screen: 'custom-game',
-      title: 'Play with friends',
+      title: 'Custom games',
       caption: 'With the people in this space, or bots',
     },
     {
       screen: 'multiplayer',
-      title: 'Find an opponent',
+      title: 'Match making',
       caption: `Meet another ${name} player`,
     },
     {
@@ -51,20 +53,25 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     appRouter: true,
-    controls: { exclude: ['choices', 'subtitle', 'instructions'] },
+    catalogLesson: true,
+    controls: { exclude: ['choices', 'subtitle', 'lesson'] },
   },
+  render: (args, context) => (
+    <GameHomeScreenView
+      {...args}
+      lesson={storyGame(context.loaded, { tile: args.tile }).lesson}
+    />
+  ),
   args: {
     title: 'Connect Four',
     tile: 'discs',
     subtitle: 'Drop discs and line up four',
-    instructions:
-      'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.',
     choices: CHOICES,
     onChoose: fn(),
     place: { screen: 'home' },
     onOpen: fn(),
   },
-} satisfies Meta<typeof GameHomeScreenView>;
+} satisfies Meta<GameHomeScreenViewProps>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -77,7 +84,6 @@ export const WithPuzzlesAndSettings: Story = {
     title: 'Chess',
     tile: 'checkered',
     subtitle: 'The classic game of kings',
-    instructions: undefined,
     choices: PUZZLE_CHOICES,
   },
 };
@@ -91,25 +97,25 @@ export const ManyPlayers: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Play with friends',
+        title: 'Custom games',
         caption: 'With the people in this space, or bots',
       },
       {
         screen: 'multiplayer',
-        title: 'Find players',
+        title: 'Match making',
         caption: 'Meet 3 other Hearts players',
       },
     ],
   },
 };
 
-/** A puzzle-only game: one choice, and no how to play when the game says nothing. */
+/** A puzzle-only game: the puzzle library and a lesson. */
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
     tile: 'paths',
     subtitle: 'Connect every pair of numbers',
-    instructions: undefined,
+
     choices: [
       {
         screen: 'puzzle-library',
@@ -140,7 +146,7 @@ export const LongContent: Story = {
 export const OpenChoice: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Find an opponent'));
+    await userEvent.click(await canvas.findByText('Match making'));
     await expect(args.onChoose).toHaveBeenCalledWith('multiplayer');
   },
 };
@@ -148,11 +154,12 @@ export const OpenChoice: Story = {
 /** How to play is a row like any other: it opens the place behind the menu. */
 export const OpenHowToPlay: Story = {
   parameters: { test: { restoreMocks: false } },
-  render: (args) => {
+  render: (args, context) => {
     const [, updateArgs] = useArgs();
     return (
       <GameHomeScreenView
         {...args}
+        lesson={storyGame(context.loaded, { tile: args.tile }).lesson}
         onOpen={(place) => {
           args.onOpen(place);
           updateArgs({ place });
@@ -164,8 +171,30 @@ export const OpenHowToPlay: Story = {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
-    await expect(
-      await canvas.findByText(/Take turns dropping a disc/)
-    ).toBeVisible();
+    await expect(await canvas.findByTestId('practice-prompt')).toBeVisible();
+  },
+};
+
+export const ClassicQuoridor: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Classic Quoridor',
+    },
+  },
+  args: {
+    title: 'Classic Quoridor',
+    tile: 'walls',
+    subtitle: 'Race your pawn across the board. Shape the path with walls.',
+    choices: [
+      {
+        screen: 'multiplayer',
+        title: 'Match making',
+        caption: 'Find players for your chosen mode',
+      },
+      ...CHOICES.filter((choice) => choice.screen !== 'multiplayer'),
+    ],
   },
 };

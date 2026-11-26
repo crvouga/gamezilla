@@ -45,11 +45,11 @@ function renderSecurityTxt(identity: ProductIdentity): string {
 
 export const WEB_BRAND_ARTIFACTS: readonly BrandArtifact[] = [
   {
-    path: 'apps/client-ts/public/pwa/mark.svg',
+    path: 'apps/product-client-ts/public/pwa/mark.svg',
     render: renderBrandMark,
   },
   {
-    path: 'apps/client-ts/public/pwa/manifest.webmanifest',
+    path: 'apps/product-client-ts/public/pwa/manifest.webmanifest',
     render: renderWebManifest,
   },
   {

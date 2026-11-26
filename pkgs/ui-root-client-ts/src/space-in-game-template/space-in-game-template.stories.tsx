@@ -4,7 +4,7 @@ import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 // Chess draws its own board, so its moment of this screen is its package's.
 import SpaceInGameChessExample from '../../../chess-board-root-client-ts/src/chess-board/space-chess.example';
 import {
-  expectSpaceExitInMenu,
+  expectSpaceBarActions,
   SPACE_STORY_GAMES,
   SPACE_STORY_PLAY_FIXTURE,
   SPACE_STORY_ROLES,
@@ -26,11 +26,12 @@ const meta = {
   tags: ['autodocs', 'viewport-responsive'],
   args: {
     onBack: fn(),
-    onSpaceMenu: fn(),
+    onMembers: fn(),
+    onSettings: fn(),
+    onMinimize: fn(),
     onLeave: fn(),
     onEnd: fn(),
     onPersonAction: fn(),
-    onInvite: fn(),
     onGameAction: fn(),
   },
   parameters: { layout: 'fullscreen', controls: { disable: true } },
@@ -71,7 +72,7 @@ export const Screen: Story = {
   },
   play: async ({ canvasElement, globals }) => {
     const canvas = within(canvasElement);
-    await expectSpaceExitInMenu(canvasElement, spaceStoryRole(globals));
+    await expectSpaceBarActions(canvasElement, spaceStoryRole(globals));
     await expect(
       canvas.queryByRole('button', { name: 'Invite' })
     ).not.toBeInTheDocument();

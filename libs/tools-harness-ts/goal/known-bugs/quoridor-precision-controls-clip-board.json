@@ -1,0 +1,4 @@
+{
+  "summary": "On a 390 × 844 Classic board, the extra Done button wrapped the wall tools onto a second row and clipped the board when previewing a wall.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-regressions/integration.checks.ts"
+}

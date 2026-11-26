@@ -46,10 +46,6 @@ type SettingsRow = {
 
 type SettingsGroup = {
   readonly key: string;
-  /**
-   * The group's label. Every settings group has one (the subs' sections
-   * too), so the eye finds each group the same way.
-   */
   readonly title: string;
   /** What the group is for, beside its rows on a desktop. */
   readonly description?: string | undefined;
@@ -69,8 +65,6 @@ export type SettingsScreenViewProps = {
   readonly canViewBilling: boolean;
   /** The app version, shown on the About row. */
   readonly version: string;
-  /** Settings sections the composed subs contribute, after the shell's own. */
-  readonly subSettings?: JSX.Element;
   /** Bug reports kept on this device until they can be sent. */
   readonly bugReportsWaiting: number;
   /**
@@ -210,7 +204,6 @@ function useConnectionGroup(
   });
 }
 
-/** Everyday groups lead; About and Troubleshooting follow the subs' sections. */
 function useSettingsGroups(props: SettingsScreenViewProps): {
   readonly everyday: Accessor<readonly SettingsGroup[]>;
 } {
@@ -373,11 +366,8 @@ function SettingsRowItem(props: {
 }
 
 /**
- * `/more`, presentational: the settings index — everyday account and
- * preference groups first, then whatever settings the composed subs
- * contribute, then reporting a bug, then About and Troubleshooting (a page
- * of diagnostics: connection, sync, client config and performance). `SettingsScreen` wires preferences, permissions and
- * navigation.
+ * Account and preferences lead the settings index, followed by bug reporting,
+ * About and Troubleshooting.
  */
 export function SettingsScreenView(
   props: SettingsScreenViewProps
@@ -396,7 +386,6 @@ export function SettingsScreenView(
           <SettingsGroupView group={group} onNavigate={props.onNavigate} />
         )}
       </For>
-      {props.subSettings}
       <HelpSection {...props} />
       <AboutSection {...props} />
     </MenuScreen>

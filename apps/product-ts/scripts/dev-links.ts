@@ -1,5 +1,7 @@
+import { pathToFileURL } from 'node:url';
+
 /**
- * What `bun run dev` prints: where the app is, where Storybook is, and the one
+ * What `bun run dev` prints: the product app, Storybook and the one
  * file every process of the stack logs to. Each address comes from the record
  * its own process publishes once it can serve.
  */
@@ -35,6 +37,25 @@ export function storybookLink(
   return `${record.localUrl}/`;
 }
 
-export function devLine(label: string, value: string): string {
-  return `${label.padEnd(11)}${value}\n`;
+/** OSC 8 labels keep the interactive row short. Pipes retain copyable URLs. */
+export function devStatusLine(args: {
+  status: string;
+  logPath: string;
+  storybook: string | null;
+  product: string | null;
+  terminal: boolean;
+}): string {
+  function link(label: string, url: string): string {
+    return args.terminal
+      ? `\x1b]8;;${url}\x1b\\${label}\x1b]8;;\x1b\\`
+      : `${label} ${url}`;
+  }
+  return [
+    args.status,
+    link('Logs', pathToFileURL(args.logPath).href),
+    args.storybook && link('Storybook', args.storybook),
+    args.product && link('Product', args.product),
+  ]
+    .filter(Boolean)
+    .join(' · ');
 }

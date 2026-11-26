@@ -22,7 +22,7 @@ export type ClientConfigScreenViewProps = {
   readonly status: 'loading' | 'ready';
   /** Parsed runtime config (defaults when no rows are synced yet). */
   readonly config: ClientRuntimeConfig;
-  /** The raw synced rows, shown in the JSON snapshot. */
+  /** Synced rows for the runtime settings shown on this device. */
   readonly rows: readonly ClientConfigDbRow[];
 };
 
@@ -35,10 +35,12 @@ function ClientConfigEntityCard(
     JSON.stringify(
       {
         parsed: props.config,
-        rows: props.rows.map((r) => ({
-          id: r.id,
-          value: r.value,
-        })),
+        rows: props.rows
+          .filter((r) => Object.hasOwn(props.config, r.id))
+          .map((r) => ({
+            id: r.id,
+            value: r.value,
+          })),
       },
       null,
       2

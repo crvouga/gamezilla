@@ -4,23 +4,23 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { createEffect, createMemo, createSignal, For, Show } from 'solid-js';
+import { Show } from 'solid-js';
 import { useAppFrameGlobalStatus } from '../app-frame-chrome/index';
 import { BackIconButton } from '../back-icon-button/index';
 import { Button } from '../button/index';
-import { createElementWidth } from '../create-element-width';
-import { FloatingMenu } from '../floating-menu/index';
-import type {
-  FloatingMenuContent,
-  FloatingMenuItemRow,
-} from '../floating-menu-content';
+import type { IconComponent } from '../create-icon/index';
 import { IconButton } from '../icon-button/index';
-import { CircleStopIcon, EllipsisIcon, LogOutIcon } from '../icons';
+import {
+  CircleStopIcon,
+  LogOutIcon,
+  Minimize2Icon,
+  SettingsIcon,
+  UsersIcon,
+} from '../icons';
 import { spaceDataSet } from '../space-data-set';
 import type { SpacePersonCapability } from '../space-person-actions';
-import type { SpaceMenuItem, SpaceRole } from '../space-types';
+import type { SpaceRole } from '../space-types';
 import { ToastStack } from '../toast-stack/index';
-import { useAnchoredMenu } from '../use-anchored-menu';
 import { useLayoutMode } from '../use-layout-mode';
 import styles from './space-shell.module.css';
 
@@ -32,14 +32,12 @@ export type SpaceShellTestIds = {
   back?: string | undefined;
   /** The screen's title (the `h1`). */
   title?: string | undefined;
-  /** The button that opens the space menu. */
-  settings?: string | undefined;
-  /** The space's name, heading the space menu. */
   name?: string | undefined;
-  /** A guest's Leave, in the space menu. */
+  people?: string | undefined;
+  settings?: string | undefined;
   leave?: string | undefined;
-  /** The host's End, in the space menu. */
   end?: string | undefined;
+  minimize?: string | undefined;
 };
 
 /** Row 1 of a space and what it opens, the same on every space screen. */
@@ -57,16 +55,11 @@ export type SpaceShellChrome = {
    * goes back inside the space names that place instead (`Back to Chess`).
    */
   backLabel?: string | undefined;
-  /**
-   * The space's own actions, most used first (the people in the space
-   * lead). As many as fit sit in row 1 as buttons; the rest wait in the
-   * space menu, above the way out.
-   */
-  menu?: readonly SpaceMenuItem[] | undefined;
-  /** A guest leaves the space: the space menu's last row for a guest. */
-  onLeave: () => void;
-  /** The host ends the space for everyone: the menu's last row for them. */
-  onEnd: () => void;
+  onMembers: () => void;
+  onSettings?: (() => void) | undefined;
+  onLeave?: (() => void) | undefined;
+  onEnd?: (() => void) | undefined;
+  onMinimize: () => void;
   /**
    * Under row 1: a refused change, the host gone offline. Rendered once;
    * nothing shows while it renders nothing.
@@ -85,14 +78,12 @@ export type SpaceScreenChrome = SpaceShellChrome & {
    * `readyUp`, `removeFromSpace`, `inviteFriend`, …).
    */
   onPersonAction: (personId: string, action: string) => void;
-  /** Opens the way to bring someone in. */
-  onInvite?: (() => void) | undefined;
   /** The optional person actions the product can carry out; none by default. */
   personCapabilities?: readonly SpacePersonCapability[] | undefined;
 };
 
 export type SpaceShellProps = SpaceShellChrome & {
-  /** Who is looking: a guest gets Leave, the host End. */
+  /** The viewer's role in the space. */
   role: SpaceRole;
   /** Row 2: what the space is doing now. */
   children: JSX.Element;
@@ -113,344 +104,160 @@ export type SpaceShellProps = SpaceShellChrome & {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** One action's width in row 1: a 44px button and the gap beside it. */
-const ACTION_SLOT_PX = 48;
-/**
- * One labelled action's width in row 1 on a wide layout: its icon, a short
- * word ("People", "Share", "Menu") and the gap beside it.
- */
-const LABELLED_SLOT_PX = 120;
-/** Row 1's own padding and the gaps around the title. */
-const ROW_SPARE_PX = 32;
-/** The most of row 1 a long title may hold before it is cut short. */
-const TITLE_MAX_SHARE = 0.6;
-/**
- * The most actions row 1 shows as buttons, at any width: the people in
- * the space and Share, so a phone and a desktop offer the same controls in
- * the same places and everything else waits, labelled, in the space menu.
- */
-const MAX_INLINE_ACTIONS = 2;
+type BarButtonProps = {
+  action: string;
+  label: string;
+  shortLabel?: string;
+  icon: IconComponent;
+  destructive?: boolean;
+  testId?: string | undefined;
+  onPress: (() => void) | undefined;
+};
 
-/**
- * How many of `count` actions sit in row 1 as buttons when `room` px are
- * left for them. The first always does: it is the one people reach for.
- */
-export function spaceInlineActionCount(
-  count: number,
-  room: number,
-  slot: number = ACTION_SLOT_PX
-): number {
-  if (count === 0) return 0;
-  return Math.min(count, Math.max(1, Math.floor(room / slot)));
-}
-
-function exitRow(props: SpaceShellProps, label: string): FloatingMenuItemRow {
-  return props.role === 'host'
-    ? {
-        type: 'item',
-        id: 'end',
-        label,
-        icon: CircleStopIcon,
-        tone: 'destructive',
-        onClick: () => props.onEnd(),
-        dataSet: spaceDataSet({ action: 'end' }, props.testIds?.end),
-      }
-    : {
-        type: 'item',
-        id: 'leave',
-        label,
-        icon: LogOutIcon,
-        tone: 'destructive',
-        onClick: () => props.onLeave(),
-        dataSet: spaceDataSet({ action: 'leave' }, props.testIds?.leave),
-      };
-}
-
-/**
- * The space menu: headed by the space's name (row 1 says what the screen
- * is, so here is which space it is in), then the actions that did not fit
- * in row 1, then the way out.
- */
-function useSpaceMenu(
-  props: SpaceShellProps,
-  overflow: () => readonly SpaceMenuItem[]
-): () => FloatingMenuContent {
-  const { t } = useLingui();
-  return createMemo((): FloatingMenuContent => {
-    const exit = exitRow(
-      props,
-      props.role === 'host' ? t`End space` : t`Leave space`
-    );
-    const own = overflow().map(
-      (item): FloatingMenuItemRow => ({
-        type: 'item',
-        id: item.id,
-        label: item.label,
-        icon: item.icon ?? EllipsisIcon,
-        tone: item.tone,
-        disabled: item.disabled === true,
-        onClick: () => item.onPress(),
-        dataSet: spaceDataSet({ action: item.id }, item.testId),
-      })
-    );
-    return {
-      ...(props.spaceName === ''
-        ? {}
-        : {
-            header: {
-              title: (
-                <p
-                  class="text textBodyBold line-clamp-1"
-                  data-testid={props.testIds?.name}
-                >
-                  {props.spaceName}
-                </p>
-              ),
-            },
-          }),
-      rows:
-        own.length === 0
-          ? [exit]
-          : [...own, { type: 'divider', id: 'exit-divider' }, exit],
-    };
-  });
-}
-
-/**
- * One of the space's actions as a button in row 1: on a wide layout its
- * icon and short word side by side, on a narrow one the icon alone; the
- * full label is its accessible name either way.
- */
-function SpaceInlineAction(props: {
-  item: SpaceMenuItem;
-  labelled: boolean;
-}): JSX.Element {
+function BarButton(props: BarButtonProps): JSX.Element {
+  const mode = useLayoutMode();
+  const dataSet = () => spaceDataSet({ action: props.action }, props.testId);
   return (
-    <Show
-      when={props.labelled}
-      fallback={<SpaceInlineIconAction item={props.item} />}
-    >
-      <Button
-        title={props.item.shortLabel ?? props.item.label}
-        aria-label={props.item.label}
-        intent={props.item.tone === 'destructive' ? 'danger' : 'neutral'}
-        variant="ghost"
-        icon={props.item.icon}
-        disabled={props.item.disabled === true}
-        onClick={() => props.item.onPress()}
-        dataSet={spaceDataSet({ action: props.item.id }, props.item.testId)}
-      />
+    <Show when={props.onPress} keyed>
+      {(press) => (
+        <Show
+          when={mode() === 'wide'}
+          fallback={
+            <IconButton
+              label={props.label}
+              size={44}
+              tooltip="default"
+              tooltipPlacement={props.action === 'minimize' ? 'left' : 'bottom'}
+              onClick={press}
+              dataSet={dataSet()}
+            >
+              <props.icon
+                size={24}
+                color={props.destructive ? 'destructive' : 'icon'}
+              />
+            </IconButton>
+          }
+        >
+          <Button
+            title={props.shortLabel ?? props.label}
+            aria-label={props.label}
+            icon={props.icon}
+            intent={props.destructive ? 'danger' : 'neutral'}
+            variant="ghost"
+            onClick={press}
+            dataSet={dataSet()}
+          />
+        </Show>
+      )}
     </Show>
   );
 }
 
-function SpaceInlineIconAction(props: { item: SpaceMenuItem }): JSX.Element {
-  const Icon = (): JSX.Element => {
-    const Drawn = props.item.icon ?? EllipsisIcon;
-    return (
-      <Drawn
-        size={24}
-        color={props.item.tone === 'destructive' ? 'destructive' : 'icon'}
-      />
-    );
-  };
-  return (
-    <IconButton
-      label={props.item.label}
-      aria-label={props.item.label}
-      size={44}
-      disabled={props.item.disabled === true}
-      onClick={() => props.item.onPress()}
-      dataSet={spaceDataSet({ action: props.item.id }, props.item.testId)}
-    >
-      <Icon />
-    </IconButton>
-  );
-}
-
-/**
- * The button for whatever did not fit in row 1 and for the way out: it
- * opens the space menu against itself (never a sheet), ending in End for
- * the host or Leave for a guest.
- */
-function SpaceMenuAction(
-  props: SpaceShellProps & {
-    overflow: () => readonly SpaceMenuItem[];
-    labelled: boolean;
-  }
-): JSX.Element {
+function SpaceTools(props: SpaceShellProps): JSX.Element {
   const { t } = useLingui();
-  const menu = useAnchoredMenu();
-  const content = useSpaceMenu(props, () => props.overflow());
-  const dataSet = () =>
-    spaceDataSet({ action: 'settings' }, props.testIds?.settings);
   return (
-    <>
-      <span ref={menu.setTrigger} class="inline-flex">
-        <Show
-          when={props.labelled}
-          fallback={
-            <IconButton
-              label={t`Space menu`}
-              tooltipPlacement="left"
-              tooltip="default"
-              aria-label={t`Space menu`}
-              aria-haspopup="menu"
-              aria-expanded={menu.open()}
-              size={44}
-              onClick={() => menu.toggle()}
-              dataSet={dataSet()}
-            >
-              <EllipsisIcon size={24} color="icon" />
-            </IconButton>
-          }
-        >
-          {/* The visible word is part of its name ("Space menu"). */}
-          <Button
-            title={t`Menu`}
-            aria-label={t`Space menu`}
-            aria-haspopup="menu"
-            aria-expanded={menu.open()}
-            intent="neutral"
-            variant="ghost"
-            icon={EllipsisIcon}
-            onClick={() => menu.toggle()}
-            dataSet={dataSet()}
-          />
-        </Show>
-      </span>
-      <FloatingMenu
-        open={menu.open()}
-        onClose={menu.close}
-        anchor={menu.anchor()}
-        placement="bottom-end"
-        content={content()}
-        label={t`Space menu`}
-        dataSet={{ component: 'SpaceMenu' }}
+    <div class={styles['tools']} data-space-row="tools">
+      <BarButton
+        action="people"
+        label={t`People in this space`}
+        shortLabel={t`People`}
+        icon={UsersIcon}
+        onPress={props.onMembers}
+        testId={props.testIds?.people}
       />
-    </>
+      <BarButton
+        action="settings"
+        label={t`Space settings`}
+        shortLabel={t`Settings`}
+        icon={SettingsIcon}
+        onPress={props.onSettings}
+        testId={props.testIds?.settings}
+      />
+      <BarButton
+        action="leave"
+        label={t`Leave space`}
+        shortLabel={t`Leave`}
+        icon={LogOutIcon}
+        destructive
+        onPress={props.onEnd ? undefined : props.onLeave}
+        testId={props.testIds?.leave}
+      />
+      <BarButton
+        action="end"
+        label={t`End space`}
+        shortLabel={t`End`}
+        icon={CircleStopIcon}
+        destructive
+        onPress={props.onEnd}
+        testId={props.testIds?.end}
+      />
+      <BarButton
+        action="minimize"
+        label={t`Minimize space`}
+        shortLabel={t`Minimize`}
+        icon={Minimize2Icon}
+        onPress={props.onMinimize}
+        testId={props.testIds?.minimize}
+      />
+    </div>
   );
 }
 
 function ActionsRow(props: SpaceShellProps): JSX.Element {
   const { t } = useLingui();
-  const [row, setRow] = createSignal<HTMLElement | null>(null);
-  const [heading, setHeading] = createSignal<HTMLElement | null>(null);
-  const [status, setStatus] = createSignal<HTMLElement | null>(null);
-  const rowWidth = createElementWidth(row);
-  // A wide layout has room for each action's word beside its icon.
-  const mode = useLayoutMode();
-  const labelled = (): boolean => mode() === 'wide';
-  // The app's own status (working offline, the connection missing) wherever
-  // no sidebar shows it (a phone): a person in a space is still told. Its
-  // account menu stays outside the space.
   const globalStatus = useAppFrameGlobalStatus();
-  const statusWidth = createElementWidth(status);
-  const actions = (): readonly SpaceMenuItem[] => props.menu ?? [];
-  const title = (): string => props.title ?? props.spaceName;
-  // The title's whole width, however much of it shows now.
-  const [titleWidth, setTitleWidth] = createSignal(0);
-  createEffect(
-    () => [heading(), title(), rowWidth()] as const,
-    ([node]) => {
-      if (node !== null) setTitleWidth(node.scrollWidth);
-    }
-  );
-  // The title comes first: actions are buttons only in the room it leaves
-  // (a very long one keeps most of the row and is then cut short). Back
-  // and the menu button always show.
-  const inline = createMemo(() =>
-    spaceInlineActionCount(
-      Math.min(actions().length, MAX_INLINE_ACTIONS),
-      rowWidth() -
-        Math.min(titleWidth(), rowWidth() * TITLE_MAX_SHARE) -
-        statusWidth() -
-        ACTION_SLOT_PX -
-        (labelled() ? LABELLED_SLOT_PX : ACTION_SLOT_PX) -
-        ROW_SPARE_PX,
-      labelled() ? LABELLED_SLOT_PX : ACTION_SLOT_PX
-    )
+  const title = () => props.title ?? props.spaceName;
+  const sameName = () => title() === props.spaceName;
+  const titleText = () => (
+    <span data-testid={sameName() ? props.testIds?.name : undefined}>
+      {title()}
+    </span>
   );
   return (
-    <header ref={setRow} class={styles['actions']} data-space-row="actions">
-      <BackIconButton
-        label={props.backLabel ?? t`Back to spaces`}
-        size={44}
-        onClick={() => props.onBack()}
-        dataSet={spaceDataSet({ action: 'back' }, props.testIds?.back)}
-      />
-      <div class={styles['where']}>
-        <Show
-          when={props.nameAs === 'context'}
-          fallback={
-            <h1
-              ref={setHeading}
-              class="text textHeading truncate min-w-0 max-w-full self-start"
+    <header class={styles['actions']} data-space-row="actions">
+      <div class={styles['context']}>
+        <BackIconButton
+          label={props.backLabel ?? t`Back to spaces`}
+          size={44}
+          onClick={() => props.onBack()}
+          dataSet={spaceDataSet({ action: 'back' }, props.testIds?.back)}
+        />
+        <div class={styles['where']}>
+          <Show
+            when={props.nameAs === 'context'}
+            fallback={
+              <h1
+                class="text textHeading truncate"
+                data-testid={props.testIds?.title}
+              >
+                {titleText()}
+              </h1>
+            }
+          >
+            <p
+              class="text textHeading truncate"
               data-testid={props.testIds?.title}
             >
-              {title()}
-            </h1>
-          }
-        >
-          <p
-            ref={setHeading}
-            class="text textHeading truncate min-w-0 max-w-full self-start"
-            data-testid={props.testIds?.title}
-          >
-            {title()}
-          </p>
-        </Show>
+              {titleText()}
+            </p>
+          </Show>
+          <Show when={props.spaceName && !sameName()}>
+            <p
+              class="text textCaption truncate"
+              data-testid={props.testIds?.name}
+            >
+              {props.spaceName}
+            </p>
+          </Show>
+        </div>
+        {globalStatus()}
       </div>
-      <div class={styles['tools']} data-space-row="tools">
-        <Show when={globalStatus()}>
-          {(shown) => (
-            <div ref={setStatus} class={styles['status']}>
-              {shown()}
-            </div>
-          )}
-        </Show>
-        <For each={actions().slice(0, inline())}>
-          {(item) => <SpaceInlineAction item={item} labelled={labelled()} />}
-        </For>
-        <SpaceMenuAction
-          {...props}
-          overflow={() => actions().slice(inline())}
-          labelled={labelled()}
-        />
-      </div>
+      <SpaceTools {...props} />
     </header>
   );
 }
 
-/**
- * `SpaceShell` -- the two rows every space screen is built on, in every
- * phase, mode and game:
- *
- * 1. The top bar, the smallest and steadiest row: back at the left, then
- *    what this screen is (`title`: `Choose game`, `Chess`, `Game history`),
- *    then the space's actions at the right, the people in the space first.
- *    As many actions as fit are buttons; the rest collapse into the space
- *    menu, which is headed by the space's name and always ends in Leave
- *    for a guest or End for the host.
- *    The title is never cut short to make room for a button. The bar is
- *    the space's: of the app's own chrome only its status shows here
- *    (working offline, the connection missing), ahead of the actions and
- *    wherever no sidebar shows it; the account menu stays outside a space.
- *    Its `notice` (only while there is one) floats in the `ToastStack`.
- * 2. The stage (`children`), filling the rest and scrolling on its own.
- *
- * Who is in the space is one of the top bar's actions, never a row of its
- * own: the stage keeps the room for the game.
- *
- * @example
- * ```tsx
- * <SpaceShell spaceName="bob's space" title="Choose game" role="guest"
- *   onBack={back} menu={[people, share]} onLeave={leave} onEnd={end}
- *   notice={<Notice />}>
- *   <SpaceLauncher ... />
- * </SpaceShell>
- * ```
- */
+/** The shared space bar over a scrollable page or a fixed game stage. */
 export function SpaceShell(props: SpaceShellProps): JSX.Element {
   const mode = useLayoutMode();
   return (

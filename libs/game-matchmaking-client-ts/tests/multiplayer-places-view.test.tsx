@@ -190,48 +190,23 @@ describe('play holds the board and one way to the commands', () => {
     expect(ids('multiplayer-open-commands')).toHaveLength(1);
   });
 
-  // The versus card: only a match this device watched being found plays it.
-  test('an opponent found from a search is announced over the board, counted down, and skipped by a press', () => {
-    const view = mountPlaces({ stage: 'searching' });
-    expect(ids('multiplayer-versus')).toEqual([]);
-    view.setStage('playing');
-    const card = screen.getByTestId('multiplayer-versus');
-    expect(view.overlay()).toEqual({ kind: 'versus', count: 3 });
-    expect(card.getAttribute('data-count')).toBe('3');
-    expect(card.textContent).toContain('Bob');
-    expect(card.textContent).toContain('alice');
-    // The mode is said once, in the screen's title, not again on the card.
-    expect(card.textContent).not.toContain('Rated');
-    expect(
-      screen.getByTestId('slot-board').closest('[data-component]')
-    ).toBeTruthy();
-    view.time.clock.advance(1000);
-    expect(view.overlay()).toEqual({ kind: 'versus', count: 2 });
-    within(screen.getByTestId('multiplayer-versus'))
-      .getByRole('button', { name: 'Start now' })
-      .click();
-    expect(view.overlay()).toEqual({ kind: 'none' });
-    expect(ids('multiplayer-versus')).toEqual([]);
-  });
-
-  test('left alone the versus card counts itself away and never holds the game', () => {
-    const view = mountPlaces({ stage: 'searching' });
-    view.setStage('playing');
-    // The game's commands are there under the card from the first moment.
-    expect(ids('multiplayer-leave-now', 'slot-board')).toHaveLength(2);
-    view.time.clock.advance(1000);
-    view.time.clock.advance(1000);
-    view.time.clock.advance(1000);
-    expect(view.overlay()).toEqual({ kind: 'none' });
-    expect(ids('multiplayer-versus')).toEqual([]);
-  });
-
-  test('a game opened already in play shows its board at once', () => {
-    const view = mountPlaces({ stage: 'loading' });
-    view.setStage('playing');
-    expect(view.overlay()).toEqual({ kind: 'none' });
-    expect(ids('multiplayer-versus')).toEqual([]);
-  });
+  // regression: ready-game-board-covered
+  test.each([
+    'searching',
+    'setup',
+    'loading',
+    'unavailable',
+    'finished',
+  ] as const)(
+    'going from %s to play immediately exposes the board and turn',
+    (from) => {
+      const view = mountPlaces({ stage: from });
+      view.setStage('playing');
+      expect(view.place()).toBe('stage');
+      expect(ids('slot-board', 'slot-status')).toHaveLength(2);
+      expect(ids('multiplayer-versus')).toEqual([]);
+    }
+  );
 
   test('a draw offered to the person is answered under the board', () => {
     const view = mountPlaces({
@@ -448,6 +423,7 @@ describe('the moves are a place of their own', () => {
     ];
     expect(ids(...copies)).toEqual([]);
     view.set({ game: FINISHED });
+    screen.getByRole('button', { name: 'Game record' }).click();
     expect(ids(...copies)).toEqual(copies);
     screen.getByTestId('multiplayer-copy-final-position').click();
     expect(view.props().commands.copy).toHaveBeenCalledWith('final');
@@ -603,6 +579,7 @@ describe('the result', () => {
   test('the moves of a finished game hold its record', () => {
     const view = mountPlaces({ stage: 'finished', props: { game: FINISHED } });
     screen.getByTestId('multiplayer-open-moves').click();
+    screen.getByRole('button', { name: 'Game record' }).click();
     expect(view.place()).toBe('moves');
     expect(
       ids('multiplayer-copy-game-record', 'multiplayer-move-2')

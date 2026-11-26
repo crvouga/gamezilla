@@ -61,6 +61,8 @@
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@apps/admin-client-ts": "workspace:*",
+    "@libs/app-env-client-ts": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
@@ -68,6 +70,7 @@
     "@pkgs/sql-root-shared-ts": "workspace:*",
     "@pkgs/ui-root-shared-ts": "workspace:*",
     "@pkgs/vite-workspace-resolver-server-ts": "workspace:*",
+    "@solidjs/testing-library": "catalog:",
     "@solidjs/vite-plugin": "catalog:",
     "@tailwindcss/vite": "catalog:",
     "@types/bun": "catalog:",

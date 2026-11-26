@@ -1,7 +1,8 @@
 /** @jsxImportSource @solidjs/web */
 
 import { describe, expect, test } from 'bun:test';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen } from '@solidjs/testing-library';
 import type { JSX } from '@solidjs/web';
@@ -14,18 +15,20 @@ import { mustQuery, renderUi } from './render';
  * (the board's pixels are proven by the Storybook stage stability check).
  */
 function stage(
-  overrides: Partial<Parameters<typeof GameSessionLayout>[0]> = {}
+  overrides: Partial<Parameters<typeof FixedGameSession>[0]> = {}
 ): () => JSX.Element {
   return () => (
     <SurfaceStackProvider>
-      <GameSessionLayout
-        fixedStage
-        actionsBeside
+      <FixedGameSession
         actions={<button type="button">{'Resign'}</button>}
         {...overrides}
       >
-        <div data-testid="board" />
-      </GameSessionLayout>
+        {(information) => (
+          <GameBoardStage information={information} others={<p>Players</p>}>
+            <div data-testid="board" />
+          </GameBoardStage>
+        )}
+      </FixedGameSession>
     </SurfaceStackProvider>
   );
 }
@@ -41,9 +44,9 @@ describe('GameSessionLayout fixed stage', () => {
     // The session's own rows are only the layout.
     expect(
       [...layout().children].map((child) =>
-        child.getAttribute('data-component')
+        child.getAttribute('data-game-slot')
       )
-    ).toEqual(['GameLayout']);
+    ).toEqual(['stage', 'controls']);
   });
 
   test('without notices there is no layer, and nothing else moves', () => {
@@ -53,9 +56,9 @@ describe('GameSessionLayout fixed stage', () => {
     ).toBeNull();
     expect(
       [...layout().children].map((child) =>
-        child.getAttribute('data-component')
+        child.getAttribute('data-game-slot')
       )
-    ).toEqual(['GameLayout']);
+    ).toEqual(['stage', 'controls']);
   });
 
   test('the status band and the line of moves are there before anything fills them', () => {
@@ -63,9 +66,7 @@ describe('GameSessionLayout fixed stage', () => {
     expect(
       document.querySelector('[data-component="GameStageStatus"]')
     ).not.toBeNull();
-    expect(
-      mustQuery('[data-game-slot="rail"] [data-component="GameStageStrip"]')
-    ).toBeTruthy();
+    expect(mustQuery('[data-game-slot="history"]')).toBeTruthy();
   });
 
   test('the outcome is a dialog with the commands in it, and the bar keeps its height', () => {
@@ -79,7 +80,7 @@ describe('GameSessionLayout fixed stage', () => {
     // The bar holds a placeholder of its commands' height while they are
     // in the dialog, so nothing above it moves.
     const controls = mustQuery('[data-game-slot="controls"]');
-    expect(controls.querySelector('.min-h-11')).not.toBeNull();
+    expect(controls.querySelector('button')).toBeNull();
     // Closed, the commands come back to the bar with a way to reopen it.
     fireEvent.click(screen.getByTestId('game-result-close'));
     expect(screen.queryByRole('dialog', { name: 'Game over' })).toBeNull();
@@ -94,7 +95,7 @@ describe('GameSessionLayout fixed stage', () => {
     let pressed = 0;
     renderUi(
       stage({
-        aside: <p>{'1. e4'}</p>,
+        history: <p>{'1. e4'}</p>,
         allMoves: {
           label: 'All moves',
           testId: 'all-moves',
@@ -121,10 +122,10 @@ describe('GameSessionLayout fixed stage', () => {
         ),
       })
     );
-    const before = mustQuery('[data-component="GameLayout"]');
+    const before = mustQuery('[data-game-board-stage]');
     setOffline(true);
     flush();
-    expect(mustQuery('[data-component="GameLayout"]')).toBe(before);
+    expect(mustQuery('[data-game-board-stage]')).toBe(before);
     expect(
       document.querySelector('[data-component="GameSessionNotices"]')
     ).not.toBeNull();

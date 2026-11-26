@@ -38,8 +38,8 @@ export const confirmLeavingAddingPuzzles = scenarioAction({
 
 export const prepareChoosingLichessDeparture = scenarioAction({
   name: 'prepareChoosingLichessDeparture',
-  act: async (s, actor: string = 'alice', spaceLink?: string) => {
-    await Promise.resolve(prepareSavingLichessFile.act(s, actor, spaceLink));
+  act: async (s, actor: string = 'alice') => {
+    await Promise.resolve(prepareSavingLichessFile.act(s, actor));
     await Promise.resolve(askToLeaveAddingPuzzles.act(s, actor));
   },
 });

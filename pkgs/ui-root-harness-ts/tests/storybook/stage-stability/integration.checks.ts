@@ -37,10 +37,19 @@ const SEQUENCES = {
 
 const VIEWPORTS = [
   { width: 390, height: 844 },
+  { width: 768, height: 1024 },
+  { width: 844, height: 390 },
   { width: 1440, height: 900 },
 ] as const;
 
-type Rect = { x: number; y: number; width: number };
+type Rect = {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  barY: number;
+  barHeight: number;
+};
 
 async function ready(page: Page): Promise<void> {
   await expect(page.locator('#storybook-root')).toHaveAttribute(
@@ -56,10 +65,17 @@ async function boardRect(page: Page): Promise<Rect> {
     const board = document.querySelector('[data-game-board]');
     if (!board) throw new Error('Missing the board');
     const rect = board.getBoundingClientRect();
+    const bar = document
+      .querySelector('[data-game-slot="controls"]')
+      ?.getBoundingClientRect();
+    if (!bar) throw new Error('Missing the action bar');
     return {
       x: Math.round(rect.x),
       y: Math.round(rect.y),
       width: Math.round(rect.width),
+      height: Math.round(rect.height),
+      barY: Math.round(bar.y),
+      barHeight: Math.round(bar.height),
     };
   });
 }

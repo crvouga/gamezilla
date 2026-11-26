@@ -1,6 +1,7 @@
 // @io-wall-ok — boot admission and lifetime are held by the existing launcher.
 import { Database } from 'bun:sqlite';
 import {
+  appendFileSync,
   closeSync,
   mkdirSync,
   openSync,
@@ -48,16 +49,17 @@ function heldByAbandonedBoot(root: string): boolean {
 }
 
 /** The checkout's one boot slot. An abandoned boot holding it is collected first. */
-async function admit(root: string): Promise<Database | null> {
+async function admit(
+  root: string,
+  report: (line: string) => void
+): Promise<Database | null> {
   const lease = new Database(join(ownerDir(root), 'lease.sqlite'), {
     create: true,
   });
   if (acquire(lease)) return lease;
   if (heldByAbandonedBoot(root)) {
-    process.stdout.write(
-      '[dev] Stopping the boot an earlier launch left behind.\n'
-    );
-    await gcDevOwner(root);
+    report('[dev] Stopping the boot an earlier launch left behind.\n');
+    await gcDevOwner(root, false, undefined, report);
     // The OS releases the lock as the collected supervisor exits.
     for (let poll = 0; poll < LEASE_RELEASE_POLLS; poll += 1) {
       if (acquire(lease)) return lease;
@@ -72,6 +74,8 @@ export type SuperviseOptions = {
   readonly env?: NodeJS.ProcessEnv;
   /** Sends the command's output to this file instead of the launch terminal. */
   readonly logPath?: string;
+  /** The workspace launcher already opened this boot's log during setup. */
+  readonly appendLog?: boolean;
   /** Runs when a live boot is reused rather than started. */
   readonly onReuse?: () => void;
 };
@@ -110,7 +114,6 @@ async function runBoot(
   );
   // Ownership belongs to the checkout; relative command inputs belong to the caller.
   // A boot's log starts empty and is appended to, so a reader can follow it.
-  if (logPath !== undefined) writeFileSync(logPath, '');
   const log = logPath === undefined ? null : openSync(logPath, 'a');
   const child = spawnOwned(command, args, {
     cwd: process.cwd(),
@@ -162,16 +165,20 @@ export async function superviseDev(
 ): Promise<number> {
   const root = realpathSync(checkout);
   mkdirSync(ownerDir(root), { recursive: true });
-  const lease = await admit(root);
+  const { logPath } = options;
+  const report = (line: string) => {
+    if (logPath) appendFileSync(logPath, line);
+    else process.stdout.write(line);
+  };
+  const lease = await admit(root, report);
   if (!lease) {
-    process.stdout.write(
-      '[dev] This checkout already has a live boot; reusing it.\n'
-    );
+    report('[dev] This checkout already has a live boot; reusing it.\n');
     options.onReuse?.();
     return 0;
   }
   try {
-    await gcDevOwner(root);
+    if (logPath && !options.appendLog) writeFileSync(logPath, '');
+    await gcDevOwner(root, false, undefined, report);
     return await runBoot(root, command, args, options);
   } finally {
     lease.close();

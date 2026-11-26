@@ -33,8 +33,8 @@ import {
   reenterSpace,
   SPACE_WAIT_MS,
   showSpacesTab,
-  tapChromeOrOverflow,
   tapLobbyCard,
+  tapSpaceAction,
   tryReenterOwnSpace,
   waitActiveSpace,
   waitForOneOf,
@@ -71,7 +71,7 @@ export const startSpace = scenarioAction({
       s,
       actorId,
       [
-        Handles.spaceChromeOverflow,
+        Handles.spaceClose,
         Handles.spacesNeedConnection,
         Handles.spacesHostingLimit,
       ],
@@ -126,11 +126,7 @@ export const joinFromLobby = scenarioAction({
     await waitForOneOf(
       s,
       actorId,
-      [
-        Handles.spaceChromeOverflow,
-        Handles.spaceEnded,
-        Handles.spacesNeedConnection,
-      ],
+      [Handles.spaceClose, Handles.spaceEnded, Handles.spacesNeedConnection],
       `joined ${hostUsername}'s space, or why not`
     );
   },
@@ -239,7 +235,7 @@ export const reopenLiveSpace = scenarioAction({
 export const endSpace = scenarioAction({
   name: 'endSpace',
   act: async (s, actorId: string) => {
-    await tapChromeOrOverflow(s, actorId, Handles.spaceEnd);
+    await tapSpaceAction(s, actorId, Handles.spaceEnd);
     await confirmSpaceMutation(s, actorId, Handles.spaceEndConfirm);
     const ui = await actorUi(s, actorId);
     await ui.get(Handles.spaceEnded).expect.visible({
@@ -254,21 +250,21 @@ export const openSpaceMembers = scenarioAction({
     const ui = await actorUi(s, actorId);
     if (await ui.get(Handles.spaceShareClose).isVisible())
       await Promise.resolve(closeSpaceShare.act(s, actorId));
-    // People in this space is a row of the space settings sheet.
-    await tapChromeOrOverflow(s, actorId, Handles.spaceMembersButton);
+    await tapSpaceAction(s, actorId, Handles.spaceMembersButton);
     await s.session.waitForIdle();
   },
 });
 
-/**
- * Leave the space and confirm: a guest's Leave is in its top row, the
- * host's in its settings sheet (a host's Leave ends the space for everyone).
- */
+/** Leave the space and confirm. A host's departure ends the space. */
 export const leaveSpace = scenarioAction({
   name: 'leaveSpace',
   act: async (s, actorId: string) => {
-    await tapChromeOrOverflow(s, actorId, Handles.spaceLeave);
     const ui = await actorUi(s, actorId);
+    if (await ui.get(Handles.spaceEnd).isVisible()) {
+      await Promise.resolve(endSpace.act(s, actorId));
+      return;
+    }
+    await tapSpaceAction(s, actorId, Handles.spaceLeave);
     await ui.get(Handles.spaceLeaveConfirm).tap({ timeoutMs: SPACE_WAIT_MS });
     await ui
       .get(Handles.spaceLeaveConfirm)
@@ -286,7 +282,7 @@ export const leaveSpace = scenarioAction({
 export const renameSpace = scenarioAction({
   name: 'renameSpace',
   act: async (s, actorId: string, title: string) => {
-    await tapChromeOrOverflow(s, actorId, Handles.spaceRename);
+    await tapSpaceAction(s, actorId, Handles.spaceRename);
     const ui = await actorUi(s, actorId);
     const input = ui.get(Handles.spaceRenameInput);
     await input.expect.visible({ timeoutMs: SPACE_WAIT_MS });
@@ -296,23 +292,7 @@ export const renameSpace = scenarioAction({
     // stays open saying so, and nothing is saved.
     if (await ui.get(Handles.spaceRenameNotAllowed).isVisible()) return;
     await confirmSpaceMutation(s, actorId, Handles.spaceRenameConfirm);
-  },
-});
-
-/**
- * Look through the space chrome for its less common actions: open its settings
- * when it has one (a chrome whose actions all fit has none).
- */
-export const openSpaceMenu = scenarioAction({
-  name: 'openSpaceMenu',
-  act: async (s, actorId: string) => {
-    await waitActiveSpace(s, actorId);
-    const ui = await actorUi(s, actorId);
-    if (await ui.get(Handles.spaceChromeOverflow).isVisible()) {
-      await ui
-        .get(Handles.spaceChromeOverflow)
-        .tap({ timeoutMs: SPACE_WAIT_MS });
-    }
+    await ui.get(Handles.spaceMembersClose).tap({ timeoutMs: SPACE_WAIT_MS });
   },
 });
 
@@ -363,11 +343,7 @@ export const joinViaLink = scenarioAction({
     await waitForOneOf(
       s,
       actorId,
-      [
-        Handles.spaceChromeOverflow,
-        Handles.spaceEnded,
-        Handles.spacesNeedConnection,
-      ],
+      [Handles.spaceClose, Handles.spaceEnded, Handles.spacesNeedConnection],
       `joined from ${link}, or why not`
     );
   },
@@ -391,7 +367,7 @@ export const closeSpaceScreen = scenarioAction({
     const ui = await actorUi(s, actorId);
     await minimizeSpace(ui, SPACE_WAIT_MS);
     await ui
-      .get(Handles.spaceChromeOverflow)
+      .get(Handles.spaceClose)
       .expect.hidden({ timeoutMs: SPACE_WAIT_MS });
   },
 });
@@ -430,7 +406,6 @@ export const SPACES_HARNESS_ACTIONS = [
   stayQuiet,
   joinViaLink,
   renameSpace,
-  openSpaceMenu,
   closeSpaceScreen,
   reopenSpaceLink,
   openSpacesTab,

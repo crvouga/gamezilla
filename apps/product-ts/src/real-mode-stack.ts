@@ -12,8 +12,8 @@ import {
   EMQX_WS_PORT,
 } from '@pkgs/emqx-shared-ts/ports';
 import { LOCAL_DATABASE_URL } from '@pkgs/postgres-local-shared-ts/ports';
-import type { LocalStackHandle } from '../../server-ts/scripts/boot-local-stack';
-import { bootLocalStack } from '../../server-ts/scripts/boot-local-stack';
+import type { LocalStackHandle } from '../../product-api-ts/scripts/boot-local-stack';
+import { bootLocalStack } from '../../product-api-ts/scripts/boot-local-stack';
 
 let started: Promise<void> | undefined;
 let active: LocalStackHandle | undefined;

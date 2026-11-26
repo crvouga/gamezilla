@@ -1,0 +1,56 @@
+import { monotonicClock } from '@pkgs/clock-shared-ts/wall';
+/** @jsxImportSource @solidjs/web */
+// @io-wall-ok — browser composition root
+/**
+ * Web entry: builds the wall `ClientEnv` from browser APIs, creates the
+ * client and mounts `client.App` (browser `Router`; the URL is the source of
+ * truth). `pagehide` releases the sync engines (web OPFS handles).
+ */
+
+import { bootBrowserObservability } from '@libs/app-root-client-ts/boot-browser-observability';
+import { createClient } from '@libs/app-root-client-ts/create-client';
+import { wallClientEnv } from '@libs/app-root-client-ts/wall-client-env';
+import { wallOfflineNetworkController } from '@libs/app-root-client-ts/wall-offline-network';
+import { technicalKey } from '@libs/product-identity-shared-ts/technical-names';
+import { APP_SUB_CLIENTS } from '@libs/runtime-client-ts/app-sub-clients';
+import { APP } from '@libs/runtime-shared-ts/app-subs';
+import { wallSpaceRoomTransport } from '@libs/spaces-client-ts/wall-room-transport';
+import { polyfillDisposal } from '@pkgs/polyfill-shared-ts/disposal';
+import '@pkgs/ui-root-client-ts/fonts';
+import '@pkgs/ui-root-client-ts/application.css';
+import { renderApplication } from '@pkgs/ui-root-client-ts/render-application';
+
+// Before anything runs a `using`: the native shell's web view is Safari's.
+polyfillDisposal();
+const offline = wallOfflineNetworkController();
+const clientEnv = wallClientEnv({
+  http: { fetch: (input, init) => globalThis.fetch(input, init) },
+  room: wallSpaceRoomTransport,
+  offline,
+});
+bootBrowserObservability({
+  monotonicNow: monotonicClock.now,
+  env: clientEnv,
+  offline,
+  timeOriginMs: performance.timeOrigin,
+});
+
+const root = document.getElementById('root');
+if (root === null) {
+  throw new Error('#root element missing from index.html');
+}
+
+const client = createClient(clientEnv, {
+  subs: APP_SUB_CLIENTS,
+  loadApp: () => Promise.resolve(APP),
+  poolGlobalKey: `__${technicalKey('sync_engine_pool', '_')}__`,
+  offlineController: offline,
+});
+
+window.addEventListener('pagehide', () => {
+  void client.close();
+});
+
+root.replaceChildren();
+const dispose = renderApplication(() => <client.App />, root);
+if (import.meta.hot) import.meta.hot.dispose(dispose);

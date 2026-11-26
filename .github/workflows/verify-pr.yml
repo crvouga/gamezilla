@@ -100,7 +100,7 @@ env:
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
-  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '16' }}
+  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '12' }}
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
@@ -174,10 +174,16 @@ jobs:
         id: demand
         run: |
           set -euo pipefail
-          # This run is included. A snapshot sizes work and never gates admission.
+          # Only workflows that can occupy a shared shard slot affect packing.
           demand=0
           for status in queued in_progress; do
-            if ! count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=1" --jq '.total_count'); then
+            if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq '
+              [.[].workflow_runs[] | select(
+                .path == ".github/workflows/deploy.yml" or
+                (.path == ".github/workflows/verify-pr.yml" and .event == "workflow_dispatch") or
+                (.path == ".github/workflows/verify-nightly.yml" and
+                 (.display_title | (contains("diagnostic ") | not) or endswith("diagnostic gate")))
+              )] | length'); then
               echo "::warning::Runner demand unavailable. Using the configured matrix capacity."
               exit 0
             fi
@@ -256,6 +262,10 @@ jobs:
   verify-shards:
     name: verify:shards (${{ strategy.job-index }})
     needs: [verify-start]
+    # Across PR dispatch, Release and Nightly, one shard can use each slot.
+    concurrency:
+      group: verify-full-shard-${{ matrix.shard['-'] }}
+      queue: max
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
     runs-on: ubuntu-24.04
@@ -266,13 +276,7 @@ jobs:
     timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
     strategy:
       fail-fast: false
-      # GitHub's free plan runs 20 jobs at once across every workflow, and
-      # queues the rest in no particular order. A run that queues all its
-      # shards at once holds other runs' `verify:start` and `verify:end`
-      # behind them. Holding four slots back, and queuing the next shard only
-      # as one finishes, lets a small run through between a large run's
-      # shards. `VERIFY_MAX_PARALLEL` is the concurrent-job limit minus four.
-      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '16') }}
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '12') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:

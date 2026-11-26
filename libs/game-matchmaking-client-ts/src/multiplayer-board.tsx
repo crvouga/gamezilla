@@ -40,8 +40,8 @@ type BoardProps = {
   readonly ownSetup: string | null;
   /** The viewer's own dealt hand in this game, if it deals hands. */
   readonly ownHand: string | null;
-  /** What lies over the board: the versus card, the result card. */
-  readonly overlay?: JSX.Element | undefined;
+  readonly preparation?: JSX.Element;
+  readonly information?: JSX.Element;
   /** Hears the board's own words about live play, for the status line. */
   readonly onBoardLine?: ((line: string | null) => void) | undefined;
 };
@@ -181,10 +181,14 @@ function BoardStage(props: StageProps): JSX.Element {
   const nearSide = (): MultiplayerSide =>
     props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
   const board = useStageBoardProps(props, nearSide);
-  const presentation = useGamePresentation();
+  const lookup = useGamePresentation();
+  const presentation = () => lookup(props.game.fen);
   return (
     <GameBoardStage
-      overlay={props.overlay}
+      workspace={presentation().frame.boardWorkspace}
+      viewportFit={presentation().frame.boardFit}
+      align={presentation().frame.boardAlign}
+      information={props.information}
       dataSet={gameMark(props, shown())}
       others={
         <OtherSeats
@@ -207,8 +211,9 @@ function BoardStage(props: StageProps): JSX.Element {
         />
       }
     >
+      {props.preparation}
       <MultiplayerFrameBoard
-        presentation={presentation(props.game.fen)}
+        presentation={presentation()}
         board={board}
         onLine={props.onBoardLine}
       />

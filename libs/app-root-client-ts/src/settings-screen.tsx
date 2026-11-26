@@ -15,8 +15,7 @@ import { useSoundsPreference } from '@pkgs/sounds-client-ts/solid';
 import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import { useThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { JSX } from '@solidjs/web';
-import { type Accessor, createSignal, For, onCleanup } from 'solid-js';
-import { useAppSubs } from './app-subs-context';
+import { type Accessor, createSignal, onCleanup } from 'solid-js';
 import { useOfflinePreference } from './offline-preference';
 import { SettingsScreenView } from './settings-screen-view';
 
@@ -37,10 +36,9 @@ function useBugReporting<T>(
   return () => value().current;
 }
 
-/** `/more`: wires `SettingsScreenView` to preferences, permissions and subs. */
+/** `/more`: wires `SettingsScreenView` to preferences and permissions. */
 export function SettingsScreen(): JSX.Element {
   const router = useRouter();
-  const subs = useAppSubs();
   const canViewBilling = useCan(PERMISSION.billingView);
   const { preference } = useThemePreference();
   const { muted } = useSoundsPreference();
@@ -55,7 +53,6 @@ export function SettingsScreen(): JSX.Element {
       offline={offline()}
       canViewBilling={canViewBilling()}
       version={APP_VERSION}
-      subSettings={<For each={subs.settings}>{(Settings) => <Settings />}</For>}
       bugReportsWaiting={bugReport()?.waiting ?? 0}
       shakeToReport={shake()}
       onShakeToReportChange={(on) =>

@@ -1,8 +1,10 @@
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
+import { GameBoardStage } from '../game-board-stage/index';
 import { GameScreen } from '../game-screen/index';
 import { Surface } from '../surface/index';
 import { P } from '../text/index';
+import { FixedGameSession, StageDetails } from './fixed-game-session';
 import Example from './game-session-layout.example';
 import { GameSessionLayout } from './index';
 
@@ -66,10 +68,7 @@ function FixedStage(props: {
   return (
     <ScreenExampleFrame>
       <GameScreen screenId="example-fixed-stage" title="Two crates">
-        <GameSessionLayout
-          fixedStage
-          actionsBeside
-          boardFocus
+        <FixedGameSession
           notices={
             props.notice === true ? (
               <Surface tone="muted" padding="sm" testId="notices-probe">
@@ -90,21 +89,24 @@ function FixedStage(props: {
               <P>Offer draw · Resign</P>
             </Surface>
           }
-          aside={
-            <Surface tone="muted" padding="sm" testId="rail-probe">
+          history={
+            <>
               <P>1. e4 e5 2. Nf3</P>
-            </Surface>
+              <StageDetails label="All moves" testId="all-moves-probe">
+                <P>1. e4 e5</P>
+                <P>2. Nf3</P>
+              </StageDetails>
+            </>
           }
-          allMoves={{
-            label: 'All moves',
-            testId: 'all-moves-probe',
-            onPress: () => undefined,
-          }}
         >
-          <Surface tone="muted" padding="lg" testId="stage-probe">
-            <P>Board</P>
-          </Surface>
-        </GameSessionLayout>
+          {(information) => (
+            <GameBoardStage information={information}>
+              <Surface tone="muted" padding="lg" testId="stage-probe">
+                <P>Board</P>
+              </Surface>
+            </GameBoardStage>
+          )}
+        </FixedGameSession>
       </GameScreen>
     </ScreenExampleFrame>
   );

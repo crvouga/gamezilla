@@ -1,11 +1,6 @@
 import { ConnectFourStoryBoard } from '@libs/game-session-client-ts/connect-four-story-board.example';
 import { SpacePersonAvatar } from '@libs/spaces-client-ts/space-person-view';
 import { AVERY, JORDAN } from '@libs/spaces-client-ts/spaces-story.example';
-import {
-  NO_STAGE_OVERLAY,
-  type StageOverlay,
-  stageOverlayAfter,
-} from '@pkgs/turn-game-client-ts/stage-overlay';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
@@ -15,7 +10,6 @@ import {
   GamePlayerBar,
 } from '@pkgs/ui-root-client-ts/game-player-bar';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GAME_VERSUS_AVATAR_SIZE } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -32,10 +26,7 @@ import type {
   MultiplayerGameView,
   MultiplayerMovesShown,
 } from './multiplayer-game-view';
-import type {
-  MultiplayerResultShown,
-  MultiplayerVersusShown,
-} from './multiplayer-overlay-view';
+import type { MultiplayerResultShown } from './multiplayer-result-card';
 import { useMultiplayerPlaces } from './use-multiplayer-places';
 
 const resolved = () => fn(() => Promise.resolve());
@@ -52,8 +43,11 @@ export const SPEED_RATINGS = [
 const DROPS = [3, 3, 4, 2, 4];
 
 /** The story game's moves, on the position after `shownPly` of them. */
-export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
-  const moves = DROPS.map((column, index) => {
+export function storyMoves(
+  shownPly = DROPS.length,
+  drops: readonly number[] = DROPS
+): MultiplayerMovesShown {
+  const moves = drops.map((column, index) => {
     const round = Math.floor(index / 2) + 1;
     // A drop is named as Connect Four names it: its column, from 1.
     const san = String(column + 1);
@@ -84,6 +78,7 @@ export function storyMoves(shownPly = DROPS.length): MultiplayerMovesShown {
 
 /** A two-player game in play, as the person to move may act on it. */
 export const STORY_GAME: MultiplayerGameView = {
+  timeControl: '5+0',
   players: 2,
   leave: 'resign',
   draw: 'offer',
@@ -142,40 +137,12 @@ function StoryAvatar(props: {
 }
 
 /**
- * Who plays whom in the story game, as the versus card shows them. Made
- * when a story renders, never at module load: its faces read the theme.
- */
-function storyVersus(): MultiplayerVersusShown {
-  return {
-    others: [
-      {
-        id: 'black',
-        name: 'Bob',
-        avatar: <StoryAvatar who="bob" size={GAME_VERSUS_AVATAR_SIZE} />,
-        swatch: { color: 'disc-two' },
-        caption: 'Yellow · 1487',
-      },
-    ],
-    own: [
-      {
-        id: 'white',
-        name: 'alice',
-        avatar: <StoryAvatar who="alice" size={GAME_VERSUS_AVATAR_SIZE} />,
-        swatch: { color: 'disc-one' },
-        caption: 'Red · 1512',
-      },
-    ],
-    clock: '5 min',
-    timeControl: '5+0',
-  };
-}
-
-/**
  * Story-only: the matched game's stage, standing in for the board slot
- * `MultiplayerScreen` fills: two seats around Connect Four's board, under
- * whatever lies over it.
+ * `MultiplayerScreen` fills: two seats around Connect Four's board.
  */
-function StoryStage(props: {
+export function StoryStage(props: {
+  readonly moves?: readonly number[] | undefined;
+  readonly onDrop?: ((column: number) => void) | undefined;
   /** How many of the story game's drops the board shows. */
   readonly shown?: number | undefined;
   /** Whether the person is to move. */
@@ -187,12 +154,14 @@ function StoryStage(props: {
   readonly offline?: boolean | undefined;
   /** A draw offered to the person waits for their answer first. */
   readonly answering?: boolean | undefined;
-  readonly overlay?: JSX.Element | undefined;
+  readonly information?: JSX.Element;
+  readonly preparation?: JSX.Element;
 }): JSX.Element {
-  const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
+  const drops = () =>
+    props.moves ?? DROPS.slice(0, props.shown ?? DROPS.length);
   return (
     <GameBoardStage
-      overlay={props.overlay}
+      information={props.information}
       others={
         <GamePlayerBar
           name="Bob (1487)"
@@ -250,7 +219,9 @@ function StoryStage(props: {
         />
       }
     >
+      {props.preparation}
       <ConnectFourStoryBoard
+        onDrop={props.onDrop}
         moves={drops()}
         interactive={
           props.active && props.watching !== true && props.offline !== true
@@ -268,7 +239,7 @@ function StoryStage(props: {
 }
 
 /** Story-only: the line under the board while the game is played. */
-function StoryAnnouncement(props: {
+export function StoryAnnouncement(props: {
   readonly title: string;
   readonly detail?: string | undefined;
   /** An offer waiting for the person's answer: the filled pill, as the app's. */
@@ -303,8 +274,6 @@ export const STORY_PARAMETERS = {
       'setup',
       'status',
       'goal',
-      'overlay',
-      'versus',
       'result',
     ],
   },
@@ -334,8 +303,6 @@ export function storyArgs(): MatchmakingScreenViewProps {
     manyPlayers: false,
     onConfirm: resolved(),
     onCloseConfirm: fn(),
-    overlay: NO_STAGE_OVERLAY,
-    onOverlay: fn(),
   };
 }
 
@@ -383,9 +350,6 @@ export function StoryPlaces(props: MatchmakingScreenViewProps): JSX.Element {
     () => props.commands.returnToCurrent()
   );
   const [chosen, setChosen] = createSignal<string | null>(null);
-  // The story's overlay answers a press as the app's does; the count is
-  // held still, so a story is one moment.
-  const [overlay, setOverlay] = createSignal<StageOverlay>(() => props.overlay);
   createEffect(
     () => props.place,
     (place) => {
@@ -396,11 +360,6 @@ export function StoryPlaces(props: MatchmakingScreenViewProps): JSX.Element {
     <MatchmakingScreenView
       {...props}
       place={nav.place()}
-      overlay={overlay()}
-      onOverlay={(event) => {
-        props.onOverlay(event);
-        setOverlay((current) => stageOverlayAfter(current, event));
-      }}
       find={{
         ...props.find,
         timeControl: chosen() ?? props.find.timeControl,
@@ -451,7 +410,7 @@ export function renderStory(slots: StorySlots = {}) {
   return (args: MatchmakingScreenViewProps): JSX.Element => (
     <StoryPlaces
       {...args}
-      board={(overlay) => (
+      board={(stage) => (
         <StoryStage
           shown={slots.shown}
           ownName={slots.ownName}
@@ -459,7 +418,8 @@ export function renderStory(slots: StorySlots = {}) {
           offline={slots.offline}
           answering={slots.announcement?.answer === true}
           active={slots.announcement !== undefined}
-          overlay={overlay}
+          information={stage.information}
+          preparation={stage.setup}
         />
       )}
       status={
@@ -467,7 +427,6 @@ export function renderStory(slots: StorySlots = {}) {
           <StoryAnnouncement {...slots.announcement} />
         )
       }
-      versus={storyVersus()}
       result={slots.result}
       setup={
         slots.setup === undefined ? undefined : <StorySetup {...slots.setup} />

@@ -61,7 +61,7 @@ directly.
    | Hub | Rows that lead onward, each with its current value. No form, no board. | `EmbeddedScreen`, `MenuSection`, `MenuRow` |
    | Choice | One short list of choices. Pressing one applies it and returns. | `EmbeddedScreen`, `MenuSection`, `MenuRow` / `GameChoiceGrid` |
    | Form | One form and its one submit. | `EmbeddedScreen`, fields, one `GameActionButton` |
-   | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `GameSessionLayout`, `GameBoardStage` |
+   | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `FixedGameSession`, `GameBoardStage` |
    | Result | What happened, and what to do next: one filled command and at most three quiet ones. | `GameScreen`, `GameResultHeadline`, `GameStandings` |
 
 3. **At most one filled (primary) command per screen.** Everything else is an
@@ -75,32 +75,16 @@ directly.
    empty, failed with a retry, denied, ready); it never infers a state from
    which optional props happen to be set. Connection and refusal notices
    belong to the shell and show on every screen of the template.
-7. **The same screens on every size.** A view does not read the layout mode
-   to pick what it shows. A stage may place its rail beside the board when
-   there is room (`GameLayout`, a container query); that is the only
-   difference between a phone and a desktop.
-8. **A stage is one fixed view, and its board never moves.** Every stage
-   (custom game, matchmaking, puzzles, the moves and the result) is
-   `GameSessionLayout`'s `fixedStage`, top to bottom: the game's facts on
-   one centred line (`Chess · Rated · 10 min`), the line of moves with
-   **All moves** at its end (`allMoves`, there before the first move), the
-   other seats, the board, the person's own seat (highlighted on their
-   turn, with their clock), one status line, and one bar with **every**
-   command of the game (offer a draw, resign in the destructive colour,
-   the game's menu as `⋯`). On a phone the board takes the screen's whole
-   width and sits in the middle of the room left; it is centred once and
-   held there (`GameBoardStage`, `stageCentreOffset`). Every band keeps its
-   height empty or full, and what comes and goes never takes a row: the
-   connection, a refused command and a draw offered lie over the stage's
-   top (`GameStageNotices`), and a finished game's outcome card over its
-   foot (`sheet`). A board taller than the room narrows instead
-   (`GameBoardStage`). A wide window keeps the board beside its rail, at
-   the same measure live and finished. The Storybook check
-   `stage-stability` proves the board's place through a whole game.
-9. **What interrupts the board lies over the board.** Who plays whom before
-   the game (`GameVersusOverlay`) and how it ended (`GameResultOverlay`) are
-   the stage's `overlay`: they cover the board and nothing else, so nothing
-   around it shifts. Which one shows is a state machine of its own (below).
+7. **The same screens on every size.** The host keeps the space bar above the game.
+8. **A game stage is one fixed view.** `FixedGameSession` gives custom games,
+   matchmaking and replays one reading order. The players, status and move
+   history precede the full-width board region. Its contents keep their
+   natural proportions. A short window can scroll the board within that
+   region, and the action bar stays at the bottom. The result opens over
+   the final position. The Storybook stage stability checks measure the
+   board and action bar through changes of turn, history and outcome.
+9. **Play opens on the board.** The seats identify the players and the
+   stage shows whose turn it is as soon as the game is ready.
 10. **A lobby says what is about to be played and has one command.** It
     opens with the mode card (`GameModeCard`: the mode, the game's name, how
     it is won in a sentence, and what is agreed as three facts), then the
@@ -138,26 +122,6 @@ stage, and each place's parent.
   stage, the place and `onOpen(place)`. Stories pass both as args, so every
   place of every stage is a story.
 
-## The stage's overlay: a second explicit machine
-
-What lies over the board is `StageOverlay`
-(`@pkgs/turn-game-client-ts/stage-overlay`), a pure transition function
-with four states:
-
-| State | Shows | Leaves on |
-| --- | --- | --- |
-| `none` | The board | `began` (to `versus`), `ended` (to `outcome`) |
-| `versus` (a count, 3 to 1) | Who plays whom, counting down | `tick` at 1, `skip` (a press), `ended` |
-| `outcome` | The result card | `dismiss` (to `board`), `reset` |
-| `board` | The final board, the card closed | `show` (back to `outcome`), `reset` |
-
-`useStageOverlay` feeds it from the template's stage and from injected
-timers (`useTimers`), one tick a second. A game this device watched begin
-plays the versus card; a game already under way when the screen opened
-does not, and a game already over opens under its result card. The views
-take the state and one `onOverlay(event)`, so every state is a story and
-no view keeps a timer or a flag of its own.
-
 ## The catalogue
 
 Story ids are `screens-<mode>-<screen>` (`screens-custom-games-stage`,
@@ -168,7 +132,7 @@ each of its states, opened at phone and desktop width in both themes.
 
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
-| `none` | `home` | Choice | Play the bots at once, or set a game up |
+| `none` | `home` | Setup | Choose a mode and edit a seat, open the table, or play the bots |
 | `configuring` | `setup` | Hub | Who sits where, what is agreed, get ready, start |
 | | `seat` (a side) | Choice | Who sits in this seat |
 | | `invite` (a side) | Choice | Which member of the space to invite to it |
@@ -191,10 +155,8 @@ notice that says why. The lobby's one filled command is the next thing to do: ta
 seat, arrange an incomplete private setup, get ready, then start. It sits in
 the lobby's dock, under the mode card and the roster.
 
-`stage` opens under the versus card when the game starts on this device, and
-`result` is the final board under the result card: the headline, the
-standings and, once the card is closed, a line that brings it back. The
-commands for what next are the bar under the board on both.
+`stage` shows the live board. In `result`, the card beside the final
+board holds the headline and standings. The action bar offers the next game.
 
 Code: `libs/game-session-client-ts/src/custom-game-places.ts` (the machine),
 `custom-game-screen-view.tsx` (the switch), `custom-games-home-view.tsx`,
@@ -230,10 +192,9 @@ finished game. Its names are `idle` (choosing a time control), `searching`
 
 `home` and `searching` are the same lobby as a custom game's: the mode card
 (Ranked match, the game, how it is won, the players, the clock in words),
-then one docked command (Find an opponent, Stop). A game found on this
-device opens under the versus card with both ratings; `result` lays the
-result card over the final board, with the rating change in its caption and
-the moves beside a wide board.
+then one docked command (Find an opponent, Stop). Once ready, the game
+shows its board and seats. The result card opens over the final board with
+the rating change in its caption. The move history stays above the board.
 
 Two refinements the specs demand. A finished game keeps the search's hub
 one row from its result, because New opponent seeks at the finished game's
@@ -309,11 +270,11 @@ dialogs) shows on every builder place. The story ids are
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
 | `open` | `home` | Hub | The template screens the game's capabilities offer, one emphasised |
-| | `how-to-play` | Hub | The game's own words on how it is played |
+| | `how-to-play` | Hub | The selected mode's guided practice board |
 
 The menu holds rows that lead onward and nothing else. Choosing a template
 screen moves the whole space (`useGameScreen`); how to play is this
-device's own place behind the menu, offered as a row when the game says how.
+device's own place behind the menu, with steps supplied by the selected game client.
 
 ### A game's settings (`settings`)
 
@@ -321,13 +282,11 @@ device's own place behind the menu, offered as a row when the game says how.
 | --- | --- | --- | --- |
 | `open` | `settings` | Hub | The rows of the root group |
 | | `settings/<row>/…` (a group) | Hub | The rows of a nested group |
-| | `settings/<row>/…` (a template screen) | — | The template the row opens, with its own places |
 
 A game's settings are rows it declares as data (`GameClient.settings`: a
 key, a title and caption, an optional permission that hides the row from a
-person it is denied, and what the row opens: a nested group, or one of the
-platform's template screens). The places are derived from that tree, one
-per group and one per template screen (`gameSettingsTree`); Back walks up
+person it is denied, and the nested group the row opens). The places are derived from that tree, one
+per group (`gameSettingsTree`); Back walks up
 the tree and, from the root, returns to the menu. A group none of whose
 rows the person may see says so. The framework draws the hub and every
 screen behind it: `defineGameClient` has no `Screen` to give, and no
@@ -355,8 +314,8 @@ the loader and asks before abandoning the upload; a save that finishes
 lands on the hub, and one that does not returns to `source` beside its
 retry. The hub's one command and why it is unavailable are derived from
 those three (`catalogueLoadCommand`). A game feeds the template with a hook
-of facts and commands and a few words (`CatalogueLoadClient`); the same
-template shows inside a space (from a settings row) and on a routed page.
+of facts and commands and a few words (`CatalogueLoadClient`); the
+admin site mounts the loader on its own page.
 Story ids: `screens-puzzles-import`, `-source`, `-status` and
 `-routed`.
 

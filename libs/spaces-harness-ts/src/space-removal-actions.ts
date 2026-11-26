@@ -1,13 +1,17 @@
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { SPACE_WAIT_MS, tapChromeOrOverflow } from './space-ui';
+import { SPACE_WAIT_MS, tapSpaceAction } from './space-ui';
 
 export const openSpaceShare = scenarioAction({
   name: 'openSpaceShare',
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
-    if (!(await ui.get(Handles.spaceShareClose).isVisible()))
-      await tapChromeOrOverflow(s, actor, Handles.spaceShare);
+    if (await ui.get(Handles.spaceShareClose).isVisible()) return;
+    if (!(await ui.get(Handles.spaceMembersClose).isVisible()))
+      await tapSpaceAction(s, actor, Handles.spaceMembersButton);
+    await ui
+      .get(`${Handles.spaceManagementTabs}-sharing`)
+      .tap({ timeoutMs: SPACE_WAIT_MS });
   },
 });
 

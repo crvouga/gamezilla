@@ -38,7 +38,7 @@ export const grantOperatorPermissions = scenarioAction({
       version: 'operator-spec',
       roles: {
         ...DEFAULT_PERMISSION_POLICY.roles,
-        [ROLE.syntheticPopulationOperator]: {
+        [ROLE.admin]: {
           when: { accountId: [accountId] },
           permissions: [...all],
         },

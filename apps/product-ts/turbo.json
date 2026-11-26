@@ -9,6 +9,7 @@
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
+        "$TURBO_ROOT$/specs/billing/open-provider-pages.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -25,6 +26,7 @@
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
+        "$TURBO_ROOT$/specs/billing/open-provider-pages.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -41,6 +43,7 @@
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
+        "$TURBO_ROOT$/specs/billing/open-provider-pages.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -57,6 +60,7 @@
         "!**/*.md",
         "$TURBO_ROOT$/specs/journeys/**",
         "$TURBO_ROOT$/specs/runtime/reopen-sokoban-position.feature",
+        "$TURBO_ROOT$/specs/billing/open-provider-pages.feature",
         "$TURBO_ROOT$/turbo-platform-key.json"
       ],
       "env": ["JOURNEY_CAPTURE_STEPS", "VERIFY_PROFILE"],
@@ -138,13 +142,14 @@
     },
     "src": {
       "dependsOn": [
-        "@apps/server-ts#src",
+        "@apps/product-api-ts#src",
         "@libs/app-config-shared-ts#src",
         "@libs/app-env-client-ts#src",
         "@libs/app-root-client-ts#src",
         "@libs/app-root-shared-ts#src",
         "@libs/auth-shared-ts#src",
         "@libs/battleship-harness-ts#src",
+        "@libs/billing-harness-ts#src",
         "@libs/billing-shared-ts#src",
         "@libs/connect-four-harness-ts#src",
         "@libs/db-shared-ts#src",
@@ -225,6 +230,8 @@
         "dev:server",
         "dev:population",
         "dev:web",
+        "dev:admin-api",
+        "dev:admin-client",
         "@pkgs/ui-root-harness-ts#dev:storybook"
       ],
       "persistent": true,
@@ -275,6 +282,16 @@
       "persistent": true,
       "cache": false
     },
+    "dev:admin-api": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:admin-client": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
     "dev:web": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
@@ -295,7 +312,7 @@
       "dependsOn": [
         "@libs/runtime-server-ts#migrate",
         "@libs/chess-puzzle-server-ts#initialize:catalog",
-        "@apps/server-ts#verify:api",
+        "@apps/product-api-ts#verify:api",
         "@apps/product-ts#verify:offline-shell",
         "@apps/product-ts#verify:worker-bundle",
         "@apps/product-ts#verify:rendered-worker"

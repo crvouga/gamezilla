@@ -1,13 +1,13 @@
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import { customGameAwaySince } from '@libs/game-session-shared-ts/custom-game-absence';
 import { CustomGameAvailableAttr } from '@libs/game-session-shared-ts/custom-game-availability';
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
 import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
 import {
   type CustomGame,
   type CustomGames,
   CustomGamesAttr,
   customGamePersonSide,
+  customGameTerminal,
   customGameUnderWay,
 } from '@libs/game-session-shared-ts/custom-game-state';
 import { customGameChoiceWaits } from '@libs/game-session-shared-ts/custom-game-waiting-move';
@@ -23,8 +23,9 @@ import {
 } from '@libs/spaces-shared-ts/space-members-messages';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';
-import { type GameSide, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
+import { gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { type Accessor, createMemo } from 'solid-js';
+import { useCustomGameChoices } from './use-custom-game-choices';
 import { useCustomGameCommand } from './use-custom-game-command';
 import { useCustomGameCommitment } from './use-custom-game-commitment';
 import { useCustomGameHand } from './use-custom-game-hand';
@@ -38,17 +39,15 @@ function useSelectedCustomGames(
 ) {
   const rules = useTurnGames();
   return createMemo(() => {
-    const id = gameId();
-    const definition = rules.byId(id);
-    const current = visible().current;
+    const { current, history } = visible();
+    const definition =
+      current !== null && !customGameTerminal(current)
+        ? rules.forPosition(current.fen)
+        : rules.byId(gameId());
     return {
       current:
-        current !== null && definition.recognizes(current.fen)
-          ? visible().current
-          : null,
-      history: visible().history.filter((game) =>
-        definition.recognizes(game.fen)
-      ),
+        current !== null && definition.recognizes(current.fen) ? current : null,
+      history: history.filter((game) => definition.recognizes(game.fen)),
     };
   });
 }
@@ -61,29 +60,6 @@ function useAwayParticipants() {
       ])
     )
   );
-}
-
-/** Becoming ready, with the person's private setup for a game that has one. */
-function readyChoices(
-  choose: (input: CustomGameInput) => Promise<void>,
-  privateSetup: ReturnType<typeof useCustomGamePrivateSetup>,
-  sides: Accessor<readonly GameSide[]>
-) {
-  const ready = (): Promise<void> =>
-    choose(
-      privateSetup.has()
-        ? { operation: 'ready', setup: privateSetup.draft() }
-        : { operation: 'ready' }
-    );
-  const playBot = async (): Promise<void> => {
-    await choose({ operation: 'create' });
-    for (const side of sides().slice(1))
-      await choose({ operation: 'bot', side });
-    if (privateSetup.has() && !privateSetup.complete()) privateSetup.random();
-    await ready();
-    await choose({ operation: 'start' });
-  };
-  return { ready, playBot };
 }
 
 /** Whether a move made now, with no connection, would wait for it. */
@@ -162,20 +138,17 @@ export function useCustomGameScreen(
   );
   const simulation = useCustomSimulation(current, myId, permissions.canPlay);
   const command = useCustomGameCommand(simulation.chooseLocal);
-  const choose = (input: CustomGameInput): Promise<void> =>
-    command.send({
-      ...input,
-      ...(input.operation === 'create' ? { game: gameId() } : {}),
-      gameId: visible().current?.id ?? null,
-      revision: visible().current?.revision ?? 0,
-    });
   const privateSetup = useCustomGamePrivateSetup(current, myId);
-  const { ready, playBot } = readyChoices(choose, privateSetup, () =>
-    gameSides(rules.byId(gameId()))
-  );
+  const choices = useCustomGameChoices({
+    gameId,
+    spaceId: scope,
+    current: () => visible().current,
+    send: command.send,
+    privateSetup,
+  });
   return {
     myId,
-    playerCount: () => gameSides(rules.byId(gameId())).length,
+    sides: () => current()?.sides ?? gameSides(rules.byId(gameId())),
     games,
     current,
     members,
@@ -183,14 +156,12 @@ export function useCustomGameScreen(
     canSubmit,
     simulation,
     sharedAvailable,
-    choose,
-    ready,
+    ...choices,
     privateSetup,
     /** The person's own dealt hand in the current game; never another's. */
     ownHand: useCustomGameHand(current, myId),
     /** The person's own commitment in the phase open now; never another's. */
     ownCommitment: useCustomGameCommitment(current, myId),
-    playBot,
     attempt: command.send,
     error: command.error,
     settled: command.settled,

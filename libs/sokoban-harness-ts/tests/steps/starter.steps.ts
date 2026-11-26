@@ -16,6 +16,7 @@ import {
   playingStarter,
   starterEditions,
   startStarterPuzzle,
+  startWarehousePuzzle,
 } from '@libs/sokoban-harness-ts/sokoban-starter';
 import { decodeSokobanBoard } from '@libs/sokoban-shared-ts/sokoban-definition';
 import { Given, Then, When } from './world';
@@ -29,6 +30,11 @@ Given('Bob is a guest', () => undefined);
 Given("Bob's phone has no connection", (w) =>
   w.run.apply(contentDeviceOffline, BOB)
 );
+Given(
+  'Bob is playing {string} from the Sokoban pack {string}',
+  (w, puzzle: string, pack: string) =>
+    w.run.apply(startWarehousePuzzle, BOB, pack, puzzle)
+);
 Given('Bob is playing the first starter puzzle', (w) =>
   w.run.apply(startStarterPuzzle, BOB, 0)
 );
@@ -36,7 +42,7 @@ Given('Bob has completed the first starter puzzle', (w) =>
   w.run.apply(completeStarterPuzzle, BOB, 0)
 );
 Given('Bob has completed every starter puzzle', async (w) => {
-  const count = (await w.run.read(starterEditions)).puzzles.length;
+  const count = (await w.run.read(starterEditions, BOB)).length;
   for (let index = 0; index < count; index += 1)
     await w.run.apply(completeStarterPuzzle, BOB, index);
 });

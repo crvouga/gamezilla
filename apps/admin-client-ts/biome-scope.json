@@ -1,0 +1,29 @@
+{
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit": [
+    "**/apps/admin-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit": [
+    "**/apps/admin-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-nested-await.grit": [
+    "**/apps/admin-client-ts/src/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit": [
+    "**/apps/admin-client-ts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit": [
+    "**/apps/admin-client-ts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit": [
+    "**/apps/admin-client-ts/**/*.{ts,tsx}"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-fs.grit": [
+    "!**/apps/admin-client-ts/src/main.tsx"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-bare-io.grit": [
+    "!**/apps/admin-client-ts/src/main.tsx"
+  ],
+  "plugin:./libs/tools-harness-ts/biome-plugins/no-wall-io-defaults.grit": [
+    "!**/apps/admin-client-ts/src/main.tsx"
+  ]
+}

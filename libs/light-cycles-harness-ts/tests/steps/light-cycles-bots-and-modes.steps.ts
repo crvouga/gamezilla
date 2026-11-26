@@ -1,5 +1,4 @@
 import { expect } from 'bun:test';
-import { offeredGameChoices } from '@libs/game-session-harness-ts/game-navigation';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import type {
   LightCyclesCell,
@@ -25,6 +24,7 @@ import {
   startLightCyclesGame,
 } from '@libs/light-cycles-harness-ts/light-cycles-lineup';
 import {
+  customModeChosen,
   establishPractice,
   findPlayers,
   joinSpaceOf,
@@ -267,23 +267,18 @@ Given("{actor} has joined {actor}'s space", (w, person: string, host: string) =>
   w.s.apply(joinSpaceOf, person, host)
 );
 When(
-  "{actor} picks Light Cycles {lightCyclesMode} as the space's game",
+  '{actor} chooses Light Cycles {lightCyclesMode} for a custom game',
   (w, host: string, count: LightCyclesCount) =>
     w.s.apply(pickLightCyclesMode, host, count)
 );
 Then(
-  "{actor} and {actor} are offered Light Cycles {lightCyclesMode}'s custom games and finding players",
-  async (w, first: string, second: string) => {
-    for (const actor of [first, second]) {
-      const offered = await w.s.until((s) => offeredGameChoices(s, actor), {
+  '{actor} and {actor} see Light Cycles {lightCyclesMode} chosen for the custom game',
+  async (w, first: string, second: string, count: LightCyclesCount) => {
+    for (const actor of [first, second])
+      await w.s.until((s) => customModeChosen(s, actor, count), {
         maxMs: SHOWN_MS,
-        pred: (choices) =>
-          choices.includes('custom-game') && choices.includes('multiplayer'),
+        pred: Boolean,
       });
-      expect(offered).toEqual(
-        expect.arrayContaining(['custom-game', 'multiplayer'])
-      );
-    }
   }
 );
 Given(

@@ -1,18 +1,17 @@
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
+import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import {
   DefineBackButton,
   useGameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
-import { useTimers } from '@pkgs/clock-client-ts/solid';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-context';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
-import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import type { JSX } from '@solidjs/web';
 import { createEffect, Show } from 'solid-js';
+import { CustomGameBack } from './custom-game-back';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { CustomGameSetupBoard } from './custom-game-private-setup';
@@ -27,7 +26,6 @@ import {
   FRAME_NO_PLAY,
   FRAME_NO_TABLE,
 } from './game-frame-empty';
-import { frameOverlayPhase } from './game-frame-overlay-view';
 import {
   FrameBoardMount,
   useBoardLineStatus,
@@ -74,7 +72,7 @@ const DENIED_FRAME = {
   stopped: false,
   status: null,
   canCreate: false,
-  playerCount: 2,
+  sides: ['white', 'black'],
   setup: null,
   table: FRAME_NO_TABLE,
   play: FRAME_NO_PLAY,
@@ -92,13 +90,12 @@ const DENIED_FRAME = {
   place: CUSTOM_GAME_PLACES.home.none,
   onOpen: () => undefined,
   onClose: () => undefined,
-  overlay: NO_STAGE_OVERLAY,
-  onOverlay: () => undefined,
 } satisfies Omit<CustomGameScreenViewProps, 'title' | 'onBack'>;
 
 type FrameProps = {
   model: CustomGameScreenModel;
   title: JSX.Element;
+  onBackFromBoard: (personal: boolean) => void;
 };
 
 /**
@@ -132,6 +129,7 @@ function useFramePresentationFacts(model: FrameProps['model']) {
   };
   return {
     /** How the game is won, in one sentence. */
+    name: (): string | undefined => shown()?.name(),
     goal: (): string | undefined => shown()?.goal?.(),
     /** How the frame holds the board: its fit, alignment and workspace. */
     board: () => ({
@@ -158,16 +156,22 @@ function useStageStatus(
   );
 }
 
+function returnFromCustomGame(
+  model: CustomGameScreenModel,
+  backFromBoard: FrameProps['onBackFromBoard']
+) {
+  return (): void => {
+    if (model.current() === null || model.current()?.status === 'configuring')
+      model.back();
+    else backFromBoard(model.underWay() || !model.connected());
+  };
+}
+
 /** Reads the room for `CustomGameScreenView`: the allowed custom game. */
 function CustomGameFrame(props: FrameProps): JSX.Element {
   const model = props.model;
   const review = useCustomGameReview(model);
   const place = useCustomGamePlace(model, review);
-  const choices = useGameChoicesName();
-  const stage = useStageOverlay(
-    () => frameOverlayPhase(place.phase()),
-    useTimers()
-  );
   const board = useFrameBoard(model, review);
   const refusal = useRefusalText();
   const status = useStageStatus(model, board);
@@ -180,22 +184,18 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
   const record = useFrameRecord(model, review);
   const boardState = useFrameBoardState(model, review, board);
   const shown = useFramePresentationFacts(model);
-  const atHome = (): boolean =>
-    place.place().screen === CUSTOM_GAME_PLACES.home[place.phase()].screen;
+  const leave = returnFromCustomGame(model, props.onBackFromBoard);
   return (
     <>
-      {/* Back from a phase's home names where it leads: the game's choices.
-          While the game is under way its board is home, with no way out. */}
-      <Show when={!(model.underWay() && atHome())}>
-        <DefineBackButton
-          onPress={() => {
-            if (!place.back()) model.back();
-          }}
-          label={atHome() ? choices() : undefined}
-        />
-      </Show>
+      <CustomGameBack
+        game={model.current()}
+        canResign={play().canResign || play().heldResign}
+        backWithinGame={place.back}
+        leave={leave}
+        resign={() => model.choose({ operation: 'resign' })}
+      />
       <CustomGameScreenView
-        title={props.title}
+        title={shown.name() ?? props.title}
         goal={shown.goal()}
         phase={place.phase()}
         place={place.place()}
@@ -203,8 +203,6 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onClose={() => {
           place.back();
         }}
-        overlay={stage.overlay()}
-        onOverlay={stage.send}
         viewerSide={model.mySide()}
         watchers={watchers()}
         connection={frameConnection(model)}
@@ -213,7 +211,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onReopen={() => model.simulation.restart()}
         status={status()}
         canCreate={model.canCreate()}
-        playerCount={model.playerCount()}
+        sides={model.sides()}
         setup={setup()}
         table={table()}
         play={play()}
@@ -228,8 +226,10 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onChoose={model.choose}
         onReady={model.ready}
         onPlayBot={model.playBot}
-        onRandomSetup={async () => model.privateSetup.random()}
-        onBack={model.back}
+        onRandomSetup={async () => {
+          model.privateSetup.random();
+        }}
+        onBack={leave}
         onSeek={review.seek}
         onReturnLive={review.returnLive}
         onSelectRecord={review.select}
@@ -241,12 +241,24 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
 }
 
 /** A game's custom game in a space: wires `CustomGameScreenView` to the room. */
-export function CustomGameScreen(props: {
+type CustomGameScreenProps = {
   gameId: string;
   onBack: () => void;
   title?: string;
   onHistory?: () => void;
-}): JSX.Element {
+  onBackFromBoard: (personal: boolean) => void;
+};
+
+export function CustomGameScreen(props: CustomGameScreenProps): JSX.Element {
+  const spaceId = useSpaceRoomSessionId();
+  return (
+    <Show when={spaceId()} keyed>
+      {(_room) => <RoomCustomGameScreen {...props} />}
+    </Show>
+  );
+}
+
+function RoomCustomGameScreen(props: CustomGameScreenProps): JSX.Element {
   const model = useCustomGameScreen(
     props.onBack,
     () => props.gameId,
@@ -256,22 +268,26 @@ export function CustomGameScreen(props: {
   const choices = useGameChoicesName();
   return (
     <>
-      <Show when={!model.underWay()}>
-        <DefineBackButton onPress={model.back} label={choices()} />
-      </Show>
       <DecisionGate
         decision={model.watchDecision()}
         testId="custom-game-denial"
         denied={(denial) => (
-          <CustomGameScreenView
-            {...DENIED_FRAME}
-            title={title()}
-            denial={denial}
-            onBack={model.back}
-          />
+          <>
+            <DefineBackButton onPress={model.back} label={choices()} />
+            <CustomGameScreenView
+              {...DENIED_FRAME}
+              title={title()}
+              denial={denial}
+              onBack={model.back}
+            />
+          </>
         )}
       >
-        <CustomGameFrame model={model} title={title()} />
+        <CustomGameFrame
+          model={model}
+          title={title()}
+          onBackFromBoard={props.onBackFromBoard}
+        />
       </DecisionGate>
     </>
   );

@@ -10,7 +10,7 @@ export const leavePuzzleLoading = scenarioAction({
   name: 'leavePuzzleLoading',
   act: async (s, actor: string = 'alice') => {
     await actorUi(s, actor);
-    await s.actors.get(actor)?.openLink('/more');
+    await s.actors.get(actor)?.openLink('/');
     await s.session.waitForIdle();
   },
 });
@@ -31,7 +31,7 @@ export const reopenLichessFile = scenarioAction({
   name: 'reopenLichessFile',
   act: async (s, actor: string = 'alice') => {
     await Promise.resolve(leavePuzzleLoading.act(s, actor));
-    await s.actors.get(actor)?.openLink('/more/puzzles');
+    await s.actors.get(actor)?.openLink('/puzzles');
     await s.session.waitForIdle();
   },
 });

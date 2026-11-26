@@ -40,25 +40,26 @@
   --ui-color-on-info: var(--ui-color-game-connect-four-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
-/* Beside its rail, the stage is as wide as this board and no wider, so the
-   seats end where it ends and what lies over it covers it exactly. */
-@media (min-width: 768px) {
-  :global([data-game-board-stage]):has(:global([data-game-board]) .board) {
-    max-width: 38rem;
-  }
-}
 .board {
   position: relative;
   display: grid;
   grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
   width: 100%;
   max-width: 38rem;
+  margin-inline: auto;
   gap: var(--ui-space-hairline);
   padding: var(--ui-space-2);
   border-radius: var(--ui-radius-sheet);
   background: var(--ui-color-surface-muted);
   color: var(--ui-color-text);
   overflow: hidden;
+}
+/* On a portrait phone all seven hit targets share the available width.
+   The fixed stage scrolls the board if its instructions need more room. */
+@media (orientation: portrait) and (max-width: 767px) {
+  [data-game-fixed="true"] [data-game-board-content]:has(.board) {
+    max-width: none;
+  }
 }
 .column {
   display: flex;
@@ -244,8 +245,6 @@
   box-shadow:
     0 0 0 2px var(--disc-hole),
     inset 0 0 0 2px var(--ui-color-text-secondary);
-  animation: disc-preview-breathe 1.6s var(--ui-easing-standard) infinite
-    alternate;
 }
 .cell[data-preview-disc="1"] {
   --disc-preview: var(--ui-color-destructive);
@@ -275,7 +274,7 @@
 }
 /* The last disc played falls the column's height under gravity: slow at
    the top, fastest as it lands. */
-.cell[data-last="true"] .disc {
+.cell[data-arrived][data-last="true"] .disc {
   animation: disc-drop var(--ui-duration-slow) linear;
 }
 .hidden {
@@ -286,14 +285,6 @@
   overflow: hidden;
   clip-path: inset(50%);
   white-space: nowrap;
-}
-@keyframes disc-preview-breathe {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0.7;
-  }
 }
 @keyframes disc-drop {
   from {
@@ -313,9 +304,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .cell[data-last="true"] .disc,
-  .cell[data-preview-disc="1"] .disc,
-  .cell[data-preview-disc="2"] .disc {
+  .cell[data-arrived][data-last="true"] .disc {
     animation: none;
   }
   .column::before,

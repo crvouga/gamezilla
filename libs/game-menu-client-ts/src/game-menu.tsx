@@ -11,9 +11,11 @@ import {
   GameChoicesName,
 } from '@libs/spaces-client-ts/spaces-nav-context';
 import type { GameScreen } from '@libs/spaces-client-ts/use-game-screen';
-import { useGameScreen } from '@libs/spaces-client-ts/use-game-screen';
+import {
+  GameScreenProvider,
+  useVisitedGameScreen,
+} from '@libs/spaces-client-ts/use-game-screen';
 import { useSpaceCan } from '@libs/spaces-client-ts/use-space-can';
-import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import {
@@ -35,8 +37,6 @@ function GameChoices(props: {
   offers: Offers;
   navigation: GameScreen;
   onBackToGames: () => void;
-  modes?: readonly GameModeOption[] | undefined;
-  onChooseMode?: ((id: string) => void) | undefined;
 }): JSX.Element {
   const { t } = useLingui();
   const nav = useScreenPlace(GAME_MENU_PLACES, () => 'open' as const);
@@ -48,7 +48,6 @@ function GameChoices(props: {
     })
   );
   const Subtitle = dynamic(() => props.game.subtitle);
-  const Instructions = dynamic(() => props.game.instructions);
   return (
     <>
       {/* Back names where it goes: the space's list of games, or the menu. */}
@@ -62,16 +61,11 @@ function GameChoices(props: {
         title={props.game.title}
         tile={props.game.tile}
         subtitle={<Subtitle />}
-        instructions={
-          props.game.instructions === undefined ? undefined : <Instructions />
-        }
+        lesson={props.game.lesson}
         choices={choices()}
         onChoose={(screen) => props.navigation.show(screen)}
         place={nav.place()}
         onOpen={nav.open}
-        modes={props.modes}
-        mode={props.game.shared.id}
-        onChooseMode={props.onChooseMode}
       />
     </>
   );
@@ -141,14 +135,13 @@ function GameFrame(props: {
  * shared registration declares and the settings it declares as data decide
  * which template screens exist. No screen is the game's own.
  */
-export function GameMenu(props: {
+type GameMenuProps = {
   game: GameClient;
   onBackToGames: () => void;
-  /** The game's modes, when it has several; switching one sets it up instead. */
-  modes?: readonly GameModeOption[] | undefined;
-  onChooseMode?: ((id: string) => void) | undefined;
-}): JSX.Element {
-  const navigation = useGameScreen();
+};
+
+function GameMenuContent(props: GameMenuProps): JSX.Element {
+  const navigation = useVisitedGameScreen();
   const offers: Offers = (capability) =>
     props.game.shared.registration?.capabilities[capability] !== undefined;
   useOpenLinkedMultiplayer(navigation, () => offers('matchmaking'));
@@ -167,8 +160,6 @@ export function GameMenu(props: {
       offers={offers}
       navigation={navigation}
       onBackToGames={props.onBackToGames}
-      modes={props.modes}
-      onChooseMode={props.onChooseMode}
     />
   );
   const Shown = dynamic(() => screens().get(navigation.screen()) ?? choices);
@@ -186,5 +177,13 @@ export function GameMenu(props: {
         </GameChoicesName>
       </StackVertical>
     </GameFrame>
+  );
+}
+
+export function GameMenu(props: GameMenuProps): JSX.Element {
+  return (
+    <GameScreenProvider game={props.game.shared.id}>
+      <GameMenuContent {...props} />
+    </GameScreenProvider>
   );
 }

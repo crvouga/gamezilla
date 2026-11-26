@@ -12,6 +12,7 @@ export async function exerciseQuoridorNativeInput(page: Page, info: TestInfo) {
       body: await page.screenshot({ fullPage: true }),
       contentType: 'image/png',
     });
+  await activate('coordinates');
   await activate('mode-h');
   await activate('action-d4h');
   const anchor = page.getByTestId('custom-game-board-action-d4h');

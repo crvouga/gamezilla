@@ -10,10 +10,7 @@ import { SpacePeopleRow } from '@pkgs/ui-root-client-ts/space-people-row';
 import { SPACE_PERSON_CAPABILITIES } from '@pkgs/ui-root-client-ts/space-person-actions';
 import { SpacePeople } from '@pkgs/ui-root-client-ts/space-person-menu/space-people';
 import { SpaceSetupTemplate } from '@pkgs/ui-root-client-ts/space-setup-template';
-import {
-  SpaceShell,
-  spaceInlineActionCount,
-} from '@pkgs/ui-root-client-ts/space-shell';
+import { SpaceShell } from '@pkgs/ui-root-client-ts/space-shell';
 import { SpaceStageTemplate } from '@pkgs/ui-root-client-ts/space-stage-template';
 import type {
   SpaceGame,
@@ -48,8 +45,8 @@ const action = (id: string, testId?: string): SpaceGameAction => ({
 const CHROME = {
   spaceName: "bob's space",
   onBack: () => {},
-  onLeave: () => {},
-  onEnd: () => {},
+  onMembers: () => {},
+  onMinimize: () => {},
   onPersonAction: () => {},
 };
 
@@ -68,8 +65,8 @@ const GAME: SpaceGame & { play: SpaceGamePlay } = {
 };
 
 describe('SpaceShell slots', () => {
-  test('test ids, the back label, the notice and the space menu', () => {
-    const rename = mock();
+  test('test ids, the back label, the notice and the space controls', () => {
+    const settings = mock();
     const people = mock();
     const onLeave = mock();
     renderSpace(() => (
@@ -79,12 +76,16 @@ describe('SpaceShell slots', () => {
         role={GUEST}
         backLabel="Back to Chess"
         title="Chess"
-        menu={[
-          { id: 'people', label: 'People', onPress: people, testId: 'p' },
-          { id: 'rename', label: 'Rename space', onPress: rename, testId: 'r' },
-        ]}
+        onMembers={people}
+        onSettings={settings}
         notice={<p data-testid="notice">{'The host is offline'}</p>}
-        testIds={{ back: 'b', title: 't', settings: 's', leave: 'l' }}
+        testIds={{
+          back: 'b',
+          title: 't',
+          people: 'p',
+          settings: 'r',
+          leave: 'l',
+        }}
       >
         <p>{'stage'}</p>
       </SpaceShell>
@@ -94,28 +95,19 @@ describe('SpaceShell slots', () => {
     );
     // The bar is titled with the screen, not with the space.
     expect(screen.getByTestId('t').textContent).toBe('Chess');
-    // The first action is a button of the bar; what does not fit collapses.
     expect(
       screen.getByTestId('p').closest('[data-space-row="tools"]')
     ).not.toBeNull();
     fireEvent.click(screen.getByTestId('p'));
     expect(people).toHaveBeenCalledTimes(1);
-    expect(screen.queryByTestId('r')).toBeNull();
     expect(screen.getByTestId('notice')).toBeDefined();
-    // The way out is a row of the menu, never a control of its own.
-    expect(screen.queryByTestId('l')).toBeNull();
-    fireEvent.click(screen.getByTestId('s'));
-    expect(
-      screen.getAllByRole('menuitem').map((row) => row.textContent)
-    ).toEqual(['Rename space', 'Leave space']);
     fireEvent.click(screen.getByTestId('r'));
-    expect(rename).toHaveBeenCalledTimes(1);
-    fireEvent.click(screen.getByTestId('s'));
+    expect(settings).toHaveBeenCalledTimes(1);
     fireEvent.click(screen.getByTestId('l'));
     expect(onLeave).toHaveBeenCalledTimes(1);
   });
 
-  test('back says where by default; with no rows of its own the menu is the way out', () => {
+  test('back names its default destination and Minimize is always available', () => {
     renderSpace(() => (
       <SpaceShell {...CHROME} role={HOST}>
         <p>{'stage'}</p>
@@ -124,22 +116,11 @@ describe('SpaceShell slots', () => {
     expect(
       screen.getByRole('button', { name: 'Back to spaces' })
     ).toBeDefined();
-    fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
     expect(
-      screen.getAllByRole('menuitem').map((row) => row.textContent)
-    ).toEqual(['End space']);
+      screen.getByRole('button', { name: 'Minimize space' })
+    ).toBeDefined();
     // No notice: no alert floats over the space.
     expect(document.querySelector('[data-component="SpaceNotice"]')).toBeNull();
-  });
-});
-
-describe('SpaceShell actions', () => {
-  test('as many actions as fit are buttons; the first always is', () => {
-    expect(spaceInlineActionCount(0, 500)).toBe(0);
-    expect(spaceInlineActionCount(4, 500)).toBe(4);
-    expect(spaceInlineActionCount(4, 100)).toBe(2);
-    expect(spaceInlineActionCount(4, 0)).toBe(1);
-    expect(spaceInlineActionCount(4, -80)).toBe(1);
   });
 });
 
@@ -161,7 +142,7 @@ describe('SpaceActionBar overflow', () => {
 });
 
 describe('SpaceInGameTemplate slots', () => {
-  test('a result replaces the status and actions; the overlay covers the stage', () => {
+  test('a result replaces the status and actions', () => {
     renderSpace(() => (
       <SpaceInGameTemplate
         {...CHROME}
@@ -169,14 +150,12 @@ describe('SpaceInGameTemplate slots', () => {
         role={GUEST}
         people={[ME, OTHER]}
         result={{ status: 'You won', actions: [action('rematch', 'again')] }}
-        overlay={<p data-testid="countdown">{'3'}</p>}
         aside={{ label: 'Moves', content: () => <p>{'1. e4'}</p> }}
       />
     ));
     expect(screen.getByRole('heading', { name: 'You won' })).toBeDefined();
     expect(screen.getByTestId('again')).toBeDefined();
     expect(screen.queryByRole('button', { name: 'play' })).toBeNull();
-    expect(screen.getByTestId('countdown')).toBeDefined();
     expect(screen.queryByText('1. e4')).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Moves' }));
     expect(screen.getByText('1. e4')).toBeDefined();

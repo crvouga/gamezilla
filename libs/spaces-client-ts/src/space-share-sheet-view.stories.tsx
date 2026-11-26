@@ -5,11 +5,12 @@ import type { JSX } from '@solidjs/web';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { useRemoveSpacePersonStep } from './remove-space-person-step';
+import type { SharingExampleProps } from './space-management.example';
+import { SharingExample } from './space-management.example';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
 import type { SpaceAddition } from './space-share-add-people-view';
 import { SpaceShareAddPeopleView } from './space-share-add-people-view';
-import type { SpaceShareSheetViewProps } from './space-share-sheet-view';
-import { SpaceShareSheetView } from './space-share-sheet-view';
+import { SpaceSharingPanel } from './space-sharing-panel';
 import { AVERY, JORDAN, MORGAN, PLAYBOT } from './spaces-story.example';
 
 /** The add-people search's pick, spied on so a story can see the add. */
@@ -35,17 +36,17 @@ function addPeople(
 
 /** Slots are built at render time, inside the story's providers. */
 function withSlots(
-  args: SpaceShareSheetViewProps,
+  args: SharingExampleProps,
   slots: {
     readonly addPeople?: () => JSX.Element;
   }
 ): JSX.Element {
-  return <SpaceShareSheetView {...args} addPeople={slots.addPeople?.()} />;
+  return <SharingExample {...args} addPeople={slots.addPeople?.()} />;
 }
 
 /** The sheet asking to remove jordan in its own dialog. */
 function RemovingJordan(props: {
-  readonly args: SpaceShareSheetViewProps;
+  readonly args: SharingExampleProps;
 }): JSX.Element {
   const removal = useRemoveSpacePersonStep({
     name: JORDAN.name,
@@ -53,7 +54,7 @@ function RemovingJordan(props: {
     operation: fn(() => Promise.resolve()),
   });
   return (
-    <SpaceShareSheetView
+    <SharingExample
       {...props.args}
       addPeople={addPeople({ status: 'idle' })}
       removal={removal}
@@ -64,7 +65,7 @@ function RemovingJordan(props: {
 const meta = {
   id: 'screens-spaces-share',
   title: 'Screens/Space/Manage/Share',
-  component: SpaceShareSheetView,
+  component: SpaceSharingPanel,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
   parameters: {
@@ -72,7 +73,6 @@ const meta = {
     controls: { exclude: ['people', 'addPeople', 'removal'] },
   },
   args: {
-    open: true,
     onClose: fn(),
     onCopyLink: fn(() => Promise.resolve()),
     canManage: true,
@@ -85,7 +85,7 @@ const meta = {
   },
   render: (args) =>
     withSlots(args, { addPeople: () => addPeople({ status: 'idle' }) }),
-} satisfies Meta<typeof SpaceShareSheetView>;
+} satisfies Meta<SharingExampleProps>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -106,7 +106,9 @@ export const GuestCopiesLink: Story = {
   render: (args) => withSlots(args, {}),
   play: async ({ args, canvasElement }) => {
     const body = within(canvasElement.ownerDocument.body);
-    const sheet = await body.findByRole('dialog', { name: 'Share space' });
+    const sheet = await body.findByRole('dialog', {
+      name: 'People in this space',
+    });
     await userEvent.click(
       within(sheet).getByRole('button', { name: 'Copy link' })
     );
@@ -195,7 +197,7 @@ export const RemoveConfirm: Story = {
       within(dialog).getByTestId(Handles.spaceRemoveConfirm)
     ).toBeVisible();
     await expect(
-      body.queryByRole('dialog', { name: 'Share space' })
+      body.queryByRole('dialog', { name: 'People in this space' })
     ).toBeNull();
   },
 };

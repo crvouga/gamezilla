@@ -6,8 +6,7 @@ import {
   check,
   hostSpace,
   JOURNEY_WAIT_MS,
-  pickGameInSpace,
-  tap,
+  openGameSetupInSpace,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import {
@@ -26,12 +25,12 @@ import { chooseMultiplayerTimeControl } from './multiplayer-time-control-gesture
 function findOpponent(game: PlayableGame): (ui: Driver) => Promise<void> {
   return async (ui) => {
     await hostSpace(ui);
-    await pickGameInSpace(
+    await openGameSetupInSpace(
       ui,
       game.shared.id,
+      'multiplayer',
       game.shared.registration?.rules.family
     );
-    await tap(ui, Handles.gameChoice('multiplayer'));
     await retirePreviousMultiplayer(ui);
     await chooseMultiplayerTimeControl(ui, '5+0');
     await tapFindOpponent(ui);

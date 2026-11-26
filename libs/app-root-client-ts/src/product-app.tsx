@@ -79,7 +79,7 @@ export function ProductApp(props: ProductAppProps): JSX.Element {
           copyError={env.clipboard.writeText}
           goToSpaces={goToSpaces}
         >
-          <AppRouterProvider>
+          <AppRouterProvider documentHistory={!props.embedded}>
             <AppProvidersOuter embedded={props.embedded}>
               <Show when={props.embedded}>
                 <EmbeddedHrefPersistence />

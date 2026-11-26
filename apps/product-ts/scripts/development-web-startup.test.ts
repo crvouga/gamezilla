@@ -37,6 +37,8 @@ test('the front door retains web and diagnostics when other services fail', asyn
     billing: null,
     server: null,
     population: null,
+    'admin-client': { origin: 'http://127.0.0.1:53451' },
+    'admin-api': null,
     web: { origin: 'http://127.0.0.1:5428' },
     observability: {
       collectorUrl: 'http://127.0.0.1:53445/v1/traces',
@@ -68,6 +70,7 @@ test('the front door retains web and diagnostics when other services fail', asyn
   const manifest = developmentManifest(DEVELOPMENT_PLAN, values, 1_000);
   expect(manifest.webOrigin === DEVELOPMENT_PLAN.webOrigin).toBe(true);
   expect(manifest.apiOrigin).toBe(DEVELOPMENT_PLAN.apiOrigin);
+  expect(manifest.adminOrigin).toBe(DEVELOPMENT_PLAN.adminOrigin);
   expect(manifest.apiNodes).toEqual([]);
   expect(
     manifest.observabilityTraceDir === services.observability?.traceDir

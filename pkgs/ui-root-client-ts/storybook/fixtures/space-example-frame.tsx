@@ -1,7 +1,7 @@
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
-import { Minimize2Icon, ShareIcon, UsersIcon } from '../../src/icons';
 import type { SpaceScreenChrome } from '../../src/space-shell/index';
+import type { SpaceRole } from '../../src/space-types';
 
 /**
  * A space screen fills the story viewport, as it fills a phone. It is the
@@ -23,35 +23,26 @@ export function SpaceExampleFrame(props: {
 /** The callbacks a story spies on, from its args. */
 export type SpaceExampleSpies = {
   onBack: () => void;
-  /** A row of the space menu was chosen. */
-  onSpaceMenu: (id: string) => void;
+  onMembers: () => void;
+  onSettings: () => void;
+  onMinimize: () => void;
   onLeave: () => void;
   onEnd: () => void;
   onPersonAction: (personId: string, action: string) => void;
-  onInvite: () => void;
 };
 
 /** Row 1 of bob's space and the people row's callbacks. */
 export function spaceExampleChrome(
-  spies: SpaceExampleSpies,
-  invite: boolean
+  spies: SpaceExampleSpies & { role: SpaceRole }
 ): SpaceScreenChrome {
   return {
     spaceName: 'bob’s space',
-    onBack: () => spies.onBack(),
-    menu: [
-      {
-        id: 'people',
-        label: 'People in this space',
-        shortLabel: 'People',
-        icon: UsersIcon,
-      },
-      { id: 'share', label: 'Share', icon: ShareIcon },
-      { id: 'minimize', label: 'Minimize space', icon: Minimize2Icon },
-    ].map((item) => ({ ...item, onPress: () => spies.onSpaceMenu(item.id) })),
-    onLeave: () => spies.onLeave(),
-    onEnd: () => spies.onEnd(),
-    onPersonAction: (id, action) => spies.onPersonAction(id, action),
-    onInvite: invite ? () => spies.onInvite() : undefined,
+    onBack: spies.onBack,
+    onMembers: spies.onMembers,
+    onSettings: spies.role === 'host' ? spies.onSettings : undefined,
+    onLeave: spies.onLeave,
+    onEnd: spies.role === 'host' ? spies.onEnd : undefined,
+    onMinimize: spies.onMinimize,
+    onPersonAction: spies.onPersonAction,
   };
 }

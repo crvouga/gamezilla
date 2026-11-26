@@ -93,13 +93,36 @@ function packEditions(
   ];
 }
 
-/** The game's shipped editions as published content rows, available offline. */
+type ShippedLibrary = Pick<ContentLibrary, 'documents' | 'revisions'>;
+const editionsByPack = new WeakMap<
+  BundledPuzzlePack,
+  {
+    gameId: string;
+    version: number;
+    editions: ReturnType<typeof packEditions>;
+  }
+>();
+
+function shippedPack(
+  gameId: string,
+  game: PuzzleContent,
+  pack: BundledPuzzlePack
+) {
+  const cached = editionsByPack.get(pack);
+  if (cached?.gameId === gameId && cached.version === game.rulesVersion)
+    return cached.editions;
+  const editions = packEditions(gameId, game, pack);
+  editionsByPack.set(pack, { gameId, version: game.rulesVersion, editions });
+  return editions;
+}
+
+/** Project immutable shipped editions once per game and rules version. */
 export function bundledContent(
   gameId: string,
   game: PuzzleContent
-): Pick<ContentLibrary, 'documents' | 'revisions'> {
+): ShippedLibrary {
   const editions = (game.bundledPacks ?? []).flatMap((pack) =>
-    packEditions(gameId, game, pack)
+    shippedPack(gameId, game, pack)
   );
   return {
     documents: editions.map((entry) => entry.document),

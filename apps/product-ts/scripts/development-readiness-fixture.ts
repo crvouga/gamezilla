@@ -22,8 +22,11 @@ export const DEVELOPMENT_PLAN: ServiceContext['plan'] = {
   dataDir: '/retained-local-data',
   apiOrigin: 'http://127.0.0.1:53434',
   webOrigin: 'http://127.0.0.1:5428',
+  adminOrigin: 'http://127.0.0.1:53451',
   ports: {
     api: 53434,
+    adminApi: 53452,
+    adminWeb: 53451,
     google: 53435,
     apple: 53436,
     billing: 53437,

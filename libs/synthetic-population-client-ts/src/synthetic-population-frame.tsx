@@ -18,8 +18,7 @@ export function panelCrumbs(
   tail: readonly ScreenBaseBreadcrumb[]
 ): ScreenBaseBreadcrumb[] {
   return [
-    { name: <Trans>Profile</Trans>, href: '/profile' },
-    { name: <Trans>Settings</Trans>, href: '/more' },
+    { name: <Trans>Administration</Trans>, href: '/' },
     { name: <Trans>User Observatory</Trans>, href: OBSERVATORY_PATH },
     ...(tail.length === 0
       ? [{ name: <Trans>Synthetic Population</Trans> }]

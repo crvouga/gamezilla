@@ -3,7 +3,15 @@
   "extends": ["//"],
   "tasks": {
     "src": {
-      "dependsOn": ["@libs/infra-shared-ts#src"]
+      "dependsOn": [
+        "@libs/infra-shared-ts#src",
+        "@libs/product-brand-shared-ts#src",
+        "@libs/product-identity-shared-ts#src",
+        "@pkgs/clock-shared-ts#src",
+        "@pkgs/fs-server-ts#src",
+        "@pkgs/object-store-node-fs-server-ts#src",
+        "@pkgs/secret-provider-server-ts#src"
+      ]
     },
     "apply:foundation": {
       "cache": false,
@@ -11,7 +19,7 @@
     },
     "apply:edge": {
       "cache": false,
-      "dependsOn": ["@apps/product-ts#deploy"]
+      "dependsOn": ["@apps/product-ts#deploy", "@apps/admin-api-ts#deploy"]
     },
     "test": {
       "dependsOn": ["^src"],
@@ -19,6 +27,7 @@
         "$TURBO_DEFAULT$",
         "!**/*.md",
         "$TURBO_ROOT$/mise.toml",
+        "$TURBO_ROOT$/apps/admin-api-ts/wrangler.toml",
         "$TURBO_ROOT$/libs/infra-shared-ts/tofu/**",
         "$TURBO_ROOT$/libs/infra-shared-ts/policy/**",
         "$TURBO_ROOT$/.github/workflows/**"

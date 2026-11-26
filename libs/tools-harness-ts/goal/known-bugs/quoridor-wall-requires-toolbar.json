@@ -1,0 +1,4 @@
+{
+  "summary": "Placing a Quoridor wall required leaving the board to choose its orientation.",
+  "regressionTest": "libs/quoridor-client-ts/tests/quoridor-direct-play.test.tsx"
+}

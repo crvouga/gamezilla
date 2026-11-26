@@ -18,14 +18,11 @@ import { keepsOwnPrivateSetup } from './own-private-setups';
 import { dealKnownHandsOnStart } from './room-draws';
 
 /** The custom-game control a person uses for `input`. */
-export function customGameControl(
-  input: CustomGameInput,
-  probe: CustomGameProbe
-): string {
+function customGameControl(input: CustomGameInput): string {
   if ('side' in input) return `custom-game-${input.side}-${input.operation}`;
   switch (input.operation) {
     case 'create':
-      return probe.current === null ? 'custom-game-create' : 'custom-game-new';
+      return 'custom-game-create';
     case 'rematch':
       return 'custom-game-rematch';
     case 'unready':
@@ -87,8 +84,13 @@ async function revealControl(
 ): Promise<void> {
   const ui = await actorUi(s, actor);
   const row = placeRow(input, probe);
-  const target = customGameControl(input, probe);
-  if (row === '') await showCustomGameHome(s, actor);
+  const target = customGameControl(input);
+  if (
+    input.operation === 'create' &&
+    (await ui.get('custom-game-new').isVisible())
+  ) {
+    await ui.get('custom-game-new').tap();
+  } else if (row === '') await showCustomGameHome(s, actor);
   else await openCustomGamePlace(s, actor, row, target);
   if (
     input.operation === 'clock' &&
@@ -133,6 +135,7 @@ function needsModifiedDevice(
     probe.mySide !== null &&
     probe.current?.ready.includes(probe.mySide) === true;
   return (
+    (probe.current === null && input.operation !== 'create') ||
     input.operation === 'invite' ||
     input.operation === 'move' ||
     (input.operation === 'ready' && ready) ||
@@ -204,7 +207,7 @@ export async function operateCustomGameControls(
 ): Promise<void> {
   const probe = await readCustomGameProbe(s, actor);
   if (probe === null) throw new Error(`${actor} sees no custom game screen`);
-  const target = customGameControl(input, probe);
+  const target = customGameControl(input);
   if (needsModifiedDevice(probe, input)) {
     await chooseCustomGame(s, actor, input);
     return;

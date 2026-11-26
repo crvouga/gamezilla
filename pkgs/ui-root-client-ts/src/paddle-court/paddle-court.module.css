@@ -209,6 +209,24 @@
     display: flex;
   }
 }
+/* The fixed stage provides the court's actual room after seats, status,
+   history and commands. Leave room for the scoreboard when it is visible. */
+@container arena-room (min-height: 0) {
+  .frame {
+    max-width: calc(
+      (100cqh - var(--ui-space-1)) *
+      (var(--paddle-court-aspect, 3 / 2))
+    );
+  }
+  @media (orientation: landscape) and (max-height: 560px) {
+    .frame[data-scoreboard="short-landscape"] {
+      max-width: calc(
+        (100cqh - var(--ui-space-12)) *
+        (var(--paddle-court-aspect, 3 / 2))
+      );
+    }
+  }
+}
 /* Focusing the court or a paddle's slider scrolls only as far as keeps the
    scoreboard above it in view, and leaves the court's lower edge clear of
    the window's (a scroll stops on a whole pixel, the court may not). */

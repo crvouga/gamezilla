@@ -14,7 +14,6 @@ import type {
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import { NO_STAGE_OVERLAY } from '@pkgs/turn-game-client-ts/stage-overlay';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { cleanup, screen } from '@solidjs/testing-library';
@@ -75,7 +74,7 @@ function props(): CustomGameScreenViewProps {
       increment: 0,
     },
     canCreate: false,
-    playerCount: 3,
+    sides: ['white', 'black', 'red'],
     setup: null,
     table: {
       shape: 'rail',
@@ -99,8 +98,6 @@ function props(): CustomGameScreenViewProps {
     place: { screen: 'stage' },
     onOpen: () => undefined,
     onClose: () => undefined,
-    overlay: NO_STAGE_OVERLAY,
-    onOverlay: () => undefined,
   };
 }
 

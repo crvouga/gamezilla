@@ -1,6 +1,5 @@
-import type { GameModeOption } from '@libs/spaces-shared-ts/game';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -18,8 +17,9 @@ import {
   UsersIcon,
 } from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
-import { createMemo, Match, Switch } from 'solid-js';
+import { createMemo, Match, Show, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';
+import type { GameLesson } from './game-lesson';
 import type { GameMenuPlace } from './game-menu-places';
 import { SHARED_GAME_SCREEN } from './shared-game-screens';
 
@@ -73,24 +73,14 @@ export type GameHomeScreenViewProps = {
   readonly tile: GameTileMotif;
   /** One line under the name: what the game is. */
   readonly subtitle: JSX.Element;
-  /**
-   * How to play, in the game's own words. The menu offers it as a row and
-   * shows it on the `how-to-play` place; a game that says nothing has
-   * neither.
-   */
-  readonly instructions?: JSX.Element | undefined;
+  /** Practice steps offered behind this device's How to play row. */
+  readonly lesson?: GameLesson | undefined;
   /** The template screens the game offers, in the one order every game shares. */
   readonly choices: readonly GameMenuChoiceView[];
   readonly onChoose: (screen: string) => void;
   /** The small screen this device shows: the choices, or how to play. */
   readonly place: GameMenuPlace;
   readonly onOpen: (place: GameMenuPlace) => void;
-  /** The game's modes when it has several, this one first among equals by `mode`. */
-  readonly modes?: readonly GameModeOption[] | undefined;
-  /** The mode set up: the selected game's id. */
-  readonly mode?: string | undefined;
-  /** Switch to another mode; unset where only the host may. */
-  readonly onChooseMode?: ((id: string) => void) | undefined;
 };
 
 /** One row of the menu as `GameMenuScreen` draws it. */
@@ -115,34 +105,19 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
     ...props.choices.map((choice) =>
       menuChoice(choice, () => props.onChoose(choice.screen))
     ),
-    ...(props.instructions === undefined
+    ...(props.lesson === undefined
       ? []
       : [
           menuChoice(
             {
               screen: HOW_TO_PLAY_CHOICE,
               title: <Trans>How to play</Trans>,
-              caption: <Trans>The rules, in a few lines</Trans>,
+              caption: <Trans>Practise on the board</Trans>,
             },
             () => props.onOpen({ screen: 'how-to-play' })
           ),
         ]),
   ]);
-  const { t } = useLingui();
-  const modes = createMemo(() => {
-    const options = props.modes ?? [];
-    if (options.length < 2 || props.mode === undefined) return undefined;
-    return {
-      label: t`Mode`,
-      segments: options.map((option) => ({
-        key: option.id,
-        label: option.name,
-      })),
-      selected: props.mode,
-      onSelect: props.onChooseMode,
-      testId: Handles.gameModes,
-    };
-  });
   return (
     <GameMenuScreen
       screenId="game-home"
@@ -150,7 +125,6 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
       title={props.title}
       motif={props.tile}
       subtitle={props.subtitle}
-      modes={modes()}
       choices={choices()}
     />
   );
@@ -173,10 +147,15 @@ export function GameHomeScreenView(
         <GameMenuHub {...props} />
       </Match>
       <Match when={props.place.screen === 'how-to-play'}>
-        <GameHowToPlayView
-          title={props.title}
-          instructions={props.instructions}
-        />
+        <Show when={props.lesson} keyed>
+          {(lesson) => (
+            <GameHowToPlayView
+              title={props.title}
+              lesson={lesson}
+              onLeave={() => props.onOpen({ screen: 'home' })}
+            />
+          )}
+        </Show>
       </Match>
     </Switch>
   );

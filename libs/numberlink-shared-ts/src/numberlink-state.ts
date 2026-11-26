@@ -2,6 +2,7 @@ import { z } from 'zod';
 import { validateNumberlinkDefinition } from './numberlink-definition';
 import { endpointOwners, pathIssues } from './numberlink-path-validation';
 import {
+  accept,
   type NumberlinkAction,
   type NumberlinkDefinition,
   type NumberlinkIssue,
@@ -9,6 +10,7 @@ import {
   type NumberlinkState,
   sameCell,
   type Validation,
+  wasAccepted,
 } from './numberlink-types';
 
 const cellSchema = z
@@ -35,6 +37,8 @@ export function validateNumberlinkState(
 ): Validation<NumberlinkState> {
   const board = validateNumberlinkDefinition(definition);
   if (!board.valid) return board;
+  if (wasAccepted(input, board.value))
+    return { valid: true, value: input as NumberlinkState };
   const parsed = numberlinkStateSchema.safeParse(input);
   if (!parsed.success)
     return {
@@ -77,7 +81,7 @@ export function validateNumberlinkState(
     seen.add(path.pairId);
   }
   return issues.length === 0
-    ? { valid: true, value: parsed.data }
+    ? { valid: true, value: accept(parsed.data, board.value) }
     : { valid: false, issues };
 }
 

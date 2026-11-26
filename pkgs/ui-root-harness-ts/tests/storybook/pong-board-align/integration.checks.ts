@@ -25,20 +25,10 @@ test('storybook integration: pong board starts under the game title on one colum
         'data-story-ready',
         'true'
       );
-      const title = await page
-        .getByRole('heading', { name: 'Pong', exact: true })
-        .boundingBox();
-      const stage = await page
-        .locator('[data-component="GameBoardStage"]')
-        .first()
-        .boundingBox();
-      if (!title || !stage) throw new Error('Missing title or board geometry');
-      // A phone's game is one fixed view whose board takes the frame's
-      // whole width; on a tablet's one column the court starts under the
-      // title. Never centred somewhere in between.
-      if (viewport.width < 768) {
-        expect(stage.x).toBe(0);
-        expect(stage.width).toBe(viewport.width);
-      } else expect(Math.abs(stage.x - title.x)).toBeLessThanOrEqual(1);
+      const host = await page.locator('[data-game-column]').boundingBox();
+      const stage = await page.locator('[data-game-board]').boundingBox();
+      if (!host || !stage) throw new Error('Missing game column or board');
+      expect(stage.x).toBeCloseTo(host.x, 0);
+      expect(stage.width).toBeCloseTo(host.width, 0);
     }
 });

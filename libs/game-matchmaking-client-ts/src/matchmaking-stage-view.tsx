@@ -4,11 +4,12 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
@@ -22,8 +23,8 @@ import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
 
 type PlayProps = MultiplayerPlaceFrame & {
   readonly title: string;
-  /** The seats around the board on the live position, under its overlay. */
-  readonly board: JSX.Element;
+  /** The seats around the board on the live position, with its information. */
+  readonly board: MultiplayerBoardSlot | undefined;
   /** The line that says whose turn it is. */
   readonly status: JSX.Element;
   readonly game: MultiplayerGameView;
@@ -160,17 +161,13 @@ function QuickCommands(props: PlayProps): JSX.Element {
  * says whose turn it is and one bar of commands: an offered draw's answer,
  * offering a draw, resigning (confirmed) and the game's menu, where the
  * rest waits. The moves played sit beside a wide board; choosing one opens
- * the moves, on that position. A game found on this device opens under
- * the versus card (the board's overlay).
+ * the moves, on that position.
  */
 export function MatchmakingStageView(props: PlayProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
-      <GameSessionLayout
+      <FixedGameSession
         notices={props.notices}
-        boardFocus
-        actionsBeside
-        fixedStage
         status={props.status}
         allMoves={
           (props.game.moves?.moves.length ?? 0) > 0
@@ -197,7 +194,7 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
             />
           </GameActionBar>
         }
-        aside={
+        history={
           <Show when={props.game.moves}>
             {(moves) => (
               <GameSection
@@ -229,8 +226,8 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
           </Show>
         }
       >
-        {props.board}
-      </GameSessionLayout>
+        {(information) => props.board?.({ information }) ?? information}
+      </FixedGameSession>
     </MultiplayerStagePlace>
   );
 }

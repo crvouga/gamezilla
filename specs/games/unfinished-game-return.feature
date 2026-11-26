@@ -115,3 +115,42 @@ Feature: Returning to their game
       When Bob opens finding an opponent on his other device
       Then Bob is not offered to seek an opponent on his other device
       And Bob is offered to return to the custom game on his other device
+
+  Rule: Going back from the board returns a person to their previous place in the space and asks a participant before ending play
+
+    @regression:game-stage-back-minimizes-space
+    Scenario: Going back from a custom game against a bot asks before resigning
+      Given Alice has a custom game under way against a bot
+      When Alice goes back from the board
+      Then Alice is offered to resign or keep playing
+      And the custom game is under way
+
+    Scenario: A participant who stays keeps the same game
+      Given Alice and Bob have a custom game under way
+      And Alice has been asked whether to resign on her way back
+      When Alice chooses to keep playing
+      Then Alice and Bob see the same board and turn
+
+    Scenario: A participant who confirms goes back to the choices the board opened from
+      Given Alice and Bob have a custom game under way
+      And Alice has been asked whether to resign on her way back
+      When Alice confirms her resignation
+      Then Alice is shown the game's choices within 15 seconds
+
+    Scenario: A watcher goes back without interrupting the participants
+      Given Alice and Bob have a custom game under way watched by Carol
+      When Carol goes back from the board
+      Then Carol is shown the game's choices within 15 seconds
+      And Alice and Bob see the same board and turn
+
+    Scenario: A person going back before a matched game begins can call it off
+      Given Alice has the first side against Bob in a new matched game
+      When Alice goes back from the board
+      Then Alice is offered to abort or keep playing
+      And the matched game is still unfinished
+
+    Scenario: A person going back after both first moves can resign the matched game
+      Given Alice has the first side against Bob in a 5+0 matched game after their first moves
+      When Alice goes back from the board
+      Then Alice is offered to resign or keep playing
+      And the matched game is still unfinished

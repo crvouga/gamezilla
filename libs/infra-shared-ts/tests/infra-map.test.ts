@@ -191,8 +191,14 @@ describe('infrastructure map model', () => {
       stack(env('prd'), 'edge'),
       'module.edge.cloudflare_workers_custom_domain.this'
     );
-    expect(domains.instances.map((i) => i.key)).toEqual(['apex', 'api', 'web']);
-    expect(domains.externals.map((x) => x.name)).toEqual([
+    expect(domains.instances.map((i) => i.key)).toEqual([
+      'admin',
+      'apex',
+      'api',
+      'web',
+    ]);
+    expect(domains.externals.map((x) => x.name).sort()).toEqual([
+      technicalName(['admin', 'prod']),
       technicalName(['prod']),
     ]);
   });

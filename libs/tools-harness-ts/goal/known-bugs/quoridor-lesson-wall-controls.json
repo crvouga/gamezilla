@@ -1,0 +1,4 @@
+{
+  "summary": "The Classic and Hill wall lessons instructed players to choose a hidden tool. After a retry the same instructions prevented placing the wall above d6.",
+  "regressionTest": "libs/games-harness-ts/tests/game-lessons.test.tsx"
+}

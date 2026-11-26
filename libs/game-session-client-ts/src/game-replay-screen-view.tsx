@@ -13,9 +13,7 @@ import {
   type GameSeatLook,
   GameSeatSwatch,
 } from '@pkgs/ui-root-client-ts/game-seat-swatch';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { Grid } from '@pkgs/ui-root-client-ts/grid';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
   ArrowLeftIcon,
@@ -84,7 +82,7 @@ export type GameReplayScreenViewProps = {
   readonly onBack: () => void;
 };
 
-/** Where `GameSessionLayout`'s `fixedStage` lays the moves out as one line. */
+/** Keyboard shortcut hints fit alongside the step controls on larger screens. */
 const PHONE_QUERY = '(max-width: 767px)';
 
 /** A step through the moves is a full touch target. */
@@ -201,8 +199,8 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
   // Key hints are for a keyboard beside a wide window, never a phone's bar.
   const phone = createMediaQuery(PHONE_QUERY);
   return (
-    <Show when={last() > 0} fallback={<ShownPosition {...props} />}>
-      <StackVertical gap="xs" align="stretch">
+    <Show when={last() > 0}>
+      <StackHorizontal gap="md" align="center" justify="center">
         <StackHorizontal
           gap="sm"
           align="center"
@@ -232,9 +230,7 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
               <ChevronLeftIcon />
             </IconButton>
           </StackHorizontal>
-          <StackVertical grow align="center">
-            <ShownPosition {...props} />
-          </StackVertical>
+
           <StackHorizontal gap="sm" align="center">
             <IconButton
               label={t`Next move`}
@@ -267,7 +263,7 @@ function ReplaySteps(props: GameReplayScreenViewProps): JSX.Element {
             ]}
           />
         </Show>
-      </StackVertical>
+      </StackHorizontal>
     </Show>
   );
 }
@@ -366,132 +362,6 @@ function ReplayPlayers(
   );
 }
 
-/** Moves shown at once beside a wide board, a page holding the shown move. */
-const PAGE = 8;
-
-/** Beside a wide board, the same page of numbered moves in its own card. */
-function ReplayMoves(props: GameReplayScreenViewProps): JSX.Element {
-  return (
-    <GameSection title={<Trans>Moves</Trans>}>
-      <Show
-        when={props.moves.length > 0}
-        fallback={
-          <P variant="caption" tone="secondary">
-            <Trans>The game ended before anyone moved.</Trans>
-          </P>
-        }
-      >
-        <ReplayMovesPage {...props} />
-      </Show>
-    </GameSection>
-  );
-}
-
-/**
- * The page of moves holding the shown one, each a whole chip with its
- * number, its seat's swatch and the move ("3 ● 4"), the shown move filled.
- * A header says which moves the page holds and turns the page when the
- * game is longer than one.
- */
-function ReplayMovesPage(props: GameReplayScreenViewProps): JSX.Element {
-  // The page holding the shown move; the start shows the first page.
-  const page = createMemo(() => Math.floor(Math.max(0, props.ply - 1) / PAGE));
-  const first = () => page() * PAGE + 1;
-  const last = () => Math.min(first() + PAGE - 1, props.moves.length);
-  const shown = createMemo(() =>
-    props.moves
-      .slice(first() - 1, last())
-      .map((move, index) => ({ move, ply: first() + index }))
-  );
-  return (
-    <Show when={props.moves.length > 0}>
-      <StackVertical
-        gap="xs"
-        align="stretch"
-        testId="game-history-review-moves-page"
-      >
-        <P variant="caption" tone="secondary">
-          <Trans>
-            Moves {first()}–{last()} of {props.moves.length}
-          </Trans>
-          <Show when={props.moveHeading !== ''}>
-            {': '}
-            <Trans>number, player and {props.moveHeading.toLowerCase()}</Trans>
-          </Show>
-        </P>
-        <Grid columns={4} gap="xs" testId="game-history-review-moves">
-          <For each={shown()}>
-            {(entry) => (
-              <Button
-                size="md"
-                variant={entry.ply === props.ply ? 'solid' : 'outline'}
-                intent={entry.ply === props.ply ? 'primary' : 'neutral'}
-                aria-current={entry.ply === props.ply}
-                onClick={() => props.onSeek(entry.ply)}
-                startIcon={
-                  <StackHorizontal align="center" gap="xs">
-                    <P variant="caption">{entry.ply}</P>
-                    <Show when={entry.move.swatch}>
-                      {(look) => (
-                        <GameSeatSwatch
-                          look={look()}
-                          label={entry.move.sideLabel ?? ''}
-                        />
-                      )}
-                    </Show>
-                  </StackHorizontal>
-                }
-                title={entry.move.label}
-                dataSet={{
-                  testid: `game-history-review-move-${String(entry.ply)}`,
-                }}
-              />
-            )}
-          </For>
-        </Grid>
-        <Show when={page() > 0 || last() < props.moves.length}>
-          <StackHorizontal justify="between" align="center" gap="sm">
-            <Show when={page() > 0}>
-              <Button
-                title={
-                  <Trans>
-                    Moves {first() - PAGE}–{first() - 1}
-                  </Trans>
-                }
-                size="sm"
-                variant="outline"
-                intent="neutral"
-                icon={ChevronLeftIcon}
-                onClick={() => props.onSeek(first() - 1)}
-                dataSet={{ testid: 'game-history-review-page-earlier' }}
-              />
-            </Show>
-            <Show when={page() === 0}>
-              <StackHorizontal />
-            </Show>
-            <Show when={last() < props.moves.length}>
-              <Button
-                title={
-                  <Trans>
-                    Moves {last() + 1}–
-                    {Math.min(last() + PAGE, props.moves.length)}
-                  </Trans>
-                }
-                size="sm"
-                variant="outline"
-                intent="neutral"
-                endIcon={<ChevronRightIcon size={16} />}
-                onClick={() => props.onSeek(last() + 1)}
-                dataSet={{ testid: 'game-history-review-page-later' }}
-              />
-            </Show>
-          </StackHorizontal>
-        </Show>
-      </StackVertical>
-    </Show>
-  );
-}
-
 /** Whose game it was and when: "Your game · 2d ago", "Watched · 2d ago". */
 function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
   const ago = useRelativeTimeLabel(() => props.endedAt ?? '');
@@ -516,9 +386,6 @@ function ReplaySubtitle(props: GameReplayScreenViewProps): JSX.Element {
 export function GameReplayScreenView(
   props: GameReplayScreenViewProps
 ): JSX.Element {
-  // A phone's one fixed view (`fixedStage`) lines its moves up over the
-  // board; a wide screen pages them in the rail beside it.
-  const phone = createMediaQuery(PHONE_QUERY);
   const opponents = createMemo(() =>
     props.outcome === null
       ? props.players
@@ -547,23 +414,21 @@ export function GameReplayScreenView(
         />
       }
     >
-      <GameSessionLayout
-        actionsBeside
-        fixedStage
-        status={<ReplaySteps {...props} />}
-        aside={
-          <Show when={!phone()} fallback={<ReplayMoveStrip {...props} />}>
-            <ReplayMoves {...props} />
-          </Show>
-        }
+      <FixedGameSession
+        status={<ShownPosition {...props} />}
+        actions={<ReplaySteps {...props} />}
+        history={<ReplayMoveStrip {...props} />}
       >
-        <GameBoardStage
-          others={<ReplayPlayers {...props} place="over" />}
-          own={<ReplayPlayers {...props} place="under" />}
-        >
-          {props.board}
-        </GameBoardStage>
-      </GameSessionLayout>
+        {(information) => (
+          <GameBoardStage
+            information={information}
+            others={<ReplayPlayers {...props} place="over" />}
+            own={<ReplayPlayers {...props} place="under" />}
+          >
+            {props.board}
+          </GameBoardStage>
+        )}
+      </FixedGameSession>
     </GameScreen>
   );
 }

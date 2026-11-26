@@ -205,7 +205,7 @@ describe('a rebrand', () => {
     const hostsOf = (prefix: string) =>
       [
         'cloudflare.zone_name',
-        ...['apex', 'web', 'api', 'broker'].map((h) => `hosts.${h}`),
+        ...['apex', 'web', 'api', 'admin', 'broker'].map((h) => `hosts.${h}`),
       ].map((path) => `${prefix}${path}`);
     expect([...changed.keys()].sort()).toEqual(
       [

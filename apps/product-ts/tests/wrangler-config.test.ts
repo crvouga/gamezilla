@@ -34,10 +34,10 @@ import {
 } from '@libs/infra-shared-ts/wrangler';
 import { IDENTITY_PLACEHOLDERS } from '@libs/product-identity-shared-ts/identity-placeholders';
 import { getApiWorkerSecrets } from '@libs/secrets-server-ts/registry';
+import { workerSecretPayload } from '@libs/secrets-server-ts/worker-secrets';
 import { INHOUSE_AUTH_SECRET } from '@pkgs/auth-inhouse-server-ts/inhouse-auth-config';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { workerSecretPayload } from '../scripts/worker-secrets';
 
 const base = Bun.TOML.parse(
   readFileSync(join(import.meta.dirname, '../wrangler.toml'), 'utf8')
@@ -59,6 +59,7 @@ describe('wrangler.toml', () => {
             ...ENV_FILES['dev'],
             hosts: {
               apex: `${label}.example.test`,
+              admin: `admin-${label}.example.test`,
               web: `web-${label}.example.test`,
               api: `api-${label}.example.test`,
               broker: `broker-${label}.example.test`,

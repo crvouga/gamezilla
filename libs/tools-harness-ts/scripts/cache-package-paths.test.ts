@@ -8,6 +8,25 @@ type Config = {
   tasks: Record<string, { inputs?: string[]; dependsOn?: string[] }>;
 };
 
+// regression: game-lesson-story-cache-input
+test('editing the catalog walkthrough rebuilds the hosted Storybook', () => {
+  const story =
+    'libs/game-menu-client-ts/src/game-home-how-to-play.stories.tsx';
+  const build =
+    readTurboTasks(ROOT)['@pkgs/ui-root-harness-ts#storybook:build'];
+  const files = (build?.inputs ?? []).map(
+    (pattern) => new Bun.Glob(pattern.replace('$TURBO_ROOT$/', ''))
+  );
+  for (const file of [
+    story,
+    'libs/games-client-ts/src/game-menu-preview.example.tsx',
+  ])
+    expect(
+      files.some((pattern) => pattern.match(file)),
+      file
+    ).toBe(true);
+});
+
 // regression: flattened-checker-cache-dependencies
 test('cache inputs reference existing package owners after package splits', () => {
   const paths = [
@@ -41,7 +60,7 @@ test('cache inputs reference existing package owners after package splits', () =
  * this test says which.
  */
 const GAME_MANIFEST_TASKS: readonly string[] = [
-  '@apps/client-ts#test',
+  '@apps/product-client-ts#test',
   '@libs/games-harness-ts#test',
   '@libs/games-harness-ts#test:contract',
   '@libs/games-harness-ts#test:contract:0',

@@ -71,7 +71,7 @@ export function getServerBaseUrl(): string {
     const fallback = loopbackBrowserOrigin();
     assert.nonEmptyString(
       fallback,
-      'VITE_API_URL is required outside a loopback browser preview; run `bun run dev` or set apps/client-ts/.env.local'
+      'VITE_API_URL is required outside a loopback browser preview; run `bun run dev` or set apps/product-client-ts/.env.local'
     );
     return fallback;
   }

@@ -20,13 +20,10 @@ export function SpaceDetailInitialLoading(
   props: SpaceDetailInitialLoadingProps
 ): JSX.Element {
   const router = useRouter();
-  const noop = (): void => {};
   const sessionUi: SpaceSessionUiValue = {
     get spaceId() {
       return props.spaceId;
     },
-    onRequestEnd: noop,
-    onRequestLeave: noop,
     onPressHome: () => closeSpaceDetail(router),
   };
 

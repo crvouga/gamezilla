@@ -230,6 +230,7 @@ export const FourPlayerRound: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     for (const [square, pawn] of [
@@ -327,6 +328,7 @@ export const RecoverWallPlacement: Story = {
   render: renderHillJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectHillDestinationVisible(canvasElement);
     await userEvent.click(

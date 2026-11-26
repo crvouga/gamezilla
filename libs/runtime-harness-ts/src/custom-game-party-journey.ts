@@ -16,7 +16,7 @@ import {
   endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
-  pickGameInSpace,
+  openGameSetupInSpace,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
@@ -32,12 +32,12 @@ export type PublicCustomGame = {
 };
 
 async function createParty(ui: Driver, game: PlayableGame): Promise<void> {
-  await pickGameInSpace(
+  await openGameSetupInSpace(
     ui,
     game.shared.id,
+    'custom-game',
     game.shared.registration?.rules.family
   );
-  await tap(ui, 'game-choice-custom-game');
   await ui
     .get('custom-game-connection-needed')
     .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });

@@ -53,8 +53,8 @@ export const CUSTOM_GAME_PLACES = defineScreenPlaces<
       'private-setup',
     ],
     active: ['stage', 'commands', 'moves'],
-    completed: ['result', 'moves'],
-    cancelled: ['result', 'moves'],
+    completed: ['result', 'moves', 'home'],
+    cancelled: ['result', 'moves', 'home'],
   },
   // Inviting is behind its seat; every other place is one step from home.
   parent: (place) =>

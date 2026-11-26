@@ -1,4 +1,4 @@
-import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
+import type { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
 import { ClientConfigKey } from '@libs/app-config-shared-ts/client-config-keys';
 import { parsePermissionPolicy } from '@libs/permissions-shared-ts/parse-permission-policy';
 import type {
@@ -9,10 +9,11 @@ import type { PermissionPolicy } from '@pkgs/permissions-shared-ts/policy';
 import { type Accessor, createMemo } from 'solid-js';
 
 /** Live `permission_policy` from synced `client_config`; default when absent. */
-export function usePermissionPolicy(): Accessor<
+export function usePermissionPolicy({
+  rows,
+}: ReturnType<typeof useClientConfig>): Accessor<
   PermissionPolicy<AppPolicyKey, AppLimit>
 > {
-  const { rows } = useClientConfig();
   return createMemo(() => {
     const row = rows().find(
       (candidate) =>

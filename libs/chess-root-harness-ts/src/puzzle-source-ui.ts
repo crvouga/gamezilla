@@ -88,7 +88,7 @@ export async function reloadPuzzleSource(s: ProductHarness, actor = 'alice') {
   const person = s.actors.get(actor);
   if (!person) throw new Error('Actor missing');
   await person.openLink('/more');
-  await person.openLink('/more/puzzles');
+  await person.openLink('/puzzles');
   await pollUntil(
     s,
     async () => {

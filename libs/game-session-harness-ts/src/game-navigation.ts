@@ -1,10 +1,6 @@
 import { MULTIPLAYER_SCREEN } from '@libs/game-matchmaking-harness-ts/multiplayer-places';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
-import {
-  chooseGameMode,
-  gameTile,
-  setUpGameMode,
-} from '@libs/harness-ts/game-tiles';
+import { chooseGameMode, gameTile } from '@libs/harness-ts/game-tiles';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
@@ -38,7 +34,6 @@ export const pickGame = scenarioAction({
     await ui.get(gameTile(s, gameId)).expect.visible();
     await ui.get(gameTile(s, gameId)).tap();
     await ui.get(Handles.gameChoices).expect.visible();
-    await setUpGameMode(s, ui, gameId);
   },
 });
 
@@ -142,9 +137,10 @@ export async function showCustomGames(
     s,
     async () => {
       await bringToFront(s, actor);
-      if (await ui.get(SHARED_SCREEN_MARK['custom-game']).isVisible())
+      if (await ui.get(SHARED_SCREEN_MARK['custom-game']).isVisible()) {
+        if (await chooseGameMode(ui, gameId)) return null;
         return true;
-      if (await chooseGameMode(ui, gameId)) return null;
+      }
       if (await ui.get(Handles.gameChoice('custom-game')).isVisible())
         await tapWhileShown(ui.get(Handles.gameChoice('custom-game')));
       else if (await ui.get(gameTile(s, gameId)).isVisible())
@@ -222,7 +218,25 @@ export const switchSpaceGame = scenarioAction({
   },
 });
 
+export const answerGameBack = scenarioAction({
+  name: 'answerGameBack',
+  act: async (s, actor: string, answer: 'stay' | 'confirm') => {
+    await (await actorUi(s, actor)).get(`game-back-${answer}`).tap();
+    await s.session.waitForIdle();
+  },
+});
+
+export async function gameBackOffered(
+  s: ProductHarness,
+  actor: string
+): Promise<string | null> {
+  const ui = await actorUi(s, actor);
+  if (!(await ui.get('game-back-stay').isVisible())) return null;
+  return ui.get('game-back-confirm').text();
+}
+
 export const GAME_NAVIGATION_ACTIONS = [
+  answerGameBack,
   pickGame,
   openGameChoice,
   goBackInGame,

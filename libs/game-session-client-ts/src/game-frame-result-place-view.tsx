@@ -4,13 +4,14 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
-import { FrameFacts, FrameStage } from './custom-game-stage-view';
+import { FrameFacts } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
-import { FrameOutcomeCard } from './game-frame-overlay-view';
+import { FrameOutcomeCard } from './game-frame-outcome-card';
+import { FrameStage } from './game-frame-stage';
 import {
   FrameConnectionNotice,
   FrameErrorView,
@@ -74,19 +75,20 @@ function NextActions(props: Props): JSX.Element {
                   dataSet={{ testid: 'custom-game-rematch' }}
                   operation={() => props.onChoose({ operation: 'rematch' })}
                 />
-                <GameActionButton
+                <Button
                   title={<Trans>New game</Trans>}
+                  variant="outline"
                   dataSet={{ testid: 'custom-game-new' }}
-                  operation={() => props.onChoose({ operation: 'create' })}
+                  onClick={() => props.onOpen({ screen: 'home' })}
                 />
               </>
             }
           >
-            <GameActionButton
+            <Button
               title={<Trans>New game</Trans>}
               variant="solid"
               dataSet={{ testid: 'custom-game-new' }}
-              operation={() => props.onChoose({ operation: 'create' })}
+              onClick={() => props.onOpen({ screen: 'home' })}
             />
             <GameActionButton
               title={<Trans>Rematch</Trans>}
@@ -139,7 +141,7 @@ export function FrameResultPlace(
       compactInset={props.table.compactInset}
       facts={<FrameFacts {...props} />}
     >
-      <GameSessionLayout
+      <FixedGameSession
         dataSet={{
           component: 'CustomGameContent',
           testid: 'custom-game-content',
@@ -154,9 +156,6 @@ export function FrameResultPlace(
             <FrameErrorView text={props.error} line />
           </>
         }
-        boardFocus
-        actionsBeside
-        fixedStage
         // The card says how the game ended over the stage's foot (heading
         // the rail beside a wide board), so the final board keeps the live
         // board's place; a listener hears it from the frame's own line.
@@ -167,10 +166,10 @@ export function FrameResultPlace(
         }
         status={<FrameStatusView status={props.status} spokenOnly />}
         actions={<NextActions {...props} />}
-        aside={<FrameMovesCard {...props} listOnly />}
+        history={<FrameMovesCard {...props} />}
       >
-        <FrameStage {...props} />
-      </GameSessionLayout>
+        {(information) => <FrameStage {...props} information={information} />}
+      </FixedGameSession>
     </GameScreen>
   );
 }

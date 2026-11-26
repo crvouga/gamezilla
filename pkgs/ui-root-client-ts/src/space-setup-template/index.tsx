@@ -207,7 +207,9 @@ export function SpaceSetupTemplate(
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
-      menu={props.menu}
+      onMembers={props.onMembers}
+      onSettings={props.onSettings}
+      onMinimize={props.onMinimize}
       onLeave={props.onLeave}
       onEnd={props.onEnd}
       notice={props.notice}

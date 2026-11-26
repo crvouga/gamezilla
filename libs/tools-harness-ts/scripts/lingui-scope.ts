@@ -12,6 +12,7 @@
  * places instead of all appending to the same line.
  */
 export const LINGUI_CATALOG_SOURCES = [
+  'apps/admin-client-ts/src',
   'libs/account-privacy-client-ts/src',
   'libs/app-config-client-ts/src',
   'libs/app-env-client-ts/src',

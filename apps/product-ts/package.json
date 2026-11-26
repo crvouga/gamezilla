@@ -31,6 +31,8 @@
     "dev:prepare": "bun run scripts/dev-prepare.ts",
     "dev:s3": "bun run scripts/dev-service.ts s3",
     "dev:server": "bun run scripts/dev-service.ts server",
+    "dev:admin-api": "bun run scripts/dev-service.ts admin-api",
+    "dev:admin-client": "bun run scripts/dev-service.ts admin-client",
     "dev:web": "bun run scripts/dev-service.ts web",
     "health": "bun run scripts/health.ts",
     "health:objectives": "bun run scripts/health.ts --objectives",
@@ -59,7 +61,7 @@
     "verify:worker-bundle": "bun run ../../libs/tools-harness-ts/scripts/verify-worker-bundle.ts"
   },
   "dependencies": {
-    "@apps/server-ts": "workspace:*",
+    "@apps/product-api-ts": "workspace:*",
     "@crvouga/mockingbird-service-github": "catalog:",
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@crvouga/mockingbird-service-openai": "catalog:",
@@ -109,6 +111,7 @@
     "@apps/harness-ts": "workspace:*",
     "@clack/prompts": "catalog:",
     "@libs/auth-shared-ts": "workspace:*",
+    "@libs/billing-harness-ts": "workspace:*",
     "@libs/billing-shared-ts": "workspace:*",
     "@libs/db-shared-ts": "workspace:*",
     "@libs/infra-shared-ts": "workspace:*",
@@ -121,6 +124,7 @@
     "@libs/secrets-shared-ts": "workspace:*",
     "@libs/synthetic-population-server-ts": "workspace:*",
     "@libs/synthetic-population-shared-ts": "workspace:*",
+    "@libs/test-ids-shared-ts": "workspace:*",
     "@lingui/babel-plugin-lingui-macro": "catalog:",
     "@lingui/conf": "catalog:",
     "@pkgs/auth-inhouse-client-ts": "workspace:*",

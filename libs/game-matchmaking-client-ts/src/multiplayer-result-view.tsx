@@ -1,14 +1,10 @@
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import type {
-  StageOverlay,
-  StageOverlayEvent,
-} from '@pkgs/turn-game-client-ts/stage-overlay';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
@@ -21,23 +17,19 @@ import type {
 } from './multiplayer-game-view';
 import { MultiplayerMoveList } from './multiplayer-move-list';
 import {
-  MultiplayerOverlayView,
-  MultiplayerResultCard,
-  type MultiplayerResultShown,
-} from './multiplayer-overlay-view';
-import {
   type MultiplayerPlaceFrame,
   MultiplayerStagePlace,
 } from './multiplayer-place-frame';
 import type { MultiplayerPlace } from './multiplayer-places';
+import {
+  MultiplayerResultCard,
+  type MultiplayerResultShown,
+} from './multiplayer-result-card';
 
 type ResultProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** The seats around the board on the final position. */
   readonly board: MultiplayerBoardSlot | undefined;
-  /** What lies over the final board: the result card, or nothing once closed. */
-  readonly overlay: StageOverlay;
-  readonly onOverlay: (event: StageOverlayEvent) => void;
   /** How the game ended, why, and the rating change: the screen's announcement. */
   readonly result: MultiplayerResultShown | undefined;
   readonly game: MultiplayerGameView;
@@ -209,11 +201,8 @@ function Onward(props: ResultProps): JSX.Element {
 export function MultiplayerResultView(props: ResultProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
-      <GameSessionLayout
+      <FixedGameSession
         notices={props.notices}
-        boardFocus
-        actionsBeside
-        fixedStage
         // The card lies over the stage's foot (heading the rail beside a
         // wide board), so the final board keeps the live board's place.
         sheet={<MultiplayerResultCard result={props.result} />}
@@ -249,7 +238,7 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
             <Review {...props} />
           </GameActionBar>
         }
-        aside={
+        history={
           <Show when={props.game.moves}>
             {(moves) => (
               <GameSection title={<Trans>Moves</Trans>}>
@@ -266,16 +255,8 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
           </Show>
         }
       >
-        {props.board?.(
-          <MultiplayerOverlayView
-            title={props.title}
-            overlay={props.overlay}
-            onOverlay={props.onOverlay}
-            versus={undefined}
-            result={props.result}
-          />
-        )}
-      </GameSessionLayout>
+        {(information) => props.board?.({ information }) ?? information}
+      </FixedGameSession>
     </MultiplayerStagePlace>
   );
 }

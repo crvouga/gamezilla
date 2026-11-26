@@ -1,6 +1,7 @@
 // @io-wall-ok — Playwright owns the browser for these literal board regressions.
-import { test } from '@playwright/test';
+import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import { expectQuoridorStoryPasses } from '../quoridor-overhaul/evidence';
+import { retainEvidence } from '../word-tiles/retained-evidence';
 
 // regression: quoridor-pawn-ink-vanishes-in-dark-theme
 test('storybook integration: quoridor overhaul regression, every Hill pawn is readable on sand in the dark theme', async ({
@@ -41,3 +42,68 @@ test('storybook integration: quoridor overhaul regression, a proposed wall can b
     'light'
   );
 });
+
+// regression: quoridor-precision-controls-clip-board
+test('storybook integration: Quoridor phone keeps the classic board and coordinate controls visible through a wall placement', async ({
+  page,
+}, info) => {
+  await placeByCoordinate(page, info, 'classic');
+});
+
+// regression: quoridor-hill-phone-opening-undersized
+test('storybook integration: Quoridor phone keeps the hill board and coordinate controls visible through a wall placement', async ({
+  page,
+}, info) => {
+  await placeByCoordinate(page, info, 'hill');
+});
+
+async function placeByCoordinate(
+  page: Page,
+  info: TestInfo,
+  mode: 'classic' | 'hill'
+) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectQuoridorStoryPasses(
+    page,
+    `screens-games-quoridor-${mode}--direct-manipulation`,
+    'light',
+    'system'
+  );
+  const board = page.getByTestId('custom-game-board');
+  const opening = await board.boundingBox();
+  expect(opening?.width).toBeGreaterThanOrEqual(358);
+  await expect(board).toBeInViewport({ ratio: 1 });
+  await retainEvidence(info, 'opening.png', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+  await page.getByTestId('custom-game-board-coordinates').click();
+  await page.getByRole('button', { name: 'Horizontal wall' }).click();
+  const anchor = board.locator('[data-cell="d4"]');
+  await anchor.click();
+  await expect(anchor).toHaveAttribute('data-preview-edge-top', 'true');
+  for (const target of [
+    board,
+    page.getByRole('button', { name: 'Done' }),
+    page.getByTestId('custom-game-board-precise-target'),
+    page.getByTestId('custom-game-board-wall-commit'),
+    page.getByTestId('custom-game-board-wall-cancel'),
+  ])
+    await expect(target).toBeInViewport({ ratio: 1 });
+  const preview = await board.boundingBox();
+  expect(preview?.width).toBeGreaterThanOrEqual(358);
+  await retainEvidence(info, 'geometry.json', {
+    body: JSON.stringify({ viewport: page.viewportSize(), opening, preview }),
+    contentType: 'application/json',
+  });
+  await retainEvidence(info, 'wall-preview.png', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+  await page.getByTestId('custom-game-board-wall-commit').click();
+  await expect(anchor).toHaveAttribute('data-edge-top', 'true');
+  await retainEvidence(info, 'wall-placed.png', {
+    body: await page.screenshot(),
+    contentType: 'image/png',
+  });
+}

@@ -21,7 +21,7 @@ export const followPuzzleImport = scenarioAction({
     await actorUi(s, actor);
     const handle = s.actors.get(actor);
     if (!handle) throw new Error('Actor missing');
-    await handle.openLink('/more/puzzles');
+    await handle.openLink('/puzzles');
     await s.session.waitForIdle();
     await handle.ui.get('puzzle-load-content').expect.visible();
   },

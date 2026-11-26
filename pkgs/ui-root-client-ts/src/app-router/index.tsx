@@ -13,6 +13,7 @@ import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createContext,
+  createEffect,
   createSignal,
   untrack,
   useContext,
@@ -22,6 +23,10 @@ import {
   usePendingNavigation,
 } from '../pending-navigation';
 import { PendingNavigationProvider } from '../pending-navigation-provider/index';
+
+import { DeviceBackContext, prepareDeviceBack } from './device-back';
+
+export { useDeviceBack } from './device-back';
 
 export type AppRouter = {
   push: (href: Href | HrefObject) => void;
@@ -34,6 +39,7 @@ export type AppRouter = {
 const AppRouterContext = createContext<AppRouter | null>(null);
 
 export type AppRouterProviderProps = {
+  readonly documentHistory?: boolean | undefined;
   readonly children: JSX.Element;
 };
 
@@ -54,7 +60,26 @@ function RoutedAppRouter(props: AppRouterProviderProps): JSX.Element {
       confirmed = false;
     }
   };
+  let deviceBack: (() => void) | undefined;
+  let poppingFromApp = false;
+  createEffect(
+    () => location.pathname,
+    () => {
+      poppingFromApp = false;
+    }
+  );
   useBeforeLeave((event) => {
+    if (typeof event.to === 'number' && event.to < 0) {
+      if (poppingFromApp) {
+        poppingFromApp = false;
+        return;
+      }
+      if (deviceBack && !event.defaultPrevented) {
+        event.preventDefault();
+        deviceBack();
+        return;
+      }
+    }
     if (confirmed || event.defaultPrevented || !navigation?.blocked()) return;
     event.preventDefault();
     navigation.request(() => event.retry(true));
@@ -86,12 +111,27 @@ function RoutedAppRouter(props: AppRouterProviderProps): JSX.Element {
       if (depth === 0) return;
       confirmNavigation(() => {
         moveDepth(-1);
+        poppingFromApp = true;
         go(-1);
       });
     },
     canGoBack,
   };
-  return <AppRouterContext value={router}>{props.children}</AppRouterContext>;
+  const register = (handler: () => void, fallback: string): (() => void) => {
+    if (depth === 0 && props.documentHistory) {
+      prepareDeviceBack(fallback);
+      moveDepth(1);
+    }
+    deviceBack = handler;
+    return () => {
+      if (deviceBack === handler) deviceBack = undefined;
+    };
+  };
+  return (
+    <DeviceBackContext value={register}>
+      <AppRouterContext value={router}>{props.children}</AppRouterContext>
+    </DeviceBackContext>
+  );
 }
 
 /**
@@ -105,7 +145,9 @@ function RoutedAppRouter(props: AppRouterProviderProps): JSX.Element {
 export function AppRouterProvider(props: AppRouterProviderProps): JSX.Element {
   return (
     <PendingNavigationProvider>
-      <RoutedAppRouter>{props.children}</RoutedAppRouter>
+      <RoutedAppRouter documentHistory={props.documentHistory}>
+        {props.children}
+      </RoutedAppRouter>
     </PendingNavigationProvider>
   );
 }

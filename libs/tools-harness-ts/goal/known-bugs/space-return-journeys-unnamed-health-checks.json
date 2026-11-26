@@ -1,0 +1,4 @@
+{
+  "summary": "Health could play the space return and recovery journeys but could not record their outcomes because neither feature had a check name.",
+  "regressionTest": "libs/observability-server-ts/tests/synthetic-checks.test.ts"
+}
