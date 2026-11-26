@@ -1,0 +1,4 @@
+{
+  "summary": "Opening Profile from an active chess game pressed the game's Back control and never reached Edit profile. The opponent's updated username could not be verified.",
+  "regressionTest": "specs/games/matched-game-ownership.feature"
+}

@@ -18,6 +18,7 @@ Feature: A matched game follows the account
   Rule: The opponent is shown by their current username
     No counter-example: changing a username changes the name shown, never the matched person or game.
 
+    @regression:renaming-during-a-matched-game
     Scenario: Renaming changes the opponent's username without replacing the matched game
       Given Alice renamed herself to @alice_atlas during her matched game with Bob
       When Bob opens finding an opponent
