@@ -53,8 +53,6 @@ export type PuzzleContentFrame = {
   readonly figuresPlacement?: 'panel' | 'board' | undefined;
   readonly turnStatus: (definition: string, state: string) => string | null;
   readonly controls?: Component<PuzzlePlayerProps>;
-  /** Where the board sits on a one-column screen; default `start`. */
-  readonly stageAlign?: 'start' | 'center';
 };
 
 /** Independent game rendering capabilities, with no board or turn assumptions. */

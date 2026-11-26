@@ -65,3 +65,20 @@
     display: none;
   }
 }
+
+.dock {
+  flex: none;
+  max-height: 40%;
+  overflow: auto;
+  padding: var(--ui-space-2) var(--ui-space-4)
+    calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
+  border-block-start: 1px solid var(--ui-color-border);
+  background: var(--ui-color-surface);
+}
+.dock:empty {
+  display: none;
+}
+.dock > * {
+  max-width: var(--ui-max-width-prose);
+  margin-inline: auto;
+}

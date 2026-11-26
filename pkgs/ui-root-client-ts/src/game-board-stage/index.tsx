@@ -60,6 +60,8 @@ export function GameBoardStage(props: {
    */
   workspace?: boolean | undefined;
   information?: JSX.Element;
+  /** Tools for the current position, immediately below the board. */
+  tools?: JSX.Element;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const others = createScreenSlot(() => props.others);
@@ -129,6 +131,7 @@ export function GameBoardStage(props: {
       >
         {props.children}
       </BoardRegion>
+      {props.tools}
       <Show when={props.preview === true && props.previewLabel}>
         <p class={`${styles['previewLabel']} text textFootnote`}>
           {props.previewLabel}

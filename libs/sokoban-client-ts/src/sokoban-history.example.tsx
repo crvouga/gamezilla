@@ -9,7 +9,6 @@ import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, Show, untrack } from 'solid-js';
-import { sokobanGameClient } from './sokoban-game-client';
 import { SokobanPlayerView } from './sokoban-player';
 
 /**
@@ -130,8 +129,6 @@ export function SokobanHistory(props: {
   };
   return (
     <StoryPackAttempt
-      // As the production attempt screen passes the game's frame.
-      stageAlign={sokobanGameClient.puzzleContent.frame.stageAlign}
       puzzle={props.puzzle ?? TWO_CRATES_PUZZLE}
       complete={complete()}
       solvedBefore={completionSaved()}

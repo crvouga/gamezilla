@@ -34,6 +34,7 @@ export function MultiplayerFrameBoard(props: {
   const Controls = dynamic(() => session().controls);
   return (
     <StackVertical gap="sm">
+      <Board />
       <GameActionBar
         items={frameActionItems(
           session().actions(),
@@ -41,7 +42,6 @@ export function MultiplayerFrameBoard(props: {
           'before-board'
         )}
       />
-      <Board />
       <GameActionBar
         items={frameActionItems(session().actions(), props.board.testId)}
       />

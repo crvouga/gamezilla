@@ -1,23 +1,19 @@
 /** @jsxImportSource @solidjs/web */
 
+import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, For, Show } from 'solid-js';
 import type { IconComponent } from '../create-icon/index';
+import { DisclosureCard } from '../disclosure-card/index';
 import { EmbeddedScreen } from '../embedded-screen/index';
-import {
-  GameTile,
-  type GameTileMotif,
-  GameTitleLockup,
-} from '../game-tile/index';
+import { GameTile, type GameTileMotif } from '../game-tile/index';
 import { ChevronRightIcon } from '../icons';
 import type { MainMenuItem } from '../main-menu-item-row/index';
-import { MainMenuScreen } from '../main-menu-screen/index';
 import { useConfirmNavigation } from '../pending-navigation';
 import { createScreenSlot } from '../screen-slot';
-import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-menu-screen.module.css';
 
 /** One way into a game: a menu row on a phone, a large tile when wide. */
@@ -138,15 +134,8 @@ function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
   );
 }
 
-/**
- * Wide: the game's hero block, then every way to play as a tile of one
- * size (the same title, as tall as its words) and, under them, the quiet
- * choices (history, stats, settings) as compact outlined rows that share
- * the tiles' edges: one alone spans the tiles' full width, never a
- * half-width row orphaned under them nor a box floating at the hero's end.
- * A menu of quiet choices only shows them all as tiles.
- */
-function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
+/** Every game uses its registered play modes, then its secondary destinations. */
+export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
   const subtitle = createScreenSlot(() => props.subtitle);
   const split = createMemo(() => {
     const quiet = props.choices.filter((c) => c.emphasis === 'quiet');
@@ -155,13 +144,10 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
       ? { tiles: props.choices, links: [] }
       : { tiles: loud, links: quiet };
   });
-  // Two or four tiles take two columns, so none is left alone on a row.
-  const columns = (): number =>
-    split().tiles.length === 2 || split().tiles.length === 4 ? 2 : 3;
   return (
     <EmbeddedScreen
       screenId={props.screenId}
-      width="full"
+      width="menu"
       dataSet={{ component: 'GameMenuScreen', ...props.dataSet }}
     >
       <header class={styles['hero']} data-layout="hero">
@@ -173,12 +159,7 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
           </Show>
         </div>
       </header>
-      <div
-        class={styles['grid']}
-        style={{ '--game-menu-columns': String(columns()) }}
-        role="list"
-        data-layout="grid"
-      >
+      <div class={styles['grid']} role="list" data-layout="grid">
         <For each={split().tiles}>
           {(choice) => (
             <div class={styles['item']} role="listitem">
@@ -188,87 +169,18 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
         </For>
       </div>
       <Show when={split().links.length > 0}>
-        <div
-          class={styles['links']}
-          style={{
-            // One across the tiles' full width, else up to three a row.
-            '--game-menu-link-columns': String(
-              Math.min(3, split().links.length)
-            ),
-          }}
-          role="list"
-          data-layout="links"
-        >
-          <For each={split().links}>
-            {(choice) => (
-              <div class={styles['item']} role="listitem">
-                <ChoiceLink choice={choice} />
-              </div>
-            )}
-          </For>
-        </div>
+        <DisclosureCard title={<Trans>More</Trans>} defaultOpen>
+          <div class={styles['links']} role="list" data-layout="links">
+            <For each={split().links}>
+              {(choice) => (
+                <div class={styles['item']} role="listitem">
+                  <ChoiceLink choice={choice} />
+                </div>
+              )}
+            </For>
+          </div>
+        </DisclosureCard>
       </Show>
     </EmbeddedScreen>
-  );
-}
-
-/**
- * `GameMenuScreen` -- a game's own menu inside a space: the ways into the
- * game (puzzles, playing with friends or bots, finding an opponent, its
- * history, its settings, how to play). It holds rows that lead onward and
- * nothing else: how the game is played is a screen of its own, opened by a
- * choice. On a wide screen it opens with a hero block (the game's `GameTile`
- * at its largest, its name and what it is) and lays every choice out as a
- * large tile with its picture; on a phone it
- * is a `MainMenuScreen`: the name beside the tile, then one panel of rows,
- * each led by the same picture. Every way to play weighs the same: the
- * menu never recommends one; the quiet ones (`'quiet'`) have secondary
- * pictures.
- * Presentational; the caller opens what each choice names.
- *
- * @example
- * ```tsx
- * <GameMenuScreen
- *   screenId="game-home"
- *   title="Connect Four"
- *   motif="discs"
- *   subtitle="Drop discs and line up four"
- *   choices={[{ key: 'custom-game', title: 'Play with friends or bots',
- *     icon: UsersIcon, onClick: openCustomGame }]}
- * />
- * ```
- */
-export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
-  const mode = useLayoutMode();
-  const rows = createMemo((): MainMenuItem[] =>
-    props.choices.map((choice) => ({
-      key: choice.key,
-      title: choice.title,
-      caption: choice.caption,
-      emphasis: choice.emphasis,
-      dataSet: choice.dataSet,
-      onClick: choice.onClick,
-      leading: <ChoiceIcon choice={choice} size="row" />,
-    }))
-  );
-  return (
-    <Show
-      when={mode() === 'wide'}
-      fallback={
-        <MainMenuScreen
-          screenId={props.screenId}
-          dataSet={props.dataSet}
-          title={
-            <GameTitleLockup tile={<GameTile motif={props.motif} size="lg" />}>
-              {props.title}
-            </GameTitleLockup>
-          }
-          subtitle={props.subtitle}
-          items={rows()}
-        />
-      }
-    >
-      <WideGameMenu {...props} />
-    </Show>
   );
 }

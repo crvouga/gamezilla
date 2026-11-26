@@ -130,9 +130,14 @@ for (const viewport of [
   test.describe(`stable game stage at ${viewport.width}x${viewport.height}`, () => {
     test.use({ viewport });
     for (const story of consumers) {
-      test(story, async ({ page }) => {
+      test(story, async ({ page }, info) => {
         await open(page, story);
         await frame(page);
+        if (viewport.width === 390) {
+          const path = info.outputPath(story + '.png');
+          await page.screenshot({ path });
+          await info.attach(story, { path, contentType: 'image/png' });
+        }
       });
     }
     test('parameterized space game', async ({ page }) => {
@@ -161,3 +166,26 @@ for (const viewport of [
     });
   });
 }
+
+test.describe('game menu and puzzle stage evidence', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+  for (const [story, selector] of [
+    ['screens-game-home--with-puzzles-and-settings', '[data-layout="hero"]'],
+    ['screens-matchmaking-time-control--choices', '[aria-pressed="true"]'],
+    [
+      'screens-matchmaking-searching--searching',
+      '[data-testid="multiplayer-screen"]',
+    ],
+    ['screens-puzzles-stage--solving', '[data-component="PuzzleBoard"]'],
+    ['screens-games-sokoban-puzzle--in-progress', '[data-testid]'],
+    ['screens-games-numberlink-puzzle--in-progress', '[data-testid]'],
+  ] as const) {
+    test(story, async ({ page }, info) => {
+      await open(page, story);
+      await expect(page.locator(selector).first()).toBeVisible();
+      const path = info.outputPath(story + '.png');
+      await page.screenshot({ path });
+      await info.attach(story, { path, contentType: 'image/png' });
+    });
+  }
+});
