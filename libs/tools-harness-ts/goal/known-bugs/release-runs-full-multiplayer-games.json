@@ -1,0 +1,4 @@
+{
+  "summary": "Development rolled out in Release 45839922005, then the Battleship, Connect Four and Quoridor end-to-end probes timed out waiting for a second player. Hourly Health retains those scenarios. Release checks deployed services and the critical production journeys.",
+  "regressionTest": "apps/product-ts/scripts/health.test.ts"
+}

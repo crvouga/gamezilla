@@ -46,6 +46,7 @@ import {
   grafanaRestore,
   needsGrafanaRestore,
 } from '@libs/infra-shared-ts/grafana-restore';
+import { releasePlanExclusions } from '@libs/infra-shared-ts/grafana-retirement';
 import type { PlanJson } from '@libs/infra-shared-ts/plan-policy';
 import { evaluatePlanPolicy } from '@libs/infra-shared-ts/plan-policy';
 import {
@@ -109,6 +110,7 @@ type Cli = {
   readonly recoverCiIdentity: boolean;
   readonly repositoryPolicy: boolean;
   readonly alerting: boolean;
+  readonly exclusions: readonly string[];
 };
 
 function flag(argv: readonly string[], name: string): string | null {
@@ -143,6 +145,11 @@ function parseCli(argv: readonly string[]): Cli {
     recoverCiIdentity,
     repositoryPolicy,
     alerting,
+    exclusions: releasePlanExclusions(
+      command,
+      stack,
+      process.env['TOFU_RUNTIME_FOUNDATION']
+    ),
   };
 }
 
@@ -223,7 +230,10 @@ async function planTarget(
             ? alertingDeploymentPlanArgs(PATHS, lock)
             : planArgs(PATHS, target, lock);
   for (let attempt = 1; attempt <= PLAN_ATTEMPTS; attempt += 1) {
-    const result = spawnTool('tofu', args, { env, capture: true });
+    const result = spawnTool('tofu', [...args, ...cli.exclusions], {
+      env,
+      capture: true,
+    });
     const output = redactInfraOutput(`${result.stdout}${result.stderr}`, {
       ...process.env,
       ...env,
@@ -307,7 +317,11 @@ async function runOnce(
   const teardown = teardownOf(target, cli);
   if (planOptionsFor(cli).lock && !firstRun)
     await releaseAbandonedLock({ paths: PATHS, target, env, now: new Date() });
-  if (target.stack === 'foundation' && command !== 'destroy') {
+  if (cli.exclusions.length > 0) {
+    console.log(
+      '[infra] Grafana views are reconciled by a full foundation apply.'
+    );
+  } else if (target.stack === 'foundation' && command !== 'destroy') {
     const lock = planOptionsFor(cli).lock;
     const scope = await planGrafanaScope({ paths: PATHS, target, env, lock });
     const previewed = await retireArchivedGrafana({

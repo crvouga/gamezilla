@@ -11,8 +11,8 @@ run-name: "Release · ${{ inputs.rehearsal && 'rehearsal' || github.event_name =
 # Rehearsals verify and plan without releasing.
 #
 # Every job stops within 10 minutes. Development and production each run
-# their release gate after deploying (`@apps/product-ts#health:release`: every
-# @synthetic probe and the critical journeys); the hourly Health workflow
+# their release gate after deploying (`@apps/product-ts#health:release`: live
+# service probes and the critical journeys); the hourly Health workflow
 # runs the full journey suite against both. Repository policy and the
 # Storybook site release beside the shared services, off the path to the
 # environments.
@@ -401,6 +401,7 @@ jobs:
           # Turbo's product build embeds this commit, so the bundle its
           # verifications check is the bundle the deploy uploads, unrebuilt.
           VITE_COMMIT_HASH: ${{ github.sha }}
+          TOFU_RUNTIME_FOUNDATION: ${{ github.event_name == 'push' }}
         run: bun run deploy:local
       - name: Keep the critical journeys' evidence
         if: failure()
