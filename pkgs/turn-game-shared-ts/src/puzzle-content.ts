@@ -100,7 +100,7 @@ export type BundledPuzzle = {
   readonly description: string;
   readonly difficulty: string;
   readonly definition: string;
-  /** Accepted actions that complete it; checked at registration. */
+  /** Accepted actions verified against the game rules before release. */
   readonly witness: readonly string[];
 };
 
@@ -155,8 +155,15 @@ function assertBundledPacks(id: string, content: PuzzleContent): void {
     claim(pack.id);
     if (pack.puzzles.length === 0)
       throw new Error(`${id}: bundled pack ${pack.id} has no puzzles`);
+    for (const puzzle of pack.puzzles) claim(puzzle.id);
+  }
+}
+
+/** Verify shipped solutions before release, outside application startup. */
+export function assertPuzzleContent(id: string, content: PuzzleContent): void {
+  assertPuzzleContentRegistration(id, content);
+  for (const pack of content.bundledPacks ?? []) {
     for (const puzzle of pack.puzzles) {
-      claim(puzzle.id);
       const replay = replayPuzzleEvidence(
         content.rules,
         puzzle.definition,
@@ -174,7 +181,10 @@ function assertBundledPacks(id: string, content: PuzzleContent): void {
 }
 
 /** Reject missing advertised implementations at registration, before a player opens. */
-export function assertPuzzleContent(id: string, content: PuzzleContent): void {
+export function assertPuzzleContentRegistration(
+  id: string,
+  content: PuzzleContent
+): void {
   const methods: Readonly<Record<string, unknown>> = {
     'rules.validateDefinition': content.rules?.validateDefinition,
     'rules.initial': content.rules?.initial,

@@ -1,42 +1,25 @@
 import { z } from 'zod';
 import {
-  type Cell,
-  isStandable,
+  readSokobanNotation,
+  SOKOBAN_DEFINITION_TEXT_LIMIT,
+} from './sokoban-notation';
+import {
+  boardFromRows,
+  sokobanBoardRows,
+  TOO_LARGE,
+  UNREADABLE,
+} from './sokoban-rows';
+import {
   refuse,
   SOKOBAN_MAX_SIZE,
   SOKOBAN_MIN_SIZE,
   type SokobanBoard,
   type SokobanIssue,
-  type SokobanSquare,
-  squareAt,
   type Validation,
 } from './sokoban-types';
 
-/** Text longer than this is refused before it is parsed. */
-export const SOKOBAN_DEFINITION_TEXT_LIMIT = 65_536;
-
-type Glyph = {
-  readonly square: SokobanSquare;
-  readonly piece: 'worker' | 'crate' | null;
-};
-
-const GLYPHS: Readonly<Record<string, Glyph>> = {
-  '#': { square: 'wall', piece: null },
-  ' ': { square: 'floor', piece: null },
-  '.': { square: 'goal', piece: null },
-  '~': { square: 'outside', piece: null },
-  '@': { square: 'floor', piece: 'worker' },
-  '+': { square: 'goal', piece: 'worker' },
-  $: { square: 'floor', piece: 'crate' },
-  '*': { square: 'goal', piece: 'crate' },
-};
-
-const TERRAIN_CHARS: Readonly<Record<SokobanSquare, string>> = {
-  wall: '#',
-  floor: ' ',
-  goal: '.',
-  outside: '~',
-};
+export { SOKOBAN_DEFINITION_TEXT_LIMIT } from './sokoban-notation';
+export { sokobanBoardRows } from './sokoban-rows';
 
 const definitionSchema = z
   .object({
@@ -45,78 +28,11 @@ const definitionSchema = z
   })
   .strict();
 
-const UNREADABLE: SokobanIssue = {
-  code: 'invalid_board',
-  message:
-    'This board cannot be read. Open a saved revision or build the board again.',
-};
-const TOO_LARGE: SokobanIssue = {
-  code: 'board_too_large',
-  message: 'A board has at most 20 columns and 20 rows.',
-};
-
-function pieceChar(square: SokobanSquare, piece: 'worker' | 'crate'): string {
-  if (!isStandable(square))
-    throw new Error('A piece stands only on floor or a goal');
-  if (piece === 'worker') return square === 'goal' ? '+' : '@';
-  return square === 'goal' ? '*' : '$';
-}
-
-/** One string per row; throws when a piece is off the board or off its footing. */
-export function sokobanBoardRows(board: SokobanBoard): string[] {
-  const grid = board.squares.map((square) => TERRAIN_CHARS[square]);
-  const place = (cell: Cell, piece: 'worker' | 'crate'): void => {
-    const square = squareAt(board, cell);
-    const index = cell.y * board.width + cell.x;
-    if (square === null || grid[index] !== TERRAIN_CHARS[square])
-      throw new Error('Pieces stand on separate squares of the board');
-    grid[index] = pieceChar(square, piece);
-  };
-  if (board.worker !== null) place(board.worker, 'worker');
-  for (const crate of board.crates) place(crate, 'crate');
-  return Array.from({ length: board.height }, (_, y) =>
-    grid.slice(y * board.width, (y + 1) * board.width).join('')
-  );
-}
-
 /** The durable canonical definition text: `{"format":1,"rows":[...]}`. */
 export function encodeSokobanBoard(board: SokobanBoard): string {
   if (board.squares.length !== board.width * board.height)
     throw new Error('A board has one square per column and row');
   return JSON.stringify({ format: 1, rows: sokobanBoardRows(board) });
-}
-
-function boardFromRows(rows: readonly string[]): Validation<SokobanBoard> {
-  const width = rows[0]?.length ?? 0;
-  if (width > SOKOBAN_MAX_SIZE) return { valid: false, issues: [TOO_LARGE] };
-  if (width < SOKOBAN_MIN_SIZE || rows.some((row) => row.length !== width))
-    return { valid: false, issues: [UNREADABLE] };
-  const squares: SokobanSquare[] = [];
-  const crates: Cell[] = [];
-  const workers: Cell[] = [];
-  for (const [y, row] of rows.entries())
-    for (const [x, char] of [...row].entries()) {
-      const glyph = GLYPHS[char];
-      if (glyph === undefined) return { valid: false, issues: [UNREADABLE] };
-      squares.push(glyph.square);
-      if (glyph.piece === 'worker') workers.push({ x, y });
-      if (glyph.piece === 'crate') crates.push({ x, y });
-    }
-  if (workers.length > 1)
-    return refuse(
-      'several_workers',
-      'A board has one worker. Remove the extra workers.'
-    );
-  return {
-    valid: true,
-    value: {
-      width,
-      height: rows.length,
-      squares,
-      worker: workers[0] ?? null,
-      crates,
-    },
-  };
 }
 
 function parseJson(text: string): unknown {
@@ -129,13 +45,22 @@ function parseJson(text: string): unknown {
 
 /**
  * Draft-tolerant: a board may lack its worker and have any number of crates
- * and goals. Only the canonical encoding is accepted, so a board has exactly
- * one definition text.
+ * and goals. Accepts classic SK1 or a previously saved canonical JSON board.
  */
 export function decodeSokobanBoard(text: unknown): Validation<SokobanBoard> {
   if (typeof text !== 'string') return { valid: false, issues: [UNREADABLE] };
   if (text.length > SOKOBAN_DEFINITION_TEXT_LIMIT)
     return { valid: false, issues: [TOO_LARGE] };
+  if (text.startsWith('SK')) {
+    const parsed = readSokobanNotation(text);
+    if (!parsed.valid) return parsed;
+    if (parsed.value.extensions.length > 0)
+      return refuse(
+        'unsupported_extension',
+        `This board needs ${parsed.value.extensions.map(([key]) => key).join(', ')}. Choose a classic Sokoban board to play.`
+      );
+    return { valid: true, value: parsed.value.board };
+  }
   const input = parseJson(text);
   const rowCount =
     typeof input === 'object' &&
