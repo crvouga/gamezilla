@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
 import { CI_RUN_DEADLINE_SECONDS } from './verify-budget';
+import { planShards } from './verify-plan';
 import { balanceShards, type VerifyTask, validatePlan } from './verify-shards';
 
 function task(
@@ -143,4 +144,22 @@ test('capped plans retain dependencies and coverage while proof runners share sp
       }
     )
   );
+});
+
+// regression: verify-plan-ignores-matrix-capacity
+test('the hosted planner shares its matrix capacity when two workflows overlap', () => {
+  const tasks = Array.from({ length: 32 }, (_, index) =>
+    task(`pkg-${index}#test`, 60)
+  );
+  const options = {
+    VERIFY_SHARDS: '64',
+    VERIFY_MAX_PARALLEL: '16',
+    VERIFY_ACTIVE_RUNS: '2',
+  };
+  const plan = planShards(tasks, options);
+  validatePlan(plan);
+  expect(
+    plan.shards.filter((s) => s.stage === 'verifications' && s.tasks.length)
+  ).toHaveLength(8);
+  expect(plan.tasks).toHaveLength(tasks.length);
 });

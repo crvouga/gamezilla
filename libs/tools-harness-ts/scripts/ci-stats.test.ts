@@ -74,6 +74,7 @@ describe('history primitives', () => {
       count: 0,
       p50: 0,
       p90: 0,
+      p95: 0,
       p99: 0,
       max: 0,
       total: 0,
@@ -227,6 +228,29 @@ describe('buildHistory', () => {
     expect(
       history.placement.find((p) => p.kind === 'self-hosted')?.firstAt
     ).toBe('2026-10-01T00:00:00.000Z');
+  });
+
+  test('PR latency includes queue time and isolates the required verdict from dispatches and cancellations', () => {
+    const history = buildHistory(
+      [
+        run(),
+        run({ id: 2, event: 'workflow_dispatch' }),
+        run({ id: 3, conclusion: 'cancelled' }),
+      ],
+      [
+        job({ name: 'verify:end', startedAt: '2026-10-01T00:00:15Z' }),
+        job({ name: 'verify:end', runId: 2 }),
+        job({
+          name: 'verify:end',
+          runId: 3,
+          conclusion: 'cancelled',
+          runnerName: null,
+        }),
+      ],
+      window
+    );
+    expect(history.prValidationSeconds).toMatchObject({ count: 1, p95: 60 });
+    expect(history.prJobQueueSeconds).toMatchObject({ count: 1, p95: 15 });
   });
 
   test('family durations come from jobs that passed', () => {
