@@ -1,4 +1,9 @@
-import { expect, type Page, type TestInfo } from '@playwright/test';
+import {
+  expect,
+  type Locator,
+  type Page,
+  type TestInfo,
+} from '@playwright/test';
 
 /** Report actual clipping, including the nested game scroller and outer host. */
 async function clippedFinalCells(page: Page): Promise<string[]> {
@@ -94,4 +99,31 @@ export async function expectFinalBoardReachable(page: Page, info: TestInfo) {
   await expect(page.getByTestId('custom-game-rematch')).toBeInViewport({
     ratio: 1,
   });
+}
+
+/** Preserve the actual board, its fit and its available room on a geometry failure. */
+export async function expectActionBelowBoard(action: Locator, board: Locator) {
+  const actionBox = await action.boundingBox();
+  const boardBox = await board.boundingBox();
+  if (!actionBox || !boardBox) throw new Error('Missing board or action');
+  const bottom = boardBox.y + boardBox.height;
+  if (actionBox.y >= bottom) return;
+  const geometry = await board.evaluate((rack) => {
+    const rows = [];
+    for (let node: Element | null = rack; node; node = node.parentElement) {
+      const box = node.getBoundingClientRect();
+      const style = getComputedStyle(node);
+      rows.push({
+        role: node.getAttribute('data-component') ?? node.className,
+        y: box.y,
+        width: box.width,
+        height: box.height,
+        room: style.getPropertyValue('--game-board-room'),
+        fitted: style.getPropertyValue('--game-stage-room'),
+      });
+      if (node.hasAttribute('data-game-fixed')) break;
+    }
+    return rows;
+  });
+  expect(actionBox.y, JSON.stringify(geometry)).toBeGreaterThanOrEqual(bottom);
 }

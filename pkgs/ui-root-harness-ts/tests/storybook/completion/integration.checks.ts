@@ -1,5 +1,8 @@
 import { expect, type Locator, type Page, test } from '@playwright/test';
-import { expectFinalBoardReachable } from './board-reachability';
+import {
+  expectActionBelowBoard,
+  expectFinalBoardReachable,
+} from './board-reachability';
 
 /** `story` is `<place>--<state>` of the custom game's stories (`result--you-win`, `stage--your-turn`). */
 async function open(
@@ -98,9 +101,7 @@ for (const screen of [
         expect(await box(board)).toEqual(before);
         for (const action of await actions.all()) {
           await expect(action).toBeInViewport({ ratio: 1 });
-          expect((await box(action)).y).toBeGreaterThanOrEqual(
-            before.y + before.height
-          );
+          await expectActionBelowBoard(action, board);
           await expectOnTop(action);
         }
       });
@@ -278,9 +279,7 @@ test('storybook integration: literal drawn geometry has no winning line', async 
   await expect(board).toHaveAttribute('data-won', 'false');
   await expect(board.locator('[data-winning="true"]')).toHaveCount(0);
   await page.getByTestId('game-result-close').click();
-  const final = await box(board);
-  const rematch = await box(page.getByTestId('custom-game-rematch'));
-  expect(rematch.y).toBeGreaterThanOrEqual(final.y + final.height);
+  await expectActionBelowBoard(page.getByTestId('custom-game-rematch'), board);
 });
 
 /** The board's width in `story` at 1440 × 844. */
@@ -337,10 +336,7 @@ for (const sample of [
       const board = page.getByTestId('custom-game-board');
       for (const action of await actions.all()) {
         await expect(action).toBeInViewport({ ratio: 1 });
-        const final = await box(board);
-        expect((await box(action)).y).toBeGreaterThanOrEqual(
-          final.y + final.height
-        );
+        await expectActionBelowBoard(action, board);
       }
       await expect(board.locator('[data-winning="true"]')).toHaveCount(
         story.endsWith('--drawn') ? 0 : 4
