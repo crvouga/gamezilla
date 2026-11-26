@@ -26,6 +26,7 @@ const GAME_COMMANDS = [
   'multiplayer-offer-draw',
   'multiplayer-flip-board',
   'multiplayer-open-moves',
+  'multiplayer-browse-games',
   'multiplayer-resign',
   'multiplayer-abort',
 ] as const;
@@ -221,7 +222,8 @@ describe('play holds the board and one way to the commands', () => {
     expect(ids('multiplayer-offer-draw')).toEqual([]);
   });
 
-  test('the commands are rows: a draw, the board, the moves, then leaving apart', () => {
+  // regression: matched-game-choices-menu-sections
+  test('Game choices opens browsing and Resign has its own section', () => {
     const view = mountPlaces({ stage: 'playing' });
     screen.getByTestId('multiplayer-open-commands').click();
     expect(view.place()).toBe('commands');
@@ -233,20 +235,25 @@ describe('play holds the board and one way to the commands', () => {
       'multiplayer-offer-draw',
       'multiplayer-flip-board',
       'multiplayer-open-moves',
+      'multiplayer-browse-games',
       'multiplayer-resign',
     ]);
     expect(ids('slot-board')).toEqual(['slot-board']);
-    const sections = menu.querySelectorAll('[data-component="MenuSection"]');
-    expect(sections).toHaveLength(2);
-    expect(
-      sections[1]?.contains(screen.getByTestId('multiplayer-resign'))
-    ).toBe(true);
+    const resign = within(menu).getByRole('button', {
+      name: 'Resign multiplayer game',
+    });
+    expect(resign.closest('section')?.querySelectorAll('button')).toHaveLength(
+      1
+    );
     expect(within(menu).getByTestId('multiplayer-offer-draw').textContent).toBe(
       'Offer a multiplayer draw'
     );
-    expect(within(menu).getByTestId('multiplayer-resign').textContent).toBe(
-      'Resign multiplayer game'
-    );
+    within(menu)
+      .getByRole('button', { name: /Game choices/ })
+      .click();
+    expect(view.props().onLeave).toHaveBeenCalledTimes(1);
+    expect(view.props().commands.ask).not.toHaveBeenCalled();
+    expect(view.props().onConfirm).not.toHaveBeenCalled();
   });
 
   test('before both have moved, leaving is aborting', () => {
@@ -351,6 +358,7 @@ describe('play holds the board and one way to the commands', () => {
     expect(ids(...GAME_COMMANDS)).toEqual([
       'multiplayer-offer-draw',
       'multiplayer-flip-board',
+      'multiplayer-browse-games',
       'multiplayer-abort',
     ]);
   });

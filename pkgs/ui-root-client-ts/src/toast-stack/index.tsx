@@ -29,7 +29,8 @@ export type ToastStackProps = {
    * screen's own bottom chrome, clear of a page's title and its content's
    * head; `above-commands`, above a game's command bar; `above-actions`,
    * above a tab bar and a floating command (a lobby's New space) or a
-   * lobby's docked commands; `top`, under the top bar. Wide windows put
+   * lobby's docked commands; `top`, under the top bar; `dialog`, at the
+   * bottom safe area so the dialog's header stays usable. Wide windows put
    * alerts at the right edge and keep the game's command bar clear.
    */
   placement?:
