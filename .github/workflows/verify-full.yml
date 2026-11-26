@@ -462,7 +462,10 @@ jobs:
   verify-end:
     name: verify:end
     needs: [verify-start, verify-shards]
-    if: always() && !cancelled() && needs.verify-start.outputs.single_runner != '+'
+    # A failed Release planner already blocks rollout and leaves no verdicts to collect.
+    if: >-
+      always() && !cancelled() && needs.verify-start.outputs.single_runner != '+' &&
+      (github.workflow != 'Release' || needs.verify-start.result == 'success' || needs.verify-start.outputs.shards != '')
     runs-on: ubuntu-24.04
     permissions:
       contents: read # check out the code
