@@ -1,0 +1,4 @@
+{
+  "summary": "Returning from a newly paired chess game to the shared puzzle repeatedly pressed Back, alternating between opening and dismissing the abort confirmation.",
+  "regressionTest": "specs/games/puzzle-matched-play.feature"
+}

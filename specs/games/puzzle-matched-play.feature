@@ -8,6 +8,7 @@ Feature: Finding an opponent and matched games leave the game's puzzles alone
   Rule: Finding an opponent leaves the space's puzzle as it was
     No counter-example: nothing a person does while finding an opponent reaches the space's puzzle, so there is nothing to refuse.
 
+    @regression:puzzle-return-after-pairing
     Scenario: Returning after being paired up keeps the space's puzzle as it was
       Given Alice and Bob are playing a puzzle in a space
       And Alice has been paired up with an opponent for the game at 5+0
