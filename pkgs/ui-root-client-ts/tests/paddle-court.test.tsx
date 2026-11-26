@@ -107,6 +107,29 @@ test('simultaneous touches stay assigned to their own side and cancellation stop
   expect(view.directions.at(-1)).toEqual(['first', 0]);
 });
 
+// regression: pong-second-touch-steals-paddle
+test('a second contact cannot steer or release an already held paddle', () => {
+  const view = court(['first']);
+  view.element.getBoundingClientRect = () => new DOMRect(0, 0, 600, 400);
+  const touch = (pointerId: number, clientY: number) => ({
+    pointerId,
+    clientY,
+    pointerType: 'touch',
+    clientX: 100,
+  });
+  fireEvent.pointerDown(view.element, touch(1, 100));
+  fireEvent.pointerDown(view.element, touch(2, 300));
+  fireEvent.pointerCancel(view.element, touch(2, 300));
+  fireEvent.pointerMove(view.element, touch(1, 200));
+  expect(view.targets).toEqual([
+    ['first', 0.25],
+    ['first', 0.5],
+  ]);
+  expect(view.directions).toEqual([]);
+  fireEvent.pointerCancel(view.element, touch(1, 200));
+  expect(view.directions).toEqual([['first', 0]]);
+});
+
 test('a spectator cannot focus controls, move either paddle or capture scrolling', () => {
   const view = court([]);
   fireEvent.keyDown(view.element, { key: 'w' });

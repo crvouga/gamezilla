@@ -126,6 +126,7 @@ test("storybook integration: pong-overhaul court text and the players' points me
 
 // The court's focus ring was 1.55:1 against the light page and its sides
 // were clipped by the board.
+// regression: pong-focus-resize-releases-during-layout
 // regression: pong-court-focus-ring-faint-and-clipped
 test('storybook integration: pong-overhaul court focus ring is visible and whole', async ({
   page,
