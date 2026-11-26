@@ -47,6 +47,7 @@ export function FileTrigger(props: FileTriggerProps): JSX.Element {
     <div {...field.slot('root')} aria-label={props.label} class="contents">
       <input
         {...field.slot('input')}
+        hidden
         accept={props.accept}
         data-testid={props.testId}
         data-component={componentId('FileTrigger')}

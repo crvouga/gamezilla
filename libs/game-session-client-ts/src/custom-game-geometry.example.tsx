@@ -1,4 +1,4 @@
-import { expect, within } from 'storybook/test';
+import { expect, userEvent, within } from 'storybook/test';
 
 /** Geometry is checked before any userEvent can scroll an element into view. */
 export async function expectBoardFirst(
@@ -23,8 +23,10 @@ export async function expectBoardFirst(
   );
   await expect(box.left).toBeGreaterThanOrEqual(0);
   await expect(box.right).toBeLessThanOrEqual(view.innerWidth);
+  // Every seat and the status line read above the board (the owner's stage
+  // order), and the board still starts in the first screen's upper half.
   await expect(box.top).toBeLessThan(
-    terminal ? 440 : view.innerWidth < 880 ? 320 : 220
+    terminal ? 440 : view.innerWidth < 880 ? 380 : 280
   );
   return { canvas, view, board };
 }
@@ -37,33 +39,49 @@ export async function expectTerminalVisible(canvasElement: HTMLElement) {
   await expect(rematch.getBoundingClientRect().bottom).toBeLessThan(
     view.innerHeight
   );
-  // Since #379 the result card may sit under the board; its next action
-  // stays in the first view and never covers the board.
-  const action = rematch.getBoundingClientRect();
-  const square = board.getBoundingClientRect();
-  await expect(
-    action.bottom <= square.top ||
-      action.top >= square.bottom ||
-      action.right <= square.left ||
-      action.left >= square.right
-  ).toBe(true);
+  // The ending is a dialog over the final board, with the next actions in
+  // it; closing it gives the whole final position back, unmoved.
+  const dialog = canvas.getByRole('dialog', { name: 'Game over' });
+  await expect(dialog.contains(headline)).toBe(true);
+  await expect(dialog.contains(rematch)).toBe(true);
+  const before = board.getBoundingClientRect();
+  await userEvent.click(canvas.getByTestId('game-result-close'));
+  const after = board.getBoundingClientRect();
+  await expect([after.top, after.left, after.width, after.height]).toEqual([
+    before.top,
+    before.left,
+    before.width,
+    before.height,
+  ]);
+  await userEvent.click(canvas.getByTestId('game-show-result'));
   await expect(canvas.getAllByTestId('custom-game-rematch')).toHaveLength(1);
   await expect(canvas.getAllByTestId('custom-game-history-stats')).toHaveLength(
     1
   );
 }
 
-/** Two phone columns retain complete identities and each seat's readable facts. */
+/**
+ * Four seats on a phone stand in two rows of two, every seat in view, each
+ * with its readable facts.
+ */
 export async function expectFourSeatRail(seats: HTMLElement[]) {
   const boxes = seats.map((seat) => seat.getBoundingClientRect());
   const [first, second, third, fourth] = boxes;
   if (!first || !second || !third || !fourth)
     throw new Error('Four seats are required');
-  await expect(second.top).toBe(first.top);
-  await expect(fourth.top).toBe(third.top);
-  await expect(third.top).toBe(Math.max(first.bottom, second.bottom) + 4);
-  await expect(second.left).toBe(first.right + 4);
-  await expect(fourth.left).toBe(third.right + 4);
+  // Rows of two: each row's seats side by side at one top, the second row
+  // under the first, every seat wholly inside the window.
+  for (const [left, right] of [
+    [first, second],
+    [third, fourth],
+  ] as const) {
+    await expect(right.top).toBe(left.top);
+    await expect(right.left).toBeGreaterThanOrEqual(left.right);
+  }
+  await expect(third.top).toBeGreaterThanOrEqual(first.bottom);
+  await expect(third.left).toBe(first.left);
+  await expect(first.left).toBeGreaterThanOrEqual(0);
+  await expect(second.right).toBeLessThanOrEqual(window.innerWidth);
   for (const seat of seats) {
     await expect(seat.getBoundingClientRect().height).toBeGreaterThanOrEqual(
       44

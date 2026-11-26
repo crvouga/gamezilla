@@ -16,7 +16,10 @@ export function ScreenColumn(props: {
   const measure = useScreenMeasure(() => props.width ?? 'prose');
   return (
     <div
-      class={[styles['column'], { 'mx-auto': measure().centered }]}
+      class={[
+        styles['column'],
+        { 'mx-auto': measure().centered, grow: props.width === 'full' },
+      ]}
       style={{ 'max-width': measure().maxWidth }}
       {...dataAttrs({ component: 'ScreenColumn' })}
     >

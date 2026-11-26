@@ -32,7 +32,9 @@ async function checkReadout(page: Page, width: number, theme: string) {
   const tile = await occupied.boundingBox();
   if (tile === null) throw new Error('Committed tile is missing');
   await page.mouse.click(tile.x + tile.width / 2, tile.y + tile.height / 2);
-  await expect(details).toHaveText(label);
+  // A short visible line; the square's whole name stays for listeners.
+  await expect(details.locator('[aria-hidden="true"]')).toHaveText('g8 · C 3');
+  await expect(details).toContainText(label);
   expect(
     await details.evaluate((node) =>
       Number.parseFloat(getComputedStyle(node).fontSize)

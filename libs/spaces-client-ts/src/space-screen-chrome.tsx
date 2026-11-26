@@ -97,7 +97,6 @@ import type {
   SpaceRole,
   SpacePerson as SpaceShellPerson,
 } from '@pkgs/ui-root-client-ts/space-types';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
@@ -283,13 +282,19 @@ function useMenu(
     id: string,
     label: string,
     onPress: () => void,
-    look: { readonly icon: IconComponent; readonly testId: string }
+    look: {
+      readonly icon: IconComponent;
+      readonly testId: string;
+      readonly shortLabel?: string;
+    }
   ): SpaceMenuItem => ({ id, label, onPress, ...look });
   return createMemo((): readonly SpaceMenuItem[] => [
     // First: who is here is the top bar's leading action on every screen.
     item('people', t`People in this space`, overlays.openMembers, {
       icon: UsersIcon,
       testId: Handles.spaceMembersButton,
+      // Its word beside the icon in a wide top bar.
+      shortLabel: t`People`,
     }),
     item('share', t`Share`, () => overlays.setShareOpen(true), {
       icon: ShareIcon,
@@ -462,9 +467,7 @@ export function SpaceScreenNotice(): JSX.Element {
   return (
     <>
       <Show when={chrome.hostOffline && chrome.role === 'guest'}>
-        <StackVertical paddingX="lg" paddingTop="sm">
-          <SpaceHostOfflineNotice />
-        </StackVertical>
+        <SpaceHostOfflineNotice />
       </Show>
       <Show when={live}>
         <SpaceRefusedChangeNotice />

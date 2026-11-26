@@ -19,6 +19,11 @@ export type GameTableSeatProps = {
   /** Their `Avatar` (32px). Defaults to the person placeholder. */
   avatar?: JSX.Element;
   swatch?: GameSeatLook | undefined;
+  /**
+   * A short mark on the name's own line that never gives way (`You`): the
+   * name is cut short first, so the person's own seat reads as theirs.
+   */
+  nameTag?: JSX.Element;
   /** Short facts about the player, each its own `Badge` (`You`, `West`). */
   tags?: JSX.Element;
   /** Makes the seat a button (open the player). */
@@ -34,6 +39,7 @@ export type GameTableSeatProps = {
 
 function SeatFace(props: GameTableSeatProps): JSX.Element {
   const tags = createScreenSlot(() => props.tags);
+  const nameTag = createScreenSlot(() => props.nameTag);
   return (
     <>
       <span class={styles['avatar']} aria-hidden="true">
@@ -45,7 +51,12 @@ function SeatFace(props: GameTableSeatProps): JSX.Element {
         </Show>
       </span>
       <span class={styles['text']}>
-        <span class={`text textLabel ${styles['name']}`}>{props.name}</span>
+        <span class={styles['nameLine']}>
+          <span class={`text textLabel ${styles['name']}`}>{props.name}</span>
+          <Show when={nameTag.present()}>
+            <span class={styles['nameTag']}>{nameTag.content()}</span>
+          </Show>
+        </span>
         <span class={styles['tags']}>
           <Show when={props.swatch}>
             {(look) => <GameSeatSwatch look={look()} />}

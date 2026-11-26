@@ -54,7 +54,7 @@ describe('game surfaces', () => {
     ).toBe(true);
     // Wide, the two cards share one row at one height.
     const css = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     expect(css).toMatch(
@@ -80,14 +80,11 @@ describe('game surfaces', () => {
   // Players card, so the preview, not the players, led the setup. It is a
   // slim row now: a 48px thumbnail beside its label.
   test("a phone's setup picture is a slim row, the thumbnail beside its label", () => {
-    const media = rule(
-      'game-section/game-section-media.module.css',
-      '.sectionMedia'
-    );
+    const media = rule('game-section/game-section.module.css', '.sectionMedia');
     // regression: wide-setup-unbalanced — wide, the card beside the players
     // holds the preview and how the game is played, spaced apart.
     const pairCss = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     const wide = pairCss.slice(
@@ -96,7 +93,7 @@ describe('game surfaces', () => {
     expect(wide).toMatch(/\.sectionMedia \{[^}]*gap: var\(--ui-space-4\);/);
     expect(media).toContain('--game-board-preview-measure: 48px');
     const pair = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     expect(pair).toMatch(
@@ -106,7 +103,8 @@ describe('game surfaces', () => {
 
   // regression: phone-three-players-two-rows — on a phone three players'
   // chips wrapped as two and one, the third alone on a second row, pushing
-  // a Light Cycles arena down. Three players make one row of three chips.
+  // a Light Cycles arena down. The rows of two now hold every chip at one
+  // height, the band set by the table's size alone (below).
   // regression: light-cycles-phone-chips-tall — those chips then stacked
   // avatar over name over figures over "You", about 130px tall, shrinking
   // the arena. Each is its name over one line of its avatar, a size
@@ -116,7 +114,14 @@ describe('game surfaces', () => {
   // its name while the other two chips kept one line. Every chip is the
   // same two lines: its name, then its swatch, figure and short facts on
   // wrapping facts, with no avatar to push them apart.
-  test('three players on a phone share a row with wrapping facts', () => {
+  // regression: phone-four-seats-cut — four seats in one scrolling phone
+  // row cut the last chip at the edge. Every seat now shares the row's
+  // width evenly (no sideways scroll), its name then its figure, so the
+  // band is one height at every table size and the board never moves.
+  // regression: phone-three-seats-drop-facts — three chips in one 390px
+  // row dropped their names' ends, win counts and Out badges. Two seats
+  // share one row; three or more stand in rows of two, every fact whole.
+  test('players on a phone share one row when two, rows of two from three', () => {
     const css = readFileSync(
       join(UI_SRC, 'game-player-rail/game-player-rail.module.css'),
       'utf8'
@@ -124,18 +129,52 @@ describe('game surfaces', () => {
     const phone = css.slice(
       css.indexOf('@container game-column (max-width: 879px)')
     );
-    expect(phone).toMatch(
-      /\.playerRail:has\(> :nth-child\(3\):last-child\) \{\s*grid-template-columns: repeat\(3, minmax\(0, 1fr\)\);/
+    const rail = phone.slice(phone.indexOf('.playerRail {'));
+    const oneRow = rail.slice(0, rail.indexOf('}'));
+    expect(oneRow).toMatch(/grid-auto-flow: column;/);
+    expect(oneRow).toMatch(/grid-auto-columns: minmax\(0, 1fr\);/);
+    expect(oneRow).not.toMatch(/overflow-x: auto;/);
+    expect(phone).not.toContain('.playerRail:has(> :nth-child(4)) {');
+    const three = phone.slice(
+      phone.indexOf('.playerRail:has(> :nth-child(3)) {')
     );
-    const frame = phone.slice(phone.indexOf('.chipFrame {'));
-    expect(frame.slice(0, frame.indexOf('}'))).toMatch(
-      /display: grid;\s*grid-template-columns: minmax\(0, 1fr\);\s*grid-template-rows: auto auto;/
+    expect(three.slice(0, three.indexOf('}'))).toMatch(
+      /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);[\s\S]*grid-auto-flow: row;/
     );
-    expect(phone).toMatch(/\.chipText \{\s*display: contents;/);
-    expect(phone).toMatch(/\.chipAvatar \{\s*display: none;/);
-    const facts = phone.slice(phone.indexOf('.chipFacts {'));
-    expect(facts.slice(0, facts.indexOf('}'))).toMatch(
-      /flex-wrap: wrap;[\s\S]*white-space: normal;/
+    expect(
+      rule(
+        'game-player-rail/game-player-rail.module.css',
+        '  .playerRail .chipFacts'
+      )
+    ).toMatch(/flex-wrap: wrap;[\s\S]*overflow: hidden;/);
+  });
+
+  // regression: desktop-own-seat-hero-bar — at a table of three or more
+  // beside a wide board, the person's own seat (or a watcher's nearest)
+  // was a full-width bar with an avatar over small chips for everyone
+  // else. Every seat is a chip of the same weight; beside a board too
+  // narrow for four in a row (a Light Cycles arena) they stand in rows of
+  // two, so no win count or status is hidden.
+  test('beside a narrow board four or more chips stand in rows of two', () => {
+    const css = readFileSync(
+      join(UI_SRC, 'game-session-layout/game-session-layout.module.css'),
+      'utf8'
+    );
+    expect(
+      rule(
+        'game-session-layout/game-session-layout.module.css',
+        '.participants'
+      )
+    ).toContain('container: game-participants / inline-size;');
+    const narrow = css.slice(
+      css.indexOf('@container game-participants (max-width: 36rem)')
+    );
+    const rows = narrow.slice(0, narrow.indexOf('}'));
+    expect(rows).toContain(
+      '.participants > [role="list"]:has(> :nth-child(4))'
+    );
+    expect(rows).toMatch(
+      /grid-template-columns: repeat\(2, minmax\(0, 1fr\)\);/
     );
   });
 
@@ -336,12 +375,13 @@ describe('game surfaces', () => {
     const frame = source.slice(source.indexOf('const CHIP_FRAME ='));
     expect(frame.slice(0, frame.indexOf(';'))).toMatch(/\bflex-1'/);
     expect(source).toMatch(/class="box min-w-0 flex-1"\s*role=/);
+    // One line of facts per chip, so no chip's lines can stand taller.
     expect(
       rule(
         'game-player-rail/game-player-rail.module.css',
-        '  .playerRail:has(> :nth-child(3):last-child) .chipFrame'
+        '  .playerRail .chipFacts'
       )
-    ).toMatch(/align-content:\s*start;/);
+    ).toMatch(/flex-wrap: wrap;[\s\S]*overflow: hidden;/);
   });
 
   // regression: setup-players-card-stretched — wide, the board preview's
@@ -354,7 +394,7 @@ describe('game surfaces', () => {
   // A compact seat's facts line is a tag's height either way.
   test("a wide setup's preview card is no taller than its players, and seat rows stay level", () => {
     const css = readFileSync(
-      join(UI_SRC, 'game-section/game-section-media.module.css'),
+      join(UI_SRC, 'game-section/game-section.module.css'),
       'utf8'
     );
     const wide = css.slice(
@@ -381,7 +421,7 @@ describe('game surfaces', () => {
     // A phone's preview row: the stage is as wide as its thumbnail, so the
     // line beside it (how the game is played) has the rest of the row.
     const phone = rule(
-      'game-section/game-section-media.module.css',
+      'game-section/game-section.module.css',
       '  .sectionPair .sectionMedia [data-preview="true"]'
     );
     expect(phone).toMatch(/flex:\s*0 0 auto;/);

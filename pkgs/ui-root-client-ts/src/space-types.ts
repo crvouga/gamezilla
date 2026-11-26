@@ -107,6 +107,12 @@ export type SpaceMenuItem = {
   /** Stable within its menu; shipped as `data-action`. */
   id: string;
   label: string;
+  /**
+   * A word for it beside its icon in row 1 on a wide layout ("People" for
+   * "People in this space"); `label` when unset, and its accessible name
+   * either way.
+   */
+  shortLabel?: string | undefined;
   /** The row's picture in the space menu. */
   icon?: IconComponent | undefined;
   tone?: 'default' | 'destructive' | undefined;

@@ -8,8 +8,11 @@ import styles from './content-edge-padding.module.css';
 /** Spacing-scale step (`1` = 4px → 16px) for screen/surface horizontal insets. */
 export const CONTENT_EDGE_PADDING_STEP = 4;
 
-/** Spacing-scale step (→ 24px) for `ResponsiveSurface` bottom inset. */
-export const SURFACE_BOTTOM_PADDING_STEP = 6;
+/**
+ * Spacing-scale step (→ 16px) for `ResponsiveSurface` bottom inset: the same
+ * as its top, so a dialog ends as close under its last button as it starts.
+ */
+export const SURFACE_BOTTOM_PADDING_STEP = 4;
 
 export type ContentEdgePadding = {
   horizontalStep: number;

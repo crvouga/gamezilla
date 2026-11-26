@@ -1,0 +1,4 @@
+{
+  "summary": "Reading the matched game identity left the command sheet over both private fleets.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

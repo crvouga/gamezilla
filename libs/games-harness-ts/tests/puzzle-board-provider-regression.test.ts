@@ -14,7 +14,8 @@ test('puzzle 01Xbe renders translated guidance and accepts g6g5 after g3h4', asy
   const driver = puzzleBoardDriver(
     CHESS_HARNESS_GAME,
     { position: chess.fen() },
-    played
+    played,
+    { width: 1440, height: 900 }
   );
   try {
     await driver.launch();

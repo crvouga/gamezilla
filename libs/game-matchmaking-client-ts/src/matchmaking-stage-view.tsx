@@ -3,9 +3,8 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
+import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
-import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
@@ -30,6 +29,11 @@ type PlayProps = MultiplayerPlaceFrame & {
   readonly game: MultiplayerGameView;
   readonly commands: MultiplayerGameCommands;
   readonly onOpen: (place: MultiplayerPlace) => void;
+  /**
+   * No connection: offering a draw and resigning stay in their places, held
+   * back, as the custom-game stage holds them, under the line that says why.
+   */
+  readonly offline?: boolean | undefined;
 };
 
 /**
@@ -56,13 +60,15 @@ export function MultiplayerCommandsControl(props: {
 }): JSX.Element {
   return (
     <Show when={multiplayerHasCommands(props.game, props.stage)}>
-      <IconButton
-        label={<Trans>Game menu</Trans>}
+      <Button
+        // Named in words: the bar's ••• is the space's menu, this is the game's.
+        title={<Trans>Game menu</Trans>}
+        variant="outline"
+        intent="neutral"
+        icon={EllipsisIcon}
         onClick={() => props.onOpen({ screen: 'commands' })}
         dataSet={{ testid: 'multiplayer-open-commands' }}
-      >
-        <EllipsisIcon size={20} />
-      </IconButton>
+      />
     </Show>
   );
 }
@@ -114,6 +120,7 @@ function QuickCommands(props: PlayProps): JSX.Element {
             </Trans>
           }
           successLabel={<Trans>Multiplayer draw offered</Trans>}
+          disabled={props.offline === true}
           dataSet={{ testid: 'multiplayer-offer-draw-now' }}
         />
       </Show>
@@ -136,7 +143,8 @@ function QuickCommands(props: PlayProps): JSX.Element {
               </Show>
             }
             variant="outline"
-            intent="danger"
+            intent={props.offline === true ? 'neutral' : 'danger'}
+            disabled={props.offline === true}
             onClick={() => props.commands.ask(leave())}
             dataSet={{ testid: 'multiplayer-leave-now', leave: leave() }}
           />
@@ -192,7 +200,22 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
         aside={
           <Show when={props.game.moves}>
             {(moves) => (
-              <GameSection title={<Trans>Moves</Trans>}>
+              <GameSection
+                title={<Trans>Moves</Trans>}
+                // The same way into the moves as a custom game's card.
+                footer={
+                  <GameActions>
+                    <Button
+                      title={<Trans>Review moves</Trans>}
+                      variant="outline"
+                      intent="neutral"
+                      size="sm"
+                      onClick={() => props.onOpen({ screen: 'moves' })}
+                      dataSet={{ testid: 'multiplayer-review-jump' }}
+                    />
+                  </GameActions>
+                }
+              >
                 <MultiplayerMoveList
                   moves={moves()}
                   perTurn={props.game.players}

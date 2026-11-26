@@ -6,7 +6,11 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { numberlinkContentFrame } from './numberlink-content-frame';
 import { NumberlinkEditor } from './numberlink-editor';
 import { initialNumberlinkDefinition } from './numberlink-editor-actions';
-import { NumberlinkPlayer, NumberlinkPreview } from './numberlink-player';
+import {
+  NumberlinkPlayer,
+  NumberlinkPreview,
+  NumberlinkSupport,
+} from './numberlink-player';
 
 export const numberlinkGameClient = defineGameClient({
   shared: numberlinkGameShared,
@@ -25,6 +29,7 @@ export const numberlinkGameClient = defineGameClient({
   ),
   puzzleContent: {
     Player: NumberlinkPlayer,
+    Support: NumberlinkSupport,
     Preview: NumberlinkPreview,
     frame: numberlinkContentFrame,
     authoring: {

@@ -61,8 +61,12 @@ for (const width of [390, 1440]) {
         await expect(page.locator('[aria-pressed="true"]')).toHaveCount(3);
         await expect(pass).toBeEnabled();
         await captureHearts(page, info, 'failed-pass-preserves-selection');
-        if (width === 390) await pass.tap();
-        else {
+        if (width === 390) {
+          await page.getByTestId('toast-dismiss').tap();
+          await expect(error).toHaveCount(0);
+          await expect(page.locator('[aria-pressed="true"]')).toHaveCount(3);
+          await pass.tap();
+        } else {
           await expect(pass).toBeFocused();
           await page.keyboard.press('Enter');
         }

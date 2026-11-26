@@ -1,10 +1,12 @@
 import {
   decodeQuoridor,
   type Quoridor,
+  quoridorCellName,
   quoridorMustPass,
   wallRefusal,
 } from '@libs/quoridor-shared-ts/quoridor';
 import { t } from '@lingui/core/macro';
+import { QuoridorSurface } from '@pkgs/quoridor-board-client-ts/surface';
 import type {
   GameFrameAction,
   GameFrameBoardSession,
@@ -13,14 +15,18 @@ import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { createFocusTarget } from '@pkgs/ui-root-client-ts/focus';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { createScrollTarget } from '@pkgs/ui-root-client-ts/scroll';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import type { JSX } from '@solidjs/web';
 import {
   type Accessor,
   createEffect,
   createMemo,
   createSignal,
+  onSettled,
   Show,
 } from 'solid-js';
 import {
@@ -29,6 +35,7 @@ import {
   quoridorBoundary,
   quoridorPlayerName,
   quoridorWallMessage,
+  withWallPreview,
 } from './quoridor-board-cells';
 import {
   QuoridorBoardTools,
@@ -52,6 +59,41 @@ type BoardState = {
 };
 
 type BoardViewProps = GameBoardProps & { readonly state: BoardState };
+
+/**
+ * Why the chosen wall, or the host, refused the last attempt (`''` for
+ * nothing refused): an alert over the screen, so the board and its tools
+ * never move for it.
+ */
+function refusalReason(props: BoardViewProps, wall: string | null): string {
+  const game = props.state.game();
+  const reason =
+    wall === null ? null : wallRefusal(game, `${wall}${props.state.tool()}`);
+  if (reason !== null) return quoridorWallMessage(reason, game.mode);
+  return props.interactive ? props.state.refusal() : '';
+}
+
+function boardMessage(
+  props: BoardViewProps,
+  previewAction: Accessor<string | null>
+): string {
+  const game = props.state.game();
+  if (game.winner !== null)
+    return t`Game finished. Choose a move in the moves list to see the board at that point.`;
+  if (!props.interactive)
+    return t`Waiting for ${quoridorPlayerName(game, game.turn)} to move. This board is read-only.`;
+  if (quoridorMustPass(game))
+    return t`No legal move or wall. Pass to continue.`;
+  const action = previewAction();
+  if (action !== null)
+    return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game, action), game.mode)}`;
+  // A host refusal explains the last attempt; it outranks standing guidance.
+  const refused = props.state.refusal();
+  if (refused !== '') return refused;
+  return (game.remaining[game.turn] ?? 0) === 0
+    ? quoridorWallMessage('no-walls', game.mode)
+    : '';
+}
 
 function createBoardSelection(props: BoardViewProps) {
   const game = (): Quoridor => props.state.game();
@@ -84,28 +126,18 @@ function createBoardSelection(props: BoardViewProps) {
     tool() === 'move'
       ? null
       : `${selected() ?? preview()}${tool()}`;
-  // Memoized: each square reads the list, so computing it inline would
-  // rebuild the whole board once per square on every change.
-  const cells = createMemo(() =>
-    quoridorBoardCells(game(), tool(), props.interactive, previewAction())
+  const targets = createMemo(() =>
+    quoridorBoardCells(game(), tool(), props.interactive)
   );
-  const message = () => {
-    if (game().winner !== null)
-      return t`Game finished. Use the game controls to review earlier moves.`;
-    if (!props.interactive)
-      return t`Waiting for ${quoridorPlayerName(game(), game().turn)} to move. This board is read-only.`;
-    if (quoridorMustPass(game()))
-      return t`No legal move or wall. Pass to continue.`;
+  const cells = createMemo(() => {
     const action = previewAction();
-    if (action !== null)
-      return `${quoridorBoundary(action)}. ${quoridorWallMessage(wallRefusal(game(), action), game().mode)}`;
-    // A host refusal explains the last attempt; it outranks standing guidance.
-    const refused = props.state.refusal();
-    if (refused !== '') return refused;
-    return (game().remaining[game().turn] ?? 0) === 0
-      ? quoridorWallMessage('no-walls', game().mode)
-      : '';
-  };
+    return withWallPreview(
+      targets(),
+      action,
+      action !== null && wallRefusal(game(), action) !== null
+    );
+  });
+  const message = () => boardMessage(props, previewAction);
   const activate = (cell: string): void => {
     const action = tool() === 'move' ? cell : `${cell}${tool()}`;
     if (tool() !== 'move') {
@@ -125,7 +157,58 @@ function createBoardSelection(props: BoardViewProps) {
     props.state.setTool('move');
     props.onAction(action);
   };
-  return { cells, selected, message, activate, setPreview, cancel, commit };
+  const refusal = () => refusalReason(props, selected());
+  return {
+    cells,
+    selected,
+    message,
+    refusal,
+    activate,
+    setPreview,
+    cancel,
+    commit,
+  };
+}
+
+function PlayingSurface(
+  props: BoardViewProps & { selection: ReturnType<typeof createBoardSelection> }
+): JSX.Element {
+  const game = () => props.state.game();
+  const tool = () => props.state.tool();
+  return (
+    <QuoridorSurface
+      revision={props.position}
+      syncKey={props.syncKey}
+      tool={tool()}
+      pawn={quoridorCellName(game().pawns[game().turn] ?? 0)}
+      interactive={props.interactive && game().winner === null}
+      onPreview={props.selection.setPreview}
+      onDrop={props.selection.activate}
+      zoomLabel={t`Magnify board`}
+      fitLabel={t`Fit board`}
+    >
+      <CellGridBoard
+        boardTheme="quoridor"
+        fill
+        label={t`Quoridor board, nine columns and nine rows`}
+        describedBy={`${props.testId}-wall-status`}
+        testId={props.testId}
+        columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
+        rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
+        cells={props.selection.cells()}
+        cellTestId={(cell) =>
+          `${props.testId}-action-${cell}${tool() === 'move' ? '' : tool()}`
+        }
+        onActivate={props.selection.activate}
+        onPreview={props.selection.setPreview}
+        onCellKey={(key) => {
+          if (key !== 'Escape') return false;
+          props.selection.cancel();
+          return true;
+        }}
+      />
+    </QuoridorSurface>
+  );
 }
 
 function QuoridorBoardView(props: BoardViewProps): JSX.Element {
@@ -149,26 +232,7 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           actions={props.state.actions()}
         />
       </Show>
-      <CellGridBoard
-        boardTheme="quoridor"
-        fill
-        label={t`Quoridor board, nine columns and nine rows`}
-        describedBy={`${props.testId}-wall-status`}
-        testId={props.testId}
-        columnLabels={['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i']}
-        rowLabels={['9', '8', '7', '6', '5', '4', '3', '2', '1']}
-        cells={selection.cells()}
-        cellTestId={(cell) =>
-          `${props.testId}-action-${cell}${tool() === 'move' ? '' : tool()}`
-        }
-        onActivate={selection.activate}
-        onPreview={selection.setPreview}
-        onCellKey={(key) => {
-          if (key !== 'Escape') return false;
-          selection.cancel();
-          return true;
-        }}
-      />
+      <PlayingSurface {...props} selection={selection} />
       <Show
         when={
           props.interactive &&
@@ -205,6 +269,10 @@ function QuoridorBoardView(props: BoardViewProps): JSX.Element {
           }}
         />
       </Show>
+      <QuoridorRefusalToast
+        testId={props.testId}
+        reason={selection.refusal()}
+      />
       <P
         id={`${props.testId}-wall-status`}
         role="status"
@@ -271,14 +339,31 @@ export function QuoridorBoard(props: GameBoardProps): JSX.Element {
   return createQuoridorBoard(props).Board();
 }
 
+/**
+ * Place wall and Cancel, under the tools. The board's box may scroll (a
+ * phone's fixed view): a wall just proposed brings them into its view.
+ */
 function WallConfirmation(props: {
   testId: string;
   enabled: boolean;
   cancel: () => void;
   commit: () => void;
 }): JSX.Element {
+  const reveal = createScrollTarget();
+  onSettled(() => {
+    reveal.scrollIntoView({
+      behavior: 'instant',
+      block: 'nearest',
+      scope: 'scroller',
+    });
+  });
   return (
-    <StackHorizontal gap="sm" wrap>
+    <StackHorizontal
+      gap="sm"
+      wrap
+      scrollTarget={reveal.target}
+      dataSet={{ component: 'QuoridorWallConfirmation' }}
+    >
       <Button
         title={t`Place wall`}
         disabled={!props.enabled}
@@ -292,6 +377,25 @@ function WallConfirmation(props: {
         onClick={props.cancel}
       />
     </StackHorizontal>
+  );
+}
+
+/** A refused wall's reason, floated over the command bar until it changes. */
+function QuoridorRefusalToast(props: {
+  testId: string;
+  reason: string;
+}): JSX.Element {
+  return (
+    <ToastStack placement="above-commands">
+      <Show when={props.reason !== ''}>
+        <Notice
+          tone="warning"
+          dataSet={{ testid: `${props.testId}-wall-refusal` }}
+        >
+          {props.reason}
+        </Notice>
+      </Show>
+    </ToastStack>
   );
 }
 

@@ -21,6 +21,23 @@ type StartProps = {
    * it is the thing to do next, in place of a readiness they cannot give.
    */
   readonly onArrange?: (() => void) | undefined;
+  /**
+   * No connection: Start says what pressing it does now, so the timing
+   * stays in view after the notice is dismissed.
+   */
+  readonly offline?: boolean | undefined;
+  /**
+   * A seat the viewer may fill is what holds the game back: the way to fill
+   * it (its label says how) leads, and readiness stays a quiet command.
+   */
+  readonly fillSeat?: FrameFillSeat | undefined;
+};
+
+/** Filling the seat that holds the game back, and how it can be filled. */
+export type FrameFillSeat = {
+  readonly invite: boolean;
+  readonly bot: boolean;
+  readonly onOpen: () => void;
 };
 
 /** The viewer cannot get ready until their private setup is complete. */
@@ -44,6 +61,9 @@ function mustGetReady(start: FrameStart): boolean {
  * they are not; taking it back is an outlined one of the same size once they are.
  */
 export function FrameReadinessButton(props: StartProps): JSX.Element {
+  // Filling a seat leads while one is open; readiness waits beside it.
+  const quiet = (ready: boolean): boolean =>
+    ready || props.fillSeat !== undefined;
   return (
     <Show when={props.start.readiness}>
       {(readiness) => (
@@ -54,7 +74,7 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
             </Show>
           }
           dataSet={{ testid: 'custom-game-ready' }}
-          variant={readiness().ready ? 'outline' : 'solid'}
+          variant={quiet(readiness().ready) ? 'outline' : 'solid'}
           size="lg"
           disabled={!readiness().ready && readiness().blocked}
           operation={() =>
@@ -76,9 +96,22 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
  */
 function StartButton(props: StartProps): JSX.Element {
   return (
-    <Show when={props.start.canStart && !mustGetReady(props.start)}>
+    <Show
+      when={
+        props.start.canStart &&
+        !mustGetReady(props.start) &&
+        props.fillSeat === undefined
+      }
+    >
       <GameActionButton
-        title={<Trans>Start game</Trans>}
+        title={
+          <Show
+            when={props.offline === true}
+            fallback={<Trans>Start game</Trans>}
+          >
+            <Trans>Start when back online</Trans>
+          </Show>
+        }
         dataSet={{ testid: 'custom-game-start' }}
         variant="solid"
         size="lg"
@@ -86,6 +119,26 @@ function StartButton(props: StartProps): JSX.Element {
         disabled={props.start.reason !== null}
       />
     </Show>
+  );
+}
+
+/** How the seat can be filled, said on its command. */
+function FillSeatButton(props: { readonly fill: FrameFillSeat }): JSX.Element {
+  const title = (): JSX.Element => {
+    if (props.fill.invite && props.fill.bot)
+      return <Trans>Invite a player or add a bot</Trans>;
+    if (props.fill.invite) return <Trans>Invite a player</Trans>;
+    if (props.fill.bot) return <Trans>Add a bot</Trans>;
+    return <Trans>Choose who sits here</Trans>;
+  };
+  return (
+    <Button
+      title={title()}
+      variant="solid"
+      size="lg"
+      onClick={() => props.fill.onOpen()}
+      dataSet={{ testid: 'custom-game-fill-seat' }}
+    />
   );
 }
 
@@ -98,7 +151,7 @@ function ReadinessCommand(props: StartProps): JSX.Element {
     >
       <Button
         title={<Trans>Arrange your setup</Trans>}
-        variant="solid"
+        variant={props.fillSeat === undefined ? 'solid' : 'outline'}
         size="lg"
         onClick={() => props.onArrange?.()}
         dataSet={{ testid: 'custom-game-setup-arrange' }}
@@ -109,10 +162,18 @@ function ReadinessCommand(props: StartProps): JSX.Element {
 
 /**
  * The line over the dock's command. The last person everyone waits for is
- * told so in the second person, never counted as "1 person".
+ * told so in the second person, never counted as "1 person". Offline, a
+ * game that is ready says the start waits on the connection, as its button
+ * does, never a bare "Ready to start." over a start that cannot happen yet.
  */
-function startLine(start: FrameStart, invitedTo?: string): string {
+function startLine(
+  start: FrameStart,
+  invitedTo?: string,
+  offline?: boolean
+): string {
   const reason = start.reason;
+  if (reason === null && offline === true)
+    return t`Ready to start once you're back online.`;
   // The person the game waits for is told what to do, not counted.
   if (reason?.kind === 'invitations' && invitedTo !== undefined)
     return t`Accept to play ${invitedTo}, or decline.`;
@@ -139,28 +200,76 @@ export function FrameStartView(
     readonly seat?: JSX.Element | undefined;
     /** The side the viewer is invited to play, while they have not answered. */
     readonly invitedTo?: string | undefined;
+    /**
+     * The viewer only watches: no seat, no invitation, no open seat to take.
+     * They are told the host moves the game on.
+     */
+    readonly watching?: boolean | undefined;
   }
 ): JSX.Element {
   return (
     <GameLobbyDock
       status={
-        <>
+        // Someone with nothing to press (a watcher, a ready guest): who moves the game on leads, and
+        // where the game stands follows, quietly.
+        <Show
+          when={
+            props.watching !== true &&
+            !(props.start.hostStarts && !mustGetReady(props.start))
+          }
+          fallback={
+            <>
+              <P
+                variant="bodyBold"
+                role="status"
+                testId="custom-game-host-starts"
+              >
+                <Trans>Waiting for the host to start.</Trans>
+              </P>
+              <P
+                variant="caption"
+                tone="secondary"
+                testId="custom-game-startable"
+              >
+                {/* Where the game stands, never an instruction they cannot
+                    follow: "Everyone is ready." for one they cannot start. */}
+                <Show
+                  when={props.start.reason !== null}
+                  fallback={<Trans>Everyone is ready.</Trans>}
+                >
+                  {startLine(props.start, props.invitedTo)}
+                </Show>
+              </P>
+            </>
+          }
+        >
           <P variant="bodyBold" role="status" testId="custom-game-startable">
-            {startLine(props.start, props.invitedTo)}
+            {startLine(props.start, props.invitedTo, props.offline)}
           </P>
+          {/* A seated guest, with nothing to press here, is told who moves
+              the game on. */}
           <Show when={props.start.hostStarts}>
             <P
               variant="caption"
               tone="secondary"
               testId="custom-game-host-starts"
             >
-              <Trans>Waiting for the host to start.</Trans>
+              {/* Until the viewer is ready, the host waits on them. */}
+              <Show
+                when={mustGetReady(props.start)}
+                fallback={<Trans>Waiting for the host to start.</Trans>}
+              >
+                <Trans>The host starts the game once you're ready.</Trans>
+              </Show>
             </P>
           </Show>
-        </>
+        </Show>
       }
     >
       {props.seat}
+      <Show when={props.fillSeat}>
+        {(fill) => <FillSeatButton fill={fill()} />}
+      </Show>
       <StartButton {...props} />
       <ReadinessCommand {...props} />
     </GameLobbyDock>

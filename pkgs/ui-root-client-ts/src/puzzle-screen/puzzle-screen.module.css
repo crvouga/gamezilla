@@ -1,0 +1,67 @@
+/* Phone: the coach speaks first, over an edge-to-edge board (its
+   coordinates in its squares), and the few commands sit under it. The
+   host's bar names the game, so the title is for a listener only. The
+   coach's bubble keeps one height, so the board never moves when its
+   words change. */
+@container puzzle-frame (width < 880px) {
+  .root[data-board-sizing="width"] > [data-component="PuzzleTitle"] {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .root[data-board-sizing="width"] > [data-component="PuzzleHeader"] {
+    order: 1;
+    padding-top: var(--ui-space-2);
+  }
+  .root[data-board-sizing="width"] > [data-component="PuzzleBoard"],
+  .root[data-board-sizing="width"] > :has(> [data-component="PuzzleBoard"]) {
+    order: 2;
+    padding-inline: 0;
+  }
+}
+
+/* The puzzle's one line of state under the coaching: one fixed height,
+   empty or full, so the board under it never moves. */
+.info {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 48px;
+  min-width: 0;
+  padding-inline: var(--ui-space-lg);
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+}
+
+/* Beside the board (a wide window) the line may wrap: nothing under it can
+   move the board there. */
+@container puzzle-frame (min-width: 880px) {
+  .info {
+    height: auto;
+    min-height: 48px;
+    padding-block: var(--ui-space-2);
+    overflow: visible;
+    white-space: normal;
+  }
+  .info,
+  .info * {
+    flex-wrap: wrap;
+    min-width: 0;
+  }
+  .info > * {
+    flex: 1 1 100%;
+    row-gap: var(--ui-space-2);
+  }
+}
+
+/* A phone's line keeps to what fits: the puzzle's themes read beside a
+   wide board only, never cut mid-word here. */
+@container puzzle-frame (width < 880px) {
+  .info [data-testid="chess-puzzle-feed-puzzle-themes"] {
+    display: none;
+  }
+}

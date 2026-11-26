@@ -81,8 +81,9 @@ test('AEST?RN at j8 explains the covered triple-letter square beside the rack', 
   );
   const rack = view.getByTestId('word-tiles-puzzle-rack');
   const board = view.getByTestId('word-tiles-puzzle');
-  expect(rack.compareDocumentPosition(bonus()) & 4).toBe(4);
-  expect(bonus().compareDocumentPosition(board) & 4).toBe(4);
+  // The board, then its bonus guidance, then the rack under them.
+  expect(board.compareDocumentPosition(bonus()) & 4).toBe(4);
+  expect(bonus().compareDocumentPosition(rack) & 4).toBe(4);
   fireEvent.click(view.getByTestId('word-tiles-puzzle-recall'));
   expect(bonus().textContent).toContain('2L/3L');
   expect(bonus().textContent).not.toContain('j8:');

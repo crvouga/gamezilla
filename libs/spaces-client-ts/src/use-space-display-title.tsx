@@ -21,6 +21,19 @@ export function useSpaceDisplayTitle(
   spaceId: string | Accessor<string>
 ): Accessor<string> {
   const { t } = useLingui();
+  const known = useKnownSpaceTitle(spaceId);
+  return createMemo(() => known() ?? t`Space`);
+}
+
+/**
+ * The space's name when the device knows one (its custom title, or the
+ * "<host>'s space" default), else null, so a screen still opening the space
+ * can say what it is doing instead of a placeholder "Space".
+ */
+export function useKnownSpaceTitle(
+  spaceId: string | Accessor<string>
+): Accessor<string | null> {
+  const { t } = useLingui();
   const resolvedSpaceId = (): string =>
     typeof spaceId === 'function' ? spaceId() : spaceId;
   const customTitle = useSpaceColumn(spaceId, SpaceField.title);
@@ -67,8 +80,8 @@ export function useSpaceDisplayTitle(
       })
     );
     if (parts.kind === 'host') {
-      return t`${parts.hostName}'s space`;
+      return t`${parts.hostName}’s space`;
     }
-    return t`Space`;
+    return null;
   });
 }

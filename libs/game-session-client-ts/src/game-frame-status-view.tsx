@@ -6,8 +6,8 @@ import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { GameWatchingFooter } from '@pkgs/ui-root-client-ts/game-watching';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { Text } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
@@ -117,6 +117,11 @@ export function FrameStatusView(props: {
    * reads as a button under the arena.
    */
   readonly arena?: boolean | undefined;
+  /**
+   * On the command bar's status band: a neutral line is quiet text, never
+   * a pill that reads as one more button beside the commands.
+   */
+  readonly quiet?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
@@ -150,10 +155,10 @@ export function FrameStatusView(props: {
             (status().description.trim() === '' && !status().sending)
           }
           look={
-            props.arena === true &&
             status().tone === 'neutral' &&
-            status().emphasis !== 'yours' &&
-            !status().sending
+            !status().sending &&
+            (props.quiet === true ||
+              (props.arena === true && status().emphasis !== 'yours'))
               ? 'plain'
               : 'pill'
           }
@@ -170,123 +175,268 @@ export function FrameConnectionView(props: {
   readonly beforeGame?: boolean | undefined;
 }): JSX.Element {
   return (
+    // No connection comes and goes: it floats with the screen's alerts,
+    // and stays, with no close, for as long as it holds.
+    <ToastStack placement="above-actions" persistent>
+      <FrameConnectionNotice
+        connection={props.connection}
+        beforeGame={props.beforeGame}
+      />
+    </ToastStack>
+  );
+}
+
+/**
+ * The offline notice itself, for a surface that places its own alerts (the
+ * Game over dialog says it above Rematch, never under a floating card).
+ */
+export function FrameConnectionNotice(props: {
+  readonly connection: FrameConnection;
+  readonly beforeGame?: boolean | undefined;
+  /** After the game: what the next game's choices wait for. */
+  readonly afterGame?: boolean | undefined;
+}): JSX.Element {
+  return (
     <Show when={props.connection !== 'online'}>
-      <Notice
-        tone={props.connection === 'needed' ? 'warning' : undefined}
-        icon={WifiOffIcon}
-        dataSet={{ testid: 'custom-game-connection-needed' }}
-      >
-        <Text variant="inherit" role="status">
-          <Switch
-            fallback={
-              <Trans>
-                You are offline. Moves and the dimmed commands come back when
-                the connection returns.
-              </Trans>
-            }
+      {/* After the game it is one line over the commands it holds, in the
+          Game over card; during the game, an alert. */}
+      <Show
+        when={props.afterGame !== true}
+        fallback={
+          <P
+            variant="caption"
+            tone="warning"
+            role="status"
+            lines={2}
+            testId="custom-game-connection-needed"
           >
-            <Match
-              when={props.beforeGame === true && props.connection === 'needed'}
+            <Trans>
+              Offline. Rematch or New game is sent when you're back.
+            </Trans>
+          </P>
+        }
+      >
+        <Notice
+          tone="warning"
+          icon={WifiOffIcon}
+          dataSet={{ testid: 'custom-game-connection-needed' }}
+        >
+          <Text variant="inherit" role="status">
+            <Switch
+              fallback={
+                <Trans>
+                  You're offline. Moves wait for the connection; anything else
+                  you choose now is sent when it returns.
+                </Trans>
+              }
             >
-              <Trans>
-                You are offline. A game you start now begins when the connection
-                returns.
-              </Trans>
-            </Match>
-            <Match when={props.connection === 'waiting'}>
-              <Trans>
-                Your move will be played when the connection returns.
-              </Trans>
-            </Match>
-            <Match when={props.connection === 'offline-local'}>
-              <Trans>You are offline. Your local game can continue.</Trans>
-            </Match>
-          </Switch>
-        </Text>
-      </Notice>
+              <Match when={props.afterGame === true}>
+                <Trans>
+                  You're offline. Rematch or New game is sent when the
+                  connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.beforeGame === true}>
+                <Trans>
+                  You're offline. A game you start now begins when the
+                  connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.connection === 'waiting'}>
+                <Trans>
+                  Your move will be played when the connection returns.
+                </Trans>
+              </Match>
+              <Match when={props.connection === 'offline-local'}>
+                <Trans>You're offline. Your local game can continue.</Trans>
+              </Match>
+            </Switch>
+          </Text>
+        </Notice>
+      </Show>
     </Show>
   );
 }
 
 /** A refused choice, in words; nothing for none. */
-export function FrameErrorView(props: { readonly text: string }): JSX.Element {
+export function FrameErrorView(props: {
+  readonly text: string;
+  /** What happened, as the alert's title; a refused choice by default. */
+  readonly title?: string | undefined;
+  /**
+   * One line over the commands it explains (in the Game over card, over
+   * "Retry rematch"): the reason only, in the error's tone.
+   */
+  readonly line?: boolean | undefined;
+}): JSX.Element {
   return (
     <Show when={props.text !== ''}>
-      <ErrorState
-        variant="compact"
-        title={t`That didn't go through`}
-        body={props.text}
-        dataSet={{ testid: 'custom-game-error' }}
-      />
+      <Show
+        when={props.line !== true}
+        fallback={
+          <P
+            variant="caption"
+            tone="destructive"
+            role="alert"
+            lines={2}
+            testId="custom-game-error"
+          >
+            {props.text}
+          </P>
+        }
+      >
+        <ErrorState
+          variant="compact"
+          title={props.title ?? t`That didn't go through`}
+          body={props.text}
+          dataSet={{ testid: 'custom-game-error' }}
+        />
+      </Show>
     </Show>
   );
 }
 
-/** What a participant is told during play: a draw offer, an absent opponent. */
-export function FramePlayNoticesView(props: {
+/**
+ * A draw offered, said on the command bar's status line beside the answer
+ * it waits for (Accept, Decline): a decision stays in view until it is
+ * made, never only in an alert that can be closed.
+ */
+export function FrameDrawOfferLine(props: {
+  readonly play: FramePlay;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  // Waiting for the person's answer, the offer takes the turn's own filled
+  // pill: it is the loudest thing on the bar until it is answered.
+  return (
+    <GameTurnPill
+      live
+      emphasis={props.play.canAnswerDraw ? 'yours' : 'neutral'}
+      dataSet={{ testid: 'custom-game-draw-offer' }}
+      title={<FrameDrawOfferWords {...props} />}
+    />
+  );
+}
+
+function FrameDrawOfferWords(props: {
   readonly play: FramePlay;
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
   return (
     <>
-      <Show when={props.play.drawOffered}>
-        {/* A decision the game waits for: an info banner in body weight,
-            not a quiet note. */}
-        <Notice tone={props.play.canAnswerDraw ? 'info' : 'neutral'}>
-          <Text variant="bodyBold" role="status">
-            <Show
-              when={props.play.canAnswerDraw}
-              fallback={
-                <Trans>A draw is offered. Waiting for an answer.</Trans>
-              }
-            >
-              <Show
-                when={props.play.drawOfferer}
-                fallback={<Trans>You are offered a draw.</Trans>}
-              >
-                {(offerer) => (
-                  <>
-                    <FramePersonName
-                      person={offerer().person}
-                      plainName={offerer().plainName}
-                      people={props.people}
-                    />{' '}
-                    <Trans>offers a draw.</Trans>
-                  </>
-                )}
-              </Show>
-            </Show>
-          </Text>
-        </Notice>
-      </Show>
-      <Show when={props.play.away}>
-        {(away) => (
-          <StackVertical gap="md" testId="custom-game-away">
-            <Notice>
-              <Text variant="inherit" role="status">
-                <FramePersonName
-                  person={away().person}
-                  plainName={away().plainName}
-                  people={props.people}
-                />{' '}
-                <Show
-                  when={away().twoSided}
-                  fallback={
-                    <Trans>
-                      is away. Their turn stays reserved until they return.
-                    </Trans>
-                  }
-                >
-                  <Trans>
-                    is away. After a minute away you may claim the win.
-                  </Trans>
-                </Show>
-              </Text>
-            </Notice>
-          </StackVertical>
-        )}
+      <Show
+        when={props.play.canAnswerDraw}
+        fallback={<Trans>A draw is offered. Waiting for an answer.</Trans>}
+      >
+        <Show
+          when={props.play.drawOfferer}
+          fallback={<Trans>You were offered a draw.</Trans>}
+        >
+          {(offerer) => (
+            <>
+              <FramePersonName
+                person={offerer().person}
+                plainName={offerer().plainName}
+                people={props.people}
+              />{' '}
+              <Trans>offered you a draw.</Trans>
+            </>
+          )}
+        </Show>
       </Show>
     </>
+  );
+}
+
+/**
+ * What holds a game up, said on the command bar's status line, where it
+ * stays in view until it ends and never covers the board or a seat: the
+ * engine stopped, no connection, an opponent away. Nothing while none does.
+ */
+export function FrameStageConditionLine(props: {
+  readonly stopped: boolean;
+  readonly connection: FrameConnection;
+  readonly play: FramePlay;
+  readonly people?: FramePeople | undefined;
+}): JSX.Element {
+  return (
+    <Switch>
+      <Match when={props.stopped}>
+        <P
+          variant="caption"
+          tone="destructive"
+          align="center"
+          role="status"
+          lines={2}
+        >
+          <Trans>Game stopped. Reopen it to play on from here.</Trans>
+        </P>
+      </Match>
+      <Match
+        when={props.connection === 'waiting' || props.connection === 'needed'}
+      >
+        <P
+          variant="caption"
+          tone="warning"
+          align="center"
+          role="status"
+          lines={2}
+          testId="custom-game-connection-needed"
+        >
+          <Switch
+            fallback={<Trans>You're offline. Moves need a connection.</Trans>}
+          >
+            <Match when={props.connection === 'waiting'}>
+              <Trans>
+                Your move will be played when the connection returns.
+              </Trans>
+            </Match>
+          </Switch>
+        </P>
+      </Match>
+      <Match when={props.play.away}>
+        {(away) => (
+          <P
+            variant="caption"
+            align="center"
+            role="status"
+            lines={2}
+            testId="custom-game-away"
+          >
+            <FramePersonName
+              person={away().person}
+              plainName={away().plainName}
+              people={props.people}
+            />{' '}
+            <Switch
+              fallback={
+                <Trans>is away. Their turn waits until they return.</Trans>
+              }
+            >
+              <Match when={props.play.canClaimWin}>
+                <Trans>is away. You may claim the win.</Trans>
+              </Match>
+              <Match when={away().twoSided}>
+                <Trans>is away. After a minute you may claim the win.</Trans>
+              </Match>
+            </Switch>
+          </P>
+        )}
+      </Match>
+    </Switch>
+  );
+}
+
+/** Whether something holds the game up (see `FrameStageConditionLine`). */
+export function frameStageHeldUp(props: {
+  readonly stopped: boolean;
+  readonly connection: FrameConnection;
+  readonly play: FramePlay;
+}): boolean {
+  return (
+    props.stopped ||
+    props.connection === 'needed' ||
+    props.connection === 'waiting' ||
+    props.play.away !== null
   );
 }
 

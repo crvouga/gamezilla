@@ -1,7 +1,7 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import type { JSX } from '@solidjs/web';
-import { For, Match, Show, Switch } from 'solid-js';
+import { For, Show } from 'solid-js';
 import type { FramePlaySeat } from './game-frame-view-types';
 
 /**
@@ -38,45 +38,42 @@ export function PlaySeatTags(props: {
 }
 
 /**
- * A chip says one thing of its seat's standing. A seat that is away or out
- * says that (the chip's own state) and nothing of its secret choice; the
- * person's own seat says `You` and its choice in one tag.
+ * A chip's tags, worded as on every seat (`Chosen`, `Choosing`). A seat
+ * that is away or out says that (the chip's own state) and nothing of its
+ * secret choice. The person's own seat is told by `OwnSeatMark` after its
+ * name, never by a tag that a narrow chip may hide, and leaves out the
+ * game's facts of it (their rack is in view under the seats).
  */
 export function ChipSeatTags(props: {
   readonly seat: FramePlaySeat;
   readonly own: boolean;
 }): JSX.Element {
-  const settled = (): boolean => props.seat.state !== null;
-  // The subtle wash over the active chip's tint falls below AA in the dark theme.
-  const tone = () => (props.seat.deciding ? 'solid' : 'subtle');
+  const shown = (): FramePlaySeat =>
+    props.own ? { ...props.seat, facts: [] } : props.seat;
   return (
-    <Switch fallback={<PlaySeatTags seat={props.seat} />}>
-      <Match when={props.own && !settled() && props.seat.committed}>
+    <Show
+      when={props.seat.state !== null}
+      fallback={<PlaySeatTags seat={shown()} />}
+    >
+      <Show when={props.seat.standIn}>
         <Badge
-          intent="success"
-          label={<Trans>You: chosen</Trans>}
-          dataSet={{ testid: `custom-game-${props.seat.side}-committed` }}
+          intent="warning"
+          label={<Trans>Stand-in bot</Trans>}
+          dataSet={{ testid: `custom-game-${props.seat.side}-stand-in` }}
         />
-      </Match>
-      <Match when={props.own && !settled() && props.seat.choosing}>
-        <Badge
-          intent="info"
-          tone={tone()}
-          label={<Trans>You: choosing</Trans>}
-        />
-      </Match>
-      <Match when={props.own}>
-        <Badge intent="info" tone={tone()} label={<Trans>You</Trans>} />
-      </Match>
-      <Match when={settled()}>
-        <Show when={props.seat.standIn}>
-          <Badge
-            intent="warning"
-            label={<Trans>Stand-in bot</Trans>}
-            dataSet={{ testid: `custom-game-${props.seat.side}-stand-in` }}
-          />
-        </Show>
-      </Match>
-    </Switch>
+      </Show>
+    </Show>
+  );
+}
+
+/**
+ * `You` after the person's own name on their seat, on the name's line, a
+ * line's height, so it never gives way to the seat's facts. One look on
+ * every seat, strip, chip and table place, filled whatever the turn: the
+ * subtle wash fell below AA on the turn's tint in the dark theme.
+ */
+export function OwnSeatMark(): JSX.Element {
+  return (
+    <Badge intent="info" size="sm" tone="solid" label={<Trans>You</Trans>} />
   );
 }

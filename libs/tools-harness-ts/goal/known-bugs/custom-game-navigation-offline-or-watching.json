@@ -1,0 +1,4 @@
+{
+  "summary": "Alice resumed offline Light Cycles Duel practice with Comet on two wins against a hard bot and a target of three. The device showed the board, but navigation waited for the turn announcement. An offline notice or a spectator message replaces that announcement.",
+  "regressionTest": "specs/light-cycles/light-cycles-bots-and-modes.feature"
+}

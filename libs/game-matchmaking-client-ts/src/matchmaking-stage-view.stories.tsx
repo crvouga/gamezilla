@@ -78,10 +78,8 @@ export const LongName: Story = {
 export const DrawOffered: Story = {
   render: (args) =>
     renderStory({
-      announcement: {
-        title: 'Your turn.',
-        detail: 'Bob offered you a multiplayer draw.',
-      },
+      // One sentence, the one thing to answer, as the app says it.
+      announcement: { title: 'Bob offered you a draw.', answer: true },
     })(args),
   args: { game: { ...STORY_GAME, draw: 'answer' } },
 };
@@ -102,13 +100,23 @@ export const WithoutTurns: Story = {
 export const Watching: Story = {
   render: (args) =>
     renderStory({
-      announcement: { title: 'Watching multiplayer Connect Four.' },
+      watching: true,
+      announcement: { title: "You're watching. alice to move." },
     })(args),
   args: { game: { ...STORY_GAME, leave: null, draw: 'none' } },
 };
 
 /** Offline: commands wait for the connection; an accepted game stays here. */
-export const Offline: Story = { args: { online: false } };
+export const Offline: Story = {
+  args: { online: false },
+  // Moves wait for the connection: the board takes none, and the line says
+  // when the turn comes back.
+  render: (args) =>
+    renderStory({
+      offline: true,
+      announcement: { title: "Your move, once you're back online." },
+    })(args),
+};
 
 /** A move was refused: the reason sits above the board. */
 export const CommandRefused: Story = {
