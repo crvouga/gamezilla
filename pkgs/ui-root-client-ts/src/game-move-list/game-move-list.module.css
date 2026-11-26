@@ -207,206 +207,204 @@
 }
 
 /*
- * Over a phone's fixed board (`GameSessionLayout`'s `fixedStage`) the table
+ * In a fixed game's history strip the table
  * is one line: every turn in a row that scrolls sideways, the marked move
  * kept in view, so the record never takes the board's room.
  */
-@media (max-width: 767px) {
-  [data-game-fixed="true"] [data-game-slot="rail"] .list[data-layout="table"] {
-    flex: 1 1 0;
-    /* Laid out from its far end, so the line rests on its latest turn:
-       at first, and whenever it starts over (moved in the page as a sheet
-       or dialog opens over the stage), before any script runs. Every
-       child is ordered back to its place, left to right. */
-    flex-direction: row-reverse;
-    align-items: center;
-    gap: var(--ui-space-3);
-    max-height: none;
-    overflow: auto hidden;
-    scrollbar-width: none;
-    /* Earlier turns fade out at the leading edge: none is cut mid-glyph;
-       the latest keeps a little room at the far edge. */
-    padding-inline: var(--ui-space-8) var(--ui-space-2);
-    mask-image: linear-gradient(
-      to right,
-      transparent 0,
-      var(--ui-color-text) var(--ui-space-10)
-    );
-  }
-  /* What leads the turns (earlier moves not listed) sits between the key
-     and the turns. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    > :not(.turns, .heading) {
-    order: 1;
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .turns {
-    display: flex;
-    flex-direction: row;
-    /* Whole, never squeezed: the line itself scrolls sideways; its turns
-       never clip. A short line keeps its room after its latest turn. */
-    flex: none;
-    margin-inline-end: auto;
-    overflow: visible;
-    gap: var(--ui-space-2);
-  }
-  /* Room after the latest unit, inside what scrolls. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .turns::after {
-    content: "";
-    flex: none;
-    /* Widened by the list when the turns must scroll on to meet a key. */
-    width: calc(var(--strip-room, var(--ui-space-1)) + var(--strip-end, 0px));
-  }
-  /* Each turn reads as one unit: its number, then its moves, inside one
-     quiet outline, with room between turns. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .turn {
-    display: flex;
-    align-items: center;
-    gap: var(--ui-space-1);
-    padding-inline: var(--ui-space-2);
-    border: 1px solid var(--ui-color-border);
-    border-radius: var(--ui-radius-full);
-  }
-  /* The move shown is its whole unit, not its figure alone. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .turn:has([aria-current="step"]) {
-    border-color: var(--ui-color-tint);
-    background: var(--ui-color-tint-subtle);
-  }
-  /* The unit carries the mark; its move draws no second, squarer fill
-     against the unit's round end. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .moveButton[data-current="true"] {
-    background: transparent;
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .number {
-    min-width: 0;
-    color: var(--ui-color-text-secondary);
-    font-size: var(--ui-font-size-xs);
-  }
-  /* The moves' word (`Column`) is the line's key: it stays at the start,
-     closed by a rule, and the moves scroll under it; nothing fades beside
-     it, so no half-shown move reads as part of it. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]:has(> .heading) {
-    /* The latest turn ends just clear of the far edge's fade (the turns'
-       gap and a little room), whole: room on a phone for the latest two
-       turns past the key, not one. */
-    padding-inline: 0;
-    --strip-room: var(--ui-space-1);
-    /* More past the far edge shows as a fade there, not a cut. */
-    mask-image: linear-gradient(
-      to left,
-      transparent 0,
-      var(--ui-color-text) var(--ui-space-3)
-    );
-  }
-  /* Turns past the far edge (a replay shown mid-game) fade out over a
-     wider run there, so the one the edge cuts reads as more to come. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"][data-more-after="true"] {
-    mask-image: linear-gradient(
-      to right,
-      transparent 0,
-      var(--ui-color-text) var(--ui-space-10),
-      var(--ui-color-text) calc(100% - var(--ui-space-8)),
-      transparent 100%
-    );
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"][data-more-after="true"]:has(> .heading) {
-    mask-image: linear-gradient(
-      to left,
-      transparent 0,
-      var(--ui-color-text) var(--ui-space-8)
-    );
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .heading {
-    position: sticky;
-    inset-inline-start: 0;
-    z-index: 1;
-    /* Last from the far end: the line's start. */
-    order: 2;
-    flex: none;
-    align-self: stretch;
-    display: flex;
-    align-items: center;
-    /* Its word starts where the player bars' content does (their edge
-       and inner room), not against the screen's edge. */
-    padding-inline: var(--ui-space-3);
-    border-inline-end: 1px solid var(--ui-color-text-secondary);
-    background: var(--ui-color-background);
-  }
-  /* Over the board the key names the line, not a column of it: its
-     moves say their own word in their names. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .heading
-    .tableWord {
-    display: none;
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .heading
-    .stripWord {
-    display: inline;
-  }
-  /* A turn the key cuts is hidden whole (the list marks it). */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .turn[data-under-key="true"] {
-    visibility: hidden;
-  }
-  /* A move scrolled under the key softens just past its rule, never cut
-     square against it. */
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .heading::after {
-    content: "";
-    position: absolute;
-    inset-block: 0;
-    inset-inline-start: 100%;
-    /* As wide as the turns' gap: a move shown starts past it. */
-    width: var(--ui-space-2);
-    background: linear-gradient(
-      to right,
-      var(--ui-color-background),
-      transparent
-    );
-    pointer-events: none;
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="rail"]
-    .list[data-layout="table"]
-    .moveButton {
-    padding-block: 0;
-    white-space: nowrap;
-  }
+[data-game-fixed="true"] [data-game-slot="history"] .list[data-layout="table"] {
+  flex: 1 1 0;
+  /* Laid out from its far end, so the line rests on its latest turn:
+     at first, and whenever it starts over (moved in the page as a sheet
+     or dialog opens over the stage), before any script runs. Every
+     child is ordered back to its place, left to right. */
+  flex-direction: row-reverse;
+  align-items: center;
+  gap: var(--ui-space-3);
+  max-height: none;
+  overflow: auto hidden;
+  scrollbar-width: none;
+  /* Earlier turns fade out at the leading edge: none is cut mid-glyph;
+     the latest keeps a little room at the far edge. */
+  padding-inline: var(--ui-space-8) var(--ui-space-2);
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    var(--ui-color-text) var(--ui-space-10)
+  );
+}
+/* What leads the turns (earlier moves not listed) sits between the key
+   and the turns. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  > :not(.turns, .heading) {
+  order: 1;
+}
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .turns {
+  display: flex;
+  flex-direction: row;
+  /* Whole, never squeezed: the line itself scrolls sideways; its turns
+     never clip. A short line keeps its room after its latest turn. */
+  flex: none;
+  margin-inline-end: auto;
+  overflow: visible;
+  gap: var(--ui-space-2);
+}
+/* Room after the latest unit, inside what scrolls. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .turns::after {
+  content: "";
+  flex: none;
+  /* Widened by the list when the turns must scroll on to meet a key. */
+  width: calc(var(--strip-room, var(--ui-space-1)) + var(--strip-end, 0px));
+}
+/* Each turn reads as one unit: its number, then its moves, inside one
+   quiet outline, with room between turns. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .turn {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-1);
+  padding-inline: var(--ui-space-2);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-full);
+}
+/* The move shown is its whole unit, not its figure alone. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .turn:has([aria-current="step"]) {
+  border-color: var(--ui-color-tint);
+  background: var(--ui-color-tint-subtle);
+}
+/* The unit carries the mark; its move draws no second, squarer fill
+   against the unit's round end. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .moveButton[data-current="true"] {
+  background: transparent;
+}
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .number {
+  min-width: 0;
+  color: var(--ui-color-text-secondary);
+  font-size: var(--ui-font-size-xs);
+}
+/* The moves' word (`Column`) is the line's key: it stays at the start,
+   closed by a rule, and the moves scroll under it; nothing fades beside
+   it, so no half-shown move reads as part of it. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]:has(> .heading) {
+  /* The latest turn ends just clear of the far edge's fade (the turns'
+     gap and a little room), whole: room on a phone for the latest two
+     turns past the key, not one. */
+  padding-inline: 0;
+  --strip-room: var(--ui-space-1);
+  /* More past the far edge shows as a fade there, not a cut. */
+  mask-image: linear-gradient(
+    to left,
+    transparent 0,
+    var(--ui-color-text) var(--ui-space-3)
+  );
+}
+/* Turns past the far edge (a replay shown mid-game) fade out over a
+   wider run there, so the one the edge cuts reads as more to come. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"][data-more-after="true"] {
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    var(--ui-color-text) var(--ui-space-10),
+    var(--ui-color-text) calc(100% - var(--ui-space-8)),
+    transparent 100%
+  );
+}
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"][data-more-after="true"]:has(> .heading) {
+  mask-image: linear-gradient(
+    to left,
+    transparent 0,
+    var(--ui-color-text) var(--ui-space-8)
+  );
+}
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .heading {
+  position: sticky;
+  inset-inline-start: 0;
+  z-index: 1;
+  /* Last from the far end: the line's start. */
+  order: 2;
+  flex: none;
+  align-self: stretch;
+  display: flex;
+  align-items: center;
+  /* Its word starts where the player bars' content does (their edge
+     and inner room), not against the screen's edge. */
+  padding-inline: var(--ui-space-3);
+  border-inline-end: 1px solid var(--ui-color-text-secondary);
+  background: var(--ui-color-background);
+}
+/* Over the board the key names the line, not a column of it: its
+   moves say their own word in their names. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .heading
+  .tableWord {
+  display: none;
+}
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .heading
+  .stripWord {
+  display: inline;
+}
+/* A turn the key cuts is hidden whole (the list marks it). */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .turn[data-under-key="true"] {
+  visibility: hidden;
+}
+/* A move scrolled under the key softens just past its rule, never cut
+   square against it. */
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .heading::after {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: 100%;
+  /* As wide as the turns' gap: a move shown starts past it. */
+  width: var(--ui-space-2);
+  background: linear-gradient(
+    to right,
+    var(--ui-color-background),
+    transparent
+  );
+  pointer-events: none;
+}
+[data-game-fixed="true"]
+  [data-game-slot="history"]
+  .list[data-layout="table"]
+  .moveButton {
+  padding-block: 0;
+  white-space: nowrap;
 }

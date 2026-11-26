@@ -4,11 +4,12 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { EllipsisIcon } from '@pkgs/ui-root-client-ts/icons';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import type { MultiplayerBoardSlot } from './matchmaking-screen-view';
 import type {
   MultiplayerGameCommands,
   MultiplayerGameView,
@@ -23,7 +24,8 @@ import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
 type PlayProps = MultiplayerPlaceFrame & {
   readonly title: string;
   /** The seats around the board on the live position, under its overlay. */
-  readonly board: JSX.Element;
+  readonly board: MultiplayerBoardSlot | undefined;
+  readonly overlay: JSX.Element;
   /** The line that says whose turn it is. */
   readonly status: JSX.Element;
   readonly game: MultiplayerGameView;
@@ -166,11 +168,8 @@ function QuickCommands(props: PlayProps): JSX.Element {
 export function MatchmakingStageView(props: PlayProps): JSX.Element {
   return (
     <MultiplayerStagePlace {...props} title={props.title}>
-      <GameSessionLayout
+      <FixedGameSession
         notices={props.notices}
-        boardFocus
-        actionsBeside
-        fixedStage
         status={props.status}
         allMoves={
           (props.game.moves?.moves.length ?? 0) > 0
@@ -197,7 +196,7 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
             />
           </GameActionBar>
         }
-        aside={
+        history={
           <Show when={props.game.moves}>
             {(moves) => (
               <GameSection
@@ -229,8 +228,10 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
           </Show>
         }
       >
-        {props.board}
-      </GameSessionLayout>
+        {(information) =>
+          props.board?.({ information, overlay: props.overlay }) ?? information
+        }
+      </FixedGameSession>
     </MultiplayerStagePlace>
   );
 }

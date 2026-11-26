@@ -75,28 +75,14 @@ directly.
    empty, failed with a retry, denied, ready); it never infers a state from
    which optional props happen to be set. Connection and refusal notices
    belong to the shell and show on every screen of the template.
-7. **The same screens on every size.** A view does not read the layout mode
-   to pick what it shows. A stage may place its rail beside the board when
-   there is room (`GameLayout`, a container query); that is the only
-   difference between a phone and a desktop.
-8. **A stage is one fixed view, and its board never moves.** Every stage
-   (custom game, matchmaking, puzzles, the moves and the result) is
-   `GameSessionLayout`'s `fixedStage`, top to bottom: the game's facts on
-   one centred line (`Chess · Rated · 10 min`), the line of moves with
-   **All moves** at its end (`allMoves`, there before the first move), the
-   other seats, the board, the person's own seat (highlighted on their
-   turn, with their clock), one status line, and one bar with **every**
-   command of the game (offer a draw, resign in the destructive colour,
-   the game's menu as `⋯`). On a phone the board takes the screen's whole
-   width and sits in the middle of the room left; it is centred once and
-   held there (`GameBoardStage`, `stageCentreOffset`). Every band keeps its
-   height empty or full, and what comes and goes never takes a row: the
-   connection, a refused command and a draw offered lie over the stage's
-   top (`GameStageNotices`), and a finished game's outcome card over its
-   foot (`sheet`). A board taller than the room narrows instead
-   (`GameBoardStage`). A wide window keeps the board beside its rail, at
-   the same measure live and finished. The Storybook check
-   `stage-stability` proves the board's place through a whole game.
+7. **The same screens on every size.** The host keeps the space bar above the game.
+8. **A game stage is one fixed view.** `FixedGameSession` gives custom games,
+   matchmaking and replays one reading order. The players, status and move
+   history precede the full-width board region. Its contents keep their
+   natural proportions. A short window can scroll the board within that
+   region, and the action bar stays at the bottom. The result opens over
+   the final position. The Storybook stage stability checks measure the
+   board and action bar through changes of turn, history and outcome.
 9. **What interrupts the board lies over the board.** Who plays whom before
    the game (`GameVersusOverlay`) and how it ended (`GameResultOverlay`) are
    the stage's `overlay`: they cover the board and nothing else, so nothing

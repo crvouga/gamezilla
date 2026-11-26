@@ -1,0 +1,4 @@
+{
+  "summary": "In the reported four- and eight-move Classic Quoridor positions the board left its right column empty and the growing move history followed the commands.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stable-game-stage/integration.checks.ts"
+}

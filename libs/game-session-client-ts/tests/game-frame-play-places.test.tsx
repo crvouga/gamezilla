@@ -161,7 +161,7 @@ describe('the play place', () => {
   // seat, pushing the seat below the fold, then in a strip, then in a rail
   // card. It leads the game's commands, said once, on every size.
   test.each([390, 1440] as const)(
-    'at %ipx the one line about the game is outside the board stage, said once',
+    'at %ipx the turn is said once between the players and the board',
     (width) => {
       mountFrame(
         () =>
@@ -176,8 +176,10 @@ describe('the play place', () => {
       const lines = screen.getAllByTestId('custom-game-status');
       expect(lines).toHaveLength(1);
       const line = lines[0] as HTMLElement;
-      expect(stage().contains(line)).toBe(false);
-      expect(precedes(stage(), line)).toBe(true);
+      expect(precedes(screen.getByTestId('custom-game-seat-near'), line)).toBe(
+        true
+      );
+      expect(precedes(line, screen.getByTestId('story-board'))).toBe(true);
       expect(line.textContent).toContain('Your turn.');
     }
   );
@@ -198,16 +200,20 @@ describe('the play place', () => {
   // regression: move-strip-chip-butts-arrow
   // regression: phone-record-said-twice
   // A strip of the latest moves pinned above a phone's board was re-fitted
-  // six times. Nothing about the moves sits above the board: they are one
-  // card after it, so the board never moves when a move lands.
-  test('phone: the moves are one card after the board, and nothing is pinned above it', () => {
+  // six times. The complete record now has a bounded row of its own.
+  test('the move history precedes the board in reading order', () => {
     mountFrame(() => frameProps());
     expect(
       document.querySelector('[data-component="GameSessionPinned"]')
     ).toBeNull();
     const records = screen.getAllByTestId('custom-game-record');
     expect(records).toHaveLength(1);
-    expect(precedes(stage(), records[0] as HTMLElement)).toBe(true);
+    expect(
+      precedes(
+        screen.getByTestId('custom-game-record'),
+        screen.getByTestId('story-board')
+      )
+    ).toBe(true);
     expect(shown('custom-game-move-strip')).toBe(false);
     expect(shown('custom-game-review-move-3')).toBe(true);
   });
@@ -495,6 +501,7 @@ describe('the moves place', () => {
         }),
       })
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Go to move' }));
     expect(screen.getByTestId('custom-game-error').textContent).toContain(
       'Choose a position from the moves actually played.'
     );

@@ -100,39 +100,35 @@
   }
 }
 
-/* A phone's fixed stage holds the board's box still: the board spans the
-   screen's whole width like every game's board, out past the inset its
-   tools and picker keep (`--game-board-workspace-inset`), and the box
-   scrolls for what does not fit. The seats stand right under the status
-   line and the box runs down to the commands (the bar draws its own
-   rule). */
-@media (max-width: 767px) {
-  [data-game-fixed="true"]
-    [data-board-workspace="true"]
-    [data-quoridor-surface] {
-    align-self: center;
-    width: calc(100% + 2 * var(--game-board-workspace-inset, 0px));
-    max-width: none;
-    margin-inline: 0;
-  }
-  [data-game-fixed="true"]
-    [data-board-workspace="true"]
-    [data-quoridor-surface]
-    > .board[data-fill="true"][data-board-theme="quoridor"] {
-    max-width: none;
-  }
-  [data-game-fixed="true"]
-    [data-board-workspace="true"]
-    > [data-game-board]:has([data-quoridor-surface]) {
-    container: quoridor-room / size;
-  }
-  [data-game-fixed="true"]
-    [data-game-slot="stage"]
-    > [data-game-board-stage]:has(.board[data-board-theme="quoridor"]) {
-    padding-block: 0;
-  }
+/* A fixed stage holds the board's box still: the board spans the
+ screen's whole width like every game's board, out past the inset its
+ tools and picker keep (`--game-board-workspace-inset`), and the box
+ scrolls for what does not fit. The seats stand right under the status
+ line and the box runs down to the commands (the bar draws its own
+ rule). */
+[data-game-fixed="true"] [data-board-workspace="true"] [data-quoridor-surface] {
+  align-self: center;
+  justify-self: center;
+  width: calc(100% + 2 * var(--game-board-workspace-inset, 0px));
+  max-width: none;
+  margin-inline: 0;
 }
-/* Where the seats above leave the box short (four seats in two rows), the
+[data-game-fixed="true"]
+  [data-board-workspace="true"]
+  [data-quoridor-surface]
+  > .board[data-fill="true"][data-board-theme="quoridor"] {
+  max-width: none;
+}
+[data-game-fixed="true"]
+  [data-board-workspace="true"]
+  > [data-game-board]:has([data-quoridor-surface]) {
+  container: quoridor-room / size;
+}
+[data-game-fixed="true"]
+  [data-game-slot="stage"]
+  > [data-game-board-stage]:has(.board[data-board-theme="quoridor"]) {
+  padding-block: 0;
+} /* Where the seats above leave the box short (four seats in two rows), the
    board gives up just enough width that its tools, picker and the
    guidance's row (or Place and Cancel) stay whole above the commands,
    instead of sliding under them. The board is shorter than it is wide by
@@ -146,7 +142,7 @@
     --under: calc(var(--ui-control-size-md) * 3 + var(--ui-space-1) * 3);
     width: min(
       calc(100% + 2 * var(--game-board-workspace-inset, 0px)),
-      calc(100cqb - var(--under) + 0.5rem)
+      max(min(100%, 320px), calc(100cqb - var(--under) + 0.5rem))
     );
   }
 }

@@ -170,8 +170,12 @@ export function mountPlaces(options: {
         onBack={() => nav.back()}
         overlay={over.overlay()}
         onOverlay={over.send}
-        board={(card) => (
-          <GameBoardStage overlay={card}>
+        board={(slots) => (
+          <GameBoardStage
+            information={slots.information}
+            overlay={slots.overlay}
+          >
+            {slots.setup}
             <p data-testid="slot-board">board</p>
           </GameBoardStage>
         )}

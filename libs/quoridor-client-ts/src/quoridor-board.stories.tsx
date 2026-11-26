@@ -89,6 +89,21 @@ export const YourTurn: Story = {
   parameters: { table: { moves: moves(MID_GAME) } satisfies GameTableStory },
 };
 
+/** The four- and eight-move positions reported from a game against the bot. */
+export const BothPawnsAdvanced: Story = {
+  args: { position: classic('e2 e8 e3 e7') },
+  parameters: {
+    table: { moves: moves('e2 e8 e3 e7') } satisfies GameTableStory,
+  },
+};
+
+export const PawnsPassed: Story = {
+  args: { position: classic('e2 e8 e3 e7 e4 e6 e5 e4') },
+  parameters: {
+    table: { moves: moves('e2 e8 e3 e7 e4 e6 e5 e4') } satisfies GameTableStory,
+  },
+};
+
 /** North is deciding: the board is read-only and the tools are off. */
 export const WaitingForOpponent: Story = {
   args: { position: classic(`${MID_GAME} c3v`), interactive: false },

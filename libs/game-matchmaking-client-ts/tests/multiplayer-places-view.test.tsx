@@ -448,6 +448,7 @@ describe('the moves are a place of their own', () => {
     ];
     expect(ids(...copies)).toEqual([]);
     view.set({ game: FINISHED });
+    screen.getByRole('button', { name: 'Game record' }).click();
     expect(ids(...copies)).toEqual(copies);
     screen.getByTestId('multiplayer-copy-final-position').click();
     expect(view.props().commands.copy).toHaveBeenCalledWith('final');
@@ -603,6 +604,7 @@ describe('the result', () => {
   test('the moves of a finished game hold its record', () => {
     const view = mountPlaces({ stage: 'finished', props: { game: FINISHED } });
     screen.getByTestId('multiplayer-open-moves').click();
+    screen.getByRole('button', { name: 'Game record' }).click();
     expect(view.place()).toBe('moves');
     expect(
       ids('multiplayer-copy-game-record', 'multiplayer-move-2')

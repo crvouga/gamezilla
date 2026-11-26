@@ -1,10 +1,11 @@
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ScreenExampleFrame } from '../../storybook/fixtures/screen-example-frame';
+import { GameBoardStage } from '../game-board-stage/index';
 import { GameScreen } from '../game-screen/index';
 import { Surface } from '../surface/index';
 import { P } from '../text/index';
 import Example from './game-session-layout.example';
-import { GameSessionLayout } from './index';
+import { FixedGameSession, GameSessionLayout } from './index';
 
 const meta = {
   id: 'templates-matchmaking-game',
@@ -66,10 +67,7 @@ function FixedStage(props: {
   return (
     <ScreenExampleFrame>
       <GameScreen screenId="example-fixed-stage" title="Two crates">
-        <GameSessionLayout
-          fixedStage
-          actionsBeside
-          boardFocus
+        <FixedGameSession
           notices={
             props.notice === true ? (
               <Surface tone="muted" padding="sm" testId="notices-probe">
@@ -90,7 +88,7 @@ function FixedStage(props: {
               <P>Offer draw · Resign</P>
             </Surface>
           }
-          aside={
+          history={
             <Surface tone="muted" padding="sm" testId="rail-probe">
               <P>1. e4 e5 2. Nf3</P>
             </Surface>
@@ -101,10 +99,14 @@ function FixedStage(props: {
             onPress: () => undefined,
           }}
         >
-          <Surface tone="muted" padding="lg" testId="stage-probe">
-            <P>Board</P>
-          </Surface>
-        </GameSessionLayout>
+          {(information) => (
+            <GameBoardStage information={information}>
+              <Surface tone="muted" padding="lg" testId="stage-probe">
+                <P>Board</P>
+              </Surface>
+            </GameBoardStage>
+          )}
+        </FixedGameSession>
       </GameScreen>
     </ScreenExampleFrame>
   );

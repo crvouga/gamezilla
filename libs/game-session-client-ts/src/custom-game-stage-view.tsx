@@ -6,8 +6,8 @@ import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import {
+  FixedGameSession,
   type GameSessionAllMoves,
-  GameSessionLayout,
 } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { GameWatcherCount } from '@pkgs/ui-root-client-ts/game-watching';
@@ -164,13 +164,16 @@ function PlayLine(props: Props): JSX.Element {
  * required choice, the board, then the person's own seat nearest them. The
  * live position while the game is played, the final one once it is over.
  */
-export function FrameStage(props: Props): JSX.Element {
+export function FrameStage(
+  props: Props & { information: JSX.Element }
+): JSX.Element {
   // The seats' density only: chips on a phone at a bigger table, strips
   // otherwise. What the stage shows is the same on every size.
   const mode = useLayoutMode();
   const compact = (): boolean => mode() !== 'wide';
   return (
     <GameBoardStage
+      information={props.information}
       viewportFit={props.boardFit}
       align={props.boardAlign}
       workspace={props.boardWorkspace}
@@ -405,7 +408,7 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
       compactInset={props.table.compactInset}
       facts={<FrameFacts {...props} />}
     >
-      <GameSessionLayout
+      <FixedGameSession
         dataSet={{
           component: 'CustomGameContent',
           testid: 'custom-game-content',
@@ -427,9 +430,6 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
             <FrameErrorView text={props.error} />
           </>
         }
-        boardFocus
-        actionsBeside
-        fixedStage
         status={
           // Someone watching is told so on the bar's own status line, so
           // their board keeps the players' full width and place.
@@ -483,11 +483,11 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           </Show>
         }
         actions={<PlayActions {...props} />}
-        aside={<FrameMovesCard {...props} />}
+        history={<FrameMovesCard {...props} />}
         allMoves={allMovesOf(props)}
       >
-        <FrameStage {...props} />
-      </GameSessionLayout>
+        {(information) => <FrameStage {...props} information={information} />}
+      </FixedGameSession>
     </GameScreen>
   );
 }

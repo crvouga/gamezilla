@@ -8,9 +8,7 @@ import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
 import { GameBoardPreviewContext } from './board-preview';
 import componentStyles from './game-board-stage.module.css';
-import { createBoardRegionFill } from './region-fill';
 import { createStageRoomFit } from './room-fit';
-import { createStageCentre } from './stage-centre';
 import { createViewportSquareFit } from './viewport-fit';
 
 export { GameBoardPreviewContext, useGameBoardPreview } from './board-preview';
@@ -60,11 +58,19 @@ export function GameBoardStage(props: {
    * it scrolls inside its box when taller (`data-board-workspace`).
    */
   workspace?: boolean | undefined;
+  information?: JSX.Element;
   dataSet?: ComponentDataSet | undefined;
 }): JSX.Element {
   const others = createScreenSlot(() => props.others);
   const turn = createScreenSlot(() => props.turn);
   const own = createScreenSlot(() => props.own);
+  const players = () => (
+    <>
+      {others.content()}
+      {turn.content()}
+      {own.content()}
+    </>
+  );
   const overlay = createScreenSlot(() => props.overlay);
   const preview = (): boolean => props.preview === true;
   const [root, setRoot] = createSignal<HTMLDivElement>();
@@ -78,11 +84,6 @@ export function GameBoardStage(props: {
   const room = createStageRoomFit(root, surface, () =>
     workspace() ? undefined : content()
   );
-  // A fixed stage sits in the middle of its room, and stays there.
-  const centre = createStageCentre(root, surface);
-  // The window's height left under the region's top, for a layout that
-  // holds the region at that height (`--game-board-viewport-room`).
-  const fill = createBoardRegionFill(root, surface, () => !preview());
   // Narrower than its room: the board stands clear of the screen's edges.
   const narrowed = (): boolean => {
     const limit = room();
@@ -96,7 +97,6 @@ export function GameBoardStage(props: {
         `${styles['boardStage']} ${precision['board']}`,
         {
           [componentStyles['start'] ?? '']: props.align === 'start',
-          [componentStyles['squareStage'] ?? '']: square(),
         },
       ]}
       data-preview={String(props.preview === true)}
@@ -104,10 +104,6 @@ export function GameBoardStage(props: {
       style={{
         '--game-board-fit': limit() === undefined ? undefined : `${limit()}px`,
         '--game-board-room': room() === undefined ? undefined : `${room()}px`,
-        '--game-stage-offset':
-          centre() === undefined ? undefined : `${centre()}px`,
-        '--game-board-viewport-room':
-          fill() === undefined ? undefined : `${fill()}px`,
       }}
       data-game-board-stage
       data-board-narrowed={narrowed() ? 'true' : undefined}
@@ -116,13 +112,17 @@ export function GameBoardStage(props: {
     >
       {/* Who plays and whose turn it is read over the board, the person's
           own seat with the others: under the board come only commands. */}
-      <Show when={others.present()}>{others.content()}</Show>
-      <Show when={turn.present()}>{turn.content()}</Show>
-      <Show when={own.present()}>{own.content()}</Show>
+      <Show when={props.information !== undefined} fallback={players()}>
+        <Show when={others.present() || own.present() || turn.present()}>
+          <div class={componentStyles['players']} data-game-players>
+            {players()}
+          </div>
+        </Show>
+      </Show>
+      {props.information}
       <BoardRegion
         surface={setSurface}
         content={setContent}
-        square={square()}
         preview={preview}
         overlay={overlay}
       >
@@ -148,7 +148,6 @@ export function GameBoardStage(props: {
 function BoardRegion(props: {
   surface: (element: HTMLDivElement) => void;
   content: (element: HTMLDivElement) => void;
-  square: boolean;
   preview: () => boolean;
   overlay: ReturnType<typeof createScreenSlot>;
   children: JSX.Element;
@@ -156,10 +155,7 @@ function BoardRegion(props: {
   return (
     <div
       ref={props.surface}
-      class={[
-        `${styles['board']} ${componentStyles['region']}`,
-        { [componentStyles['squareBoard'] ?? '']: props.square },
-      ]}
+      class={`${styles['board']} ${componentStyles['region']}`}
       data-game-board
     >
       <div

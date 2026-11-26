@@ -10,7 +10,10 @@ import {
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameSeatSwatch } from '@pkgs/ui-root-client-ts/game-seat-swatch';
 import { GameActions, GameSection } from '@pkgs/ui-root-client-ts/game-section';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import {
+  FixedGameSession,
+  StageDetails,
+} from '@pkgs/ui-root-client-ts/game-session-layout';
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { IconButton } from '@pkgs/ui-root-client-ts/icon-button';
 import {
@@ -23,7 +26,6 @@ import { Select } from '@pkgs/ui-root-client-ts/select';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, For, Show, untrack } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
@@ -401,25 +403,6 @@ function ReviewingLine(props: { readonly record: FrameRecord }): JSX.Element {
   );
 }
 
-/** Every move, the game chosen and a move by its number, in one section. */
-function EveryMove(props: RecordProps): JSX.Element {
-  return (
-    <GameSection
-      title={<Trans>Every move</Trans>}
-      dataSet={{
-        component: 'CustomGameReview',
-        testid: 'custom-game-record',
-      }}
-    >
-      <RecordSelect {...props} />
-      <Show when={recordPlayed(props.record)}>
-        <RecordMoves {...props} onSelect={props.onSeek} />
-      </Show>
-      <ReviewJumpField {...props} />
-    </GameSection>
-  );
-}
-
 /**
  * The moves place: the board at one position of the record, the four
  * steps under it, and every move beside it. It never plays: leaving it
@@ -428,15 +411,13 @@ function EveryMove(props: RecordProps): JSX.Element {
 export function FrameMovesPlace(props: RecordProps): JSX.Element {
   const over = (): boolean =>
     props.phase === 'completed' || props.phase === 'cancelled';
-  const mode = useLayoutMode();
-  const wide = (): boolean => mode() === 'wide';
   return (
     <GameScreen
       screenId="custom-game-stage-moves"
       title={<Trans>Moves</Trans>}
       compactInset={props.table.compactInset}
     >
-      <GameSessionLayout
+      <FixedGameSession
         dataSet={{
           component: 'CustomGameContent',
           testid: 'custom-game-content',
@@ -446,68 +427,51 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
         notices={
           <FrameNoticesView connection={props.connection} error={props.error} />
         }
-        // A phone is one fixed view, as play is: every move the line over
-        // the board, the steps, the game chosen and a move by its number
-        // under it, and the way back pinned at the foot. A wide screen lists
-        // every move beside the board.
-        boardFocus
-        actionsBeside
-        fixedStage
-        status={
+        status={<ReviewingLine record={props.record} />}
+        actions={
           <>
             <RecordSteps {...props} />
-            <Show when={!wide()}>
-              <RecordSelect {...props} />
-              <ReviewJumpField {...props} />
-            </Show>
-            <FrameErrorView text={props.record.error} />
+            <Button
+              title={
+                <Show when={over()} fallback={<Trans>Back to the game</Trans>}>
+                  <Trans>Back to the result</Trans>
+                </Show>
+              }
+              variant="solid"
+              fullWidth
+              onClick={() => props.onClose()}
+              dataSet={{ testid: 'custom-game-back-to-live' }}
+            />
           </>
         }
-        actions={
-          <Button
-            title={
-              <Show when={over()} fallback={<Trans>Back to the game</Trans>}>
-                <Trans>Back to the result</Trans>
-              </Show>
-            }
-            variant="solid"
-            fullWidth
-            onClick={() => props.onClose()}
-            dataSet={{ testid: 'custom-game-back-to-live' }}
-          />
-        }
-        aside={
-          <Show
-            when={wide()}
-            fallback={
-              <Show when={recordPlayed(props.record)}>
-                <GameSection
-                  title={<Trans>Every move</Trans>}
-                  dataSet={{
-                    component: 'CustomGameReview',
-                    testid: 'custom-game-record',
-                  }}
-                >
-                  <RecordMoves {...props} onSelect={props.onSeek} />
-                </GameSection>
-              </Show>
-            }
-          >
-            <EveryMove {...props} />
-          </Show>
+        history={
+          <>
+            <Show when={recordPlayed(props.record)}>
+              <RecordMoves {...props} onSelect={props.onSeek} />
+            </Show>
+            <StageDetails label={t`Go to move`}>
+              <RecordSelect {...props} />
+              <ReviewJumpField {...props} />
+              <FrameErrorView text={props.record.error} />
+            </StageDetails>
+          </>
         }
       >
-        <GameBoardStage
-          viewportFit={props.boardFit}
-          align={props.boardAlign}
-          workspace={props.boardWorkspace}
-          dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
-          turn={<ReviewingLine record={props.record} />}
-        >
-          {props.board}
-        </GameBoardStage>
-        <FrameStatusView status={props.status} spokenOnly />
-      </GameSessionLayout>
+        {(information) => (
+          <>
+            <GameBoardStage
+              viewportFit={props.boardFit}
+              align={props.boardAlign}
+              workspace={props.boardWorkspace}
+              dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
+              information={information}
+            >
+              {props.board}
+            </GameBoardStage>
+            <FrameStatusView status={props.status} spokenOnly />
+          </>
+        )}
+      </FixedGameSession>
     </GameScreen>
   );
 }

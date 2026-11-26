@@ -46,7 +46,11 @@ import type { UnfinishedGame } from './use-unfinished-game';
  * The matched game's stage: the seats around its board, under `overlay`.
  * The place decides what lies over the board; the slot draws it there.
  */
-export type MultiplayerBoardSlot = (overlay?: JSX.Element) => JSX.Element;
+export type MultiplayerBoardSlot = (slots: {
+  information: JSX.Element;
+  overlay?: JSX.Element;
+  setup?: JSX.Element;
+}) => JSX.Element;
 
 export type MatchmakingScreenViewProps = {
   readonly title: string;
@@ -260,7 +264,7 @@ function PrivateSetupPlace(props: Props): JSX.Element {
           {...frameOf(props)}
           title={props.title}
           setup={props.setup}
-          board={props.board?.()}
+          board={props.board}
           status={props.status}
           game={game()}
           onOpen={props.onOpen}
@@ -278,7 +282,8 @@ function PlayPlace(props: Props): JSX.Element {
         <MatchmakingStageView
           {...frameOf(props)}
           title={props.title}
-          board={props.board?.(
+          board={props.board}
+          overlay={
             <MultiplayerOverlayView
               title={props.title}
               overlay={props.overlay}
@@ -286,7 +291,7 @@ function PlayPlace(props: Props): JSX.Element {
               versus={props.versus}
               result={undefined}
             />
-          )}
+          }
           // No connection holds the game up: said on the status line, where
           // it stays in view and covers no seat.
           status={
@@ -329,7 +334,7 @@ function MovesPlace(props: Props): JSX.Element {
         <MultiplayerMovesView
           {...frameOf(props)}
           title={props.title}
-          board={props.board?.()}
+          board={props.board}
           status={props.status}
           game={game()}
           commands={props.commands}
