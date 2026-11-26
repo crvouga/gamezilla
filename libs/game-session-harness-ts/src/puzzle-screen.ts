@@ -573,38 +573,6 @@ export const goBackToGamePuzzles = scenarioAction({
   },
 });
 
-/**
- * Back to `gameId`'s puzzles in the space from wherever the person is in it
- * (another of the game's screens, its choices, or the space's game choice),
- * as they would make their way: back until the game's choices or the game,
- * then Puzzle. An unfinished puzzle comes back as it was.
- */
-export const returnToGamePuzzles = scenarioAction({
-  name: 'returnToGamePuzzles',
-  act: async (s, actorId: string, gameId: string) => {
-    const ui = await actorUi(s, actorId);
-    await pollUntil(
-      s,
-      async () => {
-        if (await ui.get(Handles.chessPuzzlePlayScreen).isVisible())
-          return true;
-        for (const way of [
-          Handles.gameChoice('puzzle'),
-          Handles.gameMenu(gameId),
-          Handles.navBack,
-        ])
-          if (await ui.get(way).isVisible()) {
-            await ui.get(way).tap({ timeoutMs: WAIT_MS });
-            return null;
-          }
-        return null;
-      },
-      { maxMs: WAIT_MS, description: `${actorId} back at the puzzles` }
-    );
-    await waitBoardSettled(s, actorId);
-  },
-});
-
 /** What each person in the space has in view, as the puzzle model names it. */
 export type PuzzleView = 'Board' | 'GameChoices' | 'GameChoice' | 'Elsewhere';
 
@@ -1072,7 +1040,6 @@ export const PUZZLE_SCREEN_ACTIONS = [
   moveOnWithoutWaiting,
   leavePuzzleForGameChoices,
   goBackToGamePuzzles,
-  returnToGamePuzzles,
   takePuzzleHint,
   takeSecondPuzzleHint,
   showPuzzleSolution,

@@ -5,6 +5,10 @@
  */
 
 import { expect } from 'bun:test';
+import {
+  answerGameBack,
+  goBackInGame,
+} from '@libs/game-session-harness-ts/game-navigation';
 import { useUpPuzzleStartsToday } from '@libs/game-session-harness-ts/puzzle-allowance';
 import { solveKnownPuzzle } from '@libs/game-session-harness-ts/puzzle-moves';
 import {
@@ -12,7 +16,6 @@ import {
   openGamePuzzles,
   readPuzzleBoardPosition,
   readPuzzleOnBoard,
-  returnToGamePuzzles,
 } from '@libs/game-session-harness-ts/puzzle-screen';
 import { attemptGoBackToGameChoice } from '@libs/game-session-harness-ts/space-game-choice';
 import { Given, Then, When } from '@libs/harness-ts/define';
@@ -82,7 +85,9 @@ Given(
 
 When('{actor} returns to the puzzle in the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.apply(returnToGamePuzzles, actor, puzzleGameId(w));
+  await w.s.apply(goBackInGame, actor);
+  await w.s.apply(answerGameBack, actor, 'confirm');
+  await w.s.apply(openGamePuzzles, actor, puzzleGameId(w));
 });
 
 Then('{actor} keeps the same puzzle in the space', async (w, actor: Actor) => {
