@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45845727677 planned 27606 uncached task-seconds but admitted just one Turbo task on each of its two gate runners. Both reached the 2280-second deadline.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

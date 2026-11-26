@@ -116,6 +116,8 @@ jobs:
       profile: nightly
       # Reserve six of the twenty account runners for releases and PRs.
       shards: 2
+      # Match Release parallelism inside each gate runner.
+      concurrency: 3
 
   verify-nightly-random:
     name: verify-nightly:random (${{ matrix.shard }}/${{ strategy.job-total }})
