@@ -1,0 +1,4 @@
+{
+  "summary": "Independent full-gate matrices could each admit 16 shards against the same 20-job account quota. Eight concurrent gates now share twelve repository-wide slots.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-plan-schedule.test.ts"
+}
