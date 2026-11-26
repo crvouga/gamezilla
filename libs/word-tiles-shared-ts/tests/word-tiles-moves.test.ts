@@ -11,7 +11,11 @@ import {
   unknownWords,
 } from '@libs/word-tiles-shared-ts/word-tiles-placement';
 import { EMPTY_BOARD } from '@libs/word-tiles-shared-ts/word-tiles-position';
-import { BLANK, tileOf } from '@libs/word-tiles-shared-ts/word-tiles-tiles';
+import {
+  BLANK,
+  TILE_KINDS,
+  tileOf,
+} from '@libs/word-tiles-shared-ts/word-tiles-tiles';
 import {
   buildWordTrie,
   trieHas,
@@ -217,16 +221,33 @@ test('replays the literal small-rack cases that exhausted the reference timeout'
     expectReferencePlacements(BOARDS[board], letters);
 });
 
+// A three-tile rack can repeat a symbol only while physical copies remain.
+function drawableRack(letters: readonly string[]): boolean {
+  return TILE_KINDS.every(
+    ({ symbol, count }) =>
+      letters.filter((letter) => letter === symbol).length <= count
+  );
+}
+
+// regression: word-tiles-property-impossible-rack
+test('the small-rack property excludes three Cs while exercising two Cs with a blank', () => {
+  expect(drawableRack(['C', 'C', 'C'])).toBe(false);
+  expect(drawableRack(['C', 'C', BLANK])).toBe(true);
+  expectReferencePlacements(EMPTY_BOARD, 'CC?');
+});
+
 describe('move generation', () => {
   test('finds exactly the reference placements on small racks', () => {
     assertProperty(
       'generator agrees with the exhaustive reference',
       fc.property(
         fc.constantFrom(...BOARDS),
-        fc.array(fc.constantFrom('A', 'C', 'E', 'S', 'T', BLANK), {
-          minLength: 1,
-          maxLength: 3,
-        }),
+        fc
+          .array(fc.constantFrom('A', 'C', 'E', 'S', 'T', BLANK), {
+            minLength: 1,
+            maxLength: 3,
+          })
+          .filter(drawableRack),
         (board, letters) => expectReferencePlacements(board, letters.join(''))
       ),
       { numRuns: 30 }

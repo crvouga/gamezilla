@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly random shard 4 on 8950f75 drew three Cs on an empty board. The English bag contains only two, so fixture construction failed before move generation. Restrict the small-rack property to drawable tile counts.",
+  "regressionTest": "libs/word-tiles-shared-ts/tests/word-tiles-moves.test.ts"
+}
