@@ -52,10 +52,9 @@ async function clippedFinalCells(page: Page): Promise<string[]> {
 }
 
 async function capture(page: Page, info: TestInfo, name: string) {
-  await info.attach(name, {
-    body: await page.screenshot({ animations: 'disabled' }),
-    contentType: 'image/png',
-  });
+  const path = info.outputPath(`${name}.png`);
+  await page.screenshot({ path, animations: 'disabled' });
+  await info.attach(name, { path, contentType: 'image/png' });
 }
 
 /**
