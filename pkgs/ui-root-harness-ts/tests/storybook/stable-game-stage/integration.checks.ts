@@ -67,7 +67,13 @@ test('stable game stage keeps the reported Quoridor positions on phone and table
         page.getByTestId('custom-game-board').locator('[data-cell]').first()
       );
       expect(cell.height).toBeCloseTo(cell.width, 0);
-      const geometry = { ...boxes, grid, history: await rect(history) };
+      const geometry = {
+        ...boxes,
+        grid,
+        history: await rect(history),
+        status: await rect(page.locator('[data-component="GameStageStatus"]')),
+        space: await rect(page.locator('[data-space-row="actions"]')),
+      };
       if (previous) expect(geometry).toEqual(previous);
       previous = geometry;
       const name = `quoridor-${viewport.width}x${viewport.height}-move-${moves}.png`;
@@ -100,9 +106,9 @@ const consumers = [
   'screens-games-chess-board--your-turn',
   'screens-games-connect-four-board--your-turn',
   'screens-games-quoridor-classic--both-pawns-advanced',
-  'screens-games-quoridor-hill--four-player-round',
-  'screens-games-word-tiles-board--your-turn',
-  'screens-games-battleship-board--your-turn',
+  'screens-games-quoridor-hill--waiting-for-others',
+  'screens-games-word-tiles-board--two-player-match',
+  'screens-games-battleship-board--opening',
   'screens-games-hearts-board--waiting-for-turn',
   'screens-games-pong-stage--rally',
   'screens-games-light-cycles-stage--riding',

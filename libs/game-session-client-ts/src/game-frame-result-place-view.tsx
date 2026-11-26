@@ -8,9 +8,10 @@ import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
-import { FrameFacts, FrameStage } from './custom-game-stage-view';
+import { FrameFacts } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-overlay-view';
+import { FrameStage } from './game-frame-stage';
 import {
   FrameConnectionNotice,
   FrameErrorView,

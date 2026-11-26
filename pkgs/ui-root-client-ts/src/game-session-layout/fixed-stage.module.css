@@ -42,13 +42,21 @@
 }
 .stage [data-game-board-stage] > [data-game-board] {
   flex: 1 1 0;
-  min-height: 96px;
+  min-height: 0;
   max-width: none;
   overflow: hidden auto;
   border-radius: var(--ui-radius-none);
 }
 .stage [data-game-board-content] {
   max-width: min(100%, var(--game-board-room, 100%));
+}
+/* Real-time drawings already know their aspect ratios. Their room is the
+   space below the information bands, independent of any game controls. */
+.stage:has([data-board-sizing="width"], [data-board-scores]) {
+  --game-stage-room: 0;
+}
+.stage [data-game-board]:has([data-board-sizing="width"], [data-board-scores]) {
+  container: arena-room / size;
 }
 .stage [data-board-workspace="true"] [data-game-board-content] {
   --game-board-workspace-inset: var(--ui-space-2);
@@ -129,6 +137,10 @@
   }
 }
 @media (max-height: 560px) {
+  /* Eight readable files, their border and the rank gutter. */
+  .stage:has([data-viewport-fit="square"]) {
+    --game-board-smallest: 280px;
+  }
   [data-game-column]:has(> .fixed) > [data-game-heading] {
     height: 28px;
   }

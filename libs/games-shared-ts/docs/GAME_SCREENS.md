@@ -61,7 +61,7 @@ directly.
    | Hub | Rows that lead onward, each with its current value. No form, no board. | `EmbeddedScreen`, `MenuSection`, `MenuRow` |
    | Choice | One short list of choices. Pressing one applies it and returns. | `EmbeddedScreen`, `MenuSection`, `MenuRow` / `GameChoiceGrid` |
    | Form | One form and its one submit. | `EmbeddedScreen`, fields, one `GameActionButton` |
-   | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `GameSessionLayout`, `GameBoardStage` |
+   | Stage | The board and only what play needs now: the seats, one status line, the board's own actions, one way to the game's commands. | `GameScreen`, `FixedGameSession`, `GameBoardStage` |
    | Result | What happened, and what to do next: one filled command and at most three quiet ones. | `GameScreen`, `GameResultHeadline`, `GameStandings` |
 
 3. **At most one filled (primary) command per screen.** Everything else is an
@@ -219,7 +219,7 @@ finished game. Its names are `idle` (choosing a time control), `searching`
 then one docked command (Find an opponent, Stop). A game found on this
 device opens under the versus card with both ratings; `result` lays the
 result card over the final board, with the rating change in its caption and
-the moves beside a wide board.
+the move history above the board at every size.
 
 Two refinements the specs demand. A finished game keeps the search's hub
 one row from its result, because New opponent seeks at the finished game's

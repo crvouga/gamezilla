@@ -2,7 +2,6 @@ import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import {
   GameMoveList,
   type GameMoveListEntry,
@@ -30,6 +29,7 @@ import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, For, Show, untrack } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameNoticesView } from './game-frame-shell';
+import { FrameStage } from './game-frame-stage';
 import { FrameErrorView, FrameStatusView } from './game-frame-status-view';
 import type { FrameRecord } from './game-frame-view-types';
 
@@ -459,15 +459,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
       >
         {(information) => (
           <>
-            <GameBoardStage
-              viewportFit={props.boardFit}
-              align={props.boardAlign}
-              workspace={props.boardWorkspace}
-              dataSet={{ ...props.boardState, testid: 'custom-game-public' }}
-              information={information}
-            >
-              {props.board}
-            </GameBoardStage>
+            <FrameStage {...props} information={information} />
             <FrameStatusView status={props.status} spokenOnly />
           </>
         )}

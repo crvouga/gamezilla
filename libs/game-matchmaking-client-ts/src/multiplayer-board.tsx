@@ -183,9 +183,13 @@ function BoardStage(props: StageProps): JSX.Element {
   const nearSide = (): MultiplayerSide =>
     props.view.flipped() ? otherSide(props.ownSide) : props.ownSide;
   const board = useStageBoardProps(props, nearSide);
-  const presentation = useGamePresentation();
+  const lookup = useGamePresentation();
+  const presentation = () => lookup(props.game.fen);
   return (
     <GameBoardStage
+      workspace={presentation().frame.boardWorkspace}
+      viewportFit={presentation().frame.boardFit}
+      align={presentation().frame.boardAlign}
       information={props.information}
       overlay={props.overlay}
       dataSet={gameMark(props, shown())}
@@ -212,7 +216,7 @@ function BoardStage(props: StageProps): JSX.Element {
     >
       {props.preparation}
       <MultiplayerFrameBoard
-        presentation={presentation(props.game.fen)}
+        presentation={presentation()}
         board={board}
         onLine={props.onBoardLine}
       />

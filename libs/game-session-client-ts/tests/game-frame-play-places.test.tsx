@@ -486,8 +486,10 @@ describe('the moves place', () => {
     fireEvent.click(screen.getByTestId('custom-game-review-first'));
     expect(sought).toEqual([1, 3, 0]);
     expect(shown('custom-game-review-move-1')).toBe(true);
-    // It never plays: no seat to move, no command of the game.
-    expect(shown('custom-game-seat-near')).toBe(false);
+    // The players stay above the reviewed position; play commands stay on the live board.
+    const seat = screen.getByTestId('custom-game-seat-near');
+    expect(precedes(seat, screen.getByTestId('story-board'))).toBe(true);
+    expect(seat.textContent).not.toContain('Your move');
     expect(shown('custom-game-commands')).toBe(false);
   });
 
