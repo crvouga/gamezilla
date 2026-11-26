@@ -44,13 +44,12 @@ export async function pressBackUntilVisible(
 
 /**
  * The app is in front and painted. Outside a space that is the account menu;
- * an open space's top bar is the space's alone, so there it is the button
- * that opens the space menu.
+ * an open space's top bar is the space's alone, so there it is the Minimize button.
  */
 export async function shellShown(ui: Driver): Promise<boolean> {
   return (
     (await ui.get(Handles.statusCurrentUser).isVisible()) ||
-    (await ui.get(Handles.spaceChromeOverflow).isVisible())
+    (await ui.get(Handles.spaceClose).isVisible())
   );
 }
 
@@ -63,28 +62,21 @@ export async function expectShellShown(
   await ui.get(Handles.statusCurrentUser).wait('visible', {
     ...(timeoutMs === undefined ? {} : { timeoutMs }),
     description: 'the account menu, or the top bar of an open space',
-    visibleOr: [Handles.spaceChromeOverflow],
+    visibleOr: [Handles.spaceClose],
   });
 }
 
-const SPACE_MENU_WAIT_MS = 15_000;
+const SPACE_WAIT_MS = 15_000;
 
-/**
- * Inside an open space: its top bar is up, with the button that opens the
- * space menu on every screen and size.
- */
+/** Minimize is present on every open space, including its loading stage. */
 export async function spaceBarShown(ui: Driver): Promise<boolean> {
-  return ui.get(Handles.spaceChromeOverflow).isVisible();
+  return ui.get(Handles.spaceClose).isVisible();
 }
 
-/** Minimize the open space, as a person would: from its top bar or its menu. */
 export async function minimizeSpace(
   ui: Driver,
-  timeoutMs: number = SPACE_MENU_WAIT_MS
+  timeoutMs: number = SPACE_WAIT_MS
 ): Promise<void> {
-  if (!(await ui.get(Handles.spaceClose).isVisible())) {
-    await ui.get(Handles.spaceChromeOverflow).tap({ timeoutMs });
-  }
   await ui.get(Handles.spaceClose).tap({ timeoutMs });
 }
 
@@ -94,8 +86,7 @@ const SPACE_DEPTH_LIMIT = 8;
 /**
  * The account menu's button. An open space's top bar is the space's alone,
  * so a person in one minimizes it first (the space goes on behind them);
- * from a screen deeper in the space that takes one press per screen. Beside
- * a sidebar the menu shows all along and nothing is minimized.
+ * beside a sidebar the account menu is already visible.
  */
 export async function reachAccountMenu(
   ui: Driver,

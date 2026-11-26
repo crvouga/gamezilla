@@ -15,11 +15,11 @@ export async function chooseOfflineCommand(
   await expectShellShown(ui, WAIT_MS);
   // A parked client's focused element must not receive this client's shortcut:
   // it goes to this client's own chrome, the account menu or, inside a space,
-  // the button of the space menu.
+  // its Minimize button.
   const account = ui.get(Handles.statusCurrentUser);
   const chrome = (await account.isVisible())
     ? account
-    : ui.get(Handles.spaceChromeOverflow);
+    : ui.get(Handles.spaceClose);
   await chrome.key('commandPalette');
   const input = ui.get(Handles.commandPaletteInput);
   await input.expect.visible({ timeoutMs: WAIT_MS });

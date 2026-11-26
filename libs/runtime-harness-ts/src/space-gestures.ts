@@ -63,12 +63,9 @@ export async function expectSpaceEnded(ui: Driver): Promise<void> {
   await expectVisible(ui, Handles.spaceEnded);
 }
 
-/**
- * Inside the space: its top row is up, with its settings gear (the same
- * signal as an active space).
- */
+/** Minimize is visible in the top bar of an open space. */
 export async function expectInSpace(ui: Driver): Promise<void> {
-  await expectVisible(ui, Handles.spaceChromeOverflow);
+  await expectVisible(ui, Handles.spaceClose);
 }
 
 const LINK_POLLS = 10;

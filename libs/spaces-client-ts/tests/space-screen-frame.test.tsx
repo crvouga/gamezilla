@@ -34,16 +34,20 @@ function chrome(status: SpaceDetailStatus): SpaceScreenChromeValue {
     status,
     onBack: noop,
     backLabel: undefined,
-    menu: [{ id: 'minimize', label: 'Minimize space', onPress: noop }],
+    onMembers: noop,
+    onRename: undefined,
+    onMinimize: noop,
     onLeave: noop,
-    onEnd: noop,
+    onEnd: undefined,
     onInvite: undefined,
     onPersonAction: noop,
     personCapabilities: [],
     testIds: {
       back: Handles.spaceBackToSpaces,
       title: Handles.spaceTitle,
-      settings: Handles.spaceChromeOverflow,
+      people: Handles.spaceMembersButton,
+      share: Handles.spaceShare,
+      minimize: Handles.spaceClose,
       leave: Handles.spaceLeave,
       end: Handles.spaceEnd,
     },
@@ -88,7 +92,7 @@ test('while the space is reached the stage loads under the space’s rows', () =
   ));
   const stage = container.querySelector('[data-space-row="stage"]');
   expect(stage?.contains(byTestId(container, Handles.spaceLoading))).toBe(true);
-  expect(byTestId(container, Handles.spaceChromeOverflow)).not.toBeNull();
+  expect(byTestId(container, Handles.spaceClose)).not.toBeNull();
   expect(byTestId(container, 'games')).toBeNull();
 });
 
