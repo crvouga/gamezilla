@@ -39,13 +39,13 @@ async function frame(page: Page) {
 }
 
 // regression: quoridor-history-pushes-board
-for (const viewport of [
-  { width: 390, height: 844 },
-  { width: 1153, height: 2000 },
-]) {
-  test(`stable game stage keeps the reported Quoridor positions at ${viewport.width}x${viewport.height}`, async ({
-    page,
-  }, info) => {
+test('stable game stage keeps the reported Quoridor positions on phone and tablet', async ({
+  page,
+}, info) => {
+  for (const viewport of [
+    { width: 390, height: 844 },
+    { width: 1153, height: 2000 },
+  ]) {
     await page.setViewportSize(viewport);
     let previous;
     for (const [story, moves] of [
@@ -75,8 +75,8 @@ for (const viewport of [
       await page.screenshot({ path });
       await info.attach(name, { path, contentType: 'image/png' });
     }
-  });
-}
+  }
+});
 
 // regression: quoridor-hill-desktop-board-below-target-size
 test('stable game stage centres playable Quoridor squares in a height-limited desktop', async ({
