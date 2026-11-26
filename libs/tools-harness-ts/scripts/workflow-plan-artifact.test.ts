@@ -17,7 +17,7 @@ type Job = { outputs?: Record<string, unknown>; steps: Step[] };
 test('Verification transfers the immutable plan as a CI artifact rather than a masked job output', () => {
   // Run 37511860563 suppressed the plan output and supplied an empty payload.
   const text = readFileSync(
-    join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
+    join(import.meta.dirname, '../../../.github/workflows/verify-full.yml'),
     'utf8'
   );
   const { jobs } = Bun.YAML.parse(text) as { jobs: Record<string, Job> };

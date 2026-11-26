@@ -4,7 +4,7 @@
 # Health is left out: what it finds reaches IRM through the Grafana alert
 # rules on its check results, so a red hourly run would only repeat them.
 locals {
-  ci_relevant = "payload.get('action') == 'completed' and payload.get('workflow_run', {}).get('head_branch') == 'main' and payload.get('workflow_run', {}).get('path') in ['.github/workflows/deploy.yml', '.github/workflows/verify-nightly.yml', '.github/workflows/verify-pr.yml'] and payload.get('workflow_run', {}).get('event') in ['push', 'schedule', 'workflow_dispatch', 'workflow_call']"
+  ci_relevant = "payload.get('action') == 'completed' and payload.get('workflow_run', {}).get('head_branch') == 'main' and payload.get('workflow_run', {}).get('path') in ['.github/workflows/deploy.yml', '.github/workflows/verify-nightly.yml', '.github/workflows/verify-full.yml'] and payload.get('workflow_run', {}).get('event') in ['push', 'schedule', 'workflow_dispatch', 'workflow_call']"
   ci_failed   = "payload.get('workflow_run', {}).get('conclusion') in ['failure', 'timed_out', 'action_required', 'startup_failure']"
   # Rendered in the web inbox. Every line is `key: value` and
   # every link is absolute, so a person and an agent reading the

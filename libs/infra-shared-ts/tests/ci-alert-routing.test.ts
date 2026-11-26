@@ -62,7 +62,7 @@ test('Health runs never notify: their findings arrive as Grafana alerts', () => 
 });
 
 test('the three main workflows record failed completion, including setup failures and timeouts', () => {
-  for (const file of ['deploy', 'verify-nightly', 'verify-pr']) {
+  for (const file of ['deploy', 'verify-nightly', 'verify-full']) {
     for (const conclusion of [
       'failure',
       'timed_out',

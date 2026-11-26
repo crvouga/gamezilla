@@ -21,6 +21,7 @@ function budgetCommand(file: string): string {
 
 test('every stage spends one deadline across queues and sequential jobs', () => {
   const command = budgetCommand('verify-pr.yml');
+  expect(budgetCommand('verify-full.yml')).toBe(command);
   expect(budgetCommand('deploy.yml')).toBe(command);
   expect(budgetCommand('verify-nightly.yml')).toBe(command);
   const dir = mkdtempSync(join(tmpdir(), 'ci-budget-'));
@@ -38,8 +39,12 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
       GITHUB_ENV: join(dir, 'env'),
       GITHUB_PATH: join(dir, 'path'),
       GITHUB_OUTPUT: join(dir, 'output'),
+      GITHUB_STEP_SUMMARY: join(dir, 'summary'),
     };
     expect(spawnSync('bash', ['-c', command], { env }).status).toBe(1);
+    expect(readFileSync(env.GITHUB_STEP_SUMMARY, 'utf8')).toMatch(
+      /Verification incomplete at job admission: \d+s elapsed since workflow creation \(budget: 180s\)/
+    );
     env.CREATED = '2099-01-01T00:00:00Z';
     expect(spawnSync('bash', ['-c', command], { env }).status).toBe(0);
     expect(readFileSync(env.GITHUB_ENV, 'utf8')).toBe(

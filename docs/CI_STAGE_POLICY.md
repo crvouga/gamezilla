@@ -27,21 +27,22 @@ releases until the fix merges. Between 2026-11-01 and 2026-11-09 a narrower PR
 selection without these issues let about thirteen gate tasks stay red on main
 unnoticed (known bug `pr-gate-narrower-than-nightly`); the per-check issues and the
 blocked release are what make the same selection visible now. To prove a change
-before merging, dispatch the whole gate on the branch: `gh workflow run verify-pr.yml
+before merging, dispatch the whole gate on the branch: `gh workflow run verify-full.yml
 --ref <branch>`.
 
 ## Workflow audit
 
 | Workflow and triggers | Responsibility and dependencies |
 | --- | --- |
-| Verify PR: PR opened/reopened/synchronized against main, manual, reusable call | On a PR, only `verify:end` allocates compute. It verifies affected PR tasks and their dependencies. For full-catalog runs, `verify:start` builds a content-addressed plan and shared prerequisites; independent misses run in duration-balanced shards; `verify:end` aggregates every expected verdict. A pull request plans `PR_TASKS`; a manual dispatch or a reusable call plans the whole catalog. No path filter can strand the required status. New PR pushes cancel superseded runs. |
+| Verify PR: pull request to main | One job, `verify:end`, runs the affected PR checks. New pushes cancel superseded runs. |
+| Verify Full: manual or reusable call | Plan uncached tasks, execute shards and aggregate their verdicts for the requested stage. |
 | Release: main push or manual dispatch | Run the release gate, critical production-build journeys included, on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
 | Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
 | Health: hourly at minute 17 or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
 
 `verify:end` remains the required status. The main ruleset (verified PRs, not required to be up to date), SHA-pinned
 actions, fresh Ubuntu runners, read-only default token and protected production
-environment remain. No workflow, runner service or dependency was added.
+environment remain.
 
 ## Blocking check classification
 

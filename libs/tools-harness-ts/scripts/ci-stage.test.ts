@@ -19,10 +19,10 @@ type Workflow = {
   >;
 };
 
-function verifyWorkflow(): Workflow {
+function verifyWorkflow(file = 'verify-full.yml'): Workflow {
   return Bun.YAML.parse(
     readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
+      join(import.meta.dirname, '../../../.github/workflows', file),
       'utf8'
     )
   ) as Workflow;
@@ -113,23 +113,23 @@ test('Release retains integration and safety checks while Nightly exercises the 
 
 // regression: pr-gate-narrower-than-nightly
 test('gate shards install every toolchain the gate catalog needs', () => {
-  const workflow = verifyWorkflow();
-  for (const job of ['verify-shards', 'verify-end']) {
-    const setup = workflow.jobs[job]!.steps.find(
+  const setup = verifyWorkflow('verify-pr.yml').jobs['verify-end']!.steps.find(
+    (step) => step.uses === './.github/actions/setup'
+  );
+  expect(setup?.with?.['tools']).toBe(
+    "${{ steps.scope.outputs.docs == 'true' && 'bun gitleaks' || 'bun node gitleaks actionlint' }}"
+  );
+  const full = verifyWorkflow().jobs;
+  expect(
+    full['verify-shards']!.steps.find(
       (step) => step.uses === './.github/actions/setup'
-    )!;
-    const tools = setup.with?.['tools'];
-    if (job === 'verify-shards')
-      expect(tools).toBe("${{ steps.tools.outputs.install || '' }}");
-    else {
-      expect(tools).toContain(
-        "env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint'"
-      );
-      expect(tools).toContain(
-        "needs.verify-start.outputs.consumers == '-' && 'bun node'"
-      );
-    }
-  }
+    )?.with?.['tools']
+  ).toBe("${{ steps.tools.outputs.install || '' }}");
+  expect(
+    full['verify-end']!.steps.find(
+      (step) => step.uses === './.github/actions/setup'
+    )?.with?.['tools']
+  ).toContain('needs.verify-start.outputs.consumers');
 });
 
 test('a misspelled stage cannot silently remove verification', () => {
@@ -156,8 +156,9 @@ test('Release enforces the production-build journeys before it deploys', () => {
 });
 
 test('only a pull request runs the narrow selection; a dispatch, Release and nightly run the catalog', () => {
+  expect(verifyWorkflow('verify-pr.yml').env['VERIFY_CI_STAGE']).toBe('pr');
   expect(verifyWorkflow().env['VERIFY_CI_STAGE']).toBe(
-    "${{ inputs.profile == 'nightly' && 'nightly' || (github.event_name == 'pull_request' && 'pr' || 'release') }}"
+    "${{ inputs.profile == 'nightly' && 'nightly' || 'release' }}"
   );
 });
 

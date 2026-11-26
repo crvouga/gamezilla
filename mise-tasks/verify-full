@@ -3,4 +3,4 @@
 set -euo pipefail
 cd "$MISE_PROJECT_ROOT"
 ref=${1:-$(git symbolic-ref --short HEAD)}
-exec gh workflow run verify-pr.yml --ref "$ref"
+exec gh workflow run verify-full.yml --ref "$ref"

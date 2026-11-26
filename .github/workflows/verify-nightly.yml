@@ -111,7 +111,7 @@ jobs:
       contents: read # check out the code
       actions: write # delegated verify:end reads run state and deletes this run's transfer artifacts
       id-token: write # mint the OIDC token Infisical and AWS trust
-    uses: ./.github/workflows/verify-pr.yml
+    uses: ./.github/workflows/verify-full.yml
     with:
       profile: nightly
 
@@ -144,7 +144,9 @@ jobs:
           deadline=$(( $(date -d "$created" +%s) + STAGE_SECONDS ))
           remaining=$(( deadline - $(date +%s) ))
           if (( remaining <= 0 )); then
-            echo "::error::The workflow spent its time budget before this job started."
+            message="Verification incomplete at job admission: $(( STAGE_SECONDS - remaining ))s elapsed since workflow creation (budget: ${STAGE_SECONDS}s)."
+            echo "::error::$message"
+            echo "$message" >> "$GITHUB_STEP_SUMMARY"
             exit 1
           fi
           echo "CI_STAGE_DEADLINE=$deadline" >> "$GITHUB_ENV"

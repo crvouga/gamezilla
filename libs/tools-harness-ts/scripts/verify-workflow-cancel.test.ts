@@ -6,7 +6,7 @@ import { activeProfile } from './verify-profile';
 
 const WORKFLOW = join(
   import.meta.dirname,
-  '../../../.github/workflows/verify-pr.yml'
+  '../../../.github/workflows/verify-full.yml'
 );
 
 /** Cleanup steps must not hold a cancelled run's concurrency group. */
@@ -173,10 +173,10 @@ describe('Verify workflow cancellation', () => {
       concurrency: { group: string; 'cancel-in-progress': string };
     };
     expect(workflow.concurrency.group).toBe(
-      "${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}"
+      "${{ (github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}"
     );
     expect(workflow.concurrency['cancel-in-progress']).toBe(
-      "${{ github.event_name == 'pull_request' || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch') }}"
+      "${{ github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' }}"
     );
   });
   // regression: release-cold-slow-suites
@@ -256,7 +256,13 @@ describe('Verify workflow cancellation', () => {
       >;
     };
     // Every push to a pull request on main runs the pull-request gate.
-    expect(workflow.on.pull_request).toEqual({
+    const prWorkflow = Bun.YAML.parse(
+      readFileSync(join(WORKFLOW, '..', 'verify-pr.yml'), 'utf8')
+    ) as typeof workflow;
+    expect(Object.keys(prWorkflow.jobs)).toEqual(['verify-end']);
+    expect(Object.keys(prWorkflow.on)).toEqual(['pull_request']);
+    expect(workflow.on.pull_request).toBeUndefined();
+    expect(prWorkflow.on.pull_request).toEqual({
       branches: ['main'],
       types: ['opened', 'reopened', 'synchronize'],
     });
@@ -272,9 +278,7 @@ describe('Verify workflow cancellation', () => {
       "always() && !cancelled() && needs.verify-start.outputs.single_runner != '+'"
     );
     expect(end['continue-on-error']).toBeUndefined();
-    expect(workflow.jobs['verify-start']!.if).toBe(
-      "github.event_name != 'pull_request'"
-    );
+    expect(workflow.jobs['verify-start']!.if).toBeUndefined();
     expect(workflow.jobs['verify-shards']!.strategy?.['fail-fast']).toBe(
       "${{ github.workflow == 'Release' }}"
     );
@@ -289,12 +293,14 @@ describe('Verify workflow cancellation', () => {
     expect(end.steps[consumers]!.if).toContain(
       "needs.verify-start.result == 'success'"
     );
-    const pr = end.steps[step('turbo-ci-run.ts verify:ci')]!;
-    expect(pr.if).toBe("github.event_name == 'pull_request'");
+    const pr = prWorkflow.jobs['verify-end']!.steps.find((s) =>
+      s.run?.includes('turbo-ci-run.ts verify:ci')
+    )!;
+    expect(pr.if).toBeUndefined();
     expect(pr['continue-on-error']).toBeUndefined();
     expect(verdict).toBeGreaterThan(consumers);
     expect(end.steps[verdict]).toMatchObject({
-      if: "always() && !cancelled() && github.event_name != 'pull_request'",
+      if: 'always() && !cancelled()',
       env: {
         START_RESULT: '${{ needs.verify-start.result }}',
         SHARD_RESULT: '${{ needs.verify-shards.result }}',

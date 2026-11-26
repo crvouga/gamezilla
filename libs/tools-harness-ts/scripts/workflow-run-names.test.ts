@@ -43,6 +43,7 @@ type Workflow = {
  */
 const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
   'verify-nightly.yml': { name: 'Verify Nightly', jobs: 'verify-nightly' },
+  'verify-full.yml': { name: 'Verify Full', jobs: 'verify' },
   'verify-pr.yml': { name: 'Verify PR', jobs: 'verify' },
   'deploy.yml': { name: 'Release', jobs: 'deploy' },
   'health.yml': { name: 'Health', jobs: 'health' },

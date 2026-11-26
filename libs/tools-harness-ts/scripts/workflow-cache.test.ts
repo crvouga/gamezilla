@@ -25,7 +25,7 @@ test('randomized suites own the runner one worker pool at a time', () => {
 // regression: verify-cache-write-only-override
 test('Verification enforces read/write after secrets injection', () => {
   const workflow = readFileSync(
-    join(root, '.github/workflows/verify-pr.yml'),
+    join(root, '.github/workflows/verify-full.yml'),
     'utf8'
   );
   expect(workflow).toContain(
@@ -153,6 +153,7 @@ test('every job that injects secrets does it in setup, after the install', () =>
   for (const file of [
     'deploy.yml',
     'health.yml',
+    'verify-full.yml',
     'verify-nightly.yml',
     'verify-pr.yml',
   ]) {
@@ -188,6 +189,7 @@ test('build hashes its toolchain, shared compiler configs and output-affecting e
 const WORKFLOW_FILES = [
   'deploy.yml',
   'health.yml',
+  'verify-full.yml',
   'verify-nightly.yml',
   'verify-pr.yml',
 ];
@@ -242,7 +244,7 @@ test('a workflow sets no hashed env except the pull request range and the profil
       readFileSync(join(root, '.github/workflows', file), 'utf8')
     ) as { env?: Record<string, unknown> };
     expect(Object.keys(workflow.env ?? {}).filter(matches), file).toEqual(
-      file === 'verify-pr.yml'
+      file === 'verify-pr.yml' || file === 'verify-full.yml'
         ? ['PR_BASE', 'PR_HEAD', 'VERIFY_PROFILE']
         : file === 'verify-nightly.yml'
           ? ['VERIFY_PROFILE']

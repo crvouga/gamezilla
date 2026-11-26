@@ -14,7 +14,7 @@ const ROOT = join(import.meta.dirname, '../../..');
 // regression: github-model-phase-concurrency-starvation
 test('a two-core Verification runner never starts twenty concurrent test processes', () => {
   const workflow = Bun.YAML.parse(
-    readFileSync(join(ROOT, '.github/workflows/verify-pr.yml'), 'utf8')
+    readFileSync(join(ROOT, '.github/workflows/verify-full.yml'), 'utf8')
   ) as {
     env: Record<string, string | number>;
     on: { workflow_call: { inputs: { concurrency: { default: number } } } };
@@ -41,6 +41,7 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
     'deploy.yml',
     'health.yml',
     'pr-hygiene.yml',
+    'verify-full.yml',
     'verify-nightly.yml',
     'verify-pr.yml',
   ]);
@@ -57,7 +58,7 @@ test('only GitHub Actions owns the Verify, Release and Health triggers', () => {
     for (const job of Object.values(workflow.jobs)) {
       // A reusable-workflow call runs on its callee's runners.
       if (job.uses !== undefined) {
-        expect(job.uses).toBe('./.github/workflows/verify-pr.yml');
+        expect(job.uses).toBe('./.github/workflows/verify-full.yml');
         continue;
       }
       runners.push(job['runs-on'] ?? '');

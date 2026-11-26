@@ -83,7 +83,7 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
 
 /**
  * The same ceiling for a full Verify shard on CI's 2-core runner. It must stay
- * **below** that shard step's `timeout-minutes` in `.github/workflows/verify-pr.yml`,
+ * **below** that shard step's `timeout-minutes` in `.github/workflows/verify-full.yml`,
  * so this process kills the run and names the task still running before GitHub
  * kills the job and says nothing. Contract tasks are budgeted up to this.
  */

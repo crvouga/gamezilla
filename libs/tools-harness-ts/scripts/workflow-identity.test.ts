@@ -73,7 +73,7 @@ test('configured builds check source spellings after identity materialization', 
 // regression: auth-shard-missing-solver
 test('verification installs the pinned solver before running selected tasks', () => {
   const workflow = readFileSync(
-    join(root, '.github/workflows/verify-pr.yml'),
+    join(root, '.github/workflows/verify-full.yml'),
     'utf8'
   );
   expect(workflow).toContain("if: steps.browser.outputs.solver == 'true'");

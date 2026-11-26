@@ -15,6 +15,7 @@ import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 const WORKFLOWS = [
   'deploy.yml',
   'health.yml',
+  'verify-full.yml',
   'verify-nightly.yml',
   'verify-pr.yml',
 ];

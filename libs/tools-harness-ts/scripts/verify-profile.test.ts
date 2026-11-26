@@ -200,7 +200,7 @@ describe('verification profiles', () => {
 
 describe('Verify Nightly workflow', () => {
   const nightly = workflow('verify-nightly.yml');
-  const gate = workflow('verify-pr.yml');
+  const gate = workflow('verify-full.yml');
 
   // regression: ci-nightly-diagnostic-claims-full-verdict
   test('a successful diagnostic labels its log and report as partial verification', () => {
@@ -266,7 +266,7 @@ describe('Verify Nightly workflow', () => {
 
   test('the gate group is the Verify PR jobs at nightly depth', () => {
     expect(nightly.jobs['verify-nightly-gate']).toMatchObject({
-      uses: './.github/workflows/verify-pr.yml',
+      uses: './.github/workflows/verify-full.yml',
       with: { profile: 'nightly' },
     });
   });
