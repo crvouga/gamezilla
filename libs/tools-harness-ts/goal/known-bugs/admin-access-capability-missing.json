@@ -1,0 +1,4 @@
+{
+  "summary": "The permission catalog included admin:access, but the conformance manifest could not resolve the capability to open the administration site.",
+  "regressionTest": "libs/permissions-harness-ts/tests/closed-world.test.ts"
+}
