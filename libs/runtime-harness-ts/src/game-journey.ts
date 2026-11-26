@@ -7,7 +7,6 @@ import {
   hostSpace,
   JOURNEY_WAIT_MS,
   openGameSetupInSpace,
-  tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 import {

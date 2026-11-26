@@ -85,10 +85,10 @@ export const KingOfTheHill: Story = {
     <GameSetupModeContext
       value={{
         segments: [
-          { key: 'quoridor', label: 'Classic' },
-          { key: 'quoridor-hill', label: 'King of the Hill' },
+          { key: 'classic', label: 'Classic' },
+          { key: 'hill', label: 'King of the Hill' },
         ],
-        selected: 'quoridor-hill',
+        selected: 'hill',
         onSelect: fn(),
       }}
     >
