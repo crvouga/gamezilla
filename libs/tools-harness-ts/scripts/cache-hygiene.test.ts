@@ -228,7 +228,7 @@ test('a glob over every package is broad; a list of named packages is not', () =
 
 test('a task with a broad glob fails unless allowed, and only up to its count', () => {
   const task = {
-    task: '@apps/client-ts#test',
+    task: '@apps/product-client-ts#test',
     inputs: ['$TURBO_DEFAULT$', '$TURBO_ROOT$/libs/*/package.json'],
   };
   const [violation] = broadInputViolations([task], POLICY);
@@ -239,7 +239,7 @@ test('a task with a broad glob fails unless allowed, and only up to its count', 
   const allowed: Policy = {
     ...POLICY,
     broadInputs: {
-      '@apps/client-ts#test': { patterns: 1, reason: 'reads every manifest' },
+      '@apps/product-client-ts#test': { patterns: 1, reason: 'reads every manifest' },
     },
   };
   expect(broadInputViolations([task], allowed)).toEqual([]);
@@ -257,25 +257,25 @@ test('an input naming a file that does not exist fails; globs and present files 
     inputs: [
       '$TURBO_DEFAULT$',
       '$TURBO_ROOT$/libs/a-client-ts/src/**/*.{ts,tsx}',
-      '$TURBO_ROOT$/apps/client-ts/babel.config.js',
-      '$TURBO_ROOT$/apps/client-ts/vite.config.mts',
+      '$TURBO_ROOT$/apps/product-client-ts/babel.config.js',
+      '$TURBO_ROOT$/apps/product-client-ts/vite.config.mts',
       '!$TURBO_ROOT$/apps/gone.ts',
       'src/**',
     ],
   };
   expect(namedInputs(task.inputs)).toEqual([
-    'apps/client-ts/babel.config.js',
-    'apps/client-ts/vite.config.mts',
+    'apps/product-client-ts/babel.config.js',
+    'apps/product-client-ts/vite.config.mts',
   ]);
-  const present = new Set(['apps/client-ts/vite.config.mts']);
+  const present = new Set(['apps/product-client-ts/vite.config.mts']);
   const [violation, ...rest] = missingInputViolations([task], (path) =>
     present.has(path)
   );
   expect(rest).toEqual([]);
   expect(violation?.rule).toBe('missing-input');
-  expect(violation?.message).toContain('`apps/client-ts/babel.config.js`');
+  expect(violation?.message).toContain('`apps/product-client-ts/babel.config.js`');
   expect(violation?.message).not.toContain('vite.config.mts');
-  present.add('apps/client-ts/babel.config.js');
+  present.add('apps/product-client-ts/babel.config.js');
   expect(missingInputViolations([task], (path) => present.has(path))).toEqual(
     []
   );

@@ -182,7 +182,7 @@ const VERIFY_LEAVES = [
 
 /** Release runs the whole verification surface, then the leaves that need a live env. */
 const DEPLOY_ONLY = [
-  '@apps/server-ts#verify:api',
+  '@apps/product-api-ts#verify:api',
   'health',
   '@libs/infra-shared-ts#retire:workers',
 ] as const;
@@ -544,12 +544,12 @@ describe('turbo verify/deploy graph invariants', () => {
     expect(tasks['@apps/product-ts#deploy']?.dependsOn).toEqual([
       '@libs/runtime-server-ts#migrate',
       '@libs/chess-puzzle-server-ts#initialize:catalog',
-      '@apps/server-ts#verify:api',
+      '@apps/product-api-ts#verify:api',
       '@apps/product-ts#verify:offline-shell',
       '@apps/product-ts#verify:worker-bundle',
       '@apps/product-ts#verify:rendered-worker',
     ]);
-    expect(tasks).not.toHaveProperty('@apps/server-ts#deploy');
+    expect(tasks).not.toHaveProperty('@apps/product-api-ts#deploy');
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
     expect(tasks['@libs/infra-server-ts#apply:edge']?.dependsOn).toEqual([
       '@apps/product-ts#deploy',

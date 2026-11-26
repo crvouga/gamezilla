@@ -77,7 +77,7 @@
       "!**/babel.config.js",
       "!**/lingui.config.*",
       "!**/*.html",
-      "!apps/client-ts/public/sql-workers/**/*.js",
+      "!apps/product-client-ts/public/sql-workers/**/*.js",
       "!apps/product-ts/public/sql-workers/**/*.js",
       "!apps/harness-ts/public/sql-workers/**/*.js",
       "!.agents/skills/**/assets",
@@ -205,7 +205,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit",
       "includes": [
-        "**/apps/client-ts/src/**/*.{ts,tsx}",
+        "**/apps/product-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
@@ -298,7 +298,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit",
       "includes": [
-        "**/apps/client-ts/src/**/*.{ts,tsx}",
+        "**/apps/product-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
@@ -391,7 +391,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/no-nested-await.grit",
       "includes": [
-        "**/apps/client-ts/src/**/*.{ts,tsx}",
+        "**/apps/product-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-shared-ts/src/**/*.{ts,tsx}",
@@ -410,7 +410,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit",
       "includes": [
-        "**/apps/client-ts/**/*.{ts,tsx}",
+        "**/apps/product-client-ts/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
@@ -432,7 +432,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit",
       "includes": [
-        "**/apps/client-ts/**/*.{ts,tsx}",
+        "**/apps/product-client-ts/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
         "!**/tests/**",
@@ -874,7 +874,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit",
       "includes": [
-        "**/apps/client-ts/**/*.{ts,tsx}",
+        "**/apps/product-client-ts/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
@@ -985,7 +985,7 @@
         "!**/dev.ts",
         "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
-        "!**/apps/client-ts/src/main.tsx",
+        "!**/apps/product-client-ts/src/main.tsx",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
         "!**/*-harness-ts/**",
@@ -1022,8 +1022,8 @@
         "!**/libs/secrets-shared-ts/src/tts-secrets.ts",
         "!**/libs/secrets-shared-ts/src/turbo-token.ts",
         "!**/public/**",
-        "!**/apps/server-ts/src/product-server.ts",
-        "!**/apps/server-ts/src/worker-telemetry.ts",
+        "!**/apps/product-api-ts/src/product-server.ts",
+        "!**/apps/product-api-ts/src/worker-telemetry.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
         "!**/harness-io.ts",
@@ -1057,7 +1057,7 @@
         "!**/app.tsx",
         "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
-        "!**/apps/client-ts/src/main.tsx",
+        "!**/apps/product-client-ts/src/main.tsx",
         "!**/*-shared-worker.ts",
         "!**/*-shared-worker.js",
         "!**/*-boot.ts",
@@ -1112,8 +1112,8 @@
         "!**/libs/secrets-shared-ts/src/tts-secrets.ts",
         "!**/libs/secrets-shared-ts/src/turbo-token.ts",
         "!**/public/**",
-        "!**/apps/server-ts/src/product-server.ts",
-        "!**/apps/server-ts/src/worker-telemetry.ts",
+        "!**/apps/product-api-ts/src/product-server.ts",
+        "!**/apps/product-api-ts/src/worker-telemetry.ts",
         "!**/server.ts",
         "!**/wall-io.ts",
         "!**/harness-io.ts",
@@ -1147,7 +1147,7 @@
         "!**/open-harness.ts",
         "!**/launch-actor.ts",
         "!**/root-app.tsx",
-        "!**/apps/client-ts/src/main.tsx",
+        "!**/apps/product-client-ts/src/main.tsx",
         "!**/*-shared-worker.ts",
         "!**/*-shared-worker.js",
         "!**/*-boot.ts",
@@ -1247,7 +1247,7 @@
       "includes": [
         "**/scripts/**/verify-*.ts",
         "!**/*.test.ts",
-        "!**/apps/client-ts/scripts/verify-production-compression.ts"
+        "!**/apps/product-client-ts/scripts/verify-production-compression.ts"
       ]
     },
     {
@@ -1514,8 +1514,8 @@
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/billing-root-shared-ts/src/**/*.{ts,tsx}",
         "**/pkgs/billing-root-shared-ts/tests/**/*.{ts,tsx}",
-        "!**/apps/server-ts/src/product-server.ts",
-        "!**/apps/server-ts/src/worker-telemetry.ts",
+        "!**/apps/product-api-ts/src/product-server.ts",
+        "!**/apps/product-api-ts/src/worker-telemetry.ts",
         "!**/apps/product-ts/**",
         "!**/apps/harness-ts/**",
         "!**/libs/harness-ts/src/**",
@@ -1729,13 +1729,13 @@
         "!**/pkgs/observability-mcp-server-ts/src/**",
         "!**/pkgs/observability-mcp-shared-ts/src/**",
         "!**/pkgs/observability-mcp-server-ts/tests/**",
-        "!**/apps/client-ts/src/main.tsx",
+        "!**/apps/product-client-ts/src/main.tsx",
         "!**/libs/app-root-client-ts/src/boot-browser-observability.ts",
-        "!**/apps/server-ts/src/room.ts",
+        "!**/apps/product-api-ts/src/room.ts",
         "!**/apps/synthetic-population-worker-ts/src/wall-telemetry.ts",
         "!**/apps/synthetic-population-worker-ts/src/wall-metrics.ts",
-        "!**/apps/server-ts/src/product-server.ts",
-        "!**/apps/server-ts/src/worker-telemetry.ts",
+        "!**/apps/product-api-ts/src/product-server.ts",
+        "!**/apps/product-api-ts/src/worker-telemetry.ts",
         "!**/libs/app-env-client-ts/src/browser-boundaries.ts",
         "!**/libs/app-env-client-ts/src/browser-identity.ts",
         "!**/libs/app-root-client-ts/src/wall-client-env.ts",
@@ -1784,7 +1784,7 @@
         "!**/pkgs/observability-root-server-ts/scripts/**",
         "!**/pkgs/observability-root-shared-ts/configs/collector-ci.yaml",
         "!**/pkgs/observability-root-shared-ts/configs/production-error-alert.txt",
-        "!**/apps/client-ts/src/main.tsx",
+        "!**/apps/product-client-ts/src/main.tsx",
         "!**/libs/app-root-client-ts/src/boot-browser-observability.ts",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}"
@@ -1834,9 +1834,9 @@
         "!**/pkgs/observability-root-server-ts/scripts/**",
         "!**/pkgs/observability-root-shared-ts/configs/collector-ci.yaml",
         "!**/pkgs/observability-root-shared-ts/configs/production-error-alert.txt",
-        "!**/apps/server-ts/src/room.ts",
-        "!**/apps/server-ts/src/product-server.ts",
-        "!**/apps/server-ts/src/worker-telemetry.ts",
+        "!**/apps/product-api-ts/src/room.ts",
+        "!**/apps/product-api-ts/src/product-server.ts",
+        "!**/apps/product-api-ts/src/worker-telemetry.ts",
         "!**/libs/app-root-server-ts/src/room-route.ts",
         "!**/pkgs/room-adapter-durable-object-server-ts/src/adapter-base.ts",
         "!**/pkgs/room-adapter-durable-object-server-ts/src/observability.ts",
@@ -1987,7 +1987,7 @@
       }
     },
     {
-      "includes": ["apps/client-ts/**"],
+      "includes": ["apps/product-client-ts/**"],
       "linter": {
         "rules": {
           "style": {

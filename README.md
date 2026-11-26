@@ -159,13 +159,13 @@ Bun workspaces: `apps/*`, `libs/*`, `pkgs/*`.
 
 | App | Role |
 | --- | --- |
-| `@apps/client-ts` | Vite shell: `index.html`, service worker, PWA, bundle budget. `bun run dev:client` runs it alone. |
-| `@apps/server-ts` | API and room modules, plus the local API server the API check runs against. Source is isomorphic; `pg` and `node:*` only behind ports in modules marked `@api-wall-ok`. |
+| `@apps/product-client-ts` | Vite shell: `index.html`, service worker, PWA, bundle budget. `bun run dev:client` runs it alone. |
+| `@apps/product-api-ts` | API and room modules, plus the local API server the API check runs against. Source is isomorphic; `pg` and `node:*` only behind ports in modules marked `@api-wall-ok`. |
 | `@apps/product-ts` | Application Worker (client assets, API, schedules and rooms); web app, simulator and localhost stack. |
 | `@apps/harness-ts` | The harness: the whole system running in one browser tab with a console over each node. A site of its own (`bun run dev:harness`). |
 | `@apps/auth-relay-ts` | Global OAuth callback Worker at `auth.<zone>`. |
 | `@apps/storybook-ts` | Global assets-only Worker serving the static Storybook build at `storybook.<zone>`. |
-| `@apps/client-swift` | Native SwiftUI iOS shell: the product name on an empty screen, linking `@pkgs/clock-shared-swift`. No product features yet ([`docs/POLYGLOT.md`](docs/POLYGLOT.md)). |
+| `@apps/product-client-swift` | Native SwiftUI iOS shell: the product name on an empty screen, linking `@pkgs/clock-shared-swift`. No product features yet ([`docs/POLYGLOT.md`](docs/POLYGLOT.md)). |
 
 | Platform lib | Role |
 | --- | --- |
@@ -610,7 +610,7 @@ The puzzle loader stores the first Lichess source as bounded CSV parts and publi
 
 `--idp-state` is `memory` (default, forgotten on exit), `instance` (survives a restart when `--keep-data` is set), or `path` (never deleted by stack cleanup). Signing keys are not persisted, so a restarted provider invalidates ID tokens it already issued. API sessions already issued stay valid. Local Stripe (`BILLING_PROVIDER=stripe`) is reconciled by `billing:sync` at boot. Pay with `4242 4242 4242 4242`. State is `<instance>/billing.sqlite`. `[stack] ready` means every API node answered a real request. `/api/health` can pass while the worker is in `api misconfigured`.
 
-`@apps/client-ts` setup writes local `VITE_*` values and refuses the production API unless `VITE_ALLOW_PRODUCTION_API_URL=1`. `bunx turbo run pwa:generate --filter=@apps/client-ts` regenerates the configured web artwork and manifest (see [branding](docs/BRANDING.md)). `bun run build` there runs Vite, then Workbox writes `dist/sw.js`. A stuck cache is cleared at `/unregister.html`, or by Clear local data & reload. Optional bundle treemap: `ANALYZE=1 bun run --filter @apps/client-ts build`.
+`@apps/product-client-ts` setup writes local `VITE_*` values and refuses the production API unless `VITE_ALLOW_PRODUCTION_API_URL=1`. `bunx turbo run pwa:generate --filter=@apps/product-client-ts` regenerates the configured web artwork and manifest (see [branding](docs/BRANDING.md)). `bun run build` there runs Vite, then Workbox writes `dist/sw.js`. A stuck cache is cleared at `/unregister.html`, or by Clear local data & reload. Optional bundle treemap: `ANALYZE=1 bun run --filter @apps/product-client-ts build`.
 
 `bun run dev` is for building. A green `bun verify` is the release decision. Looking at the app is not evidence. If a behavior cannot be reached by a verification, change the product until one can.
 

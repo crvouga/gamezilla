@@ -138,7 +138,7 @@
     },
     "src": {
       "dependsOn": [
-        "@apps/server-ts#src",
+        "@apps/product-api-ts#src",
         "@libs/app-config-shared-ts#src",
         "@libs/app-env-client-ts#src",
         "@libs/app-root-client-ts#src",
@@ -295,7 +295,7 @@
       "dependsOn": [
         "@libs/runtime-server-ts#migrate",
         "@libs/chess-puzzle-server-ts#initialize:catalog",
-        "@apps/server-ts#verify:api",
+        "@apps/product-api-ts#verify:api",
         "@apps/product-ts#verify:offline-shell",
         "@apps/product-ts#verify:worker-bundle",
         "@apps/product-ts#verify:rendered-worker"

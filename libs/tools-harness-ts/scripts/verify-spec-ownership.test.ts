@@ -33,7 +33,7 @@ describe('spec ownership', () => {
     expect(stagedViolations(commit.files)).toEqual([]);
     for (const file of [
       'pkgs/turn-game-shared-ts/docs/CONTRACT_AUDIT.md',
-      'apps/client-ts/docs/BUILD_AUDIT.md',
+      'apps/product-client-ts/docs/BUILD_AUDIT.md',
     ])
       expect(stagedViolations([...commit.files, file])).toEqual([]);
     for (const file of [

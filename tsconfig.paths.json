@@ -10,12 +10,12 @@
         "./libs/light-cycles-harness-ts/src/*"
       ],
       "@apps/auth-relay-ts/*": ["./apps/auth-relay-ts/src/*"],
-      "@apps/client-ts/*": ["./apps/client-ts/src/*"],
+      "@apps/product-client-ts/*": ["./apps/product-client-ts/src/*"],
       "@apps/harness-ts/*": ["./apps/harness-ts/src/*"],
       "@apps/product-ts/*": ["./apps/product-ts/src/*"],
       "@apps/product-ts/worker": ["./apps/product-ts/src/worker.ts"],
-      "@apps/server-ts/*": ["./apps/server-ts/src/*"],
-      "@apps/server-ts/worker": ["./apps/server-ts/src/server.ts"],
+      "@apps/product-api-ts/*": ["./apps/product-api-ts/src/*"],
+      "@apps/product-api-ts/worker": ["./apps/product-api-ts/src/server.ts"],
       "@libs/account-privacy-client-ts/*": [
         "./libs/account-privacy-client-ts/src/*"
       ],

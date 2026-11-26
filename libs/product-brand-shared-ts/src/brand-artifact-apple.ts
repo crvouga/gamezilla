@@ -67,11 +67,11 @@ function renderXcconfig(identity: ProductIdentity): string {
 
 export const APPLE_BRAND_ARTIFACTS: readonly BrandArtifact[] = [
   {
-    path: 'apps/client-swift/src/product-identity.generated.swift',
+    path: 'apps/product-client-swift/src/product-identity.generated.swift',
     render: renderSwift,
   },
   {
-    path: 'apps/client-swift/config/product-identity.generated.xcconfig',
+    path: 'apps/product-client-swift/config/product-identity.generated.xcconfig',
     render: renderXcconfig,
   },
 ];

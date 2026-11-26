@@ -532,7 +532,7 @@
     "//#deploy": {
       "cache": false,
       "dependsOn": [
-        "@apps/server-ts#verify:api",
+        "@apps/product-api-ts#verify:api",
         "health",
         "@libs/infra-shared-ts#retire:workers"
       ],

@@ -42,7 +42,7 @@
     "libs/game-menu-client-ts/src"
   ],
   "files": [
-    "apps/client-ts/src/main.tsx",
+    "apps/product-client-ts/src/main.tsx",
     "apps/harness-ts/src/developer-checkpoints.ts",
     "apps/harness-ts/src/developer-notebook.ts",
     "apps/harness-ts/src/developer-release.ts",

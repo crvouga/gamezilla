@@ -59,7 +59,7 @@
     "verify:worker-bundle": "bun run ../../libs/tools-harness-ts/scripts/verify-worker-bundle.ts"
   },
   "dependencies": {
-    "@apps/server-ts": "workspace:*",
+    "@apps/product-api-ts": "workspace:*",
     "@crvouga/mockingbird-service-github": "catalog:",
     "@crvouga/mockingbird-service-oauth": "catalog:",
     "@crvouga/mockingbird-service-openai": "catalog:",

@@ -141,7 +141,7 @@ describe('verification hosts', () => {
       '--filter=./apps/*',
       '--filter=./libs/*',
       '--filter=./pkgs/*',
-      '--filter=!@apps/client-swift',
+      '--filter=!@apps/product-client-swift',
     ]);
   });
 
@@ -151,7 +151,7 @@ describe('verification hosts', () => {
     expect(args).toContain('test');
     expect(args).toContain('lint');
     expect(hostFilters(manifests, 'macos')).toEqual([
-      '--filter=@apps/client-swift',
+      '--filter=@apps/product-client-swift',
       '--filter=@pkgs/clock-shared-swift',
     ]);
   });
@@ -161,7 +161,7 @@ describe('verification hosts', () => {
       '--filter=./apps/*',
       '--filter=./libs/*',
       '--filter=./pkgs/*',
-      '--filter=!@apps/client-swift',
+      '--filter=!@apps/product-client-swift',
       '--filter=!@pkgs/clock-shared-swift',
     ]);
     expect(ciVerifyArgs(manifests)).toEqual([

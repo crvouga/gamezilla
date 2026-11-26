@@ -41,15 +41,15 @@
         "wrangler": "catalog:",
       },
     },
-    "apps/client-swift": {
-      "name": "@apps/client-swift",
+    "apps/product-client-swift": {
+      "name": "@apps/product-client-swift",
       "version": "0.0.0",
       "dependencies": {
         "@pkgs/clock-shared-swift": "workspace:*",
       },
     },
-    "apps/client-ts": {
-      "name": "@apps/client-ts",
+    "apps/product-client-ts": {
+      "name": "@apps/product-client-ts",
       "version": "1.0.0",
       "dependencies": {
         "@libs/app-root-client-ts": "workspace:*",
@@ -166,7 +166,7 @@
       "name": "@apps/product-ts",
       "version": "1.0.0",
       "dependencies": {
-        "@apps/server-ts": "workspace:*",
+        "@apps/product-api-ts": "workspace:*",
         "@crvouga/mockingbird-service-github": "catalog:",
         "@crvouga/mockingbird-service-oauth": "catalog:",
         "@crvouga/mockingbird-service-openai": "catalog:",
@@ -282,8 +282,8 @@
         "wrangler": "catalog:",
       },
     },
-    "apps/server-ts": {
-      "name": "@apps/server-ts",
+    "apps/product-api-ts": {
+      "name": "@apps/product-api-ts",
       "version": "1.0.0",
       "dependencies": {
         "@libs/app-root-server-ts": "workspace:*",
@@ -8236,15 +8236,15 @@
 
     "@apps/auth-relay-ts": ["@apps/auth-relay-ts@workspace:apps/auth-relay-ts"],
 
-    "@apps/client-swift": ["@apps/client-swift@workspace:apps/client-swift"],
+    "@apps/product-client-swift": ["@apps/product-client-swift@workspace:apps/product-client-swift"],
 
-    "@apps/client-ts": ["@apps/client-ts@workspace:apps/client-ts"],
+    "@apps/product-client-ts": ["@apps/product-client-ts@workspace:apps/product-client-ts"],
 
     "@apps/harness-ts": ["@apps/harness-ts@workspace:apps/harness-ts"],
 
     "@apps/product-ts": ["@apps/product-ts@workspace:apps/product-ts"],
 
-    "@apps/server-ts": ["@apps/server-ts@workspace:apps/server-ts"],
+    "@apps/product-api-ts": ["@apps/product-api-ts@workspace:apps/product-api-ts"],
 
     "@apps/storybook-ts": ["@apps/storybook-ts@workspace:apps/storybook-ts"],
 

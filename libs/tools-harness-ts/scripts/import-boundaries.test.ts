@@ -203,13 +203,13 @@ const PROBES: readonly Probe[] = [
     message: 'confined to the ADR boundary-file inventory',
   },
   {
-    path: 'apps/client-ts/src/main.tsx',
+    path: 'apps/product-client-ts/src/main.tsx',
     source:
       "import { createNodeTelemetry } from '@pkgs/observability-root-server-ts/node-node';",
     message: 'Node observability runtime is restricted',
   },
   {
-    path: 'apps/server-ts/src/room.ts',
+    path: 'apps/product-api-ts/src/room.ts',
     source:
       "import { createBrowserTelemetry } from '@pkgs/observability-root-client-ts/browser';",
     message: 'browser observability runtime is restricted',
@@ -279,7 +279,7 @@ const PROBES: readonly Probe[] = [
   },
   {
     path: 'libs/zz/src/app.ts',
-    source: "import { a } from '@apps/client-ts/x';",
+    source: "import { a } from '@apps/product-client-ts/x';",
     message: 'libs/ must not import apps/',
   },
   {
@@ -347,7 +347,7 @@ const PROBES: readonly Probe[] = [
     message: null,
   },
   {
-    path: 'apps/server-ts/src/product-server.ts',
+    path: 'apps/product-api-ts/src/product-server.ts',
     source:
       "import { createPaddleMembershipBillingFromSecretStore } from '@pkgs/billing-paddle-shared-ts/paddle-membership';",
     message: null,

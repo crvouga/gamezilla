@@ -188,7 +188,7 @@ function startApiNode(args: {
 }): ChildProcess {
   const child = spawn(
     'bun',
-    ['--no-env-file', 'run', 'apps/server-ts/scripts/serve-api-node.ts'],
+    ['--no-env-file', 'run', 'apps/product-api-ts/scripts/serve-api-node.ts'],
     {
       cwd: REPO_ROOT,
       stdio: ['inherit', 'inherit', 'pipe'],

@@ -204,7 +204,7 @@ export function authRelayTargets(
  * Plain-text vars the API Worker boots with, derived from the env file so a
  * new replica needs no hand-set configuration. Names match the bindings
  * `@libs/server-app` and `@pkgs/auth-inhouse` read
- * (`apps/server-ts/tests/wrangler-config.test.ts` pins them).
+ * (`apps/product-api-ts/tests/wrangler-config.test.ts` pins them).
  */
 export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
   return {
