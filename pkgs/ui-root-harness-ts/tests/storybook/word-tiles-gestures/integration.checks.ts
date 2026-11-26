@@ -175,10 +175,12 @@ test('storybook integration: word-tiles gesture phone pinch pan interrupted pick
     body: await viewport(page).screenshot(),
     contentType: 'image/png',
   });
-  await page
-    .getByRole('button', { name: 'Board tools: zoom and find a square' })
-    .tap();
-  await page.getByRole('button', { name: 'Fit board', exact: true }).tap();
+  for (const name of ['Board tools: zoom and find a square', 'Fit board']) {
+    const button = page.getByRole('button', { name, exact: true });
+    await button.scrollIntoViewIfNeeded();
+    await touch('touchStart', { ...(await point(button)), id: 1 });
+    await touch('touchEnd');
+  }
   await expect(viewport(page)).toHaveAttribute('data-enlarged', 'false');
 });
 
