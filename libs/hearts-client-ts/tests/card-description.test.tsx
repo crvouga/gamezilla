@@ -22,6 +22,12 @@ test('the refused four of diamonds describes why it cannot follow the two of clu
       }}
     />
   ));
+  expect(byTestId('hearts-card-QS').getAttribute('aria-label')).toEndWith(
+    '13 penalty points'
+  );
+  expect(byTestId('hearts-card-2H').getAttribute('aria-label')).toEndWith(
+    '1 penalty point'
+  );
   const refused = byTestId('hearts-card-4D');
   refused.focus();
   const id = refused.getAttribute('aria-describedby');

@@ -24,7 +24,7 @@ test('seed 1 identifies Carol in North as the diamond trick winner after South p
   const view = await s.read(heartsView, 'alice');
   expect(view.seats.red?.played).toBe('KD');
   expect(view.center).toBe(
-    'carol took the trick with the king of diamonds and leads.'
+    'carol took the trick with the king of diamonds and leads. This trick added 0 deal points.'
   );
   expect(await s.read(heartsTrickWinnerShown, 'alice', 'red', 'KD')).toBe(true);
   expect(await s.read(heartsHeard, 'alice')).toContain(view.center);
@@ -32,11 +32,11 @@ test('seed 1 identifies Carol in North as the diamond trick winner after South p
     false
   );
   expect((await s.read(heartsView, 'carol')).center).toBe(
-    'You took the trick with the king of diamonds and lead.'
+    'You took the trick with the king of diamonds and lead. This trick added 0 deal points.'
   );
   expect(await s.read(heartsTrickWinnerShown, 'carol', 'red', 'KD')).toBe(true);
   expect(await s.read(heartsHeard, 'carol')).toContain(
-    'You took the trick with the king of diamonds and lead.'
+    'You took the trick with the king of diamonds and lead. This trick added 0 deal points.'
   );
   expect(await s.read(heartsTrickWinnerShown, 'carol', 'black', 'TD')).toBe(
     false

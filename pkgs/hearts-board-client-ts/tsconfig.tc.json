@@ -1,0 +1,4 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src/**/*.ts", "../ui-root-client-ts/src/css-modules.d.ts"]
+}

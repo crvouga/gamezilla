@@ -2453,6 +2453,7 @@
         "@libs/game-menu-client-ts": "workspace:*",
         "@libs/hearts-shared-ts": "workspace:*",
         "@lingui/core": "catalog:",
+        "@pkgs/hearts-board-client-ts": "workspace:*",
         "@pkgs/lingui-solid-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
@@ -5592,6 +5593,17 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/hearts-board-client-ts": {
+      "name": "@pkgs/hearts-board-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -9405,6 +9417,8 @@
     "@pkgs/harness-console-shared-ts": ["@pkgs/harness-console-shared-ts@workspace:pkgs/harness-console-shared-ts"],
 
     "@pkgs/harness-root-shared-ts": ["@pkgs/harness-root-shared-ts@workspace:pkgs/harness-root-shared-ts"],
+
+    "@pkgs/hearts-board-client-ts": ["@pkgs/hearts-board-client-ts@workspace:pkgs/hearts-board-client-ts"],
 
     "@pkgs/http-client-client-ts": ["@pkgs/http-client-client-ts@workspace:pkgs/http-client-client-ts"],
 

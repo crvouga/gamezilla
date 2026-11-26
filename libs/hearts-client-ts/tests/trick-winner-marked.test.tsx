@@ -20,6 +20,7 @@ test("West's ten of clubs takes the first trick, and the table marks it in words
       onAction={() => undefined}
     />
   ));
+  expect(byTestId('hearts-seat-black').textContent).toContain('This trick +0');
   const won = byTestId('hearts-seat-black-played');
   expect(won.getAttribute('aria-label')).toEndWith(', Took it');
   expect(won.parentElement?.getAttribute('data-won')).toBe('true');
