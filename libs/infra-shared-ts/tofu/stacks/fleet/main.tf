@@ -50,8 +50,9 @@ module "auth_relay_edge" {
 }
 
 # The static Storybook site (`apps/storybook-ts`, an assets-only Worker deployed
-# by the Release workflow's fleet job just before this apply). Global: one
-# Storybook for the product, built from main, not one per environment.
+# by the Release workflow's Storybook job beside this apply; a fleet built from
+# nothing binds it once that job has run). Global: one Storybook for the
+# product, built from main, not one per environment.
 data "cloudflare_zone" "storybook" {
   filter = {
     name    = var.storybook.zone_name

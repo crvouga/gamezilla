@@ -9,23 +9,27 @@ const BROWSER_TASKS = new Set([
   '@pkgs/ui-root-harness-ts#storybook:mcp:test',
 ]);
 
-export function needsBrowser(tasks: VerifyPlan['tasks']): boolean {
-  return tasks.some(
-    (task) =>
-      !task.hit &&
-      (BROWSER_TASKS.has(task.taskId) ||
-        task.taskId.startsWith('@apps/product-ts#test:release-journeys:') ||
-        task.taskId.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:'))
+export function browserTask(taskId: string): boolean {
+  return (
+    BROWSER_TASKS.has(taskId) ||
+    taskId.startsWith('@apps/product-ts#test:release-journeys:') ||
+    taskId.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:')
   );
 }
-export function needsSolver(tasks: VerifyPlan['tasks']): boolean {
-  return tasks.some(
-    (task) =>
-      !task.hit &&
-      (task.taskId === '@pkgs/auth-root-harness-ts#test' ||
-        task.taskId === '@pkgs/quint-server-ts#test' ||
-        task.taskId.includes('#verify:models'))
+
+export function solverTask(taskId: string): boolean {
+  return (
+    taskId === '@pkgs/auth-root-harness-ts#test' ||
+    taskId === '@pkgs/quint-server-ts#test' ||
+    taskId.includes('#verify:models')
   );
+}
+
+export function needsBrowser(tasks: VerifyPlan['tasks']): boolean {
+  return tasks.some((task) => !task.hit && browserTask(task.taskId));
+}
+export function needsSolver(tasks: VerifyPlan['tasks']): boolean {
+  return tasks.some((task) => !task.hit && solverTask(task.taskId));
 }
 
 if (import.meta.main) {

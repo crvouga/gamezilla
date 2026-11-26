@@ -12,11 +12,14 @@
  *   `globalEnv` enter the hash. Builds explicitly hash public `VITE_*` inputs.
  * - Pins `TURBO_API` to the Vercel Remote Cache, whatever the environment
  *   holds, so no run reads or writes any other remote.
- * - No affected-package filter: every gate task is cached per package, so an
- *   unchanged package is a cache hit, which is the same saving without a
- *   second notion of "what changed" to keep correct. The one input turbo
+ * - No affected-package filter for the whole gate: every gate task is cached
+ *   per package, so an unchanged package is a cache hit. The one input turbo
  *   cannot see — which commits a change adds — is exported as
  *   `VERIFY_SECRETS_RANGE` (`<merge-base>..<head>`) for `verify:secrets`.
+ *   A pull request's `verify:ci` (`VERIFY_CI_STAGE=pr`) verifies less: only
+ *   the gate tasks that range's diff reaches and that fit its job
+ *   (`pr-selection.ts`). A diff or dry run that fails stops the gate there.
+ * - `--plan`: print what the run would execute, then exit without running it.
  * - Plan first (`turbo-preflight.ts`): `--dry=json` asks the local cache
  *   about every task (~4s), then queries the remote for local misses in bounded
  *   batches. All hits → the gate already passed for these inputs, so
@@ -72,15 +75,26 @@ import {
   workspaceManifests,
   writeHostKey,
 } from './package-hosts';
+import {
+  admitPrMisses,
+  type Change,
+  describePrSelection,
+  packageDirectories,
+  prChanges,
+  selectPrTasks,
+} from './pr-selection';
 import { describeRunningTasks } from './running-tasks';
 import { SECRETS_RANGE_ENV, secretsScanRange } from './secrets-scan-range';
 import { solverSlots } from './solver-slots';
 import { MAX_SPEC_PARTS } from './spec-packages';
 import { readTurboTasks } from './turbo-config';
+import { captureTurboDryRun } from './turbo-dry-run';
 import type { RunPlan } from './turbo-preflight';
 import {
   dryRunPlan,
   localCacheFlag,
+  planFromDryRun,
+  planFromTasks,
   prefetchRemoteHits,
   readsRemoteCache,
   resolveRemoteHits,
@@ -105,6 +119,7 @@ import {
   suiteDeadlineSeconds,
   verifyAggregatorTasks,
 } from './verify-profile';
+import { readTaskCosts } from './verify-task-costs';
 
 const REPO_ROOT = join(import.meta.dirname, '../../..');
 const DEPLOY_AGGREGATOR = '//#deploy';
@@ -599,7 +614,7 @@ function keepGoingFlags(): readonly string[] {
 function cliTaskArgs(): string[] {
   const args = process.argv
     .slice(2)
-    .filter((arg) => arg !== RESTORE_OUTPUTS_FLAG);
+    .filter((arg) => arg !== RESTORE_OUTPUTS_FLAG && arg !== PLAN_FLAG);
   if (args.length === 0) {
     console.error(
       'usage: bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts <turbo run args…>'
@@ -627,6 +642,7 @@ async function main(): Promise<void> {
   requireRemoteCredsForDeploy(remote, mode);
   const taskArgs = prepareTaskArgs(rawTaskArgs);
   env[SECRETS_RANGE_ENV] = secretsScanRange(env);
+  const changes = pullRequestChanges(rawTaskArgs, env);
 
   const ci = inCi();
   const slowRunner = slowCiRunner(ci, availableParallelism());
@@ -647,8 +663,9 @@ async function main(): Promise<void> {
     ...runModeFlags(mode),
   ];
   const planned = await timed('plan', () =>
-    planOrNull(fullRunArgs, cache, env)
+    planOrNull(fullRunArgs, cache, env, changes)
   );
+  if (process.argv.includes(PLAN_FLAG)) exitWithDurations(0);
   const restore = restoreOutputs;
   const plan = restore && planned ? restoreEveryHit(planned) : planned;
   if (plan !== null && plan.toExecute.length === 0 && !restore) {
@@ -729,6 +746,20 @@ function turboRunArgs(
 }
 
 const RESTORE_OUTPUTS_FLAG = '--restore-outputs';
+const PLAN_FLAG = '--plan';
+
+/** The pull request's diff when this run is its gate; otherwise undefined. */
+function pullRequestChanges(
+  rawTaskArgs: readonly string[],
+  env: NodeJS.ProcessEnv
+): readonly Change[] | undefined {
+  if (
+    process.env['VERIFY_CI_STAGE'] !== 'pr' ||
+    !rawTaskArgs.includes(CI_AGGREGATOR)
+  )
+    return undefined;
+  return prChanges(env[SECRETS_RANGE_ENV] ?? '', REPO_ROOT);
+}
 
 /**
  * Default commands verify the portable packages, matching CI. Native reference
@@ -753,12 +784,14 @@ const LISTED_MISSES = 25;
 /**
  * Dry-run the exact task set (see `turbo-preflight.ts`). `null` when the dry
  * run itself fails: the real run then goes ahead unplanned — the verdict is
- * always the real run's, the plan only decides how much of it to skip.
+ * always the real run's, the plan only decides how much of it to skip. A
+ * pull request's plan also decides what it verifies, so its failure throws.
  */
 async function planOrNull(
   runArgs: readonly string[],
   cache: string,
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  changes: readonly Change[] | undefined
 ): Promise<RunPlan | null> {
   // The misses are re-run by id alone, so a caller's own turbo flags
   // (`--force`, `--continue`, …) would be dropped: plan only plain task sets.
@@ -768,17 +801,38 @@ async function planOrNull(
   // local cache here and the remote about the local misses, in parallel.
   const local = localCacheFlag(cache);
   const askRemote = local !== null && readsRemoteCache(cache);
+  const dryRunArgs = [
+    ...runArgs,
+    `--cache=${local ?? cache}`,
+    '--framework-inference=false',
+  ];
   let plan: RunPlan;
   try {
-    plan = dryRunPlan(
-      [...runArgs, `--cache=${local ?? cache}`, '--framework-inference=false'],
-      REPO_ROOT,
-      env
-    );
+    plan =
+      changes === undefined
+        ? dryRunPlan(dryRunArgs, REPO_ROOT, env)
+        : pullRequestPlan(dryRunArgs, env, changes);
     if (askRemote && plan.toExecute.length > 0) {
       plan = await resolveRemoteHits(plan, wallArtifactQuery(env));
     }
+    if (changes !== undefined) {
+      const admitted = admitPrMisses(
+        plan.toExecute,
+        changes,
+        readTaskCosts(),
+        Number(resolveConcurrency())
+      );
+      const deferred = plan.toExecute.filter(
+        (task) => !admitted.has(task.taskId)
+      );
+      for (const task of deferred)
+        console.log(`  release  ${task.taskId} (outside PR compute budget)`);
+      plan = planFromTasks(
+        plan.tasks.filter((task) => task.hit || admitted.has(task.taskId))
+      );
+    }
   } catch (error) {
+    if (changes !== undefined) throw error;
     console.warn(
       `turbo-ci-run: dry run failed (${String(error)}); running unplanned.`
     );
@@ -804,6 +858,26 @@ async function planOrNull(
     );
   }
   return plan;
+}
+
+/** The dry run narrowed to the tasks the pull request verifies. */
+function pullRequestPlan(
+  dryRunArgs: readonly string[],
+  env: NodeJS.ProcessEnv,
+  changes: readonly Change[]
+): RunPlan {
+  const dryRun = captureTurboDryRun(
+    dryRunArgs,
+    REPO_ROOT,
+    env,
+    changes.map((change) => change.path)
+  );
+  const selection = selectPrTasks(dryRun, changes, {
+    packages: packageDirectories(REPO_ROOT),
+    costs: readTaskCosts(),
+  });
+  for (const line of describePrSelection(selection, changes)) console.log(line);
+  return planFromDryRun({ ...dryRun, tasks: selection.tasks });
 }
 
 const HEARTBEAT_MS = 120_000;

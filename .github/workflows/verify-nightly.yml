@@ -20,13 +20,15 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 #                              sharded jobs, replaying every drawn trace of
 #                              every Quint model and five times the property
 #                              runs. Reports are published and kept.
-#   verify-nightly:random       property runs on fresh seeds, the determinism
-#                              fuzz and the scripted mutants.
-#   verify-nightly:browser      every spec suite in real browsers against a
-#                              booted localhost stack.
+#   verify-nightly:random       property runs on fresh seeds and the
+#                              determinism fuzz.
+#   verify-nightly:browser      four rotating partitions of every spec suite in
+#                              real browsers against a booted localhost
+#                              stack; successive nights run the rest.
 #   verify-nightly:visual       Every Storybook story rendered and tested in a
 #                              real browser.
-#   verify-nightly:coverage     coverage of the unit suites.
+#   verify-nightly:coverage     coverage of the unit suites and the scripted
+#                              mutants they must kill.
 #   verify-nightly:performance  hot-path benchmarks.
 #   verify-nightly:end          one verdict over every group. A red group never
 #                              stops another; any red group fails the run and
@@ -39,6 +41,11 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 # Every group keeps its log, its seeds and its evidence as GitHub Actions
 # artifacts for three days, on failure too. Each runs with dev secrets only; nothing here reads a
 # production secret or deploys.
+#
+# No job runs longer than 45 minutes. A suite too large for one runner is a
+# matrix (`shards` in verify-profile.ts): each runner takes its share from
+# `NIGHTLY_SHARD=<k>/<n>`, keeps its own artifact, and the first red shard
+# stops its siblings, since the group is red either way.
 
 permissions:
   contents: read # check out the code
@@ -66,6 +73,10 @@ on:
         description: Optional journey feature path to run against the isolated production build and capture each step (browser group)
         type: string
         default: ''
+      browser-partition:
+        description: Optional browser partition number to run alone on one runner, as a night's job summary names it (browser group)
+        type: string
+        default: ''
       storybook-evidence-run:
         description: Export retained synthetic Storybook evidence for this exact run instead of running tests (group must be storybook)
         type: string
@@ -89,7 +100,7 @@ concurrency:
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
-    shell: bash
+    shell: ci-budget-shell {0}
 
 
 jobs:
@@ -105,14 +116,52 @@ jobs:
       profile: nightly
 
   verify-nightly-random:
-    name: verify-nightly:random
+    name: verify-nightly:random (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      NIGHTLY_SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
+      actions: read # read the workflow creation time
     steps:
+      - &budget
+        name: Check remaining workflow time
+        id: budget
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAGE_SECONDS: '2700'
+        run: |
+          set -euo pipefail
+          created=$(timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
+          deadline=$(( $(date -d "$created" +%s) + STAGE_SECONDS ))
+          remaining=$(( deadline - $(date +%s) ))
+          if (( remaining <= 0 )); then
+            echo "::error::The workflow spent its time budget before this job started."
+            exit 1
+          fi
+          echo "CI_STAGE_DEADLINE=$deadline" >> "$GITHUB_ENV"
+          echo "minutes=$(( (remaining + 59) / 60 ))" >> "$GITHUB_OUTPUT"
+          mkdir -p "$RUNNER_TEMP/ci-budget"
+          cat > "$RUNNER_TEMP/ci-budget/ci-budget-shell" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          remaining=$(( CI_STAGE_DEADLINE - $(date +%s) ))
+          if (( remaining <= 1 )); then
+            echo "::error::The workflow deadline expired."
+            exit 124
+          fi
+          exec timeout --kill-after=1 "$(( remaining - 1 ))" bash --noprofile --norc -eo pipefail "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/ci-budget/ci-budget-shell"
+          echo "$RUNNER_TEMP/ci-budget" >> "$GITHUB_PATH"
       # Steps every suite job shares (the checkout, the toolchain with dev
       # secrets, and the pinned renderer further down) are written once and
       # aliased, the way Release shares its deploy steps.
@@ -121,17 +170,20 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          filter: blob:none
       - &setup
         uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       # The log holds every seed drawn and the replay command of a failure;
-      # `apps/product-ts/.cache/randomized/` keeps the seeds as files.
+      # `apps/product-ts/.cache/randomized/` keeps the seeds as files. Each
+      # shard runs every fourth file under seeds of its own.
       - name: verify-nightly:random
-        timeout-minutes: 170
+        timeout-minutes: 40
         # Each suite owns its own CPU worker pool; do not multiply those pools.
         env:
           TURBO_CONCURRENCY: '1'
@@ -141,7 +193,7 @@ jobs:
         if: always() && !cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: verify-nightly-random-${{ github.run_id }}
+          name: verify-nightly-random-${{ github.run_id }}-${{ matrix.shard }}
           path: |
             apps/product-ts/.cache/randomized
             .turbo/runs/*.json
@@ -149,42 +201,72 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-browser:
-    name: verify-nightly:browser
+    name: verify-nightly:browser (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 330
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      matrix:
+        # The whole suite is about 50 runner-hours, so a night runs four of
+        # its 24-minute partitions (`apps/product-ts/scripts/stack-shards.ts`)
+        # and successive nights run the rest; each runner's job summary names
+        # its partition. A focused journey or named partition is one runner.
+        shard: ${{ fromJSON(inputs.group == 'browser' && (inputs.browser-journey != '' || inputs.browser-partition != '') && '[1]' || '[1, 2, 3, 4]') }}
+    env:
+      NIGHTLY_SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
+      actions: read # read the workflow creation time
     steps:
+      - *budget
       - *checkout
       - *setup
       - &renderer
         uses: ./.github/actions/visual-renderer
         timeout-minutes: 2
+      # The night's turn follows the run's UTC day, so the runners of one run
+      # take different partitions even across midnight.
+      - name: Read the night's UTC day
+        if: ${{ inputs.group != 'browser' || !inputs.browser-journey }}
+        timeout-minutes: 1
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          created=$(timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
+          echo "NIGHTLY_NIGHT=$(( $(date -u -d "$created" +%s) / 86400 ))" >> "$GITHUB_ENV"
       - name: verify-nightly:browser
         if: ${{ inputs.group != 'browser' || !inputs.browser-journey }}
-        timeout-minutes: 320
+        timeout-minutes: 40
+        env:
+          BROWSER_PARTITION: ${{ inputs.browser-partition }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:browser
       - name: Capture one production browser journey
         if: ${{ inputs.group == 'browser' && inputs.browser-journey != '' }}
+        timeout-minutes: 40
         env:
           BROWSER_JOURNEY: ${{ inputs.browser-journey }}
           JOURNEY_CAPTURE_STEPS: '1'
         run: |
           [[ "$BROWSER_JOURNEY" =~ ^specs/(journeys/[a-z0-9-]+|billing/open-provider-pages)\.feature$ ]]
           bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bunx turbo run test:release-journeys --filter=@apps/product-ts -- "$BROWSER_JOURNEY"
-      # Step timelines, screenshots, recordings and traces of every scenario.
+      # Step timelines, screenshots, recordings and traces of every scenario,
+      # and the partition's runs with their expected and measured seconds.
       - name: Retain browser reports and traces
         if: always() && !cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: verify-nightly-browser-${{ github.run_id }}
+          name: verify-nightly-browser-${{ github.run_id }}-${{ matrix.shard }}
           path: |
             .turbo/runs/*.json
             apps/*/.cache/harness-report
+            apps/product-ts/.cache/stack-shard
             apps/product-ts/.cache/critical-journeys/release-all/*/steps
             libs/*/.cache/harness-report
             pkgs/*/.cache/harness-report
@@ -192,6 +274,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # A focused, manual browser diagnostic in the shared baseline environment.
   # Authoring is explicit; the ordinary nightly and PR gates never update PNGs.
@@ -200,7 +285,7 @@ jobs:
     name: verify-nightly:storybook
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.group == 'storybook' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 45
     env:
       STORYBOOK_PATTERN: ${{ inputs.storybook-pattern }}
       STORYBOOK_EVIDENCE_RUN: ${{ inputs.storybook-evidence-run }}
@@ -210,6 +295,7 @@ jobs:
       actions: read # export a retained run's Storybook artifact
       id-token: write # mint the OIDC token Infisical trusts
     steps:
+      - *budget
       - *checkout
       - *setup
       - name: Prepare Storybook renderer
@@ -240,14 +326,17 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-visual:
     name: verify-nightly:visual (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 180
+    timeout-minutes: 45
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         shard: [1, 2, 3, 4, 5, 6, 7, 8]
     env:
@@ -255,12 +344,14 @@ jobs:
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
+      actions: read # read the workflow creation time
     steps:
+      - *budget
       - *checkout
       - *setup
       - *renderer
       - name: verify-nightly:visual
-        timeout-minutes: 150
+        timeout-minutes: 40
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:visual
       - name: Retain the run summaries
         if: always() && !cancelled()
@@ -272,20 +363,25 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-coverage:
     name: verify-nightly:coverage
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 120
+    timeout-minutes: 45
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
+      actions: read # read the workflow creation time
     steps:
+      - *budget
       - *checkout
       - *setup
       - name: verify-nightly:coverage
-        timeout-minutes: 110
+        timeout-minutes: 40
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:coverage
       - name: Retain the coverage report
         if: always() && !cancelled()
@@ -299,22 +395,27 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-performance:
     name: verify-nightly:performance
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
     runs-on: ubuntu-24.04
-    timeout-minutes: 60
+    timeout-minutes: 45
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
+      actions: read # read the workflow creation time
     steps:
+      - *budget
       - *checkout
       - *setup
       # The log is the result: each benchmark prints its own measurements,
       # and nothing else in this step prints, so the log is kept as a file.
       - name: verify-nightly:performance
-        timeout-minutes: 50
+        timeout-minutes: 40
         env:
           TURBO_OUTPUT_LOGS: full
         run: |
@@ -333,6 +434,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-pr-load:
     name: verify-nightly:pr-load (${{ matrix.revision }})
@@ -341,6 +445,7 @@ jobs:
     permissions:
       contents: read # check out the sampled merged revision
       id-token: write # access the verification cache through dev OIDC
+      actions: read # read the workflow creation time
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -354,6 +459,7 @@ jobs:
       GH_EVENT: pull_request
       GH_TOKEN: ${{ github.token }}
     steps:
+      - *budget
       - *checkout
       - name: Select a merged workload
         run: |
@@ -364,6 +470,7 @@ jobs:
           cp libs/tools-harness-ts/scripts/pr-load.sh "$RUNNER_TEMP/pr-load.sh"
           git switch --detach "$REVISION"
       - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun node gh opentofu gitleaks actionlint
@@ -382,6 +489,9 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 3
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # The ending word. Every group ran to its own result; any group that did
   # not succeed fails the night, and the failure is filed where people look.
@@ -403,6 +513,7 @@ jobs:
       contents: read # check out the code
       issues: write # open or update the Verify Nightly issue
       id-token: write # mint the OIDC token Infisical trusts (Grafana metrics credentials)
+      actions: read # read the workflow creation time
     env:
       SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
       GH_TOKEN: ${{ github.token }}
@@ -411,10 +522,12 @@ jobs:
       NIGHTLY_GROUP: ${{ github.event_name == 'schedule' && 'all' || inputs.group || 'all' }}
       STORYBOOK_EVIDENCE_RUN: ${{ inputs.storybook-evidence-run }}
     steps:
+      - *budget
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun gh infisical
@@ -432,3 +545,5 @@ jobs:
           bun run apps/product-ts/scripts/ci-workflow-result.ts --workflow verify-nightly
           --passed "$PASSED"
           --envs "$(bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts | sed -n 's/^all=//p')"
+      - name: Confirm completion within the workflow deadline
+        run: 'true'

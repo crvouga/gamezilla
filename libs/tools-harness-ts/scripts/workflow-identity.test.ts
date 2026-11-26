@@ -100,7 +100,7 @@ test('the focused Storybook diagnostic runs the selected states within the job b
     workflow.on.workflow_dispatch.inputs['storybook-pattern']?.default
   ).toBe('');
   const job = workflow.jobs['verify-nightly-storybook']!;
-  expect(job['timeout-minutes']).toBe(60);
+  expect(job['timeout-minutes']).toBe(45);
   expect(job.steps.map((step) => step.run).filter(Boolean)).toContain(
     'bun run storybook:test --grep "$STORYBOOK_PATTERN"'
   );

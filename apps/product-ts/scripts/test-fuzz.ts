@@ -4,6 +4,7 @@ import { spawnSync } from 'node:child_process';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative, sep } from 'node:path';
 import { slashPath } from '@pkgs/os-shared-ts/slash-path';
+import { formatShard, nightlyShard, shareOf } from './nightly-shard';
 import { recordSeeds } from './seed-record';
 import { owningPackagePath, testFileCommand } from './test-file-command';
 
@@ -61,11 +62,14 @@ const seedCount = Number(
 // `HARNESS_SEED=<seed>` replays the one seed a failed run printed.
 const replaySeed = process.env['HARNESS_SEED'];
 
-const files = collectHarnessTests();
-if (files.length === 0) {
+const allFiles = collectHarnessTests();
+if (allFiles.length === 0) {
   console.error('No harness test files found under tests/');
   process.exit(1);
 }
+// Verify Nightly spreads the files over its runners; each draws its own seeds.
+const shard = nightlyShard(process.env);
+const files = shareOf(allFiles, shard);
 
 const commands = files.map((file) => {
   const selected = slashPath(relative(REPO_ROOT, file));
@@ -87,7 +91,13 @@ const seeds =
       )
     : [Number(replaySeed)];
 
-recordSeeds('fuzz', { seeds, files: files.length, failed: null });
+const record = {
+  shard: formatShard(shard),
+  seeds,
+  files: files.length,
+  suiteFiles: allFiles.length,
+};
+recordSeeds('fuzz', { ...record, failed: null });
 
 for (const [index, seed] of seeds.entries()) {
   const i = index + 1;
@@ -104,8 +114,7 @@ for (const [index, seed] of seeds.entries()) {
       );
       console.error(`Replay: HARNESS_SEED=${seed} bun test ${file}`);
       recordSeeds('fuzz', {
-        seeds,
-        files: files.length,
+        ...record,
         failed: { seed, file, replay: `HARNESS_SEED=${seed} bun test ${file}` },
       });
       process.exit(1);
@@ -115,5 +124,5 @@ for (const [index, seed] of seeds.entries()) {
 }
 
 process.stdout.write(
-  `determinism fuzz OK (${seeds.length} seeds × ${files.length} files)\n`
+  `determinism fuzz OK (${seeds.length} seeds × ${files.length} of ${allFiles.length} files, shard ${record.shard})\n`
 );

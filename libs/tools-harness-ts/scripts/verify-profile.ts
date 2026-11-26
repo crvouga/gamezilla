@@ -33,6 +33,15 @@ export type VerifyProfile = {
   readonly continueAfterFailure: boolean;
 };
 
+/** The longest any Verify Nightly job may run, setup included. */
+export const NIGHTLY_JOB_MINUTES = 45;
+/**
+ * One nightly runner's compute budget, a gate shard's or a suite shard's:
+ * under the job limit with room for checkout, setup and the step's own
+ * timeout to fire after it.
+ */
+const SHARD_DEADLINE_SECONDS = 2280;
+
 const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
   release: {
     name: 'release',
@@ -58,9 +67,10 @@ const PROFILES: Readonly<Record<VerifyProfileName, VerifyProfile>> = {
     reports: true,
     // Five times the property runs and up to four times the model replays.
     taskBudgetScale: 4,
-    // A shard holds about a minute of pull-request work, so fifty minutes is
-    // slack for the deepest one; a laptop runs the whole corpus in one slot.
-    deadlineSeconds: { ci: 3000, local: 21_600 },
+    // The gate plans each shard to fill part of this (`verify-plan.ts`), so
+    // a deeper night spreads over more shards rather than longer ones; a
+    // laptop runs the whole corpus in one slot.
+    deadlineSeconds: { ci: SHARD_DEADLINE_SECONDS, local: 21_600 },
     continueAfterFailure: true,
   },
 };
@@ -71,10 +81,25 @@ export type NightlySuite = {
   /** Turbo task ids, run through `turbo-ci-run.ts` like every gate task. */
   readonly tasks: readonly string[];
   /**
-   * The suite's compute budget: its run is killed here, and no task of it has
-   * a tighter one. Its workflow step's `timeout-minutes` stays above this.
+   * One runner's compute budget: its run is killed here, and no task of it
+   * has a tighter one. Its workflow step's `timeout-minutes` stays above
+   * this, and the job's stays at most {@link NIGHTLY_JOB_MINUTES}.
    */
   readonly deadlineSeconds: number;
+  /**
+   * Runners the suite spreads over: its job's matrix. With more than one,
+   * every task takes its share of the work from the runner's place in the
+   * matrix (`NIGHTLY_SHARD=<k>/<n>`; the Storybook tasks read
+   * `STORYBOOK_SHARD`), so the shards together run the whole suite once.
+   * The browser suite is the exception: its runners take the night's turn
+   * of its partitions (`apps/product-ts/scripts/stack-shards.ts`).
+   */
+  readonly shards: number;
+  /**
+   * What one night verifies: the whole suite, or a rotating turn of its
+   * partitions, which the nightly verdict states beside a pass.
+   */
+  readonly nightlyScope: 'whole' | 'rotating';
 };
 
 /**
@@ -85,19 +110,23 @@ export type NightlySuite = {
 export const NIGHTLY_SUITES = {
   random: {
     summary:
-      'Randomized hunting: fresh-seed property runs, determinism fuzz, scripted mutants',
-    tasks: [
-      '//#task:test:pbt:random',
-      '@apps/product-ts#test:fuzz',
-      '@pkgs/db-indexes-root-shared-ts#mutants',
-    ],
-    deadlineSeconds: 9000,
+      'Randomized hunting: fresh-seed property runs and the determinism fuzz',
+    // About 77 minutes of one-file-at-a-time work (Verify Nightly run
+    // 45595122814): each of four runners takes every fourth file.
+    tasks: ['//#task:test:pbt:random', '@apps/product-ts#test:fuzz'],
+    deadlineSeconds: SHARD_DEADLINE_SECONDS,
+    shards: 4,
+    nightlyScope: 'whole',
   },
   browser: {
     summary:
-      'Every spec suite in real browsers against a booted localhost stack',
+      'Every spec suite in real browsers against a booted localhost stack, four rotating partitions a night',
     tasks: ['@apps/product-ts#test:stack'],
-    deadlineSeconds: 18_000,
+    deadlineSeconds: SHARD_DEADLINE_SECONDS,
+    // Each runner takes tonight's turn of the 24-minute partitions
+    // `apps/product-ts/scripts/stack-shards.ts` plans.
+    shards: 4,
+    nightlyScope: 'rotating',
   },
   visual: {
     summary: 'Every Storybook story rendered and tested in a real browser',
@@ -105,12 +134,20 @@ export const NIGHTLY_SUITES = {
       '@pkgs/ui-root-harness-ts#storybook:test',
       '@pkgs/ui-root-harness-ts#storybook:mcp:test',
     ],
-    deadlineSeconds: 7200,
+    deadlineSeconds: SHARD_DEADLINE_SECONDS,
+    shards: 8,
+    nightlyScope: 'whole',
   },
   coverage: {
-    summary: 'Line and assertion coverage of the unit suites',
-    tasks: ['//#task:verify:coverage'],
-    deadlineSeconds: 5400,
+    summary:
+      'Line and assertion coverage of the unit suites, and the scripted mutants they must kill',
+    tasks: [
+      '//#task:verify:coverage',
+      '@pkgs/db-indexes-root-shared-ts#mutants',
+    ],
+    deadlineSeconds: SHARD_DEADLINE_SECONDS,
+    shards: 1,
+    nightlyScope: 'whole',
   },
   performance: {
     summary: 'Hot-path benchmarks',
@@ -121,6 +158,8 @@ export const NIGHTLY_SUITES = {
       '@pkgs/sql-root-shared-ts#perf',
     ],
     deadlineSeconds: 1800,
+    shards: 1,
+    nightlyScope: 'whole',
   },
 } as const satisfies Readonly<Record<string, NightlySuite>>;
 

@@ -5,8 +5,9 @@
  * `@synthetic` feature, wherever it sits, against the environment
  * `SECRETS_ENV` names — its Workers, database, bucket, broker, secrets and
  * infrastructure, and the critical journeys in a real browser. `--synthetic`
- * runs only the `@synthetic` features. The last step of every deploy and the
- * Health workflow's schedule. Every decided scenario is recorded as `release`
+ * runs only the `@synthetic` features. `--release` (`health:release`, the
+ * last step of every deploy) runs those and `RELEASE_JOURNEYS`; the Health
+ * workflow's schedule runs everything. Every decided scenario is recorded as `release`
  * evidence in `.cache/health-report/evidence/`, and each feature's verdict
  * as one sample of the team's checks for the objectives
  * (`health-check-results.ts`).
@@ -26,6 +27,7 @@
  *
  *   health                                              journeys and @synthetic features
  *   health --synthetic                                  @synthetic features only
+ *   health --release                                    @synthetic features and RELEASE_JOURNEYS
  *   health --target production                          same, with SECRETS_ENV=prd
  *   health specs/auth/sign-in.feature                   one feature (repo-relative)
  *   health --tags '@domain:journeys'                    features narrowed by tags
@@ -93,6 +95,8 @@ type Cli = {
   readonly objectives: boolean;
   /** `--synthetic`: `@synthetic` features only, not the critical journeys. */
   readonly synthetic: boolean;
+  /** `--release`: the `@synthetic` features and `RELEASE_JOURNEYS`. */
+  readonly release: boolean;
   /** `--target`: `dev`/`test` or `prd`/`production`. Sets `SECRETS_ENV`. */
   readonly target: string | undefined;
   readonly bunArgs: readonly string[];
@@ -104,11 +108,13 @@ export function parseCli(argv: readonly string[]): Cli {
   let tags: string | undefined;
   let objectives = false;
   let synthetic = false;
+  let release = false;
   let target: string | undefined;
   for (let i = 0; i < argv.length; i++) {
     const arg = argv[i] ?? '';
     if (arg === '--objectives') objectives = true;
     else if (arg === '--synthetic') synthetic = true;
+    else if (arg === '--release') release = true;
     else if (arg === '--tags') tags = argv[++i];
     else if (arg.startsWith('--tags=')) tags = arg.slice('--tags='.length);
     else if (arg === '--target') target = argv[++i];
@@ -118,7 +124,7 @@ export function parseCli(argv: readonly string[]): Cli {
       specPaths.push(arg);
     else bunArgs.push(arg);
   }
-  return { specPaths, tags, objectives, synthetic, target, bunArgs };
+  return { specPaths, tags, objectives, synthetic, release, target, bunArgs };
 }
 
 /** `dev` and `prd` are the environments. `test` and `production` are aliases. */
@@ -170,14 +176,28 @@ export function allSpecs(): readonly string[] {
   ].sort();
 }
 
-/** `--synthetic` keeps the tagged features and drops journeys and objectives. */
+/**
+ * The journeys that gate a release beside every `@synthetic` feature. Before
+ * the deploy, Release ran every other journey against the production build
+ * (`test:release-journeys`); live, the Health schedule runs them.
+ */
+export const RELEASE_JOURNEYS: readonly string[] = [
+  'specs/journeys/critical-journeys.feature',
+];
+
+/**
+ * `--synthetic` keeps the tagged features and drops journeys and objectives;
+ * `--release` keeps those and `RELEASE_JOURNEYS`.
+ */
 export function scopedSpecs(cli: Cli): readonly string[] {
   const all = allSpecs();
-  if (!cli.synthetic) return all;
+  if (!cli.synthetic && !cli.release) return all;
+  const journeys = cli.release ? RELEASE_JOURNEYS : [];
   return all.filter(
     (path) =>
       path.endsWith(FEATURE_SUFFIX) &&
-      isSyntheticFeatureSource(readFileSync(path, 'utf8'))
+      (journeys.includes(slashPath(relative(REPO_ROOT, path))) ||
+        isSyntheticFeatureSource(readFileSync(path, 'utf8')))
   );
 }
 
@@ -325,10 +345,10 @@ export const HOST_LIMITS: readonly HostLimit[] = [
 ];
 
 /**
- * Features that open no browser and never sign in the monitor account. They
- * run in a second `bun test` beside the browser journeys, so their waits
- * (Tempo indexing a planted trail, an OpenTofu plan) overlap the journeys
- * instead of adding to them. A feature left off this list runs with the
+ * Features that open no browser and never sign in the monitor account. Each
+ * runs in its own `bun test` beside the browser journeys, so their waits
+ * (Tempo indexing a planted trail, an OpenTofu plan) overlap the journeys and
+ * each other instead of adding up. A feature left off this list runs with the
  * journeys, one scenario at a time; one listed here that opens a browser
  * fails (`LIVE_BROWSER=0`, `tests/steps/live-world.ts`). A test checks every
  * entry still names a real feature.
@@ -573,6 +593,9 @@ async function recordChecks(input: {
   console.log(
     `health: recorded ${String(outcome.checks)} check results for the objectives`
   );
+  // Release has the probe verdicts and the metrics write acknowledgement.
+  // Hourly Health checks that the metrics backend has indexed its samples.
+  if (input.cli.release) return true;
   const confirmed = await confirmRecorded({
     names: outcome.names,
     environment: input.environment,
@@ -680,25 +703,56 @@ export function lanesStatus(statuses: readonly (number | null)[]): number {
   return 0;
 }
 
-/** One `bun test` per non-empty lane, side by side; their exit statuses. */
+/** One `bun test` process: its stubs, and whether they may open a browser. */
+export type LaneRun = {
+  readonly stubs: readonly string[];
+  readonly browser: boolean;
+};
+
+/**
+ * The processes a run starts side by side: the browser journeys share one
+ * monitor account and Chrome, so they are one process; each browser-free
+ * feature shares neither, so it gets its own and the slowest one bounds the
+ * lane instead of their sum.
+ */
+export function laneRuns(lanes: HealthLanes): readonly LaneRun[] {
+  return [
+    ...(lanes.browser.length === 0
+      ? []
+      : [{ stubs: lanes.browser, browser: true }]),
+    ...lanes.browserFree.map((stub) => ({ stubs: [stub], browser: false })),
+  ];
+}
+
+/**
+ * Every lane run side by side; their exit statuses. The browser lane streams;
+ * a browser-free run prints its output whole when it ends, so features never
+ * interleave.
+ */
 async function runLanes(
   cli: Cli,
   lanes: HealthLanes,
   environment: Omit<Parameters<typeof healthTestEnvironment>[0], 'browser'>
 ): Promise<readonly (number | null)[]> {
-  const run = (stubs: readonly string[], browser: boolean) =>
-    stubs.length === 0
-      ? Promise.resolve(0)
-      : new Promise<number | null>((done) => {
-          spawn('bun', healthTestArguments(cli, stubs), {
-            cwd: PACKAGE_DIR,
-            stdio: 'inherit',
-            env: healthTestEnvironment({ ...environment, browser }),
-          })
-            .on('error', () => done(1))
-            .on('exit', (code) => done(code));
+  const run = ({ stubs, browser }: LaneRun) =>
+    new Promise<number | null>((done) => {
+      const output: Buffer[] = [];
+      const child = spawn('bun', healthTestArguments(cli, stubs), {
+        cwd: PACKAGE_DIR,
+        stdio: browser ? 'inherit' : ['ignore', 'pipe', 'pipe'],
+        env: healthTestEnvironment({ ...environment, browser }),
+      });
+      child.stdout?.on('data', (chunk: Buffer) => output.push(chunk));
+      child.stderr?.on('data', (chunk: Buffer) => output.push(chunk));
+      if (!browser) console.log(`health: ${stubs.join(' ')} started`);
+      child
+        .on('error', () => done(1))
+        .on('close', (code) => {
+          process.stdout.write(Buffer.concat(output));
+          done(code);
         });
-  return Promise.all([run(lanes.browser, true), run(lanes.browserFree, false)]);
+    });
+  return Promise.all(laneRuns(lanes).map(run));
 }
 
 if (import.meta.main) {
@@ -707,8 +761,8 @@ if (import.meta.main) {
     ...process.argv.slice(2),
     ...(feature ? [feature] : []),
   ]);
-  if (cli.synthetic && cli.objectives) {
-    console.error('health: --synthetic does not run objectives');
+  if ((cli.synthetic || cli.release) && cli.objectives) {
+    console.error('health: --synthetic and --release do not run objectives');
     process.exit(1);
   }
   applyTarget(cli.target);
@@ -717,7 +771,11 @@ if (import.meta.main) {
   const missing = (Object.keys(offers) as (keyof Environment)[]).filter(
     (need) => !offers[need]
   );
-  const label = cli.synthetic ? 'synthetic' : 'health';
+  const label = cli.release
+    ? 'release health'
+    : cli.synthetic
+      ? 'synthetic'
+      : 'health';
   console.log(
     `${label}${cli.objectives ? ' objectives' : ''}: ${name}${missing.length > 0 ? ` — without ${missing.join(', ')}` : ''}${tags.length > 0 ? ` — ${tags}` : ''}`
   );

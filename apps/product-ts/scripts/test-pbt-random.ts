@@ -12,6 +12,7 @@
 import { availableParallelism } from 'node:os';
 
 import { discoverPbtTests } from './discover';
+import { formatShard, nightlyShard, shareOf } from './nightly-shard';
 import { notifyPbtFailure } from './notify-failure';
 import {
   DEFAULT_NUM_RUNS,
@@ -97,11 +98,14 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  const files = await discoverPbtTests(REPO_ROOT);
-  if (files.length === 0) {
+  const allFiles = await discoverPbtTests(REPO_ROOT);
+  if (allFiles.length === 0) {
     console.error('no property tests found under pkgs/ or libs/');
     process.exit(1);
   }
+  // Verify Nightly spreads the files over its runners; each draws its own seed.
+  const shard = nightlyShard(process.env);
+  const files = shareOf(allFiles, shard);
 
   const ui = new PbtSessionUi({
     totalFiles: files.length,
@@ -136,7 +140,13 @@ async function main(): Promise<void> {
         .map((r) => r.file),
     });
     // Replay a failure with `FC_SEED=<seed> PBT_NUM_RUNS=<numRuns> bun test <file>`.
-    recordSeeds('pbt-random', { numRuns: DEFAULT_NUM_RUNS, attempts });
+    recordSeeds('pbt-random', {
+      shard: formatShard(shard),
+      files: files.length,
+      suiteFiles: allFiles.length,
+      numRuns: DEFAULT_NUM_RUNS,
+      attempts,
+    });
     if (!result.ok) {
       ui.stopSession();
       notifyPbtFailure({

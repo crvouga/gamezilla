@@ -119,7 +119,7 @@ export function planFromDryRun(json: string | TurboDryRun): RunPlan {
   );
 }
 
-function planFromTasks(tasks: readonly PlannedTask[]): RunPlan {
+export function planFromTasks(tasks: readonly PlannedTask[]): RunPlan {
   const toExecute = tasks.filter((task) => !task.hit);
   const byId = new Map(tasks.map((task) => [task.taskId, task]));
   return {

@@ -93,6 +93,14 @@
         "$TURBO_ROOT$/turbo-platform-key.json"
       ]
     },
+    "health:release": {
+      "cache": false,
+      "dependsOn": [
+        "@libs/infra-server-ts#apply:edge",
+        "@libs/billing-server-ts#billing:sync"
+      ],
+      "outputLogs": "full"
+    },
     "health:objectives": {
       "cache": false,
       "outputs": []

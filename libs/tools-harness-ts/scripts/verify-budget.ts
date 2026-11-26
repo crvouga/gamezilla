@@ -87,7 +87,7 @@ export const DEFAULT_RUN_DEADLINE_SECONDS = 600;
  * so this process kills the run and names the task still running before GitHub
  * kills the job and says nothing. Contract tasks are budgeted up to this.
  */
-export const CI_RUN_DEADLINE_SECONDS = 1200;
+export const CI_RUN_DEADLINE_SECONDS = 480;
 
 /**
  * Wall-clock ceiling on a warm CI runner (16 cores or more): 30 s warm

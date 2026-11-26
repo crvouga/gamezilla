@@ -23,8 +23,8 @@ function verifyWorkflow(): Workflow {
   ) as Workflow;
 }
 
-test('Release, nightly and local verification retain the complete catalog', () => {
-  for (const stage of ['release', 'nightly', undefined, ''])
+test('nightly and local verification retain the complete catalog', () => {
+  for (const stage of ['nightly', undefined, ''])
     expect(ciStageTasks(MAIN_VERIFY_TASKS, stage)).toEqual(MAIN_VERIFY_TASKS);
 });
 
@@ -34,6 +34,9 @@ test('a pull request runs only the tasks that cannot wait for Release', () => {
   expect(pr).toEqual([
     'tc',
     'lint',
+    'test',
+    'test:unit:1',
+    'test:unit:2',
     '@libs/tools-harness-ts#verify:actionlint',
     '@libs/tools-harness-ts#verify:secrets',
   ]);
@@ -75,10 +78,14 @@ test('Release holds main to the catalog, spec language and chart ownership gates
 });
 
 // regression: pr-gate-narrower-than-nightly
-test('Release holds a commit to every gate task nightly runs before it deploys', () => {
+test('Release retains integration and safety checks while Nightly exercises the Storybook corpus', () => {
   const nightly = ciStageTasks(MAIN_VERIFY_TASKS, 'nightly');
   const release = ciStageTasks(MAIN_VERIFY_TASKS, 'release');
-  expect(release).toEqual(nightly);
+  const stories = nightly.filter((task) =>
+    task.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:')
+  );
+  expect(stories.length).toBeGreaterThan(0);
+  expect(release).toEqual(nightly.filter((task) => !stories.includes(task)));
   // Nightly's gate found these red on main 93782bb0a after they merged
   // green. Pull requests no longer run them by design: Release does, before
   // anything deploys, and files an issue per failing check.
@@ -95,7 +102,6 @@ test('Release holds a commit to every gate task nightly runs before it deploys',
     '@libs/sokoban-harness-ts#test:spec:0',
     '@libs/light-cycles-harness-ts#test:spec:0',
     '@libs/games-harness-ts#test:contract:0',
-    '@pkgs/ui-root-harness-ts#ci:storybook:0',
   ])
     expect(isBlockingCiTask(task, release)).toBe(true);
 });
@@ -108,7 +114,7 @@ test('gate shards install every toolchain the gate catalog needs', () => {
       (step) => step.uses === './.github/actions/setup'
     )!;
     expect(setup.with?.['tools']).toBe(
-      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}"
+      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}"
     );
   }
 });
@@ -142,7 +148,7 @@ test('only a pull request runs the narrow selection; a dispatch, Release and nig
   );
 });
 
-test('Release and nightly select the whole catalog, and a pull request a subset of it, as it grows and changes order', () => {
+test('each stage keeps its selection as the catalog grows and changes order', () => {
   assertProperty(
     'ci-stage-whole-catalog',
     fc.property(
@@ -150,6 +156,13 @@ test('Release and nightly select the whole catalog, and a pull request a subset 
       fc.constantFrom('pr', 'release', 'nightly', undefined, ''),
       (catalog, stage) => {
         const selected = ciStageTasks(catalog, stage);
+        if (stage === 'release')
+          return expect(selected).toEqual(
+            catalog.filter(
+              (task) =>
+                !task.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:')
+            )
+          );
         if (stage !== 'pr') return expect(selected).toEqual(catalog);
         expect(selected).toEqual(
           catalog.filter((task) => PR_TASKS.includes(task))

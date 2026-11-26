@@ -150,7 +150,10 @@ describe('Verify workflow cancellation', () => {
           .every(nightlyOnly)
       ).toBe(true);
     const end = workflow.jobs['verify-end']!.steps;
-    const cleanup = end.at(-1)!;
+    expect(end.at(-1)?.name).toBe(
+      'Confirm completion within the workflow deadline'
+    );
+    const cleanup = end.at(-2)!;
     expect(cleanup.name).toBe('Delete transfer artifacts');
     // regression: verify-rerun-missing-plan
     expect(cleanup.if).toBe("success() && env.VERIFY_CI_STAGE == 'release'");

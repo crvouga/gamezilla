@@ -34,8 +34,10 @@ import {
   healthTestArguments,
   healthTestEnvironment,
   hostSkips,
+  laneRuns,
   lanesStatus,
   parseCli,
+  RELEASE_JOURNEYS,
   scopedSpecs,
   selectSpecs,
   targetEnv,
@@ -381,6 +383,17 @@ describe('the browser-free lane runs beside the journeys', () => {
     expect(() => browserFreeJourney().open).toThrow('BROWSER_FREE_FEATURES');
   });
 
+  test('the journeys share one process; each browser-free feature runs alone', () => {
+    expect(laneRuns({ browser: ['a', 'b'], browserFree: ['c', 'd'] })).toEqual([
+      { stubs: ['a', 'b'], browser: true },
+      { stubs: ['c'], browser: false },
+      { stubs: ['d'], browser: false },
+    ]);
+    expect(laneRuns({ browser: [], browserFree: ['c'] })).toEqual([
+      { stubs: ['c'], browser: false },
+    ]);
+  });
+
   test('the run fails when either lane fails', () => {
     expect(lanesStatus([0, 0])).toBe(0);
     expect(lanesStatus([0, 2])).toBe(2);
@@ -516,6 +529,20 @@ describe('synthetic discovery', () => {
     expect(specs).not.toContain('specs/journeys/critical-journeys.feature');
     expect(specs).not.toContain('specs/runtime/availability.openslo.yaml');
     expect(specs.every((path) => path.endsWith('.feature'))).toBe(true);
+  });
+
+  // A release gates on the probes and the critical journeys; the Health
+  // schedule runs every journey.
+  test('--release keeps every synthetic feature and the release journeys only', () => {
+    const release = scopedSpecs(parseCli(['--release'])).map(uri);
+    const synthetic = scopedSpecs(parseCli(['--synthetic'])).map(uri);
+    expect(release.toSorted()).toEqual(
+      [...synthetic, ...RELEASE_JOURNEYS].toSorted()
+    );
+    expect(release).toContain('specs/journeys/critical-journeys.feature');
+    expect(release).not.toContain('specs/journeys/numberlink-packs.feature');
+    const live = allSpecs().map(uri);
+    for (const journey of RELEASE_JOURNEYS) expect(live).toContain(journey);
   });
 
   test('target aliases and the synthetic flag', () => {
