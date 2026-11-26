@@ -12,6 +12,7 @@ import {
 /** Full-size choices move all four pawns in turn. */
 export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
   await expectQuoridorSpatialArea(canvasElement);
   await expectQuoridorGoalMarker(canvasElement, 'e5');
   await expectHillDestinationVisible(canvasElement);
@@ -36,6 +37,7 @@ export async function playHillPreciseCoordinates(canvasElement: HTMLElement) {
  */
 export async function playHillWallPreview(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
+  await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
   await expectQuoridorSpatialArea(canvasElement);
   await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
   await expectQuoridorSpatialArea(canvasElement);

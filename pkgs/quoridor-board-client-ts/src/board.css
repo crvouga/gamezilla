@@ -106,15 +106,52 @@
   transform: translate(var(--lift-x), var(--lift-y)) scale(1.08);
 }
 @media (prefers-reduced-motion: no-preference) {
-  [data-quoridor-surface] [data-tone="occupied"] > span {
-    animation: quoridor-settle 140ms ease-out;
+  [data-quoridor-surface] [data-arriving="pawn"] {
+    position: relative;
+    z-index: 1;
+    overflow: visible;
   }
-  @keyframes quoridor-settle {
+  [data-quoridor-surface] [data-arriving="pawn"] > span {
+    animation: quoridor-travel 140ms ease-out;
+  }
+  @keyframes quoridor-travel {
     from {
-      scale: 1.12;
+      translate: var(--travel-x) var(--travel-y);
     }
     to {
-      scale: 1;
+      translate: 0 0;
+    }
+  }
+  [data-quoridor-surface] [data-arriving="top"] {
+    animation: quoridor-wall-top 140ms ease-out;
+  }
+  @keyframes quoridor-wall-top {
+    from {
+      border-top-color: var(--ui-color-game-quoridor-surface);
+    }
+  }
+  [data-quoridor-surface] [data-arriving="bottom"] {
+    animation: quoridor-wall-bottom 140ms ease-out;
+  }
+  @keyframes quoridor-wall-bottom {
+    from {
+      border-bottom-color: var(--ui-color-game-quoridor-surface);
+    }
+  }
+  [data-quoridor-surface] [data-arriving="left"] {
+    animation: quoridor-wall-left 140ms ease-out;
+  }
+  @keyframes quoridor-wall-left {
+    from {
+      border-left-color: var(--ui-color-game-quoridor-surface);
+    }
+  }
+  [data-quoridor-surface] [data-arriving="right"] {
+    animation: quoridor-wall-right 140ms ease-out;
+  }
+  @keyframes quoridor-wall-right {
+    from {
+      border-right-color: var(--ui-color-game-quoridor-surface);
     }
   }
 }

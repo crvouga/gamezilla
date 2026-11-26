@@ -61,6 +61,7 @@ test('an accepted wall clears its preview instead of reporting an overlap', () =
       </ThemeProvider>
     </ClockProvider>
   ));
+  fireEvent.click(view.getByTestId('wall-preview-coordinates'));
   fireEvent.click(view.getByTestId('wall-preview-mode-h'));
   const anchor = view.getByTestId('wall-preview-action-a1h');
   fireEvent.focus(anchor);
@@ -180,6 +181,7 @@ test('the tools are the board’s actions, one pressed, and choosing one keeps t
       </ThemeProvider>
     </ClockProvider>
   ));
+  fireEvent.click(view.getByTestId('tools-coordinates'));
   const pressed = () =>
     ['move', 'h', 'v'].filter(
       (mode) =>
@@ -252,6 +254,7 @@ test('mandatory pass leads the tools and updates when the position changes', () 
   setPosition(encodeQuoridor(newQuoridor('hill')));
   setInteractive(true);
   flush();
+  fireEvent.click(view.getByTestId('forced-pass-coordinates'));
   expect(view.queryByTestId('forced-pass-action-pass')).toBeNull();
   for (const mode of ['move', 'h', 'v'])
     expect(
@@ -285,6 +288,7 @@ test('zero inventory disables both wall tools even when pawn moves remain', () =
       </ClockProvider>
     );
   });
+  fireEvent.click(view.getByTestId('zero-walls-coordinates'));
   expect(game.remaining[game.turn]).toBe(0);
   expect(
     view.getByTestId('zero-walls-mode-move').hasAttribute('disabled')
