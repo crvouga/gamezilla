@@ -58,6 +58,19 @@ for (const theme of ['light', 'dark']) {
   });
 }
 
+// regression: game-status-scroll-unreachable
+test('storybook integration: word-tiles game status is keyboard reachable after an accepted pass', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openStory(page, 'accepted-pass', 'light');
+  const status = page.getByRole('region', { name: 'Game status' });
+  await status.focus();
+  await page.keyboard.press('Shift+Tab');
+  await page.keyboard.press('Tab');
+  await expect(status).toBeFocused();
+});
+
 for (const input of ['mouse', 'touch', 'keyboard'] as const) {
   test.describe(`native ${input}`, () => {
     test.use({ hasTouch: input === 'touch' });
@@ -240,7 +253,13 @@ test('storybook integration: word-tiles desktop keeps the own seat above the boa
   expect(board.width).toBeGreaterThanOrEqual(440);
   expect(rack.top).toBeGreaterThan(board.bottom);
   expect(board.top).toBeGreaterThanOrEqual(seat.bottom);
-  expect(board.top - seat.bottom).toBeLessThanOrEqual(48);
+  const history = await page
+    .locator('[data-game-slot="history"]')
+    .boundingBox();
+  if (!history) throw new Error('Missing the move history');
+  expect(history.y).toBeGreaterThanOrEqual(seat.bottom - 1);
+  expect(board.top).toBeGreaterThanOrEqual(history.y + history.height - 1);
+  expect(board.top - history.y - history.height).toBeLessThanOrEqual(48);
   expect(rack.top - board.bottom).toBeLessThanOrEqual(48);
   expect(rack.bottom).toBeLessThanOrEqual(900);
   expect(seat.bottom).toBeLessThanOrEqual(900);

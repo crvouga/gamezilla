@@ -1,0 +1,4 @@
+{
+  "summary": "The scrollable game status after a Word Tiles pass or exchange had no keyboard-accessible control.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/integration.checks.ts"
+}

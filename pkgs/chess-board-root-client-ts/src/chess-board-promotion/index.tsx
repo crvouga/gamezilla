@@ -33,7 +33,7 @@ export type ChessBoardPromotionProps = {
 };
 
 /** A named choice panel stays inside even the narrowest board. */
-const CELL = 'min(100%, max(37.5%, 144px))';
+const CELL = 'var(--chess-promotion-width, min(100%, max(37.5%, 144px)))';
 
 type StackLayout = {
   readonly style: JSX.CSSProperties;
@@ -82,6 +82,7 @@ function CancelChip(props: {
         color: props.theme.promotion.ink,
       }}
       type="button"
+      data-promotion-cancel
       aria-label="Cancel promotion"
       data-testid={chessBoardPromotionTestId(props.boardTestId, 'cancel')}
       onClick={() => props.onCancel()}
@@ -152,6 +153,7 @@ function PromotionStack(props: {
   return (
     <div
       class="box absolute flex-col max-h-full overflow-y-auto rounded-md border border-outline"
+      data-promotion-panel
       role="presentation"
       style={props.layout.style}
       onClick={(e) => e.stopPropagation()}

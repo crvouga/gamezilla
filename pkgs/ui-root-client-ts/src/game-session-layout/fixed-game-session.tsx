@@ -1,3 +1,4 @@
+import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -6,6 +7,7 @@ import { Button } from '../button/index';
 import { GameActions } from '../game-section/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { createScreenSlot } from '../screen-slot';
+import { ScrollView } from '../scroll-view/index';
 import { ToastStack } from '../toast-stack/index';
 import styles from './fixed-stage.module.css';
 import {
@@ -58,6 +60,7 @@ function HistoryStrip(props: FixedGameSessionProps): JSX.Element {
 }
 
 export function FixedGameSession(props: FixedGameSessionProps): JSX.Element {
+  const { t } = useLingui();
   const outcome = createScreenSlot(() => props.sheet);
   const dialog = createGameResultDialog(outcome.present);
   const actions = children(() => props.actions);
@@ -72,10 +75,21 @@ export function FixedGameSession(props: FixedGameSessionProps): JSX.Element {
         {props.children(
           <div class={styles['information']}>
             <div class={styles['status']} data-component="GameStageStatus">
-              {props.status}
-              <Show when={outcome.present() && !dialog.open()}>
-                <ShowResultButton state={dialog} />
-              </Show>
+              <ScrollView
+                role="region"
+                aria-label={t`Game status`}
+                grow
+                fill
+                flushEdge={false}
+                edgeInset={false}
+              >
+                <div class={styles['statusLine']}>
+                  {props.status}
+                  <Show when={outcome.present() && !dialog.open()}>
+                    <ShowResultButton state={dialog} />
+                  </Show>
+                </div>
+              </ScrollView>
             </div>
             <HistoryStrip {...props} />
           </div>
