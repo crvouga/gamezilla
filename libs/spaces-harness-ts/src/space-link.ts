@@ -1,4 +1,4 @@
-import { actorUi, pollUntil } from '@libs/harness-ts/actor-ui';
+import { actorUi, ensureActor, pollUntil } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { SPACE_LINK_RECOVERY, SPACE_WAIT_MS } from './space-ui';
@@ -8,12 +8,14 @@ export async function openSpaceLinkOnDevice(
   actorId: string,
   link: string
 ): Promise<void> {
-  const ui = await actorUi(s, actorId);
   const actor = s.actors.get(actorId);
-  if (actor === undefined) throw new Error(`actor ${actorId} missing`);
+  if (actor === undefined) {
+    await ensureActor(s, actorId, link);
+    return;
+  }
   await actor.openLink(link);
   // A parked actor has no visible screen until its driver brings it forward.
-  await ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
+  await actor.ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
 }
 
 type JoinGoal = 'observe' | 'enter';
@@ -41,6 +43,8 @@ async function waitForLink(
       ...SPACE_LINK_RECOVERY,
       Handles.spaceJoinNotConfirmed,
       Handles.spaceJoin,
+      Handles.spaceJoinOpening,
+      Handles.spaceJoinCheckingHost,
     ]),
   ];
   let lastSeen = 'no invitation outcome';

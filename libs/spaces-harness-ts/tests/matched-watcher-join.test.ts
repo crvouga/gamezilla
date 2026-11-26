@@ -6,15 +6,20 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 function invitation(
   actor: string,
   before: readonly string[],
-  after: readonly string[]
+  after: readonly string[],
+  newDevice = false
 ) {
   let frames = before;
   let index = 0;
   const taps: string[] = [];
   const links: string[] = [];
+  const launches: string[] = [];
   const ui = {
     get: (handle: string) => ({
-      isVisible: () => Promise.resolve(handle === frames[index]),
+      isVisible: () =>
+        Promise.resolve(
+          handle === Handles.spaceClose || handle === frames[index]
+        ),
       expect: { hidden: () => Promise.resolve() },
       tap: () => {
         taps.push(handle);
@@ -24,14 +29,21 @@ function invitation(
       },
     }),
   };
+  const device = { ui, openLink: (link: string) => links.push(link) };
   return {
     links,
+    launches,
     taps,
     s: {
-      actors: new Map([
-        [actor, { ui, openLink: (link: string) => links.push(link) }],
-      ]),
+      actors: new Map(newDevice ? [] : [[actor, device]]),
+      runtime: {
+        launchActor: async (_actor: string, path = '/') => {
+          launches.push(path);
+          return device;
+        },
+      },
       session: {
+        ports: { ui: { kind: 'solid-dom' } },
         scheduler: { virtual: true, starvedAdvances: () => 0 },
         advanceTime: () => {
           index = Math.min(index + 1, frames.length - 1);
@@ -94,3 +106,32 @@ test('a guest already inside proceeds without pressing Join', async () => {
   });
   expect(taps).toEqual([]);
 });
+
+// regression: finished-match-watcher-invitation-boot
+test('Carol opens Alice’s finished Battleship game on first launch and joins once', async () => {
+  const link = '/space/b20b88cb-801f-4eff-8c09-6e320313e673';
+  const { s, links, launches, taps } = invitation(
+    'carol',
+    [Handles.spaceJoin],
+    [Handles.spaceActive],
+    true
+  );
+  expect(await joinSpaceFromLink(s, 'carol', link, 'enter')).toEqual({
+    opened: Handles.spaceJoin,
+    afterJoin: Handles.spaceActive,
+  });
+  expect(launches).toEqual([link]);
+  expect(links).toEqual([]);
+  expect(taps).toEqual([Handles.spaceJoin]);
+});
+
+test.each(['space-join-opening', 'space-join-checking-host'])(
+  'Carol still waiting at %s has not been admitted',
+  async (stage) => {
+    const { s, taps } = invitation('carol', [stage], []);
+    await expect(
+      joinSpaceFromLink(s, 'carol', '/space/alice', 'enter')
+    ).rejects.toThrow(`carol opening the link (last saw ${stage})`);
+    expect(taps).toEqual([]);
+  }
+);

@@ -1,0 +1,4 @@
+{
+  "summary": "After Bob resigned a matched Battleship game, Carol's new device booted on the lobby, reloaded at Alice's invitation, and timed out before Join without identifying the opening stage.",
+  "regressionTest": "libs/spaces-harness-ts/tests/matched-watcher-join.test.ts"
+}
