@@ -17,6 +17,9 @@ Keep living competitor research with its product area. Follow the [market resear
 
 ## Hard Rules
 
+- **P0: CI duration is a release requirement.** Follow the [hosted duration budgets](docs/CI_REQUIREMENTS.md#hosted-duration-budgets). Evaluate wall-clock impact before changing a workflow, dependency or test. Keep the PR gate first-party, fast, affected, cached and fail-fast. Put integration and critical journeys in Release and full matrices and deep audits in Nightly. Stop outstanding checks at the ceiling and record the incomplete verdict. Hold a change that risks a ceiling until it fits or the owner accepts the measured trade-off.
+
+
 - **We never test manually. Ever.** Automated verification under the [CI stage policy](docs/CI_STAGE_POLICY.md) is the release decision; nothing is verified by hand — no click-through, no QA pass, no "tested locally". Running the app is for building and debugging, never evidence; if you want to look at it to know a change works, write the missing verification, and if no verification can reach the behavior, change the product until one can. Exploratory tests are property- or model-based (`assertProperty` from `@pkgs/property-shared-ts` only; `fc.commands` models; `@pkgs/harness-root-shared-ts` systems; Quint models for product subs — no product random walks). Every bug found gets its literal failing input pinned as an example test marked `// regression: <bug-id>` plus its own file `libs/tools-harness-ts/goal/known-bugs/<bug-id>.json` (`summary`, `regressionTest`). No skipped / `.only` / `.todo` / `.if` / `.failing` tests, no `--pass-with-no-tests`, no retries. Tests run in-process on virtual time and are fast. Policy: [`README.md`](README.md#correctness-machinery).
 
 - **Specs are for business readers.** Every line in `specs/` is understood by a non-technical business person (A0 in [`specs/README.md`](specs/README.md)); every behavior test is a spec; each framework package tests through one kitchen-sink example app. Spec text changes only in `spec:` commits; implementers treat it as read-only. What the app should be lives only in `specs/`, with no discrete versions of the app; [`README.md`](README.md) is the implementation briefing and never a second product definition. Step catalogs (`<package>/STEPS_CATALOG.md`, index `docs/STEPS_CATALOG.md`) are generated and gitignored: `bun install` writes them and `bun run spec:catalog` refreshes them. Write specs with [`spec-upsert`](.agents/skills/spec-upsert/SKILL.md), bind them with [`spec-implement`](.agents/skills/spec-implement/SKILL.md), audit them with [`spec-audit`](.agents/skills/spec-audit/SKILL.md).
@@ -294,7 +297,7 @@ Four workflows, one contract each. Details:
   and closed by the first Release that verifies the check green
   (`ci-check-issues.ts`). Fix one issue per pull request; never close one by
   hand.
-- **The required status is `verify:end`.** A pull request runs its Turbo tasks and external check policy on one runner. Release, dispatch and Nightly use the distributed planner and shards. Every CI job runs on a standard GitHub-hosted `ubuntu-24.04` runner: a fresh
+- **The required status is `verify:end`.** A pull request runs its Turbo tasks on one runner. Release, dispatch and Nightly use the distributed planner and shards. Every CI job runs on a standard GitHub-hosted `ubuntu-24.04` runner: a fresh
   VM per job, never a machine that keeps files between jobs
   (the repository is public, so pull-request code is untrusted and must not
   run where a deploy later runs). CI does not check native packages or

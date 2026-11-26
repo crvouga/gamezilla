@@ -106,8 +106,6 @@ resource "github_branch_default" "main" {
 
 locals {
   required_checks = [for check_file in fileset("${path.module}/required-checks", "*.json") : jsondecode(file("${path.module}/required-checks/${check_file}"))]
-  # GitHub enforces CodeQL through its native scanning rule below.
-  ruleset_checks = [for check in local.required_checks : check if !try(check.outage_tolerant, false)]
 }
 
 resource "github_repository_ruleset" "main" {
@@ -156,18 +154,10 @@ resource "github_repository_ruleset" "main" {
       allowed_merge_methods             = ["squash"]
     }
 
-    required_code_scanning {
-      required_code_scanning_tool {
-        tool                      = "CodeQL"
-        alerts_threshold          = "all"
-        security_alerts_threshold = "all"
-      }
-    }
-
     required_status_checks {
       strict_required_status_checks_policy = false
       dynamic "required_check" {
-        for_each = { for check in local.ruleset_checks : check.context => check }
+        for_each = { for check in local.required_checks : check.context => check }
         content {
           context        = required_check.value.context
           integration_id = required_check.value.integration_id
