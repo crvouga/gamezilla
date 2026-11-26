@@ -492,7 +492,11 @@ export function flattenVerifyAggregators(
       return;
     }
     const verifications = commandLine
-      ? verifyAggregatorTasks(arg, MAIN_VERIFY_TASKS)
+      ? verifyAggregatorTasks(
+          arg,
+          MAIN_VERIFY_TASKS,
+          process.env['STORYBOOK_SHARD']
+        )
       : null;
     if (verifications !== null) {
       for (const task of verifications) pushLeaf(task);

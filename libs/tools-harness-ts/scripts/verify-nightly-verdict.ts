@@ -28,6 +28,11 @@ export type NightlyGroup = {
 };
 
 const JOB_PREFIX = 'verify-nightly-';
+const visualJobs = [
+  'verify-nightly-visual',
+  'verify-nightly-visual-after-short-suites',
+  'verify-nightly-visual-after-browser',
+];
 const ISSUE_TITLE = failureIssueTitle('Verify Nightly');
 const GATE_SUMMARY =
   'The complete verification catalog at nightly depth: every Quint trace, five times the property runs';
@@ -45,7 +50,7 @@ function groupSummary(name: string): string {
     : 'Unknown group';
 }
 
-/** One group per upstream job; a job the workflow did not report is a failure. */
+/** Groups expected for the selected scope, including any missing from the workflow results. */
 export function nightlyGroupNames(selection = 'all'): readonly string[] {
   const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
   if (selection === 'all') return names;
@@ -72,20 +77,20 @@ function reproduceGroup(name: string): string {
     : `bun verify-nightly ${name}`;
 }
 
+function groupResult(name: string, needs: NeedsResults): string {
+  const jobs = name === 'visual' ? visualJobs : [`${JOB_PREFIX}${name}`];
+  const results = jobs.map((job) => needs[job]?.result ?? 'missing');
+  return results.find((result) => result !== 'success') ?? 'success';
+}
+
 export function nightlyGroups(
   needs: NeedsResults,
   selection = 'all'
 ): readonly NightlyGroup[] {
-  if (selection !== 'all')
-    return nightlyGroupNames(selection).map((name) => ({
-      name,
-      summary: groupSummary(name),
-      result: needs[`${JOB_PREFIX}${name}`]?.result ?? 'missing',
-      reproduce: reproduceGroup(name),
-    }));
-  const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
+  const names = nightlyGroupNames(selection);
   const reported = Object.keys(needs)
     .filter((job) => job !== 'verify-nightly-admission')
+    .filter((job) => !visualJobs.includes(job))
     .filter(
       (job) =>
         !['verify-nightly-storybook', 'verify-nightly-pr-load'].includes(job) ||
@@ -94,10 +99,15 @@ export function nightlyGroups(
     .map((job) =>
       job.startsWith(JOB_PREFIX) ? job.slice(JOB_PREFIX.length) : job
     );
-  return [...new Set([...names, ...reported])].map((name) => ({
+  const groups =
+    selection === 'all' ? [...new Set([...names, ...reported])] : names;
+  return groups.map((name) => ({
     name,
-    summary: name === 'gate' ? ROTATING_GATE_SUMMARY : groupSummary(name),
-    result: needs[`${JOB_PREFIX}${name}`]?.result ?? 'missing',
+    summary:
+      selection === 'all' && name === 'gate'
+        ? ROTATING_GATE_SUMMARY
+        : groupSummary(name),
+    result: groupResult(name, needs),
     reproduce: reproduceGroup(name),
   }));
 }

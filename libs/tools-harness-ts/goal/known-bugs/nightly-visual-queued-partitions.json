@@ -1,0 +1,4 @@
+{
+  "summary": "At minute 37 of full Nightly 45892130856 only three of eight visual partitions had finished. Start the long end partitions first and use runners released by other suites while preserving six runners for PRs and Release.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

@@ -103,9 +103,11 @@ export type NightlySuite = {
   readonly nightlyScope: 'whole' | 'rotating';
 };
 
+const STORYBOOK_MCP_TEST = '@pkgs/ui-root-harness-ts#storybook:mcp:test';
+
 /**
- * Suites only the nightly profile runs. Each is one `verify-nightly:<name>`
- * job in the workflow and one `verify-nightly:<name>` argument to
+ * Suites the nightly profile runs. Each suite is one logical group in the
+ * verdict and one `verify-nightly:<name>` argument to
  * `turbo-ci-run.ts`; `verify-profile.test.ts` holds the two in step.
  */
 export const NIGHTLY_SUITES = {
@@ -131,10 +133,7 @@ export const NIGHTLY_SUITES = {
   },
   visual: {
     summary: 'Every Storybook story rendered and tested in a real browser',
-    tasks: [
-      '@pkgs/ui-root-harness-ts#storybook:test',
-      '@pkgs/ui-root-harness-ts#storybook:mcp:test',
-    ],
+    tasks: ['@pkgs/ui-root-harness-ts#storybook:partition', STORYBOOK_MCP_TEST],
     deadlineSeconds: SHARD_DEADLINE_SECONDS,
     shards: 8,
     nightlyScope: 'whole',
@@ -198,7 +197,8 @@ export function activeProfile(
  */
 export function verifyAggregatorTasks(
   arg: string,
-  gateTasks: readonly string[]
+  gateTasks: readonly string[],
+  storybookShard?: string
 ): readonly string[] | null {
   if (arg === GATE_AGGREGATOR) return gateTasks;
   if (arg === NIGHTLY_AGGREGATOR)
@@ -211,6 +211,10 @@ export function verifyAggregatorTasks(
   if (!isSuiteName(suite))
     throw new Error(
       `${arg} is not a nightly suite (${Object.keys(NIGHTLY_SUITES).join(', ')})`
+    );
+  if (suite === 'visual' && storybookShard && !storybookShard.startsWith('1/'))
+    return NIGHTLY_SUITES.visual.tasks.filter(
+      (task) => task !== STORYBOOK_MCP_TEST
     );
   return NIGHTLY_SUITES[suite].tasks;
 }

@@ -39,6 +39,7 @@ test('browser checks request setup exactly when an assigned check must run', () 
             '@pkgs/ui-root-harness-ts#ci:storybook:0',
             '@pkgs/ui-root-harness-ts#ci:storybook:3',
             '@pkgs/ui-root-harness-ts#storybook:test',
+            '@pkgs/ui-root-harness-ts#storybook:partition',
             '@pkgs/ui-root-harness-ts#storybook:mcp:test',
             '@pkgs/ui-testing-bun-webview-server-ts#test'
           ),
