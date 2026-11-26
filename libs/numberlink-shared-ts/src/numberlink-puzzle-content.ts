@@ -6,6 +6,7 @@ import type {
   PuzzleValidation,
 } from '@pkgs/turn-game-shared-ts/puzzle-content';
 import { z } from 'zod';
+import { numberlinkCatalogPacks } from './numberlink-catalog';
 import { decodeNumberlinkDefinition } from './numberlink-definition';
 import { solveNumberlink } from './numberlink-solver';
 import {
@@ -30,6 +31,39 @@ const actionSchema = z
   })
   .strict();
 
+// Every rule call for a move reads the same board. Keep the last one read,
+// privately, so a sequence of moves decodes its board once.
+let lastBoard:
+  | { definition: string; checked: Validation<NumberlinkDefinition> }
+  | undefined;
+
+function readBoard(definition: string): Validation<NumberlinkDefinition> {
+  if (lastBoard?.definition === definition) return lastBoard.checked;
+  const checked = decodeNumberlinkDefinition(definition);
+  lastBoard = { definition, checked };
+  return checked;
+}
+
+// A move starts from the progress the previous move wrote; keep that one too.
+let lastProgress:
+  | {
+      board: NumberlinkDefinition;
+      state: string;
+      checked: Validation<NumberlinkState>;
+    }
+  | undefined;
+
+function readProgress(
+  board: NumberlinkDefinition,
+  state: string
+): Validation<NumberlinkState> {
+  if (lastProgress?.board === board && lastProgress.state === state)
+    return lastProgress.checked;
+  const checked = decodeNumberlinkState(board, state);
+  lastProgress = { board, state, checked };
+  return checked;
+}
+
 function validation<T>(result: Validation<T>): PuzzleValidation {
   return result.valid ? { valid: true } : result;
 }
@@ -38,9 +72,10 @@ function stateChange(
   definition: NumberlinkDefinition,
   result: Validation<NumberlinkState>
 ): PuzzleChange {
-  return result.valid
-    ? { accepted: true, state: encodeNumberlinkState(definition, result.value) }
-    : { accepted: false, issues: result.issues };
+  if (!result.valid) return { accepted: false, issues: result.issues };
+  const state = encodeNumberlinkState(definition, result.value);
+  lastProgress = { board: definition, state, checked: result };
+  return { accepted: true, state };
 }
 
 function apply(
@@ -48,9 +83,9 @@ function apply(
   state: string,
   action: string
 ): PuzzleChange {
-  const board = decodeNumberlinkDefinition(definition);
+  const board = readBoard(definition);
   if (!board.valid) return { accepted: false, issues: board.issues };
-  const progress = decodeNumberlinkState(board.value, state);
+  const progress = readProgress(board.value, state);
   if (!progress.valid) return { accepted: false, issues: progress.issues };
   try {
     const parsed = actionSchema.safeParse(JSON.parse(action));
@@ -74,7 +109,7 @@ function apply(
 }
 
 function solve(definition: string): PuzzleSolution {
-  const board = decodeNumberlinkDefinition(definition);
+  const board = readBoard(definition);
   if (!board.valid) return { status: 'invalid', issues: board.issues };
   const result = solveNumberlink(board.value, { checkUniqueness: true });
   if (result.status !== 'solved') return result;
@@ -86,9 +121,9 @@ function solve(definition: string): PuzzleSolution {
 }
 
 function complete(definition: string, state: string): boolean {
-  const board = decodeNumberlinkDefinition(definition);
+  const board = readBoard(definition);
   if (!board.valid) return false;
-  const progress = decodeNumberlinkState(board.value, state);
+  const progress = readProgress(board.value, state);
   return progress.valid && numberlinkComplete(board.value, progress.value);
 }
 
@@ -97,7 +132,7 @@ function validatePublication(
   definition: string,
   evidence?: PuzzleEvidence
 ): PuzzleValidation {
-  const board = decodeNumberlinkDefinition(definition);
+  const board = readBoard(definition);
   if (!board.valid) return board;
   if (evidence !== undefined)
     return complete(definition, evidence.state)
@@ -134,29 +169,27 @@ export const numberlinkPuzzleContent: PuzzleContent = {
   rulesVersion: 1,
   history: 'snapshots',
   rules: {
-    validateDefinition: (definition) =>
-      validation(decodeNumberlinkDefinition(definition)),
+    validateDefinition: (definition) => validation(readBoard(definition)),
     initial: (definition) => {
-      const board = decodeNumberlinkDefinition(definition);
+      const board = readBoard(definition);
       return board.valid
         ? stateChange(board.value, { valid: true, value: { paths: [] } })
         : { accepted: false, issues: board.issues };
     },
     validateState: (definition, state) => {
-      const board = decodeNumberlinkDefinition(definition);
-      return board.valid
-        ? validation(decodeNumberlinkState(board.value, state))
-        : board;
+      const board = readBoard(definition);
+      return board.valid ? validation(readProgress(board.value, state)) : board;
     },
     apply,
     complete,
   },
   solver: { solve },
   validatePublication,
+  bundledPacks: numberlinkCatalogPacks,
   statistics: (definition, state) => {
-    const board = decodeNumberlinkDefinition(definition);
+    const board = readBoard(definition);
     if (!board.valid) return {};
-    const progress = decodeNumberlinkState(board.value, state);
+    const progress = readProgress(board.value, state);
     if (!progress.valid) return {};
     return {
       connectedPairs: connectedPairs(board.value, progress.value).length,

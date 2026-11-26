@@ -2806,6 +2806,7 @@
         "@pkgs/bun-test-solid-client-ts": "workspace:*",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/sync-engine-harness-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
         "@pkgs/uuid-client-ts": "workspace:*",
         "@solidjs/testing-library": "catalog:",

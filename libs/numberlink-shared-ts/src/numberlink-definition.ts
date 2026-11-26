@@ -1,11 +1,18 @@
 import { z } from 'zod';
 import {
+  isNumberlinkNotation,
+  parseNumberlinkNotation,
+} from './numberlink-notation';
+import { definitionOfNotation } from './numberlink-notation-definition';
+import {
+  accept,
   cellKey,
   inBounds,
   type NumberlinkDefinition,
   type NumberlinkIssue,
   PAIR_COLORS,
   type Validation,
+  wasAccepted,
 } from './numberlink-types';
 
 const cellSchema = z
@@ -35,9 +42,23 @@ export const numberlinkDraftSchema = numberlinkDefinitionSchema.extend({
   pairs: z.array(pairSchema.extend({ label: z.string().max(8) })).max(200),
 });
 
+/** A board written in notation, complete and playable, or the reason it is not. */
+function decodeNotation(text: string): Validation<NumberlinkDefinition> {
+  const notation = parseNumberlinkNotation(text);
+  if (!notation.valid) return notation;
+  const board = definitionOfNotation(notation.value);
+  // The same checks as a JSON definition, so both forms play identically.
+  return board.valid ? validateNumberlinkDefinition(board.value) : board;
+}
+
 export function decodeNumberlinkDraft(
   text: string
 ): Validation<NumberlinkDefinition> {
+  // A shipped board opens in the editor; the next edit saves it as JSON.
+  if (isNumberlinkNotation(text)) {
+    const board = decodeNotation(text);
+    if (board.valid) return board;
+  }
   try {
     const parsed = numberlinkDraftSchema.safeParse(JSON.parse(text));
     if (parsed.success) return { valid: true, value: parsed.data };
@@ -101,6 +122,8 @@ function endpointIssues(definition: NumberlinkDefinition): NumberlinkIssue[] {
 export function validateNumberlinkDefinition(
   input: unknown
 ): Validation<NumberlinkDefinition> {
+  if (wasAccepted(input))
+    return { valid: true, value: input as NumberlinkDefinition };
   const parsed = numberlinkDefinitionSchema.safeParse(input);
   if (!parsed.success)
     return {
@@ -112,13 +135,15 @@ export function validateNumberlinkDefinition(
     };
   const issues = endpointIssues(parsed.data);
   return issues.length === 0
-    ? { valid: true, value: parsed.data }
+    ? { valid: true, value: accept(parsed.data) }
     : { valid: false, issues };
 }
 
+/** Reads a JSON definition or a board in notation (`NL1:`); never throws. */
 export function decodeNumberlinkDefinition(
   text: string
 ): Validation<NumberlinkDefinition> {
+  if (isNumberlinkNotation(text)) return decodeNotation(text);
   try {
     return validateNumberlinkDefinition(JSON.parse(text));
   } catch {
