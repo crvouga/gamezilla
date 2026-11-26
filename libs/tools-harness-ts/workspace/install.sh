@@ -39,9 +39,9 @@ workspace_install_locked() {
   rm -f "$WORKSPACE_INSTALL_STAMP"
   log="$(mktemp .cache/workspace-install.XXXXXX)" || return 1
   echo "==> bun install --frozen-lockfile"
-  if ! TURBO_UI=false bun install --frozen-lockfile >"$log" 2>&1; then
+  if ! TURBO_UI=false bun install --frozen-lockfile 2>&1 | tee "$log" >>"${WORKSPACE_LAUNCH_LOG:-/dev/null}"; then
     if ! grep -Eq '^EEXIST: (File exists: failed to (symlink dependencies|link package)|failed to link binaries)' "$log"; then
-      cat "$log" >&2
+      if [ -z "${WORKSPACE_LAUNCH_LOG:-}" ]; then cat "$log" >&2; fi
       rm -f "$log"
       return 1
     fi
@@ -62,8 +62,8 @@ workspace_install_locked() {
       mkdir -p "$backup/$(dirname "$dir")" || return 1
       mv "$dir" "$backup/$dir" || return 1
     done
-    if ! TURBO_UI=false bun install --frozen-lockfile >"$log" 2>&1; then
-      cat "$log" >&2
+    if ! TURBO_UI=false bun install --frozen-lockfile 2>&1 | tee "$log" >>"${WORKSPACE_LAUNCH_LOG:-/dev/null}"; then
+      if [ -z "${WORKSPACE_LAUNCH_LOG:-}" ]; then cat "$log" >&2; fi
       echo "!!! previous dependency links saved in $backup" >&2
       return 1
     fi

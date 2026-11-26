@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'bun:test';
-import { appLink, devLine, devLogPath, storybookLink } from './dev-links';
+import { appLink, devLogPath, devStatusLine, storybookLink } from './dev-links';
 
 describe('bun dev links', () => {
   test('the app link waits for this boot to publish its web origin', () => {
@@ -26,13 +26,24 @@ describe('bun dev links', () => {
     );
   });
 
-  test('each line is a label and one address', () => {
-    expect(devLine('App', 'http://127.0.0.1:5484/')).toBe(
-      'App        http://127.0.0.1:5484/\n'
+  test('one status row links the log and both ready services', () => {
+    const args = {
+      status: 'Ready',
+      logPath: devLogPath('/a checkout/.cache/localhost-stack'),
+      storybook: 'http://127.0.0.1:5802/',
+      product: 'http://127.0.0.1:5800/',
+    };
+    const row = devStatusLine({ ...args, terminal: true });
+    expect(row.replaceAll(/\x1b\]8;;.*?\x1b\\/g, '')).toBe(
+      'Ready · Logs · Storybook · Product'
     );
-    expect(devLine('Storybook', 'x')).toBe('Storybook  x\n');
-    expect(devLogPath('/repo/.cache/localhost-stack')).toBe(
-      '/repo/.cache/localhost-stack/dev.log'
+    expect(row).toContain(
+      'file:///a%20checkout/.cache/localhost-stack/dev.log'
+    );
+    expect(row).toContain(args.product);
+    expect(row).toContain(args.storybook);
+    expect(devStatusLine({ ...args, terminal: false })).toBe(
+      'Ready · Logs file:///a%20checkout/.cache/localhost-stack/dev.log · Storybook http://127.0.0.1:5802/ · Product http://127.0.0.1:5800/'
     );
   });
 });

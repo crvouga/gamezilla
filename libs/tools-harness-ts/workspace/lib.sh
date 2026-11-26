@@ -67,7 +67,7 @@ workspace_activate_tools() {
     # wait for a trust prompt whose stdout is captured by this substitution.
     echo "==> activating installed workspace tools" >&2
     if [ "${1:-}" = quiet ]; then
-      workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null 2>/dev/null)" || return 1
+      workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null 2>>"${WORKSPACE_LAUNCH_LOG:-/dev/null}")" || return 1
     else
       workspace_mise_env="$(MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise env --shell bash </dev/null)" || return 1
     fi

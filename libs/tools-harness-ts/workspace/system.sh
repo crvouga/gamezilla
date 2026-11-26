@@ -64,7 +64,7 @@ workspace_update_mise() {
 # Read offline from mise.toml alone: a workstation's global tools never decide
 # whether this checkout can start. Lazy tools install on first use.
 workspace_missing_tools() {
-  MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise ls --current --missing --local </dev/null 2>/dev/null |
+  MISE_OFFLINE=1 MISE_AUTO_INSTALL=0 mise ls --current --missing --local </dev/null 2>>"${WORKSPACE_LAUNCH_LOG:-/dev/null}" |
     awk '$3 != "(lazy)" { print $1 }'
 }
 
@@ -72,7 +72,7 @@ workspace_system() {
   local status=0 mise_env missing
   workspace_bootstrap_mise || return 1
   # Asked only when mise refuses: a healthy launch runs no extra command.
-  if ! mise trust --quiet mise.toml </dev/null 2>/dev/null; then
+  if ! mise trust --quiet mise.toml </dev/null 2>>"${WORKSPACE_LAUNCH_LOG:-/dev/null}"; then
     workspace_update_mise || true
     mise trust --quiet mise.toml </dev/null || return 1
   fi
