@@ -1,4 +1,0 @@
-{
-  "summary": "The People, Sharing and Remove person Storybook families documented their example wrappers instead of the components used in the app.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/shell/integration.checks.ts"
-}
