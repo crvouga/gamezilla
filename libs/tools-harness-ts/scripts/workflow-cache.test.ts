@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { readRootTurbo, readTurboTasks } from './turbo-config';
+import { NIGHTLY_SUITES } from './verify-profile';
 
 const root = join(import.meta.dirname, '../../..');
 
@@ -20,6 +21,25 @@ test('randomized suites own the runner one worker pool at a time', () => {
   );
   expect(random?.env?.['TURBO_CONCURRENCY']).toBe('1');
   expect(random?.env?.['PBT_CONCURRENCY']).toBe('1');
+});
+
+// regression: nightly-matrices-block-production-startup
+test('a full Nightly leaves at least six account runners for Release and pull requests', () => {
+  const { jobs } = Bun.YAML.parse(
+    readFileSync(join(root, '.github/workflows/verify-nightly.yml'), 'utf8')
+  ) as {
+    jobs: {
+      'verify-nightly-gate': { with: { shards: number } };
+      'verify-nightly-visual': { strategy: { 'max-parallel': number } };
+    };
+  };
+  const maximum =
+    jobs['verify-nightly-gate'].with.shards +
+    jobs['verify-nightly-visual'].strategy['max-parallel'] +
+    NIGHTLY_SUITES.random.shards +
+    NIGHTLY_SUITES.browser.shards +
+    2; // coverage and performance
+  expect(maximum).toBeLessThanOrEqual(14);
 });
 
 // regression: verify-cache-write-only-override
