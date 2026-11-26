@@ -391,9 +391,10 @@ jobs:
       # half-applied change. What does start, turbo-ci-run stops cleanly
       # (SIGTERM, then SIGKILL 15 s later) before the step's shell would.
       - name: Check the release fits the time left
-        env:
-          RELEASE_SECONDS: '360'
         run: |
+          # Pushes apply the runtime foundation. Manual releases also reconcile Grafana.
+          RELEASE_SECONDS=360
+          if [[ "$GITHUB_EVENT_NAME" == push ]]; then RELEASE_SECONDS=300; fi
           remaining=$(( CI_STAGE_DEADLINE - $(date +%s) ))
           if (( remaining < RELEASE_SECONDS )); then
             echo "::error::${remaining}s of the run's time budget left; releasing ${SECRETS_ENV} takes about ${RELEASE_SECONDS}s, so nothing was changed."

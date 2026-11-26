@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45906836212 refused a production push rollout with 319 seconds remaining because it reserved the time for a full manual foundation apply.",
+  "regressionTest": "libs/tools-harness-ts/scripts/release-rollout-budget.test.ts"
+}
