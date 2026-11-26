@@ -28,7 +28,7 @@ export type NightlyGroup = {
 };
 
 const JOB_PREFIX = 'verify-nightly-';
-const visualJobs = [
+export const NIGHTLY_VISUAL_JOBS: readonly string[] = [
   'verify-nightly-visual',
   'verify-nightly-visual-after-short-suites',
   'verify-nightly-visual-after-browser',
@@ -78,7 +78,8 @@ function reproduceGroup(name: string): string {
 }
 
 function groupResult(name: string, needs: NeedsResults): string {
-  const jobs = name === 'visual' ? visualJobs : [`${JOB_PREFIX}${name}`];
+  const jobs =
+    name === 'visual' ? NIGHTLY_VISUAL_JOBS : [`${JOB_PREFIX}${name}`];
   const results = jobs.map((job) => needs[job]?.result ?? 'missing');
   return results.find((result) => result !== 'success') ?? 'success';
 }
@@ -90,7 +91,7 @@ export function nightlyGroups(
   const names = nightlyGroupNames(selection);
   const reported = Object.keys(needs)
     .filter((job) => job !== 'verify-nightly-admission')
-    .filter((job) => !visualJobs.includes(job))
+    .filter((job) => !NIGHTLY_VISUAL_JOBS.includes(job))
     .filter(
       (job) =>
         !['verify-nightly-storybook', 'verify-nightly-pr-load'].includes(job) ||

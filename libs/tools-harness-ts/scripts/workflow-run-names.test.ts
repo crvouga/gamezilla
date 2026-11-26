@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { NIGHTLY_VISUAL_JOBS } from './verify-nightly-verdict';
 
 /**
  * Every workflow run title has one shape — `<Workflow> · <trigger>`, never a
@@ -109,6 +110,7 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
     }
   });
 
+  // regression: visual-cohort-diagnostic-identity
   test('jobs are named `<prefix>[:<stage>]` after their id, `<prefix>:<env>` per env, or with their shard', () => {
     const prefix = WORKFLOWS[file]!.jobs;
     for (const [id, job] of Object.entries(workflow.jobs)) {
@@ -129,6 +131,13 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
       if (id === 'verify-nightly-end') {
         expect(job.name).toBe(
           "${{ inputs.group && inputs.group != 'all' && 'verify-nightly:diagnostic' || 'verify-nightly:end' }}"
+        );
+        continue;
+      }
+      if (file === 'verify-nightly.yml' && NIGHTLY_VISUAL_JOBS.includes(id)) {
+        expect(perShard, id).toBe(true);
+        expect(job.name, id).toBe(
+          'verify-nightly:visual (${{ matrix.shard }}/8)'
         );
         continue;
       }

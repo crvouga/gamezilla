@@ -1,0 +1,4 @@
+{
+  "summary": "Focused Storybook run 45902503431 stopped before browser checks because the job-name contract expected verify-nightly:visual-after-short-suites. All three scheduled visual matrices report their partition under verify-nightly:visual.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-run-names.test.ts"
+}
