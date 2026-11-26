@@ -1,0 +1,4 @@
+{
+  "summary": "The browser's pending-work warning blocked a requested checkout or billing portal navigation while the button was opening the provider. The billing action now releases its own guard when the provider URL is ready.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pending-navigation.test.tsx"
+}

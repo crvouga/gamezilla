@@ -1,0 +1,4 @@
+{
+  "summary": "On a live browser (HARNESS_MODE=real|stack; Verify Nightly runs stack) a device put on an outdated app build still spoke the current sync protocol: the build was applied only to in-process clients' server HTTP, while a browser device's page sends its own requests, in stack mode straight to the separately booted API. The server never answered upgrade_required, so 'Alice is asked to update the app within 15 seconds' timed out. The browser composition root now puts each device's page on its build: on launch, on every harness navigation and whenever the build changes.",
+  "regressionTest": "libs/harness-ts/tests/browser-app-build.test.ts"
+}

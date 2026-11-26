@@ -1,0 +1,4 @@
+{
+  "summary": "Every Bun.WebView node call asked the latest popup whether it showed the element with no deadline, so a popup that closed itself or stopped answering hung the call (for example a sign-in tap) until the 90s browser deadline.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/silent-popup.test.ts"
+}

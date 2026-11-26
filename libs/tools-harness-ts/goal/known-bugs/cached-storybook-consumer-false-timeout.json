@@ -1,0 +1,4 @@
+{
+  "summary": "Release omitted the cached first browser part. Its uncached Storybook coverage prerequisite appeared to run until the time budget expired.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-storybook-stage.test.ts"
+}

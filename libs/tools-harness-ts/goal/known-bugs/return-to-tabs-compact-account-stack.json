@@ -1,0 +1,4 @@
+{
+  "summary": "Returning to the tabs after signing in on a second device pressed Back once and waited for a tab. On a phone-sized live browser the tab bar shows only on tab roots, and Account sits under Settings, so one Back landed on Settings and the tab bar never showed (Nightly: an online second device loses access to the deleted account).",
+  "regressionTest": "libs/harness-ts/tests/account-stack-reads.test.ts"
+}

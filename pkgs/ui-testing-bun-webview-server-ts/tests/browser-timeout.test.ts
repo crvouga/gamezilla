@@ -82,3 +82,52 @@ test('an unacknowledged request identifies the transport stage', async () => {
   expect(((await result) as Error).message).toContain('stage: sent');
   await f.channel.close();
 });
+
+// regression: isolated-browser-stuck-call-cascades
+test('after a call is stuck in the browser, later page calls fail at once naming it', async () => {
+  const f = fixture();
+  const tap = f.channel
+    .request({
+      call: {
+        target: 'node',
+        path: ['auth-method-google'],
+        method: 'tap',
+        args: [],
+      },
+    })
+    .catch((error: unknown) => error);
+  f.receive({ id: 1, stage: 'executing' });
+  f.clock.advance(90_000);
+  await tap;
+
+  const probe = await f.channel
+    .request({
+      call: {
+        target: 'node',
+        path: ['search-loading'],
+        method: 'isVisible',
+        args: [],
+      },
+    })
+    .catch((error: unknown) => error);
+  expect((probe as Error).message).toBe(
+    'node search-loading isVisible: The isolated browser is still running node auth-method-google tap, which did not answer after 90000ms'
+  );
+  expect(f.clock.pendingOneShotCount()).toBe(0);
+
+  // The URL is read without page code, so it is still asked.
+  const url = f.channel.request({
+    call: { target: 'view', path: [], method: 'loadedUrl', args: [] },
+  });
+  f.receive({ id: 2, value: 'http://127.0.0.1:33333/' });
+  expect(await url).toBe('http://127.0.0.1:33333/');
+
+  // Once the stuck call answers, the browser takes page calls again.
+  f.receive({ id: 1, value: undefined });
+  const next = f.channel.request({
+    call: { target: 'node', path: ['x'], method: 'isVisible', args: [] },
+  });
+  f.receive({ id: 3, value: true });
+  expect(await next).toBe(true);
+  await f.channel.close();
+});

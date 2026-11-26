@@ -50,15 +50,19 @@ type Ui = Awaited<ReturnType<typeof actorUi>>;
 /**
  * Whether `handle` shows. The space's top row (its gear) also tops the shell a
  * space shows while it is still finding out whether this person is in it,
- * so the bar means inside only once that loading body is gone.
+ * so the bar means inside only once that loading body is gone. Each read is
+ * its own look at a live page: the loading body is read on both sides of the
+ * bar, so a loading shell that gives way to the join prompt between two
+ * reads never passes for being inside.
  */
 async function outcomeShown(ui: Ui, handle: string): Promise<boolean> {
-  if (!(await ui.get(handle).isVisible())) return false;
+  if (handle !== Handles.spaceChromeOverflow) return ui.get(handle).isVisible();
   // regression: space-loading-shell-reads-as-inside
-  return (
-    handle !== Handles.spaceChromeOverflow ||
-    !(await ui.get(Handles.spaceLoading).isVisible())
-  );
+  // regression: space-loading-shell-gone-between-reads
+  const loading = () => ui.get(Handles.spaceLoading).isVisible();
+  if (await loading()) return false;
+  if (!(await ui.get(handle).isVisible())) return false;
+  return !(await loading());
 }
 
 export async function waitForLobbyCard(

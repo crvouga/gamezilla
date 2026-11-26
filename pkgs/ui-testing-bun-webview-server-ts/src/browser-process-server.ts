@@ -1,8 +1,8 @@
 // @io-wall-ok — owned browser child transport; private IPC only.
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import type { BrowserCall } from './remote-browser-driver';
+import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 
-type BrowserDevice = {
+export type BrowserDevice = {
   readonly driver: Driver;
   readonly view: object;
   readonly console?: readonly string[];
@@ -42,44 +42,83 @@ async function invoke(
     : result;
 }
 
-/** Both harness and deployed-app adapters keep all native work in this child. */
-export function serveBrowserProcess<Open>(
-  open: (options: Open) => Promise<BrowserDevice>
-): void {
+type BrowserRequest<Open> = {
+  readonly id: number;
+  readonly open?: Open;
+  readonly call?: BrowserCall;
+};
+
+/**
+ * One device's request handler. `Bun.WebView` allows one `evaluate()` in
+ * flight per view, and a driver call is a chain of them, so calls run one
+ * after another: a call the parent sent while another still runs waits for
+ * it instead of failing inside Bun with "an evaluate() is already pending".
+ * Reading the loaded URL and closing run at once — neither runs page code,
+ * and closing is what ends a call stuck in the page.
+ */
+export function createBrowserRequestHandler<Open>(
+  open: (options: Open) => Promise<BrowserDevice>,
+  send: (message: unknown) => void
+) {
   let device: BrowserDevice | null = null;
-  process.on('message', async (raw: unknown) => {
-    const request = raw as { id: number; open?: Open; call?: BrowserCall };
+  let queue: Promise<unknown> = Promise.resolve();
+  const run = async (request: BrowserRequest<Open>, call: BrowserCall) => {
+    const current = device;
+    if (current === null) throw new Error('Invalid browser request');
+    send({ id: request.id, stage: 'executing' });
+    const value = await invoke(current, call);
+    if (call.target === 'driver' && call.method === 'close') device = null;
+    return value;
+  };
+  const handle = async (request: BrowserRequest<Open>): Promise<void> => {
     try {
       let value: unknown;
       if (request.open !== undefined) {
         if (device !== null) throw new Error('The browser is already open');
-        process.send?.({ id: request.id, stage: 'opening' });
+        send({ id: request.id, stage: 'opening' });
         device = await open(request.open);
         value = true;
       } else if (request.call !== undefined && device !== null) {
-        process.send?.({ id: request.id, stage: 'executing' });
-        value = await invoke(device, request.call);
-        if (request.call.target === 'driver' && request.call.method === 'close')
-          device = null;
+        const call = request.call;
+        if (runsNoPageCode(call)) value = await run(request, call);
+        else {
+          const turn = queue.then(() => run(request, call));
+          queue = turn.catch(() => undefined);
+          value = await turn;
+        }
       } else throw new Error('Invalid browser request');
-      process.send?.({
+      send({
         id: request.id,
         value,
         console: device?.console,
         network: device?.network,
       });
     } catch (cause) {
-      process.send?.({
+      send({
         id: request.id,
         error: cause instanceof Error ? cause.message : String(cause),
         errorName: cause instanceof Error ? cause.name : 'Error',
       });
     }
+  };
+  return { handle, device: () => device };
+}
+
+/** Both harness and deployed-app adapters keep all native work in this child. */
+export function serveBrowserProcess<Open>(
+  open: (options: Open) => Promise<BrowserDevice>
+): void {
+  const handler = createBrowserRequestHandler(open, (message) =>
+    process.send?.(message)
+  );
+  process.on('message', (raw: unknown) => {
+    void handler.handle(raw as BrowserRequest<Open>);
   });
   let closing = false;
   function close(): void {
     if (closing) return;
     closing = true;
+    const device = handler.device();
     if (device === null) process.exit(0);
     void device.close().finally(() => process.exit(0));
   }

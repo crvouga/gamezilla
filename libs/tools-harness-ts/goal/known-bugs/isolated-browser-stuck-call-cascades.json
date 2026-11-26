@@ -1,0 +1,4 @@
+{
+  "summary": "After one isolated-browser call stayed stuck past its 90s deadline, every later page call on that device failed inside Bun with \"an evaluate() is already pending\", hiding the stuck call behind cleanup and monitor failures.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/browser-timeout.test.ts"
+}

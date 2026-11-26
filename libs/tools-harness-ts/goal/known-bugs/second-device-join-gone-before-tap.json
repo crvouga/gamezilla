@@ -1,0 +1,4 @@
+{
+  "summary": "Opening finding an opponent on a second device failed when its join prompt gave way to the space (its membership arrived) between seeing Join and tapping it.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/finding-an-opponent-arrival.test.ts"
+}

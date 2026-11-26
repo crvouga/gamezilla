@@ -1,0 +1,4 @@
+{
+  "summary": "Waiting for the account-deletion outcome read the confirmation dialog's text right after seeing it. A confirmed deletion closes that dialog, so on a live browser it could go between the two reads and the text read failed with element not found instead of the poll looking again (Nightly: people search cannot find a deleted account).",
+  "regressionTest": "libs/harness-ts/tests/account-stack-reads.test.ts"
+}

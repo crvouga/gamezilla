@@ -6,8 +6,10 @@ import {
 } from '@pkgs/ui-testing-bun-webview-server-ts/chrome-for-testing';
 import { defineConfig } from '@playwright/test';
 import { storybookTestNetwork } from './network';
+import { storybookShard } from './shard';
 
 const network = storybookTestNetwork(process.env);
+const shard = process.env['STORYBOOK_SHARD'];
 const baseURL = `http://${network.host}:${network.port}`;
 
 const chromeDirectory = spawnSync('mise', ['where', CHROME_FOR_TESTING_TOOL], {
@@ -37,6 +39,7 @@ export default defineConfig({
     '**/game-layout.checks.ts',
   ],
   outputDir: '../.cache/storybook-test-results',
+  ...(shard ? { shard: storybookShard(shard) } : {}),
   fullyParallel: true,
   workers: 2,
   retries: 0,

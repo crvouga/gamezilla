@@ -316,6 +316,23 @@ export const openSpaceMenu = scenarioAction({
   },
 });
 
+/** Open `link` on `actorId`'s device; returns the screen it settles on. */
+async function openLinkSettled(
+  s: ProductHarness,
+  actorId: string,
+  link: string
+): Promise<string> {
+  await ensureActor(s, actorId);
+  const actor = s.actors.get(actorId);
+  if (actor === undefined) throw new Error(`actor ${actorId} missing`);
+  await actor.openLink(link);
+  const ui = await actorUi(s, actorId);
+  // Bring the actor to the front: a parked actor's screen reads as empty,
+  // and nothing carries this id, so the wait returns at once.
+  await ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
+  return waitSpaceOutcome(s, actorId, `space link ${link} opened`);
+}
+
 /**
  * Open a space's link (`/space/<id>`, what the host's Copy link hands out)
  * the way a person pastes one: an app that may never have been opened, a
@@ -325,15 +342,7 @@ export const openSpaceMenu = scenarioAction({
 export const openSpaceLink = scenarioAction({
   name: 'openSpaceLink',
   act: async (s, actorId: string, link: string) => {
-    await ensureActor(s, actorId);
-    const actor = s.actors.get(actorId);
-    if (actor === undefined) throw new Error(`actor ${actorId} missing`);
-    await actor.openLink(link);
-    const ui = await actorUi(s, actorId);
-    // Bring the actor to the front: a parked actor's screen reads as empty,
-    // and nothing carries this id, so the wait returns at once.
-    await ui.get('harness-focus-probe').expect.hidden({ timeoutMs: 1 });
-    await waitSpaceOutcome(s, actorId, `space link ${link} opened`);
+    await openLinkSettled(s, actorId, link);
   },
 });
 
@@ -345,9 +354,11 @@ export const openSpaceLink = scenarioAction({
 export const joinViaLink = scenarioAction({
   name: 'joinViaLink',
   act: async (s, actorId: string, link: string) => {
-    await Promise.resolve(openSpaceLink.act(s, actorId, link));
+    // regression: space-link-join-skipped-mid-opening
+    // What the link settled on, not a second look: the join prompt can
+    // still be opening then, and a person waits for Join.
+    if ((await openLinkSettled(s, actorId, link)) !== Handles.spaceJoin) return;
     const ui = await actorUi(s, actorId);
-    if (!(await ui.get(Handles.spaceJoin).isVisible())) return;
     await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
     await waitForOneOf(
       s,

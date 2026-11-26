@@ -36,7 +36,7 @@
 
 ## Decisions and verification, 2026-11-25
 
-The board prints 2L, 3L, 2W and 3W on its bonus squares. Draft letters have individual dashed edges, so the letters a player can retract remain distinguishable within a crossing word. The first round exercised placement, retraction and submission across two-, three- and four-player tables. [Hosted results and board captures](https://github.com/crvouga/gamezilla/pull/576#issuecomment-7158965534)
+The board prints 2L, 3L, 2W and 3W on its bonus squares. Draft letters have individual dashed edges, so the letters a player can retract remain distinguishable within a crossing word. The first round exercised placement, retraction and submission across two-, three- and four-player tables. Hosted results and board captures (PR #576, comment 7158965534)
 
 The marked blank in the Crosswords manual prompted a change for small boards. Word Tiles underlines the assigned letter in both the draft and the committed word. Precision view also shows the zero-point value. Fit can hide point numerals to make room for the letters. The assigned-blank check exercises a three-player match through submission and compares the blank A with an ordinary C. [Hosted board checks](../../../pkgs/ui-root-harness-ts/tests/storybook/word-tiles-gestures/integration.checks.ts)
 

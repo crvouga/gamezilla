@@ -230,10 +230,16 @@ jobs:
           if-no-files-found: ignore
 
   verify-nightly-visual:
-    name: verify-nightly:visual
+    name: verify-nightly:visual (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual' }}
     runs-on: ubuntu-24.04
     timeout-minutes: 180
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4, 5, 6, 7, 8]
+    env:
+      STORYBOOK_SHARD: ${{ matrix.shard }}/${{ strategy.job-total }}
     permissions:
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
@@ -248,7 +254,7 @@ jobs:
         if: always() && !cancelled()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: verify-nightly-visual-${{ github.run_id }}
+          name: verify-nightly-visual-${{ github.run_id }}-${{ matrix.shard }}
           path: .turbo/runs/*.json
           retention-days: 3
           overwrite: true

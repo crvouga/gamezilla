@@ -39,6 +39,12 @@ const identity =
 const configuredEnv = {
   ...process.env,
   PRODUCT_IDENTITY_MODE: mode,
+  // Fixture builds render the fixture but still scan tracked source for deployment names.
+  VERIFY_BRAND_IDENTITY_JSON:
+    mode === 'fixture'
+      ? (process.env['PRODUCT_IDENTITY_JSON'] ??
+        process.env['VERIFY_BRAND_IDENTITY_JSON'])
+      : undefined,
   PRODUCT_IDENTITY_JSON:
     identity === undefined ? undefined : JSON.stringify(identity),
 };

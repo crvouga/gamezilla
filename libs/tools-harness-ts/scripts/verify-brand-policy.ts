@@ -10,6 +10,7 @@ import { spawnSync } from 'node:child_process';
 import { existsSync, readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
 import { BRAND_ARTIFACTS } from '@libs/product-brand-shared-ts/brand-artifacts';
+import { identityInput } from '@libs/product-brand-shared-ts/identity-input';
 import { PRODUCT } from '@libs/product-identity-shared-ts/product-identity';
 import {
   brandTokens,
@@ -72,7 +73,11 @@ const files = listFiles()
   )
   .map(read);
 const shown = only.length > 0 ? Number.POSITIVE_INFINITY : 400;
-const violations = brandViolations(files, brandTokens(PRODUCT), exempt);
+const configured = process.env['VERIFY_BRAND_IDENTITY_JSON'];
+const tokens = configured
+  ? brandTokens(PRODUCT, identityInput(configured))
+  : brandTokens(PRODUCT);
+const violations = brandViolations(files, tokens, exempt);
 
 if (problems.length > 0 || violations.length > 0) {
   console.error(

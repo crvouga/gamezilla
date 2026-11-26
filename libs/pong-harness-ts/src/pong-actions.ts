@@ -3,6 +3,7 @@ import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-u
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { pongGuidance } from './pong-guidance';
+import { holdPaddleUnlessFinished } from './pong-local-actions';
 import {
   PONG_BOARD,
   type PongPaddle,
@@ -72,6 +73,33 @@ async function positionPaddles(
   await ui.get(`${PONG_BOARD}-black-control`).input(String(right));
 }
 
+/**
+ * Guide both paddles toward the ball. The point that ends the game takes
+ * both paddle controls off the court, and can land between reading the
+ * court and guiding: a guide that finds no control because the game is
+ * over is that point, not a failure.
+ */
+// regression: pong-final-point-removes-paddle-controls
+async function guidePaddles(
+  s: ProductHarness,
+  left: number,
+  right: number
+): Promise<void> {
+  const ui = await actorUi(s, 'alice');
+  const finished = async () => (await pongScoreboard(s)).stage === 'finished';
+  for (const [side, value] of [
+    ['white', left],
+    ['black', right],
+  ] as const) {
+    const held = await holdPaddleUnlessFinished(
+      ui.get(`${PONG_BOARD}-${side}-control`),
+      String(value),
+      finished
+    );
+    if (held === 'finished') return;
+  }
+}
+
 /** Play until the next actual point. The score oracle is the scenario/model, not this strategy. */
 async function winPoint(s: ProductHarness, paddle: PongPaddle): Promise<void> {
   const initial = await pongView(s);
@@ -84,7 +112,7 @@ async function winPoint(s: ProductHarness, paddle: PongPaddle): Promise<void> {
       if (next.score.left !== before.left || next.score.right !== before.right)
         return true;
       const targets = pongGuidance(next, previous, paddle);
-      await positionPaddles(s, targets.left, targets.right);
+      await guidePaddles(s, targets.left, targets.right);
       previous = next.ball;
       return null;
     },

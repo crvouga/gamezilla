@@ -92,7 +92,7 @@ mode instead.
 Release and Health use configured mode by default.
 
 - `verify:brand-policy` refuses configured brand spellings outside the identity
-  schema/fixture package and proven generated artifacts.
+  schema/fixture package and proven generated artifacts. Hosted gate runs check both the fixture and the configured repository identity. Cite hosted evidence by PR, comment, run or job number in tracked research.
 - Input properties prove external values survive parsing; regression examples
   reject absent, malformed and stale configuration.
 - Artifact tests prove every generated file follows configuration and every

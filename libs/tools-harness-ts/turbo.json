@@ -408,6 +408,7 @@
       "outputLogs": "errors-only"
     },
     "verify:brand-policy": {
+      "env": ["VERIFY_BRAND_IDENTITY_JSON"],
       "inputs": [
         "$TURBO_DEFAULT$",
         "$TURBO_ROOT$/**",

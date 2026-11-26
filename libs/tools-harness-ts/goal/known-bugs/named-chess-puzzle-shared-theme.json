@@ -1,0 +1,4 @@
+{
+  "summary": "Selecting a theme could serve a different position while the assistant scenario waited for coachFork.",
+  "regressionTest": "libs/chess-root-harness-ts/tests/puzzle-catalog-regression.test.ts"
+}

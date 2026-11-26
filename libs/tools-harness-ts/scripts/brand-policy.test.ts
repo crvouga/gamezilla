@@ -28,6 +28,32 @@ describe('brand tokens', () => {
 });
 
 describe('brand violations', () => {
+  // regression: configured-brand-in-research-evidence
+  test('an evidence link in a research document is checked against the configured repository', () => {
+    const repo = 'owner/configured-repository';
+    const configured = {
+      ...identity,
+      external: { ...identity.external, sourceRepository: repo },
+    };
+    expect(
+      brandViolations(
+        [
+          {
+            path: 'libs/hearts-client-ts/docs/MARKET_RESEARCH.md',
+            text: `[Round evidence](https://github.com/${repo}/pull/580#issuecomment-7159551935)`,
+          },
+        ],
+        brandTokens(identity, configured),
+        new Set()
+      )
+    ).toEqual([
+      {
+        path: 'libs/hearts-client-ts/docs/MARKET_RESEARCH.md',
+        line: 1,
+        token: 'configured-repository',
+      },
+    ]);
+  });
   test('a spelling in any case, in content or a path, is reported with its line', () => {
     expect(
       brandViolations(

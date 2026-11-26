@@ -5,7 +5,7 @@
  * definitions here.
  */
 
-import { openPuzzleByTheme } from '@libs/chess-puzzle-harness-ts/chess-actions';
+import { openNamedChessPuzzle } from '@libs/chess-puzzle-harness-ts/chess-actions';
 import { ingestChessPuzzleCsv } from '@libs/chess-puzzle-harness-ts/chess-puzzle-data';
 import { readPuzzleBoardProbe } from '@libs/chess-puzzle-harness-ts/chess-puzzle-solve-ui';
 import type { NamedPuzzle } from '@libs/chess-puzzle-harness-ts/puzzle-fixtures';
@@ -199,7 +199,7 @@ export async function waitSolverToMove(
   });
 }
 
-/** Serve exactly `puzzle`: seed it when needed and narrow the feed to it. */
+/** Seed the named puzzle when needed and open its position. */
 export async function enterNamedPuzzle(
   w: HarnessWorld,
   actor: Actor,
@@ -207,7 +207,7 @@ export async function enterNamedPuzzle(
 ): Promise<void> {
   if (puzzle.csv !== null) await w.s.apply(ingestChessPuzzleCsv, puzzle.csv);
   await enterPuzzles(w, actor);
-  await w.s.apply(openPuzzleByTheme, actor, puzzle.theme, puzzle.id);
+  await w.s.apply(openNamedChessPuzzle, actor, puzzle.id);
   await trackPuzzle(w, actor);
 }
 

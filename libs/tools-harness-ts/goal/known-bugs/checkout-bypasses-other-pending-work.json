@@ -1,0 +1,4 @@
+{
+  "summary": "Opening checkout while another operation was pending suppressed the browser's warning for that operation. Only the control leaving for the payment provider has finished its work.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/pending-navigation.test.tsx"
+}

@@ -8,6 +8,16 @@ export type BrowserCall = {
   readonly method: string;
   readonly args: readonly unknown[];
 };
+/**
+ * Reading the loaded URL and closing run no page JavaScript: the browser
+ * answers them even while another call is still running in the page.
+ */
+export function runsNoPageCode(call: BrowserCall): boolean {
+  return (
+    (call.target === 'view' && call.method === 'loadedUrl') ||
+    (call.target === 'driver' && call.method === 'close')
+  );
+}
 export type BrowserRpc = <T>(call: BrowserCall) => Promise<T>;
 function node(rpc: BrowserRpc, path: readonly string[]): DriverNode {
   const call = <T>(method: string, ...args: unknown[]) =>

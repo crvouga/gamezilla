@@ -1,10 +1,7 @@
-import { CHESS_GAME_ID } from '@libs/chess-puzzle-shared-ts/chess-game';
-import type { ChessPuzzleTheme } from '@libs/chess-puzzle-shared-ts/chess-puzzle-themes';
 import {
-  closePuzzleFeedSettings,
-  openPuzzleFeedSettings,
-  setPuzzleFeedTheme,
-} from '@libs/game-session-harness-ts/puzzle-feed';
+  openPuzzleLink,
+  puzzleLinkTo,
+} from '@libs/game-session-harness-ts/puzzle-link';
 import {
   readPuzzleBoardPosition,
   readPuzzleOnBoard,
@@ -22,7 +19,6 @@ import {
 } from './chess-puzzle-solve-ui';
 import {
   suggestPuzzleMove as dragSuggestedMove,
-  expectPlayReady,
   pickWrongUci,
   playWrongMove,
   solvePuzzle,
@@ -95,34 +91,26 @@ async function nextSolutionUci(s: ProductHarness, actorId: string) {
   return uci;
 }
 
-/**
- * Put the named puzzle on the board. If it is already there, saving a
- * narrower feed would ask for its replacement and exclude that very puzzle.
- */
-export const openPuzzleByTheme = scenarioAction({
-  name: 'openPuzzleByTheme',
-  act: async (
-    s,
-    actorId: string,
-    theme: ChessPuzzleTheme,
-    puzzleId: string
-  ) => {
-    if ((await readPuzzleOnBoard(s, actorId)) === puzzleId) {
-      await waitSolverCanMove(s, actorId);
-      return;
+/** Open the requested position by its shared link, preserving an active attempt on it. */
+export const openNamedChessPuzzle = scenarioAction({
+  name: 'openNamedChessPuzzle',
+  act: async (s, actorId: string, puzzleId: string) => {
+    if ((await readPuzzleOnBoard(s, actorId)) !== puzzleId) {
+      await Promise.resolve(
+        openPuzzleLink.act(s, actorId, puzzleLinkTo(puzzleId))
+      );
+      await pollUntil(
+        s,
+        async () =>
+          (await readPuzzleOnBoard(s, actorId)) === puzzleId ? true : null,
+        {
+          actor: actorId,
+          maxMs: SETTLE_MS,
+          stepMs: POLL_MS,
+          description: `puzzle ${puzzleId}`,
+        }
+      );
     }
-    await Promise.resolve(openPuzzleFeedSettings.act(s, actorId));
-    await Promise.resolve(
-      setPuzzleFeedTheme.act(s, actorId, CHESS_GAME_ID, theme)
-    );
-    await Promise.resolve(closePuzzleFeedSettings.act(s, actorId));
-    await expectPlayReady(s, actorId);
-    await pollUntil(
-      s,
-      async () =>
-        (await readPuzzleOnBoard(s, actorId)) === puzzleId ? true : null,
-      { maxMs: SETTLE_MS, stepMs: POLL_MS, description: `puzzle ${puzzleId}` }
-    );
     await waitSolverCanMove(s, actorId);
   },
 });
@@ -190,7 +178,7 @@ export const CHESS_HARNESS_ACTIONS = [
   choosePuzzlePromotion,
   playWrongPuzzleMove,
   suggestPuzzleMove,
-  openPuzzleByTheme,
+  openNamedChessPuzzle,
   castlePuzzleKing,
   playNextSolutionMove,
   suggestNonSolutionMove,

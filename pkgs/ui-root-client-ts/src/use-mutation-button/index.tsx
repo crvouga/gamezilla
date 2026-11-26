@@ -45,8 +45,8 @@ export type MutationButtonLabels = {
 };
 
 export type UseMutationButtonParams = {
-  /** The mutation to run on click. */
-  operation: () => Promise<void>;
+  /** An operation handing off to another page can release its own navigation guard. */
+  operation: (allowDeparture: () => void) => Promise<void>;
   labels: MutationButtonLabels;
   /** Runs after the success face has been shown for `successHoldMs`. */
   onSuccess?: (() => void) | undefined;
@@ -136,7 +136,7 @@ export function useMutationButton(
   const holdMs = (): number =>
     params.successHoldMs ?? envHoldMs ?? DEFAULT_SUCCESS_HOLD_MS;
   const lifecycle = useMutationLifecycle({
-    operation: () => params.operation(),
+    operation: (allowDeparture) => params.operation(allowDeparture),
     onError: (error) => params.onError?.(error),
     onPhaseChange: (transition) => params.onPhaseChange?.(transition),
   });

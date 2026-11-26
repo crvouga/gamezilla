@@ -5,7 +5,7 @@ import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-no
 import { NotImplementedError } from '@pkgs/ui-testing-root-shared-ts/not-implemented-error';
 import { TimeoutError } from '@pkgs/ui-testing-root-shared-ts/timeout-error';
 import { UiTestError } from '@pkgs/ui-testing-root-shared-ts/ui-test-error';
-import type { BrowserCall } from './remote-browser-driver';
+import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 
 const BROWSER_REQUEST_MS = 90_000;
 
@@ -35,14 +35,54 @@ export function reviveBrowserError(
   error.name = name as string;
   return error;
 }
+/** What a call was asked to do, without its arguments (they may be typed secrets). */
+function describeCall(call: BrowserCall): string {
+  return `${call.target} ${call.path.join('/').slice(0, 240)} ${call.method.slice(0, 80)}`;
+}
+
 /** A failed call, said with what it was asked to do, as its own class. */
 function callFailure(call: BrowserCall | undefined, error: Error): Error {
   if (call === undefined) return error;
-  return reviveBrowserError(
-    error.name,
-    `${call.target} ${call.path.join('/').slice(0, 240)} ${call.method.slice(0, 80)}: ${error.message}`,
-    { cause: error }
+  const message = `${describeCall(call)}: ${error.message}`;
+  return reviveBrowserError(error.name, message, { cause: error });
+}
+
+/** A call the browser has not answered within its deadline. */
+function noAnswer(call: BrowserCall | undefined, stage: string): Error {
+  return callFailure(
+    call,
+    new Error(
+      `The isolated browser did not answer after ${BROWSER_REQUEST_MS}ms (stage: ${stage})`
+    )
   );
+}
+
+/**
+ * A call the parent stopped waiting for still runs in the browser, which
+ * does one page call at a time: every later one would wait out its own
+ * deadline behind it. Until its answer arrives they fail at once, naming it.
+ */
+function stuckCallGuard() {
+  let stuck: { readonly id: number; readonly call: string } | null = null;
+  return {
+    timedOut(id: number, stage: string, call: BrowserCall | undefined) {
+      if (stage === 'executing' && call !== undefined)
+        stuck = { id, call: describeCall(call) };
+    },
+    answered(id: number) {
+      if (stuck?.id === id) stuck = null;
+    },
+    refusal(call: BrowserCall | undefined): Error | null {
+      if (stuck === null || call === undefined || runsNoPageCode(call))
+        return null;
+      return callFailure(
+        call,
+        new Error(
+          `The isolated browser is still running ${stuck.call}, which did not answer after ${BROWSER_REQUEST_MS}ms`
+        )
+      );
+    },
+  };
 }
 
 export function browserProcessChannel<Open>(
@@ -58,6 +98,7 @@ export function browserProcessChannel<Open>(
     }
   >();
   let sequence = 0;
+  const guard = stuckCallGuard();
   const consoleLines: string[] = [];
   const networkLines: string[] = [];
   const fail = (error: Error): void => {
@@ -83,6 +124,7 @@ export function browserProcessChannel<Open>(
       reply?.progress(response.stage);
       return;
     }
+    guard.answered(response.id);
     pending.delete(response.id);
     if (response.error !== undefined)
       reply?.reject(reviveBrowserError(response.errorName, response.error));
@@ -94,18 +136,17 @@ export function browserProcessChannel<Open>(
     call?: BrowserCall;
   }): Promise<T> =>
     new Promise((resolve, reject) => {
+      const refusal = guard.refusal(payload.call);
+      if (refusal !== null) {
+        reject(refusal);
+        return;
+      }
       const id = ++sequence;
       let stage = 'sent';
       const timer = timers.setTimeout(() => {
         pending.delete(id);
-        reject(
-          callFailure(
-            payload.call,
-            new Error(
-              `The isolated browser did not answer after ${BROWSER_REQUEST_MS}ms (stage: ${stage})`
-            )
-          )
-        );
+        guard.timedOut(id, stage, payload.call);
+        reject(noAnswer(payload.call, stage));
       }, BROWSER_REQUEST_MS);
       pending.set(id, {
         progress: (value) => {

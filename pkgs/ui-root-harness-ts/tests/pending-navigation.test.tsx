@@ -6,6 +6,10 @@ import {
 } from '@pkgs/ui-root-client-ts/app-router';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
+  StaticExternalUrlProvider,
+  useOpenExternalUrl,
+} from '@pkgs/ui-root-client-ts/external-url';
+import {
   useConfirmNavigation,
   usePendingOperation,
 } from '@pkgs/ui-root-client-ts/pending-navigation';
@@ -14,7 +18,7 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import { createRouter, memoryHistory } from '@solidjs/router';
-import { fireEvent, screen } from '@solidjs/testing-library';
+import { fireEvent, screen, waitFor } from '@solidjs/testing-library';
 import { createSignal, onCleanup, Show } from 'solid-js';
 import { renderUi } from './render';
 
@@ -247,3 +251,69 @@ test('finishing during confirmation makes the requested departure safe', async (
   expect(reloadIsBlocked()).toBe(false);
   expect(app.dispose).toHaveBeenCalledTimes(1);
 });
+
+function Checkout(props: { provider: Promise<string> }) {
+  const openExternalUrl = useOpenExternalUrl();
+  const subscribe = useMutationButton({
+    operation: async (allowDeparture) => {
+      const url = await props.provider;
+      allowDeparture();
+      await openExternalUrl(url);
+    },
+    labels: {
+      idle: 'Subscribe',
+      loading: 'Opening',
+      success: 'Opened',
+      error: 'Try again',
+    },
+  });
+  return (
+    <Button {...subscribe.buttonProps} dataSet={{ testid: 'subscribe' }} />
+  );
+}
+
+// regression: billing-checkout-held-by-unload-guard
+// regression: checkout-bypasses-other-pending-work
+test.each([false, true])(
+  'leaving for checkout protects concurrent work (%s)',
+  async (background) => {
+    let provide: (url: string) => void = () => undefined;
+    const provider = new Promise<string>((resolve) => {
+      provide = resolve;
+    });
+    // The browser dispatches `beforeunload` inside the call that leaves.
+    const heldDepartures: boolean[] = [];
+    const Router = createRouter({
+      routes: [
+        { path: '/', component: () => <Checkout provider={provider} /> },
+      ],
+      history: memoryHistory(),
+    });
+    renderUi(() => (
+      <StaticExternalUrlProvider
+        open={() => {
+          heldDepartures.push(reloadIsBlocked());
+          return Promise.resolve();
+        }}
+      >
+        <Router>
+          {(props) => (
+            <AppRouterProvider>
+              <SurfaceStackProvider>
+                <Show when={background}>
+                  <BackgroundWork cancel={() => undefined} />
+                </Show>
+                {props.children}
+              </SurfaceStackProvider>
+            </AppRouterProvider>
+          )}
+        </Router>
+      </StaticExternalUrlProvider>
+    ));
+    fireEvent.click(screen.getByTestId('subscribe'));
+    await screen.findByRole('button', { name: 'Opening' });
+    expect(reloadIsBlocked()).toBe(true);
+    provide('https://provider.example/c/pay/cs_test_person');
+    await waitFor(() => expect(heldDepartures).toEqual([background]));
+  }
+);

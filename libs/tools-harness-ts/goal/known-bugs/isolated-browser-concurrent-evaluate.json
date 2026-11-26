@@ -1,0 +1,4 @@
+{
+  "summary": "The isolated browser process ran overlapping driver calls at once, although Bun.WebView allows only one evaluate() in flight per view, so the later call failed with \"an evaluate() is already pending\".",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/browser-process-server.test.ts"
+}

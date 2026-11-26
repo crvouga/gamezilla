@@ -7,12 +7,12 @@ function puzzle(
   fen: string,
   moves: string,
   theme: NamedPuzzle['theme']
-): NamedPuzzle {
+) {
   return {
     id,
     theme,
     csv: `${HEADER}\n${id},${fen},${moves},1200,80,100,100,${theme},,`,
-  };
+  } satisfies NamedPuzzle;
 }
 
 export const ASSISTANT_PUZZLES = {

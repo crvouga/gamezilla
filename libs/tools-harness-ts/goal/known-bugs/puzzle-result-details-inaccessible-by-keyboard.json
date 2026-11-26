@@ -1,0 +1,4 @@
+{
+  "summary": "On a phone the detail line of an unrated puzzle result overflowed horizontally and a keyboard user could not focus it to read the rest.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

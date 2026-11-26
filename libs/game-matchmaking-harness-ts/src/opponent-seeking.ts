@@ -170,6 +170,23 @@ export function findingAnOpponentStep(
   );
 }
 
+/**
+ * Tap a way in that was on screen, unless it goes before the tap lands: a
+ * second device's join prompt gives way to the space once its membership
+ * arrives, and the caller looks again at what shows instead.
+ */
+export async function tapWayIn(node: {
+  tap(): Promise<void>;
+  isVisible(): Promise<boolean>;
+}): Promise<void> {
+  try {
+    await node.tap();
+  } catch (error) {
+    // regression: second-device-join-gone-before-tap
+    if (await node.isVisible()) throw error;
+  }
+}
+
 async function reachFindingAnOpponent(
   s: ProductHarness,
   actor: string,
@@ -217,7 +234,7 @@ async function reachFindingAnOpponent(
         await chooseGameMode(ui, gameId);
         return null;
       }
-      await ui.get(step).tap();
+      await tapWayIn(ui.get(step));
       return null;
     },
     {

@@ -28,20 +28,16 @@ Reviewed 2026-11-25 for the board shared by matches and puzzles.
 
 | Player task | Decision | Evidence |
 | --- | --- | --- |
-| Reconstruct the last move without opening the move list | Keep both square centers clear, as in the KNights screenshot. An open corner marks departure and a solid corner marks arrival. The arrival mark can share a square with selection brackets. | The Round 2 move journey ends with the pawn on e4. Compare its two corner marks with the earlier fitted board. [Round 2 screenshots and recordings][round-two] |
-| Choose a piece and find a legal destination on a phone | Give each piece a distinct silhouette. Bracket the selected square, put a dot on an empty destination and a ring around a capture target. | Hosted phone and desktop captures show selection and completed moves. The phone recording exercises touch, mouse drag and keyboard activation. [Board-only screenshots and recordings][round-one-media] |
-| Find the checked king and choose a promotion piece | Stripe the checked square along its edge. Pair each promotion silhouette with its name inside the board. | Hosted checks exercised check, promotion cancellation and underpromotion. [Round 1 verification][round-one] |
-| Inspect a live position and return to play | A second finger cancels the pending move. Pinching magnifies around the midpoint. A tap while magnified reads the square and its occupant. Fit board restores move input. | The mounted-board test exercises a held empty square, bounded pan, a transformed rook hit and a subsequent legal move. Hosted phone and desktop journeys cover cancellation and motion preferences. [Mounted-board test](../tests/board-inspection.test.tsx) · [Round 2 screenshots and recordings][round-two] |
+| Reconstruct the last move without opening the move list | Keep both square centers clear, as in the KNights screenshot. An open corner marks departure and a solid corner marks arrival. The arrival mark can share a square with selection brackets. | The Round 2 move journey ends with the pawn on e4. Compare its two corner marks with the earlier fitted board. Round 2 screenshots and recordings (PR #581, comment 7160207067) |
+| Choose a piece and find a legal destination on a phone | Give each piece a distinct silhouette. Bracket the selected square, put a dot on an empty destination and a ring around a capture target. | Hosted phone and desktop captures show selection and completed moves. The phone recording exercises touch, mouse drag and keyboard activation. Board-only screenshots and recordings (PR #581, comment 7158863682) |
+| Find the checked king and choose a promotion piece | Stripe the checked square along its edge. Pair each promotion silhouette with its name inside the board. | Hosted checks exercised check, promotion cancellation and underpromotion. Round 1 verification (run 45588696455) |
+| Inspect a live position and return to play | A second finger cancels the pending move. Pinching magnifies around the midpoint. A tap while magnified reads the square and its occupant. Fit board restores move input. | The mounted-board test exercises a held empty square, bounded pan, a transformed rook hit and a subsequent legal move. Hosted phone and desktop journeys cover cancellation and motion preferences. [Mounted-board test](../tests/board-inspection.test.tsx) · Round 2 screenshots and recordings (PR #581, comment 7160207067) |
 
 ## Outstanding questions
 
 - Can players identify the direction of the last move at phone width when the arriving piece is also selected? The captures establish what is drawn. Recognition time still needs player evidence.
 - Can players discover how to inspect and return to fit during a timed turn? The desktop competitor screenshots provide no evidence about touch gestures.
 - How do the legal capture ring and the striped check marker read when the target is on a dark square? Collect matched phone captures when these cues change.
-
-[round-one-media]: https://github.com/crvouga/gamezilla/pull/581#issuecomment-7158863682
-[round-one]: https://github.com/crvouga/gamezilla/actions/runs/45588696455
-[round-two]: https://github.com/crvouga/gamezilla/pull/581#issuecomment-7160207067
 
 [knights-gallery]: https://apps.kde.org/knights/
 [knights-image]: https://cdn.kde.org/screenshots/knights/knights_main.png

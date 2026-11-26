@@ -58,13 +58,13 @@ These are readings of the pictured states. A single frame gives no measurement o
 | Follow a rider through a crowded area | Retain four trail patterns and upright rider letters. A solo player starts following their own cycle. Spectators and two people sharing the board start in the full arena and can select a rider by name. Free inspection remains available to spectators. | The board test covers two fingers becoming one, panning, taking a rider, following that cycle, and requiring a fresh swipe to steer. Hosted phone and desktop scenarios compare the world coordinate under the gesture anchor. |
 | Locate an eliminated rider | The live chassis becomes a broken disc with its letter. A crossed badge marks the crash while the trail remains visible. | The Round 1 Duel, Trio and Quad captures show the board at its original cell scale. The Round 2 sustained scenarios exercise the same production drawing under normal and throttled CPU. |
 
-[Round 1 board captures](https://github.com/crvouga/gamezilla/pull/578#issuecomment-7158913287) · [Round 2 decisions and hosted verification history](https://github.com/crvouga/gamezilla/pull/578)
+Round 1 board captures (PR #578, comment 7158913287) · Round 2 decisions and hosted verification history (PR #578)
 
 ### Following a rider · November 25, 2026
 
 Simple Light Cycles’ overhead view preserves the width of a corridor. Retrocycles keeps vehicles and nearby walls prominent but changes their apparent size with distance. Our follow view keeps the overhead orientation and magnifies by 1.65×, showing roughly 26 by 19 cells of the 40 by 28 arena including exterior margin. A two-cell band around the centre allows a quick change of direction without immediately shifting the camera. At the perimeter the view stops panning. The picker names the rider, marks a local rider as yours and a crashed rider as out. Switching or starting a new round cuts straight to the target. A crash holds the last position until that rider restarts. Reduced motion removes camera interpolation.
 
-The production-board journeys exercise phone swipes and desktop keys during follow, spectator selection, rapid turns, switching targets, a crash, respawn and return to the full arena. The full-arena option preserves an overview for players who need to see a distant opponent. [Round evidence and design steering](https://github.com/crvouga/gamezilla/pull/578)
+The production-board journeys exercise phone swipes and desktop keys during follow, spectator selection, rapid turns, switching targets, a crash, respawn and return to the full arena. The full-arena option preserves an overview for players who need to see a distant opponent. Round evidence and design steering (PR #578)
 
 ### Open questions
 
