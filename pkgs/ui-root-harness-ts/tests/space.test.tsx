@@ -157,7 +157,7 @@ describe('spacePersonActions', () => {
           phase: 'inGame',
         })
       )
-    ).toEqual(['seeDetails', 'removeFromSpace']);
+    ).toEqual(['removeFromSpace']);
     expect(
       ids(
         spacePersonActionsBare({
@@ -166,7 +166,7 @@ describe('spacePersonActions', () => {
           phase: 'choosing',
         })
       )
-    ).toEqual(['seeMyDetails']);
+    ).toEqual([]);
   });
 
   test('a remote player gets no space or host actions', () => {

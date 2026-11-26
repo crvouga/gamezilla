@@ -43,7 +43,9 @@ export type SpacePersonCapability =
   | 'makeHost'
   | 'mute'
   | 'muteMic'
-  | 'sendMessage';
+  | 'sendMessage'
+  | 'seeDetails'
+  | 'seeMyDetails';
 
 /** Every capability, for a caller (a story) that can do them all. */
 export const SPACE_PERSON_CAPABILITIES: readonly SpacePersonCapability[] = [
@@ -51,6 +53,8 @@ export const SPACE_PERSON_CAPABILITIES: readonly SpacePersonCapability[] = [
   'mute',
   'muteMic',
   'sendMessage',
+  'seeDetails',
+  'seeMyDetails',
 ];
 
 /** One row of a person's sheet. */
