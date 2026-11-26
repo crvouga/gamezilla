@@ -6,6 +6,7 @@ export const DEVELOPMENT_PLAN: ServiceContext['plan'] = {
     instanceId: 'dev',
     apiNodes: 2,
     syntheticPopulationWorkers: 1,
+    skipLocalSeed: false,
     withS3: true,
     withMqtt: true,
     observabilityBackend: 'native',

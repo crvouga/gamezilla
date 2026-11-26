@@ -12,6 +12,8 @@ export type StackOptions = {
   /** How many API instances sit behind the balancer. */
   readonly apiNodes: number;
   readonly syntheticPopulationWorkers: number;
+  /** Leave the migrated database to the spec suite’s own content fixtures. */
+  readonly skipLocalSeed: boolean;
   readonly withS3: boolean;
   readonly withMqtt: boolean;
   /** Native OTLP file collector by default; LGTM is the opt-in Docker UI. */
@@ -155,6 +157,7 @@ export function parseStackOptions(argv: readonly string[]): StackOptions {
     instanceId: value(argv, 'instance') ?? defaultInstanceId(),
     apiNodes: Number.isFinite(nodes) && nodes > 0 ? Math.floor(nodes) : 2,
     syntheticPopulationWorkers,
+    skipLocalSeed: flag(argv, 'no-local-seed'),
     withS3: !flag(argv, 'no-s3'),
     withMqtt: !flag(argv, 'no-mqtt'),
     observabilityBackend: parseObservabilityBackend(argv),

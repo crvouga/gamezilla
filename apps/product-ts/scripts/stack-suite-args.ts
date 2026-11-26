@@ -4,7 +4,11 @@ export function stackSuiteArgs(argv: readonly string[]) {
   const stack = separator < 0 ? argv : argv.slice(0, separator);
   const isSpec = (value: string) =>
     /(?:\.test\.[cm]?[jt]sx?|\.feature)$/.test(value);
-  const controls = stack.filter((value) => !isSpec(value));
+  // The suite supplies puzzle fixtures before opening its first board.
+  const controls = [
+    ...stack.filter((value) => !isSpec(value)),
+    '--no-local-seed',
+  ];
   const populationSpecified = controls.some(
     (value) =>
       value === '--synthetic-population-workers' ||

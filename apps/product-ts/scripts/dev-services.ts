@@ -95,6 +95,7 @@ const DEV_SERVICES: { readonly [K in ServiceName]: Service<K> } = {
     const postgres = await startPostgres({
       port: plan.ports.postgres,
       dataDir: plan.dataDir,
+      skipLocalSeed: plan.options.skipLocalSeed,
     });
     try {
       // Before the service is announced: no worker may claim a lease first.

@@ -1,0 +1,4 @@
+{
+  "summary": "The chess repeat scenario on browser partition 65 found 2,002 live puzzles instead of 01Xbe, Laddr and TwoRk. Stack startup imported the development CSV before the game fixture seeded its three puzzles.",
+  "regressionTest": "apps/product-ts/scripts/local-stack-config.test.ts"
+}
