@@ -65,6 +65,19 @@ export function shardMatrix(
   );
 }
 
+/** A cold product build writes generated inputs into the planning checkout. */
+export function canSharePlanningRunner(
+  plan: VerifyPlan,
+  schedule: VerifySchedule
+): boolean {
+  return (
+    schedule.shards.length <= 1 &&
+    !plan.tasks.some(
+      (task) => task.taskId === '@apps/product-ts#build' && !task.hit
+    )
+  );
+}
+
 export function verifySchedule(plan: VerifyPlan): VerifySchedule {
   return {
     shards: plan.shards
@@ -133,7 +146,7 @@ export function writeSchedule(
     );
     if (
       process.env['VERIFY_DEPLOYMENT'] === 'true' &&
-      schedule.shards.length <= 1
+      canSharePlanningRunner(plan, schedule)
     )
       appendFileSync(output, 'single_runner=+\n');
     appendFileSync(

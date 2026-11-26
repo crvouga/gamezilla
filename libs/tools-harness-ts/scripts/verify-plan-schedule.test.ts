@@ -7,6 +7,7 @@ import { archiveEntries } from './verify-evidence-archive';
 import { evidencePaths } from './verify-evidence-selection';
 import {
   cachedShardResult,
+  canSharePlanningRunner,
   shardMatrix,
   startedFirst,
   verifySchedule,
@@ -53,6 +54,23 @@ test('the schedule names only the shards with uncached work', () => {
     ...Array.from({ length: 30 }, (_, i) => i + 2),
     33,
   ]);
+});
+
+// regression: release-product-build-invalidates-sibling-plan
+test('a cold product build and the admin bundle check use isolated runners', () => {
+  for (const hit of [false, true]) {
+    const plan = balanceShards(
+      [
+        task('@apps/product-ts#build', hit),
+        task('@apps/product-ts#verify:rendered-worker', false, [
+          '@apps/product-ts#build',
+        ]),
+        task('@apps/admin-api-ts#verify:worker-bundle', false),
+      ],
+      1
+    );
+    expect(canSharePlanningRunner(plan, verifySchedule(plan))).toBe(hit);
+  }
 });
 
 // regression: release-single-shard-runner-handoffs

@@ -1,0 +1,4 @@
+{
+  "summary": "Running a cold product build in the planning checkout before verifying the admin worker bundle invalidated the planned hash.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-plan-schedule.test.ts"
+}
