@@ -193,3 +193,15 @@
     --game-board-workspace-inset: var(--ui-space-1);
   }
 }
+
+/* Six complete tile rows, the view tools and rack fit a 320 × 740 phone
+   with the compact heading and command heights used on short screens. */
+@media (max-width: 359px) and (max-height: 760px) {
+  [data-game-column]:has(> .fixed [data-word-tile-workspace])
+    > [data-game-heading] {
+    height: 28px;
+  }
+  .fixed:has([data-word-tile-workspace]) .commands {
+    height: calc(52px + env(safe-area-inset-bottom, 0px));
+  }
+}
