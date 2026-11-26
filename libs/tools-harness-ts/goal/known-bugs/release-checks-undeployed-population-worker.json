@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45838537157 spent 22 seconds on synthetic-population infrastructure although routine releases do not deploy that worker. Nightly owns its verification.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-stage.test.ts"
+}

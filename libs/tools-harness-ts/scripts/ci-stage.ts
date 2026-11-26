@@ -56,8 +56,10 @@ export function isBlockingCiTask(
 export function deploymentTasks(catalog: readonly string[]): readonly string[] {
   const tasks = catalog.filter(
     (task) =>
-      (task.startsWith('@apps/') && task.includes('#verify:')) ||
+      task.startsWith('@apps/product-ts#verify:') ||
       [
+        '@apps/admin-api-ts#verify:worker-bundle',
+        '@apps/auth-relay-ts#verify:worker-bundle',
         '@libs/infra-server-ts#verify:repository-policy',
         '@libs/runtime-server-ts#verify:schema-evolution',
         '@libs/tools-harness-ts#ci:audit',

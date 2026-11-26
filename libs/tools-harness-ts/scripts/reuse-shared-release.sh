@@ -32,6 +32,8 @@ while read -r id sha status attempt created; do
     ':(exclude,glob)docs/**/*.md' ':(exclude,glob)specs/**/*.feature' \
     ':(exclude,glob)libs/*-client-ts/src/**' ':(exclude,glob)apps/product-client-ts/src/**' \
     ':(exclude).github/workflows/verify-pr.yml' \
+    ':(exclude)libs/tools-harness-ts/scripts/ci-stage.ts' \
+    ':(exclude)libs/tools-harness-ts/scripts/reuse-shared-release.sh' \
     ':(exclude,glob)libs/tools-harness-ts/scripts/verify-plan-*.ts' \
     ':(exclude,glob)libs/tools-harness-ts/scripts/verify-shard-*.ts' \
     ':(exclude)libs/tools-harness-ts/scripts/verify-single-runner.ts' \
