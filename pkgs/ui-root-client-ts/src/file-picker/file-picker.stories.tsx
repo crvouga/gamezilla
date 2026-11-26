@@ -41,10 +41,26 @@ export const Selected: StoryObj<typeof meta> = {
       lastModified: 0,
     });
     await step('Select an image and expose its callback payload', async () => {
-      await userEvent.upload(
-        within(canvasElement).getByLabelText('Choose an image'),
-        file
+      const trigger = within(canvasElement).getByRole('button', {
+        name: 'Choose an image',
+      });
+      const input = canvasElement.querySelector('input[type="file"]');
+      if (!(input instanceof HTMLInputElement))
+        throw new Error('Missing native file input');
+
+      // Supply the system chooser's response when the trigger opens it.
+      input.addEventListener(
+        'click',
+        (event) => {
+          event.preventDefault();
+          const selection = new DataTransfer();
+          selection.items.add(file);
+          input.files = selection.files;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        },
+        { once: true }
       );
+      await userEvent.click(trigger);
       await expect(args.onSelect).toHaveBeenCalledTimes(1);
       await expect(args.onSelect).toHaveBeenCalledWith(file);
     });
