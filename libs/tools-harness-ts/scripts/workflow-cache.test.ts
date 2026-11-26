@@ -44,6 +44,7 @@ test('randomized suites own the runner one worker pool at a time', () => {
   expect(random?.env?.['PBT_CONCURRENCY']).toBe('1');
 });
 
+// regression: nightly-gate-serial-task-execution
 // regression: nightly-matrices-block-production-startup
 test('a full Nightly leaves at least six account runners for Release and pull requests', () => {
   const { jobs } = Bun.YAML.parse(
@@ -61,6 +62,7 @@ test('a full Nightly leaves at least six account runners for Release and pull re
     NIGHTLY_SUITES.browser.shards +
     2; // coverage and performance
   expect(maximum).toBeLessThanOrEqual(14);
+  expect(jobs['verify-nightly-gate'].with).toMatchObject({ concurrency: 3 });
 });
 
 // regression: verify-cache-write-only-override
