@@ -1,15 +1,13 @@
-import { chessLesson } from '@libs/chess-root-client-ts/chess-lesson';
-import { connectFourLesson } from '@libs/connect-four-client-ts/connect-four-lesson';
-import {
-  GameHomeScreenView,
-  type GameMenuChoiceView,
-} from '@libs/game-menu-client-ts/game-home-screen-view';
-import { heartsLesson } from '@libs/hearts-client-ts/hearts-lesson';
-import { numberlinkLesson } from '@libs/numberlink-client-ts/numberlink-lesson';
-import { quoridorLesson } from '@libs/quoridor-client-ts/quoridor-lesson';
 import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import {
+  GameHomeScreenView,
+  type GameHomeScreenViewProps,
+  type GameMenuChoiceView,
+} from './game-home-screen-view';
+
+import { storyGame } from './game-menu-catalog.example';
 
 /** The shared choices of a two-player game named `name`. */
 function sharedChoices(name: string): readonly GameMenuChoiceView[] {
@@ -56,19 +54,26 @@ const meta = {
   tags: ['autodocs'],
   parameters: {
     appRouter: true,
+    catalogLesson: true,
     controls: { exclude: ['choices', 'subtitle', 'lesson'] },
   },
+  render: (args, context) => (
+    <GameHomeScreenView
+      {...args}
+      lesson={storyGame(context.loaded, args.gameId).lesson}
+    />
+  ),
   args: {
+    gameId: 'connect-four',
     title: 'Connect Four',
     tile: 'discs',
     subtitle: 'Drop discs and line up four',
-    lesson: connectFourLesson,
     choices: CHOICES,
     onChoose: fn(),
     place: { screen: 'home' },
     onOpen: fn(),
   },
-} satisfies Meta<typeof GameHomeScreenView>;
+} satisfies Meta<GameHomeScreenViewProps & { gameId: string }>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
@@ -78,10 +83,10 @@ export const SharedChoices: Story = {};
 /** A game offering puzzles and settings: its puzzle choices first, settings last. */
 export const WithPuzzlesAndSettings: Story = {
   args: {
+    gameId: 'chess',
     title: 'Chess',
     tile: 'checkered',
     subtitle: 'The classic game of kings',
-    lesson: chessLesson,
     choices: PUZZLE_CHOICES,
   },
 };
@@ -89,8 +94,8 @@ export const WithPuzzlesAndSettings: Story = {
 /** A bigger game finds players rather than one opponent. */
 export const ManyPlayers: Story = {
   args: {
+    gameId: 'hearts',
     title: 'Hearts',
-    lesson: heartsLesson,
     tile: 'cards',
     subtitle: 'Avoid hearts and the queen of spades',
     choices: [
@@ -111,10 +116,11 @@ export const ManyPlayers: Story = {
 /** A puzzle-only game: the puzzle library and a lesson. */
 export const OwnChoicesOnly: Story = {
   args: {
+    gameId: 'numberlink',
     title: 'Numberlink',
     tile: 'paths',
     subtitle: 'Connect every pair of numbers',
-    lesson: numberlinkLesson,
+
     choices: [
       {
         screen: 'puzzle-library',
@@ -153,11 +159,12 @@ export const OpenChoice: Story = {
 /** How to play is a row like any other: it opens the place behind the menu. */
 export const OpenHowToPlay: Story = {
   parameters: { test: { restoreMocks: false } },
-  render: (args) => {
+  render: (args, context) => {
     const [, updateArgs] = useArgs();
     return (
       <GameHomeScreenView
         {...args}
+        lesson={storyGame(context.loaded, args.gameId).lesson}
         onOpen={(place) => {
           args.onOpen(place);
           updateArgs({ place });
@@ -186,7 +193,7 @@ export const ClassicQuoridor: Story = {
     title: 'Classic Quoridor',
     tile: 'walls',
     subtitle: 'Race your pawn across the board. Shape the path with walls.',
-    lesson: quoridorLesson(false),
+    gameId: 'quoridor',
     choices: [
       {
         screen: 'multiplayer',

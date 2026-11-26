@@ -1,51 +1,68 @@
-import { withChessBoardContext } from '@libs/chess-root-client-ts/chess-board-story.example';
-import { GameHomeScreenView } from '@libs/game-menu-client-ts/game-home-screen-view';
-import type { GameMenuPlace } from '@libs/game-menu-client-ts/game-menu-places';
 import { createSignal, Show } from 'solid-js';
 import { expect, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
-import { GAME_CLIENT_DEFINITIONS } from './game-plugins.client';
+import {
+  GameHomeScreenView,
+  type GameHomeScreenViewProps,
+} from './game-home-screen-view';
+import { storyGame } from './game-menu-catalog.example';
+import type { GameMenuPlace } from './game-menu-places';
 
-function Walkthrough(props: { gameId: string }) {
-  const [place, setPlace] = createSignal<GameMenuPlace>({
-    screen: 'how-to-play',
-  });
-  return (
-    <Show
-      when={GAME_CLIENT_DEFINITIONS.find((game) => game.id === props.gameId)}
-      keyed
-    >
-      {(game) => (
-        <GameHomeScreenView
-          title={game.title}
-          tile={game.motif}
-          subtitle={game.caption}
-          lesson={game.lesson}
-          choices={[]}
-          place={place()}
-          onOpen={setPlace}
-          onChoose={() => undefined}
-        />
-      )}
-    </Show>
-  );
-}
+type CatalogArgs = GameHomeScreenViewProps & { gameId: string };
+
 const meta = {
   id: 'screens-game-home-how-to-play',
   title: 'Screens/Space/Game home/How to play',
-  component: Walkthrough,
-  decorators: [withChessBoardContext],
-  parameters: { appRouter: true },
+  component: GameHomeScreenView,
+  tags: ['autodocs'],
+  parameters: { appRouter: true, catalogLesson: true },
   argTypes: {
     gameId: {
       control: 'select',
-      options: GAME_CLIENT_DEFINITIONS.map((game) => game.id),
+      options: [
+        'chess',
+        'connect-four',
+        'battleship',
+        'numberlink',
+        'sokoban',
+        'quoridor',
+        'quoridor-hill',
+        'word-tiles',
+        'word-tiles-3',
+        'word-tiles-4',
+        'hearts',
+        'pong',
+        'light-cycles',
+        'light-cycles-3',
+        'light-cycles-4',
+      ],
     },
   },
   args: { gameId: 'quoridor' },
-} satisfies Meta<typeof Walkthrough>;
+  render: (args, context) => {
+    const [place, setPlace] = createSignal<GameMenuPlace>({
+      screen: 'how-to-play',
+    });
+    return (
+      <Show when={storyGame(context.loaded, args.gameId)} keyed>
+        {(game) => (
+          <GameHomeScreenView
+            title={game.title}
+            tile={game.motif}
+            subtitle={game.caption}
+            lesson={game.lesson}
+            choices={[]}
+            place={place()}
+            onOpen={setPlace}
+            onChoose={() => undefined}
+          />
+        )}
+      </Show>
+    );
+  },
+} satisfies Meta<CatalogArgs>;
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<{ gameId?: string }>;
 
 export const FirstMove: Story = {};
 export const PlaceAWall: Story = {
