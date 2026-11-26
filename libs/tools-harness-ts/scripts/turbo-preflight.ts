@@ -7,7 +7,7 @@
  * cache only (~4s): with `remote:` in `--cache` turbo also asks the remote
  * about every task one request at a time, ~70s for the whole gate even when
  * every task is a local hit. The remote is then asked only about the local
- * misses, in parallel (`HEAD /v8/artifacts/<hash>`, `resolveRemoteHits`).
+ * misses, in batches (`POST /v8/artifacts`, `resolveRemoteHits`).
  * Two things follow:
  *
  * - **Nothing to execute → nothing to run.** When every task is a HIT the gate
@@ -165,44 +165,33 @@ export function readsRemoteCache(cache: string): boolean {
     );
 }
 
-/**
- * Ask the remote about each of the local plan's misses, in parallel; a hash
- * the remote has is a REMOTE hit, as turbo's own remote lookup would report.
- * A lookup that fails counts as a miss: the task just runs.
- */
+/** Only a cacheable local miss with a confirmed remote artifact becomes a hit. */
 export async function resolveRemoteHits(
   plan: RunPlan,
-  remoteHas: (hash: string) => Promise<boolean>,
-  concurrency: number
+  query: (hashes: readonly string[]) => Promise<ReadonlySet<string>>
 ): Promise<RunPlan> {
-  const misses = plan.toExecute;
-  const found = new Set<string>();
-  let next = 0;
-  async function worker(): Promise<void> {
-    while (next < misses.length) {
-      const task = misses[next] as PlannedTask;
-      next += 1;
-      if (task.cacheable === false) continue;
-      const has = await remoteHas(task.hash).catch(() => false);
-      if (has) found.add(task.taskId);
-    }
-  }
-  const workers = Math.max(1, Math.min(concurrency, misses.length));
-  await Promise.all(Array.from({ length: workers }, worker));
-  if (found.size === 0) return plan;
+  const hashes = new Set(
+    plan.toExecute
+      .filter((task) => task.cacheable !== false)
+      .map((task) => task.hash)
+  );
+  if (!hashes.size) return plan;
+  const found = await query([...hashes]).catch(() => new Set<string>());
+  if (!found.size) return plan;
   return planFromTasks(
     plan.tasks.map((task) =>
-      found.has(task.taskId)
+      !task.hit && task.cacheable !== false && found.has(task.hash)
         ? { ...task, hit: true, source: 'REMOTE' as const }
         : task
     )
   );
 }
 
-/** Remote cache artifact URL, as turbo addresses it (`slug` unless `team_…`). */
-export function artifactUrl(api: string, team: string, hash: string): string {
+/** Remote cache URL, as turbo addresses it (`slug` unless `team_…`). */
+export function artifactUrl(api: string, team: string, hash?: string): string {
   const param = team.startsWith('team_') ? 'teamId' : 'slug';
-  return `${api.replace(/\/+$/, '')}/v8/artifacts/${hash}?${param}=${encodeURIComponent(team)}`;
+  const suffix = hash ? `/${hash}` : '';
+  return `${api.replace(/\/+$/, '')}/v8/artifacts${suffix}?${param}=${encodeURIComponent(team)}`;
 }
 
 const REMOTE_LOOKUP_TIMEOUT_MS = 10_000;
@@ -233,31 +222,76 @@ export async function retryRateLimited(
   }
 }
 
-/** Wall `HEAD` against the Vercel Remote Cache: does it hold `hash`? */
-export function wallRemoteHas(
-  env: NodeJS.ProcessEnv,
-  observe?: (status: number, hash: string) => void
-): (hash: string) => Promise<boolean> {
-  const api = env['TURBO_API'] ?? '';
-  const team = env['TURBO_TEAM'] ?? '';
-  const token = env['TURBO_TOKEN'] ?? '';
-  return async (hash) => {
-    const res = await retryRateLimited(() =>
-      fetch(artifactUrl(api, team, hash), {
-        method: 'HEAD',
-        headers: { Authorization: `Bearer ${token}` },
-        signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
-      })
-    ).catch((error: unknown) => {
-      observe?.(0, hash);
-      throw error;
-    });
-    observe?.(res.status, hash);
-    return res.ok;
-  };
+function isArtifact(value: unknown): boolean {
+  return (
+    typeof value === 'object' &&
+    value !== null &&
+    !('error' in value) &&
+    'size' in value &&
+    typeof value.size === 'number' &&
+    value.size >= 0 &&
+    'taskDurationMs' in value &&
+    typeof value.taskDurationMs === 'number'
+  );
 }
 
-export const REMOTE_LOOKUP_CONCURRENCY = 32;
+/** Vercel artifactQuery returns metadata, null or a per-hash error. */
+export function wallArtifactQuery(
+  env: NodeJS.ProcessEnv,
+  observe?: (status: number, hash: string) => void
+): (hashes: readonly string[]) => Promise<ReadonlySet<string>> {
+  const url = artifactUrl(env['TURBO_API'] ?? '', env['TURBO_TEAM'] ?? '');
+  async function batch(hashes: readonly string[]): Promise<Set<string>> {
+    const res = await retryRateLimited(() =>
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${env['TURBO_TOKEN'] ?? ''}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ hashes }),
+        signal: AbortSignal.timeout(REMOTE_LOOKUP_TIMEOUT_MS),
+      })
+    ).catch(() => null);
+    if (res?.status === 400 && hashes.length > 1) {
+      const middle = Math.ceil(hashes.length / 2);
+      const left = await batch(hashes.slice(0, middle));
+      return left.union(await batch(hashes.slice(middle)));
+    }
+    const data: unknown = res?.ok ? await res.json().catch(() => null) : null;
+    const entries = new Map(
+      Object.entries(typeof data === 'object' && data !== null ? data : {})
+    );
+    const found = new Set<string>();
+    for (const hash of hashes) {
+      const entry: unknown = entries.get(hash);
+      const hit = isArtifact(entry);
+      if (hit) found.add(hash);
+      observe?.(
+        res?.ok ? (hit ? 200 : entry === null ? 404 : 0) : (res?.status ?? 0),
+        hash
+      );
+    }
+    return found;
+  }
+  return async (hashes) => {
+    const found = new Set<string>();
+    const batchSize = 32;
+    const waveSize = 4 * batchSize;
+    for (let start = 0; start < hashes.length; start += waveSize) {
+      const requests = [];
+      for (
+        let i = start;
+        i < Math.min(start + waveSize, hashes.length);
+        i += batchSize
+      )
+        requests.push(batch(hashes.slice(i, i + batchSize)));
+      for (const entries of await Promise.all(requests))
+        for (const hash of entries) found.add(hash);
+    }
+    return found;
+  };
+}
 
 export type PrefetchIo = {
   /** Artifact bytes, or `null` when the remote does not have it. */

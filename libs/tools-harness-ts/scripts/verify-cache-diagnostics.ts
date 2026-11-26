@@ -13,7 +13,7 @@ export function cacheDiagnostics(
         task.cacheable === false
           ? 'task explicitly disables caching'
           : status === 404
-            ? 'exact artifact absent (HTTP 404); compare prior plan hash/inputs, verification successful upload and retention'
+            ? 'exact artifact absent; compare prior plan hash/inputs, verification successful upload and retention'
             : status === 0
               ? 'remote lookup failed or timed out; verify cache service connectivity'
               : status !== undefined
