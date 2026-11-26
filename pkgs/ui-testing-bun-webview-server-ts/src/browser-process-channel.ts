@@ -85,6 +85,17 @@ function stuckCallGuard() {
   };
 }
 
+type BrowserResponse = {
+  id: number;
+  value?: unknown;
+  error?: string;
+  errorName?: string;
+  console?: string[];
+  network?: string[];
+  stage?: 'opening' | 'executing';
+  operation?: string;
+};
+
 export function browserProcessChannel<Open>(
   process: IsolatedWorker,
   timers: Timers
@@ -94,7 +105,7 @@ export function browserProcessChannel<Open>(
     {
       resolve: (value: unknown) => void;
       reject: (error: Error) => void;
-      progress: (stage: 'opening' | 'executing') => void;
+      progress: (stage: 'opening' | 'executing', operation?: string) => void;
     }
   >();
   let sequence = 0;
@@ -106,22 +117,14 @@ export function browserProcessChannel<Open>(
     pending.clear();
   };
   const unsubscribe = process.subscribe((raw) => {
-    const response = raw as {
-      id: number;
-      value?: unknown;
-      error?: string;
-      errorName?: string;
-      console?: string[];
-      network?: string[];
-      stage?: 'opening' | 'executing';
-    };
+    const response = raw as BrowserResponse;
     if (response.console !== undefined)
       consoleLines.splice(0, consoleLines.length, ...response.console);
     if (response.network !== undefined)
       networkLines.splice(0, networkLines.length, ...response.network);
     const reply = pending.get(response.id);
     if (response.stage === 'opening' || response.stage === 'executing') {
-      reply?.progress(response.stage);
+      reply?.progress(response.stage, response.operation);
       return;
     }
     guard.answered(response.id);
@@ -143,14 +146,18 @@ export function browserProcessChannel<Open>(
       }
       const id = ++sequence;
       let stage = 'sent';
+      let operation: string | undefined;
       const timer = timers.setTimeout(() => {
         pending.delete(id);
         guard.timedOut(id, stage, payload.call);
-        reject(noAnswer(payload.call, stage));
+        reject(
+          noAnswer(payload.call, operation ? `${stage}; ${operation}` : stage)
+        );
       }, BROWSER_REQUEST_MS);
       pending.set(id, {
-        progress: (value) => {
+        progress: (value, detail) => {
           stage = value;
+          operation = detail;
         },
         resolve: (value) => {
           timers.clearTimeout(timer);

@@ -63,6 +63,31 @@ test('progress neither completes a request nor extends its deadline', async () =
   await f.channel.close();
 });
 
+// regression: isolated-tap-timeout-loses-native-operation
+test('a stuck Google tap retains the last native operation at the original deadline', async () => {
+  const f = fixture();
+  const result = f.channel.request({
+    call: {
+      target: 'node',
+      path: ['auth-method-google'],
+      method: 'tap',
+      args: [],
+    },
+  });
+  const failed = result.catch((error: unknown) => error);
+  f.clock.advance(89_000);
+  f.receive({
+    id: 1,
+    stage: 'executing',
+    operation: 'opener.click #8 at native-click.ts:155',
+  });
+  f.clock.advance(1_000);
+  expect(((await failed) as Error).message).toContain(
+    'stage: executing; opener.click #8 at native-click.ts:155'
+  );
+  await f.channel.close();
+});
+
 test('a reply after progress completes normally and clears the deadline', async () => {
   const f = fixture();
   const result = f.channel.request({ open: {} });
