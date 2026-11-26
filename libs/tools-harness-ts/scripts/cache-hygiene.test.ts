@@ -366,6 +366,7 @@ test('cache-hygiene.json explains every exception it holds', () => {
   expect(reasons.filter((reason) => reason.length < 12)).toEqual([]);
 });
 
+// regression: sync-client-receive-cap-hub-size
 test('the workspace has no cache hygiene violation', () => {
   expect(
     cacheHygieneViolations().map((v) => `[${v.rule}] ${v.message}`)
