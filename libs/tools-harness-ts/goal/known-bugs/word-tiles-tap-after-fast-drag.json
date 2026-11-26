@@ -1,0 +1,4 @@
+{
+  "summary": "At 390 × 844, a quick drag of C from rack slot 11 to H8 finished, but the next tap on Board tools ended without a click and left the dialog closed.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-gestures/phone/integration.checks.ts"
+}

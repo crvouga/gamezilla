@@ -191,17 +191,29 @@ function wordContacts(
     cancel();
     contacts.clear();
   };
-  return { down, move, end, interrupt, consumed };
+  const touchMove = (e: TouchEvent) => {
+    // A claimed drag or pinch already moved the tile or board. Cancel its
+    // browser gesture so a quick tap on the next control can activate it.
+    if (moved && contacts.size > 0 && e.cancelable) e.preventDefault();
+  };
+  return { down, move, end, interrupt, consumed, touchMove };
 }
 
 export function bindWordPointers(
   host: HTMLElement,
   start: (event: PointerEvent) => Interaction | undefined
 ): () => void {
-  const { down, move, end, interrupt, consumed } = wordContacts(host, start);
+  const { down, move, end, interrupt, consumed, touchMove } = wordContacts(
+    host,
+    start
+  );
   const doc = host.ownerDocument;
   const abort = new AbortController();
   const options = { capture: true, signal: abort.signal };
+  host.addEventListener('touchmove', touchMove, {
+    passive: false,
+    signal: abort.signal,
+  });
   doc.addEventListener('pointerdown', down, options);
   doc.addEventListener('pointermove', move, options);
   doc.addEventListener('pointerup', end, options);
