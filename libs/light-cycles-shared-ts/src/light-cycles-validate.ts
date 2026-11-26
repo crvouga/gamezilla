@@ -1,11 +1,11 @@
 import {
   type LightCyclesConfig,
+  type LightCyclesRiderCount,
   lightCyclesSeatLayout,
 } from './light-cycles-config';
 import { isReversal } from './light-cycles-heading';
 import { lightCyclesLeader } from './light-cycles-round';
 import {
-  EMPTY_CELL,
   type LightCyclesRider,
   type LightCyclesState,
   lightCyclesRoundStart,
@@ -16,10 +16,16 @@ function count(value: number, minimum: number, maximum: number): boolean {
   return Number.isSafeInteger(value) && value >= minimum && value <= maximum;
 }
 
+// A trail contains empty cells and the zero-based marks of this layout's riders.
+const INVALID_TRAIL_CELL = {
+  2: /[^.01]/,
+  3: /[^.012]/,
+  4: /[^.0123]/,
+} satisfies Record<LightCyclesRiderCount, RegExp>;
+
 function validShape(state: LightCyclesState, config: LightCyclesConfig) {
-  const seats = state.seats;
-  if (lightCyclesSeatLayout(seats) === null) return false;
-  const marks = new Set([EMPTY_CELL, ...seats.map(trailMark)]);
+  const seats = lightCyclesSeatLayout(state.seats);
+  if (seats === null) return false;
   return (
     state.width === config.width &&
     state.height === config.height &&
@@ -32,7 +38,7 @@ function validShape(state: LightCyclesState, config: LightCyclesConfig) {
     state.scores.length === seats.length &&
     state.scores.every((score) => count(score, 0, config.targetScore)) &&
     state.trails.length === config.width * config.height &&
-    [...state.trails].every((cell) => marks.has(cell))
+    !INVALID_TRAIL_CELL[seats.length].test(state.trails)
   );
 }
 
