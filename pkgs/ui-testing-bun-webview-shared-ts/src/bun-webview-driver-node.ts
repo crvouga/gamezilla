@@ -382,6 +382,9 @@ function pressableTargetScript(selector: string): string {
       var style = getComputedStyle(el);
       if (style.display === 'none' || style.visibility === 'hidden') continue;
       el.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'instant' });
+      // The native selector click checks actionability. A unique control
+      // needs no animation frames to distinguish it from a covered copy.
+      if (all.length === 1) return ${JSON.stringify(selector)};
       var previous = null;
       for (var frame = 0; frame < 18; frame++) {
         await new Promise(requestAnimationFrame);
@@ -393,7 +396,6 @@ function pressableTargetScript(selector: string): string {
         var y = r.top + r.height / 2;
         var hit = document.elementFromPoint(x, y);
         if (hit !== null && (hit === el || el.contains(hit))) {
-          if (all.length === 1) return ${JSON.stringify(selector)};
           var id = window.__uiTestingPressTargetId = (window.__uiTestingPressTargetId || 0) + 1;
           el.setAttribute('data-ui-testing-press-target', String(id));
           return '[data-ui-testing-press-target="' + id + '"]';
