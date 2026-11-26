@@ -1,0 +1,4 @@
+{
+  "summary": "The puzzle stats fixture showed Minimize but never the active space body after host entry. Counting race and solo count timed out from the games, loading and transient join screens before either could open stats.",
+  "regressionTest": "libs/games-harness-ts/tests/conformance/puzzles/stats-navigation.test.ts"
+}
