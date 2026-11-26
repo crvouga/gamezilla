@@ -1,0 +1,4 @@
+{
+  "summary": "The departed-participant fixture treated Bob's local Leave confirmation as a shared departure. Alice could ask for a Battleship rematch while Bob still held membership and see him in the first seat. Establish the departure on the host's copy of the finished game's space before asking for the rematch.",
+  "regressionTest": "libs/games-harness-ts/tests/departed-rematch.test.ts"
+}

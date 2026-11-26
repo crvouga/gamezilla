@@ -14,6 +14,8 @@ import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 
 export type CustomGameProbe = CustomGames & {
   readonly myId: string;
+  /** Space membership, including people who are temporarily away. */
+  readonly members: readonly string[];
   readonly mySide: GameSide | null;
   /** A move made with no connection waits for it, showing no result. */
   readonly waiting: boolean;
