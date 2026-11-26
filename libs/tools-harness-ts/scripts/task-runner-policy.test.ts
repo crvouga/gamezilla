@@ -215,7 +215,7 @@ describe('this repository', () => {
 
   test('files generated at install are cached by what they are made from', () => {
     expect(scripts['generate']).toBe(
-      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:spec:inputs @libs/tools-harness-ts#generate:brand-artifacts @libs/observability-server-ts#generate:slo @libs/tools-harness-ts#generate:identity-agents'
+      'turbo run //#task:tokens:generate //#task:sounds:generate @pkgs/object-store-s3-server-ts#generate:browser @libs/infra-shared-ts#generate:infra-map //#task:i18n:compile //#task:spec:catalog //#task:research:index //#task:spec:inputs @libs/tools-harness-ts#generate:brand-artifacts @libs/observability-server-ts#generate:slo @libs/tools-harness-ts#generate:identity-agents'
     );
     for (const id of [
       '//#task:tokens:generate',
@@ -226,6 +226,7 @@ describe('this repository', () => {
       '@libs/observability-server-ts#generate:slo',
       '//#task:i18n:compile',
       '//#task:spec:catalog',
+      '//#task:research:index',
       '//#task:spec:inputs',
     ]) {
       expect(tasks[id]?.cache).toBeUndefined();

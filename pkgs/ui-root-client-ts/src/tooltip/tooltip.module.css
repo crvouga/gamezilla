@@ -34,6 +34,12 @@
   z-index: var(--ui-layer-tooltip);
 }
 
+.left {
+  right: calc(100% + var(--ui-space-sm));
+  top: 50%;
+  transform: translateY(-50%);
+}
+
 .bottom {
   top: calc(100% + var(--ui-space-sm));
 }

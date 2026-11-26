@@ -103,9 +103,10 @@ export async function warmQuoridorStory(
 export async function expectQuoridorStoryPasses(
   page: Page,
   story: string,
-  theme: string
+  theme: string,
+  motion: 'reduced' | 'system' = 'reduced'
 ): Promise<void> {
-  await testStoryReady(page, story, theme);
+  await testStoryReady(page, story, theme, motion);
 }
 
 /** Longest a story's scripted play may take before it counts as stuck. */
@@ -114,11 +115,12 @@ const STORY_READY_MS = 30_000;
 async function testStoryReady(
   page: Page,
   story: string,
-  theme: string
+  theme: string,
+  motion: 'reduced' | 'system' = 'reduced'
 ): Promise<number> {
   const started = Date.now();
   await page.goto(
-    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme}`
+    `/iframe.html?id=${story}&viewMode=story&globals=theme:${theme};motion:${motion}`
   );
   // How long the scripted play takes is recorded (playMilliseconds), never
   // asserted; under 4x CPU throttling on a 2-core runner the longer plays

@@ -21,6 +21,7 @@ import { removeManifest } from './manifest';
 import { databaseVerdict, profileOf } from './production-database';
 import {
   prepareReleasePublic,
+  printReleaseScenarioPasses,
   releaseArtifacts,
   removeReleaseArtifacts,
   writeReleaseStubs,
@@ -186,6 +187,10 @@ try {
         LOCALHOST_STACK_MANIFEST: stack.manifestPath,
       },
     })
+  );
+  printReleaseScenarioPasses(
+    artifacts.reportDir,
+    process.env['VITE_COMMIT_HASH']!
   );
   const databaseCode = databaseExitCode(stack);
   const brokerCode = brokerExitCode(stack);

@@ -40,8 +40,8 @@ export type {
   TrailSlot,
 } from '../trail-arena-types';
 
-/** Room around the walls, in cells, for heads, noses and rings at the edge. */
-const MARGIN = 1.5;
+/** Room outside the walls, in cells, for the focus ring drawn on them. */
+const WALL_ROOM = 0.3;
 
 /**
  * How much larger `heads="large"` draws each rider's head: a phone's cells
@@ -49,6 +49,32 @@ const MARGIN = 1.5;
  * letter; at 1.4 it is about 23px across, its letter read at a glance.
  */
 export const LARGE_HEAD_SCALE = 1.4;
+
+/**
+ * The ground's room around the grid, in cells: as far as a head on an edge
+ * cell reaches past it (its nose, 1.6 head radii from the cell's centre),
+ * so every rider, nose and all, is drawn inside the walls.
+ */
+function groundRoom(board: TrailArenaProps): number {
+  const scale = board.heads === 'large' ? LARGE_HEAD_SCALE : 1;
+  return Math.round((1.6 * scale - 0.4) * 100) / 100;
+}
+
+function wallRoom(board: TrailArenaProps) {
+  return Math.round((groundRoom(board) + WALL_ROOM) * 100) / 100;
+}
+
+/**
+ * The arena's shape for its stylesheet: `--arena-fit` is the whole
+ * drawing's width over its height (walls and the room around them), so a
+ * room shorter than the arena is wide narrows it until the whole drawing
+ * fits instead of running off the bottom. Nothing hangs outside its box.
+ */
+function arenaShape(width: number, height: number, room: number) {
+  return {
+    '--arena-fit': String((width + 2 * room) / (height + 2 * room)),
+  } satisfies JSX.CSSProperties;
+}
 
 /**
  * A grid arena of light trails. Coordinates are cells: the viewBox is fixed
@@ -77,6 +103,7 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       riders={props.riders}
       onDirection={props.onDirection}
       class={styles['arena']}
+      style={arenaShape(props.width, props.height, wallRoom(props))}
       data-interactive={String(interactive())}
       data-dimmed={String(props.dimmed === true)}
       data-zoom={follow.rider() ? FOLLOW_ZOOM : camera().zoom}
@@ -92,6 +119,9 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       data-width={props.width}
       data-height={props.height}
       data-rider-count={props.riders.length}
+      // Sized by its width, in its own shape: a stage gives it a room it
+      // fits whole in, never one it is stretched to fill.
+      data-board-sizing="width"
       {...dataAttrs({ component: 'TrailArena', testid: props.testId })}
       role="application"
       aria-label={props.label}
@@ -104,16 +134,11 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
       onPointerCancel={input.pointerUp}
       onLostPointerCapture={input.pointerUp}
     >
+      {/* The walls stand a head's reach out from the grid, inside the
+          arena's box: a rider on an edge cell is drawn whole, inside them. */}
       <svg
         ref={drawing}
         class={styles['drawing']}
-        // The room around the walls hangs outside the arena's box, so the
-        // walls sit flush with the column and only a head at the edge
-        // reaches past them.
-        style={{
-          width: `${((props.width + 2 * MARGIN) / props.width) * 100}%`,
-          margin: `-${(MARGIN / props.width) * 100}%`,
-        }}
         data-testid={`${props.testId}-drawing`}
         viewBox={arenaBox(props, follow.rider() ? FIT : camera())}
         preserveAspectRatio="xMidYMid meet"
@@ -145,9 +170,10 @@ export function TrailArena(props: TrailArenaProps): JSX.Element {
 }
 
 function arenaBox(board: TrailArenaProps, camera: ArenaCamera) {
-  const width = board.width + 2 * MARGIN;
-  const height = board.height + 2 * MARGIN;
-  return `${camera.x * width - MARGIN} ${camera.y * height - MARGIN} ${width / camera.zoom} ${height / camera.zoom}`;
+  const margin = wallRoom(board);
+  const width = board.width + 2 * margin;
+  const height = board.height + 2 * margin;
+  return `${camera.x * width - margin} ${camera.y * height - margin} ${width / camera.zoom} ${height / camera.zoom}`;
 }
 
 function riderCamera(props: TrailArenaProps) {
@@ -203,16 +229,17 @@ function FollowingField(props: {
   rider: () => TrailArenaProps['riders'][number] | undefined;
   arenaId: string;
 }) {
+  const margin = () => wallRoom(props.board);
   const origin = createMemo<{ x: number; y: number }>((previous) => {
     const rider = props.rider();
     const axis = (cell: number, size: number, prior?: number) =>
-      followAxis(cell + 0.5 + MARGIN, size + 2 * MARGIN, prior);
+      followAxis(cell + 0.5 + margin(), size + 2 * margin(), prior);
     return {
       x: axis(rider?.x ?? 0, props.board.width, previous?.x),
       y: axis(rider?.y ?? 0, props.board.height, previous?.y),
     };
   });
-  const offset = (v: number) => (FOLLOW_ZOOM - 1) * MARGIN - v * FOLLOW_ZOOM;
+  const offset = (v: number) => (FOLLOW_ZOOM - 1) * margin() - v * FOLLOW_ZOOM;
   return (
     <g
       data-follow-field=""
@@ -227,6 +254,7 @@ function FollowingField(props: {
 }
 
 function ArenaField(props: { board: TrailArenaProps; arenaId: string }) {
+  const ground = () => groundRoom(props.board);
   const shapes = createMemo(() =>
     trailShapes(props.board.cells, props.board.width, props.board.height)
   );
@@ -237,20 +265,23 @@ function ArenaField(props: { board: TrailArenaProps; arenaId: string }) {
             frame, with no second card around them. */}
       <rect
         class={styles['ground']}
-        width={props.board.width}
-        height={props.board.height}
+        x={-ground()}
+        y={-ground()}
+        width={props.board.width + 2 * ground()}
+        height={props.board.height + 2 * ground()}
         rx="0.5"
       />
       <rect
         class={styles['floor']}
         width={props.board.width}
         height={props.board.height}
+        rx="0.5"
         fill={`url(#${props.arenaId}-grid)`}
       />
       <Show when={props.board.touchRegions}>
         <path
           class={styles['touchDivider']}
-          d={`M ${props.board.width / 2} 0 V ${props.board.height}`}
+          d={`M ${props.board.width / 2} ${-ground()} V ${props.board.height + ground()}`}
         />
       </Show>
       <For each={TRAIL_RIDER_INDICES}>
@@ -265,8 +296,10 @@ function ArenaField(props: { board: TrailArenaProps; arenaId: string }) {
       </For>
       <rect
         class={styles['wall']}
-        width={props.board.width}
-        height={props.board.height}
+        x={-ground()}
+        y={-ground()}
+        width={props.board.width + 2 * ground()}
+        height={props.board.height + 2 * ground()}
         rx="0.5"
       />
       <Markers

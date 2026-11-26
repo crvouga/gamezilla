@@ -8,6 +8,8 @@ import {
   wordTilesGameShared,
 } from '@libs/word-tiles-shared-ts/word-tiles-game';
 import { ENABLE_LEXICON } from '@libs/word-tiles-shared-ts/word-tiles-lexicon';
+import { winningSeats } from '@libs/word-tiles-shared-ts/word-tiles-play';
+import { decodePosition } from '@libs/word-tiles-shared-ts/word-tiles-position';
 import {
   RULESET,
   type WordTilesSeatCount,
@@ -33,6 +35,15 @@ function sideLabel(side: GameSide): string {
   return seatName(['white', 'black', 'red', 'blue'].indexOf(side));
 }
 
+/** How a shared top score drew the game, by how play ended. */
+function sharedLead(position: string): string | undefined {
+  const decoded = decodePosition(position);
+  if (decoded === null || winningSeats(decoded).length < 2) return undefined;
+  return decoded.ended === 'out'
+    ? t`A player used their last tile with the bag empty, and the top score was shared.`
+    : t`Six turns in a row scored nothing, and the top score was shared.`;
+}
+
 const presentation = (seats: WordTilesSeatCount): GameClientPresentation => ({
   canFlip: false,
   name: () => t`Word Tiles`,
@@ -46,6 +57,7 @@ const presentation = (seats: WordTilesSeatCount): GameClientPresentation => ({
       : reason === 'six scoreless turns'
         ? t`Six turns in a row scored nothing. Each player's remaining tiles count against them.`
         : undefined,
+  rulesDrawDescription: sharedLead,
   endingLabel: (reason) =>
     reason === 'rack emptied' ? t`rack emptied` : t`six scoreless turns`,
   timeoutDrawDescription: (side) => {

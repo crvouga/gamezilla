@@ -53,17 +53,23 @@ function advanceOperation(canvasElement: HTMLElement): void {
   );
 }
 
+async function expectSpaceEnded(canvasElement: HTMLElement): Promise<void> {
+  const canvas = within(canvasElement);
+  await waitFor(() =>
+    expect(canvas.getByRole('dialog', { name: 'Space ended' })).toBeVisible()
+  );
+  await expect(canvas.getByRole('status')).toHaveTextContent(
+    'Everyone has been returned to the lobby.'
+  );
+}
+
 /** Confirm the completed operation and let the person dismiss the result. */
 export const Success: StoryObj<MutationArgs> = {
   ...Confirm,
   play: async (context) => {
     await Loading.play?.(context);
     advanceOperation(context.canvasElement);
-    await waitFor(() =>
-      expect(
-        within(context.canvasElement).getByRole('status')
-      ).toHaveTextContent('Space ended')
-    );
+    await expectSpaceEnded(context.canvasElement);
     await expect(
       within(context.canvasElement).getByRole('button', {
         name: 'Done',
@@ -101,9 +107,7 @@ export const Recovery: StoryObj<MutationArgs> = {
       await expect(canvas.getByText('Ending space…')).toBeVisible();
       await expect(context.args.onOperation).toHaveBeenLastCalledWith(2);
       advanceOperation(context.canvasElement);
-      await waitFor(() =>
-        expect(canvas.getByRole('status')).toHaveTextContent('Space ended')
-      );
+      await expectSpaceEnded(context.canvasElement);
       await expect(canvas.queryByRole('alert')).not.toBeInTheDocument();
     });
   },

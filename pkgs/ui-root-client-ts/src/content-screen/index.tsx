@@ -15,6 +15,7 @@ export type ContentScreenProps = Pick<
   | 'dataSet'
   | 'footer'
   | 'renderActionsMenu'
+  | 'titlePlacement'
 > & {
   children: JSX.Element;
   /**
@@ -43,6 +44,7 @@ export function ContentScreen(props: ContentScreenProps): JSX.Element {
       actions={props.actions}
       leading={props.leading}
       renderActionsMenu={props.renderActionsMenu}
+      titlePlacement={props.titlePlacement}
       measure={width()}
       footer={footerColumn()}
       dataSet={{ component: 'ContentScreen', ...props.dataSet }}

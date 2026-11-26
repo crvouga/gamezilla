@@ -39,7 +39,6 @@ function Lobby() {
       status={lobby.status()}
       hostedCount={lobby.hostedCount()}
       spaces={lobby.spaces()}
-      onCreateSpace={() => undefined}
       onOpenSpace={() => undefined}
     />
   );

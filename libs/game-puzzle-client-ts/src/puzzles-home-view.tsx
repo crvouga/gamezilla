@@ -9,6 +9,7 @@ import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
 import {
@@ -139,10 +140,15 @@ export function PuzzlesHomeView(
       screenId="puzzles-home"
       title={<Trans>Puzzle settings</Trans>}
       subtitle={
-        // What is saved now, beside the draft the rows below hold.
-        <Text variant="inherit" testId="chess-puzzle-feed-description">
-          <Trans>Saved now: {savedFeedSpoken(props.feed)}</Trans>
-        </Text>
+        // The rows carry the values; what is saved now, beside the draft
+        // they hold, is for a listener, who cannot see the rows at once.
+        <>
+          <Trans>Choose what the feed serves next, then save.</Trans>
+          <VisuallyHidden testId="chess-puzzle-feed-description">
+            {' '}
+            <Trans>Saved now: {savedFeedSpoken(props.feed)}</Trans>
+          </VisuallyHidden>
+        </>
       }
     >
       <StackVertical gap="xl">
@@ -150,15 +156,13 @@ export function PuzzlesHomeView(
         <Show when={props.feed.status === 'ready'}>
           <StackVertical gap="sm">
             <Button
-              title={<Trans>Done</Trans>}
+              title={<Trans>Save settings</Trans>}
               fullWidth
               onClick={() => props.feed.onDone()}
               dataSet={{ testid: Handles.chessPuzzleFeedDone }}
             />
             <P variant="caption" tone="secondary" align="center">
-              <Trans>
-                Done saves these settings. Going back keeps the feed as it was.
-              </Trans>
+              <Trans>Going back instead keeps the feed as it was.</Trans>
             </P>
           </StackVertical>
         </Show>

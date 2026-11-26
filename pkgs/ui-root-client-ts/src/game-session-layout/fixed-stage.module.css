@@ -2,38 +2,20 @@
  * Opt-in (`GameSessionLayout`'s `fixedStage`): a game's stage is one fixed
  * view whose board never moves while the game is played. Every part around
  * the board has a band of its own, the same height empty or full: the
- * game's one line of facts, the line of moves, the seats, the status line
+ * game's one line of facts, the line of moves (for a game that keeps
+ * one), the seats, the status line
  * and one row of commands. What comes and goes (the connection, a refused
- * choice, a draw offered) lies over the top of the stage, and a finished
- * game's outcome card over its foot, so none of it pushes the board. On a
- * phone the board takes the frame's whole width and sits in the middle of
- * the room left; `GameBoardStage` narrows a board taller than that room
- * (`--game-board-room`). Wider windows keep the board beside its rail.
+ * choice, a draw offered) floats in the `ToastStack`, and a finished game's
+ * outcome is a dialog, so none of it pushes the board. On a
+ * phone the board's box takes the frame's whole width and the whole room
+ * left between the seats and the commands; `GameBoardStage` narrows a
+ * board taller than that room (`--game-board-room`). Wider windows keep
+ * the board beside its rail, its box the window's height left under it
+ * (game-session-layout.module.css).
  * Kept apart from game-ui.module.css, which is at its size limit.
  */
 .fixed {
   position: relative;
-}
-/* What comes and goes lies over the stage's top edge, never in its flow. */
-.notices {
-  position: absolute;
-  inset-inline: 0;
-  top: 0;
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
-  gap: var(--ui-space-2);
-  pointer-events: none;
-}
-.notices > * {
-  pointer-events: auto;
-}
-/* A notice's own tint is translucent: an opaque backing under the stack
-   keeps the board and the seat beneath from showing through its words. */
-.notices:has(> *) {
-  border-radius: var(--ui-radius-card);
-  background: var(--ui-color-background);
-  box-shadow: var(--ui-shadow-float);
 }
 /* The line of moves and the way to all of them. */
 .strip {
@@ -66,6 +48,13 @@
     padding: var(--ui-space-2) var(--ui-space-3) 0;
     overflow: hidden;
   }
+  /* A screen's own intro (a replay's who and when, with its way back) is
+     as tall as its words and controls: nothing in it is cut. */
+  [data-component="GameColumn"]:has(> .fixed) > [data-component="ScreenIntro"] {
+    height: auto;
+    padding-bottom: var(--ui-space-2);
+    overflow: visible;
+  }
   [data-component="GameColumn"]:has(> .fixed) > [data-component="GameHeading"] {
     flex-wrap: nowrap;
     justify-content: center;
@@ -90,11 +79,6 @@
     min-height: 0;
     gap: 0;
   }
-  /* Notices begin under the line of moves, over the seat at the top. */
-  .notices {
-    top: 48px;
-    inset-inline: var(--ui-space-3);
-  }
   .fixed [data-game-slot="stage"] {
     --game-stage-room: 1;
     display: flex;
@@ -106,81 +90,153 @@
     overflow: hidden auto;
   }
   /*
-   * The board and its seats sit in the middle of the room, centred once
-   * (`--game-stage-offset`, held by `GameBoardStage` while the room keeps
-   * its size) so a board a few pixels taller or shorter keeps its top edge.
-   * Every band around the room keeps its height, so the room, and the
-   * board in it, never change during a game. A spacer under it, not an
-   * auto margin: the stage keeps its own height (the board's fit measures
-   * it) and a taller stage's top is never cut off.
+   * The board's box (`data-game-board`) is the room the seats leave, from
+   * under them to the commands: every band around it keeps its height, so
+   * the box is the same in every state of the game and at every table,
+   * whatever the board draws in it. The board sits at the box's top, at
+   * the frame's full width or narrowed to fit (`--game-board-room`), and
+   * scrolls inside the box when it is taller; the spare room falls under
+   * it, over the commands, never as a gap in the game's info.
    */
-  .fixed [data-game-slot="stage"]::after {
-    content: "";
-    flex: 1 1 0;
-  }
   .fixed [data-game-slot="stage"] > [data-game-board-stage] {
-    flex: none;
-    margin-top: var(--game-stage-offset, 0px);
+    flex: 1 1 0;
+    min-height: 0;
+    margin-top: 0;
     max-width: none;
     padding-block: var(--ui-space-2);
     gap: var(--ui-space-2);
   }
   .fixed [data-game-board-stage] > :not([data-game-board]) {
+    flex: none;
+    margin-inline: var(--ui-space-2);
+  }
+  /* A board whose ranks stand in a gutter (chess) keeps the standard seat
+     row too: the seats span the screen's gutters like every game's, not
+     indented to the squares. */
+  .fixed
+    [data-game-slot="stage"]
+    > [data-game-board-stage]:has([data-board-gutter])
+    > :not([data-game-board]) {
     margin-inline: var(--ui-space-2);
   }
   .fixed [data-game-board-stage] > [data-game-board] {
-    align-self: center;
-    max-width: min(100%, var(--game-board-room, 100%));
+    flex: 1 1 0;
+    align-self: stretch;
+    min-height: 0;
+    max-width: none;
+    overflow: hidden auto;
     border-radius: var(--ui-radius-none);
+  }
+  .fixed [data-game-board] > [data-game-board-content] {
+    max-width: min(100%, var(--game-board-room, 100%));
+  }
+  /* A board that is its own workspace (Word Tiles' rack, board and view
+     controls; Quoridor's board and wall tools) is never narrowed: it keeps
+     the seats' inset, so a rack or a tool never meets the screen's edge,
+     and scrolls inside its box when taller. */
+  .fixed
+    [data-board-workspace="true"]
+    > [data-game-board]
+    > [data-game-board-content] {
+    /* Named, so a workspace may take a part of it (a board) out to the
+       box's edges past the inset. */
+    --game-board-workspace-inset: var(
+      --game-workspace-inset,
+      var(--ui-space-2)
+    );
+    box-sizing: border-box;
+    padding-inline: var(--game-board-workspace-inset);
   }
   /* A board narrowed to fit stands clear of the edges, so it and what lies
      over it take the card's corners. */
   .fixed
     [data-game-board-stage][data-board-narrowed="true"]
-    > [data-game-board] {
+    > [data-game-board]
+    > [data-game-board-content] {
     overflow: hidden;
     border-radius: var(--ui-radius-card);
   }
-  /* The commands: a bar at the bottom edge, over the page's own surface. */
+  /* One order on every stage: what the game says (its moves, then its
+     status line) over the board, and only the game's commands under it.
+     The controls' own box steps aside, so its status line joins the info
+     above the board and its commands make the bar at the bottom edge. */
   .fixed [data-game-slot="controls"] {
-    position: relative;
+    display: contents;
+  }
+  .fixed [data-game-slot="controls"] > .status {
+    order: -1;
     flex: none;
     align-self: stretch;
-    gap: var(--ui-space-2);
+    align-items: center;
+    box-sizing: border-box;
+    width: 100%;
+    padding: var(--ui-space-1) var(--ui-space-3);
+    text-align: center;
+  }
+  /* An offer waiting for an answer is a pill: in the band it is as slim
+     as its line, so it stands clear of the moves' rule over it and of
+     the seats under it by the same room. */
+  .status [data-component="GameTurnPill"] > :first-child {
+    min-height: 0;
+    padding-block: 3px;
+  }
+  /* A plain line takes no well's room, and its two lines are set close
+     enough to fit inside the band's padding, clear of the rule above. */
+  .status [data-look="plain"] > :first-child {
+    padding-block: 0;
+  }
+  .status [data-look="plain"] * {
+    line-height: 1.25;
+  }
+  /* The bar's height is its commands' row plus its padding, whether the
+     commands are in it or held in the Game over dialog (a placeholder as
+     tall as the row): the board above never moves. */
+  /* A replay's band is its step controls, docked at the bottom edge as a
+     stage's bar of commands is. The board's box is as tall as the board
+     (one size for the whole replay); the room left falls between the
+     board and the steps, so neither ever moves. */
+  .fixed
+    [data-game-slot="controls"]
+    > .status:has([data-testid="game-history-review-forward"]) {
+    order: 1;
+    margin-top: auto;
     padding: var(--ui-space-2) var(--ui-space-3)
       calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
     border-top: 1px solid var(--ui-color-border);
     background: var(--ui-color-surface);
   }
-  .fixed [data-game-slot="controls"] > * {
+  /* The replay's line of moves fades out at its end edge, so a move cut
+     by the edge reads as more to scroll to, not as a broken chip. */
+  .strip [data-testid="game-history-review-moves"] {
+    /* A mask reads only alpha: any opaque token is the visible part. */
+    mask-image: linear-gradient(
+      to left,
+      transparent,
+      var(--ui-color-text) 40px
+    );
+  }
+  .fixed:has([data-testid="game-history-review-forward"])
+    [data-game-slot="stage"],
+  .fixed:has([data-testid="game-history-review-forward"])
+    [data-game-slot="stage"]
+    > [data-game-board-stage],
+  .fixed:has([data-testid="game-history-review-forward"])
+    [data-game-board-stage]
+    > [data-game-board] {
+    flex: 0 1 auto;
+  }
+  .fixed [data-game-slot="controls"] > :not(.status) {
+    position: relative;
+    order: 1;
+    flex: none;
     align-self: stretch;
-    width: 100%;
-    max-width: none;
-  }
-  /* A finished game's outcome lies over the stage's foot, right above the
-     commands, so the final board keeps the live board's place. */
-  .fixed [data-game-slot="controls"] > .sheet {
     width: auto;
-  }
-  .sheet {
-    position: absolute;
-    inset-inline: var(--ui-space-3);
-    bottom: calc(100% + var(--ui-space-2));
-    z-index: 2;
-    max-height: 60dvh;
-    overflow: hidden auto;
-    border-radius: var(--ui-radius-card);
-    box-shadow: var(--ui-shadow-float);
-  }
-  /* A status line only spoken (a finished game's) shows nothing: the
-     outcome may lie over its band, so a caption of two lines never covers
-     the final board's last row. */
-  .fixed
-    [data-game-slot="controls"]:has(
-      > .status > [data-spoken-only="true"]:only-child
-    )
-    > .sheet {
-    bottom: calc(100% - 44px);
+    max-width: none;
+    box-sizing: content-box;
+    padding: var(--ui-space-2) var(--ui-space-3)
+      calc(var(--ui-space-2) + env(safe-area-inset-bottom, 0px));
+    border-top: 1px solid var(--ui-color-border);
+    background: var(--ui-color-surface);
   }
   /* The line about the game: one band of two lines, empty or full. */
   .status {
@@ -190,20 +246,35 @@
     height: 44px;
     overflow: hidden;
   }
-  /* Every command on one row, the same size, so an answer the game waits
+  /* A replay's band holds its step controls: as tall as they are. It never
+     changes while the replay is open, and no control is cut. */
+  .status:has([data-testid="game-history-review-forward"]) {
+    height: auto;
+    min-height: 44px;
+    overflow: visible;
+  }
+  /* Every command on one row, sharing it, so an answer the game waits
      for (accept, decline) takes the row in place of offer and resign and
-     the bar keeps its height. A row longer than the phone scrolls sideways. */
+     the bar keeps its height. Commands too wide for one row wrap to a
+     second, each row's commands sharing its width, so no command is ever
+     cut at the screen's edge; the game's own (filled) step leads. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: flex;
-    flex-wrap: nowrap;
+    flex-wrap: wrap;
     gap: var(--ui-space-2);
+    /* The full width, with equal room inside on every side for a focused
+       command's ring; only the block room is given back, so the commands
+       stay centred. */
     width: 100%;
-    overflow-x: auto;
+    box-sizing: border-box;
+    padding: var(--ui-space-1);
+    margin-block: calc(var(--ui-space-1) * -1);
   }
+  /* Each command at least as wide as its words: a label is never cut. */
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
-    flex: 1 1 0;
+    flex: 1 0 auto;
     min-width: 72px;
-    padding-inline: var(--ui-space-2);
+    padding-inline: var(--ui-space-3);
   }
   /* The game's menu is an icon at the row's end. */
   .fixed
@@ -220,10 +291,15 @@
    * moves when one lands.
    */
   .fixed [data-game-slot="rail"] {
-    order: -1;
+    order: -2;
     flex: none;
     width: 100%;
     max-width: none;
+  }
+  /* A game with no record of moves (one played in real time) has no line
+     of moves at all: no empty band, no rule, at every moment of it. */
+  .strip:not(:has(> *)) {
+    display: none;
   }
   .strip {
     flex-direction: row;
@@ -258,6 +334,16 @@
     display: none;
   }
 }
+@media (max-width: 767px) {
+  .fixed [data-board-workspace]:has([data-component="WordTileWorkspace"]) {
+    --game-workspace-inset: var(--ui-space-4);
+  }
+}
+@media (max-width: 359px) {
+  .fixed [data-board-workspace]:has([data-component="WordTileWorkspace"]) {
+    --game-workspace-inset: var(--ui-space-1);
+  }
+}
 /* A short phone gives the board the room its gaps took. */
 @media (max-width: 767px) and (max-height: 700px) {
   [data-component="GameColumn"]:has(> .fixed) > :not(.fixed) {
@@ -287,6 +373,23 @@
  * the same width, four as two rows of two, never three and a stray one.
  */
 @container game-column (min-width: 880px) {
+  /* The status line keeps one band over the commands in every state, so a
+     line that comes (stopped, offline, a draw offered) never moves them. */
+  .status {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 44px;
+  }
+  /* Beside a wide board the line is the rail's heading: body size, in the
+     text's own colour (a warning keeps its tone). */
+  .status [data-look="plain"] :global(.textCaption),
+  .status > [data-component="P"]:global(.textCaption) {
+    font-size: var(--ui-font-size-base);
+  }
+  .status [data-look="plain"] :global(.text-text-secondary) {
+    color: var(--ui-color-text);
+  }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
@@ -296,6 +399,21 @@
     [data-game-slot="controls"]
     [data-component="GameActionBar"]:has(> :first-child:nth-last-child(4)) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* Three quiet commands (Offer draw, Resign, Game menu) are two rows,
+     the last whole, so no label is cut in the rail's width. */
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:has(> :first-child:nth-last-child(3)) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fixed
+    [data-game-slot="controls"]
+    [data-component="GameActionBar"]:not(
+      :has(> [data-variant="solid"]:first-child)
+    )
+    > :last-child:nth-child(3) {
+    grid-column: 1 / -1;
   }
   .fixed [data-game-slot="controls"] [data-component="GameActionBar"] > * {
     width: 100%;
@@ -317,6 +435,12 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
+/* A turn line sits centred on the status band, like every other line, a
+   quiet one or a filled one (an offer waiting for an answer). */
+.status [data-component="GameTurnPill"] {
+  justify-content: center;
+  text-align: center;
+}
 /* A wide window shows the whole game too: no page padding to scroll for. */
 @media (min-width: 768px) {
   [data-component="ScrollViewContent"]:has(
@@ -327,8 +451,50 @@
   .fixed {
     padding-bottom: 0;
   }
-  /* Beside the board the notices lie over its top, as wide as the board. */
-  .notices {
-    max-width: var(--game-board-measure, 560px);
+}
+
+@media (max-width: 359px) {
+  /* Share the top row between history and turn so the enlarged board,
+     rack and submit control all fit above the game commands. */
+  .fixed:has([data-component="WordTileWorkspace"]):not(
+    :has([data-testid="game-history-review-forward"])
+  ) > [data-component="GameLayout"] {
+    display: grid;
+    align-items: stretch;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: auto minmax(0, 1fr) auto;
+    grid-template-areas:
+      "history turn"
+      "stage stage"
+      "commands commands";
+  }
+  .fixed:has([data-component="WordTileWorkspace"]) [data-game-slot="rail"] {
+    grid-area: history;
+  }
+  .fixed:has([data-component="WordTileWorkspace"]) .status {
+    grid-area: turn;
+  }
+  .fixed:has([data-component="WordTileWorkspace"]) [data-game-slot="stage"] {
+    grid-area: stage;
+  }
+  .fixed:has([data-component="WordTileWorkspace"])
+    [data-game-slot="controls"]
+    > :not(.status) {
+    grid-area: commands;
+    padding-block: var(--ui-space-1)
+      calc(var(--ui-space-1) + env(safe-area-inset-bottom, 0px));
+  }
+  [data-component="GameColumn"]:has(
+      > .fixed [data-component="WordTileWorkspace"]
+    )
+    > [data-component="GameHeading"] {
+    height: var(--ui-space-6);
+    padding-block: 0;
+  }
+  .fixed
+    [data-game-slot="stage"]
+    > [data-game-board-stage]:has([data-component="WordTileWorkspace"]) {
+    padding-block: var(--ui-space-1);
+    gap: var(--ui-space-1);
   }
 }

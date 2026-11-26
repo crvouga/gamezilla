@@ -30,6 +30,8 @@ export function MultiplayerSearchingView(
     readonly goal?: string | undefined;
     readonly search: MultiplayerSearchView;
     readonly onStop: () => Promise<void>;
+    /** No connection: the search card says it waits and resumes. */
+    readonly offline?: boolean | undefined;
   }
 ): JSX.Element {
   return (
@@ -39,6 +41,7 @@ export function MultiplayerSearchingView(
         <GameLobbyDock>
           <MultiplayerStopSearch
             multiple={props.search.players > 2}
+            offline={props.offline === true}
             onStop={props.onStop}
           />
         </GameLobbyDock>
@@ -62,7 +65,7 @@ export function MultiplayerSearchingView(
         title={props.title}
         summary={props.goal}
       />
-      <MultiplayerWaiting search={props.search} />
+      <MultiplayerWaiting search={props.search} offline={props.offline} />
     </MultiplayerLobbyPlace>
   );
 }

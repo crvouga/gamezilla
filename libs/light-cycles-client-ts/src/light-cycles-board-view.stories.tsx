@@ -212,6 +212,11 @@ function interactiveRender(
       seats,
       {
         ...args,
+        // regression: light-cycles-seat-rider-mismatch — a story riding
+        // Nova kept the board drawn from Comet, so the person's own seat
+        // said Comet while the line said "Get ready to ride Nova". The
+        // person's seat is the rider they steer, as in the app.
+        orientation: sides[0] ?? args.orientation,
         get position() {
           return position();
         },

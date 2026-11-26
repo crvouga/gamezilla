@@ -1,5 +1,8 @@
 import { expect, test } from 'bun:test';
-import { playCustomGameE4 } from '@libs/runtime-harness-ts/custom-game-journey';
+import {
+  expectCustomGameReady,
+  playCustomGameE4,
+} from '@libs/runtime-harness-ts/custom-game-journey';
 import type {
   Driver,
   DriverNode,
@@ -40,6 +43,12 @@ function boardIgnoring(ignoredPairs: number): {
       visible: async () => {},
       hidden: unused,
       text: async (expected) => {
+        if (id === 'custom-game-status') {
+          expect('White: ReadyGuineafowl685. Black: Bot. Your turn.').toContain(
+            expected
+          );
+          return;
+        }
         if (id !== 'custom-game-review-move-1' || expected !== 'e4')
           return unused();
         if (!moved()) throw new Error('Timed out waiting for text equals "e4"');
@@ -73,4 +82,9 @@ test('White plays e2-e4 once when the board takes it at once', async () => {
 test('a board that never takes the move fails the step', async () => {
   const { ui } = boardIgnoring(Number.POSITIVE_INFINITY);
   await expect(playCustomGameE4(ui)).rejects.toThrow('waiting for text');
+});
+
+// regression: custom-chess-viewer-turn
+test('the starting White player reads their own turn above the board', async () => {
+  await expectCustomGameReady(boardIgnoring(0).ui);
 });

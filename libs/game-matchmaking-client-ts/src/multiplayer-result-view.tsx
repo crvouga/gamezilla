@@ -9,6 +9,7 @@ import { GameActionBar } from '@pkgs/ui-root-client-ts/game-action-bar';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSection } from '@pkgs/ui-root-client-ts/game-section';
 import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
@@ -44,6 +45,8 @@ type ResultProps = MultiplayerPlaceFrame & {
   /** Rematch commands need a connection. */
   readonly online: boolean;
   readonly onOpen: (place: MultiplayerPlace) => void;
+  /** Leaves the matched game (someone who watched it goes back). */
+  readonly onLeave?: (() => void) | undefined;
 };
 
 // Each label is short for the eye. A listener, who cannot see which game the
@@ -134,10 +137,16 @@ function NewOpponent(props: ResultProps): JSX.Element {
   );
 }
 
-/** Stepping through the finished game: its moves, or its record. */
+/**
+ * Stepping through the finished game: its moves, or its record. A game
+ * ended before any move (aborted on a missed first move) has nothing to
+ * step through, so it offers no review.
+ */
 function Review(props: ResultProps): JSX.Element {
+  const played = (): boolean =>
+    (props.game.moves?.moves.length ?? 0) > 0 || props.game.record !== null;
   return (
-    <Show when={props.game.moves !== null || props.game.record !== null}>
+    <Show when={played()}>
       <Button
         title={<Trans>Review</Trans>}
         aria-label={
@@ -154,31 +163,39 @@ function Review(props: ResultProps): JSX.Element {
 
 /**
  * Where else the result leads, on its card: a new game at another clock
- * and the person's ratings.
+ * and the person's ratings, as quiet text under the decision, so the
+ * commands that answer the game carry its weight.
  */
 function Onward(props: ResultProps): JSX.Element {
+  // Destinations, not answers to the game: one row of two quiet buttons
+  // with a chevron, each a full tap target, so the card stays short.
   return (
-    <StackHorizontal gap="sm" wrap>
-      <Show when={props.game.newOpponent}>
+    <Show when={props.game.newOpponent || props.game.rematch !== 'none'}>
+      <StackHorizontal gap="sm" testId="multiplayer-onward">
+        <Show when={props.game.newOpponent}>
+          <Button
+            title={<Trans>Game options</Trans>}
+            variant="ghost"
+            intent="neutral"
+            size="sm"
+            flex={1}
+            endIcon={<ChevronRightIcon />}
+            onClick={() => props.onOpen({ screen: 'home' })}
+            dataSet={{ testid: 'multiplayer-open-find' }}
+          />
+        </Show>
         <Button
-          title={<Trans>Game options</Trans>}
-          aria-label={t`New game: choose what to play for next`}
+          title={<Trans>Your ratings</Trans>}
           variant="ghost"
           intent="neutral"
           size="sm"
-          onClick={() => props.onOpen({ screen: 'home' })}
-          dataSet={{ testid: 'multiplayer-open-find' }}
+          flex={1}
+          endIcon={<ChevronRightIcon />}
+          onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
+          dataSet={{ testid: 'multiplayer-open-ratings' }}
         />
-      </Show>
-      <Button
-        title={<Trans>Your ratings</Trans>}
-        variant="ghost"
-        intent="neutral"
-        size="sm"
-        onClick={() => props.onOpen({ screen: 'ratings', from: 'result' })}
-        dataSet={{ testid: 'multiplayer-open-ratings' }}
-      />
-    </StackHorizontal>
+      </StackHorizontal>
+    </Show>
   );
 }
 
@@ -199,13 +216,29 @@ export function MultiplayerResultView(props: ResultProps): JSX.Element {
         fixedStage
         // The card lies over the stage's foot (heading the rail beside a
         // wide board), so the final board keeps the live board's place.
-        sheet={
-          <MultiplayerResultCard result={props.result}>
-            <Onward {...props} />
-          </MultiplayerResultCard>
-        }
+        sheet={<MultiplayerResultCard result={props.result} />}
+        // Other options and ratings come after the next game's commands.
+        sheetFooter={<Onward {...props} />}
         actions={
           <GameActionBar aria-label={t`What next`} items={[]} width="content">
+            {/* Someone who watched has no next game here: their one way on
+                is back, filled, as a custom game's watcher's is. */}
+            <Show
+              when={
+                !props.game.newOpponent &&
+                props.game.rematch === 'none' &&
+                props.onLeave
+              }
+            >
+              {(leave) => (
+                <Button
+                  title={<Trans>Back to the space</Trans>}
+                  variant="solid"
+                  onClick={() => leave()()}
+                  dataSet={{ testid: 'multiplayer-back' }}
+                />
+              )}
+            </Show>
             <Show when={props.game.rematch === 'answer'}>
               <Rematch {...props} />
             </Show>

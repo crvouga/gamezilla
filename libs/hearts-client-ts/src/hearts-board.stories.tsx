@@ -173,16 +173,21 @@ export const YourTurnToPlay: Story = {
     await expect(getComputedStyle(refused).boxShadow).toBe('none');
     await expect(getComputedStyle(legal).boxShadow).not.toBe('none');
     await expect(legal).not.toHaveAttribute('aria-pressed', 'true');
-    await expect(
-      getComputedStyle(refused, '::after').backgroundImage
-    ).toContain('repeating-linear-gradient');
-    const marker = refused.querySelector('[aria-hidden="true"]:last-child');
-    if (!marker) throw new Error('Missing unavailable marker');
-    await expect(marker.getBoundingClientRect().width).toBeGreaterThanOrEqual(
-      16
+    // regression: hearts-unavailable-cards-louder-than-legal — refused
+    // cards wore a ×, a dashed edge and a hatched foot, outshouting the
+    // playable ones. One quiet dim; the legal cards carry the strong edge.
+    await expect(Number(getComputedStyle(refused).opacity)).toBeLessThan(1);
+    await expect(getComputedStyle(refused).borderStyle).toBe('solid');
+    await expect(refused.textContent).not.toContain('×');
+    await expect(getComputedStyle(legal).borderColor).not.toBe(
+      getComputedStyle(refused).borderColor
     );
-    await expect(getComputedStyle(legal).borderStyle).toBe('solid');
-    await expect(getComputedStyle(refused).borderStyle).toBe('dashed');
+    // regression: hearts-trick-card-double-pip — a trick card's corner pip
+    // overlapped its large centre pip; the small card shows rank and one pip.
+    const trickCard = canvasElement.querySelector('[data-testid$="-played"]');
+    const rank = trickCard?.firstElementChild;
+    if (!rank) throw new Error('Expected a card on the trick');
+    await expect(getComputedStyle(rank, '::after').display).toBe('none');
   },
 };
 

@@ -7,6 +7,7 @@ import { createParts } from '@ui-sdk/solid/primitive';
 import { createMemo, createSignal, For, Show } from 'solid-js';
 import styles from './cell-grid-board.module.css';
 import battleship from './cell-grid-board-battleship.module.css';
+import quoridor from './cell-grid-board-quoridor.module.css';
 
 /**
  * How a cell reads at a glance. Every tone also differs by its glyph and its
@@ -305,7 +306,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       ref={(element) => {
         root = element;
       }}
-      class={`${styles['board']} ${battleship['board']}`}
+      class={`${styles['board']} ${battleship['board']} ${quoridor['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
       data-fill={String(props.fill === true)}
       role="group"

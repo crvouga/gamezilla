@@ -114,3 +114,16 @@ test('an uncached task is complete once a task depending on it starts', () => {
   now = 2_401_000;
   expect(stream.tick()).not.toContain(coverage.taskId);
 });
+
+test('the hosted shard retains named production-browser passes on success', () => {
+  const taskId = '@apps/product-ts#test:release-journeys:1';
+  const text =
+    'production-browser PASS abc123 specs/runtime/reopen-sokoban-position.feature scenario:Alice saves her refused step';
+  const logs: string[] = [];
+  const stream = taskStream([{ ...TASK, taskId }], (line) => logs.push(line), {
+    now: () => 0,
+    completed: () => false,
+  });
+  stream(JSON.stringify({ source: taskId, level: 'stdout', text }));
+  expect(logs).toEqual([text]);
+});

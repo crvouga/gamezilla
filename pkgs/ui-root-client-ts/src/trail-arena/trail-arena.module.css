@@ -47,8 +47,13 @@
 /* No card of its own: the drawing's walls frame the ground inside them, so
    the arena is never letterboxed in a second dark frame. */
 .arena {
+  /* As wide as the column, but never taller than the room it is given
+     (the nearest size container, else the screen), walls and the room
+     around them counted in. A stage reads the size from here. */
+  --arena-size: min(100%, calc(100cqh * var(--arena-fit, 1)));
   position: relative;
-  width: 100%;
+  width: var(--arena-size);
+  margin-inline: auto;
   border-radius: var(--ui-radius-card);
   background: none;
   overflow: visible;
@@ -60,19 +65,26 @@
 .arena[data-interactive="true"] {
   touch-action: none;
 }
+/* Focus is the walls themselves, thick and bright: drawn in the arena's
+   own shape and corners, never outside it, so no column edge or scrolling
+   region clips it and no second line runs beside the wall. */
 .arena:focus-visible {
-  outline: 2px solid var(--ui-color-focus-ring);
-  outline-offset: 2px;
-  /* A dark band either side of the cyan ring, so focus reads on a light
-     page and apart from the arena's own cyan edge. */
-  box-shadow: 0 0 0 6px var(--ui-color-background);
+  outline: none;
 }
-/* Away from the game, the drawing dims so it never looks live. */
+.arena:focus-visible .wall {
+  stroke: var(--ui-color-focus-ring);
+  stroke-width: 0.5;
+}
+/* Away from the game, the drawing loses most of its colour so it never
+   looks live, while the arena stays dark enough for its banner to stand
+   out on it, in full-contrast words. */
 .arena[data-dimmed="true"] .drawing {
-  opacity: var(--ui-opacity-muted);
+  opacity: 0.85;
+  filter: saturate(0.5);
 }
 .drawing {
   display: block;
+  width: 100%;
   max-width: none;
   height: auto;
   overflow: visible;
@@ -225,6 +237,13 @@
   background: var(--ui-color-surface-elevated);
   color: var(--ui-color-text);
   text-align: center;
+}
+.arena[data-dimmed="true"] .banner {
+  border-color: var(--ui-color-outline);
+  box-shadow: var(--ui-shadow-float);
+}
+.arena[data-dimmed="true"] .detail {
+  color: var(--ui-color-text);
 }
 .title {
   font-size: var(--ui-font-size-2xl);

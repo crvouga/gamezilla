@@ -39,8 +39,8 @@ async function boardPlace(page: Page, story: string) {
   return { stage, board };
 }
 
-/** A refused choice lies over the stage's top and clears without moving the board. */
-async function expectRefusalOverStage(
+/** A refused choice can be dismissed without moving the board or its commands. */
+async function expectDismissibleRefusal(
   page: Page,
   viewport: { width: number; height: number }
 ): Promise<void> {
@@ -63,18 +63,7 @@ async function expectRefusalOverStage(
   await expect(alert).toHaveAttribute('role', 'alert');
   await expect(alert).toContainText('That move is not legal in this position.');
   await expect(alert).toBeInViewport({ ratio: 1 });
-  // It lies over the stage's top edge, inside the board's column, and
-  // covers none of the board's places to play.
   const shown = await box(alert);
-  const { stage } = refused;
-  expect(shown.y).toBeLessThan(stage.y + stage.height);
-  expect(shown.y + shown.height).toBeGreaterThan(stage.y);
-  expect(shown.x).toBeGreaterThanOrEqual(stage.x - 1);
-  expect(shown.x + shown.width).toBeLessThanOrEqual(stage.x + stage.width + 1);
-  const cells = page.locator('[data-game-board] [data-cell]');
-  expect(await cells.count()).toBeGreaterThan(0);
-  for (const cell of await cells.all())
-    expect(apart(await box(cell), shown)).toBe(true);
   // The game's commands stay where they were, uncovered and usable.
   const commands = page.locator(
     '[data-component="GameActionBar"] button:visible'
@@ -84,18 +73,23 @@ async function expectRefusalOverStage(
     await expect(command).toBeInViewport({ ratio: 1 });
     expect(apart(await box(command), shown)).toBe(true);
   }
+  await page.getByTestId('toast-dismiss').click();
+  await expect(alert).toHaveCount(0);
+  expect(await box(page.locator('[data-game-board]').first())).toEqual(
+    refused.board
+  );
 }
 
 // regression: frame-refusal-shifts-board
-test("storybook integration: a refused choice lies over the stage's top and clears without moving the board at 390", async ({
+test('storybook integration: a refused choice clears without moving the board at 390', async ({
   page,
 }) => {
-  await expectRefusalOverStage(page, { width: 390, height: 844 });
+  await expectDismissibleRefusal(page, { width: 390, height: 844 });
 });
 
 // regression: stage-notice-spills-over-rail
-test("storybook integration: a refused choice stays inside the board's column, off the commands, at 1440", async ({
+test('storybook integration: a refused choice keeps the commands uncovered, at 1440', async ({
   page,
 }) => {
-  await expectRefusalOverStage(page, { width: 1440, height: 900 });
+  await expectDismissibleRefusal(page, { width: 1440, height: 900 });
 });

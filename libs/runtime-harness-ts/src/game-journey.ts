@@ -48,28 +48,14 @@ async function playsFirst(ui: Driver): Promise<boolean> {
   );
 }
 
-const SIDES = ['white', 'black'] as const;
-type Side = (typeof SIDES)[number];
+type Side = 'white' | 'black';
 
-/**
- * The side this device's person prepares a private setup for: the one
- * whose name, as the panel lists who is ready, their own seat says they play.
- */
 async function setupSide(ui: Driver): Promise<Side> {
-  const colour = ui.get('multiplayer-colour');
-  await colour.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-  const playing = (await colour.text()) ?? '';
-  for (const side of SIDES) {
-    const listed = ui.get(`multiplayer-setup-readiness-${side}`);
-    await listed.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
-    const name = ((await listed.text()) ?? '')
-      .replace(/(Getting ready|Ready)\s*$/, '')
-      .trim();
-    if (name !== '' && playing.includes(name)) return side;
-  }
-  throw new Error(
-    'The matched game does not say which side this person sets up'
-  );
+  const seat = ui.get('multiplayer-seat-near');
+  await seat.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
+  const side = await seat.attribute('data-side');
+  if (side === 'white' || side === 'black') return side;
+  throw new Error('The matched game does not identify the near seat');
 }
 
 /**
@@ -85,6 +71,9 @@ function readyKnownSetup(
     const setups = game.fixtures.setups;
     if (arrange === undefined || setups === undefined)
       throw new Error(`${game.label} has no known setups to arrange`);
+    await ui
+      .get('multiplayer-setup')
+      .expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
     const side = await setupSide(ui);
     await ui.get('multiplayer-offline').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,

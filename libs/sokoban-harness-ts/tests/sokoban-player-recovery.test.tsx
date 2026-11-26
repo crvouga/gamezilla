@@ -5,7 +5,7 @@ import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { fireEvent } from '@solidjs/testing-library';
+import { fireEvent, screen } from '@solidjs/testing-library';
 import { createSignal, flush } from 'solid-js';
 
 const CORNER = JSON.stringify({
@@ -52,24 +52,28 @@ test('Undo, Redo and Restart positions invalidate a refusal from the previous po
   const { view, state, setState } = fixture();
   const start = state();
   const board = view.getByTestId('sokoban-board');
-  const key = (key: string) => fireEvent.keyDown(board, { key });
+  // A refusal floats in the alerts, which draw once the change settles.
+  const key = (key: string) => {
+    fireEvent.keyDown(board, { key });
+    flush();
+  };
   key('ArrowLeft');
   const cornered = state();
   key('ArrowLeft');
-  expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).not.toBeNull();
   setState(start); // Undo the corner push.
   flush();
-  expect(view.queryByTestId('sokoban-refusal')).toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).toBeNull();
   key('ArrowUp'); // Refusal at the restored position.
-  expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).not.toBeNull();
   setState(cornered); // Redo must clear that refusal too.
   flush();
-  expect(view.queryByTestId('sokoban-refusal')).toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).toBeNull();
   key('ArrowLeft');
-  expect(view.queryByTestId('sokoban-refusal')).not.toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).not.toBeNull();
   setState(start); // Restart from the blocked corner.
   flush();
-  expect(view.queryByTestId('sokoban-refusal')).toBeNull();
+  expect(screen.queryByTestId('sokoban-refusal')).toBeNull();
 });
 
 // regression: sokoban-unreadable-library-action

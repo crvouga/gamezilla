@@ -108,32 +108,35 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Which slot comes first in reading order: the rack on a phone, the board when wide. */
+/**
+ * The reading order, the same in either layout: the board first, then its
+ * feedback, the rack and the actions under it.
+ */
 async function assertReadingOrder(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
   const layout = canvasElement.querySelector<HTMLElement>(
     '[data-component="WordTileWorkspace"]'
   );
   if (!layout) throw new Error('WordTileWorkspace is not rendered');
-  const slots = [...layout.children];
-  const slotOf = (element: Element): number =>
-    slots.findIndex((slot) => slot.contains(element));
-  const board = slotOf(canvas.getByTestId('workspace-board'));
-  const rack = slotOf(canvas.getByTestId('workspace-rack'));
-  const actions = slotOf(canvas.getByRole('button', { name: 'Play word' }));
-  const feedback = slotOf(canvas.getByRole('status'));
-  await expect(actions).toBe(rack + 1);
-  if (layout.dataset['layout'] === 'wide') {
-    await expect(board).toBeLessThan(feedback);
-    await expect(feedback).toBeLessThan(rack);
-  } else {
-    await expect(layout.dataset['layout']).toBe('stacked');
-    await expect(rack).toBeLessThan(feedback);
-    await expect(feedback).toBeLessThan(board);
+  await expect(['wide', 'stacked']).toContain(layout.dataset['layout']);
+  const order = [
+    canvas.getByTestId('workspace-board'),
+    canvas.getByRole('status'),
+    canvas.getByTestId('workspace-rack'),
+    canvas.getByRole('button', { name: 'Play word' }),
+  ];
+  for (const [index, element] of order.slice(1).entries()) {
+    const before = order[index];
+    await expect(
+      before !== undefined &&
+        (before.compareDocumentPosition(element) &
+          Node.DOCUMENT_POSITION_FOLLOWING) !==
+          0
+    ).toBe(true);
   }
 }
 
-/** A turn in play: on a phone the rack and its actions come before the board; wide, the board leads and the rack sits under it. */
+/** A turn in play: the board leads, with the rack and its actions under it. */
 export const InPlay: Story = {
   play: async ({ canvasElement }) => assertReadingOrder(canvasElement),
 };

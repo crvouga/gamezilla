@@ -3,11 +3,14 @@ import { Match, Show, Switch } from 'solid-js';
 import { PuzzleBoardFrame } from './puzzle-board-frame';
 import { PuzzleLineActions, PuzzleLineMoves } from './puzzle-play-line-view';
 import {
+  PuzzleResultInfo,
   PuzzleResultRows,
   PuzzleResultSummary,
 } from './puzzle-play-result-view';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import {
+  CompactLine,
+  EarlierPosition,
   PuzzleSolveActions,
   PuzzleSolveLine,
   SpectatorAllowance,
@@ -39,6 +42,23 @@ export function PuzzleStageBoardView(
         <Show when={props.spectator}>
           <SpectatorAllowance label={props.allowanceLabel} />
         </Show>
+      }
+      positionNotice={
+        <Show when={place() === 'play'}>
+          <EarlierPosition {...props} />
+        </Show>
+      }
+      // The puzzle's state in one line over the board: the moves so far
+      // while it is solved, the rating it made once it is done.
+      info={
+        <Switch>
+          <Match when={place() === 'play'}>
+            <CompactLine {...props} />
+          </Match>
+          <Match when={place() === 'result'}>
+            <PuzzleResultInfo {...props} />
+          </Match>
+        </Switch>
       }
       actions={
         <Switch>

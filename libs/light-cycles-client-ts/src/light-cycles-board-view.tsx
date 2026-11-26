@@ -8,6 +8,7 @@ import type {
 } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { DirectionPad } from '@pkgs/ui-root-client-ts/direction-pad';
+import { KeyHints } from '@pkgs/ui-root-client-ts/key-hints';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -135,6 +136,37 @@ function SteeringHint(props: {
 }
 
 /**
+ * The keys at a glance, under a wide screen's arena (where no pad is
+ * drawn), for a device that steers a rider: the arrow keys or W, A, S and
+ * D; two riders on one keyboard, each rider's own keys. It shows for the
+ * whole game, so the arena above never moves; a listener also has the
+ * full words (`SteeringHint`).
+ */
+function SteeringKeys(props: {
+  sides: readonly GameSide[];
+  testId: string;
+}): JSX.Element {
+  const arrows = ['←', '↑', '→', '↓'];
+  const letters = ['W', 'A', 'S', 'D'];
+  return (
+    <KeyHints
+      hints={
+        props.sides.length > 1
+          ? [
+              { keys: arrows, label: riderName(props.sides[0]!) },
+              { keys: letters, label: riderName(props.sides[1]!) },
+            ]
+          : [
+              { keys: arrows, label: t`or` },
+              { keys: letters, label: t`steer` },
+            ]
+      }
+      testId={`${props.testId}-steering-keys`}
+    />
+  );
+}
+
+/**
  * A phone's thumb pad per rider this device steers, under the arena. A
  * rider that cannot steer now (crashed, between rounds, away) keeps its
  * pad's room with nothing in it, and a device that steers no rider keeps
@@ -218,7 +250,14 @@ function Arena(props: {
     props.board.simulation?.stale === true ||
     props.board.simulation?.paused === true;
   return (
-    <StackVertical gap="md" testId={props.board.testId}>
+    // A phone's stage runs edge to edge: the arena keeps the seat chips'
+    // inset above it, so its walls and focus ring are never cut by the
+    // screen's edge.
+    <StackVertical
+      gap="md"
+      paddingX={mode() === 'wide' ? undefined : 'sm'}
+      testId={props.board.testId}
+    >
       <Scores state={props.state} testId={props.board.testId} />
       <VisuallyHidden>
         <P id={descriptionId} testId={`${props.board.testId}-description`}>
@@ -294,6 +333,9 @@ function Arena(props: {
       {/* A phone's thumb pad sits right under the arena, where the thumb
           is. */}
       <Pads state={props.state} board={props.board} steerable={steerable} />
+      <Show when={mode() === 'wide' && controlled().length > 0}>
+        <SteeringKeys sides={controlled()} testId={props.board.testId} />
+      </Show>
       <Show when={canSteerHere()}>
         <SteeringHint id={instructionsId} sides={controlled()} />
       </Show>

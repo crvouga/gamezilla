@@ -1,0 +1,4 @@
+{
+  "summary": "A Pong rematch reaching its score target removed the menu while cleanup was opening it.",
+  "regressionTest": "libs/runtime-harness-ts/tests/multiplayer-search-loading.test.ts"
+}

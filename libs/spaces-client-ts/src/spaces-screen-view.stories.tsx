@@ -66,18 +66,20 @@ export const HostingSeveral: Story = {
   },
 };
 
-/** Long titles and names truncate to one line inside the card. */
+/** A long name gets two lines; a long host name ends in an ellipsis. */
 export const LongContent: Story = {
   args: { hostedCount: 0, spaces: [LONG_SPACE, JOINED_SPACE] },
 };
 
-/** A refused create / end / leave is told inline above the list. */
+/** A refused create / end / leave floats over the lobby, naming the way to retry. */
 export const WithRefusedChange: Story = {
   render: (args) => (
     <SpacesScreenView
       {...args}
       notice={
-        <Notice tone="error">Your space couldn't be started. Try again.</Notice>
+        <Notice tone="error">
+          Your space couldn't be started. Press New space to try again.
+        </Notice>
       }
     />
   ),

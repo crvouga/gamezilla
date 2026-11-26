@@ -77,6 +77,14 @@ export function SpaceScreenOverlays(props: {
         spaceId={props.spaceId}
         visible={props.overlays.membersOpen()}
         onClose={() => props.overlays.setMembersOpen(false)}
+        onShare={() => {
+          props.overlays.setMembersOpen(false);
+          props.overlays.setShareOpen(true);
+        }}
+        onRemove={(person) => {
+          props.overlays.setMembersOpen(false);
+          props.overlays.setRemoving(person);
+        }}
       />
       <SpaceShareSheet
         spaceId={props.spaceId}

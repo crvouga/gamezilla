@@ -20,6 +20,7 @@ import styles from './game-player-rail.module.css';
 export const GAME_PLAYER_CHIP_AVATAR_SIZE = 32;
 
 export type GamePlayerRailProps = {
+  scoreRail?: boolean;
   /** Names the list of players (`Other players`). */
   'aria-label': string;
   /** `GamePlayerChip`s, in seat order. */
@@ -30,16 +31,20 @@ export type GamePlayerRailProps = {
 
 /**
  * `GamePlayerRail` + `GamePlayerChip` -- the players at a table of three or
- * more, as compact chips above the board that wrap onto as many rows as
- * they need (two across a phone; three players on a phone make one row of
- * three equal-height chips, each its name above wrapping facts, the avatar
- * left out, so none is left alone and no fact escapes its chip), so every player is in view
- * at once and none is cut off at the screen's edge. Each chip shows the player's
+ * more, as compact chips above the board, every seat (the person's own
+ * too) the same weight: rows of chips beside a wide board; on a phone two
+ * share one row and three or more stand in rows of two, so every seat is
+ * in view with its name, figure and status whole. The band's height
+ * follows the table's size only, so the board never moves with a state of
+ * the game. Every chip's facts are one line. Each chip shows the player's
  * avatar and name on its first line, then their swatch, figure, out /
  * reconnecting word and any short facts (`tags`) on the second, so the
- * name keeps the chip's width. The chips of a row share its height, and a
- * stacked chip's lines start at its top, so avatars, names and figures line
- * up across the row whichever chip carries an extra fact (`You`).
+ * name keeps the chip's width; a `nameTag` (`You`) follows the name on its
+ * line and never gives way. The facts line keeps, in order, the swatch, the
+ * figure, the out / reconnecting word, then the tags: one that does not fit
+ * whole is hidden whole, never cut. The chips of a row share its height,
+ * and a stacked chip's lines start at its top, so avatars, names and
+ * figures line up across the row.
  *
  * The active chip (the player to move) is the soft tint (`tintSubtle` fill,
  * `primaryStrong` border) and `aria-current="step"`. With `onPress` a chip is
@@ -56,7 +61,10 @@ export type GamePlayerRailProps = {
 export function GamePlayerRail(props: GamePlayerRailProps): JSX.Element {
   return (
     <div
-      class={styles['playerRail']}
+      class={[
+        styles['playerRail'],
+        { [styles['scoreRail'] ?? '']: props.scoreRail === true },
+      ]}
       role="list"
       aria-label={props['aria-label']}
       {...dataAttrs({ ...props.dataSet, component: 'GamePlayerRail' })}
@@ -74,6 +82,12 @@ export type GamePlayerChipProps = {
    * username, a reader's test id); `name` still titles it.
    */
   nameContent?: JSX.Element;
+  /**
+   * A short mark after the name that never gives way (`You`): the name is
+   * cut short first, so who the person is reads on every chip however many
+   * facts its second line drops.
+   */
+  nameTag?: JSX.Element;
   /** The player's `Avatar` (32px). Defaults to the person placeholder. */
   avatar?: JSX.Element;
   swatch?: GameSeatLook | undefined;
@@ -98,6 +112,7 @@ export type GamePlayerChipProps = {
 function ChipFace(props: GamePlayerChipProps): JSX.Element {
   const out = (): boolean => props.state?.kind === 'out';
   const tags = createScreenSlot(() => props.tags);
+  const nameTag = createScreenSlot(() => props.nameTag);
   return (
     <>
       <span
@@ -118,13 +133,18 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
         class={`box flex-1 min-w-0 items-start gap-1 ${styles['chipText']}`}
       >
         <span
-          class={[
-            `text textLabel min-w-0 max-w-full ${styles['chipName']}`,
-            { 'text-on-primary-soft': props.active === true },
-          ]}
-          title={props.name}
+          class={`box flex-row items-center gap-1 min-w-0 max-w-full ${styles['chipNameLine']}`}
         >
-          {props.nameContent ?? props.name}
+          <span
+            class={[
+              `text textLabel min-w-0 max-w-full ${styles['chipName']}`,
+              { 'text-on-primary-soft': props.active === true },
+            ]}
+            title={props.name}
+          >
+            {props.nameContent ?? props.name}
+          </span>
+          {nameTag.content()}
         </span>
         <span
           class={`box flex-row flex-wrap items-center gap-1 min-w-0 ${styles['chipFacts']}`}
@@ -134,10 +154,13 @@ function ChipFace(props: GamePlayerChipProps): JSX.Element {
           </Show>
           <Show when={props.stat}>
             {(stat) => (
-              <GameSeatStatInline
-                stat={stat()}
-                active={props.active === true}
-              />
+              <>
+                {' '}
+                <GameSeatStatInline
+                  stat={stat()}
+                  active={props.active === true}
+                />
+              </>
             )}
           </Show>
           <Show when={props.state}>

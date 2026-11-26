@@ -19,6 +19,7 @@ import { GAME_VERSUS_AVATAR_SIZE } from '@pkgs/ui-root-client-ts/game-stage-over
 import { GameTurnPill } from '@pkgs/ui-root-client-ts/game-turn-pill';
 import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createSignal, Show } from 'solid-js';
 import { fn } from 'storybook/test';
@@ -181,6 +182,11 @@ function StoryStage(props: {
   readonly active: boolean;
   /** The person's own name; a long one must stay one cut-short line. */
   readonly ownName?: string | undefined;
+  /** The viewer only watches: neither seat is theirs, no move is theirs. */
+  readonly watching?: boolean | undefined;
+  readonly offline?: boolean | undefined;
+  /** A draw offered to the person waits for their answer first. */
+  readonly answering?: boolean | undefined;
   readonly overlay?: JSX.Element | undefined;
 }): JSX.Element {
   const drops = () => DROPS.slice(0, props.shown ?? DROPS.length);
@@ -205,17 +211,58 @@ function StoryStage(props: {
           avatar={<StoryAvatar who="alice" size={GAME_PLAYER_AVATAR_SIZE} />}
           swatch={{ color: 'disc-one', mark: '●' }}
           swatchLabel="Red"
-          tags={<Badge intent="neutral" label="You play Red" />}
-          tagsPlacement="inline"
-          active={props.active}
-          turnLabel="Your move"
+          // As the app's seat: `You` after the person's own name, their
+          // colour the swatch (and, to a listener, `You play Red`); a
+          // watcher reads a seat's side from its swatch alone.
+          nameTag={
+            <Show when={props.watching !== true}>
+              <Badge
+                intent="info"
+                size="sm"
+                tone="solid"
+                label={
+                  <>
+                    You<VisuallyHidden> play Red</VisuallyHidden>
+                  </>
+                }
+              />
+            </Show>
+          }
+          tags={
+            <Show when={props.offline === true}>
+              <Badge intent="warning" label="Offline" />
+            </Show>
+          }
+          tagsPlacement="line"
+          // As the app's seat: a draw offered to the person keeps their
+          // seat to move (playing on declines it), its clock running.
+          active={props.active && props.offline !== true}
+          // The person's own turn is the status line's "Your turn.": as
+          // the app's seat, only a watcher's seat says it in words.
+          turnLabel={props.watching === true ? 'To move' : undefined}
           trailing={
-            <GameClock label="Red" value="3:47" active={props.active} />
+            <GameClock
+              label="Red"
+              value="3:47"
+              active={props.active && props.offline !== true}
+            />
           }
         />
       }
     >
-      <ConnectFourStoryBoard moves={drops()} interactive={props.active} />
+      <ConnectFourStoryBoard
+        moves={drops()}
+        interactive={
+          props.active && props.watching !== true && props.offline !== true
+        }
+        // A move still declines the offer, so the board stays playable,
+        // but the answer is asked for first, as the app's board says.
+        prompt={
+          props.answering === true
+            ? 'Drop a disc to decline and play on'
+            : undefined
+        }
+      />
     </GameBoardStage>
   );
 }
@@ -224,11 +271,13 @@ function StoryStage(props: {
 function StoryAnnouncement(props: {
   readonly title: string;
   readonly detail?: string | undefined;
+  /** An offer waiting for the person's answer: the filled pill, as the app's. */
+  readonly answer?: boolean | undefined;
 }): JSX.Element {
   return (
     <GameTurnPill
       live
-      spokenOnly={props.detail === undefined}
+      look={props.answer === true ? 'pill' : 'plain'}
       emphasis="yours"
       title={props.title}
       detail={props.detail}
@@ -378,8 +427,16 @@ export type StorySlots = {
   readonly shown?: number;
   /** The person's own name, when the story is about a long one. */
   readonly ownName?: string;
+  /** The viewer watches the game: no seat and no move are theirs. */
+  readonly watching?: boolean;
+  /** No connection: the board takes no move until it returns. */
+  readonly offline?: boolean;
   /** The line under the board. */
-  readonly announcement?: { readonly title: string; readonly detail?: string };
+  readonly announcement?: {
+    readonly title: string;
+    readonly detail?: string;
+    readonly answer?: boolean;
+  };
   /** How the game ended, on the result card. */
   readonly result?: MultiplayerResultShown;
   /** The private setup panel. */
@@ -398,6 +455,9 @@ export function renderStory(slots: StorySlots = {}) {
         <StoryStage
           shown={slots.shown}
           ownName={slots.ownName}
+          watching={slots.watching}
+          offline={slots.offline}
+          answering={slots.announcement?.answer === true}
           active={slots.announcement !== undefined}
           overlay={overlay}
         />

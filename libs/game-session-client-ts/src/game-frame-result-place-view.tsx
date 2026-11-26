@@ -11,8 +11,11 @@ import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameFacts, FrameStage } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-overlay-view';
-import { FrameNoticesView } from './game-frame-shell';
-import { FrameStatusView } from './game-frame-status-view';
+import {
+  FrameConnectionNotice,
+  FrameErrorView,
+  FrameStatusView,
+} from './game-frame-status-view';
 
 type Props = FramePlaceProps;
 
@@ -43,26 +46,54 @@ function NextActions(props: Props): JSX.Element {
             // A player who may not start the next game still has a way on:
             // the card says the host starts the rematch.
             <Button
-              title={<Trans>Leave</Trans>}
-              aria-label={t`Leave the game, back to the space`}
-              variant="outline"
-              intent="neutral"
+              title={<Trans>Back to the space</Trans>}
+              // The one way on for someone who may not start the rematch:
+              // filled, as the watcher's is.
+              variant="solid"
               onClick={() => props.onBack()}
               dataSet={{ testid: 'custom-game-back' }}
             />
           }
         >
-          <GameActionButton
-            title={<Trans>Rematch</Trans>}
-            variant="solid"
-            dataSet={{ testid: 'custom-game-rematch' }}
-            operation={() => props.onChoose({ operation: 'rematch' })}
-          />
-          <GameActionButton
-            title={<Trans>New game</Trans>}
-            dataSet={{ testid: 'custom-game-new' }}
-            operation={() => props.onChoose({ operation: 'create' })}
-          />
+          {/* A cancelled game had no result to replay: New game leads. */}
+          <Show
+            when={props.phase === 'cancelled'}
+            fallback={
+              <>
+                <GameActionButton
+                  // After a refusal the same button says it tries again.
+                  title={
+                    <Show
+                      when={props.error !== ''}
+                      fallback={<Trans>Rematch</Trans>}
+                    >
+                      <Trans>Retry rematch</Trans>
+                    </Show>
+                  }
+                  variant="solid"
+                  dataSet={{ testid: 'custom-game-rematch' }}
+                  operation={() => props.onChoose({ operation: 'rematch' })}
+                />
+                <GameActionButton
+                  title={<Trans>New game</Trans>}
+                  dataSet={{ testid: 'custom-game-new' }}
+                  operation={() => props.onChoose({ operation: 'create' })}
+                />
+              </>
+            }
+          >
+            <GameActionButton
+              title={<Trans>New game</Trans>}
+              variant="solid"
+              dataSet={{ testid: 'custom-game-new' }}
+              operation={() => props.onChoose({ operation: 'create' })}
+            />
+            <GameActionButton
+              title={<Trans>Rematch</Trans>}
+              dataSet={{ testid: 'custom-game-rematch' }}
+              operation={() => props.onChoose({ operation: 'rematch' })}
+            />
+          </Show>
         </Show>
       </Show>
       <Show when={props.next.reviewable}>
@@ -98,7 +129,9 @@ function NextActions(props: Props): JSX.Element {
  * a card that says what happened and every player's finish
  * (`FrameOutcomeCard`), then what to do next in the bar.
  */
-export function FrameResultPlace(props: Props): JSX.Element {
+export function FrameResultPlace(
+  props: Props & { readonly confirming: boolean }
+): JSX.Element {
   return (
     <GameScreen
       screenId="custom-game-result"
@@ -114,15 +147,24 @@ export function FrameResultPlace(props: Props): JSX.Element {
           place: props.place.screen,
         }}
         notices={
-          <FrameNoticesView connection={props.connection} error={props.error} />
+          // Said in the Game over dialog above Rematch while it is open, and
+          // over the commands once it is closed: never a card of its own.
+          <>
+            <FrameConnectionNotice connection={props.connection} afterGame />
+            <FrameErrorView text={props.error} line />
+          </>
         }
         boardFocus
         actionsBeside
-        fixedStage={props.boardWorkspace !== true}
+        fixedStage
         // The card says how the game ended over the stage's foot (heading
         // the rail beside a wide board), so the final board keeps the live
         // board's place; a listener hears it from the frame's own line.
-        sheet={<FrameOutcomeCard {...props} />}
+        sheet={
+          <Show when={!props.confirming}>
+            <FrameOutcomeCard {...props} />
+          </Show>
+        }
         status={<FrameStatusView status={props.status} spokenOnly />}
         actions={<NextActions {...props} />}
         aside={<FrameMovesCard {...props} listOnly />}

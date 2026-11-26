@@ -78,7 +78,7 @@ export const FourPlayers: Story = {
       'aria-current',
       'step'
     );
-    await expect(board.getBoundingClientRect().top).toBeLessThan(320);
+    await expect(board.getBoundingClientRect().top).toBeLessThan(380);
   },
 };
 

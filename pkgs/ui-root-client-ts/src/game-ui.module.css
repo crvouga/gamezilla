@@ -198,7 +198,7 @@
 .player[data-density="compact"] {
   gap: var(--ui-space-2);
 }
-/* A compact seat row measures itself for its toggle (seat-options.module.css). */
+/* A compact seat row measures itself for its toggle (game-player-bar.module.css). */
 .player[data-density="compact"] .playerRow {
   container: seat-row / inline-size;
 }

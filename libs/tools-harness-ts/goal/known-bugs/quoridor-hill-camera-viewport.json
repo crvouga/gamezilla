@@ -1,0 +1,4 @@
+{
+  "summary": "In hosted run 45648866993 the magnification surface broke the Quoridor Hill working area at 390x844 and clipped the board during four-player and wall-preview interactions at 1280x800.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/space-regressions/integration.checks.ts"
+}

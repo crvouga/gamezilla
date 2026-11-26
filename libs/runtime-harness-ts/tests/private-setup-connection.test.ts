@@ -14,11 +14,7 @@ function reconnectingSetup(side: 'white' | 'black', compact: boolean) {
     html: null,
     visible: [],
     captions: {},
-    texts: {
-      'multiplayer-colour': `You play ${side === 'white' ? 'Blue' : 'Red'} fleet`,
-      'multiplayer-setup-readiness-white': 'Blue fleet Getting ready',
-      'multiplayer-setup-readiness-black': 'Red fleet Getting ready',
-    },
+    texts: {},
   }).ui;
   const ui: Driver = {
     ...base,
@@ -32,7 +28,8 @@ function reconnectingSetup(side: 'white' | 'black', compact: boolean) {
           return false;
         },
         wait: async () => {},
-        attribute: async () => 'h',
+        attribute: async (name) =>
+          id === 'multiplayer-seat-near' && name === 'data-side' ? side : 'h',
         tap: async () => {
           if (
             !online ||
@@ -66,6 +63,7 @@ function reconnectingSetup(side: 'white' | 'black', compact: boolean) {
   return { ui, events };
 }
 
+// regression: battleship-setup-seat-readiness-timeout
 // regression: battleship-journey-setup-before-reconnection
 test.each([true, false])(
   'both people reconnect before arranging the compact=%s private setup',

@@ -22,6 +22,9 @@ const executablePath = chromeForTestingBinary(chromeDirectory.stdout.trim());
 export default defineConfig({
   testDir: '../tests/storybook',
   testMatch: [
+    ...(process.env['STORYBOOK_PATTERN'] === 'space-evidence'
+      ? ['**/space-evidence/capture.checks.ts']
+      : []),
     '**/stories.checks.ts',
     '**/gallery-round-eighteen.checks.ts',
     '**/board-round-four.checks.ts',

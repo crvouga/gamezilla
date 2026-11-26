@@ -243,9 +243,72 @@ export function steeringText(
 }
 
 /**
+ * `steeringText` in a few words for the stage's one line, so the line stays
+ * one line on a phone and the arena under it never moves. `name` names the
+ * rider or riders. The arena's spoken status keeps the whole sentence.
+ */
+function steeringBrief(steering: LightCyclesSteering, name: string): string {
+  switch (steering) {
+    case 'watching':
+      return t`You're watching.`;
+    case 'elsewhere':
+      return t`You ride ${name} on another device.`;
+    case 'away':
+      return t`Reconnecting…`;
+    case 'finished':
+      return t`The game is finished.`;
+    case 'round-over':
+      return t`The next round starts soon.`;
+    case 'crashed':
+      return t`${name} is out until the next round.`;
+    case 'countdown':
+      return t`Get ready to ride ${name}.`;
+    case 'riding':
+      return t`You ride ${name}.`;
+  }
+}
+
+/** Riders sharing this device, named together (`Comet and Ember`). */
+function riderList(sides: readonly GameSide[]): string {
+  const [first, second, ...rest] = sides.map(riderName);
+  if (first === undefined || second === undefined) return first ?? '';
+  if (rest.length > 0) return [first, second, ...rest].join(', ');
+  return t`${first} and ${second}`;
+}
+
+/** How this device rides, briefly: riders in the same state share one phrase. */
+function steeringPhrase(
+  state: LightCyclesState,
+  controls: GameSimulationControls | undefined
+): string {
+  const sides = controls?.sides ?? [];
+  if (sides.length <= 1) {
+    const own = sides[0] ?? controls?.elsewhere?.[0];
+    const name = own === undefined ? '' : riderName(own);
+    return steeringBrief(steeringOf(state, controls, own), name);
+  }
+  const kinds = sides.map((side) => steeringOf(state, controls, side));
+  const [kind] = kinds;
+  if (kind !== undefined && kinds.every((each) => each === kind))
+    return steeringBrief(kind, riderList(sides));
+  // Riders in different states (one out, one riding): each says it in
+  // fewer words still, so the two still make one line.
+  return sides
+    .map((side, index) => {
+      const name = riderName(side);
+      const each = kinds[index] ?? 'riding';
+      return each === 'crashed'
+        ? t`${name} is out.`
+        : steeringBrief(each, name);
+    })
+    .join(' ');
+}
+
+/**
  * The stage's one line while the game is played: a round's winner and when
- * the next starts, else the round and how this device rides (`Round 2 ·
- * You ride Comet.`). `null` once the game is over: its result says it.
+ * the next starts, else the round and how this device rides, briefly
+ * (`Round 2 · You ride Comet.`). `null` once the game is over: its result
+ * says it.
  */
 export function steeringLine(
   state: LightCyclesState,
@@ -258,13 +321,5 @@ export function steeringLine(
       ? null
       : [result.title, result.detail].filter(Boolean).join(' ');
   }
-  const sides = controls?.sides ?? [];
-  const own = sides[0] ?? controls?.elsewhere?.[0];
-  const steering =
-    sides.length > 1
-      ? sides
-          .map((side) => steeringText(steeringOf(state, controls, side), side))
-          .join(' ')
-      : steeringText(steeringOf(state, controls, own), own);
-  return `${t`Round ${state.round}`} · ${steering}`;
+  return `${t`Round ${state.round}`} · ${steeringPhrase(state, controls)}`;
 }
