@@ -107,7 +107,7 @@ test('the stage has one status line: the save', () => {
   expect(save).toHaveLength(1);
   expect(save[0]?.getAttribute('role')).toBe('status');
   expect(save[0]?.textContent).toBe('Progress saved on this device.');
-  expect(follows(screen.getByTestId('player'), save[0] as Element)).toBe(true);
+  expect(follows(save[0] as Element, screen.getByTestId('player'))).toBe(true);
   cleanup();
   mount(390, 'attempt', { saving: true });
   expect(screen.getByTestId('content-position-save-status').textContent).toBe(

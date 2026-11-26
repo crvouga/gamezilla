@@ -90,10 +90,15 @@ export function FrameStage(
             viewerSide={props.viewerSide}
             compact={compact()}
           />
-          <Show when={props.place.screen !== 'moves'}>
-            <GameActionBar items={props.play.leadingBoardActions} />
-          </Show>
         </>
+      }
+      tools={
+        <Show when={props.place.screen === 'stage'}>
+          <GameActionBar items={props.play.leadingBoardActions} />
+          <Show when={!(props.stopped && props.onReopen !== undefined)}>
+            <GameActionBar items={props.play.boardActions} />
+          </Show>
+        </Show>
       }
       own={
         <FrameNearSeatView

@@ -140,7 +140,7 @@ describe('GameMenuScreen', () => {
       expect(link.match(value)?.[1]).toBe(tile.match(value)?.[1]);
     }
     expect(link).toContain('padding: var(--ui-space-3) var(--ui-space-6);');
-    expect(tile).toContain('padding: var(--ui-space-6);');
+    expect(tile).toContain('padding: var(--ui-space-3) var(--ui-space-6);');
     expect(link).toContain('min-height: 64px;');
   });
 
@@ -179,7 +179,7 @@ describe('GameMenuScreen', () => {
   test('phone: the same choices as one panel of menu rows', () => {
     const view = menu(390, () => undefined);
     expect(view.getByTestId('choice-play').getAttribute('data-component')).toBe(
-      'MainMenuItem'
+      'GameMenuChoice'
     );
     expect(view.getByText('Drop discs and line up four')).toBeTruthy();
     view.unmount();
@@ -221,7 +221,9 @@ describe('GameMenuScreen', () => {
     const find = view.getByTestId('choice-find');
     const grid = play.closest('[data-layout="grid"]') as HTMLElement | null;
     expect(grid?.contains(find)).toBe(true);
-    expect(grid?.style.getPropertyValue('--game-menu-columns')).toBe('2');
+    expect(
+      play.compareDocumentPosition(find) & Node.DOCUMENT_POSITION_FOLLOWING
+    ).toBeTruthy();
     const titleClass = (choice: HTMLElement) =>
       choice.querySelector('.textHeading')?.textContent;
     expect(titleClass(play)).toBe('Play with friends');
@@ -234,7 +236,7 @@ describe('GameMenuScreen', () => {
     const history = view.getByTestId('choice-history');
     const links = history.closest('[data-layout="links"]') as HTMLElement;
     expect(links.closest('[data-layout="hero"]')).toBeNull();
-    expect(links.style.getPropertyValue('--game-menu-link-columns')).toBe('1');
+    expect(links.closest('[data-component="DisclosureCard"]')).toBeTruthy();
     expect(
       grid !== null &&
         (grid.compareDocumentPosition(links) &

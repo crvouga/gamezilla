@@ -4,17 +4,17 @@ import {
   timeControlKey,
 } from '@libs/game-matchmaking-shared-ts/time-control';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import { CheckIcon } from '@pkgs/ui-root-client-ts/icons';
-import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
+import { Button } from '@pkgs/ui-root-client-ts/button';
+import { Grid } from '@pkgs/ui-root-client-ts/grid';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
-import { For, Show } from 'solid-js';
+import { For } from 'solid-js';
 import {
   MultiplayerMenuPlace,
   type MultiplayerPlaceFrame,
 } from './multiplayer-place-frame';
 import { SpeedName } from './speed-name';
-import { timeControlWords } from './time-control-name';
+import { timeControlChoiceText, timeControlWords } from './time-control-name';
 
 /**
  * The clock a search is for: every offered time control, grouped by its
@@ -43,24 +43,27 @@ export function MultiplayerTimeControlView(
       <For each={MULTIPLAYER_SPEEDS}>
         {(speed) => (
           <MenuSection title={<SpeedName speed={speed} />}>
-            <For each={TIME_CONTROLS.filter((c) => c.speed === speed)}>
-              {(control) => (
-                <MenuRow
-                  title={timeControlWords(control.id)}
-                  trailing={
-                    <Show when={props.timeControl === control.id}>
-                      <CheckIcon size={20} color="tint" />
-                    </Show>
-                  }
-                  selected={props.timeControl === control.id}
-                  hideChevron
-                  onClick={() => props.onChoose(control.id)}
-                  dataSet={{
-                    testid: `multiplayer-time-control-${timeControlKey(control.id)}`,
-                  }}
-                />
-              )}
-            </For>
+            <Grid columns={3} gap="sm">
+              <For each={TIME_CONTROLS.filter((c) => c.speed === speed)}>
+                {(control) => (
+                  <Button
+                    title={timeControlChoiceText(control.id)}
+                    aria-label={timeControlWords(control.id)}
+                    aria-pressed={props.timeControl === control.id}
+                    variant={
+                      props.timeControl === control.id ? 'solid' : 'outline'
+                    }
+                    intent={
+                      props.timeControl === control.id ? 'primary' : 'neutral'
+                    }
+                    onClick={() => props.onChoose(control.id)}
+                    dataSet={{
+                      testid: `multiplayer-time-control-${timeControlKey(control.id)}`,
+                    }}
+                  />
+                )}
+              </For>
+            </Grid>
           </MenuSection>
         )}
       </For>

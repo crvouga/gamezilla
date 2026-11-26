@@ -73,7 +73,7 @@ test('a game with clock choices adds one row showing the chosen clock, and choos
   expect(
     screen
       .getByTestId('multiplayer-time-control-5-0')
-      .getAttribute('aria-current')
+      .getAttribute('aria-pressed')
   ).toBe('true');
   screen.getByTestId('multiplayer-time-control-10-0').click();
   expect(

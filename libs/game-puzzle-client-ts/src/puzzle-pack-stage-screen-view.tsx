@@ -5,8 +5,9 @@ import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
+import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
-import { GameSessionLayout } from '@pkgs/ui-root-client-ts/game-session-layout';
+import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -91,8 +92,6 @@ export type PuzzlePackStageScreenViewProps = {
    * overview, a playtest's way back to its builder.
    */
   readonly wayOn?: JSX.Element;
-  /** Where the board sits on a one-column screen. */
-  readonly stageAlign?: 'start' | 'center' | undefined;
   /** `progress`: earlier kept continuations to choose from. */
   readonly keptPositions?: JSX.Element;
   /**
@@ -232,27 +231,33 @@ function AttemptStage(props: PuzzlePackStageScreenViewProps): JSX.Element {
         </Show>
       }
     >
-      <GameSessionLayout
-        notices={
+      <FixedGameSession
+        status={
           <>
             <AttemptRule {...props} />
-            <AttemptAlerts {...props} />
+            <ContentAttemptSaveStatus {...props} />
           </>
         }
-        status={<ContentAttemptSaveStatus {...props} />}
         actions={
           <>
             {props.controls}
             <OpenProgress {...props} />
           </>
         }
-        stageAlign={props.stageAlign}
-        footer={<Show when={!props.unopenable}>{props.support}</Show>}
       >
-        <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
-          {props.player}
-        </Show>
-      </GameSessionLayout>
+        {(information) => (
+          <GameBoardStage
+            information={information}
+            others={<AttemptAlerts {...props} />}
+            workspace
+          >
+            <Show when={!props.unopenable} fallback={<Unopenable {...props} />}>
+              {props.player}
+              {props.support}
+            </Show>
+          </GameBoardStage>
+        )}
+      </FixedGameSession>
     </GameScreen>
   );
 }

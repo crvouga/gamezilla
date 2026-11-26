@@ -191,7 +191,7 @@ function LiveActions(props: Props): JSX.Element {
   return (
     <GameActionBar
       aria-label={t`Game actions`}
-      items={props.play.boardActions}
+      items={[]}
       width="content"
       dataSet={{ answering: String(props.play.canAnswerDraw) }}
     >

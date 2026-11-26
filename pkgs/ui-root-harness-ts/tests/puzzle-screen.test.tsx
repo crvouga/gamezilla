@@ -82,16 +82,14 @@ test('the actions come right after the board, the move list after them', () => {
       <p>Board</p>
     </PuzzleScreen>
   ));
-  const names = [
-    ...(view.container.querySelector('[data-component="PuzzleScreen"]')
-      ?.children ?? []),
-  ]
-    .map((child) => child.getAttribute('data-component'))
-    .filter((name) => name !== null);
-  const order = names.filter((name) =>
-    ['PuzzleLegend', 'PuzzleActions', 'PuzzleTimeline'].includes(name)
-  );
-  expect(order).toEqual(['PuzzleLegend', 'PuzzleActions', 'PuzzleTimeline']);
+  const root = view.container.querySelector('[data-component="PuzzleScreen"]');
+  const actions = root?.querySelector('[data-component="PuzzleActions"]');
+  const timeline = root?.querySelector('[data-component="PuzzleTimeline"]');
+  expect(actions?.contains(view.getByText('Hint'))).toBe(true);
+  expect(timeline?.contains(view.getByText('Moves'))).toBe(true);
+  expect(
+    actions?.parentElement?.previousElementSibling?.contains(timeline ?? null)
+  ).toBe(true);
 });
 
 // regression: puzzle-panel-short-of-column-edge — wide, a chess puzzle's

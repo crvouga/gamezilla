@@ -49,6 +49,7 @@
   border-radius: var(--ui-radius-none);
 }
 .stage [data-game-board-content] {
+  margin-block: auto;
   max-width: min(100%, var(--game-board-room, 100%));
 }
 /* Real-time drawings already know their aspect ratios. Their room is the
@@ -62,6 +63,10 @@
 .stage [data-board-workspace="true"] [data-game-board-content] {
   --game-board-workspace-inset: var(--ui-space-2);
   padding-inline: var(--game-board-workspace-inset);
+}
+.stage [data-game-board-stage] > [data-component="GameActionBar"] {
+  justify-content: safe center;
+  padding-block: var(--ui-space-1);
 }
 .information {
   display: flex;
@@ -132,7 +137,8 @@
   justify-content: safe center;
 }
 .commands [data-component="GameActionBar"] > * {
-  flex: 1 0 auto;
+  flex: 1 0 0;
+  min-width: max-content;
   white-space: nowrap;
 }
 @media (min-width: 360px) {

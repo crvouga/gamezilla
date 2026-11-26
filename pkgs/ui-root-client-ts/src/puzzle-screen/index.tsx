@@ -94,18 +94,21 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
     () => props.screenId
   );
   return (
-    <div class={styles['puzzleFrame']}>
+    <div
+      ref={root}
+      class={styles['puzzleFrame']}
+      data-board-sizing={props.boardSizing ?? 'fit'}
+      {...dataAttrs({
+        component: 'PuzzleScreen',
+        ...props.dataSet,
+        screen: props.screenId,
+      })}
+    >
       <div
-        ref={root}
         class={`${styles['puzzle']} ${own['root']}`}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
         data-square={String(ratio() === 1)}
         data-board-sizing={props.boardSizing ?? 'fit'}
-        {...dataAttrs({
-          component: 'PuzzleScreen',
-          ...props.dataSet,
-          screen: props.screenId,
-        })}
       >
         <PuzzleFixedRegion name="PuzzleTitle" area="title">
           <Show when={props.title}>
@@ -146,16 +149,15 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
         <PuzzleFixedRegion name="PuzzleLegend" area="legend">
           {props.legend}
         </PuzzleFixedRegion>
-        {/* On a phone the actions (help, skip) come right under the board,
-            before the move list, so moving through the line never stands
-            between the board and them. Wide, the grid places each. */}
-        <PuzzleFixedRegion name="PuzzleActions" area="actions">
-          {props.actions}
-        </PuzzleFixedRegion>
         <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
           {props.timeline}
         </PuzzleFixedRegion>
         <div class={styles['overlay']}>{props.overlay}</div>
+      </div>
+      <div class={own['dock']}>
+        <PuzzleFixedRegion name="PuzzleActions" area="actions">
+          {props.actions}
+        </PuzzleFixedRegion>
       </div>
     </div>
   );
