@@ -321,8 +321,8 @@ jobs:
     if: github.event_name == 'workflow_dispatch' && inputs.group == 'pr-load'
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
-      id-token: write
+      contents: read # check out the sampled merged revision
+      id-token: write # access the verification cache through dev OIDC
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -360,6 +360,7 @@ jobs:
         with:
           name: pr-load-${{ matrix.revision }}
           path: .cache/pr-load/metrics.json
+          overwrite: true
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 3
