@@ -4,17 +4,20 @@
  * these functions only say what those facts mean for the team.
  */
 
+export type PreparationPolicy = {
+  readonly preparationFailureIsTold: boolean;
+  readonly preparationFailureStillOpens: boolean;
+};
+
 export type ReleasePolicy = {
   readonly shipNeedsPassingCheck: boolean;
   readonly newerProposalReplacesCheck: boolean;
   readonly releaseCheckIsNotReplaced: boolean;
   readonly underwayIsNotCancelled: boolean;
   readonly noUndoOfStartedRelease: boolean;
-  readonly preparationFailureIsTold: boolean;
-  readonly preparationFailureStillOpens: boolean;
 };
 
-export function preparationOutcome(policy: ReleasePolicy): 'told-and-open' {
+export function preparationOutcome(policy: PreparationPolicy): 'told-and-open' {
   if (!policy.preparationFailureIsTold || !policy.preparationFailureStillOpens)
     throw new Error(
       'A failed preparation must tell the team and still open the environment'

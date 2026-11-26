@@ -2,6 +2,7 @@ import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import {
   checkReplacement,
+  type PreparationPolicy,
   preparationOutcome,
   type ReleasePolicy,
   releaseAfterCheck,
@@ -19,9 +20,8 @@ function remember(
 
 export const prepareDespiteFailure = scenarioAction({
   name: 'prepareDespiteFailure',
-  act: (s, policy: ReleasePolicy) => {
-    preparationOutcome(policy);
-    remember(s, 'none', 'idle', 'told-and-open');
+  act: (s, policy: PreparationPolicy) => {
+    remember(s, 'none', 'idle', preparationOutcome(policy));
   },
 });
 

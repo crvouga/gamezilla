@@ -1,0 +1,4 @@
+{
+  "summary": "The runtime policy reader dereferenced a removed Verify Full concurrency setting and stopped all seven environment preparation and release scenarios before their verdicts.",
+  "regressionTest": "libs/runtime-harness-ts/tests/environment-release-policy.test.ts"
+}

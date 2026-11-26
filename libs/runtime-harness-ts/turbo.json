@@ -5,6 +5,11 @@
     "test": {
       "inputs": [
         "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/.github/workflows/deploy.yml",
+        "$TURBO_ROOT$/.github/workflows/verify-full.yml",
+        "$TURBO_ROOT$/.github/workflows/verify-pr.yml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/workspace/prepare.sh",
+        "$TURBO_ROOT$/libs/tools-harness-ts/workspace/setup.sh",
         "$TURBO_ROOT$/specs/journeys/multiplayer-game.feature"
       ]
     },
@@ -36,10 +41,22 @@
       "inputs": ["$TURBO_EXTENDS$"]
     },
     "test:spec:9": {
-      "inputs": ["$TURBO_EXTENDS$"]
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/.github/workflows/deploy.yml",
+        "$TURBO_ROOT$/.github/workflows/verify-full.yml",
+        "$TURBO_ROOT$/.github/workflows/verify-pr.yml",
+        "$TURBO_ROOT$/libs/tools-harness-ts/workspace/prepare.sh",
+        "$TURBO_ROOT$/libs/tools-harness-ts/workspace/setup.sh"
+      ]
     },
     "test:spec:10": {
-      "inputs": ["$TURBO_EXTENDS$"]
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/.github/workflows/deploy.yml",
+        "$TURBO_ROOT$/.github/workflows/verify-full.yml",
+        "$TURBO_ROOT$/.github/workflows/verify-pr.yml"
+      ]
     },
     "test:spec:11": {
       "inputs": ["$TURBO_EXTENDS$"]
