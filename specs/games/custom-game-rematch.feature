@@ -20,7 +20,7 @@ Feature: Keep earlier custom games through a rematch
 
     Scenario: A departed participant leaves an open side in the rematch
       Given Alice has a finished custom game
-      And Bob has left the space
+      And Bob has left the custom game's space
       When Alice asks for a rematch
       Then a new custom game is being set up with no moves
       And the first side is open
