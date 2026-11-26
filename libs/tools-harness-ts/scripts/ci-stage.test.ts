@@ -113,8 +113,12 @@ test('gate shards install every toolchain the gate catalog needs', () => {
     const setup = workflow.jobs[job]!.steps.find(
       (step) => step.uses === './.github/actions/setup'
     )!;
+    const scope =
+      job === 'verify-end'
+        ? "steps.scope.outputs.docs == 'true' && 'bun gitleaks' || "
+        : '';
     expect(setup.with?.['tools']).toBe(
-      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}"
+      `${'${{ '}${scope}env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}`
     );
   }
 });

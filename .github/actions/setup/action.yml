@@ -9,6 +9,9 @@ name: Setup repo (mise tools + deps)
 description: mise-pinned tools (Bun, Node, CLIs) and frozen dependency install (run actions/checkout first)
 
 inputs:
+  workspace:
+    description: Install the workspace dependencies and export the product identity
+    default: 'true'
   tools:
     description: Pinned mise tools to install; empty installs the full verify toolchain
     required: false
@@ -73,8 +76,25 @@ runs:
         tools_hash="$(printf '%s' "$TOOLS" | sha256sum | cut -c1-16)"
         echo "key=mise-tools-v1-${RUNNER_OS}-${RUNNER_ARCH}-${CONFIG_HASH}-${tools_hash}" >> "$GITHUB_OUTPUT"
 
+    # A full gate on main also publishes this small subset for new PRs.
+    # GitHub scopes PR-written caches to that PR's merge ref.
+    - name: Restore PR tool binaries
+      id: pr-tools
+      if: inputs.tools == 'bun node gitleaks actionlint' || (inputs.tools == '' && github.ref == 'refs/heads/main')
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        lookup-only: ${{ inputs.tools == '' }}
+        key: pr-tools-v1-2026.9.13-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('mise.toml') }}
+        path: &pr-tool-paths |
+          ~/.local/share/mise/bin
+          ~/.local/share/mise/installs/bun
+          ~/.local/share/mise/installs/node
+          ~/.local/share/mise/installs/gitleaks
+          ~/.local/share/mise/installs/actionlint
+
     - name: Install pinned tools (mise.toml)
       id: mise
+      if: inputs.tools != 'bun node gitleaks actionlint' || steps.pr-tools.outputs.cache-hit != 'true'
       continue-on-error: true
       uses: jdx/mise-action@236a21c3b91f5db6d4e174b348674a0f0caac06d # v5.2.9
       with:
@@ -83,7 +103,8 @@ runs:
         # archive stalled setup for 20 minutes in run 41039477627; installing
         # the same tools directly took 25 seconds. Keep dependency and Turbo
         # caches below, without this optional tool archive.
-        cache: false
+        cache: ${{ inputs.tools != '' && inputs.tools != 'bun node gitleaks actionlint' }}
+        cache_key_prefix: mise-small-v1
         # jdx/mise-action defaults to `bun opentofu` when this is blank. The
         # full Verify jobs need every tool pinned in mise.toml, including the
         # lazy tools used by model and security verifications. Callers that need a
@@ -99,12 +120,11 @@ runs:
         fail-on-cache-miss: true
 
     - name: Activate the restored toolchain
-      if: steps.mise.outcome == 'failure'
+      if: steps.mise.outcome == 'failure' || steps.mise.outcome == 'skipped'
       shell: bash
       env:
         TOOLS: ${{ inputs.tools || '--include-lazy' }}
       run: |  # zizmor: ignore[github-env] -- see the note at the top of this file
-        echo "::warning::GitHub release downloads failed; using the cached toolchain from main"
         data="$HOME/.local/share/mise"
         export PATH="$data/bin:$data/shims:$PATH" MISE_YES=1
         {
@@ -114,14 +134,23 @@ runs:
         echo "MISE_YES=1" >> "$GITHUB_ENV"
         # Every pinned tool is already present, so this installs nothing.
         # shellcheck disable=SC2086 -- TOOLS is a mise argument list
-        mise install $TOOLS
+        for tool in $TOOLS; do
+          if [[ "$tool" != --* ]]; then mise where "$tool" >/dev/null; fi
+        done
         mise reshim -f
         # The snapshot's pinned mise predates `env --paths`.
         mise env --json | jq -r '.PATH | split(":")[]' >> "$GITHUB_PATH"
         mise env --json | jq -r 'to_entries[] | select(.key != "PATH") | "\(.key)=\(.value)"' >> "$GITHUB_ENV"
 
+    - name: Save PR tool binaries
+      if: steps.pr-tools.outcome == 'success' && steps.pr-tools.outputs.cache-hit != 'true' && steps.mise.outcome == 'success'
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+      with:
+        key: ${{ steps.pr-tools.outputs.cache-primary-key }}
+        path: *pr-tool-paths
+
     - name: Look up the toolchain snapshot
-      if: steps.mise.outcome == 'success' && github.event_name != 'pull_request'
+      if: steps.mise.outcome == 'success' && inputs.tools == '' && github.ref == 'refs/heads/main'
       id: tool-snapshot-lookup
       uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
@@ -157,6 +186,7 @@ runs:
     # them, and an archive of links does not survive every OS. Bun's download
     # cache is restored instead, so the frozen install below is a link step.
     - name: Restore bun's download cache
+      if: inputs.workspace == 'true'
       uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ~/.bun/install/cache
@@ -164,6 +194,7 @@ runs:
         restore-keys: bun-install-v1-${{ runner.os }}-${{ runner.arch }}-
 
     - name: Restore generation artifacts
+      if: inputs.workspace == 'true'
       # Reuse only Turbo's immutable generation artifacts. Turbo still hashes
       # current inputs and restores outputs; frozen install still runs below.
       # This cache is separate from the verification artifacts and verdicts.
@@ -175,6 +206,7 @@ runs:
         restore-keys: setup-generation-v1-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('bun.lock', 'mise.toml') }}-
 
     - name: Install dependencies and restore generated outputs
+      if: inputs.workspace == 'true'
       shell: bash
       env:
         ONNXRUNTIME_NODE_INSTALL: skip
@@ -182,7 +214,7 @@ runs:
       run: bun install --frozen-lockfile
 
     - name: Save generation artifacts
-      if: steps.generation.outputs.cache-hit != 'true'
+      if: inputs.workspace == 'true' && steps.generation.outputs.cache-hit != 'true'
       uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: .cache/setup-generation
@@ -192,13 +224,14 @@ runs:
     # writes the Vercel Remote Cache with the TURBO_TOKEN this injects, the
     # same cache a laptop uses.
     - name: Inject secrets
-      if: inputs.secrets-environment != ''
+      if: inputs.workspace == 'true' && inputs.secrets-environment != ''
       uses: ./.github/actions/secrets-auth
       with:
         identity-id: ${{ inputs.secrets-identity-id }}
         project-id: ${{ inputs.secrets-project-id }}
         environment: ${{ inputs.secrets-environment }}
     - name: Inject public build identity
+      if: inputs.workspace == 'true'
       shell: bash
       env:
         REPOSITORY_IDENTITY_JSON: ${{ inputs.product-identity-json }}
