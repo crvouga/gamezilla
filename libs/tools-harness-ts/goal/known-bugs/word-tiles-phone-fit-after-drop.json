@@ -1,0 +1,4 @@
+{
+  "summary": "At 390 × 844, after pinching around H8, panning and dragging C onto H8, the touch check sent a tap to measured coordinates and timed out waiting for Fit board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles-gestures/phone/integration.checks.ts"
+}
