@@ -2,14 +2,14 @@ import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-host';
 
 type View = BunWebView & Pick<Bun.WebView, 'url' | 'loading'>;
-export type TraceTap = (
-  tap: () => Promise<unknown>,
+export type TraceBrowserCall = (
+  call: () => Promise<unknown>,
   report: (operation: string) => void
 ) => Promise<unknown>;
 
-// Fast taps send no extra IPC. A slow one can report even while the renderer
+// Fast calls send no extra IPC. A slow one can report even while the renderer
 // is silent; this timer runs in the child driving the renderer.
-const SLOW_TAP_MS = 5_000;
+const SLOW_CALL_MS = 5_000;
 
 /** Keep only driver source locations. Scripts, URLs and typed values stay out. */
 function driverLocations(stack: Error): string {
@@ -22,11 +22,11 @@ function driverLocations(stack: Error): string {
   return location ? ` at ${location}` : '';
 }
 
-/** One device serializes its page calls, including the steps of each tap. */
-export function browserTapDiagnostics(clock: Clock, timers: Timers) {
+/** One device serializes its page calls. */
+export function browserCallDiagnostics(clock: Clock, timers: Timers) {
   let observe: ((name: string) => (outcome: string) => void) | undefined;
 
-  const traceTap: TraceTap = async (tap, report) => {
+  const traceCall: TraceBrowserCall = async (call, report) => {
     let count = 0;
     const start = clock.now();
     let slow = false;
@@ -49,9 +49,9 @@ export function browserTapDiagnostics(clock: Clock, timers: Timers) {
     const timer = timers.setTimeout(() => {
       slow = true;
       latest();
-    }, SLOW_TAP_MS);
+    }, SLOW_CALL_MS);
     try {
-      return await tap();
+      return await call();
     } finally {
       timers.clearTimeout(timer);
       observe = undefined;
@@ -92,5 +92,5 @@ export function browserTapDiagnostics(clock: Clock, timers: Timers) {
     };
   }
 
-  return { traceTap, view };
+  return { traceCall, view };
 }

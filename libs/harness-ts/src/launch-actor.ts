@@ -184,11 +184,14 @@ async function launchWebview(
   return {
     raw,
     localSql,
-    browser: createBrowserNavigation({
-      readUrl: view.loadedUrl,
-      clock: wallClock,
-      timers: wallTimers,
-    }),
+    browser: {
+      ...createBrowserNavigation({
+        readUrl: view.loadedUrl,
+        clock: wallClock,
+        timers: wallTimers,
+      }),
+      readyOrigin: view.readyOrigin,
+    },
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),
     mutations: webviewMutations(view),

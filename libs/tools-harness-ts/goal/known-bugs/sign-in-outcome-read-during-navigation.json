@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four custom-game setup hung reading auth-signed-in-done during same-tab Google sign-in before its game assertions ran.",
+  "regressionTest": "libs/harness-ts/tests/provider-document.test.ts"
+}

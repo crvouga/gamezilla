@@ -39,6 +39,13 @@ async function openBrowserTab<Open>(
     console: channel.consoleLines,
     network: channel.networkLines,
     view: {
+      readyOrigin: () =>
+        rpc<string | null>({
+          target: 'view',
+          path: [],
+          method: 'readyOrigin',
+          args: [],
+        }),
       loadedUrl: () =>
         rpc<string>({
           target: 'view',

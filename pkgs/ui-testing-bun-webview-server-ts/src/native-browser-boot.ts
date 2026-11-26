@@ -1,8 +1,8 @@
 // @io-wall-ok — one actor's native browser and durable profile, owned by its parent.
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
+import { browserCallDiagnostics } from './browser-call-diagnostics';
 import { serveBrowserProcess } from './browser-process-server';
-import { browserTapDiagnostics } from './browser-tap-diagnostics';
 import type { BrowserDeviceOptions } from './wall-io';
 
 serveBrowserProcess(async (options: BrowserDeviceOptions) => {
@@ -15,7 +15,7 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
     backend,
     dataStore: options.dataStore,
   });
-  const diagnostics = browserTapDiagnostics(wallClock, wallTimers);
+  const diagnostics = browserCallDiagnostics(wallClock, wallTimers);
   const driver = new BunWebviewDriver({
     view: diagnostics.view(view, 'opener'),
     baseUrl: options.initialUrl,
@@ -30,7 +30,7 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
   return {
     view,
     driver,
-    traceTap: diagnostics.traceTap,
+    traceCall: diagnostics.traceCall,
     close: () => driver.close(),
   };
 });

@@ -5,7 +5,7 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 test('Apple form-post in a script-running browser submits only once', async () => {
   // regression: apple-handoff-double-submit
-  let done = false;
+  let origin = 'http://apple.test';
   let clicks = 0;
   const ui = {
     get: (id: string) => ({
@@ -16,18 +16,22 @@ test('Apple form-post in a script-running browser submits only once', async () =
           'A second form submission consumes an already used OAuth state'
         );
       },
-      expect: {
-        hidden: () => {
-          done = true;
-          return Promise.resolve();
-        },
-      },
     }),
   } as unknown as Driver;
   const s = {
+    actors: new Map([
+      ['alice', { browser: { readyOrigin: async () => origin } }],
+    ]),
     session: {
-      ports: { ui: { kind: 'bun-webview' } },
-      scheduler: { virtual: true },
+      ports: {
+        ui: { kind: 'bun-webview', webOrigin: 'http://app.test' },
+        http: { kind: 'stack', idpOrigins: { apple: origin } },
+      },
+      scheduler: { virtual: true, starvedAdvances: () => 0 },
+      advanceTime: async () => {
+        origin = 'http://app.test';
+      },
+      waitForIdle: async () => {},
     },
   } as unknown as ProductHarness;
   await completeProviderSignIn({
@@ -35,8 +39,8 @@ test('Apple form-post in a script-running browser submits only once', async () =
     ui,
     actorId: 'alice',
     answers: { provider: 'apple', email: 'alice@example.com' },
-    done: () => Promise.resolve(done),
+    done: () => Promise.resolve(origin === 'http://app.test'),
   });
-  expect(done).toBe(true);
+  expect(origin).toBe('http://app.test');
   expect(clicks).toBe(0);
 });

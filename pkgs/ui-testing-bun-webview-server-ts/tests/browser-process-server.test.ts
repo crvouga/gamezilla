@@ -11,6 +11,7 @@ function device() {
   const settle: (() => void)[] = [];
   const view = {
     url: 'http://127.0.0.1:33333/sso-callback?code=x',
+    loading: false,
     evaluate: () => {
       if (inFlight > 0)
         return Promise.reject(
@@ -34,7 +35,7 @@ function device() {
       return Promise.resolve();
     },
   };
-  return { value, settle, closed: () => closed };
+  return { value, view, settle, closed: () => closed };
 }
 
 const evaluate = (id: number) => ({
@@ -72,7 +73,7 @@ test('a call sent while another still runs waits its turn instead of colliding i
   ]);
 });
 
-test('the loaded URL and closing are answered while a page call is stuck', async () => {
+test('native navigation metadata and closing are answered while a page call is stuck', async () => {
   const d = device();
   const sent: { id: number; value?: unknown }[] = [];
   const handler = createBrowserRequestHandler(
@@ -81,6 +82,20 @@ test('the loaded URL and closing are answered while a page call is stuck', async
   );
   await handler.handle({ id: 1, open: {} });
   void handler.handle(evaluate(2));
+  const origin = {
+    target: 'view' as const,
+    path: [],
+    method: 'readyOrigin',
+    args: [],
+  };
+  d.view.loading = true;
+  await handler.handle({ id: 5, call: origin });
+  d.view.loading = false;
+  await handler.handle({ id: 6, call: origin });
+  expect(sent.find((m) => m.id === 5 && 'value' in m)?.value).toBeNull();
+  expect(sent.find((m) => m.id === 6 && 'value' in m)?.value).toBe(
+    'http://127.0.0.1:33333'
+  );
   await handler.handle({
     id: 3,
     call: { target: 'view', path: [], method: 'loadedUrl', args: [] },
