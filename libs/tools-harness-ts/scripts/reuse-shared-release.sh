@@ -14,10 +14,14 @@ history=$(jq -er --argjson current "$GITHUB_RUN_ID" '
   select(.total_count == (.workflow_runs | length)) |
   [.workflow_runs[] | select(.id != $current and .display_title != "Release · rehearsal")] |
   sort_by(.updated_at) | reverse | .[:6][] |
-  [.id,.head_sha,.status,.run_attempt,.created_at] | @tsv' <<< "$runs")
-while read -r id sha status attempt created; do
+  [.id,.head_sha,.status,.run_attempt,.created_at,.conclusion] | @tsv' <<< "$runs")
+while read -r id sha status attempt created conclusion; do
   [[ "$status" == completed && "$attempt" == 1 && "$created" > "$fresh" ]]
   jobs=$(gh api "$api/runs/$id/attempts/1/jobs?per_page=100")
+  # GitHub can supersede a queued release before it starts any job.
+  if [[ "$conclusion" == cancelled ]] && jq -e '.total_count == 0 and .jobs == []' <<< "$jobs" >/dev/null; then
+    continue
+  fi
   results=$(jq -er '
     select(.total_count == (.jobs | length)) |
     [.jobs[] | select(.name == "Enforce repository policy" or .name == "Release shared services")] |
@@ -35,6 +39,11 @@ while read -r id sha status attempt created; do
     ':(exclude)apps/product-ts/scripts/test-fuzz.ts' \
     ':(exclude)apps/product-ts/scripts/test-file-command.test.ts' \
     ':(exclude)apps/product-ts/turbo.json' \
+    ':(exclude,glob)pkgs/ui-root-client-ts/src/**' \
+    ':(exclude,glob)pkgs/ui-root-client-ts/tests/**' \
+    ':(exclude,glob)libs/*-client-ts/tests/**' \
+    ':(exclude,glob)libs/runtime-harness-ts/src/*-journey*.ts' \
+    ':(exclude)libs/tools-harness-ts/scripts/verify-nightly-verdict.ts' \
     ':(exclude,glob)pkgs/*-client-ts/src/**/*.css' \
     ':(exclude,glob)pkgs/*-harness-ts/tests/storybook/**' \
     ':(exclude,glob)docs/**/*.md' ':(exclude,glob)specs/**/*.feature' \
