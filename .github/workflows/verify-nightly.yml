@@ -16,7 +16,7 @@ run-name: "Verify Nightly · ${{ github.event_name == 'schedule' && 'schedule' |
 # below is an existing task, and whatever it finds is pinned as a regression
 # in the suite that found it, which puts it in the merge gate.
 #
-#   verify-nightly:gate         the whole Verify PR gate through the same
+#   verify-nightly:gate         the gate with a four-night game spec rotation through the same
 #                              sharded jobs, replaying every drawn trace of
 #                              every Quint model and five times the property
 #                              runs. Reports are published and kept.
@@ -135,6 +135,7 @@ jobs:
     uses: ./.github/workflows/verify-full.yml
     with:
       profile: nightly
+      rotate-game-specs: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' }}
       visual-matrix: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' }}
       created-at: ${{ needs.verify-nightly-admission.outputs.created_at }}
       # Reserve six of the twenty account runners for releases and PRs.
