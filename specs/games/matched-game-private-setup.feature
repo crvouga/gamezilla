@@ -29,6 +29,7 @@ Feature: Private setups in a matched game
       Given Alice has the first side against Bob in a 5+0 matched game awaiting both private setups
       And Carol is a guest watching Alice's matched game
 
+    @regression:matched-setup-watcher-joins-before-board
     Scenario: Choosing a private setup shows the other person and the watcher who is ready
       Given Alice has a complete private setup
       When Alice chooses her private setup
@@ -127,6 +128,7 @@ Feature: Private setups in a matched game
       When Alice chooses the first move in the move list
       Then Alice sees her own private setup and what play revealed of Bob's
 
+    @regression:matched-setup-watcher-browser-identity
     Scenario: A watcher reviewing a finished matched game sees neither private setup
       Given Carol is a guest watching Alice's matched game
       When Carol chooses the first move in the move list
