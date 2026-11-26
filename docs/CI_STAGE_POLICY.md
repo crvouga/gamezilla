@@ -166,3 +166,34 @@ release gate. Assigned triage and pinned gate regressions close that loop.
 - [GitHub artifact attestations](https://docs.github.com/en/actions/concepts/security/artifact-attestations) explains artifact provenance. This pipeline retains its existing build-and-deploy job boundary rather than introducing unverified cross-run artifact promotion.
 - [Turborepo caching](https://turborepo.dev/docs/crafting-your-repository/caching) requires correct inputs and outputs for deterministic reuse.
 - [Google SRE release engineering](https://sre.google/sre-book/release-engineering/) and [release safety](https://sre.google/workbook/canarying-releases/) support automated reproducibility, staged rollout, observable health and recovery. The stage selection above is an engineering judgment for this codebase, not a universal minimum-check checklist.
+
+## Hosted PR throughput diagnostic
+
+Dispatch Verify Nightly with `group=pr-load` and a JSON array of full commit SHAs in
+`pr-load-revisions`. Each revision must belong to the history of main. For example,
+this submits ten merged workloads together using the current four PR tasks.
+
+```sh
+revisions=$(git rev-list --first-parent -n 10 origin/main | jq -R . | jq -sc .)
+gh workflow run verify-nightly.yml --ref main -f group=pr-load -f pr-load-revisions="$revisions"
+```
+
+For a load sweep, submit separate batches of 1, 10, 25, 50 and 100 distinct revisions.
+Wait for each batch to finish before dispatching the next. Repeating the diagnostic
+on the same ref supersedes the previous run. Record the run IDs and exact revisions.
+
+GitHub's Jobs API supplies job creation, start, setup and completion timestamps.
+Each worker retains one small `pr-load-<sha>/metrics.json` artifact for three days.
+It records the gate exit code, plan and execution durations, cache counts, process-tree
+CPU seconds, CPU utilization relative to available cores, peak process RSS and
+the runner's peak used-memory fraction sampled once a second. A missing timing
+phase means the driver did not report it. Count failed and missing samples in the
+batch outcome. Throughput is successful jobs divided by time from dispatch to
+last worker completion. Standard hosted runners on this public repository incur
+zero GitHub Actions compute charges. External service and storage charges are separate.
+
+The diagnostic uses the source tree and pinned dependencies of each merged revision.
+A shared remote cache can already contain verdicts from its original PR and Release.
+Each secret scan covers the sampled commit. Production PRs scan their actual commit
+range and also wait for their external checks. Shipping latency requires a successful
+production Release and cannot be inferred from the diagnostic.
