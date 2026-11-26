@@ -14,6 +14,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { arch, cpus, platform, totalmem } from 'node:os';
 import { dirname, join } from 'node:path';
 import { parseArgs } from 'node:util';
+import { burst, prTraces } from './ci-burst';
 import { buildHistory, type HistoryStats, type Window } from './ci-stats-build';
 import type { JobRecord, RunRecord } from './ci-stats-history';
 import {
@@ -98,7 +99,8 @@ function lines<T>(text: string): T[] {
 async function listRuns(
   repository: string,
   workflow: WorkflowDefinition,
-  since: string
+  since: string,
+  successfulPrs: boolean
 ): Promise<RunRecord[]> {
   const raw = JSON.parse(
     await gh([
@@ -108,6 +110,9 @@ async function listRuns(
       repository,
       '--workflow',
       workflow.file,
+      ...(successfulPrs
+        ? ['--event', 'pull_request', '--status', 'success']
+        : []),
       '--created',
       `>=${since.slice(0, 10)}`,
       '--limit',
@@ -201,18 +206,41 @@ async function pool<T, R>(
 type Collected = {
   readonly history: HistoryStats;
   readonly skippedRuns: number;
+  readonly bursts: readonly ReturnType<typeof burst>[];
+  readonly sampledBranches: number;
 };
+
+/** Read at most one successful trace per branch for the largest burst. */
+function burstCandidates(runs: readonly RunRecord[]) {
+  const selected = new Map<string, RunRecord>();
+  for (const run of [...runs].sort((a, b) =>
+    b.createdAt.localeCompare(a.createdAt)
+  )) {
+    if (
+      run.event === 'pull_request' &&
+      run.conclusion === 'success' &&
+      !selected.has(run.headBranch)
+    )
+      selected.set(run.headBranch, run);
+    if (selected.size === 100) break;
+  }
+  return [...selected.values()];
+}
 
 /** A run whose jobs cannot be read is left out whole, and counted. */
 async function collectHistory(
   repository: string,
   workflows: readonly WorkflowDefinition[],
-  window: Window
+  window: Window,
+  { slots, burstsOnly }: { slots: number; burstsOnly: boolean }
 ): Promise<Collected> {
   const perWorkflow = await Promise.all(
-    workflows.map((workflow) => listRuns(repository, workflow, window.from))
+    workflows.map((workflow) =>
+      listRuns(repository, workflow, window.from, burstsOnly)
+    )
   );
-  const runs = perWorkflow.flat();
+  const allRuns = perWorkflow.flat();
+  const runs = burstsOnly ? burstCandidates(allRuns) : allRuns;
   console.log(`ci-stats: fetching jobs for ${String(runs.length)} runs`);
   const fetched = await pool(runs, FETCH_CONCURRENCY, async (run) => {
     try {
@@ -226,7 +254,12 @@ async function collectHistory(
   });
   const kept = runs.filter((_, index) => fetched[index] !== undefined);
   const jobs = fetched.flatMap((list) => list ?? []);
+  const traces = prTraces(kept, jobs);
   return {
+    sampledBranches: traces.length,
+    bursts: [1, 10, 25, 50, 100]
+      .filter((n) => n <= traces.length)
+      .map((n) => burst(traces.slice(0, n), slots)),
     history: buildHistory(kept, jobs, window),
     skippedRuns: runs.length - kept.length,
   };
@@ -309,6 +342,8 @@ async function main(): Promise<void> {
     args: process.argv.slice(2),
     options: {
       days: { type: 'string', default: '14' },
+      slots: { type: 'string', default: '20' },
+      'burst-only': { type: 'boolean', default: false },
       budget: { type: 'string' },
       goals: { type: 'string' },
       have: { type: 'string' },
@@ -316,6 +351,9 @@ async function main(): Promise<void> {
       'no-github': { type: 'boolean', default: false },
     },
   });
+  const slots = Number(values.slots);
+  if (!Number.isSafeInteger(slots) || slots < 1)
+    throw new Error('--slots must be a positive integer');
   const days = Number(values.days);
   if (!Number.isSafeInteger(days) || days < 1)
     throw new Error('--days must be a positive integer');
@@ -328,8 +366,27 @@ async function main(): Promise<void> {
   const online = !values['no-github'];
   const repository = online ? await repositoryName() : 'unknown';
   const collected = online
-    ? await collectHistory(repository, workload.workflows, window)
+    ? await collectHistory(
+        repository,
+        values['burst-only']
+          ? workload.workflows.filter((w) => w.file === 'verify-pr.yml')
+          : workload.workflows,
+        window,
+        { slots, burstsOnly: values['burst-only'] }
+      )
     : undefined;
+  if (values['burst-only']) {
+    if (!collected) throw new Error('--burst-only requires GitHub history');
+    const report = {
+      sample:
+        'Latest successful PR per branch; simultaneous arrivals; FIFO; job durations held fixed',
+      sampledBranches: collected.sampledBranches,
+      skippedRuns: collected.skippedRuns,
+      bursts: collected.bursts,
+    };
+    console.log(JSON.stringify(report, null, 2));
+    return;
+  }
   const input: StatsInput = {
     generatedAt: window.to,
     repository,

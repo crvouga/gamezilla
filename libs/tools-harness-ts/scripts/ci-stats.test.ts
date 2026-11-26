@@ -1,5 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
+import { burst } from './ci-burst';
 import { buildHistory } from './ci-stats-build';
 import {
   concurrencyStats,
@@ -303,25 +304,29 @@ describe('workload', () => {
     ]);
   });
 
+  // regression: capacity-report-counts-release-work-as-pr-work
   test('gate tasks are accounted to PR and Release; deeper groups to nightly', () => {
     const split = profileSplit([
       { id: '@a#lint', seconds: 10, source: 'history' },
       { id: '@a#test:spec:0', seconds: 200, source: 'history' },
       { id: '@a#bench:room', seconds: 300, source: 'history' },
     ]);
-    expect(split.prSeconds).toBe(210);
-    expect(split.prTasks).toBe(2);
+    expect(split.prSeconds).toBe(10);
+    expect(split.releaseOnlySeconds).toBe(200);
+    expect(split.prTasks).toBe(1);
     expect(split.nightlyOnlySeconds).toBe(300);
     expect(split.longest[0]?.id).toBe('@a#bench:room');
-    expect(split.longestPr[0]?.id).toBe('@a#test:spec:0');
+    expect(split.longestPr[0]?.id).toBe('@a#lint');
   });
 
   test('this repository has a workload and the four workflow files', () => {
     const workload = readWorkload(ROOT);
     expect(workload.load.coldSeconds).toBeGreaterThan(0);
-    expect(workload.split.prSeconds + workload.split.nightlyOnlySeconds).toBe(
-      workload.load.coldSeconds
-    );
+    expect(
+      workload.split.prSeconds +
+        workload.split.releaseOnlySeconds +
+        workload.split.nightlyOnlySeconds
+    ).toBe(workload.load.coldSeconds);
     expect(workload.workflows.map((w) => w.file)).toEqual(
       expect.arrayContaining([
         'deploy.yml',
@@ -397,5 +402,23 @@ describe('render', () => {
       }),
     });
     expect(skipped).toContain('3 runs were left out');
+  });
+});
+
+test('a burst waits for every shard and accounts for every occupied runner second', () => {
+  const workload = [
+    { setup: 2, shards: [1, 7], verdict: 3 },
+    { setup: 0, shards: [], verdict: 4 },
+  ];
+  expect(burst(workload, 1)).toMatchObject({
+    prs: 2,
+    runnerSeconds: 17,
+    prsPerMinute: 120 / 17,
+  });
+  expect(burst(workload, 4)).toMatchObject({
+    prs: 2,
+    runnerSeconds: 17,
+    prsPerMinute: 10,
+    jobQueueP95Seconds: 0,
   });
 });
