@@ -23,8 +23,8 @@ export type MutationStateTransition = {
 };
 
 export type UseMutationLifecycleParams = {
-  /** The mutation to run on submit. */
-  operation: () => Promise<void>;
+  /** An operation handing off to another page can release its own navigation guard. */
+  operation: (allowDeparture: () => void) => Promise<void>;
   /** Side-effect notified on failure (e.g. structured logging). */
   onError?: ((error: Error) => void) | undefined;
   /** Side-effect notified whenever the phase changes. */
@@ -44,8 +44,15 @@ export type UseMutationLifecycleResult = {
 export function useMutationLifecycle(
   params: UseMutationLifecycleParams
 ): UseMutationLifecycleResult {
+  // beforeunload can fire in the same stack as the handoff, before effects flush.
+  let guardsDeparture = true;
   const observation = new MutationObservation({
-    operation: () => params.operation(),
+    operation: () => {
+      guardsDeparture = true;
+      return params.operation(() => {
+        guardsDeparture = false;
+      });
+    },
     timers: useTimers(),
     onError: (error) => params.onError?.(error),
   });
@@ -54,7 +61,10 @@ export function useMutationLifecycle(
   const phase = (): MutationPhase => state().phase;
   const error = (): Error | null => state().error;
   // Leaving dismisses the observation; admitted writes retain their outcome.
-  usePendingOperation(() => phase() === 'loading', observation.reset);
+  usePendingOperation(
+    () => phase() === 'loading' && guardsDeparture,
+    observation.reset
+  );
   // The first run only records the phase, so the first transition has a `from`.
   createEffect(
     () => ({ to: phase(), notify: params.onPhaseChange }),

@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { winPongPoint } from '@libs/pong-harness-ts/pong-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { winPongPoint } from '@libs/pong-harness-ts/pong-actions';
 
 /**
  * Alice's court at 1 to 0 with a target of 2. The deciding point lands as
@@ -67,6 +67,8 @@ function courtWhoseFinalPointLandsMidGuide(): ProductHarness {
 // regression: pong-final-point-removes-paddle-controls
 test('the final point taking the paddle controls away is that point, not a failure', async () => {
   await expect(
-    Promise.resolve(winPongPoint.act(courtWhoseFinalPointLandsMidGuide(), 'left'))
+    Promise.resolve(
+      winPongPoint.act(courtWhoseFinalPointLandsMidGuide(), 'left')
+    )
   ).resolves.toBeUndefined();
 });

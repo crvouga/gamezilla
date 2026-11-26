@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly browser job 139139045870 failed 'Each mode starts with its riders in seat order [Trio]' and 'Each rider has its own starting cell and direction [Nova]': reading a Light Cycles board took one native-browser round trip per attribute (about 50 for four riders), so the read outlasted the 3-second countdown and its round, read last, no longer matched the riders read first. The board's facts are now read from one serialized page.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-board-snapshot.test.ts"
+}

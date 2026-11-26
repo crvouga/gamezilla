@@ -10,12 +10,14 @@ import { providerUrlFrom } from './billing-request-error';
  * Opens the provider's hosted portal so the person can manage their plan. A
  * refusal throws a `BillingRequestError` saying why.
  */
-export function useManageSubscription(): () => Promise<void> {
+export function useManageSubscription(): (
+  allowDeparture: () => void
+) => Promise<void> {
   const config = useConfigService();
   const auth = useClientRequestAuth();
   const { fetch: fetchFn } = useHttpClient();
   const openExternalUrl = useOpenExternalUrl();
-  return async (): Promise<void> => {
+  return async (allowDeparture): Promise<void> => {
     const base = config.getApiUrl().replace(/\/$/, '');
     const returnUrl = `${window.location.origin}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`;
     const res = await fetchFn(`${base}/api/billing/portal`, {
@@ -23,6 +25,8 @@ export function useManageSubscription(): () => Promise<void> {
       headers: clientAuthHeaders(auth, { requireAccountIdForBearer: true }),
       body: JSON.stringify({ returnUrl }),
     });
-    await openExternalUrl(await providerUrlFrom(res, 'portal'));
+    const url = await providerUrlFrom(res, 'portal');
+    allowDeparture();
+    await openExternalUrl(url);
   };
 }

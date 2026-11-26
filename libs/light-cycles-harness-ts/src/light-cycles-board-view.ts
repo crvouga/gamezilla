@@ -93,7 +93,9 @@ function trailCells(d: string | null): string[] {
 /** The opening tag of the element `testId` names, as the page serialized it. */
 function tagOf(html: string, testId: string): string | null {
   const id = testId.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return html.match(new RegExp(`<[^>]*\\sdata-testid="${id}"[^>]*>`))?.[0] ?? null;
+  return (
+    html.match(new RegExp(`<[^>]*\\sdata-testid="${id}"[^>]*>`))?.[0] ?? null
+  );
 }
 
 const ENTITIES: Readonly<Record<string, string>> = {
@@ -108,9 +110,8 @@ const ENTITIES: Readonly<Record<string, string>> = {
 function attributeOf(tag: string | null, name: string): string | null {
   const value = tag?.match(new RegExp(`\\s${name}="([^"]*)"`))?.[1];
   if (value === undefined) return null;
-  return value.replace(
-    /&(amp|quot|apos|lt|gt|#39);/g,
-    (_, entity: string) => (entity === '#39' ? "'" : ENTITIES[entity]!)
+  return value.replace(/&(amp|quot|apos|lt|gt|#39);/g, (_, entity: string) =>
+    entity === '#39' ? "'" : ENTITIES[entity]!
   );
 }
 
@@ -146,9 +147,7 @@ export function lightCyclesBoardFacts(
       riding: attributeOf(head, 'data-alive') === 'true',
       steeredHere: attributeOf(head, 'data-controlled') === 'true',
       mark: attributeOf(head, 'data-mark') ?? '',
-      trail: trailCells(
-        attributeOf(tag(`arena-trail-${String(index)}`), 'd')
-      ),
+      trail: trailCells(attributeOf(tag(`arena-trail-${String(index)}`), 'd')),
       score: Number(attributeOf(tag(`score-${SEATS[index]!}`), 'data-score')),
     });
     // A crash is drawn only once its rider has crashed.

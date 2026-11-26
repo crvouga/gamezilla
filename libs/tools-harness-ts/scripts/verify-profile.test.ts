@@ -48,6 +48,7 @@ type Step = {
 };
 type Job = {
   name: string;
+  strategy?: { matrix?: { shard?: number[] } };
   needs?: string[];
   if?: string;
   uses?: string;
@@ -264,12 +265,15 @@ describe('Verify Nightly workflow', () => {
   });
 
   // regression: nightly-visual-single-runner-timeout
-  test('the visual matrix runs every Playwright shard and retains each result', () => {
-    expect(nightly.jobs['verify-nightly-visual']).toMatchObject({
-      strategy: {
-        'fail-fast': false,
-        matrix: { shard: [1, 2, 3, 4, 5, 6, 7, 8] },
-      },
+  test('the visual matrix covers consecutive Playwright shards even when one fails', () => {
+    const visual = nightly.jobs['verify-nightly-visual']!;
+    const shards = visual.strategy?.matrix?.shard ?? [];
+    expect(shards.length).toBeGreaterThan(1);
+    expect([...shards].sort((a, b) => a - b)).toEqual(
+      Array.from({ length: shards.length }, (_, index) => index + 1)
+    );
+    expect(visual).toMatchObject({
+      strategy: { 'fail-fast': false },
       env: { STORYBOOK_SHARD: '${{ matrix.shard }}/${{ strategy.job-total }}' },
     });
   });

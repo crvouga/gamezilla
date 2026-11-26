@@ -64,8 +64,6 @@ const DEPLOY_JOBS: Record<string, string> = {
 
 /** A job fanned out over the env files renders as `<prefix>:<env>`. */
 const MATRIX_ENV = '${{ matrix.env }}';
-/** A job fanned out over shards renders as `<prefix>:<stage> (<shard>)`. */
-const SHARD = ' (${{ strategy.job-index }})';
 
 const workflows = readdirSync(WORKFLOWS_DIR)
   .filter((file) => file.endsWith('.yml'))
@@ -131,10 +129,12 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
         );
         continue;
       }
+      if (perShard) {
+        expect(job.name?.split(' (')[0]).toBe(`${prefix}${stage}`);
+        continue;
+      }
       expect(job.name).toBe(
-        perEnv
-          ? `${prefix}:${MATRIX_ENV}`
-          : `${prefix}${stage}${perShard ? SHARD : ''}`
+        perEnv ? `${prefix}:${MATRIX_ENV}` : `${prefix}${stage}`
       );
     }
   });

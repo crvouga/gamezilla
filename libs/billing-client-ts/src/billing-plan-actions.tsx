@@ -28,8 +28,8 @@ import { billingFailureIn } from './billing-request-error';
 import type { BillingView } from './billing-view-model';
 
 export type BillingActions = {
-  readonly subscribe: () => Promise<void>;
-  readonly manage: () => Promise<void>;
+  readonly subscribe: (allowDeparture: () => void) => Promise<void>;
+  readonly manage: (allowDeparture: () => void) => Promise<void>;
   /** Runs the subscribe denial's unlock (the permission system's CTA). */
   readonly unlock: () => void;
   /** Look again for the membership a paid checkout should have made. */
@@ -91,7 +91,7 @@ function useSubscribeButton(props: {
 }): UseMutationButtonResult {
   const { t } = useLingui();
   const button: UseMutationButtonResult = useMutationButton({
-    operation: () => props.actions.subscribe(),
+    operation: (allowDeparture) => props.actions.subscribe(allowDeparture),
     get disabled() {
       return props.view.notice === 'offline';
     },
@@ -125,7 +125,7 @@ function useManageButton(props: {
 }): UseMutationButtonResult {
   const { t } = useLingui();
   const button: UseMutationButtonResult = useMutationButton({
-    operation: () => props.actions.manage(),
+    operation: (allowDeparture) => props.actions.manage(allowDeparture),
     labels: {
       get idle() {
         return props.view.state === 'delinquent'

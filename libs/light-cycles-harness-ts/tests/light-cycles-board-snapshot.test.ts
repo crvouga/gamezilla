@@ -5,8 +5,7 @@ const BOARD = 'custom-game-board';
 
 function rider(
   index: number,
-  x: number,
-  y: number,
+  [x, y]: readonly [number, number],
   heading: string,
   alive = true
 ): string {
@@ -17,9 +16,9 @@ function rider(
 const TRIO_COUNTDOWN = [
   `<div class="arena" data-dimmed="false" data-round="1" data-rider-count="3" data-testid="${BOARD}-arena" aria-label="Arena &amp; &quot;riders&quot;">`,
   `<svg><path data-testid="${BOARD}-arena-trail-0" d="M9 6h2v1h-2z"></path>`,
-  rider(0, 10, 6, 'right'),
-  rider(1, 30, 21, 'left'),
-  rider(2, 30, 6, 'down', false),
+  rider(0, [10, 6], 'right'),
+  rider(1, [30, 21], 'left'),
+  rider(2, [30, 6], 'down', false),
   `<g class="crash" data-rider="2" data-testid="${BOARD}-arena-crash-2" data-x="30" data-y="6"></g></svg></div>`,
   `<span data-testid="${BOARD}-score-white" data-score="1"></span>`,
   `<span data-testid="${BOARD}-score-black" data-score="0"></span>`,

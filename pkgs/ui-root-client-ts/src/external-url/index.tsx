@@ -2,7 +2,6 @@
 
 import type { JSX } from '@solidjs/web';
 import { createContext, untrack, useContext } from 'solid-js';
-import { usePendingNavigation } from '../pending-navigation';
 
 export type OpenExternalUrl = (url: string) => Promise<void>;
 
@@ -42,9 +41,5 @@ export function useOpenExternalUrl(): OpenExternalUrl {
   if (open === null) {
     throw new Error('useOpenExternalUrl: ExternalUrlProvider missing');
   }
-  // The control that opens the provider's page is usually still pending when
-  // the page leaves; that departure is the person's own, not an interruption.
-  const navigation = usePendingNavigation();
-  if (navigation === undefined) return open;
-  return (url) => navigation.depart(() => open(url));
+  return open;
 }

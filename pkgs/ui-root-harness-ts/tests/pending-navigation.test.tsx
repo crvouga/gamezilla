@@ -255,7 +255,11 @@ test('finishing during confirmation makes the requested departure safe', async (
 function Checkout(props: { provider: Promise<string> }) {
   const openExternalUrl = useOpenExternalUrl();
   const subscribe = useMutationButton({
-    operation: async () => openExternalUrl(await props.provider),
+    operation: async (allowDeparture) => {
+      const url = await props.provider;
+      allowDeparture();
+      await openExternalUrl(url);
+    },
     labels: {
       idle: 'Subscribe',
       loading: 'Opening',
@@ -269,36 +273,47 @@ function Checkout(props: { provider: Promise<string> }) {
 }
 
 // regression: billing-checkout-held-by-unload-guard
-test('a pressed control leaving for a provider page is not held by the unload guard', async () => {
-  let provide: (url: string) => void = () => undefined;
-  const provider = new Promise<string>((resolve) => {
-    provide = resolve;
-  });
-  // The browser dispatches `beforeunload` inside the call that leaves.
-  const heldDepartures: boolean[] = [];
-  const Router = createRouter({
-    routes: [{ path: '/', component: () => <Checkout provider={provider} /> }],
-    history: memoryHistory(),
-  });
-  renderUi(() => (
-    <StaticExternalUrlProvider
-      open={() => {
-        heldDepartures.push(reloadIsBlocked());
-        return Promise.resolve();
-      }}
-    >
-      <Router>
-        {(props) => (
-          <AppRouterProvider>
-            <SurfaceStackProvider>{props.children}</SurfaceStackProvider>
-          </AppRouterProvider>
-        )}
-      </Router>
-    </StaticExternalUrlProvider>
-  ));
-  fireEvent.click(screen.getByTestId('subscribe'));
-  await screen.findByRole('button', { name: 'Opening' });
-  expect(reloadIsBlocked()).toBe(true);
-  provide('https://provider.example/c/pay/cs_test_person');
-  await waitFor(() => expect(heldDepartures).toEqual([false]));
-});
+// regression: checkout-bypasses-other-pending-work
+test.each([false, true])(
+  'leaving for checkout protects concurrent work (%s)',
+  async (background) => {
+    let provide: (url: string) => void = () => undefined;
+    const provider = new Promise<string>((resolve) => {
+      provide = resolve;
+    });
+    // The browser dispatches `beforeunload` inside the call that leaves.
+    const heldDepartures: boolean[] = [];
+    const Router = createRouter({
+      routes: [
+        { path: '/', component: () => <Checkout provider={provider} /> },
+      ],
+      history: memoryHistory(),
+    });
+    renderUi(() => (
+      <StaticExternalUrlProvider
+        open={() => {
+          heldDepartures.push(reloadIsBlocked());
+          return Promise.resolve();
+        }}
+      >
+        <Router>
+          {(props) => (
+            <AppRouterProvider>
+              <SurfaceStackProvider>
+                <Show when={background}>
+                  <BackgroundWork cancel={() => undefined} />
+                </Show>
+                {props.children}
+              </SurfaceStackProvider>
+            </AppRouterProvider>
+          )}
+        </Router>
+      </StaticExternalUrlProvider>
+    ));
+    fireEvent.click(screen.getByTestId('subscribe'));
+    await screen.findByRole('button', { name: 'Opening' });
+    expect(reloadIsBlocked()).toBe(true);
+    provide('https://provider.example/c/pay/cs_test_person');
+    await waitFor(() => expect(heldDepartures).toEqual([background]));
+  }
+);

@@ -18,8 +18,7 @@ export function PendingNavigationProvider(props: {
     (blocked) => {
       if (!blocked) return undefined;
       const beforeUnload = (event: BeforeUnloadEvent): void => {
-        if (navigation.departing()) return;
-        event.preventDefault();
+        if (navigation.pendingOperations().length > 0) event.preventDefault();
       };
       window.addEventListener('beforeunload', beforeUnload);
       return () => window.removeEventListener('beforeunload', beforeUnload);

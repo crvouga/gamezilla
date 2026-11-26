@@ -146,14 +146,17 @@ export function BillingScreen(): JSX.Element {
       day: 'numeric',
     }).format(new Date(ms));
 
-  const startCheckout = (): Promise<void> =>
+  const startCheckout = (allowDeparture: () => void): Promise<void> =>
     openCheckout({
       setAwaiting: setAwaitingPlus,
       start: () =>
         subscribe({
           returnUrl: `${window.location.origin}${PLUS_MEMBERSHIP_OFFER.portal.defaultReturnUrlPath}`,
         }),
-      open: openExternalUrl,
+      open: (url) => {
+        allowDeparture();
+        return openExternalUrl(url);
+      },
       refresh: () => void engine.refreshQueries(),
     });
 
