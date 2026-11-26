@@ -9,8 +9,8 @@ import {
   readLastPushSeq,
   recordPushApplied,
 } from '@pkgs/sync-engine-shared-ts/push-applied';
-import type { PushMessage, QueryRow } from '@pkgs/sync-engine-shared-ts/v2';
-import { rowsWithinReceiveCap } from './attach-push-rows-cap';
+import { fanoutRowsWithinCap } from '@pkgs/sync-engine-shared-ts/select-fanout-rows';
+import type { PushMessage } from '@pkgs/sync-engine-shared-ts/v2';
 import type { RowImageCheckpointRaise } from './merge';
 import { applyRowImages } from './merge';
 import type { PushSubscriptions } from './push-subscriptions';
@@ -57,9 +57,8 @@ async function tryApplyFanoutRows(
   payload: PushMessage
 ): Promise<boolean> {
   if (bag.options.rowImageFanout !== true) return false;
-  if (payload.rows === undefined) return false;
-  const capped = rowsWithinReceiveCap(payload.rows);
-  if (capped === undefined) return false;
+  const rows = payload.rows;
+  if (rows === undefined || !fanoutRowsWithinCap(rows)) return false;
   const getMergeDeps = bag.options.getMergeDeps;
   if (getMergeDeps === undefined) return false;
 
@@ -68,11 +67,7 @@ async function tryApplyFanoutRows(
   if (!isContiguousNext(last, payload.pushSeq)) return false;
 
   try {
-    await applyRowImages(
-      getMergeDeps(),
-      capped as Record<string, readonly QueryRow[]>,
-      raiseFor(bag, topic, payload)
-    );
+    await applyRowImages(getMergeDeps(), rows, raiseFor(bag, topic, payload));
     await recordPushApplied(bag.options.db, topic, payload.pushSeq, clock);
     return true;
   } catch (error) {

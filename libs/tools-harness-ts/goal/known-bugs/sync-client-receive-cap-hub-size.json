@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly coverage and cache hygiene failed when the sync client reached 61 source files with 69 affected packages. The push handler now checks the shared row limit directly.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-hygiene.test.ts"
+}
