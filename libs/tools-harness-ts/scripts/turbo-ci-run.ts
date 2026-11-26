@@ -18,8 +18,8 @@
  *   cannot see — which commits a change adds — is exported as
  *   `VERIFY_SECRETS_RANGE` (`<merge-base>..<head>`) for `verify:secrets`.
  * - Plan first (`turbo-preflight.ts`): `--dry=json` asks the local cache
- *   about every task (~4s), then the remote about the local misses only, in
- *   parallel. All hits → the gate already passed for these inputs, so
+ *   about every task (~4s), then queries the remote for local misses in one
+ *   request. All hits → the gate already passed for these inputs, so
  *   turbo is not run at all. Otherwise turbo runs only the missed task ids
  *   (plus their `dependsOn` closure, same hashes), after the closure's remote
  *   hits are prefetched in parallel into the local cache — so `--concurrency`
@@ -82,11 +82,10 @@ import {
   dryRunPlan,
   localCacheFlag,
   prefetchRemoteHits,
-  REMOTE_LOOKUP_CONCURRENCY,
   readsRemoteCache,
   resolveRemoteHits,
   restoreEveryHit,
-  wallRemoteHas,
+  wallArtifactQuery,
 } from './turbo-preflight';
 import {
   DEADLINE_FLUSH_MS,
@@ -776,11 +775,7 @@ async function planOrNull(
       env
     );
     if (askRemote && plan.toExecute.length > 0) {
-      plan = await resolveRemoteHits(
-        plan,
-        wallRemoteHas(env),
-        REMOTE_LOOKUP_CONCURRENCY
-      );
+      plan = await resolveRemoteHits(plan, wallArtifactQuery(env));
     }
   } catch (error) {
     console.warn(

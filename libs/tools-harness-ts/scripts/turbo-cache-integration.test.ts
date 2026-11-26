@@ -10,7 +10,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { resolveCacheFlag } from './turbo-ci-run';
-import { wallRemoteHas } from './turbo-preflight';
+import { wallArtifactQuery } from './turbo-preflight';
 
 const turbo = join(import.meta.dirname, '../../../node_modules/.bin/turbo');
 const sentinel = 'fixture-secret-must-never-enter-a-cache-artifact';
@@ -129,6 +129,30 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
       const key = `${url.pathname}${url.search}`;
       if (url.pathname === '/v8/artifacts/status')
         return Response.json({ status: 'enabled' });
+      if (request.method === 'POST' && url.pathname === '/v8/artifacts') {
+        const body = await request.json();
+        if (
+          !body ||
+          typeof body !== 'object' ||
+          !('hashes' in body) ||
+          !Array.isArray(body.hashes)
+        )
+          return new Response(null, { status: 400 });
+        const hashes = body.hashes.filter((hash) => typeof hash === 'string');
+        return Response.json(
+          Object.fromEntries(
+            hashes.map((hash: string) => {
+              const bytes = artifacts.get(
+                `${url.pathname}/${hash}${url.search}`
+              );
+              return [
+                hash,
+                bytes ? { size: bytes.length, taskDurationMs: 1 } : null,
+              ];
+            })
+          )
+        );
+      }
       if (request.method === 'PUT') {
         artifacts.set(key, new Uint8Array(await request.arrayBuffer()));
         return new Response(null, { status: 200 });
@@ -167,9 +191,11 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     const args = [`--cache=${mode}`, '--output-logs=full'];
     expect(await invoke(root, env, args)).toContain('0 cached, 3 total');
     expect(artifacts.size).toBe(3);
-    // regression: turbo-remote-artifact-url — HEAD must use the query the CLI PUT.
+    // regression: turbo-remote-artifact-url — query the same team scope the CLI wrote.
     const stored = await hashes(root, env);
-    expect(await wallRemoteHas(env)(stored['a#build']!)).toBe(true);
+    expect(
+      await wallArtifactQuery(env)([...Object.values(stored), 'missing'])
+    ).toEqual(new Set(Object.values(stored)));
     for (const key of artifacts.keys()) expect(key).toContain('?slug=fixture');
     const before = await hashes(root, env);
     for (const name of ['a', 'b', 'c']) {
@@ -241,3 +267,29 @@ test('real Turbo restores remote outputs and invalidates only changed inputs and
     removeTree(root, { whenLocked: 'leave' });
   }
 }, 30_000);
+
+test('only requested hashes with complete artifact metadata can satisfy the gate', async () => {
+  const server = Bun.serve({
+    port: 0,
+    fetch: () =>
+      Response.json({
+        good: { size: 5, taskDurationMs: 3 },
+        unrelated: { size: 9, taskDurationMs: 4 },
+        failed: {
+          error: { message: 'lookup failed' },
+          size: 0,
+          taskDurationMs: 0,
+        },
+        truncated: { size: 9 },
+        absent: null,
+      }),
+  });
+  try {
+    const query = wallArtifactQuery({ TURBO_API: server.url.origin });
+    expect(
+      await query(['good', 'failed', 'truncated', 'absent', 'omitted'])
+    ).toEqual(new Set(['good']));
+  } finally {
+    server.stop(true);
+  }
+});

@@ -13,9 +13,8 @@ import type { GlobalCacheInputs } from './turbo-dry-run-projection';
 import type { RunPlan } from './turbo-preflight';
 import {
   planFromDryRun,
-  REMOTE_LOOKUP_CONCURRENCY,
   resolveRemoteHits,
-  wallRemoteHas,
+  wallArtifactQuery,
 } from './turbo-preflight';
 import { resolveRunDeadlineSeconds } from './verify-budget';
 import { cacheDiagnostics } from './verify-cache-diagnostics';
@@ -197,13 +196,13 @@ if (import.meta.main) await createVerifyPlan();
 async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
   const remoteResponses: Record<number, number> = {};
   const responsesByHash: Record<string, number> = {};
-  const remoteHas = wallRemoteHas(env, (status, hash) => {
+  const query = wallArtifactQuery(env, (status, hash) => {
     responsesByHash[hash] = status;
     remoteResponses[status] = (remoteResponses[status] ?? 0) + 1;
   });
   const resolved =
     env['TURBO_TOKEN'] && env['VERIFY_CACHE_MODE'] !== 'cold'
-      ? await resolveRemoteHits(local, remoteHas, REMOTE_LOOKUP_CONCURRENCY)
+      ? await resolveRemoteHits(local, query)
       : local;
   if (remoteResponses[401] || remoteResponses[403])
     throw new Error(
@@ -211,7 +210,7 @@ async function resolveCache(local: RunPlan, env: NodeJS.ProcessEnv) {
     );
   if (env['TURBO_TOKEN'])
     console.log(
-      `cache: ${new URL(env['TURBO_API']!).origin}; scope ${env['TURBO_TEAM']}; responses ${JSON.stringify(remoteResponses)}`
+      `cache: ${new URL(env['TURBO_API']!).origin}; scope ${env['TURBO_TEAM']}; artifact statuses ${JSON.stringify(remoteResponses)}`
     );
   return { resolved, remoteResponses, responsesByHash };
 }

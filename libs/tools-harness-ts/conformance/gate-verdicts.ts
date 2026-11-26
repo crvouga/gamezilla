@@ -23,9 +23,8 @@ import type { RunPlan } from '../scripts/turbo-preflight';
 import {
   dryRunPlan,
   localCacheFlag,
-  REMOTE_LOOKUP_CONCURRENCY,
   resolveRemoteHits,
-  wallRemoteHas,
+  wallArtifactQuery,
 } from '../scripts/turbo-preflight';
 import type { TaskVerdict } from './evaluate';
 
@@ -106,11 +105,7 @@ export async function gateVerdicts(
       env
     );
     if (remote && plan.toExecute.length > 0) {
-      plan = await resolveRemoteHits(
-        plan,
-        wallRemoteHas(env),
-        REMOTE_LOOKUP_CONCURRENCY
-      );
+      plan = await resolveRemoteHits(plan, wallArtifactQuery(env));
     }
   } catch (cause) {
     const detail = `no verdict — planning bun verify failed: ${cause instanceof Error ? cause.message.split('\n')[0] : String(cause)}`;

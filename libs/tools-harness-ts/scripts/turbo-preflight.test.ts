@@ -31,14 +31,10 @@ describe('planFromDryRun', () => {
       ])
     );
     const lookedUp: string[] = [];
-    const remote = await resolveRemoteHits(
-      plan,
-      async (hash) => {
-        lookedUp.push(hash);
-        return true;
-      },
-      2
-    );
+    const remote = await resolveRemoteHits(plan, async (hashes) => {
+      lookedUp.push(...hashes);
+      return new Set(hashes);
+    });
     expect(remote.toExecute.map((task) => task.taskId)).toEqual([
       '@libs/tools-harness-ts#ci:audit',
     ]);
@@ -346,37 +342,26 @@ describe('resolveRemoteHits', () => {
 
   test('a local miss the remote holds becomes a remote hit', async () => {
     const asked: string[] = [];
-    const plan = await resolveRemoteHits(
-      localPlan,
-      (hash) => {
-        asked.push(hash);
-        return Promise.resolve(hash === 'aaa' || hash === 'bbb');
-      },
-      4
-    );
+    const plan = await resolveRemoteHits(localPlan, (hashes) => {
+      asked.push(...hashes);
+      return Promise.resolve(new Set(['aaa', 'bbb']));
+    });
     expect(asked.sort()).toEqual(['aaa', 'bbb', 'ttt']);
     expect(plan.toExecute.map((task) => task.taskId)).toEqual(['@pkgs/a#test']);
     expect(plan.remoteHits.map((task) => task.taskId)).toEqual(['@pkgs/a#tc']);
   });
 
   test('every miss found on the remote leaves nothing to execute', async () => {
-    const plan = await resolveRemoteHits(
-      localPlan,
-      () => Promise.resolve(true),
-      2
+    const plan = await resolveRemoteHits(localPlan, (hashes) =>
+      Promise.resolve(new Set(hashes))
     );
     expect(plan.toExecute).toEqual([]);
     expect(plan.tasks.every((task) => task.hit)).toBe(true);
   });
 
   test('a failed lookup is a miss: the task runs', async () => {
-    const plan = await resolveRemoteHits(
-      localPlan,
-      (hash) =>
-        hash === 'bbb'
-          ? Promise.reject(new Error('network'))
-          : Promise.resolve(false),
-      4
+    const plan = await resolveRemoteHits(localPlan, () =>
+      Promise.reject(new Error('network'))
     );
     expect(plan.toExecute.map((task) => task.taskId).sort()).toEqual([
       '@pkgs/a#tc',
