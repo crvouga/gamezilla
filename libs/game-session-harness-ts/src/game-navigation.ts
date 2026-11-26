@@ -133,19 +133,20 @@ export async function showCustomGames(
   gameId: string
 ): Promise<void> {
   const ui = await actorUi(s, actor);
+  const content = ui.get(SHARED_SCREEN_MARK['custom-game']);
   await pollUntil(
     s,
     async () => {
       await bringToFront(s, actor);
-      if (await ui.get(SHARED_SCREEN_MARK['custom-game']).isVisible()) {
-        if (await chooseGameMode(ui, gameId)) return null;
-        return true;
+      if (!(await content.isVisible())) {
+        const choice = ui.get(Handles.gameChoice('custom-game'));
+        const tile = ui.get(gameTile(s, gameId));
+        if (await choice.isVisible()) await tapWhileShown(choice);
+        else if (await tile.isVisible()) await tapWhileShown(tile);
+        // A browser tap can settle after the space has already opened the game.
+        if (!(await content.isVisible())) return null;
       }
-      if (await ui.get(Handles.gameChoice('custom-game')).isVisible())
-        await tapWhileShown(ui.get(Handles.gameChoice('custom-game')));
-      else if (await ui.get(gameTile(s, gameId)).isVisible())
-        await tapWhileShown(ui.get(gameTile(s, gameId)));
-      return null;
+      return (await chooseGameMode(ui, gameId)) ? null : true;
     },
     {
       maxMs: 15_000,
