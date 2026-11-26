@@ -54,6 +54,13 @@
   color: var(--ui-color-text);
   overflow: hidden;
 }
+/* On a portrait phone all seven hit targets share the available width.
+   The fixed stage scrolls the board if its instructions need more room. */
+@media (orientation: portrait) and (max-width: 767px) {
+  [data-game-fixed="true"] [data-game-board-content]:has(.board) {
+    max-width: none;
+  }
+}
 .column {
   display: flex;
   flex-direction: column;
