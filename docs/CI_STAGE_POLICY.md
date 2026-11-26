@@ -170,12 +170,13 @@ release gate. Assigned triage and pinned gate regressions close that loop.
 ## Hosted PR throughput diagnostic
 
 Dispatch Verify Nightly with `group=pr-load` and a JSON array of full commit SHAs in
-`pr-load-revisions`. Each revision must belong to the history of main. For example,
-this submits ten merged workloads together using the current four PR tasks.
+`pr-load-revisions`. Each revision must belong to the history of main. Use the batch command to verify the number of distinct revisions before dispatch.
+The report checks the number of GitHub jobs, accounts for failures, and writes
+the observed timing and utilization percentiles under `.cache/pr-load-reports/`.
 
 ```sh
-revisions=$(git rev-list --first-parent -n 10 origin/main | jq -R . | jq -sc .)
-gh workflow run verify-nightly.yml --ref main -f group=pr-load -f pr-load-revisions="$revisions"
+python3 libs/tools-harness-ts/scripts/pr-load-report.py dispatch 10 --base origin/main
+python3 libs/tools-harness-ts/scripts/pr-load-report.py report RUN_ID 10
 ```
 
 For a load sweep, submit separate batches of 1, 10, 25, 50 and 100 distinct revisions.
