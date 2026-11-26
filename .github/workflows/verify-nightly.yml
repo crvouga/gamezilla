@@ -62,6 +62,10 @@ on:
         description: Optional story-id regex for explicit Storybook diagnostics; empty runs every state
         type: string
         default: ''
+      browser-journey:
+        description: Optional journey feature path to run against the isolated production build and capture each step (browser group)
+        type: string
+        default: ''
       storybook-evidence-run:
         description: Export retained synthetic Storybook evidence for this exact run instead of running tests (group must be storybook)
         type: string
@@ -163,8 +167,17 @@ jobs:
         uses: ./.github/actions/visual-renderer
         timeout-minutes: 2
       - name: verify-nightly:browser
+        if: ${{ inputs.group != 'browser' || !inputs.browser-journey }}
         timeout-minutes: 320
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify-nightly:browser
+      - name: Capture one production browser journey
+        if: ${{ inputs.group == 'browser' && inputs.browser-journey != '' }}
+        env:
+          BROWSER_JOURNEY: ${{ inputs.browser-journey }}
+          JOURNEY_CAPTURE_STEPS: '1'
+        run: |
+          [[ "$BROWSER_JOURNEY" =~ ^specs/journeys/[a-z0-9-]+\.feature$ ]]
+          bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bunx turbo run test:release-journeys --filter=@apps/product-ts -- "$BROWSER_JOURNEY"
       # Step timelines, screenshots, recordings and traces of every scenario.
       - name: Retain browser reports and traces
         if: always() && !cancelled()
@@ -174,6 +187,7 @@ jobs:
           path: |
             .turbo/runs/*.json
             apps/*/.cache/harness-report
+            apps/product-ts/.cache/critical-journeys/release-all/*/steps
             libs/*/.cache/harness-report
             pkgs/*/.cache/harness-report
           retention-days: 3

@@ -1,6 +1,7 @@
 import { DecisionGate } from '@libs/permissions-client-ts/decision-gate';
 import { UserProfileAvatar } from '@libs/profile-client-ts/user-profile-avatar';
 import { UserUsername } from '@libs/profile-client-ts/user-username';
+import { useSpaceRoomSessionId } from '@libs/spaces-client-ts/space-room-context';
 import {
   DefineBackButton,
   useGameChoicesName,
@@ -12,7 +13,7 @@ import { useGamePresentation } from '@pkgs/turn-game-client-ts/turn-games-contex
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { useStageOverlay } from '@pkgs/turn-game-client-ts/use-stage-overlay';
 import type { JSX } from '@solidjs/web';
-import { createEffect } from 'solid-js';
+import { createEffect, Show } from 'solid-js';
 import { CustomGameBack } from './custom-game-back';
 import { useRefusalText } from './custom-game-error';
 import { CUSTOM_GAME_PLACES } from './custom-game-places';
@@ -134,6 +135,7 @@ function useFramePresentationFacts(model: FrameProps['model']) {
   };
   return {
     /** How the game is won, in one sentence. */
+    name: (): string | undefined => shown()?.name(),
     goal: (): string | undefined => shown()?.goal?.(),
     /** How the frame holds the board: its fit, alignment and workspace. */
     board: () => ({
@@ -203,7 +205,7 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         resign={() => model.choose({ operation: 'resign' })}
       />
       <CustomGameScreenView
-        title={props.title}
+        title={shown.name() ?? props.title}
         goal={shown.goal()}
         phase={place.phase()}
         place={place.place()}
@@ -249,13 +251,24 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
 }
 
 /** A game's custom game in a space: wires `CustomGameScreenView` to the room. */
-export function CustomGameScreen(props: {
+type CustomGameScreenProps = {
   gameId: string;
   onBack: () => void;
   title?: string;
   onHistory?: () => void;
   onBackFromBoard: (personal: boolean) => void;
-}): JSX.Element {
+};
+
+export function CustomGameScreen(props: CustomGameScreenProps): JSX.Element {
+  const spaceId = useSpaceRoomSessionId();
+  return (
+    <Show when={spaceId()} keyed>
+      {(_room) => <RoomCustomGameScreen {...props} />}
+    </Show>
+  );
+}
+
+function RoomCustomGameScreen(props: CustomGameScreenProps): JSX.Element {
   const model = useCustomGameScreen(
     props.onBack,
     () => props.gameId,

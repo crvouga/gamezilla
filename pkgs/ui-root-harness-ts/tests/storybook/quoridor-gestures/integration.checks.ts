@@ -75,6 +75,7 @@ for (const phone of [true, false]) {
       await capture('magnified');
       await driver.drag(anchor, { x: anchor.x + 55, y: anchor.y + 50 });
       await expect(cell('e1')).toHaveAttribute('data-identity', 'one');
+      await page.getByTestId('custom-game-board-coordinates').click();
       await page.getByTestId('custom-game-board-mode-h').click();
       if (phone) await cell('e5').tap();
       else await cell('e5').click();

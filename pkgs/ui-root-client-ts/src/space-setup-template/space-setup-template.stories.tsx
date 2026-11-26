@@ -1,7 +1,7 @@
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
-  expectSpaceExitInMenu,
+  expectSpaceBarActions,
   SPACE_STORY_FIXTURE,
   SPACE_STORY_GAMES,
   SPACE_STORY_ROLES,
@@ -26,7 +26,9 @@ const meta = {
   tags: ['autodocs', 'viewport-responsive'],
   args: {
     onBack: fn(),
-    onSpaceMenu: fn(),
+    onMembers: fn(),
+    onRename: fn(),
+    onMinimize: fn(),
     onLeave: fn(),
     onEnd: fn(),
     onPersonAction: fn(),
@@ -73,7 +75,7 @@ export const Screen: Story = {
     if (spaceStoryRole(globals) === 'host') {
       await userEvent.click(canvas.getByRole('button', { name: /^Start / }));
       await expect(args.onStart).toHaveBeenCalledTimes(1);
-      await expectSpaceExitInMenu(canvasElement, 'host');
+      await expectSpaceBarActions(canvasElement, 'host');
       return;
     }
     await expect(
@@ -81,6 +83,6 @@ export const Screen: Story = {
     ).toBeVisible();
     await userEvent.click(canvas.getByRole('button', { name: "I'm ready" }));
     await expect(args.onReadyChange).toHaveBeenCalledWith(true);
-    await expectSpaceExitInMenu(canvasElement, 'guest');
+    await expectSpaceBarActions(canvasElement, 'guest');
   },
 };

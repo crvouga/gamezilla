@@ -19,6 +19,12 @@ Feature: Create a custom game
 
   Rule: Creating another custom game keeps an unfinished one
 
+    @regression:custom-game-hidden-by-game-choice
+    Scenario: Choosing another game brings the host back to unfinished setup
+      Given Alice is setting up a custom game
+      When Alice opens custom games for a different game
+      Then Alice sees the game she was setting up with its seats unchanged
+
     Scenario: A new game follows a cancelled game
       Given Alice has a cancelled custom game
       When Alice creates a custom game

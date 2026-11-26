@@ -38,7 +38,10 @@ export function SpaceScreenFrame(props: {
           role={chrome.role}
           onBack={chrome.onBack}
           backLabel={chrome.backLabel}
-          menu={chrome.menu}
+          onMembers={chrome.onMembers}
+          onRename={chrome.onRename}
+          onMinimize={chrome.onMinimize}
+          onInvite={chrome.onInvite}
           onLeave={chrome.onLeave}
           onEnd={chrome.onEnd}
           notice={<SpaceScreenNotice />}

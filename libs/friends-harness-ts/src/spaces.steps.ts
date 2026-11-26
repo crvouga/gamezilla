@@ -32,7 +32,6 @@ import {
   leaveSpace,
   openSpaceLink,
   openSpaceMembers,
-  openSpaceMenu,
   openSpacesTab,
   renameSpace,
   reopenSpaceLink,
@@ -564,16 +563,13 @@ Then(
   }
 );
 
-// Renaming lives in the space's menu; the observer opens it to look.
 Then('{actor} can rename the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.apply(openSpaceMenu, actor);
   expect(await w.s.read(renameOffered, actor)).toBe(true);
 });
 
 Then('{actor} cannot rename the space', async (w, actor: Actor) => {
   await w.s.apply(focusActor, actor);
-  await w.s.apply(openSpaceMenu, actor);
   expect(await w.s.read(renameOffered, actor)).toBe(false);
 });
 
