@@ -407,25 +407,41 @@ jobs:
         run: 'true'
 
 
-  # Random and performance have released two runners. A red dependency still releases its slot.
-  verify-nightly-visual-after-short-suites:
-    needs: [verify-nightly-admission, verify-nightly-random, verify-nightly-performance]
+  # Performance frees one runner first. Give shard 7 its full budget before the shorter shard 5.
+  verify-nightly-visual-after-performance:
+    needs: [verify-nightly-admission, verify-nightly-performance]
     name: *visual-name
     if: &visual-continuation ${{ !cancelled() && needs.verify-nightly-admission.result == 'success' && (github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual') }}
     runs-on: ubuntu-24.04
     timeout-minutes: 45
     strategy:
       fail-fast: true
-      max-parallel: 2
+      max-parallel: 1
       matrix:
-        shard: [2, 3, 4, 7]
+        shard: [7, 5]
     env: *visual-env
     permissions: *visual-permissions
     steps: *visual-steps
 
-  # The stack browser matrix has released its four runners.
+  # Random releases its single runner independently.
+  verify-nightly-visual-after-random:
+    needs: [verify-nightly-admission, verify-nightly-random]
+    name: *visual-name
+    if: *visual-continuation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        shard: [2]
+    env: *visual-env
+    permissions: *visual-permissions
+    steps: *visual-steps
+
+  # Use three of the four released stack-browser runners, with at most two jobs per matrix.
   verify-nightly-visual-after-browser:
-    needs: [verify-nightly-admission, verify-nightly-browser]
+    needs: &visual-after-browser [verify-nightly-admission, verify-nightly-browser]
     name: *visual-name
     if: *visual-continuation
     runs-on: ubuntu-24.04
@@ -434,7 +450,22 @@ jobs:
       fail-fast: true
       max-parallel: 2
       matrix:
-        shard: [5, 6]
+        shard: [3, 4]
+    env: *visual-env
+    permissions: *visual-permissions
+    steps: *visual-steps
+
+  verify-nightly-visual-after-browser-single:
+    needs: *visual-after-browser
+    name: *visual-name
+    if: *visual-continuation
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    strategy:
+      fail-fast: true
+      max-parallel: 1
+      matrix:
+        shard: [6]
     env: *visual-env
     permissions: *visual-permissions
     steps: *visual-steps
@@ -578,8 +609,10 @@ jobs:
       - verify-nightly-random
       - verify-nightly-browser
       - verify-nightly-visual
-      - verify-nightly-visual-after-short-suites
+      - verify-nightly-visual-after-performance
+      - verify-nightly-visual-after-random
       - verify-nightly-visual-after-browser
+      - verify-nightly-visual-after-browser-single
       - verify-nightly-coverage
       - verify-nightly-performance
       - verify-nightly-storybook

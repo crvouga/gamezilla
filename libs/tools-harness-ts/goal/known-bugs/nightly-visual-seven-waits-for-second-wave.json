@@ -1,0 +1,4 @@
+{
+  "summary": "In full Nightly 45906600013, visual shard 7 started at 28m50s and was cancelled. The performance runner had been available since 1m14s. Replay the actual release times and cold job durations, using shard 7’s last completed run, against the 37-minute guard.",
+  "regressionTest": "libs/tools-harness-ts/scripts/nightly-visual-guard.test.ts"
+}

@@ -30,8 +30,10 @@ export type NightlyGroup = {
 const JOB_PREFIX = 'verify-nightly-';
 export const NIGHTLY_VISUAL_JOBS: readonly string[] = [
   'verify-nightly-visual',
-  'verify-nightly-visual-after-short-suites',
+  'verify-nightly-visual-after-performance',
+  'verify-nightly-visual-after-random',
   'verify-nightly-visual-after-browser',
+  'verify-nightly-visual-after-browser-single',
 ];
 const ISSUE_TITLE = failureIssueTitle('Verify Nightly');
 const GATE_SUMMARY =
