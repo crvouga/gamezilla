@@ -44,7 +44,7 @@ function storedScheme(value: string): string {
 describe('boot theme', () => {
   // regression: boot-theme-flash
   test('opens in the stored theme, whatever the system prefers', () => {
-    for (const app of ['client-ts', 'product-ts']) {
+    for (const app of ['product-client-ts', 'product-ts']) {
       expect(
         bootTheme(app, {
           stored: storedScheme('light'),
@@ -63,7 +63,7 @@ describe('boot theme', () => {
   });
 
   test('follows the system with no usable stored theme', () => {
-    for (const app of ['client-ts', 'product-ts']) {
+    for (const app of ['product-client-ts', 'product-ts']) {
       for (const stored of [null, storedScheme('system'), '{not json']) {
         expect(
           bootTheme(app, { stored, systemDark: false, pathname: '/' })
@@ -81,7 +81,7 @@ describe('boot theme', () => {
     );
     expect(preference).toContain("asKeyword('ui.prefs/color-scheme')");
     expect(preference).toContain("asKeyword('ui.prefs/value')");
-    for (const app of ['client-ts', 'product-ts']) {
+    for (const app of ['product-client-ts', 'product-ts']) {
       const html = source(`apps/${app}/index.html`);
       expect(html).toContain('html[data-theme="light"]');
       expect(html).toContain('color-scheme: light');
@@ -92,7 +92,7 @@ describe('boot theme', () => {
 describe('development client startup', () => {
   test('paints immediately while Vite prepares the client graph', () => {
     // regression: dev-cold-load-white-screen
-    for (const app of ['client-ts', 'product-ts']) {
+    for (const app of ['product-client-ts', 'product-ts']) {
       const html = source(`apps/${app}/index.html`);
       expect(html).toContain('class="startup-shell"');
       expect(html).not.toContain('startup-shell-caption');
@@ -135,7 +135,7 @@ describe('development client startup', () => {
   });
 
   test('prewarms the expensive first-load transforms', () => {
-    for (const app of ['client-ts', 'product-ts']) {
+    for (const app of ['product-client-ts', 'product-ts']) {
       const config = source(`apps/${app}/vite.config.mts`);
       expect(config).toContain('warmup:');
       expect(config).toContain(
@@ -147,7 +147,7 @@ describe('development client startup', () => {
 
   // regression: dev-fsevents-starves-client
   test('both web hosts use the workspace watcher policy', () => {
-    for (const app of ['client-ts', 'product-ts']) {
+    for (const app of ['product-client-ts', 'product-ts']) {
       const config = source(`apps/${app}/vite.config.mts`);
       expect(config).toContain('watch: workspaceWatchOptions()');
     }

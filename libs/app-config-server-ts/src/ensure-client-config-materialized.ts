@@ -8,7 +8,7 @@ import { isEqual } from '@pkgs/equal-shared-ts/is-equal';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { ClientConfigRepository } from './client-config-repository';
 
-export type DesiredClientConfig = {
+type ProductSettings = {
   readonly google: boolean;
   readonly apple: boolean;
   readonly billing: boolean;
@@ -16,9 +16,16 @@ export type DesiredClientConfig = {
   readonly llm: boolean;
   readonly googleWebClientId: string | null;
   readonly emqxWssUrl: string | null;
-  readonly permissionPolicy: unknown;
   readonly billingGracePeriodMs: number;
 };
+
+export type DesiredClientConfig =
+  | ({ readonly kind: 'product' } & ProductSettings)
+  | { readonly kind: 'admin'; readonly permissionPolicy: unknown }
+  | ({
+      readonly kind: 'complete';
+      readonly permissionPolicy: unknown;
+    } & ProductSettings);
 
 type DesiredRow = {
   readonly id: ClientConfigKeyId;
@@ -32,7 +39,18 @@ function trimOrNull(raw: string | null): string | null {
 }
 
 function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
+  const policy: DesiredRow[] =
+    desired.kind === 'product'
+      ? []
+      : [
+          {
+            id: ClientConfigKey.permissionPolicy,
+            value: desired.permissionPolicy,
+          },
+        ];
+  if (desired.kind === 'admin') return policy;
   return [
+    ...policy,
     {
       id: ClientConfigKey.googleEnabled,
       value: desired.google,
@@ -60,10 +78,6 @@ function buildDesiredRows(desired: DesiredClientConfig): readonly DesiredRow[] {
     {
       id: ClientConfigKey.emqxWssUrl,
       value: trimOrNull(desired.emqxWssUrl),
-    },
-    {
-      id: ClientConfigKey.permissionPolicy,
-      value: desired.permissionPolicy,
     },
     {
       id: ClientConfigKey.billingGracePeriodMs,
@@ -118,10 +132,14 @@ export class EnsureClientConfigMaterialized {
     desired: DesiredClientConfig
   ): Promise<{ readonly updated: boolean }> {
     const desiredRows = buildDesiredRows(desired);
-    const stored = await new ClientConfigRepository(
-      this.db,
-      this.clock
-    ).listAll();
+    const all = await new ClientConfigRepository(this.db, this.clock).listAll();
+    const stored = all.filter((row) => {
+      if (desired.kind === 'admin')
+        return row.id === ClientConfigKey.permissionPolicy;
+      if (desired.kind === 'product')
+        return row.id !== ClientConfigKey.permissionPolicy;
+      return true;
+    });
     if (isEqual(liveStoredSnapshot(stored), snapshotForCompare(desiredRows))) {
       return { updated: false };
     }

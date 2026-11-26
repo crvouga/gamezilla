@@ -54,6 +54,8 @@ export type StackServices = {
   };
   readonly population: { readonly workers: number };
   readonly web: { readonly origin: string };
+  readonly 'admin-api': { readonly origin: string };
+  readonly 'admin-client': { readonly origin: string };
 };
 
 export type ServiceName = keyof StackServices;
@@ -69,6 +71,8 @@ export const SERVICE_NAMES = [
   'server',
   'population',
   'web',
+  'admin-api',
+  'admin-client',
 ] as const satisfies readonly ServiceName[];
 
 type Published<T> =

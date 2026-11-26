@@ -1,4 +1,3 @@
 /* @shadcn/lint entry: production Tailwind theme plus in-house host classes. */
 @import "./tailwind.css";
 @import "../../ui-root-client-ts/src/hosts.css";
-@import "../../../apps/client-ts/src/base.css";

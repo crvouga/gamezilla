@@ -104,7 +104,8 @@ describe('app composition', () => {
     expect(screenNode('spaces')).toBeNull();
     expect(screen.queryByTestId(Handles.tabSpaces)).toBeNull();
 
-    history.set({ value: '/definitely/not/a/route' });
+    expect(screen.queryByText('Administration')).toBeNull();
+    history.set({ value: '/admin/observatory' });
     await waitForScreen('not-found');
     expect(screen.getByTestId('route-not-found')).toBeInTheDocument();
 

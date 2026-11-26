@@ -1,5 +1,5 @@
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import type {
   DecisionInput,
   DecisionOutput,
@@ -16,7 +16,7 @@ const MANAGER_ID = 'puzzle-manager';
 function answer(input: DecisionInput): DecisionOutput {
   const signedIn = input['signed in'] === 'yes';
   const onTeam = input['on the team for this environment'] === 'yes';
-  const policy = permissionPolicyForPuzzleManagers(onTeam ? [MANAGER_ID] : []);
+  const policy = permissionPolicyForAdmins(onTeam ? [MANAGER_ID] : []);
   const decision = decide(
     policy,
     resolveSubject(policy, {

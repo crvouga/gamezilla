@@ -69,7 +69,7 @@ Keep living competitor research with its product area. Follow the [market resear
 
 - **Domain rows are soft-delete only.** Removal sets managed `deleted_at`, never `DELETE FROM` a domain table (mutation `tx` rejects it: `NO_HARD_DELETE`). `defineQuery` snapshots include tombstones; UI reads filter `deleted_at IS NULL`. Merge upserts snapshot rows verbatim and rebases pending `sync_engine_mutations` on top — no absence GC. Unsubscribe / denied only clears `sync_engine_scope_meta`. Framework tables (`sync_engine_*`) may hard-delete.
 
-- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
+- **Screens compose `@pkgs/ui`; only the design system styles.** Product packages (`libs/*-client`, `apps/product-client-ts`, `apps/product-ts`, the feedback and harness-console clients) write no DOM elements and no `class` / `style`: layout is `Stack*` / `Grid` / `Layer` props, text is `P` / `Text` / `H1`–`H6`, paint is `Surface` or a component variant. Inside `@pkgs/ui-root-client-ts` (and component packages such as the chess board) style with Solid builtins: `class` / `classList` for token utilities, `style` only for dynamic values classes cannot express. Component props are closed (token names and keywords): no `class` / `style` / `contentClass` escape hatch, no `sx` / `frameSx` / `fieldSx`, no class-merge helpers (`joinClass` / `cn` / `clsx` / `twMerge` / `cva`). CI: `design-vocabulary.ts` + `design-composition.ts` (every UI package's `lint`), `no-inline-style-prop.grit`.
 
 - **Three-layer DI.** Only `SqlClient` and the injected ports are long-lived. Use-case classes take `(db, ports)` and open transactions for writes (reads pass `db` as `SqlTx`). Repositories / services / publishers / handlers take `SqlTx` (`Pick` of `query` / `run`) plus ports and are constructed on demand inside the use case. Factory functions `(tx, ports) => …` are the wiring escape hatch; no `*Container` or registry classes (`no-di-container.grit`). `defineMutation` / `defineQuery` handlers and Solid hooks stay as they are.
 
@@ -366,7 +366,7 @@ Setup and server startup are separate stages. Never copy credentials from anothe
   app in front (`/`, `/simulator`). `bun run stack` is the same
   command. Each process is its own Turborepo task (`@apps/product-ts#dev:*`).
   Tasks, ports and flags: [`README.md`](README.md#laptop).
-- **`bun run dev:client`** — `@apps/client-ts` alone.
+- **`bun run dev:client`** — `@apps/product-client-ts` alone.
 - **`bun run dev:harness`** — `@apps/harness-ts`: the whole system running in
   the browser tab, with a console over each node. It needs no stack.
 - **`bun run sims:open`** — pick project simulators and open Simulator.app.
@@ -460,7 +460,7 @@ Package scripts live in `<pkg>/scripts/` (include `./scripts/**/*.ts` in
 Package type-checking uses `tsconfig.tc.json` (`tsc --noEmit -p
 ./tsconfig.tc.json`), never a package `tsconfig.json` — that would steal files
 from the root project and break cross-package rename (exception:
-`apps/client-ts`).
+`apps/product-client-ts`).
 
 **Layering is enforced by Biome** (`libs/tools-harness-ts/biome-plugins/import-*.grit`,
 each probed in `libs/tools-harness-ts/scripts/import-boundaries.test.ts`, plus
@@ -468,7 +468,7 @@ each probed in `libs/tools-harness-ts/scripts/import-boundaries.test.ts`, plus
 
 - the tier pyramid above;
 - runtime categories and flat source layout from the repository briefing;
-- `@apps/server-ts` source is isomorphic: platform engines (`pg`, `node:*`) only
+- `@apps/product-api-ts` source is isomorphic: platform engines (`pg`, `node:*`) only
   behind injected ports and `@api-wall-ok` modules;
 - libs and pkgs never import `@apps/*`.
 

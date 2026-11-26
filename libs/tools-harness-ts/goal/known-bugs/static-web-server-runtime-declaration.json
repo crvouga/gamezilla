@@ -1,4 +1,4 @@
 {
   "summary": "The production static web server imported sqlite-web-headers.d.ts instead of runtime JavaScript, so browser specifications could not start.",
-  "regressionTest": "apps/client-ts/scripts/static-web-server.test.ts"
+  "regressionTest": "apps/product-client-ts/scripts/static-web-server.test.ts"
 }

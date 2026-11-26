@@ -5,21 +5,16 @@ import {
   createAuthProvider,
 } from '@libs/app-root-shared-ts/auth-provider';
 import { apiCors } from '@libs/app-root-shared-ts/cors';
-import {
-  apiRequestAsyncLocalStorage,
-  requireRequestStore,
-} from '@libs/app-root-shared-ts/request-scope';
+import { apiRequestAsyncLocalStorage } from '@libs/app-root-shared-ts/request-scope';
 import { ApiSecretName } from '@libs/app-root-shared-ts/secret-names';
 import type { ServerEnv } from '@libs/app-root-shared-ts/server-env';
 import { AuthApiRoutes } from '@libs/auth-server-ts/auth-routes';
-import { ChangedAuthUserResync } from '@libs/auth-server-ts/changed-auth-user-resync';
 import { registerAccountDeletionConsumers } from '@libs/auth-shared-ts/account-deletion-consumers';
 import type { ApiHonoEnv } from '@libs/auth-shared-ts/api-hono-env';
 import { isLocalApiOrigin } from '@libs/auth-shared-ts/local-api-origin';
 import type { AuthContext } from '@libs/auth-shared-ts/types';
 import { UnauthorizedError } from '@libs/auth-shared-ts/unauthorized-error';
-import { withOperators } from '@libs/permissions-shared-ts/operator-permission-policy';
-import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import { setHttpPubSubOverride } from '@libs/pubsub-server-ts/create-http-pubsub-from-secret-store';
 import { PubsubSecretName } from '@libs/pubsub-shared-ts/secret-names';
 import type { ComposedSubs } from '@libs/sub-shared-ts/compose';
@@ -43,6 +38,7 @@ import { createHealthApp } from './health-route';
 import { notifyUserChannels } from './notify-user-channels';
 import { setOutboxConsumerRegistry } from './outbox-drain';
 import { createPubSubTokenRoutes } from './pubsub-token-routes';
+import { pushChangedAuthUser } from './push-changed-auth-user';
 import { createRequestDbMiddleware } from './request-db-middleware';
 import {
   createRequestTelemetryMiddleware,
@@ -215,8 +211,7 @@ async function buildDesiredClientConfig(args: {
   readonly ttsConfigured: boolean;
   readonly llmConfigured: boolean;
   readonly apiUrlOverride?: string | null;
-  readonly puzzleManagerAccountIds: readonly string[];
-  readonly syntheticPopulationOperatorAccountIds: readonly string[];
+  readonly adminAccountIds: readonly string[] | null;
 }): Promise<DesiredClientConfig> {
   const { auth, secretStore } = args;
   const emqxWssUrl = await resolveEmqxWssUrlForClientConfig({
@@ -233,10 +228,12 @@ async function buildDesiredClientConfig(args: {
     llm: args.llmConfigured,
     googleWebClientId: null,
     emqxWssUrl,
-    permissionPolicy: withOperators(
-      permissionPolicyForPuzzleManagers(args.puzzleManagerAccountIds),
-      args.syntheticPopulationOperatorAccountIds
-    ),
+    ...(args.adminAccountIds === null
+      ? { kind: 'product' as const }
+      : {
+          kind: 'complete' as const,
+          permissionPolicy: permissionPolicyForAdmins(args.adminAccountIds),
+        }),
     billingGracePeriodMs: DEFAULT_BILLING_GRACE_PERIOD_MS,
   };
 }
@@ -339,32 +336,13 @@ function createServerRouter(args: {
 
 export type CreateServerArgs = {
   /** A server attached to another deployment reads the client configuration it owns. */
-  readonly clientConfigOwner?: 'this-server' | 'external';
+  readonly clientConfigOwner?: 'this-server' | 'product-settings' | 'external';
   readonly rooms?: import('@pkgs/room-root-shared-ts/room-service').RoomServicePort;
   /** The folded sub set sync serves: schema, queries, topics, mutations. */
   readonly app: ComposedSubs;
   /** The same subs' server halves: routes, outbox consumers, topics. */
   readonly servers: ComposedSubServers;
 };
-
-/**
- * The auth service changed a user's sign-in methods without the product
- * asking: mirror them again and push them to the user's devices now, rather
- * than when a device next signs in.
- */
-async function pushChangedAuthUser(
-  auth: AuthProvider,
-  externalUserId: string
-): Promise<void> {
-  const store = requireRequestStore();
-  const accountId = await new ChangedAuthUserResync(
-    store.sqlClient,
-    auth.server,
-    { now: () => store.clock.now(), createId: store.createId }
-  ).resync(externalUserId);
-  if (accountId === null) return;
-  await notifyUserChannels([accountId], 'auth-user-changed');
-}
 
 /**
  * Composes the server app from mounted sub-apps (`app.route()`).
@@ -412,9 +390,10 @@ export async function createServer(env: ServerEnv, args: CreateServerArgs) {
           billingConfigured: billing !== null,
           ttsConfigured: tts.configured,
           llmConfigured: llm.configured,
-          puzzleManagerAccountIds: env.puzzleManagerAccountIds ?? [],
-          syntheticPopulationOperatorAccountIds:
-            env.syntheticPopulationOperatorAccountIds ?? [],
+          adminAccountIds:
+            args.clientConfigOwner === 'product-settings'
+              ? null
+              : (env.adminAccountIds ?? []),
           ...(env.serverUrl !== null ? { apiUrlOverride: env.serverUrl } : {}),
         });
 

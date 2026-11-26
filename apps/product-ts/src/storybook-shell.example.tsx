@@ -96,6 +96,19 @@ export function StoryProductShell(props: {
   readonly id: string;
   readonly route?: StoryRoute;
 }): JSX.Element {
+  if (
+    untrack(
+      () =>
+        props.id.startsWith('screens-admin-') ||
+        props.id.startsWith('screens-puzzles-import')
+    )
+  ) {
+    return (
+      <AppFrameChromeProvider>
+        <AppFrame>{props.story()}</AppFrame>
+      </AppFrameChromeProvider>
+    );
+  }
   return (
     <AppFrameChromeProvider globalTrailing={<AccountMenu />}>
       <StoryFrame

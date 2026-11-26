@@ -4,13 +4,9 @@ import { defineGameClient } from '@libs/game-menu-client-ts/game-client';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { chessPresentation } from './chess-game-presentation';
 import { chessLesson } from './chess-lesson';
-import { chessSettings } from './chess-settings';
 
 /**
- * Chess's client: its board and copy, its puzzles part (board, coach,
- * themes, notation, sounds) and its settings, declared as data. Every
- * screen (puzzle, puzzle stats, custom game, opponent, history, settings
- * and the puzzle loader behind them) is the platform's.
+ * Chess contributes its board, notation, themes, sounds and puzzle coach.
  */
 export const chessGameClient = defineGameClient({
   shared: chessGameShared,
@@ -21,5 +17,4 @@ export const chessGameClient = defineGameClient({
   lesson: chessLesson,
   presentation: chessPresentation,
   puzzles: chessPuzzlesClient,
-  settings: chessSettings,
 });

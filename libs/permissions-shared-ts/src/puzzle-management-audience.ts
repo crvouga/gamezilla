@@ -6,7 +6,7 @@ export async function puzzleManagementAudience(
   db: AccessReader
 ): Promise<readonly string[]> {
   const policy = await readPermissionPolicy(db);
-  const predicate = policy.roles[ROLE.puzzleManager]?.when;
+  const predicate = policy.roles[ROLE.admin]?.when;
   if (
     typeof predicate !== 'object' ||
     predicate === null ||

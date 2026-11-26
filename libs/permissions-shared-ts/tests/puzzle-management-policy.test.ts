@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
 import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import { decide } from '@pkgs/permissions-shared-ts/decision';
 import { resolveSubject } from '@pkgs/permissions-shared-ts/resolve';
 
 function mayManage(accountId: string | null, allowlist: readonly string[]) {
-  const policy = permissionPolicyForPuzzleManagers(allowlist);
+  const policy = permissionPolicyForAdmins(allowlist);
   const subject = resolveSubject(policy, {
     auth: accountId === null ? 'anonymous' : 'verified',
     accountId,

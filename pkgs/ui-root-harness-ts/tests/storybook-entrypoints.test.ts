@@ -16,7 +16,7 @@ test('registered product-shell preview may compose its Storybook fixture', () =>
 test('unregistered app entrypoints and preview lookalikes remain production', () => {
   for (const path of [
     'apps/product-ts/src/main.ts',
-    'apps/client-ts/src/storybook-preview.ts',
+    'apps/product-client-ts/src/storybook-preview.ts',
     'libs/game-session-client-ts/src/storybook-preview.ts',
   ])
     expect(isStorybookSource(path)).toBe(false);

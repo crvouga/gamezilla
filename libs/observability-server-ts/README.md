@@ -145,7 +145,7 @@ only metrics writer:
 A gauge is exported once per reading, at the time it was read, and not restated.
 The localhost stack has no binding: its API processes are long-lived, are one
 writer each already, and export directly. Composition:
-`apps/server-ts/src/worker-telemetry.ts` (bound in `room.ts`); mechanism:
+`apps/product-api-ts/src/worker-telemetry.ts` (bound in `room.ts`); mechanism:
 `@pkgs/observability-aggregate-server-ts`.
 
 Schema/privacy, cardinality, delivery, correlation, analytical calculations, financial
@@ -176,7 +176,7 @@ objective is in [`docs/SLO_RUNBOOK.md`](../../docs/SLO_RUNBOOK.md).
 and wait on; the metrics carry `app.http.route_group`, derived from the route, so
 machine traffic (health probes, the synthetic population worker, telemetry
 uploads) never counts. A route no rule names counts as people's until a rule says
-otherwise, and `apps/server-ts/tests/route-groups.test.ts` fails until it has one.
+otherwise, and `apps/product-api-ts/tests/route-groups.test.ts` fails until it has one.
 
 Every query selects its environment by the `deployment_environment_name` label on
 the point (Grafana Cloud copies it from the resource). Synthetic Monitoring's

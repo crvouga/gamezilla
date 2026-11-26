@@ -3,7 +3,7 @@
  *
  * - `GET /health` — **liveness**: the process answers. No dependencies, so a
  *   database outage never makes an orchestrator kill healthy instances. (The
- *   Worker also answers `/api/health` before boot, see `apps/server-ts`.)
+ *   Worker also answers `/api/health` before boot, see `apps/product-api-ts`.)
  * - `GET /health/ready` — **readiness**: can this instance serve a real
  *   request? Probes every hard dependency with a deadline and answers in the
  *   IETF "Health Check Response Format for HTTP APIs" draft

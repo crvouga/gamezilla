@@ -78,7 +78,7 @@ async function resolveLoopbackPreviewOrigin(
   if (trimmed !== null) return trimmed;
   process.stdout.write(
     '[setup-env] VITE_LOCAL_PREVIEW_API_ORIGIN missing in env and secrets; ' +
-      `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in apps/server-ts).\n`
+      `using default ${DEFAULT_LOCAL_PREVIEW_API_ORIGIN} (wrangler dev in apps/product-api-ts).\n`
   );
   return DEFAULT_LOCAL_PREVIEW_API_ORIGIN;
 }

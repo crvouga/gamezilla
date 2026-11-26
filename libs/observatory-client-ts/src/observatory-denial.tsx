@@ -13,8 +13,7 @@ export function ObservatoryDenial(props: { denial: DenialView }): JSX.Element {
     <ContentScreen
       screenId="observatory-permission"
       breadcrumbs={[
-        { name: <Trans>Profile</Trans>, href: '/profile' },
-        { name: <Trans>Settings</Trans>, href: '/more' },
+        { name: <Trans>Administration</Trans>, href: '/' },
         { name: <Trans>User Observatory</Trans> },
       ]}
     >

@@ -13,10 +13,10 @@ import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
  */
 
 import { ACCOUNT_PRIVACY_SUB } from '@libs/account-privacy-shared-ts/sub';
-import { CLIENT_CONFIG_SUB } from '@libs/app-config-shared-ts/sub';
+import { PRODUCT_CLIENT_CONFIG_SUB } from '@libs/app-config-shared-ts/sub';
 import { AUTH_SUB } from '@libs/auth-shared-ts/sub';
 import { BILLING_SUB } from '@libs/billing-shared-ts/sub';
-import { CHESS_SUB } from '@libs/chess-sub-shared-ts/sub';
+import { CHESS_STORAGE } from '@libs/chess-sub-shared-ts/catalogue-storage';
 import { FRIENDS_SUB } from '@libs/friends-shared-ts/sub';
 import { NOTIFICATIONS_SUB } from '@libs/notifications-shared-ts/sub';
 import { OBSERVATORY_SUB } from '@libs/observatory-shared-ts/sub';
@@ -32,12 +32,12 @@ export const APP_SUBS: readonly SubManifest[] = [
   AUTH_SUB,
   ACCOUNT_PRIVACY_SUB,
   PROFILE_SUB,
-  CLIENT_CONFIG_SUB,
+  PRODUCT_CLIENT_CONFIG_SUB,
   SPACES_SUB,
   FRIENDS_SUB,
   NOTIFICATIONS_SUB,
   ...gamePuzzleSubs(GAME_DEFINITIONS),
-  CHESS_SUB,
+  CHESS_STORAGE,
   createGameSessionSub(TURN_GAMES.games),
   BILLING_SUB,
   PERMISSIONS_SUB,

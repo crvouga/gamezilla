@@ -14,9 +14,10 @@ module "edge" {
   account_id = var.cloudflare.account_id
   zone_id    = data.cloudflare_zone.this.zone_id
   domains = {
-    api  = { hostname = var.hosts.api, service = var.worker.name }
-    web  = { hostname = var.hosts.web, service = var.worker.name }
-    apex = { hostname = var.hosts.apex, service = var.worker.name }
+    admin = { hostname = var.hosts.admin, service = var.worker.admin_name }
+    api   = { hostname = var.hosts.api, service = var.worker.name }
+    web   = { hostname = var.hosts.web, service = var.worker.name }
+    apex  = { hostname = var.hosts.apex, service = var.worker.name }
   }
 }
 

@@ -1,6 +1,5 @@
 import { capabilityKey } from '@libs/permissions-shared-ts/capabilities';
-import { withOperators } from '@libs/permissions-shared-ts/operator-permission-policy';
-import { DEFAULT_PERMISSION_POLICY } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import { bindDecisions } from '@pkgs/dmn-shared-ts/registry';
 import { decide } from '@pkgs/permissions-shared-ts/decision';
 import { policyAt } from '@pkgs/permissions-shared-ts/policy';
@@ -13,15 +12,18 @@ bindDecisions({
     'application decision': {
       decide(input) {
         const policy = policyAt(
-          withOperators(
-            DEFAULT_PERMISSION_POLICY,
+          permissionPolicyForAdmins(
             input['authorized for this capability'] === 'yes'
               ? [ACCOUNT_ID]
               : []
           ),
           0
         );
-        const subject = resolveSubject(policy, { accountId: ACCOUNT_ID }, []);
+        const subject = resolveSubject(
+          policy,
+          { auth: 'verified', accountId: ACCOUNT_ID },
+          []
+        );
         const decision = decide(
           policy,
           subject,

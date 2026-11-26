@@ -20,7 +20,6 @@ import {
   gameSettingsRows,
   gameSettingsTree,
 } from '@libs/game-menu-client-ts/game-settings';
-import type { CatalogueLoadClient } from '@libs/game-puzzle-client-ts/catalogue-load-client';
 import {
   type AppGrantKey,
   PERMISSION,
@@ -29,26 +28,12 @@ import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { placeIn, stageShows } from '@pkgs/turn-game-client-ts/screen-places';
 import fc from 'fast-check';
 
-const load = {
-  useLoad: () => {
-    throw new Error('not read in these tests');
-  },
-  copy: {
-    title: () => 'Load laps',
-    subtitle: () => 'From the shared file',
-    sourceName: 'lap file',
-    fileLabel: () => 'Lap file',
-    fileAccept: '.csv',
-    fileHint: () => 'Choose a .csv file.',
-  },
-} satisfies CatalogueLoadClient;
-
 const PERMISSIONS: readonly AppGrantKey[] = [
   PERMISSION.puzzlesManage,
   PERMISSION.spacesSelectGame,
 ];
 
-/** One row under `key`: gated or not, opening the loader or a nested group. */
+/** One row under `key`: gated or not, opening an empty or nested group. */
 function rowOf(
   key: string,
   nested: fc.Arbitrary<readonly GameSettingsRow[] | undefined>
@@ -65,10 +50,7 @@ function rowOf(
         key,
         title: () => key,
         permission: given.permission,
-        opens:
-          given.rows === undefined
-            ? { kind: 'catalogue-load', load }
-            : { kind: 'group', rows: given.rows },
+        opens: { kind: 'group', rows: given.rows ?? [] },
       })
     );
 }
@@ -190,7 +172,7 @@ const LAPS: GameSettings = {
             key: 'laps',
             title: () => 'Load laps',
             permission: PERMISSION.puzzlesManage,
-            opens: { kind: 'catalogue-load', load },
+            opens: { kind: 'group', rows: [] },
           },
         ],
       },
@@ -210,7 +192,7 @@ describe("a game's settings, declared as data", () => {
       'settings/developer',
       'settings/developer/laps',
     ]);
-    expect(tree.nodes.get(laps.screen)?.opens.kind).toBe('catalogue-load');
+    expect(tree.nodes.get(laps.screen)?.opens.rows).toEqual([]);
     expect(gameSettingsBehind(tree, laps)).toEqual(developer);
     expect(gameSettingsBehind(tree, developer)).toEqual(root);
     expect(gameSettingsBehind(tree, root)).toBeNull();
@@ -275,7 +257,7 @@ describe("a game's settings, declared as data", () => {
                 {
                   key: 'laps',
                   title: () => 'Laps',
-                  opens: { kind: 'catalogue-load', load },
+                  opens: { kind: 'group', rows: [] },
                 },
               ],
             },

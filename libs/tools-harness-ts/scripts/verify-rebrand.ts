@@ -233,7 +233,7 @@ try {
   for (const [dir, command] of SUITES)
     run(join(copy, dir), command, `${dir} tests`);
   run(
-    join(copy, 'apps/client-ts'),
+    join(copy, 'apps/product-client-ts'),
     ['bun', 'x', 'vite', 'build', '--logLevel', 'error'],
     'web client build'
   );

@@ -7,7 +7,7 @@ import { createPgPool } from '@pkgs/sql-client-postgres-server-ts/connect';
 import type { LocalAdminIdentity } from './local-admin-accounts';
 import { LocalAdminSeeder } from './local-admin-seeder';
 
-/** Seed before API boot so every node publishes the same local permission policy. */
+/** Resolve the simulated provider identities before the local admin Worker reads its roster. */
 export async function localAdminEnv(
   databaseUrl: string,
   identities: readonly LocalAdminIdentity[]
@@ -37,7 +37,7 @@ export async function localAdminEnv(
         now: wallClock.now,
       }),
     });
-    return { PUZZLE_MANAGER_ACCOUNT_IDS: JSON.stringify(seeder.accountIds) };
+    return { ADMIN_ACCOUNT_IDS: JSON.stringify(seeder.accountIds) };
   } finally {
     await pool.end();
   }

@@ -1,4 +1,3 @@
-import { CatalogueLoadScreen } from '@libs/game-puzzle-client-ts/catalogue-load-screen';
 import { useCan } from '@libs/permissions-client-ts/use-can';
 import type { AppGrantKey } from '@libs/permissions-shared-ts/permission-catalog';
 import {
@@ -8,7 +7,7 @@ import {
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { useScreenPlace } from '@pkgs/turn-game-client-ts/use-screen-place';
 import { dynamic, type JSX } from '@solidjs/web';
-import { type Accessor, createMemo, Match, Switch, untrack } from 'solid-js';
+import { type Accessor, createMemo, untrack } from 'solid-js';
 import {
   type GameSettings,
   type GameSettingsNode,
@@ -65,7 +64,7 @@ function GameSettingsGroup(props: {
     })
   );
   const subtitle = (): (() => JSX.Element) | undefined =>
-    props.node.opens.kind === 'group' ? props.node.opens.subtitle : undefined;
+    props.node.opens.subtitle;
   const Title = dynamic(() => props.node.row?.title ?? SettingsTitle);
   const Subtitle = dynamic(subtitle);
   return (
@@ -81,7 +80,7 @@ function GameSettingsGroup(props: {
 
 /**
  * A game's settings in a space: the platform draws the tree of rows the
- * game declared (`GameClient.settings`). Which group or template screen
+ * game declared (`GameClient.settings`). Which group
  * shows is this device's own place; Back walks up the tree and, from the
  * root, returns to the game's menu.
  */
@@ -102,10 +101,6 @@ export function GameSettingsScreen(props: {
     nav.open(behind);
     return true;
   };
-  const load = () => {
-    const opens = node().opens;
-    return opens.kind === 'catalogue-load' ? opens.load : null;
-  };
   return (
     <>
       <DefineBackButton
@@ -114,24 +109,12 @@ export function GameSettingsScreen(props: {
         }}
         label={node().parent === null ? choices() : undefined}
       />
-      <Switch>
-        <Match when={node().opens.kind === 'group'}>
-          <GameSettingsGroup
-            gameId={props.gameId}
-            node={node()}
-            can={can}
-            onOpen={nav.open}
-          />
-        </Match>
-        <Match when={load()} keyed>
-          {(client) => (
-            <CatalogueLoadScreen
-              client={client}
-              frame={{ kind: 'space', onLeave: () => void back() }}
-            />
-          )}
-        </Match>
-      </Switch>
+      <GameSettingsGroup
+        gameId={props.gameId}
+        node={node()}
+        can={can}
+        onOpen={nav.open}
+      />
     </>
   );
 }
