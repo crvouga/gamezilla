@@ -1,0 +1,4 @@
+{
+  "summary": "Verify dropped the admin client build prerequisite when the product build reached it through the scriptless harness build.",
+  "regressionTest": "libs/tools-harness-ts/scripts/turbo-preflight.test.ts"
+}

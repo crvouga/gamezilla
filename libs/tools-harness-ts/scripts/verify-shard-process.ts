@@ -303,7 +303,11 @@ function verifyExecution(
   const expected = new Map(tasks.map((task) => [task.taskId, task]));
   for (const task of dry.tasks) {
     const planned = expected.get(task.taskId);
-    if (!planned || planned.hash !== task.hash)
+    if (!planned)
+      throw new Error(
+        `Task missing from shard assignment: ${task.taskId}; compare the planned dependency closure`
+      );
+    if (planned.hash !== task.hash)
       throw new Error(
         `Task hash changed since planning: ${task.taskId}; compare inputs, declared env and platform key`
       );
