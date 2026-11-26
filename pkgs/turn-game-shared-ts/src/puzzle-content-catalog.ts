@@ -1,4 +1,7 @@
-import { assertPuzzleContent, type PuzzleContent } from './puzzle-content';
+import {
+  assertPuzzleContentRegistration,
+  type PuzzleContent,
+} from './puzzle-content';
 
 export type PuzzleContentCatalog = {
   readonly byId: (id: string) => PuzzleContent | undefined;
@@ -16,7 +19,7 @@ export function createPuzzleContentCatalog(
     if (game.puzzleContent === undefined) continue;
     if (content.has(game.id))
       throw new Error(`Duplicate puzzle content game: ${game.id}`);
-    assertPuzzleContent(game.id, game.puzzleContent);
+    assertPuzzleContentRegistration(game.id, game.puzzleContent);
     content.set(game.id, game.puzzleContent);
   }
   return { byId: (id) => content.get(id) };

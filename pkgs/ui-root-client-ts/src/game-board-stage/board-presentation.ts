@@ -1,4 +1,4 @@
-import { type Accessor, createContext, useContext } from 'solid-js';
+import { type Accessor, createContext, createMemo, useContext } from 'solid-js';
 
 /**
  * Whether the board is drawn as a `GameBoardStage` preview (a game still
@@ -12,4 +12,15 @@ export const GameBoardPreviewContext = createContext<Accessor<boolean>>(
 /** True inside a `GameBoardStage` drawn as a preview. */
 export function useGameBoardPreview(): Accessor<boolean> {
   return useContext(GameBoardPreviewContext);
+}
+
+/** Motion starts when a piece appears on a board the player can already see. */
+export function createBoardArrival(
+  present: Accessor<boolean>
+): Accessor<boolean> {
+  const phase = createMemo<'empty' | 'present' | 'arrived'>((previous) => {
+    if (!present()) return 'empty';
+    return previous === 'empty' ? 'arrived' : (previous ?? 'present');
+  });
+  return () => phase() === 'arrived';
 }

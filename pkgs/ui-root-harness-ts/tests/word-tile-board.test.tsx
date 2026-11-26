@@ -74,6 +74,44 @@ test('the board and rack pass the accessibility audit', () => {
   expect(failures.map(formatFailure)).toEqual([]);
 });
 
+// regression: word-tiles-opponent-placement-motion
+test('a received tile settles on the board while previously placed tiles stay still', () => {
+  const [received, setReceived] = createSignal(false);
+  const cells = () =>
+    ['a1', 'b1'].map((id): WordTileBoardCell => {
+      const filled = id === 'a1' || received();
+      return {
+        id,
+        label: id,
+        letter: filled ? 'A' : '',
+        points: filled ? 1 : null,
+        state: filled ? 'committed' : 'empty',
+        square: null,
+        enabled: false,
+      };
+    });
+  const view = render(() => (
+    <WordTileBoard
+      testId="watch"
+      label="Word board"
+      columnLabels={['a', 'b']}
+      rowLabels={['1']}
+      cells={cells()}
+      squareText={(square) => square}
+    />
+  ));
+  expect(view.container.querySelector('[data-arrived]')).toBeNull();
+  setReceived(true);
+  flush();
+  expect(view.getByTestId('watch-cell-b1').hasAttribute('data-arrived')).toBe(
+    true
+  );
+  expect(view.getByTestId('watch-cell-a1').hasAttribute('data-arrived')).toBe(
+    false
+  );
+  view.unmount();
+});
+
 test('the board reads its squares once per change, however a caller computes them', () => {
   let reads = 0;
   const [letter, setLetter] = createSignal('A');

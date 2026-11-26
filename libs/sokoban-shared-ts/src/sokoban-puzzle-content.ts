@@ -4,6 +4,7 @@ import type {
   PuzzleEvidence,
   PuzzleValidation,
 } from '@pkgs/turn-game-shared-ts/puzzle-content';
+import { sokobanWarehousePacks } from './sokoban-catalog';
 import { validateSokobanDefinition } from './sokoban-definition';
 import {
   applySokobanMove,
@@ -126,5 +127,5 @@ export const sokobanPuzzleContent: PuzzleContent = {
       ? { moves: read.value.position.moves, pushes: read.value.position.pushes }
       : {};
   },
-  bundledPacks: [sokobanStarterPack],
+  bundledPacks: [sokobanStarterPack, ...sokobanWarehousePacks],
 };

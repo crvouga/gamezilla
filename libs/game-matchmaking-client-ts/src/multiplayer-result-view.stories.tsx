@@ -41,7 +41,6 @@ const meta = {
     stage: 'finished',
     place: { screen: 'result' },
     game: STORY_FINISHED_GAME,
-    overlay: { kind: 'outcome' },
   },
 } satisfies Meta<typeof MatchmakingScreenView>;
 export default meta;
