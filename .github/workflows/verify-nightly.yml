@@ -109,7 +109,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 1
     permissions:
-      actions: read
+      actions: read # read the workflow creation time before the Nightly matrix starts
     outputs:
       created_at: ${{ steps.timestamp.outputs.created_at }}
     steps:
