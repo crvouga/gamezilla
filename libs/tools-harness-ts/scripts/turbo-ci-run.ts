@@ -435,7 +435,11 @@ export function ciVerifyArgs(
   return [
     ...(process.env['VERIFY_DEPLOYMENT'] === 'true'
       ? deploymentTasks(MAIN_VERIFY_TASKS)
-      : ciStageTasks(MAIN_VERIFY_TASKS, process.env['VERIFY_CI_STAGE'])),
+      : ciStageTasks(
+          MAIN_VERIFY_TASKS,
+          process.env['VERIFY_CI_STAGE'],
+          process.env['VERIFY_NIGHTLY_VISUAL_MATRIX'] === 'true'
+        )),
     ...ciFilters(manifests),
   ];
 }

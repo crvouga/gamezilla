@@ -135,6 +135,7 @@ jobs:
     uses: ./.github/workflows/verify-full.yml
     with:
       profile: nightly
+      visual-matrix: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' }}
       created-at: ${{ needs.verify-nightly-admission.outputs.created_at }}
       # Reserve six of the twenty account runners for releases and PRs.
       shards: 5

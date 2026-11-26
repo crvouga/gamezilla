@@ -25,14 +25,20 @@ export const PR_TASKS: readonly string[] = [
 /** Unset retains full local verification; unknown stages fail closed. */
 export function ciStageTasks(
   catalog: readonly string[],
-  stage: string | undefined
+  stage: string | undefined,
+  visualMatrix = false
 ): readonly string[] {
   if (stage !== undefined && stage !== '' && !STAGES.has(stage))
     throw new Error(`Unknown CI stage: ${stage}`);
-  if (stage === 'release')
-    return catalog.filter(
+  if (stage === 'release' || (stage === 'nightly' && visualMatrix)) {
+    const filtered = catalog.filter(
       (task) => !task.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:')
     );
+    // The first filtered shard also scheduled the story inventory check.
+    return stage === 'nightly'
+      ? [...filtered, '@pkgs/ui-root-harness-ts#storybook:coverage']
+      : filtered;
+  }
   return stage === 'pr'
     ? catalog.filter((task) => PR_TASKS.includes(task))
     : catalog;
