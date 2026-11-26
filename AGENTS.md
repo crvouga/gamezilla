@@ -264,7 +264,7 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | On a pull request, the merge-blocking run of the affected PR checks defined in [CI stage policy](docs/CI_STAGE_POLICY.md). For branch-specific verification at release depth, dispatch `verify-full.yml`. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | On a pull request, the merge-blocking run of the affected PR checks defined in [CI stage policy](docs/CI_STAGE_POLICY.md). For the full gate on a branch, dispatch Verify Nightly with `group=gate`. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
 | Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the release checks, then deploy with live safeguards. A failed check blocks the release and keeps its own open `ci-failure` issue until a Release verifies it green. Newer pending commits supersede older pending releases; active releases finish. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
@@ -323,8 +323,7 @@ Four workflows, one contract each. Details:
   deployment checks. It never waits for nightly. `bun health` and `bun deploy`
   dispatch their workflows and block on the verdict; `bun health:local` and
   `bun deploy:local` run that work on this machine.
-- **Exactly five workflows**: Verify PR, Verify Nightly, Release, Health and
-  PR Hygiene. Rehearse anything touching deploy, infra,
+- **Four workflow entry points**: Verify PR, Verify Nightly, Release and Health. Rehearse anything touching deploy, infra,
   secrets, Workers or `health` in GitHub Actions before merging, triggered and
   managed locally with the GitHub CLI. Never execute a rehearsal on the
   developer machine.

@@ -27,7 +27,7 @@ releases until the fix merges. Between 2026-11-01 and 2026-11-09 a narrower PR
 selection without these issues let about thirteen gate tasks stay red on main
 unnoticed (known bug `pr-gate-narrower-than-nightly`); the per-check issues and the
 blocked release are what make the same selection visible now. To prove a change
-before merging, dispatch the whole gate on the branch: `gh workflow run verify-full.yml
+before merging, dispatch the whole gate on the branch: `gh workflow run verify-nightly.yml -f group=gate
 --ref <branch>`.
 
 ## Workflow audit
@@ -35,10 +35,10 @@ before merging, dispatch the whole gate on the branch: `gh workflow run verify-f
 | Workflow and triggers | Responsibility and dependencies |
 | --- | --- |
 | Verify PR: pull request to main | One job, `verify:end`, runs the affected PR checks. New pushes cancel superseded runs. |
-| Verify Full: manual or reusable call | Plan uncached tasks, execute shards and aggregate their verdicts for the requested stage. |
+| Verify Full: reusable call from Release or Nightly | Plan uncached tasks, execute shards and aggregate their verdicts for the requested stage. |
 | Release: main push or manual dispatch | Run the release gate, critical production-build journeys included, on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
 | Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
-| Health: hourly at minute 17 or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
+| Health: daily at 06:41 UTC or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
 
 `verify:end` remains the required status. The main ruleset (verified PRs, not required to be up to date), SHA-pinned
 actions, fresh Ubuntu runners, read-only default token and protected production

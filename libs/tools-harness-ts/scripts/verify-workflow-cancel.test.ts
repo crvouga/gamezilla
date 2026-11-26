@@ -21,7 +21,6 @@ describe('Verify workflow cancellation', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       env: Record<string, string>;
       on: {
-        workflow_dispatch: { inputs: { shards: { options: number[] } } };
         workflow_call: { inputs: { shards: { default: number } } };
       };
       jobs: {
@@ -66,8 +65,6 @@ describe('Verify workflow cancellation', () => {
         "${{ inputs.deployment && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}",
       queue: 'max',
     });
-    const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
-    expect(shardCounts.every((count) => count >= 1 && count <= 64)).toBe(true);
     // Verify run 38328597240 missed every cache. Twenty-seven solver runners
     // inside a cap of 40 packed the rest to 376s, and those shards were still
     // running at the 1200s deadline. The account runs about 40 jobs at once
@@ -75,7 +72,6 @@ describe('Verify workflow cancellation', () => {
     // enough to finish once it starts.
     expect(workflow.on.workflow_call.inputs.shards.default).toBe(64);
     expect(workflow.env['VERIFY_SHARDS']).toContain("'64'");
-    expect(shardCounts).toContain(64);
   });
   test('no workflow names a depth: the profile decides, and only a caller can ask for nightly', () => {
     // `QUINT_REPLAY_TRACES` unset is the bounded default. A workflow names a
@@ -88,7 +84,6 @@ describe('Verify workflow cancellation', () => {
     const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
       env: Record<string, string>;
       on: {
-        workflow_dispatch: { inputs: Record<string, unknown> };
         workflow_call: { inputs: { profile: { default: string } } };
       };
     };
@@ -97,7 +92,7 @@ describe('Verify workflow cancellation', () => {
       "${{ inputs.profile || 'release' }}"
     );
     expect(workflow.on.workflow_call.inputs.profile.default).toBe('release');
-    expect(workflow.on.workflow_dispatch.inputs).not.toHaveProperty('profile');
+    expect(Object.keys(workflow.on)).toEqual(['workflow_call']);
     expect(activeProfile({}).env).toEqual({});
   });
   // The merge gate keeps no test report; the job log is the evidence.
@@ -167,15 +162,9 @@ describe('Verify workflow cancellation', () => {
     );
   });
   // regression: concurrent-verify-run-isolation
-  test('only repeat validations of the same PR or the same branch and settings supersede work', () => {
-    const workflow = Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8')) as {
-      concurrency: { group: string; 'cancel-in-progress': string };
-    };
-    expect(workflow.concurrency.group).toBe(
-      "${{ (github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}"
-    );
-    expect(workflow.concurrency['cancel-in-progress']).toBe(
-      "${{ github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' }}"
+  test('shared verification inherits cancellation from the calling workflow', () => {
+    expect(Bun.YAML.parse(readFileSync(WORKFLOW, 'utf8'))).not.toHaveProperty(
+      'concurrency'
     );
   });
   // regression: release-cold-slow-suites

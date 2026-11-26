@@ -48,7 +48,6 @@ const WORKFLOWS: Record<string, { name: string; jobs: string }> = {
   'verify-pr.yml': { name: 'Verify PR', jobs: 'verify' },
   'deploy.yml': { name: 'Release', jobs: 'deploy' },
   'health.yml': { name: 'Health', jobs: 'health' },
-  'pr-hygiene.yml': { name: 'PR Hygiene', jobs: 'pr-hygiene' },
 };
 
 /** Release names explain the release sequence on the run page. */
@@ -94,6 +93,10 @@ describe.each(workflows)('$file', ({ file, workflow }) => {
   });
 
   test('run-name is `<Workflow> · <trigger>`', () => {
+    if (Object.keys(workflow.on).every((event) => event === 'workflow_call')) {
+      expect(workflow['run-name']).toBeUndefined();
+      return;
+    }
     const runName = workflow['run-name'] ?? '';
     const segments = runName.split(SEPARATOR);
     expect(segments).toHaveLength(2);
