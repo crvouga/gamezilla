@@ -64,12 +64,19 @@ async function verifyBoardRegression(
 // regression: feedback-story-drops-typed-description
 test('storybook integration: product-bug-report--describe-and-send light', async ({
   page,
-}) => {
+}, info) => {
   await verifyBoardRegression(
     page,
     'product-bug-report--describe-and-send',
     390
   );
+  await expect(
+    page.getByRole('textbox', { name: 'What happened?' })
+  ).toHaveValue('It froze');
+  await page.screenshot({
+    path: info.outputPath('feedback-draft.png'),
+    fullPage: true,
+  });
 });
 
 // regression: puzzle-result-details-inaccessible-by-keyboard
