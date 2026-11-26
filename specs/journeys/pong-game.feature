@@ -4,6 +4,7 @@ Feature: Play Pong again with the same person
 
   Rule: Finishing Pong leads into another game with the same target score
 
+    @regression:pong-rematch-journey-steering-timeout
     Scenario: Two people finish Pong and accept a rematch
       When Alice and Bob play Pong from fresh devices
       Then Alice and Bob see Alice has won Pong
