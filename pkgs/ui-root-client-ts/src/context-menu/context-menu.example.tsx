@@ -2,14 +2,14 @@
 
 import { ContextMenu } from '@pkgs/ui-root-client-ts/context-menu';
 import type { JSX } from '@solidjs/web';
-import { ExampleRoot } from '../../storybook/fixtures/example-root';
 import {
   FIELD_MENU,
   LINKED_IMAGE_MENU,
   PAGE_MENU,
   PASTE_REFUSED,
   SELECTION_MENU,
-} from './context-menu.fixtures';
+} from '../../storybook/fixtures/context-menu';
+import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 export type ContextMenuExampleState =
   | 'page'

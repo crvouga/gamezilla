@@ -9,14 +9,18 @@ export async function multiplayerEndingView(s: ProductHarness, actor: string) {
   const ui = await actorUi(s, actor);
   const board = ui.get('multiplayer-game');
   const outcome = await board.attribute('data-outcome');
-  const announcement = (await ui.get('multiplayer-announcement').text()) ?? '';
+  const announcement =
+    outcome === 'ongoing'
+      ? ''
+      : ((await ui.get('multiplayer-announcement').text()) ?? '');
   let result = 'missing';
   if (outcome === 'ongoing') result = 'unfinished';
   if (outcome === 'aborted' && announcement.includes('aborted'))
     result = 'aborted';
   if (
     (outcome === 'white' || outcome === 'black') &&
-    announcement.includes('won')
+    // The winner reads "You won", the other side "You lost".
+    /\b(won|lost)\b/.test(announcement)
   ) {
     for (const seatId of ['multiplayer-seat-near', 'multiplayer-seat-far']) {
       const seat = ui.get(seatId);

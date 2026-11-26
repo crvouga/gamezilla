@@ -176,6 +176,9 @@ test.describe('phone', () => {
       body: await viewport(page).screenshot(),
       contentType: 'image/png',
     });
+    await page
+      .getByRole('button', { name: 'Board tools: zoom and find a square' })
+      .tap();
     await page.getByRole('button', { name: 'Fit board', exact: true }).tap();
     await expect(viewport(page)).toHaveAttribute('data-enlarged', 'false');
   });

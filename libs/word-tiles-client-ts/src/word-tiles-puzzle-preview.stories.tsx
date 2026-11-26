@@ -1,5 +1,6 @@
 import { encodePuzzle } from '@libs/word-tiles-shared-ts/word-tiles-puzzle';
 import { RULESET } from '@libs/word-tiles-shared-ts/word-tiles-ruleset';
+import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import {
   CAT_AND_TOE,
@@ -22,6 +23,12 @@ const meta = {
       target: 20,
     }),
   },
+  // As a builder shows it: in the page's own gutter, not against the bar.
+  render: (args) => (
+    <StackVertical padding="lg">
+      <WordTilesPuzzlePreview {...args} />
+    </StackVertical>
+  ),
 } satisfies Meta<typeof WordTilesPuzzlePreview>;
 export default meta;
 type Story = StoryObj<typeof meta>;

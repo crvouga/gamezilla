@@ -1,0 +1,4 @@
+{
+  "summary": "After resignation the result dialog covered the Done button of the command confirmation.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-places-view.test.tsx"
+}

@@ -29,21 +29,23 @@ export type FocusTrapProps = {
   label?: string | undefined;
   /** Id of the element naming the dialog (`aria-labelledby`, wins over `label`). */
   labelledBy?: string | undefined;
-  /**
-   * - `cover` (default): absolute-fill for full-screen modal backdrops.
-   * - `sheet`: in-flow stretch for bottom sheets; it may shrink and clips
-   *   its content so the sheet's own scroller engages.
-   */
-  layout?: 'cover' | 'sheet' | undefined;
   children?: JSX.Element | undefined;
 };
 
 const COVER_HOST_CLASS = 'absolute inset-0 flex-1';
-const SHEET_HOST_CLASS = 'w-full grow shrink min-h-0 overflow-hidden';
 
+/**
+ * Where focus lands on activate: what asked for it (`autofocus`, a name
+ * field), else the dialog itself, which reads its name to a listener and
+ * draws no ring. Tab then reaches the first control, so nothing (the X, a
+ * destructive confirm, Copy link) wears a focus ring before anyone has
+ * pressed a key. Focus a child already moved in on mount is kept.
+ */
 function focusInto(host: HTMLElement): void {
-  const first = collectTabbable(host)[0];
-  moveFocus(first ?? host);
+  if (host.contains(document.activeElement) && document.activeElement !== host)
+    return;
+  const asked = host.querySelector('[autofocus]');
+  moveFocus(asked instanceof HTMLElement ? asked : host);
 }
 
 function useTrapLifecycle(props: FocusTrapProps, host: () => HTMLElement) {
@@ -108,8 +110,6 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
     return hostEl;
   };
   useTrapLifecycle(props, host);
-  const layoutClass = () =>
-    props.layout === 'sheet' ? SHEET_HOST_CLASS : COVER_HOST_CLASS;
   return (
     <Dialog
       defaultOpen
@@ -130,7 +130,7 @@ export function FocusTrap(props: FocusTrapProps): JSX.Element {
         inline
         initialFocus="none"
         finalFocus="none"
-        class={`box ${layoutClass()}`}
+        class={`box outline-none ${COVER_HOST_CLASS}`}
         data-component="FocusTrap"
         ref={(el) => {
           hostEl = el;

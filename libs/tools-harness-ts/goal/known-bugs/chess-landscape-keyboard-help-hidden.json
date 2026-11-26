@@ -1,0 +1,4 @@
+{
+  "summary": "At 844 by 390 the chess puzzle's keyboard-only guidance hid its only control along with the tap hint.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

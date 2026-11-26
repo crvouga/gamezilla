@@ -62,9 +62,15 @@ export function quoridorFrame(hill: boolean): GameFrame<JSX.Element> {
   return {
     drawOffers: true,
     // The board, its wall tools, the target picker and a proposed wall's
-    // Place and Cancel fit themselves: the fixed view's stage clipped Place
-    // under the command bar once a wall was proposed.
+    // Place and Cancel lay themselves out: the fixed view never narrows
+    // them (on a phone the board spans the screen's whole width), and they
+    // scroll inside the board's box, Place brought into view when a wall
+    // is proposed.
     boardWorkspace: true,
+    // On a phone both pawns are chips in one row over the board, as at the
+    // four-player hill, so the whole-width board keeps its tools and picker
+    // in its box under it.
+    seatLayout: 'compact-rail',
     players: fixedPlayers(hill ? 4 : 2),
     options: [],
     seats: {

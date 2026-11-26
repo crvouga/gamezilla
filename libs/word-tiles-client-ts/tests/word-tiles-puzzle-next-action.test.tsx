@@ -3,7 +3,8 @@ import { WordTilesPuzzlePlayerView } from '@libs/word-tiles-client-ts/word-tiles
 import { WordTilesPuzzleStatus } from '@libs/word-tiles-client-ts/word-tiles-puzzle-status';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
-import { fireEvent } from '@solidjs/testing-library';
+import { fireEvent, screen } from '@solidjs/testing-library';
+import { flush } from 'solid-js';
 
 // regression: word-tiles-puzzle-unreadable-no-destination
 test('an unreadable definition offers the puzzle library without a move', () => {
@@ -55,5 +56,7 @@ test('the solved eight-point move against target six offers a library action', (
   );
   fireEvent.click(view.getByRole('button', { name: 'Puzzle library' }));
   expect(opened).toBe(1);
-  expect(view.queryByRole('button', { name: 'Retry word list' })).toBeNull();
+  // The word list's retry would float in a toast, outside the container.
+  flush();
+  expect(screen.queryByRole('button', { name: 'Retry word list' })).toBeNull();
 });

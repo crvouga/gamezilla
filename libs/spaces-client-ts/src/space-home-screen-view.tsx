@@ -1,5 +1,4 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import {
   GAME_TILE_MOTIFS,
   type GameTileMotif,
@@ -94,7 +93,6 @@ export function spaceHomePeople(
 export function SpaceHomeScreenView(
   props: SpaceHomeScreenViewProps
 ): JSX.Element {
-  const { t } = useLingui();
   const chrome = useSpaceScreenChrome();
   const people = createMemo(() => spaceHomePeople(chrome.people));
   const games = createMemo(() => spaceLauncherGames(props.games));
@@ -103,7 +101,7 @@ export function SpaceHomeScreenView(
       <ClaimSpaceShell />
       <SpaceStageTemplate
         spaceName={chrome.spaceName}
-        title={t`Choose game`}
+        title={chrome.spaceName}
         role={chrome.role}
         onBack={chrome.onBack}
         backLabel={chrome.backLabel}

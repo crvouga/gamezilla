@@ -4,6 +4,7 @@ import { createContext, createSignal, useContext } from 'solid-js';
 import { LeaveSpaceConfirmModal } from './leave-space-confirm-modal';
 import { useLeaveSpace } from './use-leave-space';
 import { useSpaceCan } from './use-space-can';
+import { useSpaceCardData } from './use-space-card-data';
 
 export type RequestLeaveSpaceOptions = {
   /** Optional hook after the user dismisses the success state. Prefer staying on screen. */
@@ -36,6 +37,7 @@ export function LeaveSpaceModalProvider(props: {
   const leaveSpace = useLeaveSpace();
   const spaceId = () => pending()?.spaceId ?? '';
   const canEndSpace = useSpaceCan(spaceId, PERMISSION.spacesEnd);
+  const space = useSpaceCardData(spaceId);
 
   const requestLeaveSpace = (
     nextSpaceId: string,
@@ -59,6 +61,7 @@ export function LeaveSpaceModalProvider(props: {
         onClose={() => setPending(() => null)}
         operation={() => leaveSpace(spaceId())}
         asHost={canEndSpace()}
+        spaceName={space().title || undefined}
         onSuccess={() => pending()?.onSuccess?.()}
       />
     </Ctx>

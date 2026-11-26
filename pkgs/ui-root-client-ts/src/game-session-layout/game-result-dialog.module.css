@@ -1,0 +1,158 @@
+/* The outcome and what next, one column in the dialog. */
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-4);
+  min-width: 0;
+  /* A little room either side, given back by the margin, so a glyph that
+     leans past its box (the "V" of Victory) is never cut by the dialog's
+     scrolling edge. Text stays where it was. */
+  margin-inline: calc(-1 * var(--ui-space-1));
+  padding-inline: var(--ui-space-1);
+}
+/* The outcome card is the dialog's content, not a card within a card: its
+   result word (`Victory`, in the result's colour), the headline and its
+   reason in full, then the standings, open, since the dialog has room. */
+.body > [data-component="GameResultCard"] {
+  gap: var(--ui-space-3);
+  max-width: none;
+  padding: 0;
+  border: 0;
+  background: none;
+  box-shadow: none;
+}
+.body
+  > [data-component="GameResultCard"]
+  > :first-child
+  > :first-child
+  > span:first-child {
+  position: static;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  clip-path: none;
+  padding-inline-end: 0;
+  white-space: normal;
+}
+.body > [data-component="GameResultCard"] > :first-child h2 {
+  min-height: 0;
+  padding-inline-end: 0;
+}
+.body > [data-component="GameResultCard"] > :first-child p {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+/* The commands stack the dialog's full width, the filled one first. */
+.actions,
+.actions [data-component="GameActions"],
+.actions [data-component="GameActionBar"] {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--ui-space-2);
+  width: 100%;
+}
+.actions [data-component="GameActionBar"] > * {
+  flex: none;
+  align-self: stretch;
+  width: 100%;
+  max-width: none;
+}
+/* The filled command takes the whole first row; the others share the
+   rows under it, each as wide as its words and growing to fill its row,
+   as many across as fit: short labels sit three across, a long one moves
+   to the next row, so the sheet stays short and no label is ever cut. */
+.actions [data-component="GameActionBar"] {
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.actions [data-component="GameActionBar"] > * {
+  flex: 1 1 auto;
+  width: auto;
+}
+.actions [data-component="GameActionBar"] > :first-child {
+  flex-basis: 100%;
+}
+/* The standings read at a glance: rows as tall as a tap target. */
+.body [data-component="GameStandingRow"] > div {
+  min-height: 44px;
+  padding-block: var(--ui-space-1);
+}
+
+/* Two players: the headline and its sentence already say who won and the
+   scores, at every width, so the standings stay for a bigger table and the
+   card stays short. */
+.body [data-component="GameStandings"]:not(:has(> :nth-child(3))) {
+  display: none;
+}
+/* A phone keeps the card short: tighter gaps and rows, and the places to
+   go next (other options, ratings) as one slim row of small quiet buttons. */
+@media (max-width: 767px) {
+  .body {
+    gap: var(--ui-space-3);
+  }
+  .body [data-component="GameStandingRow"] > div {
+    min-height: 40px;
+    padding-block: 0;
+  }
+  .body [data-testid="multiplayer-onward"] {
+    margin-block: calc(var(--ui-space-2) * -1);
+  }
+}
+/* No title row: the close button floats in the card's corner, level with
+   the outcome's word, and the outcome leads from the card's top. */
+:global([data-component="GameResultDialog"])
+:global([data-component="ModalContent"]) {
+  position: relative;
+}
+:global([data-component="GameResultDialog"])
+  :global([data-component="ResponsiveSurfaceHeader"]) {
+  position: absolute;
+  top: var(--ui-space-3);
+  right: var(--ui-space-3);
+  z-index: 1;
+  margin: 0;
+}
+
+/* The outcome in one line: its word, then the headline beside it on the
+   same baseline, the reason under both; the card stays short. */
+.body > [data-component="GameResultCard"] > :first-child > :first-child {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: var(--ui-space-2);
+}
+.body > [data-component="GameResultCard"] > :first-child > :first-child > p {
+  flex-basis: 100%;
+}
+
+/* Read in order of need: the outcome, a notice in a line or two (the
+   cause before the retry it explains), the commands, then the standings
+   and the quieter ways on. A phone card capped above the board
+   scrolls only what comes after the commands, which always show. */
+.body > [data-component="GameResultCard"] {
+  display: contents;
+}
+.body > [data-component="GameResultCard"] > :first-child {
+  order: 0;
+}
+.alerts {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-2);
+  order: 1;
+}
+.alerts:empty,
+.footer:empty {
+  display: none;
+}
+.actions {
+  order: 2;
+}
+.body > [data-component="GameResultCard"] > :not(:first-child) {
+  order: 4;
+}
+.footer {
+  order: 5;
+}

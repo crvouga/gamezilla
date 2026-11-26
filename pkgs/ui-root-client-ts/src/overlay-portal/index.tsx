@@ -34,7 +34,7 @@ export type OverlayPortalProviderProps = {
 
 /**
  * Overlay portal that renders content above the entire app (above
- * surface-stack modals, bottom sheets, banners, etc.).
+ * surface-stack modals, banners, etc.).
  *
  * Use it when a node needs to follow a pointer across stacking contexts (drag
  * previews, picker tooltips, top-of-app spinners). A single host layer is

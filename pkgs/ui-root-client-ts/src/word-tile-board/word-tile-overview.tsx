@@ -9,14 +9,16 @@ import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-overview.module.css';
 import { WordTileRegions } from './word-tile-regions';
 
-/** Whole-board context adjacent to the precision viewport; the outline tracks actual scrolling. */
+/**
+ * Whole-board context for the enlarged board, beside it on a wide screen and
+ * in the Board tools dialog on a phone; the outline tracks actual scrolling.
+ */
 export function WordTileOverview(props: {
   board: WordTileBoardProps;
   /** The board's cells, with unchanged squares kept as the same objects. */
   cells: () => readonly WordTileBoardCell[];
-  /** Fit and Enlarge, on a phone; wider screens keep them above the board. */
-  controls?: JSX.Element;
-  position: string;
+  /** The chosen square's details; a phone shows them beside its Board tools button. */
+  details?: JSX.Element | undefined;
   viewport: () => HTMLDivElement | undefined;
   locator: (onChoose: (id: string) => void) => JSX.Element;
   onLocate: (id: string) => void;
@@ -53,7 +55,6 @@ export function WordTileOverview(props: {
       />
       <div class={styles['tools']}>
         <div class={styles['commands']}>
-          {props.controls}
           <SdkButton
             type="button"
             class={styles['locator']}
@@ -62,9 +63,7 @@ export function WordTileOverview(props: {
           >{t`Find a square`}</SdkButton>
         </div>
         <P variant="caption">{t`View an area`}</P>
-        <P variant="caption" testId={`${props.board.testId}-square-details`}>
-          {props.position}
-        </P>
+        {props.details}
         <P variant="caption">{t`Outline shows viewing area.`}</P>
       </div>
       <Show when={open()}>

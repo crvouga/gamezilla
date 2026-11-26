@@ -4,10 +4,12 @@ import { t } from '@lingui/core/macro';
 import type { GameFrameBoardSession } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
 import { TileRack } from '@pkgs/ui-root-client-ts/tile-rack';
+import { ToastStack } from '@pkgs/ui-root-client-ts/toast-stack';
 import { WordTileBoard } from '@pkgs/ui-root-client-ts/word-tile-board';
 import {
   WordTileActions,
@@ -39,7 +41,10 @@ import {
 } from './word-tiles-panels';
 import type { WordTilesPreview } from './word-tiles-preview';
 
-/** The board and, for a seat, its rack; a watcher is told racks stay private. */
+/**
+ * The board and, for a seat, its rack; a watcher is told racks stay private.
+ * A word list that would not load is said in a toast, so the board never moves.
+ */
 function SeatBoard(props: {
   draft: WordTilesDraft;
   position: WordTilesPosition;
@@ -72,29 +77,51 @@ function SeatBoard(props: {
     />
   );
   return (
+    <>
+      <LexiconRecovery draft={props.draft} />
+      <SeatWorkspace
+        boardId={boardId}
+        draft={props.draft}
+        position={props.position}
+        random={props.random}
+        tiles={tiles()}
+        board={board}
+      />
+    </>
+  );
+}
+
+/** A watcher's workspace (its note that racks stay private) or a seat's. */
+function SeatWorkspace(props: {
+  boardId: string;
+  draft: WordTilesDraft;
+  position: WordTilesPosition;
+  random: () => number;
+  tiles: ReturnType<typeof rackTiles>;
+  board: () => JSX.Element;
+}): JSX.Element {
+  return (
     <Show
       when={props.draft.props.hand !== null}
       fallback={
         <WordTileWorkspace
           finished={props.position.ended !== null}
-          notice={<LexiconRecovery draft={props.draft} />}
           rack={
             <P tone="secondary">{t`Racks stay private to their players.`}</P>
           }
-          board={board()}
+          board={props.board()}
         />
       }
     >
       <WordTileWorkspace
         finished={props.position.ended !== null}
-        notice={<LexiconRecovery draft={props.draft} />}
         rack={
           <TileRack
             placement={
               props.draft.editable() &&
               props.draft.candidate().exchange === null
                 ? {
-                    boardId,
+                    boardId: props.boardId,
                     place: (id, square) =>
                       props.draft.update((c) => dropTile(c, id, square)),
                   }
@@ -102,7 +129,7 @@ function SeatBoard(props: {
             }
             label={t`Your rack`}
             testId={`${props.draft.props.testId}-rack`}
-            tiles={tiles()}
+            tiles={props.tiles}
             onActivate={(id) =>
               props.draft.update((c) => pressTile(c, Number(id)))
             }
@@ -118,7 +145,7 @@ function SeatBoard(props: {
             <DraftControls draft={props.draft} position={props.position} />
           </WordTileWorkbench>
         }
-        board={board()}
+        board={props.board()}
       />
     </Show>
   );
@@ -277,17 +304,28 @@ export function WordTilesBoardView(
   return <session.Board />;
 }
 
+/**
+ * A word list that would not load: a toast with its way forward, there
+ * until the list loads (no close), floating under the top bar on a phone so
+ * the rack, the status line and the actions stay clear.
+ */
 function LexiconRecovery(props: { draft: WordTilesDraft }): JSX.Element {
   return (
-    <Show when={props.draft.lexicon.state().status === 'unavailable'}>
-      <P role="status">{t`The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them.`}</P>
-      <Button
-        title={t`Reload word list`}
-        variant="outline"
-        dataSet={{ testid: `${props.draft.props.testId}-lexicon-retry` }}
-        onClick={props.draft.lexicon.retry}
-      />
-    </Show>
+    <ToastStack placement="top" persistent>
+      <Show when={props.draft.lexicon.state().status === 'unavailable'}>
+        <Notice tone="warning">
+          <P role="status">{t`The word list could not load. Your draft is kept. Reload it to preview words, or play for the game to check them.`}</P>
+          <StackHorizontal gap="sm">
+            <Button
+              title={t`Reload word list`}
+              variant="outline"
+              dataSet={{ testid: `${props.draft.props.testId}-lexicon-retry` }}
+              onClick={props.draft.lexicon.retry}
+            />
+          </StackHorizontal>
+        </Notice>
+      </Show>
+    </ToastStack>
   );
 }
 

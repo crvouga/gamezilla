@@ -5,6 +5,11 @@
   flex: 1;
   flex-direction: column;
   gap: var(--ui-space-4);
+  /* A form's measure, centred: on a wide window the cards and the command
+     under them share one readable column, not the whole window. */
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
   padding: var(--ui-space-4) var(--ui-space-4) var(--ui-space-6);
 }
 .card {

@@ -5,7 +5,7 @@ import { For, onSettled } from 'solid-js';
 import {
   bindWordPointers,
   type Contact,
-} from '../word-tile-board/word-tile-pointers';
+} from '../word-tile-board/word-tile-navigation';
 import styles from './tile-rack.module.css';
 
 export type TileRackTile = {

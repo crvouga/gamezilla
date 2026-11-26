@@ -3,6 +3,7 @@ import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { CurrentBadge, LiveBadge } from '@pkgs/ui-root-client-ts/badge';
 import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { NameText } from '@pkgs/ui-root-client-ts/name-text';
 import { Pressable } from '@pkgs/ui-root-client-ts/pressable';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -28,6 +29,8 @@ export type SpaceCardData = {
   readonly active: boolean;
   /** The viewer hosts this space, so the lobby lists it under their own. */
   readonly hostedByViewer: boolean;
+  /** The viewer's own id: among the guests they read as "You". */
+  readonly viewerId?: string | undefined;
   /** Guests seated in the space's room, host excluded. */
   readonly guests: readonly SpacePerson[];
 };
@@ -167,21 +170,45 @@ export function spaceCardAction(space: SpaceCardData): SpaceCardAction {
   return space.active || space.hostedByViewer ? 'open' : 'join';
 }
 
-/** Who hosts the space: "Hosted by you", or the host's name. */
+/**
+ * The guests a card names and counts: everyone in the space but the
+ * viewer, as Join counts them, so a card never lists the person reading it.
+ */
+export function spaceCardOthers(space: SpaceCardData): readonly SpacePerson[] {
+  return space.viewerId === undefined
+    ? space.guests
+    : space.guests.filter((guest) => guest.id !== space.viewerId);
+}
+
+/**
+ * Who hosts the space: "Hosted by you", or the host's name. `oneLine` is
+ * for a one-line clamp: the name is plain words, so the line ends in an
+ * ellipsis instead of breaking at the name's `_`, `.` or `-`.
+ */
 export function SpaceHostPhrase(props: {
   readonly space: SpaceCardData;
+  readonly oneLine?: boolean | undefined;
 }): JSX.Element {
   return (
     <Show
       when={!props.space.hostedByViewer}
       fallback={<Trans>Hosted by you</Trans>}
     >
+      {/* A one-line clamp ends a long name in an ellipsis; where the line
+          may wrap, the name breaks after its `_`, `.` or `-` first. */}
       <Show when={props.space.host} keyed>
-        {(host) => (
-          <Trans>
-            Hosted by <SpacePersonName person={host} variant="caption" />
-          </Trans>
-        )}
+        {(host) => {
+          const hostName =
+            props.oneLine === true ? host.name : <NameText name={host.name} />;
+          return (
+            <Show
+              when={host.name.trim() !== ''}
+              fallback={<Trans>Hosted by a guest</Trans>}
+            >
+              <Trans>Hosted by {hostName}</Trans>
+            </Show>
+          );
+        }}
       </Show>
     </Show>
   );
@@ -196,29 +223,24 @@ export function SpaceHostPhrase(props: {
 export function SpaceGuestsPhrase(props: {
   readonly guests: readonly SpacePerson[];
 }): JSX.Element {
-  const first = (): SpacePerson | undefined => props.guests[0];
-  const second = (): SpacePerson | undefined => props.guests[1];
+  const { t } = useLingui();
+  // Plain words, so the line's clamp ends a long name in an ellipsis
+  // instead of breaking it across lines.
+  const nameOf = (person: SpacePerson | undefined): string =>
+    person === undefined || person.name.trim() === '' ? t`Guest` : person.name;
   const others = (): number => Math.max(0, props.guests.length - 1);
   return (
     <Switch fallback={<Trans>No guests yet</Trans>}>
-      <Match when={props.guests.length === 1 && first()} keyed>
-        {(guest) => <SpacePersonName person={guest} variant="caption" />}
+      <Match when={props.guests.length === 1}>{nameOf(props.guests[0])}</Match>
+      <Match when={props.guests.length === 2}>
+        <Trans>
+          {nameOf(props.guests[0])} and {nameOf(props.guests[1])}
+        </Trans>
       </Match>
-      <Match when={props.guests.length === 2 && first()} keyed>
-        {(guest) => (
-          <Trans>
-            <SpacePersonName person={guest} variant="caption" /> and{' '}
-            <SpacePersonName person={second() ?? guest} variant="caption" />
-          </Trans>
-        )}
-      </Match>
-      <Match when={props.guests.length > 2 && first()} keyed>
-        {(guest) => (
-          <Trans>
-            <SpacePersonName person={guest} variant="caption" /> and {others()}{' '}
-            others
-          </Trans>
-        )}
+      <Match when={props.guests.length > 2}>
+        <Trans>
+          {nameOf(props.guests[0])} and {others()} others
+        </Trans>
       </Match>
     </Switch>
   );
@@ -271,11 +293,12 @@ function SpaceCardMetaLine(props: {
   return (
     <StackHorizontal align="center" justify="between" gap="sm">
       <StackVertical shrink>
-        <P variant="caption" lines={1}>
+        {/* Up to two lines: a long host name stays readable on a phone. */}
+        <P variant="caption" lines={2}>
           <SpaceHostPhrase space={props.space} />
         </P>
       </StackVertical>
-      <SpaceCardGuests guests={props.space.guests} />
+      <SpaceCardGuests guests={spaceCardOthers(props.space)} />
     </StackHorizontal>
   );
 }
@@ -355,7 +378,8 @@ export function SpaceCardView(props: {
           <StackHorizontal align="center" justify="between" gap="sm">
             <StackVertical shrink>
               {/* The list-row title: medium, as in every panel of rows. */}
-              <Text variant="rowTitle" lines={1}>
+              {/* Two lines: the space's name is what a person looks for. */}
+              <Text variant="rowTitle" lines={2}>
                 {props.space.title}
               </Text>
             </StackVertical>

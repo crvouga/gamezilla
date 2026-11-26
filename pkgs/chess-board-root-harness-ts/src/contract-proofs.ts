@@ -19,6 +19,7 @@ export const CHESSBOARD_CONTRACT_PROOFS = {
   coordinatePlacement: ['public-coordinates.contract.test.ts'],
   showCoordinates: ['board-options.feature'],
   showGuidance: ['board-guidance.test.tsx'],
+  guidanceDetail: ['board-guidance.test.tsx'],
   guidancePlacement: ['puzzle-first-rank.test.tsx', 'board-guidance.test.tsx'],
   highlightLastMove: ['board-options.feature'],
   lastMove: ['last-move-supplied.contract.test.ts'],

@@ -116,3 +116,16 @@
   gap: var(--ui-space-1);
   flex-wrap: wrap;
 }
+
+/* A phone's one row under the board: the Board tools button, then the chosen
+   square's details (two caption lines fit the button's height). */
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--ui-space-2);
+  min-height: var(--ui-control-size-md);
+}
+.bar > p {
+  flex: 1;
+  min-width: 0;
+}

@@ -9,8 +9,6 @@ import { endSpaceMutation } from '@libs/spaces-shared-ts/end-space-mutation';
 import { leaveSpaceMutation } from '@libs/spaces-shared-ts/leave-space-mutation';
 import { removeSpaceUserMutation } from '@libs/spaces-shared-ts/remove-space-user-mutation';
 import { renameSpaceMutation } from '@libs/spaces-shared-ts/rename-space-mutation';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 
@@ -31,29 +29,20 @@ const LOBBY_CHANGES: readonly string[] = [
 ];
 
 /**
- * A refused change to this space, at the top of the space's body on the
- * body's own edge and measure: inline, under the space's bar, never over it.
+ * A refused change to this space, with its dismiss: the space's shell
+ * floats it in its alerts (`ToastStack`), never a row in the body.
  */
 export function SpaceRefusedChangeNotice(): JSX.Element {
-  const mode = useLayoutMode();
   const changes = useRefusedChanges(
     (name) => name !== null && IN_SPACE_CHANGES.includes(name)
   );
   return (
     <Show when={changes.refusals()[0]} keyed>
       {(refusal) => (
-        <StackVertical
-          width="full"
-          maxWidth="prose"
-          self="center"
-          paddingX={mode() === 'wide' ? undefined : 'lg'}
-          paddingTop="sm"
-        >
-          <RefusedChangeCard
-            refusal={refusal}
-            onDismiss={() => changes.dismiss(refusal)}
-          />
-        </StackVertical>
+        <RefusedChangeCard
+          refusal={refusal}
+          onDismiss={() => changes.dismiss(refusal)}
+        />
       )}
     </Show>
   );

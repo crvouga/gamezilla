@@ -29,14 +29,16 @@ test('storybook integration: game frame fit 768x900 keeps Offer draw and Resign 
   // During play Offer draw and Resign wait behind Game menu, the play
   // screen's one way to the game's commands: it is in the first view, and
   // so are both commands once it is pressed.
-  const inView = async (name: RegExp) => {
-    const action = await page.getByRole('button', { name }).boundingBox();
+  const inView = async (name: RegExp, scope = page.locator('body')) => {
+    const action = await scope.getByRole('button', { name }).boundingBox();
     if (!action) throw new Error(`Missing ${String(name)}`);
     expect(action.y + action.height).toBeLessThanOrEqual(900);
   };
   await inView(/^Game menu/);
   await page.getByRole('button', { name: /^Game menu/ }).click();
-  for (const name of [/^Offer a draw/, /^Resign/]) await inView(name);
+  // The menu's own rows, named as the bar names them.
+  const menu = page.getByRole('dialog');
+  for (const name of [/^Offer draw/, /^Resign/]) await inView(name, menu);
 });
 
 // regression: game-frame-finished-board-shrinks-under-result
@@ -75,6 +77,11 @@ test('storybook integration: game frame fit 1440x900 keeps a finished board at i
     };
   });
   expect(finished, JSON.stringify(layout)).toBeGreaterThanOrEqual(live - 2);
+  const dialog = page.getByRole('dialog', { name: 'Game over' });
+  await expect(dialog.getByRole('button', { name: /^Rematch/ })).toBeInViewport(
+    { ratio: 1 }
+  );
+  await dialog.getByTestId('game-result-close').click();
   const board = await page
     .locator('[data-component="ChessBoard"]')
     .boundingBox();

@@ -71,6 +71,7 @@ Then(
     }
   }
 );
+// regression: matchmaking-offline-unfinished-result
 Then(
   '{actor} still sees the last known unfinished matched game',
   async (w, actor: string) => {

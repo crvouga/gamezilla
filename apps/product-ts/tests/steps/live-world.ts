@@ -71,6 +71,7 @@ const SSO_CALLBACK_PATH = '/sso-callback';
 const RUN_ID = wallClock.now().toString(36);
 
 export type LiveWorld = JourneyWorld & {
+  readonly hostView: () => Device['view'];
   readonly ctx: ScenarioContext;
   /** The environment under test (`SECRETS_ENV`). */
   readonly env: EnvFile;
@@ -129,6 +130,7 @@ function markSynthetic(device: Device, target: LiveTarget): Promise<void> {
 }
 
 type Browsing = {
+  readonly hostView: () => Device['view'];
   readonly host: JourneyHost;
   readonly record: JourneyStepRecorder;
   /** Save the open page's evidence, if a device is open. */
@@ -372,6 +374,7 @@ function browsing(
   const cleanups = new Map<string, JourneyGestures>();
   const failureFlag: FailureFlag = { failed: false };
   return {
+    hostView: () => requireDevice(devices.host, 'device').view,
     host: liveJourneyHost(target, devices, cleanups),
     record: createJourneyStepRecorder(
       scenarioId,
@@ -442,6 +445,7 @@ export function useLiveWorld(target?: LiveTarget): void {
       );
       return Promise.resolve({
         ctx,
+        hostView: scenario.hostView,
         env,
         origins,
         http,

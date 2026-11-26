@@ -96,9 +96,13 @@ export function StoryPackActions(props: {
   );
 }
 
-/** An attempt's commands at rest: undo, redo and restart. */
+/**
+ * An attempt's commands at rest: undo, redo and restart. Undo waits for a
+ * move, as the app's own does (`canUndo`).
+ */
 function StoryPackAttemptControls(props: {
   readonly disabled: boolean;
+  readonly played: boolean;
 }): JSX.Element {
   return (
     <StackHorizontal gap="sm" wrap shrink>
@@ -107,7 +111,7 @@ function StoryPackAttemptControls(props: {
         intent="neutral"
         variant="outline"
         size="sm"
-        disabled={props.disabled}
+        disabled={props.disabled || !props.played}
       />
       <Button
         title="Redo"
@@ -129,8 +133,8 @@ function StoryPackAttemptControls(props: {
 
 /**
  * `player` on a saved attempt at `puzzle`, as the app shows it: on its
- * board, with "Progress" opening where the attempt stands and Back
- * (`story-attempt-back`) returning, so a story can walk both screens.
+ * board, with "Progress" opening where the attempt stands and its own
+ * "Back to the board" returning, so a story can walk both screens.
  */
 export function StoryPackAttempt(props: {
   readonly puzzle: StoryPackPuzzle;
@@ -138,7 +142,11 @@ export function StoryPackAttempt(props: {
   readonly saving?: boolean | undefined;
   readonly next?: { title: string; open: () => void } | undefined;
   readonly disabled?: boolean | undefined;
+  /** Whether the attempt has a move to undo; by default it has. */
+  readonly played?: boolean | undefined;
   readonly player: JSX.Element;
+  /** The game's quieter aids under the commands (`PuzzleContentClient.Support`). */
+  readonly support?: JSX.Element;
   /** Stateful controls supplied by a game's rules-backed history fixture. */
   readonly controls?: JSX.Element;
   /** A game's own way on; by default next (once solved) and overview. */
@@ -159,16 +167,6 @@ export function StoryPackAttempt(props: {
   });
   return (
     <>
-      <Show when={place().screen === 'progress'}>
-        <Button
-          title="Back"
-          intent="neutral"
-          variant="ghost"
-          size="sm"
-          onClick={() => setPlace({ screen: 'attempt' })}
-          dataSet={{ testid: 'story-attempt-back' }}
-        />
-      </Show>
       <PuzzlePackStageScreenView
         status="ready"
         place={place()}
@@ -196,6 +194,7 @@ export function StoryPackAttempt(props: {
         rulesChanged={false}
         unopenable={false}
         player={props.player}
+        support={props.support}
         wayOn={
           props.wayOn ?? (
             <StoryPackActions next={props.complete ? props.next : undefined} />
@@ -203,7 +202,10 @@ export function StoryPackAttempt(props: {
         }
         controls={
           props.controls ?? (
-            <StoryPackAttemptControls disabled={props.disabled === true} />
+            <StoryPackAttemptControls
+              disabled={props.disabled === true}
+              played={props.played !== false}
+            />
           )
         }
         onRetryChange={fn()}

@@ -1,6 +1,24 @@
 import { expect, fireEvent, userEvent, within } from 'storybook/test';
 import { numberlinkGeometry } from './numberlink-geometry.example';
 
+/** Open the drawing help, find how to redraw a path, and close it again. */
+async function readDrawingHelp(canvasElement: HTMLElement) {
+  await userEvent.click(
+    within(canvasElement).getByRole('button', {
+      name: 'Drawing and keyboard help',
+    })
+  );
+  const help = within(
+    await within(document.body).findByRole('dialog', {
+      name: 'Drawing and keyboard help',
+    })
+  );
+  await expect(
+    help.getByText(/Start again at an endpoint to redraw/)
+  ).toBeInTheDocument();
+  await userEvent.click(help.getByRole('button', { name: 'Done' }));
+}
+
 /** Synthetic touch events exercise production hit testing; capture itself needs a trusted browser pointer. */
 export async function recoverWithPointer(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
@@ -35,15 +53,7 @@ export async function recoverWithPointer(canvasElement: HTMLElement) {
   };
   try {
     // regression: numberlink-phone-path-recovery-undiscoverable
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Drawing and keyboard help' })
-    );
-    await expect(
-      canvas.getByText(/Start again at an endpoint to redraw/)
-    ).toBeInTheDocument();
-    await userEvent.click(
-      canvas.getByRole('button', { name: 'Drawing and keyboard help' })
-    );
+    await readDrawingHelp(canvasElement);
     await draw([0, 1, 2], true);
     await expect(
       canvas.getByRole('button', { name: 'B1: empty' })

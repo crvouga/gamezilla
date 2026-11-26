@@ -33,7 +33,7 @@ export function GamePlayerStateBadge(props: {
     <Badge
       label={props.state.label}
       intent={props.state.kind === 'reconnecting' ? 'warning' : 'neutral'}
-      dot={props.state.kind === 'reconnecting' ? 'pending' : undefined}
+      size="sm"
       dataSet={{ component: 'GamePlayerState', state: props.state.kind }}
     />
   );

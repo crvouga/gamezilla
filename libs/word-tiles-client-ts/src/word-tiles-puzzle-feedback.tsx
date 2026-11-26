@@ -2,12 +2,21 @@ import { t } from '@lingui/core/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
-import { P } from '@pkgs/ui-root-client-ts/text';
+import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { Show } from 'solid-js';
 import { WordTilesPreviewPanel } from './word-tiles-panels';
 import type { WordTilesPreview } from './word-tiles-preview';
 
-/** Keep a refused placement and its correction together, distinct from its score. */
+/** `message` as a sentence, so the correction after it reads apart. */
+function sentence(message: string): string {
+  return /[.!?…]$/.test(message) ? message : `${message}.`;
+}
+
+/**
+ * Keep a refused placement and its correction together, distinct from its
+ * score, on the status line under the board: it comes and goes with the
+ * draft without moving the board.
+ */
 export function PuzzlePlacementFeedback(props: {
   preview: WordTilesPreview;
   hasPlacement: boolean;
@@ -43,12 +52,12 @@ export function PuzzlePlacementFeedback(props: {
         </StackVertical>
       }
     >
-      <Notice tone="error">
-        <P variant="bodyBold" dataSet={{ testid: 'word-tiles-puzzle-status' }}>
-          {props.preview.message}
-        </P>
-        <P>{t`Recall tiles to try another word. Your rack is kept.`}</P>
-      </Notice>
+      <P role="alert" dataSet={{ testid: 'word-tiles-puzzle-status' }}>
+        <Text variant="bodyBold" tone="destructive">
+          {sentence(props.preview.message)}
+        </Text>{' '}
+        {t`Recall tiles to try another word. Your rack is kept.`}
+      </P>
     </Show>
   );
 }

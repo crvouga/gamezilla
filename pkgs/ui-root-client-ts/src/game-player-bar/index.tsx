@@ -16,7 +16,7 @@ import {
 import { type GameSeatLook, GameSeatSwatch } from '../game-seat-swatch/index';
 import styles from '../game-ui.module.css';
 import { createScreenSlot } from '../screen-slot';
-import line from './name-line.module.css';
+import line from './game-player-bar.module.css';
 import { SeatOptions, SeatOptionsToggle, useSeatOptions } from './seat-options';
 
 /** The one avatar size a seat uses, so both seats of a game line up. */
@@ -27,6 +27,13 @@ export const GAME_PLAYER_COMPACT_AVATAR_SIZE = 32;
 
 export type GamePlayerBarProps = {
   name: JSX.Element;
+  /**
+   * A short mark after the name that never gives way (`You`): it sits on
+   * the name's own line in every placement, and the name is cut short
+   * before it moves off that line or hides, so the person's own seat reads
+   * as theirs however many facts the seat drops.
+   */
+  nameTag?: JSX.Element;
   /**
    * The seat's `Avatar`. Defaults to the person placeholder; an open seat
    * passes `<Avatar kind="emptySeat" />`, a bot `<Avatar kind="bot" />`.
@@ -45,9 +52,16 @@ export type GamePlayerBarProps = {
    * `below` (default): the tags on a line under the name. `inline`: on the
    * name's own line, after it, for a list of strips (the players beside an
    * arena) where a short tag (`You`) must not make one strip taller than
-   * the rest: the line never wraps, a long name is cut short instead.
+   * the rest: the line never wraps, a long name is cut short instead; on
+   * a narrow strip the tags take a line of their own under the name.
+   * `line`: one line at every width, even a phone's narrow strip beside
+   * its clock, so a seat with a tag is one line like a seat without. The
+   * name keeps its room first: the turn's words, then the tags, follow it
+   * only while they fit whole, and otherwise give way (the seat's tint
+   * and edge still mark the turn, its swatch its side, and a listener
+   * still hears both). Only a name longer than the line is cut short.
    */
-  tagsPlacement?: 'below' | 'inline' | undefined;
+  tagsPlacement?: 'below' | 'inline' | 'line' | undefined;
   /** The name as plain words: the tooltip when a long name is cut short. */
   plainName?: string | undefined;
   /** The seat's figure at the far edge (score, walls). */
@@ -98,13 +112,32 @@ export type GamePlayerBarProps = {
   dataSet?: ComponentDataSet;
 };
 
+/** The words for the seat to move ("To move"), a pill on the name's line. */
+function PlayerTurn(props: { label: JSX.Element }): JSX.Element {
+  return (
+    <span
+      class={`${styles['playerTurn']} text textLabel rounded-full shrink-0`}
+      {...dataAttrs({ component: 'GamePlayerTurn' })}
+    >
+      {props.label}
+    </span>
+  );
+}
+
 /** Avatar, swatch and name, and the tags under them (or after the name). */
 function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
   // Tags that resolve to nothing (every fact hidden) take no row.
   const tags = createScreenSlot(() => props.tags);
   const turnLabel = createScreenSlot(() => props.turnLabel);
+  const nameTag = createScreenSlot(() => props.nameTag);
   const turn = (): boolean => props.active === true && turnLabel.present();
-  const inline = (): boolean => props.tagsPlacement === 'inline';
+  const keep = (): boolean => props.tagsPlacement === 'line';
+  // A seat's state alone (Away, Out) follows the name on its line, so a seat
+  // never grows a row when it comes or goes and the board never moves.
+  const inline = (): boolean =>
+    props.tagsPlacement === 'inline' ||
+    props.tagsPlacement === 'line' ||
+    (!tags.present() && props.state !== undefined && props.state !== null);
   const facts = (): boolean =>
     tags.present() || (props.state !== undefined && props.state !== null);
   const tagRow = (): JSX.Element => (
@@ -147,7 +180,7 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
         {/* One line: the swatch, the name (cut short when long, its whole
             self in the tooltip and to a listener) and the turn; the tags
             follow it when they are inline and the strip has the room. */}
-        <span class={line['line']}>
+        <span class={[line['line'], { [line['keep'] ?? '']: keep() }]}>
           <span class={line['who']}>
             <Show when={props.swatch}>
               {(look) => (
@@ -163,16 +196,19 @@ function PlayerIdentity(props: GamePlayerBarProps): JSX.Element {
             >
               {props.name}
             </span>
+            <Show when={nameTag.present()}>
+              <span class="shrink-0 box flex-row">{nameTag.content()}</span>
+            </Show>
             {/* The turn on the name's own line: the strip gains no row. */}
-            <Show when={turn()}>
-              <span
-                class={`${styles['playerTurn']} text textLabel rounded-full shrink-0`}
-                {...dataAttrs({ component: 'GamePlayerTurn' })}
-              >
-                {props.turnLabel}
-              </span>
+            <Show when={turn() && !keep()}>
+              <PlayerTurn label={props.turnLabel} />
             </Show>
           </span>
+          {/* A `line` seat's turn follows the name, so the name keeps its
+              room first and the turn gives way (game-player-bar.module.css). */}
+          <Show when={turn() && keep()}>
+            <PlayerTurn label={props.turnLabel} />
+          </Show>
           <Show when={inline() && facts()}>{tagRow()}</Show>
         </span>
         <Show when={!inline() && facts()}>{tagRow()}</Show>

@@ -6,6 +6,7 @@ import {
   squareName,
 } from '@libs/sokoban-shared-ts/sokoban-types';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
+import { Button } from '@pkgs/ui-root-client-ts/button';
 import {
   CellGridBoard,
   type CellGridCell,
@@ -194,24 +195,34 @@ function Board(props: {
 
 /** The shared builder owns saving, undo, validation, playtesting and publication. */
 export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
+  const { t } = useLingui();
   const editor = useSokobanEditor(props);
   return (
     <Show
       when={editor.board()}
       fallback={
-        <Notice tone="error">
-          <Trans>
-            This board cannot be opened. Choose an earlier saved draft to keep
-            building.
-          </Trans>
-        </Notice>
+        <StackVertical gap="sm" align="start">
+          <Notice tone="error">
+            <Trans>This board cannot be opened.</Trans>
+          </Notice>
+          <Show when={props.onChooseCopy}>
+            {(choose) => (
+              <Button
+                title={t`Choose saved draft`}
+                onClick={() => choose()()}
+              />
+            )}
+          </Show>
+        </StackVertical>
       }
     >
       {(board) => (
         // The tools, used on every press, sit beside the board when there
         // is room and head it on a phone, so the whole board is in view
-        // under them. The size, set once, follows with how to use the
-        // tools and what to correct: beside the board, or after it.
+        // under them. What to correct comes first after them: straight
+        // under the board on a phone, beside it under the tools on a wide
+        // screen, both in the first view. The size, set once, and how to
+        // use the tools follow.
         <EditorWorkbench
           tools={<ToolPalette editor={editor} disabled={props.disabled} />}
           canvas={
@@ -219,6 +230,7 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
           }
           notes={
             <>
+              <Feedback editor={editor} board={board()} />
               <SokobanSizeControls
                 board={board()}
                 disabled={props.disabled}
@@ -230,7 +242,6 @@ export function SokobanEditor(props: PuzzleEditorProps): JSX.Element {
                   any piece on them; erasing makes plain floor.
                 </Trans>
               </P>
-              <Feedback editor={editor} board={board()} />
             </>
           }
         />

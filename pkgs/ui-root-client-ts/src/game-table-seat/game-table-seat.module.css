@@ -32,9 +32,24 @@
   min-width: 0;
   max-width: 100%;
 }
+/* The name, then its mark (`You`) on the same line: the mark never gives
+   way, the name is cut short first. */
+.nameLine {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  gap: var(--ui-space-1);
+  min-width: 0;
+  max-width: 100%;
+}
+.nameTag {
+  display: inline-flex;
+  flex-shrink: 0;
+}
 /* Narrow, a name is never cut: a size smaller, then onto a second line
    (a phone's side seat holds `jordan_plays` whole on one). */
 .name {
+  min-width: 0;
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;

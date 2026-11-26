@@ -1,0 +1,4 @@
+{
+  "summary": "The player button joined bob and Walls 10 in its spoken name.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-frame.test.tsx"
+}
