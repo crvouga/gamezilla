@@ -2,7 +2,7 @@
 Feature: Play a custom game in a space
   When someone wants to play chess in their space, they want a bot or someone who joined from the link as their opponent, so a complete game is played and finished without needing an account.
 
-  Rule: A guest can choose a bot, play and finish the same custom game
+  Rule: A guest can play as soon as their custom game against a bot starts
 
     @regression:custom-game-journey-unbound
     @regression:custom-game-confirm-unmounted
@@ -26,7 +26,7 @@ Feature: Play a custom game in a space
       When they start the custom game
       Then their custom game board is ready for White
 
-  Rule: Two people in one space can agree on sides, play and finish the same custom game
+  Rule: Once both people agree on their sides and the host starts, they go straight to the board
 
     Scenario: Someone who joined from the link accepts an invitation and becomes ready
       Given Alice is hosting a space that Bob joined from the link
