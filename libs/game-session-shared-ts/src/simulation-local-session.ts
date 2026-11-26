@@ -166,7 +166,7 @@ export class LocalSimulationSession {
       { id, ts: this.options.clock.now(), payload: message },
       this.options.owner
     );
-    if (error !== null) this.options.onError(error);
+    if (error !== null) { console.log("simulation conflict", message.type, new Error().stack); this.options.onError(error); }
     return error === null ? id : null;
   }
 
