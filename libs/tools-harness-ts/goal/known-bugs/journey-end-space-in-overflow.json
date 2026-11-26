@@ -1,4 +1,4 @@
 {
-  "summary": "Live journeys could not clean up hosted spaces after End space moved into the overflow menu. Open the space overflow menu before waiting for the End action.",
+  "summary": "Live journeys could not clean up hosted spaces after End space moved into the overflow menu. End is now directly available on the top bar, and cleanup waits for it before hosting again.",
   "regressionTest": "libs/runtime-harness-ts/tests/critical-journey-host-space.test.ts"
 }

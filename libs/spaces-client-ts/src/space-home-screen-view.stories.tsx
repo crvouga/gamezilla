@@ -21,7 +21,7 @@ const meta = {
   // The story shell therefore leaves this frame to the story
   // (`SELF_FRAMED_SPACE_BODIES` in the product's `storybook-route`).
   render: (args) => (
-    <StorySpaceFrame>
+    <StorySpaceFrame guest={!args.canSelectGame}>
       <SpaceHomeScreenView {...args} />
     </StorySpaceFrame>
   ),
@@ -35,6 +35,14 @@ type Story = StoryObj<typeof meta>;
  * the space's own chrome and the registered games.
  */
 export const HostChoosing: Story = {};
+
+export const LongName: Story = {
+  render: (args) => (
+    <StorySpaceFrame spaceName="Friday game night with the whole family and friends from out of town">
+      <SpaceHomeScreenView {...args} />
+    </StorySpaceFrame>
+  ),
+};
 
 /** Someone who cannot pick sees the same games and that the host is choosing. */
 export const GuestWaiting: Story = { args: { canSelectGame: false } };
@@ -55,7 +63,7 @@ export const OpenPeople: Story = {
     await userEvent.click(
       await canvas.findByTestId(Handles.spaceMembersButton)
     );
-    await expect(STORY_SPACE_CHROME.menu[0]?.onPress).toHaveBeenCalled();
+    await expect(STORY_SPACE_CHROME.onMembers).toHaveBeenCalled();
   },
 };
 
@@ -64,6 +72,6 @@ export const OpenShare: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(await canvas.findByTestId(Handles.spaceShare));
-    await expect(STORY_SPACE_CHROME.menu[1]?.onPress).toHaveBeenCalled();
+    await expect(STORY_SPACE_CHROME.onInvite).toHaveBeenCalled();
   },
 };

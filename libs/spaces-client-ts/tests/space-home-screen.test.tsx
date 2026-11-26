@@ -60,29 +60,20 @@ function chrome(input: {
     status: 'ready',
     onBack: noop,
     backLabel: undefined,
-    menu: [
-      {
-        id: 'people',
-        label: 'People in this space',
-        onPress: input.onPeople ?? noop,
-        testId: Handles.spaceMembersButton,
-      },
-      {
-        id: 'share',
-        label: 'Share',
-        onPress: input.onInvite ?? noop,
-        testId: Handles.spaceShare,
-      },
-    ],
+    onMembers: input.onPeople ?? noop,
+    onRename: input.role === 'host' ? noop : undefined,
+    onMinimize: noop,
     onLeave: noop,
-    onEnd: noop,
+    onEnd: input.role === 'host' ? noop : undefined,
     onInvite: input.onInvite ?? noop,
     onPersonAction: noop,
     personCapabilities: [],
     testIds: {
       back: Handles.spaceBackToSpaces,
       title: Handles.spaceTitle,
-      settings: Handles.spaceChromeOverflow,
+      people: Handles.spaceMembersButton,
+      share: Handles.spaceShare,
+      minimize: Handles.spaceClose,
       leave: Handles.spaceLeave,
       end: Handles.spaceEnd,
     },
@@ -230,7 +221,6 @@ test('who is here is the top bar\u2019s first action, never a row of faces, at a
 test('Share is one of the space\u2019s actions and opens the share sheet', () => {
   const onInvite = mock();
   mount({ role: 'host', people: [you(AVERY)], onInvite });
-  fireEvent.click(screen.getByTestId(Handles.spaceChromeOverflow));
   fireEvent.click(screen.getByTestId(Handles.spaceShare));
   expect(onInvite).toHaveBeenCalledTimes(1);
 });

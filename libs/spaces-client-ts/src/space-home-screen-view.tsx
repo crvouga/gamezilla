@@ -105,7 +105,9 @@ export function SpaceHomeScreenView(
         role={chrome.role}
         onBack={chrome.onBack}
         backLabel={chrome.backLabel}
-        menu={chrome.menu}
+        onMembers={chrome.onMembers}
+        onRename={chrome.onRename}
+        onMinimize={chrome.onMinimize}
         onLeave={chrome.onLeave}
         onEnd={chrome.onEnd}
         onInvite={chrome.onInvite}
