@@ -1,77 +1,18 @@
 name: Verify PR
-run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
-
-# A pull request runs the smallest gate that cannot wait (ci-stage.ts
-# `PR_TASKS`: typecheck, lint, unit tests, secret scanning, workflow syntax),
-# only where its own diff reaches and only what fits its job
-# (pr-selection.ts). Release and
-# nightly call this workflow for the whole gate catalog, as does a manual
-# dispatch on any branch; a check that fails in Release keeps an open issue
-# until it passes (ci-check-issues.ts). Profiles differ in depth
-# (verify-profile.ts); nightly adds deeper groups outside the gate. Keep
-# verify:end stable for branch rules.
-# Required checks are declared in the repository policy registry.
-# See docs/CI_STAGE_POLICY.md for risk justifications and coverage ownership.
-
-# Least privilege: read the code and run metadata. Each job adds the OIDC
-# token the secrets backend trusts. A pull request from a fork gets neither
-# OIDC nor secrets (GitHub withholds both), so its run stops at setup with the
-# reason.
-permissions:
-  contents: read # check out the code
-  actions: read # read run state (gh run list, job metadata)
+run-name: "Verify PR · ${{ format('pr #{0}', github.event.pull_request.number) }}"
 on:
   pull_request:
     branches: [main]
     types: [opened, reopened, synchronize]
-  workflow_dispatch:
-    inputs:
-      shards:
-        description: Most shards a run may start
-        type: choice
-        options: [8, 12, 16, 24, 32, 40, 48, 64]
-        default: 64
-      concurrency:
-        description: Turbo slots per shard
-        type: number
-        default: 1
-      cache-mode:
-        description: normal or cold (cold forces execution without deleting remote caches)
-        type: choice
-        options: [normal, cold]
-        default: normal
-  workflow_call:
-    inputs:
-      require-main:
-        description: Refuse a release from any ref other than main
-        type: boolean
-        default: false
-      shards:
-        description: Most shards a run may start
-        type: number
-        default: 64
-      concurrency:
-        description: Turbo slots per shard
-        type: number
-        default: 1
-      cache-mode:
-        description: normal or cold
-        type: string
-        default: normal
-      profile:
-        description: release (the whole gate at bounded depth) or nightly (the whole gate deeper, retained reports)
-        type: string
-        default: release
-      advisories:
-        description: enforce (a current advisory fails the gate) or report (the registry's verdict is logged, not enforced)
-        type: string
-        default: enforce
 
-# Repeated branch validations replace earlier requests with the same settings.
-# Reusable calls inherit the caller's workflow name and keep a per-run group.
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('verify-pr-{0}', github.event.pull_request.number) || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch' && format('verify-dispatch-{0}-{1}-{2}-{3}', inputs.cache-mode, inputs.shards, inputs.concurrency, github.ref)) || format('verify-run-{0}', github.run_id) }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' || (github.workflow == 'Verify PR' && github.event_name == 'workflow_dispatch') }}
+  group: verify-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  actions: read
+  id-token: write
 
 env:
   GH_TOKEN: ${{ github.token }}
@@ -81,66 +22,30 @@ env:
   VERIFY_LINT_THREADS: 1
   VERIFY_TEST_CONCURRENCY: 1
   GOMAXPROCS: 1
-  JAVA_TOOL_OPTIONS: -XX:ActiveProcessorCount=2
-  JVM_GC_ARGS: -XX:+UseParallelGC -Xmx2048m -Xms512m
-  MODEL_VERIFY_CONCURRENCY: 2
-  VERIFY_SOLVER_SLOTS: 1
   SECRETS_ENV: dev
   SECRETS_IDENTITY_ID: ${{ vars.SECRETS_IDENTITY_ID }}
   GH_EVENT: ${{ github.event_name }}
-  # Compare migrations to an immutable earlier revision, never main at HEAD.
-  PR_BASE: ${{ github.event.pull_request.base.sha || github.event.before || format('{0}^', github.sha) }}
+  PR_BASE: ${{ github.event.pull_request.base.sha }}
   PR_HEAD: ${{ github.event.pull_request.head.sha }}
-  # Hosted PR shards spend about 90 s outside verification (CI_REQUIREMENTS.md).
-  VERIFY_SHARD_SETUP_SECONDS: ${{ vars.VERIFY_SHARD_SETUP_SECONDS || (github.event_name == 'pull_request' && '90' || '30') }}
-  # A cap, not the count. The plan sizes shards to the work: each holds at
-  # least three times a shard's setup (`VERIFY_SHARD_SETUP_SECONDS`)
-  # and no less than the longest indivisible task group, and it starts no
-  # more than the cap unless the shard deadline needs more
-  # (libs/tools-harness-ts/scripts/verify-plan.ts). The log's `shards:` line
-  # says why.
-  # Forty left a cold corpus — every cache missed — packed past the 1200s
-  # shard deadline once each solver had a runner of its own (Verify run
-  # 38328597240); sixty-four keeps that pack inside the deadline.
-  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '12' }}
-  VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
-  VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
-  VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
-  VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
-  # Only a pull request runs the narrow `pr` selection; a dispatch, Release
-  # and nightly run the whole catalog.
-  VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || (github.event_name == 'pull_request' && 'pr' || 'release') }}
-  VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
+  VERIFY_PROFILE: release
+  VERIFY_CI_STAGE: pr
 
-# Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
     shell: ci-budget-shell {0}
 
-
 jobs:
-  verify-start:
-    if: github.event_name != 'pull_request'
-    name: verify:start
+  verify-end:
+    name: verify:end
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read # check out the code
-      actions: read # read run state (gh run list, job metadata)
-      id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
-    # One entry per shard with work, naming none of them: GitHub drops a job
-    # output that contains a masked secret, and one dev secret is the digit 1.
-    outputs:
-      shards: ${{ steps.plan.outputs.shards }}
-      consumers: ${{ steps.plan.outputs.consumers }}
+    timeout-minutes: 3
     steps:
-      - &budget
-        name: Check remaining workflow time
+      - name: Check remaining workflow time
         id: budget
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
-          STAGE_SECONDS: "${{ github.event_name == 'pull_request' && 180 || inputs.profile == 'nightly' && 2700 || 600 }}"
+          STAGE_SECONDS: '180'
         run: |
           set -euo pipefail
           created=$(timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
@@ -165,275 +70,12 @@ jobs:
           SH
           chmod +x "$RUNNER_TEMP/ci-budget/ci-budget-shell"
           echo "$RUNNER_TEMP/ci-budget" >> "$GITHUB_PATH"
-      - name: Validate release branch
-        if: ${{ inputs.require-main }}
-        run: |
-          set -euo pipefail
-          if [ "$GITHUB_REF" != "refs/heads/main" ]; then
-            echo "::error::Release ships refs/heads/main only (got ${GITHUB_REF})."
-            exit 1
-          fi
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-          filter: blob:none
-      - uses: ./.github/actions/setup
-        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
-        with:
-          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: bun node gh opentofu
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      # The plan fingerprints the renderer; browser shards must match it.
-      # Chrome normally installs in well under a minute. Two minutes is the
-      # hard cap so a hung download cannot spend the shard's budget.
-      - uses: ./.github/actions/visual-renderer
-        if: env.VERIFY_CI_STAGE != 'pr'
-        timeout-minutes: 2
-      # Shards are packed by the durations the newest run of this profile
-      # measured on these runners (`verify:end` saves them); the key never
-      # matches, so the prefix restores the newest from this pull request,
-      # else from main. Each profile keeps its own: a save keeps only the tasks
-      # its plan held, so a narrower plan sharing the key would erase the
-      # rest.
-      - name: Restore measured task durations
-        uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .cache/verify-ci/measured-costs.json
-          key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
-          restore-keys: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-
-      - name: Measure competing workflow runs
-        if: env.VERIFY_CI_STAGE != 'pr'
-        id: demand
-        run: |
-          set -euo pipefail
-          # Only workflows that can occupy a shared shard slot affect packing.
-          demand=0
-          for status in queued in_progress; do
-            if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq '
-              [.[].workflow_runs[] | select(
-                .path == ".github/workflows/deploy.yml" or
-                (.path == ".github/workflows/verify-pr.yml" and .event == "workflow_dispatch") or
-                (.path == ".github/workflows/verify-nightly.yml" and
-                 (.display_title | (contains("diagnostic ") | not) or endswith("diagnostic gate")))
-              )] | length'); then
-              echo "::warning::Runner demand unavailable. Using the configured matrix capacity."
-              exit 0
-            fi
-            demand=$((demand + count))
-          done
-          echo "runs=$demand" >> "$GITHUB_OUTPUT"
-      - name: Plan all owners once
-        id: plan
-        env:
-          VERIFY_ACTIVE_RUNS: ${{ steps.demand.outputs.runs }}
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
-      - name: Export immutable plan
-        run: bun run libs/tools-harness-ts/scripts/verify-plan-transfer.ts --export
-      # Transfer artifacts carry state between this run's jobs and are not
-      # reports: `verify:end` deletes them, and GitHub expires what a
-      # cancelled run left after a day. The nightly profile keeps them,
-      # failed reports included.
-      - name: Upload immutable plan
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-plan
-          path: .cache/verify-ci/plan.payload
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      # A shard with nothing to execute starts no runner; its cached verdicts
-      # travel from here to `verify:end`.
-      - name: Transfer cached shard verdicts
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-results-cached
-          path: .cache/verify-ci/cached/results-*.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Transfer cached shard evidence
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-evidence-cached
-          path: .cache/verify-ci/cached/evidence-*.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      # A failed build is recorded in this shard's verdict, which `verify:end`
-      # reports; the shards still run so one red build does not hide every
-      # other failure.
-      - name: Build shared prerequisites and warm their cache
-        continue-on-error: true
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARDS"
-      - name: Transfer prerequisite outputs
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-evidence-${{ env.VERIFY_SHARDS }}
-          path: .cache/verify-ci/evidence-${{ env.VERIFY_SHARDS }}.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-
-      - name: Transfer prerequisite verdict
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-results-${{ env.VERIFY_SHARDS }}
-          path: .cache/verify-ci/results-${{ env.VERIFY_SHARDS }}.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Confirm completion within the workflow deadline
-        run: 'true'
-
-
-  # Shard N is the Nth entry of the matrix `verify:start` planned.
-  verify-shards:
-    name: verify:shards (${{ strategy.job-index }})
-    needs: [verify-start]
-    # Across PR dispatch, Release and Nightly, one shard can use each slot.
-    concurrency:
-      group: verify-full-shard-${{ matrix.shard['-'] }}
-      queue: max
-    # An empty matrix is an error, so a fully cached plan skips the job.
-    if: needs.verify-start.outputs.shards != '[]'
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read # check out the code
-      actions: read # read run state (gh run list, job metadata)
-      id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
-    strategy:
-      fail-fast: false
-      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '12') }}
-      matrix:
-        shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
-    env:
-      VERIFY_SHARD: ${{ strategy.job-index }}
-    steps:
-      - *budget
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-          fetch-depth: 0
-          filter: blob:none
-      - uses: ./.github/actions/setup
-        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
-        with:
-          product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}
-          secrets-environment: dev
-          secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
-          secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
-      - name: Download immutable plan
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: verify-plan
-          path: .cache/verify-ci
-      - name: Restore immutable plan and required prerequisites
-        run: bun run libs/tools-harness-ts/scripts/verify-stage-transfer.ts
-      - name: Select task toolchains
-        id: browser
-        run: bun run libs/tools-harness-ts/scripts/verify-browser-tasks.ts
-      - name: Install pinned solver for model checks
-        if: steps.browser.outputs.solver == 'true'
-        run: mise install java http:apalache
-      - name: Install renderer for browser tasks
-        if: steps.browser.outputs.needed == 'true'
-        timeout-minutes: 2
-        uses: ./.github/actions/visual-renderer
-      - name: verify
-        timeout-minutes: ${{ inputs.profile == 'nightly' && 45 || 10 }}
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
-      # Reports are the nightly profile's; the `release` profile keeps none. One
-      # artifact per shard every night, kept three days. They only describe
-      # the shard, so `continue-on-error` warns instead of failing it when
-      # artifact storage is down; the transfers below stay strict.
-      - name: Upload queryable trace artifacts
-        if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        continue-on-error: true
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: observability-traces-${{ github.run_id }}-${{ env.VERIFY_SHARD }}
-          path: |
-            apps/*/.cache/harness-report/*/traces/*.ndjson
-            libs/*/.cache/harness-report/*/traces/*.ndjson
-            pkgs/*/.cache/harness-report/*/traces/*.ndjson
-          retention-days: 3
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Upload turbo run summary
-        if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        continue-on-error: true
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: turbo-summary-${{ github.run_id }}-${{ env.VERIFY_SHARD }}
-          path: .turbo/runs/*.json
-          retention-days: 3
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      # Transfer verdicts and the exact cache artifacts consumers need; the
-      # nightly profile adds failed reports.
-      - name: Transfer raw evidence
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-evidence-${{ env.VERIFY_SHARD }}
-          path: .cache/verify-ci/evidence-${{ env.VERIFY_SHARD }}.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-
-      - name: Transfer shard verdict
-        if: always() && !cancelled()
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-results-${{ env.VERIFY_SHARD }}
-          path: .cache/verify-ci/results-${{ env.VERIFY_SHARD }}.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Confirm completion within the workflow deadline
-        run: 'true'
-
-
-  # The required aggregate verdict for a pull request's checks; Release
-  # consumes the same job's verdict for the whole gate. It runs after red shards too: the fan-in suites
-  # report their own failures, then one verdict names every suite and every
-  # failing task. A missing, failed or cancelled job fails it; skipped shards
-  # pass only when the plan scheduled none.
-  verify-end:
-    name: verify:end
-    needs: [verify-start, verify-shards]
-    if: always() && !cancelled()
-    runs-on: ubuntu-24.04
-    permissions:
-      contents: read # check out the code
-      actions: write # read run state and delete this run's transfer artifacts
-      id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
-    steps:
-      - *budget
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - name: Determine whether the PR needs workspace dependencies
-        if: github.event_name == 'pull_request'
         id: scope
         run: |
           result=0
@@ -448,12 +90,11 @@ jobs:
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           workspace: ${{ steps.scope.outputs.docs != 'true' }}
-          tools: ${{ steps.scope.outputs.docs == 'true' && 'bun gitleaks' || env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || needs.verify-start.outputs.consumers == '-' && 'bun node' || '' }}
+          tools: ${{ steps.scope.outputs.docs == 'true' && 'bun gitleaks' || 'bun node gitleaks actionlint' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Run the pull request gate
-        if: github.event_name == 'pull_request'
         env:
           VERIFY_DEADLINE_SECONDS: '120'
           DOCS_ONLY: ${{ steps.scope.outputs.docs }}
@@ -462,114 +103,5 @@ jobs:
             exec bun libs/tools-harness-ts/scripts/verify-secrets.ts
           fi
           exec bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:ci
-      - name: Download immutable plan
-        if: github.event_name != 'pull_request'
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: verify-plan
-          path: .cache/verify-ci
-      # Does nothing when the plan left the fan-in stage nothing to execute.
-      - name: Run fan-in consumers
-        if: github.event_name != 'pull_request'
-        timeout-minutes: ${{ inputs.profile == 'nightly' && 45 || 10 }}
-        run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
-      - name: Upload queryable trace artifacts
-        if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        continue-on-error: true
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: observability-traces-${{ github.run_id }}-consumers
-          path: |
-            apps/*/.cache/harness-report/*/traces/*.ndjson
-            libs/*/.cache/harness-report/*/traces/*.ndjson
-            pkgs/*/.cache/harness-report/*/traces/*.ndjson
-          retention-days: 3
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Upload turbo run summary
-        if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        continue-on-error: true
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: turbo-summary-${{ github.run_id }}-consumers
-          path: .turbo/runs/*.json
-          retention-days: 3
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Transfer raw evidence
-        if: always() && !cancelled() && github.event_name != 'pull_request'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-evidence-consumers
-          path: .cache/verify-ci/evidence-*.tar.gz
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      # Only the small verdicts: the evidence is gigabytes of snapshots.
-      - name: Transfer shard verdicts
-        if: always() && !cancelled() && github.event_name != 'pull_request'
-        run: bun run libs/tools-harness-ts/scripts/verify-artifact-download.ts verify-results- .cache/verify-ci/transfers verdict || echo "::warning::No shard verdicts to aggregate"
-      - name: Summarize every suite
-        if: always() && !cancelled() && github.event_name != 'pull_request'
-        env:
-          START_RESULT: ${{ needs.verify-start.result }}
-          SHARD_RESULT: ${{ needs.verify-shards.result }}
-        run: bun run libs/tools-harness-ts/scripts/verify-verdict.ts
-      # Release's verdict job files one issue per failing check from this
-      # (ci-check-issues.ts). Not `verify-`: that prefix is deleted below.
-      - name: Retain the verdict for Release's check issues
-        if: always() && !cancelled() && env.VERIFY_CI_STAGE == 'release'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: release-verdict
-          path: .cache/verify-ci/verdict.json
-          retention-days: 1
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      # A red run still measured every task that passed.
-      - name: Save measured task durations
-        if: always() && !cancelled() && github.event_name != 'pull_request' && hashFiles('.cache/verify-ci/measured-costs.json') != ''
-        uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: .cache/verify-ci/measured-costs.json
-          key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
-      # Everything below is the nightly profile's reporting. The `release` profile
-      # ends by deleting the artifacts that carried state between its jobs.
-      - name: Retain the verdict
-        if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-verdict
-          path: |
-            .cache/verify-ci/verdict.json
-            .cache/verify-ci/verdict.md
-            .cache/verify-ci/verdict.junit.xml
-          retention-days: 3
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      - name: Retain sanitized planning and timing details
-        if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: verify-ci-details
-          path: |
-            .cache/verify-ci/plan.json
-            .cache/verify-ci/planning.json
-            .cache/verify-ci/profile.json
-            .cache/verify-ci/results/*.json
-          retention-days: 3
-          overwrite: true
-          include-hidden-files: true
-          if-no-files-found: ignore
-      # Only after a pass: "Re-run failed jobs" downloads verify-plan again, and
-      # GitHub expires leftovers after a day.
-      - name: Delete transfer artifacts
-        if: success() && env.VERIFY_CI_STAGE == 'release'
-        run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-
       - name: Confirm completion within the workflow deadline
         run: 'true'

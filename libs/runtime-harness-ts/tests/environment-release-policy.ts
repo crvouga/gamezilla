@@ -25,9 +25,12 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
     jobs: Record<string, Job>;
   };
   const check = Bun.YAML.parse(checkText) as {
-    concurrency: { 'cancel-in-progress': string };
+    on: Record<string, unknown>;
+    concurrency: { 'cancel-in-progress': boolean };
   };
-  const replacement = check.concurrency['cancel-in-progress'];
+  const full = Bun.YAML.parse(
+    await Bun.file(`${ROOT}/.github/workflows/verify-full.yml`).text()
+  ) as { concurrency: { 'cancel-in-progress': string } };
   const reportsFailure =
     preparation.includes('if ! workspace_system; then') &&
     preparation.includes('!!! mise install failed');
@@ -41,12 +44,12 @@ export async function readReleasePolicy(): Promise<ReleasePolicy> {
   const openAt = opening.indexOf('==> workspace may be opened');
   return {
     shipNeedsPassingCheck: needsCheck(deploy.jobs['deploy-fleet']?.needs),
-    newerProposalReplacesCheck: replacement.includes(
-      "github.event_name == 'pull_request'"
-    ),
+    newerProposalReplacesCheck:
+      Object.hasOwn(check.on, 'pull_request') &&
+      check.concurrency['cancel-in-progress'],
     releaseCheckIsNotReplaced:
-      replacement.includes("github.event_name == 'pull_request'") &&
-      !replacement.includes('workflow_call'),
+      full.concurrency['cancel-in-progress'] ===
+      "${{ github.workflow == 'Verify Full' && github.event_name == 'workflow_dispatch' }}",
     underwayIsNotCancelled: deploy.concurrency['cancel-in-progress'] === false,
     noUndoOfStartedRelease:
       deploy.concurrency['cancel-in-progress'] === false &&

@@ -140,7 +140,7 @@ describe('resolveRunDeadlineSeconds', () => {
 
   // regression: health-timeout-hides-hung-probe
   test.each([
-    ['verify-pr.yml', 'verify', CI_RUN_DEADLINE_SECONDS],
+    ['verify-full.yml', 'verify', CI_RUN_DEADLINE_SECONDS],
     ['health.yml', 'health:${{ matrix.env }}', HEALTH_RUN_DEADLINE_SECONDS],
   ])(
     'the CI deadline fires before the %s step timeout',
@@ -175,7 +175,7 @@ describe('resolveRunDeadlineSeconds', () => {
   test('release verification installs Chrome without apt dependency upgrades', () => {
     const workflow = Bun.YAML.parse(
       readFileSync(
-        join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
+        join(import.meta.dirname, '../../../.github/workflows/verify-full.yml'),
         'utf8'
       )
     ) as {

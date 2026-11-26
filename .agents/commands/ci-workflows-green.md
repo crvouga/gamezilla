@@ -89,7 +89,7 @@ All fixes go on the **current branch** and its single PR. Never open a second PR
 "the release part".
 
 ```bash
-git push                                 # hosted Verify PR runs four tasks; for the full gate: gh workflow run verify-pr.yml --ref <branch>
+git push                                 # hosted Verify PR runs four tasks; for the full gate: gh workflow run verify-full.yml --ref <branch>
 bun run git-sync --message "fix(scope): …"   # commit and push; the PR's Verify runs every gate
 ```
 

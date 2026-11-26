@@ -56,7 +56,7 @@ describe('WORKFLOW_DISPATCH', () => {
     });
     // Both stages select the safety gate; nightly owns the complete catalog.
     expect(deploy.jobs['deploy-verify']).toMatchObject({
-      uses: './.github/workflows/verify-pr.yml',
+      uses: './.github/workflows/verify-full.yml',
     });
     expect(deploy.jobs['deploy-verify']).toHaveProperty(
       'with.profile',

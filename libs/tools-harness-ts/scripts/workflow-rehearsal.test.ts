@@ -22,7 +22,7 @@ test('Release rehearsal verifies and plans without opening the release path', ()
   expect(workflow.on.workflow_dispatch.inputs.rehearsal.default).toBe(false);
   // One Verification serves both paths; only the release path is switched off.
   expect(workflow.jobs['deploy-verify']).toMatchObject({
-    uses: './.github/workflows/verify-pr.yml',
+    uses: './.github/workflows/verify-full.yml',
   });
   expect(workflow.jobs['deploy-verify']?.if).toBeUndefined();
   expect(workflow.jobs['deploy-rehearsal']).toMatchObject({
@@ -51,7 +51,7 @@ test('Release rehearsal verifies and plans without opening the release path', ()
   );
   const verify = Bun.YAML.parse(
     readFileSync(
-      join(import.meta.dirname, '../../../.github/workflows/verify-pr.yml'),
+      join(import.meta.dirname, '../../../.github/workflows/verify-full.yml'),
       'utf8'
     )
   ) as {

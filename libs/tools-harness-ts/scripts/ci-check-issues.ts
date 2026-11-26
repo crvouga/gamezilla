@@ -125,7 +125,7 @@ export function formatCheckIssue(check: FailedCheck, run: CheckRun): string {
     `| Evidence | ${whereToRead(check)} |`,
     `| Run it | \`bunx turbo run ${check.taskId}\` |`,
     '',
-    'Read the failure in the log, fix the root cause on one pull request, and pin what broke as a regression. Dispatch `verify-pr.yml` on the branch to run the whole gate before merging. This issue closes when a Release on `main` verifies this check green.',
+    'Read the failure in the log, fix the root cause on one pull request, and pin what broke as a regression. Dispatch `verify-full.yml` on the branch to run the whole gate before merging. This issue closes when a Release on `main` verifies this check green.',
     '',
   ].join('\n');
 }

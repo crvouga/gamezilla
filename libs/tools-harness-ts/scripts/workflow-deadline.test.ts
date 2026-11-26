@@ -21,6 +21,7 @@ function budgetCommand(file: string): string {
 
 test('every stage spends one deadline across queues and sequential jobs', () => {
   const command = budgetCommand('verify-pr.yml');
+  expect(budgetCommand('verify-full.yml')).toBe(command);
   expect(budgetCommand('deploy.yml')).toBe(command);
   expect(budgetCommand('verify-nightly.yml')).toBe(command);
   const dir = mkdtempSync(join(tmpdir(), 'ci-budget-'));

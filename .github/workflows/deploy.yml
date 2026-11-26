@@ -63,7 +63,7 @@ jobs:
       contents: read # check out the code
       actions: write # delegated verify:end reads run state and deletes this run's transfer artifacts
       id-token: write # mint the OIDC token Infisical and AWS trust
-    uses: ./.github/workflows/verify-pr.yml
+    uses: ./.github/workflows/verify-full.yml
     with:
       profile: release
       require-main: ${{ !inputs.rehearsal }}

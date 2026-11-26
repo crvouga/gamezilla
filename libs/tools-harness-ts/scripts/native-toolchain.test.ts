@@ -169,7 +169,7 @@ describe('verification hosts', () => {
       ...ciFilters(manifests),
     ]);
     const workflow = readFileSync(
-      join(ROOT, '.github/workflows/verify-pr.yml'),
+      join(ROOT, '.github/workflows/verify-full.yml'),
       'utf8'
     );
     expect(workflow).not.toContain('verify:macos');

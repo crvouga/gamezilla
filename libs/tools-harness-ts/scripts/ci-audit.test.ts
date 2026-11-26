@@ -67,7 +67,7 @@ test('the recorded report keeps the advisories and passes the pure gate', () => 
 
 test('only Release asks for report; the pull request workflow defaults to enforce', () => {
   const workflows = join(import.meta.dirname, '../../../.github/workflows');
-  const verify = readFileSync(join(workflows, 'verify-pr.yml'), 'utf8');
+  const verify = readFileSync(join(workflows, 'verify-full.yml'), 'utf8');
   expect(verify).toContain(
     "VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}"
   );
