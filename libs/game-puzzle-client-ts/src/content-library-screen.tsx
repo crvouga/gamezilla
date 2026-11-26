@@ -7,7 +7,6 @@ import {
   workingContentDraft,
 } from '@libs/game-puzzle-shared-ts/content-library';
 import { decodePackDefinition } from '@libs/game-puzzle-shared-ts/content-pack';
-import { byNewestPublication } from '@libs/game-puzzle-shared-ts/content-query-scope';
 import type {
   ContentKind,
   ContentRevision,
@@ -153,14 +152,12 @@ function ownedDrafts(
 function publishedEditions(
   content: ContentLibrary,
   play: AttemptLibrary,
-  page: { readonly gameId: string; readonly limit: number }
+  page: {
+    readonly gameId: string;
+    readonly documents: ContentLibrary['documents'];
+  }
 ) {
-  const documents = content.documents
-    .filter(
-      (doc) => doc.published_revision_id !== null && !isBundledContent(doc.id)
-    )
-    .toSorted(byNewestPublication)
-    .slice(0, page.limit);
+  const documents = page.documents;
   const editions = discoverContent({ ...content, documents }, page.gameId);
   const rank = new Map(
     documents.map((doc, index) => [doc.published_revision_id, index])
@@ -225,7 +222,7 @@ export function ContentLibraryScreen(): JSX.Element {
       playtests={attempts('playtest')}
       published={publishedEditions(data.content(), data.play(), {
         gameId: game.id,
-        limit: pages.published.limit(),
+        documents: pages.published.documents(),
       })}
       more={{
         owned: pages.owned.hasMore(),

@@ -1,0 +1,4 @@
+{
+  "summary": "Browse offered Load more from a device's starter catalog while Bob's published Sokoban or Numberlink pack was arriving. A press on the empty page opened a different puzzle as the cards appeared.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/content-published-page.test.ts"
+}
