@@ -41,6 +41,8 @@ terms:
     from: profile
 
   # Borrowed from Spaces.
+  - term: lobby
+    from: spaces
   - term: space
     from: spaces
   - term: host
