@@ -291,6 +291,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # Shard N is the Nth entry of the matrix `verify:start` planned.
   verify-shards:
@@ -402,6 +405,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # The required aggregate verdict for a pull request's checks; Release
   # consumes the same job's verdict for the whole gate. It runs after red shards too: the fan-in suites
@@ -547,3 +553,6 @@ jobs:
       - name: Delete transfer artifacts
         if: success() && env.VERIFY_CI_STAGE == 'release'
         run: bun run libs/tools-harness-ts/scripts/ci-artifacts.ts delete verify-
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+

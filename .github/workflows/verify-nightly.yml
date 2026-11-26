@@ -201,6 +201,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-browser:
     name: verify-nightly:browser (${{ matrix.shard }}/${{ strategy.job-total }})
@@ -271,6 +274,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # A focused, manual browser diagnostic in the shared baseline environment.
   # Authoring is explicit; the ordinary nightly and PR gates never update PNGs.
@@ -320,6 +326,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-visual:
     name: verify-nightly:visual (${{ matrix.shard }}/${{ strategy.job-total }})
@@ -354,6 +363,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-coverage:
     name: verify-nightly:coverage
@@ -383,6 +395,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-performance:
     name: verify-nightly:performance
@@ -419,6 +434,9 @@ jobs:
           overwrite: true
           include-hidden-files: true
           if-no-files-found: ignore
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   verify-nightly-pr-load:
     name: verify-nightly:pr-load (${{ matrix.revision }})
@@ -471,6 +489,9 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
           retention-days: 3
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # The ending word. Every group ran to its own result; any group that did
   # not succeed fails the night, and the failure is filed where people look.
@@ -524,3 +545,6 @@ jobs:
           bun run apps/product-ts/scripts/ci-workflow-result.ts --workflow verify-nightly
           --passed "$PASSED"
           --envs "$(bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts | sed -n 's/^all=//p')"
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+

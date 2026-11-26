@@ -95,6 +95,11 @@ export type NightlySuite = {
    * of its partitions (`apps/product-ts/scripts/stack-shards.ts`).
    */
   readonly shards: number;
+  /**
+   * What one night verifies: the whole suite, or a rotating turn of its
+   * partitions, which the nightly verdict states beside a pass.
+   */
+  readonly nightlyScope: 'whole' | 'rotating';
 };
 
 /**
@@ -111,15 +116,17 @@ export const NIGHTLY_SUITES = {
     tasks: ['//#task:test:pbt:random', '@apps/product-ts#test:fuzz'],
     deadlineSeconds: SHARD_DEADLINE_SECONDS,
     shards: 4,
+    nightlyScope: 'whole',
   },
   browser: {
     summary:
-      'Four rotating partitions of every spec suite in real browsers against a booted localhost stack: not the whole suite each night, which takes about 50 runner-hours; each runner names its partition and how many nights cover them all',
+      'Every spec suite in real browsers against a booted localhost stack, four rotating partitions a night',
     tasks: ['@apps/product-ts#test:stack'],
     deadlineSeconds: SHARD_DEADLINE_SECONDS,
     // Each runner takes tonight's turn of the 24-minute partitions
     // `apps/product-ts/scripts/stack-shards.ts` plans.
     shards: 4,
+    nightlyScope: 'rotating',
   },
   visual: {
     summary: 'Every Storybook story rendered and tested in a real browser',
@@ -129,6 +136,7 @@ export const NIGHTLY_SUITES = {
     ],
     deadlineSeconds: SHARD_DEADLINE_SECONDS,
     shards: 8,
+    nightlyScope: 'whole',
   },
   coverage: {
     summary:
@@ -139,6 +147,7 @@ export const NIGHTLY_SUITES = {
     ],
     deadlineSeconds: SHARD_DEADLINE_SECONDS,
     shards: 1,
+    nightlyScope: 'whole',
   },
   performance: {
     summary: 'Hot-path benchmarks',
@@ -150,6 +159,7 @@ export const NIGHTLY_SUITES = {
     ],
     deadlineSeconds: 1800,
     shards: 1,
+    nightlyScope: 'whole',
   },
 } as const satisfies Readonly<Record<string, NightlySuite>>;
 

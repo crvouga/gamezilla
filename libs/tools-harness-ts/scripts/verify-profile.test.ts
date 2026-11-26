@@ -16,6 +16,7 @@ import {
   formatNightlyTable,
   nightlyGroupNames,
   nightlyGroups,
+  scopeNotes,
   tracksNightlyIssue,
 } from './verify-nightly-verdict';
 import {
@@ -390,6 +391,37 @@ describe('Verify Nightly workflow', () => {
         false
       );
     }
+  });
+
+  test('a green night says which groups verified only their turn of partitions', () => {
+    const green = Object.fromEntries(
+      Object.keys(nightly.jobs)
+        .filter((job) => job !== 'verify-nightly-end')
+        .map((job) => [job, { result: 'success' }])
+    );
+    const groups = nightlyGroups(green);
+    expect(failedGroups(groups)).toEqual([]);
+    const rotating = Object.entries(NIGHTLY_SUITES)
+      .filter(([, suite]) => suite.nightlyScope === 'rotating')
+      .map(([name]) => name);
+    expect(rotating).toEqual(['browser']);
+    const [note] = scopeNotes(groups);
+    expect(note).toContain('verify-nightly:browser');
+    expect(note).toContain('not its whole suite');
+    expect(formatNightlyTable(groups)).toContain(note!);
+    expect(
+      formatNightlyMarkdown(groups, { url: 'run', sha: 'head' })
+    ).toContain(note!);
+    // The selected partitions still decide the group: red is red.
+    const red = nightlyGroups({
+      ...green,
+      'verify-nightly-browser': { result: 'failure' },
+    });
+    expect(failedGroups(red).map((group) => group.name)).toEqual(['browser']);
+    expect(red.find((group) => group.name === 'browser')!.reproduce).toContain(
+      '-f browser-partition='
+    );
+    expect(scopeNotes(nightlyGroups(green, 'random'))).toEqual([]);
   });
 
   test('the ending word reads every group and fails on any red one', () => {

@@ -144,6 +144,7 @@ describe('the browser partitions', () => {
     expect(() => planStackShards(runs, 0)).toThrow('at least one partition');
   });
 
+  // regression: nightly-browser-suite-outgrows-one-runner
   test('the suite takes the fewest partitions that each fit a runner', () => {
     const runs = stackRuns(PACKAGES);
     const count = partitionCount(runs);

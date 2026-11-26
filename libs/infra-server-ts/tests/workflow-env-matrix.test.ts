@@ -20,7 +20,7 @@ function withName(
 }
 
 describe('workflow env matrix', () => {
-  test('the current env files: dev deploys first, prd after', () => {
+  test('the current env files declare development and production', () => {
     expect(workflowEnvMatrix(Object.values(ENV_FILES))).toEqual({
       standard: ['dev'],
       production: ['prd'],
@@ -75,7 +75,7 @@ test('Health uses the env matrix for environments and shared secrets only for pr
 test('Release has one job per env file, production independent of development', () => {
   const workflow = Bun.YAML.parse(
     readFileSync(join(WORKFLOWS_DIR, 'deploy.yml'), 'utf8')
-  ) as { jobs: Record<string, Job & { needs?: string }> };
+  ) as { jobs: Record<string, Job & { needs?: string | string[] }> };
   const { standard, production } = workflowEnvMatrix(Object.values(ENV_FILES));
   for (const env of [...standard, ...production]) {
     expect(workflow.jobs[`deploy-${env}`]?.env?.['SECRETS_ENV']).toBe(env);

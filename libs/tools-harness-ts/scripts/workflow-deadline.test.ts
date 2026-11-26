@@ -29,7 +29,7 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
     writeFileSync(gh, '#!/bin/sh\necho "$CREATED"\n', { mode: 0o755 });
     const env = {
       ...process.env,
-      PATH: dir + ':' + process.env.PATH,
+      PATH: dir + ':' + process.env['PATH'],
       CREATED: '2000-01-01T00:00:00Z',
       STAGE_SECONDS: '180',
       GITHUB_RUN_ID: '1',

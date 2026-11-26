@@ -50,7 +50,8 @@ describe('WORKFLOW_DISPATCH', () => {
     expect(Object.keys(deploy.on)).toEqual(['push', 'workflow_dispatch']);
     expect(deploy.on['push']).toEqual({ branches: ['main'] });
     expect(deploy.concurrency).toEqual({
-      group: 'deploy-main',
+      group:
+        "${{ inputs.rehearsal && format('deploy-rehearsal-{0}', github.ref) || 'deploy-main' }}",
       'cancel-in-progress': false,
     });
     // Both stages select the safety gate; nightly owns the complete catalog.

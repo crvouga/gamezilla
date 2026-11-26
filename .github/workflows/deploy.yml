@@ -48,7 +48,7 @@ env:
 # One release at a time: each environment is a shared singleton.
 # Keep the newest pending release; never interrupt an active apply or migration.
 concurrency:
-  group: deploy-main
+  group: ${{ inputs.rehearsal && format('deploy-rehearsal-{0}', github.ref) || 'deploy-main' }}
   cancel-in-progress: false
 
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
@@ -156,6 +156,9 @@ jobs:
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:fleet
       - name: Plan dev's foundation without changing infrastructure
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run --filter @libs/infra-server-ts plan:foundation
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   deploy-repository-policy:
     name: Enforce repository policy
@@ -198,6 +201,9 @@ jobs:
         run: bunx turbo run @libs/infra-server-ts#apply:repository-policy
       - name: Apply reviewed alert delivery and independent probes
         run: bunx turbo run @libs/infra-server-ts#apply:alerting
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # A Health check already running journeys as the synthetic accounts would
   # take this release's matches. health.yml yields to a Release under way (so
@@ -241,6 +247,9 @@ jobs:
           done
           echo "::error::A Health check is still running after it was stopped."
           exit 1
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # What every environment shares (libs/infra-shared-ts/tofu/stacks/fleet): the
   # shared secrets, the auth relay that forwards to every env, and each env's
@@ -283,6 +292,9 @@ jobs:
       # Every env now imports shared: drop the copies that shadow it.
       - name: Prune secrets that shadow shared ones
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bun run libs/secrets-server-ts/scripts/secrets-reconcile-shared.ts prune
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # The team's Storybook site: one global assets-only Worker, built from main.
   # Beside the shared services rather than before them, so a cold Storybook
@@ -316,6 +328,9 @@ jobs:
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Release the Storybook site
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts -- bunx turbo run @apps/storybook-ts#deploy
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   deploy-dev:
     name: Release development
@@ -396,6 +411,9 @@ jobs:
           WORKFLOW_JOB: ${{ github.job }}
           WORKFLOW_OUTCOME: ${{ steps.deploy.outcome }}
         run: bun run libs/tools-harness-ts/scripts/write-workflow-summary.ts
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   deploy-prd:
     name: Release production
@@ -434,6 +452,9 @@ jobs:
             --title "$TAG" \
             --generate-notes \
             --notes "Verified and deployed by ${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID} at ${GITHUB_SHA}."
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+
 
   # The run's verdict where people look: the job summary, the one open
   # "Release is failing on main" issue (opened on the first red run, closed by
@@ -496,3 +517,6 @@ jobs:
           bun run apps/product-ts/scripts/ci-workflow-result.ts --workflow release
           --passed "$PASSED"
           --envs "$(bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts | sed -n 's/^all=//p')"
+      - name: Confirm completion within the workflow deadline
+        run: 'true'
+

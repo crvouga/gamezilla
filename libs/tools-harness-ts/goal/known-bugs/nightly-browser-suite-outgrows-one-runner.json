@@ -1,0 +1,4 @@
+{
+  "summary": "Verify Nightly ran the whole stack browser suite, about 50 runner-hours by measured rates, on one runner: runs 45374726964, 45156193420 and 45801366886 took 1.6 to 4.9 hours and stopped at each package's first failure, so most scenarios never ran. The suite now divides into measured 24-minute partitions that each fit a runner, a night runs four in turn by UTC day, and the verdict names that subset.",
+  "regressionTest": "apps/product-ts/scripts/stack-shards.test.ts"
+}
