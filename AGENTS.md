@@ -48,7 +48,7 @@ Keep living competitor research with its product area. Follow the [market resear
 
 - **No git hooks.** Do not add a `pre-commit`, `pre-push`, `core.hooksPath`, Husky, or any other git hook. Every change to `main` requires a pull request under the [git hygiene policy](README.md#git-hygiene). Release runs the blocking safety gate on that commit before it ships ([`README.md`](README.md#correctness-machinery)).
 
-- **Pull requests merge themselves when CI is green.** There is no human review; Verify PR is the merge gate, and it runs four tasks. Everything else is first run by Release, which a failure blocks. The contract:
+- **Pull requests merge themselves when CI is green.** There is no human review; Verify PR is the merge gate. [CI stage policy](docs/CI_STAGE_POLICY.md) assigns the remaining checks to Release and Nightly. The contract:
   - Branch from fresh `origin/main`. One task is one small PR; never bundle unrelated changes.
   - Open it ready for review (never `--draft`), then immediately `gh pr merge --auto --squash`. GitHub merges it once every required check passes and every review conversation is resolved.
   - The PR title is the squash commit's subject (Conventional Commits); the body is its message. Write both for a future reader of `git log`.
@@ -261,19 +261,16 @@ Four workflows, one contract each. Details:
 
 | Workflow | Command | Contract |
 | --- | --- | --- |
-| Verify PR (`verify-pr.yml`) | `bun verify` | On a pull request, the merge-blocking run of the four tasks that cannot wait for Release (`PR_TASKS` in `ci-stage.ts`: `tc`, `lint`, `verify:secrets`, `verify:actionlint`). Dispatched by hand on a branch, the whole gate catalog at release depth. Keeps no test report or artifact: a failure is read from the job log. |
+| Verify PR (`verify-pr.yml`) | `bun verify` | On a pull request, the merge-blocking run of the affected PR checks defined in [CI stage policy](docs/CI_STAGE_POLICY.md). Dispatched by hand on a branch, the whole gate catalog at release depth. Keeps no test report or artifact: a failure is read from the job log. |
 | Verify Nightly (`verify-nightly.yml`) | `bun verify-nightly` | Comprehensive verification and exploration on `main`, every night. Owns test reports, diagnostics and reproducibility. Never gates a merge or a deploy. |
-| Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the whole gate catalog, then deploy with live safeguards. Every check a pull request skipped first runs here; one that fails blocks the release and keeps its own open `ci-failure` issue until a Release verifies it green. Newer pending commits supersede older pending releases; active releases finish. |
+| Release (`deploy.yml`) | `bun deploy` | Continuous production release: verify the selected main commit with the release checks, then deploy with live safeguards. A failed check blocks the release and keeps its own open `ci-failure` issue until a Release verifies it green. Newer pending commits supersede older pending releases; active releases finish. |
 | Health (`health.yml`) | `bun health` | Scheduled verification that production is available and correct. Releases nothing. |
 
 - **Heavy verification runs on hosted runners, never queued on this machine.**
-  A pull request's Verify PR runs four tasks, so a green pull request does
-  not prove the change: development work is done when the tests of what you
-  touched pass and the whole gate is green on the final tree. Locally, run
-  only scoped, cached tasks (`bunx turbo run tc lint test --filter=<pkg>`);
-  for the whole gate, dispatch it on the branch (`gh workflow run
-  verify-pr.yml --ref <branch>`). What you skip fails in Release instead,
-  blocks every deploy behind it and opens a `ci-failure` issue. For
+  Run scoped, cached checks for the change (`bunx turbo run tc lint test --filter=<pkg>`).
+  Use the shared Release on a main commit containing the merge for integrated verification.
+  A branch dispatch is appropriate when a specific result requires that revision.
+  Reuse existing results for the same revision and purpose. For
   deeper verification (a new Quint model, a property, sync and recovery code),
   dispatch `verify-nightly.yml` with a group (`gh workflow run verify-nightly.yml
   --ref <branch> -f group=random`) instead of running `bun verify-nightly`
@@ -343,8 +340,7 @@ Setup and server startup are separate stages. Never copy credentials from anothe
   scripts (Localhost for the product and Storybook, Storybook alone for UI
   work). No pull request is deployed anywhere.
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
-  then push. The pull request runs four tasks; dispatch `verify-pr.yml` on
-  the branch for the full gate.
+  then push. Use the [CI stage policy](docs/CI_STAGE_POLICY.md) for hosted evidence.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.
   PR bodies follow `.github/PULL_REQUEST_TEMPLATE.md`. `/pr-ready` drives a PR
   to Ready to merge; `/ci-workflows-green` drives Verify, Release and Health

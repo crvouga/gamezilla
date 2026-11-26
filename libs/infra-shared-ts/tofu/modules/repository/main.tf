@@ -106,9 +106,7 @@ resource "github_branch_default" "main" {
 
 locals {
   required_checks = [for check_file in fileset("${path.module}/required-checks", "*.json") : jsondecode(file("${path.module}/required-checks/${check_file}"))]
-  # CodeQL's checks depend on GitHub downloading the scanner. The final PR
-  # gate (verify:end) enforces them instead: findings block, an unavailable
-  # scanner only warns, so a download outage cannot block merging.
+  # GitHub enforces CodeQL through its native scanning rule below.
   ruleset_checks = [for check in local.required_checks : check if !try(check.outage_tolerant, false)]
 }
 
@@ -156,6 +154,14 @@ resource "github_repository_ruleset" "main" {
       required_review_thread_resolution = true
       require_code_owner_review         = false
       allowed_merge_methods             = ["squash"]
+    }
+
+    required_code_scanning {
+      required_code_scanning_tool {
+        tool                      = "CodeQL"
+        alerts_threshold          = "all"
+        security_alerts_threshold = "all"
+      }
     }
 
     required_status_checks {

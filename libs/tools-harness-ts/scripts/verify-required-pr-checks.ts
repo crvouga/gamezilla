@@ -4,7 +4,7 @@ import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { monotonicClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { awaitRequiredPrChecks } from './pr-check-readiness';
-import { readPrCheckSnapshot } from './pr-check-source';
+import { mainEnforcesCodeql, readPrCheckSnapshot } from './pr-check-source';
 import {
   type RequiredPrCheck,
   unavailableScannerWarnings,
@@ -31,9 +31,33 @@ async function main(): Promise<void> {
         ) as RequiredPrCheck
     );
   const shas = [...new Set([head, merge])];
+  const nativeCodeql = mainEnforcesCodeql(repository);
+  const delegated = nativeCodeql
+    ? required.filter(
+        (check) =>
+          check.outage_tolerant &&
+          ((check.integration_id === 57789 && check.context === 'CodeQL') ||
+            (check.integration_id === 15368 &&
+              check.context.startsWith('Analyze (')))
+      )
+    : [];
+  if (nativeCodeql) console.log('GitHub enforces CodeQL before merge.');
   const checks = await awaitRequiredPrChecks({
-    required,
-    read: () => readPrCheckSnapshot(repository, shas),
+    required: required.filter((policy) => !delegated.includes(policy)),
+    read: () => {
+      const snapshot = readPrCheckSnapshot(repository, shas, nativeCodeql);
+      return {
+        ...snapshot,
+        checks: snapshot.checks.filter(
+          (check) =>
+            !delegated.some(
+              (policy) =>
+                policy.context === check.name &&
+                policy.integration_id === check.appId
+            )
+        ),
+      };
+    },
     emptyShardPlan: process.env['SHARD_RESULT'] === 'skipped',
     clock: monotonicClock,
     timers: wallTimers,
@@ -45,9 +69,7 @@ async function main(): Promise<void> {
   });
   for (const warning of unavailableScannerWarnings(required, checks))
     console.log(`::warning::${warning}`);
-  console.log(
-    `Every discovered PR check passed and is mandatory (${checks.length} check results)`
-  );
+  console.log(`PR check policy satisfied (${checks.length} check results)`);
 }
 
 if (import.meta.main) await main();

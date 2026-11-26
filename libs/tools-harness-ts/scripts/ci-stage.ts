@@ -1,14 +1,3 @@
-/**
- * Which gate tasks each CI stage runs. Release, nightly and local
- * verification run the whole gate catalog (`MAIN_VERIFY_TASKS`); they differ
- * in depth (`verify-profile.ts`) and in the nightly-only groups outside the
- * gate (random, browser, visual, coverage, performance).
- *
- * A pull request runs only {@link PR_TASKS}: what cannot wait for Release.
- * Everything else runs in Release, on the merged commit, before anything
- * deploys; a check that fails there keeps an open issue until it passes
- * (`ci-check-issues.ts`), which is how the failure is queued and fixed.
- */
 const STAGES = new Set(['pr', 'release', 'nightly']);
 
 /**
@@ -33,6 +22,10 @@ export function ciStageTasks(
 ): readonly string[] {
   if (stage !== undefined && stage !== '' && !STAGES.has(stage))
     throw new Error(`Unknown CI stage: ${stage}`);
+  if (stage === 'release')
+    return catalog.filter(
+      (task) => !task.startsWith('@pkgs/ui-root-harness-ts#ci:storybook:')
+    );
   return stage === 'pr'
     ? catalog.filter((task) => PR_TASKS.includes(task))
     : catalog;

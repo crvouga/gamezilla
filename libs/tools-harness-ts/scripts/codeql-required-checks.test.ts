@@ -1,6 +1,7 @@
 import { expect, test } from 'bun:test';
 import { readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { enforcesCodeql } from './pr-check-source';
 import {
   type PrCheck,
   type RequiredPrCheck,
@@ -111,4 +112,25 @@ test('verify:end accepts the successful Java/Kotlin analysis from GitHub Actions
   expect(
     requiredPrCheckFailures(required, [...checks, analysis], false)
   ).toEqual([]);
+});
+
+test('only an effective CodeQL rule that blocks every severity can take over the PR check', () => {
+  const tool = {
+    tool: 'CodeQL',
+    alerts_threshold: 'all',
+    security_alerts_threshold: 'all',
+  };
+  const rule = (scanner: typeof tool) => ({
+    type: 'code_scanning',
+    parameters: { code_scanning_tools: [scanner] },
+  });
+  expect(enforcesCodeql([])).toBe(false);
+  expect(enforcesCodeql([rule({ ...tool, alerts_threshold: 'none' })])).toBe(
+    false
+  );
+  expect(
+    enforcesCodeql([rule({ ...tool, security_alerts_threshold: 'critical' })])
+  ).toBe(false);
+  expect(enforcesCodeql([rule({ ...tool, tool: 'Other' })])).toBe(false);
+  expect(enforcesCodeql([rule(tool)])).toBe(true);
 });

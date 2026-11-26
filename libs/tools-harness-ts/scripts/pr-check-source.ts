@@ -118,17 +118,52 @@ export function isActiveCodeqlProducer(run: WorkflowRun, sha: string): boolean {
   );
 }
 
+type BranchRule = {
+  readonly type: string;
+  readonly parameters?: {
+    readonly code_scanning_tools?: readonly {
+      readonly tool: string;
+      readonly alerts_threshold: string;
+      readonly security_alerts_threshold: string;
+    }[];
+  };
+};
+
+/** Use the effective branch rules so the rollout or a policy rollback never opens a gap. */
+export function enforcesCodeql(rules: readonly BranchRule[]): boolean {
+  return rules.some(
+    (rule) =>
+      rule.type === 'code_scanning' &&
+      rule.parameters?.code_scanning_tools?.some(
+        (tool) =>
+          tool.tool === 'CodeQL' &&
+          tool.alerts_threshold === 'all' &&
+          tool.security_alerts_threshold === 'all'
+      )
+  );
+}
+
+export function mainEnforcesCodeql(repository: string): boolean {
+  const rules = pages<readonly BranchRule[]>(
+    `repos/${repository}/rules/branches/main?per_page=100`
+  );
+  return enforcesCodeql(rules.flat());
+}
+
 export function readPrCheckSnapshot(
   repository: string,
-  shas: readonly string[]
+  shas: readonly string[],
+  nativeCodeql: boolean
 ): PrCheckSnapshot {
-  const activeCodeqlShas = shas.filter((sha) =>
-    pages<{ readonly workflow_runs: readonly WorkflowRun[] }>(
-      `repos/${repository}/actions/runs?head_sha=${sha}&per_page=100`
-    ).some((page) =>
-      page.workflow_runs.some((run) => isActiveCodeqlProducer(run, sha))
-    )
-  );
+  const activeCodeqlShas = nativeCodeql
+    ? []
+    : shas.filter((sha) =>
+        pages<{ readonly workflow_runs: readonly WorkflowRun[] }>(
+          `repos/${repository}/actions/runs?head_sha=${sha}&per_page=100`
+        ).some((page) =>
+          page.workflow_runs.some((run) => isActiveCodeqlProducer(run, sha))
+        )
+      );
   return {
     activeCodeqlShas,
     checks: shas.flatMap((sha) => checksFor(repository, sha)),

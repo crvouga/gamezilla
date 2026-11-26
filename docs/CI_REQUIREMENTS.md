@@ -1,6 +1,6 @@
 # CI requirements
 
-Capacity reference for the complete verification catalog. Hosted PR, release and nightly stages all run this catalog ([CI stage policy](CI_STAGE_POLICY.md)); a run executes only its cache misses, so the full-catalog sizing below is the cold-cache bound. Every workflow job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured load is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph ([below](#measured-load)). [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when the corpus no longer fits the runner.
+Capacity reference for the complete verification catalog. Each hosted stage selects from this catalog ([CI stage policy](CI_STAGE_POLICY.md)); a run executes only its cache misses, so the full-catalog sizing below is the cold-cache bound. Every workflow job runs on a standard GitHub-hosted `ubuntu-24.04` runner ([below](#runner-operating-systems)); the sections that size a warm pool are the sizing a faster, dedicated fleet would need and provision nothing. The measured load is generated from [`libs/tools-harness-ts/scripts/verify-task-costs.json`](../libs/tools-harness-ts/scripts/verify-task-costs.json) and the workspace graph ([below](#measured-load)). [`libs/tools-harness-ts/scripts/ci-load.test.ts`](../libs/tools-harness-ts/scripts/ci-load.test.ts) fails when the corpus no longer fits the runner.
 
 Refresh after a cold Verify harvest:
 
@@ -13,19 +13,17 @@ To size hardware from real run history, `bun ci:stats` writes `.cache/ci-stats/C
 
 Commit the cost file with any change to this document it calls for. The budgets live in [`libs/tools-harness-ts/scripts/ci-runner-capacity.ts`](../libs/tools-harness-ts/scripts/ci-runner-capacity.ts). A task that no longer fits is split, or the runner constants change in that same commit with the measurement that justifies them. The five-minute promise stays.
 
-## Promises
+## Hosted duration budgets
 
-Wall clock is from the push to a posted verdict, on a warm runner that is free when the push arrives.
+Health measures elapsed time from GitHub workflow creation through the final verdict. Queueing, setup, external checks and deployment count. A run still waiting past its ceiling counts as a breach. Health reports the last 24 hours, identifies each late run and fails its duration check when any run exceeds its ceiling. A failed or cancelled run never establishes a successful delivery time.
 
-| Change | Verdict |
-| --- | --- |
-| Any pull request, including a lockfile or a foundational package | under 5 minutes |
-| Any graph leaf (nothing else depends on the changed packages) | under 3 minutes |
-| Nine out of ten leaves | under 90 seconds |
+| Stage | Target | Hard ceiling |
+| --- | --- | --- |
+| Pull request | under 2 minutes | 3 minutes |
+| Production Release on main | under 8 minutes | 10 minutes |
+| Complete Nightly | under 30 minutes | 45 minutes |
 
-The proposed pool has eight runners: up to four cooperating machines per verification, with capacity reserved for two simultaneous verifications. A small corpus uses fewer machines; the fit calculation chooses the smallest width that meets every deadline. A third concurrent verification waits, and that wait sits outside the promise. A newer push to the same pull request cancels the older run.
-
-Release verification, deploy, health, and the nightly run have their own deadlines. They are not these promises. The nightly run is the `nightly` profile in [`libs/tools-harness-ts/scripts/verify-profile.ts`](../libs/tools-harness-ts/scripts/verify-profile.ts); it never gates a merge.
+Focused diagnostic runs measure their selected suite separately. The capacity model below estimates cold work on a hypothetical warm pool. The hosted budgets use observed runs on GitHub Free. GitHub controls when an eligible job receives a runner.
 
 ## What a pull-request verification runs
 

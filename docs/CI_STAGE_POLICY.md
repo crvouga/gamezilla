@@ -1,12 +1,9 @@
 # CI stage policy
 
-A pull request runs the four tasks that cannot wait for Release (`PR_TASKS` in
-`libs/tools-harness-ts/scripts/ci-stage.ts`). Release, nightly, a manual Verify PR
-dispatch and local `bun verify` run the whole gate catalog, `MAIN_VERIFY_TASKS`; only
-the tasks whose inputs changed execute, and every other verdict replays from the
-remote cache. Depth, budgets and report retention remain in `verify-profile.ts`,
-independently of selection; nightly's deeper groups (random, browser, visual,
-coverage, performance) sit outside the gate.
+The PR gate checks affected work. Release validates the deployable commit, including
+integration tests, production bundles, security checks and critical browser journeys.
+Nightly owns the broad Storybook matrix and the deep checks. Each stage reuses
+successful Turbo results for identical inputs.
 
 | Pull-request task | Why it cannot wait for Release |
 | --- | --- |
@@ -14,8 +11,7 @@ coverage, performance) sit outside the gate.
 | `verify:secrets` | A credential that reaches `main` has leaked. |
 | `verify:actionlint` | A workflow that does not parse cannot run Release, so nothing would report it. |
 
-Everything else is first run by Release, on the merged commit, before anything
-deploys. A check that fails there blocks that release and every release behind it, and
+Release runs on the merged commit before deployment. A check that fails there blocks that release and every release behind it, and
 keeps one open issue of its own (label `ci-failure`, title "Release check failing on
 main: `<task>`") until a Release verifies it green
 (`libs/tools-harness-ts/scripts/ci-check-issues.ts`). The issue is rewritten by every
@@ -37,8 +33,8 @@ before merging, dispatch the whole gate on the branch: `gh workflow run verify-p
 
 | Workflow and triggers | Responsibility and dependencies |
 | --- | --- |
-| Verify PR: PR opened/reopened/synchronized against main, manual, reusable call | On a PR, only `verify:end` allocates compute. It verifies the four PR tasks and their dependencies and enforces the external check policy. For full-catalog runs, `verify:start` builds a content-addressed plan and shared prerequisites; independent misses run in duration-balanced shards; `verify:end` aggregates every expected verdict. A pull request plans `PR_TASKS`; a manual dispatch or a reusable call plans the whole catalog. No path filter can strand the required status. New PR pushes cancel superseded runs. |
-| Release: main push or manual dispatch | Run the whole gate, critical production-build journeys included, on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
+| Verify PR: PR opened/reopened/synchronized against main, manual, reusable call | On a PR, only `verify:end` allocates compute. It verifies affected PR tasks and their dependencies and enforces the external check policy. For full-catalog runs, `verify:start` builds a content-addressed plan and shared prerequisites; independent misses run in duration-balanced shards; `verify:end` aggregates every expected verdict. A pull request plans `PR_TASKS`; a manual dispatch or a reusable call plans the whole catalog. No path filter can strand the required status. New PR pushes cancel superseded runs. |
+| Release: main push or manual dispatch | Run the release gate, critical production-build journeys included, on the exact checkout, repository policy, shared fleet, development, production, then release tag. A branch dispatch with `rehearsal=true` verifies and plans without applying. Production still requires main and its protected environment. Keep the newest pending run; never cancel an active migration/apply. |
 | Verify Nightly: daily at 10:23 UTC or manual dispatch | Complete catalog at nightly depth plus random, browser, visual, coverage and performance groups. Groups run independently. Manual `all` gives a complete verdict; individual groups give diagnostic verdicts. |
 | Health: hourly at minute 17 or manual dispatch | Live probes, critical journeys, infrastructure/repository drift and historical SLO checks. Releases nothing. Historical SLO debt cannot block a corrective release. |
 
@@ -55,14 +51,13 @@ release must also pass environment configuration, infrastructure safety and live
 post-deployment probes before it is tagged. This is a bounded automated release bar;
 it does not promise that every feature, visual state or performance case is correct.
 
-Release runs the whole gate catalog at release depth: every package's `tc`,
+Release checks every package's `tc`,
 `lint`, `test`, contract models, spec parts and Quint models, the repository
-consistency checks, branding checks, Storybook checks, and all three
+consistency checks, branding checks and all three
 `@apps/product-ts#test:release-journeys:<k>` partitions. Release checks the exact
 selected commit and reuses only identical successful task hashes. Manual Verify PR
 dispatches use the same selection. A regression test (`ci-stage.test.ts`) requires
-Release and nightly selections to stay equal as the catalog changes, and the
-pull-request selection to stay `PR_TASKS`. Nightly runs the same catalog at its deeper
+Nightly to retain every Storybook partition and Release to keep the critical journeys. Nightly runs the same catalog at its deeper
 profile.
 
 Selection is cheap; successful tasks execute only on cache misses, so a change pays for
@@ -147,8 +142,7 @@ not a claim that the preceding deployment was atomically undone.
 
 ## Redundancy and expected improvement
 
-No verification is deleted; a pull request defers all but four tasks to Release.
-Release and nightly run one gate; existing cached successes, shared build prerequisites and identical dependency tasks remain
+Release and Nightly share cached successes. Build prerequisites and identical dependency tasks remain
 deduplicated by Turbo, so a change executes only what its inputs reach. A change to a
 hub package reruns its dependents' gate tasks, sized into up to 64 shards. Superseded
 pending releases no longer consume deployment work. Hourly production monitoring
