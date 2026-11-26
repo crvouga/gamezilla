@@ -333,7 +333,7 @@
     "deploy": {
       "cache": false,
       "dependsOn": [
-        "@libs/runtime-server-ts#migrate",
+        "@apps/admin-api-ts#publish:permission-policy",
         "@libs/chess-puzzle-server-ts#initialize:catalog",
         "@apps/product-api-ts#verify:api",
         "@apps/product-ts#verify:offline-shell",

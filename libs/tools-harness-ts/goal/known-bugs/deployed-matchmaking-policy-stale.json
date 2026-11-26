@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45839922005 served matchmaking with stored policy 2026-10-23.1. Its signed-in role allowed search but lacked the daily matched-game allowance. Battleship, Connect Four and Classic Quoridor stopped at not_granted before either player saw a board.",
+  "regressionTest": "libs/games-harness-ts/tests/deployed-matchmaking-policy.test.ts"
+}

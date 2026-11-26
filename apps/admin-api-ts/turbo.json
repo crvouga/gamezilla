@@ -7,6 +7,11 @@
       "inputs": ["$TURBO_EXTENDS$"],
       "outputs": []
     },
+    "publish:permission-policy": {
+      "cache": false,
+      "dependsOn": ["deploy"],
+      "passThroughEnv": ["*"]
+    },
     "deploy": {
       "cache": false,
       "dependsOn": ["verify:worker-bundle", "@libs/runtime-server-ts#migrate"],

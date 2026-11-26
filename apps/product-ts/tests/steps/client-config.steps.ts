@@ -14,6 +14,7 @@ import {
 import type { ClientConfigDbRow } from '@libs/app-config-shared-ts/parse-client-config';
 import { parseClientConfigRows } from '@libs/app-config-shared-ts/parse-client-config';
 import { appPostgresDbScope } from '@libs/db-shared-ts/scope';
+import { PERMISSION_POLICY_VERSION } from '@libs/permissions-shared-ts/permission-policy';
 import { createPgPool } from '@pkgs/sql-client-postgres-server-ts/connect';
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { eventually, Then, WARMUP_MS } from './define';
@@ -68,8 +69,20 @@ export async function awaitApiAnswered(w: LiveWorld): Promise<void> {
 /** Every client config key is stored. */
 Then('the app is given every setting it needs', async (w) => {
   await awaitApiAnswered(w);
-  const ids = new Set((await liveRows()).map((r) => r.id));
+  const rows = await liveRows();
+  const ids = new Set(rows.map((row) => row.id));
   expect(CLIENT_CONFIG_KEYS.filter((k) => !ids.has(k))).toEqual([]);
+  const raw = rows.find(
+    (row) => row.id === ClientConfigKey.permissionPolicy
+  )?.value;
+  const policy: unknown = typeof raw === 'string' ? JSON.parse(raw) : raw;
+  const version =
+    policy && typeof policy === 'object' && 'version' in policy
+      ? policy.version
+      : null;
+  expect(version, 'deployed permission policy version').toBe(
+    PERMISSION_POLICY_VERSION
+  );
 });
 
 Then('people are offered Google sign-in and not Apple sign-in', async (w) => {
