@@ -44,6 +44,7 @@ describe('Verify workflow cancellation', () => {
     // (workflow-native.test.ts), so the plan is the start's only output.
     expect(start.outputs).toEqual({
       shards: '${{ steps.plan.outputs.shards }}',
+      consumers: '${{ steps.plan.outputs.consumers }}',
     });
     expect(start.steps.find((step) => step.id === 'plan')?.run).toContain(
       'verify-plan.ts'

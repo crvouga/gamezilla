@@ -132,6 +132,7 @@ jobs:
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
+      consumers: ${{ steps.plan.outputs.consumers }}
     steps:
       - &budget
         name: Check remaining workflow time
@@ -447,7 +448,7 @@ jobs:
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           workspace: ${{ steps.scope.outputs.docs != 'true' }}
-          tools: ${{ steps.scope.outputs.docs == 'true' && 'bun gitleaks' || env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || '' }}
+          tools: ${{ steps.scope.outputs.docs == 'true' && 'bun gitleaks' || env.VERIFY_CI_STAGE == 'pr' && 'bun node gitleaks actionlint' || needs.verify-start.outputs.consumers == '-' && 'bun node' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}

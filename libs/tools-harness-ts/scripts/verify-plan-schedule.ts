@@ -131,7 +131,10 @@ export function writeSchedule(
       schedule,
       Number(process.env['GITHUB_RUN_ID'] ?? 0)
     );
-    appendFileSync(output, `shards=${matrix}\n`);
+    appendFileSync(
+      output,
+      `shards=${matrix}\nconsumers=${schedule.consumers ? '+' : '-'}\n`
+    );
   }
   return schedule;
 }
