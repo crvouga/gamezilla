@@ -12,6 +12,7 @@ Feature: Notes arrive quickly
       When Alice writes the note "Groceries" saying "milk"
       Then Bob sees the note "Groceries" within a quarter of a second
 
+    @regression:space-note-premature-peer-refetch
     Scenario: Over slow connections nearly every note reaches the other person within a fifth of a second
       Given Alice and Bob are in the shared space "Trip"
       And Alice and Bob have slow connections
