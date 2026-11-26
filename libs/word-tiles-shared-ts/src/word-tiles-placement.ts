@@ -98,14 +98,8 @@ function lineOf(placed: readonly PlacedLetter[]): Direction | null {
   return columns.size === 1 ? 'down' : null;
 }
 
-/**
- * The board with `placed` written in, for placements on distinct cells
- * (`geometryRefusal` refuses a shared cell first). Bots judge hundreds of
- * thousands of candidates a search, so this splices the few placed letters
- * between slices instead of rebuilding all 225 squares.
- */
-function withPlaced(board: string, placed: readonly PlacedLetter[]): string {
-  const ordered = [...placed].sort((a, b) => a.cell - b.cell);
+/** Splice letters in ascending cell order, copying untouched squares in runs. */
+function withPlaced(board: string, ordered: readonly PlacedLetter[]): string {
   let next = '';
   let from = 0;
   for (const p of ordered) {
@@ -189,7 +183,10 @@ function geometryOf(board: string, placed: readonly PlacedLetter[]): Geometry {
     return { refusal: 'cell taken' };
   const line = lineOf(placed);
   if (line === null) return { refusal: 'not in one line' };
-  const next = withPlaced(board, placed);
+  const next = withPlaced(
+    board,
+    [...placed].sort((a, b) => a.cell - b.cell)
+  );
   if (!spanIsContiguous(next, placed, line))
     return { refusal: 'gap in the word' };
   if (boardIsEmpty(board)) {
@@ -213,7 +210,26 @@ export function evaluatePlacement(
   const geometry = geometryOf(board, placed);
   if (geometry.refusal !== null)
     return { ok: false, refusal: geometry.refusal };
-  const { line, next } = geometry;
+  return scoreOnBoard(geometry.next, placed, geometry.line);
+}
+
+/**
+ * Score the ordered tiles of a connected, gapless anchor search path.
+ * The authority checks arbitrary proposals with evaluatePlacement.
+ */
+export function scoreGeneratedLine(
+  board: string,
+  placed: readonly PlacedLetter[],
+  line: Direction
+): Evaluation {
+  return scoreOnBoard(withPlaced(board, placed), placed, line);
+}
+
+function scoreOnBoard(
+  next: string,
+  placed: readonly PlacedLetter[],
+  line: Direction
+): Evaluation {
   const fresh = new Set(placed.map((p) => p.cell));
   const words = formedWords(next, placed, line).map(([cells, direction]) =>
     scoreWord(next, cells, direction, fresh)

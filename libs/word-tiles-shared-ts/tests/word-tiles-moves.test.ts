@@ -178,6 +178,10 @@ function expectReferencePlacements(board: string, letters: string): void {
   const rack = idsOf(letters, new Set());
   const generated = generateMoves({ board, rack, trie: TRIE, budget: 1e7 });
   expect(generated.complete).toBe(true);
+  for (const move of generated.moves) {
+    const judged = evaluatePlacement(board, move.placed);
+    expect(judged.ok && judged.score.total).toBe(move.score);
+  }
   const keys = new Set(generated.moves.map((m) => key(m.placed)));
   expect([...keys].sort()).toEqual([...reference(board, rack)].sort());
 }
@@ -275,6 +279,34 @@ describe('move generation', () => {
       budget: 50,
     });
     expect(bounded.complete).toBe(false);
+  });
+
+  // regression: word-tiles-bot-law-scores-unused-proposals
+  test('the four opening examples stop at the same four placements as the full search', async () => {
+    const { trie } = await lexicon();
+    // The two-seat conformance deal starts with N T S E S O W.
+    const rack = [53, 83, 77, 18, 76, 64, 92];
+    let branches = 0;
+    const input = {
+      board: EMPTY_BOARD,
+      rack,
+      budget: 2_000,
+      trie: {
+        ...trie,
+        forEachChild: (...args: Parameters<typeof trie.forEachChild>) => {
+          branches++;
+          trie.forEachChild(...args);
+        },
+      },
+    };
+    const sample = generateMoves({ ...input, maxMoves: 4 });
+    const sampledBranches = branches;
+    branches = 0;
+    const full = generateMoves(input);
+    expect(sample.complete).toBe(false);
+    expect(sample.moves).toHaveLength(4);
+    expect(sample.moves).toEqual(full.moves.slice(0, 4));
+    expect(sampledBranches).toBeLessThan(branches);
   });
 
   // regression: word-tiles-repeated-anchor-discovery
