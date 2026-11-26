@@ -32,10 +32,12 @@ import type { MultiplayerData } from './use-multiplayer-data';
  */
 export function useMultiplayerStage(
   data: MultiplayerData,
-  denied: Accessor<boolean>
+  denied: Accessor<boolean>,
+  pending: Accessor<boolean>
 ): Accessor<MultiplayerStage> {
   const rules = useTurnGames();
   return createMemo(() => {
+    if (pending()) return 'loading';
     const game = data.game();
     return multiplayerStageOf({
       denied: denied(),

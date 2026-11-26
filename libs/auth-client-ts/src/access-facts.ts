@@ -8,8 +8,10 @@ import { createSecureStorageItem } from '@pkgs/secure-storage-root-client-ts/sol
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import { createQuery } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import { type Accessor, createMemo } from 'solid-js';
-import { useCurrentAccountId } from './use-current-account-id';
-import { useFreshAuthToken } from './use-fresh-auth-token';
+import {
+  useAccountIdRead,
+  useCurrentAccountId,
+} from './use-current-account-id';
 
 /**
  * Sign-in state, as access input. Only `@libs/permissions` imports this
@@ -26,10 +28,19 @@ function readIsAnonFlag(value: unknown): boolean {
  * `true` when bound to a non-anon user with a session token.
  */
 export function useIsSignedIn(): Accessor<boolean> {
-  const accountId = useCurrentAccountId();
-  const token = useFreshAuthToken();
+  const state = useSignInState();
+  return () => state() === true;
+}
+
+/** Null until both local identity keys have answered, including absent keys. */
+export function useSignInState(): Accessor<boolean | null> {
+  const account = useAccountIdRead();
+  const token = createSecureStorageItem(SESSION_TOKEN_KEY);
   const isAnon = useIsAnon();
-  return createMemo(() => resolveIsSignedIn(accountId(), token(), isAnon()));
+  return createMemo(() => {
+    if (!account.isHydrated() || !token.isHydrated()) return null;
+    return resolveIsSignedIn(account.value(), token.value() || null, isAnon());
+  });
 }
 
 /**

@@ -1,5 +1,5 @@
-import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
-import { useIsSignedIn } from '@libs/auth-client-ts/access-facts';
+import type { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
+import { useSignInState } from '@libs/auth-client-ts/access-facts';
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type {
   AccessInputs,
@@ -17,7 +17,7 @@ import {
   createQuery,
   useSyncEngine,
 } from '@pkgs/sync-engine-client-ts/sync-engine-context';
-import { type Accessor, createMemo } from 'solid-js';
+import { createMemo } from 'solid-js';
 
 function sameFacts(a: Facts, b: Facts): boolean {
   const keys = Object.keys(a);
@@ -34,10 +34,12 @@ function sameFacts(a: Facts, b: Facts): boolean {
  * facts re-read themselves when grace runs out. The only client code that
  * reads sign-in state or membership, and it is private to this package.
  */
-export function useAccessFacts(): Accessor<Facts> {
+export function useAccessFacts(
+  clientConfig: ReturnType<typeof useClientConfig>
+) {
   const myId = useMyId();
-  const { config } = useClientConfig();
-  const signedIn = useIsSignedIn();
+  const { config } = clientConfig;
+  const signedIn = useSignInState();
   const engine = useSyncEngine();
   const confirmedAtMs = createMemo(() => engine.status().lastSyncedAtMs);
   const subscription = createQuery(
@@ -51,7 +53,7 @@ export function useAccessFacts(): Accessor<Facts> {
   );
   const inputs = createTimedValue(
     (nowMs): AccessInputs => ({
-      signedIn: signedIn(),
+      signedIn: signedIn() === true,
       accountId: signedIn() ? myId() : null,
       subscription: governingSubscription(subscription.rows()),
       nowMs,
@@ -61,7 +63,14 @@ export function useAccessFacts(): Accessor<Facts> {
     }),
     accessFactsChangeAtMs
   );
-  return createMemo(() => resolveAccessFacts(inputs()), {
+  const value = createMemo(() => resolveAccessFacts(inputs()), {
     equals: sameFacts,
   });
+  return {
+    value,
+    isLoading: () =>
+      signedIn() === null ||
+      subscription.isLoading() ||
+      clientConfig.isLoading(),
+  };
 }
