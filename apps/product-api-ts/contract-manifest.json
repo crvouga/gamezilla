@@ -52,10 +52,8 @@
     "settleMultiplayerClock",
     "shareCancellationFeedback",
     "startPuzzleAttempt",
-    "startPuzzleImport",
     "startPuzzlePlaytest",
     "stopFindingChessOpponent",
-    "stopPuzzleImport",
     "unblockUser",
     "validatePuzzleContentDraft",
     "withdrawPuzzleContent"
@@ -65,7 +63,6 @@
     "chessMultiplayerSpace",
     "chessPuzzleById",
     "chessPuzzleFeedSettings",
-    "chessPuzzleImport",
     "chessPuzzleInteractions",
     "chessPuzzleNearest",
     "chessPuzzlePool",

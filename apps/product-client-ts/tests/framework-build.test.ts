@@ -31,7 +31,8 @@ function withoutProductionGames(): Plugin {
       if (directory === undefined) return;
       const owner = owners.get(directory);
       // Only this test's entry is permitted in the application package.
-      if (path === 'apps/product-client-ts/tests/isolated-game-framework.ts') return;
+      if (path === 'apps/product-client-ts/tests/isolated-game-framework.ts')
+        return;
       if (owner !== undefined)
         throw new Error(`ISOLATED_CLIENT_FORBIDDEN_GAME: ${owner}`);
     },

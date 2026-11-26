@@ -225,6 +225,8 @@
         "dev:server",
         "dev:population",
         "dev:web",
+        "dev:admin-api",
+        "dev:admin-client",
         "@pkgs/ui-root-harness-ts#dev:storybook"
       ],
       "persistent": true,
@@ -271,6 +273,16 @@
       "cache": false
     },
     "dev:population": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:admin-api": {
+      "dependsOn": ["dev:prepare"],
+      "persistent": true,
+      "cache": false
+    },
+    "dev:admin-client": {
       "dependsOn": ["dev:prepare"],
       "persistent": true,
       "cache": false

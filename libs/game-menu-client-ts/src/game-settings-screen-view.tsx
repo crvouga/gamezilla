@@ -31,8 +31,8 @@ export type GameSettingsScreenViewProps = {
 
 /**
  * One group of a game's settings, presentational: a hub of the rows the
- * game declared as data, each leading onward to a nested group or one of
- * the platform's template screens. A group none of whose rows the person
+ * game declared as data, each leading onward to a nested group.
+ * A group none of whose rows the person
  * may see says so instead of standing blank. `GameSettingsScreen` reads the
  * game's tree, hides rows by permission and keeps the place.
  */

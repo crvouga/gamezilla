@@ -251,8 +251,7 @@ export function LiveWatchScreenView(
           screenId="live-watch"
           width="list"
           breadcrumbs={[
-            { name: <Trans>Profile</Trans>, href: '/profile' },
-            { name: <Trans>Settings</Trans>, href: '/more' },
+            { name: <Trans>Administration</Trans>, href: '/' },
             {
               name: <Trans>User Observatory</Trans>,
               href: OBSERVATORY_PATH,

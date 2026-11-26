@@ -8,3 +8,60 @@
 @import "../../tailwind-shared-ts/src/tailwind.css";
 @import "./tokens.css";
 @import "./hosts.css";
+
+/* Viewport and native controls shared by standalone web applications. */
+html[data-app-shell] {
+  &,
+  body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background: var(--ui-color-background);
+    color: var(--ui-color-text);
+  }
+
+  body {
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  #root {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  /* Disable text selection by default; inputs stay selectable. */
+  * {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  input,
+  textarea,
+  [contenteditable="true"] {
+    -webkit-user-select: text;
+    user-select: text;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
+    color: inherit;
+  }
+
+  /* Safe-area inset for shell chrome (chrome/app-tab-bar.tsx). A class because
+   happy-dom and some inline-style sanitizers drop `env()` values. */
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+}

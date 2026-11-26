@@ -56,6 +56,7 @@ function limitCell(plan: keyof typeof PLANS, key: string): string {
 
 /** [key, guest, free, paid] */
 const EXPECTED: ReadonlyArray<readonly [string, string, string, string]> = [
+  [PERMISSION.adminAccess, 'deny', 'deny', 'deny'],
   [PERMISSION.friendsUse, 'deny', 'allow', 'allow'],
   [PERMISSION.peopleSearch, 'deny', 'allow', 'allow'],
   [PERMISSION.notificationsReceive, 'deny', 'allow', 'allow'],

@@ -9,6 +9,8 @@
       "@libs/light-cycles-harness-ts/*": [
         "./libs/light-cycles-harness-ts/src/*"
       ],
+      "@apps/admin-api-ts/*": ["./apps/admin-api-ts/src/*"],
+      "@apps/admin-client-ts/*": ["./apps/admin-client-ts/src/*"],
       "@apps/auth-relay-ts/*": ["./apps/auth-relay-ts/src/*"],
       "@apps/product-client-ts/*": ["./apps/product-client-ts/src/*"],
       "@apps/harness-ts/*": ["./apps/harness-ts/src/*"],

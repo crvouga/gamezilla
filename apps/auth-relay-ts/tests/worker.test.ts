@@ -36,6 +36,20 @@ describe('auth relay Worker', () => {
     }
   });
 
+  test('returns admin sign-ins to the corresponding admin deployment', async () => {
+    for (const env of Object.values(ENV_FILES)) {
+      const state = `admin-${env.env}.s1`;
+      const res = await worker.fetch(
+        new Request(`${CALLBACK}?code=c&state=${state}`),
+        vars
+      );
+      expect(res.status).toBe(302);
+      expect(res.headers.get('location')).toBe(
+        `${envOrigins(env).admin}/api/auth/callback/google?code=c&state=${state}`
+      );
+    }
+  });
+
   test('refuses a callback no environment started', async () => {
     const res = await worker.fetch(
       new Request(`${CALLBACK}?code=c&state=nobody.s1`),

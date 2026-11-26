@@ -74,6 +74,7 @@
       "!**/babel.config.js",
       "!**/lingui.config.*",
       "!**/*.html",
+      "!apps/admin-client-ts/public/sql-workers/**/*.js",
       "!apps/product-client-ts/public/sql-workers/**/*.js",
       "!apps/product-ts/public/sql-workers/**/*.js",
       "!apps/harness-ts/public/sql-workers/**/*.js",

@@ -1,5 +1,5 @@
 /**
- * What `bun run dev` prints: where the app is, where Storybook is, and the one
+ * What `bun run dev` prints: the product and admin apps, Storybook and the one
  * file every process of the stack logs to. Each address comes from the record
  * its own process publishes once it can serve.
  */
@@ -12,13 +12,14 @@ export function devLogPath(stackRootDir: string): string {
 export function appLink(
   manifest: {
     readonly webOrigin?: string | null;
+    readonly adminOrigin?: string | null;
     readonly startedAtMs?: number;
   } | null,
-  sinceMs: number
+  sinceMs: number,
+  field: 'webOrigin' | 'adminOrigin' = 'webOrigin'
 ): string | null {
-  if (!manifest?.webOrigin || (manifest.startedAtMs ?? 0) < sinceMs)
-    return null;
-  return `${manifest.webOrigin}/`;
+  if (!manifest?.[field] || (manifest.startedAtMs ?? 0) < sinceMs) return null;
+  return `${manifest[field]}/`;
 }
 
 /** Storybook's address, once its live launcher reports it ready. */

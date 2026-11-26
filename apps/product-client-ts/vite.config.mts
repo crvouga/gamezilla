@@ -83,7 +83,6 @@ export default defineConfig(({ mode }) => {
         clientFiles: [
           './src/root.ts',
           './src/main.tsx',
-          './src/base.css',
           '../../pkgs/feedback-client-ts/src/wall.ts',
           '../../pkgs/tailwind-shared-ts/src/tailwind.css',
           '../../pkgs/ui-root-client-ts/src/hosts.css',

@@ -4,6 +4,7 @@ import {
   ACTION,
   PERMISSION,
 } from '@libs/permissions-shared-ts/permission-catalog';
+import { ADMIN_APP } from '@libs/runtime-shared-ts/admin-subs';
 import { APP } from '@libs/runtime-shared-ts/app-subs';
 
 const KNOWN_KEYS = new Set<string>([
@@ -13,7 +14,10 @@ const KNOWN_KEYS = new Set<string>([
   'quota',
 ]);
 
-const APP_MUTATIONS = await APP.mutations();
+const APP_MUTATIONS = {
+  ...(await APP.mutations()),
+  ...(await ADMIN_APP.mutations()),
+};
 
 describe('§22.6 every server mutation declares its action', () => {
   test('every registered mutation has a MUTATION_ACTIONS declaration', () => {

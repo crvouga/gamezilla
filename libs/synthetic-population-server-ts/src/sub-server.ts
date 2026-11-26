@@ -1,54 +1,15 @@
 import { notifyUserChannels } from '@libs/app-root-server-ts/notify-user-channels';
-import { requireRequestStore } from '@libs/app-root-shared-ts/request-scope';
-import { appAuth } from '@libs/auth-shared-ts/auth-context';
 import { UnauthorizedError } from '@libs/auth-shared-ts/unauthorized-error';
-import { requirePermission } from '@libs/permissions-shared-ts/require-permission';
-import { HttpPubSubFromSecretStore } from '@libs/pubsub-server-ts/create-http-pubsub-from-secret-store';
-import { mintPubSubToken } from '@libs/pubsub-server-ts/mint-pubsub-token';
-import { PubsubSecretName } from '@libs/pubsub-shared-ts/secret-names';
 import { defineSubServer, type SubServerCtx } from '@libs/sub-shared-ts/server';
-import {
-  SYNTHETIC_POPULATION_EVENT_PROTOCOL,
-  SYNTHETIC_POPULATION_TOPIC,
-} from '@libs/synthetic-population-shared-ts/synthetic-population-topic';
 import { Hono } from 'hono';
 import { bindSyntheticPopulationAccount } from './account-binding';
+import { notifySyntheticPopulation, readSecret } from './request-ports';
 import {
   authorizeSyntheticPopulationMutation,
   authorizeSyntheticPopulationSession,
   syntheticPopulationRoomGrants,
 } from './session-fencing';
-import { createSyntheticPopulationRoutes } from './synthetic-population-routes';
 import { createSyntheticPopulationWorkerRoutes } from './worker-routes';
-
-async function readSecret(name: string): Promise<string> {
-  const value = (
-    await requireRequestStore().secretStore.getOptional(name)
-  )?.readSecretValue();
-  if (value === undefined || value.length < 32)
-    throw new UnauthorizedError('Synthetic Population is not configured');
-  return value;
-}
-
-async function publishSyntheticPopulation(
-  message: Readonly<Record<string, unknown>>
-): Promise<void> {
-  const store = requireRequestStore();
-  const pubsub = await new HttpPubSubFromSecretStore(
-    store.secretStore,
-    store.clock.now,
-    store.http
-  ).get();
-  if (pubsub === undefined) return;
-  await pubsub.publish(SYNTHETIC_POPULATION_TOPIC, {
-    ...message,
-    protocolVersion: SYNTHETIC_POPULATION_EVENT_PROTOCOL,
-  });
-}
-
-async function notifySyntheticPopulation(): Promise<void> {
-  await publishSyntheticPopulation({ type: 'synthetic-population-changed' });
-}
 
 function routes(ctx: SubServerCtx) {
   const ports = {
@@ -56,36 +17,6 @@ function routes(ctx: SubServerCtx) {
     createId: ctx.createId,
     notify: notifySyntheticPopulation,
   };
-  const administration = createSyntheticPopulationRoutes({
-    getDb: ctx.getSqlClient,
-    ports,
-    subscriptionCredentials: async (actorId) => {
-      const value = await mintPubSubToken({
-        secret: await readSecret(PubsubSecretName.jwtSecret),
-        actorId,
-        featureTopics: [SYNTHETIC_POPULATION_TOPIC],
-        now: ctx.clock.now,
-      });
-      return {
-        username: 'jwt',
-        password: value.token,
-        expiresAt: value.expiresAt,
-      };
-    },
-    authorize: async (request, permission) => {
-      const store = requireRequestStore();
-      const auth = appAuth(
-        await store.sessionAuth.resolveAuthContext(store.sqlClient, request)
-      );
-      await requirePermission({
-        db: store.sqlClient,
-        auth,
-        permission,
-        nowMs: store.clock.now(),
-      });
-      return auth?.myId ?? '';
-    },
-  });
   const workers = createSyntheticPopulationWorkerRoutes({
     getDb: ctx.getSqlClient,
     ports,
@@ -120,9 +51,7 @@ function routes(ctx: SubServerCtx) {
         );
     },
   });
-  return new Hono()
-    .route('/admin/synthetic-population', administration)
-    .route('/synthetic-population-worker', workers);
+  return new Hono().route('/synthetic-population-worker', workers);
 }
 
 export const SYNTHETIC_POPULATION_SERVER = defineSubServer({

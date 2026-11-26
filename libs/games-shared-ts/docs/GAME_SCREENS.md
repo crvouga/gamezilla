@@ -321,13 +321,11 @@ device's own place behind the menu, offered as a row when the game says how.
 | --- | --- | --- | --- |
 | `open` | `settings` | Hub | The rows of the root group |
 | | `settings/<row>/…` (a group) | Hub | The rows of a nested group |
-| | `settings/<row>/…` (a template screen) | — | The template the row opens, with its own places |
 
 A game's settings are rows it declares as data (`GameClient.settings`: a
 key, a title and caption, an optional permission that hides the row from a
-person it is denied, and what the row opens: a nested group, or one of the
-platform's template screens). The places are derived from that tree, one
-per group and one per template screen (`gameSettingsTree`); Back walks up
+person it is denied, and the nested group the row opens). The places are derived from that tree, one
+per group (`gameSettingsTree`); Back walks up
 the tree and, from the root, returns to the menu. A group none of whose
 rows the person may see says so. The framework draws the hub and every
 screen behind it: `defineGameClient` has no `Screen` to give, and no
@@ -355,8 +353,8 @@ the loader and asks before abandoning the upload; a save that finishes
 lands on the hub, and one that does not returns to `source` beside its
 retry. The hub's one command and why it is unavailable are derived from
 those three (`catalogueLoadCommand`). A game feeds the template with a hook
-of facts and commands and a few words (`CatalogueLoadClient`); the same
-template shows inside a space (from a settings row) and on a routed page.
+of facts and commands and a few words (`CatalogueLoadClient`); the
+admin site mounts the loader on its own page.
 Story ids: `screens-puzzles-import`, `-source`, `-status` and
 `-routed`.
 

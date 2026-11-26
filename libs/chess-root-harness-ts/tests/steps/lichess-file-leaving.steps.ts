@@ -13,12 +13,7 @@ import type { Actor } from '@libs/harness-ts/parameter-types';
 
 Given(
   '{actor} is choosing whether to leave while saving a Lichess file',
-  (w, actor: Actor) =>
-    w.s.apply(
-      prepareChoosingLichessDeparture,
-      actor,
-      w.memo.get('puzzle-management:solver-space') as string
-    )
+  (w, actor: Actor) => w.s.apply(prepareChoosingLichessDeparture, actor)
 );
 When('{actor} asks to leave adding puzzles', (w, actor: Actor) =>
   w.s.apply(askToLeaveAddingPuzzles, actor)

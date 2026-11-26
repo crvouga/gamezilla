@@ -1,6 +1,7 @@
 {
   "$comment": "Solid lint scope, read by oxlint.config.mts and lint-package.ts. dirs/files: full Solid oxlint (solid + a11y + type-aware). reactivityDirs: product libs get core reactivity rules. noDestructureDirs: spaces/chess get solid/no-destructure only (Accessor-passing ratchet is a follow-up).",
   "dirs": [
+    "apps/admin-client-ts/src",
     "libs/game-puzzle-harness-ts/src",
     "pkgs/chess-board-root-client-ts/src",
     "pkgs/chess-board-root-shared-ts/src",

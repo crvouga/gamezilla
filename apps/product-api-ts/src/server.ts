@@ -2,7 +2,7 @@
 
 // The local listener opens its HTTP scope before loading the product lazily.
 // Install native context here so that first scope supports concurrent requests.
-import './install-native-als';
+import '@libs/app-root-server-ts/install-native-als';
 
 import type { ApiWorkerEnv } from '@libs/app-root-shared-ts/env';
 import type {

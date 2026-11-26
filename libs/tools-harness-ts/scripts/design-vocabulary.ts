@@ -204,7 +204,7 @@ export function designVocabularyViolations(
 /** Packages that ship screens or app shells: they only compose. */
 const PRODUCT_PACKAGES = [
   /^libs\/[a-z0-9-]+-client-ts$/,
-  /^apps\/(client|product)-ts$/,
+  /^apps\/(admin-client|product-client|product)-ts$/,
   /^pkgs\/(feedback|harness-console)-client-ts$/,
 ];
 

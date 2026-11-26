@@ -7,7 +7,7 @@ import type { EnvFile } from './env-file';
 import { GLOBAL } from './global';
 
 export type ResourceNames = Readonly<
-  Record<keyof typeof patterns | 'worker', string>
+  Record<keyof typeof patterns | 'worker' | 'adminWorker', string>
 >;
 
 /** Names of one environment's resources. */
@@ -15,6 +15,7 @@ export function envResourceNames(env: EnvFile): ResourceNames {
   return {
     ...resourceNames(GLOBAL.project, env.suffix),
     worker: env.worker.name,
+    adminWorker: env.worker.admin_name,
   };
 }
 

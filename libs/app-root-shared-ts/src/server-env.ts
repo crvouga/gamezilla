@@ -48,9 +48,8 @@ export type ServerEnv = {
    * Production-only behavior branches on this, never on an env name.
    */
   readonly protection: DeploymentProtection;
-  /** Account ids allowed to manage this environment's puzzle pool. */
-  readonly puzzleManagerAccountIds?: readonly string[];
-  readonly syntheticPopulationOperatorAccountIds?: readonly string[];
+  /** Signed-in accounts marked as administrators of this environment. */
+  readonly adminAccountIds?: readonly string[];
   readonly serverUrl: string | null;
   /** Exact OTLP/HTTP traces endpoint used by the browser ingress proxy. */
   readonly observabilityCollectorUrl?: string | null;

@@ -43,8 +43,6 @@ import {
   waitForHttp,
 } from './free-port';
 import { startLoadBalancer } from './load-balancer';
-import type { LocalAdminIdentity } from './local-admin-accounts';
-import { localAdminEnv } from './local-admin-env';
 import { localApiEnv } from './local-api-env';
 import { configureLocalPopulation } from './local-population';
 import { localProcessEnv } from './local-process-env';
@@ -277,7 +275,6 @@ export type BillingBinding = {
 
 export async function startApiTier(args: {
   readonly sharedDataBindings?: Readonly<Record<string, string>>;
-  readonly adminIdentities: readonly LocalAdminIdentity[];
   readonly dataDir: string;
   readonly options: StackOptions;
   readonly apiOrigin: string;
@@ -292,10 +289,6 @@ export async function startApiTier(args: {
   /** Planned ports, one per node; without them each asks the OS for its own. */
   readonly ports?: readonly number[] | undefined;
 }): Promise<ApiTier> {
-  const databaseUrl = args.infraEnv['DATABASE_URL'];
-  if (databaseUrl === undefined)
-    throw new Error('Local API needs DATABASE_URL');
-  const adminEnv = await localAdminEnv(databaseUrl, args.adminIdentities);
   const sharedDataEnv =
     args.sharedDataBindings ?? isolatedSharedDataEnv(args.infraEnv);
   const roomServiceToken = crypto.randomUUID();
@@ -320,7 +313,6 @@ export async function startApiTier(args: {
         infraEnv: {
           ...args.infraEnv,
           ...args.syntheticPopulationSecrets,
-          ...adminEnv,
           ...sharedDataEnv,
           ...(args.nodeDatabaseUrl === undefined
             ? {}
@@ -396,7 +388,6 @@ type BillingAndApi = {
 /** The payment provider, then the API nodes that bill through it. */
 async function startBillingAndApi(args: {
   readonly sharedDataBindings?: Readonly<Record<string, string>>;
-  readonly adminIdentities: readonly LocalAdminIdentity[];
   readonly options: StackOptions;
   readonly apiOrigin: string;
   readonly idpEnv: Readonly<Record<string, string>>;
@@ -425,7 +416,6 @@ async function startBillingAndApi(args: {
       ...(args.sharedDataBindings === undefined
         ? {}
         : { sharedDataBindings: args.sharedDataBindings }),
-      adminIdentities: args.adminIdentities,
       dataDir: args.dataDir,
       options: args.options,
       apiOrigin: args.apiOrigin,
@@ -546,6 +536,7 @@ function stackManifest(args: {
     apiOrigin: args.origins.api,
     apiNodes: args.api.backends,
     webOrigin: args.origins.web,
+    adminOrigin: null,
     idpOrigins: { google: args.origins.google, apple: args.origins.apple },
     billingOrigin: args.origins.billing,
     ...backingServiceManifest(args.infra),
@@ -610,7 +601,6 @@ export async function bootLocalhostStack(
   });
   const { api, billing } = await startBillingAndApi({
     ...sharedSourceOptions(sourceStorage, infra.env),
-    adminIdentities: idps.adminIdentities,
     options,
     apiOrigin,
     idpEnv: idps.apiEnv,

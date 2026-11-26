@@ -239,7 +239,10 @@ test('a task with a broad glob fails unless allowed, and only up to its count', 
   const allowed: Policy = {
     ...POLICY,
     broadInputs: {
-      '@apps/product-client-ts#test': { patterns: 1, reason: 'reads every manifest' },
+      '@apps/product-client-ts#test': {
+        patterns: 1,
+        reason: 'reads every manifest',
+      },
     },
   };
   expect(broadInputViolations([task], allowed)).toEqual([]);
@@ -273,7 +276,9 @@ test('an input naming a file that does not exist fails; globs and present files 
   );
   expect(rest).toEqual([]);
   expect(violation?.rule).toBe('missing-input');
-  expect(violation?.message).toContain('`apps/product-client-ts/babel.config.js`');
+  expect(violation?.message).toContain(
+    '`apps/product-client-ts/babel.config.js`'
+  );
   expect(violation?.message).not.toContain('vite.config.mts');
   present.add('apps/product-client-ts/babel.config.js');
   expect(missingInputViolations([task], (path) => present.has(path))).toEqual(

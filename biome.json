@@ -77,6 +77,7 @@
       "!**/babel.config.js",
       "!**/lingui.config.*",
       "!**/*.html",
+      "!apps/admin-client-ts/public/sql-workers/**/*.js",
       "!apps/product-client-ts/public/sql-workers/**/*.js",
       "!apps/product-ts/public/sql-workers/**/*.js",
       "!apps/harness-ts/public/sql-workers/**/*.js",
@@ -205,6 +206,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/text-must-be-trans.grit",
       "includes": [
+        "**/apps/admin-client-ts/src/**/*.{ts,tsx}",
         "**/apps/product-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
@@ -298,6 +300,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/text-must-be-trans-children.grit",
       "includes": [
+        "**/apps/admin-client-ts/src/**/*.{ts,tsx}",
         "**/apps/product-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
@@ -391,6 +394,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/no-nested-await.grit",
       "includes": [
+        "**/apps/admin-client-ts/src/**/*.{ts,tsx}",
         "**/apps/product-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-root-client-ts/src/**/*.{ts,tsx}",
         "**/libs/app-env-client-ts/src/**/*.{ts,tsx}",
@@ -410,6 +414,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-trans-inside-trans.grit",
       "includes": [
+        "**/apps/admin-client-ts/**/*.{ts,tsx}",
         "**/apps/product-client-ts/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
@@ -432,6 +437,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/lingui-no-single-variables-to-translate.grit",
       "includes": [
+        "**/apps/admin-client-ts/**/*.{ts,tsx}",
         "**/apps/product-client-ts/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "**/pkgs/**/*.{ts,tsx}",
@@ -874,6 +880,7 @@
     {
       "path": "./libs/tools-harness-ts/biome-plugins/no-heavy-client-imports.grit",
       "includes": [
+        "**/apps/admin-client-ts/**/*.{ts,tsx}",
         "**/apps/product-client-ts/**/*.{ts,tsx}",
         "**/libs/**/*.{ts,tsx}",
         "!**/tests/**",
@@ -985,6 +992,7 @@
         "!**/dev.ts",
         "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
+        "!**/apps/admin-client-ts/src/main.tsx",
         "!**/apps/product-client-ts/src/main.tsx",
         "!**/tests/**",
         "!**/*.test.{ts,tsx}",
@@ -1057,6 +1065,7 @@
         "!**/app.tsx",
         "!**/boot-product-harness.ts",
         "!**/root-app.tsx",
+        "!**/apps/admin-client-ts/src/main.tsx",
         "!**/apps/product-client-ts/src/main.tsx",
         "!**/*-shared-worker.ts",
         "!**/*-shared-worker.js",
@@ -1147,6 +1156,7 @@
         "!**/open-harness.ts",
         "!**/launch-actor.ts",
         "!**/root-app.tsx",
+        "!**/apps/admin-client-ts/src/main.tsx",
         "!**/apps/product-client-ts/src/main.tsx",
         "!**/*-shared-worker.ts",
         "!**/*-shared-worker.js",
@@ -1611,6 +1621,7 @@
         "**/pkgs/auth-root-client-ts/src/**/*.{ts,tsx}",
         "!**/libs/runtime-server-ts/src/app-auth-provider.ts",
         "!**/apps/auth-relay-ts/src/worker.ts",
+        "!**/apps/admin-api-ts/src/worker-boot.ts",
         "!**/libs/app-root-client-ts/src/wall-client-env.ts",
         "!**/libs/app-root-shared-ts/src/auth-client-storage.ts",
         "!**/apps/product-ts/**",

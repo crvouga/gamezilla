@@ -52,9 +52,9 @@ describe('client-critical-path-imports', () => {
         '/repo/apps/product-client-ts/public/sql-workers/sqlite3.wasm'
       )
     ).toBe(false);
-    expect(isDeniedResolvedPath('/repo/apps/product-client-ts/src/main.tsx')).toBe(
-      false
-    );
+    expect(
+      isDeniedResolvedPath('/repo/apps/product-client-ts/src/main.tsx')
+    ).toBe(false);
   });
 
   test('resolveImport maps workspace aliases and relatives', () => {

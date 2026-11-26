@@ -20,6 +20,7 @@ import type {
   WranglerConfig,
 } from '@libs/infra-shared-ts/wrangler';
 import {
+  renderAdminWranglerConfig,
   renderAuthRelayWranglerConfig,
   renderStorybookWranglerConfig,
   renderWranglerConfig,
@@ -115,6 +116,27 @@ export function deployWorker(options: {
     label: 'app',
     config: writeRenderedWranglerConfig(options.appDir, options.resources),
     accountId: activeEnvFile().cloudflare.account_id,
+    secrets: options.secrets,
+  });
+}
+
+export function deployAdminWorker(options: {
+  readonly appDir: string;
+  readonly secrets: Readonly<Record<string, string>>;
+  readonly hyperdriveId: string;
+}): void {
+  requireConfiguredIdentity(process.env['PRODUCT_IDENTITY_JSON'], PRODUCT);
+  const env = activeEnvFile();
+  const config = renderAdminWranglerConfig(
+    readBaseConfig(options.appDir),
+    env,
+    options.hyperdriveId
+  );
+  runWrangler({
+    appDir: options.appDir,
+    label: 'admin',
+    config: writeConfig(options.appDir, env.env, config),
+    accountId: env.cloudflare.account_id,
     secrets: options.secrets,
   });
 }

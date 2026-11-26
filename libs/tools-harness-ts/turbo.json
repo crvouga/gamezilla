@@ -135,6 +135,7 @@
     "ci:i18n": {
       "inputs": [
         "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/apps/admin-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/account-privacy-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/app-config-client-ts/src/**/*.{ts,tsx}",
         "$TURBO_ROOT$/libs/app-env-client-ts/src/**/*.{ts,tsx}",
@@ -170,6 +171,7 @@
         "$TURBO_ROOT$/lingui.config.ts",
         "$TURBO_ROOT$/lingui.solid.config.ts",
         "$TURBO_ROOT$/libs/app-root-shared-ts/locales/**",
+        "$TURBO_ROOT$/apps/admin-client-ts/vite.config.mts",
         "$TURBO_ROOT$/apps/product-client-ts/vite.config.mts",
         "$TURBO_ROOT$/pkgs/bun-test-solid-client-ts/src/babel.config.cjs",
         "$TURBO_ROOT$/libs/tools-harness-ts/scripts/ci-i18n.ts",

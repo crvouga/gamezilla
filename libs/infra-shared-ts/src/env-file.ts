@@ -23,14 +23,14 @@ export const envFileSchema = z
     worker: z
       .object({
         name: slug,
+        admin_name: slug,
         transfer_rooms_from: slug.optional(),
         room_namespace_resolution: z
           .object({ source_id: id, target_id: id })
           .strict()
           .optional(),
         retire: z.array(slug).default([]),
-        puzzle_manager_account_ids: z.array(id).default([]),
-        population_operator_account_ids: z.array(id).default([]),
+        admin_account_ids: z.array(id).default([]),
       })
       .strict(),
     protection: z.enum(['production', 'standard']),
@@ -38,6 +38,7 @@ export const envFileSchema = z
     hosts: z
       .object({
         apex: hostname,
+        admin: hostname,
         web: hostname,
         api: hostname,
         broker: hostname,
@@ -123,7 +124,7 @@ export function parseEnvFile(raw: unknown, source: string): EnvFile {
 
 /** Every hostname an environment serves. */
 export function envHostnames(env: EnvFile): readonly string[] {
-  return [env.hosts.apex, env.hosts.web, env.hosts.api, env.hosts.broker];
+  return Object.values(env.hosts);
 }
 
 /**
@@ -137,9 +138,11 @@ export function statefulIdentities(
   const identities: Record<string, string> = {
     env: env.env,
     suffix: env.suffix,
-    worker: env.worker.name,
+    'worker:product': env.worker.name,
+    'worker:admin': env.worker.admin_name,
   };
-  for (const host of envHostnames(env)) identities[`host:${host}`] = host;
+  for (const [name, host] of Object.entries(env.hosts))
+    identities[`host:${name}`] = host;
   return identities;
 }
 
@@ -152,10 +155,10 @@ export function sharedIdentities(envs: readonly EnvFile[]): readonly string[] {
   const clashes: string[] = [];
   for (const env of envs) {
     for (const [key, value] of Object.entries(statefulIdentities(env))) {
-      const kind = key.startsWith('host:') ? 'host' : key;
+      const kind = key.split(':')[0];
       const claim = `${kind}=${value}`;
       const previous = owner.get(claim);
-      if (previous !== undefined && previous !== env.env) {
+      if (previous !== undefined) {
         clashes.push(`${claim} is claimed by both ${previous} and ${env.env}`);
       }
       owner.set(claim, env.env);
@@ -166,6 +169,7 @@ export function sharedIdentities(envs: readonly EnvFile[]): readonly string[] {
 
 export type EnvOrigins = {
   readonly apex: string;
+  readonly admin: string;
   readonly web: string;
   readonly api: string;
   readonly broker: string;
@@ -175,6 +179,7 @@ export type EnvOrigins = {
 export function envOrigins(env: EnvFile): EnvOrigins {
   return {
     apex: `https://${env.hosts.apex}`,
+    admin: `https://${env.hosts.admin}`,
     web: `https://${env.hosts.web}`,
     api: `https://${env.hosts.api}`,
     broker: `https://${env.hosts.broker}`,
@@ -186,9 +191,13 @@ export function authRelayOrigin(): string {
   return `https://${GLOBAL.auth_relay.hostname}`;
 }
 
+export function adminStateTag(env: EnvFile): string {
+  return `admin-${env.env}`;
+}
+
 /**
- * Where the relay forwards each environment's callbacks: state tag (the env
- * name) → that environment's API origin. Every env file is a target, so a
+ * The relay returns callbacks to the product or admin API that minted their state.
+ * Every env file contributes both targets, so a
  * new environment is reachable as soon as the relay redeploys (the Release
  * workflow's fleet job, before any environment deploys).
  */
@@ -196,7 +205,17 @@ export function authRelayTargets(
   envs: readonly EnvFile[]
 ): Readonly<Record<string, string>> {
   const targets: Record<string, string> = {};
-  for (const env of envs) targets[env.env] = envOrigins(env).api;
+  for (const env of envs) {
+    const origins = envOrigins(env);
+    for (const [tag, origin] of [
+      [env.env, origins.api],
+      [adminStateTag(env), origins.admin],
+    ] as const) {
+      if (Object.hasOwn(targets, tag))
+        throw new Error(`OAuth callback tag ${tag} has two owners`);
+      targets[tag] = origin;
+    }
+  }
   return targets;
 }
 
@@ -216,11 +235,5 @@ export function apiWorkerVars(env: EnvFile): Readonly<Record<string, string>> {
     OAUTH_STATE_TAG: env.env,
     BILLING_PROVIDER: env.billing.provider,
     FEEDBACK_GITHUB_REPOSITORY: GITHUB_REPOSITORY,
-    PUZZLE_MANAGER_ACCOUNT_IDS: JSON.stringify(
-      env.worker.puzzle_manager_account_ids
-    ),
-    POPULATION_OPERATOR_ACCOUNT_IDS: JSON.stringify(
-      env.worker.population_operator_account_ids
-    ),
   };
 }

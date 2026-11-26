@@ -95,3 +95,21 @@ test('machines are kept apart from people on the routes only machines call', () 
     expect(routes.some((route) => routeGroupOf(route) === group)).toBe(true);
   }
 });
+
+test('the product API has no administrative HTTP routes or puzzle import operations', async () => {
+  expect(
+    routes.filter(
+      (path) =>
+        path.startsWith('/api/admin') ||
+        path.startsWith('/api/puzzle-management')
+    )
+  ).toEqual([]);
+  expect(
+    composeSubServers(
+      appSubServers({ billing: null, rooms: noRooms })
+    ).outboxConsumers.get('chess.import-puzzles')
+  ).toBeUndefined();
+  expect(await APP.mutations()).not.toHaveProperty('startPuzzleImport');
+  expect(await APP.mutations()).not.toHaveProperty('stopPuzzleImport');
+  expect(APP.queries).not.toHaveProperty('chessPuzzleImport');
+});

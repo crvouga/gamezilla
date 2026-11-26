@@ -8,7 +8,7 @@
  * persistent task per service (turbo.json). This launcher makes that run the
  * checkout's one supervised boot, hands every task the stack's options, sends
  * every task's output to one log file, and prints only where to look: the
- * app, Storybook and that log.
+ * product app, admin app, Storybook and that log.
  */
 
 import { existsSync, mkdirSync, readFileSync } from 'node:fs';
@@ -53,6 +53,11 @@ function alive(pid: number): boolean {
 let sinceMs = Date.now();
 const pending = new Map<string, () => string | null>([
   ['App', () => appLink(record(manifestPath(repoRoot, INSTANCE)), sinceMs)],
+  [
+    'Admin',
+    () =>
+      appLink(record(manifestPath(repoRoot, INSTANCE)), sinceMs, 'adminOrigin'),
+  ],
   [
     'Storybook',
     () =>

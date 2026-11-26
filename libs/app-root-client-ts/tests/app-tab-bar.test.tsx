@@ -45,7 +45,6 @@ const CLIENTS = {
   Chrome: Passthrough,
   Session: Passthrough,
   tabsDocks: [],
-  settings: [],
 } satisfies ComposedSubClients;
 
 function renderTabBar(): void {

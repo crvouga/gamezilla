@@ -2,6 +2,9 @@
   "extends": "./tsconfig.paths.json",
   "include": [
     "pkgs/ts-reset-shared-ts/src/index.ts",
+    "apps/admin-api-ts/src/**/*.ts",
+    "apps/admin-client-ts/src/**/*.ts",
+    "apps/admin-client-ts/src/**/*.tsx",
     "apps/product-api-ts/src/**/*.ts",
     "apps/product-api-ts/src/**/*.d.ts",
     "apps/product-api-ts/tests/**/*.ts",

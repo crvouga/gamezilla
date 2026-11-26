@@ -1,0 +1,33 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
+    },
+    "src": {
+      "dependsOn": [
+        "@libs/app-env-client-ts#src",
+        "@libs/app-root-client-ts#src",
+        "@libs/app-root-shared-ts#src",
+        "@libs/auth-client-ts#src",
+        "@libs/auth-shared-ts#src",
+        "@libs/chess-puzzle-client-ts#src",
+        "@libs/games-client-ts#src",
+        "@libs/observatory-client-ts#src",
+        "@libs/observatory-shared-ts#src",
+        "@libs/runtime-shared-ts#src",
+        "@libs/spaces-client-ts#src",
+        "@libs/sub-client-ts#src",
+        "@libs/synthetic-population-client-ts#src",
+        "@pkgs/async-root-client-ts#src",
+        "@pkgs/http-client-client-ts#src",
+        "@pkgs/http-client-shared-ts#src",
+        "@pkgs/lingui-solid-client-ts#src",
+        "@pkgs/polyfill-shared-ts#src",
+        "@pkgs/sql-client-root-client-ts#src",
+        "@pkgs/sync-engine-client-ts#src",
+        "@pkgs/ui-root-client-ts#src"
+      ]
+    }
+  }
+}

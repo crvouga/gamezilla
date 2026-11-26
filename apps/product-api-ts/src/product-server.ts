@@ -1,4 +1,4 @@
-import { drainOutboxOnCron } from './outbox-cron';
+import { drainOutboxOnCron } from '@libs/app-root-server-ts/outbox-cron';
 import { runWorkerHttp } from './worker-http';
 import {
   businessEventDeliveryOptions,
@@ -23,8 +23,6 @@ import {
   readDeploymentProtection,
   readOptionalApiUrlOverride,
   readOptionalDatabaseUrlOverride,
-  readPuzzleManagerAccountIds,
-  readSyntheticPopulationOperatorAccountIds,
   resolveCheckoutProvider,
   workerEnvToSecretRecord,
 } from '@libs/app-root-shared-ts/env';
@@ -278,9 +276,6 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
     auth: APP_AUTH_PROVIDER,
     moderation: shippedModerationRules(),
     protection: readDeploymentProtection(env),
-    puzzleManagerAccountIds: readPuzzleManagerAccountIds(env),
-    syntheticPopulationOperatorAccountIds:
-      readSyntheticPopulationOperatorAccountIds(env),
     serverUrl,
     ...telemetryEndpointOptions(env),
     ...businessEventDeliveryOptions(env, workerHttp, wallTimers),
@@ -294,6 +289,7 @@ async function bootApp(env: ApiWorkerEnv): Promise<App> {
 
   const rooms = createRoomService(env.ROOM);
   return await createServer(serverEnv, {
+    clientConfigOwner: 'product-settings',
     rooms,
     app: APP,
     servers: composeSubServers(appSubServers({ billing, rooms })),

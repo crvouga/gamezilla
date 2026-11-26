@@ -1,4 +1,3 @@
-import type { CatalogueLoadClient } from '@libs/game-puzzle-client-ts/catalogue-load-client';
 import type { AppGrantKey } from '@libs/permissions-shared-ts/permission-catalog';
 import {
   defineScreenPlaces,
@@ -9,24 +8,15 @@ import type { JSX } from '@solidjs/web';
 
 /**
  * A game's settings, declared as data: a tree of rows the platform draws.
- * A row opens a nested group of rows or one of the platform's own template
- * screens; a game never supplies a screen.
+ * A row opens a nested group.
  */
 
 /** What a settings row opens. */
-export type GameSettingsTarget =
-  | {
-      /** A nested group: its own hub of rows. */
-      readonly kind: 'group';
-      /** One line under the group's name. */
-      readonly subtitle?: (() => JSX.Element) | undefined;
-      readonly rows: readonly GameSettingsRow[];
-    }
-  | {
-      /** The platform's catalogue loader, fed by the game's own load. */
-      readonly kind: 'catalogue-load';
-      readonly load: CatalogueLoadClient;
-    };
+export type GameSettingsTarget = {
+  readonly kind: 'group';
+  readonly subtitle?: (() => JSX.Element) | undefined;
+  readonly rows: readonly GameSettingsRow[];
+};
 
 /** One row of a game's settings. */
 export type GameSettingsRow = {
@@ -60,7 +50,7 @@ const KEY = /^[a-z][a-z0-9-]{0,63}$/;
 /** Settings stand in one stage: they are always open. */
 export type GameSettingsStage = 'open';
 
-/** A settings screen, named by its path of row keys (`settings/developer`). */
+/** A settings screen, named by its path of row keys. */
 export type GameSettingsPlace = { readonly screen: string };
 
 /** One screen of the tree: the root group, or what a row opens. */
@@ -90,8 +80,7 @@ export function gameSettingsChild(
 
 /**
  * The control a row is pressed by: `<game>-<group>-<row>`, the group being
- * `settings` for the root and otherwise the key of the row that opens it
- * (`chess-settings-developer`, `chess-developer-puzzles`).
+ * `settings` for the root and otherwise the key of the row that opens it.
  */
 export function gameSettingsHandle(
   gameId: string,
@@ -106,7 +95,6 @@ function collect(
   nodes: Map<string, GameSettingsNode>
 ): void {
   nodes.set(node.place.screen, node);
-  if (node.opens.kind !== 'group') return;
   for (const row of node.opens.rows)
     collect(
       {
@@ -120,8 +108,7 @@ function collect(
 }
 
 /**
- * Lay a game's settings out as screens: one hub place per group and one
- * place per template screen, each behind the group whose row opens it.
+ * Each group has its own screen and a link back to the group containing it.
  */
 export function gameSettingsTree(settings: GameSettings): GameSettingsTree {
   const root: GameSettingsNode = {
@@ -153,9 +140,7 @@ export function gameSettingsRows(
   node: GameSettingsNode,
   can: (permission: AppGrantKey) => boolean
 ): readonly GameSettingsRow[] {
-  return node.opens.kind === 'group'
-    ? node.opens.rows.filter((row) => rowShown(row, can))
-    : [];
+  return node.opens.rows.filter((row) => rowShown(row, can));
 }
 
 /**
@@ -222,17 +207,12 @@ function assertRows(
     handles.add(handle);
     if (typeof row.title !== 'function')
       throw new Error(`${where} needs a title`);
-    if (row.opens.kind === 'group')
-      assertRows(
-        gameId,
-        gameSettingsChild(group, row.key),
-        row.opens.rows,
-        handles
-      );
-    else if (typeof row.opens.load.useLoad !== 'function')
-      throw new Error(
-        `${where} opens the catalogue loader but supplies no load (opens.load.useLoad)`
-      );
+    assertRows(
+      gameId,
+      gameSettingsChild(group, row.key),
+      row.opens.rows,
+      handles
+    );
   }
 }
 

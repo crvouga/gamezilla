@@ -52,8 +52,6 @@ export type SubClient = {
    * strip). Rendered in walk order, above the tab bar.
    */
   readonly tabsDock?: Component;
-  /** Environment-management rows rendered on the shell settings screen. */
-  readonly settings?: Component;
 };
 
 export function defineSubClient(client: SubClient): SubClient {

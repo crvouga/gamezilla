@@ -48,6 +48,7 @@ const RUNTIME_SUFFIX: Readonly<Record<string, Category>> = {
  */
 export function categoryOfName(name: string): Category | undefined {
   const last = withoutLanguageSuffix(name).split('/').pop() ?? '';
+  if (name.startsWith('@apps/') && last.endsWith('-api')) return 'server';
   const suffix = last.match(/(?:^|-)(client|server|shared|harness)$/)?.[1];
   return suffix === undefined ? undefined : RUNTIME_SUFFIX[suffix];
 }

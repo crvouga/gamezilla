@@ -167,6 +167,7 @@ const VERIFY_LEAVES = [
   'test:unit:2',
   '@apps/product-ts#verify:offline-shell',
   ...RELEASE_JOURNEY_TASKS,
+  '@apps/admin-api-ts#verify:worker-bundle',
   '@apps/auth-relay-ts#verify:worker-bundle',
   '@apps/product-ts#verify:worker-bundle',
   '@apps/product-ts#verify:rendered-worker',
@@ -523,7 +524,15 @@ describe('turbo verify/deploy graph invariants', () => {
     expect(graph.errors).toBeUndefined();
     const [retirement] = graph.data.package.tasks.items;
     expect(retirement?.fullName).toBe('@libs/infra-shared-ts#retire:workers');
-    expect(retirement?.directDependencies.items).toEqual([
+    expect(
+      retirement?.directDependencies.items.toSorted((a, b) =>
+        a.fullName.localeCompare(b.fullName)
+      )
+    ).toEqual([
+      {
+        fullName: '@apps/admin-api-ts#health',
+        command: 'bun run scripts/health.ts',
+      },
       {
         fullName: '@apps/product-ts#health',
         command: 'bun run scripts/health.ts',
@@ -553,8 +562,10 @@ describe('turbo verify/deploy graph invariants', () => {
     expect(tasks).not.toHaveProperty('@apps/room-server#deploy');
     expect(tasks['@libs/infra-server-ts#apply:edge']?.dependsOn).toEqual([
       '@apps/product-ts#deploy',
+      '@apps/admin-api-ts#deploy',
     ]);
     expect(tasks['@libs/infra-shared-ts#retire:workers']?.dependsOn).toEqual([
+      '@apps/admin-api-ts#health',
       '@apps/product-ts#health',
     ]);
     expect(tasks['@apps/product-ts#verify:worker-bundle']?.dependsOn).toEqual([

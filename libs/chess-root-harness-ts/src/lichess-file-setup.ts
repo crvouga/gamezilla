@@ -1,15 +1,10 @@
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
-import { reopenSpaceLink } from '@libs/spaces-harness-ts/space-actions';
 import {
   chooseLichessFile,
   controlLichessFileSave,
   saveChosenLichessFile,
 } from './lichess-file-actions';
 import { followOtherPuzzleEnvironment } from './puzzle-import-environments';
-import {
-  openChessPuzzleDeveloperSettings,
-  openChessPuzzleLoader,
-} from './puzzle-import-navigation';
 import { noSavedLichessFile } from './puzzle-source-ui';
 
 export const prepareChosenLichessFile = scenarioAction({
@@ -22,14 +17,8 @@ export const prepareChosenLichessFile = scenarioAction({
 
 export const prepareSavingLichessFile = scenarioAction({
   name: 'prepareSavingLichessFile',
-  act: async (s, actor: string = 'alice', spaceLink?: string) => {
+  act: async (s, actor: string = 'alice') => {
     await Promise.resolve(prepareChosenLichessFile.act(s, false, actor));
-    if (spaceLink !== undefined) {
-      await Promise.resolve(reopenSpaceLink.act(s, actor, spaceLink));
-      await Promise.resolve(openChessPuzzleDeveloperSettings.act(s, actor));
-      await Promise.resolve(openChessPuzzleLoader.act(s, actor));
-      await Promise.resolve(chooseLichessFile.act(s, false, actor));
-    }
     await Promise.resolve(followOtherPuzzleEnvironment.act(s));
     await Promise.resolve(controlLichessFileSave.act(s, 'hold', actor));
     await Promise.resolve(saveChosenLichessFile.act(s, actor));

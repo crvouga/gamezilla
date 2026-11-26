@@ -29,7 +29,12 @@ describe('environment files', () => {
   test('the OAuth relay forwards to every environment and to nothing else', () => {
     const envs = Object.values(ENV_FILES);
     expect(authRelayTargets(envs)).toEqual(
-      Object.fromEntries(envs.map((env) => [env.env, envOrigins(env).api]))
+      Object.fromEntries(
+        envs.flatMap((env) => [
+          [env.env, envOrigins(env).api],
+          [`admin-${env.env}`, envOrigins(env).admin],
+        ])
+      )
     );
   });
 

@@ -104,12 +104,16 @@ export async function createAppleClientKeys(): Promise<{
  */
 export async function startStackIdps(args: {
   readonly apiOrigin: string;
+  readonly adminOrigin?: string | null;
   readonly ports: { readonly google: number; readonly apple: number };
   readonly state: IdpState;
 }): Promise<StackIdps> {
   const keys = await createAppleClientKeys();
-  const callback = (provider: 'google' | 'apple'): string =>
-    `${args.apiOrigin}/api/auth/callback/${provider}`;
+  const origins = args.adminOrigin
+    ? [args.apiOrigin, args.adminOrigin]
+    : [args.apiOrigin];
+  const callbackUris = (provider: 'google' | 'apple') =>
+    origins.map((origin) => `${origin}/api/auth/callback/${provider}`);
   const origin = (port: number): string => `http://127.0.0.1:${String(port)}`;
   const started = await Promise.allSettled([
     createServer({
@@ -123,7 +127,7 @@ export async function startStackIdps(args: {
           id: GOOGLE_CLIENT_ID,
           name: PRODUCT_NAME,
           secret: GOOGLE_CLIENT_SECRET,
-          redirectUris: [callback('google')],
+          redirectUris: callbackUris('google'),
         },
       ],
     }),
@@ -138,7 +142,7 @@ export async function startStackIdps(args: {
         {
           id: APPLE_CLIENT_ID,
           name: PRODUCT_NAME,
-          redirectUris: [callback('apple')],
+          redirectUris: callbackUris('apple'),
           apple: {
             teamId: APPLE_TEAM_ID,
             keyId: APPLE_KEY_ID,

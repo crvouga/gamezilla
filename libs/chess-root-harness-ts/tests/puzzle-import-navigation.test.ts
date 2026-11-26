@@ -1,9 +1,7 @@
 import { expect, test } from 'bun:test';
+import { CHESS_GAME_ID } from '@libs/chess-root-harness-ts/chess-playable';
 import {
-  openChessPuzzleDeveloperSettings,
-  openChessPuzzleLoader,
-} from '@libs/chess-root-harness-ts/puzzle-import-navigation';
-import {
+  followPuzzleImport,
   readPuzzleImport,
   startPuzzleLoading,
 } from '@libs/chess-root-harness-ts/puzzle-import-ui';
@@ -12,7 +10,11 @@ import {
   openLoaderPlace,
   readLoaderPosition,
 } from '@libs/chess-root-harness-ts/puzzle-loader-places';
-import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
+import {
+  leavePuzzleForGameChoices,
+  openGamePuzzles,
+} from '@libs/game-session-harness-ts/puzzle-screen';
+import { actorUi } from '@libs/harness-ts/actor-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
@@ -24,25 +26,14 @@ async function sees(world: ProductHarness, id: string): Promise<boolean> {
   return (await actorUi(world, 'alice')).get(id).isVisible();
 }
 
-/** Press the space's Back. */
-const goBack = scenarioAction({
-  name: 'goBackInSpace',
-  act: async (world, actor: string) => {
-    await (await actorUi(world, actor)).get(Handles.navBack).tap();
-    await world.session.waitForIdle();
-  },
-});
-
 // regression: puzzle-import-status-subscription-loop
 // regression: puzzle-import-derived-snapshot-loop
 // regression: puzzle-import-blocks-request
-test('chess developer loader accepts a two-part CSV and leaves its worker available to stop', async () => {
+test('admin puzzle loader accepts a two-part CSV and leaves its worker available to stop', async () => {
   await using s = await openHarness();
   await s.apply(signInWithGoogle, 'alice');
   await s.apply(joinPuzzleTeam, 'alice');
-  await s.apply(createSpace, 'alice');
-  await s.apply(openChessPuzzleDeveloperSettings, 'alice');
-  await s.apply(openChessPuzzleLoader, 'alice');
+  await s.apply(followPuzzleImport, 'alice');
   expect(
     await s.until((world) => readPuzzleImport(world, 'alice'), {
       pred: (view) => !view.denied,
@@ -72,17 +63,13 @@ test('chess developer loader accepts a two-part CSV and leaves its worker availa
   });
 }, 30000);
 
-test('chess developer settings hides puzzle loading when the permission is denied', async () => {
+test('chess offers no administrative settings even to an admin', async () => {
   await using s = await openHarness();
   await s.apply(signInWithGoogle, 'alice');
+  await s.apply(joinPuzzleTeam, 'alice');
   await s.apply(createSpace, 'alice');
-  await s.apply(openChessPuzzleDeveloperSettings, 'alice');
-  expect(await s.read(sees, 'chess-developer-puzzles')).toBe(false);
-  // The group says it holds nothing for this person instead of standing
-  // blank, and Back walks up the settings to the game's menu.
-  expect(await s.read(sees, 'game-settings-empty')).toBe(true);
-  await s.apply(goBack, 'alice');
-  expect(await s.read(sees, 'chess-settings-developer')).toBe(true);
-  await s.apply(goBack, 'alice');
+  await s.apply(openGamePuzzles, 'alice', CHESS_GAME_ID);
+  await s.apply(leavePuzzleForGameChoices, 'alice');
   expect(await s.read(sees, Handles.gameChoices)).toBe(true);
+  expect(await s.read(sees, 'game-choice-settings')).toBe(false);
 }, 30000);

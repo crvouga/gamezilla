@@ -170,7 +170,11 @@ export function assertWorkersRetirable(
   domains: readonly WorkerDomain[]
 ): void {
   roomMigrations(env, namespaces);
-  if (env.worker.retire.includes(env.worker.name)) {
+  if (
+    [env.worker.name, env.worker.admin_name].some((worker) =>
+      env.worker.retire.includes(worker)
+    )
+  ) {
     throw new Error('Cannot retire the application Worker');
   }
   const room = namespaces.find(

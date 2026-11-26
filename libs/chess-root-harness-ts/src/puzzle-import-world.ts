@@ -5,7 +5,7 @@ import { GAME_PUZZLE_SUB } from '@libs/game-puzzle-shared-ts/sub';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf } from '@libs/harness-ts/identity';
-import { permissionPolicyForPuzzleManagers } from '@libs/permissions-shared-ts/permission-policy';
+import { permissionPolicyForAdmins } from '@libs/permissions-shared-ts/permission-policy';
 import { readUtf8, writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
 import { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -16,16 +16,16 @@ export const joinPuzzleTeam = scenarioAction({
   act: async (s, actor: string) => {
     const accountId = await accountIdOf(s, actor);
     if (accountId === null) throw new Error('Puzzle manager needs an account');
-    await s.harness.setPuzzleManagers([
+    await s.harness.setAdminAccounts([
       ...(s.harness.serverEnv(s.harness.serverIds()[0] ?? '')
-        ?.puzzleManagerAccountIds ?? []),
+        ?.adminAccountIds ?? []),
       accountId,
     ]);
     const roster =
-      s.harness.serverEnv(s.harness.serverIds()[0] ?? '')
-        ?.puzzleManagerAccountIds ?? [];
+      s.harness.serverEnv(s.harness.serverIds()[0] ?? '')?.adminAccountIds ??
+      [];
     await s.harness.serverSql.sqlClient.run(
-      sql`UPDATE client_config SET value = ${JSON.stringify(permissionPolicyForPuzzleManagers(roster))} WHERE id = 'permission_policy'`
+      sql`UPDATE client_config SET value = ${JSON.stringify(permissionPolicyForAdmins(roster))} WHERE id = 'permission_policy'`
     );
     if (s.harness.server.events)
       await notifyChannels({
