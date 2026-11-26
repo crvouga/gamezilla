@@ -1,0 +1,4 @@
+{
+  "summary": "The hosted Storybook restored an older catalog walkthrough after its Chess story gained the board provider, because the build did not track the games client story.",
+  "regressionTest": "libs/tools-harness-ts/scripts/cache-package-paths.test.ts"
+}
