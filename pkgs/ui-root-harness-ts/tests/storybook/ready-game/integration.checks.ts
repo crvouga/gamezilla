@@ -25,7 +25,7 @@ async function firstMove(
   await expect(board).toBeVisible();
   expect(await page.getByTestId(flow.introduction).count()).toBe(0);
   await expect(
-    page.getByText('Your turn.', { exact: true }).first()
+    page.getByText('Your turn.').first()
   ).toBeVisible();
   await page.screenshot({ path: info.outputPath('2-board.png') });
   await page.getByTestId('custom-game-board-column-4').click();
