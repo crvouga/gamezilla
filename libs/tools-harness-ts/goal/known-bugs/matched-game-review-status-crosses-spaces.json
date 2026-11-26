@@ -1,0 +1,4 @@
+{
+  "summary": "After the first moves in a matched chess game, a guest reviewing the first move left their review notice visible in the other space while its board stayed current.",
+  "regressionTest": "specs/games/matched-game-watchers.feature"
+}

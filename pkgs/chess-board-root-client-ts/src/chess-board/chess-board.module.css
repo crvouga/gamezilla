@@ -320,6 +320,26 @@
   height: 44px;
 }
 
+/* A vertically scrolling board has less space for its picker in landscape.
+   Two files of named choices leave every promotion and Cancel in reach. */
+@media (max-height: 560px) and (orientation: landscape) {
+  @container (min-width: 244px) {
+    .promotion {
+      --chess-promotion-width: 100%;
+    }
+    .promotion [data-promotion-panel] > * {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .promotion [data-promotion-panel] h3 {
+      grid-area: 1 / 1;
+    }
+    .promotion [data-promotion-cancel] {
+      grid-area: 1 / 2;
+    }
+  }
+}
+
 /* -- motion policy ------------------------------------------------------- */
 
 /* Low-end devices and reduced motion: no fades. Slides are governed in

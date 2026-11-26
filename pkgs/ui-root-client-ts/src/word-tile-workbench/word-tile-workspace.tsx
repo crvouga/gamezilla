@@ -106,6 +106,7 @@ export function WordTileWorkspace(props: {
     <div
       ref={root}
       class={styles['layout']}
+      data-word-tile-workspace
       data-layout={wide() ? 'wide' : 'stacked'}
       data-finished={String(props.finished === true)}
       data-fill={room() === undefined ? undefined : 'true'}

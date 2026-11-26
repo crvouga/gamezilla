@@ -397,13 +397,16 @@ describe('the moves are a place of their own', () => {
         },
       },
     });
-    expect(screen.getByTestId('multiplayer-reviewing').textContent).toContain(
-      'You are reviewing an earlier position, after 1. e4.'
+    const stageStatus = within(
+      screen.getByRole('region', { name: 'Game status' })
     );
+    expect(
+      stageStatus.getByTestId('multiplayer-reviewing').textContent
+    ).toContain('You are reviewing an earlier position, after 1. e4.');
     expect(
       screen.getByTestId('multiplayer-move-1').getAttribute('aria-current')
     ).toBe('step');
-    screen.getByTestId('multiplayer-return-to-current').click();
+    stageStatus.getByTestId('multiplayer-return-to-current').click();
     expect(view.props().commands.returnToCurrent).toHaveBeenCalledTimes(1);
     screen.getByTestId('multiplayer-review-back').click();
     expect(view.props().commands.stepBack).toHaveBeenCalledTimes(1);

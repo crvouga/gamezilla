@@ -77,10 +77,15 @@
   min-width: 0;
 }
 .status {
-  justify-content: center;
-  gap: var(--ui-space-2);
   height: 44px;
-  overflow: auto;
+  align-items: stretch;
+}
+.statusLine {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: safe center;
+  gap: var(--ui-space-2);
   text-align: center;
 }
 .strip:empty {
@@ -161,6 +166,42 @@
     height: 36px;
   }
   .commands {
+    height: calc(52px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* The tile rack and its actions share the board room. On a short phone or
+   wide table, each pair of information bands can occupy a single row. */
+@media (max-height: 760px), (min-width: 768px) {
+  .stage:has([data-word-tile-workspace])
+    :is([data-game-players], .information) {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+  .stage:has([data-word-tile-workspace])
+    :is([data-game-players], .information)
+    > * {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+}
+@media (max-width: 359px) {
+  .stage
+    [data-board-workspace]:has([data-word-tile-workspace])
+    [data-game-board-content] {
+    --game-board-workspace-inset: var(--ui-space-1);
+  }
+}
+
+/* Six complete tile rows, the view tools and rack fit a 320 × 740 phone
+   with the compact heading and command heights used on short screens. */
+@media (max-width: 359px) and (max-height: 760px) {
+  [data-game-column]:has(> .fixed [data-word-tile-workspace])
+    > [data-game-heading] {
+    height: 28px;
+  }
+  .fixed:has([data-word-tile-workspace]) .commands {
     height: calc(52px + env(safe-area-inset-bottom, 0px));
   }
 }

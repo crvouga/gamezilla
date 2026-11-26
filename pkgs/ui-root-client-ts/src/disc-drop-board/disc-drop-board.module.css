@@ -40,12 +40,16 @@
   --ui-color-on-info: var(--ui-color-game-connect-four-canvas);
   --color-on-info: var(--ui-color-on-info);
 }
+/* Measure the stage's content at the same maximum width as the rack. A
+   wider wrapper would stay the same height through the stage's first fit. */
+.board,
+[data-game-fixed="true"] [data-game-board-content]:has(.board) {
+  width: min(100%, 38rem);
+}
 .board {
   position: relative;
   display: grid;
   grid-template-columns: repeat(var(--disc-columns), minmax(0, 1fr));
-  width: 100%;
-  max-width: 38rem;
   margin-inline: auto;
   gap: var(--ui-space-hairline);
   padding: var(--ui-space-2);

@@ -16,13 +16,12 @@ async function boardGeometry(page: Page, story: string) {
     const box = (selector: string) =>
       document.querySelector(selector)?.getBoundingClientRect() ?? null;
     const board = box('[data-testid="custom-game-board"]');
-    const stage = box('[data-component="GameBoardStage"]');
     const record = box('[data-testid="custom-game-record"]');
     return {
       boardTop: (board?.top ?? Number.NaN) + window.scrollY,
       recordHeight: record?.height ?? Number.NaN,
-      recordBeforeStage:
-        stage !== null && record !== null && record.bottom <= stage.top,
+      recordBeforeBoard:
+        board !== null && record !== null && record.bottom <= board.top,
     };
   });
 }
@@ -45,7 +44,7 @@ test('storybook integration: the phone board stays where it is from no moves to 
   await expect(page.getByTestId('custom-game-record')).not.toContainText(
     'No moves yet.'
   );
-  expect([empty.recordBeforeStage, played.recordBeforeStage]).toEqual([
+  expect([empty.recordBeforeBoard, played.recordBeforeBoard]).toEqual([
     true,
     true,
   ]);

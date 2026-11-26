@@ -25,18 +25,6 @@ async function box(locator: Locator) {
   return value;
 }
 
-type Box = Awaited<ReturnType<typeof box>>;
-
-/** Whether two boxes share no area: a command above, beside or under the board, never on it. */
-function apart(a: Box, b: Box): boolean {
-  return (
-    a.x + a.width <= b.x ||
-    b.x + b.width <= a.x ||
-    a.y + a.height <= b.y ||
-    b.y + b.height <= a.y
-  );
-}
-
 /** The control is what a tap or click at its centre reaches: nothing lies over it. */
 async function expectOnTop(control: Locator) {
   expect(
@@ -110,7 +98,9 @@ for (const screen of [
         expect(await box(board)).toEqual(before);
         for (const action of await actions.all()) {
           await expect(action).toBeInViewport({ ratio: 1 });
-          expect(apart(await box(action), before)).toBe(true);
+          expect((await box(action)).y).toBeGreaterThanOrEqual(
+            before.y + before.height
+          );
           await expectOnTop(action);
         }
       });
@@ -269,6 +259,7 @@ test('storybook integration: literal cancelled board offers no drop instruction'
 });
 
 // regression: shared-drawn-geometry-winning-position
+// regression: wide-connect-four-result-overlaps-commands
 test('storybook integration: literal drawn geometry has no winning line', async ({
   page,
 }) => {
@@ -286,6 +277,10 @@ test('storybook integration: literal drawn geometry has no winning line', async 
   const board = page.getByTestId('custom-game-board');
   await expect(board).toHaveAttribute('data-won', 'false');
   await expect(board.locator('[data-winning="true"]')).toHaveCount(0);
+  await page.getByTestId('game-result-close').click();
+  const final = await box(board);
+  const rematch = await box(page.getByTestId('custom-game-rematch'));
+  expect(rematch.y).toBeGreaterThanOrEqual(final.y + final.height);
 });
 
 /** The board's width in `story` at 1440 × 844. */
@@ -342,8 +337,10 @@ for (const sample of [
       const board = page.getByTestId('custom-game-board');
       for (const action of await actions.all()) {
         await expect(action).toBeInViewport({ ratio: 1 });
-        // Beside the wide board, in the game's command bar: never on it.
-        expect(apart(await box(action), await box(board))).toBe(true);
+        const final = await box(board);
+        expect((await box(action)).y).toBeGreaterThanOrEqual(
+          final.y + final.height
+        );
       }
       await expect(board.locator('[data-winning="true"]')).toHaveCount(
         story.endsWith('--drawn') ? 0 : 4

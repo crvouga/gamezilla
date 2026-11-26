@@ -1,0 +1,4 @@
+{
+  "summary": "The first matched turn in the ready-game story omitted the status and history supplied to its board.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/ready-game/integration.checks.ts"
+}

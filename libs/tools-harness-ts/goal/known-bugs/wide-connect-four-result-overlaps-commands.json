@@ -1,0 +1,4 @@
+{
+  "summary": "At 1440 × 844 the Connect Four rack reached its maximum width before its enclosing stage did. The final rows extended into the space reserved for the result's bottom commands.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/completion/integration.checks.ts"
+}
