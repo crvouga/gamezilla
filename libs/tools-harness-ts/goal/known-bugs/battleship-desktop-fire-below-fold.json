@@ -1,0 +1,4 @@
+{
+  "summary": "With moves on the record, Fire extended below the first view of a 1440×844 Battleship table. The target grid, Fire and Cancel must remain fully visible above the game commands while aiming.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/input/desktop/integration.checks.ts"
+}

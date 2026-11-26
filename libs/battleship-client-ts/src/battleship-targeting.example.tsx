@@ -117,6 +117,8 @@ export async function assertTargetViewport(
     await expect(bounds.left).toBeGreaterThanOrEqual(0);
     await expect(bounds.top).toBeGreaterThanOrEqual(0);
     await expect(bounds.right).toBeLessThanOrEqual(viewport.innerWidth);
-    await expect(bounds.bottom).toBeLessThanOrEqual(viewport.innerHeight);
+    await expect(bounds.bottom, element.dataset['testid']).toBeLessThanOrEqual(
+      viewport.innerHeight
+    );
   }
 }
