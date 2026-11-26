@@ -26,6 +26,6 @@ IMG_0657. After dismissal the final position is visible with a winner marker and
 
 ## Applying the comparison
 
-The board gives the player a fixed point of reference. The prompt, move record and available commands change as the task changes. In Gamezilla the top bar belongs to the space. Game status belongs above the centered playing surface, board tools below it, and session commands in a bottom bar. A result can open over the last position and be dismissed to inspect it.
+The board gives the player a fixed point of reference. The prompt, move record and available commands change as the task changes. The top bar belongs to the space. Game status belongs above the centered playing surface, board tools below it, and session commands in a bottom bar. A result can open over the last position and be dismissed to inspect it.
 
 The captures show portrait chess only. How much room do a four-player table, a tile rack and a landscape arena need for their controls? The [stage geometry checks](../../../../pkgs/ui-root-harness-ts/tests/storybook/stable-game-stage/integration.checks.ts) exercise those layouts.
