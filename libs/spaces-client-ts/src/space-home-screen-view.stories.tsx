@@ -67,11 +67,11 @@ export const OpenPeople: Story = {
   },
 };
 
-/** J5: Share is the top bar's second button, at every width. */
-export const OpenShare: Story = {
+/** The host opens the space settings from the bar. */
+export const OpenSettings: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId(Handles.spaceShare));
-    await expect(STORY_SPACE_CHROME.onInvite).toHaveBeenCalled();
+    await userEvent.click(await canvas.findByTestId(Handles.spaceSettings));
+    await expect(STORY_SPACE_CHROME.onSettings).toHaveBeenCalled();
   },
 };

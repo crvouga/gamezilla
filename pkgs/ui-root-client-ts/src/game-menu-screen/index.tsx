@@ -17,7 +17,6 @@ import type { MainMenuItem } from '../main-menu-item-row/index';
 import { MainMenuScreen } from '../main-menu-screen/index';
 import { useConfirmNavigation } from '../pending-navigation';
 import { createScreenSlot } from '../screen-slot';
-import { type Segment, SegmentedControl } from '../segmented-control/index';
 import { useLayoutMode } from '../use-layout-mode';
 import styles from './game-menu-screen.module.css';
 
@@ -67,40 +66,8 @@ export type GameMenuScreenProps = {
   /** One line under the name: what the game is. */
   subtitle?: JSX.Element | undefined;
   choices: readonly GameMenuChoice[];
-  /** For a game with several modes: which one is set up, and switching it. */
-  modes?: GameMenuModes | undefined;
   dataSet?: ComponentDataSet | undefined;
 };
-
-/** A game's modes, one chosen, above its choices. */
-export type GameMenuModes = {
-  /** Accessible name for the mode choice. */
-  label: string;
-  segments: readonly Segment[];
-  selected: string;
-  /** Unset where this person cannot switch the mode: it only shows. */
-  onSelect?: ((key: string) => void) | undefined;
-  /** The group's `data-testid`; each mode is `<testId>-<key>`. */
-  testId?: string | undefined;
-};
-
-/** The game's modes as one segmented choice, shown under its name. */
-function ModeChoice(props: { modes: GameMenuModes }): JSX.Element {
-  return (
-    <SegmentedControl
-      aria-label={props.modes.label}
-      segments={props.modes.segments}
-      selected={props.modes.selected}
-      onSelect={(key) => props.modes.onSelect?.(key)}
-      disabled={props.modes.onSelect === undefined}
-      dataSet={
-        props.modes.testId === undefined
-          ? undefined
-          : { testid: props.modes.testId }
-      }
-    />
-  );
-}
 
 /**
  * A choice as a tile, read in one line across: its picture, its name and
@@ -206,9 +173,6 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
           </Show>
         </div>
       </header>
-      <Show when={props.modes}>
-        {(modes) => <ModeChoice modes={modes()} />}
-      </Show>
       <div
         class={styles['grid']}
         style={{ '--game-menu-columns': String(columns()) }}
@@ -259,8 +223,7 @@ function WideGameMenu(props: GameMenuScreenProps): JSX.Element {
  * is a `MainMenuScreen`: the name beside the tile, then one panel of rows,
  * each led by the same picture. Every way to play weighs the same: the
  * menu never recommends one; the quiet ones (`'quiet'`) have secondary
- * pictures. A game with several modes (`modes`) shows which one is set up
- * as a segmented choice between its name and its choices.
+ * pictures.
  * Presentational; the caller opens what each choice names.
  *
  * @example
@@ -301,11 +264,6 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
             </GameTitleLockup>
           }
           subtitle={props.subtitle}
-          helper={
-            props.modes === undefined ? undefined : (
-              <ModeChoice modes={props.modes} />
-            )
-          }
           items={rows()}
         />
       }

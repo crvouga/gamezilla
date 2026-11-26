@@ -14,8 +14,7 @@ import {
   CircleStopIcon,
   LogOutIcon,
   Minimize2Icon,
-  ShareIcon,
-  SquarePenIcon,
+  SettingsIcon,
   UsersIcon,
 } from '../icons';
 import { spaceDataSet } from '../space-data-set';
@@ -35,8 +34,7 @@ export type SpaceShellTestIds = {
   title?: string | undefined;
   name?: string | undefined;
   people?: string | undefined;
-  share?: string | undefined;
-  rename?: string | undefined;
+  settings?: string | undefined;
   leave?: string | undefined;
   end?: string | undefined;
   minimize?: string | undefined;
@@ -58,8 +56,7 @@ export type SpaceShellChrome = {
    */
   backLabel?: string | undefined;
   onMembers: () => void;
-  onInvite?: (() => void) | undefined;
-  onRename?: (() => void) | undefined;
+  onSettings?: (() => void) | undefined;
   onLeave?: (() => void) | undefined;
   onEnd?: (() => void) | undefined;
   onMinimize: () => void;
@@ -169,18 +166,12 @@ function SpaceTools(props: SpaceShellProps): JSX.Element {
         testId={props.testIds?.people}
       />
       <BarButton
-        action="share"
-        label={t`Share`}
-        icon={ShareIcon}
-        onPress={props.onInvite}
-        testId={props.testIds?.share}
-      />
-      <BarButton
-        action="rename"
-        label={t`Rename`}
-        icon={SquarePenIcon}
-        onPress={props.onRename}
-        testId={props.testIds?.rename}
+        action="settings"
+        label={t`Space settings`}
+        shortLabel={t`Settings`}
+        icon={SettingsIcon}
+        onPress={props.onSettings}
+        testId={props.testIds?.settings}
       />
       <BarButton
         action="leave"
@@ -188,7 +179,7 @@ function SpaceTools(props: SpaceShellProps): JSX.Element {
         shortLabel={t`Leave`}
         icon={LogOutIcon}
         destructive
-        onPress={props.onLeave}
+        onPress={props.onEnd ? undefined : props.onLeave}
         testId={props.testIds?.leave}
       />
       <BarButton

@@ -2,7 +2,7 @@ import { serializeDefaultAvatarConfig } from '@libs/profile-shared-ts/avatar-con
 import { resolveParticipantColor } from '@pkgs/collab-root-shared-ts/participant-color';
 import type { SpaceCardData } from './space-card-view';
 import type { SpaceHomeGame } from './space-home-screen-view';
-import type { SpaceMemberRow } from './space-members-sheet-view';
+import type { SpaceMemberRow } from './space-member-roster-view';
 import type { SpacePerson } from './space-person-view';
 import type { SpacePresenceFace } from './space-presence-strip-view';
 

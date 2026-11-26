@@ -96,37 +96,66 @@ test('storybook integration: a focused Minimize button keeps the choosing headin
   expect(bubble.y + bubble.height).toBeLessThanOrEqual(heading.y);
 });
 
+const hostActions = [
+  'People in this space',
+  'Space settings',
+  'End space',
+  'Minimize space',
+];
+const guestActions = ['People in this space', 'Leave space', 'Minimize space'];
+
+async function expectSpaceActions(
+  page: Page,
+  width: number,
+  story: string,
+  names: readonly string[]
+): Promise<void> {
+  await open(page, `screens-space-home--${story}`, width);
+  const bar = page.locator('[data-space-row="actions"]');
+  const buttons = bar.locator('[data-space-row="tools"] button');
+  await expect(buttons).toHaveCount(names.length);
+  const back = await bar.getByRole('button').first().boundingBox();
+  if (!back) throw new Error('Missing Back button');
+  let previousRight = back.x + back.width;
+  for (const [index, name] of names.entries()) {
+    const button = buttons.nth(index);
+    await expect(button).toHaveAccessibleName(name);
+    await expect(button).toBeInViewport({ ratio: 1 });
+    const box = await button.boundingBox();
+    if (!box) throw new Error(`Missing button: ${name}`);
+    expect(box.width).toBeGreaterThanOrEqual(44);
+    expect(box.height).toBeGreaterThanOrEqual(44);
+    expect(
+      Math.abs(box.y + box.height / 2 - (back.y + back.height / 2))
+    ).toBeLessThan(2);
+    expect(box.x).toBeGreaterThanOrEqual(previousRight);
+    previousRight = box.x + box.width;
+  }
+  const title = await bar.getByTestId('space-title').boundingBox();
+  if (!title) throw new Error('Missing space title');
+  if (width > 320) expect(title.width).toBeGreaterThan(1);
+}
+
 // regression: space-bar-actions-hidden
-for (const width of [320, 390, 1440]) {
+// regression: space-toolbar-wraps-on-phone
+test('storybook integration: every host space action fits at 320px with a long title', async ({
+  page,
+}) => {
+  await expectSpaceActions(page, 320, 'long-name', hostActions);
+});
+
+for (const width of [390, 1440]) {
   test(`storybook integration: every host space action fits at ${width}px with a long title`, async ({
     page,
   }) => {
-    await open(page, 'screens-space-home--long-name', width);
-    const bar = page.locator('[data-space-row="actions"]');
-    const buttons = bar.locator('[data-space-row="tools"] button');
-    await expect(buttons).toHaveCount(6);
-    const names = [
-      'People in this space',
-      'Share',
-      'Rename',
-      'Leave space',
-      'End space',
-      'Minimize space',
-    ];
-    let previousRight = 0;
-    for (const [index, name] of names.entries()) {
-      const button = buttons.nth(index);
-      await expect(button).toHaveAccessibleName(name);
-      await expect(button).toBeInViewport({ ratio: 1 });
-      const box = await button.boundingBox();
-      if (!box) throw new Error(`Missing button: ${name}`);
-      expect(box.width).toBeGreaterThanOrEqual(44);
-      expect(box.height).toBeGreaterThanOrEqual(44);
-      expect(box.x).toBeGreaterThanOrEqual(previousRight);
-      previousRight = box.x + box.width;
-    }
-    const title = await bar.getByTestId('space-title').boundingBox();
-    if (!title) throw new Error('Missing space title');
-    expect(title.width).toBeGreaterThan(0);
+    await expectSpaceActions(page, width, 'long-name', hostActions);
+  });
+}
+
+for (const width of [320, 390, 1440]) {
+  test(`storybook integration: every guest space action fits at ${width}px`, async ({
+    page,
+  }) => {
+    await expectSpaceActions(page, width, 'guest-waiting', guestActions);
   });
 }

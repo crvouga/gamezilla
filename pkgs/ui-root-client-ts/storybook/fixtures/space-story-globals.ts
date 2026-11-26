@@ -82,10 +82,7 @@ export async function expectSpaceBarActions(
   const bar = within(within(canvasElement).getByRole('banner'));
   const names = [
     'People in this space',
-    'Share',
-    ...(role === 'host' ? ['Rename'] : []),
-    'Leave space',
-    ...(role === 'host' ? ['End space'] : []),
+    ...(role === 'host' ? ['Space settings', 'End space'] : ['Leave space']),
     'Minimize space',
   ];
   for (const name of names)

@@ -1,3 +1,4 @@
+import { useClientConfig } from '@libs/app-config-client-ts/use-client-config';
 import { useMyId } from '@libs/auth-client-ts/use-current-user';
 import type { AccessScope } from '@libs/permissions-shared-ts/access-scope';
 import { resolveResourceRoles } from '@libs/permissions-shared-ts/resource-roles';
@@ -14,13 +15,18 @@ export type AccessScopeAccessor = Accessor<AccessScope | undefined>;
  * The caller's subject: roles the live policy's predicates pick from facts,
  * plus whatever resource-scoped roles `scope` adds.
  */
-export function usePermissionSubject(
-  scope?: AccessScopeAccessor
-): Accessor<Subject> {
-  const policy = usePermissionPolicy();
-  const facts = useAccessFacts();
+export function usePermissionInputs(scope?: AccessScopeAccessor) {
+  const config = useClientConfig();
+  const policy = usePermissionPolicy(config);
+  const facts = useAccessFacts(config);
   const myId = useMyId();
-  return createMemo(() =>
-    resolveSubject(policy(), facts(), resolveResourceRoles(myId(), scope?.()))
+  const subject = createMemo(
+    (): Subject =>
+      resolveSubject(
+        policy(),
+        facts.value(),
+        resolveResourceRoles(myId(), scope?.())
+      )
   );
+  return { policy, subject, isLoading: facts.isLoading };
 }

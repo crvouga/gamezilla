@@ -5,7 +5,7 @@ import {
   check,
   expectVisible,
   JOURNEY_WAIT_MS,
-  pickGameInSpace,
+  openGameSetupInSpace,
   tap,
 } from './journey-gestures';
 import { hostDeferringEnd } from './journey-space';
@@ -19,8 +19,7 @@ Given(
     await w.journey.open('anonymous');
     await hostDeferringEnd(w);
     await w.journey.act('setUpQuoridor', async (ui) => {
-      await pickGameInSpace(ui, 'quoridor');
-      await tap(ui, Handles.gameChoice('custom-game'));
+      await openGameSetupInSpace(ui, 'quoridor', 'custom-game');
       await tap(ui, 'custom-game-create');
       await expectVisible(ui, 'custom-game-setup-seats');
     });
@@ -31,8 +30,7 @@ When('they choose Pong and reopen their space', async (w) => {
   const link = await w.journey.spaceLink();
   await w.journey.act('openPongSetup', async (ui) => {
     await pressBackUntilVisible(ui, Handles.gameMenu('pong'), JOURNEY_WAIT_MS);
-    await pickGameInSpace(ui, 'pong');
-    await tap(ui, Handles.gameChoice('custom-game'));
+    await openGameSetupInSpace(ui, 'pong', 'custom-game');
     await expectVisible(ui, 'custom-game-content');
   });
   await w.journey.reopen();

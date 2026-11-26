@@ -106,7 +106,9 @@ export function createGamesCommandRouter(
   games: readonly GameDefinition[],
   modules: readonly GameDefinition[] = games
 ) {
-  const allowedIds = new Set(games.map((g) => g.id));
+  const families = new Map(
+    games.map((g) => [g.id, g.registration?.rules.family ?? g.id])
+  );
   return createMessageRouter<RoomState, GameCommandContext, HandleResult>(
     gamesCmdNs
   )
@@ -117,16 +119,27 @@ export function createGamesCommandRouter(
         game !== GamesRoomAttr.selected.from(state)
       )
         return refuseHeld();
-      if (game !== null && !allowedIds.has(game)) {
+      if (game !== null && !families.has(game)) {
         return {
           ok: true,
           events: [GameSelected({ game: null })],
         };
       }
-      return {
-        ok: true,
-        events: [GameSelected({ game })],
-      };
+      const previous = GamesRoomAttr.selected.from(state);
+      const sameFamily =
+        previous !== null &&
+        game !== null &&
+        previous !== game &&
+        families.get(game) === families.get(previous);
+      const selected = GameSelected({ game });
+      // Publish both changes in one room command so all devices stay in setup.
+      const events = sameFamily
+        ? [
+            selected,
+            GameScreenShown({ screen: GamesRoomAttr.screen.from(state) }),
+          ]
+        : [selected];
+      return { ok: true, events };
     })
     .on(ShowGameScreen, (state, _identity, cmd) => {
       const held = heldGameScreen(modules, state);

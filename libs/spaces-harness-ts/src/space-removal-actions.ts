@@ -6,8 +6,12 @@ export const openSpaceShare = scenarioAction({
   name: 'openSpaceShare',
   act: async (s, actor: string) => {
     const ui = await actorUi(s, actor);
-    if (!(await ui.get(Handles.spaceShareClose).isVisible()))
-      await tapSpaceAction(s, actor, Handles.spaceShare);
+    if (await ui.get(Handles.spaceShareClose).isVisible()) return;
+    if (!(await ui.get(Handles.spaceMembersClose).isVisible()))
+      await tapSpaceAction(s, actor, Handles.spaceMembersButton);
+    await ui
+      .get(`${Handles.spaceManagementTabs}-sharing`)
+      .tap({ timeoutMs: SPACE_WAIT_MS });
   },
 });
 

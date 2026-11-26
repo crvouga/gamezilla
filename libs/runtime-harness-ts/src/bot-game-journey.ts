@@ -1,11 +1,10 @@
-import { Handles } from '@libs/test-ids-shared-ts/handles';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import {
   check,
   endActiveSpace,
   hostSpace,
   JOURNEY_WAIT_MS,
-  pickGameInSpace,
+  openGameSetupInSpace,
   tap,
 } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
@@ -23,7 +22,7 @@ const CHOICES: Readonly<Record<string, BotGame>> = {
   'Classic Quoridor': {
     id: 'quoridor',
     seats: 2,
-    readyControl: 'custom-game-board-mode-move',
+    readyControl: 'custom-game-board-action-e2',
   },
   Hearts: { id: 'hearts', seats: 4, readyControl: 'custom-game-board-pass' },
   'Word Tiles': {
@@ -78,8 +77,7 @@ export async function startBotGameJourney(
   host.defer('bot-game-space', endActiveSpace);
   await host.act('hostBotGameSpace', hostSpace);
   await host.act('startChosenBotGame', async (ui) => {
-    await pickGameInSpace(ui, game.id, game.family);
-    await tap(ui, Handles.gameChoice('custom-game'));
+    await openGameSetupInSpace(ui, game.id, 'custom-game', game.family);
     await ui.get('custom-game-connection-needed').expect.hidden({
       timeoutMs: JOURNEY_WAIT_MS,
     });

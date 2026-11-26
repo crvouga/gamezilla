@@ -10,9 +10,9 @@ import { DiscDropBoardExample } from '../../storybook/fixtures/disc-drop-board-e
 import { ExampleRoot } from '../../storybook/fixtures/example-root';
 
 export type GameStageOverlayExampleProps = {
-  tone: GameResultOverlayProps['tone'];
-  onDismiss: () => void;
-  onRematch: () => void;
+  tone?: GameResultOverlayProps['tone'];
+  onDismiss?: () => void;
+  onRematch?: () => void;
 };
 
 const WORDS = {
@@ -31,22 +31,21 @@ const WORDS = {
 } as const;
 
 function Result(props: GameStageOverlayExampleProps): JSX.Element {
+  const tone = () => props.tone ?? 'won';
   return (
     <GameResultOverlay
-      tone={props.tone}
-      eyebrow={WORDS[props.tone].eyebrow}
-      title={WORDS[props.tone].title}
-      caption={WORDS[props.tone].caption}
+      tone={tone()}
+      {...WORDS[tone()]}
       live
       dismissLabel="Show the board"
-      onDismiss={props.onDismiss}
+      onDismiss={() => props.onDismiss?.()}
       dataSet={{ testid: 'example-result' }}
       actions={
         <Button
           title="Rematch"
           variant="solid"
           size="sm"
-          onClick={() => props.onRematch()}
+          onClick={() => props.onRematch?.()}
         />
       }
     />

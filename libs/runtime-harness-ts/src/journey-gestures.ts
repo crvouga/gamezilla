@@ -55,23 +55,23 @@ export async function tap(ui: Driver, testId: string): Promise<void> {
 const MODE_READS = 50;
 
 /**
- * Pick `gameId` in the space: its game's one tile (`family`, which opens
- * the mode of the same id), then, for another mode, that mode among the
- * game's choices. Choosing applies at once on this device.
+ * Open the game’s setup from its family tile and select the requested mode.
  */
-export async function pickGameInSpace(
+export async function openGameSetupInSpace(
   ui: Driver,
   gameId: string,
+  destination: 'custom-game' | 'multiplayer',
   family: string = gameId
 ): Promise<void> {
   await tap(ui, Handles.gameMenu(family));
   await expectVisible(ui, Handles.gameChoices);
+  await tap(ui, Handles.gameChoice(destination));
   if (gameId === family) return;
   const mode = ui.get(Handles.gameMode(gameId));
   await mode.tap({ timeoutMs: JOURNEY_WAIT_MS });
   for (let read = 0; read < MODE_READS; read += 1) {
     if ((await mode.attribute('aria-checked')) === 'true') return;
-    await expectVisible(ui, Handles.gameChoices);
+    await mode.expect.visible({ timeoutMs: JOURNEY_WAIT_MS });
   }
   throw new Error(`${gameId} is not set up after choosing it`);
 }
