@@ -218,7 +218,9 @@ function CustomGameFrame(props: FrameProps): JSX.Element {
         onChoose={model.choose}
         onReady={model.ready}
         onPlayBot={model.playBot}
-        onRandomSetup={async () => model.privateSetup.random()}
+        onRandomSetup={async () => {
+          model.privateSetup.random();
+        }}
         onBack={model.back}
         onSeek={review.seek}
         onReturnLive={review.returnLive}
