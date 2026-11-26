@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'bun:test';
 import { join } from 'node:path';
-import { buildHistory } from './ci-stats-build';
+import { buildHistory, productionDelivery } from './ci-stats-build';
 import {
   concurrencyStats,
   demandEdges,
@@ -401,5 +401,41 @@ describe('render', () => {
       }),
     });
     expect(skipped).toContain('3 runs were left out');
+  });
+});
+
+test('a deployed change remains in delivery metrics when the final release verdict fails', () => {
+  const push = run({
+    workflow: 'Release',
+    event: 'push',
+    conclusion: 'failure',
+  });
+  const deployed = job({
+    name: 'Release production',
+    completedAt: '2026-10-01T00:01:30Z',
+  });
+  const delivery = productionDelivery(
+    [
+      push,
+      { ...push, id: 2 },
+      { ...push, id: 3 },
+      { ...push, id: 4, event: 'workflow_dispatch' },
+      { ...push, id: 5, conclusion: 'cancelled' },
+      { ...push, id: 6, headBranch: 'feature' },
+    ],
+    [
+      deployed,
+      { ...deployed, runId: 2, conclusion: 'skipped' },
+      { ...deployed, runId: 3, conclusion: 'failure' },
+      { ...deployed, runId: 4 },
+    ]
+  );
+  expect(delivery).toMatchObject({
+    mainPushes: 4,
+    deployed: 1,
+    deployedWithRedVerdict: 1,
+    blockedBeforeProduction: 1,
+    productionFailed: 1,
+    pushToProductionSeconds: { count: 1, p95: 90 },
   });
 });

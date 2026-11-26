@@ -36,6 +36,7 @@ export type HistoryStats = {
   readonly days: number;
   readonly runs: number;
   readonly jobs: number;
+  readonly production: ReturnType<typeof productionDelivery>;
   readonly prValidationSeconds: Distribution;
   readonly prJobQueueSeconds: Distribution;
   readonly placement: readonly Placement[];
@@ -59,6 +60,59 @@ export type Window = { readonly from: string; readonly to: string };
 const SECONDS_PER_DAY = 86_400;
 const MIN_WINDOW_SECONDS = 3600;
 const STEP_FAMILIES = ['verify:start', SHARD_FAMILY, 'verify:end'];
+
+/** Production can ship even when a later release-reporting job fails. */
+export function productionDelivery(
+  runs: readonly RunRecord[],
+  jobs: readonly JobRecord[]
+) {
+  const pushes = runs.filter(
+    (run) =>
+      run.workflow === 'Release' &&
+      run.event === 'push' &&
+      run.headBranch === 'main'
+  );
+  const productionJobs = new Map(
+    jobs
+      .filter(
+        (job) =>
+          job.name === 'Release production' || job.name === 'Deploy production'
+      )
+      .map((job) => [job.runId, job])
+  );
+  const seconds: number[] = [];
+  let deployed = 0;
+  let deployedWithRedVerdict = 0;
+  let productionFailed = 0;
+  let blockedBeforeProduction = 0;
+  for (const run of pushes) {
+    const job = productionJobs.get(run.id);
+    if (job?.conclusion === 'success') {
+      deployed++;
+      if (run.conclusion === 'failure') deployedWithRedVerdict++;
+      const elapsed = secondsBetween(run.createdAt, job.completedAt);
+      if (elapsed !== undefined) seconds.push(elapsed);
+    } else if (
+      job?.conclusion === 'failure' ||
+      job?.conclusion === 'timed_out'
+    ) {
+      productionFailed++;
+    } else if (
+      run.conclusion === 'failure' &&
+      (!job || job.conclusion === 'skipped')
+    ) {
+      blockedBeforeProduction++;
+    }
+  }
+  return {
+    mainPushes: pushes.length,
+    deployed,
+    deployedWithRedVerdict,
+    productionFailed,
+    blockedBeforeProduction,
+    pushToProductionSeconds: distribution(seconds),
+  };
+}
 
 /**
  * Per-run and per-job measures read every job that ran, self-hosted or
@@ -89,6 +143,7 @@ export function buildHistory(
     days: round(days),
     runs: runs.length,
     jobs: jobs.length,
+    production: productionDelivery(runs, jobs),
     prValidationSeconds: distribution(
       prJobs
         .filter(

@@ -124,7 +124,7 @@ function goalsSection(input: StatsInput): string {
     `- Hardware already owned: ${input.have ?? UNSET}`,
     `- This repo's own promises: a pull request's verdict in under ${duration(PR_VERIFY_SECONDS)}, every graph leaf under ${duration(LEAF_VERIFY_SECONDS)}, nine in ten leaves under ${duration(NARROW_VERIFY_SECONDS)}, on a warm runner (${duration(WARM_START_SECONDS)} warm start).`,
     `- Per-runner assumptions in the repo's own plan: at most ${String(SPEC_WORKER_CAP)} spec workers, about ${String(SPEC_WORKER_GIB)} GB each.`,
-    '- Every job runs on `runs-on: ubuntu-latest`, a GitHub-hosted runner whose minutes are free for a public repository. Earlier history in the window may still show self-hosted runners.',
+    '- Every job runs on `runs-on: ubuntu-24.04`, a GitHub-hosted runner whose minutes are free for a public repository. Earlier history in the window may still show self-hosted runners.',
   ].join('\n');
 }
 
@@ -242,6 +242,17 @@ function skippedNote(skippedRuns: number): string[] {
   ];
 }
 
+function deliverySummary(production: HistoryStats['production']): string[] {
+  return [
+    '### Production delivery',
+    '',
+    `Of ${String(production.mainPushes)} completed Release runs triggered by pushes to main, ${String(production.deployed)} deployed to production. ${String(production.deployedWithRedVerdict)} of those ended with a failed workflow verdict. ${String(production.blockedBeforeProduction)} failed before production and ${String(production.productionFailed)} failed in the production job.`,
+    '',
+    `Push to successful production job completion, p95: ${production.pushToProductionSeconds.count ? duration(production.pushToProductionSeconds.p95) : 'n/a'} (${String(production.pushToProductionSeconds.count)} timed deployments).`,
+    '',
+  ];
+}
+
 function observedHistory(history: HistoryStats, skippedRuns: number): string {
   return [
     '## Observed history (GitHub Actions)',
@@ -258,7 +269,7 @@ function observedHistory(history: HistoryStats, skippedRuns: number): string {
           history.prValidationSeconds.count
             ? duration(history.prValidationSeconds.p95)
             : 'n/a',
-          '90s',
+          '60s',
         ],
         [
           'Job queue wait',
@@ -271,7 +282,8 @@ function observedHistory(history: HistoryStats, skippedRuns: number): string {
       ]
     ),
     '',
-    'Per-run and per-job tables count every job that ran on a runner, and name the runner kind where hardware matters. **Self-hosted** is the fleet being replaced or grown; **GitHub-hosted** is a 2-core VM the workflows used before (and sometimes beside) it, so its durations differ from any self-hosted hardware, and account quotas can queue jobs across workflows. A run no runner took never executed and is left out of its per-run measures. Job durations are for jobs that succeeded: a failed job may have stopped early or hit a timeout.',
+    ...deliverySummary(history.production),
+    'Per-run measures include jobs allocated a runner. Successful job durations exclude failures and cancellations. Hosted and self-hosted usage are reported separately.',
     '',
     '### Where jobs ran',
     '',
