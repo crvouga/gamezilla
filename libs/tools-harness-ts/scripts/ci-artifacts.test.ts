@@ -173,7 +173,9 @@ test('every artifact step is a pinned node24 action that replaces its name, keep
         'retention-days': transfer ? 1 : 3,
         overwrite: true,
         'include-hidden-files': true,
-        'if-no-files-found': 'ignore',
+        // regression: throughput-diagnostic-artifact-contract
+        'if-no-files-found':
+          name === 'pr-load-${{ matrix.revision }}' ? 'error' : 'ignore',
       },
     });
     // Diagnostic uploads never fail the verification they describe.
