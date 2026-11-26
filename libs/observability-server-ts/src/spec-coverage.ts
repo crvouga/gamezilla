@@ -31,6 +31,7 @@ const watched = (...checks: SyntheticCheck[]): ContextCoverage => ({
 
 const GAME_JOURNEYS: readonly SyntheticCheck[] = [
   'journeys.battleship-game',
+  'journeys.chess-puzzle-history',
   'journeys.connect-four-game',
   'journeys.critical-journeys',
   'journeys.custom-game',
@@ -50,11 +51,13 @@ export const SPEC_COVERAGE: Readonly<Record<string, ContextCoverage>> = {
   auth: watched('auth.sign-in', 'journeys.critical-journeys'),
   billing: watched('billing.payments', 'journeys.critical-journeys'),
   chess: watched(
+    'journeys.chess-puzzle-history',
     'journeys.critical-journeys',
     'journeys.multiplayer-game',
     'journeys.custom-game'
   ),
   'chess-board': watched(
+    'journeys.chess-puzzle-history',
     'journeys.critical-journeys',
     'journeys.multiplayer-game',
     'journeys.custom-game'
@@ -84,6 +87,7 @@ export const SPEC_COVERAGE: Readonly<Record<string, ContextCoverage>> = {
     why: 'Signing in, changing an avatar and finding a person are checked live; deleting an account and exporting personal data within their deadlines are not.',
   },
   puzzles: watched(
+    'journeys.chess-puzzle-history',
     'journeys.critical-journeys',
     'journeys.numberlink-packs',
     'journeys.sokoban-packs'

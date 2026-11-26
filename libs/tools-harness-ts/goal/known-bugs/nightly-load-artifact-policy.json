@@ -1,0 +1,4 @@
+{
+  "summary": "Rerunning a workload could not overwrite its measurements and a missing report could mask the workload outcome.",
+  "regressionTest": "libs/tools-harness-ts/scripts/ci-artifacts.test.ts"
+}

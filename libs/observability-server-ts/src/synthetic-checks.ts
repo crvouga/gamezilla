@@ -22,6 +22,7 @@ export const SYNTHETIC_CHECKS = [
   'connect-four.connect-four-health',
   'feedback.receiving-bug-reports',
   'journeys.battleship-game',
+  'journeys.chess-puzzle-history',
   'journeys.connect-four-game',
   'journeys.critical-journeys',
   'journeys.custom-game',

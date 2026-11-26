@@ -1,0 +1,4 @@
+{
+  "summary": "The accessibility scenario expected the two of hearts to omit its visible +1 penalty. It now verifies the penalty mark alongside the face and suit.",
+  "regressionTest": "specs/hearts/hearts-accessibility.feature"
+}

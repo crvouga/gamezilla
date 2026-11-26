@@ -403,6 +403,7 @@ export const INDICATORS: readonly Indicator[] = [
       'battleship.battleship-health',
       'connect-four.connect-four-health',
       'journeys.battleship-game',
+      'journeys.chess-puzzle-history',
       'journeys.connect-four-game',
       'journeys.critical-journeys',
       'journeys.custom-game',

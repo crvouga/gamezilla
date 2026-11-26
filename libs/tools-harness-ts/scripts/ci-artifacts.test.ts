@@ -144,6 +144,7 @@ test('names and runs cannot escape their scope', async () => {
 // regression: github-download-artifact-node20
 // regression: ci-artifact-upload-r2-same-object-throttle
 // regression: nightly-browser-reports-not-uploaded
+// regression: nightly-load-artifact-policy
 test('every artifact step is a pinned node24 action that replaces its name, keeps hidden report paths and expires within days', () => {
   // GitHub artifact storage is free only for a public repository; a private
   // one filled its quota and stopped every Verify run.

@@ -322,7 +322,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: read
-      id-token: write
+      id-token: write # Authenticate to the dev secrets provider for the PR workload.
     timeout-minutes: 40
     strategy:
       fail-fast: false
@@ -360,8 +360,9 @@ jobs:
         with:
           name: pr-load-${{ matrix.revision }}
           path: .cache/pr-load/metrics.json
+          overwrite: true
           include-hidden-files: true
-          if-no-files-found: error
+          if-no-files-found: ignore
           retention-days: 3
 
   # The ending word. Every group ran to its own result; any group that did

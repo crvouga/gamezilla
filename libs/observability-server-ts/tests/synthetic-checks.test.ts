@@ -37,6 +37,7 @@ function liveFeatures(): readonly string[] {
 describe('the check names', () => {
   // regression: game-start-journeys-missing-health-indicators
   // regression: hearts-first-trick-unnamed-health-check
+  // regression: chess-history-unnamed-health-check
   test('name exactly the features a health run runs', () => {
     const named = liveFeatures().map(checkOfFeature);
     expect(named).not.toContain(null);
