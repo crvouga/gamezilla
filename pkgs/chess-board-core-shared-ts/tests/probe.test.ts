@@ -1,4 +1,5 @@
 import { describe, expect, test } from 'bun:test';
+import { squareFromIndex } from '@pkgs/chess-board-core-shared-ts/geometry';
 import type { ChessBoardProbeInteraction } from '@pkgs/chess-board-core-shared-ts/probe';
 import {
   buildChessBoardProbe,
@@ -8,6 +9,7 @@ import {
   DEFAULT_CHESS_BOARD_TEST_ID,
   parseChessBoardPaint,
   parseChessBoardProbe,
+  probeForBoardPosition,
 } from '@pkgs/chess-board-core-shared-ts/probe';
 
 const IDLE: ChessBoardProbeInteraction = {
@@ -30,6 +32,22 @@ describe('probe test ids', () => {
 });
 
 describe('buildChessBoardProbe', () => {
+  test('all 64 cursor updates reuse the observed position and retain the current interaction', () => {
+    // regression: chessboard-nightly-resize-probe-work
+    const observe = probeForBoardPosition({
+      size: 18.895797344418355,
+      orientation: 'black',
+    });
+    const initial = observe(IDLE);
+    for (let index = 0; index < 64; index++) {
+      const cursor = squareFromIndex(index);
+      const next = observe({ ...IDLE, cursor });
+      expect(next.cursor).toBe(cursor);
+      expect(next.pieces).toBe(initial.pieces);
+      expect(next.fen).toBe(initial.fen);
+    }
+  });
+
   test('start position: 32 pieces with pixel centers for the orientation', () => {
     const probe = buildChessBoardProbe({
       size: 320,

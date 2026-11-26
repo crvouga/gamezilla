@@ -11,8 +11,11 @@ beforeAll(async () => {
 afterAll(() => browser.close());
 
 type InputTiming = {
+  readonly width: number;
+  readonly orientation: string;
   readonly scripting: number;
   readonly painted: number;
+  readonly approachedTarget: boolean;
   readonly pieces: number;
   readonly fen: string;
 };
@@ -33,6 +36,7 @@ test('the public benchmark can scrub 200 plies and mount twenty boards without e
 });
 
 test('capture input and its first visible response meet the existing 50ms budget', async () => {
+  // regression: chessboard-capture-response-probe-work
   const expected = new Chess(CAPTURE);
   expected.move({ from: 'e4', to: 'd5' });
   const samples = await browser.view.evaluate<
@@ -40,17 +44,27 @@ test('capture input and its first visible response meet the existing 50ms budget
   >(`(async () => {
     const api = window.boardExample;
     const samples = [];
+    const center = element => {
+      const rect = element.getBoundingClientRect();
+      return {x: rect.left + rect.width / 2, y: rect.top + rect.height / 2};
+    };
     for (const width of [196,319.5,640]) for (const orientation of ['white','black']) {
       api.reset({fen:${JSON.stringify(CAPTURE)},size:width,orientation,showCoordinates:false});
       await api.paint();
+      const board = document.querySelector('[data-testid="browser-board"]');
+      const from = center(board.querySelector('[data-square="e4"]'));
+      const to = center(board.querySelector('[data-square="d5"]'));
       const start = api.now();
-      api.move('e4','d5');
+      api.tapAt(from.x, from.y);
+      api.tapAt(to.x, to.y);
       const scripting = api.now()-start;
       await api.paint();
       await api.paint();
-      const board = document.querySelector('[data-testid="browser-board"]');
+      const attacker = center(board.querySelector('[data-piece="wp"][data-piece-square="d5"]'));
+      const painted = api.now()-start;
       const probe = JSON.parse(document.querySelector('[data-testid="browser-board-probe"]').textContent);
-      samples.push({scripting,painted:api.now()-start,
+      samples.push({width,orientation,scripting,painted,
+        approachedTarget:Math.hypot(attacker.x-to.x,attacker.y-to.y) < Math.hypot(from.x-to.x,from.y-to.y),
         pieces:board.querySelectorAll('[data-piece-square]').length,fen:probe.fen});
     }
     return samples;
@@ -58,6 +72,7 @@ test('capture input and its first visible response meet the existing 50ms budget
   for (const sample of samples) {
     expect(sample.fen).toBe(expected.fen());
     expect(sample.pieces).toBe(31);
+    expect(sample.approachedTarget, JSON.stringify(sample)).toBe(true);
     expect(sample.scripting, JSON.stringify(sample)).toBeLessThan(
       BOARD_PERF_BUDGETS.longTaskMs
     );

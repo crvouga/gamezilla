@@ -78,7 +78,7 @@ test('real layout, piece centers and pointer targets agree after embedding and z
             Math.abs(piece.dy),
             JSON.stringify({ width, orientation, scale, piece })
           ).toBeLessThanOrEqual(scale / 32);
-          expect(piece.image).toStartWith('url("data:image/svg+xml,');
+          expect(piece.hasSvg).toBe(true);
         }
       }
     }

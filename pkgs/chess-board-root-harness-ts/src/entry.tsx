@@ -86,8 +86,13 @@ function tap(square: Square): void {
   const button = host().querySelector<HTMLElement>(`[data-square="${square}"]`);
   if (button === null) throw new Error(`Missing square ${square}`);
   const box = button.getBoundingClientRect();
+  tapAt(box.left + box.width / 2, box.top + box.height / 2);
+}
+
+function tapAt(clientX: number, clientY: number): void {
+  const board = host();
   for (const type of ['pointerdown', 'pointerup'])
-    host().dispatchEvent(
+    board.dispatchEvent(
       new PointerEvent(type, {
         bubbles: true,
         cancelable: true,
@@ -95,8 +100,8 @@ function tap(square: Square): void {
         pointerType: 'mouse',
         button: 0,
         buttons: type === 'pointerup' ? 0 : 1,
-        clientX: box.left + box.width / 2,
-        clientY: box.top + box.height / 2,
+        clientX,
+        clientY,
       })
     );
 }
@@ -135,6 +140,7 @@ const api = {
     host().focus();
   },
   tap,
+  tapAt,
   move(from: Square, to: Square) {
     tap(from);
     tap(to);

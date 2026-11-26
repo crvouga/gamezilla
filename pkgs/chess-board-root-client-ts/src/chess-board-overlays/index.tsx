@@ -7,8 +7,8 @@
 
 import type { ChessBoardProbeInteraction } from '@pkgs/chess-board-core-shared-ts/probe';
 import {
-  buildChessBoardProbe,
   chessBoardProbeTestId,
+  probeForBoardPosition,
 } from '@pkgs/chess-board-core-shared-ts/probe';
 import { COMPONENT_IDS_ENABLED } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
@@ -42,15 +42,12 @@ function ChessBoardProbe(args: {
   readonly boardTestId: Accessor<string>;
   readonly size: number | undefined;
 }): JSX.Element {
-  const probeJson = createMemo(() =>
-    JSON.stringify(
-      buildChessBoardProbe({
-        fen: args.ctrl.model.game().fen,
-        size: (args.ctrl.boardPx() || args.size) ?? 0,
-        orientation: args.ctrl.orientation(),
-        interaction: probeInteraction(args.ctrl),
-      })
-    )
+  const position = createMemo(() =>
+    probeForBoardPosition({
+      fen: args.ctrl.model.game().fen,
+      size: (args.ctrl.boardPx() || args.size) ?? 0,
+      orientation: args.ctrl.orientation(),
+    })
   );
   return (
     <div
@@ -58,7 +55,7 @@ function ChessBoardProbe(args: {
       data-testid={chessBoardProbeTestId(args.boardTestId())}
       aria-hidden="true"
     >
-      {probeJson()}
+      {JSON.stringify(position()(probeInteraction(args.ctrl)))}
     </div>
   );
 }

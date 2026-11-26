@@ -6,7 +6,7 @@ export const geometryRead = `(() => {
   const squares = buttons.map(button => {
     const box = button.getBoundingClientRect();
     return { square: button.dataset.square, x: box.left, y: box.top,
-      width: box.width, height: box.height, cssWidth:getComputedStyle(button).width, transform:getComputedStyle(button).transform };
+      width: box.width, height: box.height };
   });
   const pieces = [...board.querySelectorAll('[data-piece-square]')].map(piece => {
     const box = piece.getBoundingClientRect();
@@ -14,13 +14,13 @@ export const geometryRead = `(() => {
     return { square: piece.dataset.pieceSquare,
       dx: box.left + box.width / 2 - (square.x + square.width / 2),
       dy: box.top + box.height / 2 - (square.y + square.height / 2),
-      width: box.width, height: box.height, image: getComputedStyle(piece).backgroundImage };
+      hasSvg: getComputedStyle(piece).backgroundImage.startsWith('url("data:image/svg+xml,') };
   });
   const misses = [];
+  const probe = document.querySelector('[data-testid="browser-board-probe"]');
   for (const square of squares) {
-    window.boardExample.tap(square.square);
-    const probe = JSON.parse(document.querySelector('[data-testid="browser-board-probe"]').textContent);
-    if (probe.cursor !== square.square) misses.push(square.square);
+    window.boardExample.tapAt(square.x + square.width / 2, square.y + square.height / 2);
+    if (JSON.parse(probe.textContent).cursor !== square.square) misses.push(square.square);
   }
   return { width: bounds.width, height: bounds.height, squares, pieces, misses };
 })()`;
@@ -39,7 +39,7 @@ export type BoardGeometry = {
     square: string;
     dx: number;
     dy: number;
-    image: string;
+    hasSvg: boolean;
   }[];
   readonly misses: readonly string[];
 };

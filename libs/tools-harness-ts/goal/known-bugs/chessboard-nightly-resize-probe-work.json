@@ -1,0 +1,4 @@
+{
+  "summary": "The 200-case generated resize contract reached its 60-second deadline while each center tap rebuilt an unchanged chess position for the browser probe.",
+  "regressionTest": "pkgs/chess-board-root-harness-ts/tests/browser/resize.contract.test.ts"
+}

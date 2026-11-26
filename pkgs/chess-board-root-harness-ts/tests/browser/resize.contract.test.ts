@@ -66,23 +66,45 @@ test('fractional square edges remain adjacent at a 128.49999237060547px width an
   );
 });
 
-test('an eight-pixel board maps every square after repeated resizes at twice scale', async () => {
-  // regression: chessboard-tiny-scaled-square-hit
-  // regression: chessboard-resize-before-observer
-  const [widths, orientation, scale] = [[8, 8, 8], 'white', 2] as const;
-  await browser.view.evaluate(
-    `window.boardExample.reset({size:undefined,interactive:false,orientation:"${orientation}"})`
-  );
-  for (const width of widths) {
-    await browser.view.evaluate(
-      `(() => {window.boardExample.parent(${width},${scale}); return window.boardExample.paint();})()`
-    );
-    assertGeometry(
-      await browser.view.evaluate<BoardGeometry>(geometryRead),
-      width,
-      scale
-    );
+async function checkResizes(
+  widths: readonly number[],
+  orientation: string,
+  scale: number
+) {
+  const frames = await browser.view.evaluate<
+    { width: number; geometry: BoardGeometry }[]
+  >(`(async () => {
+    const api = window.boardExample;
+    api.reset({size:undefined, interactive:false, orientation:${JSON.stringify(orientation)}});
+    const frames = [];
+    for (const width of ${JSON.stringify(widths)}) {
+      api.parent(width, ${scale});
+      await api.paint();
+      frames.push({width, geometry: ${geometryRead}});
+    }
+    return frames;
+  })()`);
+  expect(frames.map((frame) => frame.width)).toEqual([...widths]);
+  for (const { width, geometry } of frames)
+    assertGeometry(geometry, width, scale);
+}
+
+test.each([0.5, 2])(
+  'an eight-pixel board maps every square after repeated resizes at %s scale',
+  async (scale) => {
+    // regression: chessboard-tiny-scaled-square-hit
+    // regression: chessboard-resize-before-observer
+    await checkResizes([8, 8, 8], 'white', scale);
   }
+);
+
+test('all centers still take input across the resizes reached at the Nightly deadline', async () => {
+  // regression: chessboard-nightly-resize-probe-work
+  await checkResizes(
+    [9389.106899256356, 2106.8941864828776, 18.895797344418355],
+    'black',
+    2
+  );
 });
 
 test('generated fractional resize sequences preserve square tiling, centered pieces and actual input mapping', async () => {
@@ -100,21 +122,7 @@ test('generated fractional resize sequences preserve square tiling, centered pie
       ),
       fc.constantFrom('white', 'black'),
       fc.constantFrom(0.5, 1, 1.25, 2, 3, 4),
-      async (widths, orientation, scale) => {
-        await browser.view.evaluate(
-          `window.boardExample.reset({size:undefined, interactive:false, orientation:"${orientation}"})`
-        );
-        for (const width of widths) {
-          await browser.view.evaluate(
-            `(() => {window.boardExample.parent(${width},${scale}); return window.boardExample.paint();})()`
-          );
-          assertGeometry(
-            await browser.view.evaluate<BoardGeometry>(geometryRead),
-            width,
-            scale
-          );
-        }
-      }
+      checkResizes
     )
   );
 }, 60_000);

@@ -194,26 +194,37 @@ function probePieces(
   return pieces;
 }
 
-export function buildChessBoardProbe(args: {
+type ProbeLayout = {
   readonly fen?: string;
   readonly size: number;
   readonly orientation: BoardOrientation;
-  readonly interaction: ChessBoardProbeInteraction;
-}): ChessBoardProbe {
+};
+
+/** Cursor and selection changes share the same independently calculated position. */
+export function probeForBoardPosition(args: ProbeLayout) {
   const fen =
     args.fen !== undefined && args.fen.length > 0 ? args.fen : START_FEN;
   const chess = new Chess(fen);
-  return {
+  const position = {
     size: args.size,
     orientation: args.orientation,
     fen,
     turn: chess.turn(),
     inCheck: chess.inCheck(),
     status: statusOf(chess),
-    ...args.interaction,
-    legalTargets: [...args.interaction.legalTargets].sort(),
     pieces: probePieces(chess, args.size, args.orientation),
   };
+  return (interaction: ChessBoardProbeInteraction): ChessBoardProbe => ({
+    ...position,
+    ...interaction,
+    legalTargets: [...interaction.legalTargets].sort(),
+  });
+}
+
+export function buildChessBoardProbe(
+  args: ProbeLayout & { readonly interaction: ChessBoardProbeInteraction }
+): ChessBoardProbe {
+  return probeForBoardPosition(args)(args.interaction);
 }
 
 export function parseChessBoardProbe(text: string | null): ChessBoardProbe {
