@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly random shard 2/4 failed determinism seed 624823847 because the plan-policy property suite invoked conftest on a runner that only installed Bun and Node.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}
