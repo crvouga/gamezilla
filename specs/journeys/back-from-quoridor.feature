@@ -6,10 +6,10 @@ Feature: Going back from a Classic Quoridor game
 
     @regression:game-stage-back-minimizes-space
     Scenario: Alice keeps playing against the bot before deciding to resign
-      When Alice starts "Classic Quoridor" with bots from a fresh device
+      Given Alice starts "Classic Quoridor" with bots from a fresh device
       And Alice goes back from playing Classic Quoridor and is asked whether to resign
-      And Alice decides to keep playing Classic Quoridor
-      And Alice moves to e2 and sees the bot reply
-      And Alice goes back from playing Classic Quoridor and is asked whether to resign
+      When Alice decides to keep playing Classic Quoridor
+      Then Alice moves to e2 and sees the bot reply
+      When Alice goes back from playing Classic Quoridor and is asked whether to resign
       And Alice confirms she wants to resign and go back
       Then Alice sees the game choices in the same space
