@@ -58,6 +58,11 @@ function decidedBy(
 }
 
 describe('closed world: manifest ↔ permission catalog', () => {
+  test('the administration site has its own permission key', () => {
+    // regression: admin-access-capability-missing
+    expect(capabilityKey('open the administration site')).toBe('admin:access');
+  });
+
   test('privacy capabilities map to account-only permission decisions', () => {
     // regression: permission-privacy-capabilities-missing
     const cases = [

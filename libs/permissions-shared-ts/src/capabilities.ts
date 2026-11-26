@@ -17,6 +17,7 @@ export type CatalogKey = AppPolicyKey | AppLimit;
 
 /** Manifest capability id → the catalog key the product decides it with. */
 export const CAPABILITY_KEYS = {
+  'open the administration site': PERMISSION.adminAccess,
   'view the User Observatory': PERMISSION.observatoryView,
   'watch someone live': PERMISSION.observatoryWatch,
   'view the Synthetic Population panel': PERMISSION.syntheticPopulationView,
