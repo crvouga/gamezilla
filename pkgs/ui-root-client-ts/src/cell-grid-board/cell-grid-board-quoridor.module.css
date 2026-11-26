@@ -128,21 +128,24 @@
   [data-game-slot="stage"]
   > [data-game-board-stage]:has(.board[data-board-theme="quoridor"]) {
   padding-block: 0;
-} /* Where the seats above leave the box short (four seats in two rows), the
-   board gives up just enough width that its tools, picker and the
-   guidance's row (or Place and Cancel) stay whole above the commands,
-   instead of sliding under them. The board is shorter than it is wide by
-   at least 0.5rem (its file labels' row is 0.75rem, its rank labels'
-   column at least 1.25rem). The allowance is fixed, so proposing a wall
-   never resizes the board. */
+}
+
+/* Direct play has the Coordinates button and one status or confirmation
+   row below the grid. Opening the coordinate tools adds the picker. */
 @container quoridor-room (min-height: 0) {
   [data-game-fixed="true"]
     [data-board-workspace="true"]
     [data-quoridor-surface] {
-    --under: calc(var(--ui-control-size-md) * 3);
+    --under: calc(var(--ui-control-size-md) * 2);
     width: min(
       calc(100% + 2 * var(--game-board-workspace-inset, 0px)),
       max(min(100%, 320px), calc(100cqb - var(--under) + 0.5rem))
     );
+  }
+
+  [data-game-fixed="true"]
+    [data-board-workspace="true"]
+    [data-quoridor-surface]:has(~ * [aria-pressed]) {
+    --under: calc(var(--ui-control-size-md) * 3);
   }
 }
