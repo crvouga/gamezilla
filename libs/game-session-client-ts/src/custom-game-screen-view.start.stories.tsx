@@ -76,9 +76,17 @@ export const PlayBot: Story = {
 };
 
 export const KingOfTheHill: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Quoridor: King of the Hill',
+    },
+  },
   args: {
     title: 'Quoridor: King of the Hill',
-    goal: 'Reach the central hill first.',
+    goal: 'Reach the central hill first. Walls slow the others down.',
     sides: ['white', 'black', 'red', 'blue'],
   },
   render: (args) => (

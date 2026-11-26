@@ -28,6 +28,7 @@ for (const screen of screens) {
       globals: {},
       suffix: '',
     });
+    await expect(page.getByTestId('space-title')).toContainText('Quoridor');
     for (const handle of screen.controls)
       await expect(page.getByTestId(handle)).toBeVisible();
     const mode = page.getByRole('radio', { name: 'King of the Hill' });

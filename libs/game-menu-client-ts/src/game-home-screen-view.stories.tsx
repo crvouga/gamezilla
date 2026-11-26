@@ -171,6 +171,14 @@ export const OpenHowToPlay: Story = {
 };
 
 export const ClassicQuoridor: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Classic Quoridor',
+    },
+  },
   args: {
     title: 'Classic Quoridor',
     tile: 'walls',
