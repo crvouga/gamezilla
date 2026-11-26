@@ -86,3 +86,42 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
     removeTree(dir);
   }
 });
+
+test('nightly admission reserves cancellation time after a stalled gate shard', () => {
+  // regression: nightly-cancellation-overruns-ceiling
+  const dir = mkdtempSync(join(tmpdir(), 'nightly-cutoff-'));
+  try {
+    const created = '2026-11-26T19:20:20Z';
+    const epoch = Date.parse(created) / 1000;
+    const env = {
+      ...process.env,
+      PATH: dir + ':' + process.env['PATH'],
+      SHARED_CREATED_AT: created,
+      GITHUB_STEP_SUMMARY: join(dir, 'summary'),
+    };
+    writeFileSync(
+      join(dir, 'date'),
+      `#!/bin/sh\nif [ "$1" = "-d" ]; then echo ${epoch}; else echo ${epoch + 39 * 60}; fi\n`,
+      { mode: 0o755 }
+    );
+    for (const file of ['verify-nightly.yml', 'verify-full.yml']) {
+      const source = readFileSync(
+        join(import.meta.dirname, '../../../.github/workflows', file),
+        'utf8'
+      );
+      const seconds = source.match(
+        /STAGE_SECONDS: ['"](?:\$\{\{ inputs.profile == 'nightly' && )?(\d+)/
+      )?.[1];
+      expect(Number(seconds)).toBe(39 * 60);
+      const result = spawnSync('bash', ['-c', budgetCommand(file)], {
+        env: { ...env, STAGE_SECONDS: seconds },
+      });
+      expect(result.status).toBe(1);
+      expect(result.stdout.toString()).toContain(
+        '2340s elapsed since workflow creation'
+      );
+    }
+  } finally {
+    removeTree(dir);
+  }
+});

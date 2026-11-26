@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45882896052 took five minutes to publish cancellation of its stalled gate shard and finished in 48m59s. Stop verification six minutes before the 45-minute ceiling.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-deadline.test.ts"
+}

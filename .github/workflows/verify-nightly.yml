@@ -166,7 +166,8 @@ jobs:
         shell: bash
         env:
           SHARED_CREATED_AT: ${{ needs.verify-nightly-admission.outputs.created_at }}
-          STAGE_SECONDS: '2700'
+          # Nightly work ends at minute 39 to leave six minutes for hosted cancellation.
+          STAGE_SECONDS: '2340'
         run: |
           set -euo pipefail
           created=${SHARED_CREATED_AT:?Missing workflow creation timestamp}
