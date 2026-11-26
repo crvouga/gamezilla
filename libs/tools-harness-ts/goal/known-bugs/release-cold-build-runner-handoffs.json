@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45842330790 needed only one work shard but a cold product build made verification allocate three runners and take 223 seconds. One Turbo graph fixes task hashes before the build writes generated inputs.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-plan-schedule.test.ts"
+}

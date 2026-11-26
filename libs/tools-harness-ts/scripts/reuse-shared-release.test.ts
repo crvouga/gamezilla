@@ -88,6 +88,7 @@ test('Release reuses a completed apply across verification edits and requires fr
       'libs/tools-harness-ts/scripts/reuse-shared-release.sh',
       'docs/CI_REQUIREMENTS.md',
       'libs/tools-harness-ts/scripts/verify-plan-schedule.ts',
+      'libs/tools-harness-ts/scripts/verify-plan.ts',
       'libs/tools-harness-ts/scripts/workflow-plan-artifact.test.ts',
     ]);
     const { run, runs, jobs, result } = historyFixture(dir, sha);
