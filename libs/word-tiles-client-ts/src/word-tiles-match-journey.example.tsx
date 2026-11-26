@@ -42,6 +42,7 @@ export function matchJourney(args: WordTilesBoardViewProps) {
   const [interactive, setInteractive] = createSignal(true);
   const [lexicon, setLexicon] = createSignal<LexiconState>(args.lexicon);
   // The record as the app keeps it: each accepted move by the rules' label.
+  const [lastAction, setLastAction] = createSignal<string | null>(null);
   const [moves, setMoves] = createSignal<readonly string[]>([]);
   return merge(args, {
     get position() {
@@ -55,6 +56,9 @@ export function matchJourney(args: WordTilesBoardViewProps) {
     },
     get lexicon() {
       return lexicon();
+    },
+    get lastAction() {
+      return lastAction();
     },
     get moves() {
       return moves();
@@ -74,6 +78,7 @@ export function matchJourney(args: WordTilesBoardViewProps) {
       if (next === null) throw new Error('Accepted action failed replay');
       hidden = resolution.hidden;
       setPosition(next.position);
+      setLastAction(resolution.action);
       setMoves([...moves(), next.played.label]);
       const nextRack = decodeHidden(hidden, seats)?.racks[0];
       if (!nextRack) throw new Error('Accepted action has no local rack');

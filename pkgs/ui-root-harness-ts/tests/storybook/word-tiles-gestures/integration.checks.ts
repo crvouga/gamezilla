@@ -107,8 +107,10 @@ test('storybook integration: word-tiles gesture assigned blank remains marked af
     'underline'
   );
   await page.getByTestId('custom-game-board-submit').click();
-  await expect(blank).toHaveAttribute('data-state', 'committed');
-  await expect(blank).toHaveAccessibleName('A 0, h8, blank played as A');
+  await expect(blank).toHaveAttribute('data-state', 'recent');
+  await expect(blank).toHaveAccessibleName(
+    'A 0, h8, blank played as A, last move'
+  );
   await expect(blank).toHaveCSS('animation-name', /word-tile-placed/);
   await page.emulateMedia({ reducedMotion: 'reduce' });
   await expect(blank).toHaveCSS('animation-name', 'none');

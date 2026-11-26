@@ -298,7 +298,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         find={screen.finding.find()}
         onChooseTimeControl={screen.finding.choose}
         onFind={controls.begin}
-        returnTo={controls.returnInstead()?.kind}
+        returnTo={controls.returnInstead() ?? undefined}
         onReturn={screen.returnToGame}
         gamesLeft={screen.gamesLeft()}
         search={screen.search()}

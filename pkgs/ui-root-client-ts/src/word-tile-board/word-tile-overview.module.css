@@ -29,7 +29,7 @@
   overflow: hidden;
 }
 .square {
-  fill: var(--ui-color-game-word-tiles-canvas);
+  fill: var(--ui-color-board-cell);
   stroke: var(--ui-color-game-word-tiles-muted);
   stroke-width: 0.04;
 }
@@ -49,10 +49,17 @@
 }
 .square[data-state="committed"],
 .square[data-state="recent"] {
-  fill: var(--ui-color-board-card-face);
+  fill: var(--ui-color-game-word-tiles-accent);
+}
+.square[data-state="recent"] {
+  stroke: var(--ui-color-board-card-ink);
+  stroke-width: 0.2;
 }
 .square[data-state="tentative"] {
   fill: var(--ui-color-game-word-tiles-accent);
+  stroke: var(--ui-color-board-card-ink);
+  stroke-dasharray: 0.2;
+  stroke-width: 0.2;
 }
 .window {
   fill: none;

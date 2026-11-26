@@ -60,6 +60,8 @@ export function winningSides(
   return typeof plain === 'string' ? [plain] : plain;
 }
 export type RecordedMove = {
+  /** Accepted action when the record can identify the move on the board. */
+  readonly action?: string;
   readonly label: string;
   readonly before: string;
   readonly after: string;

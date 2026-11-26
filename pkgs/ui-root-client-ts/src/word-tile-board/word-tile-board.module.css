@@ -81,7 +81,7 @@
   padding: 0;
   border: 1px solid var(--ui-color-border);
   border-radius: 0;
-  background: var(--ui-color-background);
+  background: var(--ui-color-board-cell);
   color: var(--ui-color-text);
   cursor: pointer;
   touch-action: manipulation;
@@ -104,13 +104,13 @@
 .cell[data-state="committed"],
 .cell[data-state="recent"],
 .cell[data-state="tentative"] {
-  background: var(--ui-color-board-card-face);
+  background: var(--ui-color-game-word-tiles-accent);
   color: var(--ui-color-board-card-ink);
   border-color: var(--ui-color-game-word-tiles-muted);
   border-bottom-width: 2px;
 }
 .cell[data-state="recent"] {
-  outline: 2px solid var(--ui-color-text);
+  outline: 2px solid var(--ui-color-board-card-ink);
   outline-offset: -2px;
 }
 .cell[data-state="tentative"] {
@@ -124,7 +124,7 @@
 .points {
   position: absolute;
   right: var(--ui-space-hairline);
-  bottom: var(--ui-space-hairline);
+  top: var(--ui-space-hairline);
   font-size: var(--ui-font-size-xs);
   color: var(--ui-color-board-card-ink);
   font-variant-numeric: tabular-nums;
@@ -250,8 +250,7 @@
 }
 /* Bonus tiers by colour as well as label: a double letter keeps the plain
    surface, a triple letter is blue, a double word a deeper green and a
-   triple word coral. Gold stays for tiles placed this turn and white for
-   played tiles. Every fill is pale under dark ink. */
+   triple word coral. Gold faces have solid edges when played and dashed edges in a draft. Every fill is pale under dark ink. */
 .cell[data-state="empty"][data-square="TL"] {
   background: var(--ui-color-game-word-tiles-two);
 }

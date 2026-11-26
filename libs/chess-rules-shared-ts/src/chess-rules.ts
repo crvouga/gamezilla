@@ -93,6 +93,7 @@ export const chessRules: GameRules = {
     boardFrom(position, history, actions)
       .history({ verbose: true })
       .map((move) => ({
+        action: move.lan,
         label: move.san,
         before: move.before,
         after: move.after,

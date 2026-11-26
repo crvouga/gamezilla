@@ -68,6 +68,17 @@
   justify-content: safe center;
   padding-block: var(--ui-space-1);
 }
+@container game-column (min-width: 24rem) {
+  .stage [data-daily-seats="2"] > [data-game-players] {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--ui-space-1);
+  }
+  .stage [data-daily-seats="2"] > [data-game-players] > * {
+    min-width: 0;
+    margin-inline: 0;
+  }
+}
 .information {
   display: flex;
   flex-direction: column;
@@ -82,6 +93,8 @@
   min-width: 0;
 }
 .status {
+  border-radius: var(--ui-radius-sm);
+  background: var(--ui-color-surface-muted);
   height: 44px;
   align-items: stretch;
 }
@@ -126,7 +139,7 @@
   height: calc(64px + env(safe-area-inset-bottom, 0px));
   padding: var(--ui-space-1) var(--ui-space-4)
     calc(var(--ui-space-1) + env(safe-area-inset-bottom, 0px));
-  border-block-start: 1px solid var(--ui-color-border);
+  border-block-start: 1px solid var(--ui-color-outline);
   background: var(--ui-color-surface);
   overflow: auto hidden;
 }

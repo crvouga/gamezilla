@@ -12,7 +12,7 @@
   gap: 0;
   padding: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-game-word-tiles-canvas);
+  background: var(--ui-color-surface-sunken);
   box-shadow: inset 0 -2px var(--ui-color-game-word-tiles-muted);
 }
 @container (max-width: 20rem) {
@@ -43,10 +43,11 @@
   position: absolute;
   inset: calc(var(--ui-space-1) / 2);
   z-index: -1;
-  border: 1px solid var(--ui-color-game-word-tiles-muted);
+  border: 1px solid var(--ui-color-board-dark);
   border-bottom-width: var(--ui-space-1);
   border-radius: var(--ui-radius-sm);
-  background: var(--ui-color-board-card-face);
+  background: var(--ui-color-game-word-tiles-accent);
+  box-shadow: inset 0 2px var(--ui-color-board-card-face);
 }
 .tile[aria-disabled="true"] {
   cursor: default;
@@ -59,10 +60,11 @@
   --tile-lift: calc(-1 * var(--ui-space-1));
 }
 .tile[data-selected="true"]::before {
-  background: var(--ui-color-game-word-tiles-accent);
+  outline: 2px solid var(--ui-color-focus-ring);
 }
 .tile[data-placed="true"]::before {
   background: transparent;
+  box-shadow: none;
   border: 1px dashed var(--ui-color-game-word-tiles-muted);
 }
 .letter {
@@ -73,7 +75,7 @@
 .points {
   position: absolute;
   right: calc(var(--ui-space-1) * 1.5);
-  bottom: calc(var(--ui-space-1) * 1.5);
+  top: var(--ui-space-1);
   font-size: var(--ui-font-size-xs);
   color: var(--ui-color-board-card-ink);
   font-variant-numeric: tabular-nums;

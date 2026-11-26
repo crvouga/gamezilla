@@ -43,3 +43,5 @@ Reviewed 2026-11-25 for the board shared by matches and puzzles.
 [knights-image]: https://cdn.kde.org/screenshots/knights/knights_main.png
 [xboard-gallery]: https://www.gnu.org/software/xboard/#tag-A5
 [xboard-image]: https://www.gnu.org/software/xboard/graphics/xboard-4.4.0.png
+
+For correspondence chess, use the paired mobile views as a reference for recognizing an opponent in the game list and locating their latest move when returning to the board. [Returning to a game after time away](../../../libs/word-tiles-client-ts/docs/MARKET_RESEARCH.md#returning-to-a-game-after-time-away)

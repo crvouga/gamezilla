@@ -149,8 +149,15 @@ export const FourPlayerMatch: Story = {
 
 /** Mid-game on the person's turn: words on the board, a fresh rack. */
 export const YourTurn: Story = {
-  args: { position: MID_GAME, hand: LATER_RACK },
+  args: { position: MID_GAME, hand: LATER_RACK, lastAction: 'play:i9O.i10E' },
   play: async ({ canvasElement }) => {
+    const board = within(canvasElement);
+    await expect(
+      board.getByTestId('custom-game-board-cell-i9')
+    ).toHaveAccessibleName(/last move/);
+    await expect(
+      board.getByTestId('custom-game-board-cell-i8')
+    ).toHaveAccessibleName(/committed$/);
     await checkInitialWordWorkspace(canvasElement);
     await expectPrecisionDefault(canvasElement, 'custom-game-board');
   },
@@ -382,7 +389,7 @@ export const RecoverAndSubmit: Story = {
     await userEvent.click(canvas.getByTestId('custom-game-board-submit'));
     await expect(
       canvas.getByTestId('custom-game-board-cell-h8')
-    ).toHaveAttribute('data-state', 'committed');
+    ).toHaveAttribute('data-state', 'recent');
     await expect(
       canvas.queryByTestId('custom-game-board-rack-11')
     ).not.toBeInTheDocument();

@@ -54,7 +54,12 @@ function SeatBoard(props: {
   // rebuild the whole board once per square on every change.
   const boardId = createUniqueId();
   const cells = createMemo(() =>
-    boardCells(props.position, props.draft.candidate(), props.draft.editable())
+    boardCells(
+      props.position,
+      props.draft.candidate(),
+      props.draft.editable(),
+      props.draft.props.lastAction
+    )
   );
   const tiles = createMemo(() =>
     rackTiles(props.draft.candidate(), props.draft.editable())

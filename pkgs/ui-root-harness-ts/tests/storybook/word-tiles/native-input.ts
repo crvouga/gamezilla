@@ -63,7 +63,7 @@ export async function playWord(
       await activate(submit, input);
       await expect(
         page.getByTestId('custom-game-board-cell-h8')
-      ).toHaveAttribute('data-state', 'committed');
+      ).toHaveAttribute('data-state', 'recent');
       await expect(submit).toBeDisabled();
       await expect(
         page.getByTestId('custom-game-white').getByText('10', { exact: true })

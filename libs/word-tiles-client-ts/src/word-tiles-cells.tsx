@@ -1,3 +1,4 @@
+import { parseAction } from '@libs/word-tiles-shared-ts/word-tiles-action';
 import {
   BOARD_SIZE,
   bonusSquareAt,
@@ -56,6 +57,10 @@ function squareOf(cell: number): WordTileSquare | null {
 
 type Shown = { readonly letter: string; readonly blank: boolean } | null;
 
+function tileValue(shown: NonNullable<Shown>): number {
+  return shown.blank ? 0 : letterPoints(shown.letter);
+}
+
 function cellLabel(
   cell: number,
   shown: Shown,
@@ -67,7 +72,7 @@ function cellLabel(
     return square === null
       ? t`${name}, empty`
       : `${squareText(square)}, ${t`${name}, ${squareName(square)}, empty`}`;
-  const points = shown.blank ? 0 : letterPoints(shown.letter);
+  const points = tileValue(shown);
   const letter = shown.letter;
   const kind =
     state === 'tentative'
@@ -77,7 +82,9 @@ function cellLabel(
       : shown.blank
         ? t`blank played as ${letter}`
         : t`committed`;
-  return `${letter} ${points}, ${name}, ${kind}`;
+  return [`${letter} ${points}`, name, kind, state === 'recent' && t`last move`]
+    .filter(Boolean)
+    .join(', ');
 }
 
 /**
@@ -93,7 +100,7 @@ function cellDetail(
   const square = squareOf(cell);
   if (shown === null)
     return square === null ? name : `${name} · ${squareTitle(square)}`;
-  const tile = `${name} · ${shown.letter} ${shown.blank ? 0 : letterPoints(shown.letter)}`;
+  const tile = `${name} · ${shown.letter} ${tileValue(shown)}`;
   if (state === 'tentative') return `${tile} · ${t`Not played yet`}`;
   return shown.blank ? `${tile} · ${t`Blank`}` : tile;
 }
@@ -102,8 +109,13 @@ function cellDetail(
 export function boardCells(
   position: WordTilesPosition,
   candidate: Candidate,
-  editable: boolean
+  editable: boolean,
+  lastAction?: string | null
 ): readonly WordTileBoardCell[] {
+  const action = lastAction ? parseAction(lastAction) : null;
+  const recent = new Set(
+    action?.kind === 'place' ? action.placed.map((tile) => tile.cell) : []
+  );
   return Array.from({ length: CELL_COUNT }, (_, cell) => {
     const committed = position.board[cell] ?? '.';
     const tentative = candidate.placed.find((p) => p.cell === cell);
@@ -121,15 +133,16 @@ export function boardCells(
             };
     const state: WordTileBoardCell['state'] =
       committed !== '.'
-        ? 'committed'
+        ? recent.has(cell)
+          ? 'recent'
+          : 'committed'
         : tentative !== undefined
           ? 'tentative'
           : 'empty';
     return {
       id: cellName(cell),
       letter: shown?.letter ?? '',
-      points:
-        shown === null ? null : shown.blank ? 0 : letterPoints(shown.letter),
+      points: shown === null ? null : tileValue(shown),
       square: squareOf(cell),
       state,
       label: cellLabel(cell, shown, state),

@@ -43,3 +43,19 @@ The marked blank in the Crosswords manual prompted a change for small boards. Wo
 The player can pick up a rack tile and drop it onto a magnified square. Starting on the board instead lets the player inspect a crossing by panning or zooming. The phone and desktop checks exercise these actions, including interrupted drops, return to Fit and reduced motion. This interaction follows the board brief; the competitor screenshots establish appearance only.
 
 **Open question.** Can a first-time player recognize the underline alone as a blank in Fit? Automated checks establish that the mark persists and the accessible name identifies the blank. Recognition by players remains unmeasured.
+
+## Returning to a game after time away
+
+Words With Friends, published by Zynga. These two phone screenshots were supplied on 2026-11-26 and show the same match before and after opening it.
+
+![Your Move list showing an opponent, AERIE in letter tiles, a 0 vs 10 score and the time since play](words-with-friends-your-move.png)
+
+*The first match under “Your Move” shows who played, the word they made, its ten-point value and how recently they played.*
+
+![Word game with scores above the grid, AERIE across the center and seven gold letter tiles above the Play button](words-with-friends-board.png)
+
+*Opening the match carries AERIE through to the board. A strip above the grid names the player, word and points. The gold rack tiles have raised edges, large letters and small corner values. Colored bonus squares carry short labels.*
+
+Use this pair as the visual reference for Word Tiles on phones. Give the board most of the width, keep the empty grid quiet, and give the rack tiles enough depth and contrast to read as pieces a player can pick up. Keep the turn controls within reach below the rack.
+
+For long-running Word Tiles and chess games, carry the opponent and latest move from the game list into the open match. A returning player can then recognize the game and find what changed. For chess, the equivalent of the word preview is the opponent’s move and its marked squares. The screenshots leave open how a game waiting on the opponent should appear.

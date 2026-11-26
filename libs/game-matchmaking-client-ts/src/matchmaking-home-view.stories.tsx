@@ -61,7 +61,14 @@ export const FindPlayers: Story = {
  * custom game is, in its place.
  */
 export const ReturnToCustomGame: Story = {
-  args: { returnTo: 'custom', onReturn: fn() },
+  args: {
+    returnTo: {
+      kind: 'custom',
+      spaceId: 'story-table',
+      href: '/spaces/story-table',
+    },
+    onReturn: fn(),
+  },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.queryByTestId('multiplayer-find')).toBeNull();
@@ -72,7 +79,16 @@ export const ReturnToCustomGame: Story = {
 
 /** An unfinished matched game: the way back to it in place of seeking. */
 export const ReturnToMatchedGame: Story = {
-  args: { ...TIMED, returnTo: 'matched', onReturn: fn() },
+  args: {
+    ...TIMED,
+    returnTo: {
+      kind: 'matched',
+      gameId: 'story-game',
+      href: '/games/story-game',
+      daily: null,
+    },
+    onReturn: fn(),
+  },
 };
 
 /** A command was refused: the reason sits above with the search still on offer. */
