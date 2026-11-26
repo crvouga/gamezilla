@@ -446,6 +446,8 @@ describe('one broken game among the journeys', () => {
     'journeys.numberlink-packs',
     'journeys.pong-game',
     'journeys.quoridor-game',
+    'journeys.recover-custom-game',
+    'journeys.return-to-quoridor',
     'journeys.sokoban-packs',
     'journeys.word-tiles-start',
     'quoridor.quoridor-health',

@@ -34,6 +34,8 @@ export const SYNTHETIC_CHECKS = [
   'journeys.numberlink-packs',
   'journeys.pong-game',
   'journeys.quoridor-game',
+  'journeys.recover-custom-game',
+  'journeys.return-to-quoridor',
   'journeys.sokoban-packs',
   'journeys.word-tiles-start',
   'profile.finding-a-person',
