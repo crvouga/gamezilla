@@ -178,7 +178,7 @@ jobs:
       - uses: ./.github/actions/setup
         timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
-          tools: bun node
+          tools: bun node conftest
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
