@@ -45,7 +45,7 @@ export default function SpaceInGameTemplateExample(
       <Show when={game()}>
         {(current) => (
           <SpaceInGameTemplate
-            {...spaceExampleChrome(props, false)}
+            {...spaceExampleChrome(props)}
             game={current()}
             role={props.role}
             people={spaceExamplePeople({

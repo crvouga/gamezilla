@@ -21,8 +21,8 @@ function shell(): JSX.Element {
       spaceName="bob's space"
       role={GUEST}
       onBack={() => {}}
-      onLeave={() => {}}
-      onEnd={() => {}}
+      onMembers={() => {}}
+      onMinimize={() => {}}
     >
       <div />
     </SpaceShell>
