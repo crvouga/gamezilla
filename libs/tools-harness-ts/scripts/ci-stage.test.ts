@@ -3,7 +3,12 @@ import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import fc from 'fast-check';
-import { ciStageTasks, isBlockingCiTask, PR_TASKS } from './ci-stage';
+import {
+  ciStageTasks,
+  deploymentTasks,
+  isBlockingCiTask,
+  PR_TASKS,
+} from './ci-stage';
 import { MAIN_VERIFY_TASKS, RELEASE_JOURNEY_TASKS } from './turbo-ci-run';
 
 type Workflow = {
@@ -181,4 +186,19 @@ test('each stage keeps its selection as the catalog grows and changes order', ()
       }
     )
   );
+});
+
+test('the deployment verifies production bundles, billing, migrations, security and every critical journey', () => {
+  const tasks = deploymentTasks(MAIN_VERIFY_TASKS);
+  for (const task of [
+    ...RELEASE_JOURNEY_TASKS,
+    '@libs/billing-harness-ts#test',
+    '@libs/runtime-server-ts#verify:schema-evolution',
+    '@libs/tools-harness-ts#ci:audit',
+    '@apps/product-ts#verify:worker-bundle',
+  ])
+    expect(tasks).toContain(task);
+  expect(tasks).not.toContain('test');
+  expect(tasks).not.toContain('test:contract');
+  expect(tasks).not.toContain('test:spec:0');
 });

@@ -65,7 +65,7 @@ import { TURBO_API, TURBO_TEAM } from '@libs/secrets-shared-ts/turbo-token';
 import { killOrphanEsbuildServices } from '@pkgs/dev-owner-server-ts/kill-orphan-esbuild';
 import { capture } from '@pkgs/os-server-ts/command';
 import { captureAudit } from './audit-snapshot';
-import { ciStageTasks } from './ci-stage';
+import { ciStageTasks, deploymentTasks } from './ci-stage';
 import { killProcessTree } from './kill-process-tree';
 import {
   ciFilters,
@@ -433,7 +433,9 @@ export function ciVerifyArgs(
   manifests = workspaceManifests(REPO_ROOT)
 ): readonly string[] {
   return [
-    ...ciStageTasks(MAIN_VERIFY_TASKS, process.env['VERIFY_CI_STAGE']),
+    ...(process.env['VERIFY_DEPLOYMENT'] === 'true'
+      ? deploymentTasks(MAIN_VERIFY_TASKS)
+      : ciStageTasks(MAIN_VERIFY_TASKS, process.env['VERIFY_CI_STAGE'])),
     ...ciFilters(manifests),
   ];
 }

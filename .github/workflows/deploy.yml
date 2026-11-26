@@ -66,6 +66,9 @@ jobs:
     uses: ./.github/workflows/verify-pr.yml
     with:
       profile: release
+      deployment: true
+      shards: 6
+      concurrency: 3
       require-main: ${{ !inputs.rehearsal }}
       # Pull requests do not run the advisory audit; nightly enforces it. A
       # registry that moved must not fail a deploy.

@@ -42,6 +42,10 @@ on:
         default: normal
   workflow_call:
     inputs:
+      deployment:
+        description: Verify the production artifacts, integrations and release safeguards
+        type: boolean
+        default: false
       require-main:
         description: Refuse a release from any ref other than main
         type: boolean
@@ -106,6 +110,7 @@ env:
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
+  VERIFY_DEPLOYMENT: ${{ inputs.deployment && 'true' || 'false' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
   # Only a pull request runs the narrow `pr` selection; a dispatch, Release
   # and nightly run the whole catalog.
