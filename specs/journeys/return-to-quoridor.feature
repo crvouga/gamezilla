@@ -14,7 +14,8 @@ Feature: Return to a Classic Quoridor game from the lobby
       Then Alice sees the same board and turn in her Classic Quoridor game
 
     Scenario: The host manages the space and comes back to the board
-      Given Alice has played e2 in Classic Quoridor on a fresh device and the bot has replied
+      Given Alice is playing Classic Quoridor against a bot on a fresh device
+      And Alice moves to e2 and sees the bot reply
       When Alice opens the people in her space
       Then Alice can share the space link from the same place
       When Alice opens her space settings
