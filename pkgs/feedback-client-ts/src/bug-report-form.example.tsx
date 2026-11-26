@@ -1,3 +1,8 @@
+import { createSignal, untrack } from 'solid-js';
+import {
+  BugReportFormView,
+  type BugReportFormViewProps,
+} from './bug-report-form';
 import type { BugReportState } from './controller';
 
 /** A stand-in for a picture of the app: image content, not a color the UI wears. */
@@ -18,3 +23,19 @@ export const fullScreenshots: BugReportState['screenshots'] = [
   { id: 'third', url: picture('seagreen', 'Settings') },
   { id: 'fourth', url: picture('sienna', 'Profile') },
 ];
+
+export function EditableBugReport(props: BugReportFormViewProps) {
+  const [description, setDescription] = createSignal(
+    untrack(() => props.description)
+  );
+  return (
+    <BugReportFormView
+      {...props}
+      description={description()}
+      onDescribe={(value) => {
+        setDescription(value);
+        props.onDescribe(value);
+      }}
+    />
+  );
+}

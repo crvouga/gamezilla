@@ -1,4 +1,4 @@
 {
-  "summary": "Typing It froze into the Storybook report form failed because the controlled description stayed empty between keystrokes.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+  "summary": "The feedback story sent edits through Storybook args. Between keystrokes the controlled textarea could restore the previous description, so typing It froze failed in light and dark mode. The example now holds the draft in the form.",
+  "regressionTest": "pkgs/feedback-client-ts/tests/bug-report-form-example.test.tsx"
 }
