@@ -14,6 +14,7 @@ const index = JSON.parse(
 ) as { entries: Record<string, Entry> };
 const pinnedPhoneExamples = new Set([
   'primitives-sparkline--states dark',
+  'product-cardtable--states light',
   'product-bug-report--describe-and-send light',
   'screens-puzzles-result--unrated light',
 ]);
@@ -21,7 +22,7 @@ for (const story of Object.values(index.entries).filter(
   (e) => e.type === 'story'
 )) {
   for (const scenario of visualScenarios(story)) {
-    // These matrix entries are registered literally as regression examples below.
+    // These matrix entries are registered literally as regression examples.
     if (
       scenario.width === 390 &&
       pinnedPhoneExamples.has(`${story.id} ${scenario.theme}`)
@@ -61,7 +62,9 @@ async function verifyBoardRegression(
 }
 
 // regression: feedback-story-drops-typed-description
-test('product-bug-report--describe-and-send light', async ({ page }) => {
+test('storybook integration: product-bug-report--describe-and-send light', async ({
+  page,
+}) => {
   await verifyBoardRegression(
     page,
     'product-bug-report--describe-and-send',
@@ -70,7 +73,9 @@ test('product-bug-report--describe-and-send light', async ({ page }) => {
 });
 
 // regression: puzzle-result-details-inaccessible-by-keyboard
-test('screens-puzzles-result--unrated light', async ({ page }) => {
+test('storybook integration: screens-puzzles-result--unrated light', async ({
+  page,
+}) => {
   await verifyBoardRegression(page, 'screens-puzzles-result--unrated', 390);
 });
 

@@ -142,7 +142,7 @@ test('screens-games-sokoban-puzzle--corner-recovery regression sokoban-history-f
 // Storybook coverage owns their -1440 references.
 
 // regression: card-table-pass-prompt-covers-direction
-test('product-cardtable--states regression card-table-pass-prompt-covers-direction', async ({
+test('storybook integration: product-cardtable--states regression card-table-pass-prompt-covers-direction', async ({
   page,
 }) => {
   const story = index.entries['product-cardtable--states'];
