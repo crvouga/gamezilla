@@ -103,6 +103,7 @@ Feature: A matched game is played and watched within spaces
       When 20 seconds pass
       Then Bob, Carol and Dave see 40 seconds on the first side's clock and 60 seconds on the second side's
 
+    @regression:matched-game-review-status-crosses-spaces
     Scenario: A guest reviewing an earlier position leaves the other space on the current position
       Given Alice has the first side against Bob in a 5+0 matched game after their first moves
       And Carol is a guest watching Alice's matched game
