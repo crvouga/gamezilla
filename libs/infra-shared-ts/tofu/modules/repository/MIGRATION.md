@@ -13,7 +13,7 @@ the same resources and undo each other.
 | Merge methods | merge commit only | squash only (`PR_TITLE` / `PR_BODY`) |
 | Auto-merge, delete branch on merge, update branch | on | on (unchanged) |
 | `main` ruleset | deletion, non-fast-forward, PR (0 approvals, dismiss stale, thread resolution), required checks, **up to date required** (turned off by #337) | adds `creation`, `required_linear_history`, `allowed_merge_methods = ["squash"]`, admin bypass through a pull request only |
-| Required checks | `verify:start`, `verify:end`, `CodeQL`, `Analyze (actions)`, `Analyze (javascript-typescript)` | the ruleset requires `verify:start` and `verify:end`; `verify:end` enforces the `outage_tolerant` CodeQL checks (findings block, an unavailable scanner warns) |
+| Required checks | `verify:start`, `verify:end`, `CodeQL`, `Analyze (actions)`, `Analyze (javascript-typescript)` | the ruleset requires `verify:end`; `verify:end` enforces the `outage_tolerant` CodeQL checks (findings block, an unavailable scanner warns) |
 | Bypass actors | none | repository admin role (`actor_id` 5), `pull_request` mode |
 | Tag protection | none | `release-*`: no deletion, no update |
 | Legacy branch protection | none (`removed` block already forgets the old address) | none |
@@ -77,11 +77,7 @@ maintainer. Consequences:
 
 ## Deliberate departures from the requested spec
 
-- **Required checks stay `verify:start` + `verify:end` (+ CodeQL)**, not
-  separate `lint` / `typecheck` / `unit` / `workflow-lint` jobs. Verify PR is one
-  content-addressed, Turbo-cached, sharded plan; splitting it would lose the
-  cache and the shard packing. `actionlint`, `zizmor` and the SHA-pinning test
-  already run inside it.
+- **One required verification job.** `verify:end` runs the PR tasks and enforces the CodeQL policy. Release and Nightly distribute the full catalog.
 - **No AI review check.** Decided by the maintainer: CI is the only gate.
 - **PRs open ready for review, not draft.** A draft cannot auto-merge, and the
   maintainer asked for ready by default.

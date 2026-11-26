@@ -338,7 +338,14 @@ export function defaultVerifyConcurrency(
 function resolveConcurrency(): string {
   const fromEnv = process.env['TURBO_CONCURRENCY']?.trim();
   if (fromEnv !== undefined && fromEnv.length > 0) return fromEnv;
-  return String(defaultVerifyConcurrency(availableParallelism()));
+  const cpus = availableParallelism();
+  if (process.env['VERIFY_CI_STAGE'] === 'pr') {
+    // Leave one task's working set for the runner, Bun and Turbo.
+    const memorySlots =
+      Math.floor(process.availableMemory() / (2 * 1024 ** 3)) - 1;
+    return String(Math.max(1, Math.min(cpus, memorySlots)));
+  }
+  return String(defaultVerifyConcurrency(cpus));
 }
 
 /** The `--ui` to force; undefined leaves the choice to `turbo.json`. */
