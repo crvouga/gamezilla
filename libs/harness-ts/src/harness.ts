@@ -21,7 +21,10 @@ export type HarnessDevice = {
 
 export type HarnessActor = {
   /** Native document URL capability; absent in the in-process DOM host. */
-  readonly browser?: BrowserNavigation;
+  readonly browser?: BrowserNavigation & {
+    /** The loaded document's origin, or null while the tab navigates. */
+    readonly readyOrigin: () => Promise<string | null>;
+  };
   readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;
   readonly id: string;

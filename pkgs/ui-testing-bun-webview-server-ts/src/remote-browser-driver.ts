@@ -9,12 +9,13 @@ export type BrowserCall = {
   readonly args: readonly unknown[];
 };
 /**
- * Reading the loaded URL and closing run no page JavaScript: the browser
+ * Reading native navigation state and closing run no page JavaScript: the browser
  * answers them even while another call is still running in the page.
  */
 export function runsNoPageCode(call: BrowserCall): boolean {
   return (
-    (call.target === 'view' && call.method === 'loadedUrl') ||
+    (call.target === 'view' &&
+      (call.method === 'loadedUrl' || call.method === 'readyOrigin')) ||
     (call.target === 'driver' && call.method === 'close')
   );
 }

@@ -1,6 +1,6 @@
 // @io-wall-ok — owned browser child transport; private IPC only.
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import type { TraceTap } from './browser-tap-diagnostics';
+import type { TraceBrowserCall } from './browser-call-diagnostics';
 import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 
 export type BrowserDevice = {
@@ -8,7 +8,7 @@ export type BrowserDevice = {
   readonly view: object;
   readonly console?: readonly string[];
   readonly network?: readonly string[];
-  readonly traceTap?: TraceTap;
+  readonly traceCall?: TraceBrowserCall;
   close(): Promise<void>;
 };
 
@@ -20,6 +20,10 @@ async function invoke(
   // not execute JavaScript in the document the browser is tearing down.
   if (call.target === 'view' && call.method === 'loadedUrl')
     return Reflect.get(device.view, 'url');
+  if (call.target === 'view' && call.method === 'readyOrigin') {
+    if (Reflect.get(device.view, 'loading')) return null;
+    return URL.parse(Reflect.get(device.view, 'url'))?.origin ?? null;
+  }
   if (call.target === 'driver' && call.method === 'close')
     return device.close();
   let target: unknown =
@@ -55,7 +59,7 @@ type BrowserRequest<Open> = {
  * flight per view, and a driver call is a chain of them, so calls run one
  * after another: a call the parent sent while another still runs waits for
  * it instead of failing inside Bun with "an evaluate() is already pending".
- * Reading the loaded URL and closing run at once — neither runs page code,
+ * Reading native navigation state and closing run at once — neither runs page code,
  * and closing is what ends a call stuck in the page.
  */
 export function createBrowserRequestHandler<Open>(
@@ -69,8 +73,10 @@ export function createBrowserRequestHandler<Open>(
     if (current === null) throw new Error('Invalid browser request');
     send({ id: request.id, stage: 'executing' });
     const value =
-      call.target === 'node' && call.method === 'tap' && current.traceTap
-        ? await current.traceTap(
+      call.target === 'node' &&
+      (call.method === 'tap' || call.method === 'isVisible') &&
+      current.traceCall
+        ? await current.traceCall(
             () => invoke(current, call),
             (operation) =>
               send({ id: request.id, stage: 'executing', operation })

@@ -60,17 +60,45 @@ export type ProviderAnswers = {
   readonly consent?: 'allow' | 'deny';
 };
 
+type ProviderWalk = {
+  readonly s: ProductHarness;
+  readonly ui: Driver;
+  readonly actorId: string;
+  readonly answers: ProviderAnswers;
+  readonly done: () => Promise<boolean>;
+};
+
+/** A native tab navigates through the provider and relay to a new app document. */
+function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
+  const { ui, http } = productExtra(s);
+  if (ui.kind !== 'bun-webview' || http.kind !== 'stack') return null;
+  const browser = s.actors.get(actorId)?.browser;
+  if (!browser) throw new Error(`Missing browser for ${actorId}`);
+  const provider = new URL(http.idpOrigins[answers.provider]).origin;
+  const app = new URL(ui.webOrigin).origin;
+  return async () => {
+    const origin = await browser.readyOrigin();
+    if (origin === provider) return 'provider' as const;
+    if (origin === app) return 'app' as const;
+    return null;
+  };
+}
+
 async function currentScreen(
-  s: ProductHarness,
-  ui: Driver,
-  done: () => Promise<boolean>
+  walk: ProviderWalk,
+  page: ReturnType<typeof nativeSignInPage>,
+  previous: ProviderScreen | null
 ): Promise<ProviderScreen | 'done'> {
-  return await pollUntil<ProviderScreen | 'done'>(
-    s,
+  return pollUntil<ProviderScreen | 'done'>(
+    walk.s,
     async () => {
-      if (await done()) return 'done';
+      const document = page ? await page() : 'embedded';
+      if (document === null) return null;
+      if (document !== 'provider' && (await walk.done())) return 'done';
+      if (document === 'app') return null;
       for (const [screen, testId] of SCREENS) {
-        if (await ui.get(testId).isVisible()) return screen;
+        if (await walk.ui.get(testId).isVisible())
+          return screen === previous ? null : screen;
       }
       return null;
     },
@@ -137,23 +165,25 @@ async function answer(
  * Walk the provider's window in the actor's browser until `done` — the app
  * shows the outcome, or the window closed.
  */
-export async function completeProviderSignIn(args: {
-  readonly s: ProductHarness;
-  readonly ui: Driver;
-  readonly actorId: string;
-  readonly answers: ProviderAnswers;
-  readonly done: () => Promise<boolean>;
-}): Promise<void> {
+export async function completeProviderSignIn(
+  args: ProviderWalk
+): Promise<void> {
   const { s, ui } = args;
+  const page = nativeSignInPage(args);
+  let previous: ProviderScreen | null = null;
   for (let step = 0; step < MAX_PROVIDER_STEPS; step += 1) {
-    const screen = await currentScreen(s, ui, args.done);
+    const screen = await currentScreen(args, page, previous);
     if (screen === 'done') return;
     // Live browsers execute Apple's form-post script; clicking again replays state.
     if (screen !== 'handoff' || productExtra(s).ui.kind !== 'bun-webview')
       await answer(ui, screen, args.answers);
     // The step is a round trip to the provider: the next screen (or the
     // hand-off back to the app) replaces this one when it lands.
-    await ui.get(SCREEN_TEST_IDS[screen]).expect.hidden({ timeoutMs: WAIT_MS });
+    if (page) previous = screen;
+    else
+      await ui
+        .get(SCREEN_TEST_IDS[screen])
+        .expect.hidden({ timeoutMs: WAIT_MS });
   }
   throw new Error(
     `${args.actorId} never left the ${args.answers.provider} window`
