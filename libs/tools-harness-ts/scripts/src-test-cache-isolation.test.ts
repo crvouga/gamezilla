@@ -11,6 +11,7 @@ import {
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
+import { readPackageTurbos } from './turbo-config';
 
 const repo = join(import.meta.dirname, '../../..');
 const config = JSON.parse(readFileSync(join(repo, 'turbo.json'), 'utf8')) as {
@@ -129,14 +130,14 @@ test('test helpers and data invalidate their owner, while production edits inval
 test('removing verify:start invalidates its owner and keeps product checks reusable', () => {
   const root = fixture();
   try {
-    const config = JSON.parse(
-      readFileSync(join(repo, 'libs/infra-shared-ts/turbo.json'), 'utf8')
-    );
+    const config = readPackageTurbos(repo).find(
+      (pkg) => pkg.name === '@libs/infra-shared-ts'
+    )!;
     writeFileSync(
       join(root, 'pkgs/a/turbo.json'),
       JSON.stringify({
         extends: ['//'],
-        tasks: { src: { inputs: config.tasks.src.inputs } },
+        tasks: { src: { inputs: config.file.tasks!['src']!.inputs } },
       })
     );
     const directory = join(
