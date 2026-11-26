@@ -1,7 +1,7 @@
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createMemo, createProjection, For, Show } from 'solid-js';
-import { createBoardArrival } from '../board-arrival';
+import { createBoardArrival } from '../game-board-stage/board-presentation';
 import type { WordTileBoardCell, WordTileBoardProps } from './index';
 import styles from './word-tile-board.module.css';
 

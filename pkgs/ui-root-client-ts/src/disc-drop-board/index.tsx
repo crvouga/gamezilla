@@ -10,8 +10,10 @@ import {
   For,
   Show,
 } from 'solid-js';
-import { createBoardArrival } from '../board-arrival';
-import { useGameBoardPreview } from '../game-board-stage/board-preview';
+import {
+  createBoardArrival,
+  useGameBoardPreview,
+} from '../game-board-stage/board-presentation';
 import styles from './disc-drop-board.module.css';
 import { RackViewport } from './rack-gestures';
 export type DiscDropBoardProps = {

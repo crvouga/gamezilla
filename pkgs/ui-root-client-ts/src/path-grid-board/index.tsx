@@ -10,8 +10,8 @@ import {
   Show,
   untrack,
 } from 'solid-js';
-import { createBoardArrival } from '../board-arrival';
 import { cellGridStep } from '../cell-grid-board/index';
+import { createBoardArrival } from '../game-board-stage/board-presentation';
 import type {
   PathGridBoardProps,
   PathGridEndpoint,
