@@ -15,6 +15,9 @@ When(
     await observeBotGameJourney(w.journey, 'Classic Quoridor');
     w.memo.set('board-space', await w.journey.spaceLink());
     await w.journey.act('askToLeaveBoard', async (ui) => {
+      await ui
+        .get('custom-game-versus')
+        .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
       w.memo.set('board-position', (await readPublicCustomGame(ui)).position);
       await tap(ui, Handles.navBack);
       await ui
