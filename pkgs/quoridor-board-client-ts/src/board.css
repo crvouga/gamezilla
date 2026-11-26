@@ -190,11 +190,11 @@
     }
 
     [data-quoridor-mode="hill"]:has(> [data-quoridor-coordinates])
-      > :is([role="status"], [data-component="QuoridorWallConfirmation"]) {
+      > :is([role="status"], [data-quoridor-confirmation]) {
       grid-area: 3 / 2;
     }
 
-    [data-quoridor-mode="hill"] > [data-component="QuoridorWallConfirmation"] {
+    [data-quoridor-mode="hill"] > [data-quoridor-confirmation] {
       flex-wrap: nowrap;
     }
   }
