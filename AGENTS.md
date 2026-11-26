@@ -54,9 +54,8 @@ Keep living competitor research with its product area. Follow the [market resear
   - The PR title is the squash commit's subject (Conventional Commits); the body is its message. Write both for a future reader of `git log`.
   - Resolve every review conversation by fixing the code or replying with the reason; never dismiss one.
   - Never push to `main`, never force-push a branch with an open PR, never `--admin`, never merge a red or pending PR by hand.
-  - A branch need not be up to date with `main`; merge `main` in only to resolve a conflict (PR Hygiene labels conflicts `needs-human` and lists the files) or to pick up a change you need.
-  - A PR that changes `.github/` or the repository policy (`libs/infra-shared-ts/tofu/modules/repository`, `libs/infra-shared-ts/policy`) gets the `needs-human` label and no auto-merge: the maintainer merges it.
-  - To stop a PR, add `do-not-merge` and run `gh pr merge --disable-auto`; PR Hygiene also turns auto-merge off every 15 minutes. A PR idle for 2 days is marked `stale` and closed 3 days later unless labelled `hotfix`.
+  - Merge `main` into the PR only to resolve a conflict or to pick up a required change. The agent that owns the PR resolves conflicts and repairs failing checks.
+  - Apply merge holds according to [Git hygiene](README.md#merge-holds). Routine workflow edits follow the same auto-merge path as product code.
 
 - **Never patch dependencies.** No `bun patch`, `patch-package`, `pnpm patch`, `patches/` directory, or `patchedDependencies` / `resolutions` field. Work around a third-party bug in our code or accept it.
 

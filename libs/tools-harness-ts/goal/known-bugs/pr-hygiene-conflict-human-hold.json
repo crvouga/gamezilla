@@ -1,0 +1,4 @@
+{
+  "summary": "PR Hygiene added needs-human whenever GitHub reported CONFLICTING and removed the label when mergeable if an old conflict comment existed. A routine conflict could create an unnecessary hold or erase a later maintainer decision.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-pinning.test.ts"
+}

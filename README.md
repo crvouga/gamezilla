@@ -820,7 +820,7 @@ A push dismisses stale approvals. The final PR gate checks both the head and mer
 check must pass, belong to its declared GitHub App, and be registered as required.
 New integrations cannot silently add advisory checks. Dynamic shards are enforced
 by the aggregate verdict, including missing or failed shard evidence. Agents enable
-auto-merge on every PR they open ([`AGENTS.md`](AGENTS.md)); it waits for the same required
+auto-merge on eligible PRs under the [merge hold policy](#merge-holds). It waits for the same required
 checks and resolved conversations. Squash is the only merge method and `main` requires
 linear history, so each PR is one commit titled by the PR title. GitHub deletes merged
 head branches automatically. The one bypass actor is the repository admin role, through a
@@ -829,8 +829,8 @@ pull request only: the maintainer can merge a red PR in an emergency but can nev
 GitHub-authored actions, verified creators and the allowlist in
 `libs/infra-shared-ts/tofu/modules/repository/actions.tf`, pinned to a commit SHA. Labels
 are declared one file each in `libs/infra-shared-ts/tofu/modules/repository/labels/`.
-The PR Hygiene workflow (every 15 minutes) turns off auto-merge on `do-not-merge` PRs,
-labels conflicting PRs `needs-human`, and closes PRs idle for 5 days. Settings GitHub
+The weekly PR Hygiene workflow reports conflicting files and sweeps stale PRs.
+Agents follow the [merge hold policy](#merge-holds). Settings GitHub
 or the provider cannot express are recorded in
 [`MIGRATION.md`](libs/infra-shared-ts/tofu/modules/repository/MIGRATION.md).
 Repository settings and secret scanning remain owned by the bootstrap stack;
@@ -891,3 +891,20 @@ restores a branch. Deletion uses an expected-SHA lease, so a branch changed
 concurrently is retained by Git. Evidence such as screenshots goes in PR comments
 (`gh pr comment --attach`), never on a branch of its own. Never remove a dirty or locked worktree, a live compatibility link, a stash,
 or unpushed work to make a cleanup report green.
+
+### Merge holds
+
+Enable squash auto-merge on routine PRs, including CI scheduling and tooling
+changes. GitHub waits for required checks and resolved conversations. The owning
+agent fixes red checks, resolves merge conflicts and completes the PR template.
+
+- Apply `do-not-merge` only when the maintainer explicitly asks to hold that PR.
+  Disable auto-merge immediately. Preserve the hold until the maintainer releases it.
+- Apply `needs-human` when proceeding requires a specific outstanding human
+  decision or access only a person can grant. Examples include expanding a
+  credential's authority, weakening a required protection or authorizing a
+  destructive production operation. Record the decision needed and disable
+  auto-merge. A file path or a failing check alone never triggers this label.
+- When the decision is recorded or access is granted, clear the resolved
+  agent-applied hold and resume auto-merge if no other hold remains. Preserve
+  holds whose reason or owner is unknown.
