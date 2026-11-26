@@ -1,0 +1,4 @@
+{
+  "summary": "Product offline-shell and Worker verification picked up the admin Vite build through a test-only harness dependency, which was missing from those shards' planned prerequisites.",
+  "regressionTest": "libs/tools-harness-ts/scripts/client-build-isolation.test.ts"
+}
