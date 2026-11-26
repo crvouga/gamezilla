@@ -521,7 +521,7 @@
     },
     "health": {
       "cache": false,
-      "passThroughEnv": ["HEALTH_SPEC"],
+      "passThroughEnv": ["HEALTH_SPEC", "JOURNEY_CAPTURE_STEPS"],
       "dependsOn": [
         "@libs/infra-server-ts#apply:edge",
         "@libs/billing-server-ts#billing:sync"

@@ -356,6 +356,50 @@ test.each([endActiveSpace, endMultiplayerSpace])(
   }
 );
 
+// regression: connect-four-result-intercepts-end-space
+test('a result that covers End space after cleanup starts can still be dismissed', async () => {
+  const { ui, taps } = loadingScreen();
+  const get = ui.get.bind(ui);
+  let dialog = false;
+  let intercepted = false;
+  ui.get = (id) => ({
+    ...get(id),
+    isVisible: async () =>
+      id === Handles.spaceEnd || (id === 'game-result-close' && dialog),
+    tap: async () => {
+      if (id === Handles.spaceEnd && !intercepted) {
+        intercepted = true;
+        dialog = true;
+        throw new Error('End space is covered by the game result');
+      }
+      if (id === 'game-result-close') dialog = false;
+      expect(dialog).toBe(false);
+      await get(id).tap();
+    },
+  });
+  await endMultiplayerSpace(ui);
+  expect(taps).toEqual([
+    'game-result-close',
+    Handles.spaceEnd,
+    Handles.spaceEndConfirm,
+    Handles.spaceMutationDismiss,
+  ]);
+});
+
+test('an End space failure with no game result keeps its original error', async () => {
+  const { ui } = loadingScreen();
+  const get = ui.get.bind(ui);
+  const failure = new Error('End space is disabled');
+  ui.get = (id) => ({
+    ...get(id),
+    isVisible: async () => id === Handles.spaceEnd,
+    tap: async () => {
+      throw failure;
+    },
+  });
+  await expect(endActiveSpace(ui)).rejects.toBe(failure);
+});
+
 // regression: live-multiplayer-wrong-time-control
 test('a previous 2+1 choice is changed to the requested 5+0 before finding an opponent', async () => {
   const { ui, taps } = loadingScreen();
