@@ -16,6 +16,7 @@ const pinnedPhoneExamples = new Set([
   'primitives-sparkline--states dark',
   'product-cardtable--states light',
   'product-bug-report--describe-and-send light',
+  'screens-matchmaking-result--open-moves light',
   'screens-puzzles-result--unrated light',
 ]);
 for (const story of Object.values(index.entries).filter(
@@ -60,6 +61,21 @@ async function verifyBoardRegression(
   if (!scenario) throw new Error(`Missing regression viewport: ${width}`);
   await verifyStoryScenario(page, id, scenario);
 }
+
+// regression: matchmaking-result-story-closed-record
+test('screens-matchmaking-result--open-moves light', async ({ page }, info) => {
+  await verifyBoardRegression(
+    page,
+    'screens-matchmaking-result--open-moves',
+    390
+  );
+  await page.getByRole('button', { name: 'Game record', exact: true }).click();
+  const record = page.getByRole('dialog', { name: 'Game record', exact: true });
+  await expect(
+    record.getByTestId('multiplayer-copy-final-position')
+  ).toBeVisible();
+  await page.screenshot({ path: info.outputPath('finished-game-record.png') });
+});
 
 // regression: feedback-story-drops-typed-description
 test('storybook integration: product-bug-report--describe-and-send light', async ({
