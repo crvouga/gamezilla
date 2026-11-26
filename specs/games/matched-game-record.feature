@@ -10,6 +10,7 @@ Feature: Copy the game record of a finished matched game
       When Bob resigns the matched game
       Then Carol is offered the game record and the final position
 
+    @regression:finished-game-copy-controls-unreachable
     Scenario: A person copies the final position of a matched game that is over
       Given Bob has resigned the matched game after their first moves
       When Alice copies the final position
