@@ -99,7 +99,7 @@ export function useCustomGameCommand(
           prepare: (state: RoomState, payload: RoomCommandPayload) =>
             module.prepareLocalCommand(state, payload, clock.now()),
         };
-  const send = async (choice: CustomGameChoice): Promise<void> => {
+  const send = async (choice: CustomGameChoice): Promise<string | null> => {
     setError('');
     const reason = hostRefusal(choice);
     if (reason !== '') {
@@ -109,7 +109,7 @@ export function useCustomGameCommand(
     }
     try {
       setSubmitting(true);
-      await confirmCustomGameChoice(
+      return await confirmCustomGameChoice(
         {
           room: rooms.getEntry(spaceId() ?? '')?.room,
           timers,

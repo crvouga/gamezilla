@@ -57,8 +57,10 @@ Then(
   async (w, actor: string) => toldOf(w, actor, 'finish or cancel first')
 );
 
-When('{actor} opens custom games for a different game', async (w, actor: string) =>
-  w.s.apply(switchSpaceGame, actor, anotherGame(w, 'custom-games').shared.id)
+When(
+  '{actor} opens custom games for a different game',
+  async (w, actor: string) =>
+    w.s.apply(switchSpaceGame, actor, anotherGame(w, 'custom-games').shared.id)
 );
 Then(
   '{actor} sees the game she/he was setting up with its seats unchanged',
