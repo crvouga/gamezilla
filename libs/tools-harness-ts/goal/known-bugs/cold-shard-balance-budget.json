@@ -1,0 +1,4 @@
+{
+  "summary": "The planner capacity tests compared cold estimated work to a live timeout independently of the corpus size. With two runners, one second of proof and eight 120-second feature chains, even the optimal split exceeds 480 seconds on one runner.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-capacity.test.ts"
+}
