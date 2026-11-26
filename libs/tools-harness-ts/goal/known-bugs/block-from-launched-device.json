@@ -1,0 +1,4 @@
+{
+  "summary": "In the hosted custom-game claim scenario Bob had signed in on his browser, but setting up his block of Carol read an empty account from a separate in-process client and stopped before the seat claim.",
+  "regressionTest": "libs/friends-harness-ts/tests/setup-block.test.ts"
+}
