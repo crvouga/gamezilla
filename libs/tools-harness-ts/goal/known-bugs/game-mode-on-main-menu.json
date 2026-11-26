@@ -1,0 +1,4 @@
+{
+  "summary": "Classic Quoridor required picking a mode on the main menu and choosing a second custom-game entry before reaching the seats. Match making and Custom games now open their own setup with the selected mode.",
+  "regressionTest": "libs/games-harness-ts/tests/game-mode-setup.test.ts"
+}

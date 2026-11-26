@@ -13,7 +13,6 @@ import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import {
   chooseGameMode,
   gameFamilyOf,
-  gameModeShown,
   gameTile,
   setUpGameMode,
 } from '@libs/harness-ts/game-tiles';
@@ -52,8 +51,11 @@ export const seekGameOpponent = scenarioAction({
     const ui = await actorUi(s, actor);
     await ui.get(gameTile(s, gameId)).tap();
     await ui.get(Handles.gameChoices).expect.visible();
-    await setUpGameMode(s, ui, gameId);
     await ui.get(Handles.gameChoice('multiplayer')).tap();
+    if (gameFamilyOf(s, gameId) !== gameId) {
+      await ui.get(Handles.gameMode(gameId)).expect.visible();
+      await setUpGameMode(s, ui, gameId);
+    }
     const matched = s.harness.composition.app.turnGames.capability(
       gameId,
       'matchmaking'
@@ -221,19 +223,13 @@ async function reachFindingAnOpponent(
       )
         return null;
       const step = findingAnOpponentStep(visible, family, whereverItCan);
-      if (step === 'arrived') return true;
+      if (step === 'arrived') {
+        if (await chooseGameMode(ui, gameId)) return null;
+        return true;
+      }
       if (step === 'nowhere')
         throw new Error(`${actor}'s space has no finding an opponent left`);
       if (step === null) return null;
-      // The game's choices open on its family's mode: finding an opponent
-      // is the set-up mode's, so another mode of the game is set up first.
-      if (
-        step === Handles.gameChoice('multiplayer') &&
-        !(await gameModeShown(ui, gameId))
-      ) {
-        await chooseGameMode(ui, gameId);
-        return null;
-      }
       await tapWayIn(ui.get(step));
       return null;
     },
