@@ -1,5 +1,6 @@
 // @io-wall-ok — owned browser child transport; private IPC only.
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import type { TraceTap } from './browser-tap-diagnostics';
 import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 
 export type BrowserDevice = {
@@ -7,6 +8,7 @@ export type BrowserDevice = {
   readonly view: object;
   readonly console?: readonly string[];
   readonly network?: readonly string[];
+  readonly traceTap?: TraceTap;
   close(): Promise<void>;
 };
 
@@ -66,7 +68,14 @@ export function createBrowserRequestHandler<Open>(
     const current = device;
     if (current === null) throw new Error('Invalid browser request');
     send({ id: request.id, stage: 'executing' });
-    const value = await invoke(current, call);
+    const value =
+      call.target === 'node' && call.method === 'tap' && current.traceTap
+        ? await current.traceTap(
+            () => invoke(current, call),
+            (operation) =>
+              send({ id: request.id, stage: 'executing', operation })
+          )
+        : await invoke(current, call);
     if (call.target === 'driver' && call.method === 'close') device = null;
     return value;
   };

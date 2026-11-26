@@ -1,0 +1,4 @@
+{
+  "summary": "Hosted Google sign-in taps stalled for 90 seconds, but the retained timeout identified only the outer tap. The first outstanding WebView operation could not be distinguished from the click or its acknowledgement.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/browser-timeout.test.ts"
+}
