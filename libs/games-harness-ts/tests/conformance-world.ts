@@ -129,8 +129,7 @@ export function turnConformanceGameOf(
 }
 
 /**
- * One world where every conformance game is offered at once, its puzzle
- * catalogue holding each game's known puzzles and nothing else.
+ * One world offering every conformance game and seeding its known puzzles.
  */
 export const CONFORMANCE_SYSTEM = gameSystem('games', CONFORMANCE_GAMES, {
   knownPuzzles: true,

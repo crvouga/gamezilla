@@ -162,8 +162,8 @@ Puzzles are offered by a part on each side, and nothing else changes:
   have one, a win off the line (`wonAnotherWay`) or a transposition. At
   least one has two solver moves. The shared puzzle specifications run on
   them: "the game's known puzzle" is the first whose line is four moves
-  long, the puzzle pool of their world holds exactly the known puzzles
-  (`gameSystem(…, { knownPuzzles: true })`), and the puzzle attempt model
+  long. The world seeds the known puzzles (`gameSystem(…, { knownPuzzles: true })`)
+  and opens a named puzzle by its link, including on a preloaded stack. The puzzle attempt model
   needs three of two solver moves each, with a legal move at each that is
   neither the line's nor a win nor another way the author names. A pool a
   scenario describes is made of those three, rated, themed and judged for
@@ -174,7 +174,9 @@ Puzzles are offered by a part on each side, and nothing else changes:
   `themes` offers, and offer one theme no known puzzle has. Name at least
   thirty more puzzles (`fixtures.morePuzzles`, each held to what a known
   puzzle is, none repeating another's position and line), which days of
-  offline play stock. And name the sounds its puzzles play
+  offline play stock. Use `extraPuzzleRating(index)` from
+  `@libs/game-session-harness-ts/known-puzzles` to give distinct fixtures the
+  ratings used in the shared puzzle-rating scenarios. Name the sounds its puzzles play
   (`puzzleSounds` on the `HarnessGame`: each source its `useFeedback` or
   board plays, as a move, a correct move, a wrong move, the end of the
   line, a solve or a rating), with at least a move, a correct move, a

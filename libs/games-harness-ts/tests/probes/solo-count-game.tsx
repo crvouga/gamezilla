@@ -15,6 +15,7 @@ import type {
 } from '@libs/game-puzzle-client-ts/puzzle-client';
 import { assertHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
+import { extraPuzzleRating } from '@libs/game-session-harness-ts/known-puzzles';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import {
   createAudioPlayer,
@@ -210,7 +211,10 @@ function morePuzzles(): readonly PuzzleFixture[] {
   return lines.slice(0, 30).map((line, index) => {
     let count = 0;
     return {
-      record: record(`more-${index}`, 'solo-count:0w', line),
+      record: {
+        ...record(`more-${index}`, 'solo-count:0w', line),
+        rating: extraPuzzleRating(index),
+      },
       solverSide: 'white',
       solution: line,
       labels: line.map((action) => {

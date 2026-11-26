@@ -1,6 +1,7 @@
 import { chessGameShared } from '@libs/chess-sub-shared-ts/chess-game';
 import type { PlayableGame } from '@libs/game-session-harness-ts/harness-game';
 import type { PuzzleFixture } from '@libs/game-session-harness-ts/known-puzzles';
+import { extraPuzzleRating } from '@libs/game-session-harness-ts/known-puzzles';
 import { CUSTOM_GAME_MATERIAL } from './custom-game-histories';
 
 /** Chess's game id, as the space's game choice and finding an opponent name it. */
@@ -26,7 +27,7 @@ function moreChessPuzzles(): PuzzleFixture[] {
           id: `KRm${file}${String(rank)}`,
           position: `6k1/8/6K1/${rows.join('/')} b - - 0 1`,
           line: ['g8h8', `${file}${String(rank)}${file}8`],
-          rating: 1300 + (column * 5 + row) * 10,
+          rating: extraPuzzleRating(column * ROOK_RANKS.length + row),
           ratingDeviation: 80,
           popularity: 90,
           plays: 100,

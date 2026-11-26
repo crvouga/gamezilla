@@ -1174,8 +1174,8 @@ no production game advertises the new mode.
   `daily-puzzle-limit.dmn`, `puzzle-progress.als`,
   `puzzle-ready.openslo.yaml`) and run for chess and the reference game (a
   race where a turn may count two or three, so a move can be legal and
-  wrong) on their known puzzles, in a world whose catalogue holds exactly
-  those (`gameSystem(…, { knownPuzzles: true })`); a scenario's pool (its
+  wrong) on their known puzzles, which `gameSystem(…, { knownPuzzles: true })`
+  adds to the catalogue. A scenario's pool (its
   ratings, quality, themes) is those same known puzzles rewritten through
   the catalogue writer (`puzzle-pool`). Every number of the feed and the
   rating — the 1500 start, the floor 400 and ceiling 3000, the offset of

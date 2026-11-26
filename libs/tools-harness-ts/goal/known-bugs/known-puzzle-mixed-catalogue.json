@@ -1,0 +1,4 @@
+{
+  "summary": "With the deployed chess catalogue preloaded, the named-puzzle and rating setups admitted 04ZkB to the feed and could open it instead of 01Xbe or the requested rating.",
+  "regressionTest": "libs/games-harness-ts/tests/known-puzzle-mixed-catalogue.test.ts"
+}

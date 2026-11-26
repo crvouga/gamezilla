@@ -28,6 +28,7 @@ import type {
   KnownPuzzles,
   PuzzleFixture,
 } from '@libs/game-session-harness-ts/known-puzzles';
+import { extraPuzzleRating } from '@libs/game-session-harness-ts/known-puzzles';
 import type { TurnGame } from '@libs/game-session-shared-ts/game-definition';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
 import {
@@ -516,7 +517,7 @@ function moreRacePuzzle(
       `more-${String(n)}`,
       `race:${String(start.count)}${start.mover}`,
       line,
-      1300 + (n % 20) * 15
+      extraPuzzleRating(n)
     ),
     solverSide,
     solution: line.filter((_, index) => index % 2 === 1),

@@ -1,7 +1,7 @@
 /**
  * A puzzle of the run's game won another way: the known puzzle whose
- * author wrote a winning move off its line, on the board alone in the
- * pool, won that way online, offline, or both ways on two devices apart.
+ * author wrote a winning move off its line, won that way online, offline,
+ * or both ways on two devices apart.
  */
 
 import { winGamePuzzleApartBothWays } from '@libs/game-session-harness-ts/puzzle-finishes';
@@ -16,22 +16,17 @@ import { cutConnection, otherDevice } from '@libs/harness-ts/platform';
 import { focusActor } from '@libs/harness-ts/shell-actions';
 import { turnGameOf } from './game-world';
 import {
-  enterPuzzles,
+  enterFixturePuzzle,
   focusPuzzle,
   puzzleGameId,
   SETTLE_MS,
-  writePool,
 } from './puzzle-world';
 
 Given(
   "{actor} is solving the game's known puzzle that can be won another way",
   async (w, actor: Actor) => {
     const fixture = puzzleWonAnotherWay(turnGameOf(w));
-    await writePool(w, [{ id: fixture.record.id }]);
-    const id = await enterPuzzles(w, actor);
-    // Precondition guard: the feed served it, the one puzzle in the pool.
-    if (id !== fixture.record.id)
-      throw new Error(`${actor} was served ${id}, not ${fixture.record.id}`);
+    await enterFixturePuzzle(w, actor, fixture);
   }
 );
 

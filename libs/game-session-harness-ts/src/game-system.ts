@@ -44,9 +44,8 @@ export type GameSystemOptions = {
   /** Replaces a game's own slice (a richer seed for its own suites). */
   readonly slices?: readonly HarnessSlice[];
   /**
-   * The puzzle catalogue holds each game's known puzzles and nothing else,
-   * in place of the content a game's own slice seeds: a world whose every
-   * puzzle a scenario knows in advance.
+   * Seed each game's known puzzles in place of its slice's normal seed.
+   * A shared stack can already hold other catalogue entries.
    */
   readonly knownPuzzles?: boolean;
   /** Further subs a suite plays the games beside (the synthetic population). */
