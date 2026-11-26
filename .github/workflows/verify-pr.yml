@@ -100,6 +100,7 @@ env:
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
+  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '16' }}
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
@@ -141,6 +142,7 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          filter: blob:none
       - uses: ./.github/actions/setup
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
@@ -152,6 +154,7 @@ jobs:
       # Chrome normally installs in well under a minute. Two minutes is the
       # hard cap so a hung download cannot spend the shard's budget.
       - uses: ./.github/actions/visual-renderer
+        if: env.VERIFY_CI_STAGE != 'pr'
         timeout-minutes: 2
       # Shards are packed by the durations the newest run of this profile
       # measured on these runners (`verify:end` saves them); the key never
@@ -165,8 +168,25 @@ jobs:
           path: .cache/verify-ci/measured-costs.json
           key: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-${{ github.run_id }}-${{ github.run_attempt }}
           restore-keys: verify-task-costs-v2-${{ env.VERIFY_PROFILE }}-
+      - name: Measure competing workflow runs
+        if: env.VERIFY_CI_STAGE != 'pr'
+        id: demand
+        run: |
+          set -euo pipefail
+          # This run is included. A snapshot sizes work and never gates admission.
+          demand=0
+          for status in queued in_progress; do
+            if ! count=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=1" --jq '.total_count'); then
+              echo "::warning::Runner demand unavailable. Using the configured matrix capacity."
+              exit 0
+            fi
+            demand=$((demand + count))
+          done
+          echo "runs=$demand" >> "$GITHUB_OUTPUT"
       - name: Plan all owners once
         id: plan
+        env:
+          VERIFY_ACTIVE_RUNS: ${{ steps.demand.outputs.runs }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/verify-plan.ts
       - name: Export immutable plan
         run: bun run libs/tools-harness-ts/scripts/verify-plan-transfer.ts --export
@@ -261,9 +281,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          filter: blob:none
       - uses: ./.github/actions/setup
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -362,9 +384,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 0
+          filter: blob:none
       - uses: ./.github/actions/setup
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
