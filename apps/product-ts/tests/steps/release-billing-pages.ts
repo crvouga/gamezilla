@@ -26,14 +26,15 @@ async function showAction(w: LiveWorld, button: string): Promise<void> {
 // Run in the disposable tab. The real API and simulated provider still handle
 // the POST. Only delivery of this one response waits for the pending-state capture.
 function holdResponse(url: string, release: string): void {
-  const fetchResponse = window.fetch.bind(window);
+  const tab: Window = window;
+  const fetchResponse = tab.fetch.bind(tab);
   const released = new Promise<void>((resolve) =>
     window.addEventListener(release, () => resolve(), { once: true })
   );
-  window.fetch = async (...args) => {
+  tab.fetch = async (...args) => {
     const response = await fetchResponse(...args);
     if (response.url === url) {
-      window.fetch = fetchResponse;
+      tab.fetch = fetchResponse;
       await released;
     }
     return response;
