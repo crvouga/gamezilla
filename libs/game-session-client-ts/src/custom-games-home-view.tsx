@@ -11,8 +11,42 @@ import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
-import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
+import {
+  createFrameChoices,
+  FrameChoiceRow,
+  type FrameChoices,
+} from './game-frame-choice';
 import { FrameLobbyPage } from './game-frame-shell';
+
+function NewGameSeat(props: {
+  readonly choices: FrameChoices;
+  readonly side: FramePlaceProps['sides'][number];
+  readonly index: number;
+  readonly onChoose: FramePlaceProps['onChoose'];
+  readonly onOpen: FramePlaceProps['onOpen'];
+}): JSX.Element {
+  return (
+    <FrameChoiceRow
+      choices={props.choices}
+      id={`custom-game-${props.side}-choices`}
+      navigates
+      title={<Trans>Seat {props.index + 1}</Trans>}
+      caption={
+        props.index === 0 ? (
+          <Trans>You</Trans>
+        ) : (
+          <Trans>Open seat · Invite a person or add a bot</Trans>
+        )
+      }
+      operation={async () => {
+        const open = props.onOpen;
+        const side = props.side;
+        await props.onChoose({ operation: 'create' });
+        open({ screen: 'seat', side });
+      }}
+    />
+  );
+}
 
 /**
  * Fresh setup shows the seats before the host commits to a mode. Editing a
@@ -82,23 +116,12 @@ export function CustomGamesHomePlace(props: FramePlaceProps): JSX.Element {
         >
           <For each={props.sides}>
             {(side, index) => (
-              <FrameChoiceRow
+              <NewGameSeat
                 choices={choices}
-                id={`custom-game-${side}-choices`}
-                navigates
-                title={<Trans>Seat {index() + 1}</Trans>}
-                caption={
-                  index() === 0 ? (
-                    <Trans>You</Trans>
-                  ) : (
-                    <Trans>Open seat · Invite a person or add a bot</Trans>
-                  )
-                }
-                operation={async () => {
-                  const open = props.onOpen;
-                  await props.onChoose({ operation: 'create' });
-                  open({ screen: 'seat', side });
-                }}
+                side={side}
+                index={index()}
+                onChoose={props.onChoose}
+                onOpen={props.onOpen}
               />
             )}
           </For>
