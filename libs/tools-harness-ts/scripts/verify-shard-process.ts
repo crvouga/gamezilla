@@ -56,7 +56,9 @@ function spawnTurbo(
       '--summarize',
       '--json',
       '--output-logs=full',
-      '--continue=dependencies-successful',
+      env['GITHUB_WORKFLOW'] === 'Release'
+        ? '--continue=never'
+        : '--continue=dependencies-successful',
     ],
     {
       cwd: ROOT,
@@ -266,7 +268,9 @@ export async function executeShard(
       overBudget.set(task.taskId, task);
     budgetKilled ||= pass.stop?.kind === 'task-budget';
     const next =
-      pass.stop?.kind === 'task-budget' && pass.status !== 130
+      env['GITHUB_WORKFLOW'] !== 'Release' &&
+      pass.stop?.kind === 'task-budget' &&
+      pass.status !== 130
         ? tasksAfterSettled(pending, tasks, [
             ...overBudget.keys(),
             ...failed.keys(),

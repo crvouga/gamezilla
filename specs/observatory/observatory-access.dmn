@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <definitions xmlns="https://www.omg.org/spec/DMN/20191111/MODEL/" id="observatory-access-decisions" name="User Observatory access" namespace="urn:product:decisions">
-  <decision id="observatory-access" name="May this person use the User Observatory?">
-    <description>Viewing the User Observatory and watching someone live each require authorization for that capability.</description>
+  <decision id="observatory-access" name="May this person use the administration site or the User Observatory?">
+    <description>Opening the administration site, viewing the User Observatory and watching someone live each require authorization.</description>
     <decisionTable id="observatory-access-table" hitPolicy="UNIQUE">
       <input id="authorized" label="authorized for this capability">
         <inputExpression id="authorized-expression" typeRef="string"><text>authorized for this capability</text></inputExpression>
@@ -9,7 +9,7 @@
       </input>
       <input id="capability" label="what they want to do">
         <inputExpression id="capability-expression" typeRef="string"><text>what they want to do</text></inputExpression>
-        <inputValues id="capability-values"><text>"view the User Observatory","watch someone live"</text></inputValues>
+        <inputValues id="capability-values"><text>"open the administration site","view the User Observatory","watch someone live"</text></inputValues>
       </input>
       <output id="answer" name="answer" typeRef="string"><outputValues id="answer-values"><text>"yes","no"</text></outputValues></output>
       <output id="reason" name="reason" typeRef="string"><outputValues id="reason-values"><text>"none","permission required"</text></outputValues></output>

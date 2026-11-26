@@ -60,7 +60,8 @@ describe('Verify workflow cancellation', () => {
     expect(shards.name).toBe('verify:shards (${{ strategy.job-index }})');
     expect(shards.env['VERIFY_SHARD']).toBe('${{ strategy.job-index }}');
     expect(shards.concurrency).toEqual({
-      group: "verify-full-shard-${{ matrix.shard['-'] }}",
+      group:
+        "${{ inputs.require-main && 'verify-production-shard' || 'verify-full-shard' }}-${{ matrix.shard['-'] }}",
       queue: 'max',
     });
     const shardCounts = workflow.on.workflow_dispatch.inputs.shards.options;
@@ -236,7 +237,7 @@ describe('Verify workflow cancellation', () => {
           needs?: string[] | string;
           if?: string;
           name: string;
-          strategy?: { 'fail-fast': boolean };
+          strategy?: { 'fail-fast': string };
           'continue-on-error'?: boolean;
           steps: {
             name?: string;
@@ -272,7 +273,9 @@ describe('Verify workflow cancellation', () => {
     expect(end.if).toBe('always() && !cancelled()');
     expect(end['continue-on-error']).toBeUndefined();
     expect(workflow.jobs['verify-start']!.if).toBeUndefined();
-    expect(workflow.jobs['verify-shards']!.strategy?.['fail-fast']).toBe(false);
+    expect(workflow.jobs['verify-shards']!.strategy?.['fail-fast']).toBe(
+      "${{ github.workflow == 'Release' }}"
+    );
     const step = (script: string) =>
       end.steps.findIndex((candidate) => candidate.run?.includes(script));
     // Fan-in suites still report when a shard is red; the verdict follows
@@ -280,7 +283,10 @@ describe('Verify workflow cancellation', () => {
     const consumers = step('verify-consumers.ts');
     const verdict = step('verify-verdict.ts');
     expect(consumers).toBeGreaterThan(-1);
-    expect(end.steps[consumers]!.if).toBeUndefined();
+    expect(end.steps[consumers]!.if).toContain("github.workflow != 'Release'");
+    expect(end.steps[consumers]!.if).toContain(
+      "needs.verify-start.result == 'success'"
+    );
     const pr = prWorkflow.jobs['verify-end']!.steps.find((s) =>
       s.run?.includes('turbo-ci-run.ts verify:ci')
     )!;

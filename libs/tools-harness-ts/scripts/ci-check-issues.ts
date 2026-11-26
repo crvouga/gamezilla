@@ -81,7 +81,7 @@ export function planCheckIssues(
       .map((issue) => [issue.title.slice(CHECK_ISSUE_PREFIX.length), issue])
   );
   const failed = failedChecks(verdict);
-  const decided = failed.filter((check) => check.reason !== 'missing');
+  const decided = failed.filter((check) => check.reason === 'failed');
   const update = decided.flatMap((check) => {
     const issue = issues.get(check.taskId);
     return issue ? [{ issue, check }] : [];

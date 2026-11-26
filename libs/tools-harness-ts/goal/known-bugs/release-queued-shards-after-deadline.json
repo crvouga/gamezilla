@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45828143603 scheduled 64 shards for 12 runner slots. After a shard failed, 52 more acquired runners only to reject the expired workflow, taking the run past ten minutes.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-shard-capacity.test.ts"
+}

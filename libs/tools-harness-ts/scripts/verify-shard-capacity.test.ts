@@ -68,6 +68,22 @@ function chainCorpus(
   ];
 }
 
+// regression: release-queued-shards-after-deadline
+test('Release fits its 64 requested shards into one wave of 12 runners', () => {
+  const plan = planShards(coldCorpus(), {
+    GITHUB_WORKFLOW: 'Release',
+    VERIFY_SHARDS: '64',
+    VERIFY_MAX_PARALLEL: '12',
+  });
+  validatePlan(plan);
+  const running = plan.shards.filter(
+    (shard) =>
+      shard.stage === 'verifications' && shard.tasks.some((item) => !item.hit)
+  );
+  expect(running.length).toBeLessThanOrEqual(12);
+  expect(plan.tasks).toHaveLength(coldCorpus().length);
+});
+
 test('two capped runners keep the literal small producer corpus within its deadline', () => {
   // regression: verify-solver-reservations-overfill-cold-shards
   const plan = balanceShards(chainCorpus(2, 1, 151), 2, 180);
@@ -109,6 +125,18 @@ test('capped solver reservations reuse available runners before a cold corpus ex
   validatePlan(plan);
 });
 
+// regression: cold-shard-balance-budget
+test('two runners split 961 seconds of cold work as evenly as possible', () => {
+  const plan = balanceShards(chainCorpus(2, 1, 120), 2, 180);
+  expect(
+    plan.shards
+      .slice(0, 2)
+      .map((shard) => shard.seconds)
+      .sort()
+  ).toEqual([480, 481]);
+  validatePlan(plan);
+});
+
 test('capped plans retain dependencies and coverage while proof runners share spare time', () => {
   assertProperty(
     'bounded cold Verify capacity',
@@ -122,8 +150,9 @@ test('capped plans retain dependencies and coverage while proof runners share sp
         const bins = plan.shards.filter(
           (shard) => shard.stage === 'verifications'
         );
+        // Each runner can take four equal feature chains and at most one proof.
         expect(Math.max(...bins.map((bin) => bin.seconds))).toBeLessThanOrEqual(
-          CI_RUN_DEADLINE_SECONDS
+          4 * featureSeconds + proofSeconds
         );
         expect(
           plan.shards
