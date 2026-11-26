@@ -53,13 +53,20 @@ export async function pingPostgres(
   timers: Timers
 ): Promise<void> {
   const sanitized = sanitizePostgresUrlForNodePg(connectionString);
+  return connectPostgresProbe(() => pingPostgresOnce(sanitized), timers);
+}
+
+/** Open a probe session across transient transport failures. */
+export async function connectPostgresProbe<T>(
+  open: () => Promise<T>,
+  timers: Pick<Timers, 'setTimeout'>
+): Promise<T> {
   let lastError: unknown;
   for (let attempt = 0; attempt < PING_ATTEMPTS; attempt++) {
     const delayMs = PING_RETRY_DELAYS_MS[attempt] ?? 0;
     if (delayMs > 0) await sleep(delayMs, timers);
     try {
-      await pingPostgresOnce(sanitized);
-      return;
+      return await open();
     } catch (error) {
       lastError = error;
       if (!isTransientPingError(error) || attempt === PING_ATTEMPTS - 1) {
@@ -89,7 +96,7 @@ async function pingPostgresOnce(connectionString: string): Promise<void> {
   }
 }
 
-function sleep(ms: number, timers: Timers): Promise<void> {
+function sleep(ms: number, timers: Pick<Timers, 'setTimeout'>): Promise<void> {
   return new Promise((resolve) => {
     timers.setTimeout(resolve, ms);
   });
