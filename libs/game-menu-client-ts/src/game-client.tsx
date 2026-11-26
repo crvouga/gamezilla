@@ -15,6 +15,7 @@ import { gameFamily, gameSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import type { JSX } from '@solidjs/web';
 import { assertContentFrame, assertFrame } from './game-frame-contract';
+import type { GameLesson } from './game-lesson';
 import { GameMenu } from './game-menu';
 import { assertGameSettings, type GameSettings } from './game-settings';
 
@@ -72,7 +73,7 @@ type GameClientParts = {
   /** One line under the name above the game's choices. */
   readonly subtitle: () => JSX.Element;
   /** How to play, on its own small screen opened from the game's choices. */
-  readonly instructions?: () => JSX.Element;
+  readonly lesson?: GameLesson;
   /**
    * The game's settings, offered last under the shared name: a tree of
    * rows declared as data, which the platform draws.
@@ -104,6 +105,7 @@ class DefinedGameClient implements GameClientDefinition {
   declare readonly mode?: GameClientMode;
   declare readonly presentation?: GamePresentation<JSX.Element>;
   declare readonly puzzleContent?: PuzzleContentClient;
+  readonly lesson: GameLesson | undefined;
   readonly MainMenu: GameClientDefinition['MainMenu'];
   /** The game's puzzles part, when it offers puzzles. */
   declare readonly puzzles?: GamePuzzlesClient;
@@ -112,6 +114,7 @@ class DefinedGameClient implements GameClientDefinition {
   constructor(game: GameClient) {
     const id = game.shared.id;
     this.id = id;
+    this.lesson = game.lesson;
     this.title = game.title;
     this.caption = game.caption;
     this.motif = game.tile;

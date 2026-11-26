@@ -1,0 +1,4 @@
+{
+  "summary": "Choosing How to play in Classic Quoridor showed a paragraph instead of a practice board where South could make the first move.",
+  "regressionTest": "libs/games-harness-ts/tests/game-lessons.test.tsx"
+}

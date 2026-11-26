@@ -45,7 +45,6 @@ function GameChoices(props: {
     })
   );
   const Subtitle = dynamic(() => props.game.subtitle);
-  const Instructions = dynamic(() => props.game.instructions);
   return (
     <>
       {/* Back names where it goes: the space's list of games, or the menu. */}
@@ -59,9 +58,7 @@ function GameChoices(props: {
         title={props.game.title}
         tile={props.game.tile}
         subtitle={<Subtitle />}
-        instructions={
-          props.game.instructions === undefined ? undefined : <Instructions />
-        }
+        lesson={props.game.lesson}
         choices={choices()}
         onChoose={(screen) => props.navigation.show(screen)}
         place={nav.place()}

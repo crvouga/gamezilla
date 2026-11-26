@@ -309,11 +309,11 @@ dialogs) shows on every builder place. The story ids are
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
 | `open` | `home` | Hub | The template screens the game's capabilities offer, one emphasised |
-| | `how-to-play` | Hub | The game's own words on how it is played |
+| | `how-to-play` | Hub | The selected mode's guided practice board |
 
 The menu holds rows that lead onward and nothing else. Choosing a template
 screen moves the whole space (`useGameScreen`); how to play is this
-device's own place behind the menu, offered as a row when the game says how.
+device's own place behind the menu, with steps supplied by the selected game client.
 
 ### A game's settings (`settings`)
 

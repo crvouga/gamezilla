@@ -6,13 +6,20 @@ import type { GameMenuPlace } from '@libs/game-menu-client-ts/game-menu-places';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 
-const RULES =
-  'Take turns dropping a disc into a column. Four in a row, column or diagonal wins.';
+const PROMPT = 'Drop your disc in the middle column.';
+const step = {
+  prompt: () => PROMPT,
+  success: () => 'Centre claimed',
+  initial: () => '',
+  play: () => '4',
+  Board: () => null,
+};
+const LESSON = [step, step] as const;
 const TAGLINE = 'Drop discs and line up four';
 
 function menu(options: {
   width: number;
-  instructions: string | undefined;
+  lesson: typeof LESSON | undefined;
   place: GameMenuPlace;
   onOpen?: (place: GameMenuPlace) => void;
 }) {
@@ -25,7 +32,7 @@ function menu(options: {
         title="Connect Four"
         tile="discs"
         subtitle={TAGLINE}
-        instructions={options.instructions}
+        lesson={options.lesson}
         choices={[
           {
             screen: 'custom-game',
@@ -55,11 +62,11 @@ test.each([390, 1440])(
   (width) => {
     const view = menu({
       width,
-      instructions: RULES,
+      lesson: LESSON,
       place: { screen: 'home' },
     });
     expect(view.getByText(TAGLINE)).toBeTruthy();
-    expect(view.queryByText(RULES)).toBeNull();
+    expect(view.queryByText(PROMPT)).toBeNull();
     expect(view.getByTestId('game-choice-how-to-play')).toBeTruthy();
     view.unmount();
   }
@@ -70,7 +77,7 @@ test.each([390, 1440])(
   (width) => {
     const view = menu({
       width,
-      instructions: RULES,
+      lesson: LESSON,
       place: { screen: 'home' },
     });
     const emphasised = view.container.querySelectorAll(
@@ -82,11 +89,11 @@ test.each([390, 1440])(
   }
 );
 
-test('the how to play row opens its place, and that place says the rules', () => {
+test('the how to play row opens its place, and that place gives the first move', () => {
   const onOpen = mock((_place: GameMenuPlace) => undefined);
   const hub = menu({
     width: 390,
-    instructions: RULES,
+    lesson: LESSON,
     place: { screen: 'home' },
     onOpen,
   });
@@ -95,10 +102,10 @@ test('the how to play row opens its place, and that place says the rules', () =>
   hub.unmount();
   const rules = menu({
     width: 390,
-    instructions: RULES,
+    lesson: LESSON,
     place: { screen: 'how-to-play' },
   });
-  expect(rules.getByText(RULES)).toBeTruthy();
+  expect(rules.getByText(PROMPT)).toBeTruthy();
   expect(rules.queryByTestId('game-choice-custom-game')).toBeNull();
   rules.unmount();
 });
@@ -106,7 +113,7 @@ test('the how to play row opens its place, and that place says the rules', () =>
 test('a game that says nothing about how to play offers no such row', () => {
   const view = menu({
     width: 390,
-    instructions: undefined,
+    lesson: undefined,
     place: { screen: 'home' },
   });
   expect(view.queryByTestId('game-choice-how-to-play')).toBeNull();
@@ -117,7 +124,7 @@ test('a game that says nothing about how to play offers no such row', () => {
 test('the game menu offers its destinations without a mode choice', () => {
   const view = menu({
     width: 390,
-    instructions: RULES,
+    lesson: LESSON,
     place: { screen: 'home' },
   });
   expect(view.queryByTestId('game-modes')).toBeNull();

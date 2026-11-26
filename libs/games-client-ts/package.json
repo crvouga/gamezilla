@@ -29,8 +29,12 @@
     "@libs/word-tiles-client-ts": "workspace:*"
   },
   "devDependencies": {
+    "@solidjs/web": "catalog:",
     "@types/bun": "catalog:",
     "@typescript/native": "catalog:",
+    "solid-js": "catalog:",
+    "storybook": "catalog:",
+    "storybook-solidjs-vite": "catalog:",
     "typescript": "catalog:"
   },
   "category": "client",
