@@ -56,7 +56,7 @@ export function shardMatrix(
 ): string {
   if (schedule.shards.some((shard, place) => shard !== place))
     throw new Error('Shards with work must be numbered first');
-  const sharedSlots = 12;
+  const sharedSlots = 6;
   return JSON.stringify(
     schedule.shards.map((shard) => ({
       '-': '-'.repeat(1 + ((runId + shard) % sharedSlots)),

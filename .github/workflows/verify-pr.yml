@@ -106,7 +106,7 @@ env:
   # Forty left a cold corpus — every cache missed — packed past the 1200s
   # shard deadline once each solver had a runner of its own (Verify run
   # 38328597240); sixty-four keeps that pack inside the deadline.
-  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '12' }}
+  VERIFY_MAX_PARALLEL: ${{ vars.VERIFY_MAX_PARALLEL || '6' }}
   VERIFY_SHARDS: ${{ inputs.shards || vars.VERIFY_SHARDS || '64' }}
   VERIFY_CONCURRENCY: ${{ inputs.concurrency || vars.VERIFY_CONCURRENCY || '1' }}
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
@@ -217,13 +217,13 @@ jobs:
           # Only workflows that can occupy a shared shard slot affect packing.
           demand=0
           for status in queued in_progress; do
-            if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq '
-              [.[].workflow_runs[] | select(
-                .path == ".github/workflows/deploy.yml" or
+            if ! count=$(gh api --paginate --slurp "repos/$GITHUB_REPOSITORY/actions/runs?status=$status&per_page=100" | jq --arg deployment "$VERIFY_DEPLOYMENT" '
+              [.[].workflow_runs[] | select(if $deployment == "true" then
+                .path == ".github/workflows/deploy.yml" else
                 (.path == ".github/workflows/verify-pr.yml" and .event == "workflow_dispatch") or
                 (.path == ".github/workflows/verify-nightly.yml" and
                  (.display_title | (contains("diagnostic ") | not) or endswith("diagnostic gate")))
-              )] | length'); then
+              end)] | length'); then
               echo "::warning::Runner demand unavailable. Using the configured matrix capacity."
               exit 0
             fi
@@ -305,9 +305,9 @@ jobs:
   verify-shards:
     name: verify:shards (${{ strategy.job-index }})
     needs: [verify-start]
-    # Across PR dispatch, Release and Nightly, one shard can use each slot.
+    # Six slots for releases and six for diagnostics within the 20-job account limit.
     concurrency:
-      group: verify-full-shard-${{ matrix.shard['-'] }}
+      group: verify-${{ inputs.deployment && 'deploy' || 'full' }}-shard-${{ matrix.shard['-'] }}
       queue: max
     # An empty matrix is an error, so a fully cached plan skips the job.
     if: needs.verify-start.outputs.shards != '[]'
@@ -319,7 +319,7 @@ jobs:
     timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
     strategy:
       fail-fast: false
-      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '12') }}
+      max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '6') }}
       matrix:
         shard: ${{ fromJSON(needs.verify-start.outputs.shards) }}
     env:
