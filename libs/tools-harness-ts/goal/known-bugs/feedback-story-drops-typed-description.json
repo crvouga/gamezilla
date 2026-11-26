@@ -1,0 +1,4 @@
+{
+  "summary": "Typing It froze into the Storybook report form failed because the controlled description stayed empty between keystrokes.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}

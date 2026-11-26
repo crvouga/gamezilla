@@ -12,15 +12,19 @@ const index = JSON.parse(
     'utf8'
   )
 ) as { entries: Record<string, Entry> };
+const pinnedPhoneExamples = new Set([
+  'primitives-sparkline--states dark',
+  'product-bug-report--describe-and-send light',
+  'screens-puzzles-result--unrated light',
+]);
 for (const story of Object.values(index.entries).filter(
   (e) => e.type === 'story'
 )) {
   for (const scenario of visualScenarios(story)) {
-    // This exact matrix entry is registered literally below.
+    // These matrix entries are registered literally as regression examples below.
     if (
-      story.id === 'primitives-sparkline--states' &&
-      scenario.theme === 'dark' &&
-      scenario.width === 390
+      scenario.width === 390 &&
+      pinnedPhoneExamples.has(`${story.id} ${scenario.theme}`)
     )
       continue;
     const { theme, suffix } = scenario;
@@ -55,6 +59,20 @@ async function verifyBoardRegression(
   if (!scenario) throw new Error(`Missing regression viewport: ${width}`);
   await verifyStoryScenario(page, id, scenario);
 }
+
+// regression: feedback-story-drops-typed-description
+test('product-bug-report--describe-and-send light', async ({ page }) => {
+  await verifyBoardRegression(
+    page,
+    'product-bug-report--describe-and-send',
+    390
+  );
+});
+
+// regression: puzzle-result-details-inaccessible-by-keyboard
+test('screens-puzzles-result--unrated light', async ({ page }) => {
+  await verifyBoardRegression(page, 'screens-puzzles-result--unrated', 390);
+});
 
 // regression: quoridor-pawn-prominence-and-identity
 test('screens-games-quoridor-classic--pawn-identity-and-keyboard regression quoridor-pawn-prominence-and-identity', async ({

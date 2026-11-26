@@ -226,7 +226,8 @@
     "left pass right"
     "left center right"
     "bottom bottom bottom";
-  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  height: auto;
+  grid-template-rows: auto minmax(min-content, 1fr) auto auto;
 }
 .table > .pass {
   grid-area: pass;
