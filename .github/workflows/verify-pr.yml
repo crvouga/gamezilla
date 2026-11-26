@@ -106,6 +106,14 @@ jobs:
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
+      - name: Check branding in changed package research
+        if: steps.scope.outputs.docs != 'true'
+        run: |
+          set -o pipefail
+          export VERIFY_BRAND_IDENTITY_JSON="${PRODUCT_IDENTITY_JSON:-}"
+          git diff --no-renames --diff-filter=AMT --name-only -z "$PR_BASE...$PR_HEAD" -- \
+            ':(glob)apps/**/MARKET_RESEARCH.md' ':(glob)libs/**/MARKET_RESEARCH.md' ':(glob)pkgs/**/MARKET_RESEARCH.md' |
+            xargs -0 -r bun libs/tools-harness-ts/scripts/verify-brand-policy.ts
       - name: Run the pull request gate
         env:
           VERIFY_DEADLINE_SECONDS: '120'

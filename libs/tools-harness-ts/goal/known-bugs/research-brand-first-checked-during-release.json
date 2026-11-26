@@ -1,0 +1,4 @@
+{
+  "summary": "Research documents in the game-stage and puzzle-pack changes passed the PR gate with deployment brand literals, failing configured setup on Releases 699 and 701.",
+  "regressionTest": "libs/tools-harness-ts/scripts/pr-research-brand.test.ts"
+}

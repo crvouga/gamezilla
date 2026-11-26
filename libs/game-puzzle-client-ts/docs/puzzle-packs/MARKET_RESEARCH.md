@@ -20,7 +20,7 @@ IMG_0662. The 8×8 page shows puzzles 1–30 in six rows. The first three tiles 
 
 IMG_0663. The top row shows Back, the level number, board size and Settings. Immediately above the board are the connected pairs, moves, best and fill percentage. Undo, hint and restart sit below the board.
 
-## Direction for Gamezilla
+## Puzzle pack navigation
 
 Keep the pack chooser as a list with progress beside each pack. Opening a pack should show its puzzles in a numbered grid where a player can recognize completed puzzles and choose the next one. Opening a tile should lead directly to a stage with space controls at the top, puzzle status above the centered board and puzzle actions in a stable bottom bar. See the [shared game-stage comparison](../../../games-shared-ts/docs/game-stage/MARKET_RESEARCH.md).
 
