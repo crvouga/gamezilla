@@ -1,0 +1,4 @@
+{
+  "summary": "Release 45904560709 repeated shared reconciliation after a queued cancellation, file picker and puzzle changes. Production then missed rollout admission. Pong journey changes also caused fresh shared applies.",
+  "regressionTest": "libs/tools-harness-ts/scripts/reuse-shared-release.test.ts"
+}

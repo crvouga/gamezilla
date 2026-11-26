@@ -31,7 +31,7 @@ function historyFixture(dir: string, sha: string) {
   });
   writeFileSync(
     join(dir, 'gh'),
-    '#!/bin/sh\ncase "$*" in *attempts*) cat jobs;; *) cat runs;; esac\n',
+    '#!/bin/sh\ncase "$*" in */45903734711/attempts/*) cat cancelled-jobs;; *attempts*) cat jobs;; *) cat runs;; esac\n',
     { mode: 0o755 }
   );
   const run = {
@@ -41,10 +41,13 @@ function historyFixture(dir: string, sha: string) {
     run_attempt: 1,
     created_at: '2026-11-26T13:57:14Z',
   };
-  const runs = (candidate: typeof run) =>
+  const runs = (...candidates: (typeof run)[]) =>
     writeFileSync(
       join(dir, 'runs'),
-      JSON.stringify({ total_count: 1, workflow_runs: [candidate] })
+      JSON.stringify({
+        total_count: candidates.length,
+        workflow_runs: candidates,
+      })
     );
   const jobs = (fleet: string, policy: string) =>
     writeFileSync(
@@ -101,9 +104,26 @@ test('Release reuses a completed apply across verification edits and requires fr
       'libs/tools-harness-ts/scripts/verify-plan.ts',
       'libs/tools-harness-ts/scripts/workflow-plan-artifact.test.ts',
     ]);
+    // regression: release-reapplies-shared-after-ui-and-journey-edits
+    commit(dir, [
+      'pkgs/ui-root-client-ts/src/file-picker/index.tsx',
+      'pkgs/ui-root-client-ts/src/file-picker/file-picker.stories.tsx',
+      'pkgs/ui-root-client-ts/tests/file-choice.test.tsx',
+      'libs/game-puzzle-client-ts/tests/content-published-page.test.ts',
+      'libs/tools-harness-ts/scripts/verify-nightly-verdict.ts',
+      'libs/runtime-harness-ts/src/pong-journey-court.ts',
+      'libs/runtime-harness-ts/src/pong-journey.ts',
+    ]);
     const { run, runs, jobs, result } = historyFixture(dir, sha);
     jobs('success', 'success');
     expect(result()).toBe(0);
+    const cancelled = { ...run, id: 45903734711, conclusion: 'cancelled' };
+    runs(run, cancelled);
+    writeFileSync(join(dir, 'cancelled-jobs'), '{"total_count":0,"jobs":[]}');
+    expect(result()).toBe(0);
+    writeFileSync(join(dir, 'cancelled-jobs'), '{"total_count":1,"jobs":[]}');
+    expect(result()).not.toBe(0);
+    runs(run);
     expect(result('workflow_dispatch')).not.toBe(0);
     for (const outcome of ['cancelled', 'failure', 'skipped']) {
       jobs('success', outcome);
