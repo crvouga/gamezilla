@@ -1,7 +1,13 @@
 // @io-wall-ok — disposable workspace exercises Turbo's real task hashes.
 import { expect, test } from 'bun:test';
 import { execFileSync } from 'node:child_process';
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  unlinkSync,
+  writeFileSync,
+} from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -113,6 +119,44 @@ test('test helpers and data invalidate their owner, while production edits inval
       for (const task of ['lint', 'tc', 'test'])
         expect(productionChanged[`@p/${consumer}#${task}`]).not.toBe(
           testsChanged[`@p/${consumer}#${task}`]
+        );
+  } finally {
+    removeTree(root, { whenLocked: 'leave' });
+  }
+});
+
+// regression: required-check-policy-invalidates-product-checks
+test('removing verify:start invalidates its owner and keeps product checks reusable', () => {
+  const root = fixture();
+  try {
+    const config = JSON.parse(
+      readFileSync(join(repo, 'libs/infra-shared-ts/turbo.json'), 'utf8')
+    );
+    writeFileSync(
+      join(root, 'pkgs/a/turbo.json'),
+      JSON.stringify({
+        extends: ['//'],
+        tasks: { src: { inputs: config.tasks.src.inputs } },
+      })
+    );
+    const directory = join(
+      root,
+      'pkgs/a/tofu/modules/repository/required-checks'
+    );
+    mkdirSync(directory, { recursive: true });
+    const file = join(directory, 'verify-start.json');
+    writeFileSync(
+      file,
+      JSON.stringify({ context: 'verify:start', integration_id: 15368 })
+    );
+    const before = hashes(root);
+    unlinkSync(file);
+    const after = hashes(root);
+    expect(after['@p/a#test']).not.toBe(before['@p/a#test']);
+    for (const task of ['lint', 'tc'])
+      for (const consumer of ['b', 'c'])
+        expect(after[`@p/${consumer}#${task}`]).toBe(
+          before[`@p/${consumer}#${task}`]
         );
   } finally {
     removeTree(root, { whenLocked: 'leave' });

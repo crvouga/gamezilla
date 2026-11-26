@@ -1,0 +1,4 @@
+{
+  "summary": "Removing the verify:start repository rule changed 98 typecheck and lint task hashes because consumers inherited the infrastructure package's policy data.",
+  "regressionTest": "libs/tools-harness-ts/scripts/src-test-cache-isolation.test.ts"
+}
