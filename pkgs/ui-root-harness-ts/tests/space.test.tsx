@@ -26,7 +26,6 @@ import type {
   SpacePerson,
   SpaceRole,
 } from '@pkgs/ui-root-client-ts/space-types';
-import { SurfaceStackProvider } from '@pkgs/ui-root-client-ts/surface-stack';
 import { fireEvent, screen, within } from '@solidjs/testing-library';
 import { renderUi } from './render';
 
@@ -222,44 +221,27 @@ describe('spaceGameFit', () => {
 });
 
 describe('SpaceShell', () => {
-  test('row 1 has one space menu: it ends in Leave for a guest, End for the host', () => {
-    const onLeave = mock();
-    const onEnd = mock();
-    const shell = (role: 'host' | 'guest') => (
-      <SurfaceStackProvider>
-        <SpaceShell
-          spaceName="bob's space"
-          role={role}
-          onBack={() => {}}
-          onLeave={onLeave}
-          onEnd={onEnd}
-        >
-          <p>{'stage'}</p>
-        </SpaceShell>
-      </SurfaceStackProvider>
-    );
-    const guest = renderUi(() => shell('guest'));
-    // Nothing of the space's way out sits loose in the row.
-    const row = document.querySelector('[data-space-row="actions"]');
-    expect(row?.querySelectorAll('button')).toHaveLength(2);
-    // On a wide window the menu shows its short word; its name stays whole.
-    expect(row?.textContent).toBe("Back to spacesbob's spaceMenu");
-    expect(screen.queryByRole('menuitem')).toBeNull();
-    const opener = screen.getByRole('button', { name: 'Space menu' });
-    expect(opener.getAttribute('aria-haspopup')).toBe('menu');
-    fireEvent.click(opener);
-    expect(screen.getByRole('menu', { name: 'Space menu' })).toBeDefined();
-    expect(screen.queryByRole('dialog')).toBeNull();
-    expect(screen.queryByRole('menuitem', { name: 'End space' })).toBeNull();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'Leave space' }));
-    expect(onLeave).toHaveBeenCalledTimes(1);
-    expect(screen.queryByRole('menu')).toBeNull();
-    guest.unmount();
-    renderUi(() => shell('host'));
-    fireEvent.click(screen.getByRole('button', { name: 'Space menu' }));
-    expect(screen.queryByRole('menuitem', { name: 'Leave space' })).toBeNull();
-    fireEvent.click(screen.getByRole('menuitem', { name: 'End space' }));
-    expect(onEnd).toHaveBeenCalledTimes(1);
+  test('Leave and End have distinct confirm actions', () => {
+    const leave = mock();
+    const end = mock();
+    renderUi(() => (
+      <SpaceShell
+        spaceName="bob's space"
+        role={HOST_ROLE}
+        onBack={mock()}
+        onMembers={mock()}
+        onMinimize={mock()}
+        onLeave={leave}
+        onEnd={end}
+      >
+        <p>{'stage'}</p>
+      </SpaceShell>
+    ));
+    fireEvent.click(screen.getByRole('button', { name: 'Leave space' }));
+    expect(leave).toHaveBeenCalledTimes(1);
+    expect(end).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'End space' }));
+    expect(end).toHaveBeenCalledTimes(1);
     expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
       "bob's space"
     );
@@ -372,7 +354,8 @@ describe('SpaceInGameTemplate', () => {
         spaceName="bob's space"
         onBack={() => {}}
         onLeave={() => {}}
-        onEnd={() => {}}
+        onMembers={() => {}}
+        onMinimize={() => {}}
         onPersonAction={() => {}}
         onInvite={() => {}}
       />

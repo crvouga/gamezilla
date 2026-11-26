@@ -107,6 +107,7 @@ test('classic with no walls left never offers a pass the game does not have', ()
 test('after a wall is placed the next turn starts with the pawn tool', () => {
   for (const mode of ['classic', 'hill'] as const) {
     const { view } = mount(newQuoridor(mode), true);
+    fireEvent.click(view.getByTestId('truth-coordinates'));
     fireEvent.click(view.getByTestId('truth-mode-h'));
     fireEvent.click(view.getByTestId('truth-action-d4h'));
     fireEvent.click(view.getByTestId('truth-wall-commit'));
@@ -148,6 +149,7 @@ test('the wall anchor picker filters by coordinate, not by shared label words', 
 test('Cancel and Place wall return focus to the active tool instead of the page', () => {
   for (const mode of ['classic', 'hill'] as const) {
     const { view } = mount(newQuoridor(mode), true);
+    fireEvent.click(view.getByTestId('truth-coordinates'));
     const active = () =>
       view.getByTestId('truth-mode-h').ownerDocument.activeElement;
     fireEvent.click(view.getByTestId('truth-mode-h'));

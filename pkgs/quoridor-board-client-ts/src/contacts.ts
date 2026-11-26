@@ -1,14 +1,25 @@
 import type { BoardCamera, Point } from './board-camera';
 
+import { wallAtPoint } from './wall-at-point';
+
 export type BoardInput = {
   readonly interactive: boolean;
   readonly tool: 'h' | 'v' | 'move';
   readonly pawn: string;
+  readonly direct: boolean;
+  onWallPreview(wall: string | null): void;
+  onWall(wall: string): void;
+  onIllegalPawn(): void;
   onDrop(cell: string): void;
   onPreview(cell: string | null): void;
 };
 
-type Grip = { origin: Point; cell: HTMLElement | null; dragged: boolean };
+type Grip = {
+  origin: Point;
+  cell: HTMLElement | null;
+  dragged: boolean;
+  wall: boolean;
+};
 const point = (e: PointerEvent): Point => ({ x: e.clientX, y: e.clientY });
 const distance = (a: Point, b: Point) => Math.hypot(a.x - b.x, a.y - b.y);
 const middle = (a: Point, b: Point) => ({
@@ -32,7 +43,17 @@ export class BoardContacts {
     this.points.set(e.pointerId, point(e));
     if (this.points.size === 1) {
       this.suppressClick = false;
-      this.grip = { origin: point(e), cell, dragged: false };
+      const wall =
+        this.input.interactive && this.input.direct
+          ? wallAtPoint(this.camera.board, point(e))
+          : null;
+      this.grip = {
+        origin: point(e),
+        cell,
+        dragged: false,
+        wall: wall !== null,
+      };
+      if (wall !== null) this.input.onWallPreview(wall);
     } else {
       this.navigation = true;
       this.suppressClick = true;
@@ -84,7 +105,9 @@ export class BoardContacts {
     if (!grip) return;
     grip.dragged = true;
     if (!this.input.interactive) return;
-    if (this.input.tool !== 'move') {
+    if (grip.wall) {
+      this.input.onWallPreview(wallAtPoint(this.camera.board, p));
+    } else if (this.input.tool !== 'move') {
       this.input.onPreview(this.cellAt(p)?.dataset['cell'] ?? null);
     } else if (grip.cell?.dataset['cell'] === this.input.pawn) {
       grip.cell.dataset['lifted'] = 'true';
@@ -97,7 +120,13 @@ export class BoardContacts {
     const grip = this.grip;
     if (!this.points.has(e.pointerId)) return;
     this.move(e);
+    const wall =
+      !this.navigation && grip?.wall && this.input.interactive
+        ? wallAtPoint(this.camera.board, point(e))
+        : null;
+    if (grip?.wall) this.suppressClick = true;
     const drop =
+      !grip?.wall &&
       !this.navigation &&
       grip?.dragged &&
       this.input.interactive &&
@@ -108,8 +137,19 @@ export class BoardContacts {
     if (!this.points.size) this.navigation = false;
     this.clearGrip();
     const id = cell?.dataset['cell'];
-    if (id && cell?.getAttribute('aria-disabled') === 'false')
+    if (wall !== null) this.input.onWall(wall);
+    else if (id && cell?.getAttribute('aria-disabled') === 'false')
       this.input.onDrop(id);
+    else if (drop && cell) this.input.onIllegalPawn();
+    else if (
+      this.input.direct &&
+      this.input.interactive &&
+      !this.suppressClick &&
+      grip?.cell &&
+      grip.cell.dataset['cell'] !== this.input.pawn &&
+      grip.cell.getAttribute('aria-disabled') === 'true'
+    )
+      this.input.onIllegalPawn();
   }
 
   lost(e: PointerEvent): void {
@@ -130,6 +170,7 @@ export class BoardContacts {
       cell.style.removeProperty('--lift-x');
       cell.style.removeProperty('--lift-y');
     }
+    if (this.grip?.wall) this.input.onWallPreview(null);
     if (this.grip?.dragged || this.navigation) this.input.onPreview(null);
     this.grip = null;
   }

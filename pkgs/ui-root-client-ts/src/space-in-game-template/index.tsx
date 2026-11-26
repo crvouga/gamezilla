@@ -139,7 +139,10 @@ export function SpaceInGameTemplate(
       role={props.role}
       onBack={props.onBack}
       backLabel={props.backLabel}
-      menu={props.menu}
+      onMembers={props.onMembers}
+      onRename={props.onRename}
+      onMinimize={props.onMinimize}
+      onInvite={props.onInvite}
       onLeave={props.onLeave}
       onEnd={props.onEnd}
       notice={props.notice}

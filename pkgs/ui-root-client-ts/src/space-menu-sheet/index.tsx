@@ -7,25 +7,23 @@ import { MenuList } from '../menu-list/index';
 import { MenuRow } from '../menu-row/index';
 import { ResponsiveSurface } from '../responsive-surface/index';
 import { spaceDataSet } from '../space-data-set';
-import type { SpaceMenuItem } from '../space-types';
+import type { SpaceGameAction } from '../space-types';
 
 export type SpaceMenuSheetProps = {
   open: boolean;
   /** The modal's title: `More actions`. */
   title: string;
-  items: readonly SpaceMenuItem[];
+  items: readonly SpaceGameAction[];
   onClose: () => void;
   dataSet?: ComponentDataSet | undefined;
 };
 
 /**
  * `SpaceMenuSheet` -- the action bar's More: the game actions that did not
- * fit the bar, in a modal centered over the stage at every width. The
- * space's own menu is never this modal: it opens against row 1's button
- * (`SpaceShell`). Choosing a row closes the modal, then runs it; destructive rows wear the destructive ink.
+ * fit the bar. Choosing a row closes the modal and runs its action.
  */
 export function SpaceMenuSheet(props: SpaceMenuSheetProps): JSX.Element {
-  const run = (item: SpaceMenuItem): void => {
+  const run = (item: SpaceGameAction): void => {
     props.onClose();
     item.onPress();
   };

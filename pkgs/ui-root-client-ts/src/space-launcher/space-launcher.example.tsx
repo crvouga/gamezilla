@@ -107,10 +107,7 @@ export default function SpaceLauncherExample(
     spaceExamplePeople({ role: props.role, phase: 'choosing' });
   return (
     <SpaceExampleFrame>
-      <SpaceStageTemplate
-        {...spaceExampleChrome(props, true)}
-        role={props.role}
-      >
+      <SpaceStageTemplate {...spaceExampleChrome(props)} role={props.role}>
         <SpaceLauncher
           role={props.role}
           hostName={SPACE_EXAMPLE_HOST_NAME}

@@ -55,7 +55,7 @@ type ConfirmationArgs = {
 function confirmLocalChoice(
   args: ConfirmationArgs,
   choice: CustomGameChoice
-): Promise<void> | null {
+): Promise<string | null> | null {
   const room = args.room;
   if (
     room !== undefined &&
@@ -70,8 +70,9 @@ function confirmLocalChoice(
       choice,
       at: Math.floor(args.clock.now()),
     });
-    const simulated = args.chooseLocal?.(choice);
-    if (simulated != null) return simulated;
+    const simulated =
+      choice.operation === 'create' ? null : args.chooseLocal?.(choice);
+    if (simulated != null) return simulated.then(() => null);
     const id = room.dispatch(
       args.prepare?.(room.getSnapshot(), local) ?? local
     );
@@ -88,6 +89,7 @@ function confirmLocalChoice(
     return room.flushIo().then(() => {
       if (notice.commandId === id && notice.reason !== '')
         throw new Error(notice.reason);
+      return id;
     });
   }
   return null;
@@ -114,11 +116,11 @@ function waitsForConnection(
   );
 }
 
-/** Solo choices are durable locally; choices with others await agreement. */
+/** A create returns its command id, which the room uses as the new session id. */
 export function confirmCustomGameChoice(
   args: ConfirmationArgs,
   choice: CustomGameChoice
-): Promise<void> {
+): Promise<string | null> {
   const room = args.room;
   const local = confirmLocalChoice(args, choice);
   if (local !== null) return local;
@@ -129,7 +131,7 @@ export function confirmCustomGameChoice(
       return Promise.reject(new Error('connection needed'));
     args.onWaiting?.();
   }
-  return new Promise<void>((resolve, reject) => {
+  return new Promise<string | null>((resolve, reject) => {
     let commandId: string | null = null;
     let result: RoomCommandResult | null = null;
     let done = false;
@@ -141,7 +143,7 @@ export function confirmCustomGameChoice(
       unsubscribeResult();
       if (deadline !== null) args.timers.clearTimeout(deadline);
       args.pending.delete(cancel);
-      if (reason === '') resolve();
+      if (reason === '') resolve(commandId);
       else reject(new Error(reason));
     };
     // A choice waiting for the connection is answered once it is sent.

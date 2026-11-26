@@ -1,0 +1,4 @@
+{
+  "summary": "Opening Pong while Quoridor setup was unfinished offered Play a bot, then refused creation and hid the game the host could cancel.",
+  "regressionTest": "libs/games-harness-ts/tests/custom-game-recovery.test.ts"
+}

@@ -6,7 +6,6 @@ import { actorHtml, bringToFront } from '@libs/harness-ts/observations';
 import { otherDevice } from '@libs/harness-ts/other-device';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { offeredInSpaceMenu, spaceNameInMenu } from './space-menu-ui-reads';
 
 /** Each person's own retained space, including changes made offline. */
 export async function openSpaceHosts(
@@ -263,14 +262,13 @@ export function spaceHostOfflineShown(
 
 /**
  * A joined person can remove their own account's membership: Leave on the
- * screen (a link's join prompt, a guest's top row) or in the space's settings.
+ * screen (a link's join prompt or the space's top bar).
  */
-export async function leaveOffered(
+export function leaveOffered(
   s: ProductHarness,
   actorId: string
 ): Promise<boolean> {
-  if (await shows(s, actorId, Handles.spaceLeave)) return true;
-  return offeredInSpaceMenu(s, actorId, Handles.spaceLeave);
+  return shows(s, actorId, Handles.spaceLeave);
 }
 
 /** A refused join stays available as an explicit retry. */
@@ -333,14 +331,13 @@ export function spaceRetryOffered(
 
 /**
  * The name the actor's open space goes by, or `null` outside a space. The
- * top bar says what the screen is; the space's name heads its menu.
+ * top bar shows it alongside the screen title.
  */
-export async function spaceNameShown(
+export function spaceNameShown(
   s: ProductHarness,
   actorId: string
 ): Promise<string | null> {
-  await bringToFront(s, actorId);
-  return await spaceNameInMenu(s, actorId);
+  return textOf(s, actorId, Handles.spaceName);
 }
 
 /** What the actor's lobby card for `hostUsername`'s space reads. */
@@ -360,7 +357,7 @@ export function spaceNameRefusalShown(
   return shows(s, actorId, Handles.spaceRenameNotAllowed);
 }
 
-/** The actor's open space menu offers to rename the space. */
+/** The space bar offers Rename to the viewer. */
 export function renameOffered(
   s: ProductHarness,
   actorId: string
