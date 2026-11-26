@@ -12,6 +12,7 @@
  * the simple stack is sufficient and predictable.
  */
 
+import { useDeviceBack } from '@pkgs/ui-root-client-ts/app-router';
 import { useConfirmNavigation } from '@pkgs/ui-root-client-ts/pending-navigation';
 import type { JSX } from '@solidjs/web';
 import {
@@ -175,6 +176,7 @@ export function DefineSpaceTitle(props: { readonly title: string }): null {
 }
 
 export type DefineBackButtonProps = {
+  readonly deviceBack?: boolean;
   /** Invoked when the user taps the chrome-rendered back button. */
   onPress: () => void;
   /**
@@ -204,9 +206,14 @@ export type DefineBackButtonProps = {
  * ```
  */
 export function DefineBackButton(props: DefineBackButtonProps): null {
-  const { setHandler } = useSpacesNavContext();
+  const nav = useSpacesNavContext();
+  const { setHandler } = nav;
   const confirmNavigation = useConfirmNavigation();
   const id = createUniqueId();
+  useDeviceBack(
+    () => (props.deviceBack ? (nav.current ?? undefined) : undefined),
+    '/'
+  );
 
   createEffect(
     () => props.label,

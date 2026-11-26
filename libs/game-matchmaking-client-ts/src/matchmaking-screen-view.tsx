@@ -295,6 +295,7 @@ function CommandsPlace(props: Props): JSX.Element {
           commands={props.commands}
           onOpen={props.onOpen}
           onBack={props.onBack}
+          onBrowse={props.onLeave}
         />
       )}
     </Show>

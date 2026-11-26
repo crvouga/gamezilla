@@ -16,6 +16,8 @@ import {
   useContext,
 } from 'solid-js';
 
+import { GameScreenHistory } from './game-screen-history';
+
 type SpaceRoom = RoomClient<RoomState, RoomCommandPayload, RoomEvent, string>;
 
 export type SpaceOpenRoomEntry = {
@@ -30,6 +32,7 @@ export type SpaceOpenRoomEntry = {
 };
 
 type SpaceOpenRoomsApi = {
+  readonly history: GameScreenHistory;
   /** Imperative read (refs). Prefer {@link useSpaceOpenRoomEntry} in render. */
   readonly getEntry: (spaceId: string) => SpaceOpenRoomEntry | null;
   readonly dispatch: (spaceId: string, payload: RoomCommandPayload) => void;
@@ -127,13 +130,17 @@ export function SpaceOpenRoomsStoreProvider(props: {
 
   // Stable identity so dispatch consumers do not churn; entries notify via
   // SpaceOpenRoomsEntriesContext instead.
+  const history = new GameScreenHistory();
   const api: SpaceOpenRoomsApi = {
+    history,
     clientId: (spaceId, installId, createId) => {
       sessionRef.current ??= new SpaceOpenSessionStore(createId);
       return sessionRef.current.getOrCreate(spaceId, installId);
     },
-    clearClientId: (spaceId, installId) =>
-      sessionRef.current?.clear(spaceId, installId),
+    clearClientId: (spaceId, installId) => {
+      sessionRef.current?.clear(spaceId, installId);
+      history.forget(spaceId);
+    },
     viewingIds,
     view: (spaceId) => {
       changeView(spaceId, 1);
