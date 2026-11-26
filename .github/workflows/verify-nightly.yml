@@ -104,7 +104,28 @@ defaults:
 
 
 jobs:
+  verify-nightly-admission:
+    name: verify-nightly:admission
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    permissions:
+      actions: read
+    outputs:
+      created_at: ${{ steps.timestamp.outputs.created_at }}
+    steps:
+      - id: timestamp
+        name: Read the workflow creation timestamp
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          created=$(timeout 45 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
+          [[ "$created" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$ ]]
+          echo "created_at=$created" >> "$GITHUB_OUTPUT"
+
   verify-nightly-gate:
+    needs: verify-nightly-admission
     name: verify-nightly:gate
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'gate' }}
     permissions:
@@ -114,12 +135,14 @@ jobs:
     uses: ./.github/workflows/verify-full.yml
     with:
       profile: nightly
+      created-at: ${{ needs.verify-nightly-admission.outputs.created_at }}
       # Reserve six of the twenty account runners for releases and PRs.
       shards: 5
       # Match Release parallelism inside each gate runner.
       concurrency: 3
 
   verify-nightly-random:
+    needs: verify-nightly-admission
     name: verify-nightly:random (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'random' }}
     runs-on: ubuntu-24.04
@@ -141,16 +164,11 @@ jobs:
         id: budget
         shell: bash
         env:
-          GH_TOKEN: ${{ github.token }}
+          SHARED_CREATED_AT: ${{ needs.verify-nightly-admission.outputs.created_at }}
           STAGE_SECONDS: '2700'
         run: |
           set -euo pipefail
-          read_created() { timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at; }
-          created=$(read_created) || {
-            status=$?
-            (( status == 124 )) || exit "$status"
-            created=$(read_created)
-          }
+          created=${SHARED_CREATED_AT:?Missing workflow creation timestamp}
           created_epoch=$(date -d "$created" +%s)
           deadline=$(( created_epoch + STAGE_SECONDS ))
           remaining=$(( deadline - $(date +%s) ))
@@ -220,6 +238,7 @@ jobs:
 
 
   verify-nightly-browser:
+    needs: verify-nightly-admission
     name: verify-nightly:browser (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'browser' }}
     runs-on: ubuntu-24.04
@@ -296,6 +315,7 @@ jobs:
   # Authoring is explicit; the ordinary nightly and PR gates never update PNGs.
   # pkgs/ui-root-harness-ts/README.md documents artifact review and application.
   verify-nightly-storybook:
+    needs: verify-nightly-admission
     name: verify-nightly:storybook
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.group == 'storybook' }}
     runs-on: ubuntu-24.04
@@ -345,6 +365,7 @@ jobs:
 
 
   verify-nightly-visual:
+    needs: verify-nightly-admission
     name: verify-nightly:visual (${{ matrix.shard }}/${{ strategy.job-total }})
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'visual' }}
     runs-on: ubuntu-24.04
@@ -383,6 +404,7 @@ jobs:
 
 
   verify-nightly-coverage:
+    needs: verify-nightly-admission
     name: verify-nightly:coverage
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'coverage' }}
     runs-on: ubuntu-24.04
@@ -415,6 +437,7 @@ jobs:
 
 
   verify-nightly-performance:
+    needs: verify-nightly-admission
     name: verify-nightly:performance
     if: ${{ github.event_name == 'schedule' || !inputs.group || inputs.group == 'all' || inputs.group == 'performance' }}
     runs-on: ubuntu-24.04
@@ -454,6 +477,7 @@ jobs:
 
 
   verify-nightly-pr-load:
+    needs: verify-nightly-admission
     name: verify-nightly:pr-load (${{ matrix.revision }})
     if: github.event_name == 'workflow_dispatch' && inputs.group == 'pr-load'
     runs-on: ubuntu-24.04
@@ -513,6 +537,7 @@ jobs:
   verify-nightly-end:
     name: ${{ inputs.group && inputs.group != 'all' && 'verify-nightly:diagnostic' || 'verify-nightly:end' }}
     needs:
+      - verify-nightly-admission
       - verify-nightly-gate
       - verify-nightly-random
       - verify-nightly-browser

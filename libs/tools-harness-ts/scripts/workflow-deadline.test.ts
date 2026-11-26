@@ -13,7 +13,9 @@ function budgetCommand(file: string): string {
   const workflow = Bun.YAML.parse(source) as {
     jobs: Record<string, { steps?: { id?: string; run?: string }[] }>;
   };
-  const jobs = Object.values(workflow.jobs).filter((job) => job.steps);
+  const jobs = Object.entries(workflow.jobs)
+    .filter(([id, job]) => id !== 'verify-nightly-admission' && job.steps)
+    .map(([, job]) => job);
   const commands = jobs.map((job) => job.steps?.[0]);
   for (const command of commands) expect(command?.id).toBe('budget');
   return commands[0]?.run ?? '';
@@ -21,9 +23,11 @@ function budgetCommand(file: string): string {
 
 test('every stage spends one deadline across queues and sequential jobs', () => {
   const command = budgetCommand('verify-pr.yml');
-  expect(budgetCommand('verify-full.yml')).toBe(command);
+  const tail = (shell: string) => shell.slice(shell.indexOf('created_epoch='));
+  expect(tail(budgetCommand('verify-full.yml'))).toBe(tail(command));
   expect(budgetCommand('deploy.yml')).toBe(command);
-  expect(budgetCommand('verify-nightly.yml')).toBe(command);
+  const nightly = budgetCommand('verify-nightly.yml');
+  expect(tail(nightly)).toBe(tail(command));
   const dir = mkdtempSync(join(tmpdir(), 'ci-budget-'));
   try {
     const gh = join(dir, 'gh');
@@ -58,6 +62,14 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
     expect(readFileSync(env.GITHUB_OUTPUT, 'utf8').split('\n')).toContain(
       'utc_day=47117'
     );
+    // regression: nightly-matrix-admission-metadata-timeout
+    writeFileSync(gh, '#!/bin/sh\nexit 124\n');
+    for (const cmd of [nightly, budgetCommand('verify-full.yml')]) {
+      const shared = { ...env, SHARED_CREATED_AT: env.CREATED };
+      expect(spawnSync('bash', ['-c', cmd], { env: shared }).status).toBe(0);
+      shared.SHARED_CREATED_AT = '2000-01-01T00:00:00Z';
+      expect(spawnSync('bash', ['-c', cmd], { env: shared }).status).toBe(1);
+    }
     const shell = join(dir, 'ci-budget/ci-budget-shell');
     const body = join(dir, 'body');
     writeFileSync(body, 'exit 7');

@@ -82,6 +82,7 @@ export function nightlyGroups(
     }));
   const names = ['gate', ...Object.keys(NIGHTLY_SUITES)];
   const reported = Object.keys(needs)
+    .filter((job) => job !== 'verify-nightly-admission')
     .filter(
       (job) =>
         !['verify-nightly-storybook', 'verify-nightly-pr-load'].includes(job) ||
