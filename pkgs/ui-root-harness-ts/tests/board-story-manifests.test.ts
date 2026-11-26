@@ -9,9 +9,15 @@ test('board interaction stories expose usable generated contracts', () => {
       'utf8'
     )
   ) as {
-    components: Record<string, { stories: { id: string; error?: unknown }[] }>;
+    components: Record<
+      string,
+      { error?: unknown; stories: { id: string; error?: unknown }[] }
+    >;
   };
   for (const [family, names] of [
+    // regression: catalog-lesson-story-manifest
+    ['screens-game-home-how-to-play', ['first-move', 'place-a-wall']],
+    ['screens-game-home', ['open-how-to-play']],
     [
       'screens-games-battleship-board',
       ['fire-a-shot', 'hit-a-ship', 'sink-a-ship', 'sink-the-fleet'],
@@ -27,6 +33,7 @@ test('board interaction stories expose usable generated contracts', () => {
       ],
     ],
   ] as const) {
+    expect(manifest.components[family]?.error).toBeUndefined();
     for (const name of names) {
       const story = manifest.components[family]?.stories.find(
         (entry) => entry.id === `${family}--${name}`
