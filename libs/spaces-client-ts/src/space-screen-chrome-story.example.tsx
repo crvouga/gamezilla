@@ -1,11 +1,4 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  LogOutIcon,
-  Minimize2Icon,
-  ShareIcon,
-  SquarePenIcon,
-  UsersIcon,
-} from '@pkgs/ui-root-client-ts/icons';
 import type { JSX } from '@solidjs/web';
 import { fn } from 'storybook/test';
 import {
@@ -32,38 +25,9 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
   status: 'ready',
   onBack: fn(),
   backLabel: undefined,
-  menu: [
-    {
-      id: 'people',
-      label: 'People in this space',
-      // As the app words it: "People" beside the icon in a wide top bar.
-      shortLabel: 'People',
-      icon: UsersIcon,
-      testId: Handles.spaceMembersButton,
-      onPress: fn(),
-    },
-    {
-      id: 'share',
-      label: 'Share',
-      icon: ShareIcon,
-      testId: Handles.spaceShare,
-      onPress: fn(),
-    },
-    { id: 'rename', label: 'Rename', icon: SquarePenIcon, onPress: fn() },
-    {
-      id: 'minimize',
-      label: 'Minimize space',
-      icon: Minimize2Icon,
-      onPress: fn(),
-    },
-    {
-      id: 'leave',
-      label: 'Leave space',
-      icon: LogOutIcon,
-      tone: 'destructive',
-      onPress: fn(),
-    },
-  ],
+  onMembers: fn(),
+  onRename: fn(),
+  onMinimize: fn(),
   onLeave: fn(),
   onEnd: fn(),
   onInvite: fn(),
@@ -72,8 +36,11 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
   testIds: {
     back: Handles.spaceBackToSpaces,
     title: Handles.spaceTitle,
-    settings: Handles.spaceChromeOverflow,
-    name: Handles.spaceMenuName,
+    people: Handles.spaceMembersButton,
+    share: Handles.spaceShare,
+    rename: Handles.spaceRename,
+    minimize: Handles.spaceClose,
+    name: Handles.spaceName,
     leave: Handles.spaceLeave,
     end: Handles.spaceEnd,
   },
@@ -85,11 +52,17 @@ export const STORY_SPACE_CHROME: SpaceScreenChromeValue = {
  */
 export function StorySpaceFrame(props: {
   /** The game the screen belongs to, as the top bar names it. */
+  readonly guest?: boolean;
+  readonly spaceName?: string;
   readonly title?: string | undefined;
   readonly children: JSX.Element;
 }): JSX.Element {
   const value: SpaceScreenChromeValue = {
     ...STORY_SPACE_CHROME,
+    ...(props.guest
+      ? { role: 'guest' as const, onRename: undefined, onEnd: undefined }
+      : {}),
+    spaceName: props.spaceName ?? STORY_SPACE_CHROME.spaceName,
     title: props.title ?? STORY_SPACE_CHROME.title,
   };
   return (

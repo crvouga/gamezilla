@@ -25,8 +25,6 @@ type World = {
   confirm: boolean;
   dismiss: boolean;
   created: boolean;
-  overflow: boolean;
-  endInOverflow: boolean;
   /** End is laid out on the bar; a late bar lands once it is waited on. */
   endLanded: boolean;
   profileReady: boolean;
@@ -65,19 +63,14 @@ function visible(world: World, id: string): boolean {
   const tab = tabVisible(world, id);
   if (tab !== undefined) return tab;
   if (id === Handles.spaceJoin) return world.screen === 'join';
-  if (id === Handles.spaceChromeOverflow) return world.screen === 'in-space';
+  if (id === Handles.spaceClose) return world.screen === 'in-space';
   if (id === Handles.spaceEnd)
-    return (
-      world.screen === 'in-space' &&
-      world.endLanded &&
-      (!world.endInOverflow || world.overflow)
-    );
+    return world.screen === 'in-space' && world.endLanded;
   if (id === Handles.spaceEndConfirm) return world.confirm;
   if (id === Handles.spaceMutationDismiss) return world.dismiss;
   if (id === Handles.spaceEnded) return world.screen === 'ended';
   if (id === Handles.spaceTitle) return world.created;
-  if (id === Handles.spaceClose) return world.created && world.overflow;
-  if (id === Handles.spaceMembersButton) return world.created && world.overflow;
+  if (id === Handles.spaceMembersButton) return world.screen === 'in-space';
   if (id === Handles.navBack) {
     return (
       world.screen === 'settings' ||
@@ -99,10 +92,8 @@ function applyTap(world: World, id: string): void {
     world.confirm = false;
   } else if (id === Handles.spaceCard(HOST)) world.screen = 'join';
   else if (id === Handles.spaceJoin) world.screen = 'in-space';
-  else if (id === Handles.spaceChromeOverflow) world.overflow = !world.overflow;
   else if (id === Handles.spaceEnd) {
     world.confirm = true;
-    world.overflow = false;
   } else if (id === Handles.spaceEndConfirm) {
     world.confirm = false;
     world.dismiss = true;
@@ -134,9 +125,6 @@ function node(world: World, id: string): DriverNode {
         throw new Error('Join disappeared as saved participation opened');
       }
       assertState('visible');
-      // An open menu's backdrop covers the bar; End in the menu is above it.
-      if (id === Handles.spaceEnd && world.overflow && !world.endInOverflow)
-        throw new Error('space-end is covered by the overflow menu backdrop');
       applyTap(world, id);
     },
     tapAt: () => Promise.reject(new Error('unused')),
@@ -185,7 +173,6 @@ function node(world: World, id: string): DriverNode {
 function driver(
   spacesLeft: number,
   listReady = true,
-  endInOverflow = false,
   profileReady = true
 ): {
   readonly ui: Driver;
@@ -198,8 +185,6 @@ function driver(
     confirm: false,
     dismiss: false,
     created: false,
-    overflow: false,
-    endInOverflow,
     endLanded: true,
     profileReady,
     cardReady: true,
@@ -252,21 +237,13 @@ describe('hostSpace', () => {
   });
 
   // regression: journey-end-space-in-overflow
-  test('ends a leftover through the overflow menu before hosting', async () => {
-    const { ui, world } = driver(1, true, true);
-    await hostSpace(ui);
-    expectJoinedThenEnded(world.taps, 1);
-    expect(world.taps).toContain(Handles.spaceChromeOverflow);
-    expect(world.created).toBe(true);
-  });
-
   // regression: journey-end-covered-by-own-overflow-menu
-  test('waits for End on a late bar instead of opening the overflow menu over it', async () => {
+  test('waits for End on a late bar before tapping it', async () => {
     const { ui, world } = driver(1);
     world.endLanded = false;
     await hostSpace(ui);
     expectJoinedThenEnded(world.taps, 1);
-    expect(world.taps).not.toContain(Handles.spaceChromeOverflow);
+    expect(world.taps).toContain(Handles.spaceEnd);
     expect(world.created).toBe(true);
   });
 
@@ -282,16 +259,14 @@ describe('hostSpace', () => {
 
   // regression: journey-host-readiness-close-in-overflow
   // regression: journey-host-ready-collapsed-minimize
-  test('opens a space with Minimize collapsed into the closed overflow menu', async () => {
+  test('opens a space with its Minimize action available immediately', async () => {
     const { ui, world } = driver(0);
     await hostSpace(ui);
     expect(world.taps).toContain(Handles.spaceCreate);
     expect(world.taps).not.toContain(Handles.spaceEnd);
     expect(world.taps).not.toContain(Handles.spaceJoin);
     expect(world.created).toBe(true);
-    expect(world.overflow).toBe(false);
-    expect(await ui.get(Handles.spaceClose).isVisible()).toBe(false);
-    expect(await ui.get(Handles.spaceChromeOverflow).isVisible()).toBe(true);
+    expect(await ui.get(Handles.spaceClose).isVisible()).toBe(true);
   });
 
   // regression: journey-leftovers-hidden-until-spaces-sync
@@ -305,7 +280,7 @@ describe('hostSpace', () => {
 
   // regression: journey-profile-username-route-race
   test('waits for the lazy profile route before reading the host username', async () => {
-    const { ui, world } = driver(1, true, false, false);
+    const { ui, world } = driver(1, true, false);
     await hostSpace(ui);
     expectJoinedThenEnded(world.taps, 1);
     expect(world.profileReady).toBe(true);
@@ -315,7 +290,7 @@ describe('hostSpace', () => {
 
 // regression: live-space-cleanup-auto-join-race
 test('cleanup ends the space when saved participation opens during the Join tap', async () => {
-  const { ui, world } = driver(1, true, true);
+  const { ui, world } = driver(1);
   world.autoJoin = true;
   await hostSpace(ui);
   expect(world.spacesLeft).toBe(0);

@@ -1,0 +1,4 @@
+{
+  "summary": "The Quoridor and Pong top bars hid space actions, including Minimize, behind an overflow menu.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/space-bar-actions.test.tsx"
+}

@@ -13,9 +13,9 @@ type Screen = 'result' | 'choices' | 'stats';
 function resultInOwnSpace() {
   let screen: Screen = 'result';
   const shows: Record<Screen, readonly string[]> = {
-    result: [Handles.spaceChromeOverflow, MULTIPLAYER_SCREEN, Handles.navBack],
-    choices: [Handles.spaceChromeOverflow, Handles.gameChoice('stats')],
-    stats: [Handles.spaceChromeOverflow, Handles.chessStatsElo],
+    result: [Handles.spaceClose, MULTIPLAYER_SCREEN, Handles.navBack],
+    choices: [Handles.spaceClose, Handles.gameChoice('stats')],
+    stats: [Handles.spaceClose, Handles.chessStatsElo],
   };
   const leadsTo: Record<string, Screen> = {
     [Handles.navBack]: 'choices',

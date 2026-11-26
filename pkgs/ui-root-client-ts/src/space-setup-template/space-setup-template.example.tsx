@@ -45,7 +45,7 @@ export default function SpaceSetupTemplateExample(
   return (
     <SpaceExampleFrame>
       <SpaceSetupTemplate
-        {...spaceExampleChrome(props, true)}
+        {...spaceExampleChrome(props)}
         game={game()}
         role={props.role}
         hostName={SPACE_EXAMPLE_HOST_NAME}

@@ -1,7 +1,4 @@
-/* The two rows of every space screen. Row 1 has a fixed height and never
-   moves; row 2 takes everything left. Nothing is ruled between them (the
-   shell can be narrower than the screen, where a rule would stop short);
-   both share the canvas, and cards inside the stage take the surface. */
+/* The stage fills the space below the header. */
 .shell {
   display: flex;
   flex: 1;
@@ -14,48 +11,44 @@
   color: var(--ui-color-text);
 }
 
-/* Row 1: space actions, the same controls in the same places everywhere. */
+/* Keep the action group together. When the title and actions need separate
+   lines, the title stays with Back and Minimize stays against the right edge. */
 .actions {
   display: flex;
   flex: none;
+  flex-wrap: wrap;
+  align-items: center;
+  column-gap: var(--ui-space-1);
+  min-height: 56px;
+  padding: var(--ui-space-1) var(--ui-space-2);
+}
+
+.context,
+.tools {
+  display: flex;
   align-items: center;
   gap: var(--ui-space-1);
-  height: 56px;
-  padding: 0 var(--ui-space-2);
 }
-/* In the app's frame on desktop the bar sits on the frame column's edge, the edge every
-   screen's content starts on: back and the last action are drawn so their
-   glyphs, not their tap targets, line up with the content below. */
-[data-component="AppFrame"] .shell[data-layout="wide"] .actions {
-  padding-inline: 0;
-}
-[data-component="AppFrame"] .shell[data-layout="wide"] .actions > :first-child {
-  margin-inline-start: -12px;
-}
-[data-component="AppFrame"] .shell[data-layout="wide"] .tools {
-  margin-inline-end: -12px;
-}
-.where {
-  display: flex;
-  flex: 1;
-  flex-direction: column;
+
+.context {
+  flex: 1 1 8rem;
   min-width: 0;
 }
 
-/* The space's actions: as many as fit, then the space menu. */
-.tools {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--ui-space-1);
+.where {
+  flex: 1;
+  min-width: 0;
 }
 
-/* The app's own status, ahead of the space's actions. */
-.status {
-  display: flex;
-  flex: none;
-  align-items: center;
-  gap: var(--ui-space-1);
+.tools {
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  max-width: 100%;
+  margin-inline-start: auto;
+}
+
+[data-component="AppFrame"] .shell[data-layout="wide"] .actions {
+  padding-inline: 0;
 }
 
 /* Row 2: the stage. Scrolls on its own unless its content owns the room. */
