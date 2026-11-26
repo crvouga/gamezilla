@@ -49,14 +49,23 @@ export const VIEWER = {
   opponentRating: '1500',
 };
 
-/** Only profile reads and their sync are needed; no server or full application is mounted. */
-const engine = (profiles: Readonly<Record<string, string>>) =>
+/** A string is a live name, null a tombstone, and undefined an unsynced profile. */
+type Profiles = Readonly<Record<string, string | null | undefined>>;
+
+const engine = (profiles: Profiles) =>
   ({
     watch: (query: Sql<Record<string, unknown>>) => ({
       getSnapshot: () => {
         const id = query.values[0];
         const username = typeof id === 'string' ? profiles[id] : undefined;
-        return username === undefined ? [] : [{ id, username }];
+        if (username === undefined) return [];
+        return [
+          {
+            id,
+            username: username ?? '',
+            deleted_at: username === null ? '2026-11-26T21:44:20Z' : null,
+          },
+        ];
       },
       getHydrated: () => true,
       subscribe: () => () => undefined,
@@ -94,7 +103,7 @@ export function frameFixture(
 export function renderMatchFrame(
   frame: GameFrame<JSX.Element>,
   children: () => JSX.Element,
-  profiles: Readonly<Record<string, string>> = {}
+  profiles: Profiles = {}
 ) {
   const presentation: GamePresentation<JSX.Element> = {
     id: 'fixture',

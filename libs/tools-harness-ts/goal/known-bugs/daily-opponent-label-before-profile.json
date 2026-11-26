@@ -1,0 +1,4 @@
+{
+  "summary": "Chess and Word Tiles showed Deleted account (1500?) for a live daily opponent before the opponent's profile arrived on the device.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/matched-opponent-name.test.tsx"
+}

@@ -134,11 +134,15 @@ Then(
     await open(w, actor);
     await w.s.until(
       (s) => shownMultiplayerText(s, actor, 'multiplayer-opponent'),
-      { pred: (shown) => shown !== null && !shown.includes(deleted) }
+      { pred: (shown) => shown?.includes('Deleted account') === true }
     );
-    expect(
-      await w.s.read(shownMultiplayerText, actor, 'multiplayer-opponent')
-    ).toContain('Deleted account');
+    const label = await w.s.read(
+      shownMultiplayerText,
+      actor,
+      'multiplayer-opponent'
+    );
+    expect(label).toContain('Deleted account');
+    expect(label).not.toContain(deleted);
   }
 );
 
