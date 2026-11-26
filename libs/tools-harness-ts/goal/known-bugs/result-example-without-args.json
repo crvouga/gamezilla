@@ -1,0 +1,4 @@
+{
+  "summary": "The standalone result example crashed when mounted without Storybook arguments.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-stage-overlay.test.tsx"
+}
