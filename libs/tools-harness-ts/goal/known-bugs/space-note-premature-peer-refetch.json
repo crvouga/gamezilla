@@ -1,0 +1,4 @@
+{
+  "summary": "Seed 1 delivered only 18 of 20 sequential shared notes within 200 ms. A membership-checked note triggered peer snapshot fetches before the authoritative write arrived.",
+  "regressionTest": "specs/sync-engine/notes-arrive-quickly.feature"
+}

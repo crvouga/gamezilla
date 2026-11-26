@@ -144,6 +144,8 @@ export const endSpace = defineMutation({
 /** Upsert a note scoped to a space (live fanout on room topic). */
 export const setSpaceNote = defineMutation({
   name: 'setSpaceNote',
+  // The server checks current membership. Publish the accepted row once.
+  pendingUx: 'local',
   args: z.object({
     id: z.string(),
     spaceId: z.string(),
