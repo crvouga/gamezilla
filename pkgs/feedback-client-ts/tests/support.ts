@@ -3,6 +3,7 @@ import { createDebugBuffer } from '@pkgs/feedback-shared-ts/debug-buffer';
 import type {
   BugReportSubmission,
   ScreenshotFile,
+  SnapshotFile,
 } from '@pkgs/feedback-shared-ts/types';
 import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-in-memory';
 import { BugReportController, type ChosenPicture } from '../src/controller';
@@ -26,9 +27,12 @@ export function chosen(
   return { contentType: 'image/png', size: bytes.byteLength, read };
 }
 
+export const GZIP = new Uint8Array([0x1f, 0x8b, 0x08, 0x00]);
+
 export type Sent = {
   readonly submission: BugReportSubmission;
   readonly pictures: readonly ScreenshotFile[];
+  readonly snapshot?: SnapshotFile | undefined;
 };
 
 /** A device with bug reporting on it, and a team whose answers the test chooses. */
@@ -44,13 +48,15 @@ export function createDevice(store = new ObjectStoreImplInMemory()) {
     highlights: [] as (ScreenshotOptions['highlight'] | null)[],
     capture: (): Promise<ScreenshotFile | null> =>
       Promise.resolve({ contentType: 'image/png', bytes: PNG }),
+    /** The app's state, where the app can be reopened from it; none by default. */
+    takeSnapshot: null as (() => Promise<SnapshotFile | null>) | null,
   };
   let ids = 0;
   const createId = (): string => `id-${++ids}-${clock.now()}`;
   const controller = new BugReportController({
     storage: new BugReportStorage(store, createId),
-    send(submission, pictures) {
-      sent.push({ submission, pictures });
+    send(submission, pictures, snapshot) {
+      sent.push({ submission, pictures, snapshot });
       return Promise.resolve(world.answer);
     },
     screenshot: {
@@ -58,6 +64,9 @@ export function createDevice(store = new ObjectStoreImplInMemory()) {
         world.highlights.push(options?.highlight ?? null);
         return world.capture();
       },
+    },
+    snapshot: {
+      capture: () => world.takeSnapshot?.() ?? Promise.resolve(null),
     },
     connection: { online: () => true, subscribe: () => () => undefined },
     debug: createDebugBuffer({ clock }),

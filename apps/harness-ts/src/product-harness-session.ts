@@ -12,6 +12,7 @@ import {
   normalizeHarnessNodeId,
 } from '@libs/harness-ts/node-name';
 import { harnessActorApp } from '@libs/harness-ts/solid-actor-root';
+import type { HarnessCheckpoint } from '@pkgs/harness-console-shared-ts/checkpoint';
 import type {
   ProductHarnessActor,
   ProductHarnessLoadBalancerNode,
@@ -57,11 +58,13 @@ import {
   runQuiet,
   wipeSession,
 } from './product-harness-session-teardown';
+import {
+  loadNewestSnapshot,
+  openReportedWorld,
+} from './product-harness-session-world';
 import type { SnapshotSessionCtx } from './product-harness-snapshots';
 import {
   deleteProductHarnessSnapshot,
-  listProductHarnessSnapshots,
-  loadProductHarnessSnapshot,
   PRODUCT_HARNESS_STICKY_SNAPSHOT_ID,
 } from './product-harness-snapshots';
 import { installProductHarnessStickyAutosave } from './product-harness-sticky-autosave';
@@ -110,6 +113,11 @@ export type ProductHarnessSessionBuildArgs = {
    * names the clients to open on it, each closed but with its device intact.
    */
   readonly seedFreshWorld?: () => Promise<readonly string[]>;
+  /**
+   * The world a bug report carries, to open on in place of the kept one;
+   * `null` when there is none.
+   */
+  readonly reportedWorld?: () => Promise<HarnessCheckpoint | null>;
   /** Lets the page paint between the clients' requests. */
   readonly breathe: Breathe;
   /** Where a frame loads an emulator's dashboard from, when anywhere. */
@@ -432,20 +440,11 @@ async function bootClients(
   session: ProductHarnessSession,
   setSnapshotLoads: (cmds: ProductHarnessPaletteCommand[]) => void
 ): Promise<void> {
+  const ctx = makeSnapshotCtx(args, maps);
+  const reopened = await openReportedWorld(ctx, args.reportedWorld);
   if (args.skipSnapshotLoad !== true) {
     try {
-      const snaps = await listProductHarnessSnapshots(args.snapshotStore);
-      const compatible = snaps.filter((s) => s.compatible);
-      if (compatible.length > 0) {
-        let newest = compatible[0]!;
-        for (const s of compatible) {
-          if (s.createdAtMs > newest.createdAtMs) newest = s;
-        }
-        await loadProductHarnessSnapshot(
-          makeSnapshotCtx(args, maps)(),
-          newest.id
-        );
-      }
+      if (!reopened) await loadNewestSnapshot(ctx);
       const cmds = await buildSnapshotLoadCommands(session);
       setSnapshotLoads(cmds);
     } catch {

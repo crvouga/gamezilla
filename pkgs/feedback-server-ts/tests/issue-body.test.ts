@@ -196,3 +196,16 @@ test('a bug report opened any other way is about nothing in particular', () => {
     '**About** nothing in particular'
   );
 });
+
+test('a bug report with a snapshot links it for whoever fixes the bug', () => {
+  const url =
+    'https://api.example/api/bug-reports/reports/11111111-1111-4111-8111-111111111111/snapshot';
+  const { body } = bugReportIssue({
+    ...REPORT,
+    snapshot: { contentType: 'application/gzip', size: 51_000, url },
+  });
+  expect(body).toContain(
+    `- The app's state as the bug report opened, to open it as it was (gzip, 50 KB): ${url}`
+  );
+  expect(bugReportIssue(REPORT).body).not.toContain("The app's state");
+});

@@ -1,7 +1,11 @@
 import { describe, expect, test } from 'bun:test';
 import { MAX_SCREENSHOTS } from '@pkgs/feedback-shared-ts/bug-report';
-import { RETRY_MS, SCREENSHOT_DEADLINE_MS } from '../src/controller';
-import { chosen, createDevice, PNG, settle } from './support';
+import {
+  RETRY_MS,
+  SCREENSHOT_DEADLINE_MS,
+  SNAPSHOT_DEADLINE_MS,
+} from '../src/controller';
+import { chosen, createDevice, GZIP, PNG, settle } from './support';
 
 describe('pictures on a bug report', () => {
   // regression: feedback-concurrent-attachments
@@ -303,5 +307,66 @@ describe('a bug report about one thing on the screen', () => {
     device.controller.describe('The board froze');
     await device.controller.send();
     expect('subject' in (device.sent[0]?.submission ?? {})).toBe(false);
+  });
+});
+
+describe('a snapshot of the app', () => {
+  const snapshot = { contentType: 'application/gzip', bytes: GZIP };
+
+  test('taken as the bug report opens goes with it, and with it once kept', async () => {
+    const device = createDevice();
+    let taken = 0;
+    device.takeSnapshot = () => {
+      taken++;
+      return Promise.resolve(snapshot);
+    };
+    device.answer = 'later';
+    await device.controller.open();
+    device.controller.describe('The board froze');
+    await device.controller.send();
+    await device.controller.settled();
+    expect(taken).toBe(1);
+    expect(device.sent[0]?.snapshot).toEqual(snapshot);
+    const reopened = createDevice(device.store);
+    await reopened.controller.ready;
+    await settle();
+    await reopened.controller.settled();
+    expect(reopened.sent[0]?.snapshot).toEqual(snapshot);
+  });
+
+  test('of a draft already started is the one taken when it first opened', async () => {
+    const device = createDevice();
+    let taken = 0;
+    device.takeSnapshot = () => {
+      taken++;
+      return Promise.resolve(snapshot);
+    };
+    await device.controller.open();
+    device.controller.describe('The board froze');
+    device.controller.close();
+    await device.controller.open();
+    await device.controller.send();
+    expect(taken).toBe(1);
+    expect(device.sent[0]?.snapshot).toEqual(snapshot);
+  });
+
+  test('that never arrives, or is not one, leaves only the snapshot out', async () => {
+    const device = createDevice();
+    device.takeSnapshot = () => new Promise(() => undefined);
+    await device.controller.open();
+    expect(device.controller.state().open).toBe(true);
+    device.controller.describe('The board froze');
+    const sending = device.controller.send();
+    device.clock.advance(SNAPSHOT_DEADLINE_MS);
+    await sending;
+    expect(device.sent[0]?.snapshot).toBeUndefined();
+    expect(device.controller.state().notice).toBe('sent');
+
+    device.takeSnapshot = () =>
+      Promise.resolve({ contentType: 'application/gzip', bytes: PNG });
+    await device.controller.open();
+    device.controller.describe('The hint never appeared');
+    await device.controller.send();
+    expect(device.sent[1]?.snapshot).toBeUndefined();
   });
 });

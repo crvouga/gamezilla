@@ -3,6 +3,7 @@ import { execFileSync } from 'node:child_process';
 import { resolve } from 'node:path';
 import { brandHtmlPlugin } from '@libs/product-brand-shared-ts/brand-html';
 import { getConfig } from '@lingui/conf';
+import { feedbackDevPlugin } from '@pkgs/feedback-server-ts/vite';
 import { sqliteWebAssets } from '@pkgs/sql-client-sqlite-web-server-ts/sqlite-web-assets';
 import { artifactProtection } from '@pkgs/vite-workspace-resolver-server-ts/artifact-protection';
 import {
@@ -44,6 +45,8 @@ export default defineConfig(({ mode }) => {
   const plugins: PluginOption[] = [
     // `index.html` spells `%BRAND_NAME%`; the identity fills it in.
     brandHtmlPlugin(),
+    // Bug reports sent from `bun run dev:harness` land in `.feedback/`.
+    feedbackDevPlugin({ repoRoot }),
     artifactProtection(),
     workspaceExportsResolver({ repoRoot, scopes: DEFAULT_WORKSPACE_SCOPES }),
     sqliteWebAssets({

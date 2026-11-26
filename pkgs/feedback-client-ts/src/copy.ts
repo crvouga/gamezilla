@@ -63,6 +63,10 @@ export const DISCARD = {
 export const DEBUG_INFO_NOTE =
   'This bug report includes debug info: where you went and what you chose in the last 5 minutes, any trouble the app ran into, your device and the app version. It never includes what you typed.';
 
+/** Said only where the app takes a snapshot of itself: there, what was typed in it goes too. */
+export const SNAPSHOT_NOTE =
+  'It also includes a snapshot of this copy of the app, with everything in it, so the team can open it as it was.';
+
 export const SHAKE_REFUSED =
   'This phone does not allow the app to notice shaking. Choose Report a bug instead.';
 

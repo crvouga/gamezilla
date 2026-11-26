@@ -6,11 +6,12 @@ import { ObjectStoreImplInMemory } from '@pkgs/object-store-root-shared-ts/impl-
 import '@pkgs/tailwind-shared-ts/tailwind.css';
 import '@pkgs/ui-root-client-ts/tokens.css';
 import '@pkgs/ui-root-client-ts/hosts.css';
+import type { DiagnosticProvider } from '@pkgs/feedback-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { browserDetails } from './browser-details';
 import type { ThemePort } from './bug-report-surface';
 import { mountBugReports } from './mount-bug-reports';
-import type { ConnectionPort, MotionPort } from './ports';
+import type { ConnectionPort, MotionPort, SnapshotPort } from './ports';
 import { browserPort } from './wall-browser';
 import { browserScreenshotPort } from './wall-screenshot';
 
@@ -79,6 +80,10 @@ export function bootBrowserBugReports(options: {
   readonly startApplication: () => Promise<unknown>;
   readonly applicationErrorEvent?: string;
   readonly http?: HttpClient;
+  /** Given where the app can be reopened from a snapshot of its state. */
+  readonly snapshot?: SnapshotPort;
+  /** What the app tells a bug report of itself, in place of what it registered. */
+  readonly context?: () => readonly DiagnosticProvider[];
 }) {
   const host = document.createElement('aside');
   host.setAttribute('data-component', 'BugReportHost');
@@ -111,6 +116,8 @@ export function bootBrowserBugReports(options: {
     ...(options.applicationErrorEvent
       ? { applicationErrorEvent: options.applicationErrorEvent }
       : {}),
+    ...(options.snapshot ? { snapshot: options.snapshot } : {}),
+    ...(options.context ? { context: options.context } : {}),
   });
   wallTimers.setTimeout(screenshot.prepare, PREPARE_AFTER_MS);
   const failed = (error: unknown): void => {

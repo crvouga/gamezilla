@@ -2,6 +2,7 @@ import type { Timers } from '@pkgs/clock-shared-ts/types';
 import type {
   BugReportSubmission,
   ScreenshotFile,
+  SnapshotFile,
 } from '@pkgs/feedback-shared-ts/types';
 import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 
@@ -13,7 +14,8 @@ export type SendOutcome = 'sent' | 'limit' | 'later' | 'failed';
 
 export type SendBugReport = (
   submission: BugReportSubmission,
-  pictures: readonly ScreenshotFile[]
+  pictures: readonly ScreenshotFile[],
+  snapshot?: SnapshotFile
 ) => Promise<SendOutcome>;
 
 export const SEND_DEADLINE_MS = 60_000;
@@ -25,7 +27,7 @@ function outcomeOf(status: number): SendOutcome {
 }
 
 /**
- * Sends one bug report with its pictures. It always answers within the
+ * Sends one bug report with its pictures and snapshot. It always answers within the
  * deadline, even over a connection that never answers or ignores being
  * cancelled, and it never sends the person's sign-in along.
  */
@@ -35,7 +37,7 @@ export function createBugReportSender(options: {
   readonly timers: Timers;
   readonly deadlineMs?: number;
 }): SendBugReport {
-  return (submission, pictures) =>
+  return (submission, pictures, snapshot) =>
     new Promise((resolve) => {
       const controller = new AbortController();
       let settled = false;
@@ -58,6 +60,14 @@ export function createBugReportSender(options: {
             type: picture.contentType,
           }),
           'screenshot'
+        );
+      if (snapshot)
+        form.set(
+          'snapshot',
+          new Blob([snapshot.bytes as Uint8Array<ArrayBuffer>], {
+            type: snapshot.contentType,
+          }),
+          'snapshot'
         );
       Promise.resolve()
         .then(() =>

@@ -12,6 +12,9 @@ export const MAX_SCREENSHOTS = 4;
 export const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
 export const SCREENSHOT_TYPE = /^image\/(png|jpeg|webp)$/;
 export const DAILY_BUG_REPORT_LIMIT = 10;
+/** The app's state when a bug report opened, gzipped; larger than every screenshot together. */
+export const MAX_SNAPSHOT_BYTES = 8 * 1024 * 1024;
+export const SNAPSHOT_TYPE = 'application/gzip';
 
 const PNG = [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a];
 const JPEG = [0xff, 0xd8, 0xff];
@@ -31,6 +34,13 @@ export function pictureType(bytes: Uint8Array): string | null {
   if (holds(bytes, JPEG)) return 'image/jpeg';
   return holds(bytes, RIFF) && holds(bytes, WEBP, 8) ? 'image/webp' : null;
 }
+const GZIP = [0x1f, 0x8b];
+
+/** Whether the bytes are a snapshot a bug report carries: gzip, whatever their sender called them. */
+export function isSnapshot(bytes: Uint8Array): boolean {
+  return holds(bytes, GZIP);
+}
+
 export const BUG_REPORT_ID =
   /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
 

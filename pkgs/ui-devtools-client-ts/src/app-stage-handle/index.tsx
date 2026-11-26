@@ -249,6 +249,8 @@ export function AppStageHandle(props: AppStageHandleProps): JSX.Element {
       aria-haspopup="dialog"
       aria-expanded={props.expanded}
       data-component={componentId('AppStageHandle')}
+      // A right-click here opens the handle's own menu, never a page-wide one.
+      data-native-context-menu=""
       {...dataAttrs({
         'stage-part': 'handle',
         dragging: String(place.dragging()),

@@ -52,6 +52,7 @@ function backend() {
     options: {
       reporterId?: string;
       pictures?: readonly Blob[];
+      snapshots?: readonly Blob[];
       origin?: string;
     } = {}
   ): Promise<Response> => {
@@ -69,6 +70,8 @@ function backend() {
     );
     for (const picture of options.pictures ?? [])
       form.append('screenshot', picture, 'screenshot');
+    for (const snapshot of options.snapshots ?? [])
+      form.append('snapshot', snapshot, 'snapshot');
     return app(
       new Request(`${ORIGIN}${BUG_REPORT_PATH}`, {
         method: 'POST',
@@ -149,6 +152,35 @@ test('pictures are kept and read back at the address the issue shows', async () 
   expect(((await report.json()) as BugReport).description).toBe('Bug number 1');
 });
 
+const GZIP = new Uint8Array([0x1f, 0x8b, 0x08, 0x00, 0x00]);
+const snapshot = (bytes: Uint8Array<ArrayBuffer> = GZIP): Blob =>
+  new Blob([bytes], { type: 'application/gzip' });
+
+test('a snapshot is kept and read back at the address the issue shows', async () => {
+  const { app, issues, send } = backend();
+  expect((await send(1, { snapshots: [snapshot()] })).status).toBe(201);
+  const kept = issues[0]?.snapshot;
+  expect(kept).toEqual({
+    contentType: 'application/gzip',
+    size: GZIP.byteLength,
+    url: `${ORIGIN}${BUG_REPORT_PATH}/reports/${reportId(1)}/snapshot`,
+  });
+  const read = await app(new Request(kept?.url ?? ''));
+  expect(read.headers.get('Content-Type')).toBe('application/gzip');
+  expect(new Uint8Array(await read.arrayBuffer())).toEqual(GZIP);
+  expect((await send(2)).status).toBe(201);
+  expect(issues[1]?.snapshot).toBeUndefined();
+});
+
+test.each([
+  ['a snapshot that is not gzip', [snapshot(PNG)]],
+  ['two snapshots', [snapshot(), snapshot()]],
+])('a bug report with %s is refused whole', async (_name, snapshots) => {
+  const { issues, send } = backend();
+  expect((await send(1, { snapshots })).status).toBe(400);
+  expect(issues).toHaveLength(0);
+});
+
 test.each([
   ['a drawing that can run scripts', [picture('<svg xmlns="x"></svg>')]],
   ['a page dressed as a picture', [picture('<html><script>')]],
@@ -169,6 +201,7 @@ test('only the app itself may send, and only what the archive holds is read', as
     '/reports/..%2F..%2Flimits',
     `/reports/${reportId(1)}/screenshots/0`,
     `/reports/${reportId(1)}/receipt.json`,
+    `/reports/${reportId(1)}/snapshot/1`,
   ];
   for (const path of paths) {
     const read = await app(new Request(`${ORIGIN}${BUG_REPORT_PATH}${path}`));

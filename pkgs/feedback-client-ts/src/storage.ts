@@ -3,6 +3,7 @@ import type {
   BugReportSubmission,
   DebugEvent,
   ScreenshotFile,
+  SnapshotFile,
 } from '@pkgs/feedback-shared-ts/types';
 import {
   readBytes,
@@ -30,16 +31,20 @@ export type Draft = {
   events: readonly DebugEvent[];
   /** The one thing on the screen it is about, when the person reported a bug about one. */
   subject?: BugReportSubject;
+  /** The kind of snapshot of the app taken as the bug report opened, when one was. */
+  snapshot?: string;
 };
 
 export type KeptBugReport = {
   readonly submission: BugReportSubmission;
   readonly pictures: readonly ScreenshotFile[];
+  readonly snapshot?: SnapshotFile;
 };
 
 export type ShakePreference = 'on' | 'off';
 
 const JSON_TYPE = 'application/json';
+const SNAPSHOT_KEY = 'snapshot';
 /** Wide enough that the order kept bug reports were sent in is the order of their names. */
 const TURN_DIGITS = 12;
 
@@ -96,6 +101,7 @@ export class BugReportStorage {
     await this.store
       .deleteMany([
         'draft.json',
+        SNAPSHOT_KEY,
         ...draft.screenshots.map((screenshot) => `pictures/${screenshot.id}`),
       ])
       .catch(() => undefined);
@@ -124,6 +130,23 @@ export class BugReportStorage {
     return bytes ? { contentType: screenshot.contentType, bytes } : null;
   }
 
+  /** The draft's snapshot of the app: one at a time, replaced by the next. */
+  putSnapshot(file: SnapshotFile): Promise<void> {
+    return this.store.put(SNAPSHOT_KEY, file.bytes, file.contentType);
+  }
+
+  deleteSnapshot(): Promise<void> {
+    return this.store.delete(SNAPSHOT_KEY).catch(() => undefined);
+  }
+
+  async readSnapshot(draft: Draft): Promise<SnapshotFile | null> {
+    if (draft.snapshot === undefined) return null;
+    const bytes = await readObjectBytes(this.store, SNAPSHOT_KEY).catch(
+      () => null
+    );
+    return bytes ? { contentType: draft.snapshot, bytes } : null;
+  }
+
   /** Keeps a bug report that could not be sent, to send it later, after those kept before it. */
   async keep(kept: KeptBugReport): Promise<void> {
     const last = (await this.waitingIds()).at(-1);
@@ -134,6 +157,12 @@ export class BugReportStorage {
         `${folder}/pictures/${index}`,
         picture.bytes,
         picture.contentType
+      );
+    if (kept.snapshot)
+      await this.store.put(
+        `${folder}/snapshot`,
+        kept.snapshot.bytes,
+        kept.snapshot.contentType
       );
     // Written last: a bug report is waiting only once all of it is kept.
     await this.writeJson(`${folder}/report.json`, kept.submission);
@@ -163,7 +192,19 @@ export class BugReportStorage {
           bytes: await readBytes(object.body),
         });
     }
-    return { submission, pictures };
+    const snapshot = await this.store.get(`${folder}/snapshot`);
+    return {
+      submission,
+      pictures,
+      ...(snapshot
+        ? {
+            snapshot: {
+              contentType: snapshot.contentType,
+              bytes: await readBytes(snapshot.body),
+            },
+          }
+        : {}),
+    };
   }
 
   async dropWaiting(id: string): Promise<void> {

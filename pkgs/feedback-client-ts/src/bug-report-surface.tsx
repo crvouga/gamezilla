@@ -72,6 +72,7 @@ function BugReportSurface(props: { controller: BugReportController }) {
       phase={state().phase}
       notice={state().notice}
       waiting={state().waiting}
+      snapshot={state().snapshot}
       onDescribe={props.controller.describe}
       onAddPicture={(picture) => void props.controller.addPicture(picture)}
       onRemoveScreenshot={props.controller.removeScreenshot}
