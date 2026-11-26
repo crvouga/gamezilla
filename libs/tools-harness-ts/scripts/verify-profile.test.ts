@@ -14,6 +14,7 @@ import {
   failedGroups,
   formatNightlyMarkdown,
   formatNightlyTable,
+  NIGHTLY_VISUAL_JOBS,
   nightlyGroupNames,
   nightlyGroups,
   scopeNotes,
@@ -367,16 +368,16 @@ describe('Verify Nightly workflow', () => {
     const groups = [
       'gate',
       ...Object.keys(NIGHTLY_SUITES),
-      'visual-after-short-suites',
-      'visual-after-browser',
       'storybook',
       'pr-load',
+      'admission',
+      'end',
     ];
-    expect(Object.keys(nightly.jobs).sort()).toEqual(
-      [...groups, 'admission', 'end']
-        .map((group) => `verify-nightly-${group}`)
-        .sort()
-    );
+    const jobIds = new Set([
+      ...groups.map((group) => `verify-nightly-${group}`),
+      ...NIGHTLY_VISUAL_JOBS,
+    ]);
+    expect(Object.keys(nightly.jobs).sort()).toEqual([...jobIds].sort());
     for (const [suite, config] of Object.entries(NIGHTLY_SUITES)) {
       const job = nightly.jobs[`verify-nightly-${suite}`]!;
       const run = job.steps!.find(
