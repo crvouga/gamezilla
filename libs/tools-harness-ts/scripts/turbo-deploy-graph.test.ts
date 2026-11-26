@@ -555,8 +555,11 @@ describe('turbo verify/deploy graph invariants', () => {
     // regression: product-deploy-dist-race — while Wrangler uploaded
     // apps/product-ts/dist/assets/src-C2k0tIiA.js, a parallel Verify build emptied
     // dist and replaced the content-hashed asset before an upload stream read it.
+    expect(
+      tasks['@apps/admin-api-ts#publish:permission-policy']?.dependsOn
+    ).toEqual(['deploy']);
     expect(tasks['@apps/product-ts#deploy']?.dependsOn).toEqual([
-      '@libs/runtime-server-ts#migrate',
+      '@apps/admin-api-ts#publish:permission-policy',
       '@libs/chess-puzzle-server-ts#initialize:catalog',
       '@apps/product-api-ts#verify:api',
       '@apps/product-ts#verify:offline-shell',
