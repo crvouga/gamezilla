@@ -50,6 +50,7 @@ test('randomized suites own the runner one worker pool at a time', () => {
   expect(random?.env?.['PBT_CONCURRENCY']).toBe('1');
 });
 
+// regression: nightly-gate-two-runner-deadline
 // regression: nightly-gate-serial-task-execution
 // regression: nightly-matrices-block-production-startup
 test('a full Nightly leaves at least six account runners for Release and pull requests', () => {
@@ -58,17 +59,21 @@ test('a full Nightly leaves at least six account runners for Release and pull re
   ) as {
     jobs: {
       'verify-nightly-gate': { with: { shards: number } };
+      'verify-nightly-random': { strategy: { 'max-parallel': number } };
       'verify-nightly-visual': { strategy: { 'max-parallel': number } };
     };
   };
   const maximum =
     jobs['verify-nightly-gate'].with.shards +
     jobs['verify-nightly-visual'].strategy['max-parallel'] +
-    NIGHTLY_SUITES.random.shards +
+    jobs['verify-nightly-random'].strategy['max-parallel'] +
     NIGHTLY_SUITES.browser.shards +
     2; // coverage and performance
   expect(maximum).toBeLessThanOrEqual(14);
-  expect(jobs['verify-nightly-gate'].with).toMatchObject({ concurrency: 3 });
+  expect(jobs['verify-nightly-gate'].with).toMatchObject({
+    concurrency: 3,
+    shards: 5,
+  });
 });
 
 // regression: verify-cache-write-only-override

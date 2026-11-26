@@ -1,0 +1,4 @@
+{
+  "summary": "Run 45860957766 assigned 26159 estimated task-seconds to two gate shards, both of which reached their 2280-second deadlines. Reallocate three slots from the reduced random corpus while keeping all four random partitions and six free account runners.",
+  "regressionTest": "libs/tools-harness-ts/scripts/workflow-cache.test.ts"
+}

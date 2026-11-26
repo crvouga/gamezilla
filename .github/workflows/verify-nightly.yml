@@ -115,7 +115,7 @@ jobs:
     with:
       profile: nightly
       # Reserve six of the twenty account runners for releases and PRs.
-      shards: 2
+      shards: 5
       # Match Release parallelism inside each gate runner.
       concurrency: 3
 
@@ -126,6 +126,7 @@ jobs:
     timeout-minutes: 45
     strategy:
       fail-fast: true
+      max-parallel: 1
       matrix:
         shard: [1, 2, 3, 4]
     env:
