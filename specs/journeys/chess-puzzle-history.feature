@@ -5,6 +5,7 @@ Feature: Finishing a chess puzzle after looking back
 
   Rule: Looking back preserves the position the solver reached
 
+    @regression:shared-chess-puzzle-stale-local-query
     Scenario: A solver returns to the latest move and delivers mate
       Given a person opens the app on a fresh device
       And they are hosting a space

@@ -50,6 +50,7 @@ Feature: Follow and play Hearts with the keyboard, by listening and without colo
   Rule: Suits, players and the turn are told apart without colour alone
     No counter-example: colour may add to a difference but never shows it on its own.
 
+    @regression:hearts-penalty-face-accessibility
     Scenario: Cards, players and the turn are shown by name and symbol, not colour alone
       Given Alice, Bob, Carol and Dave are ready for a custom game of Hearts as South, West, North and East
       When Alice starts the custom game
