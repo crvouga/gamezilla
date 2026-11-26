@@ -12,24 +12,21 @@ const index = JSON.parse(
     'utf8'
   )
 ) as { entries: Record<string, Entry> };
-const pinnedPhoneExamples = new Set([
+const pinnedExamples = new Set([
   'primitives-sparkline--states dark',
   'product-cardtable--states light',
   'product-bug-report--describe-and-send light',
   'screens-matchmaking-result--open-moves light',
   'screens-puzzles-result--unrated light',
+  'screens-puzzles-import--open-source light-1440',
 ]);
 for (const story of Object.values(index.entries).filter(
   (e) => e.type === 'story'
 )) {
   for (const scenario of visualScenarios(story)) {
     // These matrix entries are registered literally as regression examples.
-    if (
-      scenario.width === 390 &&
-      pinnedPhoneExamples.has(`${story.id} ${scenario.theme}`)
-    )
-      continue;
     const { theme, suffix } = scenario;
+    if (pinnedExamples.has(`${story.id} ${theme}${suffix}`)) continue;
     test(`${story.id} ${theme}${suffix}`, async ({ page }) => {
       await verifyStoryScenario(page, story.id, scenario);
     });
@@ -61,6 +58,17 @@ async function verifyBoardRegression(
   if (!scenario) throw new Error(`Missing regression viewport: ${width}`);
   await verifyStoryScenario(page, id, scenario);
 }
+
+// regression: desktop-puzzle-import-story-loses-screen
+test('screens-puzzles-import--open-source light-1440', async ({ page }) => {
+  await verifyBoardRegression(
+    page,
+    'screens-puzzles-import--open-source',
+    1440
+  );
+  await expect(page.getByTestId('puzzle-source-saved')).toBeVisible();
+  await expect(page.locator('[data-region="rail"]')).toHaveCount(0);
+});
 
 // regression: matchmaking-result-story-closed-record
 test('screens-matchmaking-result--open-moves light', async ({ page }, info) => {

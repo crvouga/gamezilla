@@ -61,10 +61,12 @@ function StoryFrame(props: {
   readonly story: () => JSX.Element;
   readonly asRail: boolean;
   readonly route: StoryRoute;
+  readonly admin: boolean;
 }): JSX.Element {
-  // Storybook supplies the story during mount. A desktop rail can be
-  // attached later, after the theme measures its viewport.
+  // Storybook supplies the screen during mount. Both shells can replace
+  // their compact layout after the theme measures the desktop viewport.
   const screen = untrack(() => props.story());
+  if (untrack(() => props.admin)) return <AppFrame>{screen}</AppFrame>;
   return (
     <Show
       when={props.asRail}
@@ -96,22 +98,17 @@ export function StoryProductShell(props: {
   readonly id: string;
   readonly route?: StoryRoute;
 }): JSX.Element {
-  if (
-    untrack(
-      () =>
-        props.id.startsWith('screens-admin-') ||
-        props.id.startsWith('screens-puzzles-import')
-    )
-  ) {
-    return (
-      <AppFrameChromeProvider>
-        <AppFrame>{props.story()}</AppFrame>
-      </AppFrameChromeProvider>
-    );
-  }
+  const admin = untrack(
+    () =>
+      props.id.startsWith('screens-admin-') ||
+      props.id.startsWith('screens-puzzles-import')
+  );
   return (
-    <AppFrameChromeProvider globalTrailing={<AccountMenu />}>
+    <AppFrameChromeProvider
+      globalTrailing={admin ? undefined : <AccountMenu />}
+    >
       <StoryFrame
+        admin={admin}
         story={props.story}
         asRail={props.asRail}
         route={storyRoute(props.id, props.route)}
