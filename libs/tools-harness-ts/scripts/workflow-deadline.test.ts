@@ -45,6 +45,11 @@ test('every stage spends one deadline across queues and sequential jobs', () => 
     expect(readFileSync(env.GITHUB_STEP_SUMMARY, 'utf8')).toMatch(
       /Verification incomplete at job admission: \d+s elapsed since workflow creation \(budget: 180s\)/
     );
+    // regression: workflow-admission-metadata-timeout
+    writeFileSync(
+      gh,
+      '#!/bin/sh\nif mkdir "$RUNNER_TEMP/first" 2>/dev/null; then exit 124; fi\necho "$CREATED"\n'
+    );
     env.CREATED = '2099-01-01T00:00:00Z';
     expect(spawnSync('bash', ['-c', command], { env }).status).toBe(0);
     expect(readFileSync(env.GITHUB_ENV, 'utf8')).toBe(
