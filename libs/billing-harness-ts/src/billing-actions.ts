@@ -10,7 +10,7 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { reachAccountMenu } from '@libs/harness-ts/driver-gestures';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf } from '@libs/harness-ts/identity';
-import { nodeText, partitioned } from '@libs/harness-ts/observations';
+import { partitioned } from '@libs/harness-ts/observations';
 import {
   HARNESS_FIRST_BILLING_PROVIDER,
   HARNESS_SERVER_URL,
@@ -39,6 +39,7 @@ import {
   runBillingPeriodOn,
   runOutBillingPeriod,
 } from './billing-provider-driver';
+import { billingTier, membershipShown } from './billing-reads';
 import { CHECKOUT_HARNESS_ACTIONS } from './checkout-actions';
 
 const WAIT_MS = BILLING_WAIT_MS;
@@ -129,11 +130,13 @@ export const subscribeToPlus = scenarioAction({
     if (paymentConfirmationsHeld(s)) return;
     await pollUntil(
       s,
-      async () =>
-        (await nodeText(s, actorId, [Handles.billingTier])) === 'paid'
-          ? true
-          : null,
-      { maxMs: WAIT_MS, description: 'billing tier paid' }
+      async () => {
+        // An ended membership can still grant paid access during grace.
+        const state = (await membershipShown(s, actorId))?.state;
+        if (state !== 'trialing' && state !== 'active') return null;
+        return (await billingTier(s, actorId)) === 'paid' ? true : null;
+      },
+      { maxMs: WAIT_MS, description: 'the new membership and paid access' }
     );
   },
 });
