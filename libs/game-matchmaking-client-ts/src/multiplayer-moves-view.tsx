@@ -263,7 +263,10 @@ export function MultiplayerMovesView(props: MovesProps): JSX.Element {
             </Show>
             <Show when={props.game.record}>
               {(record) => (
-                <StageDetails label={t`Game record`}>
+                <StageDetails
+                  label={t`Game record`}
+                  testId="multiplayer-open-record"
+                >
                   <GameRecord record={record()} copy={props.commands.copy} />
                 </StageDetails>
               )}
