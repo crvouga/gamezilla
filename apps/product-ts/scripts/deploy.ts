@@ -1,9 +1,12 @@
 #!/usr/bin/env bun
 // @io-wall-ok — deploy CLI entry.
 /**
- * Super-app deploy for the environment in `SECRETS_ENV`: Vite build of
- * `@apps/product-ts` against that environment's API, then one version with assets, API and rooms. Hostnames are bound by
- * the OpenTofu edge stack afterwards; `health` checks they serve.
+ * Super-app deploy for the environment in `SECRETS_ENV`: one version with
+ * assets, API and rooms. The assets are the ones Turbo's
+ * `@apps/product-ts#build` left in `dist`, built for this environment's API
+ * and commit, which this release's `verify:*` tasks already checked; they
+ * are deployed as they are, never rebuilt. Hostnames are bound by the
+ * OpenTofu edge stack afterwards; `health:release` checks they serve.
  */
 import { readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -18,23 +21,18 @@ import {
   hyperdriveId,
   workerSecrets,
 } from '@libs/secrets-server-ts/worker-secrets';
-import { withNodeMaxOldSpaceSize } from '@libs/secrets-shared-ts/node-options';
 import { assert } from '@pkgs/assert-root-shared-ts/singleton';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
-import {
-  assertCommitDateIso,
-  COMMIT_HASH_HEX_REGEX,
-} from '@pkgs/git-shared-ts/git';
+import { COMMIT_HASH_HEX_REGEX } from '@pkgs/git-shared-ts/git';
 import {
   activeEnvFile,
   deployWorker,
 } from '../../../libs/infra-server-ts/scripts/worker-deploy';
 import { workerState } from '../../../libs/infra-shared-ts/scripts/worker-state';
+import { assertDistBuiltFor } from './dist-commit';
 import { distHeadersFile } from './dist-headers';
 
 const productDir = join(import.meta.dirname, '..');
-
-const PRODUCT_EXPORT_MAX_OLD_SPACE_MB = 8192;
 
 function resolveCommitHash(): string {
   const rawSha = runCapture('git', ['rev-parse', 'HEAD'], { cwd: REPO_ROOT });
@@ -45,15 +43,6 @@ function resolveCommitHash(): string {
     { rawSha }
   );
   return commitHash;
-}
-
-function resolveCommitDate(): string {
-  const rawDate = runCapture('git', ['log', '-1', '--format=%cI', 'HEAD'], {
-    cwd: REPO_ROOT,
-  });
-  const commitDate = rawDate.trim();
-  assertCommitDateIso(commitDate);
-  return commitDate;
 }
 
 function cleanupProductDist(): void {
@@ -72,53 +61,23 @@ function writeDistHeaders(): void {
   writeFileSync(join(dist, '_headers'), distHeadersFile(files), 'utf8');
 }
 
-async function buildProductWeb(
-  commitHash: string,
-  commitDate: string
-): Promise<void> {
+async function checkBuiltWeb(commitHash: string): Promise<void> {
   const apiUrl = `https://${activeEnvFile().hosts.api}`;
-  const buildEnv = withNodeMaxOldSpaceSize(
-    {
-      ...process.env,
-      VITE_API_URL: apiUrl,
-      VITE_COMMIT_HASH: commitHash,
-      VITE_COMMIT_DATE: commitDate,
-    },
-    PRODUCT_EXPORT_MAX_OLD_SPACE_MB
-  );
-
-  await runAsync(
-    'bun',
-    ['run', 'verify:live-env', '--', `--expected-origin=${apiUrl}`],
-    {
-      cwd: productDir,
-      label: 'product-worker: live build env gate',
-      env: buildEnv,
-    }
-  );
-
-  await runAsync('bun', ['run', 'build'], {
-    cwd: productDir,
-    label: 'product-worker: Vite build (static web assets)',
-    env: buildEnv,
-  });
-
+  assertDistBuiltFor(join(productDir, 'dist'), commitHash);
   writeDistHeaders();
-
   await runAsync(
     'bun',
     ['run', 'verify:live-dist', '--', `--expected-origin=${apiUrl}`],
     {
       cwd: productDir,
       label: 'product-worker: live web dist API URL gate',
-      env: buildEnv,
     }
   );
 }
 
 const commitHash = resolveCommitHash();
-await buildProductWeb(commitHash, resolveCommitDate());
 try {
+  await checkBuiltWeb(commitHash);
   const env = activeEnvFile();
   const secrets = { ...(await workerSecrets()), BUILD_SHA: commitHash };
   const state = workerState(env);

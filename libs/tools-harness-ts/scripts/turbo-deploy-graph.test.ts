@@ -184,7 +184,8 @@ const VERIFY_LEAVES = [
 /** Release runs the whole verification surface, then the leaves that need a live env. */
 const DEPLOY_ONLY = [
   '@apps/product-api-ts#verify:api',
-  'health',
+  '@apps/product-ts#health:release',
+  '@apps/admin-api-ts#health',
   '@libs/infra-shared-ts#retire:workers',
 ] as const;
 
@@ -470,10 +471,14 @@ describe('turbo verify/deploy graph invariants', () => {
   });
 
   test('health probes live resources: never cached, ordered after the release', () => {
-    const health = loadTasks()['health'];
-    expect(health?.cache).toBe(false);
-    expect(health?.dependsOn).toContain('@libs/infra-server-ts#apply:edge');
-    expect(health?.dependsOn).toContain('@libs/billing-server-ts#billing:sync');
+    for (const name of ['health', '@apps/product-ts#health:release']) {
+      const health = loadTasks()[name];
+      expect(health?.cache, name).toBe(false);
+      expect(health?.dependsOn).toEqual([
+        '@libs/infra-server-ts#apply:edge',
+        '@libs/billing-server-ts#billing:sync',
+      ]);
+    }
   });
 
   test('infrastructure applies after install:cli (tofu, conftest, infisical)', () => {
@@ -534,8 +539,8 @@ describe('turbo verify/deploy graph invariants', () => {
         command: 'bun run scripts/health.ts',
       },
       {
-        fullName: '@apps/product-ts#health',
-        command: 'bun run scripts/health.ts',
+        fullName: '@apps/product-ts#health:release',
+        command: 'bun run scripts/health.ts --release',
       },
     ]);
     // A root dependency without an actual script cannot execute in a release.
@@ -566,7 +571,7 @@ describe('turbo verify/deploy graph invariants', () => {
     ]);
     expect(tasks['@libs/infra-shared-ts#retire:workers']?.dependsOn).toEqual([
       '@apps/admin-api-ts#health',
-      '@apps/product-ts#health',
+      '@apps/product-ts#health:release',
     ]);
     expect(tasks['@apps/product-ts#verify:worker-bundle']?.dependsOn).toEqual([
       '^src',

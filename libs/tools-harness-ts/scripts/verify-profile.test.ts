@@ -22,6 +22,7 @@ import {
   activeProfile,
   applyProfileEnv,
   localVerifyArgs,
+  NIGHTLY_JOB_MINUTES,
   NIGHTLY_SUITES,
   profileDeadlineSeconds,
   profileManifest,
@@ -41,6 +42,7 @@ const NIGHTLY = { VERIFY_PROFILE: 'nightly' };
 type Step = {
   name?: string;
   run?: string;
+  env?: Record<string, string>;
   uses?: string;
   if?: string;
   'timeout-minutes'?: number | string;
@@ -48,7 +50,11 @@ type Step = {
 };
 type Job = {
   name: string;
-  strategy?: { matrix?: { shard?: number[] } };
+  strategy?: {
+    'fail-fast'?: boolean;
+    matrix?: { shard?: number[] | string; revision?: string };
+  };
+  env?: Record<string, string>;
   needs?: string[];
   if?: string;
   uses?: string;
@@ -264,18 +270,84 @@ describe('Verify Nightly workflow', () => {
     });
   });
 
-  // regression: nightly-visual-single-runner-timeout
-  test('the visual matrix covers consecutive Playwright shards even when one fails', () => {
-    const visual = nightly.jobs['verify-nightly-visual']!;
-    const shards = visual.strategy?.matrix?.shard ?? [];
-    expect(shards.length).toBeGreaterThan(1);
-    expect([...shards].sort((a, b) => a - b)).toEqual(
-      Array.from({ length: shards.length }, (_, index) => index + 1)
+  /** A matrix's shards; the browser suite runs one for a focused diagnostic. */
+  function shardList(job: Job): number[] {
+    const shard = job.strategy?.matrix?.shard ?? [1];
+    if (Array.isArray(shard)) return shard;
+    const all = /\|\| '(\[[\d,\s]+\])'\) \}\}$/.exec(shard);
+    expect(all, shard).not.toBeNull();
+    expect(shard).toContain(
+      "inputs.group == 'browser' && (inputs.browser-journey != '' || inputs.browser-partition != '') && '[1]'"
     );
-    expect(visual).toMatchObject({
-      strategy: { 'fail-fast': false },
-      env: { STORYBOOK_SHARD: '${{ matrix.shard }}/${{ strategy.job-total }}' },
+    return JSON.parse(all![1]!) as number[];
+  }
+
+  test('a browser runner takes the night of its run, or the partition a person names', () => {
+    const browser = nightly.jobs['verify-nightly-browser']!;
+    const steps = browser.steps!;
+    const night = steps.findIndex((step) =>
+      step.run?.includes('NIGHTLY_NIGHT=')
+    );
+    const run = steps.findIndex(
+      (step) => step.name === 'verify-nightly:browser'
+    );
+    expect(night).toBeGreaterThan(-1);
+    expect(night).toBeLessThan(run);
+    // The run's creation day, not the clock: every runner of a run agrees.
+    expect(steps[night]!.run).toContain('actions/runs/$GITHUB_RUN_ID');
+    expect(browser.permissions?.['actions']).toBe('read');
+    expect(steps[run]!.env).toEqual({
+      BROWSER_PARTITION: '${{ inputs.browser-partition }}',
     });
+    const inputs = (
+      nightly.on['workflow_dispatch'] as {
+        inputs: Record<string, { default: string }>;
+      }
+    ).inputs;
+    expect(inputs['browser-partition']?.default).toBe('');
+  });
+
+  // regression: nightly-visual-single-runner-timeout
+  test('a suite spreads over as many shards as its profile names, each taking its share', () => {
+    for (const [suite, config] of Object.entries(NIGHTLY_SUITES)) {
+      const job = nightly.jobs[`verify-nightly-${suite}`]!;
+      const shards = shardList(job);
+      expect(shards, suite).toEqual(
+        Array.from({ length: config.shards }, (_, index) => index + 1)
+      );
+      if (config.shards === 1) {
+        expect(job.strategy, suite).toBeUndefined();
+        continue;
+      }
+      // One red shard makes the group red; the rest stop instead of
+      // spending runners on a verdict already known.
+      expect(job.strategy?.['fail-fast'], suite).toBe(true);
+      expect(job.name).toBe(
+        `verify-nightly:${suite} (\${{ matrix.shard }}/\${{ strategy.job-total }})`
+      );
+      const place = '${{ matrix.shard }}/${{ strategy.job-total }}';
+      expect(job.env, suite).toEqual(
+        suite === 'visual'
+          ? { STORYBOOK_SHARD: place }
+          : { NIGHTLY_SHARD: place }
+      );
+    }
+  });
+
+  test('no nightly job or step outlives the nightly time limit', () => {
+    for (const [id, job] of Object.entries(nightly.jobs)) {
+      // The gate's jobs are Verify PR's, limited there.
+      if (job.uses !== undefined) continue;
+      expect(job['timeout-minutes'], id).toBeLessThanOrEqual(
+        NIGHTLY_JOB_MINUTES
+      );
+      // A step's limit is minutes, or what is left of the workflow's budget.
+      for (const step of job.steps ?? [])
+        if (typeof step['timeout-minutes'] === 'number')
+          expect(step['timeout-minutes'], step.name).toBeLessThan(
+            job['timeout-minutes']!
+          );
+    }
   });
 
   test('every suite is one job, and every job is a suite', () => {
@@ -308,9 +380,10 @@ describe('Verify Nightly workflow', () => {
         step.uses?.startsWith('actions/upload-artifact@')
       )!;
       expect(upload.if).toBe('always() && !cancelled()');
+      // Each shard keeps an artifact of its own.
       expect(upload.with?.['name']).toBe(
-        suite === 'visual'
-          ? 'verify-nightly-visual-${{ github.run_id }}-${{ matrix.shard }}'
+        config.shards > 1
+          ? `verify-nightly-${suite}-\${{ github.run_id }}-\${{ matrix.shard }}`
           : `verify-nightly-${suite}-\${{ github.run_id }}`
       );
       expect(job.steps!.some((step) => 'continue-on-error' in step)).toBe(

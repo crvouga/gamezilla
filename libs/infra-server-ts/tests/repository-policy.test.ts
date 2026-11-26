@@ -275,7 +275,7 @@ test('CI applies repository policy before deployment and checks drift without ap
   const apply = release['deploy-repository-policy'];
   const drift = workflow('health.yml')['health-repository-policy'];
   expect(apply?.needs).toBe('deploy-verify');
-  expect(release['deploy-fleet']?.needs).toContain('deploy-repository-policy');
+  expect(release['deploy-prd']?.needs).toContain('deploy-repository-policy');
   for (const job of [apply, drift]) {
     expect(job?.environment).toBe('production');
     expect(job?.if).toContain("github.ref == 'refs/heads/main'");

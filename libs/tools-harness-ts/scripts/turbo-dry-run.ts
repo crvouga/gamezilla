@@ -14,9 +14,14 @@ import {
 export function captureTurboDryRun(
   args: readonly string[],
   cwd: string,
-  env: NodeJS.ProcessEnv
+  env: NodeJS.ProcessEnv,
+  changedPaths?: readonly string[]
 ): TurboDryRun & { readonly outputBytes: number } {
-  return captureDryRun('turbo', [...args, '--dry=json'], { cwd, env });
+  return captureDryRun('turbo', [...args, '--dry=json'], {
+    cwd,
+    env,
+    ...(changedPaths === undefined ? {} : { changedPaths }),
+  });
 }
 
 /** The command owns stdout; stderr remains visible, and every exit path removes the spool. */
@@ -27,6 +32,8 @@ export function captureDryRun(
     readonly cwd: string;
     readonly env: NodeJS.ProcessEnv;
     readonly temporaryRoot?: string;
+    /** Paths each projected task reports reading (`readsChange`). */
+    readonly changedPaths?: readonly string[];
   }
 ): TurboDryRun & { readonly outputBytes: number } {
   const directory = mkdtempSync(
@@ -45,7 +52,7 @@ export function captureDryRun(
       closeSync(output);
     }
     return {
-      ...projectTurboDryRun(fileChunks(path)),
+      ...projectTurboDryRun(fileChunks(path), options.changedPaths),
       outputBytes: statSync(path).size,
     };
   } finally {

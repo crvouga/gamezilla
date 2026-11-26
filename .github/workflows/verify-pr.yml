@@ -2,7 +2,9 @@ name: Verify PR
 run-name: "Verify PR · ${{ github.event_name == 'pull_request' && format('pr #{0}', github.event.pull_request.number) || 'manual' }}"
 
 # A pull request runs the smallest gate that cannot wait (ci-stage.ts
-# `PR_TASKS`: typecheck, lint, secret scanning, workflow syntax). Release and
+# `PR_TASKS`: typecheck, lint, unit tests, secret scanning, workflow syntax),
+# only where its own diff reaches and only what fits its job
+# (pr-selection.ts). Release and
 # nightly call this workflow for the whole gate catalog, as does a manual
 # dispatch on any branch; a check that fails in Release keeps an open issue
 # until it passes (ci-check-issues.ts). Profiles differ in depth
@@ -113,7 +115,7 @@ env:
 # Every job runs on a GitHub-hosted `ubuntu-24.04` runner, and every `run:` step is bash.
 defaults:
   run:
-    shell: bash
+    shell: ci-budget-shell {0}
 
 
 jobs:
@@ -125,12 +127,43 @@ jobs:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
       id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
     # One entry per shard with work, naming none of them: GitHub drops a job
     # output that contains a masked secret, and one dev secret is the digit 1.
     outputs:
       shards: ${{ steps.plan.outputs.shards }}
     steps:
+      - &budget
+        name: Check remaining workflow time
+        id: budget
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAGE_SECONDS: "${{ github.event_name == 'pull_request' && 180 || inputs.profile == 'nightly' && 2700 || 600 }}"
+        run: |
+          set -euo pipefail
+          created=$(timeout 10 gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" --jq .created_at)
+          deadline=$(( $(date -d "$created" +%s) + STAGE_SECONDS ))
+          remaining=$(( deadline - $(date +%s) ))
+          if (( remaining <= 0 )); then
+            echo "::error::The workflow spent its time budget before this job started."
+            exit 1
+          fi
+          echo "CI_STAGE_DEADLINE=$deadline" >> "$GITHUB_ENV"
+          echo "minutes=$(( (remaining + 59) / 60 ))" >> "$GITHUB_OUTPUT"
+          mkdir -p "$RUNNER_TEMP/ci-budget"
+          cat > "$RUNNER_TEMP/ci-budget/ci-budget-shell" <<'SH'
+          #!/usr/bin/env bash
+          set -euo pipefail
+          remaining=$(( CI_STAGE_DEADLINE - $(date +%s) ))
+          if (( remaining <= 1 )); then
+            echo "::error::The workflow deadline expired."
+            exit 124
+          fi
+          exec timeout --kill-after=1 "$(( remaining - 1 ))" bash --noprofile --norc -eo pipefail "$@"
+          SH
+          chmod +x "$RUNNER_TEMP/ci-budget/ci-budget-shell"
+          echo "$RUNNER_TEMP/ci-budget" >> "$GITHUB_PATH"
       - name: Validate release branch
         if: ${{ inputs.require-main }}
         run: |
@@ -145,6 +178,7 @@ jobs:
           fetch-depth: 0
           filter: blob:none
       - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
           tools: bun node gh opentofu
@@ -273,7 +307,7 @@ jobs:
       contents: read # check out the code
       actions: read # read run state (gh run list, job metadata)
       id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ inputs.profile == 'nightly' && 70 || 30 }}
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
     strategy:
       fail-fast: false
       max-parallel: ${{ fromJSON(vars.VERIFY_MAX_PARALLEL || '12') }}
@@ -282,15 +316,17 @@ jobs:
     env:
       VERIFY_SHARD: ${{ strategy.job-index }}
     steps:
+      - *budget
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
@@ -312,7 +348,7 @@ jobs:
         timeout-minutes: 2
         uses: ./.github/actions/visual-renderer
       - name: verify
-        timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
+        timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-shard-run.ts "$VERIFY_SHARD"
       # Reports are the nightly profile's; the `release` profile keeps none. One
       # artifact per shard every night, kept three days. They only describe
@@ -381,24 +417,26 @@ jobs:
       contents: read # check out the code
       actions: write # read run state and delete this run's transfer artifacts
       id-token: write # mint the OIDC token Infisical and AWS trust
-    timeout-minutes: ${{ inputs.profile == 'nightly' && 110 || 50 }}
+    timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
     steps:
+      - *budget
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
           fetch-depth: 0
           filter: blob:none
       - uses: ./.github/actions/setup
+        timeout-minutes: ${{ fromJSON(steps.budget.outputs.minutes) }}
         with:
           product-identity-json: ${{ vars.PRODUCT_IDENTITY_JSON }}
-          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}
+          tools: ${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}
           secrets-environment: dev
           secrets-identity-id: ${{ vars.SECRETS_IDENTITY_ID }}
           secrets-project-id: ${{ vars.SECRETS_PROJECT_ID }}
       - name: Run the pull request gate
         if: github.event_name == 'pull_request'
         env:
-          VERIFY_DEADLINE_SECONDS: '1500'
+          VERIFY_DEADLINE_SECONDS: '120'
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- bun run libs/tools-harness-ts/scripts/turbo-ci-run.ts verify:ci
       - name: Download immutable plan
         if: github.event_name != 'pull_request'
@@ -409,7 +447,7 @@ jobs:
       # Does nothing when the plan left the fan-in stage nothing to execute.
       - name: Run fan-in consumers
         if: github.event_name != 'pull_request'
-        timeout-minutes: ${{ inputs.profile == 'nightly' && 60 || 25 }}
+        timeout-minutes: ${{ github.event_name == 'pull_request' && 3 || inputs.profile == 'nightly' && 45 || 10 }}
         run: bun run libs/secrets-server-ts/scripts/secrets-run.ts --fixture -- env TURBO_CACHE=local:rw,remote:rw TURBO_CONCURRENCY="$VERIFY_CONCURRENCY" bun run libs/tools-harness-ts/scripts/verify-consumers.ts
       - name: Upload queryable trace artifacts
         if: always() && !cancelled() && env.VERIFY_PROFILE == 'nightly'

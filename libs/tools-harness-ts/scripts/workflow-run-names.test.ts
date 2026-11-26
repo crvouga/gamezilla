@@ -55,6 +55,7 @@ const DEPLOY_JOBS: Record<string, string> = {
   'deploy-rehearsal': 'Preview infrastructure changes',
   'deploy-repository-policy': 'Enforce repository policy',
   'deploy-fleet': 'Release shared services',
+  'deploy-storybook': 'Release the Storybook site',
   'deploy-dev': 'Release development',
   'deploy-prd': 'Release production',
   'deploy-release': 'Publish release',

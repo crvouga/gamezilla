@@ -34,6 +34,9 @@ test('a pull request runs only the tasks that cannot wait for Release', () => {
   expect(pr).toEqual([
     'tc',
     'lint',
+    'test',
+    'test:unit:1',
+    'test:unit:2',
     '@libs/tools-harness-ts#verify:actionlint',
     '@libs/tools-harness-ts#verify:secrets',
   ]);
@@ -111,7 +114,7 @@ test('gate shards install every toolchain the gate catalog needs', () => {
       (step) => step.uses === './.github/actions/setup'
     )!;
     expect(setup.with?.['tools']).toBe(
-      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu gitleaks actionlint' || '' }}"
+      "${{ env.VERIFY_CI_STAGE == 'pr' && 'bun node gh opentofu conftest gitleaks actionlint' || '' }}"
     );
   }
 });

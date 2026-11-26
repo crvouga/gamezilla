@@ -524,8 +524,7 @@
       "passThroughEnv": ["HEALTH_SPEC"],
       "dependsOn": [
         "@libs/infra-server-ts#apply:edge",
-        "@libs/billing-server-ts#billing:sync",
-        "@apps/synthetic-population-worker-ts#deploy"
+        "@libs/billing-server-ts#billing:sync"
       ],
       "outputLogs": "full"
     },
@@ -533,7 +532,8 @@
       "cache": false,
       "dependsOn": [
         "@apps/product-api-ts#verify:api",
-        "health",
+        "@apps/product-ts#health:release",
+        "@apps/admin-api-ts#health",
         "@libs/infra-shared-ts#retire:workers"
       ],
       "outputs": [],

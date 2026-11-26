@@ -15,7 +15,7 @@ Commit the cost file with any change to this document it calls for. The budgets 
 
 ## Hosted duration budgets
 
-Health measures elapsed time from GitHub workflow creation through the final verdict. Queueing, setup, external checks and deployment count. A run still waiting past its ceiling counts as a breach. Health reports the last 24 hours, identifies each late run and fails its duration check when any run exceeds its ceiling. A failed or cancelled run never establishes a successful delivery time.
+Health measures elapsed time from GitHub workflow creation through the final verdict. Queueing, setup, verification and deployment count. Each admitted job checks the original workflow creation time before setup. Shell commands use the remaining time across jobs; a command that times out fails verification. GitHub controls queue admission, action cleanup and publication of the final check status. A run still waiting past its ceiling counts as a breach. Health reports the last 24 hours, identifies each late run and fails its duration check when any run exceeds its ceiling. A failed or cancelled run never establishes a successful delivery time.
 
 | Stage | Target | Hard ceiling |
 | --- | --- | --- |

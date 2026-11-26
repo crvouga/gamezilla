@@ -8,6 +8,7 @@ successful Turbo results for identical inputs.
 | Pull-request task | Why it cannot wait for Release |
 | --- | --- |
 | `tc`, `lint` | `main` must compile and keep its boundaries, or every Release failure after it is noise. |
+| Affected unit tests | Run short source-only unit tests of the change. Cold work beyond the available compute budget moves to Release. |
 | `verify:secrets` | A credential that reaches `main` has leaked. |
 | `verify:actionlint` | A workflow that does not parse cannot run Release, so nothing would report it. |
 
@@ -82,8 +83,7 @@ Among the gate, these checks are why Release must block a deploy rather than wai
 Release additionally retains foundation-before-migration ordering, stateful-resource
 plan policy, runtime configuration and secret validation, durable room namespace
 preservation, billing reconciliation and post-deployment live health/journeys. These
-check real external systems and cannot be replaced by cached unit results. Development
-must succeed before production; a tag is published only after production health passes.
+check real external systems and cannot be replaced by cached unit results. Development and production deploy independently after the shared fleet succeeds. Production also requires repository policy and its own live probes and critical journeys before publishing the release tag. The hourly Health run checks the complete journey suite and verifies that the metrics backend indexed the probe results. Synthetic population is outside the routine deployment graph.
 
 ## Nightly-only groups
 

@@ -1,9 +1,13 @@
 const STAGES = new Set(['pr', 'release', 'nightly']);
 
 /**
- * The pull-request gate, and why each task cannot wait for Release:
+ * The pull-request gate, and why each task cannot wait for Release. A pull
+ * request runs them only where its own diff reaches, and only those that fit
+ * inside its job (`pr-selection.ts`).
  * - `tc`, `lint`: main must compile and keep its boundaries, or every Release
  *   failure after it is noise.
+ * - `test` and its partitions: a broken unit test of the changed code blocks
+ *   every release behind it, and finding it takes seconds.
  * - `verify:secrets`: a credential that reaches main has leaked.
  * - `verify:actionlint`: a workflow that does not parse cannot run Release,
  *   so nothing would report it.
@@ -11,6 +15,9 @@ const STAGES = new Set(['pr', 'release', 'nightly']);
 export const PR_TASKS: readonly string[] = [
   'tc',
   'lint',
+  'test',
+  'test:unit:1',
+  'test:unit:2',
   '@libs/tools-harness-ts#verify:secrets',
   '@libs/tools-harness-ts#verify:actionlint',
 ];

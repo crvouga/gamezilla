@@ -12,8 +12,7 @@ run-name: "Health · ${{ github.event_name == 'schedule' && 'schedule' || 'manua
 # the resources a secrets env points at — Postgres, R2, EMQX, Grafana Cloud,
 # vendor credentials, the Workers, DNS and TLS — plus the critical user
 # journeys, driven in a real browser (the runner's preinstalled Chrome)
-# against the production web client. The Release workflow runs the same
-# probes as its last step (`//#deploy` → `health`); this schedule catches drift in
+# against the production web client. Release runs the synthetic probes and critical journeys. The hourly suite checks all journeys and catches drift in
 # between (expired tokens, revoked keys, a dead Railway service).
 #
 # One job per environment in libs/infra-shared-ts/tofu/envs/<env>.tfvars.json
@@ -180,7 +179,7 @@ jobs:
         id: envs
         run: bun run libs/infra-shared-ts/scripts/workflow-env-matrix.ts >> "$GITHUB_OUTPUT"
 
-      # Release and Health run the same journeys, as the same synthetic
+      # Release and Health share critical journeys, as the same synthetic
       # accounts, against the same environment, and both plan the same
       # OpenTofu state. Run together they take each other's matches and
       # state lock, and a deploy fails for what the other was doing. A

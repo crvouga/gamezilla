@@ -72,7 +72,7 @@ test('Health uses the env matrix for environments and shared secrets only for pr
 
 // Release names its environments in its own jobs, so an env file without one
 // would silently never ship.
-test('Release has one job per env file, standard before production', () => {
+test('Release has one job per env file, production independent of development', () => {
   const workflow = Bun.YAML.parse(
     readFileSync(join(WORKFLOWS_DIR, 'deploy.yml'), 'utf8')
   ) as { jobs: Record<string, Job & { needs?: string }> };
@@ -81,8 +81,9 @@ test('Release has one job per env file, standard before production', () => {
     expect(workflow.jobs[`deploy-${env}`]?.env?.['SECRETS_ENV']).toBe(env);
   }
   for (const env of production) {
-    expect(workflow.jobs[`deploy-${env}`]?.needs).toBe(
-      `deploy-${standard[standard.length - 1]}`
-    );
+    expect(workflow.jobs[`deploy-${env}`]?.needs).toEqual([
+      'deploy-fleet',
+      'deploy-repository-policy',
+    ]);
   }
 });

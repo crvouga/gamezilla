@@ -67,13 +67,13 @@ test('Release rehearsal verifies and plans without opening the release path', ()
       }
     >;
   };
-  expect(verify.jobs['verify-start']?.steps[0]).toMatchObject({
+  const start = verify.jobs['verify-start']?.steps;
+  expect(start?.[0]?.name).toBe('Check remaining workflow time');
+  expect(start?.[1]).toMatchObject({
     name: 'Validate release branch',
     if: '${{ inputs.require-main }}',
   });
-  expect(verify.jobs['verify-start']?.steps[0]?.run).toContain(
-    'refs/heads/main'
-  );
+  expect(start?.[1]?.run).toContain('refs/heads/main');
   // regression: pr-infra-plan-reads-fixture-state-bucket
   // A plan reads the real stacks: under the fixture identity it named the
   // fixture's state bucket and was refused (HTTP 403). Verify's jobs run under

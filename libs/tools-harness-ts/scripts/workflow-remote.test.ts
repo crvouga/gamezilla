@@ -70,17 +70,40 @@ describe('WORKFLOW_DISPATCH', () => {
       'with.advisories',
       'report'
     );
-    // Verification, repository policy, fleet, dev, production, then release.
+    // Verification, then fleet, dev and production in order beside
+    // repository policy and the Storybook site, then the release tag.
     expect(deploy.jobs['deploy-repository-policy']!.needs).toBe(
       'deploy-verify'
     );
+    expect(deploy.jobs['deploy-storybook']!.needs).toBe('deploy-verify');
     expect(deploy.jobs['deploy-fleet']!.needs).toEqual([
       'deploy-verify',
-      'deploy-repository-policy',
       'deploy-await-health',
     ]);
     expect(deploy.jobs['deploy-dev']!.needs).toBe('deploy-fleet');
-    expect(deploy.jobs['deploy-prd']!.needs).toBe('deploy-dev');
-    expect(deploy.jobs['deploy-release']!.needs).toBe('deploy-prd');
+    expect(deploy.jobs['deploy-prd']!.needs).toEqual([
+      'deploy-fleet',
+      'deploy-repository-policy',
+    ]);
+    expect(deploy.jobs['deploy-release']!.needs).toEqual([
+      'deploy-prd',
+      'deploy-repository-policy',
+    ]);
+  });
+
+  test('every Release job stops within 10 minutes, and a rehearsal is titled apart', () => {
+    const deploy = Bun.YAML.parse(
+      readFileSync(join(WORKFLOWS, 'deploy.yml'), 'utf8')
+    ) as {
+      'run-name': string;
+      jobs: Record<string, { uses?: string; 'timeout-minutes'?: number }>;
+    };
+    for (const [id, job] of Object.entries(deploy.jobs)) {
+      if (job.uses !== undefined) continue;
+      expect(job['timeout-minutes'], id).toBeLessThanOrEqual(10);
+    }
+    expect(deploy['run-name']).toStartWith(
+      "Release · ${{ inputs.rehearsal && 'rehearsal' || "
+    );
   });
 });
