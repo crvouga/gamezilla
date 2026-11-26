@@ -11,6 +11,7 @@ import {
   forgetMultiplayerReply,
   sendMultiplayerCommand,
 } from './multiplayer-commands';
+import { multiplayerView } from './multiplayer-reads';
 import { multiplayerSpaceId } from './multiplayer-spaces';
 
 /** A matched game's board as a device's screen shows it, whichever game it is. */
@@ -58,15 +59,28 @@ export const joinMultiplayerSpace = scenarioAction({
     const spaceId = await multiplayerSpaceId(s, host);
     if (spaceId === null) throw new Error('The multiplayer host has no space');
     await Promise.resolve(joinViaLink.act(s, watcher, `/space/${spaceId}`));
-    const hostBoard = await multiplayerBoardShown(s, host);
-    await pollUntil(
-      s,
-      async () =>
-        (await multiplayerBoardShown(s, watcher)).gameId === hostBoard.gameId
-          ? true
-          : null,
-      { maxMs: 5000, description: 'the shared multiplayer board' }
-    );
+    // The host can still be loading the board when the guest joins. A search
+    // can also have no match yet. The host's synced record distinguishes them.
+    const gameId = (await multiplayerView(s, host)).game?.id ?? null;
+    for (const actor of [host, watcher]) {
+      const ui = await actorUi(s, actor);
+      await bringToFront(s, actor);
+      const board = ui.get('multiplayer-game');
+      await pollUntil(
+        s,
+        async () => {
+          const shown = (await board.isVisible())
+            ? await board.attribute('data-game-id')
+            : null;
+          return shown === gameId ? true : null;
+        },
+        {
+          maxMs: 5000,
+          description: `${actor} sees the shared multiplayer board ${gameId ?? 'after pairing'}`,
+          actor,
+        }
+      );
+    }
   },
 });
 

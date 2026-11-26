@@ -6,8 +6,7 @@
  * holds each to carrying no setup but the person's own.
  */
 
-import { DEVICE_ID_KEY } from '@libs/auth-shared-ts/auth-storage-keys';
-import { ensureActor } from '@libs/harness-ts/actor-ui';
+import { ensureActor, pollUntil } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { actorLocalSql } from '@libs/harness-ts/identity';
 import {
@@ -31,8 +30,8 @@ export async function roomHistorySentTo(
   await ensureActor(s, actor);
   const env = await s.harness.client(actor);
   if (env.room === undefined) throw new Error(`${actor} has no room transport`);
-  const installId = env.secureStorage.getValue(DEVICE_ID_KEY);
-  if (installId === null) throw new Error(`${actor} has no install identity`);
+  const installId = await s.actors.get(actor)?.deviceId();
+  if (!installId) throw new Error(`${actor} has no install identity`);
   const transport = env.room({
     topic: `space:${spaceId}`,
     module: 'space',
@@ -46,14 +45,11 @@ export async function roomHistorySentTo(
     getSessionToken: () => null,
   });
   const frames: string[] = [];
-  let welcomed: (value: void) => void = () => {};
-  const welcome = new Promise<void>((resolve) => {
-    welcomed = resolve;
-  });
+  let welcomed = false;
   const unsubscribe = transport.subscribe((received) => {
     frames.push(JSON.stringify(received));
     if (parseServerToClientWire(received)?.kind === ROOM_WIRE_KIND.welcome)
-      welcomed();
+      welcomed = true;
   });
   try {
     await transport.connect();
@@ -62,11 +58,19 @@ export async function roomHistorySentTo(
       kind: ROOM_WIRE_KIND.sync,
       fromSeq: 0,
     });
-    for (let turn = 0; turn < 200 && frames.length === 0; turn += 1) {
-      await s.session.advanceTime(10);
-      await s.harness.drainServerFetch();
-    }
-    await Promise.race([welcome, s.session.advanceTime(1000)]);
+    await pollUntil(
+      s,
+      async () => {
+        await s.harness.drainServerFetch();
+        return welcomed ? true : null;
+      },
+      {
+        maxMs: 3000,
+        stepMs: 10,
+        description: `${actor} receives the space's room history`,
+        actor,
+      }
+    );
     return frames.join('\n');
   } finally {
     unsubscribe();

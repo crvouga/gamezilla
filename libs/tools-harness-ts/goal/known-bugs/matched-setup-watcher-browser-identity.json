@@ -1,0 +1,4 @@
+{
+  "summary": "After a guest reviewed the first move of a finished Battleship match, the privacy observation looked for the browser's install identity in the in-process client. The observer must use that guest's device and receive the room history before checking it for either fleet.",
+  "regressionTest": "specs/games/matched-game-private-setup.feature"
+}
