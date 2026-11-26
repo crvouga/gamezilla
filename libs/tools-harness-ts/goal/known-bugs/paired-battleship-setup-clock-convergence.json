@@ -1,0 +1,4 @@
+{
+  "summary": "The 3+0 Battleship pairing compared Alice’s first visible board before both private setups arrived with Bob’s later ready board. Both were at revision zero, with first-move clock epochs 383 milliseconds apart.",
+  "regressionTest": "libs/games-harness-ts/tests/paired-board-convergence.test.ts"
+}

@@ -6,6 +6,7 @@
  */
 
 import { expect } from 'bun:test';
+import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared-ts/game-repository';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { playerIdOf } from '@libs/harness-ts/identity';
@@ -52,6 +53,17 @@ async function searchHeld(s: ProductHarness, actor: string): Promise<boolean> {
     s.harness.clock.now()
   );
   return current?.result?.status === 'waiting';
+}
+
+/** The authoritative game formed for this person's current search. */
+export async function gameForPairedSearch(s: ProductHarness, actor: string) {
+  const db = s.harness.serverSql.sqlClient;
+  const owner = await playerIdOf(s, actor);
+  if (owner === null) throw new Error(`${actor} has no player identity`);
+  const search = await readCurrent(db, owner, s.harness.clock.now());
+  if (search?.result?.status !== 'matched')
+    throw new Error(`${actor}'s current search has not been paired`);
+  return new MultiplayerGameRepository(db).owned(search.result.matchId, owner);
 }
 
 /** A search the scenario set up, remembered with its time control. */

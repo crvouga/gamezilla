@@ -8,6 +8,7 @@ import {
 import { billingTier } from '@libs/billing-harness-ts/billing-reads';
 import {
   drawnByAgreement,
+  gameForPairedSearch,
   matchedGameOf,
   sameBoards,
   searchFor,
@@ -196,18 +197,14 @@ Then('{actor} can stop seeking an opponent', async (w, actor: string) => {
 Then(
   '{actor} and {actor} receive the same new game on opposite sides',
   async (w, a: string, b: string) => {
-    const seen = [];
+    const expected = await w.s.read(gameForPairedSearch, a);
+    expect(expected.white_id).not.toBe(expected.black_id);
     for (const actor of [a, b]) {
       await w.s.apply(openFindingAnOpponent, actor, gameOf(w).shared.id);
-      seen.push(
-        await w.s.until((s) => opponentSearchView(s, actor), {
-          pred: (view) => view.game !== null && view.board,
-        })
-      );
+      await w.s.until((s) => opponentSearchView(s, actor), {
+        pred: (view) => view.board && Bun.deepEquals(view.game, expected, true),
+      });
     }
-    const [first, second] = seen;
-    expect(first!.game).toEqual(second!.game);
-    expect(first!.game!.white_id).not.toBe(first!.game!.black_id);
   }
 );
 Then('the first side has the first turn', async (w) => {
