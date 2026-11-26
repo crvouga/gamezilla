@@ -194,17 +194,21 @@
   }
 }
 
-/* On a wide Quoridor table the two player strips fit beside one another,
-   as do the turn and history. Leave the remaining height for the nine ranks. */
+/* On wide Quoridor and Battleship tables the seats share one row and the
+   turn and history share another, leaving room for the board and its tools. */
 @container game-column (min-width: 880px) {
-  .stage:has([data-quoridor-mode]) :is([data-game-players], .information) {
+  .stage:has(
+      [data-quoridor-mode],
+      [data-paired-panels] [data-battleship-surface]
+    )
+    :is([data-game-players], .information) {
     display: flex;
     flex-direction: row;
     align-items: center;
-  }
-  .stage:has([data-quoridor-mode]) :is([data-game-players], .information) > * {
-    flex: 1 1 0;
-    min-width: 0;
+    & > * {
+      flex: 1 1 0;
+      min-width: 0;
+    }
   }
 }
 
