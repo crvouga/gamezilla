@@ -30,7 +30,11 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { createEffect, createMemo, createSignal, Show } from 'solid-js';
 import { COLUMN_LABELS, GLYPHS, ROW_LABELS, sideName } from './battleship-copy';
-import { fleetGridCells, shotGridCells } from './battleship-grid-cells';
+import {
+  createShotGrid,
+  fleetGridCells,
+  shotGridCells,
+} from './battleship-grid-cells';
 
 import { BattleshipTargetGrid } from './battleship-target-grid';
 
@@ -215,13 +219,13 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
   const outgoing = () =>
     battle().shots[requireTwoPlayerSide(props.orientation)];
   const labels = createMemo(() => panelLabels(viewer(), props.orientation));
-  const ownCells = createMemo(() => {
+  const ownCells = createShotGrid(() => {
     const mine = fleet();
     return mine === null
       ? shotGridCells({ shots: incoming(), interactive: false, aiming: null })
       : fleetGridCells(mine, incoming());
   });
-  const targetCells = createMemo(() =>
+  const targetCells = createShotGrid(() =>
     shotGridCells({
       shots: outgoing(),
       interactive: interactive() && aim.aiming() === null,

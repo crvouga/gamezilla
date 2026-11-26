@@ -85,16 +85,3 @@
   color: var(--ui-color-text-secondary);
   text-align: center;
 }
-/* Over the stage while the session shows something there (a countdown);
-   gone when it shows nothing, so the board takes every press. */
-.overlay {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-.overlay:empty {
-  display: none;
-}

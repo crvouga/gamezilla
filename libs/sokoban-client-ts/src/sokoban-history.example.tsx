@@ -1,6 +1,7 @@
 import {
   StoryPackActions,
   StoryPackAttempt,
+  type StoryPackPuzzle,
 } from '@libs/game-puzzle-client-ts/content-attempt-story.example';
 import { sokobanPuzzleContent } from '@libs/sokoban-shared-ts/sokoban-puzzle-content';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -17,6 +18,7 @@ import { SokobanPlayerView } from './sokoban-player';
  */
 function StoryWayOn(props: {
   opened: string;
+  nextTitle: string;
   complete: boolean;
   onOpen: (destination: string) => void;
 }): JSX.Element {
@@ -28,7 +30,10 @@ function StoryWayOn(props: {
       <StoryPackActions
         next={
           props.complete
-            ? { title: 'Lift', open: () => props.onOpen('Lift') }
+            ? {
+                title: props.nextTitle,
+                open: () => props.onOpen(props.nextTitle),
+              }
             : undefined
         }
         onOverview={() => props.onOpen('Pack overview')}
@@ -81,12 +86,21 @@ function StoryControls(props: {
   );
 }
 
+const TWO_CRATES_PUZZLE = {
+  title: 'Two crates',
+  difficulty: 'Easy',
+  description: 'Push each crate onto a goal.',
+  pack: { title: 'Warehouse basics', position: 3, total: 4 },
+} satisfies StoryPackPuzzle;
+
 export function SokobanHistory(props: {
   definition: string;
   state: string;
   disabled: boolean;
   onAction: (action: string) => void;
   onOpenLibrary: () => void;
+  puzzle?: StoryPackPuzzle;
+  nextTitle?: string;
 }) {
   const rules = sokobanPuzzleContent.rules;
   // A resumed attempt can step back to where it started, as a saved
@@ -118,18 +132,18 @@ export function SokobanHistory(props: {
     <StoryPackAttempt
       // As the production attempt screen passes the game's frame.
       stageAlign={sokobanGameClient.puzzleContent.frame.stageAlign}
-      puzzle={{
-        title: 'Two crates',
-        difficulty: 'Easy',
-        description: 'Push each crate onto a goal.',
-        pack: { title: 'Warehouse basics', position: 3, total: 4 },
-      }}
+      puzzle={props.puzzle ?? TWO_CRATES_PUZZLE}
       complete={complete()}
       solvedBefore={completionSaved()}
       // As production: the pack's next puzzle (once solved) and its
       // overview, in the pack card.
       wayOn={
-        <StoryWayOn opened={opened()} complete={complete()} onOpen={open} />
+        <StoryWayOn
+          opened={opened()}
+          nextTitle={props.nextTitle ?? 'Lift'}
+          complete={complete()}
+          onOpen={open}
+        />
       }
       disabled={props.disabled}
       player={

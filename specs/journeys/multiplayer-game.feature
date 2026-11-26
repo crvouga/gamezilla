@@ -3,7 +3,7 @@ Feature: A matchmaking pair play a lasting multiplayer game
   When two people want to play chess together, they want to find each other
   and finish the game, so the complete journey keeps one shared result.
 
-  Rule: Finding an opponent leads into the matched multiplayer game
+  Rule: Once paired for multiplayer chess, both people go straight to their board
 
     @regression:database-link-unmodeled-tcp-buffering
     Scenario: Two accounts are matched and can finish their multiplayer game

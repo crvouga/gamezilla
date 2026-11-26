@@ -40,10 +40,8 @@ type BoardProps = {
   readonly ownSetup: string | null;
   /** The viewer's own dealt hand in this game, if it deals hands. */
   readonly ownHand: string | null;
-  /** What lies over the board: the versus card, the result card. */
   readonly preparation?: JSX.Element;
   readonly information?: JSX.Element;
-  readonly overlay?: JSX.Element | undefined;
   /** Hears the board's own words about live play, for the status line. */
   readonly onBoardLine?: ((line: string | null) => void) | undefined;
 };
@@ -191,7 +189,6 @@ function BoardStage(props: StageProps): JSX.Element {
       viewportFit={presentation().frame.boardFit}
       align={presentation().frame.boardAlign}
       information={props.information}
-      overlay={props.overlay}
       dataSet={gameMark(props, shown())}
       others={
         <OtherSeats

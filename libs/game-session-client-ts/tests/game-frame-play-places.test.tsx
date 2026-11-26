@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { CustomGamePlace } from '@libs/game-session-client-ts/custom-game-places';
 import { FRAME_NO_PLAY } from '@libs/game-session-client-ts/game-frame-empty';
-import type { StageOverlayEvent } from '@pkgs/turn-game-client-ts/stage-overlay';
 import { useGameTableSeat } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { cleanup, fireEvent, screen, within } from '@solidjs/testing-library';
 import { createSignal, untrack } from 'solid-js';
@@ -135,23 +134,6 @@ describe('the play place', () => {
     mountFrame(() => frameProps({ play: FRAME_NO_PLAY }));
     expect(shown('custom-game-offer-draw')).toBe(false);
     expect(shown('custom-game-resign-now')).toBe(false);
-  });
-
-  test('the versus card lies over the board with its count; a press skips to the board', () => {
-    const sent: StageOverlayEvent[] = [];
-    mountFrame(() =>
-      frameProps({
-        overlay: { kind: 'versus', count: 2 },
-        onOverlay: (event) => sent.push(event),
-      })
-    );
-    const versus = screen.getByTestId('custom-game-versus');
-    expect(stage().contains(versus)).toBe(true);
-    expect(versus.getAttribute('data-count')).toBe('2');
-    expect(versus.textContent).toContain('avery');
-    expect(versus.textContent).toContain('jordan');
-    fireEvent.click(within(versus).getByRole('button', { name: 'Start now' }));
-    expect(sent).toEqual([{ type: 'skip' }]);
   });
 
   // regression: battleship-own-seat-below-fold

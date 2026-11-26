@@ -10,7 +10,7 @@ import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
 import { FrameFacts } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
-import { FrameOutcomeCard } from './game-frame-overlay-view';
+import { FrameOutcomeCard } from './game-frame-outcome-card';
 import { FrameStage } from './game-frame-stage';
 import {
   FrameConnectionNotice,

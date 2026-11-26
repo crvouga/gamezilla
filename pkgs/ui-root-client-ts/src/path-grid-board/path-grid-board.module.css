@@ -254,6 +254,17 @@
       transform var(--ui-duration-fast) var(--ui-easing-standard),
       background-color var(--ui-duration-fast) var(--ui-easing-standard);
   }
+  .cell[data-joined] .endpoint {
+    animation: join-path var(--ui-duration-fast) ease-out;
+  }
+  @keyframes join-path {
+    from {
+      scale: 0.9;
+    }
+    to {
+      scale: 1;
+    }
+  }
   .endpoint[data-tracing="true"] {
     transform: scale(0.92);
   }

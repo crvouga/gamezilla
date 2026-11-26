@@ -5,7 +5,6 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
 import type { FramePlaceProps } from './custom-game-screen-view';
-import { FrameOverlay } from './game-frame-overlay-view';
 import {
   FrameBoardSeatView,
   FrameNearSeatView,
@@ -81,13 +80,7 @@ export function FrameStage(
       dataSet={{
         ...props.boardState,
         testid: 'custom-game-public',
-        overlay: props.overlay.kind,
       }}
-      overlay={
-        <Show when={props.place.screen !== 'moves'}>
-          <FrameOverlay {...props} />
-        </Show>
-      }
       others={
         <>
           <FrameOthersView

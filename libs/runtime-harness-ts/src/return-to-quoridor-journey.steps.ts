@@ -1,19 +1,24 @@
 import { QUORIDOR_PLAYABLE } from '@libs/quoridor-harness-ts/quoridor-playable';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
-import { observeBotGameJourney } from './bot-game-journey';
+import { observeBotGameJourney, startBotGameJourney } from './bot-game-journey';
 import { readPublicCustomGame } from './custom-game-party-turn';
 import { check, expectVisible, tap } from './journey-gestures';
 import type { JourneyWorld } from './journey-types';
 
 type World = JourneyWorld & { readonly memo: Map<string, unknown> };
-const { When, Then } = stepsFor<World>();
+const { Given, When, Then } = stepsFor<World>();
 
 function retainedCard(w: World): string {
   const id = w.memo.get('quoridor-space');
   check(typeof id === 'string' && id.length > 0, 'Missing Quoridor space');
   return Handles.spaceLobbyCard(id);
 }
+
+Given(
+  'Alice is playing Classic Quoridor against a bot on a fresh device',
+  (w) => startBotGameJourney(w.journey, 'Classic Quoridor')
+);
 
 // regression: space-bar-actions-hidden
 When('Alice moves to e2 and sees the bot reply', async (w) => {

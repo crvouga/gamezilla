@@ -144,11 +144,6 @@ function HeldActions(props: Props): JSX.Element {
   );
 }
 
-/** The versus card still counts in: the game has not reached the board. */
-function counting(props: Props): boolean {
-  return props.overlay.kind === 'versus';
-}
-
 /**
  * What is done from the live board: the board's own actions, an answer the
  * game is waiting for (a draw offered, a win to claim), and the one way to
@@ -234,7 +229,6 @@ function LiveActions(props: Props): JSX.Element {
       <Show when={props.play.canOfferDraw && !props.menuMatchCommands}>
         <GameActionButton
           title={<Trans>Offer draw</Trans>}
-          disabled={counting(props)}
           dataSet={{ testid: 'custom-game-offer-draw' }}
           operation={() => props.onChoose({ operation: 'offer' })}
         />
@@ -251,7 +245,6 @@ function LiveActions(props: Props): JSX.Element {
           title={<Trans>Resign</Trans>}
           variant="outline"
           intent="danger"
-          disabled={counting(props)}
           onClick={() => props.onConfirm('resign')}
           dataSet={{ testid: 'custom-game-resign-now' }}
         />
@@ -291,8 +284,7 @@ function allMovesOf(props: Props): GameSessionAllMoves | undefined {
  * The play place: the live position and what playing needs now, in one
  * bar: an answer the game waits for, offering a draw, resigning (confirmed)
  * and the game's menu, where the moves, the history and the rest wait. The
- * board never shows an earlier move here (that is the moves place). A game
- * this device watched begin opens under the versus card (`overlay`).
+ * board never shows an earlier move here (that is the moves place).
  */
 export function CustomGameStagePlace(props: Props): JSX.Element {
   return (

@@ -23,9 +23,8 @@ import type { MultiplayerPlace, MultiplayerStage } from './multiplayer-places';
 
 type PlayProps = MultiplayerPlaceFrame & {
   readonly title: string;
-  /** The seats around the board on the live position, under its overlay. */
+  /** The seats around the board on the live position, with its information. */
   readonly board: MultiplayerBoardSlot | undefined;
-  readonly overlay: JSX.Element;
   /** The line that says whose turn it is. */
   readonly status: JSX.Element;
   readonly game: MultiplayerGameView;
@@ -162,8 +161,7 @@ function QuickCommands(props: PlayProps): JSX.Element {
  * says whose turn it is and one bar of commands: an offered draw's answer,
  * offering a draw, resigning (confirmed) and the game's menu, where the
  * rest waits. The moves played sit beside a wide board; choosing one opens
- * the moves, on that position. A game found on this device opens under
- * the versus card (the board's overlay).
+ * the moves, on that position.
  */
 export function MatchmakingStageView(props: PlayProps): JSX.Element {
   return (
@@ -228,9 +226,7 @@ export function MatchmakingStageView(props: PlayProps): JSX.Element {
           </Show>
         }
       >
-        {(information) =>
-          props.board?.({ information, overlay: props.overlay }) ?? information
-        }
+        {(information) => props.board?.({ information }) ?? information}
       </FixedGameSession>
     </MultiplayerStagePlace>
   );

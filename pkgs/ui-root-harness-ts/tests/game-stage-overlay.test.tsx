@@ -6,10 +6,7 @@ import { join } from 'node:path';
 import { renderWithI18n as render } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
-import {
-  GameResultOverlay,
-  GameVersusOverlay,
-} from '@pkgs/ui-root-client-ts/game-stage-overlay';
+import { GameResultOverlay } from '@pkgs/ui-root-client-ts/game-stage-overlay';
 import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 
 const CSS = readFileSync(
@@ -93,49 +90,6 @@ describe('GameResultOverlay', () => {
     view.getByRole('button', { name: 'Rematch' }).click();
     expect(onRematch).toHaveBeenCalledTimes(1);
     expect(onDismiss).toHaveBeenCalledTimes(2);
-  });
-});
-
-describe('GameVersusOverlay', () => {
-  function versus(onSkip: () => void, count = 3) {
-    return render(() => (
-      <ThemeProvider
-        colorScheme="dark"
-        fixedLayout={{ width: 390, height: 844 }}
-      >
-        <GameVersusOverlay
-          others={[{ id: 'yellow', name: 'jordan', avatar: <span /> }]}
-          own={[{ id: 'red', name: 'avery', avatar: <span /> }]}
-          mark="VS"
-          count={count}
-          countLabel="Starts in"
-          skipLabel="Skip"
-          aria-label="avery versus jordan"
-          onSkip={onSkip}
-          dataSet={{ testid: 'versus' }}
-        />
-      </ThemeProvider>
-    ));
-  }
-
-  test('the card is a named group whose one control is a real button', () => {
-    const onSkip = mock(() => undefined);
-    const view = versus(onSkip);
-    const card = view.getByRole('group', { name: 'avery versus jordan' });
-    expect(tabStops(card)).toEqual(['Skip']);
-    view.getByRole('button', { name: 'Skip' }).click();
-    expect(onSkip).toHaveBeenCalledTimes(1);
-  });
-
-  test('the count is shown as given and is not read out every second', () => {
-    const view = versus(() => undefined, 2);
-    const count = view
-      .getByTestId('versus')
-      .querySelector('[data-versus-count]');
-    expect(count?.textContent).toBe('2');
-    expect(count?.closest('[aria-live]')?.getAttribute('aria-live')).toBe(
-      'off'
-    );
   });
 });
 
