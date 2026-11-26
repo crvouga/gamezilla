@@ -4,11 +4,9 @@ import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-web
 import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-host';
 import { Window } from 'happy-dom';
 
-test('a replaced unique attempt button remains the logical tap target', async () => {
-  // regression: browser-tap-detached-unique-marker
+async function tapReplacedButton(control: string, frames: boolean) {
   const window = new Window();
-  const markup =
-    '<button data-testid="content-start-attempt">Start a new attempt</button>';
+  const markup = `<button data-testid="${control}">Continue</button>`;
   window.document.body.innerHTML = markup;
   const prepare = () => {
     const target = window.document.querySelector('button')!;
@@ -18,8 +16,9 @@ test('a replaced unique attempt button remains the logical tap target', async ()
   };
   prepare();
   Object.defineProperty(window, 'requestAnimationFrame', {
-    value: (callback: (timestamp: number) => void) =>
-      queueMicrotask(() => callback(0)),
+    value: (callback: (timestamp: number) => void) => {
+      if (frames) queueMicrotask(() => callback(0));
+    },
   });
   let clicks = 0;
   const view: BunWebView = {
@@ -55,12 +54,22 @@ test('a replaced unique attempt button remains the logical tap target', async ()
   };
   try {
     await new BunWebviewDriver({ view, timers: createHarnessClock().timers })
-      .get('content-start-attempt')
-      .tap();
+      .get(control)
+      .tap({ timeoutMs: 15_000 });
     expect(clicks).toBe(1);
   } finally {
     await window.happyDOM.close();
   }
+}
+
+// regression: browser-tap-detached-unique-marker
+test('a replaced unique attempt button remains the logical tap target', async () => {
+  await tapReplacedButton('content-start-attempt', true);
+});
+
+// regression: isolated-google-tap-waits-for-frame
+test('the Google sign-in tap reaches its button once while animation frames are paused', async () => {
+  await tapReplacedButton('auth-method-google', false);
 });
 
 test('a late offline notice cannot redirect a draft creation tap', async () => {

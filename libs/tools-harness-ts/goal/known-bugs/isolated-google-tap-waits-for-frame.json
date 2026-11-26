@@ -1,0 +1,4 @@
+{
+  "summary": "The isolated browser timed out executing Alice’s auth-method-google tap during Connect Four daily matchmaking. A unique button could stall before native dispatch because selection awaited page animation frames.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-shared-ts/tests/moving-tap-target.test.ts"
+}
