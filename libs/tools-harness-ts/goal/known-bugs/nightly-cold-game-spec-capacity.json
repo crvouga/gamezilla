@@ -1,0 +1,4 @@
+{
+  "summary": "All five Nightly gate runners exhausted their compute budget when every cold numbered game spec partition ran together in 45892130856.",
+  "regressionTest": "libs/tools-harness-ts/scripts/nightly-game-spec-turn.test.ts"
+}

@@ -26,6 +26,10 @@ on:
         description: A recent Release successfully applied the current shared configuration
         value: ${{ jobs.verify-start.outputs.reuse-shared }}
     inputs:
+      rotate-game-specs:
+        description: Select the shared Nightly run’s UTC turn of the game spec partitions
+        type: boolean
+        default: false
       visual-matrix:
         description: The caller runs the whole Storybook suite in its visual matrix
         type: boolean
@@ -102,6 +106,7 @@ env:
   VERIFY_CACHE_MODE: ${{ inputs.cache-mode || 'normal' }}
   VERIFY_DEPLOYMENT: ${{ inputs.deployment && 'true' || 'false' }}
   VERIFY_PROFILE: ${{ inputs.profile || 'release' }}
+  VERIFY_GAME_SPEC_TURN_CREATED_AT: ${{ inputs.rotate-game-specs && inputs.created-at || '' }}
   VERIFY_NIGHTLY_VISUAL_MATRIX: ${{ inputs.visual-matrix }}
   VERIFY_CI_STAGE: ${{ inputs.profile == 'nightly' && 'nightly' || 'release' }}
   VERIFY_ADVISORIES: ${{ inputs.advisories || 'enforce' }}
