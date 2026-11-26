@@ -97,3 +97,14 @@ test('no checkout persists the job token', () => {
         persisting.push(file);
   expect(persisting).toEqual([]);
 });
+
+// regression: pr-hygiene-conflict-human-hold
+test('scheduled PR hygiene leaves merge-hold labels to the PR owner and maintainer', () => {
+  const workflow = join(ROOT, '.github/workflows/pr-hygiene.yml');
+  for (const step of steps(workflow)) {
+    if (typeof step.run === 'string')
+      expect(step.run).not.toMatch(
+        /--(?:add|remove)-label\s+['"]?(?:needs-human|do-not-merge)/
+      );
+  }
+});
