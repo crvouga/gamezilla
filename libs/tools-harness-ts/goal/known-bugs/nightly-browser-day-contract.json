@@ -1,0 +1,4 @@
+{
+  "summary": "Storybook job 140066253982 stopped before browser execution because its workflow contract looked for the removed second run timestamp lookup. Browser rotation consumes the admission step's UTC day.",
+  "regressionTest": "libs/tools-harness-ts/scripts/verify-profile.test.ts"
+}
