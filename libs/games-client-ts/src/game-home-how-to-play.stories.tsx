@@ -1,3 +1,4 @@
+import { withChessBoardContext } from '@libs/chess-root-client-ts/chess-board-story.example';
 import { GameHomeScreenView } from '@libs/game-menu-client-ts/game-home-screen-view';
 import type { GameMenuPlace } from '@libs/game-menu-client-ts/game-menu-places';
 import { createSignal, Show } from 'solid-js';
@@ -33,6 +34,7 @@ const meta = {
   id: 'screens-game-home-how-to-play',
   title: 'Screens/Space/Game home/How to play',
   component: Walkthrough,
+  decorators: [withChessBoardContext],
   parameters: { appRouter: true },
   argTypes: {
     gameId: {
