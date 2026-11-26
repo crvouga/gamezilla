@@ -86,7 +86,7 @@
       "passThroughEnv": ["*"]
     },
     "build": {
-      "dependsOn": ["$TURBO_EXTENDS$", "//#task:i18n:compile"]
+      "dependsOn": ["^src", "//#task:i18n:compile"]
     },
     "tc": {
       "inputs": ["$TURBO_EXTENDS$", "$TURBO_ROOT$/tsconfig.paths.json"]

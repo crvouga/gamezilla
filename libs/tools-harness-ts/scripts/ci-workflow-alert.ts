@@ -18,7 +18,11 @@
  * throws.
  */
 import { appendFileSync, existsSync, readFileSync } from 'node:fs';
-import { failedChecks, syncCheckIssues } from './ci-check-issues';
+import {
+  type FailedCheck,
+  failedChecks,
+  syncCheckIssues,
+} from './ci-check-issues';
 import { failureIssueTitle, fileFailureIssue } from './ci-failure-issue';
 import type { Verdict } from './verify-verdict';
 
@@ -46,11 +50,12 @@ export function formatWorkflowMarkdown(input: {
   readonly verdicts: readonly JobVerdict[];
   readonly url: string;
   readonly sha: string;
-  /** Task ids failing in the run's verification, each with an issue of its own. */
-  readonly failing?: readonly string[];
+  readonly checksWithoutPass?: readonly FailedCheck[];
 }): string {
   const red = redJobs(input.verdicts);
-  const failing = input.failing ?? [];
+  const checks = input.checksWithoutPass ?? [];
+  const failing = checks.filter((check) => check.reason === 'failed');
+  const incomplete = checks.length - failing.length;
   return [
     `## ${red.length === 0 ? '✅' : '❌'} ${input.workflow}`,
     '',
@@ -63,12 +68,18 @@ export function formatWorkflowMarkdown(input: {
         `| \`${verdict.job}\` | ${GREEN.has(verdict.result) ? verdict.result.toUpperCase() : `**${verdict.result}**`} |`
     ),
     '',
+    ...(incomplete
+      ? [
+          `Checks without a completed result: ${incomplete}. See the verification log for their names.`,
+          '',
+        ]
+      : []),
     ...(failing.length === 0
       ? []
       : [
-          'Failing checks, each tracked by its own `ci-failure` issue:',
+          'Failing checks:',
           '',
-          ...failing.map((taskId) => `- \`${taskId}\``),
+          ...failing.map(({ taskId }) => `- \`${taskId}\``),
           '',
         ]),
     ...(red.length === 0
@@ -99,7 +110,7 @@ function main(env: NodeJS.ProcessEnv): number {
     verdicts,
     url,
     sha,
-    failing: verdict ? failedChecks(verdict).map((check) => check.taskId) : [],
+    checksWithoutPass: verdict ? failedChecks(verdict) : [],
   });
   if (env['GITHUB_STEP_SUMMARY'])
     appendFileSync(env['GITHUB_STEP_SUMMARY'], markdown);

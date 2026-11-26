@@ -83,7 +83,10 @@ export function planShards(
   tasks: readonly VerifyTask[],
   env: NodeJS.ProcessEnv
 ): VerifyPlan {
-  const fillSeconds = shardFillSeconds(env);
+  // A release cannot spend a second wave on setup. The workflow deadline
+  // stops a cold first wave and the verdict reports the unfinished checks.
+  const fillSeconds =
+    env['GITHUB_WORKFLOW'] === 'Release' ? Infinity : shardFillSeconds(env);
   const target = adaptiveShardTarget(tasks, shardSizing(env), fillSeconds);
   const matrixCapacity = Number(
     env['VERIFY_MAX_PARALLEL'] ?? env['VERIFY_SHARDS'] ?? '16'

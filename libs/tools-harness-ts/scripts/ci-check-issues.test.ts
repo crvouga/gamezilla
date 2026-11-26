@@ -61,15 +61,18 @@ test('a green verification closes every check issue', () => {
   expect(plan.create).toEqual([]);
 });
 
-test('a check without a verdict is neither filed nor closed', () => {
-  const plan = planCheckIssues(
-    verdict([failed('@a#test', 'missing'), failed('@b#test', 'missing')]),
-    [issue('7', '@b#test')]
-  );
-  expect(plan.create).toEqual([]);
-  expect(plan.update).toEqual([]);
-  expect(plan.close).toEqual([]);
-});
+test.each(['interrupted', 'missing'] as const)(
+  'a %s check is neither filed nor closed',
+  (reason) => {
+    const plan = planCheckIssues(
+      verdict([failed('@a#test', reason), failed('@b#test', reason)]),
+      [issue('7', '@b#test')]
+    );
+    expect(plan.create).toEqual([]);
+    expect(plan.update).toEqual([]);
+    expect(plan.close).toEqual([]);
+  }
+);
 
 test('a verdict without a plan names no check, so it closes nothing', () => {
   const noPlan: Verdict = {
