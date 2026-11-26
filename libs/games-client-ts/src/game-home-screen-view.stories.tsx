@@ -6,6 +6,7 @@ import {
 } from '@libs/game-menu-client-ts/game-home-screen-view';
 import { heartsLesson } from '@libs/hearts-client-ts/hearts-lesson';
 import { numberlinkLesson } from '@libs/numberlink-client-ts/numberlink-lesson';
+import { quoridorLesson } from '@libs/quoridor-client-ts/quoridor-lesson';
 import { useArgs } from 'storybook/preview-api';
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
@@ -15,12 +16,12 @@ function sharedChoices(name: string): readonly GameMenuChoiceView[] {
   return [
     {
       screen: 'custom-game',
-      title: 'Play with friends',
+      title: 'Custom games',
       caption: 'With the people in this space, or bots',
     },
     {
       screen: 'multiplayer',
-      title: 'Find an opponent',
+      title: 'Match making',
       caption: `Meet another ${name} player`,
     },
     {
@@ -95,12 +96,12 @@ export const ManyPlayers: Story = {
     choices: [
       {
         screen: 'custom-game',
-        title: 'Play with friends',
+        title: 'Custom games',
         caption: 'With the people in this space, or bots',
       },
       {
         screen: 'multiplayer',
-        title: 'Find players',
+        title: 'Match making',
         caption: 'Meet 3 other Hearts players',
       },
     ],
@@ -144,7 +145,7 @@ export const LongContent: Story = {
 export const OpenChoice: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByText('Find an opponent'));
+    await userEvent.click(await canvas.findByText('Match making'));
     await expect(args.onChoose).toHaveBeenCalledWith('multiplayer');
   },
 };
@@ -169,5 +170,30 @@ export const OpenHowToPlay: Story = {
     await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
     await expect(await canvas.findByTestId('practice-prompt')).toBeVisible();
+  },
+};
+
+export const ClassicQuoridor: Story = {
+  parameters: {
+    storyRoute: {
+      pathname: '/space/story-room',
+      tab: false,
+      spaceBody: 'shell',
+      spaceTitle: 'Classic Quoridor',
+    },
+  },
+  args: {
+    title: 'Classic Quoridor',
+    tile: 'walls',
+    subtitle: 'Race your pawn across the board. Shape the path with walls.',
+    lesson: quoridorLesson(false),
+    choices: [
+      {
+        screen: 'multiplayer',
+        title: 'Match making',
+        caption: 'Find players for your chosen mode',
+      },
+      ...CHOICES.filter((choice) => choice.screen !== 'multiplayer'),
+    ],
   },
 };

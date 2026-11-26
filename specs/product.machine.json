@@ -738,14 +738,6 @@
       "Tries to start or stop without a connection": "user",
       "Returns to settings": "user",
       "Signs in with permitted team access": "user",
-      "Chooses Classic Quoridor": "user",
-      "Chooses Four-Player King of the Hill": "user",
-      "Opens a Classic Quoridor custom game": "user",
-      "Finds Classic Quoridor opponents": "user",
-      "Reviews a Classic Quoridor game": "user",
-      "Opens a King of the Hill custom game": "user",
-      "Finds King of the Hill opponents": "user",
-      "Reviews a King of the Hill game": "user",
       "Opens local Pong against another person": "user",
       "Opens local Pong against a Pong bot": "user",
       "Opens a Pong custom game": "user",
@@ -875,20 +867,8 @@
       "Opens a Word Tiles custom game": "user",
       "Finds a Word Tiles opponent": "user",
       "Reviews a Word Tiles game": "user",
-      "Chooses Light Cycles Duel": "user",
-      "Chooses Light Cycles Trio": "user",
-      "Chooses Light Cycles Quad": "user",
       "Finds a Pong opponent": "user",
       "Opens puzzle authoring": "user",
-      "Opens a Light Cycles Duel custom game": "user",
-      "Finds Light Cycles Duel players": "user",
-      "Reviews a Light Cycles Duel game": "user",
-      "Opens a Light Cycles Trio custom game": "user",
-      "Finds Light Cycles Trio players": "user",
-      "Reviews a Light Cycles Trio game": "user",
-      "Opens a Light Cycles Quad custom game": "user",
-      "Finds Light Cycles Quad players": "user",
-      "Reviews a Light Cycles Quad game": "user",
       "Chooses Hearts": "user",
       "Opens a Hearts custom game": "user",
       "Reviews a Hearts game": "user",
@@ -932,7 +912,16 @@
       "Opens the administration site": "user",
       "Signs in with an administrator account": "user",
       "Signs in with an ordinary account": "user",
-      "Returns to the dashboard": "user"
+      "Returns to the dashboard": "user",
+      "Opens Quoridor custom games": "user",
+      "Opens Quoridor match making": "user",
+      "Reviews a Quoridor game": "user",
+      "Chooses Quoridor": "user",
+      "Opens Light Cycles custom games": "user",
+      "Opens Light Cycles match making": "user",
+      "Reviews a Light Cycles game": "user",
+      "Chooses Light Cycles": "user",
+      "Chooses a mode the game offers": "user"
     }
   },
   "states": {
@@ -4622,7 +4611,7 @@
                   "id": "App: Games",
                   "meta": {
                     "description": "The host chooses a registered game; participants play or watch according to their permission.",
-                    "snapshot": "The space offers Chess, Connect Four, Battleship, Classic Quoridor, Four-Player King of the Hill, Hearts, Pong, Light Cycles Duel, Light Cycles Trio, Light Cycles Quad, Sokoban, Numberlink and Word Tiles.",
+                    "snapshot": "The space offers Chess, Connect Four, Battleship, Quoridor, Hearts, Pong, Light Cycles, Sokoban, Numberlink and Word Tiles.",
                     "confidence": "assumed",
                     "source": [
                       "specs/games/space-follows-the-host.feature",
@@ -4711,12 +4700,6 @@
                         "Changes the selected game as a watcher": {
                           "target": "#Games: Game choice refused"
                         },
-                        "Chooses Classic Quoridor": {
-                          "target": "#Games: Classic Quoridor choices"
-                        },
-                        "Chooses Four-Player King of the Hill": {
-                          "target": "#Games: King of the Hill choices"
-                        },
                         "Chooses Pong": {
                           "target": "#Games: Pong"
                         },
@@ -4726,20 +4709,17 @@
                         "Chooses Word Tiles": {
                           "target": "#Games: Word Tiles choices"
                         },
-                        "Chooses Light Cycles Duel": {
-                          "target": "#Games: Light Cycles Duel choices"
-                        },
-                        "Chooses Light Cycles Trio": {
-                          "target": "#Games: Light Cycles Trio choices"
-                        },
-                        "Chooses Light Cycles Quad": {
-                          "target": "#Games: Light Cycles Quad choices"
-                        },
                         "Chooses Hearts": {
                           "target": "#Games: Hearts choices"
                         },
                         "Chooses Sokoban": {
                           "target": "#Games: Sokoban"
+                        },
+                        "Chooses Quoridor": {
+                          "target": "#Games: Quoridor choices"
+                        },
+                        "Chooses Light Cycles": {
+                          "target": "#Games: Light Cycles choices"
                         }
                       }
                     },
@@ -4833,83 +4813,6 @@
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Battleship game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Classic Quoridor choices": {
-                      "id": "Games: Classic Quoridor choices",
-                      "meta": {
-                        "description": "Classic Quoridor offers two players custom games, opponents, instructions, history and replay. Each player races to the opposite home row.",
-                        "snapshot": "Classic Quoridor offers two players custom games, opponents, instructions, history and replay. Each player races to the opposite home row.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/quoridor/quoridor-accessibility.feature",
-                          "specs/quoridor/quoridor-bots.feature",
-                          "specs/quoridor/quoridor-health.feature",
-                          "specs/quoridor/quoridor-modes.feature",
-                          "specs/quoridor/quoridor-movement.feature",
-                          "specs/quoridor/quoridor-objectives.feature",
-                          "specs/quoridor/quoridor-walls.feature",
-                          "specs/quoridor/ubiquitous-language.yml",
-                          "specs/journeys/quoridor-game.feature",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/game-turns.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Classic Quoridor custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Classic Quoridor opponents": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Classic Quoridor game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: King of the Hill choices": {
-                      "id": "Games: King of the Hill choices",
-                      "meta": {
-                        "description": "Four-Player King of the Hill offers four players custom games, opponents, instructions, history and replay. The first player to reach the hill wins.",
-                        "snapshot": "Four-Player King of the Hill offers four players custom games, opponents, instructions, history and replay. The first player to reach the hill wins.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/quoridor/quoridor-accessibility.feature",
-                          "specs/quoridor/quoridor-bots.feature",
-                          "specs/quoridor/quoridor-health.feature",
-                          "specs/quoridor/quoridor-modes.feature",
-                          "specs/quoridor/quoridor-movement.feature",
-                          "specs/quoridor/quoridor-objectives.feature",
-                          "specs/quoridor/quoridor-walls.feature",
-                          "specs/quoridor/ubiquitous-language.yml",
-                          "specs/journeys/quoridor-game.feature",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/game-turns.feature",
-                          "specs/games/multi-seat-stand-ins.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a King of the Hill custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds King of the Hill opponents": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a King of the Hill game": {
                           "target": "#Custom Game: Reviewing"
                         },
                         "Returns to the game choice": {
@@ -6203,120 +6106,6 @@
                         }
                       }
                     },
-                    "Games: Light Cycles Duel choices": {
-                      "id": "Games: Light Cycles Duel choices",
-                      "meta": {
-                        "description": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "snapshot": "Light Cycles Duel offers two riders, Comet and Ember, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/journeys/light-cycles-start.feature",
-                          "specs/light-cycles/light-cycles-riding.feature",
-                          "specs/light-cycles/light-cycles-crashes.feature",
-                          "specs/light-cycles/light-cycles-rounds.feature",
-                          "specs/light-cycles/light-cycles-victory.feature",
-                          "specs/light-cycles/light-cycles-riders.feature",
-                          "specs/light-cycles/light-cycles-connection.feature",
-                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
-                          "specs/light-cycles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Light Cycles Duel custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Light Cycles Duel players": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Light Cycles Duel game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Light Cycles Trio choices": {
-                      "id": "Games: Light Cycles Trio choices",
-                      "meta": {
-                        "description": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "snapshot": "Light Cycles Trio offers three riders, Comet, Ember and Nova, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/journeys/light-cycles-start.feature",
-                          "specs/light-cycles/light-cycles-riding.feature",
-                          "specs/light-cycles/light-cycles-crashes.feature",
-                          "specs/light-cycles/light-cycles-rounds.feature",
-                          "specs/light-cycles/light-cycles-victory.feature",
-                          "specs/light-cycles/light-cycles-riders.feature",
-                          "specs/light-cycles/light-cycles-connection.feature",
-                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
-                          "specs/light-cycles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Light Cycles Trio custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Light Cycles Trio players": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Light Cycles Trio game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
-                    "Games: Light Cycles Quad choices": {
-                      "id": "Games: Light Cycles Quad choices",
-                      "meta": {
-                        "description": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "snapshot": "Light Cycles Quad offers four riders, Comet, Ember, Nova and Volt, custom games with people and bots, finding players, and practice against bots on one device. Every rider leaves a trail, the last rider riding wins the round, and the first to the target score wins the game.",
-                        "confidence": "assumed",
-                        "source": [
-                          "specs/journeys/light-cycles-start.feature",
-                          "specs/light-cycles/light-cycles-riding.feature",
-                          "specs/light-cycles/light-cycles-crashes.feature",
-                          "specs/light-cycles/light-cycles-rounds.feature",
-                          "specs/light-cycles/light-cycles-victory.feature",
-                          "specs/light-cycles/light-cycles-riders.feature",
-                          "specs/light-cycles/light-cycles-connection.feature",
-                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
-                          "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
-                          "specs/light-cycles/ubiquitous-language.yml",
-                          "specs/games/game-choices.feature",
-                          "specs/games/game-history.feature",
-                          "specs/games/ubiquitous-language.yml"
-                        ],
-                        "events": []
-                      },
-                      "on": {
-                        "Opens a Light Cycles Quad custom game": {
-                          "target": "#App: Custom game"
-                        },
-                        "Finds Light Cycles Quad players": {
-                          "target": "#App: Multiplayer"
-                        },
-                        "Reviews a Light Cycles Quad game": {
-                          "target": "#Custom Game: Reviewing"
-                        },
-                        "Returns to the game choice": {
-                          "target": "#Games: Choose a game"
-                        }
-                      }
-                    },
                     "Games: Sokoban": {
                       "id": "Games: Sokoban",
                       "meta": {
@@ -6757,6 +6546,83 @@
                               "target": "#Sokoban: Sokoban choices"
                             }
                           }
+                        }
+                      }
+                    },
+                    "Games: Quoridor choices": {
+                      "id": "Games: Quoridor choices",
+                      "meta": {
+                        "description": "Quoridor offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "snapshot": "Quoridor offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/quoridor/quoridor-accessibility.feature",
+                          "specs/quoridor/quoridor-bots.feature",
+                          "specs/quoridor/quoridor-health.feature",
+                          "specs/quoridor/quoridor-modes.feature",
+                          "specs/quoridor/quoridor-movement.feature",
+                          "specs/quoridor/quoridor-objectives.feature",
+                          "specs/quoridor/quoridor-walls.feature",
+                          "specs/quoridor/ubiquitous-language.yml",
+                          "specs/journeys/quoridor-game.feature",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/game-turns.feature",
+                          "specs/games/ubiquitous-language.yml",
+                          "specs/games/multi-seat-stand-ins.feature"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens Quoridor custom games": {
+                          "target": "#App: Custom game"
+                        },
+                        "Opens Quoridor match making": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Quoridor game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
+                        }
+                      }
+                    },
+                    "Games: Light Cycles choices": {
+                      "id": "Games: Light Cycles choices",
+                      "meta": {
+                        "description": "Light Cycles offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "snapshot": "Light Cycles offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "confidence": "assumed",
+                        "source": [
+                          "specs/journeys/light-cycles-start.feature",
+                          "specs/light-cycles/light-cycles-riding.feature",
+                          "specs/light-cycles/light-cycles-crashes.feature",
+                          "specs/light-cycles/light-cycles-rounds.feature",
+                          "specs/light-cycles/light-cycles-victory.feature",
+                          "specs/light-cycles/light-cycles-riders.feature",
+                          "specs/light-cycles/light-cycles-connection.feature",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature",
+                          "specs/light-cycles/light-cycles-smooth-riding.openslo.yaml",
+                          "specs/light-cycles/ubiquitous-language.yml",
+                          "specs/games/game-choices.feature",
+                          "specs/games/game-history.feature",
+                          "specs/games/ubiquitous-language.yml"
+                        ],
+                        "events": []
+                      },
+                      "on": {
+                        "Opens Light Cycles custom games": {
+                          "target": "#App: Custom game"
+                        },
+                        "Opens Light Cycles match making": {
+                          "target": "#App: Multiplayer"
+                        },
+                        "Reviews a Light Cycles game": {
+                          "target": "#Custom Game: Reviewing"
+                        },
+                        "Returns to the game choice": {
+                          "target": "#Games: Choose a game"
                         }
                       }
                     }
@@ -8338,8 +8204,8 @@
                     "Multiplayer: Choosing a time control": {
                       "id": "Multiplayer: Choosing a time control",
                       "meta": {
-                        "description": "Guests and account holders choose a supported multiplayer time control before searching.",
-                        "snapshot": "Guests and account holders choose a supported multiplayer time control before searching.",
+                        "description": "Before finding players, the host can choose a mode and a clock from those the game offers.",
+                        "snapshot": "Before finding players, the host can choose a mode and a clock from those the game offers.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/matched-game-abort.feature:6",
@@ -8351,7 +8217,8 @@
                           "specs/games/matched-game-ownership.feature:42",
                           "specs/games/finding-an-opponent-clock-choices.feature:5",
                           "specs/games/finding-an-opponent-clock-choices.feature:24",
-                          "specs/games/finding-an-opponent-clock-choices.feature:38"
+                          "specs/games/finding-an-opponent-clock-choices.feature:38",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature"
                         ],
                         "events": []
                       },
@@ -8379,6 +8246,9 @@
                         },
                         "Tries finding an opponent during an unfinished game": {
                           "target": "#Multiplayer: Search refused"
+                        },
+                        "Chooses a mode the game offers": {
+                          "target": "#Multiplayer: Choosing a time control"
                         }
                       }
                     },
@@ -9237,8 +9107,8 @@
                     "Custom Game: No unfinished Custom Game": {
                       "id": "Custom Game: No unfinished Custom Game",
                       "meta": {
-                        "description": "The host may create a Custom Game after the previous game finished or was cancelled.",
-                        "snapshot": "The host may create a Custom Game after the previous game finished or was cancelled.",
+                        "description": "The host sees the seats, chooses a mode when the game offers several, and can open any seat to invite a person or add a bot.",
+                        "snapshot": "The host sees the seats, chooses a mode when the game offers several, and can open any seat to invite a person or add a bot.",
                         "confidence": "assumed",
                         "source": [
                           "specs/games/custom-game-accessibility.feature:5",
@@ -9256,7 +9126,8 @@
                           "specs/games/game-history.feature:5",
                           "specs/games/custom-game-privacy.feature:5",
                           "specs/games/custom-game-privacy.feature:21",
-                          "specs/games/custom-game-privacy.feature:45"
+                          "specs/games/custom-game-privacy.feature:45",
+                          "specs/light-cycles/light-cycles-bots-and-modes.feature"
                         ],
                         "events": []
                       },
@@ -9275,6 +9146,9 @@
                         },
                         "A watcher creates a Custom Game": {
                           "target": "#Custom Game: Creator required"
+                        },
+                        "Chooses a mode the game offers": {
+                          "target": "#Custom Game: No unfinished Custom Game"
                         }
                       }
                     },

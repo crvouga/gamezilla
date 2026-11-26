@@ -35,6 +35,7 @@
     "@libs/sub-shared-ts": "workspace:*",
     "@libs/test-ids-shared-ts": "workspace:*",
     "@pkgs/billing-stripe-shared-ts": "workspace:*",
+    "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-root-shared-ts": "workspace:*",

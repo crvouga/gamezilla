@@ -16,5 +16,6 @@ export async function readSavedSpaceName(
   const cancel = ui.get(Handles.spaceRenameCancel);
   await cancel.tap({ timeoutMs: SPACE_WAIT_MS });
   await cancel.expect.hidden({ timeoutMs: SPACE_WAIT_MS });
+  await ui.get(Handles.spaceMembersClose).tap({ timeoutMs: SPACE_WAIT_MS });
   return name;
 }

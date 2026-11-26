@@ -5,7 +5,7 @@ Feature: Play the Sokoban warehouse packs
   Rule: A guest can play the warehouse packs that come with Sokoban without a connection
     No counter-example: the packs are available to everyone.
 
-    Scenario: An offline guest completes a puzzle from the receiving dock
+    Scenario: An offline guest completes the first puzzle in a warehouse pack
       Given Bob is a guest
       And Bob's phone has no connection
       And Bob is playing "Dock 01" from the Sokoban pack "Receiving dock"

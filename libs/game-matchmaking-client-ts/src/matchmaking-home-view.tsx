@@ -1,5 +1,6 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
+import { GameSetupMode } from '@libs/spaces-client-ts/game-setup-mode';
 import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -396,6 +397,9 @@ export function MatchmakingHomeView(props: FindProps): JSX.Element {
         summary={props.goal}
         dataSet={{ testid: 'multiplayer-find-conditions' }}
       />
+      <Show when={props.returnTo === undefined}>
+        <GameSetupMode />
+      </Show>
       <Show when={props.find.fresh === true}>
         <P variant="caption" tone="secondary" testId="multiplayer-unavailable">
           <Text variant="inherit" role="status">

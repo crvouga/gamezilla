@@ -15,11 +15,11 @@ export const RELEASE_ENVIRONMENT: Environment = {
  * that says why, so none can reach the deploy unchecked without being named.
  */
 export function releaseSpecs(): readonly string[] {
-  const disposable = resolve(
-    import.meta.dir,
-    '../../../specs/runtime/reopen-sokoban-position.feature'
-  );
-  return [...allSpecs(), disposable].filter((path) => {
+  const disposable = [
+    'runtime/reopen-sokoban-position',
+    'billing/open-provider-pages',
+  ].map((name) => resolve(import.meta.dir, `../../../specs/${name}.feature`));
+  return [...allSpecs(), ...disposable].filter((path) => {
     if (!path.endsWith('.feature')) return false;
     const uri = path
       .slice(path.indexOf(`${sep}specs${sep}`) + 1)
