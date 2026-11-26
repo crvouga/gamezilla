@@ -1,0 +1,4 @@
+{
+  "summary": "Alice's browser could still be reconnecting when she chose her Battleship setup again after an offline refusal. Her own screen stayed at Getting ready.",
+  "regressionTest": "specs/games/matched-game-private-setup.feature"
+}
