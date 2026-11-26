@@ -1,0 +1,4 @@
+{
+  "summary": "Reviewing a finished custom game tried to enter a move number before opening Go to move.",
+  "regressionTest": "specs/games/custom-game-private-setup.feature"
+}
