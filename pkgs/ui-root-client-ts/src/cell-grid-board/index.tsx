@@ -45,6 +45,7 @@ export type CellGridCell = {
   readonly identity?: 'one' | 'two' | 'three' | 'four' | undefined;
 };
 export type CellGridBoardProps = {
+  readonly battleshipSurface?: 'fleet' | 'target';
   /**
    * Playing-surface palette; never themes the surrounding application.
    * `checkered` is a wooden board of alternating light and dark squares
@@ -211,7 +212,16 @@ function GridCell(props: {
         props.board.onPreview?.(id());
       }}
       onBlur={() => props.board.onPreview?.(null)}
-      onPointerEnter={() => props.board.onPreview?.(id())}
+      onPointerEnter={(event) => {
+        // Touching a hull starts direct manipulation. A mouse-style hover
+        // would reflow placement guidance underneath the moving finger.
+        if (
+          event.pointerType === 'touch' &&
+          props.board.battleshipSurface === 'fleet'
+        )
+          return;
+        props.board.onPreview?.(id());
+      }}
       onPointerLeave={() => props.board.onPreview?.(null)}
       onKeyDown={(event) => props.onKey(event, props.index)}
       onClick={() => {
@@ -308,6 +318,7 @@ export function CellGridBoard(props: CellGridBoardProps): JSX.Element {
       }}
       class={`${styles['board']} ${battleship['board']} ${quoridor['board']}`}
       data-board-theme={props.boardTheme ?? 'battleship'}
+      data-battleship-surface={props.battleshipSurface}
       data-fill={String(props.fill === true)}
       role="group"
       aria-label={props.label}

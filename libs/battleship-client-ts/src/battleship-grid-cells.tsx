@@ -14,6 +14,8 @@ import { t } from '@lingui/core/macro';
 import type { CellGridCell } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import { GLYPHS, shipName } from './battleship-copy';
 
+import { hullEdges } from './battleship-hull';
+
 export type ShotGrid = {
   /** The shots fired at this board, in order: public, never a fleet. */
   readonly shots: readonly Shot[];
@@ -30,15 +32,6 @@ function withRecent(cell: CellGridCell, recent: boolean): CellGridCell {
   return recent
     ? { ...cell, emphasis: 'recent', label: t`${cell.label}, latest shot` }
     : cell;
-}
-/** Each cell a sunk ship is credited with, by the public shots alone. */
-export function sunkByCell(
-  shots: readonly Shot[]
-): ReadonlyMap<string, ShipId> {
-  const byCell = new Map<string, ShipId>();
-  for (const [ship, cells] of sunkShipCells(shots))
-    for (const cell of cells) byCell.set(cell, ship);
-  return byCell;
 }
 function firedCell(
   shot: Shot,
@@ -98,13 +91,21 @@ function openCell(cell: string, grid: ShotGrid): CellGridCell {
  */
 export function shotGridCells(grid: ShotGrid): readonly CellGridCell[] {
   const shots = new Map(grid.shots.map((shot) => [shot.cell, shot]));
-  const sunk = sunkByCell(grid.shots);
+  const sunk = sunkShipCells(grid.shots);
+  const wrecks = new Map(
+    [...sunk].flatMap(([ship, cells]) =>
+      cells.map(
+        (cell) => [cell, { ship, edges: hullEdges(cells, cell) }] as const
+      )
+    )
+  );
   const recent = latest(grid.shots);
   return CELLS.map((cell) => {
     const shot = shots.get(cell);
     if (shot === undefined) return openCell(cell, grid);
+    const wreck = wrecks.get(cell);
     return withRecent(
-      firedCell(shot, sunk.get(cell), cellLabel(cell)),
+      { ...firedCell(shot, wreck?.ship, cellLabel(cell)), edges: wreck?.edges },
       cell === recent
     );
   });
@@ -174,7 +175,10 @@ export function fleetGridCells(
     const view =
       ship === null
         ? ownWaterCell(cell, fired.has(cell))
-        : ownShipCell(cell, ship, hits);
+        : {
+            ...ownShipCell(cell, ship, hits),
+            edges: hullEdges(ship.cells, cell),
+          };
     return withRecent(view, cell === recent);
   });
 }

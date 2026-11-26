@@ -4,9 +4,9 @@ import {
   type ShipId,
 } from '@libs/battleship-shared-ts/battleship-board';
 import { t } from '@lingui/core/macro';
+import { BattleshipNavigableGrid } from '@pkgs/battleship-board-client-ts/navigable-grid';
 import type { GameSetupBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { CellGridBoard } from '@pkgs/ui-root-client-ts/cell-grid-board';
 import {
   type GameChoice,
   GameChoiceGrid,
@@ -192,7 +192,11 @@ export function BattleshipSetupBoard(
           </Show>
         }
         overview={
-          <CellGridBoard
+          <BattleshipNavigableGrid
+            fitLabel={t`Fit board`}
+            passive={enlarged()}
+            pickup={setup.pickup}
+            battleshipSurface="fleet"
             label={t`Your waters`}
             testId={`${props.testId}-grid`}
             cellTestId={(cell) => `${props.testId}-cell-${cell}`}
@@ -200,15 +204,9 @@ export function BattleshipSetupBoard(
             rowLabels={ROW_LABELS}
             cells={setup.cells()}
             describedBy={props.locked ? undefined : statusId}
-            onActivate={(cell) => {
-              if (!enlarged()) setup.place(cell);
-            }}
+            onActivate={enlarged() ? undefined : setup.place}
             onPreview={setup.preview}
-            onCellKey={(key) => {
-              if (key !== 'r' && key !== 'R') return false;
-              setup.rotate();
-              return true;
-            }}
+            onCellKey={setup.rotateKey}
           />
         }
       />

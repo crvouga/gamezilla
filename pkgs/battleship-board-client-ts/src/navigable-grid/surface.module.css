@@ -1,0 +1,48 @@
+.shell {
+  width: 100%;
+  min-width: 0;
+  margin-inline: auto;
+}
+.shell[data-fill="false"] {
+  max-width: calc(
+    var(--columns) *
+    (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
+    var(--ui-space-6) +
+    var(--ui-space-4)
+  );
+}
+.viewport {
+  overflow: clip;
+  touch-action: none;
+  user-select: none;
+}
+.plane {
+  transform-origin: top left;
+}
+.viewport[data-scale="1"] {
+  overflow: visible;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .plane [data-battleship-surface="fleet"] [data-emphasis="preview"] > span {
+    animation: pickup 100ms ease-out;
+  }
+  .plane [data-battleship-surface="target"] [data-emphasis="recent"] > span {
+    animation: settle 140ms ease-out;
+  }
+}
+@keyframes pickup {
+  from {
+    transform: scale(0.8);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes settle {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    transform: scale(1);
+  }
+}

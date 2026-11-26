@@ -6,6 +6,7 @@ import {
   readBattleshipPosition,
 } from '@libs/battleship-shared-ts/battleship-position';
 import { t } from '@lingui/core/macro';
+import { BattleshipNavigableGrid } from '@pkgs/battleship-board-client-ts/navigable-grid';
 import type { GameBoardProps } from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSide,
@@ -65,7 +66,9 @@ function BoardPanel(props: {
         )}
       </Show>
       <BattleshipWholeBoard finished={props.finished}>
-        <CellGridBoard
+        <BattleshipNavigableGrid
+          fitLabel={t`Fit board`}
+          battleshipSurface={props.heading === null ? 'fleet' : 'target'}
           fill
           label={props.label}
           testId={`${props.testId}-${props.view}-grid`}
@@ -142,6 +145,7 @@ function BattleshipPreviewWaters(props: GameBoardProps): JSX.Element {
   );
   return (
     <CellGridBoard
+      battleshipSurface="target"
       fill
       label={t`${sideName(props.orientation)} waters`}
       testId={props.testId}
@@ -165,6 +169,18 @@ export function BattleshipBoard(props: GameBoardProps): JSX.Element {
     <Show when={preview()} fallback={<BattleshipPlayBoard {...props} />}>
       <BattleshipPreviewWaters {...props} />
     </Show>
+  );
+}
+
+function markAim(
+  cells: readonly CellGridCell[],
+  target: string | null
+): readonly CellGridCell[] {
+  if (target === null) return cells;
+  return cells.map((cell) =>
+    cell.id === target
+      ? { ...cell, emphasis: 'preview', glyph: GLYPHS.aiming }
+      : cell
   );
 }
 
@@ -212,6 +228,9 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
       aiming: aim.aiming(),
     })
   );
+  const aimCells = createMemo(() =>
+    markAim(targetCells(), aim.aiming() === null ? selected() : null)
+  );
   const confirming = () =>
     (interactive() || aim.aiming() !== null) && view() === 'target';
   return (
@@ -222,11 +241,7 @@ function BattleshipPlayBoard(props: GameBoardProps): JSX.Element {
         view={view()}
         onView={setView}
         own={ownCells()}
-        target={targetCells().map((cell) =>
-          cell.id === selected() && aim.aiming() === null
-            ? { ...cell, emphasis: 'preview' }
-            : cell
-        )}
+        target={aimCells()}
         onAim={setSelected}
         ships={viewer() !== null}
         inspect={!interactive() && aim.aiming() === null}

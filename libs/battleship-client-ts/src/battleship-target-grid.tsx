@@ -1,4 +1,5 @@
 import { t } from '@lingui/core/macro';
+import { BattleshipNavigableGrid } from '@pkgs/battleship-board-client-ts/navigable-grid';
 import {
   BattleshipRegionOverview,
   BattleshipTargetHeader,
@@ -80,7 +81,9 @@ function WholeWaters(props: {
         {props.legend}
       </BattleshipTargetHeader>
       <BattleshipWholeBoard finished={props.finished}>
-        <CellGridBoard
+        <BattleshipNavigableGrid
+          fitLabel={t`Fit board`}
+          battleshipSurface="target"
           fill
           label={props.label}
           testId={`${props.testId}-target-grid`}
@@ -170,6 +173,7 @@ export function BattleshipTargetGrid(props: {
               label={t`Choose a target region`}
               overview={
                 <CellGridBoard
+                  battleshipSurface="target"
                   fill
                   label={props.label}
                   testId={`${props.testId}-target-grid`}
@@ -187,7 +191,9 @@ export function BattleshipTargetGrid(props: {
           }
           working={
             <StackVertical gap="xs" align="center" width="full">
-              <CellGridBoard
+              <BattleshipNavigableGrid
+                fitLabel={t`Fit board`}
+                battleshipSurface="target"
                 label={t`Precise aim`}
                 testId={`${props.testId}-aim-grid`}
                 cellTestId={(cell) => `${props.testId}-aim-${cell}`}

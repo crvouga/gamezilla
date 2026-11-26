@@ -916,6 +916,7 @@
         "@libs/battleship-shared-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
         "@lingui/core": "catalog:",
+        "@pkgs/battleship-board-client-ts": "workspace:*",
         "@pkgs/lingui-solid-client-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-client-ts": "workspace:*",
@@ -4619,6 +4620,23 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "pkgs/battleship-board-client-ts": {
+      "name": "@pkgs/battleship-board-client-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/ui-root-client-ts": "workspace:*",
+        "@pkgs/ui-root-shared-ts": "workspace:*",
+        "@solidjs/web": "catalog:",
+        "solid-js": "catalog:",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
+        "@typescript/native": "catalog:",
+        "storybook": "catalog:",
+        "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -9293,6 +9311,8 @@
     "@pkgs/auth-root-harness-ts": ["@pkgs/auth-root-harness-ts@workspace:pkgs/auth-root-harness-ts"],
 
     "@pkgs/auth-root-shared-ts": ["@pkgs/auth-root-shared-ts@workspace:pkgs/auth-root-shared-ts"],
+
+    "@pkgs/battleship-board-client-ts": ["@pkgs/battleship-board-client-ts@workspace:pkgs/battleship-board-client-ts"],
 
     "@pkgs/billing-paddle-harness-ts": ["@pkgs/billing-paddle-harness-ts@workspace:pkgs/billing-paddle-harness-ts"],
 

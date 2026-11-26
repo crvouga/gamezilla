@@ -1,0 +1,4 @@
+{
+  "summary": "Dragging the Carrier from C1 to C2 failed to preview its new footprint on either viewport when hit-testing used a detached document.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/gestures/phone/integration.checks.ts"
+}
