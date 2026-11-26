@@ -1,6 +1,6 @@
 import sql from '@pkgs/sql-root-shared-ts/sql';
 import type { MutationVerdict } from './mutation-status';
-import { mutationVerdict } from './mutation-status';
+import { readMutationSettlement } from './mutation-status';
 import type { SyncEngine } from './sync-engine-port';
 
 /**
@@ -8,7 +8,7 @@ import type { SyncEngine } from './sync-engine-port';
  * queue row or its rejection changes (the upload queue writes one of them
  * when a verdict lands). Backs `pendingUx: 'pending'` mutations.
  *
- * A rejection settles only once the device holds the server's rows again.
+ * A rejected optimistic write settles once the device holds the server's rows again.
  * The local apply's optimistic write outlives its rejection until the next
  * merge, and a caller told "rejected" acts next on what the device shows:
  * a retry checked locally against that write (a cooldown it started, a
@@ -18,15 +18,15 @@ export async function awaitMutationVerdict(
   engine: Pick<SyncEngine, 'db' | 'watch' | 'refreshQueries'>,
   mutationId: string
 ): Promise<MutationVerdict> {
-  const verdict = await serverVerdict(engine, mutationId);
-  if (verdict.status === 'rejected') await engine.refreshQueries();
+  const { verdict, needsRepair } = await waitForSettlement(engine, mutationId);
+  if (needsRepair) await engine.refreshQueries();
   return verdict;
 }
 
-function serverVerdict(
+function waitForSettlement(
   engine: Pick<SyncEngine, 'db' | 'watch'>,
   mutationId: string
-): Promise<MutationVerdict> {
+): ReturnType<typeof readMutationSettlement> {
   return new Promise((resolve, reject) => {
     // `deleted_at` is selected because a watch fires only when its rows
     // change: a confirmed upload soft-deletes the queue row in place.
@@ -39,12 +39,12 @@ function serverVerdict(
     let settled = false;
     let unsubscribe: () => void = () => undefined;
     const check = (): void => {
-      void mutationVerdict(engine.db, mutationId).then(
-        (verdict) => {
-          if (settled || verdict.status === 'pending') return;
+      void readMutationSettlement(engine.db, mutationId).then(
+        (settlement) => {
+          if (settled || settlement.verdict.status === 'pending') return;
           settled = true;
           unsubscribe();
-          resolve(verdict);
+          resolve(settlement);
         },
         (error: unknown) => {
           if (settled) return;

@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four returned a successful move verdict for a refused opening. Separate reads could miss both the new refusal and the retired queue row when an upload committed between them. Read the permanent refusal and queue together.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/refused-command-verdict.test.ts"
+}

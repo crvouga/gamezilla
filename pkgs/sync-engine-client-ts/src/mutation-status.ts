@@ -25,22 +25,7 @@ export async function mutationStatus(
   db: Pick<SqlClient, 'query'>,
   mutationId: string
 ): Promise<MutationStatus> {
-  const rejections = await db.query(sql<{ id: string }>`
-    SELECT id FROM sync_engine_write_rejections
-    WHERE mutation_id = ${mutationId}
-      AND deleted_at IS NULL
-    LIMIT 1
-  `);
-  if (rejections.length > 0) return 'rejected';
-
-  const pending = await db.query(sql<{ id: string }>`
-    SELECT id FROM sync_engine_mutations
-    WHERE id = ${mutationId}
-      AND deleted_at IS NULL
-    LIMIT 1
-  `);
-  if (pending.length > 0) return 'pending';
-  return 'confirmed';
+  return (await mutationVerdict(db, mutationId)).status;
 }
 
 /** The server's answer for one mutation, with the reason when it refused. */
@@ -71,35 +56,50 @@ function parsedMeta(
   }
 }
 
+/** The queue retirement and its refusal commit together; observe them in one read. */
+export async function readMutationSettlement(
+  db: Pick<SqlClient, 'query'>,
+  mutationId: string
+): Promise<{ verdict: MutationVerdict; needsRepair: boolean }> {
+  const [row] = await db.query(sql<{
+    pending: number;
+    rejection_id: string | null;
+    optimistic_writes: number | null;
+    code: string;
+    message: string;
+    meta: unknown;
+  }>`
+    SELECT (m.id IS NOT NULL AND m.deleted_at IS NULL) AS pending,
+      m.optimistic_writes, r.id AS rejection_id, r.code, r.message, r.meta
+    FROM (SELECT ${mutationId} AS id) AS choice
+    LEFT JOIN sync_engine_mutations m ON m.id = choice.id
+    LEFT JOIN sync_engine_write_rejections r ON r.mutation_id = choice.id AND r.deleted_at IS NULL
+    LIMIT 1
+  `);
+  if (row?.rejection_id == null)
+    return {
+      verdict: { status: row?.pending ? 'pending' : 'confirmed' },
+      needsRepair: false,
+    };
+  const meta = parsedMeta(row.meta);
+  return {
+    verdict: {
+      status: 'rejected',
+      code: row.code,
+      message: row.message,
+      ...(meta === undefined ? {} : { meta }),
+    },
+    // Older choices did not record their write set. Keep their repair barrier.
+    needsRepair: row.optimistic_writes !== 0,
+  };
+}
+
 /** {@link mutationStatus} plus the rejection's code and message. */
 export async function mutationVerdict(
   db: Pick<SqlClient, 'query'>,
   mutationId: string
 ): Promise<MutationVerdict> {
-  const rejections = await db.query(sql<{
-    code: string;
-    message: string;
-    meta: unknown;
-  }>`
-    SELECT code, message, meta FROM sync_engine_write_rejections
-    WHERE mutation_id = ${mutationId}
-      AND deleted_at IS NULL
-    LIMIT 1
-  `);
-  const rejection = rejections[0];
-  if (rejection !== undefined) {
-    const meta = parsedMeta(rejection.meta);
-    return {
-      status: 'rejected',
-      code: rejection.code,
-      message: rejection.message,
-      ...(meta === undefined ? {} : { meta }),
-    };
-  }
-  const status = await mutationStatus(db, mutationId);
-  // Rejected between the two reads: read the rejection it just stored.
-  if (status === 'rejected') return mutationVerdict(db, mutationId);
-  return { status };
+  return (await readMutationSettlement(db, mutationId)).verdict;
 }
 
 export type UnackedWriteRejection = {
