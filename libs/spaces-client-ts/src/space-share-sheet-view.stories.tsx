@@ -10,6 +10,7 @@ import { SharingExample } from './space-management.example';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
 import type { SpaceAddition } from './space-share-add-people-view';
 import { SpaceShareAddPeopleView } from './space-share-add-people-view';
+import { SpaceSharingPanel } from './space-sharing-panel';
 import { AVERY, JORDAN, MORGAN, PLAYBOT } from './spaces-story.example';
 
 /** The add-people search's pick, spied on so a story can see the add. */
@@ -64,7 +65,7 @@ function RemovingJordan(props: {
 const meta = {
   id: 'screens-spaces-share',
   title: 'Screens/Space/Manage/Share',
-  component: SharingExample,
+  component: SpaceSharingPanel,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
   parameters: {
@@ -84,7 +85,7 @@ const meta = {
   },
   render: (args) =>
     withSlots(args, { addPeople: () => addPeople({ status: 'idle' }) }),
-} satisfies Meta<typeof SharingExample>;
+} satisfies Meta<SharingExampleProps>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 

@@ -1,13 +1,14 @@
 import { expect, fn, userEvent, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { PeopleExample } from './space-management.example';
+import { SpaceMemberRosterView } from './space-member-roster-view';
 import { withSpaceScreenBehind } from './space-screen-behind.example';
 import { faces, LONG_NAME, MEMBERS, UNSYNCED } from './spaces-story.example';
 
 const meta = {
   id: 'screens-spaces-members',
   title: 'Screens/Space/Manage/People',
-  component: PeopleExample,
+  component: SpaceMemberRosterView,
   tags: ['autodocs'],
   decorators: [withSpaceScreenBehind],
   parameters: { appRouter: true, controls: { exclude: ['members'] } },
@@ -17,7 +18,8 @@ const meta = {
     onRemove: fn(),
     members: MEMBERS,
   },
-} satisfies Meta<typeof PeopleExample>;
+  render: (args) => <PeopleExample {...args} />,
+} satisfies Meta<Parameters<typeof PeopleExample>[0]>;
 export default meta;
 type Story = StoryObj<typeof meta>;
 
