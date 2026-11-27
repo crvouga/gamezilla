@@ -1,0 +1,4 @@
+{
+  "summary": "Stop left an account waiting when its queue entry was already gone.",
+  "regressionTest": "libs/game-matchmaking-shared-ts/tests/stale-opponent-search.test.ts"
+}

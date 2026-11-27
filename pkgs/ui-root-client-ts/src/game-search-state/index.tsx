@@ -27,7 +27,7 @@ export function GameSearchState(props: {
       {...dataAttrs({ component: 'GameSearchState' })}
     >
       <div class="box flex-row items-center gap-3">
-        <Show when={props.mark} fallback={<Spinner />}>
+        <Show when={props.mark} fallback={<Spinner color="default" />}>
           {props.mark}
         </Show>
         <div class="box min-w-0 flex-1 gap-1">

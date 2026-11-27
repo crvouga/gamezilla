@@ -25,9 +25,6 @@ import { timeControlWords } from './time-control-name';
  */
 export function MultiplayerSearchingView(
   props: MultiplayerPlaceFrame & {
-    readonly title: string;
-    /** How the game is won, in one sentence, where the game says. */
-    readonly goal?: string | undefined;
     readonly search: MultiplayerSearchView;
     readonly onStop: () => Promise<void>;
     /** No connection: the search card says it waits and resumes. */
@@ -62,8 +59,8 @@ export function MultiplayerSearchingView(
             </Show>
           </>
         }
-        title={props.title}
-        summary={props.goal}
+        title={props.search.gameName}
+        summary={props.search.goal}
       />
       <MultiplayerWaiting search={props.search} offline={props.offline} />
     </MultiplayerLobbyPlace>

@@ -307,3 +307,26 @@ test('a bigger game says how many players it finds, and names its command so', (
     'Find players'
   );
 });
+
+// regression: chess-shows-another-games-search
+test('Chess identifies the existing Connect Four search and offers Stop', () => {
+  mountPlaces({
+    stage: 'searching',
+    props: {
+      title: 'Chess',
+      goal: 'Checkmate the other king to win.',
+      search: {
+        players: 2,
+        gameName: 'Connect Four',
+        timeControl: '10+5',
+        seconds: 3244197,
+      },
+    },
+  });
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe(
+    'Connect Four'
+  );
+  expect(screen.getByRole('timer').textContent).toContain('37 days');
+  expect(screen.queryByText('Checkmate the other king to win.')).toBeNull();
+  expect(screen.getByTestId('multiplayer-stop').textContent).toContain('Stop');
+});

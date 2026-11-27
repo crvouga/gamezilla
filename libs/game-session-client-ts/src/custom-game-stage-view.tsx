@@ -301,72 +301,66 @@ export function CustomGameStagePlace(props: Props): JSX.Element {
           phase: props.phase,
           place: props.place.screen,
         }}
-        // What comes and goes (the connection, a refused choice, a draw
-        // offered) lies over the stage's top, never in its flow, so the
-        // board does not move when it appears or clears.
-        // A refused choice is an event: it floats in the alerts. What holds
-        // the game up stays on the status line below.
-        notices={
+        notices={<FrameErrorView text={props.error} />}
+        status={
           <>
             <Show when={props.connection === 'offline-local'}>
-              <P variant="caption" role="status">
+              <P variant="caption" tone="default" role="status">
                 <Trans>You're offline. Your local game can continue.</Trans>
               </P>
             </Show>
-            <FrameErrorView text={props.error} />
-          </>
-        }
-        status={
-          // Someone watching is told so on the bar's own status line, so
-          // their board keeps the players' full width and place.
-          <Show
-            when={props.phase === 'active' && props.viewerSide === null}
-            fallback={
-              <Show
-                when={!frameStageHeldUp(props)}
-                fallback={<FrameStageConditionLine {...props} />}
-              >
+            <Show
+              when={props.phase === 'active' && props.viewerSide === null}
+              fallback={
                 <Show
-                  when={props.play.drawOffered}
-                  fallback={<PlayLine {...props} />}
+                  when={!frameStageHeldUp(props)}
+                  fallback={<FrameStageConditionLine {...props} />}
                 >
-                  <FrameDrawOfferLine play={props.play} people={props.people} />
-                </Show>
-              </Show>
-            }
-          >
-            <P
-              variant="caption"
-              tone="secondary"
-              align="center"
-              testId="custom-game-watching"
-            >
-              {/* Whose move it is, as the matchmaking band says it. */}
-              <Show
-                when={props.status?.plainTurn ? props.status : null}
-                fallback={
-                  <Trans>
-                    You're watching. Moves appear as they're played.
-                  </Trans>
-                }
-              >
-                {(line) => (
-                  // The player to move by name, as the matchmaking band says
-                  // it; the side's words when no seat is to move.
                   <Show
-                    when={moverName(props)}
-                    fallback={
-                      <Trans>You're watching. {line().description}</Trans>
-                    }
+                    when={props.play.drawOffered}
+                    fallback={<PlayLine {...props} />}
                   >
-                    {(name) => (
-                      <Trans>You're watching. {name()} to move.</Trans>
-                    )}
+                    <FrameDrawOfferLine
+                      play={props.play}
+                      people={props.people}
+                    />
                   </Show>
-                )}
-              </Show>
-            </P>
-          </Show>
+                </Show>
+              }
+            >
+              <P
+                variant="caption"
+                tone="secondary"
+                align="center"
+                testId="custom-game-watching"
+              >
+                {/* Whose move it is, as the matchmaking band says it. */}
+                <Show
+                  when={props.status?.plainTurn ? props.status : null}
+                  fallback={
+                    <Trans>
+                      You're watching. Moves appear as they're played.
+                    </Trans>
+                  }
+                >
+                  {(line) => (
+                    // The player to move by name, as the matchmaking band says
+                    // it; the side's words when no seat is to move.
+                    <Show
+                      when={moverName(props)}
+                      fallback={
+                        <Trans>You're watching. {line().description}</Trans>
+                      }
+                    >
+                      {(name) => (
+                        <Trans>You're watching. {name()} to move.</Trans>
+                      )}
+                    </Show>
+                  )}
+                </Show>
+              </P>
+            </Show>
+          </>
         }
         actions={<PlayActions {...props} />}
         history={<FrameMovesCard {...props} />}

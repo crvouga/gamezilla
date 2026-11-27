@@ -22,6 +22,7 @@ export function GameActionButton(props: {
    * defaults to the regular height.
    */
   size?: 'sm' | 'lg' | undefined;
+  loadingLabel?: JSX.Element;
   successLabel?: JSX.Element;
   dataSet?: ComponentDataSet;
 }): JSX.Element {
@@ -31,7 +32,13 @@ export function GameActionButton(props: {
       get idle() {
         return props.title;
       },
-      loading: <Trans>Working…</Trans>,
+      get loading() {
+        return (
+          <Show when={props.loadingLabel} fallback={<Trans>Working…</Trans>}>
+            {props.loadingLabel}
+          </Show>
+        );
+      },
       get success() {
         return (
           <Show when={props.successLabel} fallback={<Trans>Done</Trans>}>

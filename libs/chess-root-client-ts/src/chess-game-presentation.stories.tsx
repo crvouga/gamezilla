@@ -258,3 +258,13 @@ export const PromotionChoice: Story = {
     ).toBeVisible();
   },
 };
+
+export const OfflineMobile: Story = {
+  args: {
+    position: 'rnbqkbnr/ppp1pppp/3p4/8/3P4/8/PPP1PPPP/RNBQKBNR w KQkq - 0 2',
+    lastAction: 'd7d6',
+  },
+  parameters: {
+    table: { turn: 'white', moves: ['d4', 'd6'], connection: 'offline-local' },
+  },
+};

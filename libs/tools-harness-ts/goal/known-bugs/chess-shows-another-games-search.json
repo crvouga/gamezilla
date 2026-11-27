@@ -1,0 +1,4 @@
+{
+  "summary": "A Connect Four search displayed the Chess title and goal.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/multiplayer-find-layout.test.tsx"
+}
