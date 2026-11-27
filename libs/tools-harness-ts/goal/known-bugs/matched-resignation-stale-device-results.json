@@ -1,0 +1,4 @@
+{
+  "summary": "Both players saw the accepted resignation in the live room, but their devices kept the starting board after the server acknowledged settlement of the already finished game without sending another update.",
+  "regressionTest": "libs/game-matchmaking-client-ts/tests/live-result-recovery.test.tsx"
+}
