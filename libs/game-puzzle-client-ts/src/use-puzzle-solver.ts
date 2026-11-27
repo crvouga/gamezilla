@@ -94,6 +94,7 @@ export function usePuzzleSolver(args: { puzzleId: Accessor<string> }): {
   // Nothing paints until the room holds this puzzle: a previous puzzle's
   // position (and orientation) never flashes first (§5 no visible flip).
   const opponentInput = createMemo(() => ({
+    puzzleId: args.puzzleId(),
     startPosition: room.startPosition(),
     moves: room.roomMoves(),
     displayPosition: status() === 'loading' ? null : room.displayPosition(),

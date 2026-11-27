@@ -65,6 +65,7 @@ const reachedAt = (solveIdx: number): string => {
 
 function input(over: Partial<OpponentStagerInput>): OpponentStagerInput {
   return {
+    puzzleId: 'finished',
     startPosition: START,
     moves: MOVES,
     displayPosition: reachedAt(1),
@@ -257,5 +258,35 @@ describe('createPuzzleOpponentStager', () => {
     expect(stager.getSnapshot()).toBe(snap);
     stager.dispose();
     expect(pendingCount()).toBe(0);
+  });
+});
+
+// regression: next-puzzle-opening-repeats-preview
+test('a different puzzle starts its setup slide immediately and locks input until it lands', () => {
+  const { timers, advance } = createManualTimers();
+  const stager = createPuzzleOpponentStager(timers, input({}));
+  stager.update(input({ status: 'skipped' }));
+  stager.update(
+    input({
+      status: 'loading',
+      displayPosition: null,
+      solveIdx: 0,
+      furthestSolveIdx: 0,
+    })
+  );
+  stager.update(input({ puzzleId: 'next' }));
+  expect(stager.getSnapshot()).toEqual({
+    boardPosition: START,
+    opponentAnimating: true,
+  });
+  advance(0);
+  expect(stager.getSnapshot()).toEqual({
+    boardPosition: reachedAt(1),
+    opponentAnimating: true,
+  });
+  advance(PUZZLE_PIECE_MOVE_MS + PUZZLE_OPPONENT_UNLOCK_BUFFER_MS);
+  expect(stager.getSnapshot()).toEqual({
+    boardPosition: reachedAt(1),
+    opponentAnimating: false,
   });
 });

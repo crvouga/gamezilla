@@ -22,8 +22,7 @@ function positionAtSolveIdx(
 }
 
 /**
- * §5 load: the pre-setup position holds this long before the opponent's
- * setup move slides in (spec: ~400–600 ms).
+ * Preview the first opening or a retry. A replacement board starts its setup slide immediately.
  */
 export const PUZZLE_OPENING_PREVIEW_MS = 500;
 /**
@@ -56,6 +55,8 @@ export type OpponentStagePlan =
 type StageArgs = {
   /** The game whose rules play the line. */
   game: PuzzleGame;
+  /** A different puzzle has already been shown on this board. */
+  replacingPuzzle: boolean;
   startPosition: string;
   moves: string;
   displayPosition: string;
@@ -95,7 +96,10 @@ function planOpeningAnimate(args: StageArgs): OpponentStagePlan | null {
     kind: 'animate',
     fromPosition: args.startPosition,
     frames: [
-      { position: args.displayPosition, atMs: PUZZLE_OPENING_PREVIEW_MS },
+      {
+        position: args.displayPosition,
+        atMs: args.replacingPuzzle ? 0 : PUZZLE_OPENING_PREVIEW_MS,
+      },
     ],
   };
 }
