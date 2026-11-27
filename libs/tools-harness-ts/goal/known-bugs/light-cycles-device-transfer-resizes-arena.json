@@ -1,0 +1,4 @@
+{
+  "summary": "RidingElsewhere added a control row to the arena room. At 390 × 844 the drawing moved up 28 px, and at 1440 × 900 it shrank from 829 to 752 px wide.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stage-stability-realtime/integration.checks.ts"
+}

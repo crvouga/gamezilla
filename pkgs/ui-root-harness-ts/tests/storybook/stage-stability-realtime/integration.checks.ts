@@ -111,6 +111,15 @@ async function keepsArenaInPlace(
     expect(start.board).toMatchObject({ x: 0, width: viewport.width });
   for (const story of rest) {
     await switchTo(page, story);
+    if (story === 'screens-games-light-cycles-stage--riding-elsewhere') {
+      const claim = page
+        .locator('[data-game-slot="controls"]')
+        .getByRole('button', {
+          name: 'Ride from this device',
+        });
+      await expect(claim).toBeEnabled();
+      await expect(claim).toBeInViewport({ ratio: 1 });
+    }
     expect({
       story,
       ...(await stageRects(page, sequence.drawing)),
@@ -133,6 +142,7 @@ test('storybook integration: stage stability pong 1440 keeps the arena where it 
   await keepsArenaInPlace(page, WIDE, 'pong');
 });
 
+// regression: light-cycles-device-transfer-resizes-arena
 test('storybook integration: stage stability light cycles 390 keeps the arena where it is through the game', async ({
   page,
 }) => {

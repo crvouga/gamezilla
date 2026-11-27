@@ -336,12 +336,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
         ...FRAME_NO_PLAY,
         canOfferDraw: seated() && props.presentation.frame.drawOffers,
         canResign: seated(),
-        boardActions: frameActionItems(session.actions(), props.board.testId),
-        leadingBoardActions: frameActionItems(
-          session.actions(),
-          props.board.testId,
-          'before-board'
-        ),
+        ...frameActionItems(session.actions(), props.board.testId),
       }}
       result={
         props.ending === undefined ? null : tableResult(props, props.ending)

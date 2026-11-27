@@ -22,6 +22,9 @@ export function MultiplayerFrameBoard(props: {
     const current = frame();
     return untrack(() => current.createBoard(props.board));
   });
+  const actions = createMemo(() =>
+    frameActionItems(session().actions(), props.board.testId)
+  );
   const line = createMemo(() => session().line?.() ?? null);
   // The listener is read when a line is told, never tracked: a new
   // listener alone repeats nothing.
@@ -35,16 +38,9 @@ export function MultiplayerFrameBoard(props: {
   return (
     <StackVertical gap="sm">
       <Board />
-      <GameActionBar
-        items={frameActionItems(
-          session().actions(),
-          props.board.testId,
-          'before-board'
-        )}
-      />
-      <GameActionBar
-        items={frameActionItems(session().actions(), props.board.testId)}
-      />
+      <GameActionBar items={actions().leadingBoardActions} />
+      <GameActionBar items={actions().boardActions} />
+      <GameActionBar items={actions().sessionActions} />
       <Show when={session().controls}>
         <Controls />
       </Show>
