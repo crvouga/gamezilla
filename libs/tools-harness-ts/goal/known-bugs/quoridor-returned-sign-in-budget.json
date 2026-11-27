@@ -1,0 +1,4 @@
+{
+  "summary": "After Bob submitted Google consent through the API relay, the remaining provider-navigation deadline expired while the returned app was still rendering his sign-in outcome.",
+  "regressionTest": "libs/harness-ts/tests/provider-document.test.ts"
+}
