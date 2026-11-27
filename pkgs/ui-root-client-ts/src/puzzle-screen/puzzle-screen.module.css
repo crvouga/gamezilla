@@ -1,26 +1,10 @@
-/* Phone: the coach speaks first, over an edge-to-edge board (its
-   coordinates in its squares), and the few commands sit under it. The
-   host's bar names the game, so the title is for a listener only. The
-   coach's bubble keeps one height, so the board never moves when its
-   words change. */
-@container puzzle-frame (width < 880px) {
-  .root[data-board-sizing="width"] > [data-component="PuzzleTitle"] {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
-  }
-  .root[data-board-sizing="width"] > [data-component="PuzzleHeader"] {
-    order: 1;
-    padding-top: var(--ui-space-2);
-  }
-  .root[data-board-sizing="width"] > [data-component="PuzzleBoard"],
-  .root[data-board-sizing="width"] > :has(> [data-component="PuzzleBoard"]) {
-    order: 2;
-    padding-inline: 0;
-  }
+.workspace {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+  min-height: 0;
 }
 
 /* The puzzle's one line of state under the coaching: one fixed height,
@@ -81,4 +65,50 @@
 .dock > * {
   max-width: var(--ui-max-width-prose);
   margin-inline: auto;
+}
+
+/* On short screens, board and commands share one scroll area. The board
+   keeps its full width and the actions follow it before the move history. */
+@media (max-height: 700px) {
+  @container puzzle-frame (width < 880px) {
+    .workspace[data-board-sizing="width"] {
+      max-width: calc(
+        var(--ui-max-width-prose) *
+        max(1, var(--ui-puzzle-column-ratio))
+      );
+      margin-inline: auto;
+      gap: var(--ui-space-3);
+      overflow: auto;
+    }
+    .workspace[data-board-sizing="width"] > .root {
+      display: contents;
+      overflow: visible;
+    }
+    .workspace[data-board-sizing="width"] > .dock {
+      order: 4;
+      max-height: none;
+    }
+  }
+}
+@media (orientation: landscape) and (max-height: 560px) {
+  @container puzzle-frame (min-width: 600px) and (width < 880px) {
+    .workspace[data-board-sizing="width"] {
+      display: grid;
+      grid-template-columns: min(100dvh - 104px, 100cqw - 304px) minmax(0, 1fr);
+      grid-template-rows: repeat(6, auto) 1fr;
+      column-gap: var(--ui-space-6);
+    }
+    .root[data-board-sizing="width"] > *,
+    .workspace[data-board-sizing="width"] > .dock {
+      grid-column: 2;
+    }
+    .root[data-board-sizing="width"] > .boardColumn {
+      grid-column: 1;
+      grid-row: 1 / -1;
+      padding-inline: 0;
+      position: sticky;
+      top: 0;
+      align-self: start;
+    }
+  }
 }
