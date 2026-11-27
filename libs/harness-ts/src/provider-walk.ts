@@ -82,7 +82,9 @@ function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
     if (doc?.origin !== provider) return null;
     // Only these Mockingbird documents wait for a person. The return page
     // immediately replaces itself (including Apple's automatic form POST).
-    switch (doc.title) {
+    // Bun's Chrome backend preserves the DevTools JSON escape for the
+    // title separator. WebKit returns the decoded character.
+    switch (doc.title.replace(String.raw`\u00b7`, '·')) {
       case 'Choose an account · OAuth Emulator':
         return 'chooser';
       case 'Create account · OAuth Emulator':
