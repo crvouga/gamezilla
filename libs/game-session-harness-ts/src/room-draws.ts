@@ -29,16 +29,18 @@ export function queuedRandom(env: { readonly random: () => number }): {
 /**
  * Queue `draws` for the room's next random draws. Against a separately booted
  * stack (`HARNESS_MODE=stack`) the rooms run in the stack's own processes,
- * whose random port this process cannot reach: the room would draw its own
- * deal or bot move, so the scenario ends there as a host limit.
+ * whose random port this process cannot reach. It can deal normally for
+ * an empty list. Prescribing any draw there is a host limit.
  */
 export function queueRoomDraws(
   s: ProductHarness,
   draws: readonly number[]
 ): void {
   // regression: stack-room-draws-ignored
-  if (productExtra(s).http.kind === 'stack')
+  if (productExtra(s).http.kind === 'stack') {
+    if (draws.length === 0) return;
     throw hostLimit("this host cannot choose the stack room's random draws");
+  }
   const queue = queues.get(s.harness.roomNode);
   if (queue === undefined)
     throw new Error('Room random choice was not injected');

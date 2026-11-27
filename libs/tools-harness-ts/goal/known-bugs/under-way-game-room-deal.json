@@ -1,0 +1,4 @@
+{
+  "summary": "The Word Tiles blocking scenario stopped at a stack host limit before a game started. Its under-way precondition prescribed a rack even though blocking uses no tiles.",
+  "regressionTest": "libs/game-session-harness-ts/tests/stack-host-limits.test.ts"
+}
