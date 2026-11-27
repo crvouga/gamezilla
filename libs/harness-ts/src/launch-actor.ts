@@ -190,7 +190,7 @@ async function launchWebview(
         clock: wallClock,
         timers: wallTimers,
       }),
-      readyOrigin: view.readyOrigin,
+      readyDocument: view.readyDocument,
     },
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),

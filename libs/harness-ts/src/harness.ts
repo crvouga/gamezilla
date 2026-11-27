@@ -3,6 +3,7 @@ import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import type { AudioPlayerStatus } from '@pkgs/sounds-shared-ts/ports';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { ExecuteSqlStatements } from '@pkgs/sql-client-root-shared-ts/statements';
+import type { BrowserDocument } from '@pkgs/ui-testing-bun-webview-server-ts/remote-browser-driver';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { BrowserNavigation } from './browser-navigation';
 import type { ActorCheckpointPort } from './client-checkpoint';
@@ -22,8 +23,8 @@ export type HarnessDevice = {
 export type HarnessActor = {
   /** Native document URL capability; absent in the in-process DOM host. */
   readonly browser?: BrowserNavigation & {
-    /** The loaded document's origin, or null while the tab navigates. */
-    readonly readyOrigin: () => Promise<string | null>;
+    /** The native tab's loaded document, or null while it navigates. */
+    readonly readyDocument: () => Promise<BrowserDocument | null>;
   };
   readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;

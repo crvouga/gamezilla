@@ -1,0 +1,4 @@
+{
+  "summary": "Google sign-in setup in the Chess and Word Tiles daily result scenarios probed the chooser during navigation. The provider's already submitted document or automatic return page could close or leave popup bookkeeping waiting inside an opener evaluation.",
+  "regressionTest": "libs/harness-ts/tests/provider-chooser-navigation.test.ts"
+}

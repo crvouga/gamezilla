@@ -20,7 +20,17 @@ test('Apple form-post in a script-running browser submits only once', async () =
   } as unknown as Driver;
   const s = {
     actors: new Map([
-      ['alice', { browser: { readyOrigin: async () => origin } }],
+      [
+        'alice',
+        {
+          browser: {
+            readyDocument: async () => ({
+              origin,
+              title: 'Continue to your app · OAuth Emulator',
+            }),
+          },
+        },
+      ],
     ]),
     session: {
       ports: {

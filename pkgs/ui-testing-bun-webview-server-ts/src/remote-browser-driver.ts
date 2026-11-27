@@ -2,6 +2,11 @@ import type {
   Driver,
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
+export type BrowserDocument = {
+  readonly origin: string;
+  readonly title: string;
+};
+
 export type BrowserCall = {
   readonly target: 'driver' | 'node' | 'view';
   readonly path: readonly string[];
@@ -15,7 +20,7 @@ export type BrowserCall = {
 export function runsNoPageCode(call: BrowserCall): boolean {
   return (
     (call.target === 'view' &&
-      (call.method === 'loadedUrl' || call.method === 'readyOrigin')) ||
+      (call.method === 'loadedUrl' || call.method === 'readyDocument')) ||
     (call.target === 'driver' && call.method === 'close')
   );
 }

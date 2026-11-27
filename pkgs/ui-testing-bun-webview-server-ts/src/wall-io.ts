@@ -3,7 +3,11 @@ import { wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { createIsolatedProcess } from '@pkgs/os-server-ts/wall-isolated-process';
 import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
 import { browserProcessChannel } from './browser-process-channel';
-import { type BrowserCall, remoteBrowserDriver } from './remote-browser-driver';
+import {
+  type BrowserCall,
+  type BrowserDocument,
+  remoteBrowserDriver,
+} from './remote-browser-driver';
 
 export type BrowserDeviceOptions = {
   readonly initialUrl: string;
@@ -39,11 +43,11 @@ async function openBrowserTab<Open>(
     console: channel.consoleLines,
     network: channel.networkLines,
     view: {
-      readyOrigin: () =>
-        rpc<string | null>({
+      readyDocument: () =>
+        rpc<BrowserDocument | null>({
           target: 'view',
           path: [],
-          method: 'readyOrigin',
+          method: 'readyDocument',
           args: [],
         }),
       loadedUrl: () =>
