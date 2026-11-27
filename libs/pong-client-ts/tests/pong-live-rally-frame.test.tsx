@@ -6,8 +6,7 @@ import { ThemeProvider } from '@pkgs/ui-root-client-ts/theme-context';
 import { fireEvent } from '@solidjs/testing-library';
 import { flush } from 'solid-js';
 
-// regression: pong-live-rally-rebuilds-table-on-ball-motion
-test('the 390px live rally moves the ball and paddle without rewording the table until a point', () => {
+function playUntilPoint(layout: { width: number; height: number }): void {
   let nextFrame: FrameRequestCallback | undefined;
   const request = spyOn(globalThis, 'requestAnimationFrame').mockImplementation(
     (callback) => {
@@ -22,10 +21,7 @@ test('the 390px live rally moves the ball and paddle without rewording the table
     flush();
   };
   const view = renderWithI18n(() => (
-    <ThemeProvider
-      colorScheme="light"
-      fixedLayout={{ width: 390, height: 844 }}
-    >
+    <ThemeProvider colorScheme="light" fixedLayout={layout}>
       {LiveRally.render(meta.args, { parameters: meta.parameters })}
     </ThemeProvider>
   ));
@@ -36,6 +32,14 @@ test('the 390px live rally moves the ball and paddle without rewording the table
     const paddle = view.getByTestId('custom-game-board-first-paddle');
     const near = view.getByTestId('custom-game-white');
     const far = view.getByTestId('custom-game-black');
+    const portraits = () =>
+      ['white', 'black'].map((side) =>
+        view.getByTestId(`custom-game-${side}`).querySelector('img')
+      );
+    const beforePoint = portraits();
+    expect(beforePoint.every((image) => image !== null)).toBe(true);
+    const courtScore = view.getByTestId('custom-game-board-court-score-first');
+    expect(courtScore.textContent).toBe('0');
     const initialScores = [near.textContent, far.textContent];
     fireEvent.keyDown(court, { key: 'ArrowDown' });
     frame(20);
@@ -45,11 +49,7 @@ test('the 390px live rally moves the ball and paddle without rewording the table
     expect(ball.getAttribute('cx')).not.toBe(before[0]);
     expect(paddle.getAttribute('y')).not.toBe(before[1]);
     expect([near.textContent, far.textContent]).toEqual(initialScores);
-    expect(
-      format.mock.calls.filter(([message]) =>
-        /Drag or use the arrow keys|"Points"/.test(JSON.stringify(message))
-      )
-    ).toHaveLength(0);
+    expect(format.mock.calls).toHaveLength(0);
     fireEvent.keyUp(court, { key: 'ArrowDown' });
     for (let time = 240; time <= 10_040; time += 200) {
       frame(time);
@@ -60,6 +60,10 @@ test('the 390px live rally moves the ball and paddle without rewording the table
         break;
     }
     expect([near.textContent, far.textContent]).not.toEqual(initialScores);
+    expect(courtScore.textContent).toBe('1');
+    expect(
+      portraits().every((image, side) => image === beforePoint[side])
+    ).toBe(true);
     expect(view.getByTestId('custom-game-board-status').textContent).toContain(
       'scored'
     );
@@ -69,4 +73,14 @@ test('the 390px live rally moves the ball and paddle without rewording the table
     clock.mockRestore();
     request.mockRestore();
   }
-});
+}
+
+// regression: pong-live-rally-rebuilds-table-on-ball-motion
+// regression: pong-rally-rebuilds-controls-and-avatar
+test.each([
+  { width: 390, height: 844 },
+  { width: 844, height: 390 },
+])(
+  'a live rally at $width by $height moves the paddle and updates the score in place',
+  playUntilPoint
+);

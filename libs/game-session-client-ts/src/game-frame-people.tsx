@@ -2,7 +2,7 @@ import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
-import { Match, Switch } from 'solid-js';
+import { createMemo, Match, Switch } from 'solid-js';
 import { botName } from './custom-game-bot-name';
 import type { FrameHolder, FramePeople } from './game-frame-view-types';
 
@@ -40,9 +40,11 @@ export function FramePersonAvatar(props: {
   readonly size: number;
   readonly people?: FramePeople | undefined;
 }): JSX.Element {
+  // A score or clock update can deliver a fresh seat for the same person.
+  const person = createMemo(() => props.person);
   return (
     <>
-      {props.people?.avatar?.(props.person, props.size) ?? (
+      {props.people?.avatar?.(person(), props.size) ?? (
         <Avatar size={props.size} initials={initialsOf(props.plainName)} />
       )}
     </>
