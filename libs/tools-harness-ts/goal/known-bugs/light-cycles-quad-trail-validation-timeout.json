@@ -1,4 +1,4 @@
 {
   "summary": "Nightly's 200 seeded Quad network scenarios exceeded 120 seconds. Each snapshot validation allocated and checked an array of all 1,120 trail cells across the authority and devices.",
-  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-network.property.test.ts"
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-network-regression.test.ts"
 }

@@ -4,6 +4,31 @@ import {
   verifyLightCyclesRecording,
 } from './light-cycles-network-checks';
 
+test('the Quad arena converges after Carol reconnects and Alice receives delayed snapshots', async () => {
+  // regression: light-cycles-quad-trail-validation-timeout
+  // First recording in the 200-case Nightly sweep (fast-check seed 424242).
+  await verifyLightCyclesRecording(
+    lightCyclesRecording(12, [
+      { action: 'forgeCommand', args: ['stale-basis'] },
+      { action: 'steerRider', args: ['white', 'valid'] },
+      { action: 'forgeCommand', args: ['spectator'] },
+      { action: 'steerRider', args: ['red', 'reversed'] },
+      { action: 'steerRider', args: ['black', 'burst'] },
+      { action: 'forgeCommand', args: ['stale-round'] },
+      { action: 'steerRider', args: ['black', 'reversed'] },
+      { action: 'advanceArena', args: [1942] },
+      { action: 'replaceConnection', args: ['carol'] },
+      { action: 'steerRider', args: ['red', 'burst'] },
+      { action: 'impairLink', args: ['alice', 58, 22] },
+      { action: 'holdSnapshots', args: ['alice', 1200] },
+      { action: 'forgeCommand', args: ['stale-round'] },
+      { action: 'forgeCommand', args: ['future-basis'] },
+      { action: 'advanceArena', args: [895] },
+      { action: 'impairLink', args: ['dave', 93, 10] },
+    ])
+  );
+});
+
 test('seed 1: Ember, whose person is away, sits out the second round from its first tick', async () => {
   // regression: simulation-retirement-away-seat-rides-at-round-start
   await verifyLightCyclesRecording(
