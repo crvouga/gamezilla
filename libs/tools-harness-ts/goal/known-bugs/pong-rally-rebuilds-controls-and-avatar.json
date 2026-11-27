@@ -1,0 +1,4 @@
+{
+  "summary": "The 844×390 Pong live rally recorded a 116 ms task under 4× CPU in Nightly 45952866024. Motion reformatted unchanged court and slider labels. Updating a player's score remounted the same player's avatar and restarted its image load.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-live-rally-frame.test.tsx"
+}

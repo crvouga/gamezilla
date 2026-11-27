@@ -6,7 +6,7 @@ import {
   type PongState,
 } from '@libs/pong-shared-ts/pong-state';
 import { t } from '@lingui/core/macro';
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { GameFrameSeat } from '@pkgs/turn-game-shared-ts/game-frame';
 import type {
   GameBoardProps,
@@ -68,8 +68,6 @@ const sameStatusInput = (
     a.servingToward === b.servingToward);
 const seat = (side: CourtSide) =>
   side === 'first' ? ('white' as const) : ('black' as const);
-const paddleName = (side: GameSide) =>
-  requireTwoPlayerSide(side) === 'white' ? t`Left paddle` : t`Right paddle`;
 
 /** The court with each seat's player, when the host names them. */
 export type PongBoardViewProps = GameBoardProps & {
@@ -86,6 +84,7 @@ export type PongBoardViewProps = GameBoardProps & {
 function PaddleSlider(props: {
   side: GameSide;
   state: PongState;
+  enabled: boolean;
   controls: GameSimulationControls | undefined;
   testId: string;
 }): JSX.Element {
@@ -98,6 +97,12 @@ function PaddleSlider(props: {
       (props.state.paddles[props.side === 'white' ? 'left' : 'right'].y /
         config.height) *
       1000
+  );
+  const { t } = useLingui();
+  const label = createMemo(() =>
+    requireTwoPlayerSide(props.side) === 'white'
+      ? t`Left paddle`
+      : t`Right paddle`
   );
   const [thumb, setThumb] = createSignal(() => paddle());
   return (
@@ -113,16 +118,12 @@ function PaddleSlider(props: {
           orientation="vertical"
           paddle={props.side === 'white' ? 'player1' : 'player2'}
           overlay
-          label={paddleName(props.side)}
+          label={label()}
           min={0}
           max={1000}
           step={20}
           value={thumb()}
-          disabled={
-            controls().paused ||
-            controls().stale ||
-            props.state.phase === 'completed'
-          }
+          disabled={!props.enabled}
           onInput={(target) => {
             setThumb(target);
             controls().onInput(props.side, {
@@ -301,15 +302,17 @@ function sideLabels(
   return { first: label('first'), second: label('second') };
 }
 
+type PongSceneProps = {
+  readonly state: PongState;
+  readonly board: PongBoardViewProps;
+};
+
 /**
  * The court's status words, formatted only when what they say changes: every
  * frame brings a new court, but the words change at most once a countdown
  * second.
  */
-function useCourtStatus(props: {
-  state: PongState;
-  board: PongBoardViewProps;
-}): () => string | undefined {
+function useCourtStatus(props: PongSceneProps): () => string | undefined {
   const statusInput = createMemo(
     (): StatusInput | undefined => {
       const controls = props.board.simulation;
@@ -347,21 +350,24 @@ function useCourtStatus(props: {
   return status;
 }
 
-function PongScene(props: {
-  state: PongState;
-  board: PongBoardViewProps;
-}): JSX.Element {
+function canMovePaddles(props: PongSceneProps): boolean {
+  const controls = props.board.simulation;
+  return (
+    controls !== undefined &&
+    !controls.paused &&
+    !controls.stale &&
+    props.state.phase !== 'completed'
+  );
+}
+
+function PongScene(props: PongSceneProps): JSX.Element {
   const instructionsId = createUniqueId();
   const mode = useLayoutMode();
   const controlled = (): CourtSide[] =>
     (props.board.simulation?.sides ?? []).map((side) =>
       side === 'white' ? 'first' : 'second'
     );
-  const enabled = () =>
-    props.board.simulation !== undefined &&
-    !props.board.simulation.paused &&
-    !props.board.simulation.stale &&
-    props.state.phase !== 'completed';
+  const enabled = createMemo(() => canMovePaddles(props));
   const status = useCourtStatus(props);
   return (
     <>
@@ -394,6 +400,7 @@ function PongScene(props: {
           <PaddleSlider
             side={seat(side)}
             state={props.state}
+            enabled={enabled()}
             controls={props.board.simulation}
             testId={props.board.testId}
           />
