@@ -855,13 +855,18 @@ and three-way conflict markers. Tag pruning is disabled so a fetch cannot delete
 local tags. No git hooks are installed or allowed.
 
 `bun run git:hygiene` fetches and reports every local branch; `--apply` deletes
-eligible local branches and prunes expired worktree metadata. Cleanup requires a
-merged PR targeting `main` at the exact local head, its merge commit included in
-`origin/main`, and no divergent remote head. A branch with any attached worktree,
-an open PR, or a closed unmerged PR is retained. Unknown branches require a
-human disposition. Local deletion never uses force; Git can conservatively retain
-a squash-merged branch. Every deletion or retention prints a reason. Credentials
-or inventory failures stop cleanup before any branch deletion. Cleanup reuses an
+eligible local branches, their leftover `branch.*` config, expired worktree
+metadata, unreachable reflog entries and unreachable objects. A branch is
+eligible when its tip is contained in `origin/main`, every commit unique to
+it is already a patch on `origin/main` (the usual squash merge), or its tip is
+already on `origin/archive` and that tip is at least 3 days old, and its remote
+head matches or is absent. `main`, `archive`, a checked-out branch, a branch
+with an open pull request, and a branch committed within 3 days whose commits
+are not on `origin/main` stay. A branch that still has commits neither
+`origin/main` nor `origin/archive` contains stays too, including one whose pull
+request closed without merging. Deletion uses `git branch -d` and falls back to
+`-D` only after that reachability check. Every deletion or retention prints a reason. Credentials or inventory
+failures stop cleanup before any branch deletion. Cleanup reuses an
 authenticated `gh` or Windows `gh.exe` login; no token is copied into the checkout.
 
 T3’s **Settings → Worktrees → Cleanup**, scoped to this project, must enable
