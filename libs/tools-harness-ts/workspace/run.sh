@@ -31,6 +31,10 @@ trap launch_failed EXIT
 exec 2>>"$WORKSPACE_LAUNCH_LOG"
 {
   workspace_prepare_launch
+  # Sign-ins the checkout still lacks; one that needs a person is reported
+  # here and never stops the stack.
+  "$WORKSPACE_PATH/libs/tools-harness-ts/workspace/bootstrap.sh" --launch </dev/null ||
+    echo "==> bootstrap incomplete; Localhost continues without it"
   # Stop by checkout ownership before selecting ports so they can be reused.
   echo "==> stopping any stack this checkout already runs"
   bun libs/tools-harness-ts/scripts/kill-dev-stack.ts

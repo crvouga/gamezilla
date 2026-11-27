@@ -31,12 +31,6 @@ const SYNC_COMMAND = 'bun run workspace:sync';
 export const HOOKS = ['setup', 'teardown', 'run'] as const;
 export type Hook = (typeof HOOKS)[number];
 
-/** Interactive one-time setup and sign-in; a T3 action, never a hook. */
-export const BOOTSTRAP_COMMAND = `./${SOURCE_DIR}/bootstrap.sh`;
-
-/** Storybook without the product stack; a T3 action. */
-export const STORYBOOK_COMMAND = `./${SOURCE_DIR}/storybook.sh`;
-
 /** Command an orchestrator runs (from the worktree root) for one hook. */
 export function hookCommand(hook: Hook): string {
   return `./${SOURCE_DIR}/${hook === 'setup' ? 'prepare' : hook}.sh`;
@@ -68,9 +62,7 @@ export const ORCHESTRATORS: Orchestrator[] = [
       $schema: 'https://t3.codes/schema/t3.json',
       defaultThreadEnvMode: 'worktree',
       scripts: [
-        { name: 'Bootstrap', command: BOOTSTRAP_COMMAND, icon: 'configure' },
         { name: 'Localhost', command: commands.run, icon: 'play' },
-        { name: 'Storybook', command: STORYBOOK_COMMAND, icon: 'play' },
       ],
     }),
   },
@@ -170,8 +162,8 @@ export function renderConfigs(
 function verifyHookScripts(errors: string[]): void {
   for (const command of [
     ...HOOKS.map(hookCommand),
-    BOOTSTRAP_COMMAND,
-    STORYBOOK_COMMAND,
+    // Localhost runs it, so it must stay runnable.
+    `./${SOURCE_DIR}/bootstrap.sh`,
   ]) {
     const path = command.slice('./'.length);
     try {

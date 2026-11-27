@@ -3,18 +3,8 @@
   "defaultThreadEnvMode": "worktree",
   "scripts": [
     {
-      "name": "Bootstrap",
-      "command": "./libs/tools-harness-ts/workspace/bootstrap.sh",
-      "icon": "configure"
-    },
-    {
       "name": "Localhost",
       "command": "./libs/tools-harness-ts/workspace/run.sh",
-      "icon": "play"
-    },
-    {
-      "name": "Storybook",
-      "command": "./libs/tools-harness-ts/workspace/storybook.sh",
       "icon": "play"
     }
   ]

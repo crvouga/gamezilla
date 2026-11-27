@@ -176,6 +176,22 @@ describe('GameMenuScreen', () => {
     view.unmount();
   });
 
+  // regression: game-menu-first-tile-tinted — the first tile of a game's
+  // menu was painted with the accent while its siblings stayed on the card
+  // surface, and its caption lost contrast on it. Every tile wears the same.
+  test('no tile is colored apart from its siblings', () => {
+    const css = readFileSync(
+      join(
+        import.meta.dirname,
+        '../../ui-root-client-ts/src/game-menu-screen/game-menu-screen.module.css'
+      ),
+      'utf8'
+    );
+    expect(css).not.toContain(':first-child');
+    expect(css).not.toContain('--ui-color-primary-strong');
+    expect(css).not.toContain('--ui-color-on-primary');
+  });
+
   test('phone: the same choices as one panel of menu rows', () => {
     const view = menu(390, () => undefined);
     expect(view.getByTestId('choice-play').getAttribute('data-component')).toBe(

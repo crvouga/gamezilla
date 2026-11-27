@@ -103,6 +103,9 @@ function checkout() {
   });
   writeFakeTools(dir);
   mkdirSync(join(dir, 'apps/product-ts'), { recursive: true });
+  // A bootstrapped checkout: Localhost has no sign-in left to attempt.
+  mkdirSync(join(dir, '.cache'), { recursive: true });
+  writeFileSync(join(dir, '.cache/workspace-bootstrap'), '');
   writeFileSync(join(dir, 'bun.lock'), '{}\n');
   writeFileSync(join(dir, 'mise.toml'), '[tools]\nbun = "1.4.3"\n');
   writeFileSync(join(dir, 'package.json'), '{"name":"root"}\n');
@@ -136,7 +139,6 @@ function checkout() {
   return {
     dir,
     run: script('run.sh'),
-    storybook: script('storybook.sh'),
     setup: script('setup.sh'),
     bootstrap: script('bootstrap.sh'),
     prepare: script('prepare.sh'),
@@ -490,8 +492,8 @@ test('Localhost rebuilds a conflicting Bun link before it starts the stack', () 
 });
 
 // regression: t3-preview-locked-tools
-test('Storybook prepares a cold worktree with no mise.lock before it starts', () => {
-  const { dir, storybook } = checkout();
+test('Localhost prepares a cold worktree with no mise.lock before it starts', () => {
+  const { dir, run } = checkout();
   writeExecutable(
     join(dir, '.bin/mise'),
     `#!/usr/bin/env bash
@@ -499,9 +501,9 @@ test('Storybook prepares a cold worktree with no mise.lock before it starts', ()
 if [ "$1" = env ]; then echo 'export PATH="$PWD/.bin:$PATH"'; fi
 `
   );
-  const result = storybook({ MISE_LOCKED: 'true', MISE_LOCKFILE: 'true' });
+  const result = run({ MISE_LOCKED: 'true', MISE_LOCKFILE: 'true' });
   expect(result.status, result.stderr).toBe(0);
-  expect(result.calls).toEqual([INSTALL, 'bun run --silent storybook']);
+  expect(result.calls).toEqual([INSTALL, STOP, DEV]);
 });
 
 // regression: workspace-bootstrap-cache-brand-check
@@ -516,4 +518,34 @@ test('bootstrap configures the cache without preparing product branding', () => 
   expect(result.calls.join(' ')).toContain(
     'secrets-run.ts --fixture --isolated -- bun -e'
   );
+});
+
+// regression: workspace-actions-minimal
+test('Localhost runs the bootstrap sign-ins without prompting and starts without them', () => {
+  const { dir, run } = checkout();
+  rmSync(join(dir, '.cache/workspace-bootstrap'));
+  const log = join(dir, '.cache/localhost-stack/dev.log');
+  const result = run({ XDG_CONFIG_HOME: join(dir, 'config') });
+  expect(result.status, result.stderr).toBe(0);
+  expect(result.calls).toContain('bun run secrets:pull');
+  expect(result.calls).not.toContain('bun run secrets:login');
+  expect(result.calls.slice(-2)).toEqual([STOP, DEV]);
+  const details = readFileSync(log, 'utf8');
+  expect(details).toContain('bootstrap incomplete');
+  expect(details).toContain('Localhost continues without it');
+  expect(existsSync(join(dir, '.cache/workspace-bootstrap'))).toBe(false);
+});
+
+// regression: workspace-actions-minimal
+test('a complete bootstrap is stamped and the next Localhost skips it', () => {
+  const { dir, run } = checkout();
+  rmSync(join(dir, '.cache/workspace-bootstrap'));
+  writeExecutable(join(dir, '.bin/gh'), '#!/usr/bin/env bash\nexit 0\n');
+  const env = {
+    WORKSPACE_RUN_TEST_SECRETS_STATUS: '0',
+    XDG_CONFIG_HOME: join(dir, 'config'),
+  };
+  expect(run(env).status).toBe(0);
+  expect(existsSync(join(dir, '.cache/workspace-bootstrap'))).toBe(true);
+  expect(run(env).calls).toEqual([STOP, DEV]);
 });
