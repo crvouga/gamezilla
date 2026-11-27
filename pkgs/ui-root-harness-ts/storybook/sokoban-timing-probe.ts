@@ -7,7 +7,7 @@ export type Samples = {
   longTaskMs: number[];
   timeOrigin: number;
   inputs: { startTime: number; type: string; key: string | null }[];
-  frames: { inputAt: number; frameAt: number }[];
+  frames: { inputAt: number; countObservedAt: number; frameAt: number }[];
   longTasks: unknown[];
 };
 
@@ -50,12 +50,13 @@ export function startSokobanTiming() {
   const mutations = new MutationObserver(() => {
     if (inputAt === undefined) return;
     const start = inputAt;
+    const countObservedAt = performance.now();
     inputAt = undefined;
     const frame = requestAnimationFrame(() => {
       pendingFrames.delete(frame);
       const frameAt = performance.now();
       samples.inputToFrameMs.push(frameAt - start);
-      samples.frames.push({ inputAt: start, frameAt });
+      samples.frames.push({ inputAt: start, countObservedAt, frameAt });
     });
     pendingFrames.add(frame);
   });

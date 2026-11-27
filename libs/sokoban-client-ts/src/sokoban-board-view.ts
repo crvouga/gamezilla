@@ -1,7 +1,6 @@
 import {
   type Cell,
   type SokobanBoard,
-  type SokobanPosition,
   type SokobanSquare,
   sameCell,
   squareName,
@@ -56,9 +55,16 @@ export type BoardWindow = {
   readonly rows: number;
 };
 
-export function sokobanTiles(
+export function indexInWindow(cell: Cell, shown: BoardWindow): number {
+  const x = cell.x - shown.left;
+  const y = cell.y - shown.top;
+  if (x < 0 || y < 0 || x >= shown.columns || y >= shown.rows) return -1;
+  return y * shown.columns + x;
+}
+
+/** Terrain and translated square names stay valid until the view, board or locale changes. */
+export function createSokobanTiles(
   board: SokobanBoard,
-  pieces: Pieces,
   words: Words,
   shown: BoardWindow = {
     left: 0,
@@ -66,13 +72,7 @@ export function sokobanTiles(
     columns: board.width,
     rows: board.height,
   }
-): readonly TileBoardTile[] {
-  // One pass: where each piece stands, and each word once, not per square.
-  const at = (cell: Cell): number => cell.y * board.width + cell.x;
-  const worker = pieces.worker === null ? -1 : at(pieces.worker);
-  const crates = new Set(pieces.crates.map(at));
-  const workerWord = `, ${words.worker()}`;
-  const crateWord = `, ${words.crate()}`;
+) {
   const squareWords = new Map<SokobanSquare, string>();
   const squareWord = (square: SokobanSquare): string => {
     const known = squareWords.get(square);
@@ -82,40 +82,39 @@ export function sokobanTiles(
     return word;
   };
   // Only the squares on show: a close view builds 36, not the whole board.
-  return Array.from({ length: shown.columns * shown.rows }, (_, at) => {
-    const index =
-      (shown.top + Math.floor(at / shown.columns)) * board.width +
-      shown.left +
-      (at % shown.columns);
-    const square = board.squares[index] ?? 'outside';
-    const piece =
-      index === worker ? workerWord : crates.has(index) ? crateWord : '';
-    return {
-      terrain: TERRAIN[square],
-      marked: square === 'goal',
-      label: `${squareName(cellOf(board, index))}: ${squareWord(square)}${piece}`,
+  const terrain = Array.from(
+    { length: shown.columns * shown.rows },
+    (_, at) => {
+      const index =
+        (shown.top + Math.floor(at / shown.columns)) * board.width +
+        shown.left +
+        (at % shown.columns);
+      const square = board.squares[index] ?? 'outside';
+      return {
+        terrain: TERRAIN[square],
+        marked: square === 'goal',
+        label: `${squareName(cellOf(board, index))}: ${squareWord(square)}`,
+      };
+    }
+  );
+  const place = (word: string) => {
+    const occupied: TileBoardTile[] = [];
+    return (tiles: TileBoardTile[], cell: Cell) => {
+      const index = indexInWindow(cell, shown);
+      const base = terrain[index];
+      if (!base) return;
+      occupied[index] ??= { ...base, label: `${base.label}, ${word}` };
+      tiles[index] = occupied[index];
     };
-  });
-}
-
-/**
- * The tiles to show, keeping each unchanged tile's previous object so a move
- * updates only the squares it changed, not every square on the board.
- */
-export function keepUnchangedTiles(
-  previous: readonly TileBoardTile[] | undefined,
-  next: readonly TileBoardTile[]
-): readonly TileBoardTile[] {
-  if (previous === undefined) return next;
-  return next.map((tile, index) => {
-    const before = previous[index];
-    return before !== undefined &&
-      before.label === tile.label &&
-      before.terrain === tile.terrain &&
-      before.marked === tile.marked
-      ? before
-      : tile;
-  });
+  };
+  const placeWorker = place(words.worker());
+  const placeCrate = place(words.crate());
+  return (pieces: Pieces): readonly TileBoardTile[] => {
+    const tiles = terrain.slice();
+    for (const crate of pieces.crates) placeCrate(tiles, crate);
+    if (pieces.worker) placeWorker(tiles, pieces.worker);
+    return tiles;
+  };
 }
 
 /** Crates keep their array position, so each glides as it is pushed. */
@@ -145,10 +144,6 @@ export function sokobanPieces(
           },
         ]),
   ];
-}
-
-export function positionPieces(position: SokobanPosition): Pieces {
-  return { worker: position.worker, crates: position.crates };
 }
 
 /**
