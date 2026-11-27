@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import { harnessIdpAccountId } from '@libs/harness-ts/idp';
 import { completeProviderSignIn } from '@libs/harness-ts/provider-walk';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
@@ -78,6 +79,7 @@ test('a timed-out sign-in identifies the person, submitted screen and recent nat
   const taps: string[] = [];
   const ui = {
     get: (id: string) => ({
+      attribute: async () => harnessIdpAccountId('bob@example.com'),
       isVisible: async () => index === 0,
       tap: async () => {
         taps.push(id);
