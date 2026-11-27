@@ -1,0 +1,4 @@
+{
+  "summary": "Alice's Word Tiles setup exhausted the first Google screen wait at an unknown provider title without inspecting the visible account chooser.",
+  "regressionTest": "libs/harness-ts/tests/provider-chooser-navigation.test.ts"
+}

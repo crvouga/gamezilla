@@ -6,7 +6,10 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 const google = 'http://google.test';
 const app = 'http://app.test';
 
-async function checkGoogleSignIn(separator: string): Promise<void> {
+async function checkGoogleSignIn(
+  separator: string,
+  staleTitle = false
+): Promise<void> {
   const pages = [
     [google, `Choose an account ${separator} OAuth Emulator`],
     [google, `Choose an account ${separator} OAuth Emulator`],
@@ -21,11 +24,11 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
   const ui = {
     get: (id: string) => ({
       isVisible: async () => {
-        if (index === 1 || index === 3 || index === 4)
+        if ((!staleTitle && index === 1) || index === 3 || index === 4)
           throw new Error(
             `node ${id} isVisible: Inspected target navigated or closed`
           );
-        if (id === 'oauth-mock-chooser') return index === 0;
+        if (id === 'oauth-mock-chooser') return index <= 1;
         if (id === 'oauth-mock-consent') return index === 2;
         return id.startsWith('oauth-mock-account-') && index === 0;
       },
@@ -46,7 +49,13 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
     }),
     readyDocument: async () => {
       now += 420;
-      return { origin: page()[0], title: page()[1] };
+      return {
+        origin: page()[0],
+        title:
+          staleTitle && page()[0] === google && index < 2
+            ? 'Account'
+            : page()[1],
+      };
     },
   };
   const s = {
@@ -79,7 +88,7 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
     answers: { provider: 'google', email: 'alice@example.com' },
     done: async () => page()[0] === app,
   });
-  expect(markerBudgets).toEqual([14_580]);
+  expect(markerBudgets).toEqual(staleTitle ? [14_580, 14_580] : [14_580]);
   expect(taps).toEqual([
     expect.stringMatching(/^oauth-mock-account-/),
     'oauth-mock-allow',
@@ -92,5 +101,9 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
 // regression: chrome-provider-title-escape
 test.each(['·', String.raw`\u00b7`])(
   'Google chooser and consent are answered once with native title separator %s',
-  checkGoogleSignIn
+  (separator) => checkGoogleSignIn(separator)
 );
+
+// regression: word-tiles-unknown-provider-document
+test('Alice answers a visible Google chooser while its native title still belongs to the app', () =>
+  checkGoogleSignIn('·', true));
