@@ -12,7 +12,10 @@ import {
   parsePongInput,
 } from '@libs/pong-shared-ts/pong-state';
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';
-import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
+import type {
+  GameBoardProps,
+  GameSimulationControls,
+} from '@pkgs/turn-game-shared-ts/game-presentation';
 import {
   type GameSide,
   TWO_PLAYER_SIDES,
@@ -243,10 +246,13 @@ export const SharedPaddleMovement: Story = {
  * first paddle input, then the product mechanics run at the game's tick rate,
  * so responsiveness is measured while the ball is moving.
  */
-export const LiveRally: Story = {
-  render: (args, context) => (
+export const LiveRally = {
+  render: (
+    args: GameBoardProps,
+    context: Parameters<typeof renderGameTable>[3]
+  ) => (
     <PongLiveRally sides={args.simulation?.sides ?? ['white']}>
-      {(position, simulation) =>
+      {(position, simulation, checkpoint) =>
         renderGameTable(
           presentation,
           TWO_PLAYER_SIDES,
@@ -254,6 +260,9 @@ export const LiveRally: Story = {
             ...args,
             simulation,
             get position() {
+              return checkpoint();
+            },
+            get livePosition() {
               return position();
             },
           },
@@ -262,7 +271,7 @@ export const LiveRally: Story = {
       }
     </PongLiveRally>
   ),
-};
+} satisfies Story;
 
 /** Return, interruption, restored input and a point, all using real fixed-step rules. */
 export const ReturnScoreAndReconnect: Story = {
