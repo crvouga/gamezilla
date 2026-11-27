@@ -123,6 +123,22 @@ async function embeddedScreen(
   return null;
 }
 
+/** A tab's URL may commit before its cached native title updates. */
+async function visibleProviderForm(
+  ui: ProviderControls,
+  previous: ProviderScreen | null,
+  waiting: (state: string) => null
+) {
+  for (const [form, id] of SCREENS) {
+    // A native browser automatically submits Apple's hand-off document.
+    if (form !== 'handoff' && (await ui.get(id).isVisible()))
+      return form === previous ? waiting(`submitted ${form}`) : form;
+  }
+  if (await ui.get('oauth-mock-error').isVisible())
+    throw new Error('The provider reports an expired sign-in');
+  return waiting('unknown provider page without a visible form');
+}
+
 async function currentScreen(
   walk: ProviderWalk,
   tab: ReturnType<typeof nativeProviderTab>,
@@ -152,6 +168,8 @@ async function currentScreen(
     const screen = await tab.page(remainingMs());
     if (screen === 'app')
       return (await walk.done(ui)) ? 'done' : waiting('app awaiting outcome');
+    if (screen === 'unknown provider page')
+      return visibleProviderForm(ui, previous, waiting);
     if (screen === previous) return waiting(`submitted ${screen}`);
     if (screen !== 'chooser' && screen !== 'signup' && screen !== 'consent')
       return waiting(screen);

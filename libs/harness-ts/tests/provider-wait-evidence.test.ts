@@ -60,7 +60,7 @@ test('a timed-out sign-in identifies the person, submitted screen and recent nat
     })
   ).rejects.toThrow(
     new Error(
-      'Timed out after 15000ms waiting for a provider sign-in screen (bob, google, last submitted: chooser; observed: provider return → API relay → unknown provider page → consent marker absent)'
+      'Timed out after 15000ms waiting for a provider sign-in screen (bob, google, last submitted: chooser; observed: provider return → API relay → unknown provider page without a visible form → consent marker absent)'
     )
   );
   expect(taps).toEqual([expect.stringMatching(/^oauth-mock-account-/)]);
