@@ -9,6 +9,7 @@ import { ContentPackItemRow } from './content-pack-editor-view';
 
 export function ContentPackItem(props: {
   id: string;
+  position: number;
   first: boolean;
   last: boolean;
   disabled: boolean;
@@ -45,6 +46,7 @@ export function ContentPackItem(props: {
   return (
     <ContentPackItemRow
       id={props.id}
+      position={props.position}
       title={title()}
       status={document()?.status === 'published' ? 'published' : 'draft'}
       caption={

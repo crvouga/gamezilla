@@ -2,6 +2,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { StackHorizontal } from '@pkgs/ui-root-client-ts/stack';
 import { useMutationButton } from '@pkgs/ui-root-client-ts/use-mutation-button';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
@@ -67,9 +68,10 @@ function useDraftEditStep(props: HistoryProps, direction: DraftEditDirection) {
 
 /**
  * Undo and redo of this session's draft edits; each keeps a new draft copy.
- * Small ghost buttons with their icons, as the builder's other stage tool
- * (Preview) is, so the three read as one row of tools beside the step's
- * name, on a phone too.
+ * Small ghost buttons with their icons, side by side in the board's command
+ * bar under the stage, on a phone too; one that cannot run is disabled,
+ * never removed, so the bar never shifts. A failed step says so under them
+ * with its retry.
  */
 export function ContentDraftHistory(props: HistoryProps): JSX.Element {
   const { t } = useLingui();
@@ -78,22 +80,24 @@ export function ContentDraftHistory(props: HistoryProps): JSX.Element {
   const failure = () => undo.error() ?? redo.error();
   return (
     <>
-      <Button
-        {...undo.buttonProps}
-        intent="neutral"
-        variant="ghost"
-        size="sm"
-        startIcon={<UndoIcon size={16} />}
-        dataSet={{ testid: 'content-undo-draft-edit' }}
-      />
-      <Button
-        {...redo.buttonProps}
-        intent="neutral"
-        variant="ghost"
-        size="sm"
-        startIcon={<RedoIcon size={16} />}
-        dataSet={{ testid: 'content-redo-draft-edit' }}
-      />
+      <StackHorizontal gap="sm" justify="center" wrap>
+        <Button
+          {...undo.buttonProps}
+          intent="neutral"
+          variant="ghost"
+          size="sm"
+          startIcon={<UndoIcon size={16} />}
+          dataSet={{ testid: 'content-undo-draft-edit' }}
+        />
+        <Button
+          {...redo.buttonProps}
+          intent="neutral"
+          variant="ghost"
+          size="sm"
+          startIcon={<RedoIcon size={16} />}
+          dataSet={{ testid: 'content-redo-draft-edit' }}
+        />
+      </StackHorizontal>
       <Show when={failure()}>
         {(error) => (
           <ErrorState

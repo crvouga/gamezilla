@@ -7,7 +7,7 @@ import type { useContentPackEdit } from './use-content-pack-edit';
 
 type Tools = ReturnType<typeof useContentPackEdit>;
 
-/** The pack's puzzles, in order, each moving one place at a time. */
+/** The pack's puzzles, numbered in order, each moving one place at a time. */
 export function ContentPackItems(props: {
   ids: readonly string[];
   tools: Tools;
@@ -29,6 +29,7 @@ export function ContentPackItems(props: {
       {(id, index) => (
         <ContentPackItem
           id={id}
+          position={index() + 1}
           first={index() === 0}
           last={index() === props.ids.length - 1}
           disabled={props.disabled || props.tools.change.loading()}
