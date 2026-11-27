@@ -131,10 +131,13 @@ const HOLDERS = {
   blue: { id: PEOPLE.robin, name: ROBIN.name },
 } as const satisfies Record<GameSide, { id: string; name: string }>;
 
+/** A simulation can show newer board frames between the session's checkpoints. */
+type StoryBoardProps = GameBoardProps & { readonly livePosition?: string };
+
 type TableProps = GameTableStory & {
   readonly presentation: GameTablePresentation;
   readonly sides: readonly GameSide[];
-  readonly board: GameBoardProps;
+  readonly board: StoryBoardProps;
 };
 
 function viewerOf(props: TableProps): GameSide | null {
@@ -286,6 +289,9 @@ function GameFrameTable(props: TableProps): JSX.Element {
   // The board session is made once, as the frame makes it when it mounts.
   const session = untrack(() => {
     const board: GameFrameBoardProps = merge(props.board, {
+      get position() {
+        return props.board.livePosition ?? props.board.position;
+      },
       get viewer() {
         return viewer();
       },
@@ -366,7 +372,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
 export function renderGameTable(
   presentation: GameTablePresentation,
   sides: readonly GameSide[],
-  args: GameBoardProps,
+  args: StoryBoardProps,
   context: { readonly parameters: Readonly<Record<string, unknown>> }
 ): JSX.Element {
   const table = (context.parameters['table'] ?? {}) as GameTableStory;

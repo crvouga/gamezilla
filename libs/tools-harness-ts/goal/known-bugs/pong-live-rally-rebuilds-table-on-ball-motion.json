@@ -1,0 +1,4 @@
+{
+  "summary": "At 390×844 and 4× CPU, Nightly 45925645728 recorded a 168 ms long task during the 60-input Pong rally. Each motion-only frame also drove the session table, reformatting both seats and the same game instructions three times. The live court now advances between scoring and phase checkpoints.",
+  "regressionTest": "libs/pong-client-ts/tests/pong-live-rally-frame.test.tsx"
+}

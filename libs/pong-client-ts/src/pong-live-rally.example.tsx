@@ -10,7 +10,7 @@ import { createPongStep } from '@libs/pong-shared-ts/pong-step';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from '@solidjs/web';
-import { createMemo, createSignal, onCleanup } from 'solid-js';
+import { createSignal, onCleanup } from 'solid-js';
 import { createPongLiveInputs } from './pong-live-inputs.example';
 
 /**
@@ -23,7 +23,8 @@ export function PongLiveRally(props: {
   sides: readonly GameSide[];
   children: (
     position: () => string,
-    controls: GameSimulationControls
+    controls: GameSimulationControls,
+    checkpoint: () => string
   ) => JSX.Element;
 }): JSX.Element {
   const config = pongConfig({ targetScore: 11 });
@@ -44,7 +45,9 @@ export function PongLiveRally(props: {
     },
     feedback: { walls: 0, paddles: 0, points: 0, serves: 1 },
   };
-  const [state, setState] = createSignal<PongState>(rally);
+  const initial = pongPositionCodec.encode(rally);
+  const [position, setPosition] = createSignal(initial);
+  const [checkpoint, setCheckpoint] = createSignal(initial);
   const held = createPongLiveInputs();
   let tick = 0;
   let frame: number | undefined;
@@ -71,8 +74,16 @@ export function PongLiveRally(props: {
       next = advance(next);
     }
     if (next !== rally) {
+      const encoded = pongPositionCodec.encode(next);
+      // The room checkpoints Pong's phase and points. Motion between those
+      // checkpoints only changes the live court that the board displays.
+      if (
+        next.phase !== rally.phase ||
+        next.feedback.points !== rally.feedback.points
+      )
+        setCheckpoint(encoded);
       rally = next;
-      setState(next);
+      setPosition(encoded);
     }
     frame = next.phase === 'completed' ? undefined : requestAnimationFrame(run);
   };
@@ -96,7 +107,5 @@ export function PongLiveRally(props: {
     },
     onRelease: held.release,
   };
-  // The court, seats and status read one position, serialized once per frame.
-  const position = createMemo(() => pongPositionCodec.encode(state()));
-  return <>{props.children(position, controls)}</>;
+  return <>{props.children(position, controls, checkpoint)}</>;
 }
