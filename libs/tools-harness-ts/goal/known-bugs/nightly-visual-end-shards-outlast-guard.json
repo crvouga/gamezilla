@@ -1,0 +1,4 @@
+{
+  "summary": "In Nightly 45914479837 the first and last of eight equal-count Storybook partitions started ten seconds after workflow creation and still had unfinished browser work at the 37-minute guard. Interaction and performance cases clustered at the ends of Playwright's collection.",
+  "regressionTest": "libs/tools-harness-ts/scripts/nightly-visual-case-balance.test.ts"
+}

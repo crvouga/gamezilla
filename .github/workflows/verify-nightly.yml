@@ -381,6 +381,9 @@ jobs:
         shard: [1, 8]
     env: &visual-env
       STORYBOOK_SHARD: ${{ matrix.shard }}/8
+      # Playwright collects the expensive interaction suites at the ends of its
+      # list. Move work into the middle and leave room for 7 and 5 to run in series.
+      PWTEST_SHARD_WEIGHTS: '7:8:15:14:8:15:9:4'
     permissions: &visual-permissions
       contents: read # check out the code
       id-token: write # mint the OIDC token Infisical and AWS trust
