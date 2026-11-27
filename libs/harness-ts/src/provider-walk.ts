@@ -41,6 +41,15 @@ const PROVIDER_PAGE = {
 
 type ProviderScreen = 'chooser' | 'signup' | 'consent' | 'handoff';
 
+type NativeProviderPage =
+  | Exclude<ProviderScreen, 'handoff'>
+  | 'document not ready'
+  | 'app'
+  | 'API relay'
+  | 'other origin'
+  | 'provider return'
+  | 'unknown provider page';
+
 const SCREENS: readonly (readonly [ProviderScreen, string])[] = [
   ['chooser', PROVIDER_PAGE.chooser],
   ['signup', PROVIDER_PAGE.signup],
@@ -76,10 +85,12 @@ function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
   if (!browser) throw new Error(`Missing browser for ${actorId}`);
   const provider = new URL(http.idpOrigins[answers.provider]).origin;
   const app = new URL(ui.webOrigin).origin;
-  return async (): Promise<ProviderScreen | 'app' | null> => {
+  return async (): Promise<NativeProviderPage> => {
     const doc = await browser.readyDocument();
-    if (doc?.origin === app) return 'app';
-    if (doc?.origin !== provider) return null;
+    if (!doc) return 'document not ready';
+    if (doc.origin === app) return 'app';
+    if (doc.origin !== provider)
+      return doc.origin === http.origin ? 'API relay' : 'other origin';
     // Only these Mockingbird documents wait for a person. The return page
     // immediately replaces itself (including Apple's automatic form POST).
     // Bun's Chrome backend preserves the DevTools JSON escape for the
@@ -91,8 +102,10 @@ function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
         return 'signup';
       case 'Review access · OAuth Emulator':
         return 'consent';
+      case 'Continue to your app · OAuth Emulator':
+        return 'provider return';
       default:
-        return null;
+        return 'unknown provider page';
     }
   };
 }
@@ -112,18 +125,38 @@ async function currentScreen(
   page: ReturnType<typeof nativeSignInPage>,
   previous: ProviderScreen | null
 ): Promise<ProviderScreen | 'done'> {
+  // Keep only transitions, with no page titles or account details in the report.
+  const observed: string[] = [];
+  const waiting = (state: string): null => {
+    if (state !== observed.at(-1)) {
+      observed.push(state);
+      if (observed.length > 4) observed.shift();
+    }
+    return null;
+  };
   return pollUntil<ProviderScreen | 'done'>(
     walk.s,
     async () => {
       if (!page) return embeddedScreen(walk);
       const screen = await page();
-      if (screen === 'app') return (await walk.done()) ? 'done' : null;
-      if (screen === null || screen === previous) return null;
+      if (screen === 'app')
+        return (await walk.done()) ? 'done' : waiting('app awaiting outcome');
+      if (screen === previous) return waiting(`submitted ${screen}`);
+      if (screen !== 'chooser' && screen !== 'signup' && screen !== 'consent')
+        return waiting(screen);
       return (await walk.ui.get(SCREEN_TEST_IDS[screen]).isVisible())
         ? screen
-        : null;
+        : waiting(`${screen} marker absent`);
     },
-    { maxMs: WAIT_MS, description: 'a provider sign-in screen' }
+    {
+      maxMs: WAIT_MS,
+      description: page
+        ? () =>
+            Promise.resolve(
+              `a provider sign-in screen (${walk.actorId}, ${walk.answers.provider}, last submitted: ${previous ?? 'none'}; observed: ${observed.join(' → ')})`
+            )
+        : 'a provider sign-in screen',
+    }
   );
 }
 

@@ -1,0 +1,4 @@
+{
+  "summary": "Connect Four setup exhausted the native provider wait before any assertion. The timeout omitted the actor, last submitted form and observed navigation phases.",
+  "regressionTest": "libs/harness-ts/tests/provider-wait-evidence.test.ts"
+}
