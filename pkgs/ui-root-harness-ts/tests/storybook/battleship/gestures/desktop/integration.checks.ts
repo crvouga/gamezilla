@@ -16,6 +16,7 @@ test('Battleship board gestures: drag the Carrier from C1 to C2 and cancel inter
 }, info) => {
   await verifyDrag(page, info, viewport.width);
 });
+// regression: battleship-pinch-shifts-target
 test('Battleship board gestures: pinch, pan, aim and fit', async ({
   page,
 }, info) => {

@@ -1,4 +1,5 @@
 .shell {
+  position: relative;
   width: 100%;
   min-width: 0;
   margin-inline: auto;
@@ -18,6 +19,14 @@
 }
 .plane {
   transform-origin: top left;
+}
+/* A control in flow would recenter the stage between the two pointer moves. */
+.fitControl {
+  position: absolute;
+  inset-block-start: 0;
+  inset-inline-start: 0;
+  border-radius: var(--ui-radius-full);
+  background: var(--ui-color-surface);
 }
 .viewport[data-scale="1"] {
   overflow: visible;
