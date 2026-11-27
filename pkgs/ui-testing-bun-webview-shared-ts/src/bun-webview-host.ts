@@ -24,6 +24,7 @@ export type BunWebView = {
 
 export type BunWebviewHost = {
   readonly timers: Timers;
+  readonly readVisibility?: (expression: string) => Promise<boolean>;
   /**
    * The window a selector's element is in: an open popup when it shows the
    * element, else the page itself. Resolving also reconciles popups.

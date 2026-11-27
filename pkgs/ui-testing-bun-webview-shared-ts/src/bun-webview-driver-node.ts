@@ -310,10 +310,9 @@ export class BunWebviewDriverNode implements DriverNode {
   }
 
   async isVisible(): Promise<boolean> {
-    const result = await (await this.view()).evaluate(
-      visibilityScript([cssPath(this.path)])
-    );
-    return result === true;
+    const expression = visibilityScript([cssPath(this.path)]);
+    if (this.host.readVisibility) return this.host.readVisibility(expression);
+    return (await (await this.view()).evaluate(expression)) === true;
   }
 
   async text(): Promise<string | null> {

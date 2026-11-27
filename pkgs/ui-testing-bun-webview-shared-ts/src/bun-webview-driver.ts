@@ -21,6 +21,8 @@ import { BunWebviewPopups } from './bun-webview-popups';
 export type BunWebviewDriverOptions = {
   readonly view: BunWebView;
   readonly baseUrl?: string;
+  /** Read a synchronous visibility predicate in the identified main document. */
+  readonly readDocumentVisibility?: (expression: string) => Promise<boolean>;
   /** When set, wraps `window.fetch` to send `x-harness-actor` for createHarnessNet partition. */
   readonly actorId?: string;
   /** How popup windows are created (share the page's data store). */
@@ -36,10 +38,18 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
   private readonly baseUrl: string | undefined;
   private readonly actorId: string | undefined;
   private readonly popups: BunWebviewPopups;
+  private readonly documentHost: BunWebviewHost;
 
   constructor(options: BunWebviewDriverOptions) {
     this.timers = options.timers;
     this.view = options.view;
+    this.documentHost = {
+      timers: options.timers,
+      resolveView: () => Promise.resolve(this.view),
+      ...(options.readDocumentVisibility && {
+        readVisibility: options.readDocumentVisibility,
+      }),
+    };
     this.baseUrl = options.baseUrl;
     this.actorId = options.actorId;
     this.popups = new BunWebviewPopups(
@@ -86,10 +96,7 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
 
   /** Same-tab navigation already identifies the document containing its controls. */
   get(testId: string, scope?: 'document'): DriverNode {
-    const host =
-      scope === 'document'
-        ? { timers: this.timers, resolveView: () => Promise.resolve(this.view) }
-        : this;
+    const host = scope === 'document' ? this.documentHost : this;
     return new BunWebviewDriverNode(host, [testId]);
   }
 
