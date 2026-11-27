@@ -1,0 +1,4 @@
+{
+  "summary": "Preparing a signed-in opponent and two ready fleets exceeded the five-second deadline before the disconnected player could attempt to rotate Carrier. The package case uses Bob's real connection and ready black fleet. The fleet-placement scenario also covers both ready players.",
+  "regressionTest": "libs/battleship-harness-ts/tests/battleship-spatial-input.test.ts"
+}

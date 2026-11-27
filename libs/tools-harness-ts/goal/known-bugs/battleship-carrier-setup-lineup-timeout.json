@@ -1,4 +1,4 @@
 {
-  "summary": "The Carrier-at-G1 keyboard refusal timed out at five seconds while preparing an opponent who never acts. The host can arrange the same fleet through the real precision controls with the second seat open.",
-  "regressionTest": "libs/battleship-harness-ts/tests/battleship-spatial-input.test.ts"
+  "summary": "Opening a space and custom game before exercising the keyboard controls consumed the five-second package deadline, even with the opposing seat open. The keyboard regression mounts the production board and uses the same placement action as the two-player accessibility scenario.",
+  "regressionTest": "libs/battleship-client-ts/tests/automation-rearrange.test.tsx"
 }

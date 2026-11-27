@@ -127,9 +127,12 @@ When(
     );
   }
 );
-When('{actor} rotates her {word}', async (w, actor: string, ship: string) => {
-  await w.s.apply(rotateBattleshipShip, actor, shipNamed(ship));
-});
+When(
+  '{actor} rotates her/his {word}',
+  async (w, actor: string, ship: string) => {
+    await w.s.apply(rotateBattleshipShip, actor, shipNamed(ship));
+  }
+);
 When('{actor} asks for a random fleet', async (w, actor: string) => {
   await w.s.apply(askForRandomFleet, actor);
 });
@@ -168,7 +171,7 @@ Then('{actor} is told ships cannot share a cell', async (w, actor: string) => {
   expect(await w.s.read(battleshipSetupRefusal, actor)).toContain('overlap');
 });
 Then(
-  '{actor} is told her fleet cannot change while she is ready',
+  '{actor} is told her/his fleet cannot change while she/he is ready',
   async (w, actor: string) => {
     // The fleet's own place says it; a person told so is looking at it.
     await w.s.apply(showFleetSetup, actor);
