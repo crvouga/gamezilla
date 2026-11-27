@@ -1,20 +1,19 @@
+import { type Card, DECK } from '@libs/hearts-shared-ts/hearts-cards';
+import { selectAndPassHeartsCards } from '@libs/hearts-shared-ts/hearts-pass-controls';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import { observeBotGameJourney, startBotGameJourney } from './bot-game-journey';
-import { check, JOURNEY_WAIT_MS, tap } from './journey-gestures';
+import { check, JOURNEY_WAIT_MS } from './journey-gestures';
 import type { JourneyHost } from './journey-types';
 
 const BOARD = 'custom-game-board';
 /** The table's turn line: whose turn it is, or who took the last trick. */
 const TURN_LINE = `${BOARD}-center`;
-const DECK = [...'CDSH'].flatMap((suit) =>
-  [...'23456789TJQKA'].map((rank) => `${rank}${suit}`)
-);
 /** One look at the turn line; the bots play on between looks. */
 const LOOK_MS = 1_000;
 
 /** The cards the person sees in their own hand, by their controls. */
-async function handShown(ui: Driver): Promise<string[]> {
-  const shown: string[] = [];
+async function handShown(ui: Driver): Promise<Card[]> {
+  const shown: Card[] = [];
   for (const card of DECK)
     if (await ui.get(`${BOARD}-card-${card}`).isVisible()) shown.push(card);
   return shown;
@@ -49,11 +48,12 @@ async function awaitPersonToPlay(ui: Driver): Promise<void> {
 }
 
 /** Choose three cards with their controls and pass them. */
-async function passThree(ui: Driver): Promise<void> {
+export async function passThreeHeartsCards(ui: Driver): Promise<void> {
   const hand = await handShown(ui);
   check(hand.length === 13, `Hearts dealt ${hand.length} cards, not 13`);
-  for (const card of hand.slice(0, 3)) await tap(ui, `${BOARD}-card-${card}`);
-  await tap(ui, `${BOARD}-pass`);
+  await selectAndPassHeartsCards(ui, BOARD, hand.slice(0, 3), {
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
   await ui.get(`${BOARD}-pass`).expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
 }
 
@@ -76,7 +76,7 @@ async function playFirstAllowed(ui: Driver): Promise<void> {
 export async function playHeartsFirstTrick(host: JourneyHost): Promise<void> {
   await startBotGameJourney(host, 'Hearts');
   await observeBotGameJourney(host, 'Hearts');
-  await host.act('passThreeHeartsCards', passThree);
+  await host.act('passThreeHeartsCards', passThreeHeartsCards);
   await host.act('playHeartsFirstTrick', playFirstAllowed);
 }
 

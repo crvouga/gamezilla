@@ -11,20 +11,6 @@ import {
   withSokobanTiming,
 } from '../../../storybook/sokoban-timing-probe';
 
-/**
- * From a fresh board whose first move right pushes a crate: push with the
- * keyboard, then press Undo with the pointer, so pushes and the history
- * command are timed as well as walking.
- */
-export const pushAndUndo: TimedStep = async (page, index) => {
-  if (index % 2 === 0) {
-    await page.getByTestId('sokoban-board').press('ArrowRight');
-    return 1;
-  }
-  await page.getByRole('button', { name: 'Undo', exact: true }).click();
-  return 0;
-};
-
 /** How a timing run moves: walking from a move count, or its own steps. */
 export type TimingPlan =
   | number

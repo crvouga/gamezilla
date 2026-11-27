@@ -1,0 +1,4 @@
+{
+  "summary": "In Verify Nightly 45920286445 the first-trick journey pressed Pass with zero cards chosen. It treated a visible hand as playable and accepted card taps without looking at the selection. Both Hearts automation paths now wait for enabled cards, check each selection and confirm only when Pass is enabled.",
+  "regressionTest": "libs/runtime-harness-ts/tests/hearts-first-trick-pass.test.ts"
+}

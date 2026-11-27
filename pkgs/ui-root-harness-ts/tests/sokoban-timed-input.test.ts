@@ -5,6 +5,7 @@ import {
   readSokobanMoveFrame,
   runSokobanMoves,
   walking,
+  withPushAndUndo,
 } from '../storybook/sokoban-timed-input';
 
 // regression: sokoban-timing-requeries-the-board
@@ -45,6 +46,48 @@ test('twenty real keys reuse the prepared count and await each expected frame', 
     ...Array.from({ length: 20 }, (_, i) => [
       i % 2 === 0 ? 'ArrowLeft' : 'ArrowRight',
       `frame:${i + 7}`,
+    ]).flat(),
+    'dispose',
+  ]);
+});
+
+test('the push-and-undo pass prepares its targets before all twenty timed inputs', async () => {
+  const events: string[] = [];
+  const page = {
+    getByRole: () => {
+      events.push('resolve Undo');
+      return { evaluate: () => Promise.resolve({ x: 36, y: 724 }) };
+    },
+    getByTestId: () => {
+      events.push('resolve board');
+      return {
+        elementHandle: () =>
+          Promise.resolve({
+            focus: () => events.push('focus board'),
+            dispose: () => events.push('dispose'),
+          }),
+      };
+    },
+    keyboard: { press: (key: string) => events.push(key) },
+    mouse: { click: (x: number, y: number) => events.push(`click ${x} ${y}`) },
+  } as unknown as Page;
+  await withPushAndUndo(page, async (step) => {
+    events.push('start timing');
+    await runSokobanMoves(page, step, (count) => {
+      events.push(`frame:${count}`);
+      return Promise.resolve(String(count));
+    });
+  });
+  expect(events).toEqual([
+    'resolve Undo',
+    'resolve board',
+    'start timing',
+    ...Array.from({ length: 10 }, () => [
+      'focus board',
+      'ArrowRight',
+      'frame:1',
+      'click 36 724',
+      'frame:0',
     ]).flat(),
     'dispose',
   ]);

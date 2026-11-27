@@ -13,13 +13,16 @@ test('storybook integration: Sokoban 20x20 board leaves the whole pad on a 1440x
     'puzzle--dense-maximum-board',
   ]) {
     await openSokoban(page, story, 'light');
-    await expect(
-      page.getByTestId('sokoban-board').getByRole('img')
-    ).toHaveCount(400);
-    for (const heading of ['up', 'left', 'down', 'right'])
-      await expect(page.getByTestId(`sokoban-move-${heading}`)).toBeInViewport({
-        ratio: 1,
-      });
+    const board = page.getByTestId('sokoban-board');
+    await expect(board.getByRole('img')).toHaveCount(400);
+    await expect(board).toBeInViewport({ ratio: 1 });
+    for (const heading of ['up', 'left', 'down', 'right']) {
+      const button = page.getByTestId(`sokoban-move-${heading}`);
+      await expect(button).toBeInViewport({ ratio: 1 });
+      const box = await button.boundingBox();
+      expect(box?.width).toBeGreaterThanOrEqual(44);
+      expect(box?.height).toBeGreaterThanOrEqual(44);
+    }
     await capture(page, info, `${story}-1440x844`);
   }
 });

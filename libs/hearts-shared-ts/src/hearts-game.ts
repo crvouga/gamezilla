@@ -7,6 +7,7 @@ import { winningSides } from '@pkgs/turn-game-shared-ts/game-rules';
 import { replayHearts } from './hearts-actions';
 import { chooseHeartsDecision, heartsBots } from './hearts-bot';
 import { DECK, parseCards } from './hearts-cards';
+import { selectAndPassHeartsCards } from './hearts-pass-controls';
 import { decodeHearts, HEARTS_SIDES } from './hearts-position';
 import { heartsRules } from './hearts-rules';
 
@@ -80,15 +81,7 @@ export const heartsGameShared = defineGame({
         )
           await other.tap();
       }
-      for (const card of cards) {
-        const target = ui.get(`${board}-card-${card}`);
-        await target.wait('enabled');
-        if ((await target.attribute('aria-pressed')) !== 'true')
-          await target.tap();
-      }
-      const confirm = ui.get(`${board}-pass`);
-      await confirm.wait('enabled');
-      await confirm.tap();
+      await selectAndPassHeartsCards(ui, board, cards);
     },
   },
 });

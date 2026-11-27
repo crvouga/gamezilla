@@ -2604,6 +2604,7 @@
       "dependencies": {
         "@libs/game-session-shared-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/ui-testing-root-shared-ts": "workspace:*",
       },
       "devDependencies": {
         "@pkgs/property-shared-ts": "workspace:*",
@@ -3604,6 +3605,7 @@
         "@libs/game-session-harness-ts": "workspace:*",
         "@libs/games-shared-ts": "workspace:*",
         "@libs/harness-ts": "workspace:*",
+        "@libs/hearts-shared-ts": "workspace:*",
         "@libs/numberlink-harness-ts": "workspace:*",
         "@libs/pong-harness-ts": "workspace:*",
         "@libs/profile-harness-ts": "workspace:*",

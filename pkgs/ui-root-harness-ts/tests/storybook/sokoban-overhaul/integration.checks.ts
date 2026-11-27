@@ -9,6 +9,7 @@ test.use({
   trace: timingTrace,
 });
 
+// regression: sokoban-push-undo-timing-queries-input-targets
 test('storybook integration: Sokoban overhaul solve and recover 390/light', async ({
   page,
 }, info) => {

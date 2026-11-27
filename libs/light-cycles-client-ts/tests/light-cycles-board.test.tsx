@@ -302,6 +302,7 @@ test("a person's other device says it does not steer their rider and offers to r
     });
     const [ride] = session.actions();
     expect(ride?.id).toBe('ride-here');
+    expect(ride?.placement).toBe('session');
     expect(ride?.label).toBe('Ride from this device');
     ride?.run();
     expect(claims).toBe(1);

@@ -261,6 +261,7 @@ export type FramePlay = {
   readonly boardActions: readonly GameActionItem[];
   /** Required choices shown before the board, with the same action handles. */
   readonly leadingBoardActions: readonly GameActionItem[];
+  readonly sessionActions: readonly GameActionItem[];
 };
 
 /** One player's finish. */

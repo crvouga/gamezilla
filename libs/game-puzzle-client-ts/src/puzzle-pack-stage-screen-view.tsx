@@ -232,6 +232,7 @@ function AttemptStage(props: PuzzlePackStageScreenViewProps): JSX.Element {
       }
     >
       <FixedGameSession
+        dataSet={{ 'puzzle-attempt': 'true' }}
         status={
           <>
             <AttemptRule {...props} />
