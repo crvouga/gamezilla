@@ -157,6 +157,57 @@ function AttemptRule(props: PuzzlePackStageScreenViewProps): JSX.Element {
 }
 
 /**
+ * The game's figures for the attempt (`Connected pairs 2 · Moves 12`) as
+ * one quiet line right above the board, where its status is read. A game
+ * whose board draws its own figures says them there, not twice.
+ */
+function AttemptFiguresLine(
+  props: PuzzlePackStageScreenViewProps
+): JSX.Element {
+  return (
+    <Show
+      when={
+        props.figuresPlacement !== 'board' && (props.figures?.length ?? 0) > 0
+      }
+    >
+      <P
+        variant="caption"
+        tone="secondary"
+        testId="puzzle-attempt-status-figures"
+      >
+        {(props.figures ?? [])
+          .map((figure) => `${figure.label} ${figure.value}`)
+          .join(' · ')}
+      </P>
+    </Show>
+  );
+}
+
+/**
+ * Where the puzzle sits in its pack and how hard it is, on the header's own
+ * line (`3 of 30`, `Easy`), so the title can stay the puzzle's name.
+ */
+function AttemptFacts(props: PuzzlePackStageScreenViewProps): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <>
+      <Show when={props.pack}>
+        {(pack) => (
+          <Badge
+            intent="neutral"
+            label={t`${pack().position} of ${pack().total}`}
+            dataSet={{ testid: 'puzzle-attempt-position' }}
+          />
+        )}
+      </Show>
+      <Show when={props.attempt.difficulty}>
+        {(difficulty) => <Badge intent="neutral" label={difficulty()} />}
+      </Show>
+    </>
+  );
+}
+
+/**
  * The stage's one control onward: it opens where the attempt stands (its
  * pack, its figures, its saved positions), and is the filled command once
  * the puzzle is solved, when what comes next is there.
@@ -225,16 +276,13 @@ function AttemptStage(props: PuzzlePackStageScreenViewProps): JSX.Element {
       dataSet={attemptDataSet(props)}
       title={props.attempt.title}
       keepTitle
-      facts={
-        <Show when={props.attempt.difficulty}>
-          {(difficulty) => <Badge intent="neutral" label={difficulty()} />}
-        </Show>
-      }
+      facts={<AttemptFacts {...props} />}
     >
       <FixedGameSession
         dataSet={{ 'puzzle-attempt': 'true' }}
         status={
           <>
+            <AttemptFiguresLine {...props} />
             <AttemptRule {...props} />
             <ContentAttemptSaveStatus {...props} />
           </>

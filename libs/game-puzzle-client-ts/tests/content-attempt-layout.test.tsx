@@ -357,3 +357,45 @@ test('a position that cannot be opened points at Progress for another one', () =
   mount(390, 'attempt', { unopenable: true, unreadable: true });
   expect(screen.getByText(/This puzzle cannot be opened\./)).toBeDefined();
 });
+
+// A pack puzzle's header says its place in the pack beside its title, and
+// the game's figures sit in one line right above the board, with the save
+// status: status over the board, commands under it.
+for (const width of [390, 1440]) {
+  test(`at ${width}px the stage shows its pack place on the header and its figures right above the board`, () => {
+    mount(
+      width,
+      'attempt',
+      figures([
+        { key: 'moves', label: 'Moves', value: '12' },
+        { key: 'pushes', label: 'Pushes', value: '3' },
+      ])
+    );
+    const heading = document.querySelector('[data-component="GameHeading"]');
+    expect(
+      heading?.contains(screen.getByTestId('puzzle-attempt-position'))
+    ).toBe(true);
+    expect(screen.getByTestId('puzzle-attempt-position').textContent).toBe(
+      '3 of 4'
+    );
+    const line = screen.getByTestId('puzzle-attempt-status-figures');
+    expect(line.textContent).toBe('Moves 12 · Pushes 3');
+    const player = screen.getByTestId('player');
+    expect(follows(line, player)).toBe(true);
+    expect(follows(player, screen.getByTestId('controls'))).toBe(true);
+    // The progress panel keeps its own figures; the stage line is not it.
+    expect(screen.queryByTestId('puzzle-attempt-figures')).toBeNull();
+  });
+}
+
+test('a puzzle on its own has no pack place, and a board that draws its figures says them once', () => {
+  mount(390, 'attempt', { pack: null, ...figures([]) });
+  expect(screen.queryByTestId('puzzle-attempt-position')).toBeNull();
+  expect(screen.queryByTestId('puzzle-attempt-status-figures')).toBeNull();
+  cleanup();
+  mount(390, 'attempt', {
+    figuresPlacement: 'board',
+    ...figures([{ key: 'moves', label: 'Moves', value: '12' }]),
+  });
+  expect(screen.queryByTestId('puzzle-attempt-status-figures')).toBeNull();
+});

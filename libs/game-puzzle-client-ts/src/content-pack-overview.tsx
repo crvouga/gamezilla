@@ -1,10 +1,15 @@
-import { packProgress } from '@libs/game-puzzle-shared-ts/pack-progress';
+import {
+  type PackPuzzleProgress,
+  packProgress,
+} from '@libs/game-puzzle-shared-ts/pack-progress';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
+import { PuzzleGrid } from '@pkgs/ui-root-client-ts/puzzle-grid';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { SuccessState } from '@pkgs/ui-root-client-ts/success-state';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -12,6 +17,84 @@ import type { JSX } from '@solidjs/web';
 import { createMemo, For, Show } from 'solid-js';
 import { useContentGame } from './content-game-context';
 import { useContentLibraryState } from './content-library-context';
+import { isNumberedSequence } from './content-pack-sequence';
+
+/** The words for where a pack puzzle stands. */
+function useStatusWord(): (value: PackPuzzleProgress['status']) => string {
+  const { t } = useLingui();
+  return (value) =>
+    value === 'completed'
+      ? t`Completed`
+      : value === 'in-progress'
+        ? t`In progress`
+        : t`Unplayed`;
+}
+
+/**
+ * Puzzles that carry only their number, as numbered tiles: a check on each
+ * solved one, the next puzzle to play filled.
+ */
+export function PackPuzzleGrid(props: {
+  items: readonly PackPuzzleProgress[];
+  next: PackPuzzleProgress | null;
+  onOpen: (revisionId: string) => void;
+}): JSX.Element {
+  const { t } = useLingui();
+  const status = useStatusWord();
+  return (
+    <StackVertical gap="sm">
+      <P variant="caption" tone="secondary">
+        <Trans>Choose any puzzle</Trans>
+      </P>
+      <PuzzleGrid
+        label={t`Puzzles in this pack`}
+        dataSet={{ testid: 'content-pack-puzzles' }}
+        tiles={props.items.map((item, index) => ({
+          key: item.revisionId,
+          number: index + 1,
+          label: t`${item.title}, ${status(item.status)}`,
+          state:
+            item.status === 'completed'
+              ? 'solved'
+              : item.revisionId === props.next?.revisionId
+                ? 'current'
+                : 'open',
+          onPress: () => props.onOpen(item.revisionId),
+          dataSet: { testid: `content-pack-puzzle-${item.revisionId}` },
+        }))}
+      />
+    </StackVertical>
+  );
+}
+
+/** Puzzles that need their names, one row each with where it stands. */
+export function PackPuzzleList(props: {
+  items: readonly PackPuzzleProgress[];
+  onOpen: (revisionId: string) => void;
+}): JSX.Element {
+  const status = useStatusWord();
+  return (
+    <MenuSection
+      title={<Trans>Choose any puzzle</Trans>}
+      dataSet={{ testid: 'content-pack-puzzles' }}
+    >
+      <For each={props.items.map((item) => item.revisionId)}>
+        {(id) => {
+          const item = () =>
+            props.items.find((entry) => entry.revisionId === id);
+          return (
+            <MenuRow
+              title={item()?.title}
+              value={status(item()?.status ?? 'unplayed')}
+              onClick={() => props.onOpen(id)}
+              dataSet={{ testid: `content-pack-puzzle-${id}` }}
+            />
+          );
+        }}
+      </For>
+    </MenuSection>
+  );
+}
 
 export function ContentPackOverview(props: {
   revisionId: string;
@@ -36,12 +119,6 @@ export function ContentPackOverview(props: {
       revisionId,
       packRevisionId: props.revisionId,
     });
-  const status = (value: string): string =>
-    value === 'completed'
-      ? t`Completed`
-      : value === 'in-progress'
-        ? t`In progress`
-        : t`Unplayed`;
   return (
     <Show when={available() || !data.isFetching()} fallback={<LoadingState />}>
       <Show
@@ -89,25 +166,33 @@ export function ContentPackOverview(props: {
                 </Trans>
               </Notice>
             </Show>
-            <MenuSection
-              title={<Trans>Choose any puzzle</Trans>}
-              dataSet={{ testid: 'content-pack-puzzles' }}
-            >
-              <For each={pack().items.map((item) => item.revisionId)}>
-                {(id) => {
-                  const item = () =>
-                    pack().items.find((entry) => entry.revisionId === id);
-                  return (
-                    <MenuRow
-                      title={item()?.title}
-                      value={status(item()?.status ?? 'unplayed')}
-                      onClick={() => open(id)}
-                      dataSet={{ testid: `content-pack-puzzle-${id}` }}
+            <Show
+              when={
+                pack().items.length === pack().total &&
+                isNumberedSequence(pack().items.map((item) => item.title))
+              }
+              fallback={
+                <Show
+                  when={pack().total > 0}
+                  fallback={
+                    <EmptyState
+                      variant="compact"
+                      title={t`This pack has no puzzles yet`}
+                      body={t`Its author has not added a puzzle. Return to puzzles and choose another pack.`}
+                      dataSet={{ testid: 'content-pack-empty' }}
                     />
-                  );
-                }}
-              </For>
-            </MenuSection>
+                  }
+                >
+                  <PackPuzzleList items={pack().items} onOpen={open} />
+                </Show>
+              }
+            >
+              <PackPuzzleGrid
+                items={pack().items}
+                next={pack().next}
+                onOpen={open}
+              />
+            </Show>
           </StackVertical>
         )}
       </Show>

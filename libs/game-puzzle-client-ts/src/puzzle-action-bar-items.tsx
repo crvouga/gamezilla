@@ -33,6 +33,8 @@ function HintButton(props: {
   slot: Slot<'hint'>;
   hintStage: HintStage;
   onHint: () => void;
+  /** One of an even row of buttons: small, sharing the row equally. */
+  row?: boolean | undefined;
 }): JSX.Element {
   return (
     <Button
@@ -48,6 +50,8 @@ function HintButton(props: {
       }
       intent="neutral"
       variant="outline"
+      size={props.row === true ? 'sm' : undefined}
+      flex={props.row === true ? 1 : undefined}
       icon={LightbulbIcon}
       disabled={props.slot.disabled}
       onClick={() => props.onHint()}
@@ -84,6 +88,8 @@ export function PuzzleActionButton(props: {
   model: PuzzleActionBarModel;
   /** The one thing to do now, on a row of its own. */
   fullWidth?: boolean | undefined;
+  /** One of an even row of buttons: small, sharing the row equally. */
+  row?: boolean | undefined;
 }): JSX.Element {
   return (
     <Switch>
@@ -93,6 +99,7 @@ export function PuzzleActionButton(props: {
             slot={slot}
             hintStage={props.model.hintStage}
             onHint={props.model.onHint}
+            row={props.row}
           />
         )}
       </Match>
@@ -102,6 +109,8 @@ export function PuzzleActionButton(props: {
             title={<Trans>Reveal and end attempt</Trans>}
             intent="neutral"
             variant="outline"
+            size={props.row === true ? 'sm' : undefined}
+            flex={props.row === true ? 1 : undefined}
             icon={LightbulbIcon}
             fullWidth={props.fullWidth}
             disabled={slot.type === 'action' && slot.disabled}
@@ -123,6 +132,8 @@ export function PuzzleActionButton(props: {
         <Button
           title={<Trans>Next</Trans>}
           intent="primary"
+          size={props.row === true ? 'sm' : undefined}
+          flex={props.row === true ? 1 : undefined}
           endIcon={<ChevronRightIcon />}
           onClick={() => props.model.onNext()}
           dataSet={{ testid: 'chess-puzzle-action-next' }}

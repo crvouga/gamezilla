@@ -272,7 +272,13 @@ test('the hub leads with Continue, counts each list, and creates from rows', () 
   expect(value('content-library-tab-solved')).toContain('1');
   expect(value('content-library-tab-browse')).toContain('1+');
   expect(value('content-library-tab-mine')).toContain('1');
-  expect(value('content-bundled-bundled-1')).toContain('2 of 5 solved');
+  // A pack's progress is solved over total at the row's end, as in a level
+  // list, so packs compare at a glance.
+  expect(
+    screen
+      .getByTestId('content-bundled-bundled-1')
+      .querySelector('[data-testid="content-pack-solved"]')?.textContent
+  ).toBe('2/5 solved');
   // The hub holds rows only: no list, no card, no filled command.
   expect(
     document.querySelector('[data-component="PreviewCardGrid"]')
