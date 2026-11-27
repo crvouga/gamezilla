@@ -1,6 +1,7 @@
 import { expect, mock, test } from 'bun:test';
 import { createBrowserRequestHandler } from '@pkgs/ui-testing-bun-webview-server-ts/browser-process-server';
 import {
+  chromeExposedControl,
   chromeRegionMarker,
   documentMarker,
   visibleDocumentRegion,
@@ -84,6 +85,29 @@ test('a form read is scoped to the ready provider document, including a same-URL
   state = { ...state, navigation: 2 };
   expect(await result).toBeNull();
   expect(await region(google, markers)).toBe('oauth-mock-chooser');
+});
+
+// regression: word-tiles-listed-account-page-read
+test('a listed account is found by its test id without running page script', async () => {
+  const account = 'oauth-mock-account-bob.c2988586';
+  const cdp = mock(async (method: string) =>
+    method === 'DOM.getDocument' ? { root: { nodeId: 1 } } : { nodeId: 7 }
+  );
+  expect(await chromeExposedControl(cdp)(account)).toBe(true);
+  expect(cdp).toHaveBeenNthCalledWith(1, 'DOM.getDocument', { nodeId: 0 });
+  expect(cdp).toHaveBeenNthCalledWith(2, 'DOM.querySelector', {
+    nodeId: 1,
+    selector: `[data-testid="${account}"]`,
+  });
+});
+
+test('a missing listed account is absent from the document', async () => {
+  const cdp = mock(async (method: string) =>
+    method === 'DOM.getDocument' ? { root: { nodeId: 1 } } : { nodeId: 0 }
+  );
+  expect(await chromeExposedControl(cdp)('oauth-mock-account-alice')).toBe(
+    false
+  );
 });
 
 test('WebKit identifies a visible form using its document controls', async () => {

@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45982112326 hung Bob's Word Tiles sign-in while reading the listed account button through page script. The chooser was still painting, and the isolated browser never answered. The button is now found in the document without running page script.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/document-region.test.ts"
+}

@@ -5,7 +5,7 @@ import { browserCallDiagnostics } from './browser-call-diagnostics';
 import { serveBrowserProcess } from './browser-process-server';
 import { chromeDocumentLoad } from './chrome-document-load';
 import { chromeDocumentVisibility } from './chrome-document-visibility';
-import { chromeRegionMarker } from './document-region';
+import { chromeExposedControl, chromeRegionMarker } from './document-region';
 import type { BrowserDeviceOptions } from './wall-io';
 
 serveBrowserProcess(async (options: BrowserDeviceOptions) => {
@@ -39,6 +39,11 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
     ...(backend !== 'webkit' && {
       documentLoad: chromeDocumentLoad(view),
       readRegionMarker: chromeRegionMarker((method, params) =>
+        diagnostics.watch(`opener.cdp(${method})`, () =>
+          view.cdp(method, params)
+        )
+      ),
+      readExposedControl: chromeExposedControl((method, params) =>
         diagnostics.watch(`opener.cdp(${method})`, () =>
           view.cdp(method, params)
         )

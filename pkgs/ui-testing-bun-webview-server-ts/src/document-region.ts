@@ -23,6 +23,11 @@ type AccessibilityTree = (
   params: Record<string, never>
 ) => Promise<{ nodes: readonly Node[] }>;
 
+type DomQuery = (
+  method: 'DOM.getDocument' | 'DOM.querySelector',
+  params: { readonly nodeId: number; readonly selector?: string }
+) => Promise<{ root?: { nodeId: number }; nodeId?: number }>;
+
 /** Only a single exposed region with a recognized name identifies a form. */
 export function chromeRegionMarker(cdp: AccessibilityTree) {
   return async (markers: RegionMarkers) => {
@@ -36,6 +41,28 @@ export function chromeRegionMarker(cdp: AccessibilityTree) {
         : []
     );
     return matches.length === 1 ? matches[0]! : null;
+  };
+}
+
+/** Keep a test id inside one attribute selector. This package runs without DOM. */
+function attributeValue(value: string): string {
+  return value.replace(/["\\]/g, '\\$&');
+}
+
+/**
+ * Whether the document contains one control with this test id.
+ * `DOM.querySelector` reads the tree; it does not run the page's scripts.
+ */
+export function chromeExposedControl(cdp: DomQuery) {
+  return async (testId: string) => {
+    const document = await cdp('DOM.getDocument', { nodeId: 0 });
+    const root = document.root?.nodeId;
+    if (root === undefined) return false;
+    const found = await cdp('DOM.querySelector', {
+      nodeId: root,
+      selector: `[data-testid="${attributeValue(testId)}"]`,
+    });
+    return (found.nodeId ?? 0) !== 0;
   };
 }
 

@@ -67,6 +67,11 @@ async function checkGoogleSignIn(
         markerBudgets.push(remainingMs());
         return regions[chooserHeading!];
       },
+      exposedControl: async (origin: string, testId: string) => {
+        expect(origin).toBe(google);
+        expect(testId).toBe(accountButton);
+        return index === 0;
+      },
       get: (id: string) => {
         if (id === 'oauth-mock-chooser') markerBudgets.push(remainingMs());
         return ui.get(id);

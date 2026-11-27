@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45982112326 accepted the Pong rematch and then read the court while it still showed the finished game. The new game announces its serve before play.",
+  "regressionTest": "specs/journeys/pong-game.feature"
+}
