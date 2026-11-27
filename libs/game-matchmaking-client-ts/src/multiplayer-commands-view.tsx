@@ -147,6 +147,7 @@ export function MultiplayerCommandsView(props: CommandsProps): JSX.Element {
       onClose={() => props.onBack()}
       title={<Trans>Game menu</Trans>}
       size="small"
+      closeDataSet={{ testid: 'multiplayer-commands-close' }}
       dataSet={{ screen: 'matchmaking-stage-menu' }}
     >
       <StackVertical gap="md">

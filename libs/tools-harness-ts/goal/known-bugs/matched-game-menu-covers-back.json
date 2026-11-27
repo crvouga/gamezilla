@@ -1,0 +1,4 @@
+{
+  "summary": "Browser partition 70 on fe95a7d: the Pong and Light Cycles Duel scenarios for Bob aborting during play or after winning failed in their setup. Observing the countdown opened the command sheet and tried to return through the covered stage Back. The driver now observes the board directly and closes the foreground menu when it reads ending choices.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/multiplayer-menu-return.test.ts"
+}

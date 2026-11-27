@@ -143,7 +143,7 @@ async function moved(
 }
 
 /**
- * One step back within finding an opponent, as the bar's Back takes it.
+ * Close the game menu or take the bar's Back from another place.
  * From a stage's home it does nothing: that Back would leave the screen.
  */
 export async function leaveMultiplayerPlace(
@@ -152,7 +152,9 @@ export async function leaveMultiplayerPlace(
 ): Promise<void> {
   const at = await shown(s, actor);
   if (at === null || atHome(at)) return;
-  await (await actorUi(s, actor)).get(Handles.navBack).tap();
+  const back =
+    at.place === 'commands' ? 'multiplayer-commands-close' : Handles.navBack;
+  await (await actorUi(s, actor)).get(back).tap();
   await moved(s, actor, at.place);
 }
 

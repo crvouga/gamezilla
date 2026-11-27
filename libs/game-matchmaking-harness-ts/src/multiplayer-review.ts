@@ -151,7 +151,6 @@ export async function shownBoardPosition(
   actor: string
 ): Promise<string | null> {
   await bringToFront(s, actor);
-  const html = await (await actorUi(s, actor)).snapshotHtml();
-  const tag = html?.match(/<[^>]*data-testid="multiplayer-game"[^>]*>/)?.[0];
-  return tag?.match(/data-shown-position="([^"]+)"/)?.[1] ?? null;
+  const board = (await actorUi(s, actor)).get('multiplayer-game');
+  return (await board.attribute('data-shown-position')) || null;
 }
