@@ -8,6 +8,7 @@ import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import type { OutboxConsumerRegistry } from '@pkgs/outbox-shared-ts/define-consumer';
 import { createInMemoryBus } from '@pkgs/pubsub-root-shared-ts/in-memory';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { MutationAuthorize } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { HarnessAccountReadyDelays } from './account-ready-delay';
 import { createHarnessAccountReadyDelays } from './account-ready-delay';
@@ -66,6 +67,7 @@ export type CreateHarnessOptions = {
   /** The separately running deployment owns public configuration on a shared stack. */
   readonly clientConfigOwner?: 'this-server' | 'external';
   readonly serverEvents?: PubSub;
+  readonly serverRooms?: RoomServicePort;
   /** Reference data shared by separately booted harness environments. */
   readonly sharedDataStore?: ServerEnv['blob'];
   /** Deployment credentials injected by integration hosts, scoped to this harness. */
@@ -295,7 +297,7 @@ async function bootHarnessKernel(
   session: Session,
   opts: CreateHarnessOptions
 ): Promise<HarnessKernel> {
-  const { composition } = opts;
+  const { composition, serverRooms } = opts;
   const seed = sessionSeed(session);
   const timers = opts.timers ?? session.ports.timers;
   const net = createHarnessNet({
@@ -324,7 +326,7 @@ async function bootHarnessKernel(
     toApi: (node) => loadBalancer.fetchFrom(node),
   });
   const roomPorts = { session, composition, seed, timers, serverSql };
-  const { roomNode, rooms } = createHarnessRooms(roomPorts);
+  const { roomNode, rooms } = createHarnessRooms({ ...roomPorts, serverRooms });
   const disposed = { value: false };
   const serverEgress = createHarnessServerEgress();
   const servers = createHarnessServerNodes({

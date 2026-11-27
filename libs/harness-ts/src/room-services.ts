@@ -27,8 +27,15 @@ export function createHarnessRooms(args: {
   readonly seed: bigint;
   readonly timers: Timers;
   readonly serverSql: HarnessSql;
+  readonly serverRooms?: RoomServicePort | undefined;
 }) {
   const { session, composition, seed, timers, serverSql } = args;
+  if (args.serverRooms !== undefined) {
+    return {
+      roomNode: { ...noRoomNode(composition.name), services: args.serverRooms },
+      rooms: args.serverRooms,
+    };
+  }
   const rooms: RoomServicePort = {
     setAvailability: (topic, available) =>
       roomNode.services.setAvailability(topic, available),

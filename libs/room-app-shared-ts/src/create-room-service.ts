@@ -14,13 +14,22 @@ type RoomNamespace = {
 export function createRoomService(
   namespace: RoomNamespace | undefined
 ): RoomServicePort {
-  const call = async (topic: string, input: object): Promise<Response> => {
+  return roomServiceClient((topic, request) => {
     if (namespace === undefined)
       throw new Error('Room service binding is missing');
+    return namespace.get(namespace.idFromName(topic)).fetch(request);
+  });
+}
+
+export function roomServiceClient(
+  deliver: (topic: string, request: Request) => Promise<Response>
+): RoomServicePort {
+  const call = async (topic: string, input: object): Promise<Response> => {
     const url = new URL('https://room-service/room-service');
     url.searchParams.set('topic', topic);
     url.searchParams.set('module', topic.split(':')[0]!);
-    const response = await namespace.get(namespace.idFromName(topic)).fetch(
+    const response = await deliver(
+      topic,
       new Request(url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

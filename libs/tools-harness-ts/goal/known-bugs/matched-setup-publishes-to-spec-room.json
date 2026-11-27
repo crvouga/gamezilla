@@ -1,0 +1,4 @@
+{
+  "summary": "A stack fixture acknowledged matched Pong and Light Cycles games in the spec worker's private room. Both players saw the pairing, but neither browser's room received the game and the 30-second wait for play expired.",
+  "regressionTest": "libs/games-harness-ts/tests/stack-match-room.test.ts"
+}

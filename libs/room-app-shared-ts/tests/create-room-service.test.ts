@@ -1,8 +1,34 @@
 import { expect, test } from 'bun:test';
 import { createRoomService } from '@libs/room-app-shared-ts/create-room-service';
+import { localRoomService } from '@libs/room-app-shared-ts/local-room-service';
 import { createMessageNamespace } from '@pkgs/message-shared-ts/message';
 import type { RoomServiceReceipt } from '@pkgs/room-root-shared-ts/room-service';
 import { ROOM_ERROR_TYPE } from '@pkgs/room-root-shared-ts/types';
+
+test('a local fixture forwards the authenticated command to the topic owner', async () => {
+  const apiOrigin = 'http://127.0.0.1:8787';
+  const topic = 'chess-match:alice+bob';
+  const receipt: RoomServiceReceipt = { ok: true, state: {} };
+  const payload = createMessageNamespace('fixture')(
+    'formation',
+    (input): input is object => typeof input === 'object'
+  )({});
+  const service = localRoomService(apiOrigin, 'test-token', async (request) => {
+    const url = new URL(request.url);
+    expect(url.origin + url.pathname).toBe(apiOrigin + '/__room-service');
+    expect(url.searchParams.get('topic')).toBe(topic);
+    expect(url.searchParams.get('module')).toBe('chess-match');
+    expect(request.method).toBe('POST');
+    expect(request.headers.get('x-room-service-token')).toBe('test-token');
+    expect(await request.json()).toEqual({
+      operation: 'send',
+      commandId: 'formation',
+      payload,
+    });
+    return Response.json(receipt);
+  });
+  expect(await service.send(topic, 'formation', payload)).toEqual(receipt);
+});
 
 test.each(['eraseIdentity', 'disconnect'] as const)(
   'room %s cancels its acknowledgement',

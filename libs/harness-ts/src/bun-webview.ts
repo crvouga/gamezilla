@@ -1,3 +1,4 @@
+import { localRoomService } from '@libs/room-app-shared-ts/local-room-service';
 import { STACK_BILLING_TEST_KEY } from '@libs/sub-shared-ts/harness-constants';
 import { createStripeClient } from '@pkgs/billing-stripe-server-ts/stripe-membership';
 import { realTimeRuntime } from '@pkgs/harness-root-shared-ts/real-time-runtime';
@@ -85,6 +86,7 @@ async function openStackExtra(
     | 'ui'
     | 'http'
     | 'serverEvents'
+    | 'serverRooms'
     | 'checkpointSqlFormat'
     | 'stackStripe'
   >
@@ -92,6 +94,12 @@ async function openStackExtra(
   const { readStackAddresses } = await import('./stack-manifest');
   const { bootHarnessPostgres } = await import('./boot-harness-postgres');
   const addresses = await readStackAddresses();
+  const { readFile } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const roomToken = await readFile(
+    join(addresses.dataDir, 'room-service.token'),
+    'utf8'
+  );
   // The spec worker's MQTT client is its browser build (the runner resolves
   // `browser` exports), which cannot open the broker's TCP port: it closed
   // at once, forever, and every fixture that announced a change waited out
@@ -117,6 +125,11 @@ async function openStackExtra(
   process.env['VITE_API_URL'] = addresses.apiOrigin;
   return {
     serverEvents,
+    serverRooms: localRoomService(
+      addresses.apiOrigin,
+      roomToken,
+      globalHttpFetch
+    ),
     stackStripe: createStripeClient(STACK_BILLING_TEST_KEY, {
       origin: addresses.billingOrigin,
       fetch: globalHttpFetch,
