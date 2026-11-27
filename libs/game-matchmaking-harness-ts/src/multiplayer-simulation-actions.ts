@@ -1,5 +1,5 @@
 import { pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
-import { multiplayerEndingView } from './multiplayer-ending-view';
+import { shownBoardPosition } from './multiplayer-review';
 
 /** Let the registered game's own countdown finish, observing its rendered play. */
 export const waitForMatchedPlay = scenarioAction({
@@ -11,9 +11,9 @@ export const waitForMatchedPlay = scenarioAction({
     await pollUntil(
       s,
       async () => {
-        const view = await multiplayerEndingView(s, actor);
-        if (view.position === null) return null;
-        const state = simulation.codec.decode(view.position);
+        const position = await shownBoardPosition(s, actor);
+        if (position === null) return null;
+        const state = simulation.codec.decode(position);
         return state !== null &&
           (simulation.phase?.(state) ?? 'running') === 'running'
           ? true

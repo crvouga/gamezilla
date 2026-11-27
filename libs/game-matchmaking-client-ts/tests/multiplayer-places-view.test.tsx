@@ -220,6 +220,9 @@ describe('play holds the board and one way to the commands', () => {
     // Offering one back is not among the commands while one waits.
     screen.getByTestId('multiplayer-open-commands').click();
     expect(ids('multiplayer-offer-draw')).toEqual([]);
+    const menu = screen.getByRole('dialog', { name: 'Game menu' });
+    within(menu).getByTestId('multiplayer-commands-close').click();
+    expect(view.place()).toBe('stage');
   });
 
   // regression: matched-game-choices-menu-sections
