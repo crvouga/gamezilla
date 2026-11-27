@@ -1,0 +1,4 @@
+{
+  "summary": "A touch on the horizontal d4 gap on the 390px Classic board showed its preview, then recentered the board as the confirmation buttons appeared. A second tap at the same point missed the wall.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/quoridor-direct/integration.checks.ts"
+}

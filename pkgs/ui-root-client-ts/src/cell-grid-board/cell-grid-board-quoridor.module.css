@@ -66,8 +66,17 @@
    only repeat the picker's wall and the buttons there, so it stays the
    board's description and live status for assistive technology alone,
    and proposing a wall never needs a row of its own. */
+[data-quoridor-mode]:not(:has(> [data-quoridor-confirmation]))
+  > [data-quoridor-surface]
+  + button
+  ~ [role="status"] {
+  /* The centered board must keep the same gap under the second tap when
+     Place wall and Cancel replace this line. */
+  min-block-size: var(--ui-control-size-md);
+  align-content: center;
+}
 :has(> [data-quoridor-surface]):has(> [data-quoridor-confirmation])
-> [role="status"] {
+  > [role="status"] {
   position: absolute;
   width: 1px;
   height: 1px;
