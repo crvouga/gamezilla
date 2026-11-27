@@ -31,6 +31,11 @@ function outcomeOf(run: () => unknown): Promise<unknown> {
 }
 
 describe('what a stack host cannot do ends the scenario as a host limit', () => {
+  // regression: under-way-game-room-deal
+  test('a game with no prescribed draws leaves the deal to the stack room', () => {
+    expect(() => queueRoomDraws(stackHarness(), [])).not.toThrow();
+  });
+
   // regression: stack-room-draws-ignored
   test("the stack room's random draws cannot be chosen from the test process", async () => {
     const outcome = await outcomeOf(() =>

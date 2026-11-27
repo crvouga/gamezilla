@@ -64,7 +64,7 @@ export type CustomGameLineup = {
   /**
    * For a game with dealt hands, the numbers the room's random draws return
    * as it starts the game, in place of the game's known deal: a deal a
-   * scenario names, dealt by the room's own dealing as a documented choice.
+   * scenario names. An empty list leaves every draw to the room.
    */
   readonly draws?: readonly number[];
 };

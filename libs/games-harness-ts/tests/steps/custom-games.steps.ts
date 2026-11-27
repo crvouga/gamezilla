@@ -70,9 +70,14 @@ Then(
   }
 );
 
-Given('{actor} and {actor} have a custom game under way', async (w) =>
-  setupCustomGame(w)
-);
+// regression: under-way-game-room-deal
+Given('{actor} and {actor} have a custom game under way', async (w) => {
+  const game = gameOf(w);
+  // Being under way requires no particular hand from the room.
+  const dealt =
+    isTurnHarnessGame(game) && game.fixtures.knownDeal !== undefined;
+  await setupCustomGame(w, dealt ? { draws: [] } : {});
+});
 Given(
   '{actor} and {actor} have a custom game under way watched by {actor}',
   async (w, _a: string, _b: string, watcher: string) =>
