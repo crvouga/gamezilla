@@ -392,6 +392,8 @@ export const Handles = {
   gameMode: (gameId: string) => `game-modes-${gameId}`,
   /** The selected game's menu, including games without custom games. */
   gameChoices: 'game-choices',
+  /** The control that opens the quiet choices (history, settings, how to play). */
+  gameChoicesMore: 'game-choices-more',
   /** One of the selected game's choices, by the screen it opens. */
   gameChoice: (screen: string) => `game-choice-${screen}`,
   /** The board of a matched game, whichever game it is. */

@@ -2,6 +2,7 @@ import { expect, test } from 'bun:test';
 import type { GameClientRegistration } from '@libs/game-menu-client-ts/game-client';
 import { GameHomeScreenView } from '@libs/game-menu-client-ts/game-home-screen-view';
 import type { GameMenuPlace } from '@libs/game-menu-client-ts/game-menu-places';
+import { openMoreChoices } from '@libs/game-session-harness-ts/game-more-choices';
 import { GAME_CLIENT_DEFINITIONS } from '@libs/games-client-ts/game-plugins.client';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
 import { setupI18n } from '@lingui/core';
@@ -83,6 +84,7 @@ test.each(GAME_CLIENT_DEFINITIONS.map((game) => [game.id, game] as const))(
     const ui = mountMenu(game);
     try {
       await ui.launch();
+      await openMoreChoices(ui);
       await ui.get('game-choice-how-to-play').tap();
       const actions = practiceControls[id];
       expect(actions?.length).toBe(game.lesson?.length);
@@ -96,6 +98,7 @@ test.each(GAME_CLIENT_DEFINITIONS.map((game) => [game.id, game] as const))(
       expect(await ui.get('practice-prompt').text()).toBe(first);
       expect(await ui.get('practice-next').isVisible()).toBe(false);
       await ui.get('practice-leave').key('enter');
+      await openMoreChoices(ui);
       expect(await ui.get('game-choice-how-to-play').isVisible()).toBe(true);
     } finally {
       await ui.close();
@@ -111,6 +114,7 @@ test('retrying a Quoridor wall discards the preview and lets the player place it
   const ui = mountMenu(game);
   try {
     await ui.launch();
+    await openMoreChoices(ui);
     await ui.get('game-choice-how-to-play').tap();
     await ui.get('practice-board-action-e2').key('enter');
     await ui.get('practice-next').tap();
