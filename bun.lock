@@ -8001,6 +8001,7 @@
         "@typescript/native": "catalog:",
         "axe-core": "catalog:",
         "fast-check": "catalog:",
+        "sharp": "0.35.5",
         "storybook": "catalog:",
         "storybook-solidjs-vite": "catalog:",
         "typescript": "catalog:",
