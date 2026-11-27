@@ -101,3 +101,27 @@
 [data-board-theme="warehouse"][data-magnified="true"] .fit {
   display: block;
 }
+
+/* In a fixed stage, size a large board from the room left by the pad,
+   view switch and its optional caption. The close view needs six 44px rows;
+   the stage can scroll if even those and the controls cannot fit. */
+@container game-column (min-width: 32rem) {
+  [data-game-fixed]
+    [data-game-board-content]:has([data-warehouse-views="multiple"]),
+  [data-game-fixed] :has(> [data-warehouse-views="multiple"]) {
+    height: 100%;
+  }
+  [data-game-fixed] :has(> [data-warehouse-views="multiple"]) {
+    display: grid;
+    grid-template-rows: minmax(calc(6 * var(--ui-control-size-md)), 1fr);
+    grid-auto-rows: max-content;
+  }
+  [data-game-fixed] [data-warehouse-views="multiple"] {
+    display: contents;
+  }
+  [data-game-fixed] [data-warehouse-views="multiple"] > :first-child {
+    container-type: size;
+    justify-content: center;
+    --board-fit-block-size: 100cqh;
+  }
+}

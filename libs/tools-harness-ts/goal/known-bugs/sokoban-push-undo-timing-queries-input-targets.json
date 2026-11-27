@@ -1,0 +1,4 @@
+{
+  "summary": "The 390×844 light solve-and-recover journey recorded a 102 ms long task across its first pointer Undo at 4× CPU slowdown. The timed push-and-undo loop resolved the board and Undo button on every input. Resolve them before measurement, then send ten real keyboard pushes and ten real pointer undos and check every resulting frame.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/sokoban-overhaul/integration.checks.ts"
+}

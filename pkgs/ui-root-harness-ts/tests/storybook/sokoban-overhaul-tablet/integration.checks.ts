@@ -27,10 +27,12 @@ test('storybook integration: Sokoban tablet board sits centred in its column', a
   page,
 }) => {
   await openSokoban(page, 'puzzle--fresh', 'light');
+  const warehouse = page.getByTestId('sokoban-board');
   const layout = await page
-    .locator('[data-component="GameLayout"]')
+    .locator('[data-game-board]')
+    .filter({ has: warehouse })
     .boundingBox();
-  const board = await page.getByTestId('sokoban-board').boundingBox();
+  const board = await warehouse.boundingBox();
   if (!layout || !board) throw new Error('The layout or board is missing');
   const before = board.x - layout.x;
   const after = layout.x + layout.width - (board.x + board.width);

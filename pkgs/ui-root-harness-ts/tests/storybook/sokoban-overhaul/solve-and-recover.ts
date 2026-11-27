@@ -1,8 +1,11 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
-import { walking } from '../../../storybook/sokoban-timed-input';
+import {
+  walking,
+  withPushAndUndo,
+} from '../../../storybook/sokoban-timed-input';
 import { contrast } from './contrast';
 import { accessibility, capture, counts, openSokoban } from './evidence';
-import { measureSokoban, pushAndUndo } from './responsiveness';
+import { measureSokoban } from './responsiveness';
 
 /** Where the player's hand rests, in page coordinates: the pad and undo. */
 async function controlTops(page: Page) {
@@ -71,6 +74,12 @@ export async function solveAndRecover(
   const onward = page.getByTestId('content-open-progress');
   await expect(onward).toHaveAttribute('data-complete', 'true');
   await expect(onward).toBeInViewport({ ratio: 1 });
+  for (const name of ['Undo', 'Redo', 'Restart'])
+    await expect(
+      page.getByRole('button', { name, exact: true })
+    ).toBeInViewport({
+      ratio: 1,
+    });
   await capture(page, info, 'solved');
   // The solved state is scanned as well as the fresh board (after timing).
   await accessibility(page, info, 'solved');
@@ -95,9 +104,8 @@ export async function solveAndRecover(
   await accessibility(page, info, 'restarted');
   await contrast(page, info, 'restarted');
   // Pushes and the pointer's Undo, timed from the restarted board.
-  await measureSokoban(page, info, rate, {
-    step: pushAndUndo,
-    name: 'responsiveness-push-undo',
-  });
+  await withPushAndUndo(page, (step) =>
+    measureSokoban(page, info, rate, { step, name: 'responsiveness-push-undo' })
+  );
   expect(errors).toEqual([]);
 }
