@@ -1,0 +1,4 @@
+{
+  "summary": "Every next chess puzzle repeated the first puzzle's 500 ms preview before moving its setup piece, locking input for 730 ms after placement. A different puzzle starts its setup slide immediately and unlocks after it lands.",
+  "regressionTest": "libs/game-puzzle-shared-ts/tests/opponent-stager.test.ts"
+}

@@ -22,6 +22,13 @@ import {
   PuzzlePlaceBack,
   usePuzzlePlayPlaces,
 } from './puzzle-play-places-wiring';
+import {
+  observePuzzleBoard,
+  PuzzleReadinessProbe,
+  type PuzzleReadinessTiming,
+  timeNextPuzzle,
+  usePuzzleTestTiming,
+} from './puzzle-readiness-timing';
 import { PuzzleRecommendationLegend } from './puzzle-recommendation-legend';
 import { PuzzleResultAnnouncement } from './puzzle-result-announcement';
 import { PuzzleStageScreenView } from './puzzle-stage-screen-view';
@@ -47,11 +54,22 @@ function PuzzlePlayerBoardSlot(props: {
   size: number;
   p: PuzzlePlayerChromeModel;
   live: boolean;
+  timing: PuzzleReadinessTiming | undefined;
 }): JSX.Element {
   const sounds = useSoundsPreference();
   const { client } = usePuzzleGame();
   const Board = dynamic(() => client.Board);
   const p = props.p;
+  observePuzzleBoard(props.timing, () => ({
+    id:
+      props.live &&
+      props.size > 0 &&
+      p.status() !== 'loading' &&
+      p.boardPosition()
+        ? p.puzzleId()
+        : null,
+    interactive: p.attempt.interactive(),
+  }));
   return (
     <Show
       when={p.boardPosition() !== null && p.boardPosition()!.length > 0}
@@ -144,6 +162,7 @@ function coachOf(p: PuzzlePlayerChromeModel) {
 
 function PuzzlePlayerChrome(props: {
   model: PuzzlePlayerChromeModel;
+  timing: PuzzleReadinessTiming | undefined;
   probe: JSX.Element;
   onFeedConfigApplied: () => void;
 }): JSX.Element {
@@ -198,6 +217,7 @@ function PuzzlePlayerChrome(props: {
           <PuzzlePlayerBoardSlot
             size={size}
             p={p}
+            timing={props.timing}
             live={places.nav.place().screen !== 'line'}
           />
         )}
@@ -209,7 +229,7 @@ function PuzzlePlayerChrome(props: {
         onSolution={p.onSolution}
         onRetry={p.onRetry}
         onSkip={p.onSkip}
-        onNext={p.onNext}
+        onNext={timeNextPuzzle(props.timing, p.puzzleId, p.onNext)}
         onIncludeAllPuzzles={noop}
         feed={places.feed()}
         result={result.model()}
@@ -229,6 +249,7 @@ function PuzzlePlayerChrome(props: {
 }
 
 type PuzzlePlayerProps = {
+  timing: PuzzleReadinessTiming | undefined;
   puzzleId: string;
   playGeneration: number;
   readyGeneration: number;
@@ -250,6 +271,7 @@ function PuzzlePlayer(props: PuzzlePlayerProps): JSX.Element {
   return (
     <PuzzlePlayerChrome
       model={p}
+      timing={props.timing}
       probe={props.probe}
       onFeedConfigApplied={props.onFeedConfigApplied}
     />
@@ -347,7 +369,13 @@ export function PuzzlePlayScreen(): JSX.Element {
     startDenial,
   } = usePuzzlePlayScreenState();
 
-  const testPickStatus = <PuzzleTestLoadingStatus {...testLoadingStatus()} />;
+  const timing = usePuzzleTestTiming();
+  const testPickStatus = (
+    <>
+      <PuzzleTestLoadingStatus {...testLoadingStatus()} />
+      <PuzzleReadinessProbe timing={timing} />
+    </>
+  );
   const shellPick = createMemo<ShellPick>(() => shellPickOf(pickState()));
 
   return (
@@ -365,6 +393,7 @@ export function PuzzlePlayScreen(): JSX.Element {
       }
     >
       <PuzzlePlayer
+        timing={timing}
         puzzleId={activePuzzleId()!}
         playGeneration={attemptSeed()}
         readyGeneration={readyGeneration()}

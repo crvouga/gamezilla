@@ -1,0 +1,4 @@
+{
+  "summary": "Partition 68 reported 0 of 20 next chess puzzles ready within one second. Its stopwatch included locating the Next button and checking unrelated shell invariants. The puzzle screen now timestamps Next and the rendered replacement board accepting input on the same device clock.",
+  "regressionTest": "libs/game-puzzle-client-ts/tests/puzzle-readiness-timing.test.ts"
+}

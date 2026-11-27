@@ -16,6 +16,7 @@ import type { PuzzleGame } from './puzzle-setup';
 import type { SolveStatus } from './solve-status';
 
 export type OpponentStagerInput = {
+  readonly puzzleId: string;
   readonly startPosition: string;
   readonly moves: string;
   readonly displayPosition: string | null;
@@ -61,6 +62,7 @@ function canStage(input: OpponentStagerInput): input is OpponentStagerInput & {
 function sameInput(a: OpponentStagerInput | null, b: OpponentStagerInput) {
   return (
     a !== null &&
+    a.puzzleId === b.puzzleId &&
     a.startPosition === b.startPosition &&
     a.moves === b.moves &&
     a.displayPosition === b.displayPosition &&
@@ -74,6 +76,7 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
   private readonly timers: Timers;
   private readonly game: PuzzleGame;
   private readonly listeners = new Set<() => void>();
+  private lastShownPuzzleId: string | null = null;
   private prev: Cursor = { solveIdx: -1, furthestSolveIdx: -1 };
   private lastInput: OpponentStagerInput | null = null;
   private phase: Phase | null = null;
@@ -88,6 +91,7 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
     this.timers = timers;
     this.game = game;
     if (canStage(initial)) {
+      this.lastShownPuzzleId = initial.puzzleId;
       this.prev = {
         solveIdx: initial.solveIdx,
         furthestSolveIdx: initial.furthestSolveIdx,
@@ -121,6 +125,9 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
 
     const stage = planOpponentStage({
       game: this.game,
+      replacingPuzzle:
+        this.lastShownPuzzleId !== null &&
+        this.lastShownPuzzleId !== input.puzzleId,
       startPosition: input.startPosition,
       moves: input.moves,
       displayPosition: input.displayPosition,
@@ -134,6 +141,8 @@ class PuzzleOpponentStagerImpl implements PuzzleOpponentStager {
       solveIdx: input.solveIdx,
       furthestSolveIdx: input.furthestSolveIdx,
     };
+
+    this.lastShownPuzzleId = input.puzzleId;
 
     if (stage.kind === 'snap') {
       this.setPhase(null);
