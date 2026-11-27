@@ -83,17 +83,11 @@ export function useFramePlay(
   const presentation = useGamePresentation();
   return createMemo((): FramePlay => {
     const game = model.current();
-    const boardActions = frameActionItems(
+    const actions = frameActionItems(
       board.session()?.actions() ?? [],
       BOARD_TEST_ID
     );
-    const leadingBoardActions = frameActionItems(
-      board.session()?.actions() ?? [],
-      BOARD_TEST_ID,
-      'before-board'
-    );
-    if (game === null)
-      return { ...FRAME_NO_PLAY, boardActions, leadingBoardActions };
+    if (game === null) return { ...FRAME_NO_PLAY, ...actions };
     const person = away();
     const twoSided = game.sides.length === 2;
     const unfinished =
@@ -115,8 +109,7 @@ export function useFramePlay(
         unfinished &&
         model.canCancel() &&
         customGameCancelRefusal(game, model.myId()) === '',
-      boardActions,
-      leadingBoardActions,
+      ...actions,
     };
   });
 }

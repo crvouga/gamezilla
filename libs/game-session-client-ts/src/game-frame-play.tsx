@@ -197,12 +197,18 @@ export function useFrameBoard(
  */
 export function frameActionItems(
   actions: readonly GameFrameAction[],
-  testId: string,
-  placement: 'before-board' | 'after-board' = 'after-board'
-): readonly GameActionItem[] {
-  return actions
-    .filter((action) => (action.placement ?? 'after-board') === placement)
-    .map((action) => ({
+  testId: string
+) {
+  const boardActions: GameActionItem[] = [];
+  const leadingBoardActions: GameActionItem[] = [];
+  const sessionActions: GameActionItem[] = [];
+  const groups = {
+    'after-board': boardActions,
+    'before-board': leadingBoardActions,
+    session: sessionActions,
+  };
+  for (const action of actions) {
+    groups[action.placement ?? 'after-board'].push({
       id: action.id,
       label: action.label,
       testId: `${testId}-${action.id}`,
@@ -210,7 +216,9 @@ export function frameActionItems(
       disabled: !action.enabled,
       emphasis: action.emphasis,
       pressed: action.pressed,
-    }));
+    });
+  }
+  return { boardActions, leadingBoardActions, sessionActions };
 }
 
 /**
