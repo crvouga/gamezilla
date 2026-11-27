@@ -1,6 +1,6 @@
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
-import { openIsolatedDevice } from './isolated-browser';
 import type { Device, LiveTarget } from './live-browser';
+import { openDevice } from './live-browser';
 
 export type LiveDevices = {
   host: Device | null;
@@ -20,7 +20,7 @@ export async function openGuestDevice(
   target: LiveTarget,
   devices: LiveDevices,
   link: string,
-  open: typeof openIsolatedDevice = openIsolatedDevice
+  open: typeof openDevice = openDevice
 ): Promise<void> {
   devices.guest ??= await open(target);
   const guest = requireDevice(devices.guest, 'guest');

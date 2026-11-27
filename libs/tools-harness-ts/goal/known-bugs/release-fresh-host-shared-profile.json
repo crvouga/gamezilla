@@ -1,0 +1,4 @@
+{
+  "summary": "The Numberlink and Word Tiles for three release journeys opened fresh devices with different device IDs but the same account. Before Word Tiles hosted a space, its first query returned four devices and two existing spaces, and a closed SQLite database obscured the Spaces tab.",
+  "regressionTest": "apps/product-ts/tests/isolated-browser.test.ts"
+}

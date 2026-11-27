@@ -1,8 +1,8 @@
-import { openIsolatedDevice } from '@apps/product-ts/isolated-browser';
 import {
   type Device,
   emulateOffline,
   type LiveTarget,
+  openDevice,
   readLocation,
 } from '@apps/product-ts/live-browser';
 import {
@@ -47,7 +47,7 @@ export function liveJourneyPeerDevice(
     open: async (access) => {
       if (devices.guest !== null)
         throw new Error('The second device is already open');
-      devices.guest = await openIsolatedDevice(target);
+      devices.guest = await openDevice(target);
       devices.shown = devices.guest;
       await prepare(devices.guest, access);
     },
@@ -73,7 +73,7 @@ export function liveJourneyPeerDevice(
         confirmSignedIn,
         'confirmPreviousPeerAccount'
       );
-      const next = await openIsolatedDevice(target);
+      const next = await openDevice(target);
       // Keep ownership of a failed sign-in device and the original account's cleanup access.
       const pending = devices.previousPeers.push(next) - 1;
       devices.shown = next;
