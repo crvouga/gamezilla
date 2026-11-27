@@ -14,6 +14,7 @@ export const FRAME_NO_PLAY: FramePlay = {
   canCancel: false,
   boardActions: [],
   leadingBoardActions: [],
+  sessionActions: [],
 };
 
 /** No seats around the board. */

@@ -1,0 +1,4 @@
+{
+  "summary": "The Chrome WebView kept the middle dot in the Google chooser title as a JSON escape. The provider walk never recognized the loaded chooser and timed out before the person could sign in.",
+  "regressionTest": "libs/harness-ts/tests/provider-chooser-navigation.test.ts"
+}

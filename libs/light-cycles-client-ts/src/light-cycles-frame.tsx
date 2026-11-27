@@ -69,6 +69,7 @@ function rideHere(
   return [
     {
       id: 'ride-here',
+      placement: 'session',
       label: t`Ride from this device`,
       enabled: true,
       run: () => claim(),

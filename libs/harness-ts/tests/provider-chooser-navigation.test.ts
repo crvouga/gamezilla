@@ -6,14 +6,13 @@ import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 const google = 'http://google.test';
 const app = 'http://app.test';
 
-// regression: provider-chooser-navigation
-test('Google chooser and consent are answered once while the return page navigates', async () => {
+async function checkGoogleSignIn(separator: string): Promise<void> {
   const pages = [
-    [google, 'Choose an account · OAuth Emulator'],
-    [google, 'Choose an account · OAuth Emulator'],
-    [google, 'Review access · OAuth Emulator'],
-    [google, 'Review access · OAuth Emulator'],
-    [google, 'Continue to your app · OAuth Emulator'],
+    [google, `Choose an account ${separator} OAuth Emulator`],
+    [google, `Choose an account ${separator} OAuth Emulator`],
+    [google, `Review access ${separator} OAuth Emulator`],
+    [google, `Review access ${separator} OAuth Emulator`],
+    [google, `Continue to your app ${separator} OAuth Emulator`],
     [app, 'Account'],
   ] as const;
   let index = 0;
@@ -48,7 +47,8 @@ test('Google chooser and consent are answered once while the return page navigat
       },
       scheduler: { virtual: true, starvedAdvances: () => 0 },
       advanceTime: async () => {
-        index += 1;
+        // The provider waits for a person on the chooser and consent form.
+        if (index === 1 || index === 3 || index === 4) index += 1;
       },
       waitForIdle: async () => {},
     },
@@ -65,4 +65,11 @@ test('Google chooser and consent are answered once while the return page navigat
     'oauth-mock-allow',
   ]);
   expect(page()[0]).toBe(app);
-});
+}
+
+// regression: provider-chooser-navigation
+// regression: chrome-provider-title-escape
+test.each(['·', String.raw`\u00b7`])(
+  'Google chooser and consent are answered once with native title separator %s',
+  checkGoogleSignIn
+);
