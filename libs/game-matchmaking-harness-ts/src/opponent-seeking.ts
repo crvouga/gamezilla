@@ -16,11 +16,12 @@ import {
   gameTile,
   setUpGameMode,
 } from '@libs/harness-ts/game-tiles';
-import type { ProductHarness } from '@libs/harness-ts/harness';
+import type { HarnessActor, ProductHarness } from '@libs/harness-ts/harness';
 import { playerIdOf } from '@libs/harness-ts/identity';
 import { bringToFront } from '@libs/harness-ts/observations';
 import { backToTabs } from '@libs/harness-ts/shell-actions';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
+import { tapSpaceBarControl } from '@libs/spaces-harness-ts/space-bar-gestures';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import {
   forgetMultiplayerReply,
@@ -181,12 +182,14 @@ export function findingAnOpponentStep(
  * second device's join prompt gives way to the space once its membership
  * arrives, and the caller looks again at what shows instead.
  */
-export async function tapWayIn(node: {
-  tap(): Promise<void>;
-  isVisible(): Promise<boolean>;
-}): Promise<void> {
+export async function tapWayIn(
+  ui: HarnessActor['ui'],
+  step: string
+): Promise<void> {
+  const node = ui.get(step);
   try {
-    await node.tap();
+    if (step === Handles.navBack) await tapSpaceBarControl(ui, step, 5_000);
+    else await node.tap();
   } catch (error) {
     // regression: second-device-join-gone-before-tap
     if (await node.isVisible()) throw error;
@@ -234,7 +237,7 @@ async function reachFindingAnOpponent(
       if (step === 'nowhere')
         throw new Error(`${actor}'s space has no finding an opponent left`);
       if (step === null) return null;
-      await tapWayIn(ui.get(step));
+      await tapWayIn(ui, step);
       return null;
     },
     {
