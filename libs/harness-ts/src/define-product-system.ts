@@ -153,6 +153,9 @@ export function defineProductSystem(
         serverSql: extra.sql,
         clientConfigOwner:
           extra.http.kind === 'stack' ? 'external' : 'this-server',
+        ...(extra.serverRooms === undefined
+          ? {}
+          : { serverRooms: extra.serverRooms }),
         ...(extra.serverEvents === undefined
           ? {}
           : { serverEvents: extra.serverEvents }),

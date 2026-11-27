@@ -12,7 +12,7 @@
  */
 
 import type { ChildProcess } from 'node:child_process';
-import { mkdirSync } from 'node:fs';
+import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import {
   createServer as createStripeServer,
@@ -292,6 +292,9 @@ export async function startApiTier(args: {
   const sharedDataEnv =
     args.sharedDataBindings ?? isolatedSharedDataEnv(args.infraEnv);
   const roomServiceToken = crypto.randomUUID();
+  writeFileSync(join(args.dataDir, 'room-service.token'), roomServiceToken, {
+    mode: 0o600,
+  });
   const children: ChildProcess[] = [];
   const backends: { readonly id: string; readonly origin: string }[] = [];
   for (let index = 0; index < args.options.apiNodes; index += 1) {
