@@ -3,7 +3,7 @@ import { GAME_CHOICE_EMPHASIS } from '@libs/game-menu-client-ts/game-home-screen
 import { SHARED_GAME_SCREEN } from '@libs/game-menu-client-ts/shared-game-screens';
 
 // regression: game-menu-puzzle-stats-not-quiet
-test("a game's menu recommends no way to play and quiets every look back, puzzle stats included", () => {
+test("a game's menu quiets every look back, puzzle stats included, and no way to play", () => {
   expect(
     GAME_CHOICE_EMPHASIS[SHARED_GAME_SCREEN.customGamesHome]
   ).toBeUndefined();

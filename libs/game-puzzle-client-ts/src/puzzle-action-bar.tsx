@@ -70,17 +70,29 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
     <Show
       when={lead() !== undefined}
       fallback={
-        // Help is the one command while solving: the column's full width.
-        // Skipping, a different kind of choice, is quiet text under it,
-        // with stepping through the moves at the row's far end.
-        <StackVertical gap="xs">
+        // While solving the bar is one even row that keeps its height and
+        // place whatever the state: help, skipping the puzzle, and the way
+        // to look back through the moves.
+        <StackHorizontal
+          align="center"
+          gap="sm"
+          testId="chess-puzzle-action-row"
+        >
           <For each={actions()}>
-            {(slot) => (
-              <PuzzleActionButton slot={slot} model={props} fullWidth />
-            )}
+            {(slot) => <PuzzleActionButton slot={slot} model={props} row />}
           </For>
-          <SkipRow slot={skip()} onSkip={props.onSkip} beside={props.beside} />
-        </StackVertical>
+          <Show when={skip()}>
+            {(slot) => (
+              <PuzzleSkipButton
+                disabled={slot().disabled}
+                onSkip={props.onSkip}
+                size="sm"
+                flex={1}
+              />
+            )}
+          </Show>
+          {props.beside}
+        </StackHorizontal>
       }
     >
       <StackVertical gap="sm">

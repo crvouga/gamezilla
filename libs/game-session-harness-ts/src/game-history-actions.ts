@@ -2,6 +2,7 @@ import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { openCustomGamePlace } from './custom-game-places';
+import { openMoreChoices } from './game-more-choices';
 
 /** The controls that open the moves place: from the live board, and from a result. */
 const MOVES_PLACE_ROWS = ['custom-game-all-moves', 'custom-game-review-start'];
@@ -39,6 +40,8 @@ export const openGameHistory = scenarioAction({
       s,
       async () => {
         if (await ui.get('game-history-statistics').isVisible()) return true;
+        // On the game's menu, History and stats waits behind More.
+        await openMoreChoices(ui);
         if (await ui.get('custom-game-history-stats').isVisible())
           await ui.get('custom-game-history-stats').tap();
         // While a game is played the way to the history is a row of its

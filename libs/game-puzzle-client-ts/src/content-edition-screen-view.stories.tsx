@@ -30,6 +30,15 @@ const PACK: ContentEditionSummary = {
   description: 'Three puzzles that get harder.',
 };
 
+const NUMBERED_PACK: ContentEditionSummary = {
+  id: '7c1e0a00-0000-4000-8000-000000000004',
+  documentId: '7c1e0a00-0000-4000-8000-0000000000d4',
+  kind: 'pack',
+  title: 'Dock',
+  difficulty: '',
+  description: 'Twelve warehouse puzzles, in order.',
+};
+
 /** Renders the view with a fresh start control and body per mount. */
 function render(args: ContentEditionScreenViewProps) {
   return (
@@ -43,7 +52,7 @@ function render(args: ContentEditionScreenViewProps) {
       }
       body={
         args.edition?.kind === 'pack' ? (
-          <StoryPackOverview />
+          <StoryPackOverview numbered={args.edition.id === NUMBERED_PACK.id} />
         ) : (
           <StoryCountingPlayer state="0 of 7" disabled />
         )
@@ -86,6 +95,20 @@ export const Withdrawn: Story = { args: { available: false } };
 
 /** A pack: its puzzles and the person's progress through them. */
 export const Pack: Story = { args: { edition: PACK } };
+
+/**
+ * An ordered pack whose puzzles are only numbered: a grid of numbered tiles,
+ * a check on each solved puzzle and the next one filled.
+ */
+export const NumberedPack: Story = {
+  args: { edition: NUMBERED_PACK },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const tiles = await canvas.findAllByRole('button', { name: /^Dock \d+$/ });
+    await expect(tiles).toHaveLength(12);
+    await expect(tiles[3]).toHaveAttribute('aria-current', 'true');
+  },
+};
 
 /** Someone who may not play sees why instead of the preview. */
 export const PlayDenied: Story = {

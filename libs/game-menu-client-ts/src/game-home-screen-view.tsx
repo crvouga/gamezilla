@@ -36,8 +36,7 @@ export type GameMenuChoiceView = {
 
 /**
  * The quiet choices: looking back (history, puzzle stats), settings and
- * how to play. Every way to play weighs the same; the menu never
- * recommends one.
+ * how to play. They wait behind More; every other choice is a way to play.
  */
 export const GAME_CHOICE_EMPHASIS: Readonly<
   Record<string, 'quiet' | undefined>
@@ -99,7 +98,12 @@ function menuChoice(
   };
 }
 
-/** The game's choices, then how to play when the game says how. */
+/**
+ * The game's choices, then how to play when the game says how. The first
+ * way to play leads as the primary control: `choices` arrive in the one
+ * order every game shares, finding an opponent first, then custom games,
+ * then puzzles.
+ */
 function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
   const choices = createMemo((): GameMenuChoice[] => [
     ...props.choices.map((choice) =>
@@ -126,15 +130,18 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
       motif={props.tile}
       subtitle={props.subtitle}
       choices={choices()}
+      moreTestId={Handles.gameChoicesMore}
     />
   );
 }
 
 /**
  * A game's menu in a space, presentational: a hub of the template screens
- * the game offers (puzzles, custom games, finding an opponent, history,
- * settings), each a row that leads onward; none is recommended.
- * How to play is a small place of its own behind the hub, opened by a row.
+ * the game offers. The first way to play (finding an opponent, else custom
+ * games, else puzzles) is the one primary control, the other ways to play
+ * are full-width rows, and history, puzzle stats, settings and how to play
+ * wait behind More. How to play is a small place of its own behind the hub,
+ * opened by its row.
  * `GameMenu` decides which choices the game offers, opens the screen each
  * one names and keeps this device's place.
  */

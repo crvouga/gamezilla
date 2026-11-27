@@ -25,3 +25,5 @@ IMG_0663. The top row shows Back, the level number, board size and Settings. Imm
 Keep the pack chooser as a list with progress beside each pack. Opening a pack should show its puzzles in a numbered grid where a player can recognize completed puzzles and choose the next one. Opening a tile should lead directly to a stage with space controls at the top, puzzle status above the centered board and puzzle actions in a stable bottom bar. See the [shared game-stage comparison](../../../games-shared-ts/docs/game-stage/MARKET_RESEARCH.md).
 
 The captures show a pack grouped by board size. How should a pack of mixed puzzle sizes or named, user-authored puzzles identify each tile?
+
+Our answer so far: a pack whose puzzle titles each end in their own place (`Dock 01`, `Dock 02`, …) shows numbered tiles; a pack of named puzzles keeps a named list, because a number alone would not tell them apart.

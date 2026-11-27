@@ -12,14 +12,14 @@ import { storyGame } from './game-menu-catalog.example';
 function sharedChoices(name: string): readonly GameMenuChoiceView[] {
   return [
     {
-      screen: 'custom-game',
-      title: 'Custom games',
-      caption: 'With the people in this space, or bots',
-    },
-    {
       screen: 'multiplayer',
       title: 'Match making',
       caption: `Meet another ${name} player`,
+    },
+    {
+      screen: 'custom-game',
+      title: 'Custom games',
+      caption: 'With the people in this space, or bots',
     },
     {
       screen: 'history',
@@ -32,17 +32,17 @@ function sharedChoices(name: string): readonly GameMenuChoiceView[] {
 const CHOICES = sharedChoices('Connect Four');
 
 const PUZZLE_CHOICES: readonly GameMenuChoiceView[] = [
+  ...sharedChoices('Chess').slice(0, 2),
   {
     screen: 'puzzle',
     title: 'Puzzle',
     caption: 'Solve rated puzzles and climb the ladder',
   },
   {
-    screen: 'stats',
-    title: 'Puzzle stats',
-    caption: 'Puzzle rating trend and game log',
+    screen: 'history',
+    title: 'History and stats',
+    caption: 'Your games and puzzle stats',
   },
-  ...sharedChoices('Chess'),
   { screen: 'settings', title: 'Settings', caption: 'Board and pieces' },
 ];
 
@@ -75,10 +75,10 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A game with custom games, matchmaking and history; how to play is its last, quiet row. */
+/** Matchmaking leads as the primary control, custom games is a row; history and how to play wait behind More. */
 export const SharedChoices: Story = {};
 
-/** A game offering puzzles and settings: its puzzle choices first, settings last. */
+/** A game offering puzzles and settings: matchmaking leads, puzzles stay a row, settings wait behind More. */
 export const WithPuzzlesAndSettings: Story = {
   args: {
     title: 'Chess',
@@ -88,7 +88,7 @@ export const WithPuzzlesAndSettings: Story = {
   },
 };
 
-/** A bigger game finds players rather than one opponent. */
+/** A bigger game finds players rather than one opponent; with no quiet choice but how to play, More holds just that. */
 export const ManyPlayers: Story = {
   args: {
     title: 'Hearts',
@@ -96,20 +96,20 @@ export const ManyPlayers: Story = {
     subtitle: 'Avoid hearts and the queen of spades',
     choices: [
       {
-        screen: 'custom-game',
-        title: 'Custom games',
-        caption: 'With the people in this space, or bots',
-      },
-      {
         screen: 'multiplayer',
         title: 'Match making',
         caption: 'Meet 3 other Hearts players',
+      },
+      {
+        screen: 'custom-game',
+        title: 'Custom games',
+        caption: 'With the people in this space, or bots',
       },
     ],
   },
 };
 
-/** A puzzle-only game: the puzzle library and a lesson. */
+/** A puzzle-only game: the puzzle library is the primary control, its lesson behind More. */
 export const OwnChoicesOnly: Story = {
   args: {
     title: 'Numberlink',
@@ -126,14 +126,14 @@ export const OwnChoicesOnly: Story = {
   },
 };
 
-/** Long names and captions wrap inside their rows. */
+/** Long names and captions wrap inside the primary control and the rows. */
 export const LongContent: Story = {
   args: {
     title: 'Connect Four: the extended tournament edition',
     choices: [
       {
-        screen: 'custom-game',
-        title: 'Play with friends, family and bots of every level',
+        screen: 'multiplayer',
+        title: 'Find an opponent among friends, family and bots of every level',
         caption:
           'With the people in this space, or bots, then agree the clock and the rules before anyone moves',
       },
@@ -142,7 +142,7 @@ export const LongContent: Story = {
   },
 };
 
-/** Pressing a choice opens the screen it names. */
+/** Pressing the primary control opens the screen it names. */
 export const OpenChoice: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
@@ -151,7 +151,20 @@ export const OpenChoice: Story = {
   },
 };
 
-/** How to play is a row like any other: it opens the place behind the menu. */
+/** More starts closed; opening it shows the quiet choices and keeps the primary control in place. */
+export const OpenMore: Story = {
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    const more = await canvas.findByTestId('game-choices-more');
+    await expect(more).toHaveAttribute('aria-expanded', 'false');
+    await userEvent.click(more);
+    await expect(more).toHaveAttribute('aria-expanded', 'true');
+    await userEvent.click(await canvas.findByTestId('game-choice-history'));
+    await expect(args.onChoose).toHaveBeenCalledWith('history');
+  },
+};
+
+/** More opens in place; its how to play row opens the place behind the menu. */
 export const OpenHowToPlay: Story = {
   parameters: { test: { restoreMocks: false } },
   render: (args, context) => {
@@ -169,6 +182,7 @@ export const OpenHowToPlay: Story = {
   },
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
+    await userEvent.click(await canvas.findByTestId('game-choices-more'));
     await userEvent.click(await canvas.findByTestId('game-choice-how-to-play'));
     await expect(args.onOpen).toHaveBeenCalledWith({ screen: 'how-to-play' });
     await expect(await canvas.findByTestId('practice-prompt')).toBeVisible();

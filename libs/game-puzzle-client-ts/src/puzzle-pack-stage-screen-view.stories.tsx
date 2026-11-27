@@ -126,6 +126,29 @@ export const PackInProgress: Story = { args: { pack: PACK } };
 /** The same pack puzzle solved: its way on is the filled command. */
 export const PackCompleted: Story = { args: { pack: PACK, complete: true } };
 
+/**
+ * A pack puzzle with the game's figures: its place in the pack on the header,
+ * the figures in one line right above the board.
+ */
+export const PackWithFigures: Story = {
+  args: {
+    pack: { title: 'Dock', position: 4, total: 12 },
+    figures: [
+      { key: 'moves', label: 'Moves', value: '12' },
+      { key: 'pushes', label: 'Pushes', value: '3' },
+    ],
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByTestId('puzzle-attempt-position')
+    ).toHaveTextContent('4 of 12');
+    await expect(
+      await canvas.findByTestId('puzzle-attempt-status-figures')
+    ).toHaveTextContent('Moves 12 · Pushes 3');
+  },
+};
+
 /** The one control onward opens where the attempt stands. */
 export const OpenProgress: Story = {
   play: async ({ args, canvasElement }) => {
