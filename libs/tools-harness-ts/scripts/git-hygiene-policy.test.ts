@@ -11,6 +11,9 @@ const merged: HygieneBranch = {
   worktree: null,
   remoteSha: null,
   mergeIncluded: true,
+  integrated: false,
+  archived: false,
+  idle: true,
   pulls: [
     {
       state: 'MERGED',
@@ -34,6 +37,33 @@ test('active worktrees, divergent remotes and missing PR evidence retain the bra
   ).not.toBeNull();
   expect(retentionReason({ ...merged, pulls: [] })).not.toBeNull();
   expect(retentionReason({ ...merged, name: 'main' })).not.toBeNull();
+});
+
+test('a head already on main or an idle archived head is deleted without pull metadata', () => {
+  expect(retentionReason({ ...merged, pulls: [], integrated: true })).toBeNull();
+  expect(
+    retentionReason({ ...merged, pulls: [], archived: true, idle: true })
+  ).toBeNull();
+  expect(
+    retentionReason({ ...merged, pulls: [], archived: true, idle: false })
+  ).not.toBeNull();
+});
+
+test('archive is kept and a closed PR keeps work main does not contain', () => {
+  expect(retentionReason({ ...merged, name: 'archive' })).not.toBeNull();
+  expect(
+    retentionReason({
+      ...merged,
+      pulls: [
+        {
+          state: 'CLOSED',
+          headRefOid: 'head',
+          baseRefName: 'main',
+          mergeCommit: null,
+        },
+      ],
+    })
+  ).not.toBeNull();
 });
 
 test('an open or closed unmerged PR prevents cleanup even with an older merged PR', () => {
