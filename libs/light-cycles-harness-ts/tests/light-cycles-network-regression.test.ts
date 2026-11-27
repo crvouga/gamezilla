@@ -1,6 +1,7 @@
-import { test } from 'bun:test';
+import { expect, test } from 'bun:test';
 import {
   lightCyclesRecording,
+  observeLightCyclesRecording,
   verifyLightCyclesRecording,
 } from './light-cycles-network-checks';
 
@@ -65,4 +66,35 @@ test('the scenario that found it: three riders away across a stalled authority a
       { action: 'advanceArena', args: [452] },
     ])
   );
+});
+
+test('the five devices converge when the win arrives during reconnection', async () => {
+  // regression: light-cycles-completed-arena-reported-stale
+  // Fast-check seed 714418046, case 159, after shrinking.
+  const { outcome } = await observeLightCyclesRecording(
+    lightCyclesRecording(1, [
+      { action: 'advanceArena', args: [3518] },
+      { action: 'dropConnection', args: ['bob'] },
+      { action: 'dropConnection', args: ['alice'] },
+      { action: 'dropConnection', args: ['carol'] },
+      { action: 'advanceArena', args: [3708] },
+      { action: 'restoreConnection', args: ['erin'] },
+      { action: 'advanceArena', args: [2991] },
+      { action: 'impairLink', args: ['alice', 0, 0] },
+      { action: 'forgeCommand', args: ['spectator'] },
+      { action: 'holdSnapshots', args: ['alice', 300] },
+      { action: 'advanceArena', args: [3595] },
+      { action: 'restoreConnection', args: ['alice'] },
+      { action: 'forgeCommand', args: ['spectator'] },
+      { action: 'dropConnection', args: ['alice'] },
+      { action: 'advanceArena', args: [2322] },
+      { action: 'forgeCommand', args: ['spectator'] },
+    ])
+  );
+  expect(outcome).toMatchObject({
+    tick: 522,
+    result: 'blue wins by target score',
+    scores: [0, 0, 0, 3],
+    convergence: [],
+  });
 });

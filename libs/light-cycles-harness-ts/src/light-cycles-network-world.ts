@@ -1,4 +1,8 @@
-import { simulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-fixture';
+import {
+  simulationRoomFixture,
+  simulationRoomGame,
+  simulationRoomResult,
+} from '@libs/game-session-harness-ts/simulation-room-fixture';
 import { connectSimulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-presentation';
 import {
   type SimulationSnapshotPayload,
@@ -44,7 +48,7 @@ export type LightCyclesView = {
 export type LightCyclesPeer = {
   readonly id: LightCyclesPeerId;
   readonly seat: LightCyclesSeat | null;
-  readonly connection: ReturnType<typeof connectSimulationRoomFixture>;
+  connection: ReturnType<typeof connectSimulationRoomFixture> | null;
   /** The newest snapshot this device's replica accepted. */
   processed: SimulationSnapshotPayload | null;
   view: LightCyclesView | null;
@@ -156,7 +160,7 @@ export async function addLightCyclesPeer(
   const peer: LightCyclesPeer = {
     id,
     seat: seatOf(id),
-    connection: null as never,
+    connection: null,
     processed: null,
     view: null,
     presented: [],
@@ -165,18 +169,35 @@ export async function addLightCyclesPeer(
   session.onDispose(
     room.subscribeSignal((message) => observeProcessed(world, peer, message))
   );
-  (peer as { connection: LightCyclesPeer['connection'] }).connection =
-    connectSimulationRoomFixture(lightCyclesQuadShared, {
+  // The screen owns a live presentation only while the room's game is active.
+  const present = () => {
+    const snapshot = room.getSnapshot();
+    if (simulationRoomGame(snapshot)?.status !== 'active') {
+      peer.connection?.dispose();
+      peer.connection = null;
+      const result = simulationRoomResult(snapshot);
+      if (result === null) peer.view = null;
+      else
+        observeView(world, peer, {
+          position: result.position,
+          paused: false,
+          stale: false,
+        });
+      return;
+    }
+    peer.connection ??= connectSimulationRoomFixture(lightCyclesQuadShared, {
       owner: id,
       room,
       clock: session.ports.clock,
-      // Presentation frames run on the device, never on the stalled authority host.
       timers: session.ports.timers,
       createId: session.ports.createId,
       changed: (view) => observeView(world, peer, view),
       failed: (error) => world.errors.push(`${id} failed: ${String(error)}`),
     });
-  session.onDispose(peer.connection.dispose);
+  };
+  present();
+  session.onDispose(room.subscribe(present));
+  session.onDispose(() => peer.connection?.dispose());
   world.peers.set(id, peer);
   return peer;
 }

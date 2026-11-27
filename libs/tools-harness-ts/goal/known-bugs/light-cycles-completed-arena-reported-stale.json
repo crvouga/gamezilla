@@ -1,0 +1,4 @@
+{
+  "summary": "Nightly 45925645728, fast-check seed 714418046, case 159: the Quad reached its target score at tick 522 as three riders reconnected. Every device received the committed win, but the network fixture left live presentations mounted and reported all five stale after the final live frame at tick 521.",
+  "regressionTest": "libs/light-cycles-harness-ts/tests/light-cycles-network-regression.test.ts"
+}
