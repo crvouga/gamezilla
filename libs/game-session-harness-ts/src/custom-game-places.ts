@@ -38,7 +38,9 @@ export async function showCustomGameHome(
   for (let step = 0; step < DEEPEST_PLACE; step += 1) {
     const place = await customGamePlace(s, actor);
     if (place === null || HOME_PLACES.has(place)) return;
-    await ui.get(Handles.navBack).tap();
+    // The commands sheet covers the shell's Back button.
+    const back = place === 'commands' ? 'custom-game-resume' : Handles.navBack;
+    await ui.get(back).tap();
     await s.session.waitForIdle();
   }
 }

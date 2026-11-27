@@ -226,7 +226,12 @@ export async function operateCustomGameControls(
   await ui.get(target).tap();
   if (input.operation === 'cancel' || input.operation === 'resign')
     await ui.get(`${target}-confirm`).tap();
-  await waitCustomGameSettled(s, actor, probe.settled);
+  const refusal = await waitCustomGameSettled(s, actor, probe.settled);
+  if (input.operation === 'offer' && refusal === '') {
+    // The room can acknowledge the offer before the sheet finishes closing.
+    await ui.get('custom-game-resume').expect.hidden();
+    return;
+  }
   if (
     (input.operation === 'cancel' || input.operation === 'resign') &&
     (await ui.get(`${target}-done`).isVisible())
