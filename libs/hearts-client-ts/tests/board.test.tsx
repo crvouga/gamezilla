@@ -16,7 +16,7 @@ import {
   type SolidDomDriver,
 } from '@pkgs/ui-testing-solid-dom-client-ts/solid-dom-driver';
 import { fireEvent } from '@solidjs/testing-library';
-import { flush } from 'solid-js';
+import { createSignal, flush } from 'solid-js';
 import { byTestId, renderBoard } from './render';
 
 const CLUBS = '2C3C4C5C6C7C8C9CTCJCQCKCAC';
@@ -124,22 +124,18 @@ afterEach(async () => {
   driver = undefined;
 });
 
-test('the game automation passes and plays through the board as a person does', async () => {
+test('the game automation passes three dealt cards once the hand becomes interactive', async () => {
   const played: string[] = [];
   const time = createHarnessClock();
   const Board = heartsGameClient.presentation.Board;
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
-  const [position, setPosition] = [
-    { value: heartsRules.initial() },
-    (p: string) => {
-      position.value = p;
-    },
-  ];
+  const [interactive, setInteractive] = createSignal(false);
   driver = createSolidDomDriver({
     clock: time.clock,
     pump: async () => {
       time.clock.advance(1);
-      await Promise.resolve();
+      setInteractive(true);
+      flush();
     },
     harness: {
       createRoot: () => () => (
@@ -147,12 +143,12 @@ test('the game automation passes and plays through the board as a person does', 
           <ClockProvider clock={time.clock} timers={time.timers}>
             <ThemeProvider colorScheme="light">
               <Board
-                position={position.value}
+                position={heartsRules.initial()}
                 orientation="white"
-                interactive
+                interactive={interactive()}
                 sound={false}
                 syncKey={0}
-                hand={CLUBS}
+                hand="4CJCAC2D6DTDQD6SJSQS6H9HAH"
                 committed={[]}
                 commitment={null}
                 setup={null}
@@ -165,11 +161,12 @@ test('the game automation passes and plays through the board as a person does', 
       ),
     },
   });
-  setPosition(heartsRules.initial());
-  flush();
   await driver.launch();
-  await heartsGameShared.automation.turns.perform(driver, 'board', '2C3C4C');
-  expect(played).toEqual(['2C3C4C']);
+  expect(await driver.get('board-card-4C').attribute('aria-disabled')).toBe(
+    'true'
+  );
+  await heartsGameShared.automation.turns.perform(driver, 'board', '4CJCAC');
+  expect(played).toEqual(['4CJCAC']);
 });
 
 test('the presentation names the game, its seats and its ending', () => {

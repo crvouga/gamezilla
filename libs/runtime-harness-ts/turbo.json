@@ -76,6 +76,7 @@
         "@libs/game-session-harness-ts#src",
         "@libs/games-shared-ts#src",
         "@libs/harness-ts#src",
+        "@libs/hearts-shared-ts#src",
         "@libs/numberlink-harness-ts#src",
         "@libs/pong-harness-ts#src",
         "@libs/profile-harness-ts#src",
