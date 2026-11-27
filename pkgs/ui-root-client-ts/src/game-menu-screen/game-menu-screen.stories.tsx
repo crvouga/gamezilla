@@ -44,7 +44,7 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** The hero block, then each way into the game as a large tile; the main way in leads. */
+/** The hero block, then each way into the game as a large tile; none leads. */
 export const Default: Story = {};
 
 /** Choosing a tile opens what it names. */

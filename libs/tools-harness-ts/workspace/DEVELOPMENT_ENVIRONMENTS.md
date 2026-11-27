@@ -127,13 +127,15 @@ Sources: [hooks](https://www.onorca.dev/docs/agents/hooks-memory),
 
 ### T3 Code
 
-The Actions menu contains three scripts.
-
-| Action | Purpose |
-| --- | --- |
-| Bootstrap | Interactive one-time setup: tools, dependencies, git defaults, GitHub, Infisical (secrets cache) and the Turborepo remote cache. Rerun safely; finished steps are skipped. |
-| Localhost | Repairs missing or stale dependencies, stops any stack this checkout already runs, then runs the product and Storybook on localhost and prints their URLs. Stop the action to stop the stack. |
-| Storybook | Repairs missing or stale dependencies, then runs Storybook alone on this checkout's port and prints its URL. Use it for UI work that needs no product stack; Localhost already includes Storybook. |
+The Actions menu contains one script, Localhost. It repairs missing or stale
+dependencies, runs the bootstrap sign-ins this checkout still lacks (GitHub,
+Infisical secrets cache, Turborepo remote cache) without prompting, stops any
+stack this checkout already runs, then runs the product and Storybook on
+localhost and prints their URLs. A sign-in that needs a person is reported in
+the launch log and never stops the stack; run
+`./libs/tools-harness-ts/workspace/bootstrap.sh` in a terminal to complete it.
+A complete bootstrap is stamped in `.cache/workspace-bootstrap`, so later
+launches skip it. Stop the action to stop the stack.
 
 Nothing runs on worktree creation or settle. Localhost runs in the active
 worktree, otherwise the project root, and preserves local state across restarts.
@@ -142,7 +144,7 @@ To stop a running stack from elsewhere, `bun run kill` in that checkout.
 Everything binds to loopback. To view the app or Storybook from another computer,
 open the printed localhost URL through T3 Code, which reaches the execution host's
 localhost for you; the repository runs no tunnel or remote-origin layer. Every
-login Bootstrap performs works without a browser on the execution host (GitHub's
+login `bootstrap.sh` performs works without a browser on the execution host (GitHub's
 device code, Infisical's printed link, and the Turborepo token copied from
 Infisical).
 

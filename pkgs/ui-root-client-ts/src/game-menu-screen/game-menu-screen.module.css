@@ -46,7 +46,7 @@
   outline: 2px solid var(--ui-color-focus-ring);
   outline-offset: 2px;
 }
-/* The name, and the main way in's tag right beside it. */
+/* The name, and anything placed right beside it. */
 .titleRow {
   display: flex;
   flex-wrap: wrap;
@@ -139,13 +139,4 @@
   display: flex;
   flex-shrink: 0;
   --ui-on-icon: var(--ui-color-text-secondary);
-}
-
-.grid > :first-child .tile:not([data-emphasis="quiet"]) {
-  background: var(--ui-color-primary-strong);
-  color: var(--ui-color-on-primary);
-  --ui-on-icon: var(--ui-color-on-primary);
-}
-.grid > :first-child .tile:not([data-emphasis="quiet"]) .chevron {
-  --ui-on-icon: var(--ui-color-on-primary);
 }

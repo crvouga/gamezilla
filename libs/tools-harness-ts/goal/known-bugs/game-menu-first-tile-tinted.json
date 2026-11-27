@@ -1,0 +1,4 @@
+{
+  "summary": "A game's menu painted its first tile with the accent while the other tiles stayed on the card surface, and the tile's caption was unreadable on it. Every tile now has the same surface, text and picture colors.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/game-menu-screen.test.tsx"
+}

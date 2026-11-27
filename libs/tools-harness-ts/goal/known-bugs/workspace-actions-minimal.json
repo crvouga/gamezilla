@@ -1,4 +1,4 @@
 {
-  "summary": "T3 exposed many setup, diagnostics and optional preview actions. The menu exposes Preview, Localhost and Bootstrap in order.",
+  "summary": "T3 exposed many setup, diagnostics and optional preview actions. The menu exposes only Localhost, which runs the bootstrap sign-ins (never prompting) and the Storybook that ships with the stack.",
   "regressionTest": "libs/tools-harness-ts/scripts/sync-workspace-lifecycle.test.ts"
 }

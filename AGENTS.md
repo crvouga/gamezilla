@@ -338,9 +338,9 @@ Setup and server startup are separate stages. Never copy credentials from anothe
 
 - **Ports and previews.** Use the printed stack URLs and checkout-local manifest;
   see [workspace isolation](libs/tools-harness-ts/workspace/DEVELOPMENT_ENVIRONMENTS.md#isolation-data-and-credentials).
-- **Looking at a change.** Run it locally with the workspace's project
-  scripts (Localhost for the product and Storybook, Storybook alone for UI
-  work). No pull request is deployed anywhere.
+- **Looking at a change.** Run it locally with the workspace's one
+  project script, Localhost (the product and Storybook). No pull request is
+  deployed anywhere.
 - **Iterating.** `bun fmt`, `bunx turbo run tc test --filter=<pkg>` (cached),
   then push. Use the [CI stage policy](docs/CI_STAGE_POLICY.md) for hosted evidence.
   `bun run git-sync` (`/git-sync`) is the one commit/push/trunk-sync step.

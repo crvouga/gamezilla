@@ -1,12 +1,10 @@
 import { describe, expect, test } from 'bun:test';
 
 import {
-  BOOTSTRAP_COMMAND,
   HOOKS,
   hookCommand,
   ORCHESTRATORS,
   renderConfigs,
-  STORYBOOK_COMMAND,
 } from './sync-workspace-lifecycle';
 
 describe('renderConfigs', () => {
@@ -19,7 +17,7 @@ describe('renderConfigs', () => {
   });
 
   // regression: workspace-actions-minimal
-  test('T3 exposes only the three requested manual actions in menu order', () => {
+  test('T3 exposes only the Localhost action', () => {
     const file = files.find((entry) => entry.path === 't3.json');
     expect(file).toBeDefined();
     const config = JSON.parse(file!.content) as {
@@ -36,9 +34,7 @@ describe('renderConfigs', () => {
     expect(
       config.scripts.map((script) => [script.name, script.command])
     ).toEqual([
-      ['Bootstrap', BOOTSTRAP_COMMAND],
       ['Localhost', hookCommand('run')],
-      ['Storybook', STORYBOOK_COMMAND],
     ]);
     expect(
       config.scripts.some(

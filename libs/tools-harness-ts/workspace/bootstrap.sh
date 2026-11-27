@@ -1,13 +1,25 @@
 #!/usr/bin/env bash
 # One-time machine and checkout bootstrap: tools, dependencies and every login
 # development needs. Safe to rerun; each step skips what is already done.
-# Interactive: run it in a terminal (the T3 "Bootstrap" action), never a hook.
+# Run it in a terminal to sign in; Localhost runs it with `--launch`, which
+# never prompts: a sign-in that needs a person is reported in the launch log
+# and the stack starts without it. A complete bootstrap is stamped, so later
+# launches skip it.
 set -euo pipefail
 . "$(dirname "${BASH_SOURCE[0]}")/lib.sh"
 . "$(dirname "${BASH_SOURCE[0]}")/install.sh"
 
-# Tools (mise), dependencies (bun install) and repository git defaults.
-"$WORKSPACE_PATH/libs/tools-harness-ts/workspace/setup.sh"
+launch=0
+[ "${1:-}" = "--launch" ] && launch=1
+stamp="$WORKSPACE_PATH/.cache/workspace-bootstrap"
+if [ "$launch" = 1 ] && [ -f "$stamp" ]; then
+  exit 0
+fi
+
+if [ "$launch" = 0 ]; then
+  # Tools (mise), dependencies (bun install) and repository git defaults.
+  "$WORKSPACE_PATH/libs/tools-harness-ts/workspace/setup.sh"
+fi
 workspace_activate_tools
 
 failed=()
@@ -18,14 +30,18 @@ if gh auth status >/dev/null 2>&1; then
   echo "==> GitHub: signed in"
 else
   echo "==> GitHub: signing in"
-  gh auth login --hostname github.com --git-protocol https --web || failed+=(GitHub)
+  if [ "$launch" = 1 ]; then
+    failed+=("GitHub (run ./libs/tools-harness-ts/workspace/bootstrap.sh to sign in)")
+  else
+    gh auth login --hostname github.com --git-protocol https --web || failed+=(GitHub)
+  fi
 fi
 
 # Infisical: development and verification credentials, cached in .cache/secrets.
 echo "==> Infisical: pulling secrets"
 if ! bun run secrets:pull </dev/null; then
   echo "==> Infisical: signing in"
-  if bun run secrets:login && bun run secrets:pull </dev/null; then
+  if [ "$launch" = 0 ] && bun run secrets:login && bun run secrets:pull </dev/null; then
     :
   else
     failed+=(Infisical)
@@ -56,7 +72,9 @@ fi
 
 if [ "${#failed[@]}" -gt 0 ]; then
   printf '!!! bootstrap incomplete; failed step: %s\n' "${failed[*]}" >&2
-  echo '!!! resolve the error above and run Bootstrap again' >&2
+  echo '!!! resolve the error above and run ./libs/tools-harness-ts/workspace/bootstrap.sh in a terminal' >&2
   exit 1
 fi
+mkdir -p "$(dirname "$stamp")"
+: >"$stamp"
 echo "==> bootstrap complete; use Localhost to run the app and Storybook"
