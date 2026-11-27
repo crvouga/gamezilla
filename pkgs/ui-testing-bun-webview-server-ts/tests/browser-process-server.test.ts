@@ -44,6 +44,35 @@ const evaluate = (id: number) => ({
   call: { target: 'view' as const, path: [], method: 'evaluate', args: ['1'] },
 });
 
+// regression: quoridor-space-link-opening
+test('Bob starts the invitation document in the foreground after using another tab', async () => {
+  const url =
+    'http://127.0.0.1:38451/space/7a1831a1-2fe8-409c-993a-5344130fba5c';
+  let foreground = false;
+  const documents: { url: string; foreground: boolean }[] = [];
+  const browser = {
+    ...device().value,
+    activateBeforeNavigate: async () => {
+      foreground = true;
+    },
+    view: {
+      navigate: async (url: string) => {
+        documents.push({ url, foreground });
+      },
+    },
+  };
+  const handler = createBrowserRequestHandler(
+    async () => browser,
+    () => {}
+  );
+  await handler.handle({ id: 1, open: {} });
+  await handler.handle({
+    id: 2,
+    call: { target: 'view', method: 'navigate', path: [], args: [url] },
+  });
+  expect(documents).toEqual([{ url, foreground: true }]);
+});
+
 async function flush(): Promise<void> {
   for (let i = 0; i < 10; i += 1) await Promise.resolve();
 }

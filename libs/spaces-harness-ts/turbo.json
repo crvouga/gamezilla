@@ -18,7 +18,8 @@
         "@pkgs/room-adapter-memory-shared-ts#src",
         "@pkgs/room-root-server-ts#src",
         "@pkgs/room-root-shared-ts#src",
-        "@pkgs/sql-root-shared-ts#src"
+        "@pkgs/sql-root-shared-ts#src",
+        "@pkgs/sync-engine-shared-ts#src"
       ]
     }
   }

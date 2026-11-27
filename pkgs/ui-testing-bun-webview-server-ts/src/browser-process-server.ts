@@ -12,25 +12,31 @@ export type BrowserDevice = {
   readonly console?: readonly string[];
   readonly network?: readonly string[];
   readonly traceCall?: TraceBrowserCall;
+  readonly activateBeforeNavigate?: () => Promise<void>;
   close(): Promise<void>;
 };
+
+function readyDocument(view: object) {
+  if (Reflect.get(view, 'loading')) return null;
+  const url = URL.parse(Reflect.get(view, 'url'));
+  const title: unknown = Reflect.get(view, 'title');
+  return url && typeof title === 'string'
+    ? { origin: url.origin, title }
+    : null;
+}
 
 async function invoke(
   device: BrowserDevice,
   call: BrowserCall
 ): Promise<unknown> {
+  if (call.target === 'view' && call.method === 'navigate')
+    await device.activateBeforeNavigate?.();
   // Bun updates the native URL when navigation completes. Reading it does
   // not execute JavaScript in the document the browser is tearing down.
   if (call.target === 'view' && call.method === 'loadedUrl')
     return Reflect.get(device.view, 'url');
-  if (call.target === 'view' && call.method === 'readyDocument') {
-    if (Reflect.get(device.view, 'loading')) return null;
-    const url = URL.parse(Reflect.get(device.view, 'url'));
-    const title: unknown = Reflect.get(device.view, 'title');
-    return url && typeof title === 'string'
-      ? { origin: url.origin, title }
-      : null;
-  }
+  if (call.target === 'view' && call.method === 'readyDocument')
+    return readyDocument(device.view);
   if (call.target === 'driver' && call.method === 'close')
     return device.close();
   let target: unknown =

@@ -34,6 +34,12 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
   return {
     view,
     driver,
+    ...(backend !== 'webkit' && {
+      // The new document seeds sync from its initial visibility.
+      activateBeforeNavigate: async () => {
+        await view.cdp('Page.bringToFront', {});
+      },
+    }),
     traceCall: diagnostics.traceCall,
     close: () => driver.close(),
   };
