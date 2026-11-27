@@ -6,12 +6,17 @@
  */
 
 import { expect } from 'bun:test';
+import { isDeepStrictEqual } from 'node:util';
 import { MultiplayerGameRepository } from '@libs/game-matchmaking-shared-ts/game-repository';
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { playerIdOf } from '@libs/harness-ts/identity';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { readCurrent } from '@pkgs/matchmaking-sql-shared-ts/search-read';
+import {
+  type BoardPair,
+  describeBoardAgreement,
+} from './multiplayer-board-agreement';
 import {
   multiplayerCommandReply,
   sendMultiplayerCommand,
@@ -197,19 +202,37 @@ export async function sameBoards(
 ) {
   const first = viewerOf(w, person);
   const second = viewerOf(w, otherPerson);
-  await w.s.until(async (s) => {
-    const a = (await multiplayerView(s, first)).game;
-    const b = (await multiplayerView(s, second)).game;
-    return (
-      a !== null &&
-      b !== null &&
-      JSON.stringify(a) === JSON.stringify(b) &&
-      predicate(a)
-    );
-  });
-  const a = await matchedGameOf(w, first);
-  expect((await w.s.read(multiplayerView, second)).game).toEqual(a);
-  return a;
+  let last: BoardPair | undefined;
+  const boards = await w.s
+    .until(
+      async (s): Promise<BoardPair> => [
+        (await multiplayerView(s, first)).game,
+        (await multiplayerView(s, second)).game,
+      ],
+      {
+        pred: (pair) => {
+          last = pair;
+          const [a, b] = pair;
+          return (
+            a !== null && b !== null && isDeepStrictEqual(a, b) && predicate(a)
+          );
+        },
+      }
+    )
+    .catch(async (cause: unknown) => {
+      if (last === undefined || !(cause instanceof Error)) throw cause;
+      const original = w.memo.get('multiplayer:game') as
+        | MultiplayerGame
+        | undefined;
+      const id = original?.id ?? last[0]?.id ?? last[1]?.id;
+      const pair = last;
+      const details = await w.s.read((s) =>
+        describeBoardAgreement(s, [first, second], pair, id)
+      );
+      throw new Error(`${cause.message}\n${details}`, { cause });
+    });
+  expect(boards[1]).toEqual(boards[0]);
+  return boards[0]!;
 }
 
 /** Both people's boards for the scenario's matched game, once they agree. */

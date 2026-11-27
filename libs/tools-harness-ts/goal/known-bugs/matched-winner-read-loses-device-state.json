@@ -1,0 +1,4 @@
+{
+  "summary": "A failed winner check after Alice resigned in a running Pong or Light Cycles game discarded both device observations and reported only false.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/multiplayer-board-agreement.test.ts"
+}
