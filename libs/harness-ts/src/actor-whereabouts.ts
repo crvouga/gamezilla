@@ -1,4 +1,5 @@
 import type { BrowserNavigation } from './browser-navigation';
+import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 const SCREEN_MARKER = /data-screen="([^"]+)"/g;
 
@@ -9,6 +10,16 @@ export function innermostScreen(html: string | null): string | null {
     screen = match[1] ?? screen;
   }
   return screen;
+}
+
+function pageState(html: string | null): string {
+  const screen = innermostScreen(html);
+  const startup = html?.match(/<div\b[^>]*\sdata-startup-shell\b[^>]*>/i)?.[0];
+  if (startup) return startup.includes('startup-shell-failed') ? 'startup shell failed' : 'startup shell loading';
+  if (html?.includes('data-component="LocalDatabaseBootErrorScreen"')) return 'local database boot error';
+  if (html?.includes(`data-testid="${Handles.bootLoading}"`)) return 'app boot loading';
+  if (screen === null && html?.includes('data-component="ErrorState"')) return 'error screen';
+  return `screen: ${screen ?? 'none'}`;
 }
 
 /**
@@ -33,11 +44,11 @@ export async function describeWhereabouts(args: {
       // A document being replaced has no readable location for a moment.
     }
   }
-  let screen: string | null = null;
+  let state = 'screen: none';
   try {
-    screen = innermostScreen(await args.html());
+    state = pageState(await args.html());
   } catch {
     // A page that cannot be snapshotted still reports its location.
   }
-  return `${place} (screen: ${screen ?? 'none'})`;
+  return `${place} (${state})`;
 }

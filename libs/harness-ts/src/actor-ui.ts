@@ -8,10 +8,11 @@ import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import type { Action, ActionDef } from '@pkgs/harness-root-shared-ts/effect';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { TimeoutError } from '@pkgs/ui-testing-root-shared-ts/timeout-error';
 
 import { describeWhereabouts } from './actor-whereabouts';
 import { expectShellShown, shellShown } from './driver-gestures';
-import type { ProductHarness } from './harness';
+import type { HarnessActor, ProductHarness } from './harness';
 import { productExtra } from './harness';
 
 const DEFAULT_STEP_MS = 100;
@@ -56,6 +57,33 @@ async function waitForWallChromeSettled(
   );
 }
 
+async function waitForFirstShell(s: ProductHarness, handle: HarnessActor) {
+  try {
+    await expectShellShown(handle.ui, ACTOR_READY_MAX_MS);
+  } catch (cause) {
+    if (!(cause instanceof TimeoutError) || !handle.browser) throw cause;
+    // This actor has not joined s.actors. Read its launched tab directly,
+    // with a short diagnostic deadline in case the document stops answering.
+    const timers = s.session.ports.timers;
+    let timer: unknown;
+    try {
+      const place = await Promise.race([
+        describeWhereabouts({
+          browser: handle.browser,
+          appOrigin: null,
+          html: () => handle.ui.snapshotHtml(),
+        }),
+        new Promise<string>((resolve) => {
+          timer = timers.setTimeout(() => resolve('an unreadable page (diagnosis timed out)'), 1000);
+        }),
+      ]);
+      throw new TimeoutError(`${cause.message}; ${handle.id} at ${place}`, ACTOR_READY_MAX_MS, { cause });
+    } finally {
+      timers.clearTimeout(timer);
+    }
+  }
+}
+
 export async function ensureActor(
   s: ProductHarness,
   actorId: string,
@@ -68,7 +96,7 @@ export async function ensureActor(
   // Spawn is not complete until chrome is addressable for properties +
   // scenarios, so the actor joins `s.actors` (what properties probe) only
   // after that.
-  await expectShellShown(handle.ui, ACTOR_READY_MAX_MS);
+  await waitForFirstShell(s, handle);
   if (productExtra(s).ui.kind === 'bun-webview') {
     // Chrome paints before the initial identity reconciliation. On the
     // landing screen, wait for its ordinary server-backed ready state;
