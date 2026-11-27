@@ -142,9 +142,10 @@ async function pollTimeout(
   return new Error(`${prefix} at ${place}`);
 }
 
+/** A browser probe can pass its remaining budget to each transport request. */
 export async function pollUntil<T>(
   s: ProductHarness,
-  probe: () => Promise<T | null>,
+  probe: (remainingMs: () => number) => Promise<T | null>,
   opts: PollUntilOptions
 ): Promise<T> {
   const stepMs = opts.stepMs ?? DEFAULT_STEP_MS;
@@ -152,14 +153,18 @@ export async function pollUntil<T>(
   const wallStart = scheduler.virtual ? null : scheduler.clock.now();
   let waited = 0;
   let granted = 0;
+  const remainingMs = () =>
+    Math.max(
+      0,
+      opts.maxMs -
+        (wallStart === null ? waited : scheduler.clock.now() - wallStart)
+    );
   for (;;) {
-    const found = await probe();
+    const found = await probe(remainingMs);
     if (found !== null) return found;
     // A browser probe can spend most of its time driving and reading the
     // page. Count that time against its real deadline as well as the sleeps.
-    const elapsed =
-      wallStart === null ? waited : scheduler.clock.now() - wallStart;
-    if (elapsed >= opts.maxMs) {
+    if (remainingMs() === 0) {
       throw await pollTimeout(s, opts);
     }
     // A poll the scheduler spent running ahead of unfinished wall work moved

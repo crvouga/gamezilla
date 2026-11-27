@@ -39,6 +39,7 @@ test('Google sign-in reads Done on the returned app document after consent', asy
         'alice',
         {
           browser: {
+            documentControls: () => ui,
             readyDocument: async () =>
               origin
                 ? { origin, title: 'Review access · OAuth Emulator' }
@@ -87,6 +88,7 @@ test('the app can report a sign-in failure before it leaves for Google', async (
         'alice',
         {
           browser: {
+            documentControls: () => ui,
             readyDocument: async () => ({ origin: app, title: 'Account' }),
           },
         },

@@ -1,10 +1,13 @@
 // @io-wall-ok — owned browser child transport; private IPC only.
-import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import type {
+  Driver,
+  DriverNode,
+} from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { TraceBrowserCall } from './browser-call-diagnostics';
 import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 
 export type BrowserDevice = {
-  readonly driver: Driver;
+  readonly driver: Driver & { get(id: string, scope?: 'document'): DriverNode };
   readonly view: object;
   readonly console?: readonly string[];
   readonly network?: readonly string[];
@@ -35,9 +38,13 @@ async function invoke(
       ? device.driver
       : call.target === 'view'
         ? device.view
-        : call.path.reduce(
+        : call.path.reduce<Pick<Driver, 'get'>>(
             (value, id) => value.get(id),
-            device.driver as Pick<Driver, 'get'>
+            call.target === 'document-node'
+              ? {
+                  get: (id: string) => device.driver.get(id, 'document'),
+                }
+              : device.driver
           );
   const parts = call.method.split('.');
   for (const part of parts.slice(0, -1))
@@ -77,7 +84,7 @@ export function createBrowserRequestHandler<Open>(
     if (current === null) throw new Error('Invalid browser request');
     send({ id: request.id, stage: 'executing' });
     const value =
-      call.target === 'node' &&
+      (call.target === 'node' || call.target === 'document-node') &&
       (call.method === 'tap' || call.method === 'isVisible') &&
       current.traceCall
         ? await current.traceCall(

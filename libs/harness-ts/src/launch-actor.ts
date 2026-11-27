@@ -191,6 +191,7 @@ async function launchWebview(
         timers: wallTimers,
       }),
       readyDocument: view.readyDocument,
+      documentControls: view.documentControls,
     },
     checkpoint: webviewCheckpoint(view, openLink),
     executeStatements: webviewSqlStatements(view),

@@ -156,3 +156,33 @@ test('after a call is stuck in the browser, later page calls fail at once naming
   expect(await next).toBe(true);
   await f.channel.close();
 });
+
+// regression: provider-marker-opener-evaluation
+test('a pending chooser probe uses the remaining provider deadline', async () => {
+  const f = fixture();
+  const call = {
+    target: 'document-node',
+    path: ['oauth-mock-chooser'],
+    method: 'isVisible',
+    args: [],
+  } as const;
+  const result = f.channel
+    .request({ call }, 1250)
+    .catch((cause: Error) => cause.message);
+  f.receive({
+    id: 1,
+    stage: 'executing',
+    operation: 'opener.evaluate #1 pending',
+  });
+  f.clock.advance(1249);
+  expect(f.clock.pendingOneShotCount()).toBe(1);
+  f.clock.advance(1);
+  expect(f.clock.pendingOneShotCount()).toBe(0);
+  expect(await result).toContain(
+    '1250ms (stage: executing; opener.evaluate #1 pending)'
+  );
+  await expect(f.channel.request({ call })).rejects.toThrow(
+    'did not answer after 1250ms'
+  );
+  await f.channel.close();
+});

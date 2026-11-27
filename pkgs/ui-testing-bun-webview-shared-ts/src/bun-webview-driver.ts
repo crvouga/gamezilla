@@ -84,8 +84,13 @@ export class BunWebviewDriver implements Driver, BunWebviewHost {
     this.view.close();
   }
 
-  get(testId: string): DriverNode {
-    return new BunWebviewDriverNode(this, [testId]);
+  /** Same-tab navigation already identifies the document containing its controls. */
+  get(testId: string, scope?: 'document'): DriverNode {
+    const host =
+      scope === 'document'
+        ? { timers: this.timers, resolveView: () => Promise.resolve(this.view) }
+        : this;
+    return new BunWebviewDriverNode(host, [testId]);
   }
 
   async key(key: DriverKey): Promise<void> {

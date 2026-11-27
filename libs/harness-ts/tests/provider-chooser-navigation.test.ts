@@ -35,8 +35,19 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
       },
     }),
   } as unknown as Driver;
+  let now = 0;
+  const markerBudgets: number[] = [];
   const browser = {
-    readyDocument: async () => ({ origin: page()[0], title: page()[1] }),
+    documentControls: (remainingMs: () => number) => ({
+      get: (id: string) => {
+        if (id === 'oauth-mock-chooser') markerBudgets.push(remainingMs());
+        return ui.get(id);
+      },
+    }),
+    readyDocument: async () => {
+      now += 420;
+      return { origin: page()[0], title: page()[1] };
+    },
   };
   const s = {
     actors: new Map([['alice', { browser }]]),
@@ -45,7 +56,11 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
         ui: { kind: 'bun-webview', webOrigin: app },
         http: { kind: 'stack', idpOrigins: { google } },
       },
-      scheduler: { virtual: true, starvedAdvances: () => 0 },
+      scheduler: {
+        virtual: false,
+        clock: { now: () => now },
+        starvedAdvances: () => 0,
+      },
       advanceTime: async () => {
         // The provider waits for a person on the chooser and consent form.
         if (index === 1 || index === 3 || index === 4) index += 1;
@@ -55,11 +70,16 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
   } as unknown as ProductHarness;
   await completeProviderSignIn({
     s,
-    ui,
+    ui: {
+      get: () => {
+        throw new Error('provider control resolved through popup discovery');
+      },
+    },
     actorId: 'alice',
     answers: { provider: 'google', email: 'alice@example.com' },
     done: async () => page()[0] === app,
   });
+  expect(markerBudgets).toEqual([14_580]);
   expect(taps).toEqual([
     expect.stringMatching(/^oauth-mock-account-/),
     'oauth-mock-allow',
@@ -68,6 +88,7 @@ async function checkGoogleSignIn(separator: string): Promise<void> {
 }
 
 // regression: provider-chooser-navigation
+// regression: provider-marker-opener-evaluation
 // regression: chrome-provider-title-escape
 test.each(['·', String.raw`\u00b7`])(
   'Google chooser and consent are answered once with native title separator %s',

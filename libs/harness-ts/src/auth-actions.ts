@@ -24,7 +24,7 @@ import { actorUsername } from './run-scope';
 const WAIT_MS = 15_000;
 
 /** The sign-in modal settled: signed in, failed, or asking to link. */
-async function modalSettled(ui: Driver): Promise<boolean> {
+async function modalSettled(ui: Pick<Driver, 'get'>): Promise<boolean> {
   for (const testId of [
     Handles.authSignedInDone,
     Handles.authLinkRequired,
@@ -73,7 +73,7 @@ async function providerSignIn(
     ui,
     actorId,
     answers,
-    done: () => modalSettled(ui),
+    done: modalSettled,
   });
   if (await ui.get(Handles.authSignedInDone).isVisible()) {
     await dismissSignedIn(ui);
@@ -277,7 +277,7 @@ export const confirmAccountLink = scenarioAction({
             ? actorAppleEmail(s, actorId, 'gmail')
             : actorEmail(s, actorId)),
       },
-      done: () => modalSettled(ui),
+      done: modalSettled,
     });
     await dismissSignedIn(ui);
   },
