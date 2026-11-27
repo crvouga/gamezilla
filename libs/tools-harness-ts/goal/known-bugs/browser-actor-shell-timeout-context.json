@@ -1,0 +1,4 @@
+{
+  "summary": "Alice’s browser timed out before the first account menu or space bar in three finding-an-opponent scenarios. The actor was not registered yet, so the report lost the page and startup state.",
+  "regressionTest": "libs/harness-ts/tests/actor-shell-timeout.test.ts"
+}

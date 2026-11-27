@@ -4,6 +4,7 @@ import {
   innermostScreen,
 } from '@libs/harness-ts/actor-whereabouts';
 import type { BrowserNavigation } from '@libs/harness-ts/browser-navigation';
+import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 
 const at = (url: string): BrowserNavigation => ({
   currentUrl: async () => url,
@@ -55,4 +56,42 @@ test('an unreadable page still yields a description', async () => {
       },
     })
   ).toBe('an unreadable page (screen: none)');
+});
+
+test.each([
+  [
+    '<style>.startup-shell-failed {}</style><div data-startup-shell></div>',
+    'startup shell loading',
+  ],
+  ['<section data-testid="boot-loading"></section>', 'app boot loading'],
+  [
+    '<div data-component="LocalDatabaseBootErrorScreen"></div>',
+    'local database boot error',
+  ],
+  ['<div data-component="ErrorState"></div>', 'error screen'],
+])(
+  'boot diagnostics identify only the structural state of %s',
+  async (html, state) => {
+    expect(
+      await describeWhereabouts({
+        browser: at('data:text/html,private-content'),
+        appOrigin: null,
+        html: async () => html,
+      })
+    ).toBe(`data: (${state})`);
+  }
+);
+
+test('a stalled snapshot still reports the location at the diagnostic deadline', async () => {
+  const { clock, timers } = createHarnessClock();
+  const location = describeWhereabouts({
+    browser: at('http://app.test/?code=secret'),
+    appOrigin: null,
+    html: () => new Promise(() => {}),
+    timers,
+  });
+  await Promise.resolve();
+  clock.advance(1000);
+  expect(await location).toBe('http://app.test/ (diagnosis timed out)');
+  expect(clock.pendingOneShotCount()).toBe(0);
 });
