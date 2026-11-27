@@ -1,0 +1,4 @@
+{
+  "summary": "Alice's first Google chooser visibility read in Connect Four waited 14895ms for Bun.WebView.evaluate to return a synchronous boolean. The provider walk timed out before submitting an account.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/provider-document-control.test.ts"
+}

@@ -3,6 +3,7 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
 import { browserCallDiagnostics } from './browser-call-diagnostics';
 import { serveBrowserProcess } from './browser-process-server';
+import { chromeDocumentVisibility } from './chrome-document-visibility';
 import type { BrowserDeviceOptions } from './wall-io';
 
 serveBrowserProcess(async (options: BrowserDeviceOptions) => {
@@ -18,6 +19,9 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
   const diagnostics = browserCallDiagnostics(wallClock, wallTimers);
   const driver = new BunWebviewDriver({
     view: diagnostics.view(view, 'opener'),
+    ...(backend !== 'webkit' && {
+      readDocumentVisibility: chromeDocumentVisibility(view, diagnostics),
+    }),
     baseUrl: options.initialUrl,
     ...(options.actorId === undefined ? {} : { actorId: options.actorId }),
     popupOptions: {

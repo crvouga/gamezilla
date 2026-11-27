@@ -1,6 +1,7 @@
 import type { Clock, Timers } from '@pkgs/clock-shared-ts/types';
 import type { BunWebView } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-host';
 
+type OperationName = string | (() => string);
 type View = BunWebView & Pick<Bun.WebView, 'url' | 'loading'>;
 export type TraceBrowserCall = (
   call: () => Promise<unknown>,
@@ -24,7 +25,7 @@ function driverLocations(stack: Error): string {
 
 /** One device serializes its page calls. */
 export function browserCallDiagnostics(clock: Clock, timers: Timers) {
-  let observe: ((name: string) => (outcome: string) => void) | undefined;
+  let observe: ((name: OperationName) => (outcome: string) => void) | undefined;
 
   const traceCall: TraceBrowserCall = async (call, report) => {
     let count = 0;
@@ -38,7 +39,7 @@ export function browserCallDiagnostics(clock: Clock, timers: Timers) {
       let outcome = 'pending';
       latest = () =>
         report(
-          `${name} #${index} (+${offset}ms) ${outcome}${driverLocations(stack)}`
+          `${typeof name === 'string' ? name : name()} #${index} (+${offset}ms) ${outcome}${driverLocations(stack)}`
         );
       if (slow) latest();
       return (result) => {
@@ -59,7 +60,7 @@ export function browserCallDiagnostics(clock: Clock, timers: Timers) {
     }
   };
 
-  function watch<T>(name: string, call: () => Promise<T>): Promise<T> {
+  function watch<T>(name: OperationName, call: () => Promise<T>): Promise<T> {
     const finish = observe?.(name);
     const answer = call();
     if (finish)
@@ -92,5 +93,5 @@ export function browserCallDiagnostics(clock: Clock, timers: Timers) {
     };
   }
 
-  return { traceCall, view };
+  return { traceCall, view, watch };
 }
