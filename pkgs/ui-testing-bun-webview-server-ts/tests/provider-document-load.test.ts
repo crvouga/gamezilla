@@ -10,13 +10,13 @@ test('Bob reads the provider after its main document is ready despite the earlie
     title: 'Account',
     loading: false,
   });
-  const isDocumentLoading = chromeDocumentLoad(view);
+  const documentLoad = chromeDocumentLoad(view);
   const replies: { value?: unknown }[] = [];
   const handler = createBrowserRequestHandler(
     async () => ({
       view,
       driver: {} as Driver,
-      isDocumentLoading,
+      documentLoad,
       close: async () => {},
     }),
     (reply) => replies.push(reply as { value?: unknown })
@@ -46,8 +46,8 @@ test('Bob reads the provider after its main document is ready despite the earlie
     title: 'Account',
   });
   event('Page.frameStartedLoading', 'child');
-  expect(isDocumentLoading()).toBe(false);
+  expect(documentLoad()).toEqual({ loading: false, navigation: 2 });
   event('Page.frameStartedLoading');
   event('Page.frameStoppedLoading');
-  expect(isDocumentLoading()).toBe(false);
+  expect(documentLoad()).toEqual({ loading: false, navigation: 3 });
 });

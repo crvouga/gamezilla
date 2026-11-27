@@ -2,6 +2,12 @@ import type {
   Driver,
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
+import type { VisibleRegion } from './document-region';
+
+export type DocumentControls = Pick<Driver, 'get'> & {
+  readonly visibleRegion: VisibleRegion;
+};
+
 export type BrowserDocument = {
   readonly origin: string;
   readonly title: string;
@@ -55,8 +61,17 @@ function node(
   };
 }
 /** Controls in the main tab, even when a popup contains the same test id. */
-export function documentControls(rpc: BrowserRpc): Pick<Driver, 'get'> {
-  return { get: (id) => node(rpc, [id], 'document-node') };
+export function documentControls(rpc: BrowserRpc): DocumentControls {
+  return {
+    get: (id) => node(rpc, [id], 'document-node'),
+    visibleRegion: (origin, markers) =>
+      rpc({
+        target: 'view',
+        path: [],
+        method: 'visibleRegion',
+        args: [origin, markers],
+      }),
+  };
 }
 
 /** The same Driver interface, with all browser work remaining in its own process. */

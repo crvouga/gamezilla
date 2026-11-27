@@ -11,7 +11,9 @@ test.each([
   async (title, page) => {
     const google = 'http://google.test';
     const failure =
-      'document-node oauth-mock-chooser isVisible: opener.cdp(Runtime.evaluate) pending';
+      page === 'chooser'
+        ? 'document-node oauth-mock-chooser isVisible: opener.cdp(Runtime.evaluate) pending'
+        : 'view visibleRegion: opener.cdp(Accessibility.getFullAXTree) pending';
     const ui = {
       get: () => ({
         isVisible: async () => {
@@ -20,7 +22,12 @@ test.each([
       }),
     } as unknown as Driver;
     const browser = {
-      documentControls: () => ui,
+      documentControls: () => ({
+        ...ui,
+        visibleRegion: async () => {
+          throw new Error(failure);
+        },
+      }),
       readyDocument: async () => ({ origin: google, title }),
     };
     const s = {
@@ -79,7 +86,7 @@ test('a timed-out sign-in identifies the person, submitted screen and recent nat
     }),
   } as unknown as Driver;
   const browser = {
-    documentControls: () => ui,
+    documentControls: () => ({ ...ui, visibleRegion: async () => null }),
     readyDocument: async () => pages[index],
   };
   const s = {
