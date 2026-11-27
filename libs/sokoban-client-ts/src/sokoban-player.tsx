@@ -23,7 +23,7 @@ import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createUniqueId, Match, Show, Switch } from 'solid-js';
 import { createSokobanSteering } from './create-sokoban-steering';
-import { sokobanPieces, sokobanTiles } from './sokoban-board-view';
+import { createSokobanTiles, sokobanPieces } from './sokoban-board-view';
 import { type SokobanFeedback, SokobanStatus } from './sokoban-feedback';
 import { SokobanPlayBoard } from './sokoban-play-board';
 import { useSokobanWords } from './use-sokoban-words';
@@ -184,7 +184,7 @@ export function SokobanPreview(props: PuzzlePreviewProps): JSX.Element {
             testId="sokoban-preview"
             columns={value().width}
             rows={value().height}
-            tiles={sokobanTiles(value(), pieces(), words)}
+            tiles={createSokobanTiles(value(), words)(pieces())}
             pieces={sokobanPieces(value(), pieces())}
             disabled
           />

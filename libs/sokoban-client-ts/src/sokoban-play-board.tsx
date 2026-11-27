@@ -13,17 +13,16 @@ import {
   TileBoard,
   type TileBoardDirection,
   type TileBoardPiece,
-  type TileBoardTile,
 } from '@pkgs/ui-root-client-ts/tile-board';
 import type { JSX } from '@solidjs/web';
 import { createMemo, createSignal, Show } from 'solid-js';
 import {
   type BoardWindow,
+  cellOf,
+  createSokobanTiles,
   followAxis,
-  keepUnchangedTiles,
-  positionPieces,
+  indexInWindow,
   sokobanPieces,
-  sokobanTiles,
 } from './sokoban-board-view';
 import { useSokobanWords } from './use-sokoban-words';
 
@@ -35,97 +34,78 @@ type Props = {
   readonly onTile: (index: number) => void;
 };
 
-type Frame = {
-  readonly columns: number;
-  readonly rows: number;
-  readonly left: number;
-  readonly top: number;
-};
-
-/** What a close view hides: crates, and goals still waiting for one. */
-function outsideView(
-  board: SokobanBoard,
-  position: SokobanPosition,
-  bounds: Frame
-): { readonly crates: number; readonly goals: number } {
-  const hidden = (x: number, y: number) =>
-    x < bounds.left ||
-    x >= bounds.left + bounds.columns ||
-    y < bounds.top ||
-    y >= bounds.top + bounds.rows;
-  const filled = new Set(
-    position.crates.map((crate) => crate.y * board.width + crate.x)
-  );
-  let goals = 0;
-  board.squares.forEach((square, index) => {
-    const x = index % board.width;
-    const y = Math.floor(index / board.width);
-    if (square === 'goal' && !filled.has(index) && hidden(x, y)) goals += 1;
-  });
-  const crates = position.crates.filter((crate) =>
-    hidden(crate.x, crate.y)
-  ).length;
-  return { crates, goals };
-}
-
 function createView(props: Props, closer: () => boolean) {
   const words = useSokobanWords();
+  const board = createMemo(() => props.board);
   const frame = createMemo<BoardWindow>((previous) => {
-    const columns = closer()
-      ? Math.min(6, props.board.width)
-      : props.board.width;
-    const rows = closer()
-      ? Math.min(6, props.board.height)
-      : props.board.height;
+    const layout = board();
+    const columns = closer() ? Math.min(6, layout.width) : layout.width;
+    const rows = closer() ? Math.min(6, layout.height) : layout.height;
     // A window of a different size (closer turned on or off) starts afresh.
     const same = previous?.columns === columns && previous.rows === rows;
-    return {
+    const left = followAxis(
+      same ? previous.left : undefined,
       columns,
+      layout.width,
+      props.position.worker.x
+    );
+    const top = followAxis(
+      same ? previous.top : undefined,
       rows,
-      left: followAxis(
-        same ? previous.left : undefined,
-        columns,
-        props.board.width,
-        props.position.worker.x
-      ),
-      top: followAxis(
-        same ? previous.top : undefined,
-        rows,
-        props.board.height,
-        props.position.worker.y
-      ),
-    };
+      layout.height,
+      props.position.worker.y
+    );
+    if (same && previous.left === left && previous.top === top) return previous;
+    return { columns, rows, left, top };
   });
   const indexInBoard = (index: number) =>
     (Math.floor(index / frame().columns) + frame().top) * props.board.width +
     (index % frame().columns) +
     frame().left;
-  const tiles = createMemo<readonly TileBoardTile[]>((previous) =>
-    keepUnchangedTiles(
-      previous,
-      sokobanTiles(props.board, positionPieces(props.position), words, frame())
-    )
+  const placePieces = createMemo(() =>
+    createSokobanTiles(board(), words, frame())
   );
+  const tiles = createMemo(() => placePieces()(props.position));
   const pieces = createMemo<readonly TileBoardPiece[]>((previous) =>
-    sokobanPieces(props.board, positionPieces(props.position)).map(
-      (piece, index) => {
-        const column = piece.column - frame().left;
-        const row = piece.row - frame().top;
-        const prior = previous?.[index];
-        if (
-          prior?.id === piece.id &&
-          prior.tone === piece.tone &&
-          prior.column === column &&
-          prior.row === row
-        )
-          return prior;
-        return { ...piece, art: warehouseArt[piece.tone], column, row };
-      }
-    )
+    sokobanPieces(board(), props.position).map((piece, index) => {
+      const column = piece.column - frame().left;
+      const row = piece.row - frame().top;
+      const prior = previous?.[index];
+      if (
+        prior?.id === piece.id &&
+        prior.tone === piece.tone &&
+        prior.column === column &&
+        prior.row === row
+      )
+        return prior;
+      return { ...piece, art: warehouseArt[piece.tone], column, row };
+    })
   );
-  const outside = createMemo(() =>
-    outsideView(props.board, props.position, frame())
-  );
+  const hiddenGoals = createMemo(() => {
+    const layout = board();
+    const shown = frame();
+    if (shown.columns === layout.width && shown.rows === layout.height)
+      return 0;
+    return layout.squares.reduce(
+      (count, square, index) =>
+        square === 'goal' && indexInWindow(cellOf(layout, index), shown) < 0
+          ? count + 1
+          : count,
+      0
+    );
+  });
+  const outside = createMemo(() => {
+    const layout = board();
+    const shown = frame();
+    let goals = hiddenGoals();
+    let crates = 0;
+    for (const crate of props.position.crates) {
+      if (indexInWindow(crate, shown) >= 0) continue;
+      crates++;
+      if (layout.squares[crate.y * layout.width + crate.x] === 'goal') goals--;
+    }
+    return { crates, goals };
+  });
   return { frame, tiles, pieces, indexInBoard, outside };
 }
 

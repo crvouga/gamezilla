@@ -92,7 +92,11 @@ for (const fails of [false, true]) {
             probe.frames.delete(id);
             callback();
           }
-          expect(samples.inputToFrameMs).toEqual([1]);
+          expect(samples.inputToFrameMs).toEqual([2]);
+          const inputAt = samples.inputs[0]?.startTime ?? NaN;
+          expect(samples.frames).toEqual([
+            { inputAt, countObservedAt: inputAt + 1, frameAt: inputAt + 2 },
+          ]);
           const task = { duration: 60, toJSON: () => ({ duration: 60 }) };
           for (const callback of probe.tasks)
             callback({ getEntries: () => [task] });

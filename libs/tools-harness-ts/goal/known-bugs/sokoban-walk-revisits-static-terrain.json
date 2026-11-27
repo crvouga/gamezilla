@@ -1,0 +1,4 @@
+{
+  "summary": "The 320px maximum-board walk and 1440px solve-and-recover walk revisited 8,600 and 1,520 unrelated terrain squares respectively across 20 moves. Keep static terrain, accessible square names and hidden goal counts while the board and visible window stay put.",
+  "regressionTest": "libs/sokoban-harness-ts/tests/sokoban-walking-work.test.tsx"
+}
