@@ -5,7 +5,8 @@
     "src": {
       "dependsOn": [
         "@libs/game-session-shared-ts#src",
-        "@pkgs/turn-game-shared-ts#src"
+        "@pkgs/turn-game-shared-ts#src",
+        "@pkgs/ui-testing-root-shared-ts#src"
       ]
     }
   }
