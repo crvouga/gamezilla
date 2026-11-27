@@ -152,6 +152,7 @@ async function currentScreen(
   // Keep only transitions, with no page titles or account details in the report.
   const observed: string[] = [];
   let returnedToApp = false;
+  let reading: NativeProviderPage | null = null;
   const waiting = (state: string): null => {
     if (state !== observed.at(-1)) {
       observed.push(state);
@@ -166,7 +167,9 @@ async function currentScreen(
   ): Promise<ProviderScreen | 'done' | 'returned' | null> => {
     if (remainingMs() === 0) return null;
     const ui = tab.controls(remainingMs);
+    reading = null;
     const screen = await tab.page(remainingMs());
+    reading = screen;
     if (screen === 'app') {
       if (previous !== null && !returnedToApp) return 'returned';
       return (await walk.done(ui)) ? 'done' : waiting('app awaiting outcome');
@@ -186,7 +189,7 @@ async function currentScreen(
       (remainingMs) =>
         probe(remainingMs).catch((cause: unknown) => {
           throw new Error(
-            `${description()}: ${cause instanceof Error ? cause.message : String(cause)}`,
+            `${description()} (reading: ${reading ?? 'native navigation metadata'}): ${cause instanceof Error ? cause.message : String(cause)}`,
             { cause }
           );
         }),

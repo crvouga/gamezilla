@@ -1,0 +1,4 @@
+{
+  "summary": "Battleship setup stopped on Bob’s first Google chooser read with no CDP reply. A page-initiated navigation can expose the provider URL and loading=false before its DOM is ready. The harness now checks the main frame’s readiness before inspecting the actual provider controls.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/provider-document-load.test.ts"
+}
