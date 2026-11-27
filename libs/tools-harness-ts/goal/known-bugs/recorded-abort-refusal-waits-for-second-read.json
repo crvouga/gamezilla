@@ -1,0 +1,4 @@
+{
+  "summary": "The waiting abort command requested its SQLite verdict again after its watch had already read the committed refusal. A busy device kept the command waiting past its deadline.",
+  "regressionTest": "pkgs/sync-engine-harness-ts/tests/refused-command-verdict.test.ts"
+}
