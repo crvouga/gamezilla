@@ -1,6 +1,9 @@
-import sql from '@pkgs/sql-root-shared-ts/sql';
-import type { MutationVerdict } from './mutation-status';
-import { readMutationSettlement } from './mutation-status';
+import type { MutationSettlement, MutationVerdict } from './mutation-status';
+import {
+  mutationSettlementQuery,
+  readMutationSettlement,
+  settlementFromRow,
+} from './mutation-status';
 import type { SyncEngine } from './sync-engine-port';
 
 /**
@@ -23,38 +26,26 @@ export async function awaitMutationVerdict(
   return verdict;
 }
 
-function waitForSettlement(
+async function waitForSettlement(
   engine: Pick<SyncEngine, 'db' | 'watch'>,
   mutationId: string
-): ReturnType<typeof readMutationSettlement> {
-  return new Promise((resolve, reject) => {
-    // `deleted_at` is selected because a watch fires only when its rows
-    // change: a confirmed upload soft-deletes the queue row in place.
-    const watch = engine.watch(sql<{ id: string; deleted_at: string | null }>`
-      SELECT id, deleted_at FROM sync_engine_mutations WHERE id = ${mutationId}
-      UNION ALL
-      SELECT id, deleted_at FROM sync_engine_write_rejections
-      WHERE mutation_id = ${mutationId}
-    `);
-    let settled = false;
-    let unsubscribe: () => void = () => undefined;
-    const check = (): void => {
-      void readMutationSettlement(engine.db, mutationId).then(
-        (settlement) => {
-          if (settled || settlement.verdict.status === 'pending') return;
-          settled = true;
-          unsubscribe();
-          resolve(settlement);
-        },
-        (error: unknown) => {
-          if (settled) return;
-          settled = true;
-          unsubscribe();
-          reject(error);
-        }
-      );
-    };
-    unsubscribe = watch.subscribe(check);
+): Promise<MutationSettlement> {
+  const initial = await readMutationSettlement(engine.db, mutationId);
+  if (initial.verdict.status !== 'pending') return initial;
+  const watch = engine.watch(mutationSettlementQuery(mutationId));
+  const finished = Promise.withResolvers<MutationSettlement>();
+  const check = () => {
+    const row = watch.getSnapshot()[0];
+    if (row === undefined) return;
+    const settlement = settlementFromRow(row);
+    if (settlement.verdict.status !== 'pending') finished.resolve(settlement);
+  };
+  const unsubscribe = watch.subscribe(check);
+  try {
+    // The first snapshot covers a retirement that raced subscription.
     check();
-  });
+    return await finished.promise;
+  } finally {
+    unsubscribe();
+  }
 }

@@ -1,5 +1,6 @@
 import { expect, test } from 'bun:test';
 import { reconcileSqliteSchema } from '@pkgs/db-schema-sqlite-shared-ts/reconcile-sqlite-schema';
+import { createFaultInjectingSqlClient } from '@pkgs/sql-client-root-shared-ts/fault-injecting-sql-client';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { SqlClientImplBunSqlite } from '@pkgs/sql-client-sqlite-root-server-ts/impl-bun-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
@@ -139,5 +140,58 @@ test('the refusal of a command with no device writes is available while unrelate
     }
   } finally {
     await db.disconnect();
+  }
+});
+
+// regression: recorded-abort-refusal-waits-for-second-read
+test('the waiting abort receives the refusal already read from SQLite', async () => {
+  const id = '01a21b8f-b21b-7fd6-baa0-0df95f563bd5';
+  const code = 'CHESS_ABORT_TOO_LATE';
+  const retiredAt = '2026-11-27T05:52:13.086Z';
+  const message = 'The multiplayer game can no longer be aborted.';
+  const raw = SqlClientImplBunSqlite.openMemory();
+  const { client: db, failNextCallWith } = createFaultInjectingSqlClient(raw);
+  const bus = createTableChangeBus();
+  const hydrated = Promise.withResolvers<void>();
+  let committed = false;
+  const { watch } = createSharedWatchRegistry((query) =>
+    createSqlWatch({
+      db,
+      bus,
+      query,
+      scheduleNotify(notify) {
+        // SQLite has supplied the watched rows. A later database call is unavailable.
+        if (committed)
+          failNextCallWith(new Error('another database read was required'));
+        notify();
+        hydrated.resolve();
+      },
+    })
+  );
+  try {
+    await ensureFrameworkSchema(db);
+    await db.run(sql`INSERT INTO sync_engine_mutations (id, name, seq, args, optimistic_writes, created_at)
+      VALUES (${id}, 'abortMultiplayer', 1, '{"requestId":"request-1"}', 0, '2026-11-27T05:52:11.880Z')`);
+    const verdict = awaitMutationVerdict(
+      { db, watch, refreshQueries: async () => {} },
+      id
+    );
+    await hydrated.promise;
+    await db.transaction(async (tx) => {
+      await storeRejection(
+        tx,
+        'device',
+        { mutationId: id, status: 'rejected', code, message },
+        retiredAt
+      );
+      await tx.run(
+        sql`UPDATE sync_engine_mutations SET deleted_at = ${retiredAt} WHERE id = ${id}`
+      );
+    });
+    committed = true;
+    bus.emit(['sync_engine_write_rejections', 'sync_engine_mutations']);
+    expect(await verdict).toEqual({ status: 'rejected', code, message });
+  } finally {
+    await raw.disconnect();
   }
 });

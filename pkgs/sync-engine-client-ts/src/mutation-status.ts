@@ -56,26 +56,35 @@ function parsedMeta(
   }
 }
 
+type SettlementRow = {
+  pending: number;
+  rejection_id: string | null;
+  optimistic_writes: number | null;
+  code: string;
+  message: string;
+  meta: unknown;
+};
+
+export type MutationSettlement = {
+  verdict: MutationVerdict;
+  needsRepair: boolean;
+};
+
 /** The queue retirement and its refusal commit together; observe them in one read. */
-export async function readMutationSettlement(
-  db: Pick<SqlClient, 'query'>,
-  mutationId: string
-): Promise<{ verdict: MutationVerdict; needsRepair: boolean }> {
-  const [row] = await db.query(sql<{
-    pending: number;
-    rejection_id: string | null;
-    optimistic_writes: number | null;
-    code: string;
-    message: string;
-    meta: unknown;
-  }>`
+export function mutationSettlementQuery(mutationId: string) {
+  return sql<SettlementRow>`
     SELECT (m.id IS NOT NULL AND m.deleted_at IS NULL) AS pending,
       m.optimistic_writes, r.id AS rejection_id, r.code, r.message, r.meta
     FROM (SELECT ${mutationId} AS id) AS choice
     LEFT JOIN sync_engine_mutations m ON m.id = choice.id
     LEFT JOIN sync_engine_write_rejections r ON r.mutation_id = choice.id AND r.deleted_at IS NULL
     LIMIT 1
-  `);
+  `;
+}
+
+export function settlementFromRow(
+  row: SettlementRow | undefined
+): MutationSettlement {
   if (row?.rejection_id == null)
     return {
       verdict: { status: row?.pending ? 'pending' : 'confirmed' },
@@ -92,6 +101,14 @@ export async function readMutationSettlement(
     // Older choices did not record their write set. Keep their repair barrier.
     needsRepair: row.optimistic_writes !== 0,
   };
+}
+
+export async function readMutationSettlement(
+  db: Pick<SqlClient, 'query'>,
+  mutationId: string
+): Promise<MutationSettlement> {
+  const [row] = await db.query(mutationSettlementQuery(mutationId));
+  return settlementFromRow(row);
 }
 
 /** {@link mutationStatus} plus the rejection's code and message. */
