@@ -1,0 +1,4 @@
+{
+  "summary": "At 390 × 844, starting row 16 on the 20 × 20 board shortened the drawing hint and recentered the workspace by 10 pixels. The straight stroke crossed into a neighboring row and the resulting refusal shifted the board again. Both light and dark stopped at 15/20 pairs and 300/400 cells.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/numberlink-performance/integration.checks.ts"
+}
