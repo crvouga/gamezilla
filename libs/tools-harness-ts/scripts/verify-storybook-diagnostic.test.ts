@@ -157,7 +157,11 @@ test('all eight visual partitions execute the same browser checks and the MCP se
   expect(task.cache ?? true).toBe(true);
   expect(task).toMatchObject({
     dependsOn: ['storybook:build'],
-    env: expect.arrayContaining(['STORYBOOK_SHARD', 'BUN_CHROME_PATH']),
+    env: expect.arrayContaining([
+      'STORYBOOK_SHARD',
+      'PWTEST_SHARD_WEIGHTS',
+      'BUN_CHROME_PATH',
+    ]),
     inputs: expect.arrayContaining([
       '$TURBO_DEFAULT$',
       '$TURBO_ROOT$/turbo-platform-key.json',

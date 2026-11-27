@@ -330,7 +330,10 @@ describe('Verify Nightly workflow', () => {
         expect(job.name).toBe(`verify-nightly:${suite} (${place})`);
         expect(job.env, suite).toEqual(
           suite === 'visual'
-            ? { STORYBOOK_SHARD: place }
+            ? {
+                STORYBOOK_SHARD: place,
+                PWTEST_SHARD_WEIGHTS: expect.any(String),
+              }
             : { NIGHTLY_SHARD: place }
         );
         expect(job.steps).toEqual(jobs[0]!.steps);

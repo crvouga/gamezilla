@@ -106,7 +106,7 @@
         "$TURBO_ROOT$/turbo-platform-key.json",
         "$TURBO_ROOT$/mise.toml"
       ],
-      "env": ["STORYBOOK_SHARD", "BUN_CHROME_PATH"],
+      "env": ["STORYBOOK_SHARD", "PWTEST_SHARD_WEIGHTS", "BUN_CHROME_PATH"],
       "outputs": []
     },
     "test": {
