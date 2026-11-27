@@ -5,6 +5,7 @@ import {
   findingAnOpponentStep,
   tapWayIn,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
+import type { HarnessActor } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 
 const GAME = 'any-game';
@@ -85,10 +86,14 @@ test('a way in that goes before the tap lands is looked at again, not a failure'
     tap: () => Promise.reject(new Error('Timed out waiting for space-join')),
     isVisible: () => Promise.resolve(false),
   };
-  await tapWayIn(gone);
+  const showing = (node: typeof gone) =>
+    ({ get: () => node }) as unknown as HarnessActor['ui'];
+  await tapWayIn(showing(gone), Handles.spaceJoin);
   const stuck = {
     tap: () => Promise.reject(new Error('Timed out waiting for space-join')),
     isVisible: () => Promise.resolve(true),
   };
-  await expect(tapWayIn(stuck)).rejects.toThrow('space-join');
+  await expect(tapWayIn(showing(stuck), Handles.spaceJoin)).rejects.toThrow(
+    'space-join'
+  );
 });
