@@ -1,8 +1,11 @@
 import type { MultiplayerGame } from '@libs/game-matchmaking-shared-ts/game-state';
 import { multiplayerDeadlineMs } from '@libs/game-matchmaking-shared-ts/multiplayer-clock';
 import { createTimedValue, useTimers } from '@pkgs/clock-client-ts/solid';
-import { type Accessor, createEffect, createSignal } from 'solid-js';
-import { multiplayerSettleDue } from './multiplayer-settle-due';
+import { type Accessor, createEffect } from 'solid-js';
+import {
+  multiplayerSettleDue,
+  unrecordedLiveResult,
+} from './multiplayer-settle-due';
 
 const RETRY_MS = 2000;
 
@@ -18,9 +21,9 @@ export function useDeadlineSettle(args: {
   readonly stored: Accessor<MultiplayerGame | null>;
   readonly online: Accessor<boolean>;
   readonly settle: (gameId: string) => Promise<void>;
+  readonly refresh: () => Promise<void>;
 }): void {
   const timers = useTimers();
-  const [retry, setRetry] = createSignal(0);
   const due = createTimedValue(
     (now) => multiplayerSettleDue(args.game(), args.stored(), now),
     (value) => {
@@ -30,15 +33,34 @@ export function useDeadlineSettle(args: {
     }
   );
   createEffect(
-    () => {
-      retry();
-      return args.online() ? due() : null;
-    },
+    () => (args.online() ? due() : null),
     (gameId) => {
       if (gameId === null) return;
-      void args.settle(gameId).catch(() => undefined);
-      const handle = timers.setTimeout(() => setRetry((n) => n + 1), RETRY_MS);
-      return () => timers.clearTimeout(handle);
+      let active = true;
+      let timer: unknown;
+      const reconcile = async (): Promise<void> => {
+        await args.settle(gameId);
+        // Settling an already recorded result is a successful no-op. There is
+        // no new game push to repair a device that missed the original one.
+        if (
+          active &&
+          unrecordedLiveResult(args.game(), args.stored()) === gameId
+        )
+          await args.refresh();
+      };
+      const attempt = () => {
+        void reconcile()
+          .catch(() => undefined)
+          .then(() => {
+            if (active && due() === gameId && args.online())
+              timer = timers.setTimeout(attempt, RETRY_MS);
+          });
+      };
+      attempt();
+      return () => {
+        active = false;
+        if (timer !== undefined) timers.clearTimeout(timer);
+      };
     }
   );
 }

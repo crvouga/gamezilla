@@ -173,6 +173,7 @@ function useMultiplayerScreen(props: ScreenProps) {
     stored: props.data.stored,
     online: () => sync.status().online,
     settle: props.controls.settle,
+    refresh: sync.refreshQueries,
   });
   const { denial, pending } = useMultiplayerAccess(props.data);
   const stage = useMultiplayerStage(
