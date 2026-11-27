@@ -1,0 +1,46 @@
+/* The search, where the board will be: the stage is one column, the
+   board-sized area over the person's seat. */
+.stage {
+  display: flex;
+  flex-direction: column;
+  gap: var(--ui-space-3);
+  min-width: 0;
+}
+/* A still, checkered square the width of the column, so the wait sits in
+   the board's own place and size and nothing moves when the game starts. */
+.board {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background:
+    repeating-conic-gradient(
+      var(--ui-color-surface-muted) 0% 25%,
+      var(--ui-color-surface) 0% 50%
+    )
+    0 0 / 25% 25%;
+}
+/* The state is a small panel over the squares, so its words stay legible. */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--ui-space-2);
+  max-width: 80%;
+  padding: var(--ui-space-4);
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-card);
+  background: var(--ui-color-surface);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.seat {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}

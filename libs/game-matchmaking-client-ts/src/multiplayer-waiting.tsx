@@ -1,11 +1,14 @@
 import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
-import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
+import { GamePlayerBar } from '@pkgs/ui-root-client-ts/game-player-bar';
+import { GameSearchStage } from '@pkgs/ui-root-client-ts/game-search-stage';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
 import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
+import { timeControlWords } from './time-control-name';
 
 /** A search under way, as the person sees it. */
 export type MultiplayerSearchView = {
@@ -97,33 +100,77 @@ export function MultiplayerStopSearch(props: {
   );
 }
 
-/** A waiting search shows its time control and how long it has been looking. */
+/** Who is searching, as their own seat shows them. */
+export type MultiplayerSearchYou = {
+  readonly avatar: JSX.Element;
+  readonly name: JSX.Element;
+};
+
+/**
+ * The person's own seat under the waiting board: who they are, and the
+ * clock they chose at the seat's far edge (an untimed game has none).
+ */
+function SearchSeat(props: {
+  readonly you: MultiplayerSearchYou;
+  readonly timeControl: string | null;
+}): JSX.Element {
+  return (
+    <GamePlayerBar
+      avatar={props.you.avatar}
+      name={props.you.name}
+      trailing={
+        <Show when={props.timeControl}>
+          {(control) => (
+            <Badge
+              intent="neutral"
+              label={
+                <Text variant="inherit" testId="multiplayer-waiting-clock">
+                  {timeControlWords(control())}
+                </Text>
+              }
+            />
+          )}
+        </Show>
+      }
+      dataSet={{ testid: 'multiplayer-search-seat' }}
+    />
+  );
+}
+
+/**
+ * A waiting search, on the board's place: its state (`Searching…`, what is
+ * sought, how long) over the person's seat with the clock they chose.
+ */
 export function MultiplayerWaiting(props: {
   readonly search: MultiplayerSearchView;
+  /** The person's own seat; the wait names no one without it. */
+  readonly you?: MultiplayerSearchYou | undefined;
   /**
-   * No connection: the card says the search waits for it and resumes by
+   * No connection: the stage says the search waits for it and resumes by
    * itself, with a still mark in place of the spinner.
    */
   readonly offline?: boolean | undefined;
 }): JSX.Element {
   return (
-    <GameSearchState
+    <GameSearchStage
       mark={
         props.offline === true ? (
           <WifiOffIcon size={24} color="warning" />
         ) : undefined
+      }
+      seat={
+        <Show when={props.you}>
+          {(you) => (
+            <SearchSeat you={you()} timeControl={props.search.timeControl} />
+          )}
+        </Show>
       }
       title={
         <Show
           when={props.offline !== true}
           fallback={<Trans>You're offline</Trans>}
         >
-          <Show
-            when={props.search.players > 2}
-            fallback={<Trans>Finding an opponent</Trans>}
-          >
-            <Trans>Finding players</Trans>
-          </Show>
+          <Trans>Searching…</Trans>
         </Show>
       }
       description={

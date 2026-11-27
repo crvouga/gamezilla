@@ -31,7 +31,10 @@ import { MultiplayerResultView } from './multiplayer-result-view';
 import { MultiplayerSearchingView } from './multiplayer-searching-view';
 import { MultiplayerStatusView } from './multiplayer-status-view';
 import { MultiplayerTimeControlView } from './multiplayer-time-control-view';
-import type { MultiplayerSearchView } from './multiplayer-waiting';
+import type {
+  MultiplayerSearchView,
+  MultiplayerSearchYou,
+} from './multiplayer-waiting';
 import type { UnfinishedGame } from './use-unfinished-game';
 
 /**
@@ -77,6 +80,8 @@ export type MatchmakingScreenViewProps = {
   /** The search under way; set in the `searching` stage. */
   readonly search: MultiplayerSearchView | null;
   readonly onStop: () => Promise<void>;
+  /** Who is searching, as their own seat shows them. */
+  readonly you?: MultiplayerSearchYou | undefined;
   readonly ratings: readonly MultiplayerRatingView[];
   /** The matched game; set in the `setup`, `playing` and `finished` stages. */
   readonly game: MultiplayerGameView | null;
@@ -229,6 +234,7 @@ function SearchingPlace(props: Props): JSX.Element {
         <MultiplayerSearchingView
           {...frameOf(props)}
           search={search()}
+          you={props.you}
           onStop={props.onStop}
           offline={!props.online}
         />

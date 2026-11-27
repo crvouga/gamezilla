@@ -1,6 +1,7 @@
 import { timeControlOf } from '@libs/game-matchmaking-shared-ts/time-control';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { GameSetupMode } from '@libs/spaces-client-ts/game-setup-mode';
+import { t } from '@lingui/core/macro';
 import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { ActionNotice } from '@pkgs/ui-root-client-ts/action-notice';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -191,9 +192,47 @@ function ratingAtStake(props: FindProps): MultiplayerRatingView | undefined {
 }
 
 /**
- * The match the search sets up, one row each: the clock it is played at
- * (the one choice, when the game offers clocks) and the rating it plays
- * for. Each row opens its own place.
+ * The clock a search is for, as one tappable row: its words and speed.
+ * It opens the time-control place, and choosing there returns here.
+ */
+function TimeControlRow(props: FindProps): JSX.Element {
+  const words = () => timeControlWords(props.find.timeControl);
+  return (
+    <MenuRow
+      leading={<ClockIcon size={24} />}
+      title={words()}
+      caption={
+        <SpeedName speed={timeControlOf(props.find.timeControl)?.speed ?? ''} />
+      }
+      aria-label={t`Time control: ${words()}`}
+      onClick={() => props.onOpen({ screen: 'time-control' })}
+      dataSet={{
+        testid: 'multiplayer-open-time-control',
+        'time-control': props.find.timeControl,
+      }}
+    />
+  );
+}
+
+/**
+ * The clock, directly over the search's command, so the two choices that
+ * make a search (how long, then go) are one thumb's reach apart. A game
+ * without clock choices has no row: it says it is untimed once, on the card.
+ */
+function TimeControlChoice(props: FindProps): JSX.Element {
+  return (
+    <Show when={props.find.timed}>
+      <MenuSection dataSet={{ testid: 'multiplayer-time-control-choice' }}>
+        <TimeControlRow {...props} />
+      </MenuSection>
+    </Show>
+  );
+}
+
+/**
+ * The match the search sets up, one row each: the rating it plays for and,
+ * while an unfinished game takes the dock, the clock (otherwise the clock
+ * is the row over the dock's command). Each row opens its own place.
  */
 function MatchRows(props: FindProps): JSX.Element {
   return (
@@ -207,22 +246,8 @@ function MatchRows(props: FindProps): JSX.Element {
         ) : undefined
       }
     >
-      <Show when={props.find.timed}>
-        <MenuRow
-          leading={<ClockIcon size={24} />}
-          title={<Trans>Time control</Trans>}
-          caption={
-            <SpeedName
-              speed={timeControlOf(props.find.timeControl)?.speed ?? ''}
-            />
-          }
-          value={timeControlWords(props.find.timeControl)}
-          onClick={() => props.onOpen({ screen: 'time-control' })}
-          dataSet={{
-            testid: 'multiplayer-open-time-control',
-            'time-control': props.find.timeControl,
-          }}
-        />
+      <Show when={props.find.timed && props.returnTo !== undefined}>
+        <TimeControlRow {...props} />
       </Show>
       <MenuRow
         leading={<GaugeIcon size={24} />}
@@ -324,6 +349,7 @@ function FindDock(props: FindProps): JSX.Element {
         </>
       }
     >
+      <TimeControlChoice {...props} />
       <Show when={props.forward} keyed>
         {(forward) => (
           <Button
