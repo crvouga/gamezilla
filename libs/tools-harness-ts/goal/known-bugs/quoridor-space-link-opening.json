@@ -1,0 +1,4 @@
+{
+  "summary": "Bob's Classic Quoridor invitation stayed on Opening space before Join. Navigating an existing Chrome device could start the link document in the background, where sync waits for foreground, and the timeout did not distinguish the device's space and link scope from the server's space.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/browser-process-server.test.ts"
+}

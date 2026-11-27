@@ -29,7 +29,8 @@
     "@pkgs/room-adapter-memory-shared-ts": "workspace:*",
     "@pkgs/room-root-server-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",
-    "@pkgs/sql-root-shared-ts": "workspace:*"
+    "@pkgs/sql-root-shared-ts": "workspace:*",
+    "@pkgs/sync-engine-shared-ts": "workspace:*"
   },
   "devDependencies": {
     "@pkgs/bun-test-solid-client-ts": "workspace:*",
@@ -37,7 +38,6 @@
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
     "@pkgs/sql-client-root-shared-ts": "workspace:*",
     "@pkgs/sql-client-sqlite-root-server-ts": "workspace:*",
-    "@pkgs/sync-engine-shared-ts": "workspace:*",
     "@typescript/native": "catalog:",
     "typescript": "catalog:"
   },

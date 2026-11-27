@@ -1,6 +1,7 @@
 import { actorUi, ensureActor, pollUntil } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { describeSpaceLinkOpening } from './space-link-diagnosis';
 import { SPACE_LINK_RECOVERY, SPACE_WAIT_MS } from './space-ui';
 
 export async function openSpaceLinkOnDevice(
@@ -24,9 +25,9 @@ type JoinPhase = 'opening the link' | 'after pressing Join';
 async function waitForLink(
   s: ProductHarness,
   actor: string,
-  phase: JoinPhase,
-  goal: JoinGoal
+  options: { phase: JoinPhase; goal: JoinGoal; link: string }
 ): Promise<string> {
+  const { phase, goal, link } = options;
   const ui = await actorUi(s, actor);
   const opening = phase === 'opening the link';
   // A connection notice can coexist with an offered Join. After the tap,
@@ -62,8 +63,12 @@ async function waitForLink(
     {
       maxMs: SPACE_WAIT_MS,
       actor,
-      get description() {
-        return `${actor} ${phase} (last saw ${lastSeen})`;
+      description: async () => {
+        const details =
+          opening && lastSeen === Handles.spaceJoinOpening
+            ? await describeSpaceLinkOpening(s, actor, link)
+            : '';
+        return `${actor} ${phase} (last saw ${lastSeen}${details})`;
       },
     }
   );
@@ -79,10 +84,18 @@ export async function joinSpaceFromLink(
 ): Promise<{ opened: string; afterJoin?: string }> {
   await openSpaceLinkOnDevice(s, actor, link);
   // regression: space-link-join-skipped-mid-opening
-  const opened = await waitForLink(s, actor, 'opening the link', goal);
+  const opened = await waitForLink(s, actor, {
+    phase: 'opening the link',
+    goal,
+    link,
+  });
   if (opened !== Handles.spaceJoin) return { opened };
   const ui = await actorUi(s, actor);
   await ui.get(Handles.spaceJoin).tap({ timeoutMs: SPACE_WAIT_MS });
-  const afterJoin = await waitForLink(s, actor, 'after pressing Join', goal);
+  const afterJoin = await waitForLink(s, actor, {
+    phase: 'after pressing Join',
+    goal,
+    link,
+  });
   return { opened, afterJoin };
 }
