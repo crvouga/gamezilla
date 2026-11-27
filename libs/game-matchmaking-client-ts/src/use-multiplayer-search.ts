@@ -31,18 +31,22 @@ export function useMultiplayerSearch(
       const at = offlineSince() ?? now;
       return Math.max(0, Math.floor((at - (joinedAt() ?? at)) / 1000));
     },
-    (value) =>
-      offlineSince() === null && waiting() !== null
-        ? (joinedAt() ?? 0) + (value + 1) * 1000
-        : null
+    (value) => {
+      const start = joinedAt();
+      return offlineSince() === null && start !== null
+        ? start + (value + 1) * 1000
+        : null;
+    }
   );
   return createMemo(() => {
     const row = waiting();
     if (row === null) return null;
     const game = rules.forControl(row.time_control ?? '');
+    const shown = presentation(game.initial());
     return {
       players: gameSides(game).length,
-      gameName: presentation(game.initial()).name(),
+      gameName: shown.name(),
+      goal: shown.goal?.(),
       timeControl:
         timeControlOf(row.time_control) === null
           ? null

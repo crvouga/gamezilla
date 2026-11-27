@@ -64,7 +64,8 @@ function PillWords(props: GameTurnPillProps & { yours: boolean }): JSX.Element {
           {
             textLabel: !plain(),
             textCaption: plain(),
-            'text-text-secondary': plain(),
+            'text-text': plain() && props.yours,
+            'text-text-secondary': plain() && !props.yours,
             'text-on-primary-soft': props.yours && !plain(),
           },
         ]}

@@ -1,0 +1,4 @@
+{
+  "summary": "Stacked seats, an offline alert and the command bar obscured the board on a phone.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}

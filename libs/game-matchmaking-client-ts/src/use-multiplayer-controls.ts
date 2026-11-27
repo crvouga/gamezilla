@@ -30,6 +30,7 @@ import { unfinishedGamesOffer } from '@libs/permissions-shared-ts/unfinished-gam
 import { useSpaceRoomSelector } from '@libs/spaces-client-ts/use-space-room-selector';
 import type { Decision } from '@pkgs/permissions-shared-ts/decision';
 import { useMutationClient } from '@pkgs/sync-engine-client-ts/mutation-client-context';
+import { useSyncEngineInstance } from '@pkgs/sync-engine-client-ts/sync-engine-context';
 import type {
   MutateResult,
   Mutation,
@@ -44,15 +45,17 @@ import { type UnfinishedGame, useUnfinishedGame } from './use-unfinished-game';
 const REFUSED = 'Multiplayer game could not accept that command.';
 
 function useRefusals() {
+  const sync = useSyncEngineInstance();
   const [denial, setDenial] = createSignal<Decision | null>(null);
   const [error, setError] = createSignal<string | null>(null);
-  const accept = (result: MutateResult): void => {
+  const accept = async (result: MutateResult): Promise<void> => {
     if (result.ok) {
       setError(null);
       setDenial(null);
       return;
     }
     const failure = result.failures[0];
+    if (failure?.code === 'CHESS_NO_SEARCH') await sync.refreshQueries();
     const decision = failure?.meta?.['decision'] as Decision | undefined;
     if (decision !== undefined) setDenial(decision);
     else setError(failure?.message ?? REFUSED);

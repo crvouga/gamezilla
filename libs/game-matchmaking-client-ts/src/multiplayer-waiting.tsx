@@ -1,4 +1,4 @@
-import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { Plural, Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { GameActionButton } from '@pkgs/ui-root-client-ts/game-action-button';
 import { GameSearchState } from '@pkgs/ui-root-client-ts/game-search-state';
 import { WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
@@ -12,6 +12,7 @@ export type MultiplayerSearchView = {
   /** How many players a game seats, the person included. */
   readonly players: number;
   readonly gameName: string;
+  readonly goal?: string | undefined;
   /** Its time control as people write it (`5+0`); `null` when untimed. */
   readonly timeControl: string | null;
   /** How long it has been looking; frozen while offline. */
@@ -75,6 +76,7 @@ export function MultiplayerStopSearch(props: {
       size="lg"
       fullWidth
       disabled={props.offline}
+      loadingLabel={<Trans>Stopping search…</Trans>}
       title={
         <Show
           when={props.multiple}
@@ -148,10 +150,23 @@ export function MultiplayerWaiting(props: {
           <Show when={props.offline === true}>
             <Trans>Searched</Trans>{' '}
           </Show>
-          <Text variant="inherit" testId="multiplayer-waiting-seconds">
-            {props.search.seconds}
-          </Text>{' '}
-          <Trans>seconds</Trans>
+          <Show
+            when={props.search.seconds >= 86_400}
+            fallback={
+              <>
+                <Text variant="inherit" testId="multiplayer-waiting-seconds">
+                  {props.search.seconds}
+                </Text>{' '}
+                <Trans>seconds</Trans>
+              </>
+            }
+          >
+            <Plural
+              value={Math.floor(props.search.seconds / 86_400)}
+              one="# day"
+              other="# days"
+            />
+          </Show>
         </>
       }
     />

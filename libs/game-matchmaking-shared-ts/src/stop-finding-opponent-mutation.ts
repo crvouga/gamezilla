@@ -36,11 +36,20 @@ export const stopFindingOpponentMutation = defineMutation({
       requestId: args.requestId,
       participantId: args.searchId,
     });
-    if (!result.removed)
-      throw new MutationError(
-        'CHESS_NO_SEARCH',
-        'You have no opponent search to stop.'
-      );
+    if (!result.removed) {
+      // A retired queue entry can leave the synchronized search waiting.
+      // Repair only the search this device stopped, under the owner lock.
+      const iso = new Date(now()).toISOString();
+      const repaired = await ctx.tx.query(sql<{ id: string }>`
+        UPDATE chess_opponent_searches SET standing = 'ended', updated_at = ${iso}
+        WHERE owner_id = ${ctx.env.actorId} AND search_id = ${args.searchId}
+          AND standing = 'waiting' AND deleted_at IS NULL RETURNING id`);
+      if (repaired.length === 0)
+        throw new MutationError(
+          'CHESS_NO_SEARCH',
+          'You have no opponent search to stop.'
+        );
+    }
     await projectOpponentSearch(ctx.tx, ctx.env.actorId, now());
   },
 });

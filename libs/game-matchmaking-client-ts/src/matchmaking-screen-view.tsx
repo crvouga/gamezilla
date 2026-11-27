@@ -228,8 +228,6 @@ function SearchingPlace(props: Props): JSX.Element {
       {(search) => (
         <MultiplayerSearchingView
           {...frameOf(props)}
-          title={props.title}
-          goal={props.goal}
           search={search()}
           onStop={props.onStop}
           offline={!props.online}

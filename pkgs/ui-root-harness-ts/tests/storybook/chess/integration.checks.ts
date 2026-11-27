@@ -252,3 +252,37 @@ for (const theme of ['light', 'dark']) {
     });
   });
 }
+
+// regression: mobile-chess-stage-obscures-home-rank
+test('the offline phone board accepts taps on all four corners above its commands', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 414, height: 706 });
+  await openChessStory(
+    page,
+    'screens-games-chess-board--offline-mobile',
+    'dark'
+  );
+  await expect(page.getByText(/Your local game can continue/)).toBeInViewport({
+    ratio: 1,
+  });
+  for (const corner of ['a1', 'h1', 'a8', 'h8']) {
+    const square = page.locator(`[data-square="${corner}"]`);
+    await expect(square).toBeInViewport({ ratio: 1 });
+    await expect
+      .poll(() =>
+        square.evaluate((element) => {
+          const rect = element.getBoundingClientRect();
+          return element
+            .closest('[data-component="ChessBoard"]')
+            ?.contains(
+              document.elementFromPoint(
+                rect.x + rect.width / 2,
+                rect.y + rect.height / 2
+              )
+            );
+        })
+      )
+      .toBe(true);
+  }
+});
