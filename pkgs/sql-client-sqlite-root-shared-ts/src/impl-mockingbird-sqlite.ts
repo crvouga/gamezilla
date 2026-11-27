@@ -15,6 +15,8 @@ import type {
 import { createStatementCache } from '@pkgs/sql-client-root-shared-ts/statement-cache';
 import type { Sql, Value } from '@pkgs/sql-root-shared-ts/sql';
 import { applySqliteConnectionPragmas } from './connection-pragmas';
+import { createSerializedSqliteClient } from './serialized-sqlite-client';
+import { createTransactionChain } from './transaction-chain';
 
 const SQLM_MAGIC0 = 0x53;
 const SQLM_MAGIC1 = 0x51;
@@ -163,20 +165,24 @@ function applyImportedMockingbirdSqlitePragmas(
   db.prepare('PRAGMA user_version = ?').run(userVersion);
 }
 
-import { createSerializedSqliteClient } from './serialized-sqlite-client';
-
 export class SqlClientImplMockingbirdSqlite implements SqlClient {
   private db: Database | null;
   private readonly openOptions: MockingbirdSqliteOpenOptions | undefined;
+  private readonly enqueue = createTransactionChain();
   private readonly connection: SqlClient = {
-    connect: () => this.connect(),
-    disconnect: () => this.disconnect(),
+    connect: () => this.connectInConnection(),
+    disconnect: () => this.closeConnection(),
     query: (query) => this.queryInConnection(query),
     run: (query) => this.runInConnection(query),
     prepare: (query) => this.prepareInConnection(query),
     transaction: (fn) => this.execTransaction(fn),
   };
-  private readonly serialized = createSerializedSqliteClient(this.connection);
+  private readonly serialized = createSerializedSqliteClient(
+    this.connection,
+    this.enqueue
+  );
+  connect = () => this.enqueue(this.connection.connect);
+  disconnect = () => this.enqueue(this.connection.disconnect);
   query = this.serialized.query;
   run = this.serialized.run;
   prepare = this.serialized.prepare;
@@ -197,29 +203,20 @@ export class SqlClientImplMockingbirdSqlite implements SqlClient {
   }
 
   private requireDb(): Database {
-    assert.ok(
-      this.db != null,
-      'SqlClientImplMockingbirdSqlite: database is closed'
-    );
+    if (this.db === null) {
+      throw new Error('SqlClientImplMockingbirdSqlite: database is closed');
+    }
     return this.db;
   }
 
-  async connect(): Promise<void> {
-    try {
-      this.requireDb().query('SELECT 1');
-      await applySqliteConnectionPragmas(this);
-    } catch (err) {
-      assert.ok(false, 'Database connection failed', { error: err });
-    }
+  private async connectInConnection(): Promise<void> {
+    this.requireDb().query('SELECT 1');
+    await applySqliteConnectionPragmas(this.connection);
   }
 
-  disconnect(): Promise<void> {
-    if (this.db == null) return Promise.resolve();
+  private async closeConnection(): Promise<void> {
     try {
-      this.db.close();
-      return Promise.resolve();
-    } catch (err) {
-      assert.ok(false, 'Database disconnection failed', { error: err });
+      this.db?.close();
     } finally {
       this.db = null;
     }

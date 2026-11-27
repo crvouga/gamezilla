@@ -59,6 +59,8 @@ test('disconnect drains the disposable SQLite transaction and its queued reads',
   const close = client.disconnect();
   resume.resolve();
   expect(await Promise.all([transaction, read, close])).toEqual([
-    [{ value: 1 }], [{ value: 1 }], undefined,
+    [{ value: 1 }],
+    [{ value: 1 }],
+    undefined,
   ]);
 });

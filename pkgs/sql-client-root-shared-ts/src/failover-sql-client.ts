@@ -48,7 +48,16 @@ export type FailoverSqlClient = ResettableSqlClient & {
   readonly failedOver: () => boolean;
 };
 
-type Backend = { readonly client: SqlClient; readonly fallback: boolean };
+type Backend = {
+  readonly client: SqlClient;
+  readonly fallback: boolean;
+  readonly generation: number;
+  switching?: Promise<void>;
+};
+
+function closedDatabase(): Error {
+  return new Error('Local database is closed');
+}
 
 function timeoutError(ms: number): Error {
   const error = new Error(`local database did not respond within ${ms}ms`);
@@ -107,17 +116,26 @@ async function runCallerBody<T>(
 
 class Failover {
   private current: Backend;
-  private switching: Promise<Backend> | null = null;
+  private generation = 0;
+  private closing: Promise<void> | undefined;
   private readonly origins: ErrorOrigins = {
     fromClient: new WeakSet(),
     fromCaller: new WeakSet(),
   };
 
   constructor(private readonly options: FailoverSqlClientOptions) {
-    this.current = { client: options.primary, fallback: false };
+    this.current = {
+      client: options.primary,
+      fallback: false,
+      generation: this.generation,
+    };
   }
 
   failedOver = (): boolean => this.current.fallback;
+
+  private requireOpen(generation: number): void {
+    if (generation !== this.generation) throw closedDatabase();
+  }
 
   private within<T>(work: Promise<T>): Promise<T> {
     const { deadline } = this.options;
@@ -149,29 +167,33 @@ class Failover {
     return client;
   }
 
-  private install(client: SqlClient, replaced: Backend): Backend {
-    this.current = { client, fallback: true };
+  private install(client: SqlClient, replaced: Backend): void {
+    if (replaced.generation !== this.generation) {
+      void client.disconnect().catch(() => undefined);
+      throw closedDatabase();
+    }
+    const previous = this.current;
+    this.current = { client, fallback: true, generation: this.generation };
     // The replaced database may be hung; releasing it must never block.
-    void replaced.client.disconnect().catch(() => undefined);
-    return this.current;
+    void previous.client.disconnect().catch(() => undefined);
   }
 
-  private failOver(from: Backend, reason: unknown): Promise<Backend> {
-    if (this.current !== from) return Promise.resolve(this.current);
-    this.switching ??= this.openReadyFallback(reason)
+  private failOver(from: Backend, reason: unknown): Promise<void> {
+    this.requireOpen(from.generation);
+    if (this.current !== from) return Promise.resolve();
+    from.switching ??= this.openReadyFallback(reason)
       .then((client) => {
-        const backend = this.install(client, from);
+        this.install(client, from);
         try {
           this.options.onFailover?.(reason);
         } catch {
           // Reporting the failover must not undo it.
         }
-        return backend;
       })
       .finally(() => {
-        this.switching = null;
+        delete from.switching;
       });
-    return this.switching;
+    return from.switching;
   }
 
   private async storageLost(
@@ -192,19 +214,38 @@ class Failover {
 
   guarded = async <T>(work: (client: SqlClient) => Promise<T>): Promise<T> => {
     const backend = this.current;
+    this.requireOpen(backend.generation);
     if (backend.fallback) return work(backend.client);
     try {
       return await this.within(work(backend.client));
     } catch (error) {
+      this.requireOpen(backend.generation);
       if (isObject(error) && this.origins.fromCaller.has(error)) throw error;
       if (!(await this.storageLost(backend, error))) throw error;
-      const next = await this.failOver(backend, error);
-      return work(next.client);
+      await this.failOver(backend, error);
+      this.requireOpen(backend.generation);
+      return work(this.current.client);
     }
   };
 
+  /** Explicit connect and reset wait for the preceding close. */
+  private async reopen(client: SqlClient, fallback: boolean): Promise<Backend> {
+    const generation = this.generation;
+    await this.closing;
+    this.requireOpen(generation);
+    if (this.closing !== undefined) {
+      this.current = { client, fallback, generation };
+      this.closing = undefined;
+    }
+    return this.current;
+  }
+
   connect = async (): Promise<void> => {
-    const backend = this.current;
+    const backend =
+      this.closing !== undefined
+        ? await this.reopen(this.options.primary, false)
+        : this.current;
+    this.requireOpen(backend.generation);
     try {
       await this.within(backend.client.connect());
     } catch (error) {
@@ -213,8 +254,14 @@ class Failover {
     }
   };
 
-  disconnect = (): Promise<void> =>
-    this.current.client.disconnect().catch(() => undefined);
+  disconnect = (): Promise<void> => {
+    const { client } = this.current;
+    this.generation += 1;
+    this.closing ??= Promise.resolve()
+      .then(() => client.disconnect())
+      .catch(() => undefined);
+    return this.closing;
+  };
 
   transaction = <T>(body: (tx: SqlClient) => Promise<T>): Promise<T> =>
     this.guarded((client) =>
@@ -224,11 +271,11 @@ class Failover {
   prepare = <T extends Record<string, unknown>>(
     query: Sql<T>
   ): PreparedStatement<T> => {
-    let bound: { client: SqlClient; statement: PreparedStatement<T> } | null =
+    let bound: { backend: Backend; statement: PreparedStatement<T> } | null =
       null;
     const statementFor = (client: SqlClient): PreparedStatement<T> => {
-      if (bound?.client !== client) {
-        bound = { client, statement: client.prepare(query) };
+      if (bound?.backend !== this.current) {
+        bound = { backend: this.current, statement: client.prepare(query) };
       }
       return bound.statement;
     };
@@ -241,7 +288,12 @@ class Failover {
   };
 
   resetDatabase = async (): Promise<void> => {
-    const backend = this.current;
+    const current = this.current;
+    const backend =
+      this.closing !== undefined
+        ? await this.reopen(current.client, current.fallback)
+        : current;
+    this.requireOpen(backend.generation);
     try {
       if (backend.fallback) {
         this.install(await this.openReadyFallback(undefined), backend);
@@ -258,7 +310,7 @@ class Failover {
 
   onChanged = (listener: () => void): (() => void) => {
     const unsubscribe = this.options.primary.onChanged?.(() => {
-      if (!this.current.fallback) listener();
+      if (!this.current.fallback && this.closing === undefined) listener();
     });
     return () => unsubscribe?.();
   };

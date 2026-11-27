@@ -218,6 +218,14 @@ test('an app never meets a storage failure, only the answers a healthy database 
           .map(([k, v]) => ({ k, v }))
           .sort((a, b) => (a.k < b.k ? -1 : 1))
       );
+
+      await client.disconnect();
+      await Promise.all(
+        scenario.ops.map((op) =>
+          expect(applyOp(client, op)).rejects.toThrow(/database is closed/i)
+        )
+      );
+      expect(fallbacks).toBe(failovers);
     })
   );
 });

@@ -1,0 +1,4 @@
+{
+  "summary": "After losing the database owner, a cache refresh could finish after an account switch and restart the previous account's sync engine against its closed database.",
+  "regressionTest": "libs/app-root-client-ts/tests/local-database-failure.test.ts"
+}

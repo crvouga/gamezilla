@@ -21,7 +21,7 @@ import { isSqliteClosedError } from '@pkgs/sync-engine-shared-ts/is-pubsub-close
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-capture';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { SyncEnginePushOptions } from './attach-configured-push';
-import { attachPushIfConfigured } from './attach-configured-push';
+import { attachPushIfConfigured, detachPush } from './attach-configured-push';
 import { bindSyncConnectivity } from './bind-sync-connectivity';
 import { readLastSyncedAtMs } from './last-synced';
 import type {
@@ -140,6 +140,8 @@ type LocalEngineState = {
   readonly sessionHandles: readonly QuerySubscription[];
   readonly outboundLive: OutboundLiveBuffer | null;
   connected: boolean;
+  /** A cache refresh may restart sync only until the owner stops this engine. */
+  disconnectGeneration: number;
   revokePromise: Promise<void> | null;
   disposePush: (() => void) | null;
   /** Remake entryChannel / held-row topics after identity switch wake. */
@@ -307,6 +309,7 @@ function createState(
     sessionHandles,
     outboundLive: bufferOutbound ? createOutboundLiveBuffer() : null,
     connected: false,
+    disconnectGeneration: 0,
     revokePromise: null,
     disposePush: null,
     refreshTopics: null,
@@ -339,13 +342,6 @@ function flushOutboundLive(state: LocalEngineState): void {
   const buf = state.outboundLive;
   if (pubsub === null || buf === null) return;
   void buf.flush(pubsub).catch((error) => handleError(state, error));
-}
-
-function detachPush(state: LocalEngineState): void {
-  state.disposePush?.();
-  state.disposePush = null;
-  state.refreshTopics = null;
-  state.pushPubSub = null;
 }
 
 function notifyLocalMutation(
@@ -425,44 +421,37 @@ async function connectState(state: LocalEngineState): Promise<void> {
     lastError: null,
   });
   await seedLastSyncedAt(state);
+  if (!state.connected) return;
   if (state.options.enableMutationUpload !== false) {
     state.uploadQueue.start();
   }
   state.runtime.start();
   await attachPushIfConfigured(state, () => mergeDeps(state));
-  state.status.patch({ connection: 'syncing' });
+  if (state.connected) state.status.patch({ connection: 'syncing' });
 }
 
-async function drainMutationClients(state: LocalEngineState): Promise<void> {
-  await Promise.all([...state.mutationDrains].map((drain) => drain()));
-}
-
-async function disconnectState(state: LocalEngineState): Promise<void> {
+async function stopSyncWork(state: LocalEngineState): Promise<void> {
   state.recovery.cancel();
   state.disposeConnectivity?.();
   state.disposeConnectivity = null;
   state.connected = false;
   detachPush(state);
-  // Local mutations outlive their component tree (bootstrap effects), so their
-  // apply must finish before callers close the SqlClient (pool releaseAll).
-  await drainMutationClients(state);
-  // Drain in-flight sweep/merge before callers close SqlClient (pool releaseAll).
+  // Finish admitted writes and merges before the pool closes this account's database.
+  await Promise.all([...state.mutationDrains].map((drain) => drain()));
   await state.runtime.stopAndDrain();
   await state.uploadQueue.stop();
+}
+
+async function disconnectState(state: LocalEngineState): Promise<void> {
+  await stopSyncWork(state);
   state.status.patch({ connection: 'disconnected', hasSynced: false });
 }
 
 async function revokeDatabase(state: LocalEngineState): Promise<void> {
-  state.recovery.cancel();
-  state.disposeConnectivity?.();
-  state.disposeConnectivity = null;
-  state.connected = false;
+  state.disconnectGeneration += 1;
   state.disposeExternalDbChanged?.();
   state.disposeExternalDbChanged = null;
-  detachPush(state);
-  await drainMutationClients(state);
-  await state.runtime.stopAndDrain();
-  await state.uploadQueue.stop();
+  await stopSyncWork(state);
   await state.options.db.disconnect();
   await state.options.deleteDatabase();
   state.status.reset();
@@ -477,7 +466,10 @@ async function clearState(
     return;
   }
   const reconnect = state.connected;
+  const generation = state.disconnectGeneration;
   await disconnectState(state);
+  if (reason === 'replaced' && generation !== state.disconnectGeneration)
+    return;
   if (reason === 'cache') {
     try {
       await clearLocalCache(state.options.db, state.options.localSchema);
@@ -497,7 +489,8 @@ async function clearState(
     mergeDeps(state),
     reason === 'cache' ? 'marked' : 'all'
   );
-  if (reconnect) await connectState(state);
+  if (reconnect && generation === state.disconnectGeneration)
+    await connectState(state);
 }
 
 function toEngine(state: LocalEngineState): SyncEngine {
@@ -516,7 +509,10 @@ function toEngine(state: LocalEngineState): SyncEngine {
     watch: <T extends Record<string, unknown>>(query: Sql<T>) =>
       state.watches.watch(query),
     connect: () => connectState(state),
-    disconnect: () => disconnectState(state),
+    disconnect: () => {
+      state.disconnectGeneration += 1;
+      return disconnectState(state);
+    },
     clearLocalData: (args) => clearState(state, args?.reason ?? 'cache'),
     waitForFirstSync: () =>
       Promise.all(state.sessionHandles.map((h) => h.waitForFirstSync())).then(
