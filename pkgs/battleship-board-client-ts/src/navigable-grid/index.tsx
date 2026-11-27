@@ -75,12 +75,14 @@ function InteractiveGrid(props: GridProps) {
         </div>
       </div>
       <Show when={view().scale > 1}>
-        <Button
-          title={props.fitLabel}
-          size="sm"
-          variant="outline"
-          onClick={() => setView(FIT)}
-        />
+        <div class={styles['fitControl']}>
+          <Button
+            title={props.fitLabel}
+            size="sm"
+            variant="outline"
+            onClick={() => setView(FIT)}
+          />
+        </div>
       </Show>
     </div>
   );

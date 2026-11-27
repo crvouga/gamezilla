@@ -1,0 +1,4 @@
+{
+  "summary": "Pinching E5 on the 1440×900 Battleship target grid moved it 22.286px vertically when Fit board appeared.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/battleship/gestures/desktop/integration.checks.ts"
+}

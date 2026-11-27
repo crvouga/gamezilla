@@ -1,4 +1,5 @@
 import { expect, type Page, type TestInfo } from '@playwright/test';
+import { retainEvidence } from '../../word-tiles/retained-evidence';
 import { openBattleStory } from '../evidence';
 import { center, dragShip, snapshot, touch } from './input';
 
@@ -62,6 +63,15 @@ export async function verifyInspection(
   await input.close();
   await expect(view).not.toHaveAttribute('data-scale', '1');
   const after = await center(mark);
+  await retainEvidence(info, 'pinch-midpoint.json', {
+    body: JSON.stringify({
+      viewport: page.viewportSize(),
+      cell: await mark.getAttribute('data-cell'),
+      before: mid,
+      after,
+    }),
+    contentType: 'application/json',
+  });
   expect(Math.abs(after.x - mid.x)).toBeLessThan(3);
   expect(Math.abs(after.y - mid.y)).toBeLessThan(3);
   await page.mouse.move(mid.x, mid.y);

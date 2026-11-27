@@ -28,11 +28,15 @@ export const KeyboardInspection: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const cell = canvas.getByRole('button', { name: 'A1' });
+    const shell = cell.closest('[data-component="BattleshipNavigableGrid"]');
+    if (!shell) throw new Error('Missing Battleship grid');
+    const heightAtFit = shell.getBoundingClientRect().height;
     cell.focus();
     await userEvent.keyboard('+');
     await expect(
       canvas.getByRole('button', { name: 'Fit board' })
     ).toBeVisible();
+    await expect(shell.getBoundingClientRect().height).toBe(heightAtFit);
     await userEvent.keyboard('0');
     await expect(
       canvas.queryByRole('button', { name: 'Fit board' })
