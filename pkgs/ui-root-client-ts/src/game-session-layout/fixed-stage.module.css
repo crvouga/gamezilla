@@ -95,7 +95,7 @@
 .status {
   border-radius: var(--ui-radius-sm);
   background: var(--ui-color-surface-muted);
-  height: 44px;
+  height: 32px;
   align-items: stretch;
 }
 .statusLine {
@@ -110,7 +110,7 @@
   display: none;
 }
 .strip {
-  height: 40px;
+  height: 32px;
   gap: var(--ui-space-1);
   border-block-end: 1px solid var(--ui-color-border);
 }
@@ -136,12 +136,12 @@
   display: flex;
   flex: none;
   align-items: center;
-  height: calc(64px + env(safe-area-inset-bottom, 0px));
   padding: var(--ui-space-1) var(--ui-space-4)
     calc(var(--ui-space-1) + env(safe-area-inset-bottom, 0px));
   border-block-start: 1px solid var(--ui-color-outline);
   background: var(--ui-color-surface);
   overflow: auto hidden;
+  height: calc(64px + env(safe-area-inset-bottom, 0px));
 }
 .commands > *,
 .commands [data-component="GameActionBar"] {
@@ -161,15 +161,17 @@
     --game-board-workspace-inset: var(--ui-space-4);
   }
 }
-@container game-column (max-width: 479px) {
+/* Two seats on a phone share one row, the way a clock strip does: each
+   seat keeps its clock, and the board under them gains a row. A table of
+   three or more stays stacked so every name still reads. */
+@container game-column (max-width: 879px) {
   .stage
-    [data-viewport-fit="square"]
-    > [data-game-players]:has(> :nth-child(2):last-child) {
+    [data-game-players]:has(> :nth-child(2):last-child) {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--ui-space-1);
   }
-  .stage [data-viewport-fit="square"] > [data-game-players] > * {
+  .stage [data-game-players]:has(> :nth-child(2):last-child) > * {
     min-width: 0;
     margin-inline: 0;
   }

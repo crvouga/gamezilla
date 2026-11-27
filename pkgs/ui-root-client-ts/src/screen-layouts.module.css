@@ -277,7 +277,7 @@
 .well {
   box-sizing: content-box;
   display: flex;
-  flex: 0 1 auto;
+  flex: 1 1 auto;
   align-self: stretch;
   aspect-ratio: var(--ui-puzzle-column-ratio, 1);
   min-height: 0;
@@ -554,10 +554,19 @@
    320px. A short landscape window puts the board in a left column at the
    window height (less the 53px bar, the board's 48px guidance and 3px), so
    the guidance stays in view too; the rest reads down the right while the
-   board column stays put. */
+   board column stays put. A portrait phone is taller than that cap: the
+   board takes the width of the column, and the actions follow it. */
 @container puzzle-frame (width < 880px) {
   .puzzle[data-board-sizing="width"] > .well > .board {
     max-width: max(320px, calc(100dvh - 420px));
+  }
+}
+@container puzzle-frame (width < 480px) {
+  .puzzle[data-board-sizing="width"] {
+    flex: none;
+  }
+  .puzzle[data-board-sizing="width"] > .well > .board {
+    max-width: 100%;
   }
 }
 @container puzzle-frame (min-width: 880px) {

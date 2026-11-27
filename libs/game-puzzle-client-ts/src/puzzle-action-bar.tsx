@@ -12,6 +12,11 @@ import {
 export type PuzzleActionBarProps = PuzzleActionBarModel & {
   /** Beside Skip, an equal button: looking back through the line. */
   beside?: JSX.Element | undefined;
+  /**
+   * The one way to the puzzle settings, under the commands. It is a row,
+   * never a card, so the board above keeps the room a phone gives it.
+   */
+  settings?: JSX.Element | undefined;
 };
 
 type ActionSlot = Exclude<PuzzleActionBarSlot, { id: 'skip' }>;
@@ -66,7 +71,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
   // in the same order on a phone and beside a wide board.
   const lead = (): ActionSlot | undefined =>
     actions().find((slot) => slot.id === 'retry' && slot.type === 'button');
-  return (
+  const bar = (): JSX.Element => (
     <Show
       when={lead() !== undefined}
       fallback={
@@ -95,7 +100,7 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         </StackHorizontal>
       }
     >
-      <StackVertical gap="sm">
+      <StackVertical gap="sm" testId="chess-puzzle-action-stack">
         <Show when={lead()} keyed>
           {(slot) => <PuzzleActionButton slot={slot} model={props} fullWidth />}
         </Show>
@@ -105,5 +110,11 @@ export function PuzzleActionBar(props: PuzzleActionBarProps): JSX.Element {
         <SkipRow slot={skip()} onSkip={props.onSkip} beside={props.beside} />
       </StackVertical>
     </Show>
+  );
+  return (
+    <StackVertical gap="xs">
+      {bar()}
+      {props.settings}
+    </StackVertical>
   );
 }

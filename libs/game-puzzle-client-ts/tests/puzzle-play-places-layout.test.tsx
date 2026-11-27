@@ -70,7 +70,7 @@ test('play: the status line, the board, what solving allows, the line and one wa
 // regression: puzzle-phone-board-pushed-down — on a phone the feed's
 // settings line and the coach stacked over the board, which started about
 // 300px down the screen. Only the status line is over the board now, on
-// every size: the settings row follows the line under it.
+// every size: the settings row sits with the commands, under the board.
 test('the same screen on a phone and a desktop: only the status line is over the board', () => {
   mountPlay('play', {}, 390);
   const phone = shownIds();
@@ -79,11 +79,16 @@ test('the same screen on a phone and a desktop: only the status line is over the
       screen.getByTestId('chess-puzzle-feed-summary')
     )
   ).toBe(false);
+  expect(
+    region('PuzzleActions').contains(
+      screen.getByTestId('chess-puzzle-feed-summary')
+    )
+  ).toBe(true);
   cleanup();
   mountPlay('play', {}, 1440);
   expect(shownIds()).toEqual(phone);
   expect(
-    region('PuzzleTimeline').contains(
+    region('PuzzleActions').contains(
       screen.getByTestId('chess-puzzle-feed-summary')
     )
   ).toBe(true);

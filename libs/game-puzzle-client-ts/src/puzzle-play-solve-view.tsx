@@ -1,7 +1,6 @@
 import { PUZZLE_NAV_INTENT } from '@libs/game-puzzle-shared-ts/puzzle-nav';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { MoveStrip, MoveStripSlot } from '@pkgs/ui-root-client-ts/move-strip';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
@@ -60,6 +59,15 @@ export function PuzzleSolveActions(
               flex={1}
               onClick={() => props.onOpen({ screen: 'line' })}
               dataSet={{ testid: 'chess-puzzle-line-open' }}
+            />
+          </Show>
+        }
+        settings={
+          <Show when={!props.spectator}>
+            <PuzzleSettingsRow
+              feed={props.feed}
+              allowanceLabel={props.allowanceLabel}
+              onOpen={() => props.onOpen({ screen: 'feed' })}
             />
           </Show>
         }
@@ -127,26 +135,4 @@ export function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
   );
 }
 
-/**
- * Under the `play` place's commands: for the solver, the one row to the
- * puzzle settings. The moves so far read over the board (`CompactLine`).
- */
-export function PuzzleSolveLine(
-  props: PuzzleStageScreenViewProps
-): JSX.Element {
-  return (
-    <StackVertical gap="md">
-      <Show when={!props.spectator}>
-        <StackVertical paddingX="lg">
-          <MenuSection>
-            <PuzzleSettingsRow
-              feed={props.feed}
-              allowanceLabel={props.allowanceLabel}
-              onOpen={() => props.onOpen({ screen: 'feed' })}
-            />
-          </MenuSection>
-        </StackVertical>
-      </Show>
-    </StackVertical>
-  );
-}
+

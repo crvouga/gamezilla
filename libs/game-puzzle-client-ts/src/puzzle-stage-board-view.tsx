@@ -12,7 +12,6 @@ import {
   CompactLine,
   EarlierPosition,
   PuzzleSolveActions,
-  PuzzleSolveLine,
   SpectatorAllowance,
 } from './puzzle-play-solve-view';
 
@@ -75,9 +74,6 @@ export function PuzzleStageBoardView(
       }
       timeline={
         <Switch>
-          <Match when={place() === 'play'}>
-            <PuzzleSolveLine {...props} />
-          </Match>
           <Match when={place() === 'line'}>
             <PuzzleLineMoves {...props} />
           </Match>
