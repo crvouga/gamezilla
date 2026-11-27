@@ -34,9 +34,14 @@ export type TestLocalSql = {
 const env = import.meta.env as { VITE_TEST_HOOKS?: string };
 
 /** Registers `client` as the one the hook answers against (test builds only). */
-export function exposeLocalSqlForTests(client: SqlClient): void {
+export function exposeLocalSqlForTests(client: SqlClient): (() => void) | undefined {
   if (env.VITE_TEST_HOOKS !== '1') return;
-  Reflect.set(globalThis, TEST_LOCAL_SQL_GLOBAL, createTestLocalSql(client));
+  const hook = createTestLocalSql(client);
+  Reflect.set(globalThis, TEST_LOCAL_SQL_GLOBAL, hook);
+  return () => {
+    if (Reflect.get(globalThis, TEST_LOCAL_SQL_GLOBAL) === hook)
+      Reflect.deleteProperty(globalThis, TEST_LOCAL_SQL_GLOBAL);
+  };
 }
 
 export function createTestLocalSql(client: SqlClient): TestLocalSql {

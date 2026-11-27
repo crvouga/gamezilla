@@ -14,6 +14,7 @@ import { LocalIdentityProvider } from '@libs/app-root-client-ts/identity-context
 import { createInMemoryClientPorts } from '@libs/app-root-client-ts/in-memory-client-ports';
 import { useSyncEngineBootViews } from '@libs/app-root-client-ts/use-sync-engine-boot-views';
 import { createAppBearerTokenStore } from '@libs/app-root-shared-ts/auth-client-storage';
+import { TEST_LOCAL_SQL_GLOBAL, type TestLocalSql } from '@libs/app-root-shared-ts/test-local-sql';
 import { AuthClientProvider } from '@libs/auth-client-ts/auth-client-provider';
 import {
   DEVICE_ID_KEY,
@@ -35,6 +36,7 @@ import { createInMemorySecureStorage } from '@pkgs/secure-storage-root-shared-ts
 import { createSecureStorageStore } from '@pkgs/secure-storage-root-shared-ts/secure-storage-store';
 import { createFaultInjectingSqlClient } from '@pkgs/sql-client-root-shared-ts/fault-injecting-sql-client';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
+import sql from '@pkgs/sql-root-shared-ts/sql';
 import { STORAGE_FAULTS } from '@pkgs/sql-client-root-shared-ts/storage-faults';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import { render } from '@solidjs/testing-library';
@@ -161,6 +163,54 @@ async function until(done: () => boolean): Promise<void> {
 }
 
 describe('booting the app', () => {
+  // regression: superseded-boot-exposes-stale-device-board
+  test('a late database open cannot replace the recorded winner on the active device', async () => {
+    const hooks = process.env.VITE_TEST_HOOKS;
+    process.env.VITE_TEST_HOOKS = '1';
+    const started = Promise.withResolvers<void>();
+    const release = Promise.withResolvers<void>();
+    const finished = Promise.withResolvers<void>();
+    const id = '75e5838e-216c-4d18-bb14-c7a8cb948be3';
+    const open = async (revision: number, outcome: string) => {
+      const db = await openMockingbird();
+      await db.run(sql`CREATE TABLE match_results (id TEXT PRIMARY KEY, revision INTEGER, outcome TEXT)`);
+      await db.run(sql`INSERT INTO match_results VALUES (${id}, ${revision}, ${outcome})`);
+      return db;
+    };
+    const retired = await boot({
+      openSqlClient: () => open(0, 'ongoing'),
+      pool: (real) => ({
+        ...real,
+        getOrCreate: async (args) => {
+          const engine = await real.getOrCreate(args);
+          started.resolve();
+          await release.promise;
+          finished.resolve();
+          return engine;
+        },
+      }),
+    });
+    await started.promise;
+    retired.unmount();
+    const active = await boot({ openSqlClient: () => open(8, 'black') });
+    try {
+      await until(() => active.state() === 'ready');
+      const read = () => {
+        const hook: TestLocalSql = Reflect.get(globalThis, TEST_LOCAL_SQL_GLOBAL);
+        return hook.query(['SELECT revision, outcome FROM match_results WHERE id = ', ''], [id]);
+      };
+      expect(JSON.parse(await read())).toEqual([{ revision: 8, outcome: 'black' }]);
+      release.resolve();
+      await finished.promise;
+      await Bun.sleep(0);
+      expect(JSON.parse(await read())).toEqual([{ revision: 8, outcome: 'black' }]);
+    } finally {
+      release.resolve();
+      active.unmount();
+      if (hooks === undefined) delete process.env.VITE_TEST_HOOKS;
+      else process.env.VITE_TEST_HOOKS = hooks;
+    }
+  });
   // regression: deleted-account-stats-space-withdrawal
   test('a rejected bearer exposes the auth port’s ordinary and forced token refresh', async () => {
     const refreshes: unknown[] = [];
