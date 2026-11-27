@@ -32,8 +32,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** Searching: the time control, how long it has looked, and a way to stop. */
-export const Searching: Story = {};
+/** Searching: the wait on the board's place, over the person's seat and chosen clock, and a way to stop. */
+export const Searching: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      await canvas.findByRole('heading', { level: 2, name: 'Searching…' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByTestId('multiplayer-waiting-clock')
+    ).toHaveTextContent('5 min + 3 sec');
+  },
+};
 
 /** Searching for three other players of a game with no clock choices. */
 export const SearchingForPlayers: Story = {

@@ -19,6 +19,7 @@ import { multiplayerResultShown } from './multiplayer-outcome';
 import { MULTIPLAYER_PLACES } from './multiplayer-places';
 import { MultiplayerPrivateSetupPanel } from './multiplayer-private-setup';
 import { useMultiplayerRatings } from './multiplayer-ratings';
+import { searchYou } from './multiplayer-search-you';
 import { useReturnInsteadOfSeeking } from './return-to-game-offer';
 import { useDeadlineSettle } from './use-deadline-settle';
 import { useLowOnTime, useLowOnTimeWarning } from './use-low-on-time';
@@ -271,6 +272,8 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
     props.view,
     screen.confirm.open
   );
+  // The person's own seat under the waiting board, built once.
+  const you = searchYou(data.myId);
   const leave = (): void => {
     if (data.game() === null) props.onLeave();
     else
@@ -304,6 +307,7 @@ function MultiplayerContent(props: ScreenProps): JSX.Element {
         gamesLeft={screen.gamesLeft()}
         search={screen.search()}
         onStop={controls.stop}
+        you={you}
         ratings={screen.ratings()}
         game={screen.game()}
         commands={commands}

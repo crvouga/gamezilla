@@ -11,22 +11,25 @@ import {
 } from './multiplayer-place-frame';
 import {
   type MultiplayerSearchView,
+  type MultiplayerSearchYou,
   MultiplayerStopSearch,
   MultiplayerWaiting,
 } from './multiplayer-waiting';
-import { timeControlWords } from './time-control-name';
 
 /**
  * A search under way: what will be played (in the search's own one-line
- * card: ranked, rated, its clock), what the search is looking for
- * and how long it has looked, over its one command, stopping it, held at
- * the foot of the screen. An opponent found changes the stage, and the
- * game's board takes this place once setup is complete.
+ * card: ranked, rated), then the wait drawn where the board will be
+ * (`Searching…`, what is sought, how long) over the person's seat with
+ * the clock they chose, and the one command, stopping it, held at the foot
+ * of the screen. An opponent found changes the stage, and the game's board
+ * takes this place once setup is complete.
  */
 export function MultiplayerSearchingView(
   props: MultiplayerPlaceFrame & {
     readonly search: MultiplayerSearchView;
     readonly onStop: () => Promise<void>;
+    /** Who is searching, for the seat under the waiting board. */
+    readonly you?: MultiplayerSearchYou | undefined;
     /** No connection: the search card says it waits and resumes. */
     readonly offline?: boolean | undefined;
   }
@@ -50,19 +53,22 @@ export function MultiplayerSearchingView(
             <Trans>Ranked match</Trans>
             {'\u00a0· '}
             <Trans>Rated</Trans>
-            {'\u00a0· '}
-            <Show
-              when={props.search.timeControl}
-              fallback={<Trans>Untimed</Trans>}
-            >
-              {(control) => <>{timeControlWords(control())}</>}
+            {/* A timed search's clock is on the person's seat, said once;
+                an untimed one says so here, in its one line. */}
+            <Show when={props.search.timeControl === null}>
+              {'\u00a0· '}
+              <Trans>Untimed</Trans>
             </Show>
           </>
         }
         title={props.search.gameName}
         summary={props.search.goal}
       />
-      <MultiplayerWaiting search={props.search} offline={props.offline} />
+      <MultiplayerWaiting
+        search={props.search}
+        you={props.you}
+        offline={props.offline}
+      />
     </MultiplayerLobbyPlace>
   );
 }

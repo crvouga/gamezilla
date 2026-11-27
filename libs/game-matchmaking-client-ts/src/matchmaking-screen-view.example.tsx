@@ -1,6 +1,7 @@
 import { ConnectFourStoryBoard } from '@libs/game-session-client-ts/connect-four-story-board.example';
 import { SpacePersonAvatar } from '@libs/spaces-client-ts/space-person-view';
 import { AVERY, JORDAN } from '@libs/spaces-client-ts/spaces-story.example';
+import { Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { GameBoardStage } from '@pkgs/ui-root-client-ts/game-board-stage';
@@ -267,6 +268,7 @@ export const STORY_PARAMETERS = {
       'gamesLeft',
       'find',
       'search',
+      'you',
       'ratings',
       'game',
       'commands',
@@ -296,6 +298,7 @@ export function storyArgs(): MatchmakingScreenViewProps {
     onFind: resolved(),
     search: null,
     onStop: resolved(),
+    you: { avatar: <Avatar kind="person" />, name: 'River' },
     ratings: [{ pool: 'game', rating: 1512, games: 34 }],
     game: null,
     commands: storyCommands(),

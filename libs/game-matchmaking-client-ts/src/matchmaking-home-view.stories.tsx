@@ -43,8 +43,18 @@ export const FirstVisit: Story = {
   args: { find: { players: 2, timed: false, timeControl: '5+0', fresh: true } },
 };
 
-/** A game with clock choices: the chosen clock is one row, one press from changing. */
-export const FindTimed: Story = { args: TIMED };
+/** A game with clock choices: the chosen clock is one row directly over Find, one press from changing. */
+export const FindTimed: Story = {
+  args: TIMED,
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const row = await canvas.findByTestId('multiplayer-open-time-control');
+    await expect(row).toHaveTextContent('5 min');
+    await expect(
+      canvas.getByTestId('multiplayer-time-control-choice').nextElementSibling
+    ).toBe(canvas.getByTestId('multiplayer-find'));
+  },
+};
 
 /** A bigger game: find the other players, at the same clock choice. */
 export const FindPlayers: Story = {
