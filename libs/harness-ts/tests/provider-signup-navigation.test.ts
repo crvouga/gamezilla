@@ -30,6 +30,7 @@ function signup(rejection?: string) {
     }),
     visibleRegion: async () =>
       phase === 'consent' ? 'oauth-mock-consent' : 'oauth-mock-signup',
+    exposedControl: async () => false,
   };
   const browser = {
     documentControls: () => ui,

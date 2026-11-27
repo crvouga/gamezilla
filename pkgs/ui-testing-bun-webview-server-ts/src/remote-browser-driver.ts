@@ -6,6 +6,8 @@ import type { VisibleRegion } from './document-region';
 
 export type DocumentControls = Pick<Driver, 'get'> & {
   readonly visibleRegion: VisibleRegion;
+  /** A control the accessibility tree exposes, without running page script. */
+  readonly exposedControl: (origin: string, testId: string) => Promise<boolean>;
 };
 
 export type BrowserDocument = {
@@ -26,7 +28,10 @@ export type BrowserCall = {
 export function runsNoPageCode(call: BrowserCall): boolean {
   return (
     (call.target === 'view' &&
-      (call.method === 'loadedUrl' || call.method === 'readyDocument')) ||
+      (call.method === 'loadedUrl' ||
+        call.method === 'readyDocument' ||
+        call.method === 'visibleRegion' ||
+        call.method === 'exposedControl')) ||
     (call.target === 'driver' && call.method === 'close')
   );
 }
@@ -70,6 +75,13 @@ export function documentControls(rpc: BrowserRpc): DocumentControls {
         path: [],
         method: 'visibleRegion',
         args: [origin, markers],
+      }),
+    exposedControl: (origin, testId) =>
+      rpc({
+        target: 'view',
+        path: [],
+        method: 'exposedControl',
+        args: [origin, testId],
       }),
   };
 }

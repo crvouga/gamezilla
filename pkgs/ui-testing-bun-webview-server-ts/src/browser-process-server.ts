@@ -21,6 +21,7 @@ export type BrowserDevice = {
   readonly readRegionMarker?: (
     markers: RegionMarkers
   ) => Promise<string | null>;
+  readonly readExposedControl?: (testId: string) => Promise<boolean>;
   readonly documentLoad?: () => {
     readonly loading: boolean;
     readonly navigation: number;
@@ -47,19 +48,21 @@ function readyDocument(device: BrowserDevice) {
     : null;
 }
 
-async function invoke(
+const NATIVE_VIEW_READS = new Set([
+  'loadedUrl',
+  'readyDocument',
+  'visibleRegion',
+  'exposedControl',
+]);
+
+/** Reads that use the document tree or the native view, never page script. */
+async function readNativeView(
   device: BrowserDevice,
   call: BrowserCall
 ): Promise<unknown> {
-  if (call.target === 'view' && call.method === 'navigate')
-    await device.activateBeforeNavigate?.();
-  // Bun updates the native URL when navigation completes. Reading it does
-  // not execute JavaScript in the document the browser is tearing down.
-  if (call.target === 'view' && call.method === 'loadedUrl')
-    return Reflect.get(device.view, 'url');
-  if (call.target === 'view' && call.method === 'readyDocument')
-    return readyDocument(device);
-  if (call.target === 'view' && call.method === 'visibleRegion') {
+  if (call.method === 'loadedUrl') return Reflect.get(device.view, 'url');
+  if (call.method === 'readyDocument') return readyDocument(device);
+  if (call.method === 'visibleRegion') {
     const [origin, markers] = call.args as readonly [string, RegionMarkers];
     const read =
       device.readRegionMarker ??
@@ -69,6 +72,27 @@ async function invoke(
       markers
     );
   }
+  const [origin, testId] = call.args as readonly [string, string];
+  const read =
+    device.readExposedControl ??
+    (async (id: string) => device.driver.get(id, 'document').isVisible());
+  const found = await visibleDocumentRegion(
+    () => documentState(device),
+    async () => ((await read(testId)) ? testId : null)
+  )(origin, { [testId]: testId });
+  return found === testId;
+}
+
+async function invoke(
+  device: BrowserDevice,
+  call: BrowserCall
+): Promise<unknown> {
+  if (call.target === 'view' && call.method === 'navigate')
+    await device.activateBeforeNavigate?.();
+  // Bun updates the native URL when navigation completes. Reading it does
+  // not execute JavaScript in the document the browser is tearing down.
+  if (call.target === 'view' && NATIVE_VIEW_READS.has(call.method))
+    return readNativeView(device, call);
   if (call.target === 'driver' && call.method === 'close')
     return device.close();
   let target: unknown =
@@ -124,7 +148,9 @@ export function createBrowserRequestHandler<Open>(
     const value =
       (((call.target === 'node' || call.target === 'document-node') &&
         (call.method === 'tap' || call.method === 'isVisible')) ||
-        (call.target === 'view' && call.method === 'visibleRegion')) &&
+        (call.target === 'view' &&
+          (call.method === 'visibleRegion' ||
+            call.method === 'exposedControl'))) &&
       current.traceCall
         ? await current.traceCall(
             () => invoke(current, call),

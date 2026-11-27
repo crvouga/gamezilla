@@ -24,7 +24,11 @@ test('Apple form-post in a script-running browser submits only once', async () =
         'alice',
         {
           browser: {
-            documentControls: () => ui,
+            documentControls: () => ({
+              ...ui,
+              visibleRegion: async () => null,
+              exposedControl: async () => false,
+            }),
             readyDocument: async () => ({
               origin,
               title: 'Continue to your app · OAuth Emulator',

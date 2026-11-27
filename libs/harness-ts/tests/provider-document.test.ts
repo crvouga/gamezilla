@@ -40,7 +40,11 @@ test('Google sign-in reads Done on the returned app document after consent', asy
         'alice',
         {
           browser: {
-            documentControls: () => ui,
+            documentControls: () => ({
+              ...ui,
+              visibleRegion: async () => 'oauth-mock-consent',
+              exposedControl: async () => false,
+            }),
             readyDocument: async () =>
               origin
                 ? { origin, title: 'Review access · OAuth Emulator' }
@@ -89,7 +93,11 @@ test('the app can report a sign-in failure before it leaves for Google', async (
         'alice',
         {
           browser: {
-            documentControls: () => ui,
+            documentControls: () => ({
+              ...ui,
+              visibleRegion: async () => null,
+              exposedControl: async () => false,
+            }),
             readyDocument: async () => ({ origin: app, title: 'Account' }),
           },
         },
@@ -121,6 +129,8 @@ function returnFromConsent(outcomeAt: number) {
   const clicks: string[] = [];
   const budgets: number[] = [];
   const controls = (remainingMs: () => number) => ({
+    visibleRegion: async () => 'oauth-mock-consent',
+    exposedControl: async () => false,
     get: (id: string) => ({
       isVisible: async () => {
         if (id === 'oauth-mock-consent') return true;

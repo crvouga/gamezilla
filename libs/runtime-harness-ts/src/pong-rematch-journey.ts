@@ -31,6 +31,22 @@ export async function acceptPongRematch(
   });
 }
 
+/**
+ * A rematch can still show the finished score for a moment after both
+ * people accept. The serve announcement is the new game.
+ */
+async function startedCourt(ui: Driver) {
+  await ui
+    .get('multiplayer-board-status')
+    .wait({ text: 'Serve in', exact: false }, { timeoutMs: JOURNEY_WAIT_MS });
+  const court = await pongJourneyCourt(ui);
+  check(
+    court.stage === 'countdown' || court.stage === 'playing',
+    'The rematch did not start'
+  );
+  return court;
+}
+
 async function rematchShown(
   ui: Driver,
   side: PongJourneyStart['side']
@@ -52,16 +68,12 @@ export async function observePongRematch(
       ui,
       start.side === 'white' ? 'black' : 'white'
     );
-    const court = await pongJourneyCourt(ui);
     check(next.gameId !== start.gameId, 'The rematch reused the finished game');
     check(next.side !== start.side, 'Alice kept her earlier paddle');
+    const court = await startedCourt(ui);
     check(
       court.score.left === 0 && court.score.right === 0,
       'The rematch kept old points'
-    );
-    check(
-      court.stage === 'countdown' || court.stage === 'playing',
-      'The rematch did not start'
     );
     rematchId = next.gameId;
   });

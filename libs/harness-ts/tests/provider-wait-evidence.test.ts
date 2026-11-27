@@ -28,6 +28,9 @@ test.each([
         visibleRegion: async () => {
           throw new Error(failure);
         },
+        exposedControl: async () => {
+          throw new Error(failure);
+        },
       }),
       readyDocument: async () => ({ origin: google, title }),
     };
@@ -88,7 +91,11 @@ test('a timed-out sign-in identifies the person, submitted screen and recent nat
     }),
   } as unknown as Driver;
   const browser = {
-    documentControls: () => ({ ...ui, visibleRegion: async () => null }),
+    documentControls: () => ({
+      ...ui,
+      visibleRegion: async () => null,
+      exposedControl: async () => index === 0,
+    }),
     readyDocument: async () => pages[index],
   };
   const s = {

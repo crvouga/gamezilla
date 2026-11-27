@@ -247,12 +247,20 @@ async function currentScreen(
 /** The chooser: this account's row, or a new account at this address. */
 async function choose(
   ui: ProviderControls,
-  answers: ProviderAnswers
+  answers: ProviderAnswers,
+  tab: ReturnType<typeof nativeProviderTab>
 ): Promise<void> {
   const id = harnessIdpAccountId(answers.email);
   const row = ui.get(PROVIDER_PAGE.account(id));
   // The provider's entry animation can hide a listed account. Its native tap waits for paint.
-  if ((await row.attribute('value').catch(missingElement)) === id) {
+  // The account button is in the document. Reading its value through page script
+  // hangs the browser while the chooser is still painting.
+  const listed = tab
+    ? await tab
+        .controls(() => WAIT_MS)
+        .exposedControl(tab.provider, PROVIDER_PAGE.account(id))
+    : (await row.attribute('value').catch(missingElement)) === id;
+  if (listed) {
     await row.tap({ timeoutMs: WAIT_MS });
     return;
   }
@@ -293,10 +301,11 @@ async function consent(
 async function answer(
   ui: ProviderControls,
   screen: ProviderScreen,
-  answers: ProviderAnswers
+  answers: ProviderAnswers,
+  tab: ReturnType<typeof nativeProviderTab>
 ): Promise<void> {
   if (screen === 'chooser') {
-    await choose(ui, answers);
+    await choose(ui, answers, tab);
     return;
   }
   if (screen === 'signup') {
@@ -326,7 +335,7 @@ export async function completeProviderSignIn(
     if (screen === 'done') return;
     // Live browsers execute Apple's form-post script; clicking again replays state.
     if (screen !== 'handoff' || productExtra(s).ui.kind !== 'bun-webview')
-      await answer(ui, screen, args.answers);
+      await answer(ui, screen, args.answers, tab);
     // The step is a round trip to the provider: the next screen (or the
     // hand-off back to the app) replaces this one when it lands.
     if (tab) previous = screen;
