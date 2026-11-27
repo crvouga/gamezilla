@@ -1,0 +1,4 @@
+{
+  "summary": "The native provider chooser could treat a listed but still transparent account as missing and wait on the rejected signup form.",
+  "regressionTest": "libs/harness-ts/tests/provider-chooser-navigation.test.ts"
+}

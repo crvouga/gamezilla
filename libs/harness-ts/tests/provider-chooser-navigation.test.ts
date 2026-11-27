@@ -4,6 +4,7 @@ import {
   createHarnessIdps,
   HARNESS_GOOGLE_REDIRECT_URI,
   harnessAppleClientKeys,
+  harnessIdpAccountId,
 } from '@libs/harness-ts/idp';
 import { completeProviderSignIn } from '@libs/harness-ts/provider-walk';
 import { HARNESS_GOOGLE_CLIENT_ID } from '@libs/sub-shared-ts/harness-constants';
@@ -28,8 +29,12 @@ async function checkGoogleSignIn(
   let index = 0;
   const page = () => pages[index]!;
   const taps: string[] = [];
+  const accountId = harnessIdpAccountId('alice@example.com');
+  const accountButton = 'oauth-mock-account-' + accountId;
   const ui = {
     get: (id: string) => ({
+      attribute: async (key: string) =>
+        id === accountButton && key === 'value' ? accountId : null,
       isVisible: async () => {
         if (staleTitle && id === 'oauth-mock-chooser')
           throw new Error(
@@ -41,7 +46,8 @@ async function checkGoogleSignIn(
           );
         if (id === 'oauth-mock-chooser') return index <= 1;
         if (id === 'oauth-mock-consent') return index === 2;
-        return id.startsWith('oauth-mock-account-') && index === 0;
+        // The named region is already exposed while its entrance animation has opacity zero.
+        return !staleTitle && id === accountButton && index === 0;
       },
       tap: async () => {
         taps.push(id);
@@ -108,10 +114,7 @@ async function checkGoogleSignIn(
     done: async () => page()[0] === app,
   });
   expect(markerBudgets).toEqual(staleTitle ? [14_580, 14_580] : [14_580]);
-  expect(taps).toEqual([
-    expect.stringMatching(/^oauth-mock-account-/),
-    'oauth-mock-allow',
-  ]);
+  expect(taps).toEqual([accountButton, 'oauth-mock-allow']);
   expect(page()[0]).toBe(app);
 }
 
@@ -125,6 +128,7 @@ test.each(['·', String.raw`\u00b7`])(
 
 // regression: word-tiles-unknown-provider-document
 // regression: battleship-unknown-provider-first-read
+// regression: listed-provider-account-signup
 test('Alice answers a visible Google chooser while its native title still belongs to the app', async () => {
   const { google: idp } = createHarnessIdps({
     clock: { now: () => 1_700_000_000_000 },
@@ -153,6 +157,12 @@ test('Alice answers a visible Google chooser while its native title still belong
   const heading = doc.getElementById(
     chooser?.getAttribute('aria-labelledby') ?? ''
   )?.textContent;
+  const id = harnessIdpAccountId('alice@example.com');
+  expect(
+    chooser
+      ?.querySelector(`[data-testid="oauth-mock-account-${id}"]`)
+      ?.getAttribute('value')
+  ).toBe(id);
   if (!heading)
     throw new Error('The provider chooser needs an accessible name');
   await checkGoogleSignIn('·', heading);

@@ -11,7 +11,9 @@
  * ids.
  */
 
+import type { DocumentControls } from '@pkgs/ui-testing-bun-webview-server-ts/remote-browser-driver';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { ElementNotFoundError } from '@pkgs/ui-testing-root-shared-ts/element-not-found-error';
 import { pollUntil } from './actor-ui';
 import { type ProductHarness, productExtra } from './harness';
 import type { HarnessIdpProvider } from './idp';
@@ -30,6 +32,7 @@ const PROVIDER_PAGE = {
   signupName: 'oauth-mock-signup-name',
   signupEmail: 'oauth-mock-signup-email',
   signupSubmit: 'oauth-mock-signup-submit',
+  signupError: 'oauth-mock-signup-error',
   consent: 'oauth-mock-consent',
   allow: 'oauth-mock-allow',
   deny: 'oauth-mock-deny',
@@ -131,16 +134,47 @@ const PROVIDER_REGIONS = {
   'This sign-in expired': 'oauth-mock-error',
 };
 
-function visibleProviderForm(
-  id: string | null,
+function missingElement(cause: unknown): null {
+  if (cause instanceof ElementNotFoundError) return null;
+  throw cause;
+}
+
+// A signup reply can render consent or a rejected form under the same cached title.
+function needsRenderedForm(
+  page: NativeProviderPage,
+  submitted: ProviderScreen | null
+) {
+  return (
+    page === 'unknown provider page' ||
+    (page === 'signup' && submitted === 'signup')
+  );
+}
+
+async function renderedProviderForm(
+  ui: DocumentControls,
+  origin: string,
   previous: ProviderScreen | null,
   waiting: (state: string) => null
 ) {
+  const id = await ui.visibleRegion(origin, PROVIDER_REGIONS);
   if (id === 'oauth-mock-error')
     throw new Error('The provider reports an expired sign-in');
   const form = SCREENS.find(([, marker]) => marker === id)?.[0];
   if (!form) return waiting('unknown provider page without a visible form');
-  return form === previous ? waiting(`submitted ${form}`) : form;
+  if (form !== previous) return form;
+  if (form === 'signup') {
+    const error = await ui
+      .get(PROVIDER_PAGE.signupError)
+      .text()
+      .catch(missingElement);
+    if (error === 'This email already has an account. Go back to choose it.')
+      throw new Error(
+        'The provider rejected signup because this email already has an account'
+      );
+    if (error)
+      throw new Error('The provider rejected the submitted signup details');
+  }
+  return waiting(`submitted ${form}`);
 }
 
 async function currentScreen(
@@ -178,10 +212,8 @@ async function currentScreen(
       if (previous !== null && !returnedToApp) return 'returned';
       return (await walk.done(ui)) ? 'done' : waiting('app awaiting outcome');
     }
-    if (screen === 'unknown provider page') {
-      const id = await ui.visibleRegion(tab.provider, PROVIDER_REGIONS);
-      return visibleProviderForm(id, previous, waiting);
-    }
+    if (needsRenderedForm(screen, previous))
+      return renderedProviderForm(ui, tab.provider, previous, waiting);
     if (screen === previous) return waiting(`submitted ${screen}`);
     if (screen !== 'chooser' && screen !== 'signup' && screen !== 'consent')
       return waiting(screen);
@@ -217,8 +249,10 @@ async function choose(
   ui: ProviderControls,
   answers: ProviderAnswers
 ): Promise<void> {
-  const row = ui.get(PROVIDER_PAGE.account(harnessIdpAccountId(answers.email)));
-  if (await row.isVisible()) {
+  const id = harnessIdpAccountId(answers.email);
+  const row = ui.get(PROVIDER_PAGE.account(id));
+  // The provider's entry animation can hide a listed account. Its native tap waits for paint.
+  if ((await row.attribute('value').catch(missingElement)) === id) {
     await row.tap({ timeoutMs: WAIT_MS });
     return;
   }
