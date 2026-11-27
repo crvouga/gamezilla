@@ -3,6 +3,52 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { completeProviderSignIn } from '@libs/harness-ts/provider-walk';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
+test.each([
+  ['Choose an account · OAuth Emulator', 'chooser'],
+  ['bob@example.com', 'unknown provider page'],
+])(
+  'a stalled first marker read records its native page classification',
+  async (title, page) => {
+    const google = 'http://google.test';
+    const failure =
+      'document-node oauth-mock-chooser isVisible: opener.cdp(Runtime.evaluate) pending';
+    const ui = {
+      get: () => ({
+        isVisible: async () => {
+          throw new Error(failure);
+        },
+      }),
+    } as unknown as Driver;
+    const browser = {
+      documentControls: () => ui,
+      readyDocument: async () => ({ origin: google, title }),
+    };
+    const s = {
+      actors: new Map([['bob', { browser }]]),
+      session: {
+        ports: {
+          ui: { kind: 'bun-webview', webOrigin: 'http://app.test' },
+          http: { kind: 'stack', idpOrigins: { google } },
+        },
+        scheduler: { virtual: true },
+      },
+    } as unknown as ProductHarness;
+    await expect(
+      completeProviderSignIn({
+        s,
+        ui,
+        actorId: 'bob',
+        answers: { provider: 'google', email: 'bob@example.com' },
+        done: async () => false,
+      })
+    ).rejects.toThrow(
+      new Error(
+        `a provider sign-in screen (bob, google, last submitted: none; observed: none) (reading: ${page}): ${failure}`
+      )
+    );
+  }
+);
+
 // regression: provider-wait-evidence
 test('a timed-out sign-in identifies the person, submitted screen and recent native documents', async () => {
   const google = 'http://google.test';

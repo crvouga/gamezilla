@@ -3,6 +3,7 @@ import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
 import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
 import { browserCallDiagnostics } from './browser-call-diagnostics';
 import { serveBrowserProcess } from './browser-process-server';
+import { chromeDocumentLoad } from './chrome-document-load';
 import { chromeDocumentVisibility } from './chrome-document-visibility';
 import type { BrowserDeviceOptions } from './wall-io';
 
@@ -35,6 +36,7 @@ serveBrowserProcess(async (options: BrowserDeviceOptions) => {
     view,
     driver,
     ...(backend !== 'webkit' && {
+      isDocumentLoading: chromeDocumentLoad(view),
       // The new document seeds sync from its initial visibility.
       activateBeforeNavigate: async () => {
         await view.cdp('Page.bringToFront', {});

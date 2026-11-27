@@ -13,11 +13,13 @@ export type BrowserDevice = {
   readonly network?: readonly string[];
   readonly traceCall?: TraceBrowserCall;
   readonly activateBeforeNavigate?: () => Promise<void>;
+  readonly isDocumentLoading?: () => boolean;
   close(): Promise<void>;
 };
 
-function readyDocument(view: object) {
-  if (Reflect.get(view, 'loading')) return null;
+function readyDocument(device: BrowserDevice) {
+  const { view } = device;
+  if (device.isDocumentLoading?.() || Reflect.get(view, 'loading')) return null;
   const url = URL.parse(Reflect.get(view, 'url'));
   const title: unknown = Reflect.get(view, 'title');
   return url && typeof title === 'string'
@@ -36,7 +38,7 @@ async function invoke(
   if (call.target === 'view' && call.method === 'loadedUrl')
     return Reflect.get(device.view, 'url');
   if (call.target === 'view' && call.method === 'readyDocument')
-    return readyDocument(device.view);
+    return readyDocument(device);
   if (call.target === 'driver' && call.method === 'close')
     return device.close();
   let target: unknown =
