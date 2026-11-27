@@ -151,6 +151,7 @@ async function currentScreen(
     });
   // Keep only transitions, with no page titles or account details in the report.
   const observed: string[] = [];
+  let returnedToApp = false;
   const waiting = (state: string): null => {
     if (state !== observed.at(-1)) {
       observed.push(state);
@@ -159,15 +160,17 @@ async function currentScreen(
     return null;
   };
   const description = () =>
-    `a provider sign-in screen (${walk.actorId}, ${walk.answers.provider}, last submitted: ${previous ?? 'none'}; observed: ${observed.join(' → ') || 'none'})`;
+    `${returnedToApp ? 'the app sign-in outcome' : 'a provider sign-in screen'} (${walk.actorId}, ${walk.answers.provider}, last submitted: ${previous ?? 'none'}; observed: ${observed.join(' → ') || 'none'})`;
   const probe = async (
     remainingMs: () => number
-  ): Promise<ProviderScreen | 'done' | null> => {
+  ): Promise<ProviderScreen | 'done' | 'returned' | null> => {
     if (remainingMs() === 0) return null;
     const ui = tab.controls(remainingMs);
     const screen = await tab.page(remainingMs());
-    if (screen === 'app')
+    if (screen === 'app') {
+      if (previous !== null && !returnedToApp) return 'returned';
       return (await walk.done(ui)) ? 'done' : waiting('app awaiting outcome');
+    }
     if (screen === 'unknown provider page')
       return visibleProviderForm(ui, previous, waiting);
     if (screen === previous) return waiting(`submitted ${screen}`);
@@ -177,20 +180,27 @@ async function currentScreen(
       ? screen
       : waiting(`${screen} marker absent`);
   };
-  return pollUntil<ProviderScreen | 'done'>(
-    walk.s,
-    (remainingMs) =>
-      probe(remainingMs).catch((cause: unknown) => {
-        throw new Error(
-          `${description()}: ${cause instanceof Error ? cause.message : String(cause)}`,
-          { cause }
-        );
-      }),
-    {
-      maxMs: WAIT_MS,
-      description: () => Promise.resolve(description()),
-    }
-  );
+  for (;;) {
+    const next = await pollUntil(
+      walk.s,
+      (remainingMs) =>
+        probe(remainingMs).catch((cause: unknown) => {
+          throw new Error(
+            `${description()}: ${cause instanceof Error ? cause.message : String(cause)}`,
+            { cause }
+          );
+        }),
+      {
+        maxMs: WAIT_MS,
+        description: () => Promise.resolve(description()),
+        ...(returnedToApp && { actor: walk.actorId }),
+      }
+    );
+    if (next !== 'returned') return next;
+    // Navigation has finished. The returning app now has its own bounded
+    // wait to boot, exchange the code and render the sign-in outcome.
+    returnedToApp = true;
+  }
 }
 
 /** The chooser: this account's row, or a new account at this address. */

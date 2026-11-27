@@ -138,6 +138,7 @@ async function pollTimeout(
     browser: actor.browser,
     appOrigin: null,
     html: () => actor.ui.snapshotHtml(),
+    ...(!s.session.scheduler.virtual && { timers: s.session.ports.timers }),
   });
   return new Error(`${prefix} at ${place}`);
 }
