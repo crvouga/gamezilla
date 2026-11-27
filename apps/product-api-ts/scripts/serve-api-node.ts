@@ -21,6 +21,7 @@ import type { ApiWorkerEnv, RoomNamespace } from '@libs/app-root-shared-ts/env';
 import type { ExecutionContext } from '@libs/app-root-shared-ts/worker-handler';
 import { TURN_GAMES } from '@libs/game-catalog-shared-ts/turn-games';
 import { GAME_DEFINITIONS } from '@libs/games-shared-ts/game-plugins';
+import { localRoomServiceRequest } from '@libs/room-app-shared-ts/local-room-service';
 import { composeRoomModules } from '@libs/spaces-shared-ts/load-game-plugins';
 import { createSpaceRoomAuthorizer } from '@libs/spaces-shared-ts/space-room-authorize';
 import { wallClock, wallTimers } from '@pkgs/clock-shared-ts/wall';
@@ -139,14 +140,11 @@ const roomNamespace: RoomNamespace = {
     fetch: (request) => {
       const topic = roomTopics.get(id) ?? '';
       if (new URL(request.url).pathname === '/room-service') {
-        const target = new URL('/__room-service', process.env['API_URL']);
-        target.search = new URL(request.url).search;
-        const forwarded = new Request(target, request);
-        forwarded.headers.set(
-          'x-room-service-token',
-          process.env['LOCAL_ROOM_SERVICE_TOKEN'] ?? ''
-        );
-        return fetch(forwarded);
+        return fetch(localRoomServiceRequest(
+          request,
+          process.env['API_URL']!,
+          process.env['LOCAL_ROOM_SERVICE_TOKEN']!
+        ));
       }
       return Promise.resolve(answerRoomUpgrade(topic, request));
     },

@@ -1,5 +1,6 @@
 import type { HarnessCheckpointSqlFormat } from '@pkgs/harness-console-shared-ts/checkpoint';
 import type { PubSub } from '@pkgs/pubsub-root-shared-ts/interface';
+import type { RoomServicePort } from '@pkgs/room-root-shared-ts/room-service';
 import type { MultiAppSolidDomSession } from '@pkgs/ui-testing-solid-dom-client-ts/multi-app-solid-dom-session';
 import type Stripe from 'stripe';
 import type { HarnessSql } from './sql-types';
@@ -50,6 +51,7 @@ export type ProductExtra = {
   readonly stackStripe?: Stripe;
   readonly checkpointSqlFormat?: HarnessCheckpointSqlFormat;
   readonly serverEvents?: PubSub;
+  readonly serverRooms?: RoomServicePort;
   readonly sql: HarnessSql;
   readonly ui: ProductUi;
   readonly http: ProductHttp;

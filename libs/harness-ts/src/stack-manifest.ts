@@ -10,6 +10,7 @@ import type { StackIdpOrigins } from './stack-idp-accounts';
 
 export type StackAddresses = {
   readonly apiOrigin: string;
+  readonly dataDir: string;
   readonly webOrigin: string;
   readonly billingOrigin: string;
   readonly idpOrigins: StackIdpOrigins;
