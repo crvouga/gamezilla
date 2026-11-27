@@ -20,9 +20,13 @@ async function invoke(
   // not execute JavaScript in the document the browser is tearing down.
   if (call.target === 'view' && call.method === 'loadedUrl')
     return Reflect.get(device.view, 'url');
-  if (call.target === 'view' && call.method === 'readyOrigin') {
+  if (call.target === 'view' && call.method === 'readyDocument') {
     if (Reflect.get(device.view, 'loading')) return null;
-    return URL.parse(Reflect.get(device.view, 'url'))?.origin ?? null;
+    const url = URL.parse(Reflect.get(device.view, 'url'));
+    const title: unknown = Reflect.get(device.view, 'title');
+    return url && typeof title === 'string'
+      ? { origin: url.origin, title }
+      : null;
   }
   if (call.target === 'driver' && call.method === 'close')
     return device.close();

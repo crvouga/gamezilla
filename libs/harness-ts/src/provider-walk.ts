@@ -76,12 +76,33 @@ function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
   if (!browser) throw new Error(`Missing browser for ${actorId}`);
   const provider = new URL(http.idpOrigins[answers.provider]).origin;
   const app = new URL(ui.webOrigin).origin;
-  return async () => {
-    const origin = await browser.readyOrigin();
-    if (origin === provider) return 'provider' as const;
-    if (origin === app) return 'app' as const;
-    return null;
+  return async (): Promise<ProviderScreen | 'app' | null> => {
+    const doc = await browser.readyDocument();
+    if (doc?.origin === app) return 'app';
+    if (doc?.origin !== provider) return null;
+    // Only these Mockingbird documents wait for a person. The return page
+    // immediately replaces itself (including Apple's automatic form POST).
+    switch (doc.title) {
+      case 'Choose an account · OAuth Emulator':
+        return 'chooser';
+      case 'Create account · OAuth Emulator':
+        return 'signup';
+      case 'Review access · OAuth Emulator':
+        return 'consent';
+      default:
+        return null;
+    }
   };
+}
+
+async function embeddedScreen(
+  walk: ProviderWalk
+): Promise<ProviderScreen | 'done' | null> {
+  if (await walk.done()) return 'done';
+  for (const [screen, testId] of SCREENS) {
+    if (await walk.ui.get(testId).isVisible()) return screen;
+  }
+  return null;
 }
 
 async function currentScreen(
@@ -92,15 +113,13 @@ async function currentScreen(
   return pollUntil<ProviderScreen | 'done'>(
     walk.s,
     async () => {
-      const document = page ? await page() : 'embedded';
-      if (document === null) return null;
-      if (document !== 'provider' && (await walk.done())) return 'done';
-      if (document === 'app') return null;
-      for (const [screen, testId] of SCREENS) {
-        if (await walk.ui.get(testId).isVisible())
-          return screen === previous ? null : screen;
-      }
-      return null;
+      if (!page) return embeddedScreen(walk);
+      const screen = await page();
+      if (screen === 'app') return (await walk.done()) ? 'done' : null;
+      if (screen === null || screen === previous) return null;
+      return (await walk.ui.get(SCREEN_TEST_IDS[screen]).isVisible())
+        ? screen
+        : null;
     },
     { maxMs: WAIT_MS, description: 'a provider sign-in screen' }
   );

@@ -35,7 +35,17 @@ test('Google sign-in reads Done on the returned app document after consent', asy
   } as unknown as Driver;
   const s = {
     actors: new Map([
-      ['alice', { browser: { readyOrigin: async () => origin } }],
+      [
+        'alice',
+        {
+          browser: {
+            readyDocument: async () =>
+              origin
+                ? { origin, title: 'Review access · OAuth Emulator' }
+                : null,
+          },
+        },
+      ],
     ]),
     session: {
       ports: {
@@ -72,7 +82,16 @@ test('the app can report a sign-in failure before it leaves for Google', async (
     }),
   } as unknown as Driver;
   const s = {
-    actors: new Map([['alice', { browser: { readyOrigin: async () => app } }]]),
+    actors: new Map([
+      [
+        'alice',
+        {
+          browser: {
+            readyDocument: async () => ({ origin: app, title: 'Account' }),
+          },
+        },
+      ],
+    ]),
     session: {
       ports: {
         ui: { kind: 'bun-webview', webOrigin: app },

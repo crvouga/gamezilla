@@ -11,6 +11,7 @@ function device() {
   const settle: (() => void)[] = [];
   const view = {
     url: 'http://127.0.0.1:33333/sso-callback?code=x',
+    title: 'Continue to your app · OAuth Emulator',
     loading: false,
     evaluate: () => {
       if (inFlight > 0)
@@ -85,7 +86,7 @@ test('native navigation metadata and closing are answered while a page call is s
   const origin = {
     target: 'view' as const,
     path: [],
-    method: 'readyOrigin',
+    method: 'readyDocument',
     args: [],
   };
   d.view.loading = true;
@@ -93,9 +94,10 @@ test('native navigation metadata and closing are answered while a page call is s
   d.view.loading = false;
   await handler.handle({ id: 6, call: origin });
   expect(sent.find((m) => m.id === 5 && 'value' in m)?.value).toBeNull();
-  expect(sent.find((m) => m.id === 6 && 'value' in m)?.value).toBe(
-    'http://127.0.0.1:33333'
-  );
+  expect(sent.find((m) => m.id === 6 && 'value' in m)?.value).toEqual({
+    origin: 'http://127.0.0.1:33333',
+    title: 'Continue to your app · OAuth Emulator',
+  });
   await handler.handle({
     id: 3,
     call: { target: 'view', path: [], method: 'loadedUrl', args: [] },
