@@ -53,6 +53,23 @@ function included(sha: string): boolean {
   return result.exitCode === 0;
 }
 
+/** True when no commit on `sha` is a patch `origin/main` lacks. */
+function patchEquivalent(sha: string): boolean {
+  const result = Bun.spawnSync(['git', 'cherry', 'origin/main', sha], {
+    stdout: 'pipe',
+    stderr: 'pipe',
+  });
+  if (result.exitCode !== 0) throw new Error(result.stderr.toString());
+  return !result.stdout
+    .toString()
+    .split('\n')
+    .some((line) => line.startsWith('+'));
+}
+
+function integrated(sha: string): boolean {
+  return included(sha) || patchEquivalent(sha);
+}
+
 function localBranches(): {
   name: string;
   sha: string;
@@ -72,59 +89,103 @@ function localBranches(): {
     });
 }
 
+function remoteHeads(): Map<string, string> {
+  const heads = new Map<string, string>();
+  for (const line of git('ls-remote', '--heads', 'origin').split('\n')) {
+    if (line === '') continue;
+    const [sha, ref] = line.split(/\s+/u);
+    const name = ref?.replace(/^refs\/heads\//u, '');
+    if (!sha || !name) throw new Error(`Invalid remote head: ${line}`);
+    heads.set(name, sha);
+  }
+  return heads;
+}
+
 function auditBranch(
   branch: ReturnType<typeof localBranches>[number],
-  repo: string
+  repo: string,
+  remotes: ReadonlyMap<string, string>
 ) {
-  if (branch.name === 'main') return 'default branch';
+  if (branch.name === 'main' || branch.name === 'archive')
+    return 'default or archive branch';
   if (branch.worktree !== null)
     return `worktree still attached: ${branch.worktree}`;
-  const pulls =
-    branch.name === 'main'
-      ? []
-      : (JSON.parse(
-          github([
-            'pr',
-            'list',
-            '--repo',
-            repo,
-            '--head',
-            branch.name,
-            '--state',
-            'all',
-            '--limit',
-            '1000',
-            '--json',
-            'state,headRefOid,baseRefName,mergeCommit',
-          ])
-        ) as HygienePull[]);
+  const remoteSha = remotes.get(branch.name) ?? null;
+  const onMain = integrated(branch.sha);
+  // Already on main: skip the per-branch pull query. An open PR is the only
+  // remaining hold, and the caller passes that set in one query.
+  if (onMain) {
+    return retentionReason({
+      ...branch,
+      pulls: [],
+      remoteSha,
+      mergeIncluded: true,
+      integrated: true,
+    });
+  }
+  const pulls = JSON.parse(
+    github([
+      'pr',
+      'list',
+      '--repo',
+      repo,
+      '--head',
+      branch.name,
+      '--state',
+      'all',
+      '--limit',
+      '1000',
+      '--json',
+      'state,headRefOid,baseRefName,mergeCommit',
+    ])
+  ) as HygienePull[];
   const proof = pulls.find(
     (pull) =>
       pull.state === 'MERGED' &&
       pull.headRefOid === branch.sha &&
       pull.baseRefName === 'main'
   );
-  const remote = git(
-    'ls-remote',
-    '--heads',
-    'origin',
-    `refs/heads/${branch.name}`
-  );
   return retentionReason({
     ...branch,
     pulls,
-    remoteSha: remote ? (remote.split(/\s+/u)[0] ?? null) : null,
+    remoteSha,
     mergeIncluded: proof?.mergeCommit ? included(proof.mergeCommit.oid) : false,
+    integrated: false,
   });
+}
+
+function openPullHeads(repo: string): Set<string> {
+  return new Set(
+    (
+      JSON.parse(
+        github([
+          'pr',
+          'list',
+          '--repo',
+          repo,
+          '--state',
+          'open',
+          '--limit',
+          '1000',
+          '--json',
+          'headRefName',
+        ])
+      ) as { headRefName: string }[]
+    ).map((pull) => pull.headRefName)
+  );
 }
 
 export function gitHygiene(apply: boolean): void {
   git('fetch', '--prune', 'origin');
   // Complete the inventory before mutating anything. Authentication failures fail closed.
   const repo = githubRepository(git('remote', 'get-url', 'origin'));
+  const openHeads = openPullHeads(repo);
+  const remotes = remoteHeads();
   const inventory = localBranches().map((branch) => ({
     ...branch,
-    reason: auditBranch(branch, repo),
+    reason: openHeads.has(branch.name)
+      ? 'open PR'
+      : auditBranch(branch, repo, remotes),
   }));
   for (const branch of inventory) {
     if (branch.reason !== null) {
@@ -140,9 +201,18 @@ export function gitHygiene(apply: boolean): void {
     if (apply) {
       if (git('rev-parse', `refs/heads/${branch.name}`) !== branch.sha)
         throw new Error(`Branch advanced during cleanup: ${branch.name}`);
-      // Never force local deletion. Git independently checks integration and
-      // refuses branches attached to a worktree, including new attachments.
-      git('branch', '-d', branch.name);
+      // `-d` refuses a squash-merged head that is not an ancestor. `-D` runs
+      // only after `integrated` proved every patch is already on origin/main.
+      const soft = Bun.spawnSync(['git', 'branch', '-d', branch.name], {
+        stdout: 'pipe',
+        stderr: 'pipe',
+      });
+      if (soft.exitCode !== 0) {
+        if (!integrated(branch.sha))
+          throw new Error(soft.stderr.toString().trim());
+        git('branch', '-D', branch.name);
+      }
+      dropBranchConfig(branch.name);
     }
     console.log(
       JSON.stringify({
@@ -153,6 +223,46 @@ export function gitHygiene(apply: boolean): void {
     );
   }
   git('worktree', 'prune', ...(apply ? [] : ['--dry-run']), '--verbose');
+  if (!apply) return;
+  dropStaleBranchConfig();
+  // Reflog entries for deleted tips are unreachable. Drop those, then
+  // unreachable objects. Reachable reflogs stay so active worktrees can recover.
+  git('reflog', 'expire', '--expire-unreachable=now', '--all');
+  git('gc', '--prune=now');
+}
+
+/** Removes `branch.<name>.*` left behind after the ref is gone. */
+function dropBranchConfig(name: string): void {
+  const result = Bun.spawnSync(
+    ['git', 'config', '--local', '--remove-section', `branch.${name}`],
+    { stdout: 'pipe', stderr: 'pipe' }
+  );
+  if (
+    result.exitCode !== 0 &&
+    !result.stderr.toString().includes('no such section')
+  )
+    throw new Error(result.stderr.toString().trim());
+}
+
+/** Drops `branch.*` sections whose ref no longer exists. */
+function dropStaleBranchConfig(): void {
+  const live = new Set(localBranches().map((branch) => branch.name));
+  const listed = Bun.spawnSync(
+    ['git', 'config', '--local', '--name-only', '--get-regexp', '^branch\\.'],
+    { stdout: 'pipe', stderr: 'pipe' }
+  );
+  if (listed.exitCode !== 0) {
+    if (listed.stdout.toString().trim() === '') return;
+    throw new Error(listed.stderr.toString().trim());
+  }
+  const stale = new Set<string>();
+  for (const key of listed.stdout.toString().split('\n')) {
+    if (key === '') continue;
+    const match = /^branch\.(.*)\.[^.]+$/u.exec(key);
+    if (!match?.[1] || live.has(match[1])) continue;
+    stale.add(match[1]);
+  }
+  for (const name of stale) dropBranchConfig(name);
 }
 
 if (import.meta.main) {

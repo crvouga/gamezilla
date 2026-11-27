@@ -11,19 +11,29 @@ export type HygieneBranch = {
   worktree: string | null;
   pulls: readonly HygienePull[];
   mergeIncluded: boolean;
+  /**
+   * True when `sha` is an ancestor of `origin/main`, or every commit
+   * reachable from `sha` but not from `origin/main` is already on
+   * `origin/main` (`git cherry` reports no unique patches).
+   */
+  integrated: boolean;
   remoteSha: string | null;
 };
 
 /** A merged PR must account for exactly the current local head. */
 export function retentionReason(branch: HygieneBranch): string | null {
-  if (branch.name === 'main') return 'default branch';
+  if (branch.name === 'main' || branch.name === 'archive')
+    return 'default or archive branch';
   if (branch.worktree !== null)
     return `worktree still attached: ${branch.worktree}`;
   if (branch.pulls.some((pull) => pull.state === 'OPEN')) return 'open PR';
-  if (branch.pulls.some((pull) => pull.state === 'CLOSED'))
-    return 'closed unmerged PR; explicit abandonment required';
   if (branch.remoteSha !== null && branch.remoteSha !== branch.sha)
     return 'local and remote heads differ';
+  // Squash merges do not keep the pre-merge head. Integration is enough:
+  // a closed PR for that same head is the merged record, not abandoned work.
+  if (branch.integrated) return null;
+  if (branch.pulls.some((pull) => pull.state === 'CLOSED'))
+    return 'closed unmerged PR; explicit abandonment required';
   const proof = branch.pulls.some(
     (pull) =>
       pull.state === 'MERGED' &&
