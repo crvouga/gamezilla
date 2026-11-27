@@ -1,0 +1,4 @@
+{
+  "summary": "On a shared stack Bob claimed a bare username at sign-in, then his run-specific claim hit the cooldown or Alice's block expected the bare name on his run-specific profile.",
+  "regressionTest": "libs/friends-harness-ts/tests/block-scoped-username.test.ts"
+}

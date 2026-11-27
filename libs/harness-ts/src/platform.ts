@@ -29,7 +29,7 @@ import { connectionMissing } from './network-notices';
 import { caps } from './observations';
 import { otherDevice } from './other-device';
 import type { Actor } from './parameter-types';
-import { focusActor, openAccount } from './shell-actions';
+import { backToTabs, focusActor, openAccount } from './shell-actions';
 import type { HarnessWorld } from './spec-world';
 import { remember, rememberGuest, signedInAccountKey } from './spec-world';
 
@@ -82,7 +82,7 @@ export async function cutConnection(
 async function signIn(w: HarnessWorld, actor: Actor): Promise<void> {
   await w.s.apply(signInWithGoogle, actor);
   await w.s.apply(claimActorUsername, actor);
-  await w.s.apply(returnToTabs, actor);
+  await w.s.apply(backToTabs, actor);
 }
 
 Given('{actor} is signed in', async (w, actor: Actor) => {

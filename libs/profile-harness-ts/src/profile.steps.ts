@@ -107,7 +107,6 @@ async function takeUsername(
   if (face !== 'Saved') {
     throw new Error(`${actor} could not take @${username}: ${face}`);
   }
-  remember(w, usernameKey(actor), username);
   await w.s.apply(leaveUsernameEditor, actor);
 }
 
@@ -115,7 +114,9 @@ Given(
   "{actor}'s username is {username}",
   async (w, actor: Actor, username: string) => {
     const name = claimFixtureUsername(w, username, await w.s.read(runTag));
-    await takeUsername(w, actor, name);
+    if ((await w.s.read(readProfileUsernameShown, actor)) !== name)
+      await takeUsername(w, actor, name);
+    remember(w, usernameKey(actor), name);
     // A username they have, not one they changed moments ago.
     await w.s.advanceTime(USERNAME_CHANGE_COOLDOWN_MS * 2);
   }
@@ -124,7 +125,9 @@ Given(
 Given(
   '{actor} has renamed themselves to {username}',
   async (w, actor: Actor, username: string) => {
-    await takeUsername(w, actor, claimFixtureUsername(w, username, null));
+    const name = claimFixtureUsername(w, username, null);
+    await takeUsername(w, actor, name);
+    remember(w, usernameKey(actor), name);
   }
 );
 
