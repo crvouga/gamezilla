@@ -75,6 +75,13 @@ Feature: Place a Battleship fleet
       Then Alice is told her fleet cannot change while she is ready
       And Alice's own board keeps every ship in its place
 
+    Scenario: A ready player who goes offline cannot rotate a ship
+      Given Alice and Bob are ready for the custom game with random fleets
+      And Bob is offline
+      When Bob rotates his carrier
+      Then Bob is told his fleet cannot change while he is ready
+      And Bob's own board keeps every ship in its place
+
     Scenario: A ready player cannot ask for a random fleet
       Given Alice is ready for the custom game with a random fleet
       When Alice asks for a random fleet

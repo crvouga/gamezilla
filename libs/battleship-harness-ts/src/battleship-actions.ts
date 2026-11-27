@@ -11,10 +11,10 @@ import {
   SHIP_IDS,
   type ShipId,
 } from '@libs/battleship-shared-ts/battleship-board';
-import type { Orientation } from '@libs/battleship-shared-ts/battleship-fleet';
 import {
   chooseSetupShip,
-  placeSetupBow,
+  placeShipOnSetupBoard,
+  setupBoardIsEditable,
 } from '@libs/battleship-shared-ts/battleship-setup-gestures';
 import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
 import type { CustomGameSeat } from '@libs/game-session-harness-ts/custom-game-lineup';
@@ -29,12 +29,7 @@ import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
 import { actorPage } from '@libs/harness-ts/actor-page';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
-import {
-  BATTLESHIP_SETUP_BOARD,
-  battleshipSetupRefusal,
-  battleshipView,
-  shipCells,
-} from './battleship-view';
+import { BATTLESHIP_SETUP_BOARD } from './battleship-view';
 
 type DriverNode = ReturnType<Awaited<ReturnType<typeof actorUi>>['get']>;
 
@@ -117,10 +112,7 @@ export const showFleetSetup = scenarioAction({
 async function setupBoard(s: ProductHarness, actor: string) {
   await openFleetSetup(s, actor);
   const ui = await actorUi(s, actor);
-  return (await ui.get(BATTLESHIP_SETUP_BOARD).isVisible()) &&
-    !(await ui.get(`${BATTLESHIP_SETUP_BOARD}-locked`).isVisible())
-    ? ui
-    : null;
+  return (await setupBoardIsEditable(ui, BATTLESHIP_SETUP_BOARD)) ? ui : null;
 }
 
 /** Choose `ship` on the setup board and turn the placing to `orientation`. */
@@ -145,12 +137,7 @@ async function rotateChosen(
   await s.session.waitForIdle();
 }
 
-/** Where a ship goes: its first cell and which way it runs from there. */
-export type ShipPlacement = {
-  readonly ship: ShipId;
-  readonly cell: string;
-  readonly orientation: Orientation;
-};
+export type ShipPlacement = Parameters<typeof placeShipOnSetupBoard>[2];
 
 /**
  * Place `ship` from `cell` running `orientation` (`h` along the row, `v`
@@ -168,21 +155,15 @@ export const placeBattleshipShip = scenarioAction<
     placement: ShipPlacement,
     keyboard?: boolean
   ) => {
-    const { ship, cell, orientation } = placement;
-    const ui = await setupBoard(s, actor);
-    if (ui === null) return;
-    const before = shipCells((await battleshipView(s, actor)).setup, ship);
-    await chooseShip(s, actor, ship, keyboard);
-    const rotate = ui.get(`${BATTLESHIP_SETUP_BOARD}-rotate`);
-    const turned =
-      (await rotate.attribute('data-orientation')) !== orientation &&
-      (await rotate.attribute('disabled')) === null;
-    if (turned) await rotateChosen(s, actor, keyboard);
-    await placeSetupBow(ui, BATTLESHIP_SETUP_BOARD, cell, keyboard);
+    await openFleetSetup(s, actor);
+    const ui = await actorUi(s, actor);
+    await placeShipOnSetupBoard(
+      ui,
+      BATTLESHIP_SETUP_BOARD,
+      placement,
+      keyboard
+    );
     await s.session.waitForIdle();
-    if (!turned || (await battleshipSetupRefusal(s, actor)) === null) return;
-    const now = shipCells((await battleshipView(s, actor)).setup, ship);
-    if (now.join() !== before.join()) await rotateChosen(s, actor, keyboard);
   },
 });
 

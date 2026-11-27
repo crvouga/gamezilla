@@ -2,6 +2,7 @@
 import { afterEach, expect, test } from 'bun:test';
 import { BattleshipSetupBoard } from '@libs/battleship-client-ts/battleship-setup-board';
 import { battleshipAutomation } from '@libs/battleship-shared-ts/battleship-automation';
+import { placeShipOnSetupBoard } from '@libs/battleship-shared-ts/battleship-setup-gestures';
 import { setupI18n } from '@lingui/core';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -33,6 +34,7 @@ function setupBoardDriver(initial: string) {
   const time = createHarnessClock();
   const i18n = setupI18n({ locale: 'en', messages: { en: {} } });
   const [setup, setSetup] = createSignal(initial);
+  const changes: string[] = [];
   const board = createSolidDomDriver({
     clock: time.clock,
     pump: async () => {
@@ -50,7 +52,10 @@ function setupBoardDriver(initial: string) {
                   side="white"
                   locked={false}
                   testId="setup"
-                  onChange={setSetup}
+                  onChange={(next) => {
+                    changes.push(next);
+                    setSetup(next);
+                  }}
                 />
               </SurfaceStackProvider>
             </ThemeProvider>
@@ -59,7 +64,7 @@ function setupBoardDriver(initial: string) {
       ),
     },
   });
-  return { board, setup };
+  return { board, setup, changes };
 }
 
 test.each([
@@ -103,4 +108,40 @@ test('phone multiplayer setup arranges the literal fleet through the default pre
     if (original) Object.defineProperty(window, 'matchMedia', original);
     else Reflect.deleteProperty(window, 'matchMedia');
   }
+});
+
+// regression: harness-package-tests-default-five-second-timeout
+// regression: battleship-inert-overview-skips-harness-input
+// regression: battleship-carrier-setup-lineup-timeout
+test('the setup adapter attempts Carrier at G1 through the visible precision controls', async () => {
+  const mounted = setupBoardDriver('');
+  driver = mounted.board;
+  await driver.launch();
+  await driver.get('setup-enlarge').key('enter');
+  await placeShipOnSetupBoard(
+    driver,
+    'setup',
+    { ship: 'carrier', cell: 'g1', orientation: 'h' },
+    true
+  );
+  await driver.get('setup-precision-cell-g1').expect.visible();
+  expect(await driver.get('setup-refusal').text()).toContain(
+    'run off the board'
+  );
+  expect(mounted.setup()).toBe('');
+});
+
+test('a refused bow leaves a previously placed ship where it was before turning', async () => {
+  const fleet = 'fleet:carrier@a1h';
+  const mounted = setupBoardDriver(fleet);
+  driver = mounted.board;
+  await driver.launch();
+  await placeShipOnSetupBoard(
+    driver,
+    'setup',
+    { ship: 'carrier', cell: 'a8', orientation: 'v' },
+    true
+  );
+  expect(mounted.changes).toEqual(['fleet:carrier@a1v', fleet]);
+  expect(mounted.setup()).toBe(fleet);
 });
