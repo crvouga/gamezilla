@@ -1,14 +1,10 @@
 import { expect, test } from '@playwright/test';
-import {
-  attachJson,
-  capture,
-  center,
-  openBoard,
-} from '../numberlink-board/evidence';
+import { attachJson, capture, openBoard } from '../numberlink-board/evidence';
 import {
   reportMeasurements,
   startMeasurements,
 } from '../numberlink-board/performance';
+import { rowTargets } from './row-targets';
 
 test.use({
   video: { mode: 'on', size: { width: 1440, height: 1024 } },
@@ -55,8 +51,17 @@ for (const width of [390, 1440])
             const routeStart = Date.now();
             // A straight row has equally spaced cells. Read its endpoints
             // before pickup so geometry queries never interrupt the stroke.
-            const start = await center(page, row * 20);
-            const end = await center(page, row * 20 + 19);
+            const targets = await rowTargets(page, row);
+            const { start, end } = targets;
+            if (
+              start.hit !== `numberlink-board-cell-${start.cell}` ||
+              end.hit !== `numberlink-board-cell-${end.cell}` ||
+              !targets.progress?.includes(`${row}/20 pairs connected`)
+            ) {
+              process.stdout.write(
+                `numberlink-row-targets ${width} ${theme} row=${row + 1} ${JSON.stringify(targets)}\n`
+              );
+            }
             await page.mouse.move(start.x, start.y);
             await page.mouse.down();
             await page.mouse.move(end.x, end.y, { steps: 19 });
