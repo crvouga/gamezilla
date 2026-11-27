@@ -473,3 +473,35 @@ describe('the rest of a browser database', () => {
 function faultyMockingbird(): FaultInjectingSqlClient {
   return createFaultInjectingSqlClient(SqlClientImplMockingbirdSqlite.open());
 }
+
+// regression: retired-identity-database-reopens
+test('closing an identity during owner loss releases the pending replacement', async () => {
+  const preparing = Promise.withResolvers<void>();
+  const resume = Promise.withResolvers<void>();
+  const replacement = faultyMockingbird();
+  const w = await world({
+    openFallback: () => Promise.resolve(replacement.client),
+    prepareFallback: async (db) => {
+      await createSchema(db);
+      preparing.resolve();
+      await resume.promise;
+    },
+  });
+  w.faulty.breakWith(() => new Error('Database owner disconnected'));
+  const read = w.client.query(READ_ALL);
+  await preparing.promise;
+  await w.client.disconnect();
+  resume.resolve();
+  await expect(read).rejects.toThrow(/database is closed/i);
+  expect(replacement.disconnects()).toBe(1);
+  expect(w.failovers).toEqual([]);
+  await expect(w.client.query(READ_ALL)).rejects.toThrow(/database is closed/i);
+});
+
+test('work after explicit disconnect never reopens the retired identity', async () => {
+  const w = await world();
+  await w.client.disconnect();
+  const prepared = w.client.prepare(READ_ALL);
+  await expect(prepared.query()).rejects.toThrow(/database is closed/i);
+  expect(w.fallbacksOpened()).toBe(0);
+});
