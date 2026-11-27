@@ -12,6 +12,42 @@ export function walking(startingMoves: number): TimedStep {
   };
 }
 
+/** Resolve the two input targets before CPU throttling and observation.
+ * Every Undo uses the real mouse at the button's resting position. */
+export async function withPushAndUndo(
+  page: Page,
+  measure: (step: TimedStep) => Promise<void>
+) {
+  const point = await page
+    .getByRole('button', { name: 'Undo', exact: true })
+    .evaluate((button) => {
+      const rect = button.getBoundingClientRect();
+      const x = rect.left + rect.width / 2;
+      const y = rect.top + rect.height / 2;
+      if (!button.contains(button.ownerDocument.elementFromPoint(x, y)))
+        throw new Error(
+          'The Undo button cannot receive a pointer at its centre'
+        );
+      return { x, y };
+    });
+  const board = await page.getByTestId('sokoban-board').elementHandle();
+  if (!board) throw new Error('Missing playable Sokoban board');
+  try {
+    await measure(async (browser, index) => {
+      if (index % 2 === 0) {
+        // Clicking Undo moves focus away from the board.
+        await board.focus();
+        await browser.keyboard.press('ArrowRight');
+        return 1;
+      }
+      await browser.mouse.click(point.x, point.y);
+      return 0;
+    });
+  } finally {
+    await board.dispose();
+  }
+}
+
 /** Check every move after its frame before sending the next real input. */
 export async function runSokobanMoves(
   page: Page,

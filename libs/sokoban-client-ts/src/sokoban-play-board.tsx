@@ -145,7 +145,10 @@ export function SokobanPlayBoard(props: Props): JSX.Element {
     tap,
   });
   return (
-    <StackVertical gap="md">
+    <StackVertical
+      gap="md"
+      dataSet={{ 'warehouse-views': canClose() ? 'multiple' : 'single' }}
+    >
       <StackVertical>
         <TileBoard
           boardTheme="warehouse"

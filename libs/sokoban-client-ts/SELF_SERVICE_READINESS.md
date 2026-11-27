@@ -6,6 +6,7 @@ remains in [the Sokoban specs](../../specs/sokoban/).
 
 | Surface | Change | Automated evidence | Remaining limitation |
 | --- | --- | --- | --- |
+| Pack attempt layout | The maximum board shares the available height with its view switch and steering pad. On narrow screens history and the completion action each keep their row. | Hosted desktop maximum-board, 320px solve-and-recover and tablet centering scenarios. The 390px slowed-CPU journey times 20 alternating pushes and pointer undos. | Shared Nightly browser confirmation pending |
 | Maximum board | An optional close view follows the worker with full-board tap coordinates; the overview preserves progress | `sokoban-input.contract.test.tsx` (`sokoban-maximum-board-pieces-too-small`); hosted maximum-board suite, including 320px capture and target-size assertions | CPU emulation does not establish physical-device performance |
 | Board replacement | Replacing a large board in close view with a smaller board restores every square and the overview label | Same contract file (`sokoban-close-view-sticks-on-smaller-board`): 20×20 to 7×6, 42 visible squares | Scoped DOM regression passed; hosted diagnostic run 42460142693 at `e77f990e5` succeeded |
 | Move and push counter | Each count stays with its label; phones keep the counts on two lines so a longer number never re-wraps and moves the pad | Same contract file (`sokoban-counts-split-on-narrow-phone`); hosted 320px solve journey (`sokoban-narrow-feedback-moves-controls`) asserts pad and Undo positions | Hosted 320px run for this revision pending |
