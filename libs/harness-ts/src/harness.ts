@@ -24,7 +24,12 @@ export type HarnessActor = {
   /** Native document URL capability; absent in the in-process DOM host. */
   readonly browser?: BrowserNavigation & {
     /** The native tab's loaded document, or null while it navigates. */
-    readonly readyDocument: () => Promise<BrowserDocument | null>;
+    readonly readyDocument: (
+      timeoutMs: number
+    ) => Promise<BrowserDocument | null>;
+    readonly documentControls: (
+      remainingMs: () => number
+    ) => Pick<Driver, 'get'>;
   };
   readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;

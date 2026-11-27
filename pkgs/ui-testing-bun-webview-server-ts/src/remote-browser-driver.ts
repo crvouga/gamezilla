@@ -8,7 +8,7 @@ export type BrowserDocument = {
 };
 
 export type BrowserCall = {
-  readonly target: 'driver' | 'node' | 'view';
+  readonly target: 'driver' | 'node' | 'document-node' | 'view';
   readonly path: readonly string[];
   readonly method: string;
   readonly args: readonly unknown[];
@@ -25,11 +25,15 @@ export function runsNoPageCode(call: BrowserCall): boolean {
   );
 }
 export type BrowserRpc = <T>(call: BrowserCall) => Promise<T>;
-function node(rpc: BrowserRpc, path: readonly string[]): DriverNode {
+function node(
+  rpc: BrowserRpc,
+  path: readonly string[],
+  target: 'node' | 'document-node'
+): DriverNode {
   const call = <T>(method: string, ...args: unknown[]) =>
-    rpc<T>({ target: 'node', path, method, args });
+    rpc<T>({ target, path, method, args });
   return {
-    get: (id) => node(rpc, [...path, id]),
+    get: (id) => node(rpc, [...path, id], target),
     attribute: (name) => call('attribute', name),
     tap: (options) => call('tap', options),
     tapAt: (position, options) => call('tapAt', position, options),
@@ -50,13 +54,18 @@ function node(rpc: BrowserRpc, path: readonly string[]): DriverNode {
     },
   };
 }
+/** Controls in the main tab, even when a popup contains the same test id. */
+export function documentControls(rpc: BrowserRpc): Pick<Driver, 'get'> {
+  return { get: (id) => node(rpc, [id], 'document-node') };
+}
+
 /** The same Driver interface, with all browser work remaining in its own process. */
 export function remoteBrowserDriver(rpc: BrowserRpc): Driver {
   const call = <T>(method: string, ...args: unknown[]) =>
     rpc<T>({ target: 'driver', path: [], method, args });
   return {
     kind: 'isolated-browser',
-    get: (id) => node(rpc, [id]),
+    get: (id) => node(rpc, [id], 'node'),
     launch: () => call('launch'),
     close: () => call('close'),
     key: (key) => call('key', key),

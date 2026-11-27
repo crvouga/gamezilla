@@ -48,11 +48,15 @@ function callFailure(call: BrowserCall | undefined, error: Error): Error {
 }
 
 /** A call the browser has not answered within its deadline. */
-function noAnswer(call: BrowserCall | undefined, stage: string): Error {
+function noAnswer(
+  call: BrowserCall | undefined,
+  stage: string,
+  timeoutMs: number
+): Error {
   return callFailure(
     call,
     new Error(
-      `The isolated browser did not answer after ${BROWSER_REQUEST_MS}ms (stage: ${stage})`
+      `The isolated browser did not answer after ${timeoutMs}ms (stage: ${stage})`
     )
   );
 }
@@ -63,22 +67,33 @@ function noAnswer(call: BrowserCall | undefined, stage: string): Error {
  * deadline behind it. Until its answer arrives they fail at once, naming it.
  */
 function stuckCallGuard() {
-  let stuck: { readonly id: number; readonly call: string } | null = null;
+  let stuck: {
+    readonly id: number;
+    readonly call: string;
+    readonly timeoutMs: number;
+  } | null = null;
   return {
-    timedOut(id: number, stage: string, call: BrowserCall | undefined) {
+    timedOut(
+      id: number,
+      stage: string,
+      call: BrowserCall | undefined,
+      timeoutMs: number
+    ) {
       if (stage === 'executing' && call !== undefined)
-        stuck = { id, call: describeCall(call) };
+        stuck = { id, call: describeCall(call), timeoutMs };
     },
     answered(id: number) {
       if (stuck?.id === id) stuck = null;
     },
-    refusal(call: BrowserCall | undefined): Error | null {
+    refusal(call: BrowserCall | undefined, timeoutMs: number): Error | null {
+      if (timeoutMs <= 0)
+        return noAnswer(call, 'deadline expired before sending', 0);
       if (stuck === null || call === undefined || runsNoPageCode(call))
         return null;
       return callFailure(
         call,
         new Error(
-          `The isolated browser is still running ${stuck.call}, which did not answer after ${BROWSER_REQUEST_MS}ms`
+          `The isolated browser is still running ${stuck.call}, which did not answer after ${stuck.timeoutMs}ms`
         )
       );
     },
@@ -96,18 +111,17 @@ type BrowserResponse = {
   operation?: string;
 };
 
+type PendingReply = {
+  resolve: (value: unknown) => void;
+  reject: (error: Error) => void;
+  progress: (stage: 'opening' | 'executing', operation?: string) => void;
+};
+
 export function browserProcessChannel<Open>(
   process: IsolatedWorker,
   timers: Timers
 ) {
-  const pending = new Map<
-    number,
-    {
-      resolve: (value: unknown) => void;
-      reject: (error: Error) => void;
-      progress: (stage: 'opening' | 'executing', operation?: string) => void;
-    }
-  >();
+  const pending = new Map<number, PendingReply>();
   let sequence = 0;
   const guard = stuckCallGuard();
   const consoleLines: string[] = [];
@@ -134,12 +148,15 @@ export function browserProcessChannel<Open>(
     else reply?.resolve(response.value);
   });
   const unwatch = process.onError((message) => fail(new Error(message)));
-  const request = <T>(payload: {
-    open?: Open;
-    call?: BrowserCall;
-  }): Promise<T> =>
+  const request = <T>(
+    payload: {
+      open?: Open;
+      call?: BrowserCall;
+    },
+    timeoutMs = BROWSER_REQUEST_MS
+  ): Promise<T> =>
     new Promise((resolve, reject) => {
-      const refusal = guard.refusal(payload.call);
+      const refusal = guard.refusal(payload.call, timeoutMs);
       if (refusal !== null) {
         reject(refusal);
         return;
@@ -149,11 +166,15 @@ export function browserProcessChannel<Open>(
       let operation: string | undefined;
       const timer = timers.setTimeout(() => {
         pending.delete(id);
-        guard.timedOut(id, stage, payload.call);
+        guard.timedOut(id, stage, payload.call, timeoutMs);
         reject(
-          noAnswer(payload.call, operation ? `${stage}; ${operation}` : stage)
+          noAnswer(
+            payload.call,
+            operation ? `${stage}; ${operation}` : stage,
+            timeoutMs
+          )
         );
-      }, BROWSER_REQUEST_MS);
+      }, timeoutMs);
       pending.set(id, {
         progress: (value, detail) => {
           stage = value;

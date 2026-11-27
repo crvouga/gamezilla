@@ -1,0 +1,4 @@
+{
+  "summary": "A Connect Four sign-in spent 90 seconds installing a popup shim while looking for the chooser in the main tab. The stalled browser request outlasted the provider's remaining 15-second screen budget.",
+  "regressionTest": "pkgs/ui-testing-bun-webview-server-ts/tests/provider-document-control.test.ts"
+}

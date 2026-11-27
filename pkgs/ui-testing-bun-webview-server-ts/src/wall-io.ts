@@ -6,6 +6,7 @@ import { browserProcessChannel } from './browser-process-channel';
 import {
   type BrowserCall,
   type BrowserDocument,
+  documentControls,
   remoteBrowserDriver,
 } from './remote-browser-driver';
 
@@ -20,7 +21,8 @@ async function openBrowserTab<Open>(
   open: Open,
   dispose: () => Promise<void>
 ) {
-  const rpc = <T>(call: BrowserCall) => channel.request<T>({ call });
+  const rpc = <T>(call: BrowserCall, timeoutMs?: number) =>
+    channel.request<T>({ call }, timeoutMs);
   const raw = remoteBrowserDriver(rpc);
   let closed = false;
   const close = async (): Promise<void> => {
@@ -43,13 +45,13 @@ async function openBrowserTab<Open>(
     console: channel.consoleLines,
     network: channel.networkLines,
     view: {
-      readyDocument: () =>
-        rpc<BrowserDocument | null>({
-          target: 'view',
-          path: [],
-          method: 'readyDocument',
-          args: [],
-        }),
+      documentControls: (remainingMs: () => number) =>
+        documentControls(<T>(call: BrowserCall) => rpc<T>(call, remainingMs())),
+      readyDocument: (timeoutMs: number) =>
+        rpc<BrowserDocument | null>(
+          { target: 'view', path: [], method: 'readyDocument', args: [] },
+          timeoutMs
+        ),
       loadedUrl: () =>
         rpc<string>({
           target: 'view',

@@ -32,7 +32,10 @@ test('a timed-out sign-in identifies the person, submitted screen and recent nat
       },
     }),
   } as unknown as Driver;
-  const browser = { readyDocument: async () => pages[index] };
+  const browser = {
+    documentControls: () => ui,
+    readyDocument: async () => pages[index],
+  };
   const s = {
     actors: new Map([['bob', { browser }]]),
     session: {

@@ -69,24 +69,26 @@ export type ProviderAnswers = {
   readonly consent?: 'allow' | 'deny';
 };
 
+type ProviderControls = Pick<Driver, 'get'>;
+
 type ProviderWalk = {
   readonly s: ProductHarness;
-  readonly ui: Driver;
+  readonly ui: ProviderControls;
   readonly actorId: string;
   readonly answers: ProviderAnswers;
-  readonly done: () => Promise<boolean>;
+  readonly done: (ui: ProviderControls) => Promise<boolean>;
 };
 
 /** A native tab navigates through the provider and relay to a new app document. */
-function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
+function nativeProviderTab({ s, actorId, answers }: ProviderWalk) {
   const { ui, http } = productExtra(s);
   if (ui.kind !== 'bun-webview' || http.kind !== 'stack') return null;
   const browser = s.actors.get(actorId)?.browser;
   if (!browser) throw new Error(`Missing browser for ${actorId}`);
   const provider = new URL(http.idpOrigins[answers.provider]).origin;
   const app = new URL(ui.webOrigin).origin;
-  return async (): Promise<NativeProviderPage> => {
-    const doc = await browser.readyDocument();
+  const page = async (timeoutMs: number): Promise<NativeProviderPage> => {
+    const doc = await browser.readyDocument(timeoutMs);
     if (!doc) return 'document not ready';
     if (doc.origin === app) return 'app';
     if (doc.origin !== provider)
@@ -108,12 +110,13 @@ function nativeSignInPage({ s, actorId, answers }: ProviderWalk) {
         return 'unknown provider page';
     }
   };
+  return { page, controls: browser.documentControls };
 }
 
 async function embeddedScreen(
   walk: ProviderWalk
 ): Promise<ProviderScreen | 'done' | null> {
-  if (await walk.done()) return 'done';
+  if (await walk.done(walk.ui)) return 'done';
   for (const [screen, testId] of SCREENS) {
     if (await walk.ui.get(testId).isVisible()) return screen;
   }
@@ -122,9 +125,14 @@ async function embeddedScreen(
 
 async function currentScreen(
   walk: ProviderWalk,
-  page: ReturnType<typeof nativeSignInPage>,
+  tab: ReturnType<typeof nativeProviderTab>,
   previous: ProviderScreen | null
 ): Promise<ProviderScreen | 'done'> {
+  if (!tab)
+    return pollUntil(walk.s, () => embeddedScreen(walk), {
+      maxMs: WAIT_MS,
+      description: 'a provider sign-in screen',
+    });
   // Keep only transitions, with no page titles or account details in the report.
   const observed: string[] = [];
   const waiting = (state: string): null => {
@@ -134,34 +142,44 @@ async function currentScreen(
     }
     return null;
   };
+  const description = () =>
+    `a provider sign-in screen (${walk.actorId}, ${walk.answers.provider}, last submitted: ${previous ?? 'none'}; observed: ${observed.join(' → ') || 'none'})`;
+  const probe = async (
+    remainingMs: () => number
+  ): Promise<ProviderScreen | 'done' | null> => {
+    if (remainingMs() === 0) return null;
+    const ui = tab.controls(remainingMs);
+    const screen = await tab.page(remainingMs());
+    if (screen === 'app')
+      return (await walk.done(ui)) ? 'done' : waiting('app awaiting outcome');
+    if (screen === previous) return waiting(`submitted ${screen}`);
+    if (screen !== 'chooser' && screen !== 'signup' && screen !== 'consent')
+      return waiting(screen);
+    return (await ui.get(SCREEN_TEST_IDS[screen]).isVisible())
+      ? screen
+      : waiting(`${screen} marker absent`);
+  };
   return pollUntil<ProviderScreen | 'done'>(
     walk.s,
-    async () => {
-      if (!page) return embeddedScreen(walk);
-      const screen = await page();
-      if (screen === 'app')
-        return (await walk.done()) ? 'done' : waiting('app awaiting outcome');
-      if (screen === previous) return waiting(`submitted ${screen}`);
-      if (screen !== 'chooser' && screen !== 'signup' && screen !== 'consent')
-        return waiting(screen);
-      return (await walk.ui.get(SCREEN_TEST_IDS[screen]).isVisible())
-        ? screen
-        : waiting(`${screen} marker absent`);
-    },
+    (remainingMs) =>
+      probe(remainingMs).catch((cause: unknown) => {
+        throw new Error(
+          `${description()}: ${cause instanceof Error ? cause.message : String(cause)}`,
+          { cause }
+        );
+      }),
     {
       maxMs: WAIT_MS,
-      description: page
-        ? () =>
-            Promise.resolve(
-              `a provider sign-in screen (${walk.actorId}, ${walk.answers.provider}, last submitted: ${previous ?? 'none'}; observed: ${observed.join(' → ')})`
-            )
-        : 'a provider sign-in screen',
+      description: () => Promise.resolve(description()),
     }
   );
 }
 
 /** The chooser: this account's row, or a new account at this address. */
-async function choose(ui: Driver, answers: ProviderAnswers): Promise<void> {
+async function choose(
+  ui: ProviderControls,
+  answers: ProviderAnswers
+): Promise<void> {
   const row = ui.get(PROVIDER_PAGE.account(harnessIdpAccountId(answers.email)));
   if (await row.isVisible()) {
     await row.tap({ timeoutMs: WAIT_MS });
@@ -171,14 +189,20 @@ async function choose(ui: Driver, answers: ProviderAnswers): Promise<void> {
 }
 
 /** A new account at the person's address, named after it. */
-async function signUp(ui: Driver, answers: ProviderAnswers): Promise<void> {
+async function signUp(
+  ui: ProviderControls,
+  answers: ProviderAnswers
+): Promise<void> {
   const handle = answers.email.slice(0, answers.email.indexOf('@'));
   await ui.get(PROVIDER_PAGE.signupName).input(handle);
   await ui.get(PROVIDER_PAGE.signupEmail).input(answers.email);
   await ui.get(PROVIDER_PAGE.signupSubmit).tap({ timeoutMs: WAIT_MS });
 }
 
-async function consent(ui: Driver, answers: ProviderAnswers): Promise<void> {
+async function consent(
+  ui: ProviderControls,
+  answers: ProviderAnswers
+): Promise<void> {
   if (answers.consent === 'deny') {
     await ui.get(PROVIDER_PAGE.deny).tap({ timeoutMs: WAIT_MS });
     return;
@@ -196,7 +220,7 @@ async function consent(ui: Driver, answers: ProviderAnswers): Promise<void> {
 
 /** One screen of the provider, answered the way the person would. */
 async function answer(
-  ui: Driver,
+  ui: ProviderControls,
   screen: ProviderScreen,
   answers: ProviderAnswers
 ): Promise<void> {
@@ -222,18 +246,19 @@ async function answer(
 export async function completeProviderSignIn(
   args: ProviderWalk
 ): Promise<void> {
-  const { s, ui } = args;
-  const page = nativeSignInPage(args);
+  const { s } = args;
+  const tab = nativeProviderTab(args);
+  const ui = tab?.controls(() => WAIT_MS) ?? args.ui;
   let previous: ProviderScreen | null = null;
   for (let step = 0; step < MAX_PROVIDER_STEPS; step += 1) {
-    const screen = await currentScreen(args, page, previous);
+    const screen = await currentScreen(args, tab, previous);
     if (screen === 'done') return;
     // Live browsers execute Apple's form-post script; clicking again replays state.
     if (screen !== 'handoff' || productExtra(s).ui.kind !== 'bun-webview')
       await answer(ui, screen, args.answers);
     // The step is a round trip to the provider: the next screen (or the
     // hand-off back to the app) replaces this one when it lands.
-    if (page) previous = screen;
+    if (tab) previous = screen;
     else
       await ui
         .get(SCREEN_TEST_IDS[screen])
