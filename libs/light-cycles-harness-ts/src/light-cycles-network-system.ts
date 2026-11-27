@@ -1,3 +1,4 @@
+import { simulationRoomResult } from '@libs/game-session-harness-ts/simulation-room-fixture';
 import { defineProperty } from '@pkgs/harness-root-shared-ts/define-property';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import { ROOM_VIRTUAL_RUNTIME } from '@pkgs/room-root-harness-ts/boot';
@@ -39,8 +40,6 @@ function lagOf(world: LightCyclesWorld, peer: LightCyclesPeer): string | null {
   const latest = world.tap.latest();
   const sent = world.tap.lastSentTo(peer.id);
   const processed = peer.processed;
-  if (peer.dropped || world.kit.clients.get(peer.id)?.isSynced() !== true)
-    return 'is not connected';
   if (latest === null || sent === null || processed === null)
     return 'has no snapshot';
   if (sent.tick < latest.tick - 2 * SNAPSHOT_TICKS)
@@ -71,18 +70,49 @@ function presentationLagOf(
     : 'presents an arena the authority did not just publish';
 }
 
+function resultLagOf(
+  peer: LightCyclesPeer,
+  seen: ReturnType<typeof simulationRoomResult>,
+  final: NonNullable<ReturnType<typeof simulationRoomResult>>
+): string | null {
+  if (peer.connection !== null)
+    return 'still presents a live arena after the game ended';
+  if (
+    seen?.id !== final.id ||
+    seen.revision !== final.revision ||
+    seen.position !== final.position ||
+    seen.outcome !== final.outcome ||
+    seen.reason !== final.reason ||
+    seen.tick !== final.tick
+  )
+    return 'has not received the committed final arena and result';
+  if (peer.view?.position !== final.position)
+    return 'does not present the committed final arena';
+  const decoded = decodeArena(final.position);
+  if (
+    decoded?.phase !== 'completed' ||
+    LIGHT_CYCLES_QUAD_CODEC.encode(decoded) !== final.position
+  )
+    return 'cannot decode the completed arena exactly';
+  return null;
+}
+
 export function convergenceViolations(world: LightCyclesWorld): string[] {
+  const final = simulationRoomResult(world.kit.server.getCommittedState());
   return [...world.peers.values()].flatMap((peer) => {
-    const lag = lagOf(world, peer) ?? presentationLagOf(world, peer);
+    const client = world.kit.clients.get(peer.id);
+    const room = client?.room();
+    if (peer.dropped || !client?.isSynced() || !room)
+      return [`${peer.id} is not connected`];
+    const lag =
+      final !== null
+        ? resultLagOf(peer, simulationRoomResult(room.getSnapshot()), final)
+        : (lagOf(world, peer) ?? presentationLagOf(world, peer));
     return lag === null ? [] : [`${peer.id} ${lag}`];
   });
 }
 
-/**
- * (a) Once connectivity recovers and each device processed a current
- * snapshot, every rider, spectator and the late spectator decode exactly the
- * authority's arena at the tick it last sent them.
- */
+/** A reconnected device shows the live arena or the room's committed final result. */
 export const devicesConverge = defineProperty({
   name: 'devices-converge',
   check: (world: LightCyclesWorld, _model: void, action) => {
@@ -138,7 +168,8 @@ export function readLightCyclesTimeline(world: LightCyclesWorld) {
 /** What a scenario observed: outcome counts, for coverage and reporting. */
 export function readLightCyclesNetwork(world: LightCyclesWorld) {
   const latest = world.tap.latest();
-  const state = latest === null ? null : decodeArena(latest.state);
+  const final = simulationRoomResult(world.kit.server.getCommittedState());
+  const state = decodeArena(final?.position ?? latest?.state ?? '');
   const retirements = new Set<string>();
   for (const emission of world.tap.emissions)
     for (const crash of sampleOf(emission).state.crashes)
@@ -146,7 +177,8 @@ export function readLightCyclesNetwork(world: LightCyclesWorld) {
         retirements.add(`${sampleOf(emission).state.round}:${crash.seat}`);
   return {
     publications: world.tap.emissions.length,
-    tick: latest?.tick ?? 0,
+    tick: final?.tick ?? latest?.tick ?? 0,
+    result: final?.outcome ?? null,
     round: state?.round ?? 0,
     scores: state?.scores ?? [],
     retirements: retirements.size,

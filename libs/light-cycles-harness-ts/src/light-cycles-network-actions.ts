@@ -26,7 +26,7 @@ export const steerRider = defineAction({
       peer.processed === null ? null : decodeArena(peer.processed.state);
     if (state !== null)
       for (const heading of steeringFor(state, seat, style))
-        peer.connection.replica.control(seat, { round: state.round, heading });
+        peer.connection?.replica.control(seat, { round: state.round, heading });
     await world.kit.runFor(100);
   },
 });

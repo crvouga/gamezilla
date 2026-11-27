@@ -127,6 +127,20 @@ export function simulationRoomGame(state: RoomState) {
     : { id: game.id, revision: game.revision, status: game.status };
 }
 
+/** The result the screen reads from its room once the live simulation ends. */
+export function simulationRoomResult(state: RoomState) {
+  const game = CustomGamesAttr.from(state).current;
+  if (game?.status !== 'completed') return null;
+  return {
+    id: game.id,
+    revision: game.revision,
+    position: game.fen,
+    tick: game.execution?.tick,
+    outcome: game.outcome,
+    reason: game.outcomeReason,
+  };
+}
+
 export type SimulationRoomOperation = 'rematch' | 'ready' | 'start';
 
 /**
