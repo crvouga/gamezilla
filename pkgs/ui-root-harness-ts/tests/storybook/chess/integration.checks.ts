@@ -45,6 +45,7 @@ test('storybook integration: chess puzzle 320x640 Retry brings the whole board b
   expect(board.y).toBeGreaterThanOrEqual(0);
 });
 
+// regression: chess-puzzle-dock-clips-ranks
 // regression: chess-puzzle-board-below-short-landscape-fold
 test('storybook integration: chess puzzle 844x390 shows every square beside its actions', async ({
   page,
@@ -213,6 +214,7 @@ for (const { width, height } of sizes) {
         await capturePromotion(page, info, theme);
       });
 
+      // regression: chess-puzzle-dock-clips-ranks — solution shown at 320×640 in both themes.
       for (const id of states) {
         test(`storybook integration: ${id} evidence`, async ({
           page,

@@ -94,70 +94,72 @@ export function PuzzleScreen(props: PuzzleScreenProps): JSX.Element {
     () => props.screenId
   );
   return (
-    <div
-      ref={root}
-      class={styles['puzzleFrame']}
-      data-board-sizing={props.boardSizing ?? 'fit'}
-      {...dataAttrs({
-        component: 'PuzzleScreen',
-        ...props.dataSet,
-        screen: props.screenId,
-      })}
-    >
+    <div class={styles['puzzleFrame']}>
       <div
-        class={`${styles['puzzle']} ${own['root']}`}
+        ref={root}
+        class={own['workspace']}
         style={{ '--ui-puzzle-column-ratio': ratio() }}
-        data-square={String(ratio() === 1)}
         data-board-sizing={props.boardSizing ?? 'fit'}
+        {...dataAttrs({
+          component: 'PuzzleScreen',
+          ...props.dataSet,
+          screen: props.screenId,
+        })}
       >
-        <PuzzleFixedRegion name="PuzzleTitle" area="title">
-          <Show when={props.title}>
-            <div class={styles['puzzleHeading']}>
-              <ScreenIntro title={props.title} />
-              <Show when={facts.present()}>
-                <div class={styles['puzzleFacts']}>{facts.content()}</div>
-              </Show>
-            </div>
-          </Show>
-        </PuzzleFixedRegion>
-        {/* Wide: the card the panel column sits on, the game record's
-            look; drawn under the panel's regions, never in a phone's flow. */}
-        <div class={styles['panelCard']} aria-hidden="true" />
-        <PuzzleFixedRegion name="PuzzleHeader" area="header">
-          {props.header}
-          <Show when={props.info !== undefined}>
+        <div
+          class={`${styles['puzzle']} ${own['root']}`}
+          data-square={String(ratio() === 1)}
+          data-board-sizing={props.boardSizing ?? 'fit'}
+        >
+          <PuzzleFixedRegion name="PuzzleTitle" area="title">
+            <Show when={props.title}>
+              <div class={styles['puzzleHeading']}>
+                <ScreenIntro title={props.title} />
+                <Show when={facts.present()}>
+                  <div class={styles['puzzleFacts']}>{facts.content()}</div>
+                </Show>
+              </div>
+            </Show>
+          </PuzzleFixedRegion>
+          {/* Wide: the card the panel column sits on, the game record's
+              look; drawn under the panel's regions, never in a phone's flow. */}
+          <div class={styles['panelCard']} aria-hidden="true" />
+          <PuzzleFixedRegion name="PuzzleHeader" area="header">
+            {props.header}
+            <Show when={props.info !== undefined}>
+              <div
+                class={own['info']}
+                role="group"
+                aria-label={t`Puzzle details`}
+                tabindex={props.info === true ? undefined : 0}
+                {...dataAttrs({ component: 'PuzzleInfo' })}
+              >
+                {props.info}
+              </div>
+            </Show>
+          </PuzzleFixedRegion>
+          <div class={`${styles['well']} ${own['boardColumn']}`}>
             <div
-              class={own['info']}
-              role="group"
-              aria-label={t`Puzzle details`}
-              tabindex={props.info === true ? undefined : 0}
-              {...dataAttrs({ component: 'PuzzleInfo' })}
+              class={styles['board']}
+              style={{ '--ui-play-aspect-ratio': ratio() }}
+              {...dataAttrs({ component: 'PuzzleBoard' })}
             >
-              {props.info}
+              {props.children}
             </div>
-          </Show>
-        </PuzzleFixedRegion>
-        <div class={styles['well']}>
-          <div
-            class={styles['board']}
-            style={{ '--ui-play-aspect-ratio': ratio() }}
-            {...dataAttrs({ component: 'PuzzleBoard' })}
-          >
-            {props.children}
           </div>
+          <PuzzleFixedRegion name="PuzzleLegend" area="legend">
+            {props.legend}
+          </PuzzleFixedRegion>
+          <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
+            {props.timeline}
+          </PuzzleFixedRegion>
+          <div class={styles['overlay']}>{props.overlay}</div>
         </div>
-        <PuzzleFixedRegion name="PuzzleLegend" area="legend">
-          {props.legend}
-        </PuzzleFixedRegion>
-        <PuzzleFixedRegion name="PuzzleTimeline" area="timeline">
-          {props.timeline}
-        </PuzzleFixedRegion>
-        <div class={styles['overlay']}>{props.overlay}</div>
-      </div>
-      <div class={own['dock']}>
-        <PuzzleFixedRegion name="PuzzleActions" area="actions">
-          {props.actions}
-        </PuzzleFixedRegion>
+        <div class={own['dock']}>
+          <PuzzleFixedRegion name="PuzzleActions" area="actions">
+            {props.actions}
+          </PuzzleFixedRegion>
+        </div>
       </div>
     </div>
   );

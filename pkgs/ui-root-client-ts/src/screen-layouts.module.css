@@ -521,13 +521,26 @@
   max-height: none;
   overflow: visible;
 }
-/* Phone order; the coach-first rows are in `puzzle-screen.module.css`. */
+
 @container puzzle-frame (width < 880px) {
+  .puzzle[data-board-sizing="width"] > .title {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .puzzle[data-board-sizing="width"] > .header {
+    order: 1;
+    padding-top: var(--ui-space-2);
+  }
+  .puzzle[data-board-sizing="width"] > .well {
+    order: 2;
+    padding-inline: 0;
+  }
   .puzzle[data-board-sizing="width"] > .legend {
     order: 3;
-  }
-  .puzzle[data-board-sizing="width"] > .actions {
-    order: 4;
   }
   .puzzle[data-board-sizing="width"] > .timeline {
     order: 5;
@@ -545,27 +558,6 @@
 @container puzzle-frame (width < 880px) {
   .puzzle[data-board-sizing="width"] > .well > .board {
     max-width: max(320px, calc(100dvh - 420px));
-  }
-}
-@media (orientation: landscape) and (max-height: 560px) {
-  @container puzzle-frame (min-width: 600px) and (width < 880px) {
-    .puzzle[data-board-sizing="width"] {
-      display: grid;
-      grid-template-columns: min(100dvh - 104px, 100cqw - 304px) minmax(0, 1fr);
-      grid-template-rows: repeat(6, auto) 1fr;
-      column-gap: var(--ui-space-6);
-    }
-    .puzzle[data-board-sizing="width"] > * {
-      grid-column: 2;
-    }
-    .puzzle[data-board-sizing="width"] > .well {
-      grid-column: 1;
-      grid-row: 1 / -1;
-      padding-inline: 0;
-      position: sticky;
-      top: 0;
-      align-self: start;
-    }
   }
 }
 @container puzzle-frame (min-width: 880px) {

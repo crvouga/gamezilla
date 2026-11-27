@@ -1,0 +1,4 @@
+{
+  "summary": "At 844×390 the separate action dock clipped the bottom two ranks of every chess puzzle. At 320×640 it clipped the first rank of the revealed solution in both themes.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/chess/integration.checks.ts"
+}
