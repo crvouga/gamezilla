@@ -19,6 +19,7 @@ import {
 } from './identity';
 import type { ProviderAnswers } from './provider-walk';
 import { completeProviderSignIn } from './provider-walk';
+import { actorUsername } from './run-scope';
 
 const WAIT_MS = 15_000;
 
@@ -107,11 +108,7 @@ export const signInWithGoogle = scenarioAction({
   },
 });
 
-/**
- * A signed-in actor's username is their id (`Alice` is `@alice`). Fresh
- * sign-in assigns a generated name; this replaces that name. A name the
- * person already chose is left as it is.
- */
+/** Replace the generated sign-in name with the actor's username for this run. */
 export const claimActorUsername = scenarioAction({
   name: 'claimActorUsername',
   act: async (s, actorId: string) => {
@@ -133,10 +130,11 @@ export const claimActorUsername = scenarioAction({
       }
       break;
     }
-    const username = ui.get(Handles.friendUserUsername);
+    const name = actorUsername(s, actorId);
+    const username = ui.get(Handles.profileDisplayUsername);
     if (
       (await username.isVisible()) &&
-      (await username.text()) === `@${actorId}`
+      (await username.text()) === `@${name}`
     ) {
       return;
     }
@@ -147,7 +145,7 @@ export const claimActorUsername = scenarioAction({
     const input = ui.get(Handles.profileUsernameInput);
     await input.expect.visible({ timeoutMs: WAIT_MS });
     await input.clear();
-    await input.input(actorId);
+    await input.input(name);
     await ui.get(Handles.profileUsernameSave).tap({ timeoutMs: WAIT_MS });
     await ui.get(Handles.profileUsernameSave).expect.text('Saved');
     await ui.get(Handles.profileUsernameCancel).tap({ timeoutMs: WAIT_MS });

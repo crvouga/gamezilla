@@ -27,7 +27,7 @@ async function expectPersonScreen(
   const ui = await actorUi(s, actorId);
   await ui
     .get(Handles.friendUserUsername)
-    .expect.text(`@${username}`, { timeoutMs: WAIT_MS });
+    .expect.text(`@${actorUsername(s, username)}`, { timeoutMs: WAIT_MS });
 }
 
 /** Search for `username`, then tap their row: their profile opens. */
@@ -108,7 +108,8 @@ export const sendRequestFromProfile = scenarioAction({
     const ui = await actorUi(s, actorId);
     const onProfile =
       (await ui.get(Handles.friendUserUsername).isVisible()) &&
-      (await ui.get(Handles.friendUserUsername).text()) === `@${username}`;
+      (await ui.get(Handles.friendUserUsername).text()) ===
+        `@${actorUsername(s, username)}`;
     if (!onProfile) {
       if (!(await showKnownPerson(s, actorId, username)))
         await Promise.resolve(openPersonFromSearch.act(s, actorId, username));

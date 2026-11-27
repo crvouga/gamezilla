@@ -10,6 +10,7 @@ import { Given, Then, When } from '@libs/harness-ts/define';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { accountIdOf, signedInAccountOf } from '@libs/harness-ts/identity';
 import type { Actor } from '@libs/harness-ts/parameter-types';
+import { actorUsername } from '@libs/harness-ts/run-scope';
 import { backToTabs, focusActor } from '@libs/harness-ts/shell-actions';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { openInbox } from '@libs/notifications-harness-ts/notifications-actions';
@@ -349,7 +350,11 @@ Given(
 Then(
   "{actor} is shown {actor}'s profile",
   async (w, actor: Actor, other: Actor) => {
-    expect(await w.s.read(personProfileShown, actor)).toBe(`@${other}`);
+    const username = await w.s.read(
+      actorUsername,
+      rememberedUsername(w, other)
+    );
+    expect(await w.s.read(personProfileShown, actor)).toBe(`@${username}`);
   }
 );
 
@@ -448,8 +453,9 @@ async function block(
   if (await w.s.read(activeSpaceVisible, actor))
     await w.s.apply(closeSpaceScreen, actor);
   await w.s.apply(backToTabs, actor);
-  await w.s.apply(openPersonFromSearch, actor, other);
-  await w.s.apply(blockPerson, actor, other);
+  const username = rememberedUsername(w, other);
+  await w.s.apply(openPersonFromSearch, actor, username);
+  await w.s.apply(blockPerson, actor, username);
 }
 
 When('{actor} blocks {actor}', async (w, actor: Actor, other: Actor) => {
