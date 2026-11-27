@@ -66,6 +66,11 @@
   touch-action: manipulation;
   user-select: none;
 }
+/* Hints and refusals below the board can wrap during a stroke. Anchor the
+   workspace at the top of its scroll area so the cells stay under the pointer. */
+[data-board-workspace="true"] [data-game-board-content]:has(.board) {
+  margin-block-start: 0;
+}
 .board[data-tracing="true"] {
   touch-action: none;
 }
@@ -74,6 +79,7 @@
   inset: 0;
   display: grid;
   grid-template-columns: repeat(var(--path-columns), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--path-rows), minmax(0, 1fr));
   transform-origin: top left;
 }
 .cell {

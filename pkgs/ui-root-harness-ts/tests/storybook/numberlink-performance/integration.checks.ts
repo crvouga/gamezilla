@@ -75,6 +75,9 @@ for (const width of [390, 1440])
           await expect(page.getByTestId('numberlink-progress')).toContainText(
             half.connected
           );
+          await expect(page.getByTestId('numberlink-progress')).toContainText(
+            `${half.rows[1] * 20}/400 cells covered`
+          );
           if (half.rows[1] === 20)
             await expect(page.getByTestId('numberlink-solved')).toBeVisible();
           await capture(page, info, 'routes-complete');
@@ -92,3 +95,38 @@ for (const width of [390, 1440])
           });
         });
     });
+
+// regression: numberlink-dense-board-moves-during-stroke
+test('storybook integration: numberlink-performance dense routes second half 390 light keeps row 16 under the pointer', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openBoard(page, 'light', HALVES[1].story);
+  for (let row = 10; row < 15; row++) {
+    const { start, end } = await rowTargets(page, row);
+    await page.mouse.move(start.x, start.y);
+    await page.mouse.down();
+    await page.mouse.move(end.x, end.y);
+    await page.mouse.up();
+  }
+  const progress = page.getByTestId('numberlink-progress');
+  await expect(progress).toContainText(
+    '15/20 pairs connected — 300/400 cells covered'
+  );
+
+  const { start, end } = await rowTargets(page, 15);
+  const board = page.getByTestId('numberlink-board');
+  const before = await board.boundingBox();
+  await page.mouse.move(start.x, start.y);
+  await page.mouse.down();
+  await expect(page.getByTestId('numberlink-drawing-status')).toContainText(
+    'Drawing 16.'
+  );
+  expect(await board.boundingBox()).toEqual(before);
+  await page.mouse.move(end.x, end.y, { steps: 19 });
+  await page.mouse.up();
+  await expect(progress).toContainText(
+    '16/20 pairs connected — 320/400 cells covered'
+  );
+  expect(await board.boundingBox()).toEqual(before);
+});
