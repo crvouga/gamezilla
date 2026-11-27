@@ -6,6 +6,10 @@ import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view
 import { DenialSurfaceView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
+import {
+  EditorStageScreen,
+  type EditorStageScreenProps,
+} from '@pkgs/ui-root-client-ts/editor-stage-screen';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
@@ -217,9 +221,76 @@ function AuthorPlace(props: ContentAuthorScreenViewProps): JSX.Element {
   );
 }
 
-/** The board and the preview are stages; every other place is a menu column. */
+/**
+ * The preview is a game stage; the board is the editor's own stage
+ * (`BoardShell`); every other place is a menu column.
+ */
 function isStage(screen: ContentBuilderPlace['screen']): boolean {
-  return screen === 'board' || screen === 'preview';
+  return screen === 'preview';
+}
+
+/**
+ * The board's one status line, right above the stage: where it is, where
+ * the last save stands, and, for a puzzle whose board the game cannot play
+ * yet, that it needs fixing.
+ */
+function BoardStatus(props: ContentAuthorScreenViewProps): JSX.Element {
+  const name = usePlaceName(props);
+  return (
+    <>
+      <Text variant="inherit" testId="content-author-stage-step">
+        {name()}
+      </Text>
+      {' · '}
+      <SaveLine {...props} />
+      <Show when={props.kind === 'puzzle' && props.playable === false}>
+        {' · '}
+        <Text
+          variant="inherit"
+          tone="warning"
+          testId="content-author-board-unplayable"
+        >
+          <Trans>Cannot be played yet. Fix the board.</Trans>
+        </Text>
+      </Show>
+    </>
+  );
+}
+
+/**
+ * `board`: the stage is the screen. Back to the steps, the draft's title
+ * and its details over the status line; the board; undo and redo in the
+ * bar under it.
+ */
+function BoardShell(props: {
+  view: ContentAuthorScreenViewProps;
+  dataSet: EditorStageScreenProps['dataSet'];
+  title: JSX.Element;
+}): JSX.Element {
+  const { t } = useLingui();
+  return (
+    <EditorStageScreen
+      screenId="puzzle-pack-builder-board"
+      dataSet={props.dataSet}
+      back={{
+        label: t`Back to the steps`,
+        onPress: () => props.view.onOpen({ screen: 'builder' }),
+        testId: 'content-step-done',
+      }}
+      title={props.title}
+      settings={{
+        label: t`Details`,
+        onPress: () => props.view.onOpen({ screen: 'details' }),
+        testId: 'content-author-open-details',
+      }}
+      notices={<AuthorNotices {...props.view} />}
+      status={<BoardStatus {...props.view} />}
+      commandsLabel={t`Undo and redo`}
+      commands={props.view.history}
+    >
+      <AuthorPlace {...props.view} />
+    </EditorStageScreen>
+  );
 }
 
 /**
@@ -252,33 +323,43 @@ function AuthorShell(props: ContentAuthorScreenViewProps): JSX.Element {
     <Show when={props.place.screen} keyed>
       {(screen) => (
         <Show
-          when={isStage(screen)}
+          when={screen !== 'board'}
           fallback={
-            <EmbeddedScreen
-              screenId={
-                screen === 'builder'
-                  ? 'puzzle-pack-builder'
-                  : `puzzle-pack-builder-${screen}`
-              }
+            <BoardShell view={props} dataSet={dataSet()} title={title()} />
+          }
+        >
+          <Show
+            when={isStage(screen)}
+            fallback={
+              <EmbeddedScreen
+                screenId={
+                  screen === 'builder'
+                    ? 'puzzle-pack-builder'
+                    : `puzzle-pack-builder-${screen}`
+                }
+                dataSet={dataSet()}
+                title={title()}
+                subtitle={subtitle()}
+              >
+                <AuthorNotices {...props} />
+                <AuthorPlace {...props} />
+              </EmbeddedScreen>
+            }
+          >
+            <GameScreen
+              screenId={`puzzle-pack-builder-${screen}`}
               dataSet={dataSet()}
               title={title()}
               subtitle={subtitle()}
             >
-              <AuthorNotices {...props} />
-              <AuthorPlace {...props} />
-            </EmbeddedScreen>
-          }
-        >
-          <GameScreen
-            screenId={`puzzle-pack-builder-${screen}`}
-            dataSet={dataSet()}
-            title={title()}
-            subtitle={subtitle()}
-          >
-            <GameSessionLayout notices={<AuthorNotices {...props} />} workspace>
-              <AuthorPlace {...props} />
-            </GameSessionLayout>
-          </GameScreen>
+              <GameSessionLayout
+                notices={<AuthorNotices {...props} />}
+                workspace
+              >
+                <AuthorPlace {...props} />
+              </GameSessionLayout>
+            </GameScreen>
+          </Show>
         </Show>
       )}
     </Show>
@@ -333,7 +414,9 @@ function AuthorUnavailable(props: {
  * (Details, Board or Puzzles, Preview, Check and publish, Draft copies)
  * and the one next step as its filled command. `details` is the form for
  * the title, description and difficulty; `board` the game's editor or the
- * pack's puzzles with undo and redo; `preview` the draft as a solver sees
+ * pack's puzzles as the screen itself, headed by the way back, the title
+ * and the details, with one status line over it and undo and redo in a bar
+ * under it; `preview` the draft as a solver sees
  * it; `publish` playtesting, validating and publishing; `copies` the kept
  * draft copies. The shell shows on every place: the draft's title, its
  * save line, a failed save, a conflicting copy, a refused publication, and

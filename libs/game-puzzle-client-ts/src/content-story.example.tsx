@@ -237,6 +237,7 @@ export function StoryPackEditor(props: { disabled?: boolean }): JSX.Element {
           {(puzzle, index) => (
             <ContentPackItemRow
               id={puzzle.id}
+              position={index() + 1}
               title={puzzle.title}
               caption={puzzle.caption}
               status={puzzle.status}

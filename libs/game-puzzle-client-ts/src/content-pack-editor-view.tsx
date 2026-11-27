@@ -13,6 +13,7 @@ import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { OverflowMenuButton } from '@pkgs/ui-root-client-ts/overflow-menu-button';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
+import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
 import { ContentStatusChip } from './content-chips';
@@ -36,6 +37,8 @@ export type ContentPackItemRowProps = {
   readonly caption: string;
   /** Published, or still a draft: a status chip under the title. */
   readonly status?: 'published' | 'draft' | undefined;
+  /** Where it comes in the pack, from 1: the row's number. */
+  readonly position: number;
 
   readonly first: boolean;
   readonly last: boolean;
@@ -97,7 +100,8 @@ function PackRowMenu(props: ContentPackItemRowProps): JSX.Element {
 }
 
 /**
- * One puzzle in the pack: the whole row opens it (to edit, or its
+ * One puzzle in the pack: its number in the pack's order leads the row,
+ * the whole row opens it (to edit, or its
  * published edition), its title over what the author still has to do
  * with it, its status chip at the row's end, and beside the row a "…"
  * menu holding the rest: move it earlier or later, take it out.
@@ -107,6 +111,16 @@ export function ContentPackItemRow(
 ): JSX.Element {
   return (
     <MenuRow
+      leading={
+        <Text
+          variant="label"
+          tone="secondary"
+          numeral
+          testId={`content-pack-position-${props.id}`}
+        >
+          {String(props.position)}
+        </Text>
+      }
       title={props.title}
       caption={props.caption || undefined}
       trailing={

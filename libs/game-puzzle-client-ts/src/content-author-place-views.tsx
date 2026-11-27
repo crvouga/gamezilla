@@ -1,6 +1,5 @@
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
-import { H2 } from '@pkgs/ui-root-client-ts/heading';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
@@ -57,29 +56,14 @@ export function ContentAuthorDetailsView(props: { view: View }): JSX.Element {
 }
 
 /**
- * `board`: the game's own editor (a pack: its puzzles), headed by what it
- * is and undo and redo of this session's edits.
+ * `board`: the game's own editor (a pack: its puzzles), the stage itself.
+ * The shell heads it with the way back and the details, says where the
+ * draft stands right above it, and keeps undo and redo in the bar under it.
  */
 export function ContentAuthorBoardView(props: { view: View }): JSX.Element {
-  const { t } = useLingui();
   return (
     <StackVertical gap="md" dataSet={{ testid: 'content-author-stage' }}>
-      <StackHorizontal
-        gap="sm"
-        wrap
-        align="center"
-        justify="between"
-        dataSet={{ testid: 'content-author-tools' }}
-      >
-        <H2 size="navigationTitle" testId="content-author-stage-step">
-          {props.view.kind === 'pack' ? t`Puzzles` : t`Board`}
-        </H2>
-        <StackHorizontal gap="xs" wrap align="center">
-          {props.view.history}
-        </StackHorizontal>
-      </StackHorizontal>
       {props.view.stage}
-      <DoneButton view={props.view} />
     </StackVertical>
   );
 }

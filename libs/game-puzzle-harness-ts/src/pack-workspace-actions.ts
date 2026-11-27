@@ -48,7 +48,7 @@ export const previewDuringPackReorder = defineAction({
         Promise.resolve(
           view
             .queryByTestId('content-pack-order')
-            ?.textContent.startsWith('Puzzles in this packValley') === true
+            ?.textContent.startsWith('Puzzles in this pack1Valley') === true
         )
       );
     } finally {

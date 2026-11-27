@@ -1,3 +1,4 @@
+import { expect, within } from 'storybook/test';
 import type { Meta, StoryObj } from 'storybook-solidjs-vite';
 import { ContentAuthorScreenView } from './content-author-screen-view';
 import {
@@ -23,12 +24,41 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-/** A puzzle draft: the game's own editor under undo and redo. */
-export const Puzzle: Story = {};
+/**
+ * A puzzle draft: the board is the screen. Back to the steps, the draft's
+ * title and its details over one status line, the game's own editor, then
+ * undo and redo in the bar under it.
+ */
+export const Puzzle: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(
+      canvas.getByRole('group', { name: 'Undo and redo' })
+    ).toBeVisible();
+    await expect(
+      canvas.getByTestId('content-author-open-details')
+    ).toBeVisible();
+    await expect(canvas.getByTestId('content-step-done')).toBeVisible();
+  },
+};
+
+/** The game cannot play the board yet: the line over it says so. */
+export const Unplayable: Story = { args: { playable: false } };
+
+/** A save failed: said under the header with its retry; the edits stay. */
+export const SaveFailed: Story = {
+  args: {
+    save: {
+      saving: false,
+      dirty: true,
+      error: 'There is no room left on this device.',
+    },
+  },
+};
 
 /**
- * A pack: its puzzles in order, each with its tools, published puzzles to
- * add and a new one to create, instead of a game editor.
+ * A pack: its puzzles numbered in order, each with its tools, published
+ * puzzles to add and a new one to create, instead of a game editor.
  */
 export const Pack: Story = {
   args: AUTHOR_STORY_PACK,

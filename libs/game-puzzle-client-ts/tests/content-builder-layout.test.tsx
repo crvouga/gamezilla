@@ -145,6 +145,7 @@ function row(
   return (
     <ContentPackItemRow
       id={id}
+      position={first ? 1 : 2}
       title={`Puzzle ${id}`}
       caption=""
       status="published"
@@ -183,9 +184,16 @@ test("a pack's puzzles are listed in order, each with its tools and no play cont
     </SurfaceStackProvider>
   ));
   const order = screen.getByTestId('content-pack-order');
-  expect(order.textContent?.startsWith('Puzzles in this packPuzzle a')).toBe(
-    true
-  );
+  expect(
+    order.textContent?.startsWith('Puzzles in this pack1Puzzle aPublished')
+  ).toBe(true);
+  expect(screen.getByTestId('content-pack-position-b').textContent).toBe('2');
+  expect(
+    before(
+      screen.getByTestId('content-pack-item-a'),
+      screen.getByTestId('content-pack-item-b')
+    )
+  ).toBe(true);
   const first = screen.getByTestId('content-pack-item-a');
   expect(
     first.querySelector('[data-component="MenuRowAction"]')?.textContent
@@ -240,7 +248,8 @@ test('a pack row opens on a tap anywhere, its status a chip, the rest in one men
   const [open, menu] = buttons;
   if (open === undefined || menu === undefined) throw new Error('no row');
   expect(open.getAttribute('data-component')).toBe('MenuRowAction');
-  expect(open.textContent).toBe('Puzzle bPublished');
+  // Its place in the pack's order leads the row.
+  expect(open.textContent).toBe('2Puzzle bPublished');
   expect(
     open.querySelector('[data-testid="content-chip-status"]')
   ).not.toBeNull();
@@ -492,16 +501,17 @@ test('a copy on its way has nothing to press on the hub: its row says where it s
 
 // regression: builder-editing-tools-apart-from-stage — undo, redo and
 // preview sat under the stage beside nothing, and the playtest was a second
-// filled button. Undo and redo head the board they act on; the preview and
-// publishing are screens of their own, the playtest a step of publishing.
-test('undo and redo head the board; publishing is a screen of its own', () => {
+// filled button. Undo and redo are the board's own command bar, right under
+// the stage they act on; the preview and publishing are screens of their
+// own, the playtest a step of publishing.
+test('undo and redo are the bar under the board; publishing is a screen of its own', () => {
   mount(() => builder({ kind: 'puzzle', place: { screen: 'board' } }));
   const stage = screen.getByTestId('content-author-stage');
-  const tools = screen.getByTestId('content-author-tools');
-  expect(stage.firstElementChild).toBe(tools);
-  expect(tools.contains(screen.getByTestId('history'))).toBe(true);
+  const bar = screen.getByRole('group', { name: 'Undo and redo' });
+  expect(bar.contains(screen.getByTestId('history'))).toBe(true);
   expect(stage.contains(screen.getByTestId('editor'))).toBe(true);
-  expect(before(tools, screen.getByTestId('editor'))).toBe(true);
+  expect(before(screen.getByTestId('editor'), bar)).toBe(true);
+  expect(bar.previousElementSibling?.contains(stage)).toBe(true);
   expect(screen.getByTestId('content-author-stage-step').textContent).toBe(
     'Board'
   );
@@ -523,6 +533,63 @@ test('undo and redo head the board; publishing is a screen of its own', () => {
   expect(publish.contains(screen.getByTestId('content-validate'))).toBe(true);
   expect(publish.contains(screen.getByTestId('content-publish'))).toBe(true);
   expect(screen.queryByTestId('editor')).toBeNull();
+});
+
+// The board is the screen, as a puzzle app's stage is: back to the steps,
+// the draft's title and its details in one header row; where the draft
+// stands in one line right above the board; undo and redo under it.
+for (const [size, name] of [
+  [PHONE, 'a phone'],
+  [DESKTOP, 'a desktop'],
+] as const)
+  test(`on ${name} the board reads header, status, board, then undo and redo`, () => {
+    const opened: Place[] = [];
+    mount(
+      () =>
+        builder({
+          kind: 'puzzle',
+          place: { screen: 'board' },
+          onOpen: (place) => opened.push(place),
+        }),
+      size
+    );
+    const header = document.querySelector(
+      '[data-component="EditorStageHeader"]'
+    );
+    if (header === null) throw new Error('no header');
+    const title = screen.getByTestId('content-author-title');
+    expect(header.contains(title)).toBe(true);
+    expect(title.textContent).toBe('Weekend counts');
+    const save = screen.getByTestId('content-draft-save-status');
+    const status = save.closest('[data-component="EditorStageStatus"]');
+    if (status === null) throw new Error('no status line');
+    expect(status.textContent).toBe(
+      'Board · Saved on this device. Changes share when connected.'
+    );
+    const bar = screen.getByRole('group', { name: 'Undo and redo' });
+    expect(before(header, status)).toBe(true);
+    expect(before(status, screen.getByTestId('editor'))).toBe(true);
+    expect(before(screen.getByTestId('editor'), bar)).toBe(true);
+    fireEvent.click(screen.getByTestId('content-author-open-details'));
+    fireEvent.click(screen.getByTestId('content-step-done'));
+    expect(opened).toEqual([{ screen: 'details' }, { screen: 'builder' }]);
+  });
+
+test('a puzzle whose board cannot be played says so in the line above it', () => {
+  mount(() =>
+    builder({ kind: 'puzzle', place: { screen: 'board' }, playable: false })
+  );
+  const status = screen
+    .getByTestId('content-draft-save-status')
+    .closest('[data-component="EditorStageStatus"]');
+  expect(status?.textContent).toBe(
+    'Board · Saved on this device. Changes share when connected. · Cannot be played yet. Fix the board.'
+  );
+  cleanup();
+  mount(() =>
+    builder({ kind: 'pack', place: { screen: 'board' }, playable: false })
+  );
+  expect(screen.queryByTestId('content-author-board-unplayable')).toBeNull();
 });
 
 // regression: builder-publish-bar-covers-content — the publish bar was a
@@ -567,15 +634,17 @@ for (const [size, name] of [
 
 // regression: builder-step-two-left-of-step-one — wide, the details sat in
 // the rail beside the stage, so "2 · Board" read left of "1 · Details".
-// The details are a form on a screen of their own; only the board and the
-// preview are stages.
+// The details are a form on a screen of their own; only the board (the
+// editor's own stage) and the preview (a game's) are stages.
 test('the details are a form of their own; only the board and the preview are stages', () => {
   for (const place of PLACES) {
     mount(() => builder({ place }));
-    const stage = place.screen === 'board' || place.screen === 'preview';
     expect(
       document.querySelector('[data-component="GameLayout"]') !== null
-    ).toBe(stage);
+    ).toBe(place.screen === 'preview');
+    expect(
+      document.querySelector('[data-component="EditorStageScreen"]') !== null
+    ).toBe(place.screen === 'board');
     cleanup();
   }
   mount(() => builder({ place: { screen: 'details' } }));
@@ -682,7 +751,7 @@ const PLACE_NAMES: Record<Place['screen'], string> = {
 // strip. The save line is part of the subtitle under the draft's title, on
 // every builder screen, and the pack's puzzles follow it directly on theirs.
 test('the shell shows on every place: the title, where it is, and the save line', () => {
-  for (const place of PLACES) {
+  for (const place of PLACES.filter((each) => each.screen !== 'board')) {
     mount(() => builder({ place }), PHONE);
     const save = screen.getByTestId('content-draft-save-status');
     expect(save.getAttribute('role')).toBe('status');
@@ -698,12 +767,18 @@ test('the shell shows on every place: the title, where it is, and the save line'
     );
     cleanup();
   }
+  // The board says the same in its own header and the line over the board.
   mount(() => builder({ place: { screen: 'board' } }), PHONE);
-  const tools = screen.getByTestId('content-author-tools');
-  expect(tools.contains(screen.getByTestId('content-author-stage-step'))).toBe(
-    true
-  );
-  expect(tools.contains(screen.getByTestId('history'))).toBe(true);
+  expect(
+    screen
+      .getByTestId('content-draft-save-status')
+      .closest('[data-component="EditorStageStatus"]')?.textContent
+  ).toContain('Puzzles · Saved on this device.');
+  expect(
+    screen
+      .getByTestId('content-author-title')
+      .closest('[data-component="EditorStageHeader"]')
+  ).not.toBeNull();
 });
 
 test('the save line names saving, unsaved and saved', () => {
@@ -902,8 +977,9 @@ test('a failed save or a conflicting copy leads the hub instead of the next step
 });
 
 // regression: builder-step-no-way-back — the board and the preview had no
-// command back to the steps; only the details form had Done.
-test('the board and the preview end with Done, back to the steps', () => {
+// command back to the steps; only the details form had Done. The board's
+// way back now heads it; the preview still ends with Done.
+test('the board and the preview each have one way back to the steps', () => {
   for (const place of [
     { screen: 'board' },
     { screen: 'preview', puzzleId: null },
