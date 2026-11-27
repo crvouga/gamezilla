@@ -4,6 +4,7 @@
 export function chromeDocumentLoad(view: EventTarget) {
   let mainFrame: string | undefined;
   let loading = false;
+  let navigation = 0;
   function frameId(event: Event): string | undefined {
     const data: unknown = event instanceof MessageEvent ? event.data : null;
     return data !== null &&
@@ -17,7 +18,10 @@ export function chromeDocumentLoad(view: EventTarget) {
     const id = frameId(event);
     if (id === undefined) return;
     mainFrame ??= id;
-    if (id === mainFrame) loading = true;
+    if (id === mainFrame) {
+      navigation++;
+      loading = true;
+    }
   });
   view.addEventListener('Page.domContentEventFired', () => {
     loading = false;
@@ -27,5 +31,5 @@ export function chromeDocumentLoad(view: EventTarget) {
     if (mainFrame !== undefined && frameId(event) === mainFrame)
       loading = false;
   });
-  return () => loading;
+  return () => ({ loading, navigation });
 }

@@ -1,0 +1,4 @@
+{
+  "summary": "Alice's Battleship draw setup spent the entire first Google form wait evaluating a chooser marker on an unknown provider page.",
+  "regressionTest": "libs/harness-ts/tests/provider-chooser-navigation.test.ts"
+}

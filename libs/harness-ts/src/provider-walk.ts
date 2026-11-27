@@ -110,7 +110,7 @@ function nativeProviderTab({ s, actorId, answers }: ProviderWalk) {
         return 'unknown provider page';
     }
   };
-  return { page, controls: browser.documentControls };
+  return { page, controls: browser.documentControls, provider };
 }
 
 async function embeddedScreen(
@@ -123,20 +123,24 @@ async function embeddedScreen(
   return null;
 }
 
-/** A tab's URL may commit before its cached native title updates. */
-async function visibleProviderForm(
-  ui: ProviderControls,
+// The provider labels each form's region with its visible heading.
+const PROVIDER_REGIONS = {
+  'Choose an account': PROVIDER_PAGE.chooser,
+  'Create your account': PROVIDER_PAGE.signup,
+  'Review access': PROVIDER_PAGE.consent,
+  'This sign-in expired': 'oauth-mock-error',
+};
+
+function visibleProviderForm(
+  id: string | null,
   previous: ProviderScreen | null,
   waiting: (state: string) => null
 ) {
-  for (const [form, id] of SCREENS) {
-    // A native browser automatically submits Apple's hand-off document.
-    if (form !== 'handoff' && (await ui.get(id).isVisible()))
-      return form === previous ? waiting(`submitted ${form}`) : form;
-  }
-  if (await ui.get('oauth-mock-error').isVisible())
+  if (id === 'oauth-mock-error')
     throw new Error('The provider reports an expired sign-in');
-  return waiting('unknown provider page without a visible form');
+  const form = SCREENS.find(([, marker]) => marker === id)?.[0];
+  if (!form) return waiting('unknown provider page without a visible form');
+  return form === previous ? waiting(`submitted ${form}`) : form;
 }
 
 async function currentScreen(
@@ -174,8 +178,10 @@ async function currentScreen(
       if (previous !== null && !returnedToApp) return 'returned';
       return (await walk.done(ui)) ? 'done' : waiting('app awaiting outcome');
     }
-    if (screen === 'unknown provider page')
-      return visibleProviderForm(ui, previous, waiting);
+    if (screen === 'unknown provider page') {
+      const id = await ui.visibleRegion(tab.provider, PROVIDER_REGIONS);
+      return visibleProviderForm(id, previous, waiting);
+    }
     if (screen === previous) return waiting(`submitted ${screen}`);
     if (screen !== 'chooser' && screen !== 'signup' && screen !== 'consent')
       return waiting(screen);

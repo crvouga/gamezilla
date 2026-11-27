@@ -1,6 +1,12 @@
 import { expect, test } from 'bun:test';
 import type { ProductHarness } from '@libs/harness-ts/harness';
+import {
+  createHarnessIdps,
+  HARNESS_GOOGLE_REDIRECT_URI,
+  harnessAppleClientKeys,
+} from '@libs/harness-ts/idp';
 import { completeProviderSignIn } from '@libs/harness-ts/provider-walk';
+import { HARNESS_GOOGLE_CLIENT_ID } from '@libs/sub-shared-ts/harness-constants';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 
 const google = 'http://google.test';
@@ -8,8 +14,9 @@ const app = 'http://app.test';
 
 async function checkGoogleSignIn(
   separator: string,
-  staleTitle = false
+  chooserHeading?: string
 ): Promise<void> {
+  const staleTitle = chooserHeading !== undefined;
   const pages = [
     [google, `Choose an account ${separator} OAuth Emulator`],
     [google, `Choose an account ${separator} OAuth Emulator`],
@@ -24,6 +31,10 @@ async function checkGoogleSignIn(
   const ui = {
     get: (id: string) => ({
       isVisible: async () => {
+        if (staleTitle && id === 'oauth-mock-chooser')
+          throw new Error(
+            'opener.cdp(Runtime.evaluate) [loading=false, navigation metadata changed=false] #1 pending'
+          );
         if ((!staleTitle && index === 1) || index === 3 || index === 4)
           throw new Error(
             `node ${id} isVisible: Inspected target navigated or closed`
@@ -42,6 +53,14 @@ async function checkGoogleSignIn(
   const markerBudgets: number[] = [];
   const browser = {
     documentControls: (remainingMs: () => number) => ({
+      visibleRegion: async (
+        origin: string,
+        regions: Record<string, string>
+      ) => {
+        expect(origin).toBe(google);
+        markerBudgets.push(remainingMs());
+        return regions[chooserHeading!];
+      },
       get: (id: string) => {
         if (id === 'oauth-mock-chooser') markerBudgets.push(remainingMs());
         return ui.get(id);
@@ -105,5 +124,36 @@ test.each(['·', String.raw`\u00b7`])(
 );
 
 // regression: word-tiles-unknown-provider-document
-test('Alice answers a visible Google chooser while its native title still belongs to the app', () =>
-  checkGoogleSignIn('·', true));
+// regression: battleship-unknown-provider-first-read
+test('Alice answers a visible Google chooser while its native title still belongs to the app', async () => {
+  const { google: idp } = createHarnessIdps({
+    clock: { now: () => 1_700_000_000_000 },
+    appleKeys: await harnessAppleClientKeys(),
+    toApi: () => async () => new Response(null, { status: 204 }),
+  });
+  idp.addAccount({ handle: 'alice', email: 'alice@example.com' });
+  const url = new URL('/o/oauth2/v2/auth', idp.origin);
+  url.search = new URLSearchParams({
+    client_id: HARNESS_GOOGLE_CLIENT_ID,
+    redirect_uri: HARNESS_GOOGLE_REDIRECT_URI,
+    response_type: 'code',
+    scope: 'openid email profile',
+    prompt: 'select_account',
+    state: 'test-state',
+  }).toString();
+  const response = await idp.fetch(url.href);
+  expect(response.status).toBe(200);
+  const doc = new DOMParser().parseFromString(
+    await response.text(),
+    'text/html'
+  );
+  const chooser = doc.querySelector(
+    'section[data-testid="oauth-mock-chooser"]'
+  );
+  const heading = doc.getElementById(
+    chooser?.getAttribute('aria-labelledby') ?? ''
+  )?.textContent;
+  if (!heading)
+    throw new Error('The provider chooser needs an accessible name');
+  await checkGoogleSignIn('·', heading);
+});

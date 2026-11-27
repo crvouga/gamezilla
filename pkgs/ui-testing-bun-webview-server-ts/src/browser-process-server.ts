@@ -4,6 +4,11 @@ import type {
   DriverNode,
 } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { TraceBrowserCall } from './browser-call-diagnostics';
+import {
+  documentMarker,
+  type RegionMarkers,
+  visibleDocumentRegion,
+} from './document-region';
 import { type BrowserCall, runsNoPageCode } from './remote-browser-driver';
 
 export type BrowserDevice = {
@@ -13,15 +18,30 @@ export type BrowserDevice = {
   readonly network?: readonly string[];
   readonly traceCall?: TraceBrowserCall;
   readonly activateBeforeNavigate?: () => Promise<void>;
-  readonly isDocumentLoading?: () => boolean;
+  readonly readRegionMarker?: (
+    markers: RegionMarkers
+  ) => Promise<string | null>;
+  readonly documentLoad?: () => {
+    readonly loading: boolean;
+    readonly navigation: number;
+  };
   close(): Promise<void>;
 };
 
+function documentState(device: BrowserDevice) {
+  const load = device.documentLoad?.();
+  return {
+    url: Reflect.get(device.view, 'url') as string,
+    loading: Boolean(load?.loading || Reflect.get(device.view, 'loading')),
+    navigation: load?.navigation ?? 0,
+  };
+}
+
 function readyDocument(device: BrowserDevice) {
-  const { view } = device;
-  if (device.isDocumentLoading?.() || Reflect.get(view, 'loading')) return null;
-  const url = URL.parse(Reflect.get(view, 'url'));
-  const title: unknown = Reflect.get(view, 'title');
+  const state = documentState(device);
+  if (state.loading) return null;
+  const url = URL.parse(state.url);
+  const title: unknown = Reflect.get(device.view, 'title');
   return url && typeof title === 'string'
     ? { origin: url.origin, title }
     : null;
@@ -39,6 +59,16 @@ async function invoke(
     return Reflect.get(device.view, 'url');
   if (call.target === 'view' && call.method === 'readyDocument')
     return readyDocument(device);
+  if (call.target === 'view' && call.method === 'visibleRegion') {
+    const [origin, markers] = call.args as readonly [string, RegionMarkers];
+    const read =
+      device.readRegionMarker ??
+      documentMarker((id) => device.driver.get(id, 'document'));
+    return visibleDocumentRegion(() => documentState(device), read)(
+      origin,
+      markers
+    );
+  }
   if (call.target === 'driver' && call.method === 'close')
     return device.close();
   let target: unknown =
@@ -92,8 +122,9 @@ export function createBrowserRequestHandler<Open>(
     if (current === null) throw new Error('Invalid browser request');
     send({ id: request.id, stage: 'executing' });
     const value =
-      (call.target === 'node' || call.target === 'document-node') &&
-      (call.method === 'tap' || call.method === 'isVisible') &&
+      (((call.target === 'node' || call.target === 'document-node') &&
+        (call.method === 'tap' || call.method === 'isVisible')) ||
+        (call.target === 'view' && call.method === 'visibleRegion')) &&
       current.traceCall
         ? await current.traceCall(
             () => invoke(current, call),

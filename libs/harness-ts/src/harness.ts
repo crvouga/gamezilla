@@ -3,7 +3,10 @@ import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';
 import type { AudioPlayerStatus } from '@pkgs/sounds-shared-ts/ports';
 import type { SqlTx } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { ExecuteSqlStatements } from '@pkgs/sql-client-root-shared-ts/statements';
-import type { BrowserDocument } from '@pkgs/ui-testing-bun-webview-server-ts/remote-browser-driver';
+import type {
+  BrowserDocument,
+  DocumentControls,
+} from '@pkgs/ui-testing-bun-webview-server-ts/remote-browser-driver';
 import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
 import type { BrowserNavigation } from './browser-navigation';
 import type { ActorCheckpointPort } from './client-checkpoint';
@@ -27,9 +30,7 @@ export type HarnessActor = {
     readonly readyDocument: (
       timeoutMs: number
     ) => Promise<BrowserDocument | null>;
-    readonly documentControls: (
-      remainingMs: () => number
-    ) => Pick<Driver, 'get'>;
+    readonly documentControls: (remainingMs: () => number) => DocumentControls;
   };
   readonly checkpoint?: ActorCheckpointPort;
   readonly device: HarnessDevice;
