@@ -8,9 +8,9 @@ import {
 import {
   EVIDENCE_DIR,
   emulateOffline,
-  openDevice,
   waitForCachedShell,
 } from '@apps/product-ts/live-browser';
+import { openBrowserTab } from '@apps/product-ts/live-browser-tab';
 import {
   createJourneyStepRecorder,
   type JourneyStepView,
@@ -113,7 +113,7 @@ test('live journey evidence lives in the package directory uploaded by CI', () =
 test('a fresh live device can cut its network through Chrome', async () => {
   const commands: { method: string; params: unknown }[] = [];
   let closed = false;
-  const device = await openDevice(
+  const device = await openBrowserTab(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     (options) => {
       expect(options.dataStore).toBe('ephemeral');
@@ -140,14 +140,6 @@ test('a fresh live device can cut its network through Chrome', async () => {
     await emulateOffline(device.view);
     expect(commands).toEqual([
       { method: 'Network.enable', params: undefined },
-      {
-        method: 'Storage.clearDataForOrigin',
-        params: { origin: 'https://web.example', storageTypes: 'all' },
-      },
-      {
-        method: 'Storage.clearDataForOrigin',
-        params: { origin: 'https://api.example', storageTypes: 'all' },
-      },
       {
         method: 'Network.emulateNetworkConditions',
         params: {

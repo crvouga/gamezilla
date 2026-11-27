@@ -15,15 +15,11 @@ import type { HttpClient } from '@pkgs/http-client-shared-ts/types';
 import { createNodeFsObjectStore } from '@pkgs/object-store-node-fs-server-ts/impl-node-fs';
 import { wallNodeFs } from '@pkgs/object-store-node-fs-server-ts/wall-node-fs';
 import { writeUtf8 } from '@pkgs/object-store-root-shared-ts/helpers';
-import { BunWebviewDriver } from '@pkgs/ui-testing-bun-webview-shared-ts/bun-webview-driver';
-import {
-  browserNetworkEvidence,
-  nativeHealthEvidence,
-} from './browser-network-evidence';
+import { createIsolatedProcess } from '@pkgs/os-server-ts/wall-isolated-process';
+import type { IsolatedWorker } from '@pkgs/os-server-ts/wall-isolated-worker';
+import { connectIsolatedBrowser } from '@pkgs/ui-testing-bun-webview-server-ts/wall-io';
+import { nativeHealthEvidence } from './browser-network-evidence';
 
-/** Phone-sized: the layout most people use. */
-const VIEWPORT = { width: 390, height: 844 } as const;
-const CHROME_BACKEND = { type: 'chrome', url: false } as const;
 /** Uploaded by the Health and Release workflows when a journey fails. */
 export const EVIDENCE_DIR =
   process.env['CRITICAL_JOURNEY_EVIDENCE_DIR'] ??
@@ -49,61 +45,19 @@ export type Device = {
   close(): Promise<void>;
 };
 
-function formatConsoleArg(arg: unknown): string {
-  if (typeof arg === 'string') return arg;
-  try {
-    return JSON.stringify(arg);
-  } catch {
-    return String(arg);
-  }
-}
-
-/** A fresh device (not yet on the site): its own storage, console captured. */
+/** Each fresh device owns a Chrome process and its profile until close. */
 export async function openDevice(
   target: Pick<LiveTarget, 'webOrigin' | 'apiOrigin'>,
-  createView: (options: Bun.WebView.ConstructorOptions) => Bun.WebView = (
-    options
-  ) => new Bun.WebView(options)
+  spawn: () => IsolatedWorker = () =>
+    createIsolatedProcess(
+      new URL('./isolated-browser-entry.ts', import.meta.url)
+    )
 ): Promise<Device> {
-  // Chrome shares its first profile for the whole process. Bun owns that
-  // profile's lifetime; closing one device must not remove it under later views.
-  const dataStore = 'ephemeral' as const;
-  const consoleLines: string[] = [];
-  const view = createView({
-    ...VIEWPORT,
-    backend: CHROME_BACKEND,
-    dataStore,
-    console: (type, ...args) => {
-      consoleLines.push(`[${type}] ${args.map(formatConsoleArg).join(' ')}`);
-    },
-  });
-  // Chrome keeps one profile per process (the first view's directory), so
-  // wipe both origins: every scenario starts as a device that never visited.
-  await view.navigate('about:blank');
-  // Chrome associates socket throttling with the session when a socket opens.
-  // Enable it before the app creates rooms, not only when going offline.
-  await view.cdp('Network.enable');
-  const network = browserNetworkEvidence(view);
-  for (const origin of [target.webOrigin, target.apiOrigin]) {
-    await view.cdp('Storage.clearDataForOrigin', {
-      origin,
-      storageTypes: 'all',
-    });
-  }
-  const driver = new BunWebviewDriver({
-    view,
-    baseUrl: target.webOrigin,
-    popupOptions: { dataStore, backend: CHROME_BACKEND },
-    timers: wallTimers,
-  });
-  return {
-    apiOrigin: target.apiOrigin,
-    view,
-    driver,
-    console: consoleLines,
-    network,
-    close: () => driver.close(),
-  };
+  const browser = await connectIsolatedBrowser(
+    { webOrigin: target.webOrigin, apiOrigin: target.apiOrigin },
+    spawn()
+  );
+  return { ...browser, apiOrigin: target.apiOrigin };
 }
 
 export async function readLocation(

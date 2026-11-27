@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { openIsolatedDevice } from '@apps/product-ts/isolated-browser';
+import { openDevice } from '@apps/product-ts/live-browser';
 import {
   actOnLiveDevice,
   type LiveDevices,
@@ -35,7 +35,7 @@ test('a link guest uses an isolated process and keeps it across navigations', as
   };
   const open = async () => {
     opened++;
-    return openIsolatedDevice(target, () => worker.process);
+    return openDevice(target, () => worker.process);
   };
   try {
     await openGuestDevice(target, devices, '/space/one', open);
@@ -117,12 +117,45 @@ function controlled(
   };
 }
 
+// regression: release-fresh-host-shared-profile
+test('the Word Tiles host opens a fresh profile after the Numberlink host closes', async () => {
+  const target = {
+    webOrigin: 'http://127.0.0.1:33251',
+    apiOrigin: 'http://127.0.0.1:33193',
+  };
+  const workers: ReturnType<typeof controlled>[] = [];
+  const spawn = () => {
+    const child = controlled();
+    workers.push(child);
+    return child.process;
+  };
+
+  const numberlink = await openDevice(target, spawn);
+  await numberlink.driver.launch();
+  await numberlink.close();
+  expect(workers[0]?.terminated()).toBe(true);
+
+  const wordTiles = await openDevice(target, spawn);
+  try {
+    await wordTiles.driver.launch();
+    expect(workers).toHaveLength(2);
+    expect(workers[0]?.calls.map((call) => call.method)).toEqual([
+      'launch',
+      'close',
+    ]);
+    expect(workers[1]?.calls.map((call) => call.method)).toEqual(['launch']);
+  } finally {
+    await wordTiles.close();
+  }
+  expect(workers[1]?.terminated()).toBe(true);
+});
+
 // regression: isolated-browser-failure-loses-gesture
 test('journey diagnostics retain a remote failure’s method and control without arguments', async () => {
   const worker = controlled(undefined, (call) =>
     call.method === 'expect.text' ? 'Timed out waiting for text' : undefined
   );
-  const device = await openIsolatedDevice(
+  const device = await openDevice(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     () => worker.process
   );
@@ -147,7 +180,7 @@ test('journey diagnostics retain a remote failure’s method and control without
 // regression: isolated-browser-optional-gesture-arguments
 test('isolated devices preserve scoped gestures and release their process on close', async () => {
   const worker = controlled();
-  const device = await openIsolatedDevice(
+  const device = await openDevice(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     () => worker.process
   );
@@ -171,7 +204,7 @@ test('isolated devices preserve scoped gestures and release their process on clo
 });
 test('a failed isolated browser rejects pending work and still tears down', async () => {
   const worker = controlled();
-  const device = await openIsolatedDevice(
+  const device = await openDevice(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     () => worker.process
   );
@@ -185,7 +218,7 @@ test('a failed isolated browser rejects pending work and still tears down', asyn
 // regression: isolated-browser-file-selection
 test('isolated devices forward file contents to the selected input', async () => {
   const worker = controlled();
-  const device = await openIsolatedDevice(
+  const device = await openDevice(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     () => worker.process
   );
@@ -218,8 +251,8 @@ async function switchDevices(order: readonly boolean[]): Promise<number> {
     webOrigin: 'https://web.example',
     apiOrigin: 'https://api.example',
   };
-  const host = await openIsolatedDevice(target, () => workers[0]!.process);
-  const peer = await openIsolatedDevice(target, () => workers[1]!.process);
+  const host = await openDevice(target, () => workers[0]!.process);
+  const peer = await openDevice(target, () => workers[1]!.process);
   const devices: LiveDevices = {
     host,
     guest: peer,
@@ -274,8 +307,8 @@ test('cleanups after the peer acted last run on the activated host page', async 
     webOrigin: 'https://web.example',
     apiOrigin: 'https://api.example',
   };
-  const host = await openIsolatedDevice(target, () => workers[0]!.process);
-  const peer = await openIsolatedDevice(target, () => workers[1]!.process);
+  const host = await openDevice(target, () => workers[0]!.process);
+  const peer = await openDevice(target, () => workers[1]!.process);
   const devices: LiveDevices = {
     host,
     guest: peer,
@@ -317,7 +350,7 @@ test('cleanups after the peer acted last run on the activated host page', async 
 // regression: live-offline-reopen-background-startup
 test('offline reopening and space navigation activate the device before document startup', async () => {
   const worker = controlled();
-  const device = await openIsolatedDevice(
+  const device = await openDevice(
     { webOrigin: 'https://web.example', apiOrigin: 'https://api.example' },
     () => worker.process
   );
