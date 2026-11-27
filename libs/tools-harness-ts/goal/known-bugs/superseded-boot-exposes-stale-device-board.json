@@ -1,0 +1,4 @@
+{
+  "summary": "A superseded SQLite open completed after sign-in and replaced the browser's local SQL hook. Both device reads could show the original game while the visible screen used the database holding the winner.",
+  "regressionTest": "libs/app-root-client-ts/tests/local-database-boot.test.tsx"
+}

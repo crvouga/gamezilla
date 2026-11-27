@@ -43,7 +43,6 @@ function useSyncBootAttempt(args: {
   const pool = useSyncEnginePool();
   const identity = useLocalIdentity();
   const getFreshAuthToken = useGetFreshAuthToken();
-  const log = useLogger('sync-engine-boot');
   const fetchFn: SyncApiFetch = env.server;
   const availability = originAvailabilityFor(env);
   // The engine asks who it is acting for at the moment of each request,
@@ -93,19 +92,11 @@ function useSyncBootAttempt(args: {
       engine,
       pool.mutationRegistry(),
       loadApp(),
-    ]).then(([resolved, registry, app]) => {
-      // Connecting starts background sync. Whatever goes wrong there shows
-      // in the engine's status; it never keeps the app from opening.
-      void traceBrowserStartup('client.sync.connect', () =>
-        resolved.connect()
-      ).catch((error: unknown) =>
-        log.error('sync engine connect failed', {
-          error: error instanceof Error ? error.message : String(error),
-        })
-      );
-      exposeLocalSqlForTests(resolved.db);
-      return { engine: resolved, registry, turnGames: app.turnGames };
-    });
+    ]).then(([engine, registry, app]) => ({
+      engine,
+      registry,
+      turnGames: app.turnGames,
+    }));
     return { ready };
   });
 }
@@ -132,6 +123,18 @@ export function useSyncEngineBootViews(args: {
     warm: () => null,
     onError: (error) =>
       log.error('local database boot failed', { error: error.message }),
+  });
+  createEffect(boot, (state) => {
+    if (state.phase !== 'ready') return;
+    const { engine } = state.ready;
+    void traceBrowserStartup('client.sync.connect', () =>
+      engine.connect()
+    ).catch((error: unknown) =>
+      log.error('sync engine connect failed', {
+        error: error instanceof Error ? error.message : String(error),
+      })
+    );
+    return exposeLocalSqlForTests(engine.db);
   });
 
   const [stuck, setStuck] = createSignal(false);
