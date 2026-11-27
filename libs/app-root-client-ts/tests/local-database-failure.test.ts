@@ -7,16 +7,19 @@
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { CreateAppLocalSyncEngineArgs } from '@libs/app-env-client-ts/create-local-sync-engine';
 import { createAppLocalSyncEngine } from '@libs/app-env-client-ts/create-local-sync-engine';
+import { openMainSqlClient } from '@libs/app-env-client-ts/open-main-sql-client';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { composeSubs } from '@libs/sub-shared-ts/compose';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { defineTable } from '@pkgs/db-schema-root-shared-ts/define-table';
+import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { createFaultInjectingSqlClient } from '@pkgs/sql-client-root-shared-ts/fault-injecting-sql-client';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { STORAGE_FAULTS } from '@pkgs/sql-client-root-shared-ts/storage-faults';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { createSyncEnginePool } from '@pkgs/sync-engine-client-ts/sync-engine-pool';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 import fc from 'fast-check';
 
@@ -325,3 +328,47 @@ describe('any fault at any point', () => {
     );
   }, 120_000);
 });
+
+// regression: replaced-cache-restarts-stopped-sync
+test.each(['open timeout', 'owner disconnected'] as const)(
+  'switching accounts after %s leaves only the new account database usable',
+  async (trigger) => {
+    const pool = createSyncEnginePool();
+    const faulty = createFaultInjectingSqlClient(await openMockingbird());
+    const attemptingOpen = Promise.withResolvers<void>();
+    const alice = world(() =>
+      openMainSqlClient('alice', alice.clock.timers, createNoopLogger(), () => {
+        attemptingOpen.resolve();
+        return faulty.client;
+      })
+    );
+    if (trigger === 'open timeout') faulty.hang();
+    const opening = pool.getOrCreate('user_alice', () => boot(alice));
+    await attemptingOpen.promise;
+    if (trigger === 'open timeout') alice.clock.clock.advance(8_000);
+    const previous = await opening;
+    if (trigger === 'owner disconnected') {
+      faulty.breakWith(() => new Error('Database owner disconnected'));
+      expect(await previous.db.query(READ_ITEMS)).toEqual([]);
+    }
+    expect(faulty.disconnects()).toBe(1);
+    await seedItem(previous.db);
+
+    const bob = world(openMockingbird, {
+      userId: 'bob',
+      databaseName: 'user_bob',
+      auth: { ...alice.args.auth, getAccountId: () => 'bob' },
+    });
+    try {
+      const next = await pool.getOrCreate('user_bob', () => boot(bob));
+      expect(pool.peekReady('user_alice')).toBeNull();
+      await expect(previous.db.query(READ_ITEMS)).rejects.toThrow(
+        /database is closed/i
+      );
+      await expectUsable(next);
+      expect(previous.status.getSnapshot().connection).toBe('disconnected');
+    } finally {
+      await pool.releaseAll();
+    }
+  }
+);

@@ -473,3 +473,100 @@ describe('the rest of a browser database', () => {
 function faultyMockingbird(): FaultInjectingSqlClient {
   return createFaultInjectingSqlClient(SqlClientImplMockingbirdSqlite.open());
 }
+
+// regression: retired-identity-database-reopens
+test('closing an identity during owner loss releases the pending replacement', async () => {
+  const preparing = Promise.withResolvers<void>();
+  const resume = Promise.withResolvers<void>();
+  const replacement = faultyMockingbird();
+  const w = await world({
+    openFallback: () => Promise.resolve(replacement.client),
+    prepareFallback: async (db) => {
+      await createSchema(db);
+      preparing.resolve();
+      await resume.promise;
+    },
+  });
+  w.faulty.breakWith(() => new Error('Database owner disconnected'));
+  const read = w.client.query(READ_ALL);
+  await preparing.promise;
+  await w.client.disconnect();
+  resume.resolve();
+  await expect(read).rejects.toThrow(/database is closed/i);
+  expect(replacement.disconnects()).toBe(1);
+  expect(w.failovers).toEqual([]);
+  await expect(w.client.query(READ_ALL)).rejects.toThrow(/database is closed/i);
+});
+
+test('work after explicit disconnect never reopens the retired identity', async () => {
+  const w = await world();
+  await w.client.disconnect();
+  const prepared = w.client.prepare(READ_ALL);
+  await expect(prepared.query()).rejects.toThrow(/database is closed/i);
+  expect(w.fallbacksOpened()).toBe(0);
+});
+
+test('an explicit reconnect binds statements to the new connection', async () => {
+  const faulty = faultyMockingbird();
+  const original = faulty.client;
+  // The browser can reconnect the same client object to a fresh SQL session.
+  let session = 0;
+  const w = await world({
+    primary: {
+      ...original,
+      connect: async () => {
+        session += 1;
+        await original.connect();
+      },
+      disconnect: () => Promise.resolve(),
+      prepare: (query) => {
+        const boundSession = session;
+        const statement = original.prepare(query);
+        return {
+          ...statement,
+          query: (params) => {
+            if (boundSession !== session)
+              throw new Error('statement finalized');
+            return statement.query(params);
+          },
+        };
+      },
+    },
+  });
+  const prepared = w.client.prepare(sql<{ ok: number }>`SELECT 1 AS ok`);
+  try {
+    expect(await prepared.query()).toEqual([{ ok: 1 }]);
+    await w.client.disconnect();
+    await w.client.connect();
+    expect(await prepared.query()).toEqual([{ ok: 1 }]);
+    expect(w.fallbacksOpened()).toBe(0);
+  } finally {
+    await original.disconnect();
+  }
+});
+
+test('a reset after disconnect still reaches the durable database', async () => {
+  const w = await world();
+  await w.client.disconnect();
+  await w.client.resetDatabase?.();
+  expect(w.faulty.resets()).toBe(1);
+  expect(w.fallbacksOpened()).toBe(0);
+});
+
+test('a new disconnect cancels a reconnect waiting for the previous close', async () => {
+  const closing = Promise.withResolvers<void>();
+  const w = await world({
+    primary: {
+      ...faultyMockingbird().client,
+      disconnect: () => closing.promise,
+    },
+  });
+  const firstClose = w.client.disconnect();
+  const reopen = w.client.connect();
+  const secondClose = w.client.disconnect();
+  closing.resolve();
+  await Promise.all([firstClose, secondClose]);
+  await expect(reopen).rejects.toThrow(/database is closed/i);
+  await expect(w.client.query(READ_ALL)).rejects.toThrow(/database is closed/i);
+  expect(w.fallbacksOpened()).toBe(0);
+});

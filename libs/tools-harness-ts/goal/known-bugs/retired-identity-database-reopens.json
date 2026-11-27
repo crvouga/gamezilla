@@ -1,0 +1,4 @@
+{
+  "summary": "After switching accounts, late reads or an in-flight failover could reopen a database for the previous account. Startup hit this lifecycle after an 8000 ms open timeout or a lost database owner.",
+  "regressionTest": "pkgs/sql-client-contract-harness-ts/tests/failover-sql-client.test.ts"
+}

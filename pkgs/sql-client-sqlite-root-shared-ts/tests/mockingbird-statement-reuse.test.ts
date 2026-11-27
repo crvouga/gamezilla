@@ -41,3 +41,26 @@ test('a restored SQLite snapshot executes cached SQL against its replacement dat
     await client.disconnect();
   }
 });
+
+// regression: disposable-sqlite-closes-before-queued-reads
+test('disconnect drains the disposable SQLite transaction and its queued reads', async () => {
+  const client = SqlClientImplMockingbirdSqlite.open();
+  await client.connect();
+  const entered = Promise.withResolvers<void>();
+  const resume = Promise.withResolvers<void>();
+  const query = sql<{ value: number }>`SELECT 1 AS value`;
+  const transaction = client.transaction(async (tx) => {
+    entered.resolve();
+    await resume.promise;
+    return tx.query(query);
+  });
+  await entered.promise;
+  const read = client.query(query);
+  const close = client.disconnect();
+  resume.resolve();
+  expect(await Promise.all([transaction, read, close])).toEqual([
+    [{ value: 1 }],
+    [{ value: 1 }],
+    undefined,
+  ]);
+});

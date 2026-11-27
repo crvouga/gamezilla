@@ -40,6 +40,7 @@ export type SyncEnginePushOptions = {
 };
 
 type PushAttachState = {
+  readonly connected: boolean;
   readonly options: {
     readonly push?: SyncEnginePushOptions;
     readonly db: SqlClient;
@@ -133,6 +134,13 @@ function bindConfiguredPush(
   flushOutboundLive(state);
 }
 
+export function detachPush(state: PushAttachState): void {
+  state.disposePush?.();
+  state.disposePush = null;
+  state.refreshTopics = null;
+  state.pushPubSub = null;
+}
+
 function abandonPushAttach(state: PushAttachState): void {
   try {
     state.disposePush?.();
@@ -159,6 +167,7 @@ export async function attachPushIfConfigured(
   }
   try {
     await resolvePushQueryHydrates(push.queryRegistry);
+    if (!state.connected || state.disposePush !== null) return;
     const created = tryCreatePushPubSub(push.createPubSub);
     if (created === null) return;
     bindConfiguredPush(state, push, created, getMergeDeps);

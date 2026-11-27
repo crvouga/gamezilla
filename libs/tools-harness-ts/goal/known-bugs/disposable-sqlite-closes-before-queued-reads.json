@@ -1,0 +1,4 @@
+{
+  "summary": "Closing disposable SQLite during an active transaction could close its database before an admitted read ran, raising a fatal assertion during startup.",
+  "regressionTest": "pkgs/sql-client-sqlite-root-shared-ts/tests/mockingbird-statement-reuse.test.ts"
+}
