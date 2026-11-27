@@ -1,0 +1,57 @@
+/* An ordered pack's puzzles as square numbered tiles, as many to a row as
+   the width holds. The 48px floor keeps every tile a comfortable target. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--ui-space-12), 1fr));
+  gap: var(--ui-space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.item {
+  min-width: 0;
+}
+.tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 0;
+  border: 1px solid var(--ui-color-border);
+  border-radius: var(--ui-radius-control);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
+  font-size: var(--ui-font-size-lg);
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--ui-font-weight-semibold);
+  line-height: 1;
+}
+.tile:focus-visible {
+  outline: 2px solid var(--ui-color-focus-ring);
+  outline-offset: 2px;
+}
+/* A solved puzzle: the success surface with a check in its corner. */
+.tile[data-state="solved"] {
+  border-color: var(--ui-color-success);
+  background: var(--ui-color-success-surface);
+}
+/* The one puzzle to play next: filled like the primary command. */
+.tile[data-state="current"] {
+  border-color: var(--ui-color-tint-active);
+  background: var(--ui-color-tint-active);
+  color: var(--ui-color-on-primary);
+}
+.number {
+  grid-area: 1 / 1;
+}
+.check {
+  display: inline-flex;
+  grid-area: 1 / 1;
+  align-self: start;
+  justify-self: end;
+  margin: var(--ui-space-1);
+  color: var(--ui-color-success);
+}

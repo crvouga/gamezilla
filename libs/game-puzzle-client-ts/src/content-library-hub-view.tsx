@@ -5,14 +5,11 @@ import { PlusIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { Spinner } from '@pkgs/ui-root-client-ts/spinner';
-import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { Text } from '@pkgs/ui-root-client-ts/text';
+import { VisuallyHidden } from '@pkgs/ui-root-client-ts/visually-hidden';
 import type { JSX } from '@solidjs/web';
 import { For, Show } from 'solid-js';
-import {
-  type ContentLibraryProgress,
-  ContentProgressLine,
-} from './content-library-card';
+import type { ContentLibraryProgress } from './content-library-card';
 import { ContentThumbnail } from './content-thumbnail';
 import type { PuzzlePacksHomeScreenViewProps } from './puzzle-packs-home-screen-view';
 
@@ -71,20 +68,22 @@ function PlayRows(props: { view: View }): JSX.Element {
   );
 }
 
-/** A starter pack's line, then where the person stands with it. */
-function PackCaption(props: {
-  description: string;
-  progress: ContentLibraryProgress | undefined;
-}): JSX.Element {
-  return (
-    <StackVertical>
-      <Show when={props.description}>
-        <Text variant="inherit">{props.description}</Text>
-      </Show>
-      <Show when={props.progress}>
-        {(progress) => <ContentProgressLine progress={progress()} />}
-      </Show>
-    </StackVertical>
+/**
+ * How far along a pack is at the row's end, as solved over total (`83/150`)
+ * so packs compare at a glance; a listener hears that they are solved. A
+ * pack with nothing to solve, or no count yet, shows nothing.
+ */
+function packValue(
+  progress: ContentLibraryProgress | undefined
+): JSX.Element | undefined {
+  return progress === undefined || progress.total === 0 ? undefined : (
+    <Text variant="inherit" testId="content-pack-solved">
+      {progress.completed}/{progress.total}
+      <VisuallyHidden>
+        {' '}
+        <Trans>solved</Trans>
+      </VisuallyHidden>
+    </Text>
   );
 }
 
@@ -105,18 +104,12 @@ function StarterPacks(props: { view: View }): JSX.Element {
                 />
               }
               title={pack.title}
-              // How far along the pack is reads under its name, so the
-              // name keeps the row's whole width.
               caption={
-                <PackCaption
-                  description={pack.description}
-                  progress={
-                    pack.progress === undefined || pack.progress.total === 0
-                      ? undefined
-                      : pack.progress
-                  }
-                />
+                <Show when={pack.description}>
+                  <Text variant="inherit">{pack.description}</Text>
+                </Show>
               }
+              value={packValue(pack.progress)}
               disabled={creating(props.view)}
               onClick={() => props.view.onOpenEdition(pack.id)}
               dataSet={{ testid: `content-bundled-${pack.document_id}` }}

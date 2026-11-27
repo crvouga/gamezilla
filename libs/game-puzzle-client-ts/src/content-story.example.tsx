@@ -8,6 +8,7 @@ import { Button } from '@pkgs/ui-root-client-ts/button';
 import { PlusIcon, RedoIcon, UndoIcon } from '@pkgs/ui-root-client-ts/icons';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
+import { PuzzleGrid } from '@pkgs/ui-root-client-ts/puzzle-grid';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
@@ -155,16 +156,42 @@ export function StoryStartAttempt(props: {
 }
 
 /** A pack's puzzles and the person's progress through them. */
-export function StoryPackOverview(): JSX.Element {
+export function StoryPackOverview(props: {
+  /** Puzzles that only carry their number: numbered tiles, not named rows. */
+  numbered?: boolean | undefined;
+}): JSX.Element {
   return (
     <StackVertical gap="lg">
-      <P role="status">1 of 3 puzzles completed</P>
-      <Button title="Continue Count to seven" fullWidth />
-      <MenuSection title="Choose any puzzle">
-        <MenuRow title="Count to five" value="Completed" />
-        <MenuRow title="Count to seven" value="In progress" />
-        <MenuRow title="Count to nine" value="Unplayed" />
-      </MenuSection>
+      <P role="status">
+        {props.numbered
+          ? '3 of 12 puzzles completed'
+          : '1 of 3 puzzles completed'}
+      </P>
+      <Button
+        title={props.numbered ? 'Play Dock 04' : 'Continue Count to seven'}
+        fullWidth
+      />
+      <Show
+        when={props.numbered}
+        fallback={
+          <MenuSection title="Choose any puzzle">
+            <MenuRow title="Count to five" value="Completed" />
+            <MenuRow title="Count to seven" value="In progress" />
+            <MenuRow title="Count to nine" value="Unplayed" />
+          </MenuSection>
+        }
+      >
+        <PuzzleGrid
+          label="Puzzles in this pack"
+          tiles={Array.from({ length: 12 }, (_, index) => ({
+            key: `dock-${index + 1}`,
+            number: index + 1,
+            label: `Dock ${index + 1}`,
+            state: index < 3 ? 'solved' : index === 3 ? 'current' : 'open',
+            onPress: () => undefined,
+          }))}
+        />
+      </Show>
     </StackVertical>
   );
 }
