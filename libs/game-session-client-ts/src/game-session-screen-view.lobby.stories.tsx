@@ -25,6 +25,7 @@ import {
   status,
 } from './game-frame-story.example';
 import { GameSessionStartExample } from './game-session-start.example';
+import { PlayBotsScreenView } from './play-bots-screen-view';
 import { PlayFriendScreenView } from './play-friend-screen-view';
 
 const meta = {
@@ -348,4 +349,8 @@ export const ConfirmCancel: Story = {
     await canvas.findByText(/^Nobody has played yet/);
     await expect(args.onChoose).not.toHaveBeenCalled();
   },
+};
+
+export const BotTable: Story = {
+  render: (args) => <PlayBotsScreenView {...args} />,
 };

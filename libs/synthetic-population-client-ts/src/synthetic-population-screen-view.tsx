@@ -4,7 +4,10 @@ import {
   ServerIcon,
   SlidersHorizontalIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { BotArt, HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
+import {
+  AutomationArt,
+  HistoryArt,
+} from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -36,7 +39,7 @@ function SyntheticPopulationHub(
     <MenuScreen screenId="synthetic-population" breadcrumbs={panelCrumbs([])}>
       <MenuSection title={<Trans>Synthetic Population</Trans>}>
         <MenuRow
-          leading={<BotArt />}
+          leading={<AutomationArt />}
           title={t`Synthetic Users`}
           caption={t`Every Synthetic User, what each is doing and its control panel`}
           onClick={() => props.onOpen('directory')}

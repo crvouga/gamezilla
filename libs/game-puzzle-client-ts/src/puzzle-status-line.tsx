@@ -9,9 +9,6 @@ import { PuzzleClockLabel } from './puzzle-clock-label';
 import type { PuzzleStageScreenViewProps } from './puzzle-play-screen-model';
 import { PuzzleStatusHeader } from './puzzle-status-header';
 
-/** The coach's face: small, so its words keep the line beside the board. */
-const AVATAR_SIZE = 40;
-
 function formatSignedDelta(delta: number): string {
   return delta > 0 ? `+${delta}` : String(delta);
 }
@@ -92,7 +89,6 @@ export function PuzzleStatusLine(
       }
       numberOfLines={compact() ? 1 : 2}
       fixedHeight={compact()}
-      avatarSize={AVATAR_SIZE}
     />
   );
 }

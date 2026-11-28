@@ -89,7 +89,10 @@ export function AvatarFace(props: AvatarFaceProps): JSX.Element {
             )}
           </Match>
           <Match when={icon()}>
-            <Glyph size={glyphSize(props.size)} color={props.color} />
+            <Glyph
+              size={props.bot ? props.size : glyphSize(props.size)}
+              color={props.color}
+            />
           </Match>
         </Switch>
       </AvatarFallback>

@@ -21,6 +21,7 @@ import {
   setupSeat,
   status,
 } from './game-frame-story.example';
+import { PlayBotsScreenView } from './play-bots-screen-view';
 import { PlayFriendScreenView } from './play-friend-screen-view';
 
 const meta = {
@@ -154,4 +155,8 @@ export const SeatGone: Story = {
       ),
     ]),
   },
+};
+
+export const BotDifficulty: Story = {
+  render: (args) => <PlayBotsScreenView {...args} />,
 };
