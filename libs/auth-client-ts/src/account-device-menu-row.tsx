@@ -1,8 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import {
-  ChevronRightIcon,
-  SmartphoneIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { DeviceArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
@@ -32,7 +30,7 @@ export function AccountDeviceMenuRow(
           <AccountDeviceSessionCaptionText device={props.device} />
         </StackVertical>
       }
-      leading={<SmartphoneIcon size={ROW_ICON_SIZE} color="icon" />}
+      leading={<DeviceArt />}
       trailing={
         <StackHorizontal align="center" gap="sm">
           <AccountDeviceCurrentBadge current={props.device.current} />

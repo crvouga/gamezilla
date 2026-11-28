@@ -10,7 +10,8 @@ import {
   GameLobbyDock,
   GameModeCard,
 } from '@pkgs/ui-root-client-ts/game-lobby';
-import { ClockIcon, GaugeIcon, InfoIcon } from '@pkgs/ui-root-client-ts/icons';
+import { ClockIcon } from '@pkgs/ui-root-client-ts/icons';
+import { RulesArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import { P, Text } from '@pkgs/ui-root-client-ts/text';
@@ -199,7 +200,7 @@ function TimeControlRow(props: FindProps): JSX.Element {
   const words = () => timeControlWords(props.find.timeControl);
   return (
     <MenuRow
-      leading={<ClockIcon size={24} />}
+      leading={<ClockIcon size={20} />}
       title={words()}
       caption={
         <SpeedName speed={timeControlOf(props.find.timeControl)?.speed ?? ''} />
@@ -250,7 +251,7 @@ function MatchRows(props: FindProps): JSX.Element {
         <TimeControlRow {...props} />
       </Show>
       <MenuRow
-        leading={<GaugeIcon size={24} />}
+        leading={<StatsArt />}
         title={<Trans>Your ratings</Trans>}
         value={
           <Show when={ratingAtStake(props)}>
@@ -281,7 +282,7 @@ function FindAbout(props: Pick<FindProps, 'onOpen'>): JSX.Element {
       }
     >
       <MenuRow
-        leading={<InfoIcon size={24} />}
+        leading={<RulesArt />}
         title={<Trans>How it works</Trans>}
         onClick={() => props.onOpen({ screen: 'guide' })}
         dataSet={{ testid: 'multiplayer-open-guide' }}

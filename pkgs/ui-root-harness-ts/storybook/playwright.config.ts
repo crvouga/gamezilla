@@ -27,6 +27,9 @@ export default defineConfig({
     ...(process.env['STORYBOOK_PATTERN'] === 'space-evidence'
       ? ['**/space-evidence/capture.checks.ts']
       : []),
+    ...(process.env['STORYBOOK_PATTERN'] === 'screen-art-review'
+      ? ['**/screen-art-review/capture.checks.ts']
+      : []),
     '**/stories.checks.ts',
     '**/gallery-round-eighteen.checks.ts',
     '**/board-round-four.checks.ts',

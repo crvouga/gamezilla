@@ -19,11 +19,11 @@ export type BackIconButtonProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** 24px glyph in the default 40px disc, the header icon size. */
-const ICON_SIZE_RATIO = 0.6;
+/** 20px glyph in the default 40px disc, the header icon size. */
+const ICON_SIZE = 20;
 
 /**
- * `BackIconButton` -- icon button rendering a left chevron: a 24px outline
+ * `BackIconButton` -- icon button rendering a left chevron: a 20px outline
  * glyph in text color in a 40px disc, unfilled so the header stays quiet;
  * the hover / press tint shows the hit target.
  *
@@ -48,10 +48,7 @@ export function BackIconButton(props: BackIconButtonProps): JSX.Element {
       aria-label={label()}
       dataSet={{ component: 'BackIconButton', ...props.dataSet }}
     >
-      <ChevronLeftIcon
-        size={Math.round(size() * ICON_SIZE_RATIO)}
-        color="text"
-      />
+      <ChevronLeftIcon size={ICON_SIZE} color="text" />
     </IconButton>
   );
 }

@@ -16,8 +16,6 @@ import type {
 } from '../app-header-island-types';
 import { ScreenBreadcrumbTrail } from '../screen-breadcrumb-trail/index';
 
-const NAV_ICON_SIZE = 24;
-const RAIL_ICON_SIZE = 20;
 const STROKE_CURRENT = 2.5;
 const STROKE_DEFAULT = 2;
 
@@ -39,7 +37,6 @@ function HeaderNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
       onClick={() => props.item.onClick()}
     >
       <ItemIcon
-        size={NAV_ICON_SIZE}
         strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
         color={props.item.active ? 'text' : 'textSecondary'}
       />
@@ -79,7 +76,6 @@ function RailNavItem(props: { item: AppHeaderIslandItem }): JSX.Element {
       onClick={() => props.item.onClick()}
     >
       <ItemIcon
-        size={RAIL_ICON_SIZE}
         strokeWidth={props.item.active ? STROKE_CURRENT : STROKE_DEFAULT}
         color={props.item.active ? 'tint' : 'textSecondary'}
       />

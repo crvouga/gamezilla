@@ -1,6 +1,7 @@
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import { Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { BotIcon, RadioIcon } from '@pkgs/ui-root-client-ts/icons';
+import { BotArt, StatsArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -32,7 +33,7 @@ function UserObservatoryLinks(
     >
       <MenuSection title={<Trans>Using the app</Trans>}>
         <MenuRow
-          leading={<RadioIcon size={20} color="icon" />}
+          leading={<StatsArt />}
           title={t`Online now`}
           caption={t`Everyone using the app now, people and Synthetic Users, and watching them live`}
           onClick={() => props.onOpenOnlineNow()}
@@ -42,7 +43,7 @@ function UserObservatoryLinks(
       <Show when={props.canOpenSyntheticUsers}>
         <MenuSection title={<Trans>Synthetic Population</Trans>}>
           <MenuRow
-            leading={<BotIcon size={20} color="icon" />}
+            leading={<BotArt />}
             title={t`Synthetic Population`}
             caption={t`The Synthetic Users, their workers, events and the desired synthetic population`}
             onClick={() => props.onOpenSyntheticUsers()}

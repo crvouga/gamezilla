@@ -1,3 +1,4 @@
+import { ProfileArt } from '@pkgs/ui-root-client-ts/illustration';
 import ProfileScreen from './profile';
 import ProfileAvatarScreen from './profile-avatar';
 import ProfileEditScreen from './profile-edit';
@@ -13,7 +14,6 @@ import SessionProvider from './session-provider';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { UserIcon } from '@pkgs/ui-root-client-ts/icons';
 
 /** Read inside the tab memo, so the label follows the active locale. */
 function profileTabLabel(): string {
@@ -35,7 +35,7 @@ export const PROFILE_CLIENT = defineSubClient({
       href: '/profile',
       order: 3,
       label: profileTabLabel,
-      Icon: UserIcon,
+      Icon: ProfileArt,
       testID: Handles.tabProfile,
       // Settings opens from Profile, so Profile stays the current tab there.
       alsoActiveUnder: ['/more'],

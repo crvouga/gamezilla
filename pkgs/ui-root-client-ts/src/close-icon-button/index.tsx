@@ -19,14 +19,14 @@ export type CloseIconButtonProps = {
   dataSet?: ComponentDataSet | undefined;
 };
 
-/** 24px glyph in the default 40px disc, the header icon size. */
-const ICON_SIZE_RATIO = 0.6;
+/** 20px glyph in the default 40px disc, the header icon size. */
+const ICON_SIZE = 20;
 
 /**
  * `CloseIconButton` -- circular icon button rendering an X.
  *
  * Centralizes the "close" affordance for surfaces (modals, sheets) so every
- * dismiss control uses the same icon, size and accessible name: a plain 24px
+ * dismiss control uses the same icon, size and accessible name: a plain 20px
  * X in text color in a 40px disc, like the header controls; the press tint
  * shows the hit area. Pass `background="surfaceMuted"` to put it on a plate
  * over media.
@@ -50,7 +50,7 @@ export function CloseIconButton(props: CloseIconButtonProps): JSX.Element {
       tooltip="none"
       dataSet={{ component: 'CloseIconButton', ...props.dataSet }}
     >
-      <XIcon size={Math.round(size() * ICON_SIZE_RATIO)} color="text" />
+      <XIcon size={ICON_SIZE} color="text" />
     </IconButton>
   );
 }

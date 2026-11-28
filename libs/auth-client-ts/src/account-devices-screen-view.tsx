@@ -3,7 +3,8 @@ import { Plural, Trans, useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ClipboardCopy } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { CopyToClipboardField } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { SmartphoneIcon } from '@pkgs/ui-root-client-ts/icons';
+import { DeviceArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -35,7 +36,7 @@ function DevicesSignInPrompt(props: { onSignIn: () => void }): JSX.Element {
   const { t } = useLingui();
   return (
     <EmptyState
-      icon={SmartphoneIcon}
+      icon={DeviceArt}
       title={<Trans>Sign in to see your devices</Trans>}
       body={
         <Trans>Every install signed into your account shows up here.</Trans>
@@ -116,7 +117,7 @@ export function AccountDevicesScreenView(
         </Match>
         <Match when={props.devices.length === 0}>
           <EmptyState
-            icon={SmartphoneIcon}
+            icon={DeviceArt}
             title={<Trans>No devices yet</Trans>}
             body={<Trans>Devices appear here after they sign in.</Trans>}
           />

@@ -42,7 +42,9 @@ describe('Avatar kinds', () => {
     expect(screen.getByRole('img', { name: 'Bot' })).toBe(bot);
     expect(bot).toHaveAttribute('data-kind', 'bot');
     expect(bot).not.toHaveAttribute('data-placeholder');
-    expect(bot.querySelector('[data-component="Icon"]')).not.toBeNull();
+    expect(
+      bot.querySelector('img[data-component="Illustration"]')
+    ).toHaveAttribute('alt', '');
     expect(bot.querySelector('svg[viewBox="0 0 40 40"]')).toBeNull();
     expect(screen.getByRole('img', { name: 'Stockfish, bot' })).toBe(
       avatar('Named')

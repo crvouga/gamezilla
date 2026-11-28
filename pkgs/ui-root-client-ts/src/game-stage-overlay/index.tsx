@@ -6,6 +6,7 @@ import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { createSignal, onSettled, Show } from 'solid-js';
 import { ChevronDownIcon, XIcon } from '../icons';
+import { VictoryArt } from '../illustration/index';
 import { createScreenSlot } from '../screen-slot';
 import styles from './game-stage-overlay.module.css';
 import card from './result-card.module.css';
@@ -111,6 +112,9 @@ function ResultCard(
       )}
     >
       <div class={styles['cardHead']}>
+        <Show when={props.tone === 'won'}>
+          <VictoryArt />
+        </Show>
         <div
           class={styles['cardTitle']}
           role={props.live === true ? 'status' : undefined}

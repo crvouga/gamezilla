@@ -1,3 +1,4 @@
+import { SpacesArt } from '@pkgs/ui-root-client-ts/illustration';
 import SessionProvider from './session-provider';
 import SpaceScreen from './space';
 import { SpaceMiniplayer } from './space-miniplayer';
@@ -14,7 +15,7 @@ import type { SubClient } from '@libs/sub-client-ts/client';
 import { defineSubClient } from '@libs/sub-client-ts/client';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
-import { Gamepad2Icon } from '@pkgs/ui-root-client-ts/icons';
+
 import type { JSX } from '@solidjs/web';
 import type { GameRegistry } from './games-provider';
 import { AppGamesProvider } from './games-provider';
@@ -64,7 +65,7 @@ export function createSpacesClient(options: {
         alsoActiveUnder: ['/space'],
         order: 0,
         label: spacesTabLabel,
-        Icon: Gamepad2Icon,
+        Icon: SpacesArt,
         testID: Handles.tabSpaces,
       },
     ],

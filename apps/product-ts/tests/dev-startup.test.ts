@@ -112,7 +112,6 @@ describe('development client startup', () => {
 
     expect(main).not.toMatch(/['"][^'"\n]*harness[^'"\n]*['"]/);
     expect(icons).not.toMatch(/from ['"]lucide['"]/);
-    expect(icons).toContain("from 'lucide/dist/esm/icons/activity.mjs'");
   });
 
   test('keeps all-dialect and incubating barrels off the boot path', () => {

@@ -19,7 +19,26 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 /** At home: Spaces is the current page. */
-export const SpacesCurrent: Story = {};
+export const SpacesCurrent: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const navigation = canvas.getByRole('navigation', { name: 'Navigation' });
+    for (const name of ['Spaces', 'Notifications', 'Profile']) {
+      const tab = canvas.getByRole('button', { name });
+      const art = tab.querySelector('img');
+      if (art === null) throw new Error(`Missing illustration for ${name}`);
+      await art.decode();
+      await expect(art.naturalWidth).toBeGreaterThan(0);
+      await expect(art).toHaveAttribute('alt', '');
+      await expect(art).toHaveAttribute('aria-hidden', 'true');
+      await expect(art.getBoundingClientRect().width).toBe(32);
+      await expect(tab).toHaveTextContent(name);
+    }
+    await expect(navigation.scrollWidth).toBeLessThanOrEqual(
+      navigation.clientWidth
+    );
+  },
+};
 
 /** On Search: its tab is the current page. */
 export const SearchCurrent: Story = { args: { pathname: '/search' } };

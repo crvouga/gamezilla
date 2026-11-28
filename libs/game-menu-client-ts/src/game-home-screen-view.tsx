@@ -6,16 +6,16 @@ import {
   GameMenuScreen,
 } from '@pkgs/ui-root-client-ts/game-menu-screen';
 import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
+import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
-  CompassIcon,
-  HistoryIcon,
-  LightbulbIcon,
-  ScrollTextIcon,
-  SearchIcon,
-  SettingsIcon,
-  SquareStackIcon,
-  UsersIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+  BooksArt,
+  GamesArt,
+  HistoryArt,
+  MatchmakingArt,
+  PuzzleArt,
+  RulesArt,
+  StatsArt,
+} from '@pkgs/ui-root-client-ts/illustration';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';
@@ -47,22 +47,16 @@ export const GAME_CHOICE_EMPHASIS: Readonly<
   [HOW_TO_PLAY_CHOICE]: 'quiet',
 };
 
-/**
- * The picture each choice is known by: puzzles a bulb, a game's library a
- * stack, playing with friends or bots people, finding an opponent a search,
- * history and stats the clock turning back, settings the gear, how to play
- * the rules' scroll.
- */
 const ICON: Readonly<Record<string, IconComponent>> = {
-  [SHARED_GAME_SCREEN.puzzlesHome]: LightbulbIcon,
+  [SHARED_GAME_SCREEN.puzzlesHome]: PuzzleArt,
   // A game keeping only puzzle stats offers them as its History and stats.
-  [SHARED_GAME_SCREEN.puzzleStats]: HistoryIcon,
-  [SHARED_GAME_SCREEN.puzzlePacksHome]: SquareStackIcon,
-  [SHARED_GAME_SCREEN.customGamesHome]: UsersIcon,
-  [SHARED_GAME_SCREEN.matchmakingHome]: SearchIcon,
-  [SHARED_GAME_SCREEN.historyHome]: HistoryIcon,
+  [SHARED_GAME_SCREEN.puzzleStats]: StatsArt,
+  [SHARED_GAME_SCREEN.puzzlePacksHome]: BooksArt,
+  [SHARED_GAME_SCREEN.customGamesHome]: GamesArt,
+  [SHARED_GAME_SCREEN.matchmakingHome]: MatchmakingArt,
+  [SHARED_GAME_SCREEN.historyHome]: HistoryArt,
   [SHARED_GAME_SCREEN.settings]: SettingsIcon,
-  [HOW_TO_PLAY_CHOICE]: ScrollTextIcon,
+  [HOW_TO_PLAY_CHOICE]: RulesArt,
 };
 
 export type GameHomeScreenViewProps = {
@@ -91,7 +85,7 @@ function menuChoice(
     key: choice.screen,
     title: choice.title,
     caption: choice.caption,
-    icon: ICON[choice.screen] ?? CompassIcon,
+    icon: ICON[choice.screen] ?? GamesArt,
     emphasis: GAME_CHOICE_EMPHASIS[choice.screen],
     dataSet: { testid: Handles.gameChoice(choice.screen) },
     onClick,
