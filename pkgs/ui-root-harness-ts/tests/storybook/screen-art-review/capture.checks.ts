@@ -53,22 +53,25 @@ for (const entry of Object.values(index.entries)) {
     test(`screen-art-review ${entry.id} ${width}`, async ({ page }, info) => {
       const height = width === 390 ? 844 : 800;
       const theme = width === 390 ? 'light' : 'dark';
-      await verifyStoryScenario(page, entry.id, {
-        width,
-        height,
-        theme,
-        suffix: '',
-        globals: {},
-      });
-      const pictures = page.locator('img[data-component="Illustration"]');
-      for (const picture of await pictures.all()) {
-        await picture.evaluate((image: HTMLImageElement) => image.decode());
-        await expect(picture).toHaveAttribute('alt', '');
+      try {
+        await verifyStoryScenario(page, entry.id, {
+          width,
+          height,
+          theme,
+          suffix: '',
+          globals: {},
+        });
+        const pictures = page.locator('img[data-component="Illustration"]');
+        for (const picture of await pictures.all()) {
+          await picture.evaluate((image: HTMLImageElement) => image.decode());
+          await expect(picture).toHaveAttribute('alt', '');
+        }
+      } finally {
+        await page.screenshot({
+          path: info.outputPath(`${entry.id}--${width}.png`),
+          animations: 'disabled',
+        });
       }
-      await page.screenshot({
-        path: info.outputPath(`${entry.id}--${width}.png`),
-        animations: 'disabled',
-      });
     });
   }
 }

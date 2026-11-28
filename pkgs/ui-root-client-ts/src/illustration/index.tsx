@@ -40,7 +40,8 @@ export const WallsArt = illustration(
   new URL('../../assets/fluent-emoji/brick.svg', import.meta.url).href
 );
 export const LettersArt = illustration(
-  new URL('../../assets/fluent-emoji/input-latin-letters.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/input-latin-letters.svg', import.meta.url)
+    .href
 );
 export const CratesArt = illustration(
   new URL('../../assets/fluent-emoji/package.svg', import.meta.url).href
@@ -74,10 +75,14 @@ export const GamesArt = illustration(
   new URL('../../assets/fluent-emoji/video-game.svg', import.meta.url).href
 );
 export const SearchArt = illustration(
-  new URL('../../assets/fluent-emoji/magnifying-glass-tilted-left.svg', import.meta.url).href
+  new URL(
+    '../../assets/fluent-emoji/magnifying-glass-tilted-left.svg',
+    import.meta.url
+  ).href
 );
 export const HistoryArt = illustration(
-  new URL('../../assets/fluent-emoji/mantelpiece-clock.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/mantelpiece-clock.svg', import.meta.url)
+    .href
 );
 export const BooksArt = illustration(
   new URL('../../assets/fluent-emoji/books.svg', import.meta.url).href
@@ -104,7 +109,8 @@ export const RulesArt = illustration(
   new URL('../../assets/fluent-emoji/open-book.svg', import.meta.url).href
 );
 export const ProfileArt = illustration(
-  new URL('../../assets/fluent-emoji/bust-in-silhouette.svg', import.meta.url).href
+  new URL('../../assets/fluent-emoji/bust-in-silhouette.svg', import.meta.url)
+    .href
 );
 export const SpacesArt = illustration(
   new URL('../../assets/fluent-emoji/house.svg', import.meta.url).href

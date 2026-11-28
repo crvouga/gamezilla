@@ -35,18 +35,9 @@ export function AnimatedSpeakerWaves(
       data-component="AnimatedSpeakerWaves"
     >
       <path d={CONE_PATH} fill={props.color} />
-      <path
-        d={INNER_WAVE_PATH}
-        fill={props.color}
-      />
-      <path
-        d={MIDDLE_WAVE_PATH}
-        fill={props.color}
-      />
-      <path
-        d={OUTER_WAVE_PATH}
-        fill={props.color}
-      />
+      <path d={INNER_WAVE_PATH} fill={props.color} />
+      <path d={MIDDLE_WAVE_PATH} fill={props.color} />
+      <path d={OUTER_WAVE_PATH} fill={props.color} />
     </svg>
   );
 }
