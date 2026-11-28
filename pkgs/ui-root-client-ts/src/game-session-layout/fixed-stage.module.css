@@ -148,9 +148,18 @@
   border-block-start: 1px solid var(--ui-color-outline);
   background: var(--ui-color-surface);
   overflow: auto hidden;
-  height: calc(64px + env(safe-area-inset-bottom, 0px));
+  min-height: calc(64px + env(safe-area-inset-bottom, 0px));
 }
-.commands > *,
+.commands > * {
+  flex: 1 1 auto;
+  min-width: 0;
+  flex-wrap: wrap;
+  justify-content: safe center;
+}
+/* Keep a button's whole label beside its tools, or wrap it as a unit. */
+.commands > * > button {
+  flex-basis: max-content;
+}
 .commands [data-component="GameActionBar"] {
   flex: 1 0 auto;
   flex-wrap: nowrap;
@@ -172,9 +181,6 @@
 /* History commands and the way onward each keep their row, including
    when Progress becomes the longer completion action. */
 @container game-column (max-width: 383px) {
-  .fixed[data-puzzle-attempt] .commands {
-    height: auto;
-  }
   .fixed[data-puzzle-attempt] .commands > * {
     flex: 1 1 0;
     min-width: 0;
@@ -209,7 +215,7 @@
     height: 36px;
   }
   .commands {
-    height: calc(52px + env(safe-area-inset-bottom, 0px));
+    min-height: calc(52px + env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -266,6 +272,6 @@
     height: 28px;
   }
   .fixed:has([data-word-tile-workspace]) .commands {
-    height: calc(52px + env(safe-area-inset-bottom, 0px));
+    min-height: calc(52px + env(safe-area-inset-bottom, 0px));
   }
 }

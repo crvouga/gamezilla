@@ -415,7 +415,7 @@ export function FrameMovesPlace(props: RecordProps): JSX.Element {
                 </Show>
               }
               variant="solid"
-              fullWidth
+              flex={1}
               onClick={() => props.onClose()}
               dataSet={{ testid: 'game-session-back-to-live' }}
             />

@@ -152,6 +152,61 @@ test('tabletop-review two seats leave room for chess at 1280×713 and 390×844',
   await checkChessSeatLayout(page, info);
 });
 
+// regression: replay-footer-clipped-return
+test('tabletop-review all five replay controls fit at 390px and 320px and return to live play', async ({
+  page,
+}, info) => {
+  for (const width of [390, 320]) {
+    await verifyStoryScenario(
+      page,
+      'screens-game-sessions-stage-moves--earlier-move',
+      {
+        width,
+        height: 844,
+        globals: {},
+        suffix: '',
+      }
+    );
+    const footer = page.locator('[data-game-slot="controls"]');
+    const controls = footer.getByRole('button');
+    await expect(controls).toHaveCount(5);
+    for (const control of await controls.all()) {
+      await expect(control).toBeInViewport({ ratio: 1 });
+    }
+    expect(
+      await footer.evaluate((el) => el.scrollWidth - el.clientWidth)
+    ).toBeLessThanOrEqual(1);
+    const leave = footer.getByRole('button', { name: 'Back to the game' });
+    const label = leave.getByText('Back to the game', { exact: true });
+    expect(
+      await label.evaluate((el) => {
+        const text = document.createRange();
+        text.selectNodeContents(el);
+        const ink = text.getBoundingClientRect();
+        for (let clip = el.parentElement; clip; clip = clip.parentElement) {
+          const bounds = clip.getBoundingClientRect();
+          if (ink.left < bounds.left - 1 || ink.right > bounds.right + 1)
+            return false;
+          if (clip.tagName === 'BUTTON') break;
+        }
+        return ink.width > 0;
+      })
+    ).toBe(true);
+    await page.screenshot({
+      path: info.outputPath(`replay-controls-${width}.png`),
+    });
+    await footer.getByRole('button', { name: 'Next move' }).click();
+    await expect(page.getByTestId('game-session-reviewing')).toContainText(
+      'Move 4 of 8'
+    );
+    await leave.click();
+    await expect(page.getByTestId('game-session-content')).toHaveAttribute(
+      'data-place',
+      'stage'
+    );
+  }
+});
+
 // regression: solved-puzzle-coach-clipped
 test('tabletop-review the solved puzzle shows a complete line under its trophy at 390px', async ({
   page,
