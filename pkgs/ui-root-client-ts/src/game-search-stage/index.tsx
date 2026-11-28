@@ -55,7 +55,10 @@ export function GameSearchStage(props: GameSearchStageProps): JSX.Element {
     >
       <div class={styles['board']} data-game-slot="search-board">
         <div class={styles['state']}>
-          <Show when={props.mark} fallback={<Spinner size="lg" color="current" />}>
+          <Show
+            when={props.mark}
+            fallback={<Spinner size="lg" color="current" />}
+          >
             {props.mark}
           </Show>
           <h2 class={styles['title']}>{props.title}</h2>

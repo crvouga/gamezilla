@@ -28,7 +28,7 @@
 /* A wash over every square, so the one line of state stays white on both
    colors without a card of its own. */
 .board::before {
-  content: '';
+  content: "";
   position: absolute;
   inset: 0;
   background: var(--ui-color-scrim);
