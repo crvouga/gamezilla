@@ -20,7 +20,7 @@
 
 import { useClientEnv } from '@libs/app-env-client-ts/client-env-context';
 import { brandMarkSource } from '@libs/product-brand-shared-ts/brand-mark';
-import { MascotSource } from '@pkgs/ui-root-client-ts/mascot-portrait';
+import { MascotSource } from '@pkgs/ui-root-client-ts/app-logo';
 import type { JSX } from '@solidjs/web';
 import { AppAuthProvider } from './app-auth-provider';
 import { AppInfrastructureProvider } from './app-infrastructure-provider';

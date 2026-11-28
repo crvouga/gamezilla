@@ -4,6 +4,7 @@ import { useLingui } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
+import { MascotPortrait } from '../app-logo/index';
 import type { IconComponent } from '../create-icon/index';
 import { FloatingMenu } from '../floating-menu/index';
 import type {
@@ -25,7 +26,6 @@ import {
   VolumeXIcon,
   XIcon,
 } from '../icons';
-import { MascotPortrait } from '../mascot-portrait/index';
 import { spaceDataSet } from '../space-data-set';
 import { useSpacePersonWords } from '../space-people-row/space-person-words';
 import {

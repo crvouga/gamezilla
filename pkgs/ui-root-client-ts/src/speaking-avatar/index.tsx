@@ -9,7 +9,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import type { JSX } from '@solidjs/web';
 import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { type Accessor, createMemo, omit, Show, untrack } from 'solid-js';
-import { MascotPortrait } from '../mascot-portrait/index';
+import { MascotPortrait } from '../app-logo/index';
 import type { SoundIndicatorState } from '../sound-indicator/index';
 import { SoundIndicator } from '../sound-indicator/index';
 import { SpeechBubble } from '../speech-bubble/index';

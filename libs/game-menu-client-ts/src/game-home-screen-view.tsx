@@ -1,5 +1,6 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
+import { MascotPortrait } from '@pkgs/ui-root-client-ts/app-logo';
 import type { IconComponent } from '@pkgs/ui-root-client-ts/create-icon';
 import {
   type GameMenuChoice,
@@ -17,7 +18,6 @@ import {
   RulesArt,
   StatsArt,
 } from '@pkgs/ui-root-client-ts/illustration';
-import { MascotPortrait } from '@pkgs/ui-root-client-ts/mascot-portrait';
 import type { JSX } from '@solidjs/web';
 import { createMemo, Match, Show, Switch } from 'solid-js';
 import { GameHowToPlayView } from './game-how-to-play-view';

@@ -1,12 +1,12 @@
 /** @jsxImportSource @solidjs/web */
 
 import { describe, expect, mock, test } from 'bun:test';
+import { MascotSource } from '@pkgs/ui-root-client-ts/app-logo';
 import { AVATAR_SIZES, Avatar } from '@pkgs/ui-root-client-ts/avatar';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
 import { AvatarHero } from '@pkgs/ui-root-client-ts/avatar-hero';
 import { Badge } from '@pkgs/ui-root-client-ts/badge';
 import { List, ListItem } from '@pkgs/ui-root-client-ts/list';
-import { MascotSource } from '@pkgs/ui-root-client-ts/mascot-portrait';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';

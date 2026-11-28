@@ -4,9 +4,9 @@ import { svgToDataUri } from '@pkgs/ui-root-shared-ts/svg-data-uri';
 import { dynamic, type JSX } from '@solidjs/web';
 import { AvatarFallback, AvatarImage } from '@ui-sdk/solid/avatar';
 import { Match, Show, Switch } from 'solid-js';
+import { MascotPortrait } from '../app-logo/index';
 import styles from '../avatar/avatar.module.css';
 import type { IconComponent } from '../create-icon/index';
-import { MascotPortrait } from '../mascot-portrait/index';
 
 export type AvatarFaceProps = {
   /** Draw the bot glyph whatever the other sources are. */
