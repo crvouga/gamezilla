@@ -5,6 +5,16 @@ import {
   identifyPreparedPosition,
   PREPARED_OPTIONS,
 } from './prepared-positions';
+
+function identifyColors(dark: string, light: string): string {
+  const theme = defaultBoardTheme();
+  if (dark === theme.darkSquare && light === theme.lightSquare)
+    return 'default';
+  if (dark === 'green' && light === '#f0d9b5') return 'green and cream';
+  if (dark === '#b58863' && light === '#f0d9b5') return 'brown and cream';
+  return 'unrecognized ' + dark + '/' + light;
+}
+
 export const readOptionsModel = (w: BoardWorld) => {
   const view = readOptions(w);
   const probe = w.app.probe();
@@ -15,7 +25,6 @@ export const readOptionsModel = (w: BoardWorld) => {
     (t) => t.startsWith('dot@') || t.startsWith('ring@')
   );
   const lastMovePaint = view.marks.some((t) => t.startsWith('last-move@'));
-  const theme = defaultBoardTheme();
   return {
     optionsBoard: {
       position: identifyPreparedPosition(probe.fen, PREPARED_OPTIONS),
@@ -48,14 +57,7 @@ export const readOptionsModel = (w: BoardWorld) => {
         probe.lastMove !== null
           ? lastMovePaint
           : view.config.highlightLastMove !== false,
-      colors:
-        view.dark === 'green' && view.light === '#f0d9b5'
-          ? 'green and cream'
-          : view.dark === theme.darkSquare && view.light === theme.lightSquare
-            ? 'default'
-            : view.dark === '#b58863' && view.light === '#f0d9b5'
-              ? 'brown and cream'
-              : 'unrecognized ' + view.dark + '/' + view.light,
+      colors: identifyColors(view.dark, view.light),
     },
   };
 };
