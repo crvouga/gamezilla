@@ -4,13 +4,13 @@ import { useRouter } from '@pkgs/ui-root-client-ts/app-router';
 import type { JSX } from '@solidjs/web';
 import { createMemo } from 'solid-js';
 import { AvatarRefusedChangeNotice } from './avatar-refused-change-notice';
-import { useProfileRow } from './claim-username-use-profile-row';
 import {
   type ProfileIdentity,
   type ProfileScreenStatus,
   ProfileScreenView,
 } from './profile-screen-view';
 import { useMyProfileId } from './public-use-my-profile-id';
+import { useProfileRow } from './public-use-profile-row';
 import { useFirstSyncError } from './use-first-sync-error';
 import { useStandInName } from './use-stand-in-name';
 import { useUsernameChange } from './use-username-change';

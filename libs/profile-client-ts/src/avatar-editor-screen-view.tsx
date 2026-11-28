@@ -17,7 +17,7 @@ import {
 } from './avatar-editor-pickers';
 import { AvatarEditorSeedField } from './avatar-editor-seed-field';
 import { selectedVariantForField } from './option-helpers';
-import { ProfileDiceBearAvatar } from './patch-avatar-profile-dicebear-avatar';
+import { ProfileDiceBearAvatar } from './public-profile-dicebear-avatar';
 
 const HERO_SIZE = 160;
 

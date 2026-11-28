@@ -19,8 +19,8 @@ import {
 } from 'solid-js';
 import { createAvatarDraft } from './avatar-draft';
 import type { AvatarEditorScreenViewProps } from './avatar-editor-screen-view';
-import { useMyProfileId } from './patch-avatar-use-my-profile-id';
-import { useProfileRow } from './patch-avatar-use-profile-row';
+import { useMyProfileId } from './public-use-my-profile-id';
+import { useProfileRow } from './public-use-profile-row';
 
 function usePersistedConfig() {
   const profileId = useMyProfileId();
