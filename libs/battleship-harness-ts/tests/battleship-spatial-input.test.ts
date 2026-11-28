@@ -8,8 +8,8 @@ import {
   battleshipView,
   shipCells,
 } from '@libs/battleship-harness-ts/battleship-view';
-import { configureCustomGameChoice } from '@libs/game-session-harness-ts/custom-game-ui';
-import { openCustomGames } from '@libs/game-session-harness-ts/game-navigation';
+import { openGameSessions } from '@libs/game-session-harness-ts/game-navigation';
+import { configureGameSessionChoice } from '@libs/game-session-harness-ts/game-session-ui';
 import { cutConnection } from '@libs/harness-ts/platform';
 import { createSpace } from '@libs/spaces-harness-ts/space-actions';
 import { openHarness } from './open-battleship-harness';
@@ -20,13 +20,13 @@ import { openHarness } from './open-battleship-harness';
 test('a disconnected ready fleet does not open a disabled ship picker', async () => {
   await using s = await openHarness();
   await s.apply(createSpace, 'bob');
-  await s.apply(openCustomGames, 'bob', 'battleship');
-  await s.apply(configureCustomGameChoice, 'bob', {
+  await s.apply(openGameSessions, 'bob', 'battleship');
+  await s.apply(configureGameSessionChoice, 'bob', {
     operation: 'create',
     game: 'battleship',
   });
-  await s.apply(configureCustomGameChoice, 'bob', { operation: 'swap' });
-  await s.apply(configureCustomGameChoice, 'bob', { operation: 'ready' });
+  await s.apply(configureGameSessionChoice, 'bob', { operation: 'swap' });
+  await s.apply(configureGameSessionChoice, 'bob', { operation: 'ready' });
   await s.apply(showFleetSetup, 'bob');
   const before = await s.read(battleshipView, 'bob');
   expect(before.screen.mySide).toBe('black');

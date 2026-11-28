@@ -64,7 +64,7 @@ const MODE_READS = 50;
 export async function openGameSetupInSpace(
   ui: Driver,
   gameId: string,
-  destination: 'custom-game' | 'multiplayer',
+  destination: 'vs-human' | 'vs-bot' | 'multiplayer',
   family: string = gameId
 ): Promise<void> {
   await tap(ui, Handles.gameMenu(family));

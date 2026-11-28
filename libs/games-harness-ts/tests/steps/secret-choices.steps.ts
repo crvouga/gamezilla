@@ -1,18 +1,18 @@
 /**
- * Secret choices in a custom game of more than two sides: one per side and
+ * Secret choices in a game session of more than two sides: one per side and
  * round, seen chosen by everyone and seen by its own person alone, none
  * taking effect before the last, a bot choosing its own, and none made
  * without a connection.
  */
 
 import { expect } from 'bun:test';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import { ownCustomGameSecretChoiceShown } from '@libs/game-session-harness-ts/custom-game-secret-choice';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
+import { ownGameSessionSecretChoiceShown } from '@libs/game-session-harness-ts/game-session-secret-choice';
 import { recordedLine } from '@libs/game-session-harness-ts/played-rules';
 import { restoreNetwork } from '@libs/harness-ts/actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import { cutConnection } from '@libs/harness-ts/platform';
-import { current, toldOf } from './custom-game-set-up-world';
+import { current, toldOf } from './game-session-set-up-world';
 import { before, turnGameOf } from './game-world';
 import {
   followKnownLine,
@@ -43,7 +43,7 @@ import {
 const SECOND_MS = 1_000;
 
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game awaiting secret choices',
+  'Alice, Bob, Carol and Dave have a four-player game session awaiting secret choices',
   async (w) =>
     awaitingSecretChoicesAt(
       w,
@@ -51,7 +51,7 @@ Given(
     )
 );
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game in its second round of secret choices',
+  'Alice, Bob, Carol and Dave have a four-player game session in its second round of secret choices',
   async (w) => {
     const line = knownLine(w);
     w.memo.set('earlier-round', secretChoiceRound(turnGameOf(w), line, 1));
@@ -59,7 +59,7 @@ Given(
   }
 );
 Given(
-  'Alice, Bob, Carol and Dave have a four-player custom game whose secret choices have taken effect',
+  'Alice, Bob, Carol and Dave have a four-player game session whose secret choices have taken effect',
   async (w) => {
     const line = knownLine(w);
     const ply = secretChoiceRound(turnGameOf(w), line, 1) + 1;
@@ -70,7 +70,7 @@ Given(
   }
 );
 Given(
-  'Alice has a four-player custom game against three bots awaiting secret choices',
+  'Alice has a four-player game session against three bots awaiting secret choices',
   async (w) => {
     const line = knownLine(w);
     const ply = secretChoiceRound(turnGameOf(w), line, 1);
@@ -178,7 +178,7 @@ Then(
     const side = await sideShown(w, person);
     await w.s.advanceTime(5 * SECOND_MS);
     expect(
-      (await w.s.read(customGameView, viewer)).current?.committed
+      (await w.s.read(gameSessionView, viewer)).current?.committed
     ).not.toContain(side);
     await w.s.apply(restoreNetwork);
     await seesChosen(w, viewer, person);
@@ -193,11 +193,11 @@ Then(
   async (w, actor: string) => toldOf(w, actor, 'board changed')
 );
 Then(
-  '{actor} is told the custom game is not awaiting secret choices',
+  '{actor} is told the game session is not awaiting secret choices',
   async (w, actor: string) => toldOf(w, actor, 'nothing to choose now')
 );
 Then(
-  "{actor} is told the custom game is awaiting {actor}'s secret choice",
+  "{actor} is told the game session is awaiting {actor}'s secret choice",
   async (w, actor: string, awaited: string) => {
     await toldOf(w, actor, 'every side chooses first');
     expect((await current(w)).awaiting).toEqual([await sideShown(w, awaited)]);
@@ -206,15 +206,15 @@ Then(
 Then('nobody has made a secret choice', async (w) => {
   expect((await current(w)).committed).toEqual([]);
 });
-Then('the custom game is awaiting secret choices', async (w) => {
+Then('the game session is awaiting secret choices', async (w) => {
   const game = await current(w);
   expect(game.status).toBe('active');
   expect(game.awaiting).toEqual(game.sides);
 });
-// One round's secret choices become one move of the custom game, together.
+// One round's secret choices become one move of the game session, together.
 Then('every secret choice of the round takes effect at once', async (w) => {
   const earlier = before(w).current?.moves.length ?? 0;
-  const game = await w.s.until((s) => customGameView(s, 'alice'), {
+  const game = await w.s.until((s) => gameSessionView(s, 'alice'), {
     pred: (shown) => shown.current?.moves.length === earlier + 1,
     maxMs: SHOWN_WITHIN_MS,
   });
@@ -230,13 +230,13 @@ Then('no secret choice has taken effect', async (w) => {
 Then("nobody sees that round's secret choices any more", async (w) => {
   for (const person of ['alice', 'bob', 'carol', 'dave'])
     expect(
-      await w.s.until((s) => ownCustomGameSecretChoiceShown(s, person), {
+      await w.s.until((s) => ownGameSessionSecretChoiceShown(s, person), {
         pred: (own) => own === null,
         maxMs: SHOWN_WITHIN_MS,
       })
     ).toBeNull();
 });
-Then("the custom game goes on as the game's rules say", async (w) => {
+Then("the game session goes on as the game's rules say", async (w) => {
   const game = await current(w);
   const line = knownLine(w).slice(0, game.moves.length);
   expect(game.status).toBe('active');

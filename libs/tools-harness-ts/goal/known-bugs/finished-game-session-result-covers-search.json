@@ -1,0 +1,4 @@
+{
+  "summary": "After Alice finished her game session, finding an opponent tried to press Back under the game result dialog. The search never reached its clock or waiting assertion.",
+  "regressionTest": "libs/game-matchmaking-harness-ts/tests/finished-game-session-search.test.ts"
+}

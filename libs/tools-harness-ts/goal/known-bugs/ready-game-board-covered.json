@@ -1,4 +1,4 @@
 {
-  "summary": "A ready custom game against a bot or another person and a newly paired or rematched game covered its board and seats with a three-second versus countdown.",
+  "summary": "A ready game session against a bot or another person and a newly paired or rematched game covered its board and seats with a three-second versus countdown.",
   "regressionTest": "libs/games-harness-ts/tests/ready-game-board.test.ts"
 }

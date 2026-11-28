@@ -19,7 +19,8 @@ function definition(rules: (typeof WORD_TILES_RULES)[2]) {
   return defineGame({
     rules,
     capabilities: {
-      'custom-games': { bots: wordTilesBots },
+      'vs-human': {},
+      'vs-bot': { bots: wordTilesBots },
       history: { record: wordTilesRecord },
     },
     turnAutomation: wordTilesAutomation,
@@ -47,7 +48,8 @@ export const wordTilesGameShared = defineGame({
   // One-move challenges and the introductory pack, with every table size.
   puzzleContent: { ...wordTilesPuzzleContent, starter: WORD_TILES_STARTER },
   capabilities: {
-    'custom-games': { bots: wordTilesBots },
+    'vs-human': {},
+    'vs-bot': { bots: wordTilesBots },
     matchmaking: {
       namespace: 'word-tiles/',
       clockChoices: true as const,

@@ -1,7 +1,7 @@
-import { connectCustomSimulation } from '@libs/game-session-client-ts/custom-simulation-session';
+import { connectRoomSimulation } from '@libs/game-session-client-ts/room-simulation-session';
 import { simulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-fixture';
 import { virtualFrames } from '@libs/game-session-harness-ts/simulation-room-presentation';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { RequestSimulationSnapshot } from '@libs/game-session-shared-ts/simulation-messages';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
@@ -28,15 +28,15 @@ async function createNetworkSurface(session: Session) {
   const errors: unknown[] = [];
   const connections = new Map<
     string,
-    ReturnType<typeof connectCustomSimulation>
+    ReturnType<typeof connectRoomSimulation>
   >();
   const rules = createTurnGames([networkRace.registration]);
   for (const identity of ['alice', 'bob', 'eve']) {
     const client = await kit.addClient({ id: identity });
     await kit.drain();
     const room = client.room()!;
-    const game = CustomGamesAttr.from(room.getSnapshot()).current!;
-    const connection = connectCustomSimulation({
+    const game = GameSessionsAttr.from(room.getSnapshot()).current!;
+    const connection = connectRoomSimulation({
       room,
       game,
       owner: identity,

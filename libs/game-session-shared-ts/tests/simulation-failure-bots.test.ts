@@ -37,9 +37,9 @@ const definition = defineGame({
     },
   },
   capabilities: {
-    'custom-games': {
+    'vs-human': { localPlayers: true },
+    'vs-bot': {
       bots: { difficulties: ['easy', 'medium', 'hard'] },
-      localPlayers: true,
     },
   },
 });

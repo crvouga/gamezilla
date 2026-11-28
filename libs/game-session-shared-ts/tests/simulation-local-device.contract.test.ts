@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { continuousRaceGame } from './reference-continuous-game';
@@ -29,7 +29,7 @@ test("a local game under way runs on the device that started it, never again on 
     expect(rig.current().execution).toBeDefined();
     const phone = await rig.connect('alice', undefined, 'alice-phone');
     expect(
-      CustomGamesAttr.from(phone.getSnapshot()).current?.execution
+      GameSessionsAttr.from(phone.getSnapshot()).current?.execution
     ).toBeDefined();
     const elsewhere = new LocalSimulationSession({ ...options, room: phone });
     try {

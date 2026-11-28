@@ -13,7 +13,6 @@ import { GameTile, type GameTileMotif } from '../game-tile/index';
 import { ChevronRightIcon } from '../icons';
 import type { MainMenuItem } from '../main-menu-item-row/index';
 import { useConfirmNavigation } from '../pending-navigation';
-import { createScreenSlot } from '../screen-slot';
 import styles from './game-menu-screen.module.css';
 
 /**
@@ -43,7 +42,7 @@ function ChoiceIcon(props: {
 }): JSX.Element {
   const Picture = (): JSX.Element => {
     const Icon = props.choice.icon;
-    return <Icon />;
+    return <Icon size={props.size === 'tile' ? 24 : 20} />;
   };
   return (
     <span
@@ -93,52 +92,21 @@ function splitChoices(choices: readonly GameMenuChoice[]): MenuSplit {
 }
 
 /**
- * The first way to play: one prominent full-width control, its name over
- * what it opens. It stands above every other choice, so opening More below
- * never moves it.
- */
-function ChoicePrimary(props: { choice: GameMenuChoice }): JSX.Element {
-  const confirmNavigation = useConfirmNavigation();
-  const Picture = (): JSX.Element => {
-    const Icon = props.choice.icon;
-    return <Icon />;
-  };
-  return (
-    <SdkButton
-      type="button"
-      class={`${styles['primary']} clickable`}
-      data-emphasis="primary"
-      onClick={() => confirmNavigation(props.choice.onClick)}
-      {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
-    >
-      <span class={styles['primaryTitle']}>
-        <span aria-hidden="true" class={styles['primaryIcon']}>
-          <Picture />
-        </span>
-        <span class="text textHeading min-w-0">{props.choice.title}</span>
-      </span>
-      <Show when={props.choice.caption}>
-        <span class={`${styles['primaryCaption']} text textCaption`}>
-          {props.choice.caption}
-        </span>
-      </Show>
-    </SdkButton>
-  );
-}
-
-/**
  * A choice as a row, read in one line across: its picture, its name and
  * what it opens under it, then a
  * chevron centred at the far edge, level with the words. Sized by its
  * words, never a tall card of empty room.
  */
-function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
+function ChoiceTile(props: {
+  choice: GameMenuChoice;
+  primary?: boolean;
+}): JSX.Element {
   const confirmNavigation = useConfirmNavigation();
   return (
     <SdkButton
       type="button"
       class={`${styles['tile']} clickable clickableTint`}
-      data-emphasis={props.choice.emphasis}
+      data-emphasis={props.primary ? 'primary' : props.choice.emphasis}
       onClick={() => confirmNavigation(props.choice.onClick)}
       {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
     >
@@ -149,47 +117,9 @@ function ChoiceTile(props: { choice: GameMenuChoice }): JSX.Element {
             {props.choice.title}
           </span>
         </span>
-        <Show when={props.choice.caption}>
-          <span class={`${styles['caption']} text textCaption`}>
-            {props.choice.caption}
-          </span>
-        </Show>
       </span>
       <span class={styles['chevron']} aria-hidden="true">
         <ChevronRightIcon size={20} />
-      </span>
-    </SdkButton>
-  );
-}
-
-/**
- * A quiet choice (a look back, a setting) as a compact row under the tiles:
- * its small picture, its name and what it opens, a chevron. It never
- * weighs as much as a way to play.
- */
-function ChoiceLink(props: { choice: GameMenuChoice }): JSX.Element {
-  const confirmNavigation = useConfirmNavigation();
-  return (
-    <SdkButton
-      type="button"
-      class={`${styles['link']} clickable clickableTint`}
-      data-emphasis={props.choice.emphasis}
-      onClick={() => confirmNavigation(props.choice.onClick)}
-      {...dataAttrs({ component: 'GameMenuChoice', ...props.choice.dataSet })}
-    >
-      <ChoiceIcon choice={props.choice} size="row" />
-      <span class={styles['linkWords']}>
-        <span class="text textBodyBold min-w-0 truncate">
-          {props.choice.title}
-        </span>
-        <Show when={props.choice.caption}>
-          <span class={`${styles['linkCaption']} text textCaption truncate`}>
-            {props.choice.caption}
-          </span>
-        </Show>
-      </span>
-      <span class={styles['linkChevron']} aria-hidden="true">
-        <ChevronRightIcon size={16} />
       </span>
     </SdkButton>
   );
@@ -206,7 +136,7 @@ function MoreChoices(props: {
         <For each={props.choices}>
           {(choice) => (
             <div class={styles['item']} role="listitem">
-              <ChoiceLink choice={choice} />
+              <ChoiceTile choice={choice} />
             </div>
           )}
         </For>
@@ -221,7 +151,6 @@ function MoreChoices(props: {
  * More, closed until opened and opening in place under the rows.
  */
 export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
-  const subtitle = createScreenSlot(() => props.subtitle);
   const split = createMemo(() => splitChoices(props.choices));
   return (
     <EmbeddedScreen
@@ -233,15 +162,12 @@ export function GameMenuScreen(props: GameMenuScreenProps): JSX.Element {
         <GameTile motif={props.motif} size="xl" />
         <div class={styles['heroWords']}>
           <h1 class="text textTitle min-w-0 break-words">{props.title}</h1>
-          <Show when={subtitle.present()}>
-            <p class="text textSubtitle min-w-0">{subtitle.content()}</p>
-          </Show>
         </div>
       </header>
       <Show when={split().primary} keyed>
         {(choice) => (
           <div class={styles['lead']} data-layout="primary">
-            <ChoicePrimary choice={choice} />
+            <ChoiceTile choice={choice} primary />
           </div>
         )}
       </Show>

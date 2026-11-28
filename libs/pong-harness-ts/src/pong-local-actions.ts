@@ -1,5 +1,5 @@
-import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
+import { operateGameSessionControls } from '@libs/game-session-harness-ts/game-session-controls';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import type { DriverNode } from '@pkgs/ui-testing-root-shared-ts/driver';
@@ -12,7 +12,7 @@ import {
 import { PONG_BOARD, pongView } from './pong-view';
 
 async function start(s: ProductHarness, actor = 'alice'): Promise<void> {
-  await operateCustomGameControls(s, actor, { operation: 'start' });
+  await operateGameSessionControls(s, actor, { operation: 'start' });
   await pollUntil(
     s,
     async () =>
@@ -96,7 +96,7 @@ export const establishPongLocalStage = scenarioAction({
   ) => {
     const actor = setup.actor ?? 'alice';
     await Promise.resolve(
-      establishCustomGame.act(s, 'pong', {
+      establishGameSession.act(s, 'pong', {
         host: actor,
         first: actor,
         second: setup.opponent === 'bot' ? 'bot' : 'local',

@@ -37,27 +37,12 @@
   max-width: none;
   gap: var(--ui-space-1);
 }
-/* Phone: the opponent stays over the board and the person stays under it,
-   the way a matched game reads. The turn and the moves follow that seat.
-   The players slot is `display: contents`, so these two are the stage's
-   own items. A table of three or more keeps everyone else over the board. */
-@media (max-width: 879px) {
-  .fixed .stage > [data-game-board-stage] > [data-game-players] > :first-child {
-    order: 0;
-  }
-  .fixed .stage > [data-game-board-stage] > [data-game-board] {
-    order: 1;
-  }
-  .fixed
-    .stage
-    > [data-game-board-stage]
-    > [data-game-players]:has(> :nth-child(2):last-child)
-    > :last-child {
-    order: 2;
-  }
-  .fixed .stage > [data-game-board-stage] > .information {
-    order: 3;
-  }
+.fixed .stage > [data-game-board-stage] {
+  flex-direction: column;
+}
+.fixed .stage > [data-game-board-stage] > [data-game-board] {
+  align-self: center;
+  width: 100%;
 }
 .stage [data-game-board-stage] > :not([data-game-board]) {
   flex: none;

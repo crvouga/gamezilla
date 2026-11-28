@@ -9,6 +9,8 @@ import type { GameTileMotif } from '@pkgs/ui-root-client-ts/game-tile';
 import { SettingsIcon } from '@pkgs/ui-root-client-ts/icons';
 import {
   BooksArt,
+  BotArt,
+  FriendsArt,
   GamesArt,
   HistoryArt,
   MatchmakingArt,
@@ -52,7 +54,8 @@ const ICON: Readonly<Record<string, IconComponent>> = {
   // A game keeping only puzzle stats offers them as its History and stats.
   [SHARED_GAME_SCREEN.puzzleStats]: StatsArt,
   [SHARED_GAME_SCREEN.puzzlePacksHome]: BooksArt,
-  [SHARED_GAME_SCREEN.customGamesHome]: GamesArt,
+  [SHARED_GAME_SCREEN.vsHuman]: FriendsArt,
+  [SHARED_GAME_SCREEN.vsBot]: BotArt,
   [SHARED_GAME_SCREEN.matchmakingHome]: MatchmakingArt,
   [SHARED_GAME_SCREEN.historyHome]: HistoryArt,
   [SHARED_GAME_SCREEN.settings]: SettingsIcon,
@@ -95,7 +98,7 @@ function menuChoice(
 /**
  * The game's choices, then how to play when the game says how. The first
  * way to play leads as the primary control: `choices` arrive in the one
- * order every game shares, finding an opponent first, then custom games,
+ * order every game shares, finding an opponent first, then vs human, vs bot,
  * then puzzles.
  */
 function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
@@ -110,7 +113,7 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
             {
               screen: HOW_TO_PLAY_CHOICE,
               title: <Trans>How to play</Trans>,
-              caption: <Trans>Practise on the board</Trans>,
+              caption: undefined,
             },
             () => props.onOpen({ screen: 'how-to-play' })
           ),
@@ -131,8 +134,8 @@ function GameMenuHub(props: GameHomeScreenViewProps): JSX.Element {
 
 /**
  * A game's menu in a space, presentational: a hub of the template screens
- * the game offers. The first way to play (finding an opponent, else custom
- * games, else puzzles) is the one primary control, the other ways to play
+ * the game offers. The first way to play (finding an opponent, else vs
+ * human, else vs bot, else puzzles) is the one primary control, the other ways to play
  * are full-width rows, and history, puzzle stats, settings and how to play
  * wait behind More. How to play is a small place of its own behind the hub,
  * opened by its row.

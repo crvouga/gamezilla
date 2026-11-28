@@ -45,7 +45,7 @@ a separate audit obligation.
 | Strict specification gate | Passed: 1,724 scenarios, 44 models, 2,234 definitions | Only the automated subset of the audit standard |
 | Focused local launch gate of 99c463cca and its ending-offer bindings | 20 tasks passed; 2 cached | Source snapshot included the bindings committed as fea97a51b; two-check ceiling retained; proof task 230 seconds against 420 seconds |
 | Focused local gate of f5ffff795 | 18 tasks passed; 72 other plan tasks already cached | Source snapshot before the link-model draft; product proof 204 seconds against 420 seconds; includes sync storage contracts, four note spec parts and four note models |
-| Affected chess models after the room lifecycle fix | 501 passed, 0 failed | Multiplayer, multiplayer spaces and three Custom Game models; 40 files; predates the new lobby-card observer |
+| Affected chess models after the room lifecycle fix | 501 passed, 0 failed | Multiplayer, multiplayer spaces and three Game Session models; 40 files; predates the new lobby-card observer |
 | Space presence and stepping-out examples | 18 passed, 0 failed | Four new examples; both offline lobby cases originally failed because the card lacked a host-name identifier; its stable space-link identifier observes the rendered card |
 | Room-framework specification suite | 355 passed, 0 failed | 568 assertions across 49 files after the memory transport lifecycle change |
 | Visual-model setup and private-input contracts | Model installation succeeded; product 174 tests and tooling 559 tests passed | Setup/checker share the worktree cache; private snapshots preserve the prepared model without stale reports; visual-quality assessment remains outstanding |
@@ -391,7 +391,7 @@ audits remain outstanding elsewhere in this report.
 - Cross-spec consistency: the shared connection definition promises
   automatic sharing of accepted local choices, while explicitly refused
   choices never take effect later. It no longer contradicts the refused
-  friend-request and human Custom Game choices.
+  friend-request and human Game Session choices.
 
 ## Outstanding audit work
 

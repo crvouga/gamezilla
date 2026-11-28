@@ -12,7 +12,7 @@ import {
   ScreenExampleStage,
 } from '../../storybook/fixtures/screen-example-game';
 
-/** Matchmaking uses the same setup and play templates as custom games. */
+/** Matchmaking uses the same setup and play templates as game sessions. */
 export default function MatchmakingScreenExample(): JSX.Element {
   const [phase, setPhase] = createSignal('setup');
   return (

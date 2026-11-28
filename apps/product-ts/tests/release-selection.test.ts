@@ -6,7 +6,7 @@ import {
 
 const WEIGHTS: Record<string, number> = {
   'specs/journeys/numberlink-packs.feature': 4,
-  'specs/journeys/custom-game.feature': 4,
+  'specs/journeys/game-session.feature': 4,
   'specs/journeys/join-and-offline.feature': 3,
   'specs/journeys/multiplayer-game.feature': 3,
   'specs/journeys/sokoban-packs.feature': 3,
@@ -34,7 +34,7 @@ test('the parts weigh about the same, and the two heaviest features never share 
   expect(Math.max(...weights) - Math.min(...weights)).toBeLessThanOrEqual(1);
   const holding = (spec: string) => shares.findIndex((s) => s.includes(spec));
   expect(holding('specs/journeys/numberlink-packs.feature')).not.toBe(
-    holding('specs/journeys/custom-game.feature')
+    holding('specs/journeys/game-session.feature')
   );
 });
 

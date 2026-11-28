@@ -1,4 +1,3 @@
-import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import { FRAME_NO_PLAY } from './game-frame-empty';
 import {
   AVERY,
@@ -17,9 +16,10 @@ import type {
   FrameSetup,
   FrameSetupSeat,
 } from './game-frame-view-types';
+import type { GameSessionScreenViewProps } from './game-session-screen-view';
 
 /**
- * Story-only fixtures for a custom game being set up: what a host may put
+ * Story-only fixtures for a game session being set up: what a host may put
  * in a seat, the seats of the usual lineups, and the frame's args while it
  * is configured. Every setup story starts from `FRAME_CONFIGURING`.
  */
@@ -98,7 +98,7 @@ export const HOST_CLOCK_ONLY: NonNullable<FrameSetup['options']> = {
 };
 
 /** The host set up a bot opponent: every seat is filled and the game can start. */
-export const FRAME_CONFIGURING: Partial<CustomGameScreenViewProps> = {
+export const FRAME_CONFIGURING: Partial<GameSessionScreenViewProps> = {
   phase: 'configuring',
   place: { screen: 'setup' },
   status: status({
@@ -113,13 +113,13 @@ export const FRAME_CONFIGURING: Partial<CustomGameScreenViewProps> = {
 };
 
 /** The host's lineup with the game's options and the clock to agree. */
-export const FRAME_WITH_OPTIONS: Partial<CustomGameScreenViewProps> = {
+export const FRAME_WITH_OPTIONS: Partial<GameSessionScreenViewProps> = {
   ...FRAME_CONFIGURING,
   setup: setup([HOST_SEAT, BOT_SEAT], { options: HOST_OPTIONS }),
 };
 
 /** A seated guest's view: the host starts, the guest gets ready. */
-export const FRAME_GUEST: Partial<CustomGameScreenViewProps> = {
+export const FRAME_GUEST: Partial<GameSessionScreenViewProps> = {
   ...FRAME_CONFIGURING,
   viewerSide: 'black',
   play: FRAME_NO_PLAY,

@@ -11,7 +11,7 @@ export async function verifyDrag(page: Page, info: TestInfo, width: number) {
   );
   const full = page.getByRole('button', { name: 'Show full board' });
   if (await full.isVisible()) await full.click();
-  const grid = page.getByTestId('custom-game-setup-grid');
+  const grid = page.getByTestId('game-session-setup-grid');
   await grid.scrollIntoViewIfNeeded();
   await dragShip(page, grid, width === 390, info);
   const input = await touch(page);
@@ -46,7 +46,7 @@ export async function verifyInspection(
   );
   const phone = width === 390;
   const grid = page.getByTestId(
-    phone ? 'custom-game-board-aim-grid' : 'custom-game-board-target-grid'
+    phone ? 'game-session-board-aim-grid' : 'game-session-board-target-grid'
   );
   const view = grid.locator('xpath=../..');
   const mark = grid.locator(phone ? '[data-cell="c1"]' : '[data-cell="e5"]');
@@ -78,9 +78,9 @@ export async function verifyInspection(
   await page.mouse.down();
   await page.mouse.move(mid.x - 15, mid.y - 6, { steps: 4 });
   await page.mouse.up();
-  await expect(page.getByTestId('custom-game-board-fire')).toBeDisabled();
+  await expect(page.getByTestId('game-session-board-fire')).toBeDisabled();
   await mark.click();
-  await expect(page.getByTestId('custom-game-board-fire')).toContainText(
+  await expect(page.getByTestId('game-session-board-fire')).toContainText(
     phone ? 'Fire at C1' : 'Fire at E5'
   );
   await snapshot(view, info, 'inspection');

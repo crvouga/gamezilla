@@ -52,7 +52,7 @@ Finish with a concise report: implemented workflows, shared contracts changed, e
 | Existing `room` package | Authenticated membership and roles, transport, connection lifecycle, typed delivery, room identity/epochs, reconnect bootstrap, and cleanup. No arena or collision rules. |
 | Shared real-time game framework | Authoritative execution, injected tick scheduling, input sequencing/admission, state delivery, optional interpolation/prediction contracts, round/match lifecycle, bots, result finalization, and player-to-spectator presentation. |
 | Light Cycles | Grid arena, headings, movement cadence, trails, collision resolution, elimination, spawn layout, scoring, bot decisions, and rendering/input mapping. |
-| Existing app infrastructure | Discovery, custom games, matchmaking, identity, results/history, entitlements, observability, and presentation shells. |
+| Existing app infrastructure | Discovery, game sessions, matchmaking, identity, results/history, entitlements, observability, and presentation shells. |
 
 Remove actual assumptions that there are exactly two players, two paddles, one moving object, or a single winner. Do not replace them with another fixed entity schema or a universal physics engine.
 

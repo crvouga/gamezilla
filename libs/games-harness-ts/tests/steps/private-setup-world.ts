@@ -1,6 +1,6 @@
 /**
  * A person's private setup in the run's game, whichever game it is, in a
- * custom game or a matched game: the side's known setup (`fixtures.setups`),
+ * game session or a matched game: the side's known setup (`fixtures.setups`),
  * the one a scenario changed it to, and the people paired in a matched game
  * that still waits for both setups.
  */
@@ -18,10 +18,10 @@ import {
 } from '@libs/game-matchmaking-harness-ts/multiplayer-fixtures';
 import { multiplayerView } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
 import {
-  arrangeCustomGamePrivateSetup,
-  customGamePrivateSetupShown,
-} from '@libs/game-session-harness-ts/custom-game-private-setup';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+  arrangeGameSessionPrivateSetup,
+  gameSessionPrivateSetupShown,
+} from '@libs/game-session-harness-ts/game-session-private-setup';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
   arrangeMatchedPrivateSetup,
   chooseMatchedPrivateSetup,
@@ -31,7 +31,7 @@ import {
 import { playedRulesOf } from '@libs/game-session-harness-ts/played-rules';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import type { GameSetups } from '@pkgs/turn-game-shared-ts/game-rules';
-import { identityOf } from './custom-game-set-up-world';
+import { identityOf } from './game-session-set-up-world';
 import { before, sideOf, turnGameOf } from './game-world';
 import { readyPeople, timeControlFor } from './matched-game';
 
@@ -52,9 +52,9 @@ export async function sideOfPerson(
   actor: string
 ): Promise<'white' | 'black'> {
   if (!inMatchedGame(w)) {
-    if ((await w.s.read(readCustomGameScreen, actor)) !== null)
+    if ((await w.s.read(readGameSessionScreen, actor)) !== null)
       return sideOf(w, actor);
-    // Away from the custom game (in its history): the side it was set up with.
+    // Away from the game session (in its history): the side it was set up with.
     const id = await identityOf(w, actor);
     const game = before(w).current;
     if (game?.white.person === id) return 'white';
@@ -114,7 +114,7 @@ export async function arrangeKnownSetup(w: HarnessWorld, actor: string) {
   await w.s.apply(
     inMatchedGame(w)
       ? arrangeMatchedPrivateSetup
-      : arrangeCustomGamePrivateSetup,
+      : arrangeGameSessionPrivateSetup,
     actor,
     setup
   );
@@ -128,7 +128,7 @@ export async function setupStatusOf(
 ): Promise<string | null> {
   return inMatchedGame(w)
     ? w.s.read(matchedPrivateSetupStatus, actor)
-    : (await w.s.read(customGamePrivateSetupShown, actor)).status;
+    : (await w.s.read(gameSessionPrivateSetupShown, actor)).status;
 }
 
 /** `actor` arranges nothing, so their private setup stays incomplete. */
@@ -136,7 +136,7 @@ export async function leaveSetupIncomplete(w: HarnessWorld, actor: string) {
   await w.s.apply(
     inMatchedGame(w)
       ? arrangeMatchedPrivateSetup
-      : arrangeCustomGamePrivateSetup,
+      : arrangeGameSessionPrivateSetup,
     actor,
     null
   );

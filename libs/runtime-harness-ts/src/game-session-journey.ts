@@ -1,0 +1,300 @@
+import { Handles } from '@libs/test-ids-shared-ts/handles';
+import { chessBoardSquareTestId } from '@pkgs/chess-board-core-shared-ts/probe';
+import type { Driver } from '@pkgs/ui-testing-root-shared-ts/driver';
+import { Chess } from 'chess.js';
+import { OWN_BLACK_SEAT, takeBlack } from './game-session-readiness-wait';
+import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
+
+async function openConnectedGameSession(ui: Driver): Promise<void> {
+  await tap(ui, Handles.gameMenu('chess'));
+  await tap(ui, 'game-choice-vs-bot');
+  await expectVisible(ui, 'game-session-content');
+  // The menu renders from local state before the room's first sync. Wait for
+  // its connection notice to clear before submitting a server-backed choice.
+  await ui.get('game-session-connection-needed').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function prepareGameSession(ui: Driver): Promise<void> {
+  await openConnectedGameSession(ui);
+  await tap(ui, 'game-session-create');
+  await tap(ui, 'game-session-ready');
+  await ui.get('game-session-startable').expect.text('Ready to start.', {
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function startGameSession(ui: Driver): Promise<void> {
+  // This gesture belongs to the offline scenario. A network cut is silent
+  // until the room's 20s heartbeat plus 8s acknowledgement deadline expires.
+  await ui.get('game-session-connection-needed').expect.visible({
+    timeoutMs: 30_000,
+  });
+  await tap(ui, 'game-session-start');
+}
+
+export async function startGameSessionAgainstBot(ui: Driver): Promise<void> {
+  await openConnectedGameSession(ui);
+  await tap(ui, 'game-session-create');
+  await tap(ui, 'game-session-ready');
+  await tap(ui, 'game-session-start');
+}
+
+async function expectOpenBoard(ui: Driver): Promise<void> {
+  await expectVisible(ui, 'game-session-board');
+  check(
+    !(await ui.get('game-session-versus').isVisible()),
+    'An introduction covers the ready game session'
+  );
+}
+
+export async function expectGameSessionReady(ui: Driver): Promise<void> {
+  await ui.get('game-session-status').expect.text('Your turn.', {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+  await expectOpenBoard(ui);
+  const box = await ui.get('game-session-board').layout();
+  check(box !== null && box.width > 0 && box.height > 0, 'board has no size');
+}
+
+const MOVE_ATTEMPTS = 6;
+const MOVE_SETTLE_MS = JOURNEY_WAIT_MS / MOVE_ATTEMPTS;
+
+/**
+ * White plays e2-e4 on their own board. The board takes no move while the
+ * person's earlier choice, such as starting the game, still waits for the
+ * room to confirm it, and over a real network that takes several round
+ * trips. A person sees the board ignore them and plays again, so this does.
+ */
+export async function playGameSessionE4(ui: Driver): Promise<void> {
+  const board = ui.get('game-session-board');
+  for (let attempt = 0; attempt < MOVE_ATTEMPTS; attempt += 1) {
+    await board.layout();
+    // White's board: e2 and e4, at the centres of their squares.
+    await board.tapAt({ xRatio: 4.5 / 8, yRatio: 6.5 / 8 });
+    await board.tapAt({ xRatio: 4.5 / 8, yRatio: 4.5 / 8 });
+    try {
+      await ui
+        .get('game-session-review-move-1')
+        .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS });
+      return;
+    } catch {
+      // The board was not taking moves yet; play it again.
+    }
+  }
+  await ui
+    .get('game-session-review-move-1')
+    .expect.text('e4', { exact: true, timeoutMs: MOVE_SETTLE_MS });
+}
+
+export async function expectGameSessionBotReply(ui: Driver): Promise<void> {
+  await expectVisible(ui, 'game-session-review-move-2');
+  await ui.get('game-session-review-move-1').expect.text('e4', { exact: true });
+  const reply = await ui.get('game-session-review-move-2').text();
+  check(reply !== null && reply.trim() !== '', 'bot reply is missing');
+  const chess = new Chess();
+  chess.move('e4');
+  chess.move(reply.trim());
+  check(chess.turn() === 'w', 'bot reply did not return White’s turn');
+  await ui.get('game-session-status').expect.text('Your turn.', {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function resignGameSession(ui: Driver): Promise<void> {
+  // Resigning is a row of the game menu, confirmed before it is sent.
+  await tap(ui, 'game-session-commands');
+  await tap(ui, 'game-session-resign');
+  await tap(ui, 'game-session-resign-confirm');
+  await tap(ui, 'game-session-resign-done');
+}
+
+export async function expectGameSessionResigned(ui: Driver): Promise<void> {
+  await ui
+    .get('game-session-status')
+    .expect.text('Black wins by resignation.', {
+      exact: false,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+  await expectVisible(ui, 'game-session-rematch');
+  await ui.get('game-session-commands').expect.hidden();
+  await ui.get('game-session-review-move-1').expect.text('e4', { exact: true });
+  await expectVisible(ui, 'game-session-review-move-2');
+}
+
+const SCREEN_POLLS = 10;
+const SCREEN_SETTLE_MS = JOURNEY_WAIT_MS / SCREEN_POLLS;
+
+/** Tap `testId` if it shows now; the shared screen may move on first. */
+async function tapIfShown(ui: Driver, testId: string): Promise<void> {
+  if (!(await ui.get(testId).isVisible())) return;
+  try {
+    await ui.get(testId).tap({ timeoutMs: SCREEN_SETTLE_MS });
+  } catch {
+    // The space's shared screen moved on before the tap.
+  }
+}
+
+/**
+ * The Game Session screen of the space the person is in, connected. The
+ * space's screen is shared, so another person may move it there (or past
+ * chess's menu) while this person is on the way.
+ */
+async function openGameSessionJourney(ui: Driver): Promise<void> {
+  for (let poll = 0; poll < SCREEN_POLLS; poll += 1) {
+    if (await ui.get('game-session-content').isVisible()) break;
+    await tapIfShown(ui, Handles.gameMenu('chess'));
+    await tapIfShown(ui, 'game-choice-vs-human');
+    try {
+      await ui
+        .get('game-session-content')
+        .expect.visible({ timeoutMs: SCREEN_SETTLE_MS });
+    } catch {
+      // Still on the way.
+    }
+  }
+  await expectVisible(ui, 'game-session-content');
+  await ui.get('game-session-connection-needed').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+/** The host creates a game and invites the one other person to Black. */
+export async function inviteToBlack(ui: Driver): Promise<void> {
+  await openGameSessionJourney(ui);
+  await tap(ui, 'game-session-create');
+  await tap(ui, 'game-session-black-choices');
+  // The seat's own place, then the list of people: pressing one invites them.
+  await tap(ui, 'game-session-black-invite-choose');
+  await tap(ui, 'game-session-black-invitable');
+  await ui.get('game-session-black-invited').expect.visible({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+/** The name White's side shows: the creator's, on the creator's device. */
+export async function readWhiteName(ui: Driver): Promise<string> {
+  await expectVisible(ui, 'game-session-white-person');
+  const name = (await ui.get('game-session-white-person').text())?.trim();
+  check(name !== undefined && name !== '', 'White shows no name');
+  return name;
+}
+
+export function expectInvitationToBlack(
+  creator: string
+): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    await openGameSessionJourney(ui);
+    const invitation = ui.get('game-session-black-invitation');
+    await invitation.expect.text('invites you to play Black.', {
+      exact: false,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+    await invitation.expect.text(creator, {
+      exact: false,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+  };
+}
+
+export async function acceptBlack(ui: Driver): Promise<void> {
+  await takeBlack(ui, 'game-session-black-accept');
+}
+
+/** The person holds Black: the seat is marked as theirs, and names them. */
+export async function readOwnBlackName(ui: Driver): Promise<string> {
+  await expectVisible(ui, OWN_BLACK_SEAT);
+  const name = (await ui.get('game-session-black-person').text())?.trim();
+  check(name !== undefined && name !== '', 'Black shows no name');
+  return name;
+}
+
+export function expectBlackNamed(name: string): (ui: Driver) => Promise<void> {
+  return (ui) =>
+    ui.get('game-session-black-person').expect.text(name, {
+      exact: true,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+}
+
+export async function becomeReady(ui: Driver): Promise<void> {
+  await openGameSessionJourney(ui);
+  // Readiness is given to the seats as they stand: an invitation another
+  // device answered must have arrived here first.
+  await ui.get('game-session-black-invited').expect.hidden({
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+  await tap(ui, 'game-session-ready');
+  await ui.get('game-session-ready').expect.text("I'm not ready", {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function expectStartable(ui: Driver): Promise<void> {
+  await ui.get('game-session-startable').expect.text('Ready to start.', {
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export async function startReadyGame(ui: Driver): Promise<void> {
+  await expectStartable(ui);
+  await tap(ui, 'game-session-start');
+  await ui.get('game-session-status').expect.text('Your turn.', {
+    exact: false,
+    timeoutMs: JOURNEY_WAIT_MS,
+  });
+}
+
+export function expectBoardFacing(
+  side: 'white' | 'black'
+): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    await expectOpenBoard(ui);
+    const a1 = await readCornerPosition(ui, 'a1');
+    const h8 = await readCornerPosition(ui, 'h8');
+    const white = a1.x < h8.x && a1.y > h8.y;
+    const black = a1.x > h8.x && a1.y < h8.y;
+    check(side === 'white' ? white : black, `the board does not face ${side}`);
+  };
+}
+
+/** Read the square transforms that place the shipped board's visible corners. */
+async function readCornerPosition(
+  ui: Driver,
+  square: 'a1' | 'h8'
+): Promise<{ x: number; y: number }> {
+  const style = await ui
+    .get(chessBoardSquareTestId('game-session-board', square))
+    .attribute('style');
+  const position = style?.match(
+    /translate\(\s*(\d+(?:\.\d+)?)cqw,\s*(\d+(?:\.\d+)?)cqw\s*\)/
+  );
+  check(
+    position !== undefined && position !== null,
+    'board square positions are missing'
+  );
+  return { x: Number(position[1]), y: Number(position[2]) };
+}
+
+export function expectMoveListed(san: string): (ui: Driver) => Promise<void> {
+  return async (ui) => {
+    await ui.get('game-session-review-move-1').expect.text(san, {
+      exact: true,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+  };
+}
+
+export function expectOutcome(
+  description: string
+): (ui: Driver) => Promise<void> {
+  return (ui) =>
+    ui.get('game-session-status').expect.text(description, {
+      exact: false,
+      timeoutMs: JOURNEY_WAIT_MS,
+    });
+}

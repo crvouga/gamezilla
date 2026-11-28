@@ -1,34 +1,37 @@
-import {
-  assignCustomGameBotWithKeyboard,
-  listenToCustomGame,
-  startCustomGameWithKeyboard,
-} from './custom-game-accessibility';
-import { repeatCustomGameAcknowledgement } from './custom-game-acknowledgement';
-import { redeliverCustomGameBotWake } from './custom-game-bot-wakes';
-import {
-  chooseCustomGameBotMove,
-  finishCustomGameAgainstBots,
-  playCustomGameBots,
-} from './custom-game-bots';
-import { attemptCustomGameBoundary } from './custom-game-boundary';
-import { createCustomGameIn, operateCustomGame } from './custom-game-controls';
-import { leaveCustomGameSpace } from './custom-game-departure';
-import { playCustomGameHistory } from './custom-game-history';
-import {
-  establishCustomGame,
-  joinCustomGames,
-  joinCustomGamesAsGuest,
-  returnToCustomGames,
-} from './custom-game-lineup';
-import { makeCustomGameMove } from './custom-game-moves';
-import { raceCustomGameChoices } from './custom-game-race';
-import {
-  attemptCustomGame,
-  attemptCustomGameChoice,
-  configureCustomGameChoice,
-} from './custom-game-ui';
-import { openGameHistory, reviewCustomGameMove } from './game-history-actions';
+import { openGameHistory, reviewGameSessionMove } from './game-history-actions';
 import { GAME_NAVIGATION_ACTIONS } from './game-navigation';
+import {
+  assignGameSessionBotWithKeyboard,
+  listenToGameSession,
+  startGameSessionWithKeyboard,
+} from './game-session-accessibility';
+import { repeatGameSessionAcknowledgement } from './game-session-acknowledgement';
+import { redeliverGameSessionBotWake } from './game-session-bot-wakes';
+import {
+  chooseGameSessionBotMove,
+  finishGameSessionAgainstBots,
+  playGameSessionBots,
+} from './game-session-bots';
+import { attemptGameSessionBoundary } from './game-session-boundary';
+import {
+  createGameSessionIn,
+  operateGameSession,
+} from './game-session-controls';
+import { leaveGameSessionSpace } from './game-session-departure';
+import { playGameSessionHistory } from './game-session-history';
+import {
+  establishGameSession,
+  joinGameSessions,
+  joinGameSessionsAsGuest,
+  returnToGameSessions,
+} from './game-session-lineup';
+import { makeGameSessionMove } from './game-session-moves';
+import { raceGameSessionChoices } from './game-session-race';
+import {
+  attemptGameSession,
+  attemptGameSessionChoice,
+  configureGameSessionChoice,
+} from './game-session-ui';
 import { PUZZLE_ALLOWANCE_ACTIONS } from './puzzle-allowance';
 import { PUZZLE_FEED_ACTIONS } from './puzzle-feed';
 import { PUZZLE_FEED_CHOICE_ACTIONS } from './puzzle-feed-choices';
@@ -47,30 +50,30 @@ import { SPACE_GAME_CHOICE_ACTIONS } from './space-game-choice';
 export const GAME_SESSION_HARNESS_ACTIONS = [
   ...GAME_NAVIGATION_ACTIONS,
   ...SPACE_GAME_CHOICE_ACTIONS,
-  establishCustomGame,
-  joinCustomGames,
-  joinCustomGamesAsGuest,
-  returnToCustomGames,
-  operateCustomGame,
-  leaveCustomGameSpace,
-  createCustomGameIn,
-  raceCustomGameChoices,
-  attemptCustomGame,
-  attemptCustomGameChoice,
-  configureCustomGameChoice,
-  makeCustomGameMove,
-  reviewCustomGameMove,
+  establishGameSession,
+  joinGameSessions,
+  joinGameSessionsAsGuest,
+  returnToGameSessions,
+  operateGameSession,
+  leaveGameSessionSpace,
+  createGameSessionIn,
+  raceGameSessionChoices,
+  attemptGameSession,
+  attemptGameSessionChoice,
+  configureGameSessionChoice,
+  makeGameSessionMove,
+  reviewGameSessionMove,
   openGameHistory,
-  chooseCustomGameBotMove,
-  finishCustomGameAgainstBots,
-  playCustomGameBots,
-  playCustomGameHistory,
-  attemptCustomGameBoundary,
-  repeatCustomGameAcknowledgement,
-  redeliverCustomGameBotWake,
-  assignCustomGameBotWithKeyboard,
-  startCustomGameWithKeyboard,
-  listenToCustomGame,
+  chooseGameSessionBotMove,
+  finishGameSessionAgainstBots,
+  playGameSessionBots,
+  playGameSessionHistory,
+  attemptGameSessionBoundary,
+  repeatGameSessionAcknowledgement,
+  redeliverGameSessionBotWake,
+  assignGameSessionBotWithKeyboard,
+  startGameSessionWithKeyboard,
+  listenToGameSession,
   ...PUZZLE_SCREEN_ACTIONS,
   ...PUZZLE_RECORD_ACTIONS,
   ...PUZZLE_MOVE_ACTIONS,

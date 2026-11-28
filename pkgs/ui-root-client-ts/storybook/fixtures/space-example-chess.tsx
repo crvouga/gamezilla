@@ -53,7 +53,7 @@ export function spaceExampleChessSetup(): SpaceGame {
       kind: 'choice',
       label: 'Mode',
       options: [
-        { value: 'custom', label: 'Custom game' },
+        { value: 'custom', label: 'Game session' },
         { value: 'rated', label: 'Rated game' },
       ],
       get value() {

@@ -24,14 +24,14 @@ export type DailyMatchPreview = {
 };
 
 /**
- * The person's unfinished game, wherever it is played: a custom game under
+ * The person's unfinished game, wherever it is played: a game session under
  * way that they sit in, or their unfinished matched game. A person has at
  * most one (`specs/games/unfinished-game-limit.dmn`).
  */
 export type UnfinishedGame =
   | {
       readonly kind: 'custom';
-      /** The space the custom game is played in. */
+      /** The space the game session is played in. */
       readonly spaceId: string;
       /** Where returning to it leads. */
       readonly href: string;
@@ -59,7 +59,7 @@ type MatchedRow = Pick<
 
 /**
  * Read on every device of the person from what they hold: their seat in a
- * custom game under way (`chess_custom_game_seats`, kept from the space's
+ * game session under way (the seat index, kept from the space's
  * room) and their own matched game.
  */
 export function useUnfinishedGame(): Accessor<UnfinishedGame | null> {
@@ -68,7 +68,7 @@ export function useUnfinishedGame(): Accessor<UnfinishedGame | null> {
   const presentation = useGamePresentation();
   const seats = createQuery(
     () => sql<SeatRow>`
-      SELECT c.space_id FROM chess_custom_game_seats AS c
+      SELECT c.space_id FROM chess_game_session_seats AS c
       LEFT JOIN spaces AS s ON s.id = c.space_id
       WHERE c.owner_id = ${myId()} AND c.under_way = ${true}
         AND c.deleted_at IS NULL

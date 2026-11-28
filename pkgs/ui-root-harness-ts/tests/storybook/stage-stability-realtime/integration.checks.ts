@@ -13,7 +13,7 @@ test.use({ trace: 'on' });
  */
 const SEQUENCES = {
   pong: {
-    drawing: '[data-testid="custom-game-board-drawing"]',
+    drawing: '[data-testid="game-session-board-drawing"]',
     stories: [
       'screens-games-pong-stage--countdown',
       'screens-games-pong-stage--rally',
@@ -25,7 +25,7 @@ const SEQUENCES = {
     ],
   },
   'light cycles': {
-    drawing: '[data-testid="custom-game-board-arena-drawing"]',
+    drawing: '[data-testid="game-session-board-arena-drawing"]',
     stories: [
       'screens-games-light-cycles-stage--countdown',
       'screens-games-light-cycles-stage--riding',

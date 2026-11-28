@@ -64,9 +64,9 @@ export const continuousRaceGame = defineGame({
   },
   simulation,
   capabilities: {
-    'custom-games': {
+    'vs-human': { localPlayers: true },
+    'vs-bot': {
       bots: { difficulties: ['easy', 'medium', 'hard'] },
-      localPlayers: true,
     },
     history: { record: (position) => position },
     matchmaking: {

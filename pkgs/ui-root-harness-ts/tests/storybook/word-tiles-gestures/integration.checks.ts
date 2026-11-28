@@ -89,24 +89,24 @@ test('storybook integration: word-tiles gesture assigned blank remains marked af
 }, info) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' });
   await openStory(page, 'three-player-match', 'light');
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const blank = centerCell(page);
   for (const [tile, square] of [
     ['11', 'g8'],
     ['98', 'h8'],
     ['82', 'i8'],
   ]) {
-    await page.getByTestId(`custom-game-board-rack-${tile}`).click();
-    await page.getByTestId(`custom-game-board-cell-${square}`).click();
+    await page.getByTestId(`game-session-board-rack-${tile}`).click();
+    await page.getByTestId(`game-session-board-cell-${square}`).click();
     if (tile === '98')
-      await page.getByTestId('custom-game-board-blank-A').click();
+      await page.getByTestId('game-session-board-blank-A').click();
   }
   await expect(blank).toHaveAttribute('data-state', 'tentative');
   await expect(blank.getByText('A', { exact: true })).toHaveCSS(
     'text-decoration-line',
     'underline'
   );
-  await page.getByTestId('custom-game-board-submit').click();
+  await page.getByTestId('game-session-board-submit').click();
   await expect(blank).toHaveAttribute('data-state', 'recent');
   await expect(blank).toHaveAccessibleName(
     'A 0, h8, blank played as A, last move'

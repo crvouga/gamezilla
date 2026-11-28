@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import type { NetworkSurface } from './live-network-system';
 import { decode } from './network-race';
 
@@ -7,7 +7,7 @@ export function networkObservation(s: NetworkSurface) {
   return {
     positions: [...s.positions.values()],
     distances: [...s.distances.values()],
-    authority: CustomGamesAttr.from(s.kit.server.getCommittedState()).current
+    authority: GameSessionsAttr.from(s.kit.server.getCommittedState()).current
       ?.fen,
     errors: s.errors,
     stale: [...s.connections.values()].map((connection) =>

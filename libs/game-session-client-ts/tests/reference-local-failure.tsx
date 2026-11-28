@@ -1,8 +1,8 @@
 import {
-  type CustomGame,
-  CustomGamesAttr,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  type GameSession,
+  GameSessionsAttr,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import {
   SpaceOpenRoomsStoreProvider,
   useSpaceOpenRoomsRegistry,
@@ -33,11 +33,11 @@ export async function localFailure() {
   storage.loadLiveCheckpoint = () => Promise.reject(failure);
   const definition = raceGame;
   const game = {
-    ...newCustomGame(
-      'race-1',
-      'alice',
-      definition.registration.rules.initial()
-    ),
+    ...newGameSession({
+      id: 'race-1',
+      creator: 'alice',
+      position: definition.registration.rules.initial(),
+    }),
     black: { kind: 'local' as const, person: '' },
     ready: ['white', 'black'] as ('white' | 'black')[],
     status: 'active' as const,
@@ -69,7 +69,7 @@ export async function localFailure() {
   };
 }
 
-function localModule(game: CustomGame, now: () => number) {
+function localModule(game: GameSession, now: () => number) {
   const base = createSpaceModule(assertRoomModuleName('space'), [raceGame], {
     now,
     random: () => 0,
@@ -81,7 +81,7 @@ function localModule(game: CustomGame, now: () => number) {
       ...base.initialState(),
       ...GamesRoomAttr.selected(raceGame.id),
       ...SpaceMembersRoomAttr.seats({ alice: { joinedAt: '2026-10-24' } }),
-      ...CustomGamesAttr({ current: game, history: [] }),
+      ...GameSessionsAttr({ current: game, history: [] }),
     }),
   };
 }

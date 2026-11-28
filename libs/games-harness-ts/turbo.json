@@ -41,7 +41,7 @@
         "src/**",
         "tests/conformance-world.ts",
         "tests/conformance/game-suite.ts",
-        "tests/conformance/custom-games/**",
+        "tests/conformance/game-sessions/**",
         "tests/reference-game/**",
         "tests/probes/**",
         "!tests/reference-game/**/*.test.ts",

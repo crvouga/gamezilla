@@ -7,7 +7,7 @@ test.use(boardContext(320));
 /** Where the board and everything after it sit, in page coordinates. */
 async function layout(page: Page) {
   return page.evaluate(() => {
-    const board = document.querySelector('[data-testid="custom-game-board"]');
+    const board = document.querySelector('[data-testid="game-session-board"]');
     const rect = board?.getBoundingClientRect();
     return {
       boardTop: rect?.top ?? -1,
@@ -22,8 +22,8 @@ test('storybook integration: connect-four keyboard help never moves the page', a
   page,
 }, info) => {
   await openBoard(page, 'drop-a-disc', 'light');
-  const column = page.getByTestId('custom-game-board-column-1');
-  const help = page.getByTestId('custom-game-board-keyboard-help');
+  const column = page.getByTestId('game-session-board-column-1');
+  const help = page.getByTestId('game-session-board-keyboard-help');
   // The story's own play may leave a column focused; start from rest.
   await page.evaluate(() => {
     (document.activeElement as HTMLElement | null)?.blur();
@@ -195,10 +195,10 @@ test('storybook integration: connect-four pointer focus keeps the keyboard help 
   await page.evaluate(() => {
     (document.activeElement as HTMLElement | null)?.blur();
   });
-  await page.getByTestId('custom-game-board-column-3').hover();
+  await page.getByTestId('game-session-board-column-3').hover();
   await page.mouse.down();
   await page.mouse.up();
   await expect(
-    page.getByTestId('custom-game-board-keyboard-help')
+    page.getByTestId('game-session-board-keyboard-help')
   ).toBeHidden();
 });

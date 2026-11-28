@@ -1,0 +1,4 @@
+{
+  "summary": "The live two-person Game Session setup let Alice submit readiness with her stale invitation revision before seeing TotalDonkey649 accepted Black, producing the choices changed refusal.",
+  "regressionTest": "libs/runtime-harness-ts/tests/game-session-pair.test.ts"
+}

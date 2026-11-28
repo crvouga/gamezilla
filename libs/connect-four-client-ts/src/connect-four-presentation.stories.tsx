@@ -56,7 +56,7 @@ type Story = StoryObj<typeof meta>;
 /** A new game: Red moves first, so the person playing Red can drop anywhere. */
 export const Opening: Story = {
   play: async ({ canvasElement }) => {
-    const board = within(canvasElement).getByTestId('custom-game-board');
+    const board = within(canvasElement).getByTestId('game-session-board');
     await expect(board).toHaveAccessibleDescription(/Left\/Right to choose/);
     await expect(board).toHaveAccessibleDescription(/Enter or Space drops/);
   },
@@ -75,11 +75,11 @@ export const YourTurn: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const column = await canvas.findByTestId('custom-game-board-column-6');
+    const column = await canvas.findByTestId('game-session-board-column-6');
     await userEvent.hover(column);
     await expect(column).toHaveAttribute('data-previewed', 'true');
     await expect(
-      await canvas.findByTestId('custom-game-board-prompt')
+      await canvas.findByTestId('game-session-board-prompt')
     ).toHaveTextContent('Drop in column 6');
   },
 };
@@ -106,7 +106,7 @@ export const Watching: Story = {
 /** Finished positions remain readable through every ancestor, including full columns. */
 async function assertReadableFinish(canvasElement: HTMLElement): Promise<void> {
   const canvas = within(canvasElement);
-  const board = canvas.getByTestId('custom-game-board');
+  const board = canvas.getByTestId('game-session-board');
   for (const disc of board.querySelectorAll(
     '[data-cell]:not([data-disc="0"]) > span'
   )) {
@@ -120,7 +120,7 @@ async function assertReadableFinish(canvasElement: HTMLElement): Promise<void> {
     await expect(column).toHaveAttribute('aria-disabled', 'true');
   }
   const before = board.getAttribute('data-cells');
-  await userEvent.click(canvas.getByTestId('custom-game-board-column-1'));
+  await userEvent.click(canvas.getByTestId('game-session-board-column-1'));
   await expect(board).toHaveAttribute('data-cells', before);
 }
 
@@ -131,7 +131,7 @@ export const Won: Story = {
     await assertReadableFinish(canvasElement);
     const canvas = within(canvasElement);
     for (const cell of [0, 7, 14, 21]) {
-      const disc = canvas.getByTestId(`custom-game-board-cell-${cell}`);
+      const disc = canvas.getByTestId(`game-session-board-cell-${cell}`);
       await expect(disc).toHaveAttribute('data-winning', 'true');
       await expect(getComputedStyle(disc).outlineStyle).toBe('solid');
       await expect(
@@ -225,21 +225,21 @@ export const DropADisc: Story = {
   render: interactiveRender,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const column = await canvas.findByTestId('custom-game-board-column-4');
-    const turn = canvas.getByTestId('custom-game-board-prompt');
+    const column = await canvas.findByTestId('game-session-board-column-4');
+    const turn = canvas.getByTestId('game-session-board-prompt');
     await expect(turn).toHaveAttribute('data-turn', '1');
     await userEvent.click(column);
     await expect(turn).toHaveAttribute('data-turn', '2');
     await expect(
-      canvas.getByTestId('custom-game-board-cell-3')
+      canvas.getByTestId('game-session-board-cell-3')
     ).toHaveAttribute('data-disc', '1');
     await userEvent.hover(column);
     await expect(
-      canvas.getByTestId('custom-game-board-cell-10')
+      canvas.getByTestId('game-session-board-cell-10')
     ).toHaveAttribute('data-preview-disc', '2');
     await userEvent.click(column);
     await expect(
-      canvas.getByTestId('custom-game-board-cell-10')
+      canvas.getByTestId('game-session-board-cell-10')
     ).toHaveAttribute('data-disc', '2');
     await expect(column).toHaveAccessibleName(
       'Drop in column 4, 2 of 6 occupied'
@@ -253,16 +253,16 @@ export const FullColumn: Story = {
   render: interactiveRender,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const column = canvas.getByTestId('custom-game-board-column-1');
+    const column = canvas.getByTestId('game-session-board-column-1');
     await expect(column).toHaveAttribute('aria-disabled', 'true');
     const before = canvas
-      .getByTestId('custom-game-board')
+      .getByTestId('game-session-board')
       .getAttribute('data-cells');
     await userEvent.click(column);
     await expect(
-      canvas.getByTestId('custom-game-board-prompt')
+      canvas.getByTestId('game-session-board-prompt')
     ).toHaveTextContent('Column 1 is full. Choose another column.');
-    await expect(canvas.getByTestId('custom-game-board')).toHaveAttribute(
+    await expect(canvas.getByTestId('game-session-board')).toHaveAttribute(
       'data-cells',
       before
     );
@@ -270,16 +270,16 @@ export const FullColumn: Story = {
     for (let number = 2; number <= 7; number++) {
       await userEvent.keyboard('{ArrowRight}');
       await expect(
-        canvas.getByTestId(`custom-game-board-column-${number}`)
+        canvas.getByTestId(`game-session-board-column-${number}`)
       ).toHaveFocus();
     }
     await userEvent.keyboard('{Home}{ArrowRight}');
     await expect(
-      canvas.getByTestId('custom-game-board-column-2')
+      canvas.getByTestId('game-session-board-column-2')
     ).toHaveFocus();
     await userEvent.keyboard('{Enter}');
     await expect(
-      canvas.getByTestId('custom-game-board-cell-1')
+      canvas.getByTestId('game-session-board-cell-1')
     ).toHaveAttribute('data-disc', '1');
   },
 };
@@ -290,14 +290,14 @@ export const ConnectFourToWin: Story = {
   render: interactiveRender,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-column-1'));
+    await userEvent.click(canvas.getByTestId('game-session-board-column-1'));
     for (const cell of [0, 7, 14, 21]) {
       await expect(
-        canvas.getByTestId(`custom-game-board-cell-${cell}`)
+        canvas.getByTestId(`game-session-board-cell-${cell}`)
       ).toHaveAttribute('data-winning', 'true');
     }
     await expect(
-      canvas.getByTestId('custom-game-board-column-2')
+      canvas.getByTestId('game-session-board-column-2')
     ).toHaveAttribute('aria-disabled', 'true');
   },
 };

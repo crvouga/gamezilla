@@ -1,7 +1,7 @@
 context: Word Tiles
 purpose: >-
   Word Tiles' board, tiles, racks, words, scores and endings, and its
-  one-move challenges. Shared game choices, custom games, bots, finding an
+  one-move challenges. Shared game choices, game sessions, bots, finding an
   opponent and puzzle authoring belong to Games and Puzzles.
 terms:
   - term: Word Tiles
@@ -19,7 +19,7 @@ terms:
     published: true
   - term: game
     from: games
-  - term: custom game
+  - term: game session
     from: games
   - term: bot
     from: games

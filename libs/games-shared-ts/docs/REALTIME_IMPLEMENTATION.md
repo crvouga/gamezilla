@@ -12,8 +12,8 @@ adapters. `defineGame` registers common position rules and independently optiona
 turn rules and fixed-step simulation. A continuous game supplies no fake turn
 automation. Genuine turn games retain their stronger type. Puzzles still require
 the discrete rules they use. The registration installs the existing custom and
-matched-session infrastructure once. Custom
-games already own side selection, readiness, invitations, bots, rematches,
+matched-session infrastructure once. game
+sessions already own side selection, readiness, invitations, bots, rematches,
 results and offline local games. Matchmaking already owns opponent searches,
 bot population, ratings and durable history. Those are extension points, not
 reasons to add another session or matchmaking service.
@@ -137,7 +137,7 @@ in-process harness hosts pass explicit timers. Timer wakes and lifecycle command
 join the room serial chain, so a physics tick cannot race a durable checkpoint.
 Disposal releases execution and connection references.
 
-`SessionSimulation` attaches execution to an existing session. Custom-game
+`SessionSimulation` attaches execution to an existing session. Game-session
 checkpoints are trusted service commands, validated for game identity, generation,
 monotonic checkpoint ticks, acknowledgments and codec validity. Input delivery and
 snapshots stay transient; accepted controls never become a move list. Completion
@@ -157,7 +157,7 @@ now has the same publication guarantee through its client store; see
 Durable Object recovery rehearsals remain open.
 
 `LocalSimulationSession` uses the same controller on the creator's device and
-checkpoints through the existing offline custom-game queue. Only the creator of
+checkpoints through the existing offline game-session queue. Only the creator of
 a game involving no other account can submit those checkpoints. A second person
 on the device is an explicit local seat with no account identity. Local bot and
 two-seat controls have in-process room-client coverage, including preserving a
@@ -204,7 +204,7 @@ execution and control generation agreed by the durable session. Prediction
 changes only the local paddle; ball, opponent and score remain authoritative.
 Passed unacknowledged ticks are discarded, and a reconnect clears held controls.
 
-The custom-game screen now connects its game-owned board to this replica. Local
+The game-session screen now connects its game-owned board to this replica. Local
 play uses its owned local session; shared play uses the existing room signals.
 Presentation runs once per display refresh, in the frame callback of the
 document's window (or an injected `FrameScheduler`): a timer is neither tied to
@@ -218,7 +218,7 @@ system component: normalized pointer fractions, independent simultaneous touches
 keyboard directions, focus cleanup and a stable logical viewBox. Automated DOM
 checks cover these mechanics and Pong's role-specific controls, paused state,
 score display and malformed-position recovery. The real product harness also
-drives local Pong through the shared custom-game flow and rendered paddle
+drives local Pong through the shared game-session flow and rendered paddle
 sliders. Eighteen scoring and local-play scenarios pass, including both local
 people, starting offline with a bot, bot completion offline, connection changes
 at every local stage and reopening. Two bound Quint projections cover scoring
@@ -250,7 +250,7 @@ timer port; requesting scheduled live work without that port still fails clearly
 
 The enrollment checkpoint passes 566 unit/conformance checks, including the
 existing turn and puzzle suites. Thirty-five common specification checks also
-pass: discovery/navigation, custom-game access decisions, host-follow navigation
+pass: discovery/navigation, game-session access decisions, host-follow navigation
 and matched-game structure. Replay planning now includes Pong as the sixth
 host-follow variant, with the existing replay depth and shard caps unchanged.
 The affected room/session packages pass their twelve type-check, test and lint
@@ -548,7 +548,7 @@ acknowledgments and queued future controls. Action-history validation compares
 the command-owned position, so elapsed time does not make an honest history
 invalid. A same-tick checkpoint from before a turn retains the newer command
 state. Simulation conformance also checks that stepping preserves command keys.
-Durable custom-game timestamps round fractional scheduler time at the boundary.
+Durable game-session timestamps round fractional scheduler time at the boundary.
 
 The existing counting-race example supplies the hybrid probe. Literal regressions
 are `hybrid-simulation-overwrites-discrete-command`,
@@ -790,7 +790,7 @@ capability conformance and adverse-network verification remain required.
 
 ### Local hybrid commands
 
-The custom-game screen now owns one simulation connection for both its board
+The game-session screen now owns one simulation connection for both its board
 and its commands. A local choice enters that controller's serial queue. The
 controller records current live progress, then the ordinary local choice, in
 the existing offline room queue. Only the revision caused by that checkpoint
@@ -904,7 +904,7 @@ serves left. All other initial-state fields are still compared exactly.
 is `simulation-starting-position-uses-unseeded-fixture`.
 
 Custom and matched record components now use actual registered turns to offer
-move-list review controls. A custom game's history selector/statistics and a
+move-list review controls. A game session's history selector/statistics and a
 finished matched game's record controls remain available. An unfinished game
 without turns allocates no empty Moves section. Styling still comes entirely
 from the existing design-system components.
@@ -1265,7 +1265,7 @@ production ingestion or full Verify verdict.
 ## Seeded live-network campaign
 
 The framework's counting-race example now runs through its real custom-session
-module, `RoomServer`, three `RoomClient`s and `connectCustomSimulation`, using
+module, `RoomServer`, three `RoomClient`s and `connectRoomSimulation`, using
 the existing room harness and root `defineSystem`/`defineAction` execution.
 Its seeded network supplies a bounded 480 ms impairment window: mean latency
 0–80 ms, jitter 0–40 ms, loss 0/10/30%, duplication 0/50/100%, reordering and

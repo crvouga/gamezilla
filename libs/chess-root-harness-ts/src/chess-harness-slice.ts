@@ -5,10 +5,10 @@ import { nextPuzzleDifferent } from '@libs/chess-puzzle-harness-ts/chess-propert
 import { createChessAdminServer } from '@libs/chess-root-server-ts/admin-server';
 import { CHESS_SUB } from '@libs/chess-sub-shared-ts/sub';
 import type { HarnessSlice } from '@libs/harness-ts/slices';
-import { changeCustomGame } from './chess-custom-game-board';
+import { changeGameSession } from './chess-game-session-board';
 import { CHESS_MULTIPLAYER_BOARD_ACTIONS } from './chess-multiplayer-board';
 import { focusChessScreen } from './chess-screen-reads';
-import { setCustomGameParticipation } from './custom-game-participation';
+import { setGameSessionParticipation } from './game-session-participation';
 
 /**
  * Chess in a harness: the puzzle catalog, seeded; its screens arrive through the
@@ -25,10 +25,10 @@ export const CHESS_HARNESS_SLICE: HarnessSlice = {
   seedServer: seedChessPuzzlesForHarness,
   actions: [
     ...CHESS_HARNESS_ACTIONS,
-    changeCustomGame,
+    changeGameSession,
     ...CHESS_MULTIPLAYER_BOARD_ACTIONS,
     focusChessScreen,
-    setCustomGameParticipation,
+    setGameSessionParticipation,
   ],
   properties: [nextPuzzleDifferent],
 };

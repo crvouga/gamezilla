@@ -1,6 +1,6 @@
 /**
  * Pong's conformance adapter names two of its own score targets, so the
- * shared custom-game suites change a choice where Pong has no turn clock;
+ * shared game-session suites change a choice where Pong has no turn clock;
  * the adapter is refused without them, or with ones Pong does not offer.
  */
 

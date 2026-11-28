@@ -6,14 +6,15 @@ import {
 import type { JSX } from '@solidjs/web';
 import { createSignal, untrack } from 'solid-js';
 import { ConnectFourStoryBoard } from './connect-four-story-board.example';
-import { CUSTOM_GAME_PLACES, type CustomGamePlace } from './custom-game-places';
-import {
-  CustomGameScreenView,
-  type CustomGameScreenViewProps,
-} from './custom-game-screen-view';
 import { recordReviewing } from './game-frame-moves-view';
 import { record, WON_LINE, WON_MOVES } from './game-frame-story.example';
 import type { FramePhase } from './game-frame-view-types';
+import {
+  GAME_SESSION_PLACES,
+  type GameSessionPlace,
+} from './game-session-places';
+import type { GameSessionScreenViewProps } from './game-session-screen-view';
+import { PlayFriendScreenView } from './play-friend-screen-view';
 
 /**
  * The frame as a story shows it: opened on the story's place, and moving
@@ -21,20 +22,20 @@ import type { FramePhase } from './game-frame-view-types';
  * container reads), so every row and Back leads where it leads in the app.
  */
 export function FrameStory(
-  props: CustomGameScreenViewProps & {
+  props: GameSessionScreenViewProps & {
     readonly board?: JSX.Element;
     readonly setupBoard?: JSX.Element;
   }
 ): JSX.Element {
   const [opened, setOpened] = createSignal<OpenedPlace<
     FramePhase,
-    CustomGamePlace
+    GameSessionPlace
     // The story opens on its own place: read once, then the person moves.
   > | null>(untrack(() => ({ stage: props.phase, place: props.place })));
-  const place = (): CustomGamePlace =>
-    placeIn(CUSTOM_GAME_PLACES, props.phase, opened());
+  const place = (): GameSessionPlace =>
+    placeIn(GAME_SESSION_PLACES, props.phase, opened());
   return (
-    <CustomGameScreenView
+    <PlayFriendScreenView
       {...props}
       place={place()}
       onOpen={(next) => {
@@ -43,7 +44,7 @@ export function FrameStory(
       }}
       onClose={() => {
         props.onClose();
-        const behind = placeBehind(CUSTOM_GAME_PLACES, props.phase, place());
+        const behind = placeBehind(GAME_SESSION_PLACES, props.phase, place());
         setOpened(
           behind === null ? null : { stage: props.phase, place: behind }
         );
@@ -54,7 +55,7 @@ export function FrameStory(
 
 /** The frame with Connect Four's board at the position `moves` reach. */
 export function onBoard(moves: readonly number[]) {
-  return (args: CustomGameScreenViewProps) => (
+  return (args: GameSessionScreenViewProps) => (
     <FrameStory
       {...args}
       board={
@@ -94,7 +95,7 @@ export function onBoard(moves: readonly number[]) {
  * the line to it, as the app's moves place does.
  */
 export function onReview(all: readonly number[]) {
-  return (args: CustomGameScreenViewProps) => {
+  return (args: GameSessionScreenViewProps) => {
     // The game as it stands: its drops, and any played in the story.
     const [drops, setDrops] = createSignal<readonly number[]>(all);
     const [ply, setPly] = createSignal(args.record?.displayedPly ?? all.length);

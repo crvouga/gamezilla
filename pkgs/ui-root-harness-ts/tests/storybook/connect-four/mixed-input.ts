@@ -8,9 +8,9 @@ export async function captureMixedInput(
   theme: string
 ) {
   await openBoard(page, 'drop-a-disc', theme);
-  const focused = page.getByTestId('custom-game-board-column-2');
-  const hovered = page.getByTestId('custom-game-board-column-6');
-  const board = page.getByTestId('custom-game-board');
+  const focused = page.getByTestId('game-session-board-column-2');
+  const hovered = page.getByTestId('game-session-board-column-6');
+  const board = page.getByTestId('game-session-board');
   await focused.focus();
   await hovered.hover();
   await page.mouse.move(0, 0);
@@ -22,7 +22,7 @@ export async function captureMixedInput(
     (await board.getAttribute('data-cells')) ?? '[]'
   ) as number[];
   await focused.press('Enter');
-  await expect(page.getByTestId('custom-game-board-cell-1')).toHaveAttribute(
+  await expect(page.getByTestId('game-session-board-cell-1')).toHaveAttribute(
     'data-disc',
     '1'
   );

@@ -9,7 +9,7 @@ const fleet =
   'fleet:carrier@a1h;battleship@a3h;cruiser@a5h;submarine@a7h;destroyer@a9h';
 
 // regression: battleship-submitting-shot-loses-feedback — the frame makes the
-// board non-interactive while a move is submitting (customGameCanMove), which
+// board non-interactive while a move is submitting (gameSessionCanMove), which
 // hid the busy "Firing at J10" control and relabelled the cells for a
 // spectator ("Inspect cells").
 test('while the frame submits J10 the busy Fire stays and the cells are not offered for inspection', () => {

@@ -1,4 +1,4 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmbeddedScreen } from '@pkgs/ui-root-client-ts/embedded-screen';
@@ -8,14 +8,14 @@ import { MutationModal } from '@pkgs/ui-root-client-ts/mutation-modal';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { type Accessor, createSignal, Show } from 'solid-js';
-import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import {
   FrameConnectionView,
   FrameErrorView,
   FrameStatusView,
 } from './game-frame-status-view';
+import type { GameSessionScreenViewProps } from './game-session-screen-view';
 
-type Choose = (input: CustomGameInput) => Promise<void>;
+type Choose = (input: GameSessionInput) => Promise<void>;
 
 /** A command that finishes the game, so it is confirmed first. */
 export type FrameConfirmOperation = 'cancel' | 'resign';
@@ -107,8 +107,10 @@ export function FrameConfirmDialog(props: {
             submitLabel={title()}
             variant="destructive"
             successTitle={<Trans>Game finished</Trans>}
-            submitDataSet={{ testid: `custom-game-${asked.operation}-confirm` }}
-            dismissDataSet={{ testid: `custom-game-${asked.operation}-done` }}
+            submitDataSet={{
+              testid: `game-session-${asked.operation}-confirm`,
+            }}
+            dismissDataSet={{ testid: `game-session-${asked.operation}-done` }}
           />
         );
       }}
@@ -118,7 +120,7 @@ export function FrameConfirmDialog(props: {
 
 /** What every place says first: the connection, then a refused choice. */
 export function FrameNoticesView(
-  props: Pick<CustomGameScreenViewProps, 'connection' | 'error'> & {
+  props: Pick<GameSessionScreenViewProps, 'connection' | 'error'> & {
     /** Before any game: the notice speaks of starting one, not of moves. */
     readonly beforeGame?: boolean | undefined;
   }
@@ -135,17 +137,17 @@ export function FrameNoticesView(
 }
 
 /**
- * A place of the custom game with no board: a hub, a choice or a form, one
+ * A place of the game session with no board: a hub, a choice or a form, one
  * column at a menu's measure. It opens with the frame's notices and ends
  * with the game's line for a listener, so every place says where the game
  * stands.
  */
 export function FramePlacePage(
   props: Pick<
-    CustomGameScreenViewProps,
+    GameSessionScreenViewProps,
     'connection' | 'error' | 'status' | 'phase' | 'place'
   > & {
-    /** `custom-game-${place}`. */
+    /** `game-session-${place}`. */
     readonly screenId: string;
     /** Omit when the place opens with its own title (a mode card). */
     readonly title?: JSX.Element | undefined;
@@ -168,9 +170,9 @@ export function FramePlacePage(
     >
       <StackVertical
         gap="lg"
-        testId="custom-game-content"
+        testId="game-session-content"
         dataSet={{
-          component: 'CustomGameContent',
+          component: 'GameSessionContent',
           phase: props.phase,
           place: props.place.screen,
         }}
@@ -185,7 +187,7 @@ export function FramePlacePage(
                 variant="outline"
                 intent="neutral"
                 onClick={() => props.onClose?.()}
-                dataSet={{ testid: 'custom-game-place-back' }}
+                dataSet={{ testid: 'game-session-place-back' }}
               />
             </GameActions>
           )}
@@ -203,10 +205,10 @@ export function FramePlacePage(
  */
 export function FrameLobbyPage(
   props: Pick<
-    CustomGameScreenViewProps,
+    GameSessionScreenViewProps,
     'connection' | 'error' | 'status' | 'phase' | 'place'
   > & {
-    /** `custom-game-${place}`. */
+    /** `game-session-${place}`. */
     readonly screenId: string;
     /** Omit for a lobby with no one command (before any game). */
     readonly dock?: JSX.Element | undefined;
@@ -220,9 +222,9 @@ export function FrameLobbyPage(
     <GameLobbyScreen screenId={props.screenId} dock={props.dock}>
       <StackVertical
         gap="lg"
-        testId="custom-game-content"
+        testId="game-session-content"
         dataSet={{
-          component: 'CustomGameContent',
+          component: 'GameSessionContent',
           phase: props.phase,
           place: props.place.screen,
         }}
@@ -241,7 +243,7 @@ export function FrameLobbyPage(
                 variant="outline"
                 intent="neutral"
                 onClick={() => props.onClose?.()}
-                dataSet={{ testid: 'custom-game-place-back' }}
+                dataSet={{ testid: 'game-session-place-back' }}
               />
             </GameActions>
           )}

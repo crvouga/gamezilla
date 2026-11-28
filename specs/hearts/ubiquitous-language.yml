@@ -2,7 +2,7 @@ context: Hearts
 purpose: >-
   Hearts for four players in a space: its cards, deals, hands, passing,
   tricks, hearts being broken, penalty points, scores and winners. What every
-  game offers alike, such as custom games, bots, watchers, secret choices,
+  game offers alike, such as game sessions, bots, watchers, secret choices,
   stand-ins, rematches and shared victories, is the games context's.
 terms:
   - term: Hearts
@@ -201,11 +201,11 @@ terms:
 
   - term: game
     from: games
-  - term: custom game
+  - term: game session
     from: games
-  - term: custom game readiness
+  - term: game session readiness
     from: games
-  - term: start a custom game
+  - term: start a game session
     from: games
   - term: bot
     from: games

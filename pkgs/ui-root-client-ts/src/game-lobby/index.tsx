@@ -21,7 +21,7 @@ export type GameModeFact = {
 };
 
 export type GameModeCardProps = {
-  /** The mode, above the game's name (`Custom game`, `Ranked match`). */
+  /** The mode, above the game's name (`Game session`, `Ranked match`). */
   eyebrow: JSX.Element;
   /** The game's name: the screen's `h1`. */
   title: JSX.Element;
@@ -42,7 +42,7 @@ export type GameModeCardProps = {
  * @example
  * ```tsx
  * <GameModeCard
- *   eyebrow="Custom game"
+ *   eyebrow="Game session"
  *   title="Connect Four"
  *   summary="Line up four discs in a row before your opponent does."
  *   facts={[{ id: 'clock', label: 'Clock', value: 'Untimed' }]}
@@ -137,7 +137,7 @@ export type GameLobbyScreenProps = {
  * @example
  * ```tsx
  * <GameLobbyScreen
- *   screenId="custom-game-setup"
+ *   screenId="game-session-setup"
  *   dock={<GameLobbyDock status="Ready to start.">…</GameLobbyDock>}
  * >
  *   <GameModeCard … />

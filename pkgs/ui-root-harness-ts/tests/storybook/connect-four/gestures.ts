@@ -4,9 +4,9 @@ import { expect, type Page, type TestInfo, test } from '@playwright/test';
 import { openBoard } from './capture';
 
 type Point = { x: number; y: number };
-const board = (page: Page) => page.getByTestId('custom-game-board');
+const board = (page: Page) => page.getByTestId('game-session-board');
 const column = (page: Page, n: number) =>
-  page.getByTestId(`custom-game-board-column-${n}`);
+  page.getByTestId(`game-session-board-column-${n}`);
 async function center(page: Page, n: number) {
   const box = await column(page, n).boundingBox();
   if (!box) throw Error('Missing column');
@@ -62,7 +62,7 @@ async function slide(page: Page, info: TestInfo, touch: boolean) {
   await expect(board(page)).toHaveAttribute('data-cells', before ?? '');
   await capture(page, info, 'aim');
   await driver.release();
-  await expect(page.getByTestId('custom-game-board-cell-17')).toHaveAttribute(
+  await expect(page.getByTestId('game-session-board-cell-17')).toHaveAttribute(
     'data-disc',
     '1'
   );
@@ -149,7 +149,7 @@ async function cancelAim(page: Page, touch: boolean) {
   await expect(board(page)).toHaveAttribute('data-cells', before ?? '');
   await page.keyboard.press('Escape');
   await page.keyboard.press('Enter');
-  const cell = page.getByTestId('custom-game-board-cell-1');
+  const cell = page.getByTestId('game-session-board-cell-1');
   await expect(cell).toHaveAttribute('data-disc', '1');
   await expect(cell.locator('span')).toHaveCSS('animation-name', 'none');
 }

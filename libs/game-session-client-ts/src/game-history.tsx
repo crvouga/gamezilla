@@ -223,7 +223,7 @@ export function GameHistory(props: {
   const space = useSpaceRoomSessionId();
   const decision = useSpaceDecision(
     () => space() ?? '',
-    PERMISSION.gameCustomWatch
+    PERMISSION.gameSessionWatch
   );
   return (
     <DecisionGate

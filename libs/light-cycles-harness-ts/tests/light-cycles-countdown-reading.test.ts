@@ -40,7 +40,7 @@ test('one native browser can read the active round while steering', async () => 
       },
     }),
   };
-  expect(await readRound(ui, 'custom-game-board')).toEqual({
+  expect(await readRound(ui, 'game-session-board')).toEqual({
     round: 1,
     phase: 'running',
     live: true,

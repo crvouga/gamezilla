@@ -15,7 +15,7 @@ import {
   WIRE_VERSION,
 } from '@pkgs/room-root-shared-ts/wire';
 import sql, { raw } from '@pkgs/sql-root-shared-ts/sql';
-import { readCustomGameIdentity } from './custom-game-identity';
+import { readGameSessionIdentity } from './game-session-identity';
 
 /**
  * Every entry the space's room sends `actor` when their connection asks
@@ -35,7 +35,7 @@ export async function roomHistorySentTo(
   const transport = env.room({
     topic: `space:${spaceId}`,
     module: 'space',
-    identity: await readCustomGameIdentity(s, actor),
+    identity: await readGameSessionIdentity(s, actor),
     installId,
     clientId: env.createId(),
     apiUrl: '',

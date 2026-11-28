@@ -1,5 +1,5 @@
 import { expect } from 'bun:test';
-import { operateCustomGame } from '@libs/game-session-harness-ts/custom-game-controls';
+import { operateGameSession } from '@libs/game-session-harness-ts/game-session-controls';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import {
   establishQuoridor,
@@ -18,8 +18,8 @@ Given(
   '{actor} has chosen Four-Player King of the Hill with four ready players',
   (w) => w.s.apply(establishQuoridor, { mode: 'hill', active: false })
 );
-When('{actor} starts the Quoridor custom game', (w, actor: string) =>
-  w.s.apply(operateCustomGame, actor, { operation: 'start' })
+When('{actor} starts the Quoridor game session', (w, actor: string) =>
+  w.s.apply(operateGameSession, actor, { operation: 'start' })
 );
 Given('{actor} has a Classic Quoridor game South has won', (w) =>
   setupQuoridor(w, { moves: QUORIDOR_PLAYABLE.fixtures.firstSideVictory })

@@ -30,9 +30,9 @@ Use these authorities:
 
 Explicitly resolve these scope details:
 
-1. The confirmed starting games are **Chess** and **Connect Four**. Chess supports custom games, matchmaking, and puzzles. Connect Four supports custom games and matchmaking, not puzzles.
+1. The confirmed starting games are **Chess** and **Connect Four**. Chess supports game sessions, matchmaking, and puzzles. Connect Four supports game sessions and matchmaking, not puzzles.
 2. The supplied material also names Quoridor and Tic-Tac-Toe as siblings. Do not assume those games exist. Preserve all games actually present; do not implement additional games merely because the attachment names them.
-3. Battleship must support custom games and matchmaking, together with its required multiplayer, bots, lifecycle, history, replay, and privacy behavior. **Battleship puzzles are not requested.** Do not add a puzzle capability or require puzzle fixtures.
+3. Battleship must support game sessions and matchmaking, together with its required multiplayer, bots, lifecycle, history, replay, and privacy behavior. **Battleship puzzles are not requested.** Do not add a puzzle capability or require puzzle fixtures.
 4. Optional language such as “where supported,” “where enabled,” and “MAY” remains conditional. Assess it against the actual platform; do not silently convert mandatory behavior into an optional capability.
 5. This task does not require a new Swift client, a new server language, or a new cross-language toolchain. Preserve existing portable-contract boundaries and validate existing supported implementations where applicable.
 
@@ -45,7 +45,7 @@ Create a traceable implementation checklist mapping Appendix A's `BS-*` and `P-*
 Inspect the current implementations of:
 
 - Plugin registration, capabilities, configuration, routes, navigation, and shared screen composition.
-- Custom games, invitations, participants, matchmaking, spaces, room authority, readiness, clocks, termination, and rematches.
+- Game sessions, invitations, participants, matchmaking, spaces, room authority, readiness, clocks, termination, and rematches.
 - Bots, deterministic ports, persistence, history, replay, statistics, authorization, telemetry, and live checks.
 - Shared Gherkin, Quint, property tests, harnesses, conformance discovery, browser drivers, evidence reporting, package boundaries, and CI tasks.
 
@@ -59,7 +59,7 @@ Do not impose an artificial zero-framework-change target. A reusable private-vie
 
 Use the existing, explicit plugin mechanism. Do not invent a runtime plugin marketplace, dynamic code loader, or competing registry.
 
-The shared framework remains opinionated about application behavior. There must be one canonical implementation of applicable menus, matchmaking, custom-game orchestration, result presentation, history navigation, recovery, and common controls. Battleship must consume those implementations.
+The shared framework remains opinionated about application behavior. There must be one canonical implementation of applicable menus, matchmaking, game-session orchestration, result presentation, history navigation, recovery, and common controls. Battleship must consume those implementations.
 
 Battleship may provide game-specific configuration, legal actions, transitions, phase semantics, role-aware views, play surfaces, controls in documented slots, result interpretation, and bot strategy. It must not replace whole shared workflows merely to customize a board or setup interaction.
 
@@ -130,7 +130,7 @@ Use existing injected time, randomness, identifiers, and scheduling controls. Ra
 Implement the complete existing-platform integration, not just fleet placement and firing:
 
 - Discovery, menus, routes, instructions, and capability-driven mode availability.
-- Human/human, human/bot, bot/human, and bot/bot custom games through shared participant contracts.
+- Human/human, human/bot, bot/human, and bot/bot game sessions through shared participant contracts.
 - Remote invitations, joining, readiness, presence, spaces, and room lifecycle.
 - Matchmaking that isolates Battleship queues and initializes the private setup phase after assignment.
 - Manual placement, rotation, editing before confirmation, random legal placement, and readiness.
@@ -147,7 +147,7 @@ Do not create game-specific permission systems, history services, transport APIs
 
 ## 7. Keep the UI consistent while making Battleship usable
 
-Reuse the framework's menu, matchmaking, custom-game, gameplay, results, history, and review screens. Inject Battleship's setup board, own-fleet board, targeting grid, and narrowly scoped game controls.
+Reuse the framework's menu, matchmaking, game-session, gameplay, results, history, and review screens. Inject Battleship's setup board, own-fleet board, targeting grid, and narrowly scoped game controls.
 
 Follow the existing design system and client conventions. Do not implement a separate app theme, navigation system, or copied screen shell.
 
@@ -179,7 +179,7 @@ Classify every required behavior by its true owner:
 
 | Owner | What belongs there |
 |---|---|
-| Shared game framework or existing shared capability | Registration, navigation, custom games, matchmaking, participant orchestration, generic setup/readiness semantics, multiplayer, authorization boundaries, recovery, lifecycle finality, history, replay, bots, and shared screen behavior |
+| Shared game framework or existing shared capability | Registration, navigation, game sessions, matchmaking, participant orchestration, generic setup/readiness semantics, multiplayer, authorization boundaries, recovery, lifecycle finality, history, replay, bots, and shared screen behavior |
 | Shared private-information capability | Authorized projections, recipient isolation, private transport, role-aware reconnect/history/replay, bot observation boundaries, and noninterference |
 | Existing product-policy context | Identity, entitlements, space roles, access decisions, limits, and existing lifecycle policy |
 | Battleship plugin | Fleet composition and geometry, placement legality, firing, hit/miss/sinking/victory rules, Battleship-specific observations, board input and presentation, and strategy |
@@ -205,7 +205,7 @@ The confirmed feature matrix is:
 | Experience | Chess | Connect Four | Battleship |
 |---|---|---|---|
 | Core registration and shared game experience | Required | Required | Required |
-| Custom games | Required | Required | Required |
+| Game sessions | Required | Required | Required |
 | Matchmaking | Required | Required | Required |
 | Puzzles | Required | Not applicable | Not applicable |
 | Private fleets and Battleship rules | Not applicable | Not applicable | Required |
@@ -292,7 +292,7 @@ Complete the task only when Appendix A's definition of done and the framework re
 
 The decisive outcomes are:
 
-- Battleship is discoverable and fully playable through shared custom games and matchmaking.
+- Battleship is discoverable and fully playable through shared game sessions and matchmaking.
 - Every required human/bot combination works, with autonomous fair bots.
 - Classic setup and combat rules are correct, deterministic, and independently tested.
 - Hidden fleets are protected throughout setup, combat, reconnect, termination, history, replay, and operational surfaces under the specified policy.
@@ -340,7 +340,7 @@ Battleship SHALL integrate through the same game registration and discovery syst
 
 ### BS-002 — Shared infrastructure
 
-All applicable custom-game, multiplayer, matchmaking, bot, lifecycle, history, permission, and UX capabilities SHALL reuse established platform functionality.
+All applicable game-session, multiplayer, matchmaking, bot, lifecycle, history, permission, and UX capabilities SHALL reuse established platform functionality.
 
 ### BS-003 — Game-independent rules
 
@@ -724,23 +724,23 @@ Any privileged operational access to hidden fleet state SHALL be governed by the
 
 ---
 
-## 8. Custom games
+## 8. Game sessions
 
 ### BS-120 — Creation
 
-Battleship SHALL be available through the existing custom-game creation experience.
+Battleship SHALL be available through the existing game-session creation experience.
 
 ### BS-121 — Human versus human
 
-Custom games SHALL support two human participants.
+Game sessions SHALL support two human participants.
 
 ### BS-122 — Human versus bot
 
-Custom games SHALL support humans playing against bots in either participant slot.
+Game sessions SHALL support humans playing against bots in either participant slot.
 
 ### BS-123 — Bot versus bot
 
-Custom games SHALL support two bot participants.
+Game sessions SHALL support two bot participants.
 
 ### BS-124 — Local gameplay
 
@@ -750,7 +750,7 @@ A shared-screen local game SHALL NOT inadvertently reveal hidden fleets.
 
 ### BS-125 — Remote gameplay
 
-Custom games SHALL support remote multiplayer through existing rooms.
+Game sessions SHALL support remote multiplayer through existing rooms.
 
 ### BS-126 — Private games
 
@@ -762,7 +762,7 @@ Applicable first-turn assignment, bot difficulty, clocks, and participant settin
 
 ### BS-128 — Readiness lifecycle
 
-Custom games SHALL handle setup readiness distinctly from combat turns.
+Game sessions SHALL handle setup readiness distinctly from combat turns.
 
 ### BS-129 — Rematches
 
@@ -1138,7 +1138,7 @@ Guest access SHALL follow existing platform capabilities.
 
 ### BS-253 — Membership policy
 
-Custom games, multiplayer, matchmaking, bots, and history SHALL respect applicable entitlements.
+Game sessions, multiplayer, matchmaking, bots, and history SHALL respect applicable entitlements.
 
 ### BS-254 — Private sessions
 
@@ -1283,7 +1283,7 @@ Sensitive fleet information SHALL not be unnecessarily included in operational t
 - Bot decisions cannot access opposing unrevealed ships.
 - Logging and telemetry avoid unintended hidden-information disclosure.
 
-### Custom games and bots
+### Game sessions and bots
 
 - Human-vs-human remote game.
 - Human-vs-bot game.
@@ -1452,7 +1452,7 @@ Failures SHALL be reproducible through the existing testing facilities.
 | Rules | Complete classic gameplay |
 | Fleet placement | Manual and automatic |
 | Hidden state | Secure participant-specific visibility |
-| Custom games | Human/human, human/bot, bot/bot |
+| Game sessions | Human/human, human/bot, bot/bot |
 | Multiplayer | Existing rooms and real-time infrastructure |
 | Matchmaking | Battleship-specific pairing |
 | Bots | Legal setup and autonomous combat |

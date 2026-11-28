@@ -112,13 +112,13 @@ describe('modelVerifications', () => {
   test('only the matching binding opts into separate induction', () => {
     // regression: tools-test-unhashed-model-bindings
     const verifications = modelVerificationsFromBindings(
-      ['specs/games/matched-game.qnt', 'specs/games/custom-game.qnt'],
+      ['specs/games/matched-game.qnt', 'specs/games/game-session.qnt'],
       new Map([
         [
           'matched-game',
           "model: 'matched-game', inductiveInvariant: '_proof', separateInduction: true",
         ],
-        ['custom-game', "model: 'custom-game', inductiveInvariant: '_proof'"],
+        ['game-session', "model: 'game-session', inductiveInvariant: '_proof'"],
       ])
     );
     expect(
@@ -128,7 +128,7 @@ describe('modelVerifications', () => {
     ).toEqual(['specs/games/matched-game.qnt']);
     expect(
       verifications.find(
-        (verify) => verify.specUri === 'specs/games/custom-game.qnt'
+        (verify) => verify.specUri === 'specs/games/game-session.qnt'
       )?.separateInduction
     ).toBeUndefined();
   });

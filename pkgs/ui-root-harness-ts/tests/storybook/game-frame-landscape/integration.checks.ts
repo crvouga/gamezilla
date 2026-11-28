@@ -32,7 +32,7 @@ async function checkLandscapeFrame(page: Page, theme: string) {
     expect(bounds && bounds.y + bounds.height).toBeLessThanOrEqual(board.y);
   }
   // The readable board scrolls within its room if a short screen cannot fit all ranks.
-  const actions = await box(page, '[data-testid="custom-game-commands"]');
+  const actions = await box(page, '[data-testid="game-session-commands"]');
   expect(actions.y).toBeGreaterThanOrEqual(board.y + board.height - 1);
   expect(actions.y + actions.height).toBeLessThanOrEqual(390);
   for (const square of ['a1', 'h8']) {
@@ -42,7 +42,7 @@ async function checkLandscapeFrame(page: Page, theme: string) {
     expect(
       (await box(page, `[data-square="${square}"]`)).width
     ).toBeGreaterThanOrEqual(32);
-    expect(await box(page, '[data-testid="custom-game-commands"]')).toEqual(
+    expect(await box(page, '[data-testid="game-session-commands"]')).toEqual(
       actions
     );
   }

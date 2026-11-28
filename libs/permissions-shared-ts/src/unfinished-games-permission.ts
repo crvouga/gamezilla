@@ -10,21 +10,21 @@ import { LIMIT } from './permission-catalog';
 /** What a person holds when they ask for another multiplayer game. */
 export type UnfinishedGames = {
   readonly multiplayer: number;
-  /** Active Custom Games the person is a participant of. */
-  readonly customGames: number;
+  /** Active Game Sessions the person is a participant of. */
+  readonly gameSessions: number;
 };
 
 /**
  * `specs/games/unfinished-game-limit.dmn`: the unfinished matched game
- * limit decides first; within it, a participant of a custom game under way
+ * limit decides first; within it, a participant of a game session under way
  * must finish that game before seeking another (`restricted`, with its own
  * unlock copy under the same limit).
  */
 export function decideUnfinishedGames(
   limitDecision: Decision,
-  customGames: number
+  gameSessions: number
 ): Decision {
-  if (!limitDecision.allowed || customGames < 1) return limitDecision;
+  if (!limitDecision.allowed || gameSessions < 1) return limitDecision;
   return {
     allowed: false,
     reason: 'restricted',
@@ -37,7 +37,7 @@ export function decideUnfinishedGames(
 export type UnfinishedGamesOffer =
   | 'seek an opponent'
   | 'return to their matched game'
-  | 'return to the custom game';
+  | 'return to the game session';
 
 /**
  * `specs/games/unfinished-game-limit.dmn`'s offer: seeking an opponent when
@@ -47,7 +47,7 @@ export type UnfinishedGamesOffer =
 export function unfinishedGamesOffer(decision: Decision): UnfinishedGamesOffer {
   if (decision.allowed) return 'seek an opponent';
   return decision.reason === 'restricted'
-    ? 'return to the custom game'
+    ? 'return to the game session'
     : 'return to their matched game';
 }
 
@@ -68,7 +68,7 @@ export async function requireUnfinishedGamesInMutation(
       nowMs,
       clientAtMs: Math.min(ctx.env.now().getTime(), nowMs),
     }),
-    held.customGames
+    held.gameSessions
   );
   if (decision.allowed) return;
   throw new MutationError(

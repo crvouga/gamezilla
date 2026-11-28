@@ -4,18 +4,18 @@ import type { RoomLiveCheckpoint } from '@pkgs/room-root-shared-ts/live-checkpoi
 import type { RoomState } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
-import type { CustomGameChoice } from './custom-game-choice';
-import { CustomGamesAttr } from './custom-game-state';
-import {
-  projectCustomSimulation,
-  selectCustomSimulation,
-} from './simulation-custom-selection';
+import type { GameSessionChoice } from './game-session-choice';
+import { GameSessionsAttr } from './game-session-state';
 import {
   checkpointLocalProgress,
   chooseLocalSimulation,
   dispatchLocalSimulation,
 } from './simulation-local-choice';
 import { RecoverSimulation } from './simulation-recovery';
+import {
+  projectRoomSimulation,
+  selectRoomSimulation,
+} from './simulation-room-selection';
 import { SessionSimulation } from './simulation-session-runtime';
 import { CheckpointLocalSimulation } from './simulation-session-state';
 import {
@@ -84,9 +84,9 @@ export class LocalSimulationSession {
       },
       {
         persist: (message) => this.persist(message),
-        project: projectCustomSimulation,
+        project: projectRoomSimulation,
         select: (state) =>
-          selectCustomSimulation(state, options.rules, options.owner),
+          selectRoomSimulation(state, options.rules, options.owner),
         checkpoint: (view, position, change) =>
           CheckpointLocalSimulation({
             gameId: view.id,
@@ -111,7 +111,7 @@ export class LocalSimulationSession {
     if (this.disposed) return;
     // A game already under way runs on the device that saved it: another
     // device of the same person shows it, but never runs it a second time.
-    const current = CustomGamesAttr.from(room.getSnapshot()).current;
+    const current = GameSessionsAttr.from(room.getSnapshot()).current;
     if (
       current?.execution !== undefined &&
       !(
@@ -170,7 +170,7 @@ export class LocalSimulationSession {
     return error === null ? id : null;
   }
 
-  choose(choice: CustomGameChoice): Promise<void> {
+  choose(choice: GameSessionChoice): Promise<void> {
     if (this.disposed)
       return Promise.reject(
         new Error('the game closed; reopen it to try again')

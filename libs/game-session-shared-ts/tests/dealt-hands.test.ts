@@ -1,25 +1,25 @@
 import { expect, test } from 'bun:test';
-import type {
-  CustomGameChoice,
-  CustomGameInput,
-} from '@libs/game-session-shared-ts/custom-game-choice';
-import {
-  ChangeCustomGame,
-  ChangeLocalCustomGame,
-  PlayCustomGameBot,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import {
-  CustomGameHandShown,
-  CustomGameHiddenDealt,
-  customGameHidden,
-  ownCustomGameHand,
-} from '@libs/game-session-shared-ts/custom-game-hands';
-import { soloCustomGame } from '@libs/game-session-shared-ts/custom-game-local';
-import {
-  type CustomGame,
-  CustomGamesAttr,
-} from '@libs/game-session-shared-ts/custom-game-state';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import type {
+  GameSessionChoice,
+  GameSessionInput,
+} from '@libs/game-session-shared-ts/game-session-choice';
+import {
+  ChangeGameSession,
+  ChangeLocalGameSession,
+  PlayGameSessionBot,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import {
+  GameSessionHandShown,
+  GameSessionHiddenDealt,
+  gameSessionHidden,
+  ownGameSessionHand,
+} from '@libs/game-session-shared-ts/game-session-hands';
+import { soloGameSession } from '@libs/game-session-shared-ts/game-session-local';
+import {
+  type GameSession,
+  GameSessionsAttr,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import {
@@ -35,7 +35,7 @@ import { handDrawBots, handDrawRules } from './hand-draw';
 
 const handDraw = defineGame({
   rules: handDrawRules,
-  capabilities: { 'custom-games': { bots: handDrawBots } },
+  capabilities: { 'vs-human': {}, 'vs-bot': { bots: handDrawBots } },
   turnAutomation: { choose: () => null, perform: async () => {} },
 });
 
@@ -60,16 +60,16 @@ function handle(
   return module.handle(state, { id: `h${commands}`, ts: 1000, payload }, as);
 }
 
-function command(state: RoomState, input: CustomGameInput): Message {
-  const game = CustomGamesAttr.from(state).current;
-  return ChangeCustomGame({
+function command(state: RoomState, input: GameSessionInput): Message {
+  const game = GameSessionsAttr.from(state).current;
+  return ChangeGameSession({
     ...input,
     gameId: game?.id ?? null,
     revision: game?.revision ?? 0,
-  } as Parameters<typeof ChangeCustomGame>[0]);
+  } as Parameters<typeof ChangeGameSession>[0]);
 }
 
-function events(state: RoomState, as: string, input: CustomGameInput) {
+function events(state: RoomState, as: string, input: GameSessionInput) {
   const result = handle(ROOM, state, as, command(state, input));
   if (!result.ok) throw new Error(`${as} ${input.operation} refused`);
   return result.events;
@@ -89,9 +89,9 @@ function seenBy(person: string, state: RoomState, list: readonly Message[]) {
     .reduce((s, e) => DEVICE.reduce(s, e), state);
 }
 
-function current(state: RoomState): CustomGame {
-  const game = CustomGamesAttr.from(state).current;
-  if (game === null) throw new Error('no custom game');
+function current(state: RoomState): GameSession {
+  const game = GameSessionsAttr.from(state).current;
+  if (game === null) throw new Error('no game session');
   return game;
 }
 
@@ -109,7 +109,7 @@ function space(): RoomState {
 function readyToStart(): RoomState {
   let state = reduce(
     space(),
-    events(space(), 'alice', { operation: 'create' })
+    events(space(), 'alice', { operation: 'create', mode: 'vs-human' })
   );
   state = reduce(
     state,
@@ -122,21 +122,21 @@ function readyToStart(): RoomState {
 test('the room deals as the game starts: the hidden state for nobody, each hand for its person', () => {
   const before = readyToStart();
   const dealt = events(before, 'alice', { operation: 'start' });
-  const hidden = dealt.filter((e) => CustomGameHiddenDealt.is(e));
-  const hands = dealt.filter((e) => CustomGameHandShown.is(e));
+  const hidden = dealt.filter((e) => GameSessionHiddenDealt.is(e));
+  const hands = dealt.filter((e) => GameSessionHandShown.is(e));
   expect(hidden).toHaveLength(1);
   expect(ROOM.audience?.(hidden[0]!)).toEqual([]);
   expect(hands.map((e) => ROOM.audience?.(e))).toEqual([['alice'], ['bob']]);
   const room = reduce(before, dealt);
   const alice = seenBy('alice', before, dealt);
   const game = current(room);
-  expect(customGameHidden(room, game)).not.toBeNull();
-  expect(customGameHidden(alice, current(alice))).toBeNull();
-  expect(ownCustomGameHand(alice, current(alice), 'alice')).toBe(
-    ownCustomGameHand(room, game, 'alice')
+  expect(gameSessionHidden(room, game)).not.toBeNull();
+  expect(gameSessionHidden(alice, current(alice))).toBeNull();
+  expect(ownGameSessionHand(alice, current(alice), 'alice')).toBe(
+    ownGameSessionHand(room, game, 'alice')
   );
-  expect(ownCustomGameHand(alice, current(alice), 'bob')).toBeNull();
-  expect(soloCustomGame(game, createTurnGames([handDraw.turnGame]))).toBe(
+  expect(ownGameSessionHand(alice, current(alice), 'bob')).toBeNull();
+  expect(soloGameSession(game, createTurnGames([handDraw.turnGame]))).toBe(
     false
   );
 });
@@ -154,7 +154,7 @@ test('a proposal is resolved by the room alone; a device predicts nothing', () =
   // Only the mover's hand changed, so only it is shown again.
   expect(
     result.events
-      .filter((e) => CustomGameHandShown.is(e))
+      .filter((e) => GameSessionHandShown.is(e))
       .map((e) => ROOM.audience?.(e))
   ).toEqual([['alice']]);
   expect(current(reduce(state, result.events)).moves.map((m) => m.uci)).toEqual(
@@ -180,7 +180,7 @@ test("a refused proposal is refused as every game's is and changes nothing", () 
 test('a bot proposes from its own hand, which only a solo game’s creator reads', () => {
   let state = reduce(
     space(),
-    events(space(), 'alice', { operation: 'create' })
+    events(space(), 'alice', { operation: 'create', mode: 'vs-bot' })
   );
   state = reduce(
     state,
@@ -189,7 +189,7 @@ test('a bot proposes from its own hand, which only a solo game’s creator reads
   state = reduce(state, events(state, 'alice', { operation: 'ready' }));
   const dealt = events(state, 'alice', { operation: 'start' });
   const botHand = dealt.find(
-    (e) => CustomGameHandShown.is(e) && e.payload.side === 'black'
+    (e) => GameSessionHandShown.is(e) && e.payload.side === 'black'
   )!;
   expect(ROOM.audience?.(botHand)).toEqual(['alice']);
   state = reduce(state, dealt);
@@ -202,12 +202,12 @@ test('a bot proposes from its own hand, which only a solo game’s creator reads
     ROOM,
     state,
     ROOM_SCHEDULER_IDENTITY,
-    PlayCustomGameBot({ gameId: game.id, ply: 1, side: 'black' })
+    PlayGameSessionBot({ gameId: game.id, ply: 1, side: 'black' })
   );
   if (!wake.ok) throw new Error('bot refused');
   const played = current(reduce(state, wake.events));
   const blackCard = Number(
-    CustomGameHandShown.is(botHand) ? botHand.payload.hand : 0
+    GameSessionHandShown.is(botHand) ? botHand.payload.hand : 0
   );
   expect(played.moves[1]?.uci).toBe(blackCard >= 4 ? 'keep' : 'swap');
 });
@@ -225,7 +225,7 @@ function practiceDevice(): SpaceModule {
 function againstBot(): RoomState {
   let state = reduce(
     space(),
-    events(space(), 'alice', { operation: 'create' })
+    events(space(), 'alice', { operation: 'create', mode: 'vs-bot' })
   );
   state = reduce(
     state,
@@ -234,9 +234,9 @@ function againstBot(): RoomState {
   return reduce(state, events(state, 'alice', { operation: 'ready' }));
 }
 
-function local(state: RoomState, input: CustomGameInput): Message {
-  return ChangeLocalCustomGame({
-    choice: command(state, input).payload as CustomGameChoice,
+function local(state: RoomState, input: GameSessionInput): Message {
+  return ChangeLocalGameSession({
+    choice: command(state, input).payload as GameSessionChoice,
     at: 1000,
   });
 }
@@ -259,12 +259,12 @@ test('practising against a bot, the device deals, plays and moves the bot as the
   const dealt = bothDecide(device, ready, local(ready, { operation: 'start' }));
   expect(
     dealt
-      .filter((e) => CustomGameHiddenDealt.is(e) || CustomGameHandShown.is(e))
+      .filter((e) => GameSessionHiddenDealt.is(e) || GameSessionHandShown.is(e))
       .map((e) => ROOM.audience?.(e))
   ).toEqual([['alice'], ['alice'], ['alice']]);
   let state = reduce(ready, dealt);
   expect(
-    soloCustomGame(current(state), createTurnGames([handDraw.turnGame]))
+    soloGameSession(current(state), createTurnGames([handDraw.turnGame]))
   ).toBe(true);
   state = reduce(
     state,
@@ -280,7 +280,7 @@ test('practising against a bot, the device deals, plays and moves the bot as the
     bothDecide(
       device,
       state,
-      PlayCustomGameBot({ gameId: game.id, ply: 1, side: 'black' })
+      PlayGameSessionBot({ gameId: game.id, ply: 1, side: 'black' })
     )
   );
   expect(current(state).moves).toHaveLength(2);
@@ -291,7 +291,7 @@ test('a start without the creator’s draws is dealt by the room alone', () => {
   const start = local(ready, { operation: 'start' });
   const onDevice = handle(DEVICE, ready, 'alice', start);
   if (!onDevice.ok) throw new Error('refused');
-  expect(onDevice.events.some((e) => CustomGameHiddenDealt.is(e))).toBe(false);
+  expect(onDevice.events.some((e) => GameSessionHiddenDealt.is(e))).toBe(false);
 });
 
 test('a game with another person never takes a device’s draws', () => {
@@ -314,7 +314,7 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
       id: 'hand-draw-four',
       sides: ['white', 'black', 'red', 'blue'],
     },
-    capabilities: { 'custom-games': { bots: handDrawBots } },
+    capabilities: { 'vs-human': {}, 'vs-bot': { bots: handDrawBots } },
     turnAutomation: { choose: () => null, perform: async () => {} },
   });
   const room = createSpaceModule(
@@ -322,7 +322,7 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
     [fourSeats],
     { now: () => 0, random: () => 0.5, authority: true }
   );
-  const decide = (state: RoomState, as: string, input: CustomGameInput) => {
+  const decide = (state: RoomState, as: string, input: GameSessionInput) => {
     const result = handle(room, state, as, command(state, input));
     if (!result.ok) throw new Error(`${as} ${input.operation} refused`);
     return result.events.reduce((s, e) => room.reduce(s, e), state);
@@ -335,10 +335,17 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
       bob: { joinedAt: '2026-10-24' },
     }),
   };
-  state = decide(state, 'alice', { operation: 'create' });
+  state = decide(state, 'alice', { operation: 'create', mode: 'vs-human' });
   state = decide(state, 'bob', { operation: 'claim', side: 'black' });
-  state = decide(state, 'alice', { operation: 'bot', side: 'red' });
-  state = decide(state, 'alice', { operation: 'bot', side: 'blue' });
+  // An earlier saved four-seat table can contain both people and bots.
+  const bot = { kind: 'bot', person: '' } as const;
+  state = {
+    ...state,
+    ...GameSessionsAttr({
+      history: [],
+      current: { ...current(state), red: bot, blue: bot },
+    }),
+  };
   state = decide(state, 'alice', { operation: 'ready' });
   state = decide(state, 'bob', { operation: 'ready' });
   state = decide(state, 'alice', { operation: 'start' });
@@ -347,7 +354,7 @@ test('with another person at the table, nobody but the room chooses a bot’s mo
     room,
     state,
     'alice',
-    PlayCustomGameBot({
+    PlayGameSessionBot({
       gameId: game.id,
       ply: game.moves.length,
       side: 'red',

@@ -3,7 +3,7 @@ import type { FrameStartReason } from './game-frame-start-reason';
 import type { FrameViewerRole } from './game-frame-viewer';
 
 /**
- * The frame's words while a custom game is set up: where the viewer stands
+ * The frame's words while a game session is set up: where the viewer stands
  * and why the game cannot start yet. Sentence case, second person.
  */
 

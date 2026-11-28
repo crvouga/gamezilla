@@ -2,14 +2,14 @@ import { describe, expect, test } from 'bun:test';
 import { validateGoalGate } from '../goal/goal-manifest';
 
 const bindingPath =
-  'libs/games-harness-ts/tests/quint/custom-game-play.binding.ts';
+  'libs/games-harness-ts/tests/quint/game-session-play.binding.ts';
 const fixturePath =
   'libs/games-harness-ts/tests/quint/fixtures/partition.itf.json';
 const binding = `
 import { bindQuintModel } from '@pkgs/quint-shared-ts/registry';
 import trace from './fixtures/partition.itf.json';
 bindQuintModel<World>({
-  model: 'custom-game-play',
+  model: 'game-session-play',
   regressions: [
     // regression: partition-spends-time
     { id: 'partition-spends-time', title: 'Offline picture', seed: '0x67932', itf: trace },

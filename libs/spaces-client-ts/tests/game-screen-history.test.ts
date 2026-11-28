@@ -6,12 +6,12 @@ test('a rematch or reopening a minimized board keeps its last visited space scre
   const visit = (screen: string) =>
     history.visit('friday', 'first-game', screen);
   visit('choices');
-  visit('custom-game');
+  visit('game-session');
   visit('history');
-  visit('custom-game');
-  visit('custom-game');
+  visit('game-session');
+  visit('game-session');
   history.visit('saturday', 'first-game', 'settings');
-  expect(history.back('friday', 'first-game', 'custom-game')).toBe('history');
+  expect(history.back('friday', 'first-game', 'game-session')).toBe('history');
   expect(history.back('friday', 'first-game', 'history')).toBe('choices');
 });
 

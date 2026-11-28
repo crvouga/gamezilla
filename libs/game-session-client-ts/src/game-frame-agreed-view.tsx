@@ -12,11 +12,11 @@ import { P } from '@pkgs/ui-root-client-ts/text';
 import { TextInput } from '@pkgs/ui-root-client-ts/text-input';
 import type { JSX } from '@solidjs/web';
 import { createSignal, Match, Show, Switch, untrack } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { GameFrameOptions } from './game-frame-options';
 import { FrameLobbyPage, FramePlacePage } from './game-frame-shell';
 import type { FrameOptions } from './game-frame-view-types';
+import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
 
@@ -31,7 +31,7 @@ export function FrameOptionsPlace(
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-setup-options"
+      screenId="game-session-setup-options"
       back={<Trans>Back to setup</Trans>}
       title={<Trans>Options</Trans>}
       subtitle={
@@ -57,7 +57,7 @@ export function FrameOptionsPlace(
                 min={players().min}
                 max={players().max}
                 onChange={() => undefined}
-                dataSet={{ testid: 'custom-game-players' }}
+                dataSet={{ testid: 'game-session-players' }}
               />
               <P variant="caption" tone="secondary">
                 <Trans>Players are set by the seats in setup.</Trans>
@@ -95,7 +95,7 @@ function ClockTimeFields(props: {
         value={props.minutes}
         onChangeText={props.onMinutes}
         onChange={props.onSave}
-        dataSet={{ testid: 'custom-game-minutes' }}
+        dataSet={{ testid: 'game-session-minutes' }}
       />
       <TextInput
         label={<Trans>Seconds added after a move</Trans>}
@@ -103,7 +103,7 @@ function ClockTimeFields(props: {
         value={props.increment}
         onChangeText={props.onIncrement}
         onChange={props.onSave}
-        dataSet={{ testid: 'custom-game-increment' }}
+        dataSet={{ testid: 'game-session-increment' }}
       />
       <P variant="caption" tone="secondary">
         <Trans>Each time is saved as you leave its field.</Trans>
@@ -148,7 +148,7 @@ export function FrameClockPlace(
     <FramePlacePage
       {...props}
       onClose={() => void save().then(() => props.onClose())}
-      screenId="custom-game-setup-clock"
+      screenId="game-session-setup-clock"
       back={<Trans>Back to setup</Trans>}
       title={<Trans>Clock and sides</Trans>}
       subtitle={
@@ -168,7 +168,7 @@ export function FrameClockPlace(
       <MenuSection title={<Trans>Clock</Trans>}>
         <FrameChoiceRow
           choices={choices}
-          id="custom-game-untimed"
+          id="game-session-untimed"
           title={<Trans>Play untimed</Trans>}
           caption={<Trans>No clock for either side</Trans>}
           selected={props.clock.minutes === 0}
@@ -176,7 +176,7 @@ export function FrameClockPlace(
         />
         <FrameChoiceRow
           choices={choices}
-          id="custom-game-timed"
+          id="game-session-timed"
           title={<Trans>Timed</Trans>}
           caption={
             <Trans>
@@ -203,7 +203,7 @@ export function FrameClockPlace(
       <MenuSection title={<Trans>Sides</Trans>}>
         <FrameChoiceRow
           choices={choices}
-          id="custom-game-swap"
+          id="game-session-swap"
           title={<Trans>Swap sides</Trans>}
           caption={<Trans>Everyone moves to the next side</Trans>}
           operation={() => props.onChoose({ operation: 'swap' })}
@@ -223,7 +223,7 @@ function PrivateSetupStatus(props: {
       <P
         variant="bodyBold"
         role="status"
-        dataSet={{ testid: 'custom-game-setup-status' }}
+        dataSet={{ testid: 'game-session-setup-status' }}
       >
         <Show
           when={props.complete}
@@ -232,7 +232,7 @@ function PrivateSetupStatus(props: {
           <Trans>Your private setup is complete.</Trans>
         </Show>
       </P>
-      <P variant="caption" tone="secondary" testId="custom-game-setup-hint">
+      <P variant="caption" tone="secondary" testId="game-session-setup-hint">
         <Switch
           fallback={
             <Trans>
@@ -268,7 +268,7 @@ export function FramePrivateSetupPlace(
   return (
     <FrameLobbyPage
       {...props}
-      screenId="custom-game-private-setup"
+      screenId="game-session-private-setup"
       dock={
         <GameLobbyDock
           status={
@@ -285,7 +285,7 @@ export function FramePrivateSetupPlace(
                 }
                 variant={ready() ? 'outline' : 'solid'}
                 size="lg"
-                dataSet={{ testid: 'custom-game-ready' }}
+                dataSet={{ testid: 'game-session-ready' }}
                 disabled={!ready() && readiness().blocked}
                 operation={async () => {
                   if (ready()) {
@@ -304,7 +304,7 @@ export function FramePrivateSetupPlace(
             <GameActionButton
               title={<Trans>Random setup</Trans>}
               size="lg"
-              dataSet={{ testid: 'custom-game-setup-random' }}
+              dataSet={{ testid: 'game-session-setup-random' }}
               disabled={props.own.locked}
               operation={() => props.onRandomSetup()}
             />
@@ -314,7 +314,7 @@ export function FramePrivateSetupPlace(
               intent="neutral"
               size="lg"
               onClick={() => props.onClose()}
-              dataSet={{ testid: 'custom-game-place-back' }}
+              dataSet={{ testid: 'game-session-place-back' }}
             />
           </GameActions>
         </GameLobbyDock>

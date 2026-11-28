@@ -1,0 +1,178 @@
+import { expect, userEvent, within } from 'storybook/test';
+import type { Meta, StoryObj } from 'storybook-solidjs-vite';
+import { ConnectFourStoryBoard } from './connect-four-story-board.example';
+import {
+  FRAME_OVER,
+  FRAME_PLAYING,
+  frameArgs,
+  MID_GAME_MOVES,
+  person,
+  playSeat,
+  seat,
+  WON_LINE,
+  WON_MOVES,
+} from './game-frame-story.example';
+import {
+  expectBoardFirst,
+  expectFourSeatRail,
+  expectTerminalVisible,
+} from './game-session-geometry.example';
+import { FourSeats, YourTurn } from './game-session-screen-view.play.stories';
+import { Draw } from './game-session-screen-view.result.stories';
+import { PlayFriendScreenView } from './play-friend-screen-view';
+
+const meta = {
+  id: 'screens-game-sessions-stage-board-priority',
+  title: 'Screens/Space/Game sessions/Stage board priority',
+  component: PlayFriendScreenView,
+  parameters: {
+    appRouter: true,
+    viewport: {
+      options: {
+        boardDesktop: {
+          name: 'Board desktop',
+          styles: { width: '1440px', height: '844px' },
+        },
+      },
+    },
+  },
+  globals: { viewport: { value: 'phone', isRotated: false } },
+  args: frameArgs(),
+  render: (args) => (
+    <PlayFriendScreenView
+      {...args}
+      board={
+        <ConnectFourStoryBoard
+          moves={args.phase === 'completed' ? WON_MOVES : MID_GAME_MOVES}
+          winning={args.phase === 'completed' ? WON_LINE : undefined}
+        />
+      }
+    />
+  ),
+} satisfies Meta<typeof PlayFriendScreenView>;
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// regression: shared-board-metadata-height
+/** A two-player game leaves the initial viewport to the board. */
+export const TwoPlayers: Story = {
+  args: { ...FRAME_PLAYING, ...YourTurn.args },
+  play: async ({ canvasElement }) => {
+    await expectBoardFirst(canvasElement);
+  },
+};
+
+// regression: shared-board-metadata-height
+/** Four named players share a compact band without losing seat state. */
+export const FourPlayers: Story = {
+  args: { ...FRAME_PLAYING, ...FourSeats.args },
+  play: async ({ canvasElement }) => {
+    const { canvas, board, view } = await expectBoardFirst(canvasElement);
+    const seats = ['white', 'black', 'red', 'blue'].map((side) =>
+      canvas.getByTestId(`game-session-${side}`)
+    );
+    for (const player of seats)
+      await expect(player.getBoundingClientRect().height).toBeLessThan(112);
+    if (view.innerWidth < 880) await expectFourSeatRail(seats);
+    await expect(canvas.getByTestId('game-session-white')).toHaveAttribute(
+      'aria-current',
+      'step'
+    );
+    await expect(board.getBoundingClientRect().top).toBeLessThan(380);
+  },
+};
+
+// regression: shared-board-terminal-buried
+/** The outcome and real rematch action precede the final board. */
+export const Win: Story = {
+  args: { ...FRAME_OVER },
+  play: async ({ args, canvasElement }) => {
+    await expectTerminalVisible(canvasElement);
+    await userEvent.click(
+      within(canvasElement).getByTestId('game-session-rematch')
+    );
+    await expect(args.onChoose).toHaveBeenCalledWith({ operation: 'rematch' });
+  },
+};
+
+// regression: shared-board-terminal-buried
+// regression: shared-drawn-geometry-winning-position
+/** A drawn result retains its next actions, with no winning line drawn. */
+export const Drawn: Story = {
+  ...Draw,
+  args: { ...FRAME_OVER, ...Draw.args },
+  play: async ({ canvasElement }) => {
+    await expectTerminalVisible(canvasElement);
+    const board = within(canvasElement).getByTestId('game-session-board');
+    await expect(board).toHaveAttribute('data-won', 'false');
+    await expect(board.querySelectorAll('[data-winning="true"]')).toHaveLength(
+      0
+    );
+  },
+};
+
+// regression: shared-board-long-name-rail
+/** Long identities stay on one line with the full name available. */
+export const LongNameRail: Story = {
+  args: {
+    ...FRAME_PLAYING,
+    ...YourTurn.args,
+    record: {
+      earlier: [],
+      selection: 'live',
+      turns: false,
+      moves: [],
+      movers: [],
+      perTurn: 2,
+      displayedPly: 0,
+      error: '',
+      history: true,
+    },
+    table: {
+      shape: 'strip',
+      near: playSeat(
+        seat(
+          'white',
+          person('avery'),
+          'avery_the_extraordinarily_patient_strategist'
+        ),
+        { deciding: true }
+      ),
+      others: [
+        playSeat(
+          seat(
+            'black',
+            person('jordan'),
+            'jordan_plays_every_single_evening_online'
+          )
+        ),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const { canvas, view } = await expectBoardFirst(canvasElement);
+    for (const side of ['white', 'black']) {
+      const name = canvas.getByTestId(`game-session-${side}-person`);
+      const identity = name.querySelector('[title]');
+      if (!identity) throw new Error('Full identity must remain available');
+      await expect(identity).toHaveAttribute('title', identity.textContent);
+      await expect(identity.getBoundingClientRect().height).toBeLessThan(32);
+      await expect(name.getBoundingClientRect().right).toBeLessThanOrEqual(
+        view.innerWidth
+      );
+    }
+  },
+};
+
+/** The same content contracts at 1440 × 844 through native Viewport. */
+const desktop = { viewport: { value: 'boardDesktop', isRotated: false } };
+/** Two-player board priority on the wide host. */
+export const TwoPlayersDesktop: Story = { ...TwoPlayers, globals: desktop };
+/** Four-player band and board priority on the wide host. */
+export const FourPlayersDesktop: Story = { ...FourPlayers, globals: desktop };
+/** Completed-game next actions on the wide host. */
+export const WinDesktop: Story = { ...Win, globals: desktop };
+/** Drawn-game next actions on the wide host. */
+export const DrawnDesktop: Story = { ...Drawn, globals: desktop };
+/** Complete long names in the wide identity rail. */
+export const LongNameRailDesktop: Story = { ...LongNameRail, globals: desktop };

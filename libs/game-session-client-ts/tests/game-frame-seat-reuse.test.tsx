@@ -1,9 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
 import {
-  CustomGameScreenView,
-  type CustomGameScreenViewProps,
-} from '@libs/game-session-client-ts/custom-game-screen-view';
-import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
@@ -13,6 +9,8 @@ import type {
   FrameRecord,
   FrameTable,
 } from '@libs/game-session-client-ts/game-frame-view-types';
+import type { GameSessionScreenViewProps } from '@libs/game-session-client-ts/game-session-screen-view';
+import { PlayFriendScreenView } from '@libs/game-session-client-ts/play-friend-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -57,7 +55,7 @@ const RECORD: FrameRecord = {
 
 const resolved = async (): Promise<void> => undefined;
 
-function props(): CustomGameScreenViewProps {
+function props(): GameSessionScreenViewProps {
   return {
     title: 'Light Cycles Trio',
     phase: 'active',
@@ -77,6 +75,7 @@ function props(): CustomGameScreenViewProps {
       increment: 0,
     },
     canCreate: false,
+    mode: 'vs-human',
     sides: ['white', 'black', 'red'],
     setup: null,
     table: {
@@ -91,7 +90,6 @@ function props(): CustomGameScreenViewProps {
     board: <div data-testid="arena" />,
     onChoose: resolved,
     onReady: resolved,
-    onPlayBot: resolved,
     onRandomSetup: resolved,
     onBack: () => undefined,
     onSeek: () => undefined,
@@ -135,13 +133,13 @@ test('wide: a position-only tick keeps every player strip; a changed figure upda
         colorScheme="dark"
         fixedLayout={{ width: 1440, height: 900 }}
       >
-        <CustomGameScreenView {...props()} table={table()} />
+        <PlayFriendScreenView {...props()} table={table()} />
       </ThemeProvider>
     </ClockProvider>
   ));
   const strips = () =>
     ['white', 'black', 'red'].map((side) =>
-      screen.getByTestId(`custom-game-${side}`)
+      screen.getByTestId(`game-session-${side}`)
     );
   const before = strips();
   setTable(tick(first));

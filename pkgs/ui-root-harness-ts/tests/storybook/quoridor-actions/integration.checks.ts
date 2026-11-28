@@ -60,7 +60,7 @@ async function checkReadout(page: Page, width: number, theme: string) {
   // Forced pass renders only the legal command; no move or wall tool is offered.
   await expect(page.locator('[data-testid$="-tools"] button')).toHaveCount(1);
   for (const id of ['mode-move', 'mode-h', 'mode-v'])
-    await expect(page.getByTestId(`custom-game-board-${id}`)).toHaveCount(0);
+    await expect(page.getByTestId(`game-session-board-${id}`)).toHaveCount(0);
   const squares = page
     .getByRole('group', { name: 'Quoridor board, nine columns and nine rows' })
     .getByRole('button');
@@ -68,7 +68,7 @@ async function checkReadout(page: Page, width: number, theme: string) {
   for (const square of await squares.all()) await expect(square).toBeDisabled();
   // The game's one status line says why the only command is a pass. Its
   // pill also holds the visually hidden lineup for a listener.
-  const status = page.getByTestId('custom-game-status');
+  const status = page.getByTestId('game-session-status');
   await expect(status).toBeVisible();
   await expect(status).toContainText(
     'No pawn move or wall is legal. Pass your turn.'

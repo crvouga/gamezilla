@@ -28,13 +28,13 @@ test('storybook integration: game frame keeps the own seat, its actions and a wa
   page,
 }) => {
   await page.setViewportSize(DESKTOP);
-  await open(page, 'screens-custom-games-stage--stand-in');
-  await inFirstView(page, 'custom-game-seat-near');
-  await inFirstView(page, 'custom-game-reclaim');
-  await open(page, 'screens-custom-games-stage--watching');
-  await inFirstView(page, 'custom-game-watching');
-  await open(page, 'screens-custom-games-stage--your-turn');
-  await inFirstView(page, 'custom-game-seat-near');
+  await open(page, 'screens-game-sessions-stage--stand-in');
+  await inFirstView(page, 'game-session-seat-near');
+  await inFirstView(page, 'game-session-reclaim');
+  await open(page, 'screens-game-sessions-stage--watching');
+  await inFirstView(page, 'game-session-watching');
+  await open(page, 'screens-game-sessions-stage--your-turn');
+  await inFirstView(page, 'game-session-seat-near');
   expect(
     await page.evaluate(() => document.scrollingElement?.scrollTop ?? 0)
   ).toBe(0);
@@ -48,11 +48,11 @@ test('storybook integration: game frame record sits above the full-width board a
   page,
 }) => {
   await page.setViewportSize(DESKTOP);
-  await open(page, 'screens-custom-games-stage--your-turn');
+  await open(page, 'screens-game-sessions-stage--your-turn');
   const board = await page.locator('[data-game-board]').boundingBox();
   // The rail's Moves card.
   const record = await page
-    .locator('[data-component="CustomGameReview"]')
+    .locator('[data-component="GameSessionReview"]')
     .first()
     .boundingBox();
   if (board === null || record === null) throw new Error('Frame not shown');

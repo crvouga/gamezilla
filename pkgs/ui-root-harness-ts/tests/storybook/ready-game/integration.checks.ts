@@ -21,12 +21,12 @@ async function firstMove(
   await page.screenshot({ path: info.outputPath('1-ready.png') });
   await button.click();
 
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   await expect(board).toBeVisible();
   expect(await page.getByTestId(flow.introduction).count()).toBe(0);
   await expect(page.getByText('Your turn.').first()).toBeVisible();
   await page.screenshot({ path: info.outputPath('2-board.png') });
-  await page.getByTestId('custom-game-board-column-4').click();
+  await page.getByTestId('game-session-board-column-4').click();
   await expect(board.locator('[data-cell="3"]')).toHaveAttribute(
     'data-disc',
     '1'
@@ -39,9 +39,9 @@ test('storybook integration: ready game against a bot takes the first move', asy
   page,
 }, info) => {
   await firstMove(page, info, {
-    story: 'screens-custom-games-setup--start-and-play',
-    start: 'custom-game-start',
-    introduction: 'custom-game-versus',
+    story: 'screens-game-sessions-setup--start-and-play',
+    start: 'game-session-start',
+    introduction: 'game-session-versus',
   });
 });
 

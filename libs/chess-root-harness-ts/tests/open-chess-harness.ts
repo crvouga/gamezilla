@@ -15,7 +15,7 @@ import { openHarness as openSystemHarness } from '@libs/harness-ts/open-harness'
 
 /**
  * Chess's own suites: chess as the only game, with its puzzles, the people
- * and friends who watch them, and the shared custom-game and opponent
+ * and friends who watch them, and the shared game-session and opponent
  * sessions every game has.
  */
 const CHESS_SYSTEM = gameSystem('chess', [CHESS_HARNESS_GAME]);

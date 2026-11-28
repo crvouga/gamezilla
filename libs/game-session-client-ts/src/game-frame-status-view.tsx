@@ -72,7 +72,7 @@ function TimeControlFact(props: { readonly status: FrameStatus }): JSX.Element {
         />
       }
     >
-      {(target) => <GameFact label={target()} testId="custom-game-target" />}
+      {(target) => <GameFact label={target()} testId="game-session-target" />}
     </Show>
   );
 }
@@ -91,7 +91,7 @@ export function FrameFactsView(props: {
         <GameFacts>
           <GameFact
             label={<Trans>Unrated</Trans>}
-            testId="custom-game-unrated"
+            testId="game-session-unrated"
           />
           <TimeControlFact status={status()} />
         </GameFacts>
@@ -130,9 +130,9 @@ export function FrameStatusView(props: {
         <VisuallyHidden
           role="status"
           aria-live="polite"
-          testId="custom-game-status"
+          testId="game-session-status"
         >
-          <Trans>No Custom Game.</Trans>
+          <Trans>No Game Session.</Trans>
         </VisuallyHidden>
       }
     >
@@ -141,7 +141,7 @@ export function FrameStatusView(props: {
           live
           emphasis={status().emphasis}
           tone={status().tone}
-          dataSet={{ testid: 'custom-game-status' }}
+          dataSet={{ testid: 'game-session-status' }}
           title={
             <>
               <VisuallyHidden>{status().lineup} </VisuallyHidden>
@@ -208,7 +208,7 @@ export function FrameConnectionNotice(props: {
             tone="warning"
             role="status"
             lines={2}
-            testId="custom-game-connection-needed"
+            testId="game-session-connection-needed"
           >
             <Trans>
               Offline. Rematch or New game is sent when you're back.
@@ -219,7 +219,7 @@ export function FrameConnectionNotice(props: {
         <Notice
           tone="warning"
           icon={WifiOffIcon}
-          dataSet={{ testid: 'custom-game-connection-needed' }}
+          dataSet={{ testid: 'game-session-connection-needed' }}
         >
           <Text variant="inherit" role="status">
             <Switch
@@ -279,7 +279,7 @@ export function FrameErrorView(props: {
             tone="destructive"
             role="alert"
             lines={2}
-            testId="custom-game-error"
+            testId="game-session-error"
           >
             {props.text}
           </P>
@@ -289,7 +289,7 @@ export function FrameErrorView(props: {
           variant="compact"
           title={props.title ?? t`That didn't go through`}
           body={props.text}
-          dataSet={{ testid: 'custom-game-error' }}
+          dataSet={{ testid: 'game-session-error' }}
         />
       </Show>
     </Show>
@@ -311,7 +311,7 @@ export function FrameDrawOfferLine(props: {
     <GameTurnPill
       live
       emphasis={props.play.canAnswerDraw ? 'yours' : 'neutral'}
-      dataSet={{ testid: 'custom-game-draw-offer' }}
+      dataSet={{ testid: 'game-session-draw-offer' }}
       title={<FrameDrawOfferWords {...props} />}
     />
   );
@@ -380,7 +380,7 @@ export function FrameStageConditionLine(props: {
           align="center"
           role="status"
           lines={2}
-          testId="custom-game-connection-needed"
+          testId="game-session-connection-needed"
         >
           <Switch
             fallback={<Trans>You're offline. Moves need a connection.</Trans>}
@@ -400,7 +400,7 @@ export function FrameStageConditionLine(props: {
             align="center"
             role="status"
             lines={2}
-            testId="custom-game-away"
+            testId="game-session-away"
           >
             <FramePersonName
               person={away().person}
@@ -451,7 +451,7 @@ export function FrameWatchingView(props: {
       <GameWatchingFooter
         title={<Trans>You're watching</Trans>}
         detail={<Trans>Moves appear as they are played.</Trans>}
-        dataSet={{ testid: 'custom-game-watching' }}
+        dataSet={{ testid: 'game-session-watching' }}
       />
     </Show>
   );

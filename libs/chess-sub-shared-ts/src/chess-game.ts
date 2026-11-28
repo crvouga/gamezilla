@@ -20,7 +20,8 @@ export const chessGameShared = defineGame({
   rules: chessRules,
   unprefixedNamespace: true,
   capabilities: {
-    'custom-games': { bots: chessBots },
+    'vs-human': {},
+    'vs-bot': { bots: chessBots },
     matchmaking: {
       clockChoices: true as const,
       namespace: '',

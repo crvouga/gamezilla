@@ -3,7 +3,7 @@ import Example from './game-screen.example';
 import { GameScreen } from './index';
 
 const meta = {
-  id: 'templates-custom-game',
+  id: 'templates-game-session',
   title: 'Templates/Games/GameScreen',
   component: GameScreen,
   tags: ['autodocs'],

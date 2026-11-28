@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
 import { InMemoryClientStorage } from '@pkgs/room-adapter-memory-shared-ts/client-storage';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -37,7 +37,7 @@ test('reopening after a failed local restore retries storage and starts no orpha
     await expect(local.flush()).rejects.toThrow(
       'saved court temporarily unreadable'
     );
-    expect(CustomGamesAttr.from(room.getSnapshot()).current?.status).toBe(
+    expect(GameSessionsAttr.from(room.getSnapshot()).current?.status).toBe(
       'active'
     );
     expect(await storage.loadQueued()).toEqual(queued);

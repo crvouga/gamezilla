@@ -1,8 +1,8 @@
 import { expect, test } from 'bun:test';
 import {
-  CUSTOM_GAME_CONTENT,
   findingAnOpponentHandles,
   findingAnOpponentStep,
+  GAME_SESSION_CONTENT,
   tapWayIn,
 } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
 import type { HarnessActor } from '@libs/harness-ts/harness';
@@ -44,16 +44,16 @@ test('a place opened within finding an opponent is the arrival, never a Back to 
   expect(findingAnOpponentStep(opened, GAME, true)).toBe('arrived');
 });
 
-// regression: finish-custom-game-first-dead-end
-test('a space held on a custom game under way is as far as finding an opponent goes', () => {
+// regression: finish-game-session-first-dead-end
+test('a space held on a game session under way is as far as finding an opponent goes', () => {
   // The board offers no way out while the game lasts: there is nothing to tap.
-  const held = new Set([CUSTOM_GAME_CONTENT]);
+  const held = new Set([GAME_SESSION_CONTENT]);
   expect(findingAnOpponentStep(held, GAME, false)).toBe('arrived');
   expect(findingAnOpponentStep(held, GAME, true)).toBe('arrived');
-  // A finished custom game still has its Back to the game's choices.
+  // A finished game session still has its Back to the game's choices.
   expect(
     findingAnOpponentStep(
-      new Set([CUSTOM_GAME_CONTENT, Handles.navBack]),
+      new Set([GAME_SESSION_CONTENT, Handles.navBack]),
       GAME,
       false
     )

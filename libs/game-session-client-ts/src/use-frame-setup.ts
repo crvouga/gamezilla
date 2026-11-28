@@ -11,8 +11,8 @@ import type {
   FrameStart,
 } from './game-frame-view-types';
 import { useFrameViewer } from './game-frame-viewer';
-import type { CustomGameScreenModel } from './use-custom-game-screen';
 import { useFrameSetupSeats } from './use-frame-seats';
+import type { GameSessionScreenModel } from './use-game-session-screen';
 
 /**
  * The game's options: its player count for a game offered for several, its
@@ -20,7 +20,7 @@ import { useFrameSetupSeats } from './use-frame-seats';
  * when it has none of them.
  */
 function useFrameOptions(
-  model: CustomGameScreenModel
+  model: GameSessionScreenModel
 ): Accessor<FrameOptions | null> {
   const presentation = useGamePresentation();
   const rules = useTurnGames();
@@ -48,7 +48,7 @@ function useFrameOptions(
 }
 
 function useFrameStart(
-  model: CustomGameScreenModel,
+  model: GameSessionScreenModel,
   role: ReturnType<typeof useFrameViewer>['role']
 ): Accessor<FrameStart | null> {
   return createMemo(() => {
@@ -71,9 +71,9 @@ function useFrameStart(
   });
 }
 
-/** Everything the frame shows while the custom game is set up. */
+/** Everything the frame shows while the game session is set up. */
 export function useFrameSetup(
-  model: CustomGameScreenModel
+  model: GameSessionScreenModel
 ): Accessor<FrameSetup | null> {
   const viewer = useFrameViewer(model);
   const seats = useFrameSetupSeats(model);

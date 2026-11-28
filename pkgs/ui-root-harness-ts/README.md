@@ -352,7 +352,7 @@ own, and keeps one name in every level it appears in:
 
 | Area | Organisms | Templates | Screens |
 | --- | --- | --- | --- |
-| Space | `Organisms/Space/Space<Name>` | `Templates/Space/Space<Name>` | `Screens/Space/<Mode>/<Screen>`: everything seen inside a space, shared by all games. `<Mode>` is `Space home`, `Game home`, `Custom games`, `Matchmaking`, `Puzzles`, `Puzzle packs`, `History`, `Enter and leave` or `Manage`; `<Screen>` is `Home`, `Setup…`, `Stage…` or the screen's one job, as [`GAME_SCREENS.md`](../../libs/games-shared-ts/docs/GAME_SCREENS.md#screen-names) names them |
+| Space | `Organisms/Space/Space<Name>` | `Templates/Space/Space<Name>` | `Screens/Space/<Mode>/<Screen>`: everything seen inside a space, shared by all games. `<Mode>` is `Space home`, `Game home`, `Game sessions`, `Matchmaking`, `Puzzles`, `Puzzle packs`, `History`, `Enter and leave` or `Manage`; `<Screen>` is `Home`, `Setup…`, `Stage…` or the screen's one job, as [`GAME_SCREENS.md`](../../libs/games-shared-ts/docs/GAME_SCREENS.md#screen-names) names them |
 | Games, shared | `Organisms/Games/Shared/Game<Name>` | `Templates/Games/Game<Name>` | |
 | One game | `Organisms/Games/<Game>/<Surface>` | | `Screens/Space/Boards/<Game>/<Screen>` |
 | Developer tools | `Organisms/Devtools/<Component>` | | `Screens/Inspector/<Screen>` |

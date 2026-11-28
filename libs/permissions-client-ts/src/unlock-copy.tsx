@@ -14,7 +14,7 @@ const COPY: Readonly<Record<string, () => string>> = {
     t`Only the puzzle team can load puzzles`,
   'unlock.multiplayer.finish.title': () =>
     t`Finish your current multiplayer game first`,
-  'unlock.custom-game.finish.title': () => t`Finish your Custom Game first`,
+  'unlock.game-session.finish.title': () => t`Finish your Game Session first`,
   'unlock.privacy.proof.title': () => t`Prove the account again to continue`,
   'unlock.privacy.proof.body': () =>
     t`To keep your data safe, export and deletion need a sign-in from the last ${PROOF_MINUTES} minutes. Sign in again, then try once more. Nothing has changed yet.`,

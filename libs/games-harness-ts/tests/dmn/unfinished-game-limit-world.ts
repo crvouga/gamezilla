@@ -8,10 +8,10 @@ import { BILLING_TABLES } from '@libs/billing-shared-ts/tables';
 import { MULTIPLAYER_TABLES } from '@libs/game-matchmaking-shared-ts/multiplayer-tables';
 import type { HarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import {
-  BOT_CUSTOM_GAME_SIDE,
-  CustomGamesAttr,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  BOT_GAME_SESSION_SIDE,
+  GameSessionsAttr,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { countInput } from '@libs/permissions-shared-ts/people';
 import type { ServerCase } from '@libs/permissions-shared-ts/server';
 import { PROFILE_TABLES } from '@libs/profile-shared-ts/tables';
@@ -31,32 +31,32 @@ export const MULTIPLAYER_LIMIT_TABLES = [
   ...SPACES_TABLES,
 ];
 export const UNFINISHED_INPUT = 'unfinished matched games';
-export const CUSTOM_GAME_INPUT = 'custom games under way as a participant';
+export const GAME_SESSION_INPUT = 'game sessions under way as a participant';
 /** The space the account seeks an opponent from. */
 export const LIMIT_SPACE = 'multiplayer-limit-space';
 
-const CUSTOM_GAME_SPACE = 'custom-game-space-of-';
+const GAME_SESSION_SPACE = 'game-session-space-of-';
 
 /**
- * The space rooms the server reads: a custom-game space a case seeded holds
- * a custom game of `game` under way, its host on the first side against a
+ * The space rooms the server reads: a game-session space a case seeded holds
+ * a game session of `game` under way, its host on the first side against a
  * bot; every other room none.
  */
 export function limitRooms(game: HarnessGame) {
   return {
     read: async (topic: string) => {
-      const host = topic.split(`space:${CUSTOM_GAME_SPACE}`)[1];
+      const host = topic.split(`space:${GAME_SESSION_SPACE}`)[1];
       if (host === undefined) return {};
-      return CustomGamesAttr({
+      return GameSessionsAttr({
         current: {
-          ...newCustomGame(
-            `custom-game-of-${host}`,
-            host,
-            game.shared.registration.rules.initial()
-          ),
+          ...newGameSession({
+            id: `game-session-of-${host}`,
+            creator: host,
+            position: game.shared.registration.rules.initial(),
+          }),
           status: 'active',
           white: { kind: 'person', person: host },
-          black: BOT_CUSTOM_GAME_SIDE,
+          black: BOT_GAME_SESSION_SIDE,
         },
         history: [],
       });
@@ -75,9 +75,9 @@ export function seedUnfinishedGames(game: HarnessGame) {
     });
     await c.db.run(sql`INSERT INTO spaces (id, host_id, host_member_id, host_account_id, ended_at, deleted_at)
       VALUES (${LIMIT_SPACE}, ${c.env.deviceId}, ${c.env.actorId}, ${c.env.accountId}, ${null}, ${null})`);
-    for (let n = 0; n < countInput(c.input, CUSTOM_GAME_INPUT); n++)
+    for (let n = 0; n < countInput(c.input, GAME_SESSION_INPUT); n++)
       await c.db.run(sql`INSERT INTO spaces (id, host_id, host_member_id, host_account_id, ended_at, deleted_at)
-        VALUES (${`${CUSTOM_GAME_SPACE}${c.env.actorId}`}, ${c.env.deviceId}, ${c.env.actorId}, ${c.env.accountId}, ${null}, ${null})`);
+        VALUES (${`${GAME_SESSION_SPACE}${c.env.actorId}`}, ${c.env.deviceId}, ${c.env.actorId}, ${c.env.accountId}, ${null}, ${null})`);
     const stamp = c.env.now().toISOString();
     for (let n = 0; n < countInput(c.input, UNFINISHED_INPUT); n++)
       await c.db.run(sql`INSERT INTO chess_multiplayer_games

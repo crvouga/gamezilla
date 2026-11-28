@@ -9,7 +9,7 @@ export type PongStage =
   | 'finished'
   | 'paused'
   | 'reconnecting';
-export const PONG_BOARD = 'custom-game-board';
+export const PONG_BOARD = 'game-session-board';
 
 function trailingNumber(text: string | null): number {
   const value = text?.match(/\d+$/)?.[0];

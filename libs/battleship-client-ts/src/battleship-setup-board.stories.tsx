@@ -49,7 +49,7 @@ const meta = {
     side: 'white',
     locked: false,
     onChange: fn(),
-    testId: 'custom-game-setup',
+    testId: 'game-session-setup',
   },
 } satisfies Meta<typeof BattleshipSetupBoard>;
 export default meta;
@@ -61,7 +61,7 @@ export const Empty: Story = {
     if (window.innerWidth >= 640) return;
     await checkSetupWorkspace(canvasElement);
     await checkSetupPlacementBounds(
-      within(canvasElement).getByTestId('custom-game-setup-precision-cell-a1')
+      within(canvasElement).getByTestId('game-session-setup-precision-cell-a1')
     );
   },
 };
@@ -83,10 +83,10 @@ export const RefusedOffBoard: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-setup-cell-j1')
+      await canvas.findByTestId('game-session-setup-cell-j1')
     );
     await expect(
-      await canvas.findByTestId('custom-game-setup-refusal')
+      await canvas.findByTestId('game-session-setup-refusal')
     ).toHaveTextContent('run off the board');
     await expect(args.onChange).not.toHaveBeenCalled();
   },
@@ -98,11 +98,11 @@ export const PlaceAShip: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-setup-cell-b2')
+      await canvas.findByTestId('game-session-setup-cell-b2')
     );
     await expect(args.onChange).toHaveBeenCalledWith('fleet:carrier@b2h');
-    const bow = canvas.getByTestId('custom-game-setup-cell-b2');
-    const stern = canvas.getByTestId('custom-game-setup-cell-f2');
+    const bow = canvas.getByTestId('game-session-setup-cell-b2');
+    const stern = canvas.getByTestId('game-session-setup-cell-f2');
     await expect(bow).toHaveAttribute('data-edge-left', 'true');
     await expect(bow).toHaveAttribute('data-edge-right', 'false');
     await expect(stern).toHaveAttribute('data-edge-right', 'true');
@@ -115,40 +115,42 @@ export const ArrangeFullFleet: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     const click = async (suffix: string) =>
-      userEvent.click(await canvas.findByTestId(`custom-game-setup-${suffix}`));
-    const progress = await canvas.findByTestId('custom-game-setup-progress');
+      userEvent.click(
+        await canvas.findByTestId(`game-session-setup-${suffix}`)
+      );
+    const progress = await canvas.findByTestId('game-session-setup-progress');
     await click('cell-a1');
     await expect(progress).toHaveTextContent('1 of 5 ships placed');
     await click('cell-a1');
     await expect(
-      await canvas.findByTestId('custom-game-setup-refusal')
+      await canvas.findByTestId('game-session-setup-refusal')
     ).toBeVisible();
     await expect(progress).toHaveTextContent('1 of 5 ships placed');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-a1')
+      await canvas.findByTestId('game-session-setup-cell-a1')
     ).toHaveAccessibleName('A1: Carrier');
     await click('rotate');
     await click('cell-a3');
     await expect(
-      canvas.queryByTestId('custom-game-setup-refusal')
+      canvas.queryByTestId('game-session-setup-refusal')
     ).not.toBeInTheDocument();
     await click('cell-c3');
     await click('cell-e3');
     await click('cell-g3');
     await expect(progress).toHaveTextContent('All five ships placed');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-g4')
+      await canvas.findByTestId('game-session-setup-cell-g4')
     ).toHaveAccessibleName('G4: Destroyer');
     await click('ship-destroyer');
     await click('remove');
     await expect(progress).toHaveTextContent('4 of 5 ships placed');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-g4')
+      await canvas.findByTestId('game-session-setup-cell-g4')
     ).toHaveAccessibleName('G4: open water');
     await click('cell-i7');
     await expect(progress).toHaveTextContent('All five ships placed');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-i8')
+      await canvas.findByTestId('game-session-setup-cell-i8')
     ).toHaveAccessibleName('I8: Destroyer');
   },
 };
@@ -157,8 +159,8 @@ export const ArrangeFullFleet: Story = {
 export const EnlargedPlacement: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    if (!canvas.queryByTestId('custom-game-setup-precision'))
-      await userEvent.click(canvas.getByTestId('custom-game-setup-enlarge'));
+    if (!canvas.queryByTestId('game-session-setup-precision'))
+      await userEvent.click(canvas.getByTestId('game-session-setup-enlarge'));
 
     // regression: battleship-placement-unlabeled-complete-selection
     await expect(
@@ -169,56 +171,58 @@ export const EnlargedPlacement: Story = {
     ).toBeVisible();
     await checkSetupWorkspace(canvasElement);
     const bow = await canvas.findByTestId(
-      'custom-game-setup-precision-cell-a1'
+      'game-session-setup-precision-cell-a1'
     );
     await checkSetupPlacementBounds(bow);
     await userEvent.click(bow);
     await expect(
-      await canvas.findByTestId('custom-game-setup-progress')
+      await canvas.findByTestId('game-session-setup-progress')
     ).toHaveTextContent('1 of 5 ships placed');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-e1')
+      await canvas.findByTestId('game-session-setup-cell-e1')
     ).toHaveAccessibleName('E1: Carrier');
     await checkSetupPlacementBounds(bow);
     const previousTop = canvas
-      .getByTestId('custom-game-setup-precision')
+      .getByTestId('game-session-setup-precision')
       .getBoundingClientRect().top;
     await userEvent.keyboard('{Enter}');
     await checkSetupRecovery(canvasElement, previousTop);
     await expect(
-      await canvas.findByTestId('custom-game-setup-refusal')
+      await canvas.findByTestId('game-session-setup-refusal')
     ).toBeVisible();
     await checkSetupPlacementBounds(
-      canvas.getByTestId('custom-game-setup-precision-cell-a3')
+      canvas.getByTestId('game-session-setup-precision-cell-a3')
     );
     await userEvent.keyboard('r{ArrowDown}{ArrowDown}{Enter}');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-a6')
+      await canvas.findByTestId('game-session-setup-cell-a6')
     ).toHaveAccessibleName('A6: Battleship');
     await expect(
-      await canvas.findByTestId('custom-game-setup-progress')
+      await canvas.findByTestId('game-session-setup-progress')
     ).toHaveTextContent('2 of 5 ships placed');
     await chooseSetupRegion(canvasElement, 'F–J / 1–5');
-    const cruiser = canvas.getByTestId('custom-game-setup-precision-cell-g2');
+    const cruiser = canvas.getByTestId('game-session-setup-precision-cell-g2');
     await checkSetupPlacementBounds(cruiser);
     await userEvent.click(cruiser);
     await chooseSetupRegion(canvasElement, 'A–E / 6–10');
-    await userEvent.click(canvas.getByTestId('custom-game-setup-rotate'));
-    const submarine = canvas.getByTestId('custom-game-setup-precision-cell-b8');
+    await userEvent.click(canvas.getByTestId('game-session-setup-rotate'));
+    const submarine = canvas.getByTestId(
+      'game-session-setup-precision-cell-b8'
+    );
     await checkSetupPlacementBounds(submarine);
     await userEvent.click(submarine);
     await chooseSetupRegion(canvasElement, 'A–E / 1–5');
     const last = await canvas.findByTestId(
-      'custom-game-setup-precision-cell-b2'
+      'game-session-setup-precision-cell-b2'
     );
     await checkSetupWorkspace(canvasElement);
     await checkSetupPlacementBounds(last);
     await userEvent.click(last);
     await expect(
-      await canvas.findByTestId('custom-game-setup-progress')
+      await canvas.findByTestId('game-session-setup-progress')
     ).toHaveTextContent('All five ships placed');
     await expect(
-      await canvas.findByTestId('custom-game-setup-cell-c2')
+      await canvas.findByTestId('game-session-setup-cell-c2')
     ).toHaveAccessibleName('C2: Destroyer');
     await expect(
       canvas.getByRole('button', { name: /^Ship to place:/ })
@@ -237,11 +241,11 @@ export const SpatialRegionSelection: Story = {
     await checkSetupWorkspace(canvasElement);
     await chooseSetupRegion(canvasElement, 'F–J / 6–10');
     await checkSetupWorkspace(canvasElement);
-    const cell = canvas.getByTestId('custom-game-setup-precision-cell-f6');
+    const cell = canvas.getByTestId('game-session-setup-precision-cell-f6');
     await checkSetupPlacementBounds(cell);
     await userEvent.click(cell);
     await expect(
-      canvas.getByTestId('custom-game-setup-cell-i6')
+      canvas.getByTestId('game-session-setup-cell-i6')
     ).toHaveAccessibleName('I6: Battleship');
   },
 };

@@ -11,17 +11,17 @@ test.use({ trace: 'on' });
  * moves on to its result.
  */
 const SEQUENCES = {
-  'custom game': [
-    'screens-custom-games-stage--no-moves-yet',
-    'screens-custom-games-stage--your-turn',
-    'screens-custom-games-stage--opponents-turn',
-    'screens-custom-games-stage--timed',
-    'screens-custom-games-stage--connection-needed',
-    'screens-custom-games-stage--choice-refused',
-    'screens-custom-games-stage--draw-offered',
-    'screens-custom-games-stage--long-record',
-    'screens-custom-games-result--you-win',
-    'screens-custom-games-result--draw',
+  'game session': [
+    'screens-game-sessions-stage--no-moves-yet',
+    'screens-game-sessions-stage--your-turn',
+    'screens-game-sessions-stage--opponents-turn',
+    'screens-game-sessions-stage--timed',
+    'screens-game-sessions-stage--connection-needed',
+    'screens-game-sessions-stage--choice-refused',
+    'screens-game-sessions-stage--draw-offered',
+    'screens-game-sessions-stage--long-record',
+    'screens-game-sessions-result--you-win',
+    'screens-game-sessions-result--draw',
   ],
   matchmaking: [
     'screens-matchmaking-stage--no-moves-yet',
@@ -108,16 +108,18 @@ test('storybook integration: stage stability 390 keeps the board in place when a
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage--your-turn&viewMode=story&globals=theme:light'
   );
   await ready(page);
-  await expect(page.getByTestId('custom-game-connection-needed')).toHaveCount(
+  await expect(page.getByTestId('game-session-connection-needed')).toHaveCount(
     0
   );
   const before = await boardRect(page);
   expect(before).toMatchObject({ x: 0, width: 390 });
-  await switchTo(page, 'screens-custom-games-stage--connection-needed');
-  await expect(page.getByTestId('custom-game-connection-needed')).toBeVisible();
+  await switchTo(page, 'screens-game-sessions-stage--connection-needed');
+  await expect(
+    page.getByTestId('game-session-connection-needed')
+  ).toBeVisible();
   await expect(
     page
       .getByRole('status')
@@ -135,13 +137,13 @@ test('storybook integration: stage stability 390 keeps the board in place when t
 }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(
-    '/iframe.html?id=screens-custom-games-stage--your-turn&viewMode=story&globals=theme:light'
+    '/iframe.html?id=screens-game-sessions-stage--your-turn&viewMode=story&globals=theme:light'
   );
   await ready(page);
   await expect(page.getByRole('dialog', { name: 'Game over' })).toHaveCount(0);
   const before = await boardRect(page);
   expect(before).toMatchObject({ x: 0, width: 390 });
-  await switchTo(page, 'screens-custom-games-result--you-win');
+  await switchTo(page, 'screens-game-sessions-result--you-win');
   await expect(page.getByRole('dialog', { name: 'Game over' })).toBeVisible();
   expect(await boardRect(page)).toEqual(before);
 });

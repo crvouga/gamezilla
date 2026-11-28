@@ -9,9 +9,9 @@ Feature: Play Quoridor with other people
       When Alice and Bob play Classic Quoridor from fresh devices
       Then Alice and Bob see the same completed Classic Quoridor game
 
-  Rule: Two people and two bots can finish King of the Hill
+  Rule: A spectator can follow King of the Hill against bots
     No counter-example: refusals and interrupted play are covered by the Quoridor and shared game rules.
 
-    Scenario: Two people and two bots share the completed King of the Hill game
-      When Alice and Bob play Four-Player King of the Hill with two bots from fresh devices
+    Scenario: A player and spectator share the completed King of the Hill game
+      When Alice plays Four-Player King of the Hill against bots while Bob watches
       Then Alice and Bob see the same completed Four-Player King of the Hill game

@@ -16,7 +16,7 @@ async function playFromBoard(page: Page, phone: boolean): Promise<void> {
     'light',
     'system'
   );
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const cell = (id: string) => board.locator(`[data-cell="${id}"]`);
   const touch = await input(page, phone);
   const tap = (p: { x: number; y: number }) =>
@@ -34,10 +34,10 @@ async function playFromBoard(page: Page, phone: boolean): Promise<void> {
   await expect(cell('d4')).toHaveAttribute('data-edge-top', 'true');
   await tap(vertical);
   await expect(
-    page.getByTestId('custom-game-board-wall-commit')
+    page.getByTestId('game-session-board-wall-commit')
   ).toBeDisabled();
   await touch.drag(vertical, { ...vertical, x: vertical.x + step * 2 });
-  await page.getByTestId('custom-game-board-wall-commit').click();
+  await page.getByTestId('game-session-board-wall-commit').click();
   await expect(cell('f4')).toHaveAttribute('data-edge-right', 'true');
   await touch.drag(await center(cell('e1')), await center(cell('e4')));
   await expect(cell('e1')).toHaveAttribute('data-identity', 'one');

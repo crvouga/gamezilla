@@ -14,7 +14,7 @@ or merged. The work is seven commits on top of `7d3a6b25b`:
 | this commit | `docs:` this report |
 
 "The chess game" was read as every `pkgs/chess-*` and `libs/chess-*` package:
-puzzles, Custom Games and multiplayer chess. Most of the run went to
+puzzles, Game Sessions and multiplayer chess. Most of the run went to
 multiplayer chess, because the mid-run request (long-running games with
 turn notifications, defined in `specs/`) lives there.
 
@@ -158,21 +158,21 @@ Ranked by player impact. Estimates assume the repo's spec-first workflow.
 | 1 | **Turn alerts outside the app** (phone or browser push, or e-mail). | A daily game depends on people learning it is their move while the app is closed. Today they learn when they next open it. | 1 to 2 weeks. Needs push credentials and a subscription store declared in `libs/infra-shared-ts/tofu`, a service-worker handler, a native path, and a per-person off switch. Human decisions on providers come first. |
 | 2 | **Several unfinished games at once.** | Daily players run many games. Today one daily game blocks all other multiplayer play for days. | 1 to 2 weeks. `chess_multiplayer_players` holds one game per person; the limit DMN, `multiplayer-games.als`, `multiplayer.qnt` and the client's "current game" all assume one. |
 | 3 | **Engine analysis**: evaluation bar, best-move arrows, accuracy, blunder markers. | The main reason people review games on both sites. | 2 to 3 weeks. Needs Stockfish as WebAssembly (a new dependency and a worker), a review screen, and specs. |
-| 4 | **Bots with difficulty levels.** | Custom Game bots play a random legal move. | 1 week on top of gap 3's engine. |
+| 4 | **Bots with difficulty levels.** | Game Session bots play a random legal move. | 1 week on top of gap 3's engine. |
 | 5 | **Premoves in multiplayer.** | Expected in bullet and blitz. | 2 to 4 days. The board already supports them; multiplayer passes `premoves={false}`. Needs scenarios for a premove against a server-decided board. Known board gaps: no same-piece chains, no single-premove cancel. |
-| 6 | **Takeback requests.** | Standard in casual play. | 3 to 5 days, both multiplayer and Custom Games. |
+| 6 | **Takeback requests.** | Standard in casual play. | 3 to 5 days, both multiplayer and Game Sessions. |
 | 7 | **Game history.** | People expect a list of past games. Only the most recent multiplayer game is reachable. | 1 week. Rows are already kept. |
 | 8 | **Drawing arrows and marking squares on app boards.** | Thinking aid on both sites. | 1 to 2 days. The board supports it (`enableUserArrows`); the chess context must first borrow the board's vocabulary. Mouse only: there is no touch gesture. |
 | 9 | **Board and piece themes.** | Personalisation. | 3 to 5 days. One theme and one piece set (Cburnett) exist; no picker. Conflicts with the neutral-palette rule, so it needs a design decision. |
 | 10 | **Opening a game record or position from elsewhere** (PGN and FEN import). | Needs an analysis board, which does not exist. | With gap 3. |
 | 11 | **Clock delay** (Bronstein or simple). | Rare online; increment covers most needs. | 2 days. |
-| 12 | **Custom Game parity with multiplayer**: draw reasons ("Game drawn." for every draw), low on time, flip, game record, keyboard arrows in its move list, a jump control that is not a raw number field. | Consistency. | 3 to 5 days. |
+| 12 | **Game Session parity with multiplayer**: draw reasons ("Game drawn." for every draw), low on time, flip, game record, keyboard arrows in its move list, a jump control that is not a raw number field. | Consistency. | 3 to 5 days. |
 | 13 | **Daily game extras**: vacation or pause, conditional moves, a draw-offer notice, a choice of which notices to receive. | Common on both sites. | 1 week. |
 | 14 | **Settings.** Chess Settings lists only developer tools: no sound, coordinates or board options. | Expected. | 2 to 3 days. |
 | 15 | **Localised notice text.** | Notices are English only. | 1 to 2 days: send a message key and render on the client. |
 | 16 | **Puzzle modes**: Streak, Storm, Rush. | Already listed as planned in `specs/README.md`. | Not estimated here. |
 | 17 | **Board accessibility leftovers**: typed move entry, the origin square in announcements, announcements are hard-coded English, two tab stops on the board. | Screen-reader and keyboard users. | 3 to 4 days. |
-| 18 | **Loading states.** Multiplayer and Custom Game screens show no loading state while the first sync arrives. | Brief blank on slow connections. | 1 day. |
+| 18 | **Loading states.** Multiplayer and Game Session screens show no loading state while the first sync arrives. | Brief blank on slow connections. | 1 day. |
 
 ## 5. Review these first
 
@@ -225,10 +225,10 @@ Ranked by player impact. Estimates assume the repo's spec-first workflow.
 
   | Model | Failing traces | Same on base |
   | --- | --- | --- |
-  | `custom-game-play.qnt` | 6, 11, 25, 29, 31 | yes |
-  | `custom-game-control.qnt` | 2 | yes |
+  | `game-session-play.qnt` | 6, 11, 25, 29, 31 | yes |
+  | `game-session-control.qnt` | 2 | yes |
   | `puzzle-attempt.qnt` | 10 | yes |
-  | `custom-game.qnt` | 211 | yes |
+  | `game-session.qnt` | 211 | yes |
 
   They share one divergence: the model expects a guest who is offline to
   drop out of the space after time passes, and the product keeps showing

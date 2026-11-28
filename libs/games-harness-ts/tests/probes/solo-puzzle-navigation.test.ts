@@ -38,7 +38,7 @@ test('selecting zero on the shared solo line reaches the supplied position', asy
   expect(probe?.status).toBe('solved');
 }, 120_000);
 
-// regression: puzzle-only-menu-requires-custom-game
+// regression: puzzle-only-menu-requires-game-session
 test('the shared space view recognizes puzzle-only choices and returns to the game list', async () => {
   await using s = await openGameHarness(SYSTEM);
   const id = SOLO_COUNT_GAME.shared.id;

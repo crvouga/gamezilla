@@ -49,7 +49,7 @@ before or alongside implementation.
 | `quoridor-walls.feature` | Observable wall boundaries and inventories; no stored or transport details | Both orientations, boundary, adjacency, overlap, crossing, every player's path and exhausted inventory |
 | `quoridor-objectives.feature` | Explicit immediate outcomes; no hold or simultaneous result ambiguity | Both goals, wrong goal, finality after both modes |
 | `quoridor-accessibility.feature` | Observable board choices and identities; no gesture changes the rules | Keyboard pawn and wall actions, four distinct shapes, crossing preview, read-only watcher |
-| `quoridor-bots.feature` | A scheduled bot follows the same pawn rules | Both mode goals reached by a real custom-game bot |
+| `quoridor-bots.feature` | A scheduled bot follows the same pawn rules | Both mode goals reached by a real game-session bot |
 | `quoridor-health.feature` | Standing checks through the established live runner | Two-person Classic and two-person/two-bot King of the Hill |
 | `journeys/quoridor-game.feature` | Fresh-device journeys use published mode and bot terms | Completed, agreed results in both modes |
 | `games/multi-seat-games.feature` | Shared game language; no named concrete game | Full lineup, all-person readiness, disconnect without skipped turn, unanimous draw, withdrawal and timeout |
@@ -112,13 +112,13 @@ gestures remain in exported harness actions, not step definitions.
 
 The newly published bare words “start” and “ready” initially claimed
 ordinary English in unrelated contexts, which caused CI wording failures.
-They now publish only scoped custom-game phrases; Quoridor borrows those
+They now publish only scoped game-session phrases; Quoridor borrows those
 phrases. The definitions and model mappings retain their meaning, and the
 normal wording gate confirms that unrelated contexts need no new borrows.
 
 ## Implementation verification
 
-Both modes use the existing custom-game and matched-game frameworks.
+Both modes use the existing game-session and matched-game frameworks.
 Their shared contracts cover registration, readiness, ownership, stale and
 duplicate choices, permissions, persistence, replay, recovery, clocks,
 ratings, records and rematches. Registry enrollment checks both modes;
@@ -324,7 +324,7 @@ round trip; it does not establish a resolved pairing deadline.
 CI run 40095444082
 failed only the older Atlas export task and the release journeys. That
 release task took 401.372 seconds and failed five scenarios: Chess pairing,
-custom-game readiness, Battleship's own-fleet observation, and both hill
+game-session readiness, Battleship's own-fleet observation, and both hill
 journeys. The selected Chess acknowledgment arrived 201 milliseconds after
 the failed observation. Its originating interaction was absent from the
 retained journal, so the pre-upload interval remains unattributed.
@@ -439,7 +439,7 @@ test results. A funded CI run is still required; no spending limit, runner
 policy, verification assertion or deadline was changed.
 
 After the fanout fix, `bun verify` with two local Turbo workers exited 1
-after 287.4 seconds: the existing custom-game play model did not complete
+after 287.4 seconds: the existing game-session play model did not complete
 its liveness check within 240 seconds. It reached all 811,080 distinct
 states with an empty exploration queue, then timed out checking the two
 temporal properties. A single-task serial invocation also timed out, with
@@ -462,7 +462,7 @@ Run, task and model computation cutoffs are removed locally; assertions,
 product timing requirements, exploration depth and model bounds are unchanged.
 
 The first full local run in this mode completed 1,253 tasks successfully,
-including all 80 model-proof tasks. The unchanged custom-game graph
+including all 80 model-proof tasks. The unchanged game-session graph
 completed its 811,080 states, twelve safety invariants and both temporal
 properties. Quoridor's eight invariants passed at the unchanged two-step
 bound, and all 58 Quoridor spec checks passed. These are partial results,

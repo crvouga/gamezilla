@@ -26,8 +26,8 @@ import {
   declareRequiredGames,
   openConformanceHarness,
 } from '../conformance-world';
-import { customGameBeforeDeletion } from './custom-game-privacy.steps';
 import { puzzleProgressBeforeDeletion } from './deleted-account-progress.steps';
+import { gameSessionBeforeDeletion } from './game-session-privacy.steps';
 import { deviceOffline, playsMatchedGames } from './matched-game-connection';
 
 defineScenarioVariants((ctx) => conformanceVariants(ctx.featureUri));
@@ -39,11 +39,11 @@ for (const file of [...modules].sort()) await import(`./${file}`);
 
 useHarnessWorld(openConformanceHarness, (w) => ({
   // A deleted account had puzzle progress at the run's game, in a feature
-  // about puzzles, and otherwise a custom game of it.
+  // about puzzles, and otherwise a game session of it.
   beforeAccountDeletion: (actor: Actor) =>
     sharedSpecificationNeeds(w.ctx.featureUri).includes('puzzles')
       ? puzzleProgressBeforeDeletion(w, actor)
-      : customGameBeforeDeletion(w, actor),
+      : gameSessionBeforeDeletion(w, actor),
   // A phone going offline keeps the matched game or search it showed.
   beforePhoneOffline: async (actor: Actor) => {
     if (playsMatchedGames(w, actor)) await deviceOffline(w, actor);

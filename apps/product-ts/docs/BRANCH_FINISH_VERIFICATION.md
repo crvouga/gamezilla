@@ -39,8 +39,8 @@ still rejects a counterexample in a later invariant group.
 | Last full `bun verify` | Fails; 267 successful tasks out of 316 reported tasks, not a passing aggregate |
 
 The last full run used a 1,094-task plan. It stopped at the chess model-check
-task: `custom-game-play` temporal checking, multiplayer bounded checking and
-custom-game induction exceeded their respective existing solver deadlines.
+task: `game-session-play` temporal checking, multiplayer bounded checking and
+game-session induction exceeded their respective existing solver deadlines.
 Eight executed tasks also exceeded their unchanged task budgets, including
 the failed chess task and seven zero-exit tasks. A zero exit is not a passing
 budget verdict. The summary and logs are retained in this machine's archive:

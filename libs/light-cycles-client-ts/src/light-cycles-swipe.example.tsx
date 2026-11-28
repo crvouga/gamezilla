@@ -19,9 +19,9 @@ async function swipe(arena: HTMLElement, fraction: number) {
 export async function sharedTouchBounds(canvasElement: HTMLElement) {
   // regression: light-cycles-unmarked-touch-halves
   const canvas = within(canvasElement);
-  const arena = canvas.getByTestId('custom-game-board-arena');
-  const left = canvas.getByTestId('custom-game-board-arena-touch-0');
-  const right = canvas.getByTestId('custom-game-board-arena-touch-1');
+  const arena = canvas.getByTestId('game-session-board-arena');
+  const left = canvas.getByTestId('game-session-board-arena-touch-0');
+  const right = canvas.getByTestId('game-session-board-arena-touch-1');
   const wall = arena.querySelector('svg > rect:last-of-type')!;
   const bounds = arena.getBoundingClientRect();
   const a = left.getBoundingClientRect();
@@ -38,7 +38,7 @@ export async function sharedTouchBounds(canvasElement: HTMLElement) {
   await expect(a.top).toBeGreaterThanOrEqual(
     wall.getBoundingClientRect().bottom - 1
   );
-  const pads = canvas.queryAllByTestId(/custom-game-board-(white|black)-pad$/);
+  const pads = canvas.queryAllByTestId(/game-session-board-(white|black)-pad$/);
   for (const pad of pads) {
     const box = pad.getBoundingClientRect();
     await expect(box.top).toBeGreaterThanOrEqual(a.bottom);
@@ -51,7 +51,7 @@ export async function sharedTouchBounds(canvasElement: HTMLElement) {
 /** Synthetic story input has no native active pointer; the browser regression separately verifies real capture. */
 export async function sharedSwipe(canvasElement: HTMLElement) {
   const canvas = within(canvasElement);
-  const arena = canvas.getByTestId('custom-game-board-arena');
+  const arena = canvas.getByTestId('game-session-board-arena');
   const capture = arena.setPointerCapture;
   const release = arena.releasePointerCapture;
   arena.setPointerCapture = () => undefined;
@@ -59,17 +59,17 @@ export async function sharedSwipe(canvasElement: HTMLElement) {
   try {
     await swipe(arena, 0.75);
     await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-0')
+      canvas.getByTestId('game-session-board-arena-rider-0')
     ).toHaveAttribute('data-heading', 'up');
     await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-1')
+      canvas.getByTestId('game-session-board-arena-rider-1')
     ).toHaveAttribute('data-heading', 'left');
     await swipe(arena, 0.25);
     await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-1')
+      canvas.getByTestId('game-session-board-arena-rider-1')
     ).toHaveAttribute('data-heading', 'up');
     await expect(
-      canvas.getByTestId('custom-game-board-status')
+      canvas.getByTestId('game-session-board-status')
     ).toHaveTextContent('You ride Comet. You ride Ember.');
   } finally {
     arena.setPointerCapture = capture;

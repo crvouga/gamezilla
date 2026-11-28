@@ -13,14 +13,14 @@ the same way in component and file names, `screenId` (`data-screen`),
 place keys, story titles and story ids:
 
 - **Home** — the root (hub) screen of a level: `SpaceHome` (no game
-  chosen), `GameHome` (a game's menu), `CustomGamesHome`,
+  chosen), `GameHome` (a game's menu), `GameSessionsHome`,
   `MatchmakingHome` (finding an opponent), `PuzzlesHome`,
   `PuzzlePacksHome`, `HistoryHome`.
-- **Setup** — getting a game ready before play: `CustomGameSetup` (the
+- **Setup** — getting a game ready before play: `GameSessionSetup` (the
   lobby) and its sub-screens (`Setup seat`, `Setup invite`, `Setup options`,
   `Setup clock`), and `…PrivateSetup` (a person's own secret setup).
 - **Stage** — where a mode is actually played, around the board:
-  `CustomGameStage`, `MatchmakingStage`, `PuzzleStage`, `PuzzlePackStage`;
+  `GameSessionStage`, `MatchmakingStage`, `PuzzleStage`, `PuzzlePackStage`;
   its menu and moves are `Stage menu` and `Stage moves`.
 - Everything else is named for its one job: `Result`, `Replay`, `Settings`,
   `How to play`, `Searching`, `Time control`, `Link`, `Import`, `Builder`.
@@ -29,9 +29,9 @@ place keys, story titles and story ids:
 | --- | --- | --- | --- | --- |
 | Space home | `SpaceHomeScreenView` | (space template) | — | `Screens/Space/Space home/Home` |
 | Game home | `GameHomeScreenView` | `game-home` | `home` | `Screens/Space/Game home/Home` |
-| Custom games home | `CustomGamesHomePlace` | `custom-games-home` | `home` | `Screens/Space/Custom games/Home` |
-| Custom game setup | `CustomGameSetupPlace` | `custom-game-setup` | `setup` | `Screens/Space/Custom games/Setup` |
-| Custom game stage | `CustomGameStagePlace` | `custom-game-stage` | `stage` | `Screens/Space/Custom games/Stage` |
+| Game sessions home | `GameSessionsHomePlace` | `game-sessions-home` | `home` | `Screens/Space/Game sessions/Home` |
+| Game session setup | `PlayFriendSetupPlace` | `game-session-setup` | `setup` | `Screens/Space/Game sessions/Setup` |
+| Game session stage | `PlayFriendStagePlace` | `game-session-stage` | `stage` | `Screens/Space/Game sessions/Stage` |
 | Matchmaking home | `MatchmakingHomeView` | `matchmaking-home` | `home` | `Screens/Space/Matchmaking/Home` |
 | Matchmaking stage | `MatchmakingStageView` | `matchmaking-stage` | `stage` | `Screens/Space/Matchmaking/Stage` |
 | Puzzles home | `PuzzlesHomeView` | `puzzles-home` | `feed` | `Screens/Space/Puzzles/Home` |
@@ -42,9 +42,9 @@ place keys, story titles and story ids:
 
 The space-wide game screen (`useGameScreen`, `GamesRoomAttr.screen`) is
 synced room state that every device in a space reads, so its values
-(`choices`, `custom-game`, `multiplayer`, `puzzle`, `puzzle-library`,
+(`choices`, `game-session`, `multiplayer`, `puzzle`, `puzzle-library`,
 `history`, …) never change; only their names in code
-(`GAME_HOME_SCREEN`, `SHARED_GAME_SCREEN.customGamesHome`, …) follow the
+(`GAME_HOME_SCREEN`, `SHARED_GAME_SCREEN.vsHuman`, …) follow the
 scheme. Places are device-local and in memory, so their keys follow it
 directly.
 
@@ -76,7 +76,7 @@ directly.
    which optional props happen to be set. Connection and refusal notices
    belong to the shell and show on every screen of the template.
 7. **The same screens on every size.** The host keeps the space bar above the game.
-8. **A game stage is one fixed view.** `FixedGameSession` gives custom games,
+8. **A game stage is one fixed view.** `FixedGameSession` gives game sessions,
    matchmaking and replays one reading order. The players, status and move
    history precede the full-width board region. Its contents keep their
    natural proportions. A short window can scroll the board within that
@@ -98,7 +98,7 @@ A template is a set of small screens and one state machine that says which
 is shown. The machine has two parts:
 
 - **Stage** — where the thing itself stands, read from the room or the
-  database: a custom game is `none`, `configuring`, `active`, `completed` or
+  database: a game session is `none`, `configuring`, `active`, `completed` or
   `cancelled`. Nobody navigates a stage; it changes when the game does.
 - **Place** — the screen this device shows within the stage. Each stage has
   one home place and the few places reachable from it. A place is device
@@ -124,11 +124,11 @@ stage, and each place's parent.
 
 ## The catalogue
 
-Story ids are `screens-<mode>-<screen>` (`screens-custom-games-stage`,
+Story ids are `screens-<mode>-<screen>` (`screens-game-sessions-stage`,
 `screens-matchmaking-home`); every place has stories for
 each of its states, opened at phone and desktop width in both themes.
 
-### Custom game (`custom-game`)
+### Game session (`game-session`)
 
 | Stage | Place | Kind | Job |
 | --- | --- | --- | --- |
@@ -158,12 +158,12 @@ the lobby's dock, under the mode card and the roster.
 `stage` shows the live board. In `result`, the card beside the final
 board holds the headline and standings. The action bar offers the next game.
 
-Code: `libs/game-session-client-ts/src/custom-game-places.ts` (the machine),
-`custom-game-screen-view.tsx` (the switch), `custom-games-home-view.tsx`,
-`custom-game-setup-view.tsx`, `custom-game-stage-view.tsx` and one
+Code: `libs/game-session-client-ts/src/game-session-places.ts` (the machine),
+`game-session-screen-view.tsx` (the switch), `play-bots-screen-view.tsx`,
+`play-friend-setup-view.tsx`, `play-friend-stage-view.tsx` and one
 `game-frame-*-view.tsx` per other place, and
-`custom-game-screen-view.<place>.stories.tsx`. Drivers move between
-places with `@libs/game-session-harness-ts/custom-game-places`.
+`game-session-screen-view.<place>.stories.tsx`. Drivers move between
+places with `@libs/game-session-harness-ts/game-session-places`.
 
 ### Finding an opponent (`multiplayer`)
 
@@ -190,7 +190,7 @@ unfinished game comes before a waiting search, and a search before a
 finished game. Its names are `idle` (choosing a time control), `searching`
 (finding an opponent), `playing` and `finished`.
 
-`home` and `searching` are the same lobby as a custom game's: the mode card
+`home` and `searching` are the same lobby as a game session's: the mode card
 (Ranked match, the game, how it is won, the players, the clock in words),
 then one docked command (Find an opponent, Stop). Once ready, the game
 shows its board and seats. The result card opens over the final board with

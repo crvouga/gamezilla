@@ -73,6 +73,6 @@ The strict spec gate remains incomplete while the existing recovery models
 are unbound and their shared-interruption steps are undefined. These are the
 implementation handoff, not a claim of a green gate. D2–D6 must be checked
 again after binding. The strict gate also reports two existing near-duplicate
-step phrasings outside this model correction (Custom Game resignation and
+step phrasings outside this model correction (Game Session resignation and
 being in a space); their B14 findings remain open for the implementation
 pass. No product implementation is part of this spec commit.

@@ -5,14 +5,14 @@
  */
 
 import { expect } from 'bun:test';
-import { operateCustomGame } from '@libs/game-session-harness-ts/custom-game-controls';
-import { configureCustomGameChoice } from '@libs/game-session-harness-ts/custom-game-ui';
 import {
   goBackInGame,
   offeredGameChoices,
   openGameChoice,
   pickGame,
 } from '@libs/game-session-harness-ts/game-navigation';
+import { operateGameSession } from '@libs/game-session-harness-ts/game-session-controls';
+import { configureGameSessionChoice } from '@libs/game-session-harness-ts/game-session-ui';
 import { signInWithGoogle } from '@libs/harness-ts/auth-actions';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import {
@@ -48,7 +48,7 @@ function seatsNamed(
 }
 
 Given(
-  '{actor}, {actor}, {actor} and {actor} are ready for a custom game of Hearts as {heartsSeat}, {heartsSeat}, {heartsSeat} and {heartsSeat}',
+  '{actor}, {actor}, {actor} and {actor} are ready for a game session of Hearts as {heartsSeat}, {heartsSeat}, {heartsSeat} and {heartsSeat}',
   async (w, ...named: string[]) => {
     plan(w, { seats: seatsNamed(named), active: false });
     await table(w);
@@ -60,7 +60,7 @@ Given(
   (w, ...named: string[]) => plan(w, { seats: seatsNamed(named) })
 );
 Given(
-  '{actor} and {actor} are ready for a custom game of Hearts as {heartsSeat} and {heartsSeat}, with bots as {heartsSeat} and {heartsSeat}',
+  '{actor} and {actor} are ready for a game session of Hearts as {heartsSeat} and {heartsSeat}, with bots as {heartsSeat} and {heartsSeat}',
   async (w, ...named: string[]) => {
     const [first, second, mine, theirs, bot, other] = named;
     plan(w, {
@@ -76,7 +76,7 @@ Given(
   }
 );
 Given(
-  '{actor} is {heartsSeat} in a Hearts custom game against three bots',
+  '{actor} is {heartsSeat} in a Hearts game session against three bots',
   async (w, actor: string, side: GameSide) => {
     plan(w, {
       seats: Object.fromEntries(
@@ -102,12 +102,14 @@ Given(
   }
 );
 Given(
-  '{actor} has asked for a rematch and all four people are ready for the custom game',
+  '{actor} has asked for a rematch and all four people are ready for the game session',
   async (w, actor: string) => {
     await table(w);
-    await w.s.apply(configureCustomGameChoice, actor, { operation: 'rematch' });
+    await w.s.apply(configureGameSessionChoice, actor, {
+      operation: 'rematch',
+    });
     for (const person of people(w))
-      await w.s.apply(configureCustomGameChoice, person, {
+      await w.s.apply(configureGameSessionChoice, person, {
         operation: 'ready',
       });
     await remember(w);
@@ -117,12 +119,12 @@ Given("Hearts is the game of {actor}'s space", async (w, actor: string) => {
   await w.s.apply(signInWithGoogle, actor);
   await w.s.apply(createSpace, actor);
   await w.s.apply(pickGame, actor, 'hearts');
-  await w.s.apply(openGameChoice, actor, 'custom-game');
+  await w.s.apply(openGameChoice, actor, 'game-session');
 });
 
-When('{actor} starts the custom game', async (w, actor: string) => {
+When('{actor} starts the game session', async (w, actor: string) => {
   await table(w);
-  await w.s.apply(operateCustomGame, actor, { operation: 'start' });
+  await w.s.apply(operateGameSession, actor, { operation: 'start' });
 });
 When('{actor} plays her/his last card', async (w, actor: string) => {
   await table(w);
@@ -130,7 +132,7 @@ When('{actor} plays her/his last card', async (w, actor: string) => {
 });
 When('{actor} asks for a rematch', async (w, actor: string) => {
   await table(w);
-  await w.s.apply(operateCustomGame, actor, { operation: 'rematch' });
+  await w.s.apply(operateGameSession, actor, { operation: 'rematch' });
 });
 When("{actor} opens the game's choices", async (w, actor: string) => {
   await w.s.apply(goBackInGame, actor);
@@ -189,8 +191,8 @@ Then('the second deal is dealt, passing to the right', async (w) => {
   expect(held(view)).toHaveLength(13);
   for (const side of SIDES) expect(cardsHeldBy(view, side)).toBe(13);
 });
-Then('{actor} is offered custom games of Hearts', async (w, actor: string) => {
-  expect(await w.s.read(offeredGameChoices, actor)).toContain('custom-game');
+Then('{actor} is offered game sessions of Hearts', async (w, actor: string) => {
+  expect(await w.s.read(offeredGameChoices, actor)).toContain('game-session');
 });
 Then('pairing people up is not offered for Hearts', async (w) => {
   expect(await w.s.read(offeredGameChoices, 'alice')).not.toContain(

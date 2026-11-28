@@ -35,7 +35,7 @@ const GAME_JOURNEYS: readonly SyntheticCheck[] = [
   'journeys.chess-puzzle-history',
   'journeys.connect-four-game',
   'journeys.critical-journeys',
-  'journeys.custom-game',
+  'journeys.game-session',
   'journeys.hearts-first-trick',
   'journeys.hearts-start',
   'journeys.light-cycles-start',
@@ -43,7 +43,7 @@ const GAME_JOURNEYS: readonly SyntheticCheck[] = [
   'journeys.numberlink-packs',
   'journeys.pong-game',
   'journeys.quoridor-game',
-  'journeys.recover-custom-game',
+  'journeys.recover-game-session',
   'journeys.return-to-quoridor',
   'journeys.sokoban-packs',
   'journeys.word-tiles-start',
@@ -57,13 +57,13 @@ export const SPEC_COVERAGE: Readonly<Record<string, ContextCoverage>> = {
     'journeys.chess-puzzle-history',
     'journeys.critical-journeys',
     'journeys.multiplayer-game',
-    'journeys.custom-game'
+    'journeys.game-session'
   ),
   'chess-board': watched(
     'journeys.chess-puzzle-history',
     'journeys.critical-journeys',
     'journeys.multiplayer-game',
-    'journeys.custom-game'
+    'journeys.game-session'
   ),
   'db-indexes': {
     kind: 'exempt',

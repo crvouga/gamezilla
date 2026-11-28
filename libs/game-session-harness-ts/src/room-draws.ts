@@ -1,7 +1,7 @@
 import type { HarnessRoomNode } from '@libs/harness-ts/composition';
 import { type ProductHarness, productExtra } from '@libs/harness-ts/harness';
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
-import { readCustomGameProbe } from './custom-game-probe';
+import { readGameSessionProbe } from './game-session-probe';
 import { isTurnHarnessGame } from './harness-game';
 import { harnessGameAt } from './harness-game-of';
 
@@ -48,7 +48,7 @@ export function queueRoomDraws(
 }
 
 /**
- * Before `actor`'s custom game starts: for a game with dealt hands, the
+ * Before `actor`'s game session starts: for a game with dealt hands, the
  * room deals the game's known deal (`fixtures.knownDeal`), the deal every
  * shared line is written for.
  */
@@ -58,7 +58,7 @@ export async function dealKnownHandsOnStart(
   operation: string
 ): Promise<void> {
   if (operation !== 'start') return;
-  const current = (await readCustomGameProbe(s, actor))?.current;
+  const current = (await readGameSessionProbe(s, actor))?.current;
   if (current === null || current === undefined) return;
   const game = harnessGameAt(s, current.fen);
   const deal = isTurnHarnessGame(game) ? game.fixtures.knownDeal : undefined;

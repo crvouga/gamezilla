@@ -1,30 +1,30 @@
 import { expect } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import {
   gameHistoryStatistics,
   openGameHistory,
-  reviewCustomGameMove,
+  reviewGameSessionMove,
 } from '@libs/game-session-harness-ts/game-history-actions';
 import { switchSpaceGame } from '@libs/game-session-harness-ts/game-navigation';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
 import { Given, Then, When } from '@libs/harness-ts/define';
 import {
   anotherTurnGame,
   before,
   gameOf,
   positionAfter,
-  setupCustomGame,
+  setupGameSession,
   turnGameOf,
   view,
 } from './game-world';
 
-Given('{actor} has won a custom game', async (w) =>
-  setupCustomGame(w, { moves: turnGameOf(w).fixtures.firstSideVictory })
+Given('{actor} has won a game session', async (w) =>
+  setupGameSession(w, { moves: turnGameOf(w).fixtures.firstSideVictory })
 );
 Given(
-  '{actor} has won a custom game of another game',
+  '{actor} has won a game session of another game',
   async (w, actor: string) => {
     const other = anotherTurnGame(w, 'history');
-    await w.s.apply(establishCustomGame, other.shared.id, {
+    await w.s.apply(establishGameSession, other.shared.id, {
       host: actor,
       first: actor,
       moves: other.fixtures.firstSideVictory,
@@ -33,14 +33,14 @@ Given(
   }
 );
 When('{actor} reviews the third move', async (w, actor: string) => {
-  await w.s.apply(reviewCustomGameMove, actor, 3);
+  await w.s.apply(reviewGameSessionMove, actor, 3);
 });
 When('{actor} reviews the starting position', async (w, actor: string) => {
-  await w.s.apply(reviewCustomGameMove, actor, 0);
+  await w.s.apply(reviewGameSessionMove, actor, 0);
 });
 When('{actor} reviews a move that was not played', async (w, actor: string) => {
   const played = (await view(w, actor)).current?.moves.length ?? 0;
-  await w.s.apply(reviewCustomGameMove, actor, played + 1);
+  await w.s.apply(reviewGameSessionMove, actor, played + 1);
 });
 When("{actor} opens the game's history", async (w, actor: string) => {
   await w.s.apply(openGameHistory, actor);
@@ -55,7 +55,7 @@ Then("{actor} sees the game's starting position", async (w, actor: string) => {
   expect(seen.reviewPly).toBe(0);
   expect(seen.displayFen).toBe(gameOf(w).shared.registration.rules.initial());
 });
-Then('the finished custom game is unchanged', async (w) => {
+Then('the finished game session is unchanged', async (w) => {
   expect((await view(w)).current).toEqual(before(w).current);
 });
 Then('{actor} is told that move was not played', async (w, actor: string) => {

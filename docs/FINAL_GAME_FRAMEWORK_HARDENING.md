@@ -27,7 +27,7 @@ Treat these as enforceable contracts, not aspirational guidelines.
 3. **Composition owns the concrete list.** The authorized application/runtime composition root may import concrete plugins to register them. This is the explicit exception; do not create additional hardcoded registries or game-ID branches throughout the framework.
 4. **The framework works with zero production game plugins.** The framework and its own isolated tests must be buildable and meaningful without Chess or Connect Four registered. Use a small test-only reference implementation when needed to exercise its extension contracts.
 5. **Adding a game is additive.** A new game using established capabilities must not require edits inside framework-owned workflows, existing game packages, shared screen bodies, or shared specification/test-suite sources. An explicit composition entry and minimal checked harness binding are acceptable.
-6. **Shared behavior has one owner.** Screens, custom games, matchmaking, multiplayer integration, puzzles, history, replay, recovery, bots, and their common rules must not be independently reimplemented for each game.
+6. **Shared behavior has one owner.** Screens, game sessions, matchmaking, multiplayer integration, puzzles, history, replay, recovery, bots, and their common rules must not be independently reimplemented for each game.
 7. **Capabilities are enforceable promises.** Advertising a capability requires its correct implementation, behavioral obligations, and automatic conformance coverage. A missing binding must fail verification rather than silently skip it.
 8. **Common specifications and tests are shared and parameterized.** A new compatible game automatically inherits the relevant existing edge cases; no copied Gherkin, parallel assertion logic, or per-suite game lists.
 9. **The framework is opinionated about application behavior, flexible about game mechanics.** It should provide one canonical way to build consistent game experiences without requiring that games share the same board shape, action model, player count, information visibility, or terminal conditions.
@@ -108,7 +108,7 @@ Treat the game framework API as a durable engineering product that hundreds of f
 Distinguish:
 
 - **Core game contracts:** responsibilities genuinely shared by every game.
-- **Capability contracts:** multiplayer, matchmaking, custom games, bots, puzzles, spectating, clocks, history, replay, and other optional experiences.
+- **Capability contracts:** multiplayer, matchmaking, game sessions, bots, puzzles, spectating, clocks, history, replay, and other optional experiences.
 - **Product integration:** Product-specific permissions, accounts, spaces, policies, navigation, and runtime composition.
 - **Implementation details:** transports, storage mechanisms, SolidJS internals, orchestration helpers, and other details that plugins should not access.
 
@@ -174,7 +174,7 @@ Verify that framework-owned screens and workflows are canonical across compatibl
 
 - Game discovery, landing and main menus, mode selection, navigation.
 - Matchmaking, waiting, cancellation, match formation and handoff.
-- Custom-game configuration, invitations, hosting, joining and lobby.
+- Game-session configuration, invitations, hosting, joining and lobby.
 - Gameplay shell, participant display, status, common controls, results and rematches.
 - Puzzles, hints, attempts, feedback, completion and progression where supported.
 - Bots, spectating, clocks, multiplayer recovery and reconnect states where supported.
@@ -207,7 +207,7 @@ Audit every Chess-specific Gherkin scenario, step binding, property, model, and 
 
 **Promote all applicable common behavior into canonical shared specifications**, parameterized over game implementations. Do not leave a shared capability documented and verified only through Chess. Do not reduce game-specific rule tests merely to make the shared folder appear larger.
 
-Examples that belong in shared capability specs when supported: creating and canceling a custom game, queue races, reconnect, duplicate commands, invalid authorization, stale bot results, completion idempotency, offline resume, puzzle attempt persistence, history recording, replay stability, and privacy of participant views.
+Examples that belong in shared capability specs when supported: creating and canceling a game session, queue races, reconnect, duplicate commands, invalid authorization, stale bot results, completion idempotency, offline resume, puzzle attempt persistence, history recording, replay stability, and privacy of participant views.
 
 Examples that remain Chess-specific: castling, check, en passant, pawn promotion, checkmate, stalemate, chess-specific puzzle correctness and position invariants.
 
@@ -237,7 +237,7 @@ Build or harden one authoritative suite for each common behavior family, includi
 
 - Core game definition, initialization, action rejection, lifecycle and result handling.
 - Shared menus, navigation and screen composition.
-- Custom-game creation, configuration, participants, start, finish and cancellation.
+- Game-session creation, configuration, participants, start, finish and cancellation.
 - Matchmaking admission, compatibility, formation, concurrent races, cancellation and handoff.
 - Authoritative multiplayer commands, ordering, reconciliation, reconnect and recovery.
 - Bot participation, lifecycle, interruption and stale decisions.
@@ -269,7 +269,7 @@ A conformance suite must not ask the same implementation under test to define th
 
 ### Composition of capabilities
 
-Test critical interactions, not only isolated features: matchmaking into multiplayer, bots in custom games, puzzle history, cancel/reconnect races, late actions after completion, result persistence and replay, and hidden information in spectating. Avoid an uncontrolled Cartesian-product explosion; use meaningful equivalence classes and bounded profiles.
+Test critical interactions, not only isolated features: matchmaking into multiplayer, bots in game sessions, puzzle history, cancel/reconnect races, late actions after completion, result persistence and replay, and hidden information in spectating. Avoid an uncontrolled Cartesian-product explosion; use meaningful equivalence classes and bounded profiles.
 
 ---
 
@@ -331,7 +331,7 @@ Conduct an explicit anti-pattern review, and repair every **demonstrated** viola
 - Unchecked casts, `any`, runtime shape guessing and magic string routing.
 - Giant callback/configuration bags, service locators, uncontrolled escape hatches and lifecycle hook spaghetti.
 - Circular dependencies, hidden shared mutable registries, order-sensitive initialization and leaking singleton state.
-- Games implementing their own matchmaking, puzzle lifecycle, custom-game orchestration, history, screen shell, persistence or recovery logic.
+- Games implementing their own matchmaking, puzzle lifecycle, game-session orchestration, history, screen shell, persistence or recovery logic.
 - Duplicate sources of truth for lifecycle state, participants, completion, permissions or game identity.
 - Incorrect ownership crossing `pkgs/`, `libs/`, subs, client/server/shared runtime categories or product permissions.
 - One-off frameworks inside games and wrapper packages that add indirection without valuable ownership.
@@ -374,7 +374,7 @@ The game-authoring experience should have **one canonical formula**:
 6. Register the plugin at the authorized composition boundary.
 7. Run one established validation command and receive the complete applicable conformance matrix.
 
-The agent should not need to create new menus, copied matchmaking screens, custom-game flows, generic history tests, recovery scenarios, puzzle harnesses or repeated Gherkin files.
+The agent should not need to create new menus, copied matchmaking screens, game-session flows, generic history tests, recovery scenarios, puzzle harnesses or repeated Gherkin files.
 
 Make wrong integrations fail with actionable errors. Keep required files, public methods, adapters, boilerplate and documentation as small as sound architecture permits. Prefer deriving testing inputs from existing public game contracts instead of asking the author to restate them in a test-only DSL.
 

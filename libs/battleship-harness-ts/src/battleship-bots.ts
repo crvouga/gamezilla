@@ -1,12 +1,12 @@
 /**
- * Battleship against bots, reached through ordinary custom-game choices:
+ * Battleship against bots, reached through ordinary game-session choices:
  * the creator seats a bot, picks its difficulty and, with no person to
  * wait for, starts; the room readies each bot with a fleet of its own.
  */
 
-import type { CustomGameSeat } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
-import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import type { GameSessionSeat } from '@libs/game-session-harness-ts/game-session-lineup';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
+import { configureGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { scenarioAction } from '@libs/harness-ts/actor-ui';
 import { establishBattleship } from './battleship-actions';
 
@@ -25,8 +25,8 @@ export const establishBattleshipBots = scenarioAction({
   name: 'establishBattleshipBots',
   act: async (
     s,
-    first: CustomGameSeat,
-    second: CustomGameSeat,
+    first: GameSessionSeat,
+    second: GameSessionSeat,
     difficulty: BattleshipBotDifficulty
   ) => {
     await Promise.resolve(
@@ -40,14 +40,14 @@ export const establishBattleshipBots = scenarioAction({
     const seats = { white: first, black: second } as const;
     for (const side of ['white', 'black'] as const)
       if (seats[side] === 'bot')
-        await configureCustomGame(s, 'alice', {
+        await configureGameSession(s, 'alice', {
           operation: 'difficulty',
           side,
           difficulty,
         });
     for (const side of ['white', 'black'] as const)
       if (seats[side] !== 'bot' && seats[side] !== 'open')
-        await configureCustomGame(s, seats[side], { operation: 'ready' });
+        await configureGameSession(s, seats[side], { operation: 'ready' });
   },
 });
 
@@ -56,7 +56,7 @@ export const letBattleshipBotsPlay = scenarioAction({
   name: 'letBattleshipBotsPlay',
   act: async (s, observer: string) => {
     for (let turn = 0; turn < MAX_BOT_TURNS; turn += 1) {
-      const game = (await readCustomGameScreen(s, observer))?.current;
+      const game = (await readGameSessionScreen(s, observer))?.current;
       if (game?.status !== 'active') return;
       await s.session.advanceTime(BOT_TURN_MS);
     }

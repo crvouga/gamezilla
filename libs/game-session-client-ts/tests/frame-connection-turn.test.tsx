@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import { useFrameStatus } from '@libs/game-session-client-ts/custom-game-status';
 import type { FrameBoard } from '@libs/game-session-client-ts/game-frame-play';
 import type {
   FramePlay,
   FrameStatus,
 } from '@libs/game-session-client-ts/game-frame-view-types';
+import { useFrameStatus } from '@libs/game-session-client-ts/game-session-status';
 import { useFramePlay } from '@libs/game-session-client-ts/use-frame-play';
 import { frameSeatDeciding } from '@libs/game-session-client-ts/use-frame-seats';
 import type { Accessor } from 'solid-js';

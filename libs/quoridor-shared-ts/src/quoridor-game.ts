@@ -34,7 +34,8 @@ function definition(rules: typeof quoridorRules, hill: boolean) {
   return defineGame({
     rules,
     capabilities: {
-      'custom-games': { bots: quoridorBots },
+      'vs-human': {},
+      'vs-bot': { bots: quoridorBots },
       matchmaking: {
         clockChoices: true as const,
         namespace: `${rules.id}/`,

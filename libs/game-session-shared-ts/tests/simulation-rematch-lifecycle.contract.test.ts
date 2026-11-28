@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import { ChangeCustomGame } from '@libs/game-session-shared-ts/custom-game-commands';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
+import { ChangeGameSession } from '@libs/game-session-shared-ts/game-session-commands';
 import { arenaGame } from './reference-arena-game';
 import { liveSessionRoom } from './reference-live-session-room';
 
@@ -14,14 +14,14 @@ test('repeated resignations and rematches never accumulate simulation timers', a
     };
     const choose = async (
       person: keyof typeof people,
-      input: CustomGameInput
+      input: GameSessionInput
     ) => {
       people[person].dispatch(
-        ChangeCustomGame({
+        ChangeGameSession({
           gameId: rig.current().id,
           revision: rig.current().revision,
           ...input,
-        } as Parameters<typeof ChangeCustomGame>[0])
+        } as Parameters<typeof ChangeGameSession>[0])
       );
       await rig.settle();
     };

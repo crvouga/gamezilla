@@ -1,15 +1,15 @@
 /**
- * Shared victories in a four-player custom game: the game's known lines to
+ * Shared victories in a four-player game session: the game's known lines to
  * a victory the first and third sides share and to the third side's alone
  * (`sharedVictories`), each ending on the fourth side's move.
  */
 
 import { expect } from 'bun:test';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
 import type { TurnHarnessGame } from '@libs/game-session-harness-ts/harness-game';
 import { Given, Then } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
-import { current } from './custom-game-set-up-world';
+import { current } from './game-session-set-up-world';
 import { before, turnGameOf } from './game-world';
 import { followKnownLine, playToLastMove } from './known-line';
 import { FOUR_PEOPLE, sideShown } from './secret-choices-world';
@@ -23,9 +23,9 @@ function sharedVictoriesOf(game: TurnHarnessGame) {
   return lines;
 }
 
-/** The winners a finished custom game's result names, as `viewer` sees it. */
+/** The winners a finished game session's result names, as `viewer` sees it. */
 async function winnersSeenBy(w: HarnessWorld, viewer: string): Promise<string> {
-  const seen = await w.s.until((s) => customGameView(s, viewer), {
+  const seen = await w.s.until((s) => gameSessionView(s, viewer), {
     pred: (shown) => shown.current?.status === 'completed',
   });
   expect(seen.current?.status).toBe('completed');
@@ -33,14 +33,14 @@ async function winnersSeenBy(w: HarnessWorld, viewer: string): Promise<string> {
 }
 
 Given(
-  'the custom game is one move from a victory Alice and Carol share',
+  'the game session is one move from a victory Alice and Carol share',
   async (w) => playToLastMove(w, sharedVictoriesOf(turnGameOf(w)).shared)
 );
-Given("the custom game is one move from Carol's victory alone", async (w) =>
+Given("the game session is one move from Carol's victory alone", async (w) =>
   playToLastMove(w, sharedVictoriesOf(turnGameOf(w)).alone)
 );
 Given(
-  'Alice and Carol have shared the victory in a four-player custom game with Bob and Dave',
+  'Alice and Carol have shared the victory in a four-player game session with Bob and Dave',
   async (w) => {
     const line = sharedVictoriesOf(turnGameOf(w)).shared;
     await followKnownLine(w, FOUR_PEOPLE, line, line.length);

@@ -13,9 +13,9 @@ Three registered modes share one implementation
 
 | Mode | Seats | Capabilities |
 | --- | --- | --- |
-| `word-tiles` | 2 | Custom games with people and bots, finding an opponent (`word-tiles/` clocks), history, one-move challenges |
-| `word-tiles-3` | 3 | Custom games with people and bots, history |
-| `word-tiles-4` | 4 | Custom games with people and bots, history |
+| `word-tiles` | 2 | Game sessions with people and bots, finding an opponent (`word-tiles/` clocks), history, one-move challenges |
+| `word-tiles-3` | 3 | Game sessions with people and bots, history |
+| `word-tiles-4` | 4 | Game sessions with people and bots, history |
 
 Seats are the platform's, in order `white`, `black`, `red`, `blue`; the first
 seat always moves first.
@@ -123,9 +123,9 @@ published once when migrations run.
 
 ## Known limits
 
-- No Quint model of Word Tiles' own rules; the shared custom-game and
+- No Quint model of Word Tiles' own rules; the shared game-session and
   matched-game models hold for it.
-- Three and four seats are covered by the shared custom-game and history
+- Three and four seats are covered by the shared game-session and history
   suites; finding an opponent is offered for two.
 - Practice against bots runs on the creator's device, also offline, which
   therefore holds that game's bag and the bots' racks; with another person

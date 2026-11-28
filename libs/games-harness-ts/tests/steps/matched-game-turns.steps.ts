@@ -10,14 +10,14 @@ import {
   shownMoveCount,
 } from '@libs/game-matchmaking-harness-ts/multiplayer-reads';
 import { openFindingAnOpponent } from '@libs/game-matchmaking-harness-ts/opponent-seeking';
-import { makeCustomGameMove } from '@libs/game-session-harness-ts/custom-game-moves';
+import { makeGameSessionMove } from '@libs/game-session-harness-ts/game-session-moves';
 import { Then, When } from '@libs/harness-ts/define';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import {
-  refusedCustomGameMove,
-  refusedCustomGameMoveReason,
-} from './custom-game-play-world';
-import { toldOf } from './custom-game-set-up-world';
+  refusedGameSessionMove,
+  refusedGameSessionMoveReason,
+} from './game-session-play-world';
+import { toldOf } from './game-session-set-up-world';
 import { gameOf, turnGameOf } from './game-world';
 import {
   actOnOtherDevice,
@@ -53,7 +53,7 @@ async function bothSeeMoves(w: HarnessWorld, count: number) {
 
 When('{actor} makes his/her first move', async (w, actor: string) => {
   if (!inMatchedGame(w))
-    return w.s.apply(makeCustomGameMove, actor, gameOf(w).shared.id);
+    return w.s.apply(makeGameSessionMove, actor, gameOf(w).shared.id);
   await move(w, actor, firstMoveOf(w, actor));
 });
 When(
@@ -78,7 +78,7 @@ When(
 );
 When('{actor} makes a move the game refuses', async (w, actor: string) => {
   if (inMatchedGame(w)) await move(w, actor, refusedMove(w));
-  else await refusedCustomGameMove(w, actor);
+  else await refusedGameSessionMove(w, actor);
 });
 
 Then(
@@ -97,7 +97,7 @@ Then('{actor} sees the two moves played', (w, actor: string) =>
 Then('{actor} is told that move is not allowed', async (w, actor: string) =>
   inMatchedGame(w)
     ? told(w, actor, 'CHESS_ILLEGAL_MOVE')
-    : toldOf(w, actor, await refusedCustomGameMoveReason(w, actor))
+    : toldOf(w, actor, await refusedGameSessionMoveReason(w, actor))
 );
 Then('{actor} is told her board has changed', (w, actor: string) =>
   told(w, actor, 'CHESS_BOARD_CHANGED')

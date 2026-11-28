@@ -25,11 +25,11 @@ const meta = {
         onClick: fn(),
       },
       {
-        key: 'custom-game',
+        key: 'game-session',
         title: 'Play with friends or bots',
         caption: 'With the people in this space, or bots',
         icon: UsersIcon,
-        dataSet: { testid: 'choice-custom-game' },
+        dataSet: { testid: 'choice-game-session' },
         onClick: fn(),
       },
       {
@@ -63,7 +63,7 @@ export const ChoosePrimary: Story = {
 export const ChooseARow: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(await canvas.findByTestId('choice-custom-game'));
+    await userEvent.click(await canvas.findByTestId('choice-game-session'));
     await expect(args.choices[1]?.onClick).toHaveBeenCalled();
   },
 };

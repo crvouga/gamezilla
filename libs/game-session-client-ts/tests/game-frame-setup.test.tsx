@@ -10,11 +10,11 @@ import {
   frameViewerRole,
 } from '@libs/game-session-client-ts/game-frame-viewer';
 import {
-  type CustomGame,
-  type CustomGameParticipant,
-  customGameStartable,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  type GameSession,
+  type GameSessionParticipant,
+  gameSessionStartable,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
@@ -26,10 +26,15 @@ afterEach(cleanup);
 const THREE: readonly GameSide[] = ['white', 'black', 'red'];
 
 function seated(
-  kinds: readonly CustomGameParticipant['kind'][],
+  kinds: readonly GameSessionParticipant['kind'][],
   ready: readonly GameSide[] = []
-): CustomGame {
-  const game = newCustomGame('g', 'alice', 'start', THREE);
+): GameSession {
+  const game = newGameSession({
+    id: 'g',
+    creator: 'alice',
+    position: 'start',
+    sides: THREE,
+  });
   const seats = Object.fromEntries(
     THREE.map((side, index) => [
       side,
@@ -80,7 +85,7 @@ test('the open seats are the ones nobody holds, in seat order', () => {
 });
 
 test('a start reason names the first blocker and its count', () => {
-  const line = (game: CustomGame) => frameStartLine(frameStartReason(game));
+  const line = (game: GameSession) => frameStartLine(frameStartReason(game));
   expect(line(seated(['person', 'open', 'open']))).toBe(
     '2 seats are still open.'
   );
@@ -99,7 +104,7 @@ test('a start reason names the first blocker and its count', () => {
 });
 
 test('a game has no start reason exactly when it can start', () => {
-  const kinds: CustomGameParticipant['kind'][] = [
+  const kinds: GameSessionParticipant['kind'][] = [
     'person',
     'bot',
     'local',
@@ -116,7 +121,7 @@ test('a game has no start reason exactly when it can start', () => {
         for (const ready of readiness) {
           const game = seated([first, second, third], ready);
           expect(frameStartReason(game) === null).toBe(
-            customGameStartable(game)
+            gameSessionStartable(game)
           );
         }
 });
@@ -174,18 +179,18 @@ function renderOptions(editable: boolean) {
 
 test('the host steps a count option, which applies the choice it encodes', async () => {
   const options = renderOptions(true);
-  const value = screen.getByTestId('custom-game-option-target-score-value');
+  const value = screen.getByTestId('game-session-option-target-score-value');
   expect(value.getAttribute('aria-valuenow')).toBe('3');
   expect(
-    screen.getByTestId('custom-game-option-target-score-range').textContent
+    screen.getByTestId('game-session-option-target-score-range').textContent
   ).toBe('Choose from 1 to 9.');
   fireEvent.click(
-    screen.getByTestId('custom-game-option-target-score-increase')
+    screen.getByTestId('game-session-option-target-score-increase')
   );
   // The chosen value shows while it is applied, and a second step waits.
   expect(value.getAttribute('aria-valuenow')).toBe('4');
   fireEvent.click(
-    screen.getByTestId('custom-game-option-target-score-increase')
+    screen.getByTestId('game-session-option-target-score-increase')
   );
   expect(value.getAttribute('aria-valuenow')).toBe('5');
   expect(options.applied).toEqual(['4']);
@@ -201,16 +206,16 @@ test('the host steps a count option, which applies the choice it encodes', async
 
 test('the host picks a choice option as a chip', () => {
   const options = renderOptions(true);
-  fireEvent.click(screen.getByTestId('custom-game-option-size-l'));
+  fireEvent.click(screen.getByTestId('game-session-option-size-l'));
   expect(options.applied).toEqual(['size=l']);
 });
 
 test('someone who may not set the game up reads every option, with no control', () => {
   renderOptions(false);
-  expect(screen.queryByTestId('custom-game-option-target-score-value')).toBe(
+  expect(screen.queryByTestId('game-session-option-target-score-value')).toBe(
     null
   );
-  expect(screen.queryByTestId('custom-game-option-size-l')).toBe(null);
+  expect(screen.queryByTestId('game-session-option-size-l')).toBe(null);
   expect(screen.getByText('Round wins to win')).toBeTruthy();
   expect(screen.getByText('3')).toBeTruthy();
   expect(screen.getByText('Small')).toBeTruthy();

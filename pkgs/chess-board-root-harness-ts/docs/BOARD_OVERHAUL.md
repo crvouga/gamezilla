@@ -1,6 +1,6 @@
 # Chess board usability review
 
-This run covers the reusable board and its multiplayer, custom-game, puzzle-play
+This run covers the reusable board and its multiplayer, game-session, puzzle-play
 and puzzle-review consumers. Product behavior remains defined in
 [Chessboard](../../../../specs/chess-board/) and [Chess](../../../../specs/chess/).
 The [agent workflow](../../../ui-root-harness-ts/README.md#agent-workflow) owns

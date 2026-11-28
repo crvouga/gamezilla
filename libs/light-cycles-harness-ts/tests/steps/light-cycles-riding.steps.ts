@@ -15,7 +15,7 @@ import {
   steerQuickly,
 } from '@libs/light-cycles-harness-ts/light-cycles-person-steering';
 import {
-  customGameStatusShown,
+  gameSessionStatusShown,
   riderShown,
   steeringShown,
 } from '@libs/light-cycles-harness-ts/light-cycles-reads';
@@ -238,7 +238,7 @@ Given(
   ) => w.s.apply(steerAsRoundEnds, { rider, heading }, round)
 );
 
-Given('the custom game has not started', async (w) => {
+Given('the game session has not started', async (w) => {
   expect(await w.s.read(lightCyclesStarted)).toBe(false);
 });
 
@@ -252,9 +252,9 @@ Then(
   }
 );
 Then(
-  '{actor} cannot steer {lightCyclesRider} because the custom game has not started',
+  '{actor} cannot steer {lightCyclesRider} because the game session has not started',
   async (w, actor: string, rider: LightCyclesRiderName) => {
     expect((await w.s.read(steeringShown, actor, rider)).offered).toBe(false);
-    expect(await w.s.read(customGameStatusShown, actor)).toBe('configuring');
+    expect(await w.s.read(gameSessionStatusShown, actor)).toBe('configuring');
   }
 );

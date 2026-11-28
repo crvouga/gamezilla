@@ -15,8 +15,8 @@ test('storybook integration: word-tiles pointer press keeps the square beneath r
   page,
 }) => {
   await openStory(page, 'opening', 'light');
-  await page.getByTestId('custom-game-board-rack-11').click();
-  const target = page.getByTestId('custom-game-board-cell-g8');
+  await page.getByTestId('game-session-board-rack-11').click();
+  const target = page.getByTestId('game-session-board-cell-g8');
   const before = await target.boundingBox();
   if (!before) throw new Error('Visible placement target is missing');
   await page.mouse.move(

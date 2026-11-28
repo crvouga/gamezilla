@@ -8,6 +8,6 @@ import '@libs/runtime-harness-ts/pong-journey.steps';
 if (process.env['SPEC_WORLD'] !== 'live') await import('./developer-world');
 
 import '@libs/runtime-harness-ts/journeys.steps';
-import '@libs/runtime-harness-ts/custom-game-journey.steps';
+import '@libs/runtime-harness-ts/game-session-journey.steps';
 import '@libs/runtime-harness-ts/multiplayer-journey.steps';
 import './live-index';

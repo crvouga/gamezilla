@@ -5,36 +5,36 @@ Feature: History and review of every game
   Rule: Review shows a played move without changing the game
 
     Scenario: A played move can be reviewed
-      Given Alice has a finished custom game
+      Given Alice has a finished game session
       When Alice reviews the third move
       Then Alice sees the board after three moves
-      And the finished custom game is unchanged
+      And the finished game session is unchanged
 
     Scenario: The starting position of a finished game can be reviewed
-      Given Alice has a finished custom game
+      Given Alice has a finished game session
       When Alice reviews the starting position
       Then Alice sees the game's starting position
-      And the finished custom game is unchanged
+      And the finished game session is unchanged
 
     Scenario: A watcher reviews the starting position of a finished game
-      Given Alice has a finished custom game
+      Given Alice has a finished game session
       And Carol is in Alice's space
       When Carol reviews the starting position
       Then Carol sees the game's starting position
 
     Scenario: A move that was not played cannot be reviewed
-      Given Alice has a finished custom game
+      Given Alice has a finished game session
       When Alice reviews a move that was not played
       Then Alice is told that move was not played
 
   Rule: A game's statistics count that game alone
 
     Scenario: A victory counts in the game's statistics
-      Given Alice has won a custom game
+      Given Alice has won a game session
       When Alice opens the game's history
       Then Alice sees her victory and its participants
 
     Scenario: A victory in another game is not counted in this game's statistics
-      Given Alice has won a custom game of another game
+      Given Alice has won a game session of another game
       When Alice opens the game's history
       Then Alice sees no victories

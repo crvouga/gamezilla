@@ -37,7 +37,7 @@ export default function MainMenuScreenExample(): JSX.Element {
                 },
               ]
             : [
-                'Custom game',
+                'Game session',
                 'Matchmaking',
                 'Puzzles',
                 'History',

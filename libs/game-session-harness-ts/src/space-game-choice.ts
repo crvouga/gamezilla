@@ -11,7 +11,7 @@ import type { ProductHarness } from '@libs/harness-ts/harness';
 import { bringToFront, visible } from '@libs/harness-ts/observations';
 import { SPACE_WAIT_MS, waitForOneOf } from '@libs/spaces-harness-ts/space-ui';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
-import { showCustomGameHome } from './custom-game-places';
+import { showGameSessionHome } from './game-session-places';
 
 /** The menu itself identifies the selected game, independent of its choices. */
 const GAME_CHOICES = Handles.gameChoices;
@@ -61,12 +61,12 @@ export function goBackToGameChoiceOffered(
   return visible(s, actor, [GAME_CHOICES]);
 }
 
-/** A custom game's screen, which the space may be held on. */
-const CUSTOM_GAME = 'custom-game-content';
+/** A game session's screen, which the space may be held on. */
+const GAME_SESSION = 'game-session-content';
 
 /**
  * Wait until `actor`'s space shows the game choice, the game's choices or a
- * custom game.
+ * game session.
  */
 function spaceShown(
   s: ProductHarness,
@@ -76,7 +76,7 @@ function spaceShown(
   return waitForOneOf(
     s,
     actor,
-    [gameTile(s, gameId), GAME_CHOICES, CUSTOM_GAME],
+    [gameTile(s, gameId), GAME_CHOICES, GAME_SESSION],
     'the space view'
   );
 }
@@ -86,7 +86,7 @@ const DEEPEST_SCREEN = 4;
 
 /**
  * From one of the game's screens, Back a step at a time until its choices
- * show. Whether they do: no Back is offered while a custom game under way
+ * show. Whether they do: no Back is offered while a game session under way
  * holds the space on its board.
  */
 async function backToGameChoices(
@@ -108,8 +108,8 @@ async function backToGameChoices(
         continue;
       }
     }
-    if (await ui.get(CUSTOM_GAME).isVisible())
-      await showCustomGameHome(s, actor);
+    if (await ui.get(GAME_SESSION).isVisible())
+      await showGameSessionHome(s, actor);
     if (!(await ui.get(Handles.navBack).isVisible())) return false;
     await ui.get(Handles.navBack).tap();
     await s.session.waitForIdle();
@@ -154,7 +154,7 @@ export const attemptGoBackToGameChoice = scenarioAction({
     const shown = await waitForOneOf(
       s,
       actor,
-      [gameTile(s, gameId), GAME_CHOICES, CUSTOM_GAME, Handles.navBack],
+      [gameTile(s, gameId), GAME_CHOICES, GAME_SESSION, Handles.navBack],
       'the space view'
     );
     if (shown === gameTile(s, gameId)) return;

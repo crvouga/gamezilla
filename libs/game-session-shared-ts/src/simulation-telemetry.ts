@@ -1,7 +1,7 @@
 import { createMetric } from '@pkgs/observability-root-shared-ts/metric-contract';
 import type { SimulationReplicaSample } from './simulation-replica';
 
-const dimensions = { 'game.mode': ['custom', 'matched', 'local'] } as const;
+const dimensions = { 'game.mode': ['room', 'matched', 'local'] } as const;
 const tickDuration = createMetric({
   name: 'game.simulation.tick.duration',
   description: 'Fixed-step execution duration',
@@ -137,9 +137,7 @@ const resyncs = createMetric({
 /** A frame later than this missed at least one 60 Hz refresh. */
 export const DROPPED_FRAME_MS = 1.5 * (1000 / 60);
 
-export function simulationReplicaMeasures(
-  mode: 'custom' | 'matched' | 'local'
-) {
+export function simulationReplicaMeasures(mode: 'room' | 'matched' | 'local') {
   const attributes = { 'game.mode': mode };
   let snapsSeen = 0;
   let resyncsSeen = 0;
@@ -167,7 +165,7 @@ export function simulationReplicaMeasures(
 }
 
 /** Frame pacing of a live game's presentation: one call per presented frame. */
-export function simulationFrameMeasures(mode: 'custom' | 'matched' | 'local') {
+export function simulationFrameMeasures(mode: 'room' | 'matched' | 'local') {
   const attributes = { 'game.mode': mode };
   return (intervalMs: number): void => {
     frameInterval(intervalMs / 1000, attributes);
@@ -177,7 +175,7 @@ export function simulationFrameMeasures(mode: 'custom' | 'matched' | 'local') {
 }
 
 /** Histograms aggregate locally; there is no span or log for every tick. */
-export function simulationMeasures(mode: 'custom' | 'matched' | 'local') {
+export function simulationMeasures(mode: 'room' | 'matched' | 'local') {
   const attributes = { 'game.mode': mode };
   return (sample: {
     durationMs: number;
@@ -190,12 +188,12 @@ export function simulationMeasures(mode: 'custom' | 'matched' | 'local') {
   };
 }
 
-export function simulationFailed(mode: 'custom' | 'matched' | 'local'): void {
+export function simulationFailed(mode: 'room' | 'matched' | 'local'): void {
   failed(1, { 'game.mode': mode });
 }
 
 export function simulationInputProcessingMeasures(
-  mode: 'custom' | 'matched' | 'local'
+  mode: 'room' | 'matched' | 'local'
 ) {
   const attributes = { 'game.mode': mode };
   return (milliseconds: readonly number[]): void => {

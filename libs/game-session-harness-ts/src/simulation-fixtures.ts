@@ -11,7 +11,7 @@ import { productExtra } from '@libs/harness-ts/harness';
 import { hostLimit } from '@pkgs/gherkin-shared-ts/registry';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 import type { SimulationInput } from '@pkgs/turn-game-shared-ts/simulation';
-import { showCustomGames } from './game-navigation';
+import { showGameSessions } from './game-navigation';
 
 /** Author-decided examples, including an unfinished state that reaches its result. */
 export type SimulationHarnessFixtures = {
@@ -237,7 +237,7 @@ export async function restoreDeviceSimulation(
   if (!rewritten)
     throw new Error(`${device.actor}'s device saved no real-time game`);
   await ensureActor(s, device.actor);
-  await showCustomGames(s, device.actor, device.gameId);
+  await showGameSessions(s, device.actor, device.gameId);
   await s.session.waitForIdle();
 }
 

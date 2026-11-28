@@ -1,14 +1,14 @@
 context: Games
 purpose: >-
   What every game a space can play offers the same way, whichever game it
-  is: the game's choices, custom games with people and bots, turns, finding
+  is: the game's choices, game sessions with people and bots, turns, finding
   an opponent and the matched games it starts, puzzles, history and review. Each game adds only its own rules and
   board; a scenario here holds for every game that offers what it shows.
 terms:
   - term: game
     definition: >-
       Something a space plays together, chosen by its host, such as chess or
-      Connect Four. Shared experiences such as custom games, turns,
+      Connect Four. Shared experiences such as game sessions, turns,
       opponents, puzzles, history and review work the same way whenever a
       game offers them; its rules decide how people play and how it finishes.
       It offers only the clock choices its play uses, which may be none.
@@ -20,52 +20,52 @@ terms:
   - term: the game's choices
     definition: >-
       Where a game starts in a space: what the game offers of its own, then
-      custom games, finding an opponent, its puzzles when it offers them,
+      game sessions, finding an opponent, its puzzles when it offers them,
       and its history. Everyone in the space is shown the choice anyone in
       it opens, on every device. A solver steps back here from a puzzle's
       board, and goes back to the puzzles from here.
-    forms: [the game's custom games]
+    forms: [the game's game sessions]
     avoid: [menu, screen]
     published: true
 
-  - term: custom game
+  - term: game session
     definition: >-
       One game of the game whose creator chooses a person or a bot for each
       side and any clock choice the game offers, before every person in it is ready and it starts.
-      A finished custom game keeps its participants, moves and result.
+      A finished game session keeps its participants, moves and result.
     forms:
-      - custom games
+      - game sessions
       - creator
       - participant
       - participants
-      - create a custom game
-      - creates a custom game
+      - create a game session
+      - creates a game session
     avoid: [match, room, game lobby]
     published: true
 
   - term: set up
     definition: >-
-      Choose a custom game's sides and clock choice before it starts. Only
-      its creator sets it up, and a custom game is set up until it starts or
+      Choose a game session's sides and clock choice before it starts. Only
+      its creator sets it up, and a game session is set up until it starts or
       is cancelled. Its set-up is the sides and clock choice it has now; a
       choice made for an earlier set-up is refused.
     forms: [sets up, setting up, being set up, set-up]
 
-  - term: custom game readiness
+  - term: game session readiness
     published: true
     definition: >-
-      Agreement to a custom game's current set-up by a person playing in it
+      Agreement to a game session's current set-up by a person playing in it
       before it starts. Any change to the sides or the clock choice leaves every
       person not ready; a bot needs no agreement. A person may withdraw
-      readiness until the custom game starts. In a game with a private
+      readiness until the game session starts. In a game with a private
       setup, becoming ready also needs a complete private setup and confirms
       it: while the person is ready it cannot change, and withdrawing
       readiness lets them change it again. In a matched game of such a game,
       a person is ready once they choose their private setup.
     forms:
       - game readiness
-      - ready for a custom game
-      - ready for the custom game
+      - ready for a game session
+      - ready for the game session
       - ready players
 
   - term: private setup
@@ -77,10 +77,10 @@ terms:
       the creator, a watcher or anyone else, while the game is set up or
       played, nor afterwards in its history and review, where each person
       still sees only their own and what play revealed. Everyone sees
-      whether its person is ready. A bot arranges its own when the custom
-      game starts, and a rematch starts with none. A game without a private
-      setup has nothing of the kind. It is a different thing from a custom
-      game's set-up, which everyone in it sees.
+      whether its person is ready. A bot arranges its own when the game
+      session starts, and a rematch starts with none. A game without a private
+      setup has nothing of the kind. It is a different thing from a game
+      session's set-up, which everyone in it sees.
     forms:
       - private setups
       - complete private setup
@@ -95,7 +95,7 @@ terms:
 
   - term: change a private setup
     definition: >-
-      Prepare or rearrange one's own private setup, while the custom game is
+      Prepare or rearrange one's own private setup, while the game session is
       set up or the matched game's private setups are being chosen, and only
       while one is not ready. A change while ready is refused and keeps the
       private setup as it was.
@@ -146,7 +146,7 @@ terms:
       game's rules call for them is a new round of secret choices. Only its
       own person sees what was chosen for their side: never another
       participant, a watcher or anyone else, and not after coming back
-      either. Everyone in the custom game and every watcher sees which sides
+      either. Everyone in the game session and every watcher sees which sides
       have made theirs. A secret choice is final for its round, and nothing
       a round's secret choices decide happens until every side has made one;
       then all of them take effect at once as the game's own move, and
@@ -170,9 +170,9 @@ terms:
     definition: >-
       A participant choosing their side's secret choice for the current
       round of secret choices; a bot, or a stand-in, makes its side's own by
-      itself. In a custom game with another person it needs a connection; a
+      itself. In a game session with another person it needs a connection; a
       person alone with bots may make it offline. A second one in the same round, one for
-      an earlier round, one while the custom game is not awaiting secret
+      an earlier round, one while the game session is not awaiting secret
       choices, one from someone without a side, and one for a side a
       stand-in is playing are refused and change nothing.
     forms:
@@ -195,17 +195,17 @@ terms:
   - term: stand-in
     definition: >-
       A bot that plays the side of a participant who has been away from a
-      custom game under way with more than two sides for 60 seconds, so the
+      game session under way with more than two sides for 60 seconds, so the
       others are not held up. Everyone sees it is a stand-in and whose side
       it plays. It knows only what that side may know and plays by the same
-      rules, only while the custom game is under way: finishing it ends
+      rules, only while the game session is under way: finishing it ends
       every stand-in. The participant keeps their side and its result; while the
       stand-in plays it, their own moves and secret choices are refused
       until they take back their side. Coming back alone does not end it. A
-      stand-in comes only while another person is in the custom game and the
+      stand-in comes only while another person is in the game session and the
       host of the space is here: a person alone with bots gets none, and
       while the host is away the space waits, so nobody's time away counts
-      and no stand-in comes for anyone, the host included. A custom game with two sides has no
+      and no stand-in comes for anyone, the host included. A game session with two sides has no
       stand-in: the other participant may claim the win instead.
     forms: [stand-ins, stand-in's]
     avoid: [substitute, replacement bot, takeover, autopilot]
@@ -240,35 +240,35 @@ terms:
     forms: [shared victories, share the victory, shares the victory, shared the victory, have shared the victory]
     published: true
 
-  - term: start a custom game
+  - term: start a game session
     definition: >-
-      Begin a custom game once every declared side has a participant and every
+      Begin a game session once every declared side has a participant and every
       person in it is ready, which only its creator does. It starts from the
       game's starting position, with the first side to move when it plays in turns, and it starts
       once however often the creator asks; a start for an earlier set-up is
       refused.
-    forms: [starts the custom game, starts a custom game, starting a custom game, starting the custom game]
+    forms: [starts the game session, starts a game session, starting a game session, starting the game session]
     published: true
 
   - term: under way
     definition: >-
-      A custom game that has started and is not finished yet, or a matched
+      A game session that has started and is not finished yet, or a matched
       game whose play has begun and which is not over. A matched game with
       turns is under way once every person has made their first move; in a
-      game without turns, the game's own beginning of play decides. A custom
-      game's sides and clock choice can no longer change, and nobody may
+      game without turns, the game's own beginning of play decides. A game
+      session's sides and clock choice can no longer change, and nobody may
       take or give up a side.
     forms: [remains under way, gets under way]
     published: true
 
   - term: cancelled
     definition: >-
-      A custom game called off before it finished. It has no result, takes
-      no more moves and cannot start; a new custom game may follow it. Its
+      A game session called off before it finished. It has no result, takes
+      no more moves and cannot start; a new game session may follow it. Its
       creator may cancel it until it is finished; either participant of a
-      custom game between two people may also cancel it until each side has
+      game session between two people may also cancel it until each side has
       moved, and must resign instead from then on. Ending its space cancels
-      an unfinished custom game.
+      an unfinished game session.
     forms: [cancel, cancels, cancelling, cancellation]
 
   - term: starting position
@@ -278,39 +278,39 @@ terms:
 
   - term: open a side
     definition: >-
-      The creator making a side open again before the custom game starts,
+      The creator making a side open again before the game session starts,
       removing the person, bot or invitation chosen for it.
     forms: [opens the first side, opens the second side, opened the first side, opened the second side]
 
   - term: close a side
     definition: >-
       The creator keeping an unoccupied side from being claimed until they
-      open it or choose someone for it. A closed side keeps the custom game
+      open it or choose someone for it. A closed side keeps the game session
       from starting.
     forms: [closes, closed]
 
   - term: take a side
     definition: >-
-      The creator choosing themselves for a side before the custom game
+      The creator choosing themselves for a side before the game session
       starts. One person takes at most one side.
     forms: [takes the first side, takes the second side, take both sides]
 
   - term: assign a bot
     definition: >-
-      The creator choosing a bot for a side before the custom game starts,
+      The creator choosing a bot for a side before the game session starts,
       in place of whatever was chosen for it before.
     forms: [assigns a bot, assigned a bot, assigned bots, replaced by a bot]
 
   - term: claim a side
     definition: >-
       Someone in the space taking an open side for themselves before the
-      custom game starts. When people claim the same side at once, exactly
+      game session starts. When people claim the same side at once, exactly
       one of them gets it.
     forms: [claims, claim, claimant]
 
   - term: release a side
     definition: >-
-      A participant giving up their own side before the custom game starts,
+      A participant giving up their own side before the game session starts,
       which leaves it open. Nobody else may release it. Leaving the space
       before the start releases their side too.
     forms: [releases, released, releasing]
@@ -318,7 +318,7 @@ terms:
   - term: invitation
     definition: >-
       A side the creator reserves for someone in the space, who alone may
-      accept or decline it before the custom game starts. They are shown
+      accept or decline it before the game session starts. They are shown
       it, and nobody outside the space is. Accepting makes them its
       participant; declining or revoking it, or choosing someone else for
       the side, leaves no invitation to accept.
@@ -342,7 +342,7 @@ terms:
       - third side
       - fourth side
       - four-player game
-      - four-player custom game
+      - four-player game session
       - four-player matched game
       - open side
       - both sides
@@ -368,7 +368,7 @@ terms:
       rules allow it. A move the game's rules do not allow is refused and
       changes nothing; in a puzzle it is no move at all and is never held
       against the solver. Each side's first move is its first move of the game.
-      A custom game takes moves only while it is under way.
+      A game session takes moves only while it is under way.
     forms:
       - moves
       - makes a move
@@ -405,7 +405,7 @@ terms:
 
   - term: finished
     definition: >-
-      A custom game or matched game that has a result: a victory or a draw.
+      A game session or matched game that has a result: a victory or a draw.
       A finished game takes no more moves. A game without a result yet is
       unfinished. A puzzle is finished once it is over; one still being
       solved, or waiting for a retry after a wrong move, is unfinished.
@@ -434,7 +434,7 @@ terms:
   - term: victory
     definition: >-
       The result that gives a participant the game, by the game's own rules
-      or because the opponent resigns. In a custom game it may also come on
+      or because the opponent resigns. In a game session it may also come on
       time or because the opponent stayed away. Where the game's own rules
       allow it, several sides may share it: a shared victory. A victory, once
       reached, is never replaced.
@@ -443,7 +443,7 @@ terms:
   - term: draw
     definition: >-
       A finished game that nobody wins. A matched game whose draw offer is
-      accepted is drawn by agreement; so is a custom game. A move after
+      accepted is drawn by agreement; so is a game session. A move after
       which the game's own rules allow nobody a victory draws the game by
       those rules at once: it is the drawing move, and both people see the
       same draw. A game with more than two sides also finishes as a draw
@@ -461,8 +461,8 @@ terms:
       way, and the person is told to abort instead; from then on any
       participant may resign, whoever's turn it is when there are turns, and
       resigning again keeps the result. Leaving the space resigns a
-      participant's side of a custom game under way, and a finished custom
-      game takes no resignation.
+      participant's side of a game session under way, and a finished game
+      session takes no resignation.
     forms: [resigns, resigned, resigning, resignation]
     avoid: [forfeit, concede, quit]
 
@@ -502,14 +502,14 @@ terms:
   - term: draw offer
     definition: >-
       One person in an unfinished matched game, or a participant in a
-      custom game under way with people on every side, asking everyone else
+      game session under way with people on every side, asking everyone else
       to agree to a draw. Only another participant may accept or decline
       it. The game is drawn by agreement once every participant agrees;
       declining lets the game go on. In a two-sided
       matched game, offering a draw back accepts it, a move by the person
       offered declines it, a move by the person who made the draw offer
       keeps it, offering again keeps one draw offer, and a matched game that
-      is over takes no draw offer. In a custom game, a bot is never offered
+      is over takes no draw offer. In a game session, a bot is never offered
       a draw, any move clears it, and after a declined draw offer the person
       who offered may offer again only after their next move. In any game
       with more than two sides, a move clears the draw offer and all
@@ -542,7 +542,7 @@ terms:
     definition: >-
       A new game between the same participants after their game is finished.
       Each moves to the next side in turn order, with the last side moving
-      to the first, so two sides swap. A custom game's rematch keeps the earlier one
+      to the first, so two sides swap. A game session's rematch keeps the earlier one
       in the history. After a finished matched game either person may offer
       a rematch: a new matched game at the same clock choice once every
       participant agrees, without seeking an opponent again. Offering one
@@ -617,16 +617,16 @@ terms:
       choice, and the matched game has no clock. When a game offers clock
       choices, finding an opponent offers 1+0 and 2+1 (bullet); 3+0, 3+2, 5+0 and 5+3 (blitz); 10+0, 10+5
       and 15+10 (rapid); 30+0 and 30+20 (classical); and 1 day, 3 days or 7
-      days per move (daily); any other is not offered. A custom game may
+      days per move (daily); any other is not offered. A game session may
       instead be untimed, which it is until its creator chooses a clock; a
       timed one gives each side from 1 to 180 minutes and adds from 0 to 60
       seconds a move, and any other is not offered. Its creator may change
-      it only before the custom game starts.
+      it only before the game session starts.
     forms: [clock choices, played at, untimed, timed, offered clock choice, daily clock choice, daily clock choices]
 
   - term: clock
     definition: >-
-      The time each side has left in a timed custom game or a matched game,
+      The time each side has left in a timed game session or a matched game,
       shown to both people and every watcher. Only the side whose turn it is
       spends it, and the clock choice's seconds are added to it by that
       side's move, never by a move out of turn. It keeps running while a
@@ -637,7 +637,7 @@ terms:
 
   - term: run out of time
     definition: >-
-      A side's clock reaching nothing left, which finishes the custom game
+      A side's clock reaching nothing left, which finishes the game session
       or matched game. A game with more than two sides finishes as a draw.
       A two-sided game gives the other side a victory on time, or a draw
       when that side cannot win. A move arriving at that moment is too late.
@@ -647,30 +647,30 @@ terms:
 
   - term: seconds pass
     definition: >-
-      Time going by in a matched game or a custom game while nobody makes a
+      Time going by in a matched game or a game session while nobody makes a
       move.
     forms: [second passes, seconds have passed]
 
   - term: away
     definition: >-
-      A participant of a custom game under way who has no connection to it.
-      Being away never gives up the custom game on its own, and a timed
-      custom game's clock keeps running for them. Coming back before anyone
-      claims the win continues the custom game as it is.
+      A participant of a game session under way who has no connection to it.
+      Being away never gives up the game session on its own, and a timed
+      game session's clock keeps running for them. Coming back before anyone
+      claims the win continues the game session as it is.
     forms: [stays away, stayed away]
 
   - term: claim the win
     definition: >-
-      In a custom game under way between two people, a participant finishing
+      In a game session under way between two people, a participant finishing
       it with a victory because the other participant has been away for 60
       seconds. Earlier, they are told the other participant may still
-      return. Watchers cannot claim the win, and a finished custom game
+      return. Watchers cannot claim the win, and a finished game session
       keeps its result.
     forms: [claims the win, claimed the win]
 
   - term: paused
     definition: >-
-      A custom game under way between two people, or an unfinished matched
+      A game session under way between two people, or an unfinished matched
       game, that neither of its people can play for now. Its clocks stop and
       spend nothing, at every speed and before the first moves too; nobody is
       away, nobody may claim the win, and a move or resignation is refused
@@ -704,7 +704,7 @@ terms:
       paired person sees their opponent's. A finished matched game is a
       rated matched game: it changes both people's rating for that speed or game
       exactly once, however often it is resigned, and never the rating of
-      another speed; an aborted matched game changes none. A custom game is
+      another speed; an aborted matched game changes none. A game session is
       unrated: it changes nobody's rating.
     forms: [ratings, bullet rating, blitz rating, rapid rating, classical rating, daily rating, unrated, rated matched game, rated matched games]
 
@@ -728,7 +728,7 @@ terms:
     definition: >-
       Every person, guest or account, has at most one unfinished matched
       game, whichever game it is. Before seeking an opponent again, the
-      person finishes it, and any custom game under way they are a
+      person finishes it, and any game session under way they are a
       participant of. A matched game that is over no longer counts. Guests,
       free accounts and Plus members have the same allowance.
 
@@ -861,8 +861,8 @@ terms:
       it sees what its host last chose, on every device they have in the
       space. A guest cannot change it and is told only the host chooses the
       game; a device without a connection cannot change it either. Going
-      idle does not change it. While a custom game is under way in the
-      space, it stays on that custom game's board until the game is finished.
+      idle does not change it. While a game session is under way in the
+      space, it stays on that game session's board until the game is finished.
     avoid: [screen, page]
 
   - term: pair people up
@@ -871,7 +871,7 @@ terms:
 
   - term: history
     definition: >-
-      A game's finished custom games and matched games, with their
+      A game's finished game sessions and matched games, with their
       participants, moves and results, for people allowed to watch them.
 
   - term: review
@@ -1333,11 +1333,11 @@ terms:
 
   - term: refusal
     definition: >-
-      What a person is told when their choice in a custom game cannot take
-      effect, and why: who may make it, whether the custom game allows it
+      What a person is told when their choice in a game session cannot take
+      effect, and why: who may make it, whether the game session allows it
       now, someone in the space they or the creator blocked (never saying
       who blocked whom), not being in the space, a missing connection, a
-      paused custom game, or a set-up that has changed since they saw it. In
+      paused game session, or a set-up that has changed since they saw it. In
       a puzzle, what a solver is told when a move, a hint, a skip, showing
       the solution or reviewing is unavailable now, and why: the puzzle is
       over, a retry is needed, the first hint is needed or already taken,
@@ -1350,7 +1350,7 @@ terms:
 
   - term: watcher
     definition: >-
-      Someone in the space who has no side in the custom game, or a guest in
+      Someone in the space who has no side in the game session, or a guest in
       the space of one of a matched game's people, who makes no move in it;
       or someone in a space watching the host's puzzle, whose board agrees
       with the host's, who may make a suggestion but never drives the puzzle
@@ -1456,21 +1456,21 @@ terms:
   - term: return to their game
     definition: >-
       Go straight back to the board of one's unfinished game, from anywhere
-      in the app, in one step: a custom game under way that the person is a
+      in the app, in one step: a game session under way that the person is a
       participant of, or their unfinished matched game. While that game is
       unfinished it is offered wherever the person is, on every device, and
       in place of anything the game keeps them from starting, such as
       seeking an opponent. A watcher, or someone whose game is finished or
       over, has nothing to return to.
     forms:
-      - return to the custom game
-      - returns to the custom game
+      - return to the game session
+      - returns to the game session
       - return to her matched game
       - returns to her matched game
       - return to his matched game
       - returns to his matched game
       - return to the matched game
-      - returning to the custom game
+      - returning to the game session
       - returning to the matched game
       - returning to their game
     avoid: [jump back, back to game]
@@ -1487,7 +1487,7 @@ terms:
 
   - term: listen to the app
     from: runtime
-    forms: [listens to the custom game, hears, is listening to, listening to]
+    forms: [listens to the game session, hears, is listening to, listening to]
 
   - term: sounds
     from: runtime
@@ -1512,7 +1512,7 @@ terms:
 
   - term: continue
     definition: >-
-      Carry on with the same custom game or puzzle attempt.
+      Carry on with the same game session or puzzle attempt.
     forms: [continues]
 
   - term: unplayed

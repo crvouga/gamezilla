@@ -64,26 +64,26 @@ Feature: Place a Battleship fleet
       Then Alice's destroyer covers H5 and H6
 
     Scenario: A ready player's ships cannot be placed again
-      Given Alice is ready for the custom game with a random fleet
+      Given Alice is ready for the game session with a random fleet
       When Alice places her destroyer vertically from H5
       Then Alice is told her fleet cannot change while she is ready
       And Alice's own board keeps every ship in its place
 
     Scenario: A ready player's ships cannot be rotated
-      Given Alice is ready for the custom game with a random fleet
+      Given Alice is ready for the game session with a random fleet
       When Alice rotates her destroyer
       Then Alice is told her fleet cannot change while she is ready
       And Alice's own board keeps every ship in its place
 
     Scenario: A ready player who goes offline cannot rotate a ship
-      Given Alice and Bob are ready for the custom game with random fleets
+      Given Alice and Bob are ready for the game session with random fleets
       And Bob is offline
       When Bob rotates his carrier
       Then Bob is told his fleet cannot change while he is ready
       And Bob's own board keeps every ship in its place
 
     Scenario: A ready player cannot ask for a random fleet
-      Given Alice is ready for the custom game with a random fleet
+      Given Alice is ready for the game session with a random fleet
       When Alice asks for a random fleet
       Then Alice is told her fleet cannot change while she is ready
       And Alice's own board keeps every ship in its place
@@ -101,17 +101,17 @@ Feature: Place a Battleship fleet
 
     Scenario: A complete fleet becomes ready
       Given Alice has a random fleet
-      When Alice becomes ready for the custom game
-      Then Alice is ready for the custom game
+      When Alice becomes ready for the game session
+      Then Alice is ready for the game session
 
     Scenario: A fleet with a ship missing cannot become ready
       Given Alice has placed four of her five ships
-      When Alice becomes ready for the custom game
+      When Alice becomes ready for the game session
       Then Alice is told her fleet is incomplete
-      And Alice is not ready for the custom game
+      And Alice is not ready for the game session
 
     Scenario: A player without a connection cannot become ready
       Given Alice has a random fleet
       And Alice is offline
-      When Alice becomes ready for the custom game
+      When Alice becomes ready for the game session
       Then Alice is told the game needs a connection

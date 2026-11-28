@@ -35,7 +35,7 @@ export function FindOpponentOffer(props: {
     >
       <Switch fallback={props.children}>
         <Match when={game()?.kind === 'custom'}>
-          <Trans>Finish your custom game first</Trans>
+          <Trans>Finish your game first</Trans>
         </Match>
         <Match when={game()?.kind === 'matched'}>
           <Trans>Finish your matched game first</Trans>

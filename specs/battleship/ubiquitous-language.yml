@@ -98,13 +98,13 @@ terms:
     definition: >-
       A player whose complete fleet is confirmed for the game, which needs a
       connection. Only a complete fleet can be ready, and a ready player's
-      ships cannot be placed again or rotated. In a custom game a bot is
-      ready once the custom game starts.
+      ships cannot be placed again or rotated. In a game session a bot is
+      ready once the game session starts.
     forms: [readiness, becomes ready, become ready, not ready]
 
   - term: start
     definition: >-
-      Begin shooting once both players are ready. In a custom game its
+      Begin shooting once both players are ready. In a game session its
       creator starts it; any other Battleship game starts by itself. The
       first player then has the first turn.
     forms: [starts, started, starting]
@@ -171,7 +171,7 @@ terms:
 
   - term: game
     from: games
-  - term: custom game
+  - term: game session
     from: games
   - term: space
     from: spaces

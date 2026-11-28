@@ -1,6 +1,6 @@
 /**
  * Story-only: a game's board inside the real game frame
- * (`CustomGameScreenView`), so every game's board stories show the screen a
+ * (`PlayFriendScreenView`), so every game's board stories show the screen a
  * person plays on — the title and facts, the seats around the board, the
  * play actions, the record and the result — exactly as the frame's own
  * stories do. A game supplies only its presentation; the frame data is read
@@ -24,7 +24,6 @@ import type {
 import type { JSX } from '@solidjs/web';
 import { merge, Show, untrack } from 'solid-js';
 import { fn } from 'storybook/test';
-import { CUSTOM_GAME_PLACES } from './custom-game-places';
 import { FrameStory } from './game-frame-board.example';
 import { FRAME_NO_NEXT, FRAME_NO_PLAY } from './game-frame-empty';
 import { frameSwatch } from './game-frame-look';
@@ -40,6 +39,7 @@ import type {
   FrameStatus,
   FrameTable,
 } from './game-frame-view-types';
+import { GAME_SESSION_PLACES } from './game-session-places';
 
 /** How a game's stories hand over its presentation. */
 export type GameTablePresentation = Omit<GamePresentation<JSX.Element>, 'id'>;
@@ -56,7 +56,7 @@ export function boardArgs(
     sound: false,
     syncKey: 0,
     onAction: fn(),
-    testId: 'custom-game-board',
+    testId: 'game-session-board',
     setup: null,
     hand: null,
     committed: [],
@@ -242,7 +242,7 @@ function tableResult(
       holder: { kind: 'person', person: HOLDERS[standing.side].id },
       score: standing.score,
       you: standing.side === viewer,
-      testId: `custom-game-standing-${standing.side}`,
+      testId: `game-session-standing-${standing.side}`,
       readiness: null,
     })),
   };
@@ -312,7 +312,7 @@ function GameFrameTable(props: TableProps): JSX.Element {
   return (
     <FrameStory
       {...frameArgs()}
-      place={CUSTOM_GAME_PLACES.home[phase()]}
+      place={GAME_SESSION_PLACES.home[phase()]}
       title={props.title ?? props.presentation.name()}
       error={props.error ?? ''}
       boardFit={props.presentation.frame.boardFit}

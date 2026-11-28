@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { lightCyclesBoardFacts } from '@libs/light-cycles-harness-ts/light-cycles-board-view';
 
-const BOARD = 'custom-game-board';
+const BOARD = 'game-session-board';
 
 function rider(
   index: number,

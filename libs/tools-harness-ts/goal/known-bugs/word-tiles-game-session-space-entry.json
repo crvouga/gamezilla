@@ -1,0 +1,4 @@
+{
+  "summary": "Bob timed out before pressing Join while setting up a Word Tiles game session. The fixture discarded his screen on opening the link and required a Join button even when the link already admitted him.",
+  "regressionTest": "libs/games-harness-ts/tests/game-session-space-entry.test.ts"
+}

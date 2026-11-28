@@ -40,7 +40,7 @@ const PUZZLES_SUITE: PlannedCodeSuite = {
   area: 'puzzles',
   registers: { 'counting-race': true },
 };
-const CUSTOM_GAMES_FEATURE = 'specs/games/race-custom.feature';
+const GAME_SESSIONS_FEATURE = 'specs/games/race-custom.feature';
 
 /** A complete plan for the reference game alone; each test breaks one part. */
 const SOUND: ConformancePlan = {
@@ -48,8 +48,8 @@ const SOUND: ConformancePlan = {
   harness: [],
   games: [RACE],
   codeSuites: [RULES_SUITE, HISTORY_SUITE, PUZZLES_SUITE],
-  specifications: [CUSTOM_GAMES_FEATURE],
-  table: { 'race-custom': ['custom-games'] },
+  specifications: [GAME_SESSIONS_FEATURE],
+  table: { 'race-custom': ['vs-human', 'vs-bot'] },
 };
 
 test('a complete plan has no problems', () => {
@@ -198,14 +198,14 @@ test('a specification table listing an unknown capability, nothing, or only a tr
   expect(
     specificationTableProblems(
       {
-        a: ['custom-games', 'tournaments'],
+        a: ['vs-human', 'tournaments'],
         b: [],
         c: ['a side that cannot win'],
       },
       uris
     )
   ).toEqual([
-    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (custom-games, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, rotating turns, secret choices, a shared victory, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
+    'SHARED_SPECIFICATIONS["a"] lists "tournaments", which is neither a capability (vs-human, vs-bot, matchmaking, history, puzzles) nor a trait (two seats, more than two seats, four seats, rotating turns, secret choices, a shared victory, clock choices, no clock choices, turns, no turns, simulation, a puzzle opponent, a side that cannot win, a draw by the game\'s own rules, a private setup, played on one device, a bot choosing among legal moves, dealt hands, a seven-move victory, a known puzzle won another way)',
     'SHARED_SPECIFICATIONS["b"] lists nothing — list the capabilities it shows',
     'SHARED_SPECIFICATIONS["c"] lists no capability — a specification counts toward the capabilities it shows',
   ]);
@@ -213,7 +213,7 @@ test('a specification table listing an unknown capability, nothing, or only a tr
 
 test('a specification without an entry, and an entry without a specification, fail', () => {
   expect(
-    specificationTableProblems({ gone: ['custom-games'] }, [
+    specificationTableProblems({ gone: ['vs-human'] }, [
       'specs/games/new.feature',
     ])
   ).toEqual([
@@ -225,9 +225,9 @@ test('a specification without an entry, and an entry without a specification, fa
 test('a specification with an unknown capability binds no game', () => {
   const { matrix } = planConformance({
     ...SOUND,
-    table: { 'race-custom': ['custom-games', 'tournaments'] },
+    table: { 'race-custom': ['vs-human', 'tournaments'] },
   });
-  expect(matrix[0]!.cells['custom-games'].status).toBe('missing');
+  expect(matrix[0]!.cells['vs-human'].status).toBe('missing');
 });
 
 test('a shared specification added to the table reaches every game offering what it shows, and no other', () => {
@@ -242,17 +242,17 @@ test('a shared specification added to the table reaches every game offering what
       'specs/games/new-matched.feature',
     ],
     table: {
-      'new-custom': ['custom-games'],
+      'new-custom': ['vs-human'],
       'new-matched': ['matchmaking', 'history'],
     },
   };
   const { matrix } = planConformance(plan);
-  const bound = (area: 'custom-games' | 'matchmaking' | 'history') =>
+  const bound = (area: 'vs-human' | 'matchmaking' | 'history') =>
     matrix.flatMap((row) => {
       const cell = row.cells[area];
       return cell.status === 'bound' ? [[row.game, cell.suites] as const] : [];
     });
-  expect(bound('custom-games')).toEqual(
+  expect(bound('vs-human')).toEqual(
     games.map((game) => [game.label, ['specs/games/new-custom.feature']])
   );
   expect(bound('matchmaking').map(([game]) => game)).toEqual(

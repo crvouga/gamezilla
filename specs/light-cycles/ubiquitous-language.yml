@@ -2,7 +2,7 @@ context: Light Cycles
 purpose: >-
   Light Cycles' arena, riders, trails, steering, crashes, rounds, round wins
   and victory in Light Cycles Duel, Light Cycles Trio and Light Cycles Quad.
-  What every game offers alike, such as custom games, finding an opponent,
+  What every game offers alike, such as game sessions, finding an opponent,
   results, history and rematches, belongs to the games context.
 terms:
   - term: Light Cycles
@@ -33,7 +33,7 @@ terms:
   - term: mode
     definition: >-
       Light Cycles Duel, Light Cycles Trio or Light Cycles Quad. Each mode is
-      a separate game a space can play, with its own custom games and its own
+      a separate game a space can play, with its own game sessions and its own
       finding players. A mode's number of riders never changes during a game;
       anyone who arrives once every rider is taken watches.
     forms: [modes]
@@ -204,8 +204,8 @@ terms:
 
   - term: target score
     definition: >-
-      The round wins that win the Light Cycles game: 3, unless the custom
-      game's creator chooses from 1 to 9 before it starts. A game found by
+      The round wins that win the Light Cycles game: 3, unless the game
+      session's creator chooses from 1 to 9 before it starts. A game found by
       finding players uses 3.
 
   - term: last round
@@ -230,7 +230,7 @@ terms:
 
   - term: setting up
     definition: >-
-      A Light Cycles custom game that has not started yet. Only now may its
+      A Light Cycles game session that has not started yet. Only now may its
       creator choose the target score and how well its bots ride, and nobody
       steers yet.
     forms: [has not started]
@@ -322,15 +322,15 @@ terms:
   - term: game
     from: games
 
-  - term: custom game
+  - term: game session
     from: games
-    forms: [created, custom game's, creator's]
+    forms: [created, game session's, creator's]
 
-  - term: custom game readiness
+  - term: game session readiness
     from: games
     forms: [ready]
 
-  - term: start a custom game
+  - term: start a game session
     from: games
     forms: [started, has started, starts]
 

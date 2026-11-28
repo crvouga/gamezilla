@@ -135,11 +135,11 @@ terms:
       every pawn move and wall placement available.
   - term: game
     from: games
-  - term: custom game
+  - term: game session
     from: games
-  - term: custom game readiness
+  - term: game session readiness
     from: games
-  - term: start a custom game
+  - term: start a game session
     from: games
   - term: space
     from: spaces

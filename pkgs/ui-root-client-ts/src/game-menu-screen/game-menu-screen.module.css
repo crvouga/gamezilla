@@ -23,17 +23,17 @@
 }
 .primary {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: var(--ui-space-1);
+  gap: var(--ui-space-3);
   width: 100%;
-  min-height: 72px;
+  min-height: 64px;
   padding: var(--ui-space-4) var(--ui-space-6);
-  border: 0;
+  border: 1px solid var(--ui-color-border);
   border-radius: var(--ui-radius-card);
-  background: var(--ui-color-tint-active);
-  color: var(--ui-color-on-primary);
+  background: var(--ui-color-surface);
+  color: var(--ui-color-text);
   text-align: center;
 }
 .primary:focus-visible {
@@ -50,12 +50,9 @@
 .primaryIcon {
   display: flex;
   flex-shrink: 0;
-  --ui-on-icon: var(--ui-color-on-primary);
+  --ui-on-icon: var(--ui-color-text);
 }
-.primary .primaryTitle,
-.primary .primaryCaption {
-  color: var(--ui-color-on-primary);
-}
+
 .grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr);

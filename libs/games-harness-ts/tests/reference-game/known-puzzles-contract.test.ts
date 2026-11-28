@@ -27,11 +27,12 @@ import {
 const { puzzles: known, ...rulesFixtures } = COUNTING_RACE_FIXTURES;
 const { puzzles: _part, ...clientWithoutPuzzles } = COUNTING_RACE_CLIENT;
 
-/** The reference game offering custom games and history, but no puzzles. */
+/** The reference game offering game sessions and history, but no puzzles. */
 const WITHOUT_PUZZLES = defineGame({
   ...COUNTING_RACE_TURN_GAME,
   capabilities: {
-    'custom-games': COUNTING_RACE_TURN_GAME.capabilities['custom-games'],
+    'vs-human': {},
+    'vs-bot': COUNTING_RACE_TURN_GAME.capabilities['vs-bot'],
     history: COUNTING_RACE_TURN_GAME.capabilities.history,
   },
 });

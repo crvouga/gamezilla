@@ -5,7 +5,7 @@
 
 import { expect } from 'bun:test';
 import { bothBoards } from '@libs/game-matchmaking-harness-ts/matched-game-world';
-import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
+import type { GameSessionSide } from '@libs/game-session-shared-ts/game-session-state';
 import { Given, Then } from '@libs/harness-ts/define';
 import { cannotWinMatchedGame, matchedTimeLeft } from './cannot-win-world';
 import { daily } from './finding-an-opponent-world';
@@ -22,7 +22,7 @@ Given(
   (w, first: string, second: string, days: number) =>
     cannotWinMatchedGame(w, [first, second], daily(days))
 );
-Given('the {gameSide} has one day left', (w, side: CustomGameSide) =>
+Given('the {gameSide} has one day left', (w, side: GameSessionSide) =>
   matchedTimeLeft(w, side, DAY_MS)
 );
 

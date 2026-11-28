@@ -1,34 +1,34 @@
 import { expect, test } from 'bun:test';
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import {
-  ChangeCustomGame,
-  CustomGameProgressed,
-  CustomGamesChanged,
-  PlayCustomGameBot,
-  StandInCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import {
-  CustomGameCommitmentChosen,
-  CustomGameCommitmentsAttr,
-  ownCustomGameCommitment,
-} from '@libs/game-session-shared-ts/custom-game-commitments';
-import { localCustomGameEffects } from '@libs/game-session-shared-ts/custom-game-effects';
-import {
-  CustomGameHandShown,
-  customGameHand,
-  customGameHidden,
-  ownCustomGameHand,
-} from '@libs/game-session-shared-ts/custom-game-hands';
-import { customGameWinners } from '@libs/game-session-shared-ts/custom-game-outcome';
-import {
-  CUSTOM_GAME_STAND_IN_MS,
-  customGameStandInEffects,
-} from '@libs/game-session-shared-ts/custom-game-stand-in';
-import {
-  type CustomGame,
-  CustomGamesAttr,
-} from '@libs/game-session-shared-ts/custom-game-state';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
+import {
+  ChangeGameSession,
+  GameSessionProgressed,
+  GameSessionsChanged,
+  PlayGameSessionBot,
+  StandInGameSession,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import {
+  GameSessionCommitmentChosen,
+  GameSessionCommitmentsAttr,
+  ownGameSessionCommitment,
+} from '@libs/game-session-shared-ts/game-session-commitments';
+import { localGameSessionEffects } from '@libs/game-session-shared-ts/game-session-effects';
+import {
+  GameSessionHandShown,
+  gameSessionHand,
+  gameSessionHidden,
+  ownGameSessionHand,
+} from '@libs/game-session-shared-ts/game-session-hands';
+import { gameSessionWinners } from '@libs/game-session-shared-ts/game-session-outcome';
+import {
+  GAME_SESSION_STAND_IN_MS,
+  gameSessionStandInEffects,
+} from '@libs/game-session-shared-ts/game-session-stand-in';
+import {
+  type GameSession,
+  GameSessionsAttr,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import {
@@ -48,7 +48,7 @@ import { tokenPassBots, tokenPassRules } from './token-pass';
 
 const tokenPass = defineGame({
   rules: tokenPassRules,
-  capabilities: { 'custom-games': { bots: tokenPassBots } },
+  capabilities: { 'vs-human': {}, 'vs-bot': { bots: tokenPassBots } },
   turnAutomation: { choose: () => null, perform: async () => {} },
 });
 
@@ -74,13 +74,13 @@ function handle(
   return module.handle(state, { id: `k${commands}`, ts: at, payload }, as);
 }
 
-function command(state: RoomState, input: CustomGameInput): Message {
-  const game = CustomGamesAttr.from(state).current;
-  return ChangeCustomGame({
+function command(state: RoomState, input: GameSessionInput): Message {
+  const game = GameSessionsAttr.from(state).current;
+  return ChangeGameSession({
     ...input,
     gameId: game?.id ?? null,
     revision: game?.revision ?? 0,
-  } as Parameters<typeof ChangeCustomGame>[0]);
+  } as Parameters<typeof ChangeGameSession>[0]);
 }
 
 function reason(result: HandleResult): string {
@@ -99,7 +99,7 @@ function reduce(state: RoomState, events: readonly Message[]): RoomState {
 function decide(
   state: RoomState,
   as: string,
-  input: CustomGameInput,
+  input: GameSessionInput,
   at = 1000
 ) {
   const result = handle(ROOM, state, {
@@ -122,9 +122,9 @@ function seenBy(person: string, before: RoomState, events: readonly Message[]) {
     .reduce((s, e) => DEVICE.reduce(s, e), before);
 }
 
-function current(state: RoomState): CustomGame {
-  const game = CustomGamesAttr.from(state).current;
-  if (game === null) throw new Error('no custom game');
+function current(state: RoomState): GameSession {
+  const game = GameSessionsAttr.from(state).current;
+  if (game === null) throw new Error('no game session');
   return game;
 }
 
@@ -142,7 +142,10 @@ function space(): RoomState {
 
 /** Four people seated and started; the room has dealt every hand. */
 function fourPeople(): { state: RoomState; dealt: readonly Message[] } {
-  let state = decide(space(), 'alice', { operation: 'create' }).state;
+  let state = decide(space(), 'alice', {
+    operation: 'create',
+    mode: 'vs-human',
+  }).state;
   for (const [i, side] of (['black', 'red', 'blue'] as const).entries())
     state = decide(state, PEOPLE[i + 1]!, { operation: 'claim', side }).state;
   for (const person of PEOPLE)
@@ -155,7 +158,7 @@ function fourPeople(): { state: RoomState; dealt: readonly Message[] } {
 }
 
 function handOf(state: RoomState, person: string): string {
-  return ownCustomGameHand(state, current(state), person) ?? '';
+  return ownGameSessionHand(state, current(state), person) ?? '';
 }
 
 function commit(
@@ -188,7 +191,7 @@ test('a commitment is read by its person alone; everyone sees only that the side
   const before = state;
   const { state: after, result } = commit(state, 'bob');
   const events = result.ok ? result.events : [];
-  const chosen = events.find((e) => CustomGameCommitmentChosen.is(e))!;
+  const chosen = events.find((e) => GameSessionCommitmentChosen.is(e))!;
   expect(ROOM.audience?.(chosen)).toEqual(['bob']);
   expect(current(after)).toMatchObject({
     awaiting: ['white', 'red', 'blue'],
@@ -196,13 +199,13 @@ test('a commitment is read by its person alone; everyone sees only that the side
   });
   // Bob's own device holds his commitment; Carol's and Eve's hold none.
   const bobDevice = seenBy('bob', before, events);
-  expect(ownCustomGameCommitment(bobDevice, current(bobDevice), 'bob')).toBe(
+  expect(ownGameSessionCommitment(bobDevice, current(bobDevice), 'bob')).toBe(
     handOf(before, 'bob')[0]!
   );
   for (const other of ['carol', 'eve']) {
     const device = seenBy(other, before, events);
     expect(
-      JSON.stringify(CustomGameCommitmentsAttr.from(device))
+      JSON.stringify(GameSessionCommitmentsAttr.from(device))
     ).not.toContain(handOf(before, 'bob')[0]!);
     expect(current(device).committed).toEqual(['black']);
   }
@@ -271,20 +274,23 @@ test('the last commitment resolves every one at once into one public action and 
   // Each side received the token passed by the side on its right.
   expect(handOf(after, 'bob')).toContain(given['alice']!);
   expect(handOf(after, 'alice')).toContain(given['dave']!);
-  expect(CustomGameCommitmentsAttr.from(after)).toEqual({});
+  expect(GameSessionCommitmentsAttr.from(after)).toEqual({});
   const events = last.result.ok ? last.result.events : [];
   expect(
-    events.filter((e) => CustomGameHandShown.is(e)).length
+    events.filter((e) => GameSessionHandShown.is(e)).length
   ).toBeGreaterThan(0);
   // The turn goes where the rules say: to whoever now holds the 8.
   const leader = current(after).turn;
   expect(
-    ownCustomGameHand(after, current(after), current(after)[leader].person)
+    ownGameSessionHand(after, current(after), current(after)[leader].person)
   ).toContain('8');
 });
 
 test('bots commit for their sides with only their own hands, one wake after another, and the creator reads them in solo practice', () => {
-  let state = decide(space(), 'alice', { operation: 'create' }).state;
+  let state = decide(space(), 'alice', {
+    operation: 'create',
+    mode: 'vs-bot',
+  }).state;
   for (const side of ['black', 'red', 'blue'] as const)
     state = decide(state, 'alice', { operation: 'bot', side }).state;
   state = decide(state, 'alice', { operation: 'ready' }).state;
@@ -292,13 +298,13 @@ test('bots commit for their sides with only their own hands, one wake after anot
   state = started.state;
   const wakes = (effects: readonly RoomEffect[] | undefined) =>
     (effects ?? []).flatMap((e) => (e.type === 'schedule' ? [e] : []));
-  // The creator alone with bots practises solo: the device wakes its bots.
+  // The creator alone with bots practices solo: the device wakes its bots.
   expect(
     JSON.stringify(started.result.ok ? started.result.effects : [])
   ).not.toContain('"side":"black"');
   expect(
     JSON.stringify(
-      localCustomGameEffects(
+      localGameSessionEffects(
         current(state),
         createTurnGames([tokenPass.turnGame])
       )
@@ -307,13 +313,13 @@ test('bots commit for their sides with only their own hands, one wake after anot
   for (const side of ['black', 'red', 'blue'] as const) {
     const wake = handle(ROOM, state, {
       as: ROOM_SCHEDULER_IDENTITY,
-      payload: PlayCustomGameBot({ gameId: current(state).id, ply: 0, side }),
+      payload: PlayGameSessionBot({ gameId: current(state).id, ply: 0, side }),
       at: 2000,
     });
     if (!wake.ok) throw new Error(reason(wake));
     // Practising alone, the creator's device decides as the room does, so
     // it reads each bot's commitment too.
-    const chosen = wake.events.find((e) => CustomGameCommitmentChosen.is(e));
+    const chosen = wake.events.find((e) => GameSessionCommitmentChosen.is(e));
     expect(ROOM.audience?.(chosen!)).toEqual(['alice']);
     state = reduce(state, wake.events);
     expect(wakes(wake.effects).length).toBeGreaterThanOrEqual(0);
@@ -321,7 +327,7 @@ test('bots commit for their sides with only their own hands, one wake after anot
   expect(current(state).committed).toEqual(['black', 'red', 'blue']);
   state = commit(state, 'alice').state;
   expect(current(state).moves).toHaveLength(1);
-  expect(customGameHidden(state, current(state))).not.toBeNull();
+  expect(gameSessionHidden(state, current(state))).not.toBeNull();
 });
 
 test('several sides sharing the best result are all winners', () => {
@@ -338,7 +344,7 @@ test('several sides sharing the best result are all winners', () => {
   }
   const game = current(state);
   expect(game.status).toBe('completed');
-  const winners = customGameWinners(game);
+  const winners = gameSessionWinners(game);
   expect(winners.length).toBeGreaterThan(0);
   if (winners.length > 1 && winners.length < 4)
     expect(game.outcome).toMatch(/ and .* win by high tokens$/);
@@ -347,22 +353,26 @@ test('several sides sharing the best result are all winners', () => {
 test('a participant away for the grace period is played by a stand-in until they take their side back', () => {
   let state = fourPeople().state;
   const away = { ...state, ...SpaceMembersRoomAttr.away({ bob: 5000 }) };
-  const effects = customGameStandInEffects(away, current(away));
+  const effects = gameSessionStandInEffects(
+    away,
+    current(away),
+    createTurnGames([tokenPass.turnGame])
+  );
   expect(JSON.stringify(effects)).toContain(
-    String(5000 + CUSTOM_GAME_STAND_IN_MS)
+    String(5000 + GAME_SESSION_STAND_IN_MS)
   );
   // Too early: the wake changes nothing.
   const early = handle(ROOM, away, {
     as: ROOM_SCHEDULER_IDENTITY,
-    payload: StandInCustomGame({ gameId: current(away).id }),
-    at: 5000 + CUSTOM_GAME_STAND_IN_MS - 1,
+    payload: StandInGameSession({ gameId: current(away).id }),
+    at: 5000 + GAME_SESSION_STAND_IN_MS - 1,
   });
   if (!early.ok) throw new Error(reason(early));
   expect(current(reduce(away, early.events)).standIns).toEqual([]);
   const due = handle(ROOM, away, {
     as: ROOM_SCHEDULER_IDENTITY,
-    payload: StandInCustomGame({ gameId: current(away).id }),
-    at: 5000 + CUSTOM_GAME_STAND_IN_MS,
+    payload: StandInGameSession({ gameId: current(away).id }),
+    at: 5000 + GAME_SESSION_STAND_IN_MS,
   });
   if (!due.ok) throw new Error(reason(due));
   state = reduce(away, due.events);
@@ -388,7 +398,7 @@ test('a participant away for the grace period is played by a stand-in until they
   expect(current(state).standIns).toEqual([]);
   const stale = handle(ROOM, state, {
     as: ROOM_SCHEDULER_IDENTITY,
-    payload: PlayCustomGameBot({
+    payload: PlayGameSessionBot({
       gameId: current(state).id,
       ply: 0,
       side: 'black',
@@ -415,29 +425,39 @@ test('a move is recorded as just what it adds, and every copy folding the log ho
       ply: game.moves.length,
     });
     const events = result.ok ? result.events : [];
-    const progress = events.find((e) => CustomGameProgressed.is(e));
+    const progress = events.find((e) => GameSessionProgressed.is(e));
     expect(progress).toBeDefined();
-    expect(events.some((e) => CustomGamesChanged.is(e))).toBe(false);
+    expect(events.some((e) => GameSessionsChanged.is(e))).toBe(false);
     sizes.push(JSON.stringify(progress).length);
     device = seenBy('eve', device, events);
     state = next;
   }
-  expect(CustomGamesAttr.from(device)).toEqual(CustomGamesAttr.from(state));
+  expect(GameSessionsAttr.from(device)).toEqual(GameSessionsAttr.from(state));
   // Each move's record stays the same size however long the game grows.
   expect(Math.max(...sizes) - Math.min(...sizes)).toBeLessThan(200);
 });
 
 test("with another person at the table, nobody reads a bot's commitment", () => {
-  let state = decide(space(), 'alice', { operation: 'create' }).state;
+  let state = decide(space(), 'alice', {
+    operation: 'create',
+    mode: 'vs-human',
+  }).state;
   state = decide(state, 'bob', { operation: 'claim', side: 'black' }).state;
-  for (const side of ['red', 'blue'] as const)
-    state = decide(state, 'alice', { operation: 'bot', side }).state;
+  // An earlier saved four-seat table can contain both people and bots.
+  const bot = { kind: 'bot', person: '' } as const;
+  state = {
+    ...state,
+    ...GameSessionsAttr({
+      history: [],
+      current: { ...current(state), red: bot, blue: bot },
+    }),
+  };
   for (const person of ['alice', 'bob'])
     state = decide(state, person, { operation: 'ready' }).state;
   state = decide(state, 'alice', { operation: 'start' }).state;
   const wake = handle(ROOM, state, {
     as: ROOM_SCHEDULER_IDENTITY,
-    payload: PlayCustomGameBot({
+    payload: PlayGameSessionBot({
       gameId: current(state).id,
       ply: 0,
       side: 'red',
@@ -445,12 +465,15 @@ test("with another person at the table, nobody reads a bot's commitment", () => 
     at: 2000,
   });
   if (!wake.ok) throw new Error(reason(wake));
-  const chosen = wake.events.find((e) => CustomGameCommitmentChosen.is(e));
+  const chosen = wake.events.find((e) => GameSessionCommitmentChosen.is(e));
   expect(ROOM.audience?.(chosen!)).toEqual([]);
 });
 
 test("in solo practice the creator's device records a bot's commitment from its local wake", () => {
-  let state = decide(space(), 'alice', { operation: 'create' }).state;
+  let state = decide(space(), 'alice', {
+    operation: 'create',
+    mode: 'vs-bot',
+  }).state;
   for (const side of ['black', 'red', 'blue'] as const)
     state = decide(state, 'alice', { operation: 'bot', side }).state;
   state = decide(state, 'alice', { operation: 'ready' }).state;
@@ -459,12 +482,12 @@ test("in solo practice the creator's device records a bot's commitment from its 
   const device = state;
   const wake = handle(DEVICE, device, {
     as: 'alice',
-    payload: PlayCustomGameBot({
+    payload: PlayGameSessionBot({
       gameId: current(device).id,
       ply: 0,
       side: 'black',
       at: 2000,
-      move: (customGameHand(device, current(device), 'black') ?? '').slice(
+      move: (gameSessionHand(device, current(device), 'black') ?? '').slice(
         0,
         1
       ),
@@ -472,5 +495,5 @@ test("in solo practice the creator's device records a bot's commitment from its 
     at: 2000,
   });
   if (!wake.ok) throw new Error(reason(wake));
-  expect(wake.events.some((e) => CustomGameCommitmentChosen.is(e))).toBe(true);
+  expect(wake.events.some((e) => GameSessionCommitmentChosen.is(e))).toBe(true);
 });

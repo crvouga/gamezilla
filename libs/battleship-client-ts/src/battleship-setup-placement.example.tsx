@@ -20,7 +20,7 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
   // regression: battleship-placement-detached-overview
   const find = (id: string) => {
     const element = root.querySelector<HTMLElement>(
-      `[data-testid="custom-game-setup-${id}"]`
+      `[data-testid="game-session-setup-${id}"]`
     );
     if (!element) throw new Error(`Missing setup ${id}`);
     return element.getBoundingClientRect();
@@ -63,7 +63,7 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
       '[data-component="BattleshipPlacementLayout"] [role="alert"]'
     ) ??
     root.querySelector<HTMLElement>(
-      '[data-testid="custom-game-setup-guidance"]'
+      '[data-testid="game-session-setup-guidance"]'
     );
   if (!feedback) throw new Error('Missing placement guidance');
   await expect(
@@ -72,7 +72,7 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
   // The space kept for a longer refusal sits above "Place in …", never
   // between the heading and its guidance (battleship-placement-heading-band).
   const heading = root.querySelector<HTMLElement>(
-    '[data-testid="custom-game-setup-region-heading"]'
+    '[data-testid="game-session-setup-region-heading"]'
   );
   if (!heading) throw new Error('Missing region heading');
   await expect(
@@ -81,7 +81,7 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
   ).toBeLessThanOrEqual(8);
   const headers = Array.from(
     root.querySelectorAll<HTMLElement>(
-      '[data-testid="custom-game-setup-grid"] > span[aria-hidden="true"]'
+      '[data-testid="game-session-setup-grid"] > span[aria-hidden="true"]'
     )
   ).slice(1, 11);
   await expect(headers.length).toBe(10);
@@ -116,19 +116,19 @@ export async function repositionEnlargedShip(
   );
   await chooseSetupRegion(canvasElement, 'F–J / 6–10');
   const movedBow = await canvas.findByTestId(
-    'custom-game-setup-precision-cell-i7'
+    'game-session-setup-precision-cell-i7'
   );
   await checkSetupPlacementBounds(movedBow);
   await checkSetupWorkspace(canvasElement);
   await userEvent.click(movedBow);
   await expect(
-    canvas.getByTestId('custom-game-setup-cell-j7')
+    canvas.getByTestId('game-session-setup-cell-j7')
   ).toHaveAccessibleName('J7: Destroyer');
   await expect(
-    canvas.getByTestId('custom-game-setup-cell-b2')
+    canvas.getByTestId('game-session-setup-cell-b2')
   ).toHaveAccessibleName('B2: open water');
   await expect(
-    canvas.getByTestId('custom-game-setup-progress')
+    canvas.getByTestId('game-session-setup-progress')
   ).toHaveTextContent('All five ships placed');
 }
 
@@ -140,13 +140,13 @@ export async function checkSetupRecovery(
   // regression: battleship-placement-recovery-travel
   const canvas = within(root);
   const refusal = canvas
-    .getByTestId('custom-game-setup-refusal')
+    .getByTestId('game-session-setup-refusal')
     .getBoundingClientRect();
   const rotate = canvas
-    .getByTestId('custom-game-setup-rotate')
+    .getByTestId('game-session-setup-rotate')
     .getBoundingClientRect();
   const grid = canvas
-    .getByTestId('custom-game-setup-precision')
+    .getByTestId('game-session-setup-precision')
     .getBoundingClientRect();
   await expect(refusal.top).toBeGreaterThanOrEqual(0);
   await expect(refusal.bottom).toBeLessThanOrEqual(grid.top);

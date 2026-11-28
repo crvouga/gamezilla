@@ -69,11 +69,11 @@ test('screens-games-quoridor-hill--precise-coordinates regression quoridor-spati
 });
 
 // regression: shared-board-long-name-rail
-test('screens-custom-games-stage-board-priority--long-name-rail regression shared-board-long-name-rail', async ({
+test('screens-game-sessions-stage-board-priority--long-name-rail regression shared-board-long-name-rail', async ({
   page,
 }) => {
   const story =
-    index.entries['screens-custom-games-stage-board-priority--long-name-rail'];
+    index.entries['screens-game-sessions-stage-board-priority--long-name-rail'];
   if (!story) throw new Error('Missing literal regression story');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 390 && item.theme === 'light'
@@ -84,11 +84,11 @@ test('screens-custom-games-stage-board-priority--long-name-rail regression share
 
 // regression: shared-board-chip-facts-wrap-extra-row
 // regression: shared-board-metadata-height
-test('screens-custom-games-stage-board-priority--four-players regression shared-board-metadata-height', async ({
+test('screens-game-sessions-stage-board-priority--four-players regression shared-board-metadata-height', async ({
   page,
 }) => {
   const story =
-    index.entries['screens-custom-games-stage-board-priority--four-players'];
+    index.entries['screens-game-sessions-stage-board-priority--four-players'];
   if (!story) throw new Error('Missing literal regression story');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 390 && item.theme === 'light'
@@ -111,11 +111,11 @@ test('screens-games-sokoban-puzzle--in-progress regression sokoban-story-restart
 });
 
 // regression: shared-board-desktop-rail-crowds-board
-test('screens-custom-games-stage-board-priority--two-players regression shared-board-desktop-rail-crowds-board', async ({
+test('screens-game-sessions-stage-board-priority--two-players regression shared-board-desktop-rail-crowds-board', async ({
   page,
 }) => {
   const story =
-    index.entries['screens-custom-games-stage-board-priority--two-players'];
+    index.entries['screens-game-sessions-stage-board-priority--two-players'];
   if (!story) throw new Error('Missing literal two-player regression');
   const scenario = visualScenarios(story).find(
     (item) => item.width === 1440 && item.theme === 'light'

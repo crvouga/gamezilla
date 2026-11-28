@@ -24,7 +24,7 @@ export type MultiplayerResultShown = {
 
 /**
  * Over the card's headline, one word: how the game went for the person,
- * as a custom game's result says it (Victory, Defeat, Draw, Aborted).
+ * as a game session's result says it (Victory, Defeat, Draw, Aborted).
  */
 function headline(result: MultiplayerResultShown): string {
   if (result.aborted === true) return t`Aborted`;

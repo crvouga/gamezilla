@@ -1,6 +1,6 @@
 import { afterEach, expect, test } from 'bun:test';
-import { useCustomSimulation } from '@libs/game-session-client-ts/use-custom-simulation';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
+import { useRoomSimulation } from '@libs/game-session-client-ts/use-room-simulation';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { createNoopLogger, type Logger } from '@pkgs/logger-shared-ts/logger';
 import { cleanup } from '@solidjs/testing-library';
@@ -23,9 +23,9 @@ test.each(['available', 'unavailable'] as const)(
           throw new Error('diagnostic sink unavailable');
       },
     };
-    let controller: ReturnType<typeof useCustomSimulation> | null = null;
+    let controller: ReturnType<typeof useRoomSimulation> | null = null;
     function Probe() {
-      controller = useCustomSimulation(
+      controller = useRoomSimulation(
         () => rig.game,
         () => 'alice',
         () => true
@@ -41,13 +41,13 @@ test.each(['available', 'unavailable'] as const)(
       for (let turn = 0; turn < 100; turn++) await Promise.resolve();
       if (controller === null)
         throw new Error('The simulation hook did not mount');
-      expect(
-        (controller as ReturnType<typeof useCustomSimulation>).error()
-      ).toBe(true);
-      expect(errors).toContain(rig.failure);
-      expect(CustomGamesAttr.from(rig.room.getSnapshot()).current?.status).toBe(
-        'active'
+      expect((controller as ReturnType<typeof useRoomSimulation>).error()).toBe(
+        true
       );
+      expect(errors).toContain(rig.failure);
+      expect(
+        GameSessionsAttr.from(rig.room.getSnapshot()).current?.status
+      ).toBe('active');
       expect(await rig.storage.loadQueued()).toEqual([]);
     } finally {
       view.unmount();

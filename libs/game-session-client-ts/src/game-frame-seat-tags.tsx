@@ -17,14 +17,14 @@ export function PlaySeatTags(props: {
         <Badge
           intent="warning"
           label={<Trans>Stand-in bot</Trans>}
-          dataSet={{ testid: `custom-game-${props.seat.side}-stand-in` }}
+          dataSet={{ testid: `game-session-${props.seat.side}-stand-in` }}
         />
       </Show>
       <Show when={props.seat.committed}>
         <Badge
           intent="success"
           label={<Trans>Chosen</Trans>}
-          dataSet={{ testid: `custom-game-${props.seat.side}-committed` }}
+          dataSet={{ testid: `game-session-${props.seat.side}-committed` }}
         />
       </Show>
       <Show when={props.seat.choosing}>
@@ -59,7 +59,7 @@ export function ChipSeatTags(props: {
         <Badge
           intent="warning"
           label={<Trans>Stand-in bot</Trans>}
-          dataSet={{ testid: `custom-game-${props.seat.side}-stand-in` }}
+          dataSet={{ testid: `game-session-${props.seat.side}-stand-in` }}
         />
       </Show>
     </Show>

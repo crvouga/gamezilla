@@ -24,7 +24,7 @@ function reject(error: RoomError): HandleResult {
 
 /**
  * Chess as its registration installs it: its own room and every shared
- * module it declares (the custom games and the puzzle session), bound to
+ * module it declares (the game sessions and the puzzle session), bound to
  * chess's rules alone.
  */
 const modules = [
@@ -46,7 +46,7 @@ const eventReducer = createComposedMessageRouter<RoomState, void, RoomState>(
 
 /**
  * Chess in a room: the room modules chess's registration installs (its own
- * screens, the custom games and the puzzle session), without the rest of a
+ * screens, the game sessions and the puzzle session), without the rest of a
  * space. Used by chess's puzzle tests and pins.
  *
  * Production traffic always goes through the composed `SpaceModule` built

@@ -10,7 +10,7 @@
       "specs/journeys/ubiquitous-language.yml",
       "specs/conformance.yaml",
       "specs/journeys/critical-journeys.feature",
-      "specs/journeys/custom-game.feature",
+      "specs/journeys/game-session.feature",
       "specs/journeys/join-and-offline.feature",
       "specs/journeys/multiplayer-game.feature"
     ],
@@ -128,91 +128,91 @@
       "Device data becomes unusable": "system",
       "Opens the app anyway": "user",
       "Opens the saved app": "user",
-      "A Custom Game clock expires": "time",
+      "A Game Session clock expires": "time",
       "A participant cancels before both people have moved": "user",
       "A participant confirms readiness": "user",
       "A participant leaves the space and resigns": "user",
       "A participant loses connection": "system",
       "A participant releases their own side before start": "user",
-      "A participant resigns the Custom Game": "user",
+      "A participant resigns the Game Session": "user",
       "A participant withdraws readiness": "user",
-      "A watcher creates a Custom Game": "user",
+      "A watcher creates a Game Session": "user",
       "Another person starts the game": "user",
       "Another person tries releasing a participant’s side": "user",
       "Assigns a permitted person or bot to a side": "user",
       "Blocks a participant during the active game": "user",
       "Both sides are filled and every person is ready for the current choices": "system",
-      "Changes Custom Game choices offline": "user",
-      "Changes the Custom Game clock": "user",
-      "Chooses the Custom Game promotion piece": "user",
+      "Changes Game Session choices offline": "user",
+      "Changes the Game Session clock": "user",
+      "Chooses the Game Session promotion piece": "user",
       "Chooses the same person for both sides": "user",
       "Claims a position draw before it is available": "user",
       "Claims a win after the opponent was away for only fifty-nine seconds": "user",
       "Claims a win after the opponent was away for sixty seconds": "user",
       "Claims an available position draw": "user",
-      "Connection returns to a cancelled Custom Game": "system",
-      "Connection returns to a finished Custom Game": "system",
-      "Connection returns to an active Custom Game": "system",
-      "Connection returns to the current Custom Game choices": "system",
-      "Corrects the Custom Game side choices": "user",
-      "Creates a Custom Game rematch with swapped sides": "user",
-      "Creates a rematch before this Custom Game ends": "user",
-      "Creates another Custom Game before this one ends": "user",
-      "Custom Game checkmate occurs": "system",
-      "Custom Game stalemate, insufficient material or automatic repetition occurs": "system",
+      "Connection returns to a cancelled Game Session": "system",
+      "Connection returns to a finished Game Session": "system",
+      "Connection returns to an active Game Session": "system",
+      "Connection returns to the current Game Session choices": "system",
+      "Corrects the Game Session side choices": "user",
+      "Creates a Game Session rematch with swapped sides": "user",
+      "Creates a rematch before this Game Session ends": "user",
+      "Creates another Game Session before this one ends": "user",
+      "Game Session checkmate occurs": "system",
+      "Game Session stalemate, insufficient material or automatic repetition occurs": "system",
       "Invites a permitted person to an open side": "user",
       "Invites a person blocked by either side": "user",
-      "Offers a Custom Game draw": "user",
-      "Offers a Custom Game draw against a bot": "user",
-      "Offers the declined Custom Game draw again before moving": "user",
-      "The offering participant plays their next legal Custom Game move": "user",
-      "The other participant plays a legal Custom Game move after declining": "user",
-      "The offering participant tries declining their own Custom Game draw": "user",
-      "A Custom Game clock expires against a side unable to mate": "time",
+      "Offers a Game Session draw": "user",
+      "Offers a Game Session draw against a bot": "user",
+      "Offers the declined Game Session draw again before moving": "user",
+      "The offering participant plays their next legal Game Session move": "user",
+      "The other participant plays a legal Game Session move after declining": "user",
+      "The offering participant tries declining their own Game Session draw": "user",
+      "A Game Session clock expires against a side unable to mate": "time",
       "A participant resigns to a side unable to mate": "user",
       "Claims a win after sixty seconds without mating material": "user",
-      "Plays a legal Custom Game move on their turn": "user",
-      "Plays an illegal or wrong-turn Custom Game move": "user",
-      "Reaches Custom Game promotion": "user",
-      "Returns to Custom Game choices": "user",
-      "Returns to Custom Game configuration": "user",
-      "Returns to a configuring Custom Game": "user",
-      "Returns to a finished Custom Game": "user",
-      "Returns to an active Custom Game": "user",
-      "Returns to the Custom Game board": "user",
-      "Returns to the Custom Game result": "user",
-      "Returns to the unfinished Custom Game": "user",
-      "Reviews the Custom Game’s moves": "user",
+      "Plays a legal Game Session move on their turn": "user",
+      "Plays an illegal or wrong-turn Game Session move": "user",
+      "Reaches Game Session promotion": "user",
+      "Returns to Game Session choices": "user",
+      "Returns to Game Session configuration": "user",
+      "Returns to a configuring Game Session": "user",
+      "Returns to a finished Game Session": "user",
+      "Returns to an active Game Session": "user",
+      "Returns to the Game Session board": "user",
+      "Returns to the Game Session result": "user",
+      "Returns to the unfinished Game Session": "user",
+      "Reviews the Game Session’s moves": "user",
       "Someone tries an ended or another person’s invitation": "user",
-      "Starts a cancelled Custom Game": "user",
-      "Starts a finished Custom Game": "user",
+      "Starts a cancelled Game Session": "user",
+      "Starts a finished Game Session": "user",
       "Starts before everyone is ready": "user",
-      "Starts the already active Custom Game again": "user",
+      "Starts the already active Game Session again": "user",
       "Starts with open places or unready participants": "user",
       "Takes a permitted open side": "user",
       "Takes an open side with a block between the person and creator": "user",
-      "The creator cancels the active Custom Game": "user",
+      "The creator cancels the active Game Session": "user",
       "The creator cancels the unstarted game": "user",
       "The creator changes the choices": "user",
       "The creator revokes the invitation": "user",
       "The creator starts the agreed game": "user",
-      "The host creates a Custom Game": "user",
-      "The host creates another Custom Game": "user",
+      "The host creates a Game Session": "user",
+      "The host creates another Game Session": "user",
       "The invited person accepts a current invitation": "user",
       "The invited person declines": "user",
       "The offering participant accepts their own draw": "user",
-      "The other participant accepts the Custom Game draw": "system",
-      "The other participant declines the Custom Game draw": "system",
+      "The other participant accepts the Game Session draw": "system",
+      "The other participant declines the Game Session draw": "system",
       "Tries acquiring or releasing a side after start": "user",
       "UsernameChanged": "system",
-      "No unfinished Custom Game exists in the space": "system",
-      "The current Custom Game is cancelled": "system",
-      "The current Custom Game choices are partly ready": "system",
-      "The current Custom Game choices are fully ready": "system",
-      "Connection returns to partly ready Custom Game choices": "system",
-      "Connection returns to fully ready Custom Game choices": "system",
-      "Connection returns with a waiting Custom Game draw offer": "system",
-      "Connection returns while the Custom Game sender still waits to offer again": "system",
+      "No unfinished Game Session exists in the space": "system",
+      "The current Game Session is cancelled": "system",
+      "The current Game Session choices are partly ready": "system",
+      "The current Game Session choices are fully ready": "system",
+      "Connection returns to partly ready Game Session choices": "system",
+      "Connection returns to fully ready Game Session choices": "system",
+      "Connection returns with a waiting Game Session draw offer": "system",
+      "Connection returns while the Game Session sender still waits to offer again": "system",
       "Another maintenance cycle begins": "system",
       "Eligible index work is planned": "system",
       "Index work begins": "system",
@@ -280,7 +280,7 @@
       "Tries asking during the one-day wait": "user",
       "Unblocks this person": "user",
       "Changes the space’s game as a watcher": "user",
-      "Opens a Custom Game": "user",
+      "Opens a Game Session": "user",
       "Opens a shared puzzle link": "user",
       "Opens chess puzzles": "user",
       "Opens multiplayer chess": "user",
@@ -688,9 +688,9 @@
       "Chooses Connect Four": "user",
       "Chooses Battleship": "user",
       "Changes the selected game as a watcher": "user",
-      "Opens a Connect Four custom game": "user",
+      "Opens a Connect Four game session": "user",
       "Finds a Connect Four opponent": "user",
-      "Opens a Battleship custom game": "user",
+      "Opens a Battleship game session": "user",
       "Finds a Battleship opponent": "user",
       "Reviews a chess game": "user",
       "Reviews a Connect Four game": "user",
@@ -740,7 +740,7 @@
       "Signs in with permitted team access": "user",
       "Opens local Pong against another person": "user",
       "Opens local Pong against a Pong bot": "user",
-      "Opens a Pong custom game": "user",
+      "Opens a Pong game session": "user",
       "Opens finding a Pong opponent": "user",
       "Watches the Pong game in the space": "user",
       "Starts local Pong": "user",
@@ -864,13 +864,13 @@
       "Chooses Pong": "user",
       "Chooses Numberlink": "user",
       "Chooses Word Tiles": "user",
-      "Opens a Word Tiles custom game": "user",
+      "Opens a Word Tiles game session": "user",
       "Finds a Word Tiles opponent": "user",
       "Reviews a Word Tiles game": "user",
       "Finds a Pong opponent": "user",
       "Opens puzzle authoring": "user",
       "Chooses Hearts": "user",
-      "Opens a Hearts custom game": "user",
+      "Opens a Hearts game session": "user",
       "Reviews a Hearts game": "user",
       "Opens a Sokoban puzzle whose crates all start on goals": "user",
       "Opens Sokoban puzzles and packs": "user",
@@ -913,11 +913,11 @@
       "Signs in with an administrator account": "user",
       "Signs in with an ordinary account": "user",
       "Returns to the dashboard": "user",
-      "Opens Quoridor custom games": "user",
+      "Opens Quoridor game sessions": "user",
       "Opens Quoridor match making": "user",
       "Reviews a Quoridor game": "user",
       "Chooses Quoridor": "user",
-      "Opens Light Cycles custom games": "user",
+      "Opens Light Cycles game sessions": "user",
       "Opens Light Cycles match making": "user",
       "Reviews a Light Cycles game": "user",
       "Chooses Light Cycles": "user",
@@ -937,7 +937,7 @@
           "specs/journeys/ubiquitous-language.yml",
           "specs/conformance.yaml",
           "specs/journeys/critical-journeys.feature",
-          "specs/journeys/custom-game.feature",
+          "specs/journeys/game-session.feature",
           "specs/journeys/join-and-offline.feature",
           "specs/journeys/multiplayer-game.feature",
           "specs/journeys/game-journeys.openslo.yaml"
@@ -996,8 +996,8 @@
                 "Access: Free access": {
                   "id": "Access: Free access",
                   "meta": {
-                    "description": "The current person has free limits; ordinary multiplayer and Custom Games are not governed by paid access.",
-                    "snapshot": "The current person has free limits; ordinary multiplayer and Custom Games are not governed by paid access.",
+                    "description": "The current person has free limits; ordinary multiplayer and Game Sessions are not governed by paid access.",
+                    "snapshot": "The current person has free limits; ordinary multiplayer and Game Sessions are not governed by paid access.",
                     "confidence": "assumed",
                     "source": ["specs/billing/access.dmn"],
                     "events": []
@@ -4641,11 +4641,11 @@
                         "Opens multiplayer chess": {
                           "target": "#App: Multiplayer"
                         },
-                        "Opens a Custom Game": {
-                          "target": "#App: Custom game"
+                        "Opens a Game Session": {
+                          "target": "#App: Game session"
                         },
                         "Reviews a chess game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Opens a shared puzzle link": {
                           "target": "#App: Puzzle links"
@@ -4726,20 +4726,20 @@
                     "Games: Connect Four choices": {
                       "id": "Games: Connect Four choices",
                       "meta": {
-                        "description": "Connect Four offers custom games, opponents, instructions, history and replay, as every game does.",
-                        "snapshot": "Connect Four offers custom games, opponents, instructions, history and replay, as every game does.",
+                        "description": "Connect Four offers game sessions, opponents, instructions, history and replay, as every game does.",
+                        "snapshot": "Connect Four offers game sessions, opponents, instructions, history and replay, as every game does.",
                         "confidence": "assumed",
                         "source": [
                           "specs/connect-four/connect-four-accessibility.feature",
                           "specs/connect-four/connect-four-bots.feature",
                           "specs/connect-four/connect-four-health.feature",
                           "specs/games/game-history.feature",
-                          "specs/games/custom-games.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-sides.feature",
+                          "specs/games/game-sessions.feature",
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-readiness.feature",
+                          "specs/games/game-session-sides.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/connect-four/play-connect-four.feature",
                           "specs/connect-four/ubiquitous-language.yml",
@@ -4756,14 +4756,14 @@
                         "events": []
                       },
                       "on": {
-                        "Opens a Connect Four custom game": {
-                          "target": "#App: Custom game"
+                        "Opens a Connect Four game session": {
+                          "target": "#App: Game session"
                         },
                         "Finds a Connect Four opponent": {
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Connect Four game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -4773,8 +4773,8 @@
                     "Games: Battleship choices": {
                       "id": "Games: Battleship choices",
                       "meta": {
-                        "description": "Battleship offers custom games, opponents, instructions, history and replay, as every game does, each player first choosing a private fleet.",
-                        "snapshot": "Battleship offers custom games, opponents, instructions, history and replay, as every game does, each player first choosing a private fleet.",
+                        "description": "Battleship offers game sessions, opponents, instructions, history and replay, as every game does, each player first choosing a private fleet.",
+                        "snapshot": "Battleship offers game sessions, opponents, instructions, history and replay, as every game does, each player first choosing a private fleet.",
                         "confidence": "assumed",
                         "source": [
                           "specs/battleship/battleship-accessibility.feature",
@@ -4787,13 +4787,13 @@
                           "specs/battleship/battleship-start.feature",
                           "specs/battleship/ubiquitous-language.yml",
                           "specs/journeys/battleship-game.feature",
-                          "specs/games/custom-game-private-setup.feature",
+                          "specs/games/game-session-private-setup.feature",
                           "specs/games/matched-game-private-setup.feature",
                           "specs/games/game-history.feature",
-                          "specs/games/custom-games.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-readiness.feature",
-                          "specs/games/custom-game-sides.feature",
+                          "specs/games/game-sessions.feature",
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-readiness.feature",
+                          "specs/games/game-session-sides.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/game-choices.feature",
                           "specs/games/game-turns.feature",
@@ -4806,14 +4806,14 @@
                         "events": []
                       },
                       "on": {
-                        "Opens a Battleship custom game": {
-                          "target": "#App: Custom game"
+                        "Opens a Battleship game session": {
+                          "target": "#App: Game session"
                         },
                         "Finds a Battleship opponent": {
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Battleship game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -4823,8 +4823,8 @@
                     "Games: Pong": {
                       "id": "Games: Pong",
                       "meta": {
-                        "description": "Pong offers local play on one device against another person or a Pong bot, custom games, finding an opponent and its history. Each person guides their own paddle, and the first to reach the target score wins.",
-                        "snapshot": "Pong offers local play on one device against another person or a Pong bot, custom games, finding an opponent and its history. Each person guides their own paddle, and the first to reach the target score wins.",
+                        "description": "Pong offers local play on one device against another person or a Pong bot, game sessions, finding an opponent and its history. Each person guides their own paddle, and the first to reach the target score wins.",
+                        "snapshot": "Pong offers local play on one device against another person or a Pong bot, game sessions, finding an opponent and its history. Each person guides their own paddle, and the first to reach the target score wins.",
                         "confidence": "assumed",
                         "source": [
                           "specs/pong/pong-local-play.feature",
@@ -4849,8 +4849,8 @@
                         "Pong: Pong choices": {
                           "id": "Pong: Pong choices",
                           "meta": {
-                            "description": "Pong offers local play, custom games, finding an opponent and its history. Both paddles can be guided at once, so Pong offers no move list.",
-                            "snapshot": "Pong offers local play, custom games, finding an opponent and its history. Both paddles can be guided at once, so Pong offers no move list.",
+                            "description": "Pong offers local play, game sessions, finding an opponent and its history. Both paddles can be guided at once, so Pong offers no move list.",
+                            "snapshot": "Pong offers local play, game sessions, finding an opponent and its history. Both paddles can be guided at once, so Pong offers no move list.",
                             "confidence": "assumed",
                             "source": [
                               "specs/games/game-choices.feature",
@@ -4867,8 +4867,8 @@
                             "Opens local Pong against a Pong bot": {
                               "target": "#Pong: Local Pong ready"
                             },
-                            "Opens a Pong custom game": {
-                              "target": "#App: Custom game"
+                            "Opens a Pong game session": {
+                              "target": "#App: Game session"
                             },
                             "Opens finding a Pong opponent": {
                               "target": "#Pong: Finding a Pong opponent"
@@ -6029,8 +6029,8 @@
                     "Games: Word Tiles choices": {
                       "id": "Games: Word Tiles choices",
                       "meta": {
-                        "description": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
-                        "snapshot": "Word Tiles offers custom games for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "description": "Word Tiles offers game sessions for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
+                        "snapshot": "Word Tiles offers game sessions for two to four, an opponent for two, instructions, history, replay and one-move challenges, as every game does, each player seeing only their own rack.",
                         "confidence": "assumed",
                         "source": [
                           "specs/journeys/word-tiles-start.feature",
@@ -6041,8 +6041,8 @@
                           "specs/word-tiles/word-tiles-endings.feature",
                           "specs/word-tiles/word-tiles-challenges.feature",
                           "specs/word-tiles/ubiquitous-language.yml",
-                          "specs/games/custom-games.feature",
-                          "specs/games/custom-game-offline.feature",
+                          "specs/games/game-sessions.feature",
+                          "specs/games/game-session-offline.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/game-history.feature",
                           "specs/games/game-choices.feature",
@@ -6053,14 +6053,14 @@
                         "events": []
                       },
                       "on": {
-                        "Opens a Word Tiles custom game": {
-                          "target": "#App: Custom game"
+                        "Opens a Word Tiles game session": {
+                          "target": "#App: Game session"
                         },
                         "Finds a Word Tiles opponent": {
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Word Tiles game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -6070,8 +6070,8 @@
                     "Games: Hearts choices": {
                       "id": "Games: Hearts choices",
                       "meta": {
-                        "description": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
-                        "snapshot": "Hearts offers four players custom games with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
+                        "description": "Hearts offers four players game sessions with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
+                        "snapshot": "Hearts offers four players game sessions with people or bots, instructions, history and replay, and nobody is paired up for it. Each player passes three cards in secret, a stand-in plays for a player who is away, and players tied for the lowest score share the victory.",
                         "confidence": "assumed",
                         "source": [
                           "specs/journeys/hearts-first-trick.feature",
@@ -6079,7 +6079,7 @@
                           "specs/hearts/hearts-accessibility.feature",
                           "specs/hearts/hearts-away.feature",
                           "specs/hearts/hearts-breaking.feature",
-                          "specs/hearts/hearts-custom-games.feature",
+                          "specs/hearts/hearts-game-sessions.feature",
                           "specs/hearts/hearts-hands.feature",
                           "specs/hearts/hearts-passing.feature",
                           "specs/hearts/hearts-scoring.feature",
@@ -6095,11 +6095,11 @@
                         "events": []
                       },
                       "on": {
-                        "Opens a Hearts custom game": {
-                          "target": "#App: Custom game"
+                        "Opens a Hearts game session": {
+                          "target": "#App: Game session"
                         },
                         "Reviews a Hearts game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -6552,8 +6552,8 @@
                     "Games: Quoridor choices": {
                       "id": "Games: Quoridor choices",
                       "meta": {
-                        "description": "Quoridor offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
-                        "snapshot": "Quoridor offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "description": "Quoridor offers game sessions, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "snapshot": "Quoridor offers game sessions, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
                         "confidence": "assumed",
                         "source": [
                           "specs/quoridor/quoridor-accessibility.feature",
@@ -6574,14 +6574,14 @@
                         "events": []
                       },
                       "on": {
-                        "Opens Quoridor custom games": {
-                          "target": "#App: Custom game"
+                        "Opens Quoridor game sessions": {
+                          "target": "#App: Game session"
                         },
                         "Opens Quoridor match making": {
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Quoridor game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -6591,8 +6591,8 @@
                     "Games: Light Cycles choices": {
                       "id": "Games: Light Cycles choices",
                       "meta": {
-                        "description": "Light Cycles offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
-                        "snapshot": "Light Cycles offers custom games, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "description": "Light Cycles offers game sessions, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
+                        "snapshot": "Light Cycles offers game sessions, finding players, instructions and game history. The host chooses the mode when setting up a game or a search.",
                         "confidence": "assumed",
                         "source": [
                           "specs/journeys/light-cycles-start.feature",
@@ -6612,14 +6612,14 @@
                         "events": []
                       },
                       "on": {
-                        "Opens Light Cycles custom games": {
-                          "target": "#App: Custom game"
+                        "Opens Light Cycles game sessions": {
+                          "target": "#App: Game session"
                         },
                         "Opens Light Cycles match making": {
                           "target": "#App: Multiplayer"
                         },
                         "Reviews a Light Cycles game": {
-                          "target": "#Custom Game: Reviewing"
+                          "target": "#Game Session: Reviewing"
                         },
                         "Returns to the game choice": {
                           "target": "#Games: Choose a game"
@@ -8106,7 +8106,7 @@
                       "specs/games/matched-game-blocking.feature",
                       "specs/games/finding-an-opponent.feature",
                       "specs/games/finding-an-opponent-devices.feature",
-                      "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                      "specs/games/finding-an-opponent-after-a-game-session.feature",
                       "specs/games/matched-game-abort.feature",
                       "specs/chess/multiplayer-accessibility.feature",
                       "specs/games/matched-game-accessibility.feature",
@@ -8266,7 +8266,7 @@
                           "specs/games/puzzle-custom-play.feature:8",
                           "specs/games/finding-an-opponent.feature:5",
                           "specs/games/finding-an-opponent.feature:38",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature:5",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature:5",
                           "specs/games/finding-an-opponent.feature:64",
                           "specs/games/finding-an-opponent-devices.feature:5",
                           "specs/games/finding-an-opponent.feature:72",
@@ -8344,7 +8344,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8388,7 +8388,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8432,7 +8432,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8519,7 +8519,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8563,7 +8563,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8711,7 +8711,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8857,7 +8857,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8933,7 +8933,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -8977,7 +8977,7 @@
                           "specs/games/matched-game-blocking.feature",
                           "specs/games/finding-an-opponent.feature",
                           "specs/games/finding-an-opponent-devices.feature",
-                          "specs/games/finding-an-opponent-after-a-custom-game.feature",
+                          "specs/games/finding-an-opponent-after-a-game-session.feature",
                           "specs/games/matched-game-abort.feature",
                           "specs/chess/multiplayer-accessibility.feature",
                           "specs/games/matched-game-accessibility.feature",
@@ -9012,1052 +9012,1052 @@
                     }
                   }
                 },
-                "App: Custom game": {
-                  "id": "App: Custom game",
+                "App: Game session": {
+                  "id": "App: Game session",
                   "meta": {
-                    "description": "A host configures people or bots, gets readiness for the current choices, then plays and reviews an unrated Custom Game.",
-                    "snapshot": "The space’s Custom Game connects configuration, readiness, play and results.",
+                    "description": "A host configures people or bots, gets readiness for the current choices, then plays and reviews an unrated Game Session.",
+                    "snapshot": "The space’s Game Session connects configuration, readiness, play and results.",
                     "confidence": "assumed",
                     "source": [
-                      "specs/games/custom-game-access.dmn",
-                      "specs/games/custom-game-access.feature",
-                      "specs/games/custom-game-accessibility.feature",
-                      "specs/games/custom-game-away.feature",
-                      "specs/games/custom-game-blocking.feature",
-                      "specs/chess/custom-game-board.feature",
-                      "specs/chess/custom-game-chess-rules.feature",
-                      "specs/games/custom-game-clock.feature",
-                      "specs/games/custom-game-completion.feature",
-                      "specs/games/custom-game-connection.feature",
+                      "specs/games/game-session-access.dmn",
+                      "specs/games/game-session-access.feature",
+                      "specs/games/game-session-accessibility.feature",
+                      "specs/games/game-session-away.feature",
+                      "specs/games/game-session-blocking.feature",
+                      "specs/chess/game-session-board.feature",
+                      "specs/chess/game-session-chess-rules.feature",
+                      "specs/games/game-session-clock.feature",
+                      "specs/games/game-session-completion.feature",
+                      "specs/games/game-session-connection.feature",
                       "specs/games/puzzle-custom-play.feature",
-                      "specs/games/custom-game-creation.feature",
-                      "specs/games/custom-game-delivery.openslo.yaml",
+                      "specs/games/game-session-creation.feature",
+                      "specs/games/game-session-delivery.openslo.yaml",
                       "specs/games/unfinished-game-return.feature",
-                      "specs/games/custom-game-devices.feature",
-                      "specs/games/custom-game-draw-offers.feature",
-                      "specs/games/custom-game-rematch.feature",
-                      "specs/games/custom-game-identity.feature",
-                      "specs/games/custom-game-invitations.feature",
-                      "specs/games/custom-game-offline.feature",
-                      "specs/chess/custom-game-material.feature",
-                      "specs/games/custom-game-cannot-win.feature",
-                      "specs/games/custom-game-open-places.feature",
-                      "specs/games/custom-game-sides.feature",
-                      "specs/chess/custom-game-play.feature",
-                      "specs/chess/custom-game-position-draws.feature",
-                      "specs/games/custom-game-privacy.feature",
-                      "specs/games/custom-game-readiness.feature",
-                      "specs/games/custom-game-interruption.feature",
+                      "specs/games/game-session-devices.feature",
+                      "specs/games/game-session-draw-offers.feature",
+                      "specs/games/game-session-rematch.feature",
+                      "specs/games/game-session-identity.feature",
+                      "specs/games/game-session-invitations.feature",
+                      "specs/games/game-session-offline.feature",
+                      "specs/chess/game-session-material.feature",
+                      "specs/games/game-session-cannot-win.feature",
+                      "specs/games/game-session-open-places.feature",
+                      "specs/games/game-session-sides.feature",
+                      "specs/chess/game-session-play.feature",
+                      "specs/chess/game-session-position-draws.feature",
+                      "specs/games/game-session-privacy.feature",
+                      "specs/games/game-session-readiness.feature",
+                      "specs/games/game-session-interruption.feature",
                       "specs/chess/ubiquitous-language.yml",
                       "specs/ubiquitous-language.yml",
-                      "specs/games/custom-games.feature",
+                      "specs/games/game-sessions.feature",
                       "specs/games/multi-seat-games.feature",
                       "specs/games/multi-seat-recovery.feature"
                     ],
                     "events": []
                   },
-                  "initial": "Custom Game: Opening current Custom Game",
+                  "initial": "Game Session: Opening current Game Session",
                   "states": {
-                    "Custom Game: Opening current Custom Game": {
-                      "id": "Custom Game: Opening current Custom Game",
+                    "Game Session: Opening current Game Session": {
+                      "id": "Game Session: Opening current Game Session",
                       "meta": {
                         "description": "Opening observes the space's existing game, choices, moves and result. Navigation never creates a game or resets one already in progress.",
                         "snapshot": "Opening observes the space's existing game, choices, moves and result. Navigation never creates a game or resets one already in progress.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-rematch.feature:5",
-                          "specs/games/custom-game-devices.feature:7",
-                          "specs/games/custom-game-devices.feature:24"
+                          "specs/games/game-session-rematch.feature:5",
+                          "specs/games/game-session-devices.feature:7",
+                          "specs/games/game-session-devices.feature:24"
                         ],
                         "events": []
                       },
                       "on": {
-                        "No unfinished Custom Game exists in the space": {
-                          "target": "#Custom Game: No unfinished Custom Game"
+                        "No unfinished Game Session exists in the space": {
+                          "target": "#Game Session: No unfinished Game Session"
                         },
-                        "Returns to a configuring Custom Game": {
-                          "target": "#Custom Game: Configuring"
+                        "Returns to a configuring Game Session": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "The current Custom Game choices are partly ready": {
-                          "target": "#Custom Game: Partly ready"
+                        "The current Game Session choices are partly ready": {
+                          "target": "#Game Session: Partly ready"
                         },
-                        "The current Custom Game choices are fully ready": {
-                          "target": "#Custom Game: Ready to start"
+                        "The current Game Session choices are fully ready": {
+                          "target": "#Game Session: Ready to start"
                         },
-                        "Returns to an active Custom Game": {
-                          "target": "#Custom Game: Playing"
+                        "Returns to an active Game Session": {
+                          "target": "#Game Session: Playing"
                         },
-                        "Returns to a finished Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "Returns to a finished Game Session": {
+                          "target": "#Game Session: Finished"
                         },
-                        "The current Custom Game is cancelled": {
-                          "target": "#Custom Game: Cancelled"
+                        "The current Game Session is cancelled": {
+                          "target": "#Game Session: Cancelled"
                         },
-                        "The host creates a Custom Game": {
-                          "target": "#Custom Game: Configuring"
+                        "The host creates a Game Session": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "A watcher creates a Custom Game": {
-                          "target": "#Custom Game: Creator required"
+                        "A watcher creates a Game Session": {
+                          "target": "#Game Session: Creator required"
                         },
-                        "Creates another Custom Game before this one ends": {
-                          "target": "#Custom Game: Replacement refused"
+                        "Creates another Game Session before this one ends": {
+                          "target": "#Game Session: Replacement refused"
                         }
                       }
                     },
-                    "Custom Game: No unfinished Custom Game": {
-                      "id": "Custom Game: No unfinished Custom Game",
+                    "Game Session: No unfinished Game Session": {
+                      "id": "Game Session: No unfinished Game Session",
                       "meta": {
                         "description": "The host sees the seats, chooses a mode when the game offers several, and can open any seat to invite a person or add a bot.",
                         "snapshot": "The host sees the seats, chooses a mode when the game offers several, and can open any seat to invite a person or add a bot.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-accessibility.feature:5",
-                          "specs/games/custom-game-accessibility.feature:19",
-                          "specs/games/custom-game-blocking.feature:5",
-                          "specs/games/custom-game-blocking.feature:28",
-                          "specs/games/custom-game-blocking.feature:45",
-                          "specs/games/custom-game-creation.feature:5",
-                          "specs/games/custom-game-creation.feature:20",
-                          "specs/games/custom-game-creation.feature:32",
+                          "specs/games/game-session-accessibility.feature:5",
+                          "specs/games/game-session-accessibility.feature:19",
+                          "specs/games/game-session-blocking.feature:5",
+                          "specs/games/game-session-blocking.feature:28",
+                          "specs/games/game-session-blocking.feature:45",
+                          "specs/games/game-session-creation.feature:5",
+                          "specs/games/game-session-creation.feature:20",
+                          "specs/games/game-session-creation.feature:32",
                           "specs/games/game-turns.feature:5",
                           "specs/games/game-turns.feature:68",
-                          "specs/chess/custom-game-play.feature:14",
-                          "specs/games/custom-game-draw-offers.feature:17",
+                          "specs/chess/game-session-play.feature:14",
+                          "specs/games/game-session-draw-offers.feature:17",
                           "specs/games/game-history.feature:5",
-                          "specs/games/custom-game-privacy.feature:5",
-                          "specs/games/custom-game-privacy.feature:21",
-                          "specs/games/custom-game-privacy.feature:45",
+                          "specs/games/game-session-privacy.feature:5",
+                          "specs/games/game-session-privacy.feature:21",
+                          "specs/games/game-session-privacy.feature:45",
                           "specs/light-cycles/light-cycles-bots-and-modes.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to a configuring Custom Game": {
-                          "target": "#Custom Game: Configuring"
+                        "Returns to a configuring Game Session": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "Returns to an active Custom Game": {
-                          "target": "#Custom Game: Playing"
+                        "Returns to an active Game Session": {
+                          "target": "#Game Session: Playing"
                         },
-                        "Returns to a finished Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "Returns to a finished Game Session": {
+                          "target": "#Game Session: Finished"
                         },
-                        "The host creates a Custom Game": {
-                          "target": "#Custom Game: Configuring"
+                        "The host creates a Game Session": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "A watcher creates a Custom Game": {
-                          "target": "#Custom Game: Creator required"
+                        "A watcher creates a Game Session": {
+                          "target": "#Game Session: Creator required"
                         },
                         "Chooses a mode the game offers": {
-                          "target": "#Custom Game: No unfinished Custom Game"
+                          "target": "#Game Session: No unfinished Game Session"
                         }
                       }
                     },
-                    "Custom Game: Custom Game connection required": {
-                      "id": "Custom Game: Custom Game connection required",
+                    "Game Session: Game Session connection required": {
+                      "id": "Game Session: Game Session connection required",
                       "meta": {
-                        "description": "Custom Game changes need a connection and cannot be queued to happen later on their own.",
-                        "snapshot": "Custom Game changes need a connection and cannot be queued to happen later on their own.",
+                        "description": "Game Session changes need a connection and cannot be queued to happen later on their own.",
+                        "snapshot": "Game Session changes need a connection and cannot be queued to happen later on their own.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-offline.feature:5",
-                          "specs/games/custom-games.feature:62",
-                          "specs/games/custom-game-connection.feature:5"
+                          "specs/games/game-session-offline.feature:5",
+                          "specs/games/game-sessions.feature:62",
+                          "specs/games/game-session-connection.feature:5"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Connection returns to the current Custom Game choices": {
-                          "target": "#Custom Game: Configuring"
+                        "Connection returns to the current Game Session choices": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "Connection returns to partly ready Custom Game choices": {
-                          "target": "#Custom Game: Partly ready"
+                        "Connection returns to partly ready Game Session choices": {
+                          "target": "#Game Session: Partly ready"
                         },
-                        "Connection returns to fully ready Custom Game choices": {
-                          "target": "#Custom Game: Ready to start"
+                        "Connection returns to fully ready Game Session choices": {
+                          "target": "#Game Session: Ready to start"
                         }
                       }
                     },
-                    "Custom Game: Creator required": {
-                      "id": "Custom Game: Creator required",
+                    "Game Session: Creator required": {
+                      "id": "Game Session: Creator required",
                       "meta": {
-                        "description": "Only the space’s host may create this Custom Game.",
-                        "snapshot": "Only the space’s host may create this Custom Game.",
+                        "description": "Only the space’s host may create this Game Session.",
+                        "snapshot": "Only the space’s host may create this Game Session.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.feature:5",
-                          "specs/games/custom-game-access.feature:26",
-                          "specs/games/custom-game-access.feature:40",
-                          "specs/games/custom-game-devices.feature:5",
-                          "specs/games/custom-game-devices.feature:22"
+                          "specs/games/game-session-access.feature:5",
+                          "specs/games/game-session-access.feature:26",
+                          "specs/games/game-session-access.feature:40",
+                          "specs/games/game-session-devices.feature:5",
+                          "specs/games/game-session-devices.feature:22"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to Custom Game choices": {
-                          "target": "#Custom Game: No unfinished Custom Game"
+                        "Returns to Game Session choices": {
+                          "target": "#Game Session: No unfinished Game Session"
                         }
                       }
                     },
-                    "Custom Game: Configuring": {
-                      "id": "Custom Game: Configuring",
+                    "Game Session: Configuring": {
+                      "id": "Game Session: Configuring",
                       "meta": {
                         "description": "The creator chooses White, Black, people or bots and the clock; choices clear previous readiness.",
                         "snapshot": "The creator chooses White, Black, people or bots and the clock; choices clear previous readiness.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-clock.feature:5",
-                          "specs/games/custom-game-clock.feature:24",
-                          "specs/games/custom-game-clock.feature:39",
-                          "specs/games/custom-game-clock.feature:53",
-                          "specs/games/custom-game-sides.feature:5",
-                          "specs/games/custom-game-sides.feature:30",
-                          "specs/games/custom-game-sides.feature:43",
-                          "specs/games/custom-game-sides.feature:57",
-                          "specs/games/custom-game-sides.feature:71",
-                          "specs/games/custom-game-readiness.feature:88"
+                          "specs/games/game-session-clock.feature:5",
+                          "specs/games/game-session-clock.feature:24",
+                          "specs/games/game-session-clock.feature:39",
+                          "specs/games/game-session-clock.feature:53",
+                          "specs/games/game-session-sides.feature:5",
+                          "specs/games/game-session-sides.feature:30",
+                          "specs/games/game-session-sides.feature:43",
+                          "specs/games/game-session-sides.feature:57",
+                          "specs/games/game-session-sides.feature:71",
+                          "specs/games/game-session-readiness.feature:88"
                         ],
                         "events": []
                       },
                       "on": {
                         "Assigns a permitted person or bot to a side": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
-                        "Changes the Custom Game clock": {
-                          "target": "#Custom Game: Configuring"
+                        "Changes the Game Session clock": {
+                          "target": "#Game Session: Configuring"
                         },
                         "Invites a permitted person to an open side": {
-                          "target": "#Custom Game: Invitation pending"
+                          "target": "#Game Session: Invitation pending"
                         },
                         "Invites a person blocked by either side": {
-                          "target": "#Custom Game: Invitation refused"
+                          "target": "#Game Session: Invitation refused"
                         },
                         "Takes a permitted open side": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
                         "Takes an open side with a block between the person and creator": {
-                          "target": "#Custom Game: Side choice refused"
+                          "target": "#Game Session: Side choice refused"
                         },
                         "A participant releases their own side before start": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
                         "Another person tries releasing a participant’s side": {
-                          "target": "#Custom Game: Side choice refused"
+                          "target": "#Game Session: Side choice refused"
                         },
                         "A participant confirms readiness": {
-                          "target": "#Custom Game: Partly ready"
+                          "target": "#Game Session: Partly ready"
                         },
                         "Starts with open places or unready participants": {
-                          "target": "#Custom Game: Start refused"
+                          "target": "#Game Session: Start refused"
                         },
                         "The creator cancels the unstarted game": {
-                          "target": "#Custom Game: Cancelled"
+                          "target": "#Game Session: Cancelled"
                         },
                         "Chooses the same person for both sides": {
-                          "target": "#Custom Game: Side choice refused"
+                          "target": "#Game Session: Side choice refused"
                         }
                       }
                     },
-                    "Custom Game: Invitation pending": {
-                      "id": "Custom Game: Invitation pending",
+                    "Game Session: Invitation pending": {
+                      "id": "Game Session: Invitation pending",
                       "meta": {
                         "description": "The invited person chooses whether to take the offered side.",
                         "snapshot": "The invited person chooses whether to take the offered side.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
                         "The invited person accepts a current invitation": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
                         "The invited person declines": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
                         "The creator revokes the invitation": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
                         "Someone tries an ended or another person’s invitation": {
-                          "target": "#Custom Game: Invitation refused"
+                          "target": "#Game Session: Invitation refused"
                         }
                       }
                     },
-                    "Custom Game: Invitation refused": {
-                      "id": "Custom Game: Invitation refused",
+                    "Game Session: Invitation refused": {
+                      "id": "Game Session: Invitation refused",
                       "meta": {
                         "description": "Only the current invited person may accept a live invitation for its open side.",
                         "snapshot": "Only the current invited person may accept a live invitation for its open side.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-invitations.feature:5",
-                          "specs/games/custom-game-invitations.feature:18",
-                          "specs/games/custom-game-invitations.feature:39",
-                          "specs/games/custom-game-invitations.feature:55",
-                          "specs/games/custom-game-invitations.feature:68",
-                          "specs/games/custom-game-invitations.feature:82",
-                          "specs/games/custom-game-open-places.feature:5",
-                          "specs/games/custom-game-open-places.feature:19",
-                          "specs/games/custom-game-open-places.feature:31",
-                          "specs/games/custom-game-open-places.feature:56",
-                          "specs/games/custom-game-sides.feature:17"
+                          "specs/games/game-session-invitations.feature:5",
+                          "specs/games/game-session-invitations.feature:18",
+                          "specs/games/game-session-invitations.feature:39",
+                          "specs/games/game-session-invitations.feature:55",
+                          "specs/games/game-session-invitations.feature:68",
+                          "specs/games/game-session-invitations.feature:82",
+                          "specs/games/game-session-open-places.feature:5",
+                          "specs/games/game-session-open-places.feature:19",
+                          "specs/games/game-session-open-places.feature:31",
+                          "specs/games/game-session-open-places.feature:56",
+                          "specs/games/game-session-sides.feature:17"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to Custom Game choices": {
-                          "target": "#Custom Game: Configuring"
+                        "Returns to Game Session choices": {
+                          "target": "#Game Session: Configuring"
                         }
                       }
                     },
-                    "Custom Game: Side choice refused": {
-                      "id": "Custom Game: Side choice refused",
+                    "Game Session: Side choice refused": {
+                      "id": "Game Session: Side choice refused",
                       "meta": {
                         "description": "Side choices cannot duplicate a person or bypass the creator’s authority.",
                         "snapshot": "Side choices cannot duplicate a person or bypass the creator’s authority.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-sides.feature:38",
-                          "specs/games/custom-game-open-places.feature:26",
-                          "specs/games/custom-game-sides.feature:78"
+                          "specs/games/game-session-sides.feature:38",
+                          "specs/games/game-session-open-places.feature:26",
+                          "specs/games/game-session-sides.feature:78"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Corrects the Custom Game side choices": {
-                          "target": "#Custom Game: Configuring"
+                        "Corrects the Game Session side choices": {
+                          "target": "#Game Session: Configuring"
                         }
                       }
                     },
-                    "Custom Game: Partly ready": {
-                      "id": "Custom Game: Partly ready",
+                    "Game Session: Partly ready": {
+                      "id": "Game Session: Partly ready",
                       "meta": {
                         "description": "Some participants agreed to the current choices; the remaining people must agree too.",
                         "snapshot": "Some participants agreed to the current choices; the remaining people must agree too.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
                         "Both sides are filled and every person is ready for the current choices": {
-                          "target": "#Custom Game: Ready to start"
+                          "target": "#Game Session: Ready to start"
                         },
                         "A participant withdraws readiness": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
                         "The creator changes the choices": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         },
-                        "Changes Custom Game choices offline": {
-                          "target": "#Custom Game: Custom Game connection required"
+                        "Changes Game Session choices offline": {
+                          "target": "#Game Session: Game Session connection required"
                         },
                         "Starts before everyone is ready": {
-                          "target": "#Custom Game: Start refused"
+                          "target": "#Game Session: Start refused"
                         }
                       }
                     },
-                    "Custom Game: Ready to start": {
-                      "id": "Custom Game: Ready to start",
+                    "Game Session: Ready to start": {
+                      "id": "Game Session: Ready to start",
                       "meta": {
                         "description": "Both sides are filled and every person is ready for these choices.",
                         "snapshot": "Both sides are filled and every person is ready for these choices.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/chess/custom-game-chess-rules.feature:5",
-                          "specs/chess/custom-game-chess-rules.feature:20",
-                          "specs/games/custom-game-readiness.feature:5",
-                          "specs/games/custom-game-readiness.feature:19",
-                          "specs/games/custom-game-readiness.feature:35",
-                          "specs/games/custom-game-readiness.feature:56",
-                          "specs/games/custom-game-readiness.feature:73"
+                          "specs/chess/game-session-chess-rules.feature:5",
+                          "specs/chess/game-session-chess-rules.feature:20",
+                          "specs/games/game-session-readiness.feature:5",
+                          "specs/games/game-session-readiness.feature:19",
+                          "specs/games/game-session-readiness.feature:35",
+                          "specs/games/game-session-readiness.feature:56",
+                          "specs/games/game-session-readiness.feature:73"
                         ],
                         "events": []
                       },
                       "on": {
                         "The creator starts the agreed game": {
-                          "target": "#Custom Game: Playing"
+                          "target": "#Game Session: Playing"
                         },
                         "Another person starts the game": {
-                          "target": "#Custom Game: Start refused"
+                          "target": "#Game Session: Start refused"
                         },
                         "A participant withdraws readiness": {
-                          "target": "#Custom Game: Partly ready"
+                          "target": "#Game Session: Partly ready"
                         },
                         "The creator changes the choices": {
-                          "target": "#Custom Game: Configuring"
+                          "target": "#Game Session: Configuring"
                         }
                       }
                     },
-                    "Custom Game: Start refused": {
-                      "id": "Custom Game: Start refused",
+                    "Game Session: Start refused": {
+                      "id": "Game Session: Start refused",
                       "meta": {
                         "description": "Starting explains the missing people, readiness, authority or changed choices and keeps the game intact.",
                         "snapshot": "Starting explains the missing people, readiness, authority or changed choices and keeps the game intact.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to Custom Game configuration": {
-                          "target": "#Custom Game: Configuring"
+                        "Returns to Game Session configuration": {
+                          "target": "#Game Session: Configuring"
                         }
                       }
                     },
-                    "Custom Game: Playing": {
-                      "id": "Custom Game: Playing",
+                    "Game Session: Playing": {
+                      "id": "Game Session: Playing",
                       "meta": {
-                        "description": "The agreed Custom Game is active from the standard position with White first; it is unrated and the current participant controls the same side on their connected devices.",
-                        "snapshot": "The agreed Custom Game is active from the standard position with White first; it is unrated and the current participant controls the same side on their connected devices.",
+                        "description": "The agreed Game Session is active from the standard position with White first; it is unrated and the current participant controls the same side on their connected devices.",
+                        "snapshot": "The agreed Game Session is active from the standard position with White first; it is unrated and the current participant controls the same side on their connected devices.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-identity.feature:5",
-                          "specs/games/custom-game-identity.feature:22",
-                          "specs/chess/custom-game-position-draws.feature:5",
-                          "specs/chess/custom-game-position-draws.feature:18",
-                          "specs/chess/custom-game-position-draws.feature:31"
+                          "specs/games/game-session-identity.feature:5",
+                          "specs/games/game-session-identity.feature:22",
+                          "specs/chess/game-session-position-draws.feature:5",
+                          "specs/chess/game-session-position-draws.feature:18",
+                          "specs/chess/game-session-position-draws.feature:31"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Plays a legal Custom Game move on their turn": {
-                          "target": "#Custom Game: Playing"
+                        "Plays a legal Game Session move on their turn": {
+                          "target": "#Game Session: Playing"
                         },
-                        "Plays an illegal or wrong-turn Custom Game move": {
-                          "target": "#Custom Game: Move refused"
+                        "Plays an illegal or wrong-turn Game Session move": {
+                          "target": "#Game Session: Move refused"
                         },
-                        "Reaches Custom Game promotion": {
-                          "target": "#Custom Game: Choosing promotion"
+                        "Reaches Game Session promotion": {
+                          "target": "#Game Session: Choosing promotion"
                         },
-                        "Offers a Custom Game draw": {
-                          "target": "#Custom Game: Draw offered"
+                        "Offers a Game Session draw": {
+                          "target": "#Game Session: Draw offered"
                         },
-                        "Offers a Custom Game draw against a bot": {
-                          "target": "#Custom Game: Draw unavailable"
+                        "Offers a Game Session draw against a bot": {
+                          "target": "#Game Session: Draw unavailable"
                         },
-                        "Custom Game checkmate occurs": {
-                          "target": "#Custom Game: Won result"
+                        "Game Session checkmate occurs": {
+                          "target": "#Game Session: Won result"
                         },
-                        "A participant resigns the Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "A participant resigns the Game Session": {
+                          "target": "#Game Session: Finished"
                         },
                         "A participant resigns to a side unable to mate": {
-                          "target": "#Custom Game: Drawn result"
+                          "target": "#Game Session: Drawn result"
                         },
-                        "A Custom Game clock expires": {
-                          "target": "#Custom Game: Finished"
+                        "A Game Session clock expires": {
+                          "target": "#Game Session: Finished"
                         },
-                        "A Custom Game clock expires against a side unable to mate": {
-                          "target": "#Custom Game: Drawn result"
+                        "A Game Session clock expires against a side unable to mate": {
+                          "target": "#Game Session: Drawn result"
                         },
-                        "Custom Game stalemate, insufficient material or automatic repetition occurs": {
-                          "target": "#Custom Game: Drawn result"
+                        "Game Session stalemate, insufficient material or automatic repetition occurs": {
+                          "target": "#Game Session: Drawn result"
                         },
                         "Claims an available position draw": {
-                          "target": "#Custom Game: Drawn result"
+                          "target": "#Game Session: Drawn result"
                         },
                         "Claims a position draw before it is available": {
-                          "target": "#Custom Game: Move refused"
+                          "target": "#Game Session: Move refused"
                         },
                         "Claims a win after the opponent was away for sixty seconds": {
-                          "target": "#Custom Game: Finished"
+                          "target": "#Game Session: Finished"
                         },
                         "Claims a win after sixty seconds without mating material": {
-                          "target": "#Custom Game: Drawn result"
+                          "target": "#Game Session: Drawn result"
                         },
                         "Claims a win after the opponent was away for only fifty-nine seconds": {
-                          "target": "#Custom Game: Away claim refused"
+                          "target": "#Game Session: Away claim refused"
                         },
                         "Blocks a participant during the active game": {
-                          "target": "#Custom Game: Playing"
+                          "target": "#Game Session: Playing"
                         },
-                        "The creator cancels the active Custom Game": {
-                          "target": "#Custom Game: Cancelled"
+                        "The creator cancels the active Game Session": {
+                          "target": "#Game Session: Cancelled"
                         },
                         "A participant cancels before both people have moved": {
-                          "target": "#Custom Game: Cancelled"
+                          "target": "#Game Session: Cancelled"
                         },
                         "A participant leaves the space and resigns": {
-                          "target": "#Custom Game: Finished"
+                          "target": "#Game Session: Finished"
                         },
                         "A participant loses connection": {
-                          "target": "#Custom Game: Playing offline"
+                          "target": "#Game Session: Playing offline"
                         },
-                        "Creates another Custom Game before this one ends": {
-                          "target": "#Custom Game: Replacement refused"
+                        "Creates another Game Session before this one ends": {
+                          "target": "#Game Session: Replacement refused"
                         },
-                        "Creates a rematch before this Custom Game ends": {
-                          "target": "#Custom Game: Replacement refused"
+                        "Creates a rematch before this Game Session ends": {
+                          "target": "#Game Session: Replacement refused"
                         },
-                        "Starts the already active Custom Game again": {
-                          "target": "#Custom Game: Playing"
+                        "Starts the already active Game Session again": {
+                          "target": "#Game Session: Playing"
                         },
                         "Tries acquiring or releasing a side after start": {
-                          "target": "#Custom Game: Playing"
+                          "target": "#Game Session: Playing"
                         },
                         "SignedIn": {
-                          "target": "#Custom Game: Playing"
+                          "target": "#Game Session: Playing"
                         },
                         "UsernameChanged": {
-                          "target": "#Custom Game: Playing"
+                          "target": "#Game Session: Playing"
                         }
                       }
                     },
-                    "Custom Game: Away claim refused": {
-                      "id": "Custom Game: Away claim refused",
+                    "Game Session: Away claim refused": {
+                      "id": "Game Session: Away claim refused",
                       "meta": {
                         "description": "Only a participant may claim a win after the opponent has stayed away for at least sixty seconds; an earlier claim keeps the game active.",
                         "snapshot": "Only a participant may claim a win after the opponent has stayed away for at least sixty seconds; an earlier claim keeps the game active.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-away.feature:5",
-                          "specs/games/custom-game-away.feature:22",
-                          "specs/games/custom-game-rematch.feature:5",
-                          "specs/games/custom-game-rematch.feature:19",
+                          "specs/games/game-session-away.feature:5",
+                          "specs/games/game-session-away.feature:22",
+                          "specs/games/game-session-rematch.feature:5",
+                          "specs/games/game-session-rematch.feature:19",
                           "specs/games/game-history.feature:19",
-                          "specs/chess/custom-game-material.feature:5",
-                          "specs/games/custom-game-cannot-win.feature:20",
-                          "specs/games/custom-game-cannot-win.feature:33"
+                          "specs/chess/game-session-material.feature:5",
+                          "specs/games/game-session-cannot-win.feature:20",
+                          "specs/games/game-session-cannot-win.feature:33"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to the Custom Game board": {
-                          "target": "#Custom Game: Playing"
+                        "Returns to the Game Session board": {
+                          "target": "#Game Session: Playing"
                         }
                       }
                     },
-                    "Custom Game: Move refused": {
-                      "id": "Custom Game: Move refused",
+                    "Game Session: Move refused": {
+                      "id": "Game Session: Move refused",
                       "meta": {
                         "description": "A refused move does not advance the board, clock or turn.",
                         "snapshot": "A refused move does not advance the board, clock or turn.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to the Custom Game board": {
-                          "target": "#Custom Game: Playing"
+                        "Returns to the Game Session board": {
+                          "target": "#Game Session: Playing"
                         }
                       }
                     },
-                    "Custom Game: Choosing promotion": {
-                      "id": "Custom Game: Choosing promotion",
+                    "Game Session: Choosing promotion": {
+                      "id": "Game Session: Choosing promotion",
                       "meta": {
                         "description": "The participant chooses Queen, Rook, Bishop or Knight for the promotion.",
                         "snapshot": "The participant chooses Queen, Rook, Bishop or Knight for the promotion.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Chooses the Custom Game promotion piece": {
-                          "target": "#Custom Game: Playing"
+                        "Chooses the Game Session promotion piece": {
+                          "target": "#Game Session: Playing"
                         }
                       }
                     },
-                    "Custom Game: Draw offered": {
-                      "id": "Custom Game: Draw offered",
+                    "Game Session: Draw offered": {
+                      "id": "Game Session: Draw offered",
                       "meta": {
                         "description": "Only the other participant may accept or decline the live draw offer. Play and clocks continue; a legal move clears it and an illegal move preserves it.",
                         "snapshot": "Only the other participant may accept or decline the live draw offer. Play and clocks continue; a legal move clears it and an illegal move preserves it.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-draw-offers.feature:5",
-                          "specs/games/custom-game-draw-offers.feature:31",
-                          "specs/games/custom-game-draw-offers.feature:46",
-                          "specs/games/custom-game-draw-offers.feature:62",
-                          "specs/chess/custom-game-position-draws.feature:44"
+                          "specs/games/game-session-draw-offers.feature:5",
+                          "specs/games/game-session-draw-offers.feature:31",
+                          "specs/games/game-session-draw-offers.feature:46",
+                          "specs/games/game-session-draw-offers.feature:62",
+                          "specs/chess/game-session-position-draws.feature:44"
                         ],
                         "events": []
                       },
                       "on": {
-                        "The other participant accepts the Custom Game draw": {
-                          "target": "#Custom Game: Drawn result"
+                        "The other participant accepts the Game Session draw": {
+                          "target": "#Game Session: Drawn result"
                         },
-                        "The other participant declines the Custom Game draw": {
-                          "target": "#Custom Game: Waiting to offer again"
+                        "The other participant declines the Game Session draw": {
+                          "target": "#Game Session: Waiting to offer again"
                         },
                         "The offering participant accepts their own draw": {
-                          "target": "#Custom Game: Draw offered"
+                          "target": "#Game Session: Draw offered"
                         },
-                        "The offering participant tries declining their own Custom Game draw": {
-                          "target": "#Custom Game: Draw offered"
+                        "The offering participant tries declining their own Game Session draw": {
+                          "target": "#Game Session: Draw offered"
                         },
-                        "Plays a legal Custom Game move on their turn": {
-                          "target": "#Custom Game: Playing"
+                        "Plays a legal Game Session move on their turn": {
+                          "target": "#Game Session: Playing"
                         },
-                        "Plays an illegal or wrong-turn Custom Game move": {
-                          "target": "#Custom Game: Draw offered"
+                        "Plays an illegal or wrong-turn Game Session move": {
+                          "target": "#Game Session: Draw offered"
                         },
-                        "A participant resigns the Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "A participant resigns the Game Session": {
+                          "target": "#Game Session: Finished"
                         },
                         "A participant resigns to a side unable to mate": {
-                          "target": "#Custom Game: Drawn result"
+                          "target": "#Game Session: Drawn result"
                         },
-                        "A Custom Game clock expires": {
-                          "target": "#Custom Game: Finished"
+                        "A Game Session clock expires": {
+                          "target": "#Game Session: Finished"
                         },
-                        "A Custom Game clock expires against a side unable to mate": {
-                          "target": "#Custom Game: Drawn result"
+                        "A Game Session clock expires against a side unable to mate": {
+                          "target": "#Game Session: Drawn result"
                         },
                         "A participant loses connection": {
-                          "target": "#Custom Game: Playing offline"
+                          "target": "#Game Session: Playing offline"
                         },
-                        "The creator cancels the active Custom Game": {
-                          "target": "#Custom Game: Cancelled"
+                        "The creator cancels the active Game Session": {
+                          "target": "#Game Session: Cancelled"
                         },
                         "A participant leaves the space and resigns": {
-                          "target": "#Custom Game: Finished"
+                          "target": "#Game Session: Finished"
                         }
                       }
                     },
-                    "Custom Game: Draw unavailable": {
-                      "id": "Custom Game: Draw unavailable",
+                    "Game Session: Draw unavailable": {
+                      "id": "Game Session: Draw unavailable",
                       "meta": {
                         "description": "Draw agreement needs two people; an offer against a bot is refused and play continues.",
                         "snapshot": "Draw agreement needs two people; an offer against a bot is refused and play continues.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-draw-offers.feature:12"
+                          "specs/games/game-session-draw-offers.feature:12"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to the Custom Game board": {
-                          "target": "#Custom Game: Playing"
+                        "Returns to the Game Session board": {
+                          "target": "#Game Session: Playing"
                         }
                       }
                     },
-                    "Custom Game: Waiting to offer again": {
-                      "id": "Custom Game: Waiting to offer again",
+                    "Game Session: Waiting to offer again": {
+                      "id": "Game Session: Waiting to offer again",
                       "meta": {
                         "description": "The declined offer is gone. Its sender must make their next legal move before offering again; the other participant's move does not end that wait.",
                         "snapshot": "The declined offer is gone. Its sender must make their next legal move before offering again; the other participant's move does not end that wait.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-draw-offers.feature:48",
-                          "specs/games/custom-game-draw-offers.feature:55"
+                          "specs/games/game-session-draw-offers.feature:48",
+                          "specs/games/game-session-draw-offers.feature:55"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Offers the declined Custom Game draw again before moving": {
-                          "target": "#Custom Game: Waiting to offer again"
+                        "Offers the declined Game Session draw again before moving": {
+                          "target": "#Game Session: Waiting to offer again"
                         },
-                        "The offering participant plays their next legal Custom Game move": {
-                          "target": "#Custom Game: Playing"
+                        "The offering participant plays their next legal Game Session move": {
+                          "target": "#Game Session: Playing"
                         },
-                        "The other participant plays a legal Custom Game move after declining": {
-                          "target": "#Custom Game: Waiting to offer again"
+                        "The other participant plays a legal Game Session move after declining": {
+                          "target": "#Game Session: Waiting to offer again"
                         },
-                        "Plays an illegal or wrong-turn Custom Game move": {
-                          "target": "#Custom Game: Waiting to offer again"
+                        "Plays an illegal or wrong-turn Game Session move": {
+                          "target": "#Game Session: Waiting to offer again"
                         },
-                        "A participant resigns the Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "A participant resigns the Game Session": {
+                          "target": "#Game Session: Finished"
                         },
-                        "A Custom Game clock expires": {
-                          "target": "#Custom Game: Finished"
+                        "A Game Session clock expires": {
+                          "target": "#Game Session: Finished"
                         },
                         "A participant loses connection": {
-                          "target": "#Custom Game: Playing offline"
+                          "target": "#Game Session: Playing offline"
                         },
-                        "The creator cancels the active Custom Game": {
-                          "target": "#Custom Game: Cancelled"
+                        "The creator cancels the active Game Session": {
+                          "target": "#Game Session: Cancelled"
                         }
                       }
                     },
-                    "Custom Game: Playing offline": {
-                      "id": "Custom Game: Playing offline",
+                    "Game Session: Playing offline": {
+                      "id": "Game Session: Playing offline",
                       "meta": {
                         "description": "The board preserves the last known game and prevents unauthorised offline moves.",
                         "snapshot": "The board preserves the last known game and prevents unauthorised offline moves.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Connection returns to an active Custom Game": {
-                          "target": "#Custom Game: Playing"
+                        "Connection returns to an active Game Session": {
+                          "target": "#Game Session: Playing"
                         },
-                        "Connection returns with a waiting Custom Game draw offer": {
-                          "target": "#Custom Game: Draw offered"
+                        "Connection returns with a waiting Game Session draw offer": {
+                          "target": "#Game Session: Draw offered"
                         },
-                        "Connection returns while the Custom Game sender still waits to offer again": {
-                          "target": "#Custom Game: Waiting to offer again"
+                        "Connection returns while the Game Session sender still waits to offer again": {
+                          "target": "#Game Session: Waiting to offer again"
                         },
-                        "Connection returns to a finished Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "Connection returns to a finished Game Session": {
+                          "target": "#Game Session: Finished"
                         },
-                        "Connection returns to a cancelled Custom Game": {
-                          "target": "#Custom Game: Cancelled"
+                        "Connection returns to a cancelled Game Session": {
+                          "target": "#Game Session: Cancelled"
                         }
                       }
                     },
-                    "Custom Game: Replacement refused": {
-                      "id": "Custom Game: Replacement refused",
+                    "Game Session: Replacement refused": {
+                      "id": "Game Session: Replacement refused",
                       "meta": {
                         "description": "The unfinished game must finish or be cancelled before another is created.",
                         "snapshot": "The unfinished game must finish or be cancelled before another is created.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-games.feature:24",
-                          "specs/games/custom-game-completion.feature:5",
-                          "specs/games/custom-game-completion.feature:34",
-                          "specs/games/custom-game-completion.feature:47",
-                          "specs/games/custom-game-completion.feature:67",
-                          "specs/games/custom-game-completion.feature:76"
+                          "specs/games/game-sessions.feature:24",
+                          "specs/games/game-session-completion.feature:5",
+                          "specs/games/game-session-completion.feature:34",
+                          "specs/games/game-session-completion.feature:47",
+                          "specs/games/game-session-completion.feature:67",
+                          "specs/games/game-session-completion.feature:76"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to the unfinished Custom Game": {
-                          "target": "#Custom Game: Playing"
+                        "Returns to the unfinished Game Session": {
+                          "target": "#Game Session: Playing"
                         }
                       }
                     },
-                    "Custom Game: Finished": {
-                      "id": "Custom Game: Finished",
-                      "initial": "Custom Game: Recorded result",
+                    "Game Session: Finished": {
+                      "id": "Game Session: Finished",
+                      "initial": "Game Session: Recorded result",
                       "meta": {
                         "description": "The final result and move list remain visible without changing puzzle ratings; further moves or claims cannot replace the outcome.",
                         "snapshot": "The final result and move list remain visible without changing puzzle ratings; further moves or claims cannot replace the outcome.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "states": {
-                        "Custom Game: Recorded result": {
-                          "id": "Custom Game: Recorded result",
+                        "Game Session: Recorded result": {
+                          "id": "Game Session: Recorded result",
                           "meta": {
                             "description": "The recorded winner or draw and its reason remain attached to this finished game.",
                             "snapshot": "The recorded winner or draw and its reason remain attached to this finished game.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/games/custom-games.feature:26",
-                              "specs/chess/custom-game-material.feature:5"
+                              "specs/games/game-sessions.feature:26",
+                              "specs/chess/game-session-material.feature:5"
                             ],
                             "events": []
                           }
                         },
-                        "Custom Game: Won result": {
-                          "id": "Custom Game: Won result",
+                        "Game Session: Won result": {
+                          "id": "Game Session: Won result",
                           "meta": {
                             "description": "The winner and reason are shown. Checkmate wins; time, resignation or an away claim can win only when that side has mating material.",
                             "snapshot": "The winner and reason are shown. Checkmate wins; time, resignation or an away claim can win only when that side has mating material.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/chess/custom-game-material.feature:14",
-                              "specs/games/custom-game-cannot-win.feature:28",
-                              "specs/games/custom-game-cannot-win.feature:42"
+                              "specs/chess/game-session-material.feature:14",
+                              "specs/games/game-session-cannot-win.feature:28",
+                              "specs/games/game-session-cannot-win.feature:42"
                             ],
                             "events": []
                           }
                         },
-                        "Custom Game: Drawn result": {
-                          "id": "Custom Game: Drawn result",
+                        "Game Session: Drawn result": {
+                          "id": "Game Session: Drawn result",
                           "meta": {
                             "description": "The game ends as a draw by agreement or position, or when time, resignation or an away claim cannot award a possible mating win.",
                             "snapshot": "The game ends as a draw by agreement or position, or when time, resignation or an away claim cannot award a possible mating win.",
                             "confidence": "assumed",
                             "source": [
-                              "specs/chess/custom-game-material.feature:8",
-                              "specs/games/custom-game-cannot-win.feature:23",
-                              "specs/games/custom-game-cannot-win.feature:36",
-                              "specs/chess/custom-game-position-draws.feature:5"
+                              "specs/chess/game-session-material.feature:8",
+                              "specs/games/game-session-cannot-win.feature:23",
+                              "specs/games/game-session-cannot-win.feature:36",
+                              "specs/chess/game-session-position-draws.feature:5"
                             ],
                             "events": []
                           }
                         }
                       },
                       "on": {
-                        "Reviews the Custom Game’s moves": {
-                          "target": "#Custom Game: Reviewing"
+                        "Reviews the Game Session’s moves": {
+                          "target": "#Game Session: Reviewing"
                         },
-                        "The host creates another Custom Game": {
-                          "target": "#Custom Game: Configuring"
+                        "The host creates another Game Session": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "Creates a Custom Game rematch with swapped sides": {
-                          "target": "#Custom Game: Configuring"
+                        "Creates a Game Session rematch with swapped sides": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "Starts a finished Custom Game": {
-                          "target": "#Custom Game: Finished"
+                        "Starts a finished Game Session": {
+                          "target": "#Game Session: Finished"
                         }
                       }
                     },
-                    "Custom Game: Reviewing": {
-                      "id": "Custom Game: Reviewing",
+                    "Game Session: Reviewing": {
+                      "id": "Game Session: Reviewing",
                       "meta": {
                         "description": "The reached move list remains attached to the finished game on each device.",
                         "snapshot": "The reached move list remains attached to the finished game on each device.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "Returns to the Custom Game result": {
-                          "target": "#Custom Game: Finished"
+                        "Returns to the Game Session result": {
+                          "target": "#Game Session: Finished"
                         }
                       }
                     },
-                    "Custom Game: Cancelled": {
-                      "id": "Custom Game: Cancelled",
+                    "Game Session: Cancelled": {
+                      "id": "Game Session: Cancelled",
                       "meta": {
                         "description": "Cancellation is recorded and cannot restart the cancelled game.",
                         "snapshot": "Cancellation is recorded and cannot restart the cancelled game.",
                         "confidence": "assumed",
                         "source": [
-                          "specs/games/custom-game-access.dmn",
-                          "specs/games/custom-game-delivery.openslo.yaml",
-                          "specs/games/custom-game-access.feature",
-                          "specs/games/custom-game-accessibility.feature",
-                          "specs/games/custom-game-away.feature",
-                          "specs/games/custom-game-blocking.feature",
-                          "specs/chess/custom-game-board.feature",
-                          "specs/chess/custom-game-chess-rules.feature",
-                          "specs/games/custom-game-clock.feature",
-                          "specs/games/custom-game-completion.feature",
-                          "specs/games/custom-game-connection.feature",
+                          "specs/games/game-session-access.dmn",
+                          "specs/games/game-session-delivery.openslo.yaml",
+                          "specs/games/game-session-access.feature",
+                          "specs/games/game-session-accessibility.feature",
+                          "specs/games/game-session-away.feature",
+                          "specs/games/game-session-blocking.feature",
+                          "specs/chess/game-session-board.feature",
+                          "specs/chess/game-session-chess-rules.feature",
+                          "specs/games/game-session-clock.feature",
+                          "specs/games/game-session-completion.feature",
+                          "specs/games/game-session-connection.feature",
                           "specs/games/puzzle-custom-play.feature",
-                          "specs/games/custom-game-creation.feature",
-                          "specs/games/custom-game-devices.feature",
-                          "specs/games/custom-game-draw-offers.feature",
-                          "specs/games/custom-game-rematch.feature",
-                          "specs/games/custom-game-identity.feature",
-                          "specs/games/custom-game-invitations.feature",
-                          "specs/chess/custom-game-material.feature",
-                          "specs/games/custom-game-cannot-win.feature",
-                          "specs/games/custom-game-open-places.feature",
-                          "specs/games/custom-game-sides.feature",
-                          "specs/chess/custom-game-play.feature",
-                          "specs/chess/custom-game-position-draws.feature",
-                          "specs/games/custom-game-privacy.feature",
-                          "specs/games/custom-game-readiness.feature"
+                          "specs/games/game-session-creation.feature",
+                          "specs/games/game-session-devices.feature",
+                          "specs/games/game-session-draw-offers.feature",
+                          "specs/games/game-session-rematch.feature",
+                          "specs/games/game-session-identity.feature",
+                          "specs/games/game-session-invitations.feature",
+                          "specs/chess/game-session-material.feature",
+                          "specs/games/game-session-cannot-win.feature",
+                          "specs/games/game-session-open-places.feature",
+                          "specs/games/game-session-sides.feature",
+                          "specs/chess/game-session-play.feature",
+                          "specs/chess/game-session-position-draws.feature",
+                          "specs/games/game-session-privacy.feature",
+                          "specs/games/game-session-readiness.feature"
                         ],
                         "events": []
                       },
                       "on": {
-                        "The host creates another Custom Game": {
-                          "target": "#Custom Game: Configuring"
+                        "The host creates another Game Session": {
+                          "target": "#Game Session: Configuring"
                         },
-                        "Starts a cancelled Custom Game": {
-                          "target": "#Custom Game: Cancelled"
+                        "Starts a cancelled Game Session": {
+                          "target": "#Game Session: Cancelled"
                         }
                       }
                     }

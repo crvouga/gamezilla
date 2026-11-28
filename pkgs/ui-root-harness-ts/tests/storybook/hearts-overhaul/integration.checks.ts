@@ -48,7 +48,7 @@ for (const viewport of viewports) {
         await page.keyboard.press('Space');
         await expect(page.locator('[aria-pressed="true"]')).toHaveCount(3);
         await page.keyboard.press('Tab');
-        const pass = page.getByTestId('custom-game-board-pass');
+        const pass = page.getByTestId('game-session-board-pass');
         await expect(pass).toBeFocused();
         await page.keyboard.press('Enter');
         await expect(pass).toHaveAttribute('aria-busy', 'true');

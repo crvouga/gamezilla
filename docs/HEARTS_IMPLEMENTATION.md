@@ -8,11 +8,11 @@ definition.
 
 ## Audit (baseline)
 
-- Seats: `GameRules.sides` already declares two or four ordered seats; custom
-  games, rosters, readiness, bots, clocks and four-seat matchmaking consume it
+- Seats: `GameRules.sides` already declares two or four ordered seats; game
+  sessions, rosters, readiness, bots, clocks and four-seat matchmaking consume it
   (Quoridor's King of the Hill is the existing four-seat consumer).
 - Privacy: Battleship's private setups are the one hidden-information path.
-  A setup is a custom-game room event read only by its person
+  A setup is a game-session room event read only by its person
   (`RoomModule.audience`); the room withholds it before serialization on
   commit, welcome, catch-up and replay. The room resolves each proposal with
   every setup into the public action it records; positions stay public.
@@ -22,7 +22,7 @@ definition.
   decisions, turns the rules decide (a trick's winner leads), results with
   joint winners, and a disconnected seat in a game of more than two that blocks
   play indefinitely.
-- Two-seat assumptions in shared code: `otherCustomGameSide`, two-seat result
+- Two-seat assumptions in shared code: `otherGameSessionSide`, two-seat result
   strings and history statistics (`'<side> wins by …'`), `requireTwoPlayerSide`
   in private setups, and the rules laws' strict alternation.
 
@@ -42,20 +42,20 @@ definition.
 - **Turns decided by the rules.** `GameRules.turnOrder: 'rules'`; the
   alternation law and the `rotating turns` specifications bind only rotating
   games.
-- **Joint winners.** `GameWinner` may list several sides; custom-game
+- **Joint winners.** `GameWinner` may list several sides; game-session
   outcomes (`white and red win by …`), status, records and history credit
   each. Matched games keep one winner or a draw.
 - **Refusal reasons.** A dealt-hands or commitment refusal keeps the game's
   reason, told only to the proposer and worded by
   `GamePresentation.refusalDescription`.
-- **Stand-ins.** In a custom game of more than two sides, a person away for
+- **Stand-ins.** In a game session of more than two sides, a person away for
   the away grace period is replaced by a disclosed stand-in bot playing their
   seat with their own hand; they take the seat back (`reclaim`). Only one
   controller acts for a seat at a time.
 - **Long games.** A match of 500+ actions stays linear: appended moves are
   `progressed` events, verified positions and parsed state are cached, the
   move list shows the latest 40 moves.
-- **Custom games only.** `defineGame` refuses matchmaking for a game with
+- **Game sessions only.** `defineGame` refuses matchmaking for a game with
   `hands.commit` or `turnOrder: 'rules'`: ratings compare one winner, and
   the matched abort window and clocks assume rotation.
 - Hearts owns its deck, deal, passing, legal cards, tricks, hearts-breaking,
@@ -112,7 +112,7 @@ Remaining risks:
 - [x] Shared contracts: dealt-hands commitments, turns by rules, joint
   winners, refusal reasons, bot seat views; existing games and the test
   consumers migrated.
-- [x] Custom games: deal at start, commitments, stand-ins and taking a seat
+- [x] Game sessions: deal at start, commitments, stand-ins and taking a seat
   back, joint-winner outcomes, board props for commitments, solo practice
   (also offline).
 - [x] Hearts rules, bots, table (`CardTable` in the design system),

@@ -1,4 +1,4 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
 import { t } from '@lingui/core/macro';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { Button } from '@pkgs/ui-root-client-ts/button';
@@ -10,7 +10,7 @@ import { Show } from 'solid-js';
 import { frameStartLine } from './game-frame-setup-copy';
 import type { FrameStart } from './game-frame-view-types';
 
-type Choose = (input: CustomGameInput) => Promise<void>;
+type Choose = (input: GameSessionInput) => Promise<void>;
 
 type StartProps = {
   readonly start: FrameStart;
@@ -33,10 +33,9 @@ type StartProps = {
   readonly fillSeat?: FrameFillSeat | undefined;
 };
 
-/** Filling the seat that holds the game back, and how it can be filled. */
+/** Filling the seat that holds a friend's game back, and how. */
 export type FrameFillSeat = {
   readonly invite: boolean;
-  readonly bot: boolean;
   readonly onOpen: () => void;
 };
 
@@ -73,7 +72,7 @@ export function FrameReadinessButton(props: StartProps): JSX.Element {
               <Trans>I'm not ready</Trans>
             </Show>
           }
-          dataSet={{ testid: 'custom-game-ready' }}
+          dataSet={{ testid: 'game-session-ready' }}
           variant={quiet(readiness().ready) ? 'outline' : 'solid'}
           size="lg"
           disabled={!readiness().ready && readiness().blocked}
@@ -112,7 +111,7 @@ function StartButton(props: StartProps): JSX.Element {
             <Trans>Start when back online</Trans>
           </Show>
         }
-        dataSet={{ testid: 'custom-game-start' }}
+        dataSet={{ testid: 'game-session-start' }}
         variant="solid"
         size="lg"
         operation={() => props.onChoose({ operation: 'start' })}
@@ -124,20 +123,19 @@ function StartButton(props: StartProps): JSX.Element {
 
 /** How the seat can be filled, said on its command. */
 function FillSeatButton(props: { readonly fill: FrameFillSeat }): JSX.Element {
-  const title = (): JSX.Element => {
-    if (props.fill.invite && props.fill.bot)
-      return <Trans>Invite a player or add a bot</Trans>;
-    if (props.fill.invite) return <Trans>Invite a player</Trans>;
-    if (props.fill.bot) return <Trans>Add a bot</Trans>;
-    return <Trans>Choose who sits here</Trans>;
-  };
+  const title = (): JSX.Element =>
+    props.fill.invite ? (
+      <Trans>Invite a player</Trans>
+    ) : (
+      <Trans>Choose who sits here</Trans>
+    );
   return (
     <Button
       title={title()}
       variant="solid"
       size="lg"
       onClick={() => props.fill.onOpen()}
-      dataSet={{ testid: 'custom-game-fill-seat' }}
+      dataSet={{ testid: 'game-session-fill-seat' }}
     />
   );
 }
@@ -154,7 +152,7 @@ function ReadinessCommand(props: StartProps): JSX.Element {
         variant={props.fillSeat === undefined ? 'solid' : 'outline'}
         size="lg"
         onClick={() => props.onArrange?.()}
-        dataSet={{ testid: 'custom-game-setup-arrange' }}
+        dataSet={{ testid: 'game-session-setup-arrange' }}
       />
     </Show>
   );
@@ -222,14 +220,14 @@ export function FrameStartView(
               <P
                 variant="bodyBold"
                 role="status"
-                testId="custom-game-host-starts"
+                testId="game-session-host-starts"
               >
                 <Trans>Waiting for the host to start.</Trans>
               </P>
               <P
                 variant="caption"
                 tone="secondary"
-                testId="custom-game-startable"
+                testId="game-session-startable"
               >
                 {/* Where the game stands, never an instruction they cannot
                     follow: "Everyone is ready." for one they cannot start. */}
@@ -243,7 +241,7 @@ export function FrameStartView(
             </>
           }
         >
-          <P variant="bodyBold" role="status" testId="custom-game-startable">
+          <P variant="bodyBold" role="status" testId="game-session-startable">
             {startLine(props.start, props.invitedTo, props.offline)}
           </P>
           {/* A seated guest, with nothing to press here, is told who moves
@@ -252,7 +250,7 @@ export function FrameStartView(
             <P
               variant="caption"
               tone="secondary"
-              testId="custom-game-host-starts"
+              testId="game-session-host-starts"
             >
               {/* Until the viewer is ready, the host waits on them. */}
               <Show

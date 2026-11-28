@@ -133,8 +133,8 @@ test('legacy namespace authority is explicit and independent of a concrete game 
 
 test('a capability declared without what it needs is refused at type checking', () => {
   const capabilities: TurnGameCapabilities = {
-    // @ts-expect-error: custom games need their bots.
-    'custom-games': {},
+    // @ts-expect-error: game sessions need their bots.
+    'vs-bot': {},
   };
   const matched: TurnGameCapabilities = {
     // @ts-expect-error: finding an opponent needs its notice copy.
@@ -150,7 +150,7 @@ test('an unknown capability is refused at type checking and when defined', () =>
   const capabilities: TurnGameCapabilities = { tournaments: {} };
   void capabilities;
   expect(() => defineGame(game(unchecked({ tournaments: {} })))).toThrow(
-    'race: "tournaments" is not a capability the platform offers (custom-games, matchmaking, history, puzzles)'
+    'race: "tournaments" is not a capability the platform offers (vs-human, vs-bot, matchmaking, history, puzzles)'
   );
 });
 
@@ -329,10 +329,10 @@ test('puzzles need no other capability, and only the platform’s durable game k
 test.each([
   [{ history: {} }, 'history.record'],
   [{ history: { record: 'placeholder' } }, 'history.record'],
-  [{ 'custom-games': {} }, 'custom-games.bots.choose'],
+  [{ 'vs-bot': {} }, 'vs-bot.bots.choose'],
   [
-    { 'custom-games': { bots: { difficulties: [] } } },
-    'custom-games.bots.choose',
+    { 'vs-human': {}, 'vs-bot': { bots: { difficulties: [] } } },
+    'vs-bot.bots.choose',
   ],
   [
     {
@@ -367,6 +367,6 @@ test.each([
   { choose: () => null, difficulties: ['unavailable'] },
 ])('invalid bot choices %j fail at registration', (bots) => {
   expect(() =>
-    defineGame(game(unchecked({ 'custom-games': { bots } })))
-  ).toThrow('race: capabilities.custom-games.bots.difficulties');
+    defineGame(game(unchecked({ 'vs-human': {}, 'vs-bot': { bots } })))
+  ).toThrow('race: capabilities.vs-bot.bots.difficulties');
 });

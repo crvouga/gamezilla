@@ -11,14 +11,14 @@ import {
   ScreenExampleStage,
 } from '../../storybook/fixtures/screen-example-game';
 
-/** Custom game: setup → play → result → another round. */
+/** Game session: setup → play → result → another round. */
 export default function GameScreenExample(): JSX.Element {
   const [phase, setPhase] = createSignal('setup');
   return (
     <ScreenExampleFrame>
       <GameScreen
-        screenId="example-custom-game"
-        title="Custom game"
+        screenId="example-game-session"
+        title="Game session"
         subtitle="Play a round together."
       >
         <GameSessionLayout

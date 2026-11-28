@@ -5,9 +5,7 @@
 
 /* Include the coordinate gutter, gaps and padding in the bounded target size. */
 .board[data-fill="false"][data-board-theme="battleship"] {
-  grid-template-columns:
-    var(--ui-space-6)
-    repeat(var(--cell-grid-columns), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
   max-width: calc(
     var(--cell-grid-columns) *
     (var(--ui-control-size-md) + 2 * var(--ui-space-hairline)) +
@@ -20,9 +18,7 @@
    room to the targets, each about 32px instead of 30px. */
 @container game-column (max-width: 879px) {
   .board[data-fill="true"][data-board-theme="battleship"] {
-    grid-template-columns:
-      minmax(1rem, 0.5fr)
-      repeat(var(--cell-grid-columns), minmax(0, 1fr));
+    grid-template-columns: repeat(var(--cell-grid-columns), minmax(0, 1fr));
     gap: 1px;
     padding: var(--ui-space-1);
   }

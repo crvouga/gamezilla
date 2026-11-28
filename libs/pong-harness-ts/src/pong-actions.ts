@@ -1,5 +1,5 @@
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { configureCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { configureGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorUi, pollUntil, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 import { pongGuidance } from './pong-guidance';
@@ -15,7 +15,7 @@ import {
 export const establishLocalPong = scenarioAction({
   name: 'establishLocalPong',
   act: (s, active: boolean = true, targetScore: number = 2) =>
-    establishCustomGame.act(s, 'pong', {
+    establishGameSession.act(s, 'pong', {
       host: 'alice',
       first: 'alice',
       second: 'local',
@@ -27,12 +27,12 @@ export const establishLocalPong = scenarioAction({
 });
 
 async function begin(s: ProductHarness, targetScore = 2): Promise<void> {
-  await configureCustomGame(s, 'alice', {
+  await configureGameSession(s, 'alice', {
     operation: 'rules',
     choice: String(targetScore),
   });
-  await configureCustomGame(s, 'alice', { operation: 'ready' });
-  await configureCustomGame(s, 'alice', { operation: 'start' });
+  await configureGameSession(s, 'alice', { operation: 'ready' });
+  await configureGameSession(s, 'alice', { operation: 'start' });
 }
 
 export const beginLocalPong = scenarioAction({

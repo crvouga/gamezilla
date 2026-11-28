@@ -29,8 +29,8 @@ export async function playWord(
     page,
     'Place C, retract it, then move it to g8',
     async () => {
-      await activate(page.getByTestId('custom-game-board-rack-11'), input);
-      const center = page.getByTestId('custom-game-board-cell-h8');
+      await activate(page.getByTestId('game-session-board-rack-11'), input);
+      const center = page.getByTestId('game-session-board-cell-h8');
       await activate(center, input);
       await expect(center).toHaveAttribute('data-state', 'tentative');
       await activate(center, input);
@@ -43,8 +43,11 @@ export async function playWord(
     ['82', 'i8'],
   ] as const) {
     await measuredStep(page, `Place tile ${tile} at ${cell}`, async () => {
-      await activate(page.getByTestId(`custom-game-board-rack-${tile}`), input);
-      const target = page.getByTestId(`custom-game-board-cell-${cell}`);
+      await activate(
+        page.getByTestId(`game-session-board-rack-${tile}`),
+        input
+      );
+      const target = page.getByTestId(`game-session-board-cell-${cell}`);
       await activate(target, input);
       await expect(target).toHaveAttribute('data-state', 'tentative');
     });
@@ -55,20 +58,20 @@ export async function playWord(
     'Submit CAT and read the accepted score and next turn',
     async () => {
       await markEvidencePhase(page, 'native-submission');
-      const submit = page.getByTestId('custom-game-board-submit');
+      const submit = page.getByTestId('game-session-board-submit');
       await expect(submit).toBeEnabled();
-      await expect(page.getByTestId('custom-game-board-status')).toContainText(
+      await expect(page.getByTestId('game-session-board-status')).toContainText(
         '10'
       );
       await activate(submit, input);
       await expect(
-        page.getByTestId('custom-game-board-cell-h8')
+        page.getByTestId('game-session-board-cell-h8')
       ).toHaveAttribute('data-state', 'recent');
       await expect(submit).toBeDisabled();
       await expect(
-        page.getByTestId('custom-game-white').getByText('10', { exact: true })
+        page.getByTestId('game-session-white').getByText('10', { exact: true })
       ).toBeVisible();
-      await expect(page.getByTestId('custom-game-status')).toContainText(
+      await expect(page.getByTestId('game-session-status')).toContainText(
         'jordan_plays to play'
       );
     }

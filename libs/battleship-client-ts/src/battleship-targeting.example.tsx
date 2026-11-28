@@ -3,7 +3,7 @@ import { expect, userEvent, within } from 'storybook/test';
 /** Whether this screen aims through regions (a phone or tablet) or the whole board. */
 export function hasWorkbench(root: HTMLElement): boolean {
   return (
-    root.querySelector('[data-testid="custom-game-board-region"]') !== null
+    root.querySelector('[data-testid="game-session-board-region"]') !== null
   );
 }
 
@@ -14,7 +14,7 @@ export async function showCell(root: HTMLElement, cell: string) {
     Number(cell.charAt(0) >= 'f') +
     Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
   await userEvent.click(
-    within(root).getByTestId(`custom-game-board-area-${area}`)
+    within(root).getByTestId(`game-session-board-area-${area}`)
   );
 }
 
@@ -22,8 +22,8 @@ export async function showCell(root: HTMLElement, cell: string) {
 export function aimCell(root: HTMLElement, cell: string): HTMLElement {
   return within(root).getByTestId(
     hasWorkbench(root)
-      ? `custom-game-board-aim-${cell}`
-      : `custom-game-board-target-${cell}`
+      ? `game-session-board-aim-${cell}`
+      : `game-session-board-target-${cell}`
   );
 }
 
@@ -31,24 +31,24 @@ export function aimCell(root: HTMLElement, cell: string): HTMLElement {
 async function assertWholeBoardAim(root: HTMLElement, aimed: boolean) {
   // regression: battleship-desktop-aims-in-two-steps
   const canvas = within(root);
-  const fire = canvas.getByTestId('custom-game-board-fire');
-  const grid = canvas.getByTestId('custom-game-board-target-grid');
+  const fire = canvas.getByTestId('game-session-board-fire');
+  const grid = canvas.getByTestId('game-session-board-target-grid');
   await assertTargetViewport(root, [
     fire,
     grid,
-    canvas.getByTestId('custom-game-seat-near'),
+    canvas.getByTestId('game-session-seat-near'),
   ]);
   await expect(grid.closest('[inert]')).toBeNull();
   await expect(grid.querySelectorAll('[data-cell]')).toHaveLength(100);
   await expect(
-    canvas.getByTestId('custom-game-board-target-j10').getBoundingClientRect()
+    canvas.getByTestId('game-session-board-target-j10').getBoundingClientRect()
       .width
   ).toBeGreaterThanOrEqual(32);
   await expect(grid.getBoundingClientRect().bottom).toBeLessThanOrEqual(
     fire.getBoundingClientRect().top
   );
   if (aimed) {
-    const cancel = canvas.getByTestId('custom-game-board-cancel-aim');
+    const cancel = canvas.getByTestId('game-session-board-cancel-aim');
     await assertTargetViewport(root, [cancel]);
     await expect(fire).toHaveTextContent('Fire at J10');
   }
@@ -61,17 +61,17 @@ export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
   // regression: battleship-target-confirmation-competes-with-navigation
   // regression: battleship-target-context-below-fold
   const canvas = within(root);
-  const fire = canvas.getByTestId('custom-game-board-fire');
-  const grid = canvas.getByTestId('custom-game-board-target-grid');
-  const aim = canvas.getByTestId('custom-game-board-aim-grid');
-  const region = canvas.getByTestId('custom-game-board-region');
+  const fire = canvas.getByTestId('game-session-board-fire');
+  const grid = canvas.getByTestId('game-session-board-target-grid');
+  const aim = canvas.getByTestId('game-session-board-aim-grid');
+  const region = canvas.getByTestId('game-session-board-region');
   await assertTargetViewport(root, [
     fire,
     grid,
     aim,
     region,
-    canvas.getByTestId('custom-game-board-target-tools'),
-    canvas.getByTestId('custom-game-seat-near'),
+    canvas.getByTestId('game-session-board-target-tools'),
+    canvas.getByTestId('game-session-seat-near'),
   ]);
   // regression: battleship-round8-spatial-target-context
   await expect(grid.getBoundingClientRect().width).toBe(
@@ -93,7 +93,7 @@ export async function assertTargetWorkbench(root: HTMLElement, aimed = false) {
     fire.getBoundingClientRect().top
   );
   if (aimed) {
-    const cancel = canvas.getByTestId('custom-game-board-cancel-aim');
+    const cancel = canvas.getByTestId('game-session-board-cancel-aim');
     await assertTargetViewport(root, [cancel]);
     await expect(cancel).toHaveAttribute('data-face', 'neutral-ghost');
     await expect(fire).toHaveAttribute('data-face', 'primary');

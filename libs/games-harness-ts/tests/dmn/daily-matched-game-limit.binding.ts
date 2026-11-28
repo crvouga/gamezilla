@@ -56,7 +56,7 @@ function otherGame(game: HarnessGame): HarnessGame {
 
 const NO_UNFINISHED = {
   'unfinished matched games': 0,
-  'custom games under way as a participant': 0,
+  'game sessions under way as a participant': 0,
 };
 
 /** The case's started matched games, of `game`, each over by agreement. */

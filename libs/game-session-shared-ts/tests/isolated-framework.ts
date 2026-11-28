@@ -13,7 +13,7 @@ export function isolatedFrameworkProof() {
   );
   const definition = defineGame({
     rules,
-    capabilities: { 'custom-games': { bots } },
+    capabilities: { 'vs-human': {}, 'vs-bot': { bots } },
     turnAutomation: { choose: () => 'advance-token', perform: async () => {} },
   });
   const games = createTurnGames([definition.turnGame]);
@@ -29,7 +29,7 @@ export function isolatedFrameworkProof() {
     emptyGames: empty.games.length,
     emptyRooms: emptyRooms.length,
     emptyState: emptyRooms[0]?.initialState(),
-    offered: games.offers('counting-race', 'custom-games'),
+    offered: games.offers('counting-race', 'vs-bot'),
     matchmaking: games.offers('counting-race', 'matchmaking'),
     initial: games.byId('counting-race').initial(),
     roomCount: rooms.length,

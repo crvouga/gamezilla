@@ -87,7 +87,7 @@ extends is described in [REALTIME_IMPLEMENTATION.md](REALTIME_IMPLEMENTATION.md)
 | Contract | Change | Consumers migrated |
 | --- | --- | --- |
 | `defineGame` | One registration for turn games (`turnAutomation`), simulations, or puzzle-only content; `defineTurnGame` removed. | chess, Connect Four, Battleship, Quoridor, Numberlink, fixtures and tests |
-| `GamePositionRules` | Carries `family` and `sides`; `assertGameSides` accepts two to four ordered seats. | custom games, matchmaking handoff and rematch rotation |
+| `GamePositionRules` | Carries `family` and `sides`; `assertGameSides` accepts two to four ordered seats. | game sessions, matchmaking handoff and rematch rotation |
 | `PLAYABLE_GAME_DEFINITIONS` | Replaces `TURN_GAME_DEFINITIONS`: every game with position rules. | catalogs, automations, enrollment and conformance |
 | `RegisteredSimulation.input` | `held` (default) or `commands`: sent once, scheduled by the authority on the next uncommitted tick, bounded per player, stale/future refused. | replica, authority, presentation sessions |
 | `RegisteredSimulation.rounds` | Round fence: another round's command is refused; the replica drops outstanding commands on a round change. | authority, replica |
@@ -107,7 +107,7 @@ Each defect has a `// regression:` test and a record in `libs/tools-harness-ts/g
 - `light-cycles-finished-game-says-watching`
 - `light-cycles-crashed-rider-takes-its-turn`
 - `simulation-enrolled-in-multi-seat-turn-specifications`
-- `simulation-finished-custom-game-needs-turns` (also failed for Pong)
+- `simulation-finished-game-session-needs-turns` (also failed for Pong)
 - `light-cycles-board-without-its-own-test-id`
 - `simulation-refresh-drops-held-control` (Pong)
 - `simulation-board-release-reads-controls-while-disposed`
@@ -119,11 +119,11 @@ Each defect has a `// regression:` test and a record in `libs/tools-harness-ts/g
 - `edge-latency-serializes-messages` (the localhost stack's simulated network)
 - `simulation-held-control-late-by-its-round-trip` (Pong was unsteerable
   over a 100 ms round trip)
-- `custom-game-choice-refused-before-roster-arrives`
+- `game-session-choice-refused-before-roster-arrives`
 
 The last four were found by the release journeys, which had failed on
 `main`: neither Pong paddle ever moved there, and a Pong rematch, Quoridor
-King of the Hill and custom-game seats failed intermittently.
+King of the Hill and game-session seats failed intermittently.
 
 ## Evidence
 
@@ -167,10 +167,10 @@ King of the Hill and custom-game seats failed intermittently.
     running game;
   - nothing remains after disposal.
 - **Shared conformance:**
-  - Light Cycles Duel runs the same 11 custom-game and 11 matchmaking
+  - Light Cycles Duel runs the same 11 game-session and 11 matchmaking
     shared suites as Pong.
   - The shared Gherkin features that enroll Light Cycles pass for every
-    mode: 117 cases across custom games, invitations, open places,
+    mode: 117 cases across game sessions, invitations, open places,
     blocking, following the host, game choices, finding an opponent (with
     and without a clock, across devices) and matched games without turns.
   - Trio and Quad run the suites eligible for more than two seats.
@@ -240,8 +240,8 @@ interpolation history and retention are all bounded.
 
 ## Limitations
 
-- **A host's bot prediction:** in a shared custom game both the host's
-  device and the room may play a bot's due move, as the custom-game models
+- **A host's bot prediction:** in a shared game session both the host's
+  device and the room may play a bot's due move, as the game-session models
   specify, each with its own random choice. The host can briefly show its
   own choice until the room's replaces it. The journeys choose again from
   the board that stands; seeding the choice per ply would remove the random
@@ -261,7 +261,7 @@ interpolation history and retention are all bounded.
 scheduling and catch-up, the authority with ownership, epochs, rounds and
 input admission, room signals and snapshots for players and late
 spectators, replica presentation, reconnect fences, one steering device,
-custom games, practice, matchmaking, rematches, results, history, bots
+game sessions, practice, matchmaking, rematches, results, history, bots
 through the same inputs, and lifecycle cleanup.
 
 **What a game supplies:**

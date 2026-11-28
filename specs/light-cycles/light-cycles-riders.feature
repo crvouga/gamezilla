@@ -5,8 +5,8 @@ Feature: Take a rider or watch
   Rule: Each mode starts once with its fixed riders, each on its own starting cell
 
     Scenario Outline: Each mode starts with its riders in seat order
-      Given Alice has a Light Cycles <mode> custom game with every rider ready
-      When Alice starts the custom game
+      Given Alice has a Light Cycles <mode> game session with every rider ready
+      When Alice starts the game session
       Then the first round counts down with <riders>
 
       Examples:
@@ -16,8 +16,8 @@ Feature: Take a rider or watch
         | Quad | Comet, Ember, Nova and Volt |
 
     Scenario Outline: Each rider has its own starting cell and direction
-      Given Alice has a Light Cycles Quad custom game with every rider ready
-      When Alice starts the custom game
+      Given Alice has a Light Cycles Quad game session with every rider ready
+      When Alice starts the game session
       Then <rider> waits at column <column>, row <row> heading <direction>
 
       Examples:
@@ -27,9 +27,9 @@ Feature: Take a rider or watch
         | Nova  | 31     | 7   | down      |
         | Volt  | 10     | 22  | up        |
 
-    Scenario Outline: Starting a custom game again changes nothing
+    Scenario Outline: Starting a game session again changes nothing
       Given the Light Cycles game is <stage>
-      When Alice starts the custom game
+      When Alice starts the game session
       Then the Light Cycles game is still <stage>
 
       Examples:

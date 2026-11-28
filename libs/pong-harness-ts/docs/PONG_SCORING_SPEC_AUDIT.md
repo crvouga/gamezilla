@@ -86,7 +86,7 @@ and product changes belong to implementation commits.
 
 The strict preflight (`/tmp/pong-spec-preflight.log`) reports thirteen pairs:
 
-- Custom Game/custom game casing across Battleship, Chess, Games and Runtime:
+- Game Session/game session casing across Battleship, Chess, Games and Runtime:
   starting, readiness, nobody winning, winning on time, already started and
   resigning.
 - Battleship's “own board is unchanged” versus Chess/Games board wording.
@@ -94,7 +94,7 @@ The strict preflight (`/tmp/pong-spec-preflight.log`) reports thirteen pairs:
 - Games' first move “again on her other device” versus “on her other device”.
 
 These findings are resolved with their meanings preserved. Chess and journey
-specs use the shared lowercase custom-game vocabulary. Battleship explicitly
+specs use the shared lowercase game-session vocabulary. Battleship explicitly
 keeps every ship in place on the own board. The return-to-space assertion names
 the space the person hosts. The second-device action explicitly repeats the
 already played first move. Existing step bodies are unchanged; their expressions

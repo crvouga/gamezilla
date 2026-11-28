@@ -115,7 +115,8 @@ export const arenaGame = defineGame({
   },
   simulation: arenaSimulation,
   capabilities: {
-    'custom-games': { bots: { difficulties: [] } },
+    'vs-human': {},
+    'vs-bot': { bots: { difficulties: [] } },
     history: { record: (position) => position },
     matchmaking: {
       namespace: 'arena-race/',

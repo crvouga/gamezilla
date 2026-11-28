@@ -117,7 +117,7 @@ export const LongContent: Story = {
       last_error:
         'Timed out waiting for the opponent to acknowledge the move after three reconnect attempts across two workers',
       last_action:
-        'testId("custom-game-content") >> testId("custom-game-board") >> testId("custom-game-board-column-4"): tap',
+        'testId("game-session-content") >> testId("game-session-board") >> testId("game-session-board-column-4"): tap',
     }),
   },
 };

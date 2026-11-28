@@ -6,11 +6,11 @@ import type { JSX } from '@solidjs/web';
 import { type Accessor, createSignal, For, Match, Switch } from 'solid-js';
 
 /**
- * A game's options while its custom game is set up, drawn by the frame from
+ * A game's options while its game session is set up, drawn by the frame from
  * the game's `frame.options`: a choice as chips, a count as a stepper with
  * its range under it. Whoever may set the game up changes them, and each
  * change is the configuration choice the option encodes; everyone else
- * reads them. Each option's control is `custom-game-option-${id}` (a
+ * reads them. Each option's control is `game-session-option-${id}` (a
  * choice's chips `-${value}`; a count's stepper `-decrease`, `-increase`,
  * `-value`, and its range `-range`).
  */
@@ -23,14 +23,14 @@ export type GameFrameOptionsProps = {
 };
 
 export function frameOptionTestId(id: string): string {
-  return `custom-game-option-${id}`;
+  return `game-session-option-${id}`;
 }
 
 /**
  * The value shown while a change is on its way, then the position's again.
  * Changes made while one is applied are sent after it, the last one last,
  * so quick taps never send against a stale game. A refused change shows
- * the position's value again; the screen says why (`custom-game-error`).
+ * the position's value again; the screen says why (`game-session-error`).
  */
 function useOptionDraft<T>(
   read: Accessor<T>,

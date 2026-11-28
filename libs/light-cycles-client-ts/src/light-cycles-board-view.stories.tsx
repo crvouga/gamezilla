@@ -233,8 +233,8 @@ export const SteerUp: Story = {
   render: (args, context) => interactiveRender(3, ['white'])(args, context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const arena = canvas.getByTestId('custom-game-board-arena');
-    const rider = canvas.getByTestId('custom-game-board-arena-rider-0');
+    const arena = canvas.getByTestId('game-session-board-arena');
+    const rider = canvas.getByTestId('game-session-board-arena-rider-0');
     const y = Number(rider.getAttribute('data-y'));
     await userEvent.click(arena);
     await userEvent.keyboard('{ArrowUp}');
@@ -288,13 +288,13 @@ export const SharedKeyboard: Story = {
     interactiveRender(3, ['white', 'black'])(args, context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-arena'));
+    await userEvent.click(canvas.getByTestId('game-session-board-arena'));
     await userEvent.keyboard('{ArrowUp}w');
     await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-0')
+      canvas.getByTestId('game-session-board-arena-rider-0')
     ).toHaveAttribute('data-heading', 'up');
     await expect(
-      canvas.getByTestId('custom-game-board-arena-rider-1')
+      canvas.getByTestId('game-session-board-arena-rider-1')
     ).toHaveAttribute('data-heading', 'up');
   },
 };
@@ -337,7 +337,7 @@ async function unavailableGuidance({
   await expect(
     canvas.queryByText(/Swipe the arena|Steer with the arrow keys/)
   ).not.toBeInTheDocument();
-  await expect(canvas.getByTestId('custom-game-board-arena')).toHaveAttribute(
+  await expect(canvas.getByTestId('game-session-board-arena')).toHaveAttribute(
     'data-interactive',
     'false'
   );
@@ -351,54 +351,54 @@ function collisionJourney(): Story {
     }),
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement);
-      const rider = canvas.getByTestId('custom-game-board-arena-rider-2');
+      const rider = canvas.getByTestId('game-session-board-arena-rider-2');
       const before = Number(rider.getAttribute('data-y'));
       await expect(rider).toHaveAttribute('data-alive', 'true');
-      await userEvent.click(canvas.getByTestId('custom-game-board-arena'));
+      await userEvent.click(canvas.getByTestId('game-session-board-arena'));
       await userEvent.keyboard('{ArrowDown}');
       await expect(rider).toHaveAttribute('data-y', String(before + 1));
       journey.advance(17);
       flush();
       await expect(
-        canvas.getByTestId('custom-game-board-status')
+        canvas.getByTestId('game-session-board-status')
       ).toHaveAttribute('data-steering', 'crashed');
       await expect(
-        canvas.getByTestId('custom-game-board-arena-rider-2')
+        canvas.getByTestId('game-session-board-arena-rider-2')
       ).toHaveAttribute('data-alive', 'false');
       // The crashed rider's pad offers nothing: on a phone its room stays,
       // so the arena above never moves, but nothing shows, steers or is
       // announced; a wide screen draws no pads.
-      const pad = canvas.queryByTestId('custom-game-board-red-pad');
+      const pad = canvas.queryByTestId('game-session-board-red-pad');
       if (pad !== null) {
         await expect(pad).toHaveAttribute('aria-hidden', 'true');
         await expect(
-          canvas.getByTestId('custom-game-board-red-pad-up')
+          canvas.getByTestId('game-session-board-red-pad-up')
         ).not.toBeVisible();
         await expect(
-          canvas.getByTestId('custom-game-board-red-pad-up')
+          canvas.getByTestId('game-session-board-red-pad-up')
         ).toBeDisabled();
       }
       journey.advance(13);
       flush();
       await expect(
-        canvas.getByTestId('custom-game-board-round')
+        canvas.getByTestId('game-session-board-round')
       ).toHaveAttribute('data-phase', 'round-over');
       await expect(
-        canvas.getByTestId('custom-game-board-result')
+        canvas.getByTestId('game-session-board-result')
       ).toHaveTextContent('Ember wins the round');
       await expect(
-        canvas.getByTestId('custom-game-board-arena-overlay')
+        canvas.getByTestId('game-session-board-arena-overlay')
       ).toHaveAttribute('data-open', 'false');
       journey.advance(60);
       flush();
       await expect(
-        canvas.getByTestId('custom-game-board-round')
+        canvas.getByTestId('game-session-board-round')
       ).toHaveAttribute('data-round', '2');
       await expect(
-        canvas.getByTestId('custom-game-board-arena-rider-2')
+        canvas.getByTestId('game-session-board-arena-rider-2')
       ).toHaveAttribute('data-alive', 'true');
       await expect(
-        canvas.getByTestId('custom-game-board-arena')
+        canvas.getByTestId('game-session-board-arena')
       ).toHaveAttribute('data-interactive', 'true');
     },
   };
@@ -419,8 +419,8 @@ function recoveryJourney(): Story {
     ),
     play: async ({ canvasElement }) => {
       const canvas = within(canvasElement);
-      const arena = canvas.getByTestId('custom-game-board-arena');
-      const rider = canvas.getByTestId('custom-game-board-arena-rider-0');
+      const arena = canvas.getByTestId('game-session-board-arena');
+      const rider = canvas.getByTestId('game-session-board-arena-rider-0');
       const before = rider.getAttribute('data-y');
       await userEvent.click(arena);
       await userEvent.keyboard('{ArrowUp}');
@@ -444,8 +444,8 @@ export const SharedSwipe: Story = {
     interactiveRender(3, ['white', 'black'])(args, context),
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const left = canvas.queryByTestId('custom-game-board-black-pad');
-    const right = canvas.queryByTestId('custom-game-board-white-pad');
+    const left = canvas.queryByTestId('game-session-board-black-pad');
+    const right = canvas.queryByTestId('game-session-board-white-pad');
     if (left && right) {
       // regression: light-cycles-pad-swipe-spatial-mismatch
       await expect(left.getBoundingClientRect().right).toBeLessThanOrEqual(
@@ -460,7 +460,7 @@ export const SharedSwipe: Story = {
 /** Four riders retain one line per identity and counter before steering. */
 async function quadIdentityLines(canvas: HTMLElement) {
   const rail = canvas.querySelector(
-    '[data-component="GameSessionParticipants"], [data-testid="custom-game-scoreboard"]'
+    '[data-component="GameSessionParticipants"], [data-testid="game-session-scoreboard"]'
   );
   if (!rail) throw new Error('Missing participant rail');
   const labels = rail.querySelectorAll(

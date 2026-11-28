@@ -16,15 +16,15 @@ test('storybook integration: the phone record strip never moves the board betwee
       'data-story-ready',
       'true'
     );
-    await expect(page.getByTestId('custom-game-record')).toBeVisible();
-    const board = page.getByTestId('custom-game-board');
+    await expect(page.getByTestId('game-session-record')).toBeVisible();
+    const board = page.getByTestId('game-session-board');
     const top = async () => (await board.boundingBox())?.y ?? -1;
     // The story's play leaves round 1 whole: two moves.
     const tops = [await top()];
-    const column = page.getByTestId('custom-game-board-column-2');
+    const column = page.getByTestId('game-session-board-column-2');
     for (const [cell, disc] of [
-      ['custom-game-board-cell-1', '1'],
-      ['custom-game-board-cell-8', '2'],
+      ['game-session-board-cell-1', '1'],
+      ['game-session-board-cell-8', '2'],
     ] as const) {
       await column.click();
       await expect(page.getByTestId(cell)).toHaveAttribute('data-disc', disc);

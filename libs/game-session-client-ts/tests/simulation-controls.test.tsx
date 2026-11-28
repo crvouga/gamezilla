@@ -1,5 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
-import { useCustomSimulation } from '@libs/game-session-client-ts/use-custom-simulation';
+import { useRoomSimulation } from '@libs/game-session-client-ts/use-room-simulation';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
 import { cleanup } from '@solidjs/testing-library';
@@ -14,7 +14,7 @@ test('a control surface reads no reactive state, so releasing input while a boar
   const [allowed, setAllowed] = createSignal(true);
   let runs = 0;
   function Probe() {
-    const simulation = useCustomSimulation(
+    const simulation = useRoomSimulation(
       () => rig.game,
       () => 'alice',
       allowed

@@ -1,10 +1,10 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
-import {
-  ChangeCustomGame,
-  EndCustomGameOnTime,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
+import {
+  ChangeGameSession,
+  EndGameSessionOnTime,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
@@ -44,7 +44,8 @@ export function fourSeatRoom() {
   const definition = defineGame({
     rules,
     capabilities: {
-      'custom-games': { bots: { difficulties: [], choose: () => 'advance' } },
+      'vs-human': {},
+      'vs-bot': { bots: { difficulties: [], choose: () => 'advance' } },
     },
     turnAutomation: { choose: () => 'advance', perform: async () => {} },
   });
@@ -63,7 +64,7 @@ export function fourSeatRoom() {
     ),
   };
   let sequence = 0;
-  const current = () => CustomGamesAttr.from(state).current!;
+  const current = () => GameSessionsAttr.from(state).current!;
   const deliver = (actor: string, payload: Message, at = 0) => {
     const result = module.handle(
       state,
@@ -77,10 +78,10 @@ export function fourSeatRoom() {
       );
     return result;
   };
-  const send = (actor: string, input: CustomGameInput, at = 0) =>
+  const send = (actor: string, input: GameSessionInput, at = 0) =>
     deliver(
       actor,
-      ChangeCustomGame({
+      ChangeGameSession({
         ...input,
         gameId: current()?.id ?? null,
         revision: current()?.revision ?? 0,
@@ -88,7 +89,7 @@ export function fourSeatRoom() {
       at
     );
   const fill = () => {
-    send('alice', { operation: 'create' });
+    send('alice', { operation: 'create', mode: 'vs-human' });
     for (const [index, side] of sides.entries()) {
       if (index > 0) send(PEOPLE[index]!, { operation: 'claim', side });
     }
@@ -97,7 +98,7 @@ export function fourSeatRoom() {
   const expire = (at: number) =>
     deliver(
       ROOM_SCHEDULER_IDENTITY,
-      EndCustomGameOnTime({
+      EndGameSessionOnTime({
         gameId: current().id,
         side: current().turn,
         ply: current().moves.length,

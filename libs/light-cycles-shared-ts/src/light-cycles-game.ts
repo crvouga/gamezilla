@@ -141,10 +141,10 @@ export function defineLightCyclesMode(mode: LightCyclesMode) {
     simulation,
     continuousAutomation: lightCyclesAutomation(simulation),
     capabilities: {
-      'custom-games': {
+      'vs-human': { ...(count === 2 ? { localPlayers: true as const } : {}) },
+      'vs-bot': {
         bots: { difficulties: ['easy', 'medium', 'hard'] },
         // Two people can share one keyboard: arrows and W, A, S, D.
-        ...(count === 2 ? { localPlayers: true as const } : {}),
       },
       matchmaking: {
         namespace: `${id}/`,

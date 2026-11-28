@@ -11,7 +11,6 @@ import {
 import type { GameOptionGroup } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { fn } from 'storybook/test';
-import type { CustomGameScreenViewProps } from './custom-game-screen-view';
 import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
@@ -27,6 +26,7 @@ import type {
   FrameSetupSeat,
   FrameStatus,
 } from './game-frame-view-types';
+import type { GameSessionScreenViewProps } from './game-session-screen-view';
 
 /**
  * Story-only fixtures for the game frame: Connect Four's two seats (its
@@ -138,7 +138,7 @@ export const STANDINGS = [
     holder: person('avery'),
     score: null,
     you: true,
-    testId: 'custom-game-standing-white',
+    testId: 'game-session-standing-white',
     readiness: null,
   },
   {
@@ -148,7 +148,7 @@ export const STANDINGS = [
     holder: person('jordan'),
     score: null,
     you: false,
-    testId: 'custom-game-standing-black',
+    testId: 'game-session-standing-black',
     readiness: null,
   },
 ] as const;
@@ -252,7 +252,7 @@ export const WON_RECORD = columnRecord(WON_MOVES);
 const resolved = () => fn(() => Promise.resolve());
 
 /** The frame at rest: no game yet, a host who may create one. */
-export function frameArgs(): CustomGameScreenViewProps {
+export function frameArgs(): GameSessionScreenViewProps {
   return {
     title: 'Connect Four',
     goal: 'Line up four discs in a row before your opponent does.',
@@ -264,6 +264,7 @@ export function frameArgs(): CustomGameScreenViewProps {
     stopped: false,
     status: null,
     canCreate: true,
+    mode: 'vs-human',
     sides: ['white', 'black'],
     setup: null,
     table: FRAME_NO_TABLE,
@@ -274,7 +275,6 @@ export function frameArgs(): CustomGameScreenViewProps {
     people: STORY_PEOPLE,
     onChoose: resolved(),
     onReady: resolved(),
-    onPlayBot: resolved(),
     onRandomSetup: resolved(),
     onBack: fn(),
     onSeek: fn(),
@@ -305,7 +305,7 @@ export const FRAME_CONTROLS_EXCLUDE = [
 ];
 
 /** A two-seat game in play with the viewer to move. */
-export const FRAME_PLAYING: Partial<CustomGameScreenViewProps> = {
+export const FRAME_PLAYING: Partial<GameSessionScreenViewProps> = {
   phase: 'active',
   place: { screen: 'stage' },
   viewerSide: 'white',
@@ -324,7 +324,7 @@ export const FRAME_PLAYING: Partial<CustomGameScreenViewProps> = {
  * viewer's seat no longer claims the move, the line drops its own-turn
  * emphasis, and Resign and Offer draw are withheld until it returns.
  */
-export const FRAME_HELD: Partial<CustomGameScreenViewProps> = {
+export const FRAME_HELD: Partial<GameSessionScreenViewProps> = {
   ...FRAME_PLAYING,
   status: status({ emphasis: 'neutral' }),
   table: {
@@ -336,7 +336,7 @@ export const FRAME_HELD: Partial<CustomGameScreenViewProps> = {
 };
 
 /** A finished two-seat game the viewer won: the result, with the moves to review. */
-export const FRAME_OVER: Partial<CustomGameScreenViewProps> = {
+export const FRAME_OVER: Partial<GameSessionScreenViewProps> = {
   phase: 'completed',
   place: { screen: 'result' },
   viewerSide: 'white',

@@ -44,14 +44,14 @@ async function probe(
 
 const REGION_CLICKS = Array.from(
   { length: 12 },
-  (_, index) => `custom-game-board-area-${index % 10}`
+  (_, index) => `game-session-board-area-${index % 10}`
 );
 /** Six cells of the last region, each aimed at and then cancelled. */
 const AIM_CELLS = ['f9', 'g10', 'h9', 'i10', 'j9', 'j10'];
 function aimClicks(prefix: 'aim' | 'target') {
   return AIM_CELLS.flatMap((cell) => [
-    `custom-game-board-${prefix}-${cell}`,
-    'custom-game-board-cancel-aim',
+    `game-session-board-${prefix}-${cell}`,
+    'game-session-board-cancel-aim',
   ]);
 }
 
@@ -64,11 +64,11 @@ export async function measureTargeting(page: Page, info: TestInfo) {
     // A phone or tablet switches regions, then aims in the last one; a wide
     // screen aims at the whole board.
     const workbench =
-      (await page.getByTestId('custom-game-board-region').count()) > 0;
+      (await page.getByTestId('game-session-board-region').count()) > 0;
     if (workbench)
       for (let repetition = 0; repetition < 3; repetition += 1)
         runs.push(await probe(page, 'region', repetition, REGION_CLICKS));
-    if (workbench) await page.getByTestId('custom-game-board-area-9').click();
+    if (workbench) await page.getByTestId('game-session-board-area-9').click();
     for (let repetition = 0; repetition < 3; repetition += 1)
       runs.push(
         await probe(

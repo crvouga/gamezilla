@@ -7,7 +7,7 @@ import {
 
 /** Report actual clipping, including the nested game scroller and outer host. */
 async function clippedFinalCells(page: Page): Promise<string[]> {
-  return page.getByTestId('custom-game-board').evaluate((board) => {
+  return page.getByTestId('game-session-board').evaluate((board) => {
     const cells = board.querySelectorAll<HTMLElement>(
       '[data-cell="0"], [data-cell="1"], [data-cell="2"], [data-cell="3"], [data-cell="4"], [data-cell="5"], [data-cell="6"], [data-winning="true"]'
     );
@@ -63,9 +63,9 @@ async function capture(page: Page, info: TestInfo, name: string) {
  * the stage holds the board in place instead of letting it scroll away.
  */
 export async function expectFinalBoardReachable(page: Page, info: TestInfo) {
-  // The result place of the custom game (`custom-game-result`).
-  const scroller = page.locator('[data-screen^="custom-game"]');
-  const board = page.getByTestId('custom-game-board');
+  // The result place of the game session (`game-session-result`).
+  const scroller = page.locator('[data-screen^="game-session"]');
+  const board = page.getByTestId('game-session-board');
   await expect(scroller).toHaveCount(1);
   expect(await scroller.evaluate((element) => element.scrollTop)).toBe(0);
   expect(
@@ -95,7 +95,7 @@ export async function expectFinalBoardReachable(page: Page, info: TestInfo) {
   await expect
     .poll(() => scroller.evaluate((element) => element.scrollTop))
     .toBe(0);
-  await expect(page.getByTestId('custom-game-rematch')).toBeInViewport({
+  await expect(page.getByTestId('game-session-rematch')).toBeInViewport({
     ratio: 1,
   });
 }

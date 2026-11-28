@@ -55,7 +55,7 @@ const RESULT_MS = 2000;
 const SHOWN_MS = 5000;
 
 Given(
-  '{actor} has created a Light Cycles {lightCyclesMode} custom game',
+  '{actor} has created a Light Cycles {lightCyclesMode} game session',
   (w, host: string, count: LightCyclesCount) =>
     w.s.apply(establishLightCyclesGame, {
       count,
@@ -64,12 +64,12 @@ Given(
     })
 );
 Given(
-  "{actor} rides {lightCyclesRider} in {actor}'s custom game",
+  "{actor} rides {lightCyclesRider} in {actor}'s game session",
   (w, person: string, rider: LightCyclesRiderName) =>
     w.s.apply(takeLightCyclesSeat, person, rider)
 );
 Given(
-  '{actor} has started the custom game with {actor} riding {lightCyclesRider} and a {lightCyclesBotLevel} bot riding {lightCyclesRider}',
+  '{actor} has started the game session with {actor} riding {lightCyclesRider} and a {lightCyclesBotLevel} bot riding {lightCyclesRider}',
   async (
     w,
     ...[host, , , level, rider]: [
@@ -207,7 +207,7 @@ Given(
     });
   }
 );
-// regression: custom-game-navigation-offline-or-watching
+// regression: game-session-navigation-offline-or-watching
 Given(
   "{actor}'s Light Cycles {lightCyclesMode} practice has {lightCyclesRider} on {int} round wins against a {lightCyclesBotLevel} bot with a target score of {int}",
   async (
@@ -267,12 +267,12 @@ Given("{actor} has joined {actor}'s space", (w, person: string, host: string) =>
   w.s.apply(joinSpaceOf, person, host)
 );
 When(
-  '{actor} chooses Light Cycles {lightCyclesMode} for a custom game',
+  '{actor} chooses Light Cycles {lightCyclesMode} for a game session',
   (w, host: string, count: LightCyclesCount) =>
     w.s.apply(pickLightCyclesMode, host, count)
 );
 Then(
-  '{actor} and {actor} see Light Cycles {lightCyclesMode} chosen for the custom game',
+  '{actor} and {actor} see Light Cycles {lightCyclesMode} chosen for the game session',
   async (w, first: string, second: string, count: LightCyclesCount) => {
     for (const actor of [first, second])
       await w.s.until((s) => customModeChosen(s, actor, count), {

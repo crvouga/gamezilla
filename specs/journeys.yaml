@@ -27,36 +27,36 @@ journeys:
     - 'Multiplayer: Drawn result'
     gherkin:
     - specs/games/matched-game-draw-offers.feature
-  A Custom Game draw refusal needs the sender's next move:
+  A Game Session draw refusal needs the sender's next move:
     description: A declined offer cannot be repeated until its sender makes the next legal move.
     events:
     - Returns to a hosted open space
     - Opens chess choices
-    - Opens a Custom Game
-    - Returns to an active Custom Game
-    - Offers a Custom Game draw
-    - The other participant declines the Custom Game draw
-    - Offers the declined Custom Game draw again before moving
-    - The offering participant plays their next legal Custom Game move
-    - Offers a Custom Game draw
+    - Opens a Game Session
+    - Returns to an active Game Session
+    - Offers a Game Session draw
+    - The other participant declines the Game Session draw
+    - Offers the declined Game Session draw again before moving
+    - The offering participant plays their next legal Game Session move
+    - Offers a Game Session draw
     endsIn:
-    - 'Custom Game: Draw offered'
+    - 'Game Session: Draw offered'
     gherkin:
-    - specs/games/custom-game-draw-offers.feature
-  A Custom Game clock needs mating material for a win:
+    - specs/games/game-session-draw-offers.feature
+  A Game Session clock needs mating material for a win:
     description: A waiting draw offer does not stop the clock; expiration against a side unable to mate produces a draw.
     events:
     - Returns to a hosted open space
     - Opens chess choices
-    - Opens a Custom Game
-    - Returns to an active Custom Game
-    - Offers a Custom Game draw
-    - A Custom Game clock expires against a side unable to mate
+    - Opens a Game Session
+    - Returns to an active Game Session
+    - Offers a Game Session draw
+    - A Game Session clock expires against a side unable to mate
     endsIn:
-    - 'Custom Game: Drawn result'
+    - 'Game Session: Drawn result'
     gherkin:
-    - specs/chess/custom-game-material.feature
-    - specs/games/custom-game-cannot-win.feature
+    - specs/chess/game-session-material.feature
+    - specs/games/game-session-cannot-win.feature
   Returning to a puzzle observes the saved wrong-move result:
     description: Leaving for Profile and returning opens the saved attempt; retry remains an explicit choice.
     events:
@@ -556,71 +556,71 @@ journeys:
     - specs/journeys/multiplayer-game.feature
     - specs/games/matched-game-offline.feature
     tour: true
-  A Custom Game with a bot uses the same readiness and play flow:
+  A Game Session with a bot uses the same readiness and play flow:
     description: A guest configures the sides, becomes ready, starts, plays and resigns.
     events:
     - Opens Spaces
     - Creates below the hosting limit online
     - SpaceOpened
     - Opens chess choices
-    - Opens a Custom Game
-    - The host creates a Custom Game
+    - Opens a Game Session
+    - The host creates a Game Session
     - Assigns a permitted person or bot to a side
     - A participant confirms readiness
     - Both sides are filled and every person is ready for the current choices
     - The creator starts the agreed game
-    - Plays a legal Custom Game move on their turn
-    - A participant resigns the Custom Game
-    - Reviews the Custom Game’s moves
-    - Returns to the Custom Game result
+    - Plays a legal Game Session move on their turn
+    - A participant resigns the Game Session
+    - Reviews the Game Session’s moves
+    - Returns to the Game Session result
     endsIn:
     - 'Identity: Guest'
-    - 'Custom Game: Finished'
+    - 'Game Session: Finished'
     gherkin:
-    - specs/journeys/custom-game.feature
-    - specs/games/custom-game-creation.feature
+    - specs/journeys/game-session.feature
+    - specs/games/game-session-creation.feature
     tour: true
-  An invited participant agrees to the current Custom Game:
+  An invited participant agrees to the current Game Session:
     description: An invited person accepts their reserved side; readiness permits the creator to start.
     events:
     - Opens Spaces
     - Creates below the hosting limit online
     - SpaceOpened
     - Opens chess choices
-    - Opens a Custom Game
-    - The host creates a Custom Game
+    - Opens a Game Session
+    - The host creates a Game Session
     - Invites a permitted person to an open side
     - The invited person accepts a current invitation
     - A participant confirms readiness
     - Both sides are filled and every person is ready for the current choices
     - The creator starts the agreed game
     endsIn:
-    - 'Custom Game: Playing'
+    - 'Game Session: Playing'
     gherkin:
-    - specs/journeys/custom-game.feature
-    - specs/games/custom-game-invitations.feature
-    - specs/games/custom-game-readiness.feature
+    - specs/journeys/game-session.feature
+    - specs/games/game-session-invitations.feature
+    - specs/games/game-session-readiness.feature
     tour: true
-  An early away claim cannot steal a Custom Game:
+  An early away claim cannot steal a Game Session:
     description: The active game survives an early claim, and a later permitted claim finishes it.
     events:
     - Opens Spaces
     - Creates below the hosting limit online
     - SpaceOpened
     - Opens chess choices
-    - Opens a Custom Game
-    - The host creates a Custom Game
+    - Opens a Game Session
+    - The host creates a Game Session
     - Assigns a permitted person or bot to a side
     - A participant confirms readiness
     - Both sides are filled and every person is ready for the current choices
     - The creator starts the agreed game
     - Claims a win after the opponent was away for only fifty-nine seconds
-    - Returns to the Custom Game board
+    - Returns to the Game Session board
     - Claims a win after the opponent was away for sixty seconds
     endsIn:
-    - 'Custom Game: Finished'
+    - 'Game Session: Finished'
     gherkin:
-    - specs/games/custom-game-away.feature
+    - specs/games/game-session-away.feature
     tour: true
   A bug report that cannot be sent yet still reaches the team:
     description: A bug report that cannot reach the team is kept on the device, then reaches the team without being reported again.
@@ -916,13 +916,13 @@ journeys:
     - Opens Spaces
     - Returns to a hosted open space
     - Opens chess choices
-    - Opens a Custom Game
-    - The host creates a Custom Game
+    - Opens a Game Session
+    - The host creates a Game Session
     - Assigns a permitted person or bot to a side
     - A participant confirms readiness
     - Both sides are filled and every person is ready for the current choices
     - The creator starts the agreed game
-    - A participant resigns the Custom Game
+    - A participant resigns the Game Session
     - Opens Spaces
     - Returns to a hosted open space
     - Opens chess choices

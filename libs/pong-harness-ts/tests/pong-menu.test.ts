@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
   partition,
   restartApp,
@@ -20,11 +20,11 @@ import { joinSharedPong } from '@libs/pong-harness-ts/pong-shared-actions';
 import { pongScoreboard, pongView } from '@libs/pong-harness-ts/pong-view';
 import { openHarness } from './open-pong-harness';
 
-test('a simulation-only registration reaches the shared custom-game choices', async () => {
+test('a simulation-only registration reaches the shared game-session choices', async () => {
   // regression: simulation-client-catalog-dropped-registration
   await using s = await openHarness();
   await s.apply(establishLocalPong, false);
-  expect((await s.read(readCustomGameScreen, 'alice'))?.current?.status).toBe(
+  expect((await s.read(readGameSessionScreen, 'alice'))?.current?.status).toBe(
     'configuring'
   );
 });

@@ -211,7 +211,7 @@ test('a watcher sees every rider and no steering control', () => {
 
 test('a finished game tells its riders it is finished, not that they watch', () => {
   // regression: light-cycles-finished-game-says-watching
-  // A finished custom game hands its board no steering controls at all, so
+  // A finished game session hands its board no steering controls at all, so
   // the reason must come from the game itself.
   const start = lightCyclesStart(3, 1);
   const finished = until(

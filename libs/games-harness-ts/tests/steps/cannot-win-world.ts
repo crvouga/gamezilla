@@ -12,7 +12,7 @@ import {
   matchedGameOf,
   pairOf,
 } from '@libs/game-matchmaking-harness-ts/matched-game-world';
-import type { CustomGameSide } from '@libs/game-session-shared-ts/custom-game-state';
+import type { GameSessionSide } from '@libs/game-session-shared-ts/game-session-state';
 import type { HarnessWorld } from '@libs/harness-ts/spec-world';
 import { requireTwoPlayerSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import { turnGameOf } from './game-world';
@@ -45,7 +45,7 @@ export async function cannotWinMatchedGame(
  */
 export async function matchedTimeLeft(
   w: HarnessWorld,
-  side: CustomGameSide,
+  side: GameSessionSide,
   ms: number
 ): Promise<void> {
   if (side === 'black') await acceptedMoves(w, [cannotWinLine(w).at(-1)!]);

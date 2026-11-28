@@ -9,7 +9,7 @@
  * their owner, a board is given only its viewer's own setup, and bots choose
  * from the public position alone. The test-only consumer secret pick and
  * Battleship are held to it (the `private-setup-privacy` suites of
- * custom games and finding an opponent, and the shared private-setup
+ * game sessions and finding an opponent, and the shared private-setup
  * specifications).
  *
  * Supported as dealt hands (`GameRules.hands`): hidden state the
@@ -24,8 +24,8 @@
  */
 
 import { expect, test } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
   gameSystem,
   openGameHarness,
@@ -56,13 +56,13 @@ const SYSTEM = gameSystem('misere-tally-private', [MISERE_TALLY_GAME]);
 
 test('both sides and a watcher are shown the one position', async () => {
   await using s = await openGameHarness(SYSTEM);
-  await s.apply(establishCustomGame, 'misere-tally', {
+  await s.apply(establishGameSession, 'misere-tally', {
     watchers: ['carol'],
     moves: ['two'],
   });
   const positions: (string | undefined)[] = [];
   for (const person of ['alice', 'bob', 'carol'])
-    positions.push((await s.read(readCustomGameScreen, person))?.position);
+    positions.push((await s.read(readGameSessionScreen, person))?.position);
   expect(positions).toEqual([
     'misere-tally:2b',
     'misere-tally:2b',

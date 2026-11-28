@@ -1,7 +1,7 @@
 /**
  * Probe: turns that do not alternate. The first side moves twice, then the
  * second side once (first, first, second, first, first, second, …); who
- * counts to seven wins. Offers custom games only. Played twice: as written
+ * counts to seven wins. Offers game sessions only. Played twice: as written
  * (rotating turns, which the laws refuse) and declaring that its rules
  * decide the turn (`turnOrder: 'rules'`, which they accept).
  */
@@ -23,7 +23,8 @@ export const DOUBLE_TURN_RULES = countRules({
 });
 
 const CAPABILITIES = {
-  'custom-games': {
+  'vs-human': {},
+  'vs-bot': {
     bots: {
       difficulties: [],
       choose: (position) => DOUBLE_TURN_RULES.legal(position)[0] ?? null,

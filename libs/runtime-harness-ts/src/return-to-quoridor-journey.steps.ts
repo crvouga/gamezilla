@@ -2,7 +2,7 @@ import { QUORIDOR_PLAYABLE } from '@libs/quoridor-harness-ts/quoridor-playable';
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import { observeBotGameJourney, startBotGameJourney } from './bot-game-journey';
-import { readPublicCustomGame } from './custom-game-party-turn';
+import { readPublicGameSession } from './game-session-party-turn';
 import { check, expectVisible, tap } from './journey-gestures';
 import type { JourneyWorld } from './journey-types';
 
@@ -27,11 +27,11 @@ When('Alice moves to e2 and sees the bot reply', async (w) => {
   await w.journey.act('playQuoridorOpening', async (ui) => {
     await QUORIDOR_PLAYABLE.shared.automation.turns.perform(
       ui,
-      'custom-game-board',
+      'game-session-board',
       'e2'
     );
-    await expectVisible(ui, 'custom-game-review-move-2');
-    const board = await readPublicCustomGame(ui);
+    await expectVisible(ui, 'game-session-review-move-2');
+    const board = await readPublicGameSession(ui);
     check(
       board.status === 'active' && board.ply === 2,
       'Expected the bot reply'
@@ -63,8 +63,8 @@ When('Alice opens that space from the lobby', (w) =>
 
 Then('Alice sees the same board and turn in her Classic Quoridor game', (w) =>
   w.journey.act('observeResumedQuoridor', async (ui) => {
-    await expectVisible(ui, 'custom-game-review-move-2');
-    const board = await readPublicCustomGame(ui);
+    await expectVisible(ui, 'game-session-review-move-2');
+    const board = await readPublicGameSession(ui);
     check(
       board.status === 'active' &&
         board.position === w.memo.get('quoridor-position') &&

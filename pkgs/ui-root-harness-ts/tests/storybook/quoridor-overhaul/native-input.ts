@@ -3,7 +3,7 @@ import { expect, type Page, type TestInfo } from '@playwright/test';
 /** Native pointer and keyboard proposal editing supplements synthetic story play. */
 export async function exerciseQuoridorNativeInput(page: Page, info: TestInfo) {
   const activate = async (id: string) => {
-    const target = page.getByTestId(`custom-game-board-${id}`);
+    const target = page.getByTestId(`game-session-board-${id}`);
     if (page.viewportSize()?.width === 390) await target.tap();
     else await target.click();
   };
@@ -15,44 +15,48 @@ export async function exerciseQuoridorNativeInput(page: Page, info: TestInfo) {
   await activate('coordinates');
   await activate('mode-h');
   await activate('action-d4h');
-  const anchor = page.getByTestId('custom-game-board-action-d4h');
+  const anchor = page.getByTestId('game-session-board-action-d4h');
   await expect(anchor).toHaveAttribute('data-preview-edge-top', 'true');
   await expect(anchor).toHaveAttribute('data-edge-top', 'false');
-  await expect(page.getByTestId('custom-game-board-wall-commit')).toBeEnabled();
+  await expect(
+    page.getByTestId('game-session-board-wall-commit')
+  ).toBeEnabled();
   await capture('native-horizontal-preview');
   await activate('mode-v');
   await expect(
-    page.getByTestId('custom-game-board-action-d4v')
+    page.getByTestId('game-session-board-action-d4v')
   ).toHaveAttribute('data-preview-edge-right', 'true');
   await capture('native-vertical-preview');
   await activate('wall-cancel');
-  await expect(page.getByTestId('custom-game-board-wall-commit')).toHaveCount(
+  await expect(page.getByTestId('game-session-board-wall-commit')).toHaveCount(
     0
   );
-  const keyboardAnchor = page.getByTestId('custom-game-board-action-d4v');
+  const keyboardAnchor = page.getByTestId('game-session-board-action-d4v');
   await keyboardAnchor.focus();
   await keyboardAnchor.press('ArrowRight');
-  const next = page.getByTestId('custom-game-board-action-e4v');
+  const next = page.getByTestId('game-session-board-action-e4v');
   await expect(next).toBeFocused();
   await next.press('Enter');
   await expect(next).toHaveAttribute('data-preview-edge-right', 'true');
   await capture('native-keyboard-preview');
-  const cancel = page.getByTestId('custom-game-board-wall-cancel');
+  const cancel = page.getByTestId('game-session-board-wall-cancel');
   await cancel.focus();
   await cancel.press('Enter');
-  await expect(page.getByTestId('custom-game-board-wall-commit')).toHaveCount(
+  await expect(page.getByTestId('game-session-board-wall-commit')).toHaveCount(
     0
   );
   await expect(next).toHaveAttribute('data-edge-right', 'false');
   // Cancel unmounts itself; focus returns to the active wall tool.
-  await expect(page.getByTestId('custom-game-board-mode-v')).toBeFocused();
+  await expect(page.getByTestId('game-session-board-mode-v')).toBeFocused();
   await capture('native-cancelled');
   // Trusted Escape on the board cancels a proposal and keeps the anchor focused.
   await next.focus();
   await next.press('Enter');
-  await expect(page.getByTestId('custom-game-board-wall-commit')).toBeEnabled();
+  await expect(
+    page.getByTestId('game-session-board-wall-commit')
+  ).toBeEnabled();
   await next.press('Escape');
-  await expect(page.getByTestId('custom-game-board-wall-commit')).toHaveCount(
+  await expect(page.getByTestId('game-session-board-wall-commit')).toHaveCount(
     0
   );
   await expect(next).toHaveAttribute('data-preview-edge-right', 'false');

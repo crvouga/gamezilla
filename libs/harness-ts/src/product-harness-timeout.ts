@@ -1,7 +1,7 @@
 /**
  * Per test, a wall clock for anything that opens a product world. A scenario
  * costs 2–5 s idle (a Battleship lineup alone: two people sign in, a space,
- * a custom game, both seats), but under a full `bun verify` (every package's
+ * a game session, both seats), but under a full `bun verify` (every package's
  * spec plus the Quint models at once) chess scenarios measured 60–95 s, and
  * under coverage instrumentation a Battleship setup test measured 4.5–5.0 s,
  * past bun's 5 s default. 240 s is over twice the loaded cost, so load cannot

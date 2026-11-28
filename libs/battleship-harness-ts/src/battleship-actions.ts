@@ -1,5 +1,5 @@
 /**
- * Battleship as a person plays it on the Custom Game screen: a custom game
+ * Battleship as a person plays it on the Game Session screen: a game session
  * set up through ordinary choices, a fleet arranged with the setup board's
  * own gestures (by pointer or by keyboard), readiness, the start, and shots
  * on the targeting board. A choice the screen does not offer is sent as a
@@ -16,16 +16,16 @@ import {
   placeShipOnSetupBoard,
   setupBoardIsEditable,
 } from '@libs/battleship-shared-ts/battleship-setup-gestures';
-import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
-import type { CustomGameSeat } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
+import { operateGameSessionControls } from '@libs/game-session-harness-ts/game-session-controls';
+import type { GameSessionSeat } from '@libs/game-session-harness-ts/game-session-lineup';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
 import {
-  CUSTOM_GAME_BOARD,
-  playOnCustomGameBoard,
-} from '@libs/game-session-harness-ts/custom-game-moves';
-import { openCustomGamePlace } from '@libs/game-session-harness-ts/custom-game-places';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
-import { chooseCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+  GAME_SESSION_BOARD,
+  playOnGameSessionBoard,
+} from '@libs/game-session-harness-ts/game-session-moves';
+import { openGameSessionPlace } from '@libs/game-session-harness-ts/game-session-places';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
+import { chooseGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorPage } from '@libs/harness-ts/actor-page';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import type { ProductHarness } from '@libs/harness-ts/harness';
@@ -33,12 +33,12 @@ import { BATTLESHIP_SETUP_BOARD } from './battleship-view';
 
 type DriverNode = ReturnType<Awaited<ReturnType<typeof actorUi>>['get']>;
 
-/** A Battleship custom game: who plays each fleet, its setups and its shots. */
+/** A Battleship game session: who plays each fleet, its setups and its shots. */
 export type BattleshipLineup = {
   /** Whose space it is; they create the game (default: Alice). */
   readonly host?: string;
-  readonly first?: CustomGameSeat;
-  readonly second?: CustomGameSeat;
+  readonly first?: GameSessionSeat;
+  readonly second?: GameSessionSeat;
   readonly watchers?: readonly string[];
   /** Every person is ready with a fleet (default). */
   readonly ready?: boolean;
@@ -50,12 +50,12 @@ export type BattleshipLineup = {
   readonly shots?: readonly string[];
 };
 
-/** The shared custom-game lineup, in Battleship's own words. */
+/** The shared game-session lineup, in Battleship's own words. */
 export const establishBattleship = scenarioAction({
   name: 'establishBattleship',
   act: async (s, lineup: BattleshipLineup = {}) => {
     await Promise.resolve(
-      establishCustomGame.act(s, 'battleship', {
+      establishGameSession.act(s, 'battleship', {
         ...(lineup.host === undefined ? {} : { host: lineup.host }),
         ...(lineup.first === undefined ? {} : { first: lineup.first }),
         ...(lineup.second === undefined ? {} : { second: lineup.second }),
@@ -87,7 +87,7 @@ async function press(
 }
 
 /** The lobby's row for the person's own fleet, which opens the setup board. */
-const FLEET_ROW = 'custom-game-setup-open';
+const FLEET_ROW = 'game-session-setup-open';
 
 /**
  * `actor` opens their fleet's setup board from the lobby, as a person does
@@ -100,7 +100,7 @@ export async function openFleetSetup(
 ): Promise<void> {
   const ui = await actorUi(s, actor);
   if (!(await ui.get(FLEET_ROW).isVisible())) return;
-  await openCustomGamePlace(s, actor, FLEET_ROW, BATTLESHIP_SETUP_BOARD);
+  await openGameSessionPlace(s, actor, FLEET_ROW, BATTLESHIP_SETUP_BOARD);
 }
 
 /** {@link openFleetSetup}, as a step of a scenario. */
@@ -205,7 +205,7 @@ export const askForRandomFleet = scenarioAction({
   act: async (s, actor: string) => {
     await openFleetSetup(s, actor);
     const ui = await actorUi(s, actor);
-    const random = ui.get('custom-game-setup-random');
+    const random = ui.get('game-session-setup-random');
     // regression: battleship-random-fleet-disabled-tap
     // A ready player's control is shown disabled: a person cannot press it,
     // so asking comes to nothing and the screen's notice is the refusal.
@@ -231,24 +231,24 @@ async function pressable(node: DriverNode): Promise<boolean> {
 export const becomeBattleshipReady = scenarioAction({
   name: 'becomeBattleshipReady',
   act: async (s, actor: string) => {
-    const screen = await readCustomGameScreen(s, actor);
+    const screen = await readGameSessionScreen(s, actor);
     const side = screen?.mySide ?? null;
     if (side === null || screen?.current?.ready.includes(side) !== false)
       return;
-    const ready = (await actorUi(s, actor)).get('custom-game-ready');
+    const ready = (await actorUi(s, actor)).get('game-session-ready');
     if (!(await pressable(ready))) return;
-    await playOnCustomGameBoard(s, actor, async () => {
+    await playOnGameSessionBoard(s, actor, async () => {
       await ready.tap();
       return 'made';
     });
   },
 });
 
-/** Start the custom game as its creator does. */
+/** Start the game session as its creator does. */
 export const startBattleship = scenarioAction({
   name: 'startBattleship',
   act: (s, actor: string) =>
-    operateCustomGameControls(s, actor, { operation: 'start' }),
+    operateGameSessionControls(s, actor, { operation: 'start' }),
 });
 
 /** Shoot at `cell` on the targeting board: the cell when it fires, else the choice. */
@@ -257,34 +257,34 @@ export const shootBattleship = scenarioAction<
 >({
   name: 'shootBattleship',
   act: async (s, actor: string, cell: string, keyboard?: boolean) => {
-    const screen = await readCustomGameScreen(s, actor);
+    const screen = await readGameSessionScreen(s, actor);
     if (screen?.current == null) throw new Error(`${actor} sees no game`);
     const target = (await actorUi(s, actor)).get(
-      `${CUSTOM_GAME_BOARD}-target-${cell}`
+      `${GAME_SESSION_BOARD}-target-${cell}`
     );
     if (
       (await (
         await actorUi(s, actor)
       )
-        .get(`${CUSTOM_GAME_BOARD}-region`)
+        .get(`${GAME_SESSION_BOARD}-region`)
         .isVisible()) &&
       (await target.attribute('aria-disabled')) === 'false'
     ) {
-      await playOnCustomGameBoard(s, actor, async () => {
+      await playOnGameSessionBoard(s, actor, async () => {
         const ui = await actorUi(s, actor);
         const area =
           Number(cell.charAt(0) >= 'f') +
           Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
-        await press(ui.get(`${CUSTOM_GAME_BOARD}-area-${area}`), keyboard);
-        await press(ui.get(`${CUSTOM_GAME_BOARD}-aim-${cell}`), keyboard);
-        const fire = ui.get(`${CUSTOM_GAME_BOARD}-fire`);
+        await press(ui.get(`${GAME_SESSION_BOARD}-area-${area}`), keyboard);
+        await press(ui.get(`${GAME_SESSION_BOARD}-aim-${cell}`), keyboard);
+        const fire = ui.get(`${GAME_SESSION_BOARD}-fire`);
         await fire.wait('enabled');
         await press(fire, keyboard);
         return 'made';
       });
       return;
     }
-    await chooseCustomGame(s, actor, {
+    await chooseGameSession(s, actor, {
       operation: 'move',
       uci: cell,
       ply: screen.current.moves.length,
@@ -300,8 +300,8 @@ export const chooseBattleshipTarget = scenarioAction({
     const area =
       Number(cell.charAt(0) >= 'f') +
       Math.floor((Number(cell.slice(1)) - 1) / 2) * 2;
-    await ui.get(`${CUSTOM_GAME_BOARD}-area-${area}`).key('enter');
-    await ui.get(`${CUSTOM_GAME_BOARD}-aim-${cell}`).key('enter');
+    await ui.get(`${GAME_SESSION_BOARD}-area-${area}`).key('enter');
+    await ui.get(`${GAME_SESSION_BOARD}-aim-${cell}`).key('enter');
     await s.session.waitForIdle();
   },
 });

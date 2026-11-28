@@ -13,7 +13,7 @@ async function open(page: Page, story: string) {
   await page.goto(
     `/iframe.html?id=${story}&viewMode=story&globals=theme:dark;motion:system`
   );
-  const arena = page.getByTestId('custom-game-board-arena');
+  const arena = page.getByTestId('game-session-board-arena');
   await expect(page.locator('#storybook-root')).toHaveAttribute(
     'data-story-ready',
     'true'
@@ -198,7 +198,7 @@ for (const motion of ['no-preference', 'reduce'] as const) {
     await expect(preview).toBeVisible();
     await arena.press('ArrowRight');
     await expect(
-      arena.getByTestId('custom-game-board-arena-rider-0')
+      arena.getByTestId('game-session-board-arena-rider-0')
     ).toHaveAttribute('data-heading', 'up');
     await expect(arena.locator('[data-turn-preview="right"]')).toBeVisible();
     await record(arena, info, 'committed');

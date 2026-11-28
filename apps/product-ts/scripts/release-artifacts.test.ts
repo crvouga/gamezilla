@@ -17,7 +17,7 @@ import { parseReleasePart } from './release-selection';
 const REPO_ROOT = resolve(import.meta.dir, '../../..');
 
 // regression: release-partition-artifact-race
-test('preparing part 1/3 preserves part 0/3 custom-game and sokoban stubs', () => {
+test('preparing part 1/3 preserves part 0/3 game-session and sokoban stubs', () => {
   const packageDir = mkdtempSync(join(tmpdir(), 'release-partitions-'));
   const first = releaseArtifacts(packageDir, parseReleasePart(['--part=0/3']));
   const second = releaseArtifacts(packageDir, parseReleasePart(['--part=1/3']));
@@ -25,13 +25,13 @@ test('preparing part 1/3 preserves part 0/3 custom-game and sokoban stubs', () =
     writeReleaseStubs(
       packageDir,
       [
-        join(REPO_ROOT, 'specs/journeys/custom-game.feature'),
+        join(REPO_ROOT, 'specs/journeys/game-session.feature'),
         join(REPO_ROOT, 'specs/journeys/sokoban-packs.feature'),
       ],
       first
     );
     const files = [
-      'journeys-custom-game.feature.test.ts',
+      'journeys-game-session.feature.test.ts',
       'journeys-sokoban-packs.feature.test.ts',
     ].map((name) => join(first.stubDir, name));
     const before = files.map((file) => readFileSync(file, 'utf8'));
@@ -83,7 +83,7 @@ test('every partition preserves sibling bundles, reports, assets and evidence du
         prepareReleasePublic(packageDir, finishing);
         writeReleaseStubs(
           packageDir,
-          [join(REPO_ROOT, 'specs/journeys/custom-game.feature')],
+          [join(REPO_ROOT, 'specs/journeys/game-session.feature')],
           finishing
         );
         removeReleaseArtifacts(finishing, false);

@@ -27,7 +27,7 @@ for (const width of [390, 1440]) {
         const cards = page
           .getByRole('toolbar', { name: 'Your hand' })
           .getByRole('button');
-        const pass = page.getByTestId('custom-game-board-pass');
+        const pass = page.getByTestId('game-session-board-pass');
         if (width === 390) {
           for (const index of [0, 1, 2]) await cards.nth(index).tap();
           await pass.tap();
@@ -54,7 +54,7 @@ for (const width of [390, 1440]) {
           await expect(pass).toBeFocused();
           await page.keyboard.press('Enter');
         }
-        const error = page.getByTestId('custom-game-error');
+        const error = page.getByTestId('game-session-error');
         await expect(error).toContainText(
           'The choice could not be confirmed. Try again.'
         );

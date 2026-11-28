@@ -51,7 +51,8 @@ export function heartsRecord(
 export const heartsGameShared = defineGame({
   rules: heartsRules,
   capabilities: {
-    'custom-games': { bots: heartsBots },
+    'vs-human': {},
+    'vs-bot': { bots: heartsBots },
     history: { record: heartsRecord },
   },
   turnAutomation: {

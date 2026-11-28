@@ -2,7 +2,7 @@ import { expect, type Page } from '@playwright/test';
 
 /** Two overlapping trusted touch lifetimes, each steering its original half. */
 export async function sharedNativeTouch(page: Page) {
-  const arena = page.getByTestId('custom-game-board-arena');
+  const arena = page.getByTestId('game-session-board-arena');
   const bounds = await arena.boundingBox();
   if (!bounds) throw new Error('Missing touch arena');
   await arena.evaluate((element) => {
@@ -39,10 +39,10 @@ export async function sharedNativeTouch(page: Page) {
     touchPoints: [left, right],
   });
   await expect(
-    page.getByTestId('custom-game-board-arena-rider-0')
+    page.getByTestId('game-session-board-arena-rider-0')
   ).toHaveAttribute('data-heading', 'right');
   await expect(
-    page.getByTestId('custom-game-board-arena-rider-1')
+    page.getByTestId('game-session-board-arena-rider-1')
   ).toHaveAttribute('data-heading', 'up');
   left.x -= 32;
   await cdp.send('Input.dispatchTouchEvent', {
@@ -50,10 +50,10 @@ export async function sharedNativeTouch(page: Page) {
     touchPoints: [left, right],
   });
   await expect(
-    page.getByTestId('custom-game-board-arena-rider-1')
+    page.getByTestId('game-session-board-arena-rider-1')
   ).toHaveAttribute('data-heading', 'left');
   await expect(
-    page.getByTestId('custom-game-board-arena-rider-0')
+    page.getByTestId('game-session-board-arena-rider-0')
   ).toHaveAttribute('data-heading', 'right');
   await expect(arena).toHaveAttribute('data-trusted-touch-pointers', '2');
   await cdp.send('Input.dispatchTouchEvent', {

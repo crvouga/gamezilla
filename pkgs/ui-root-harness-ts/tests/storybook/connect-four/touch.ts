@@ -8,9 +8,9 @@ export async function captureTouchEdges(
   theme: string
 ) {
   await openBoard(page, 'drop-a-disc', theme);
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const before = await board.getAttribute('data-cells');
-  const control = page.getByTestId('custom-game-board-column-2');
+  const control = page.getByTestId('game-session-board-column-2');
   const box = await control.boundingBox();
   if (!box) throw new Error('Column 2 is missing');
   const cdp = await page.context().newCDPSession(page);
@@ -30,7 +30,7 @@ export async function captureTouchEdges(
     [6, 'right', '2'],
   ] as const) {
     const target = await page
-      .getByTestId(`custom-game-board-column-${number}`)
+      .getByTestId(`game-session-board-column-${number}`)
       .boundingBox();
     if (!target) throw new Error(`Column ${number} is missing`);
     const point = {
@@ -48,7 +48,7 @@ export async function captureTouchEdges(
     expect(hit).toBe(String(number - 1));
     await page.touchscreen.tap(point.x, point.y);
     await expect(
-      page.getByTestId(`custom-game-board-cell-${number - 1}`)
+      page.getByTestId(`game-session-board-cell-${number - 1}`)
     ).toHaveAttribute('data-disc', disc);
     hits.push({ number, side, point, width: target.width, actualColumn: hit });
   }

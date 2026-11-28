@@ -14,9 +14,9 @@ import { ResponsiveSurface } from '@pkgs/ui-root-client-ts/responsive-surface';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
 import { createFrameChoices, FrameChoiceRow } from './game-frame-choice';
 import { recordPlayed } from './game-frame-moves-view';
+import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
 
@@ -38,14 +38,14 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
       onClose={() => props.onClose()}
       title={<Trans>Game menu</Trans>}
       size="small"
-      dataSet={{ screen: 'custom-game-stage-menu' }}
+      dataSet={{ screen: 'game-session-stage-menu' }}
     >
       <StackVertical gap="md">
         <Show when={props.play.canOfferDraw || props.play.offerAgainLater}>
           <MenuSection>
             <FrameChoiceRow
               choices={choices}
-              id="custom-game-offer"
+              id="game-session-offer"
               leading={<CheckCheckIcon size={20} />}
               title={<Trans>Offer draw</Trans>}
               caption={
@@ -65,7 +65,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
                 leading={<ListIcon size={20} />}
                 title={<Trans>Review moves</Trans>}
                 onClick={() => props.onOpen({ screen: 'moves' })}
-                dataSet={{ testid: 'custom-game-review-moves' }}
+                dataSet={{ testid: 'game-session-review-moves' }}
               />
             </Show>
             <Show when={props.record?.history}>
@@ -73,7 +73,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
                 leading={<HistoryArt />}
                 title={<Trans>History and stats</Trans>}
                 onClick={() => props.onOpenHistory()}
-                dataSet={{ testid: 'custom-game-history-stats' }}
+                dataSet={{ testid: 'game-session-history-stats' }}
               />
             </Show>
           </MenuSection>
@@ -87,7 +87,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
                 tone="destructive"
                 hideChevron
                 onClick={() => props.onConfirm('resign')}
-                dataSet={{ testid: 'custom-game-resign' }}
+                dataSet={{ testid: 'game-session-resign' }}
               />
             </Show>
             <Show when={props.play.canCancel}>
@@ -97,7 +97,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
                 tone="destructive"
                 hideChevron
                 onClick={() => props.onConfirm('cancel')}
-                dataSet={{ testid: 'custom-game-cancel' }}
+                dataSet={{ testid: 'game-session-cancel' }}
               />
             </Show>
           </MenuSection>
@@ -107,7 +107,7 @@ export function FrameCommandsPlace(props: Props): JSX.Element {
             title={<Trans>Back to the game</Trans>}
             variant="solid"
             onClick={() => props.onClose()}
-            dataSet={{ testid: 'custom-game-resume' }}
+            dataSet={{ testid: 'game-session-resume' }}
           />
         </GameActions>
       </StackVertical>

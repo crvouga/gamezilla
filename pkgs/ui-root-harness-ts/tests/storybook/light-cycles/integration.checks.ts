@@ -117,7 +117,7 @@ for (const screen of screens) {
         await openArena(page, variant, theme);
         await capture(page, info, 'before-input');
         const arena = await page
-          .getByTestId('custom-game-board-arena')
+          .getByTestId('game-session-board-arena')
           .boundingBox();
         if (!arena) throw new Error('Arena missing from viewport audit');
         expect(arena.x).toBeGreaterThanOrEqual(0);
@@ -128,7 +128,7 @@ for (const screen of screens) {
         // regression: player-chip-grows-when-a-badge-appears — a seat going
         // Out during play must not move the arena.
         const settled = await page
-          .getByTestId('custom-game-board-arena')
+          .getByTestId('game-session-board-arena')
           .boundingBox();
         expect(Math.abs((settled?.y ?? 0) - arena.y)).toBeLessThanOrEqual(0.5);
         expect(
@@ -204,10 +204,10 @@ test('storybook integration: light-cycles evidence desktop mouse drag steers', a
 }, info) => {
   await page.setViewportSize(screens[2]);
   await openArena(page, 'duel-steering', 'light');
-  const arena = page.getByTestId('custom-game-board-arena');
+  const arena = page.getByTestId('game-session-board-arena');
   const bounds = await arena.boundingBox();
   if (!bounds) throw new Error('Missing desktop arena');
-  const rider = page.getByTestId('custom-game-board-arena-rider-0');
+  const rider = page.getByTestId('game-session-board-arena-rider-0');
   await capture(page, info, 'before-drag');
   const x = bounds.x + bounds.width * 0.5;
   const y = bounds.y + bounds.height * 0.5;
@@ -243,7 +243,7 @@ test('storybook integration: light-cycles evidence native Tab focus and first st
 }, info) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await openArena(page, 'duel-steering', 'light');
-  const arena = page.getByTestId('custom-game-board-arena');
+  const arena = page.getByTestId('game-session-board-arena');
   await expect(arena).toBeFocused();
   await page.keyboard.press('Shift+Tab');
   await expect(arena).not.toBeFocused();
@@ -253,7 +253,7 @@ test('storybook integration: light-cycles evidence native Tab focus and first st
     await arena.evaluate((element) => element.matches(':focus-visible'))
   ).toBe(true);
   await capture(page, info, 'keyboard-focus');
-  const rider = page.getByTestId('custom-game-board-arena-rider-0');
+  const rider = page.getByTestId('game-session-board-arena-rider-0');
   const x = Number(await rider.getAttribute('data-x'));
   await page.keyboard.press('ArrowRight');
   await expect(rider).toHaveAttribute('data-x', String(x + 1));

@@ -1,8 +1,8 @@
 /**
  * Probe: actions that are not conventional alternating turns.
  *
- * Supported (executable) for custom games. Every `PlayedPosition` names the
- * side to move (`turn`), and the custom-game engine seats each move by it.
+ * Supported (executable) for game sessions. Every `PlayedPosition` names the
+ * side to move (`turn`), and the game-session engine seats each move by it.
  * A game whose rules decide the turn says so (`GameRules.turnOrder:
  * 'rules'`, as Hearts does: a trick's winner leads); the rules laws then
  * hold it to its own turns, and the rotating-turn specifications
@@ -17,8 +17,8 @@
 
 import { expect, test } from 'bun:test';
 import { bothHaveMoved } from '@libs/game-matchmaking-shared-ts/game-state';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
   gameSystem,
   openGameHarness,
@@ -57,12 +57,12 @@ test("a matched game's abort window counts two accepted moves as both people hav
 
 const SYSTEM = gameSystem('double-turn', [assertHarnessGame(DOUBLE_TURN_GAME)]);
 
-test('the custom-game engine itself seats each move by the turn the rules give', async () => {
+test('the game-session engine itself seats each move by the turn the rules give', async () => {
   await using s = await openGameHarness(SYSTEM);
   // Alice (first side) moves twice in a row; the lineup plays each move
   // by whoever the game says has the turn.
-  await s.apply(establishCustomGame, 'double-turn', { moves: ['one', 'one'] });
-  const shown = (await s.read(readCustomGameScreen, 'bob'))?.current;
+  await s.apply(establishGameSession, 'double-turn', { moves: ['one', 'one'] });
+  const shown = (await s.read(readGameSessionScreen, 'bob'))?.current;
   expect(shown?.moves.map((move) => move.san)).toEqual([
     'one to 1',
     'one to 2',

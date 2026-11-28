@@ -90,7 +90,7 @@ export const GAME_TRAITS = {
   'a private setup': (game: HarnessGame) =>
     game.shared.registration.rules.setup !== undefined,
   /**
-   * A custom game without another person may be played on the host's device
+   * A game session without another person may be played on the host's device
    * alone: every game but one with private setups (a bot's setup is the
    * room's alone). A game with dealt hands deals on the device from draws it
    * makes once.

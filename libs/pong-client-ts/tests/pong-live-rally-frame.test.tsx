@@ -28,17 +28,17 @@ function playUntilPoint(layout: { width: number; height: number }): void {
   const format = spyOn(i18n, '_');
   try {
     const court = view.getByRole('application', { name: 'Pong court' });
-    const ball = view.getByTestId('custom-game-board-ball');
-    const paddle = view.getByTestId('custom-game-board-first-paddle');
-    const near = view.getByTestId('custom-game-white');
-    const far = view.getByTestId('custom-game-black');
+    const ball = view.getByTestId('game-session-board-ball');
+    const paddle = view.getByTestId('game-session-board-first-paddle');
+    const near = view.getByTestId('game-session-white');
+    const far = view.getByTestId('game-session-black');
     const portraits = () =>
       ['white', 'black'].map((side) =>
-        view.getByTestId(`custom-game-${side}`).querySelector('img')
+        view.getByTestId(`game-session-${side}`).querySelector('img')
       );
     const beforePoint = portraits();
     expect(beforePoint.every((image) => image !== null)).toBe(true);
-    const courtScore = view.getByTestId('custom-game-board-court-score-first');
+    const courtScore = view.getByTestId('game-session-board-court-score-first');
     expect(courtScore.textContent).toBe('0');
     const initialScores = [near.textContent, far.textContent];
     fireEvent.keyDown(court, { key: 'ArrowDown' });
@@ -64,7 +64,7 @@ function playUntilPoint(layout: { width: number; height: number }): void {
     expect(
       portraits().every((image, side) => image === beforePoint[side])
     ).toBe(true);
-    expect(view.getByTestId('custom-game-board-status').textContent).toContain(
+    expect(view.getByTestId('game-session-board-status').textContent).toContain(
       'scored'
     );
   } finally {

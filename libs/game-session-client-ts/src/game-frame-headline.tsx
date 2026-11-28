@@ -83,6 +83,6 @@ export function frameStandingRows(
       name: nameOf(standing.side),
       score: standing.score,
       you: standing.side === viewer,
-      testId: `custom-game-standing-${standing.side}`,
+      testId: `game-session-standing-${standing.side}`,
     }));
 }

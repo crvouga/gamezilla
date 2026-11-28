@@ -5,11 +5,12 @@ import { battleshipNoticeText } from './battleship-notice-text';
 import { battleshipRecord } from './battleship-record';
 import { battleshipRules } from './battleship-rules';
 
-/** Battleship offers custom games, matchmaking and history; no puzzles. */
+/** Battleship offers game sessions, matchmaking and history; no puzzles. */
 export const battleshipGameShared = defineGame({
   rules: battleshipRules,
   capabilities: {
-    'custom-games': { bots: battleshipBots },
+    'vs-human': {},
+    'vs-bot': { bots: battleshipBots },
     matchmaking: {
       clockChoices: true as const,
       namespace: 'battleship/',

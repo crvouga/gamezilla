@@ -1,0 +1,4 @@
+{
+  "summary": "A host could create a space offline but could not create or configure its solo Game Session.",
+  "regressionTest": "specs/games/game-session-offline.feature"
+}

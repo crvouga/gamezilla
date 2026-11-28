@@ -54,7 +54,7 @@ export async function narrowWorkspace(
   fixture: { players: string; theme: string }
 ): Promise<void> {
   await openStory(page, `${fixture.players}-player-match`, fixture.theme);
-  await reachable(page.getByTestId('custom-game-seat-near'), false);
+  await reachable(page.getByTestId('game-session-seat-near'), false);
   await retainEvidence(info, 'local-score-initial.png', {
     body: await page.screenshot(),
     contentType: 'image/png',
@@ -75,7 +75,7 @@ export async function narrowWorkspace(
   await expect(page.getByRole('dialog', { name: 'Board tools' })).toHaveCount(
     0
   );
-  await reachable(page.getByTestId('custom-game-board-more'));
+  await reachable(page.getByTestId('game-session-board-more'));
   await rackTargets(page, info, 'initial', 7);
   await playWord(page, 'touch', () =>
     rackTargets(page, info, 'after-placement', 4)
@@ -89,7 +89,7 @@ async function rackTargets(
   stage: string,
   count: number
 ): Promise<void> {
-  const rack = page.getByTestId('custom-game-board-rack');
+  const rack = page.getByTestId('game-session-board-rack');
   await reachable(rack);
   const tiles = rack.getByRole('button');
   await expect(tiles).toHaveCount(7);
@@ -132,15 +132,15 @@ export async function narrowOpeningFits(
 ): Promise<void> {
   await openStory(page, `${fixture.players}-player-match`, fixture.theme);
   const tops = await page
-    .getByTestId('custom-game-board-rack')
+    .getByTestId('game-session-board-rack')
     .getByRole('button')
     .evaluateAll((tiles) =>
       tiles.map((tile) => Math.round(tile.getBoundingClientRect().top))
     );
   expect(tops).toHaveLength(7);
   expect(new Set(tops).size).toBe(1);
-  await reachable(page.getByTestId('custom-game-seat-near'), false);
-  await reachable(page.getByTestId('custom-game-board-submit'), false);
+  await reachable(page.getByTestId('game-session-seat-near'), false);
+  await reachable(page.getByTestId('game-session-board-submit'), false);
   await reachable(
     page.getByRole('region', { name: 'Scrollable word board' }),
     false

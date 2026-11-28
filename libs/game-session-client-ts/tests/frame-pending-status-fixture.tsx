@@ -1,9 +1,9 @@
-import type { CustomGameScreenModel } from '@libs/game-session-client-ts/use-custom-game-screen';
+import type { GameSessionScreenModel } from '@libs/game-session-client-ts/use-game-session-screen';
 import {
-  type CustomGame,
-  type CustomGameSide,
-  newCustomGame,
-} from '@libs/game-session-shared-ts/custom-game-state';
+  type GameSession,
+  type GameSessionSide,
+  newGameSession,
+} from '@libs/game-session-shared-ts/game-session-state';
 import { ModerationProvider } from '@libs/moderation-client-ts/moderation-context';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
@@ -20,14 +20,18 @@ import { createSignal, flush } from 'solid-js';
 
 /** Deferred model boundary: exercises production status derivation, not transport. */
 export function pendingFrameModel() {
-  const initial: CustomGame = {
-    ...newCustomGame('pending-frame', 'alice', 'fixture:4'),
+  const initial: GameSession = {
+    ...newGameSession({
+      id: 'pending-frame',
+      creator: 'alice',
+      position: 'fixture:4',
+    }),
     status: 'active',
     black: { kind: 'local', person: '' },
   };
   const [current, setCurrent] = createSignal(initial);
   const [submitting, setSubmitting] = createSignal(false);
-  const [mySide, setMySide] = createSignal<CustomGameSide | null>('white');
+  const [mySide, setMySide] = createSignal<GameSessionSide | null>('white');
   const [error, setError] = createSignal('');
   const [connected, setConnected] = createSignal(true);
   const [waiting, setWaiting] = createSignal(false);
@@ -46,7 +50,7 @@ export function pendingFrameModel() {
     sharedAvailable: () => false,
     canCancel: () => false,
     awaySince: () => null,
-  } as unknown as CustomGameScreenModel;
+  } as unknown as GameSessionScreenModel;
   /** The connection as the frame reads it: online, waiting, offline-local or needed. */
   const setConnection = (
     state: 'online' | 'waiting' | 'offline-local' | 'needed'
@@ -72,11 +76,11 @@ export function pendingFrameModel() {
   return {
     initial,
     model,
-    setCurrent: (game: CustomGame) => {
+    setCurrent: (game: GameSession) => {
       setCurrent(game);
       flush();
     },
-    setMySide: (side: CustomGameSide | null) => {
+    setMySide: (side: GameSessionSide | null) => {
       setMySide(side);
       flush();
     },

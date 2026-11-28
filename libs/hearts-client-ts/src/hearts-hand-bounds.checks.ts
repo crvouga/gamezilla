@@ -61,9 +61,11 @@ export async function checkInitialHeartsDeal(canvas: HTMLElement) {
   );
   const hand = board?.querySelector('[role="toolbar"]');
   const context =
-    board?.querySelector('[data-testid="custom-game-board-table-toggle"]') ??
+    board?.querySelector('[data-testid="game-session-board-table-toggle"]') ??
     board?.querySelector('[role="group"]');
-  const action = board?.querySelector('[data-testid="custom-game-board-pass"]');
+  const action = board?.querySelector(
+    '[data-testid="game-session-board-pass"]'
+  );
   if (!board || !hand || !context || !action)
     throw new Error('Initial Hearts deal is missing its hand, context or pass');
   for (

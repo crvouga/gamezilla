@@ -12,8 +12,8 @@ export async function exerciseHeartsTrick(page: Page, touch: boolean) {
   const hand = page.getByRole('toolbar', { name: 'Your hand' });
   const cards = hand.getByRole('button');
   for (const index of [0, 1, 2]) await activate(cards.nth(index));
-  await activate(page.getByTestId('custom-game-board-pass'));
-  const board = page.getByTestId('custom-game-board');
+  await activate(page.getByTestId('game-session-board-pass'));
+  const board = page.getByTestId('game-session-board');
   await expect(board).toHaveAttribute('data-position', /:play:/);
   const position = await board.getAttribute('data-position');
   await pressRefusedCard(
@@ -29,7 +29,7 @@ export async function exerciseHeartsTrick(page: Page, touch: boolean) {
     await activate(legal);
     await expect(page.getByTestId(id ?? '')).toHaveCount(0);
   }
-  await expect(page.getByTestId('custom-game-board-center')).toContainText(
+  await expect(page.getByTestId('game-session-board-center')).toContainText(
     'took the trick'
   );
 }

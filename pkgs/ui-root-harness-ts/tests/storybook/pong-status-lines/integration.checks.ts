@@ -13,7 +13,7 @@ test('storybook integration: pong-overhaul court status keeps each part on one l
     await page.setViewportSize({ width: 390, height: 844 });
     await openPong(page, 'match-point', theme);
     const lines = await page
-      .getByTestId('custom-game-board-status')
+      .getByTestId('game-session-board-status')
       .evaluate((status) => {
         const range = document.createRange();
         range.selectNodeContents(status);

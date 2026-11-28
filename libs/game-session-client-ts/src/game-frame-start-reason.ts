@@ -1,9 +1,9 @@
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';
 
 /**
- * Why a custom game being set up cannot start yet, first blocker first:
+ * Why a game session being set up cannot start yet, first blocker first:
  * seats nobody holds, closed seats nobody may take, invitations nobody has
- * answered, then people who are not ready. Mirrors `customGameStartable`:
+ * answered, then people who are not ready. Mirrors `gameSessionStartable`:
  * a game has no reason exactly when it can start.
  */
 export type FrameStartReason =
@@ -12,12 +12,12 @@ export type FrameStartReason =
   | { readonly kind: 'invitations'; readonly count: number }
   | { readonly kind: 'unready'; readonly count: number };
 
-function countOf(game: CustomGame, kind: string): number {
+function countOf(game: GameSession, kind: string): number {
   return game.sides.filter((side) => game[side].kind === kind).length;
 }
 
 /** The first thing keeping `game` from starting, `null` when it can start. */
-export function frameStartReason(game: CustomGame): FrameStartReason | null {
+export function frameStartReason(game: GameSession): FrameStartReason | null {
   if (game.status !== 'configuring') return null;
   const open = countOf(game, 'open');
   if (open > 0) return { kind: 'open-seats', count: open };

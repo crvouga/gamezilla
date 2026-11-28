@@ -7,8 +7,6 @@ import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { FixedGameSession } from '@pkgs/ui-root-client-ts/game-session-layout';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
-import { FrameFacts } from './custom-game-stage-view';
 import { FrameMovesCard } from './game-frame-moves-view';
 import { FrameOutcomeCard } from './game-frame-outcome-card';
 import { FrameStage } from './game-frame-stage';
@@ -17,6 +15,8 @@ import {
   FrameErrorView,
   FrameStatusView,
 } from './game-frame-status-view';
+import type { FramePlaceProps } from './game-session-screen-view';
+import { FrameFacts } from './play-friend-stage-view';
 
 type Props = FramePlaceProps;
 
@@ -37,7 +37,7 @@ function NextActions(props: Props): JSX.Element {
             title={<Trans>Back to the space</Trans>}
             variant="solid"
             onClick={() => props.onBack()}
-            dataSet={{ testid: 'custom-game-back' }}
+            dataSet={{ testid: 'game-session-back' }}
           />
         }
       >
@@ -52,7 +52,7 @@ function NextActions(props: Props): JSX.Element {
               // filled, as the watcher's is.
               variant="solid"
               onClick={() => props.onBack()}
-              dataSet={{ testid: 'custom-game-back' }}
+              dataSet={{ testid: 'game-session-back' }}
             />
           }
         >
@@ -72,27 +72,31 @@ function NextActions(props: Props): JSX.Element {
                     </Show>
                   }
                   variant="solid"
-                  dataSet={{ testid: 'custom-game-rematch' }}
+                  dataSet={{ testid: 'game-session-rematch' }}
                   operation={() => props.onChoose({ operation: 'rematch' })}
                 />
-                <Button
+                <GameActionButton
                   title={<Trans>New game</Trans>}
                   variant="outline"
-                  dataSet={{ testid: 'custom-game-new' }}
-                  onClick={() => props.onOpen({ screen: 'home' })}
+                  dataSet={{ testid: 'game-session-new' }}
+                  operation={() =>
+                    props.onChoose({ operation: 'create', mode: props.mode })
+                  }
                 />
               </>
             }
           >
-            <Button
+            <GameActionButton
               title={<Trans>New game</Trans>}
               variant="solid"
-              dataSet={{ testid: 'custom-game-new' }}
-              onClick={() => props.onOpen({ screen: 'home' })}
+              dataSet={{ testid: 'game-session-new' }}
+              operation={() =>
+                props.onChoose({ operation: 'create', mode: props.mode })
+              }
             />
             <GameActionButton
               title={<Trans>Rematch</Trans>}
-              dataSet={{ testid: 'custom-game-rematch' }}
+              dataSet={{ testid: 'game-session-rematch' }}
               operation={() => props.onChoose({ operation: 'rematch' })}
             />
           </Show>
@@ -108,7 +112,7 @@ function NextActions(props: Props): JSX.Element {
             props.onSeek(0);
             props.onOpen({ screen: 'moves' });
           }}
-          dataSet={{ testid: 'custom-game-review-start' }}
+          dataSet={{ testid: 'game-session-review-start' }}
         />
       </Show>
       <Show when={props.record?.history}>
@@ -118,7 +122,7 @@ function NextActions(props: Props): JSX.Element {
           variant="outline"
           intent="neutral"
           onClick={() => props.onOpenHistory()}
-          dataSet={{ testid: 'custom-game-history-stats' }}
+          dataSet={{ testid: 'game-session-history-stats' }}
         />
       </Show>
     </GameActionBar>
@@ -136,15 +140,15 @@ export function FrameResultPlace(
 ): JSX.Element {
   return (
     <GameScreen
-      screenId="custom-game-result"
+      screenId="game-session-result"
       title={props.title}
       compactInset={props.table.compactInset}
       facts={<FrameFacts {...props} />}
     >
       <FixedGameSession
         dataSet={{
-          component: 'CustomGameContent',
-          testid: 'custom-game-content',
+          component: 'GameSessionContent',
+          testid: 'game-session-content',
           phase: props.phase,
           place: props.place.screen,
         }}

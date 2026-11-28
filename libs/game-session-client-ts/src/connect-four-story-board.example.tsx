@@ -50,8 +50,8 @@ export function ConnectFourStoryBoard(props: {
   const turn = (): 1 | 2 => (props.moves.length % 2 === 0 ? 1 : 2);
   return (
     <DiscDropBoard
-      testId="custom-game-board"
-      columnTestId={(column) => `custom-game-board-column-${column + 1}`}
+      testId="game-session-board"
+      columnTestId={(column) => `game-session-board-column-${column + 1}`}
       cells={board().cells}
       columns={COLUMNS}
       rows={ROWS}

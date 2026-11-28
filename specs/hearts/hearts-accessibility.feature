@@ -52,7 +52,7 @@ Feature: Follow and play Hearts with the keyboard, by listening and without colo
 
     @regression:hearts-penalty-face-accessibility
     Scenario: Cards, players and the turn are shown by name and symbol, not colour alone
-      Given Alice, Bob, Carol and Dave are ready for a custom game of Hearts as South, West, North and East
-      When Alice starts the custom game
+      Given Alice, Bob, Carol and Dave are ready for a game session of Hearts as South, West, North and East
+      When Alice starts the game session
       Then every card in Alice's hand shows its rank and suit by symbol and name, not by colour alone
       And the board names each player and whose turn it is, not by colour alone

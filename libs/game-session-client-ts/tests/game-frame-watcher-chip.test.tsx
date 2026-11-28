@@ -1,9 +1,5 @@
 import { afterEach, expect, test } from 'bun:test';
 import {
-  CustomGameScreenView,
-  type CustomGameScreenViewProps,
-} from '@libs/game-session-client-ts/custom-game-screen-view';
-import {
   FRAME_NO_NEXT,
   FRAME_NO_PLAY,
 } from '@libs/game-session-client-ts/game-frame-empty';
@@ -11,6 +7,8 @@ import type {
   FramePlaySeat,
   FrameRecord,
 } from '@libs/game-session-client-ts/game-frame-view-types';
+import type { GameSessionScreenViewProps } from '@libs/game-session-client-ts/game-session-screen-view';
+import { PlayFriendScreenView } from '@libs/game-session-client-ts/play-friend-screen-view';
 import { renderWithI18n } from '@pkgs/bun-test-solid-client-ts/render';
 import { ClockProvider } from '@pkgs/clock-client-ts/solid';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
@@ -54,7 +52,7 @@ const RECORD: FrameRecord = {
 
 const resolved = async (): Promise<void> => undefined;
 
-function props(): CustomGameScreenViewProps {
+function props(): GameSessionScreenViewProps {
   return {
     title: 'Light Cycles Trio',
     phase: 'active',
@@ -74,6 +72,7 @@ function props(): CustomGameScreenViewProps {
       increment: 0,
     },
     canCreate: false,
+    mode: 'vs-human',
     sides: ['white', 'black', 'red'],
     setup: null,
     table: {
@@ -88,7 +87,6 @@ function props(): CustomGameScreenViewProps {
     board: <div data-testid="arena" />,
     onChoose: resolved,
     onReady: resolved,
-    onPlayBot: resolved,
     onRandomSetup: resolved,
     onBack: () => undefined,
     onSeek: () => undefined,
@@ -109,7 +107,7 @@ function mountPhone(viewerSide: GameSide | null): void {
         colorScheme="dark"
         fixedLayout={{ width: 390, height: 844 }}
       >
-        <CustomGameScreenView {...props()} viewerSide={viewerSide} />
+        <PlayFriendScreenView {...props()} viewerSide={viewerSide} />
       </ThemeProvider>
     </ClockProvider>
   ));
@@ -122,12 +120,12 @@ test('phone rail: a watcher sees no "You"; the seated viewer still does', () => 
   mountPhone(null);
   const rail = document.querySelector('[data-component="GamePlayerRail"]');
   expect(rail?.textContent?.includes('You')).toBe(false);
-  expect(screen.getByTestId('custom-game-seat-near')).toBeTruthy();
+  expect(screen.getByTestId('game-session-seat-near')).toBeTruthy();
   cleanup();
   mountPhone('white');
   const seated = document.querySelector('[data-component="GamePlayerRail"]');
   expect(
-    screen.getByTestId('custom-game-seat-near').textContent?.includes('You')
+    screen.getByTestId('game-session-seat-near').textContent?.includes('You')
   ).toBe(true);
   expect(seated?.textContent?.match(/You/g)?.length).toBe(1);
 });

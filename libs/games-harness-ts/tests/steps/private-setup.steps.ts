@@ -1,5 +1,5 @@
 /**
- * Private setups, in a custom game and in a matched game alike: having one
+ * Private setups, in a game session and in a matched game alike: having one
  * complete or not, changing it, and who can see it — each person their own,
  * nobody anyone else's, read on their screen and in what reaches their
  * device.
@@ -9,15 +9,15 @@ import { expect } from 'bun:test';
 import { inMatchedGame } from '@libs/game-matchmaking-harness-ts/matched-game-world';
 import { shownBoardPosition } from '@libs/game-matchmaking-harness-ts/multiplayer-review';
 import {
-  anotherCompleteSetup,
-  changeCustomGamePrivateSetup,
-  customGamePrivateSetupShown,
-} from '@libs/game-session-harness-ts/custom-game-private-setup';
-import { readCustomGameScreen } from '@libs/game-session-harness-ts/custom-game-screen';
-import {
   gameHistoryReviewPosition,
   openGameHistoryRecord,
 } from '@libs/game-session-harness-ts/game-history-review';
+import {
+  anotherCompleteSetup,
+  changeGameSessionPrivateSetup,
+  gameSessionPrivateSetupShown,
+} from '@libs/game-session-harness-ts/game-session-private-setup';
+import { readGameSessionScreen } from '@libs/game-session-harness-ts/game-session-screen';
 import {
   changeMatchedPrivateSetup,
   matchedSideReadinessShown,
@@ -46,7 +46,7 @@ const BEFORE_CHANGE = 'private-setup:before-change';
 /** The private setup `actor`'s own screen shows them, as one value. */
 async function ownShown(w: HarnessWorld, actor: string) {
   if (inMatchedGame(w)) return w.s.read(ownMatchedPrivateSetup, actor);
-  return w.s.read(customGamePrivateSetupShown, actor);
+  return w.s.read(gameSessionPrivateSetupShown, actor);
 }
 
 /** `viewer` sees none of `hidden` on their screen, and none reaches their device. */
@@ -56,7 +56,7 @@ async function seesNone(
   hidden: readonly string[]
 ) {
   if (!inMatchedGame(w)) {
-    const shown = await w.s.read(customGamePrivateSetupShown, viewer);
+    const shown = await w.s.read(gameSessionPrivateSetupShown, viewer);
     for (const setup of hidden) {
       expect(shown.own).not.toBe(setup);
       expect(shown.arranged).not.toBe(setup);
@@ -83,7 +83,9 @@ When('{actor} changes his/her private setup', async (w, actor: string) => {
   ]);
   w.memo.set('private-setup:change', setup);
   await w.s.apply(
-    inMatchedGame(w) ? changeMatchedPrivateSetup : changeCustomGamePrivateSetup,
+    inMatchedGame(w)
+      ? changeMatchedPrivateSetup
+      : changeGameSessionPrivateSetup,
     actor,
     setup
   );
@@ -151,7 +153,7 @@ async function seesReady(w: HarnessWorld, viewer: string, person: string) {
     });
     return;
   }
-  await w.s.until((s) => readCustomGameScreen(s, viewer), {
+  await w.s.until((s) => readGameSessionScreen(s, viewer), {
     pred: (screen) => screen?.current?.ready.includes(side) === true,
   });
 }

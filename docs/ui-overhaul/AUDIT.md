@@ -95,7 +95,7 @@ not-found route `/*all`. Tab roots (`tab: true`) nest under `TabsLayout`
 | --- | --- | --- |
 | (no game chosen) | `GamesMainMenu` `libs/spaces-client-ts/src/games-main-menu.tsx` | MainMenuScreen |
 | game choices | `GameMenu` `libs/game-menu-client-ts/src/game-menu.tsx`, with the choices built in `game-menu-choices.tsx` | MainMenuScreen |
-| `custom-game` | `CustomGameScreen` `libs/game-session-client-ts/src/custom-game-screen.tsx` | GameScreen + GameSessionLayout + GameBoardStage |
+| `game-session` | `GameSessionScreen` `libs/game-session-client-ts/src/game-session-screen.tsx` | GameScreen + GameSessionLayout + GameBoardStage |
 | `multiplayer` | `MultiplayerScreen` `libs/game-matchmaking-client-ts/src/multiplayer-screen.tsx` | GameScreen + GameSessionLayout + GameBoardStage |
 | `history` | `GameHistory` `libs/game-session-client-ts/src/game-history.tsx` | GameHistoryScreen / GameReviewScreen |
 | `puzzle` | `PuzzlePlayScreen` → `libs/game-puzzle-client-ts/src/puzzle-play-layout.tsx` | PuzzleScreen |
@@ -138,7 +138,7 @@ The package holds 239 non-example `.tsx` modules, 66 `.ts` helpers and 129
 | `Chip` | `label`, `selected`, `startIcon`, `role` button\|radio, `disabled` |
 | `ChipGroup` | `options[{key,label,icon,testid}]`, `selected`, `onSelect`, `label`, `disabled` (single-select) |
 | `SegmentedControl` | `segments[{key,label}]`, `selected`, `onSelect`, `disabled` |
-| `Avatar` | `size` xs 24\|sm 32\|md 40\|lg 56\|xl 96 or a number; `ring`; `background`/`foreground` (token); source precedence `svg` > `uri` > `initials` > `icon` > person placeholder. Bots use `icon={BotIcon}` (`libs/game-session-client-ts/src/custom-game-side.tsx`). There is no `kind` (person/bot/guest/empty) prop |
+| `Avatar` | `size` xs 24\|sm 32\|md 40\|lg 56\|xl 96 or a number; `ring`; `background`/`foreground` (token); source precedence `svg` > `uri` > `initials` > `icon` > person placeholder. Bots use `icon={BotIcon}` (`libs/game-session-client-ts/src/game-session-side.tsx`). There is no `kind` (person/bot/guest/empty) prop |
 | `Badge` | `label`, `intent` neutral\|brand\|success\|warning\|destructive\|info (default brand), `tone` subtle\|solid, `size` sm\|md, `dot`, `invisible` |
 | `P` / `Text` | `variant` body\|bodyBold\|label\|caption\|footnote\|mono\|inherit, `role`, `testId`. `Text` is the inline form |
 | `H1`–`H6` | `size` title 32\|heading 24\|subtitle 20\|navigationTitle 16\|label, `tone`, `align`, `lines`, `numeral` |
@@ -332,7 +332,7 @@ word-tiles. Three put an action bar inside the board: word-tiles, quoridor
 and hearts. Hearts and light-cycles render the final result in the board.
 Pong and light-cycles render their setup options through
 `presentation.Configuration`, which the framework mounts in "Game options"
-(`custom-game-configuration.tsx:79`).
+(`game-session-configuration.tsx:79`).
 
 ---
 
@@ -345,7 +345,7 @@ Pong and light-cycles render their setup options through
 | Field | Type / source | Notes |
 | --- | --- | --- |
 | `rules` | `GameRules` / `GamePositionRules` (`pkgs/turn-game-shared-ts/src/game-rules.ts:208-276`) | `id`, `family?`, `sides?` (2–4 of white/black/red/blue), `recognizes`, `initial`, `play`, `replay`, `legal`, `canWin`, `moves`, `setup?` (private setups), `hands?` (+`commit?`), `turnOrder?`, `prepare?`, `configuration?{apply(position, choice: string), restart}` |
-| `capabilities` | `TurnGameCapabilities` (:373) | `'custom-games'?{bots:{difficulties, choose?}, localPlayers?}`, `matchmaking?{namespace, notice, clockChoices?}` (requires `history`), `history?{record}`, `puzzles?` |
+| `capabilities` | `TurnGameCapabilities` (:373) | `'game-sessions'?{bots:{difficulties, choose?}, localPlayers?}`, `matchmaking?{namespace, notice, clockChoices?}` (requires `history`), `history?{record}`, `puzzles?` |
 | `turnAutomation` / `continuousAutomation` | `game-automation.ts` | Bot or synthetic gesture on the board |
 | `simulation?` | `RegisteredSimulation` (`game-simulation.ts`) | Realtime games (pong, light-cycles) |
 | `puzzleContent?` | `PuzzleContent` (`puzzle-content.ts:120`) | `rules`, `rulesVersion`, `solver?`, `validatePublication?`, `statistics?(def,state) → Record`, `bundledPacks?`, `starter?` |
@@ -373,15 +373,15 @@ position and draw one.
 
 | Brief area | Today (file) | Gap vs brief |
 | --- | --- | --- |
-| Seat list | `CustomGameSeat` → `GamePlayerBar` (`libs/game-session-client-ts/src/custom-game-side.tsx:150`). Seat kinds `person\|bot\|local\|invitation\|open\|closed` (`libs/game-session-shared-ts/src/custom-game-state.ts:18`). Badges: Ready, Getting ready, Stand-in bot | Max 4 seats; no player-count stepper (count = mode) |
-| Generic options | Clock: `TextInput` ×2 + buttons (`custom-game-configuration.tsx:27-60`). Game options: `GameDisclosure` mounting the game's `Configuration` (:79, :154) | No options schema; options are an opaque string plus a game-drawn form |
-| Start, disabled with reason | `CustomGameConfiguration` (`custom-game-configuration.tsx:93-163`): "Every place must be filled and every person ready." / Start game | One fixed reason string |
+| Seat list | `GameSessionSeat` → `GamePlayerBar` (`libs/game-session-client-ts/src/game-session-side.tsx:150`). Seat kinds `person\|bot\|local\|invitation\|open\|closed` (`libs/game-session-shared-ts/src/game-session-state.ts:18`). Badges: Ready, Getting ready, Stand-in bot | Max 4 seats; no player-count stepper (count = mode) |
+| Generic options | Clock: `TextInput` ×2 + buttons (`game-session-configuration.tsx:27-60`). Game options: `GameDisclosure` mounting the game's `Configuration` (:79, :154) | No options schema; options are an opaque string plus a game-drawn form |
+| Start, disabled with reason | `GameSessionConfiguration` (`game-session-configuration.tsx:93-163`): "Every place must be filled and every person ready." / Start game | One fixed reason string |
 | Roles | Space role `'host'\|'guest'` (`libs/spaces-client-ts/src/use-member-role.ts:8`); seated or watcher through `mySide()`; `SpectatorIndicator` | No member/seated-guest/spectator split in chrome; no watcher count |
-| Play: opponents | `GameBoardStage top` = `FarSeats`: every other seat stacked vertically (`custom-game-board.tsx:236-251`, `:280-299`) | No compact rail of chips for 3+ seats |
+| Play: opponents | `GameBoardStage top` = `FarSeats`: every other seat stacked vertically (`game-session-board.tsx:236-251`, `:280-299`) | No compact rail of chips for 3+ seats |
 | Play: board / own strip | `GameBoardStage` children (game `Board` via `Dynamic`, :302) and `bottom` (own seat) | — |
-| Turn pill | `CustomGameStatus` → `GameStatus` line + Unrated/clock badges (`custom-game-status.tsx:239-262`); text from `gameStateDescription` using `sideLabel` and `endingDescription` | Not a pill; games duplicate it in-board |
-| Action bar | `CustomGameDrawActions`/`NextActions`/`ExitActions` (`custom-game-actions.tsx`, `custom-game-screen.tsx:81-86`): resign, draw, rematch, leave | Game moves/actions have no slot |
-| Game over | `GameStatus` ending text + Rematch button (`custom-game-actions.tsx:70`); history `GameStat` tiles (`game-history.tsx:190-200`); matched ratings `GameStat` (`multiplayer-ratings.tsx:39`) | No headline, no 1st–8th standings, no rematch-readiness list, no solo stat tiles (`PuzzleContent.statistics` is stored by `libs/game-puzzle-shared-ts/src/attempt-completion.ts:22`, never shown) |
+| Turn pill | `GameSessionStatus` → `GameStatus` line + Unrated/clock badges (`game-session-status.tsx:239-262`); text from `gameStateDescription` using `sideLabel` and `endingDescription` | Not a pill; games duplicate it in-board |
+| Action bar | `GameSessionDrawActions`/`NextActions`/`ExitActions` (`game-session-actions.tsx`, `game-session-screen.tsx:81-86`): resign, draw, rematch, leave | Game moves/actions have no slot |
+| Game over | `GameStatus` ending text + Rematch button (`game-session-actions.tsx:70`); history `GameStat` tiles (`game-history.tsx:190-200`); matched ratings `GameStat` (`multiplayer-ratings.tsx:39`) | No headline, no 1st–8th standings, no rematch-readiness list, no solo stat tiles (`PuzzleContent.statistics` is stored by `libs/game-puzzle-shared-ts/src/attempt-completion.ts:22`, never shown) |
 | Matched games | `libs/game-matchmaking-client-ts/src/multiplayer-{screen,board,seat,status}.tsx`: the same primitives | Parallel implementation of seats and status |
 
 ### 5c. Brief `GameDefinition` piece → current
@@ -391,13 +391,13 @@ position and draw one.
 | Manifest: name | `defineGameClient.title`, `presentation.name()`, `rules.id`, `family` | Exists (split) |
 | Manifest: min/max players 1–8 | `rules.sides` (2–4); modes per count; puzzle content = solo | **Missing** (cap 4; no min/max/range) |
 | Manifest: default count | — (each mode fixed) | **Missing** |
-| Manifest: bot support | `capabilities['custom-games'].bots` (`difficulties`, `choose`) | Exists implicitly (presence = support) |
+| Manifest: bot support | `capabilities['game-sessions'].bots` (`difficulties`, `choose`) | Exists implicitly (presence = support) |
 | Options schema | `rules.configuration.apply(position, choice: string)` + `presentation.Configuration` component; clock choice framework-owned | **Missing** as a declarative schema |
 | Per-seat info: side label | `presentation.sideLabel(side)`, server copy `matchmaking.notice.side` (duplicated) | Exists |
 | Per-seat info: color/mark | none; marks are inside boards (quoridor glyphs, light-cycles letters, connect-four names); tokens only `path*` ×6 | **Missing** |
 | Board component | `presentation.Board`, `SetupBoard`, `puzzles.Board`, `puzzleContent.Player/Editor/Preview` | Exists |
 | Action list | none; `rules.legal`/`moves` are moves, not commands; games render buttons in-board | **Missing** |
-| Turn-status string | framework derives it (`custom-game-status.tsx`); games also draw their own | **Missing** as a game-supplied string |
+| Turn-status string | framework derives it (`game-session-status.tsx`); games also draw their own | **Missing** as a game-supplied string |
 | Result summary | `PlayedPosition.winner` (`GameWinner` = side \| 'draw' \| side[]), `reason`, `endingDescription`/`endingLabel`/`timeoutDrawDescription`; `history.record` (file text); `PuzzleContent.statistics` | Partial: no scores/standings type; scores only in board text and records |
 
 ---
@@ -425,13 +425,13 @@ position and draw one.
 | `Skeleton` | `Skeleton` |
 | `TopBar`, `AppHeaderIsland`, `ScreenBase` header, `TabBar` | `NavBar` / `TopBar` |
 | `GameScreen` + `GameSessionLayout` | Game frame shell (Setup / Play / Game over) |
-| `GamePlayerBar` + `custom-game-side.tsx` / `multiplayer-seat.tsx` | Seat row (Setup), own strip, opponent strip (Play) |
-| `FarSeats` stack (`custom-game-board.tsx:236`) | Opponent strip (2 seats), rail of chips (3–8), nothing (solo) |
+| `GamePlayerBar` + `game-session-side.tsx` / `multiplayer-seat.tsx` | Seat row (Setup), own strip, opponent strip (Play) |
+| `FarSeats` stack (`game-session-board.tsx:236`) | Opponent strip (2 seats), rail of chips (3–8), nothing (solo) |
 | `GameBoardStage` | Board slot |
 | `GameStatus` | Turn pill |
 | `GameClock`, `GameCountdown` | Seat clock in strip / turn pill |
-| `GameSection`/`GameActions`, `custom-game-actions.tsx` | Action bar |
-| `GameSetupPanel`, `custom-game-configuration.tsx`, `GameDisclosure` | Setup: generic options, Start game with reason |
+| `GameSection`/`GameActions`, `game-session-actions.tsx` | Action bar |
+| `GameSetupPanel`, `game-session-configuration.tsx`, `GameDisclosure` | Setup: generic options, Start game with reason |
 | `GameStat` (history, ratings) | Solo stat tiles / standings |
 | `SpectatorIndicator` | Watching footer + header watcher count |
 | Game in-board scoreboards, status lines and action bars (§4a) | Removed; supplied as data (per-seat info, turn-status string, action list, result summary) to the frame |
@@ -440,7 +440,7 @@ position and draw one.
 
 | Screen | Uses frame today | Frame pieces bypassed |
 | --- | --- | --- |
-| Custom game (`custom-game-screen.tsx`), all turn and realtime games | Yes: GameScreen, GameSessionLayout, GameBoardStage, GamePlayerBar, GameStatus | Game-drawn status, scores, actions in `Board` (§4a); game `Configuration` form |
+| Game session (`game-session-screen.tsx`), all turn and realtime games | Yes: GameScreen, GameSessionLayout, GameBoardStage, GamePlayerBar, GameStatus | Game-drawn status, scores, actions in `Board` (§4a); game `Configuration` form |
 | Matched game (`multiplayer-screen.tsx`) | Yes: same primitives, separate implementation | Same as above |
 | Puzzle play (`puzzle-play-layout.tsx`, chess) | `PuzzleScreen` (own family) | — |
 | Puzzle content attempt / author / edition (`content-*-screen.tsx`; numberlink, sokoban, word-tiles) | `GameScreen` + `GameSessionLayout`, with no seats or status | Game Player draws counters, d-pads and action bars; editors draw toolbars |

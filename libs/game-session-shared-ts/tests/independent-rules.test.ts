@@ -1,10 +1,10 @@
 import { expect, test } from 'bun:test';
-import {
-  ChangeCustomGame,
-  PlayCustomGameBot,
-} from '@libs/game-session-shared-ts/custom-game-commands';
-import { CustomGamesAttr } from '@libs/game-session-shared-ts/custom-game-state';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
+import {
+  ChangeGameSession,
+  PlayGameSessionBot,
+} from '@libs/game-session-shared-ts/game-session-commands';
+import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { SpaceMembersRoomAttr } from '@libs/spaces-shared-ts/space-members-messages';
 import { createSpaceModule } from '@libs/spaces-shared-ts/space-module';
@@ -35,7 +35,7 @@ function raceRoom(capabilities: TurnGameCapabilities, gameRules = rules) {
   return { module, state };
 }
 
-test('a game that declares no custom games cannot create one', () => {
+test('a game that declares no game sessions cannot create one', () => {
   const { module, state } = raceRoom({
     matchmaking: {
       clockChoices: true as const,
@@ -49,36 +49,61 @@ test('a game that declares no custom games cannot create one', () => {
     {
       id: 'choice-0',
       ts: 0,
-      payload: ChangeCustomGame({
+      payload: ChangeGameSession({
         gameId: null,
         revision: 0,
         operation: 'create',
-      } as Parameters<typeof ChangeCustomGame>[0]),
+      } as Parameters<typeof ChangeGameSession>[0]),
     },
     'alice'
   );
   expect(result.ok).toBe(false);
-  expect(CustomGamesAttr.from(state).current).toBeNull();
+  expect(GameSessionsAttr.from(state).current).toBeNull();
+});
+
+test('a registration accepts only the opponent type it offers', () => {
+  for (const offered of ['vs-human', 'vs-bot'] as const) {
+    const { module, state } = raceRoom(
+      offered === 'vs-human' ? { 'vs-human': {} } : { 'vs-bot': { bots } }
+    );
+    for (const mode of ['vs-human', 'vs-bot'] as const) {
+      const result = module.handle(
+        state,
+        {
+          id: mode,
+          ts: 0,
+          payload: ChangeGameSession({
+            operation: 'create',
+            mode,
+            gameId: null,
+            revision: 0,
+          }),
+        },
+        'alice'
+      );
+      expect(result.ok).toBe(mode === offered);
+    }
+  }
 });
 
 // regression: game-session-action-length-coupling
 test('an unrelated game uses the same configuration, bot turns, completion and replay contracts', () => {
-  const room = raceRoom({ 'custom-games': { bots } });
+  const room = raceRoom({ 'vs-human': {}, 'vs-bot': { bots } });
   const module = room.module;
   let state = room.state;
   let sequence = 0;
   const change = (input: Record<string, unknown>, accepted = true) => {
-    const game = CustomGamesAttr.from(state).current;
+    const game = GameSessionsAttr.from(state).current;
     const result = module.handle(
       state,
       {
         id: `choice-${sequence++}`,
         ts: 0,
-        payload: ChangeCustomGame({
+        payload: ChangeGameSession({
           gameId: game?.id ?? null,
           revision: game?.revision ?? 0,
           ...input,
-        } as Parameters<typeof ChangeCustomGame>[0]),
+        } as Parameters<typeof ChangeGameSession>[0]),
       },
       'alice'
     );
@@ -86,22 +111,22 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
     if (result.ok)
       for (const event of result.events) state = module.reduce(state, event);
   };
-  change({ operation: 'create' });
+  change({ operation: 'create', mode: 'vs-bot' });
   change({ operation: 'bot', side: 'white' });
   change({ operation: 'bot', side: 'black' });
   // regression: game-session-cosmetic-difficulty
-  const beforeDifficulty = CustomGamesAttr.from(state).current;
+  const beforeDifficulty = GameSessionsAttr.from(state).current;
   change({ operation: 'difficulty', side: 'white', difficulty: 'hard' }, false);
-  expect(CustomGamesAttr.from(state).current).toEqual(beforeDifficulty);
+  expect(GameSessionsAttr.from(state).current).toEqual(beforeDifficulty);
   change({ operation: 'start' });
   for (let ply = 0; ply < 4; ply++) {
-    const game = CustomGamesAttr.from(state).current!;
+    const game = GameSessionsAttr.from(state).current!;
     const result = module.handle(
       state,
       {
         id: `bot-${ply}`,
         ts: ply * 1000,
-        payload: PlayCustomGameBot({ gameId: game.id, side: game.turn, ply }),
+        payload: PlayGameSessionBot({ gameId: game.id, side: game.turn, ply }),
       },
       ROOM_SCHEDULER_IDENTITY
     );
@@ -109,7 +134,7 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
     if (result.ok)
       for (const event of result.events) state = module.reduce(state, event);
   }
-  const game = CustomGamesAttr.from(state).current!;
+  const game = GameSessionsAttr.from(state).current!;
   expect(game.fen).toBe('race:4');
   expect(game.status).toBe('completed');
   expect(game.outcome).toBe('black wins by finish line');
@@ -117,8 +142,8 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
     Array(4).fill('advance-token')
   );
   change({ operation: 'rematch' });
-  expect(CustomGamesAttr.from(state).current?.fen).toBe('race:0');
-  expect(CustomGamesAttr.from(state).history).toEqual([game]);
+  expect(GameSessionsAttr.from(state).current?.fen).toBe('race:0');
+  expect(GameSessionsAttr.from(state).history).toEqual([game]);
 });
 
 /**
@@ -127,8 +152,8 @@ test('an unrelated game uses the same configuration, bot turns, completion and r
  * Matched games and puzzles already credited the rules' winner; custom
  * games credited the mover.
  */
-test('a custom game credits the side the rules name as winner, not the mover', () => {
-  // regression: custom-game-mover-credited-win
+test('a game session credits the side the rules name as winner, not the mover', () => {
+  // regression: game-session-mover-credited-win
   const misere: GameRules = {
     ...rules,
     play(position, action, history, actions) {
@@ -138,21 +163,21 @@ test('a custom game credits the side the rules name as winner, not the mover', (
         : played;
     },
   };
-  const room = raceRoom({ 'custom-games': { bots } }, misere);
+  const room = raceRoom({ 'vs-human': {}, 'vs-bot': { bots } }, misere);
   let state = room.state;
   let sequence = 0;
   const change = (input: Record<string, unknown>) => {
-    const game = CustomGamesAttr.from(state).current;
+    const game = GameSessionsAttr.from(state).current;
     const result = room.module.handle(
       state,
       {
         id: `choice-${sequence++}`,
         ts: 0,
-        payload: ChangeCustomGame({
+        payload: ChangeGameSession({
           gameId: game?.id ?? null,
           revision: game?.revision ?? 0,
           ...input,
-        } as Parameters<typeof ChangeCustomGame>[0]),
+        } as Parameters<typeof ChangeGameSession>[0]),
       },
       'alice'
     );
@@ -161,18 +186,18 @@ test('a custom game credits the side the rules name as winner, not the mover', (
       for (const event of result.events)
         state = room.module.reduce(state, event);
   };
-  change({ operation: 'create' });
+  change({ operation: 'create', mode: 'vs-bot' });
   change({ operation: 'bot', side: 'white' });
   change({ operation: 'bot', side: 'black' });
   change({ operation: 'start' });
   for (let ply = 0; ply < 4; ply++) {
-    const game = CustomGamesAttr.from(state).current!;
+    const game = GameSessionsAttr.from(state).current!;
     const result = room.module.handle(
       state,
       {
         id: `bot-${ply}`,
         ts: ply * 1000,
-        payload: PlayCustomGameBot({ gameId: game.id, side: game.turn, ply }),
+        payload: PlayGameSessionBot({ gameId: game.id, side: game.turn, ply }),
       },
       ROOM_SCHEDULER_IDENTITY
     );
@@ -181,7 +206,7 @@ test('a custom game credits the side the rules name as winner, not the mover', (
       for (const event of result.events)
         state = room.module.reduce(state, event);
   }
-  const game = CustomGamesAttr.from(state).current!;
+  const game = GameSessionsAttr.from(state).current!;
   expect(game.status).toBe('completed');
   // Black made the last count, and lost by it.
   expect(game.outcome).toBe('white wins by black counted to four');
@@ -195,21 +220,21 @@ test('a custom game credits the side the rules name as winner, not the mover', (
  * new one in place and is refused, so nothing is appended twice.
  */
 test('a finished game enters the history once, however often a new game is asked for', () => {
-  const room = raceRoom({ 'custom-games': { bots } });
+  const room = raceRoom({ 'vs-human': {}, 'vs-bot': { bots } });
   const module = room.module;
   let state = room.state;
   const send = (id: string, input: Record<string, unknown>, ts = 0) => {
-    const game = CustomGamesAttr.from(state).current;
+    const game = GameSessionsAttr.from(state).current;
     const result = module.handle(
       state,
       {
         id,
         ts,
-        payload: ChangeCustomGame({
+        payload: ChangeGameSession({
           gameId: game?.id ?? null,
           revision: game?.revision ?? 0,
           ...input,
-        } as Parameters<typeof ChangeCustomGame>[0]),
+        } as Parameters<typeof ChangeGameSession>[0]),
       },
       'alice'
     );
@@ -217,23 +242,29 @@ test('a finished game enters the history once, however often a new game is asked
       for (const event of result.events) state = module.reduce(state, event);
     return result.ok;
   };
-  expect(send('create-1', { operation: 'create' })).toBe(true);
+  expect(send('create-1', { operation: 'create', mode: 'vs-human' })).toBe(
+    true
+  );
   expect(send('cancel-1', { operation: 'cancel' })).toBe(true);
-  const first = CustomGamesAttr.from(state).current!;
+  const first = GameSessionsAttr.from(state).current!;
   expect(first.status).toBe('cancelled');
 
   expect(send('rematch-1', { operation: 'rematch' })).toBe(true);
   // The same request again, and a competing one, both find the new game.
   expect(send('rematch-1', { operation: 'rematch' })).toBe(false);
-  expect(send('create-2', { operation: 'create' })).toBe(false);
-  expect(CustomGamesAttr.from(state).history.map((g) => g.id)).toEqual([
+  expect(send('create-2', { operation: 'create', mode: 'vs-human' })).toBe(
+    false
+  );
+  expect(GameSessionsAttr.from(state).history.map((g) => g.id)).toEqual([
     first.id,
   ]);
 
   expect(send('cancel-2', { operation: 'cancel' })).toBe(true);
-  const second = CustomGamesAttr.from(state).current!;
-  expect(send('create-3', { operation: 'create' })).toBe(true);
-  const history = CustomGamesAttr.from(state).history.map((g) => g.id);
+  const second = GameSessionsAttr.from(state).current!;
+  expect(send('create-3', { operation: 'create', mode: 'vs-human' })).toBe(
+    true
+  );
+  const history = GameSessionsAttr.from(state).history.map((g) => g.id);
   expect(history).toEqual([first.id, second.id]);
   expect(new Set(history).size).toBe(history.length);
 });

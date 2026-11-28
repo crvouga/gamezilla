@@ -1,23 +1,26 @@
 import { expect, test } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
-import { attemptCustomGame } from '@libs/game-session-harness-ts/custom-game-ui';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
+import { attemptGameSession } from '@libs/game-session-harness-ts/game-session-ui';
 import { actorUi, scenarioAction } from '@libs/harness-ts/actor-ui';
 import { GamesRoomAttr } from '@libs/spaces-shared-ts/games';
 import { openConformanceHarness } from './conformance-world';
 
 const openHistory = scenarioAction({
-  name: 'openHistoryFromCustomGame',
+  name: 'openHistoryFromGameSession',
   act: async (s) => {
     const ui = await actorUi(s, 'alice');
-    await ui.get('custom-game-history-stats').tap();
+    await ui.get('game-session-history-stats').tap();
   },
 });
 
 test('Pong cancelled-game history navigation leaves the live board once', async () => {
   // regression: pong-history-navigation
   await using s = await openConformanceHarness();
-  await s.apply(establishCustomGame, 'pong', { second: 'open', active: false });
-  await s.apply(attemptCustomGame, 'alice', { operation: 'cancel' });
+  await s.apply(establishGameSession, 'pong', {
+    second: 'open',
+    active: false,
+  });
+  await s.apply(attemptGameSession, 'alice', { operation: 'cancel' });
   await s.apply(openHistory);
   await s.advanceTime(1000);
   const actual = await s.read(async (world) => ({

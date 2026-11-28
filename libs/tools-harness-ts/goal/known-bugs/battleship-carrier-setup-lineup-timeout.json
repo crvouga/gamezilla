@@ -1,4 +1,4 @@
 {
-  "summary": "Opening a space and custom game before exercising the keyboard controls consumed the five-second package deadline, even with the opposing seat open. The keyboard regression mounts the production board and uses the same placement action as the two-player accessibility scenario.",
+  "summary": "Opening a space and game session before exercising the keyboard controls consumed the five-second package deadline, even with the opposing seat open. The keyboard regression mounts the production board and uses the same placement action as the two-player accessibility scenario.",
   "regressionTest": "libs/battleship-client-ts/tests/automation-rearrange.test.tsx"
 }

@@ -113,10 +113,10 @@ const FINDING_SURFACES = [
 ] as const;
 
 /**
- * A custom game's screen. Without a Back beside it, it is a space held on
- * a custom game under way: no way to finding an opponent is offered.
+ * A game session's screen. Without a Back beside it, it is a space held on
+ * a game session under way: no way to finding an opponent is offered.
  */
-export const CUSTOM_GAME_CONTENT = 'custom-game-content';
+export const GAME_SESSION_CONTENT = 'game-session-content';
 
 /** Where a device can show no finding an opponent at all. */
 const NOWHERE_TO_FIND = [Handles.spaceEnded, Handles.spaceNotFound] as const;
@@ -132,7 +132,7 @@ export function findingAnOpponentHandles(gameId: string): readonly string[] {
     Handles.spaceLoading,
     Handles.spaceJoinPrompt,
     Handles.spaceJoin,
-    CUSTOM_GAME_CONTENT,
+    GAME_SESSION_CONTENT,
     'game-back-stay',
     Handles.gameChoice('multiplayer'),
     Handles.gameMenu(gameId),
@@ -162,10 +162,10 @@ export function findingAnOpponentStep(
   // space entirely, including while the host's session is reopening.
   if (visible.has(Handles.spaceJoinPrompt))
     return visible.has(Handles.spaceJoin) ? Handles.spaceJoin : null;
-  // The space stays on a custom game under way: its board is as far as it goes.
+  // The space stays on a game session under way: its board is as far as it goes.
   if (
     visible.has('game-back-stay') ||
-    (visible.has(CUSTOM_GAME_CONTENT) && !visible.has(Handles.navBack))
+    (visible.has(GAME_SESSION_CONTENT) && !visible.has(Handles.navBack))
   )
     return 'arrived';
   return (
@@ -320,7 +320,7 @@ async function seekFromFindingAnOpponent(
  * far as their device can: they choose the clock choice and find. A screen
  * that cannot express
  * the request — a clock choice it does not offer, or a search, matched game
- * or custom game already under way — sends the same command a stale screen
+ * or game session already under way — sends the same command a stale screen
  * on another device would.
  */
 export const findGameOpponent = scenarioAction({

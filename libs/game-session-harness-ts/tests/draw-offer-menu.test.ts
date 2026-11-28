@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { operateCustomGameControls } from '@libs/game-session-harness-ts/custom-game-controls';
+import { operateGameSessionControls } from '@libs/game-session-harness-ts/game-session-controls';
 import type { ProductHarness } from '@libs/harness-ts/harness';
 
 function drawOfferMenu(answer: 'accepted' | 'refused') {
@@ -7,9 +7,9 @@ function drawOfferMenu(answer: 'accepted' | 'refused') {
   let settled = 0;
   const taps: string[] = [];
   const visible = (id: string) =>
-    id === 'custom-game-content' ||
+    id === 'game-session-content' ||
     (place === 'commands' &&
-      ['custom-game-offer', 'custom-game-resume'].includes(id));
+      ['game-session-offer', 'game-session-resume'].includes(id));
 
   const render = () => {
     if (settled > 0 && answer === 'accepted') place = 'stage';
@@ -30,10 +30,10 @@ function drawOfferMenu(answer: 'accepted' | 'refused') {
         taps.push(id);
         if (!visible(id))
           throw new Error(
-            `${id} is covered by the custom-game-stage-menu ModalScrim`
+            `${id} is covered by the game-session-stage-menu ModalScrim`
           );
-        if (id === 'custom-game-offer') settled++;
-        if (id === 'custom-game-resume') place = 'stage';
+        if (id === 'game-session-offer') settled++;
+        if (id === 'game-session-resume') place = 'stage';
       },
       expect: {
         hidden: async () => {
@@ -56,12 +56,12 @@ test.each(['accepted', 'refused'] as const)(
   'Alice returns from the game menu after a repeat draw offer is %s',
   async (answer) => {
     const menu = drawOfferMenu(answer);
-    await operateCustomGameControls(menu.s, 'alice', { operation: 'offer' });
+    await operateGameSessionControls(menu.s, 'alice', { operation: 'offer' });
     expect(menu.place()).toBe('stage');
     expect(menu.taps).toEqual(
       answer === 'accepted'
-        ? ['custom-game-offer']
-        : ['custom-game-offer', 'custom-game-resume']
+        ? ['game-session-offer']
+        : ['game-session-offer', 'game-session-resume']
     );
   }
 );

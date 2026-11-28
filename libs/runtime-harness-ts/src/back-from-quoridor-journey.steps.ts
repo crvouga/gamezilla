@@ -1,7 +1,7 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { stepsFor } from '@pkgs/gherkin-shared-ts/registry';
 import { observeBotGameJourney } from './bot-game-journey';
-import { readPublicCustomGame } from './custom-game-party-turn';
+import { readPublicGameSession } from './game-session-party-turn';
 import { check, expectVisible, JOURNEY_WAIT_MS, tap } from './journey-gestures';
 import type { JourneyWorld } from './journey-types';
 
@@ -16,9 +16,9 @@ When(
     w.memo.set('board-space', await w.journey.spaceLink());
     await w.journey.act('askToLeaveBoard', async (ui) => {
       await ui
-        .get('custom-game-versus')
+        .get('game-session-versus')
         .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
-      w.memo.set('board-position', (await readPublicCustomGame(ui)).position);
+      w.memo.set('board-position', (await readPublicGameSession(ui)).position);
       await tap(ui, Handles.navBack);
       await ui
         .get('game-back-confirm')
@@ -34,7 +34,7 @@ When('Alice decides to keep playing Classic Quoridor', (w) =>
     await ui
       .get('game-back-confirm')
       .expect.hidden({ timeoutMs: JOURNEY_WAIT_MS });
-    const game = await readPublicCustomGame(ui);
+    const game = await readPublicGameSession(ui);
     check(
       game.status === 'active' &&
         game.position === w.memo.get('board-position'),
@@ -50,8 +50,8 @@ When('Alice confirms she wants to resign and go back', (w) =>
 Then('Alice sees the game choices in the same space', async (w) => {
   await w.journey.act('observePreviousGameChoices', async (ui) => {
     await expectVisible(ui, Handles.gameChoices);
-    await expectVisible(ui, Handles.gameChoice('custom-game'));
-    await ui.get('custom-game-content').expect.hidden();
+    await expectVisible(ui, Handles.gameChoice('vs-human'));
+    await ui.get('game-session-content').expect.hidden();
   });
   check(
     (await w.journey.spaceLink()) === w.memo.get('board-space'),

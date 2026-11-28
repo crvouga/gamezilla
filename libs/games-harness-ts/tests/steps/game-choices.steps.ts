@@ -33,7 +33,7 @@ async function pickedGame(w: HarnessWorld, host: string, guest: string) {
 }
 
 Then(
-  "{actor} and {actor} are offered the game's custom games, finding an opponent and its history",
+  '{actor} and {actor} are offered separate choices to play a friend, play a bot, find an opponent and see game history',
   async (w, a: string, b: string) => {
     for (const actor of [a, b])
       await w.s.until((s) => offeredGameChoices(s, actor), {
@@ -48,26 +48,29 @@ Given(
   async (w, host: string, guest: string) => pickedGame(w, host, guest)
 );
 Given(
-  "{actor} has opened the game's custom games in the space {actor} joined",
+  '{actor} has opened the setup for playing a friend in the space {actor} joined',
   async (w, host: string, guest: string) => {
     await pickedGame(w, host, guest);
-    await w.s.apply(openGameChoice, host, 'custom-game');
-    await w.s.until((s) => showsGameScreen(s, guest, 'custom-game'), {
+    await w.s.apply(openGameChoice, host, 'vs-human');
+    await w.s.until((s) => showsGameScreen(s, guest, 'vs-human'), {
       pred: Boolean,
     });
   }
 );
-When("{actor} opens the game's custom games", async (w, actor: string) => {
-  await w.s.apply(openGameChoice, actor, 'custom-game');
-});
+When(
+  '{actor} opens the setup for playing a friend',
+  async (w, actor: string) => {
+    await w.s.apply(openGameChoice, actor, 'vs-human');
+  }
+);
 When("{actor} goes back to the game's choices", async (w, actor: string) => {
   await w.s.apply(goBackInGame, actor);
 });
 Then(
-  "{actor} is shown the game's custom games within {int} seconds",
+  '{actor} is shown the setup for playing a friend within {int} seconds',
   async (w, actor: string, seconds: number) => {
     expect(
-      await w.s.until((s) => showsGameScreen(s, actor, 'custom-game'), {
+      await w.s.until((s) => showsGameScreen(s, actor, 'vs-human'), {
         maxMs: seconds * SECOND_MS,
         pred: Boolean,
       })

@@ -5,11 +5,11 @@
  */
 
 import { expect, test } from 'bun:test';
-import { establishCustomGame } from '@libs/game-session-harness-ts/custom-game-lineup';
 import {
   gameHistoryStatistics,
   openGameHistory,
 } from '@libs/game-session-harness-ts/game-history-actions';
+import { establishGameSession } from '@libs/game-session-harness-ts/game-session-lineup';
 import { openConformanceHarness } from '../../conformance-world';
 import { forEveryTurnGame } from '../game-suite';
 
@@ -20,7 +20,7 @@ forEveryTurnGame(
       await using s = await openConformanceHarness();
       // An earlier history through the room boundary: a game of many moves
       // (a whole Hearts game) finishes in seconds.
-      await s.apply(establishCustomGame, game.shared.id, {
+      await s.apply(establishGameSession, game.shared.id, {
         history: game.fixtures.firstSideVictory,
       });
       // The first side won its known victory; everyone else lost it.
@@ -32,5 +32,5 @@ forEveryTurnGame(
       expect([other.wins, other.losses, other.draws]).toEqual([0, 1, 0]);
     }, 60_000);
   },
-  ['custom-games', 'more than two seats']
+  ['vs-human', 'more than two seats']
 );

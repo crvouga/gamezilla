@@ -69,7 +69,7 @@ async function placeByCoordinate(
     'light',
     'system'
   );
-  const board = page.getByTestId('custom-game-board');
+  const board = page.getByTestId('game-session-board');
   const opening = await board.boundingBox();
   expect(opening?.width).toBeGreaterThanOrEqual(358);
   await expect(board).toBeInViewport({ ratio: 1 });
@@ -77,7 +77,7 @@ async function placeByCoordinate(
     body: await page.screenshot(),
     contentType: 'image/png',
   });
-  await page.getByTestId('custom-game-board-coordinates').click();
+  await page.getByTestId('game-session-board-coordinates').click();
   await page.getByRole('button', { name: 'Horizontal wall' }).click();
   const anchor = board.locator('[data-cell="d4"]');
   await anchor.click();
@@ -85,9 +85,9 @@ async function placeByCoordinate(
   for (const target of [
     board,
     page.getByRole('button', { name: 'Done' }),
-    page.getByTestId('custom-game-board-precise-target'),
-    page.getByTestId('custom-game-board-wall-commit'),
-    page.getByTestId('custom-game-board-wall-cancel'),
+    page.getByTestId('game-session-board-precise-target'),
+    page.getByTestId('game-session-board-wall-commit'),
+    page.getByTestId('game-session-board-wall-cancel'),
   ])
     await expect(target).toBeInViewport({ ratio: 1 });
   const preview = await board.boundingBox();
@@ -100,7 +100,7 @@ async function placeByCoordinate(
     body: await page.screenshot(),
     contentType: 'image/png',
   });
-  await page.getByTestId('custom-game-board-wall-commit').click();
+  await page.getByTestId('game-session-board-wall-commit').click();
   await expect(anchor).toHaveAttribute('data-edge-top', 'true');
   await retainEvidence(info, 'wall-placed.png', {
     body: await page.screenshot(),

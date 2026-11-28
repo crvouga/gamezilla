@@ -1,9 +1,9 @@
 import type {
-  CustomGame,
-  CustomGameParticipant,
-  CustomGameSide,
-} from '@libs/game-session-shared-ts/custom-game-state';
-import { CUSTOM_GAME_SIDES } from '@libs/game-session-shared-ts/custom-game-state';
+  GameSession,
+  GameSessionParticipant,
+  GameSessionSide,
+} from '@libs/game-session-shared-ts/game-session-state';
+import { GAME_SESSION_SIDES } from '@libs/game-session-shared-ts/game-session-state';
 import { t } from '@lingui/core/macro';
 import {
   useGamePresentation,
@@ -14,13 +14,6 @@ import type { GameSeatStat } from '@pkgs/turn-game-shared-ts/game-frame';
 import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { GamePlayerState } from '@pkgs/ui-root-client-ts/game-player-parts';
 import { type Accessor, createMemo } from 'solid-js';
-import { useBotLevel } from './custom-game-person';
-import {
-  frameViewerHeld,
-  usePersonName,
-  useSeatNames,
-  useSideClocks,
-} from './custom-game-status';
 import { frameSwatch } from './game-frame-look';
 import type { FrameBoard } from './game-frame-play';
 import { useFramePlayerPress } from './game-frame-player-press';
@@ -33,11 +26,18 @@ import type {
   FrameSetupSeat,
   FrameTable,
 } from './game-frame-view-types';
-import type { CustomGameScreenModel } from './use-custom-game-screen';
+import { useBotLevel } from './game-session-person';
+import {
+  frameViewerHeld,
+  usePersonName,
+  useSeatNames,
+  useSideClocks,
+} from './game-session-status';
+import type { GameSessionScreenModel } from './use-game-session-screen';
 
 /** A participant as the frame names its holder. */
 export function holderOf(
-  participant: CustomGameParticipant,
+  participant: GameSessionParticipant,
   level: BotDifficulty | undefined
 ): FrameHolder {
   switch (participant.kind) {
@@ -56,10 +56,10 @@ export function holderOf(
  * The viewer's own seat stops deciding while their choice is being sent.
  */
 export function frameSeatDeciding(
-  game: CustomGame,
-  side: CustomGameSide,
+  game: GameSession,
+  side: GameSessionSide,
   model: Pick<
-    CustomGameScreenModel,
+    GameSessionScreenModel,
     'mySide' | 'submitting' | 'connected' | 'waiting' | 'canSubmit'
   >
 ): boolean {
@@ -72,15 +72,15 @@ export function frameSeatDeciding(
 }
 
 /** One seat's identity, read live: who, their look, side and clock. */
-function useFrameSeat(model: CustomGameScreenModel) {
+function useFrameSeat(model: GameSessionScreenModel) {
   const presentation = useGamePresentation();
   const gameSideLabel = useGameSideLabel();
   const names = useSeatNames(model);
   const clocks = useSideClocks(model);
   const levels = Object.fromEntries(
-    CUSTOM_GAME_SIDES.map((side) => [side, useBotLevel({ model, side })])
-  ) as Record<CustomGameSide, () => BotDifficulty | undefined>;
-  return (game: CustomGame, side: CustomGameSide): FrameSeat => ({
+    GAME_SESSION_SIDES.map((side) => [side, useBotLevel({ model, side })])
+  ) as Record<GameSessionSide, () => BotDifficulty | undefined>;
+  return (game: GameSession, side: GameSessionSide): FrameSeat => ({
     side,
     sideLabel: gameSideLabel(game.fen, side),
     holder: holderOf(game[side], levels[side]()),
@@ -92,9 +92,9 @@ function useFrameSeat(model: CustomGameScreenModel) {
 
 /** Out of play in the position, or a person away right now. */
 function seatState(
-  model: CustomGameScreenModel,
+  model: GameSessionScreenModel,
   out: boolean,
-  participant: CustomGameParticipant
+  participant: GameSessionParticipant
 ): GamePlayerState | null {
   if (out) return { kind: 'out', label: t`Out` };
   return participant.kind === 'person' &&
@@ -109,7 +109,7 @@ type SeatReading = {
   readonly out: boolean;
   readonly facts: readonly string[];
 };
-type SeatReadings = Readonly<Partial<Record<CustomGameSide, SeatReading>>>;
+type SeatReadings = Readonly<Partial<Record<GameSessionSide, SeatReading>>>;
 
 const NO_READINGS: SeatReadings = {};
 
@@ -124,7 +124,7 @@ function sameReading(a: SeatReading, b: SeatReading): boolean {
 }
 
 function sameReadings(a: SeatReadings, b: SeatReadings): boolean {
-  return CUSTOM_GAME_SIDES.every((side) => {
+  return GAME_SESSION_SIDES.every((side) => {
     const one = a[side];
     const other = b[side];
     return one === undefined || other === undefined
@@ -140,7 +140,7 @@ function sameReadings(a: SeatReadings, b: SeatReadings): boolean {
  * only with the score, so the seats are not rebuilt every frame.
  */
 function useSeatReadings(
-  model: CustomGameScreenModel,
+  model: GameSessionScreenModel,
   board: FrameBoard
 ): Accessor<SeatReadings> {
   const presentation = useGamePresentation();
@@ -171,7 +171,7 @@ function useSeatReadings(
  * for a watcher) nearest them.
  */
 export function useFrameTable(
-  model: CustomGameScreenModel,
+  model: GameSessionScreenModel,
   board: FrameBoard
 ): Accessor<FrameTable> {
   const presentation = useGamePresentation();
@@ -182,7 +182,10 @@ export function useFrameTable(
     () => frameTable(model.current()?.sides ?? [], model.mySide()),
     { equals: sameTable }
   );
-  const playSeat = (game: CustomGame, side: CustomGameSide): FramePlaySeat => {
+  const playSeat = (
+    game: GameSession,
+    side: GameSessionSide
+  ): FramePlaySeat => {
     const reading = readings()[side];
     const participant = game[side];
     return {
@@ -223,19 +226,21 @@ export function useFrameTable(
 }
 
 /** What the host may put in a seat; `null` when they may not change it. */
-function useSeatChoices(model: CustomGameScreenModel) {
+function useSeatChoices(model: GameSessionScreenModel) {
   const rules = useTurnGames();
-  return (game: CustomGame, side: CustomGameSide): FrameSeatChoices | null => {
+  return (
+    game: GameSession,
+    side: GameSessionSide
+  ): FrameSeatChoices | null => {
     if (!model.canConfigure()) return null;
-    const custom = rules.capability(
-      rules.forPosition(game.fen).id,
-      'custom-games'
-    );
+    const id = rules.forPosition(game.fen).id;
     const bot = model.canBot() && game[side].kind === 'bot';
     return {
-      localPlayers: custom?.localPlayers === true,
+      localPlayers: rules.capability(id, 'vs-human')?.localPlayers === true,
       bots: model.canBot(),
-      difficulties: bot ? (custom?.bots.difficulties ?? []) : [],
+      difficulties: bot
+        ? (rules.capability(id, 'vs-bot')?.bots.difficulties ?? [])
+        : [],
       difficulty: game.difficulty[side],
       invitees: model.canInvite()
         ? model.members().map((person) => ({
@@ -250,14 +255,14 @@ function useSeatChoices(model: CustomGameScreenModel) {
 
 /** Every seat while the game is set up, each with its choices. */
 export function useFrameSetupSeats(
-  model: CustomGameScreenModel
+  model: GameSessionScreenModel
 ): Accessor<readonly FrameSetupSeat[]> {
   const seat = useFrameSeat(model);
   const choices = useSeatChoices(model);
   const inviterName = usePersonName(() => model.current()?.creator ?? '');
   const setupSeat = (
-    game: CustomGame,
-    side: CustomGameSide
+    game: GameSession,
+    side: GameSessionSide
   ): FrameSetupSeat => {
     const holder = game[side];
     const mine = holder.person === model.myId();

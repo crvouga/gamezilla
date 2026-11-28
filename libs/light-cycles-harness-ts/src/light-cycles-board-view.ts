@@ -13,7 +13,7 @@ export type LightCyclesRiderName = (typeof LIGHT_CYCLES_RIDER_NAMES)[number];
 export type LightCyclesDirection = 'up' | 'right' | 'down' | 'left';
 
 const SEATS = ['white', 'black', 'red', 'blue'] as const;
-const CUSTOM_BOARD = 'custom-game-board';
+const CUSTOM_BOARD = 'game-session-board';
 const MATCH_BOARD = 'multiplayer-board';
 
 /** A cell as the specs count it: column and row from 1. */
@@ -49,7 +49,7 @@ export function cellName(cell: LightCyclesCell): string {
   return `${String(cell.column)},${String(cell.row)}`;
 }
 
-/** The board this device shows: a custom game's or a found game's. */
+/** The board this device shows: a game session's or a found game's. */
 export async function lightCyclesBoardId(
   s: ProductHarness,
   actor: string

@@ -189,7 +189,7 @@ export const Won: Story = {
   play: async ({ canvasElement }) => {
     // regression: battleship-victory-hides-enemy-fleet
     await expect(
-      within(canvasElement).getByTestId('custom-game-board-view-panels')
+      within(canvasElement).getByTestId('game-session-board-view-panels')
     ).toHaveAttribute('data-selected', 'target');
   },
   args: { position: after(BLUE_VICTORY), interactive: false },
@@ -267,9 +267,9 @@ function shotJourney(
       const aim = aimCell(canvasElement, target);
       await assertTargetViewport(canvasElement, [aim]);
       await userEvent.click(aim);
-      await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+      await userEvent.click(canvas.getByTestId('game-session-board-fire'));
       // Red's turn: the waters are read as a whole board at every size.
-      const cell = canvas.getByTestId(`custom-game-board-target-${target}`);
+      const cell = canvas.getByTestId(`game-session-board-target-${target}`);
       await expect(cell).toHaveAccessibleName(outcome);
       await expect(cell).toHaveAttribute('aria-disabled', 'true');
       await userEvent.click(cell);
@@ -279,7 +279,7 @@ function shotJourney(
           canvas.getByText('You won', { exact: true })
         ).toBeVisible();
       await expect(
-        canvas.getByTestId('custom-game-board-target-e6')
+        canvas.getByTestId('game-session-board-target-e6')
       ).toHaveAccessibleName('E6: not fired at');
     },
   };
@@ -318,7 +318,7 @@ export const CorrectTargetBeforeFiring: Story = {
     await userEvent.click(aimCell(canvasElement, 'b1'));
     await showCell(canvasElement, 'j10');
     await expect(
-      canvas.getByTestId('custom-game-board-fire')
+      canvas.getByTestId('game-session-board-fire')
     ).toHaveTextContent('Fire at B1');
     await assertTargetWorkbench(canvasElement);
     const targetBounds = aimCell(canvasElement, 'j10').getBoundingClientRect();
@@ -340,15 +340,15 @@ export const CorrectTargetBeforeFiring: Story = {
       { keys: '[TouchA]', target: aimCell(canvasElement, 'j10') },
     ]);
     await expect(
-      canvas.getByTestId('custom-game-board-fire')
+      canvas.getByTestId('game-session-board-fire')
     ).toHaveTextContent('Fire at J10');
     await assertTargetWorkbench(canvasElement, true);
-    await userEvent.click(canvas.getByTestId('custom-game-board-cancel-aim'));
-    await expect(canvas.getByTestId('custom-game-board-fire')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('game-session-board-cancel-aim'));
+    await expect(canvas.getByTestId('game-session-board-fire')).toBeDisabled();
     await userEvent.click(aimCell(canvasElement, 'j10'));
-    await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
+    await userEvent.click(canvas.getByTestId('game-session-board-fire'));
     await expect(
-      canvas.getByTestId('custom-game-board-target-j10')
+      canvas.getByTestId('game-session-board-target-j10')
     ).toHaveAccessibleName('J10: miss, latest shot');
   },
 };
@@ -360,17 +360,17 @@ export const PendingShot: Story = {
     const canvas = within(canvasElement);
     await showCell(canvasElement, 'j10');
     await userEvent.click(aimCell(canvasElement, 'j10'));
-    await userEvent.click(canvas.getByTestId('custom-game-board-fire'));
-    await expect(canvas.getByTestId('custom-game-board-fire')).toHaveAttribute(
+    await userEvent.click(canvas.getByTestId('game-session-board-fire'));
+    await expect(canvas.getByTestId('game-session-board-fire')).toHaveAttribute(
       'aria-busy',
       'true'
     );
     await expect(
-      canvas.getByTestId('custom-game-board-fire')
+      canvas.getByTestId('game-session-board-fire')
     ).toHaveTextContent('Firing at J10');
     // regression: battleship-submitting-shot-loses-feedback
     await expect(canvasElement).not.toHaveTextContent('Shots so far');
-    await expect(canvas.getByTestId('custom-game-status')).toHaveTextContent(
+    await expect(canvas.getByTestId('game-session-status')).toHaveTextContent(
       'Sending choice…'
     );
   },

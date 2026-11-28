@@ -86,7 +86,7 @@ const PROBES: readonly Probe[] = [
   {
     path: 'libs/game-session-harness-ts/src/concrete.ts',
     source:
-      "import { probe } from '@libs/chess-root-harness-ts/chess-custom-game-board';",
+      "import { probe } from '@libs/chess-root-harness-ts/chess-game-session-board';",
     message:
       'Shared game components receive rules and presentation through ports',
   },

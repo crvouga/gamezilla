@@ -4,13 +4,13 @@ import { GameTableSeats } from '@pkgs/ui-root-client-ts/game-table-seat';
 import { useLayoutMode } from '@pkgs/ui-root-client-ts/use-layout-mode';
 import type { JSX } from '@solidjs/web';
 import { Show } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
 import {
   FrameBoardSeatView,
   FrameNearSeatView,
   FrameOthersView,
 } from './game-frame-table-view';
 import type { FramePlaySeat, FrameTable } from './game-frame-view-types';
+import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
 
@@ -79,7 +79,7 @@ export function FrameStage(
       workspace={props.boardWorkspace}
       dataSet={{
         ...props.boardState,
-        testid: 'custom-game-public',
+        testid: 'game-session-public',
       }}
       others={
         <>

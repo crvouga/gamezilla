@@ -11,7 +11,7 @@ import { chessLesson } from './chess-lesson';
 export const chessGameClient = defineGameClient({
   shared: chessGameShared,
   title: 'Chess',
-  caption: 'Puzzles, stats, and custom games',
+  caption: 'Puzzles, stats, and game sessions',
   tile: 'checkered',
   subtitle: () => <Trans>Choose how you want to play.</Trans>,
   lesson: chessLesson,

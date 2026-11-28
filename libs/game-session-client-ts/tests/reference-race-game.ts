@@ -72,6 +72,7 @@ export const raceGame = defineGame({
     }
   ),
   capabilities: {
-    'custom-games': { bots: { difficulties: [] }, localPlayers: true },
+    'vs-human': { localPlayers: true },
+    'vs-bot': { bots: { difficulties: [] } },
   },
 });

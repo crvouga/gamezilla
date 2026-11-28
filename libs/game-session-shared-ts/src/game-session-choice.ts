@@ -1,0 +1,118 @@
+import { z } from 'zod';
+import { gameSessionSideSchema, PLAY_MODES } from './game-session-state';
+
+const reference = {
+  gameId: z.string().min(1).nullable(),
+  revision: z.number().int().nonnegative(),
+};
+export const gameSessionChoiceSchema = z.discriminatedUnion('operation', [
+  z
+    .object({
+      ...reference,
+      operation: z.literal('create'),
+      /** Explicit game when browsing locally; omission means the shared selection. */
+      game: z.string().min(1).max(128).optional(),
+      /** Who the game is with. Older callers omit it and play people. */
+      mode: z.enum(PLAY_MODES).default('vs-human'),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.enum([
+        'rematch',
+        'unready',
+        'swap',
+        'start',
+        'cancel',
+        'resign',
+        'offer',
+        'agree',
+        'reject',
+        'untimed',
+        'claimWin',
+        'reclaim',
+      ]),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('ready'),
+      /** The side's private setup, for a game whose sides prepare one. */
+      setup: z.string().min(1).max(512).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.enum([
+        'take',
+        'bot',
+        'local',
+        'open',
+        'close',
+        'accept',
+        'decline',
+        'revoke',
+        'claim',
+        'release',
+      ]),
+      side: gameSessionSideSchema,
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('invite'),
+      side: gameSessionSideSchema,
+      person: z.string().min(1),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('difficulty'),
+      side: gameSessionSideSchema,
+      difficulty: z.enum(['easy', 'medium', 'hard']),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('clock'),
+      minutes: z.number(),
+      increment: z.number(),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('rules'),
+      choice: z.string().min(1).max(256),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('move'),
+      uci: z.string().min(1).max(256),
+      ply: z.number().int().nonnegative(),
+    })
+    .strict(),
+  z
+    .object({
+      ...reference,
+      operation: z.literal('commit'),
+      /** The side's private commitment, for the phase opened at `ply`. */
+      commitment: z.string().min(1).max(256),
+      ply: z.number().int().nonnegative(),
+    })
+    .strict(),
+]);
+export type GameSessionChoice = z.infer<typeof gameSessionChoiceSchema>;
+export type GameSessionOperation = GameSessionChoice['operation'];
+type InputOf<C> = C extends GameSessionChoice
+  ? Omit<C, 'gameId' | 'revision'>
+  : never;
+export type GameSessionInput = InputOf<GameSessionChoice>;

@@ -13,14 +13,14 @@ import { useLayoutMode } from '../use-layout-mode';
 export type ReturnToGamePlacement = 'dock' | 'inline';
 
 export type ReturnToGameProps = {
-  /** What is waiting, in a few words ("Your custom game is under way"). */
+  /** What is waiting, in a few words ("Your game session is under way"). */
   title: JSX.Element;
   /** The player pictured beside a daily match. */
   leading?: JSX.Element;
   /** Whose turn it is in a daily match. */
   turn?: JSX.Element;
   caption?: JSX.Element | undefined;
-  /** The one command, named by where it leads ("Return to the custom game"). */
+  /** The one command, named by where it leads ("Return to the game session"). */
   action: JSX.Element;
   onReturn: () => void;
   /** `dock` (default) above the tab bar; `inline` in place of a command. */
@@ -45,9 +45,9 @@ export type ReturnToGameProps = {
  * @example
  * ```tsx
  * <ReturnToGame
- *   title={t`Your custom game is under way`}
+ *   title={t`Your game is under way`}
  *   caption={t`Chess · Robin's space`}
- *   action={t`Return to the custom game`}
+ *   action={t`Return to your game`}
  *   onReturn={open}
  * />
  * ```

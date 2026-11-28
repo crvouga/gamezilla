@@ -44,7 +44,7 @@ for (const viewport of screens)
         );
         if (story === 'board--fire-a-shot') {
           const impact = page
-            .getByTestId('custom-game-board-target-e5')
+            .getByTestId('game-session-board-target-e5')
             .locator('span')
             .first();
           await expect(impact).toHaveAttribute('aria-hidden', 'true');

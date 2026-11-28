@@ -24,7 +24,7 @@ test('an empty arena status preserves its announcement without painting a pill',
       <FrameStatusView status={status()} arena />
     </ThemeProvider>
   ));
-  const words = () => screen.getByTestId('custom-game-status');
+  const words = () => screen.getByTestId('game-session-status');
   expect(words()).toHaveTextContent('Left: Avery. Right: Jordan.');
   expect(words().closest('[data-spoken-only="true"]')).not.toBeNull();
   setSending(true);

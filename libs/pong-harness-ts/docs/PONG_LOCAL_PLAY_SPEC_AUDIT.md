@@ -12,7 +12,7 @@ entries, the Games publications they borrow and the context-map relationships.
 | Verification | Evidence |
 | --- | --- |
 | A0, A5, D1 | People share one device, play a bot, start, finish, lose or regain their connection and reopen the app. There are no transport, storage or timing mechanisms in the prose. |
-| A1, A2 | Pong, local play, the local Pong start, paddles and victory are Pong terms. Game, custom game, under way and bot are borrowed published Games terms. Person, device, the app and connection come from the kernel. No avoid-list synonym is used. |
+| A1, A2 | Pong, local play, the local Pong start, paddles and victory are Pong terms. Game, game session, under way and bot are borrowed published Games terms. Person, device, the app and connection come from the kernel. No avoid-list synonym is used. |
 | A3 | The person's brief explicitly requests starting local Pong, two people on one device, a bot, no connection dependency, completion and reopening. The qualified local-start name describes that supplied action. No new role or product policy is invented. |
 | A4 | Games publishes under way and bot; Pong borrows both. Journeys borrows the newly published bot term it already uses. Both relationships are declared in the context map. Generic start and ready words remain unpublished. No model imports another context's aggregate. |
 | A6 | Alice, Pong and the connection are the subjects. Bob is the other local person, not an invented account. |
@@ -68,7 +68,7 @@ ownership, glossary or cross-context findings in that gate.
 The contract was committed separately as `891995898`. The subsequent binding
 names all five public actions plus init and reads the visible game stage,
 opponent kind, court availability and enabled paddle controls. Its actions use
-the shared custom-game flow, native start control and actual human paddle
+the shared game-session flow, native start control and actual human paddle
 inputs. It never injects a winner or gives Alice control of the bot's paddle.
 Steps contain only public harness calls, predetermined parameter translations,
 virtual time and assertions. Each package entry discovers its modules. There

@@ -1,6 +1,5 @@
-import type { CustomGameInput } from '@libs/game-session-shared-ts/custom-game-choice';
+import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
-import type { BotDifficulty } from '@pkgs/turn-game-shared-ts/game-rules';
 import {
   DoorOpenIcon,
   LockIcon,
@@ -8,12 +7,11 @@ import {
   SmartphoneIcon,
   UserIcon,
 } from '@pkgs/ui-root-client-ts/icons';
-import { BotArt, FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
+import { FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
 import type { JSX } from '@solidjs/web';
-import { For, Match, Show, Switch } from 'solid-js';
-import type { FramePlaceProps } from './custom-game-screen-view';
+import { For, Show } from 'solid-js';
 import {
   createFrameChoices,
   FrameChoiceRow,
@@ -26,6 +24,7 @@ import {
 } from './game-frame-people';
 import { FramePlacePage } from './game-frame-shell';
 import type { FrameSeatChoices, FrameSetupSeat } from './game-frame-view-types';
+import type { FramePlaceProps } from './game-session-screen-view';
 
 type Props = FramePlaceProps;
 
@@ -38,7 +37,7 @@ const INVITEE_AVATAR_SIZE = 32;
 
 /** The choices that name only the seat. */
 type SeatOperation = Exclude<
-  Extract<CustomGameInput, { side: unknown }>['operation'],
+  Extract<GameSessionInput, { side: unknown }>['operation'],
   'invite' | 'difficulty'
 >;
 
@@ -67,7 +66,7 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
         <Show when={props.seat.canSit}>
           <FrameChoiceRow
             choices={props.choices}
-            id={`custom-game-${side()}-claim`}
+            id={`game-session-${side()}-claim`}
             leading={<UserIcon size={20} />}
             title={<Trans>Sit here</Trans>}
             operation={seatChoice(props, 'claim')}
@@ -76,13 +75,13 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
         <Show when={invitation()?.canAnswer}>
           <FrameChoiceRow
             choices={props.choices}
-            id={`custom-game-${side()}-accept`}
+            id={`game-session-${side()}-accept`}
             title={<Trans>Accept the invitation</Trans>}
             operation={seatChoice(props, 'accept')}
           />
           <FrameChoiceRow
             choices={props.choices}
-            id={`custom-game-${side()}-decline`}
+            id={`game-session-${side()}-decline`}
             title={<Trans>Decline the invitation</Trans>}
             operation={seatChoice(props, 'decline')}
           />
@@ -90,7 +89,7 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
         <Show when={invitation()?.canRevoke}>
           <FrameChoiceRow
             choices={props.choices}
-            id={`custom-game-${side()}-revoke`}
+            id={`game-session-${side()}-revoke`}
             title={<Trans>Revoke the invitation</Trans>}
             tone="destructive"
             operation={seatChoice(props, 'revoke')}
@@ -99,7 +98,7 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
         <Show when={props.seat.canLeave}>
           <FrameChoiceRow
             choices={props.choices}
-            id={`custom-game-${side()}-release`}
+            id={`game-session-${side()}-release`}
             leading={<LogOutIcon size={20} />}
             title={<Trans>Leave seat</Trans>}
             operation={seatChoice(props, 'release')}
@@ -110,7 +109,7 @@ function OwnSeatRows(props: SeatProps): JSX.Element {
   );
 }
 
-/** Everything the host may put in the seat; the holder it has is marked. */
+/** People who may sit here. A bot is never a choice on this screen. */
 function HolderRows(
   props: SeatProps & { readonly offered: FrameSeatChoices }
 ): JSX.Element {
@@ -120,12 +119,22 @@ function HolderRows(
     <MenuSection title={<Trans>Who sits here</Trans>}>
       <FrameChoiceRow
         choices={props.choices}
-        id={`custom-game-${side()}-take`}
+        id={`game-session-${side()}-take`}
         leading={<UserIcon size={20} />}
         title={<Trans>Me</Trans>}
         selected={props.seat.own && kind() === 'person'}
         operation={seatChoice(props, 'take')}
       />
+      <Show when={props.offered.localPlayers}>
+        <FrameChoiceRow
+          choices={props.choices}
+          id={`game-session-${side()}-local`}
+          leading={<SmartphoneIcon size={20} />}
+          title={<Trans>A player on this device</Trans>}
+          selected={kind() === 'local'}
+          operation={seatChoice(props, 'local')}
+        />
+      </Show>
       <Show when={props.offered.invitees}>
         <MenuRow
           leading={<FriendsArt />}
@@ -133,32 +142,12 @@ function HolderRows(
           caption={<Trans>They get an invitation</Trans>}
           selected={kind() === 'invitation'}
           onClick={() => props.onOpen({ screen: 'invite', side: side() })}
-          dataSet={{ testid: `custom-game-${side()}-invite-choose` }}
-        />
-      </Show>
-      <Show when={props.offered.bots}>
-        <FrameChoiceRow
-          choices={props.choices}
-          id={`custom-game-${side()}-bot`}
-          leading={<BotArt />}
-          title={<Trans>A bot</Trans>}
-          selected={kind() === 'bot'}
-          operation={seatChoice(props, 'bot')}
-        />
-      </Show>
-      <Show when={props.offered.localPlayers}>
-        <FrameChoiceRow
-          choices={props.choices}
-          id={`custom-game-${side()}-local`}
-          leading={<SmartphoneIcon size={20} />}
-          title={<Trans>A player on this device</Trans>}
-          selected={kind() === 'local'}
-          operation={seatChoice(props, 'local')}
+          dataSet={{ testid: `game-session-${side()}-invite-choose` }}
         />
       </Show>
       <FrameChoiceRow
         choices={props.choices}
-        id={`custom-game-${side()}-open`}
+        id={`game-session-${side()}-open`}
         leading={<DoorOpenIcon size={20} />}
         title={<Trans>Open seat</Trans>}
         caption={<Trans>Anyone in this space may sit</Trans>}
@@ -167,7 +156,7 @@ function HolderRows(
       />
       <FrameChoiceRow
         choices={props.choices}
-        id={`custom-game-${side()}-close`}
+        id={`game-session-${side()}-close`}
         leading={<LockIcon size={20} />}
         title={<Trans>Closed seat</Trans>}
         caption={<Trans>Nobody may sit until you choose</Trans>}
@@ -178,51 +167,9 @@ function HolderRows(
   );
 }
 
-function difficultyName(difficulty: BotDifficulty): JSX.Element {
-  return (
-    <Switch fallback={<Trans>Hard</Trans>}>
-      <Match when={difficulty === 'easy'}>
-        <Trans>Easy</Trans>
-      </Match>
-      <Match when={difficulty === 'medium'}>
-        <Trans>Medium</Trans>
-      </Match>
-    </Switch>
-  );
-}
-
-/** The levels the bot in this seat can play at. */
-function DifficultyRows(
-  props: SeatProps & { readonly offered: FrameSeatChoices }
-): JSX.Element {
-  return (
-    <Show when={props.offered.difficulties.length > 0}>
-      <MenuSection title={<Trans>Bot difficulty</Trans>}>
-        <For each={props.offered.difficulties}>
-          {(difficulty) => (
-            <FrameChoiceRow
-              choices={props.choices}
-              id={`custom-${props.seat.side}-difficulty-${difficulty}`}
-              title={difficultyName(difficulty)}
-              selected={props.offered.difficulty === difficulty}
-              operation={() =>
-                props.onChoose({
-                  operation: 'difficulty',
-                  side: props.seat.side,
-                  difficulty,
-                })
-              }
-            />
-          )}
-        </For>
-      </MenuSection>
-    </Show>
-  );
-}
-
 /**
- * One seat while the game is set up: who sits in it. Each choice is a row;
- * pressing one sends it and returns to the lobby, where the seat shows it.
+ * One seat at a friend's table: a person, an invitation, or an open seat.
+ * Pressing a choice sends it and returns to the lobby.
  */
 export function FrameSeatPlace(
   props: Props & { readonly seat: FrameSetupSeat }
@@ -231,7 +178,7 @@ export function FrameSeatPlace(
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-setup-seat"
+      screenId="game-session-setup-seat"
       back={<Trans>Back to setup</Trans>}
       title={props.seat.sideLabel}
       subtitle={
@@ -247,7 +194,6 @@ export function FrameSeatPlace(
         {(offered) => (
           <>
             <HolderRows {...props} choices={choices} offered={offered()} />
-            <DifficultyRows {...props} choices={choices} offered={offered()} />
           </>
         )}
       </Show>
@@ -268,7 +214,7 @@ export function FrameInvitePlace(
   return (
     <FramePlacePage
       {...props}
-      screenId="custom-game-setup-invite"
+      screenId="game-session-setup-invite"
       back={<Trans>Back to the seat</Trans>}
       title={<Trans>Invite to {props.seat.sideLabel}</Trans>}
     >
@@ -290,8 +236,8 @@ export function FrameInvitePlace(
                 choices={choices}
                 id={
                   invitee.disabled
-                    ? `custom-game-${side()}-seated`
-                    : `custom-game-${side()}-invitable`
+                    ? `game-session-${side()}-seated`
+                    : `game-session-${side()}-invitable`
                 }
                 choice={invitee.person}
                 leading={

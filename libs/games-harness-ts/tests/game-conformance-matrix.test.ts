@@ -109,7 +109,8 @@ test('what a game does not offer is unsupported, not untested', async () => {
   expect(statuses).toEqual({
     rules: 'bound',
     simulation: 'unsupported',
-    'custom-games': 'bound',
+    'vs-human': 'bound',
+    'vs-bot': 'bound',
     matchmaking: 'unsupported',
     history: 'bound',
     puzzles: 'bound',
@@ -127,19 +128,19 @@ test('an offered capability without a suite is missing evidence', async () => {
 
 test('a shared feature binds only games offering everything it shows', async () => {
   const [row] = conformanceMatrix([COUNTING_RACE_GAME], await suites());
-  const customGames = row!.cells['custom-games'];
-  expect(customGames.status).toBe('bound');
-  if (customGames.status === 'bound') {
-    expect(customGames.suites).toContain('specs/games/custom-games.feature');
+  const gameSessions = row!.cells['vs-human'];
+  expect(gameSessions.status).toBe('bound');
+  if (gameSessions.status === 'bound') {
+    expect(gameSessions.suites).toContain('specs/games/game-sessions.feature');
     // The game's choices show finding an opponent, which it does not offer.
-    expect(customGames.suites).not.toContain(
+    expect(gameSessions.suites).not.toContain(
       'specs/games/game-choices.feature'
     );
   }
 });
 
 test('a specification needing a trait binds only games whose fixtures show it', async () => {
-  const cannotWin = 'specs/games/custom-game-cannot-win.feature';
+  const cannotWin = 'specs/games/game-session-cannot-win.feature';
   expect(sharedSpecificationNeeds(cannotWin)).toContain(
     'a side that cannot win'
   );
@@ -152,9 +153,9 @@ test('a specification needing a trait binds only games whose fixtures show it', 
   );
   // The reference game's sides can always win, so it owes nothing here.
   const [row] = conformanceMatrix([COUNTING_RACE_GAME], await suites());
-  const customGames = row!.cells['custom-games'];
-  if (customGames.status === 'bound')
-    expect(customGames.suites).not.toContain(cannotWin);
+  const gameSessions = row!.cells['vs-human'];
+  if (gameSessions.status === 'bound')
+    expect(gameSessions.suites).not.toContain(cannotWin);
 });
 
 test("a draw by the game's own rules binds only games whose fixtures show one", () => {

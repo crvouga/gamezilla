@@ -144,10 +144,10 @@ test('screens-games-numberlink-puzzle--complete-with-keyboard regression numberl
 });
 
 // regression: mode-card-words-squeezed-without-picture
-test('screens-custom-games-home--no-game regression mode-card-words-squeezed-without-picture', async ({
+test('screens-game-sessions-home--no-game regression mode-card-words-squeezed-without-picture', async ({
   page,
 }) => {
-  await verifyBoardRegression(page, 'screens-custom-games-home--no-game', 390);
+  await verifyBoardRegression(page, 'screens-game-sessions-home--no-game', 390);
 });
 
 // regression: light-cycles-player-facts-overflow
@@ -464,12 +464,12 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blan
 });
 
 // regression: shared-board-four-seat-wrapped-name-height
-test('screens-custom-games-stage-board-priority--four-players regression shared-board-four-seat-wrapped-name-height', async ({
+test('screens-game-sessions-stage-board-priority--four-players regression shared-board-four-seat-wrapped-name-height', async ({
   page,
 }) => {
   await verifyBoardRegression(
     page,
-    'screens-custom-games-stage-board-priority--four-players',
+    'screens-game-sessions-stage-board-priority--four-players',
     390
   );
 });

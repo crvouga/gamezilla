@@ -1,14 +1,14 @@
 import { expect } from 'bun:test';
-import { finishCustomGameAgainstBots } from '@libs/game-session-harness-ts/custom-game-bots';
-import { customGameView } from '@libs/game-session-harness-ts/custom-game-probe';
-import type { CustomGame } from '@libs/game-session-shared-ts/custom-game-state';
+import { finishGameSessionAgainstBots } from '@libs/game-session-harness-ts/game-session-bots';
+import { gameSessionView } from '@libs/game-session-harness-ts/game-session-probe';
+import type { GameSession } from '@libs/game-session-shared-ts/game-session-state';
 import { Given, Then } from '@libs/harness-ts/define';
 import { cutConnection } from '@libs/harness-ts/platform';
-import { chosen, current } from './custom-game-set-up-world';
-import { setupCustomGame, turnGameOf } from './game-world';
+import { chosen, current } from './game-session-set-up-world';
+import { setupGameSession, turnGameOf } from './game-world';
 
-Given('Alice, Bob, Carol and Dave have a four-player custom game', async (w) =>
-  setupCustomGame(w, { third: 'carol', fourth: 'dave' })
+Given('Alice, Bob, Carol and Dave have a four-player game session', async (w) =>
+  setupGameSession(w, { third: 'carol', fourth: 'dave' })
 );
 Given(
   "Carol's phone was offline while Alice and Bob made their first moves",
@@ -20,24 +20,24 @@ Given(
     w.memo.set('four-seat-recovery-before', await current(w));
   }
 );
-Given('Alice has a four-player custom game against three bots', async (w) =>
-  setupCustomGame(w, { second: 'bot', third: 'bot', fourth: 'bot' })
+Given('Alice has a four-player game session against three bots', async (w) =>
+  setupGameSession(w, { second: 'bot', third: 'bot', fourth: 'bot' })
 );
 Given(
-  'Alice has a finished four-player custom game against three bots while offline',
+  'Alice has a finished four-player game session against three bots while offline',
   async (w) => {
-    await setupCustomGame(w, { second: 'bot', third: 'bot', fourth: 'bot' });
+    await setupGameSession(w, { second: 'bot', third: 'bot', fourth: 'bot' });
     await cutConnection(w, 'alice');
-    await w.s.apply(finishCustomGameAgainstBots, 'alice');
+    await w.s.apply(finishGameSessionAgainstBots, 'alice');
     w.memo.set('four-seat-recovery-before', await current(w));
   }
 );
 
 Then(
-  'Carol sees the same four-player custom game with both moves',
+  'Carol sees the same four-player game session with both moves',
   async (w) => {
-    const earlier = w.memo.get('four-seat-recovery-before') as CustomGame;
-    const seen = await w.s.until((s) => customGameView(s, 'carol'), {
+    const earlier = w.memo.get('four-seat-recovery-before') as GameSession;
+    const seen = await w.s.until((s) => gameSessionView(s, 'carol'), {
       pred: (view) => view.current?.moves.length === 2,
     });
     expect(seen.current?.id).toBe(earlier.id);
@@ -45,8 +45,8 @@ Then(
     expect(seen.current?.moves).toEqual(earlier.moves);
   }
 );
-Then('{actor} has the custom game turn', async (w, actor: string) => {
-  const seen = await w.s.until((s) => customGameView(s, actor), {
+Then('{actor} has the game session turn', async (w, actor: string) => {
+  const seen = await w.s.until((s) => gameSessionView(s, actor), {
     pred: (view) =>
       view.current?.turn === view.mySide && view.gates['move'] === true,
   });
@@ -54,7 +54,7 @@ Then('{actor} has the custom game turn', async (w, actor: string) => {
   expect(seen.gates['move']).toBe(true);
 });
 Then('Alice sees three legal bot replies and her next turn', async (w) => {
-  const seen = await w.s.until((s) => customGameView(s, 'alice'), {
+  const seen = await w.s.until((s) => gameSessionView(s, 'alice'), {
     maxMs: 10_000,
     pred: (view) => view.current?.moves.length === 4,
   });
@@ -76,10 +76,10 @@ Then('Alice sees three legal bot replies and her next turn', async (w) => {
   }
 });
 Then(
-  "the four-player custom game's board and finished result are unchanged",
+  "the four-player game session's board and finished result are unchanged",
   async (w) => {
-    const earlier = w.memo.get('four-seat-recovery-before') as CustomGame;
-    const seen = await w.s.until((s) => customGameView(s, 'alice'), {
+    const earlier = w.memo.get('four-seat-recovery-before') as GameSession;
+    const seen = await w.s.until((s) => gameSessionView(s, 'alice'), {
       pred: (view) => view.connected && view.current?.status === 'completed',
     });
     expect(earlier.status).toBe('completed');

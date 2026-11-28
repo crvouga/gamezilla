@@ -133,14 +133,18 @@ export const NoWallsLeft: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
-    await expect(canvas.getByTestId('custom-game-board-mode-h')).toBeDisabled();
-    await expect(canvas.getByTestId('custom-game-board-mode-v')).toBeDisabled();
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await expect(
-      canvas.getByTestId('custom-game-board-mode-move')
+      canvas.getByTestId('game-session-board-mode-h')
+    ).toBeDisabled();
+    await expect(
+      canvas.getByTestId('game-session-board-mode-v')
+    ).toBeDisabled();
+    await expect(
+      canvas.getByTestId('game-session-board-mode-move')
     ).toBeEnabled();
     await expect(
-      canvas.getByTestId('custom-game-board-wall-status')
+      canvas.getByTestId('game-session-board-wall-status')
     ).toHaveTextContent('You have no walls left. Move your pawn');
   },
 };
@@ -184,33 +188,33 @@ export const PlaceAWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-mode-h')
+      await canvas.findByTestId('game-session-board-mode-h')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-d4h'));
     await expectQuoridorWallPreview(canvasElement);
     await expect(
-      canvas.getByTestId('custom-game-board-action-d4h')
+      canvas.getByTestId('game-session-board-action-d4h')
     ).toHaveAttribute('data-preview-edge-top', 'true');
     await expect(
-      canvas.getByTestId('custom-game-board-action-d4h')
+      canvas.getByTestId('game-session-board-action-d4h')
     ).toHaveAttribute('data-edge-top', 'false');
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-cancel'));
     await expect(
-      canvas.getByTestId('custom-game-board-action-d4h')
+      canvas.getByTestId('game-session-board-action-d4h')
     ).toHaveAttribute('data-preview-edge-top', 'false');
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e5h')
+      await canvas.findByTestId('game-session-board-action-e5h')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-commit'));
     // regression: quoridor-wall-tool-carries-into-next-turn
     await expect(
-      canvas.getByTestId('custom-game-board-mode-move')
+      canvas.getByTestId('game-session-board-mode-move')
     ).toHaveAttribute('aria-pressed', 'true');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e5')
+      canvas.getByTestId('game-session-board-action-e5')
     ).toHaveAccessibleName(/wall boundaries/);
   },
 };
@@ -226,29 +230,29 @@ export const RefuseACrossingWall: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     const page = within(canvasElement.ownerDocument.body);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-mode-v')
+      await canvas.findByTestId('game-session-board-mode-v')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-b3v'));
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-b3v'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-commit'));
     await expect(
-      canvas.getByTestId('custom-game-board-action-b3')
+      canvas.getByTestId('game-session-board-action-b3')
     ).toHaveAccessibleName(/wall boundaries/);
-    await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-e5v'));
+    await userEvent.click(canvas.getByTestId('game-session-board-mode-v'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-e5v'));
     await expect(
-      canvas.getByTestId('custom-game-board-wall-status')
+      canvas.getByTestId('game-session-board-wall-status')
     ).toHaveTextContent('crosses another wall');
     await expect(
-      await page.findByTestId('custom-game-board-wall-refusal')
+      await page.findByTestId('game-session-board-wall-refusal')
     ).toHaveTextContent('crosses another wall');
     await expect(
-      canvas.getByTestId('custom-game-board-wall-commit')
+      canvas.getByTestId('game-session-board-wall-commit')
     ).toBeDisabled();
     await expect(
-      canvas.getByTestId('custom-game-board-mode-v')
+      canvas.getByTestId('game-session-board-mode-v')
     ).toHaveAttribute('aria-pressed', 'true');
   },
 };
@@ -266,16 +270,16 @@ export const ReachOppositeEdge: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-action-e9')
+      await canvas.findByTestId('game-session-board-action-e9')
     );
     await expect(
-      canvas.getByTestId('custom-game-board-action-e9')
+      canvas.getByTestId('game-session-board-action-e9')
     ).toHaveAccessibleName(/South red circle/);
     await expect(
-      canvas.getByTestId('custom-game-board-wall-status')
+      canvas.getByTestId('game-session-board-wall-status')
     ).toHaveTextContent('Game finished');
     await expect(
-      canvas.queryByTestId('custom-game-board-mode-move')
+      canvas.queryByTestId('game-session-board-mode-move')
     ).not.toBeInTheDocument();
   },
 };
@@ -286,21 +290,21 @@ export const KeepAPathOpen: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await userEvent.click(
-      await canvas.findByTestId('custom-game-board-mode-v')
+      await canvas.findByTestId('game-session-board-mode-v')
     );
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-e1v'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-e1v'));
     await expect(
-      canvas.getByTestId('custom-game-board-wall-status')
+      canvas.getByTestId('game-session-board-wall-status')
     ).toHaveTextContent('last path to the goal');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e1v')
+      canvas.getByTestId('game-session-board-action-e1v')
     ).toHaveAttribute('data-edge-right', 'false');
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-g3v'));
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-g3v'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-commit'));
     await expect(
-      canvas.getByTestId('custom-game-board-action-g3')
+      canvas.getByTestId('game-session-board-action-g3')
     ).toHaveAttribute('data-edge-right', 'true');
   },
 };
@@ -310,7 +314,7 @@ export const PawnIdentityAndKeyboard: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const pawn = await canvas.findByTestId('custom-game-board-action-e9');
+    const pawn = await canvas.findByTestId('game-session-board-action-e9');
     await expectQuoridorPawnInk(canvasElement, ['e1', 'e9']);
     const glyph = pawn.querySelector('span');
     const view = canvasElement.ownerDocument.defaultView;
@@ -332,13 +336,13 @@ export const PawnIdentityAndKeyboard: Story = {
       .color.match(/\d+/g)
       ?.map(Number);
     await expect(actualChannels?.slice(0, 3)).toEqual(expectedChannels);
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-e2'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-e2'));
     await expect(
-      canvas.getByTestId('custom-game-board-action-e2')
+      canvas.getByTestId('game-session-board-action-e2')
     ).toHaveAccessibleName(/South red circle/);
     await userEvent.keyboard('{ArrowUp}');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e3')
+      canvas.getByTestId('game-session-board-action-e3')
     ).toHaveFocus();
   },
 };
@@ -350,27 +354,27 @@ export const PreciseCoordinates: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
     await expectQuoridorGoalMarker(canvasElement, 'a9');
     await chooseQuoridorCoordinate(canvasElement, 'e2');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e2')
+      canvas.getByTestId('game-session-board-action-e2')
     ).toHaveAccessibleName(/South red circle/);
-    await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+    await userEvent.click(canvas.getByTestId('game-session-board-mode-h'));
     await expectQuoridorSpatialArea(canvasElement);
     await chooseQuoridorCoordinate(canvasElement, 'd4');
-    const anchor = canvas.getByTestId('custom-game-board-action-d4h');
+    const anchor = canvas.getByTestId('game-session-board-action-d4h');
     await expect(anchor).toHaveAttribute('data-preview-edge-top', 'true');
     await expect(anchor).toHaveAttribute('data-edge-top', 'false');
     for (const id of ['wall-commit', 'wall-cancel'])
       await expectQuoridorTargetVisible(
-        canvas.getByTestId(`custom-game-board-${id}`)
+        canvas.getByTestId(`game-session-board-${id}`)
       );
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-cancel'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-cancel'));
     await expect(anchor).toHaveAttribute('data-preview-edge-top', 'false');
     await chooseQuoridorCoordinate(canvasElement, 'd4');
-    await userEvent.click(canvas.getByTestId('custom-game-board-wall-commit'));
+    await userEvent.click(canvas.getByTestId('game-session-board-wall-commit'));
     await expect(anchor).toHaveAttribute('data-edge-top', 'true');
   },
 };
@@ -380,25 +384,25 @@ export const RotateWallPreview: Story = {
   render: renderClassicJourney,
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-coordinates'));
+    await userEvent.click(canvas.getByTestId('game-session-board-coordinates'));
     await expectQuoridorSpatialArea(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-mode-h'));
+    await userEvent.click(canvas.getByTestId('game-session-board-mode-h'));
     await expectQuoridorSpatialArea(canvasElement);
-    const anchor = canvas.getByTestId('custom-game-board-action-d4h');
+    const anchor = canvas.getByTestId('game-session-board-action-d4h');
     await userEvent.hover(anchor);
     await expect(anchor).toHaveAttribute('data-preview-edge-top', 'true');
     await expect(
-      canvas.getByTestId('custom-game-board-action-e4h')
+      canvas.getByTestId('game-session-board-action-e4h')
     ).toHaveAttribute('data-preview-edge-top', 'true');
-    await userEvent.click(canvas.getByTestId('custom-game-board-action-d4h'));
+    await userEvent.click(canvas.getByTestId('game-session-board-action-d4h'));
     await expectQuoridorWallPreview(canvasElement);
-    await userEvent.click(canvas.getByTestId('custom-game-board-mode-v'));
+    await userEvent.click(canvas.getByTestId('game-session-board-mode-v'));
     await expectQuoridorWallPreview(canvasElement);
     await expect(
-      canvas.getByTestId('custom-game-board-action-d4v')
+      canvas.getByTestId('game-session-board-action-d4v')
     ).toHaveAttribute('data-preview-edge-right', 'true');
     await expect(
-      canvas.getByTestId('custom-game-board-action-d4v')
+      canvas.getByTestId('game-session-board-action-d4v')
     ).toHaveAttribute('data-edge-right', 'false');
   },
 };

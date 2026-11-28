@@ -39,7 +39,7 @@ test('the winning alignment read counts highlighted cells without counting CSS',
         reading = false;
         if (name === 'data-winning')
           return String(
-            winning.has(Number(id.replace('custom-game-board-cell-', '')))
+            winning.has(Number(id.replace('game-session-board-cell-', '')))
           );
         if (name === 'data-cells') return '[]';
         return null;

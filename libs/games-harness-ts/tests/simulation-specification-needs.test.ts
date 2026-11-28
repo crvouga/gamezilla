@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { specificationGames } from '@libs/games-harness-ts/game-conformance';
 import { HARNESS_GAMES } from '@libs/games-harness-ts/harness-games';
-import { measuredChoice } from './openslo/custom-game-choice-measure';
+import { measuredChoice } from './openslo/game-session-choice-measure';
 
 // regression: simulation-enrolled-in-turn-only-specifications
 const TURN_GAMES = [
@@ -27,8 +27,8 @@ test.each([
 });
 
 test.each([
-  'custom-game-creation',
-  'custom-game-invitations',
+  'game-session-creation',
+  'game-session-invitations',
   'finding-an-opponent-without-a-clock',
   'matched-game-without-turns',
 ])('Pong remains enrolled in its actual %s obligations', (stem) => {
@@ -66,7 +66,7 @@ test('the matched-game-ready objective holds only games with turns and clock cho
 // regression: clockless-games-measured-by-clock-choice-arrival
 test('the choice-arrival objective measures a choice every game it holds offers', () => {
   const games = specificationGames(
-    'specs/games/custom-game-delivery.openslo.yaml',
+    'specs/games/game-session-delivery.openslo.yaml',
     HARNESS_GAMES
   );
   expect(games.map((game) => game.shared.id)).toContain('pong');

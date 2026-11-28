@@ -9,8 +9,8 @@ import {
 } from '@pkgs/room-root-shared-ts/types';
 import type { TurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
-import { soloCustomGame } from './custom-game-local';
-import { type CustomGame, CustomGamesAttr } from './custom-game-state';
+import { soloGameSession } from './game-session-local';
+import { type GameSession, GameSessionsAttr } from './game-session-state';
 import { simulationCommandKey } from './simulation-command-state';
 import {
   RequestSimulationSnapshot,
@@ -20,7 +20,7 @@ import {
 
 /** One current local court, forwarded by its creator through this existing room. */
 export class LocalSimulationRelay {
-  private game: CustomGame | null = null;
+  private game: GameSession | null = null;
   private simulation: RegisteredSimulation | undefined;
   private latest: SimulationSnapshotPayload | null = null;
   private source: string | null = null;
@@ -38,7 +38,7 @@ export class LocalSimulationRelay {
   }
 
   update(state: RoomState): void {
-    const current = CustomGamesAttr.from(state).current;
+    const current = GameSessionsAttr.from(state).current;
     const simulation =
       current === null
         ? undefined
@@ -46,7 +46,7 @@ export class LocalSimulationRelay {
     const next =
       current?.status === 'active' &&
       simulation !== undefined &&
-      soloCustomGame(current, this.rules)
+      soloGameSession(current, this.rules)
         ? current
         : null;
     if (

@@ -429,7 +429,7 @@ For a continuous game, `receive` updates validated controls, injected timer
 wakes advance the simulation through `enqueue`, and `publish` emits snapshots.
 Use `commit` for durable transitions such as completing a match. Persist
 bounded progress with `checkpoint` and implement `recover` to validate it.
-The production [custom simulation runtime](../../libs/game-session-shared-ts/src/simulation-custom-runtime.ts)
+The production [custom simulation runtime](../../libs/game-session-shared-ts/src/simulation-room-runtime.ts)
 and [simulation session](../../libs/game-session-shared-ts/src/simulation-session-runtime.ts)
 show these hooks together, including controller selection and disposal.
 

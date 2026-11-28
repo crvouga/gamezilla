@@ -88,7 +88,7 @@ test('the release bundle checks every health journey the localhost stack can run
   expect(paths).toContain('specs/journeys/chess-puzzle-history.feature');
   expect(paths).toContain('specs/journeys/connect-four-game.feature');
   expect(paths).toContain('specs/journeys/multiplayer-game.feature');
-  expect(paths).toContain('specs/journeys/custom-game.feature');
+  expect(paths).toContain('specs/journeys/game-session.feature');
   expect(paths).toContain('specs/journeys/join-and-offline.feature');
   expect(paths).toContain('specs/connect-four/connect-four-health.feature');
   expect(paths).toContain('specs/journeys/battleship-game.feature');
@@ -268,7 +268,7 @@ test('health generates feature and objective stubs with resolvable declared brid
 });
 
 // regression: multiplayer-journey-parameter-registration
-// regression: custom-game-journey-parameter-registration
+// regression: game-session-journey-parameter-registration
 test('health loads its live entry and constructs the real S3 transport', () => {
   // regression: health-solid-preload-after-imports
   // regression: health-browser-conditions-break-s3

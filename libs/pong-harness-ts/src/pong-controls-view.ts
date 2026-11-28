@@ -19,9 +19,9 @@ export async function pongMoveListOffered(
   if (!(await ui.get(await pongBoardId(s, actor)).isVisible()))
     throw new Error('No Pong court is shown');
   for (const id of [
-    'custom-game-review-back',
-    'custom-game-review-forward',
-    'custom-game-review-ply',
+    'game-session-review-back',
+    'game-session-review-forward',
+    'game-session-review-ply',
     // A matched game lists its moves beside the board and steps through
     // them on a place of their own.
     'multiplayer-move-list',

@@ -7,13 +7,13 @@ import { captureBattleEvidence, openBattleStory } from '../evidence';
  */
 async function aimSurface(page: Page) {
   const workbench =
-    (await page.getByTestId('custom-game-board-region').count()) > 0;
-  if (workbench) await page.getByTestId('custom-game-board-area-9').tap();
+    (await page.getByTestId('game-session-board-region').count()) > 0;
+  if (workbench) await page.getByTestId('game-session-board-area-9').tap();
   return (cell: string) =>
     page.getByTestId(
       workbench
-        ? `custom-game-board-aim-${cell}`
-        : `custom-game-board-target-${cell}`
+        ? `game-session-board-aim-${cell}`
+        : `game-session-board-target-${cell}`
     );
 }
 
@@ -32,13 +32,15 @@ export function defineInputChecks() {
         aim = await aimSurface(page);
         await aim('j9').tap();
         await aim('j10').tap();
-        await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
+        await expect(page.getByTestId('game-session-board-fire')).toHaveText(
           'Fire at J10'
         );
       });
       await test.step('Cancel and select J10 with the keyboard', async () => {
-        await page.getByTestId('custom-game-board-cancel-aim').click();
-        await expect(page.getByTestId('custom-game-board-fire')).toBeDisabled();
+        await page.getByTestId('game-session-board-cancel-aim').click();
+        await expect(
+          page.getByTestId('game-session-board-fire')
+        ).toBeDisabled();
         await aim('j9').focus();
         await page.keyboard.press('ArrowDown');
         await expect(aim('j10')).toBeFocused();
@@ -48,23 +50,25 @@ export function defineInputChecks() {
           contentType: 'image/png',
         });
         await page.keyboard.press('Enter');
-        await expect(page.getByTestId('custom-game-board-fire')).toHaveText(
+        await expect(page.getByTestId('game-session-board-fire')).toHaveText(
           'Fire at J10'
         );
       });
       await test.step('Confirm once and retain the pending coordinate', async () => {
-        await page.getByTestId('custom-game-board-fire').click();
-        await expect(page.getByTestId('custom-game-board-fire')).toBeDisabled();
+        await page.getByTestId('game-session-board-fire').click();
+        await expect(
+          page.getByTestId('game-session-board-fire')
+        ).toBeDisabled();
         await expect(aim('j10')).toHaveAccessibleName(
           'J10: fired, waiting for the result'
         );
         // regression: battleship-submitting-shot-loses-feedback
         // The idle title stays in the DOM beside the visible busy label.
-        await expect(page.getByTestId('custom-game-board-fire')).toContainText(
+        await expect(page.getByTestId('game-session-board-fire')).toContainText(
           'Firing at J10'
         );
         await expect(page.getByText('Shots so far')).toHaveCount(0);
-        await expect(page.getByTestId('custom-game-status')).toContainText(
+        await expect(page.getByTestId('game-session-status')).toContainText(
           'Sending choice…'
         );
         await captureBattleEvidence(page, info);
@@ -79,18 +83,20 @@ export function defineInputChecks() {
         'screens-games-battleship-board--watching',
         theme
       );
-      const switcher = page.getByTestId('custom-game-board-view-target');
+      const switcher = page.getByTestId('game-session-board-view-target');
       if (await switcher.isVisible()) await switcher.click();
       // A watcher reads the whole board at every size: no aiming workbench.
-      await expect(page.getByTestId('custom-game-board-region')).toHaveCount(0);
+      await expect(page.getByTestId('game-session-board-region')).toHaveCount(
+        0
+      );
       // Both of a watcher's boards say it; the board on show must.
       await expect(
         page.getByText('Shots so far').filter({ visible: true }).first()
       ).toBeVisible();
       await expect(
-        page.getByTestId('custom-game-board-target-f10')
+        page.getByTestId('game-session-board-target-f10')
       ).toHaveAccessibleName('F10: hit, sunk Destroyer');
-      await expect(page.getByTestId('custom-game-board-fire')).toHaveCount(0);
+      await expect(page.getByTestId('game-session-board-fire')).toHaveCount(0);
       await captureBattleEvidence(page, info);
       expect(errors).toEqual([]);
     });

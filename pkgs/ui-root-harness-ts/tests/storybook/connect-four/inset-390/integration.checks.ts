@@ -20,7 +20,7 @@ test('storybook integration: connect-four 390px gives the board the whole width 
       const box = document.querySelector(selector)?.getBoundingClientRect();
       return box ? { left: box.left, right: box.right } : null;
     };
-    const board = rect('[data-testid="custom-game-board"]');
+    const board = rect('[data-testid="game-session-board"]');
     const commands = rect(
       '[data-game-slot="controls"] [data-component="GameActionBar"]'
     );

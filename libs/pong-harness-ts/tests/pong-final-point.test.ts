@@ -10,14 +10,14 @@ import { winPongPoint } from '@libs/pong-harness-ts/pong-actions';
 function courtWhoseFinalPointLandsMidGuide(): ProductHarness {
   let finished = false;
   const attributes: Record<string, Record<string, string>> = {
-    'custom-game-board-ball': {
+    'game-session-board-ball': {
       'data-ball-size': '20',
       'data-ball-x': '500',
       'data-ball-y': '300',
     },
-    'custom-game-board-drawing': { viewBox: '0 0 1000 600' },
-    'custom-game-board-first-paddle': { x: '20', width: '10' },
-    'custom-game-board-second-paddle': { x: '970', width: '10' },
+    'game-session-board-drawing': { viewBox: '0 0 1000 600' },
+    'game-session-board-first-paddle': { x: '20', width: '10' },
+    'game-session-board-second-paddle': { x: '970', width: '10' },
   };
   const node = (id: string) => ({
     expect: { visible: () => Promise.resolve() },
@@ -26,15 +26,15 @@ function courtWhoseFinalPointLandsMidGuide(): ProductHarness {
     text: () =>
       Promise.resolve(
         {
-          'custom-game-board-status': finished ? 'Left wins' : 'Playing',
-          'custom-game-board-score-left': `Left ${finished ? 2 : 1}`,
-          'custom-game-board-score-right': 'Right 0',
-          'custom-game-board-target': 'First to 2',
+          'game-session-board-status': finished ? 'Left wins' : 'Playing',
+          'game-session-board-score-left': `Left ${finished ? 2 : 1}`,
+          'game-session-board-score-right': 'Right 0',
+          'game-session-board-target': 'First to 2',
         }[id] ?? ''
       ),
     attribute: (name: string) =>
       Promise.resolve(
-        id === 'custom-game-board-status'
+        id === 'game-session-board-status'
           ? name === 'data-stage'
             ? finished
               ? 'finished'

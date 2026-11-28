@@ -312,7 +312,7 @@ export type GameNoticeText = {
   readonly side: (side: GameSide) => string;
   readonly ending: (reason: string) => string | undefined;
 };
-/** A bot for each side of a custom game; it only ever chooses among `legal`. */
+/** A bot for each side of a game session; it only ever chooses among `legal`. */
 export type GameBotChoices = {
   /** Strengths people choose between; empty when the game has one bot. */
   readonly difficulties: readonly BotDifficulty[];
@@ -328,11 +328,10 @@ export type GameBots = GameBotChoices & {
   readonly choose: NonNullable<GameBotChoices['choose']>;
 };
 /**
- * Custom games in a space: sides, people and bots, invitations, clocks,
+ * Game sessions in a space: sides, people and bots, invitations, clocks,
  * resignation, draws, rematches and offline solo play.
  */
-export type CustomGamesCapability = {
-  readonly bots: GameBotChoices;
+export type HumanPlayCapability = {
   /** Two independently controlled seats on the creator's device. */
   readonly localPlayers?: true;
 };
@@ -373,7 +372,8 @@ export type HistoryCapability = {
  * record, which only `history.record` writes.
  */
 export type TurnGameCapabilities = {
-  readonly 'custom-games'?: CustomGamesCapability;
+  readonly 'vs-human'?: HumanPlayCapability;
+  readonly 'vs-bot'?: { readonly bots: GameBotChoices };
   /** Puzzles from the game's positions; needs no other capability. */
   readonly puzzles?: PuzzlesCapability;
 } & (
@@ -388,7 +388,8 @@ export type TurnGameCapabilities = {
 );
 export type GameCapability = keyof TurnGameCapabilities;
 export const GAME_CAPABILITIES = [
-  'custom-games',
+  'vs-human',
+  'vs-bot',
   'matchmaking',
   'history',
   'puzzles',
@@ -462,17 +463,17 @@ export function publicAction(
   return rules.setup.resolve(position, proposal, setups);
 }
 
-/** Fail when a matched game needs what only custom games hold. */
+/** Fail when a matched game needs what only game sessions hold. */
 function assertMatchedTurns(game: RegisteredGame): void {
   if (game.capabilities.matchmaking === undefined || !isTurnRules(game.rules))
     return;
   if (game.rules.turnOrder === 'rules')
     throw new Error(
-      `${game.rules.id}: matched games rotate turns (their abort window and first-move clock count one move per side) — a game whose rules name the next side is offered in custom games`
+      `${game.rules.id}: matched games rotate turns (their abort window and first-move clock count one move per side) — a game whose rules name the next side is offered in game sessions`
     );
   if (game.rules.hands?.commit !== undefined)
     throw new Error(
-      `${game.rules.id}: private commitments are offered in custom games — matched games hold no commitment phase`
+      `${game.rules.id}: private commitments are offered in game sessions — matched games hold no commitment phase`
     );
 }
 

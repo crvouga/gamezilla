@@ -55,16 +55,16 @@ test('stable game stage keeps the reported Quoridor positions on phone and table
       await open(page, `screens-games-quoridor-classic--${story}`);
       const history = page.locator('[data-game-slot="history"]');
       await expect(
-        history.getByTestId(`custom-game-review-move-${moves}`)
+        history.getByTestId(`game-session-review-move-${moves}`)
       ).toBeVisible();
       await expect(
         history.getByRole('button', { name: 'All moves' })
       ).toBeVisible();
       const boxes = await frame(page);
-      const grid = await rect(page.getByTestId('custom-game-board'));
+      const grid = await rect(page.getByTestId('game-session-board'));
       expect(grid.width).toBeCloseTo(boxes.board.width, 0);
       const cell = await rect(
-        page.getByTestId('custom-game-board').locator('[data-cell]').first()
+        page.getByTestId('game-session-board').locator('[data-cell]').first()
       );
       expect(cell.height).toBeCloseTo(cell.width, 0);
       const geometry = {
@@ -91,12 +91,12 @@ test('stable game stage centres playable Quoridor squares in a height-limited de
   await page.setViewportSize({ width: 1440, height: 900 });
   await open(page, 'screens-games-quoridor-hill--four-player-round');
   const { board } = await frame(page);
-  const grid = await rect(page.getByTestId('custom-game-board'));
+  const grid = await rect(page.getByTestId('game-session-board'));
   expect(grid.x + grid.width / 2).toBeCloseTo(board.x + board.width / 2, 0);
   expect(
     (
       await rect(
-        page.getByTestId('custom-game-board').locator('[data-cell]').first()
+        page.getByTestId('game-session-board').locator('[data-cell]').first()
       )
     ).width
   ).toBeGreaterThanOrEqual(44);
@@ -112,8 +112,8 @@ const consumers = [
   'screens-games-hearts-board--waiting-for-turn',
   'screens-games-pong-stage--rally',
   'screens-games-light-cycles-stage--riding',
-  'screens-custom-games-stage-moves--long-record',
-  'screens-custom-games-result--you-win',
+  'screens-game-sessions-stage-moves--long-record',
+  'screens-game-sessions-result--you-win',
   'screens-matchmaking-private-setup--waiting',
   'screens-matchmaking-stage--matched',
   'screens-matchmaking-stage-moves--reviewing',
