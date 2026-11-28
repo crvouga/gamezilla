@@ -13,25 +13,25 @@
  *
  *   bun pkgs/ui-root-harness-ts/scripts/competitor-screen-comparison.ts
  */
-import { spawn, type ChildProcess } from 'node:child_process';
-import { createRequire } from 'node:module';
+import { type ChildProcess, spawn } from 'node:child_process';
 import {
   existsSync,
   mkdirSync,
   readdirSync,
   readFileSync,
-  rmSync,
   writeFileSync,
 } from 'node:fs';
+import { createRequire } from 'node:module';
 import { dirname, join, resolve } from 'node:path';
+import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
 import { chromium } from '@playwright/test';
 import sharp from 'sharp';
-import { storybookNetwork } from '../storybook/network';
 import {
   COMPARISON_VIEWPORT,
   COMPETITOR_CATALOG,
   competitorScreens,
 } from '../storybook/competitor-screens';
+import { storybookNetwork } from '../storybook/network';
 
 const repoRoot = resolve(import.meta.dirname, '../../..');
 const harness = join(repoRoot, 'pkgs/ui-root-harness-ts');
@@ -42,7 +42,11 @@ const PADDING = 16;
 const PANEL = COMPARISON_VIEWPORT.width;
 const BACKGROUND = { r: 24, g: 24, b: 27, alpha: 1 };
 
-type Shot = { readonly buffer: Buffer; readonly width: number; readonly height: number };
+type Shot = {
+  readonly buffer: Buffer;
+  readonly width: number;
+  readonly height: number;
+};
 
 function fit(shot: Shot, height: number): Promise<Buffer> {
   return sharp(shot.buffer)
@@ -139,9 +143,7 @@ function storybookCli(): string {
     ? readdirSync(linked).filter((name) => name.startsWith('storybook@'))
     : [];
   const installed = entries
-    .map((name) =>
-      join(linked, name, 'node_modules/storybook/package.json')
-    )
+    .map((name) => join(linked, name, 'node_modules/storybook/package.json'))
     .find((path) => existsSync(path));
   if (!installed)
     throw new Error(
@@ -218,7 +220,9 @@ async function captureStory(
 async function readScreenshot(file: string): Promise<Shot> {
   const path = join(repoRoot, COMPETITOR_CATALOG, file);
   if (!existsSync(path))
-    throw new Error(`Missing competitor screenshot ${COMPETITOR_CATALOG}/${file}`);
+    throw new Error(
+      `Missing competitor screenshot ${COMPETITOR_CATALOG}/${file}`
+    );
   const image = sharp(path);
   const meta = await image.metadata();
   return {
@@ -252,44 +256,39 @@ async function main(): Promise<void> {
       deviceScaleFactor: 1,
     });
     try {
-    // The first story compiles its preview. Open it once so a cold bundle
-    // does not land in the comparison.
-    const first = competitorScreens[0];
-    if (first) await captureStory(page, baseUrl, first.story);
-    rmSync(outDir, { recursive: true, force: true });
-    mkdirSync(outDir, { recursive: true });
-    const lines = [
-      '# Competitor screen comparison',
-      '',
-      'Ours on the left, the competitor on the right. Generated from `pkgs/ui-root-harness-ts/storybook/competitor-screens.ts`.',
-      '',
-    ];
-    for (const screen of competitorScreens) {
-      const stem = screen.screenshot.replace(/\.png$/i, '');
-      const file = `${stem}.png`;
-      process.stdout.write(`${screen.label}\n`);
-      const [ours, theirs] = await Promise.all([
-        captureStory(page, baseUrl, screen.story),
-        readScreenshot(screen.screenshot),
-      ]);
-      const png = await compose(
-        ours,
-        theirs,
-        'Ours',
-        screen.label
-      );
-      writeFileSync(join(outDir, file), png);
-      lines.push(
-        `## ${screen.label}`,
+      // The first story compiles its preview. Open it once so a cold bundle
+      // does not land in the comparison.
+      const first = competitorScreens[0];
+      if (first) await captureStory(page, baseUrl, first.story);
+      removeTree(outDir, { whenLocked: 'leave' });
+      mkdirSync(outDir, { recursive: true });
+      const lines = [
+        '# Competitor screen comparison',
         '',
-        `${screen.storyTitle} (\`${screen.story}\`)`,
+        'Ours on the left, the competitor on the right. Generated from `pkgs/ui-root-harness-ts/storybook/competitor-screens.ts`.',
         '',
-        `![${screen.label}: ours beside ${screen.label}](./${file})`,
-        ''
-      );
-    }
-    writeFileSync(join(outDir, 'comparison.md'), lines.join('\n'));
-    process.stdout.write(`${outDir}\n`);
+      ];
+      for (const screen of competitorScreens) {
+        const stem = screen.screenshot.replace(/\.png$/i, '');
+        const file = `${stem}.png`;
+        process.stdout.write(`${screen.label}\n`);
+        const [ours, theirs] = await Promise.all([
+          captureStory(page, baseUrl, screen.story),
+          readScreenshot(screen.screenshot),
+        ]);
+        const png = await compose(ours, theirs, 'Ours', screen.label);
+        writeFileSync(join(outDir, file), png);
+        lines.push(
+          `## ${screen.label}`,
+          '',
+          `${screen.storyTitle} (\`${screen.story}\`)`,
+          '',
+          `![${screen.label}: ours beside ${screen.label}](./${file})`,
+          ''
+        );
+      }
+      writeFileSync(join(outDir, 'comparison.md'), lines.join('\n'));
+      process.stdout.write(`${outDir}\n`);
     } finally {
       await browser.close();
     }

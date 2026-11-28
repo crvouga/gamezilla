@@ -134,5 +134,3 @@ export function CompactLine(props: PuzzleStageScreenViewProps): JSX.Element {
     </StackHorizontal>
   );
 }
-
-
