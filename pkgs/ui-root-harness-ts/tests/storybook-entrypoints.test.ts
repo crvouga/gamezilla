@@ -9,6 +9,9 @@ test('registered product-shell preview may compose its Storybook fixture', () =>
   expect(
     isStorybookSource('apps/product-ts/src/storybook-preview.example.tsx')
   ).toBe(true);
+  expect(previewAnnotations).toContain(
+    'pkgs/chess-board-root-client-ts/src/chess-board/space-preview.example.tsx'
+  );
   for (const path of previewAnnotations)
     expect(isStorybookSource(path)).toBe(true);
 });

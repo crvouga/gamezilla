@@ -1,0 +1,3 @@
+scripts/deploy.ts -> libs/infra-shared-ts/scripts/worker-state
+scripts/serve-max-web.ts -> apps/product-client-ts/scripts/static-web-server.ts
+tests/steps/infrastructure.steps.ts -> libs/infra-server-ts/scripts/drift-verify

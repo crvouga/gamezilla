@@ -462,15 +462,7 @@ Package type-checking uses `tsconfig.tc.json` (`tsc --noEmit -p
 from the root project and break cross-package rename (exception:
 `apps/product-client-ts`).
 
-**Layering is enforced by Biome** (`libs/tools-harness-ts/biome-plugins/import-*.grit`,
-each probed in `libs/tools-harness-ts/scripts/import-boundaries.test.ts`, plus
-`noImportCycles` and `noUndeclaredDependencies`):
-
-- the tier pyramid above;
-- runtime categories and flat source layout from the repository briefing;
-- `@apps/product-api-ts` source is isomorphic: platform engines (`pg`, `node:*`) only
-  behind injected ports and `@api-wall-ok` modules;
-- libs and pkgs never import `@apps/*`.
+Package lint enforces the import matrix with the [package boundary rules](libs/tools-harness-ts/scripts/package-boundaries.ts) and [Biome import rules](libs/tools-harness-ts/biome-plugins). Biome also checks import cycles and undeclared dependencies. The product API keeps platform engines behind injected ports and `@api-wall-ok` modules.
 
 **Games.** The product is a game framework with pluggable games
 ([`GAME_FRAMEWORK.md`](libs/games-shared-ts/docs/GAME_FRAMEWORK.md)). A game

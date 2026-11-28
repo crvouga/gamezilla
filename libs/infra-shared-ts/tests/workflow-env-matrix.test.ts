@@ -7,7 +7,7 @@ import { ENV_FILES } from '@libs/infra-shared-ts/envs';
 import {
   workflowEnvMatrix,
   workflowEnvOutputs,
-} from '../../infra-shared-ts/scripts/workflow-env-matrix';
+} from '../scripts/workflow-env-matrix';
 
 const WORKFLOWS_DIR = join(import.meta.dirname, '../../../.github/workflows');
 

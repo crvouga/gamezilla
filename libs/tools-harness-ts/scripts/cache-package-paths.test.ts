@@ -20,6 +20,7 @@ test('editing the catalog walkthrough rebuilds the hosted Storybook', () => {
   for (const file of [
     story,
     'libs/games-client-ts/src/game-menu-preview.example.tsx',
+    'pkgs/chess-board-root-client-ts/src/chess-board/space-preview.example.tsx',
   ])
     expect(
       files.some((pattern) => pattern.match(file)),

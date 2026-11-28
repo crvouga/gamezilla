@@ -45,6 +45,10 @@ import {
   nativeSourceViolations,
 } from './language-boundaries';
 import { CATEGORIES, type Category, categoryOfName } from './package-names';
+import {
+  privatePackageImports,
+  type WorkspaceExports,
+} from './private-package-imports';
 import { isProductionSource } from './production-source';
 import { type SourceImport, sourceImports } from './source-imports';
 
@@ -138,7 +142,7 @@ export function familyMayDependOn(family: string, dependency: string): boolean {
   return !rule.forbidden.has(dependency);
 }
 
-type Manifest = {
+type Manifest = WorkspaceExports & {
   readonly name?: string;
   readonly category?: string;
   /** `languages.ts`: the implementation language, or `neutral`. */
@@ -158,19 +162,6 @@ type Manifest = {
   readonly dependencies?: Record<string, string>;
   readonly devDependencies?: Record<string, string>;
 };
-
-function sourceFiles(dir: string, out: string[] = []): string[] {
-  if (!existsSync(dir)) return out;
-  for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    const full = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      if (entry.name !== 'node_modules') sourceFiles(full, out);
-      continue;
-    }
-    if (/\.[cm]?[jt]sx?$/.test(entry.name)) out.push(slashPath(full));
-  }
-  return out;
-}
 
 function sourceImportViolation(
   reference: SourceImport,
@@ -524,59 +515,51 @@ function languageAndNativeViolations(
  * Every boundary the package at `pkgDir` breaks, as printable lines. Empty for
  * a package that keeps them all.
  */
-export function packageBoundaryViolations(pkgDir: string): readonly string[] {
-  const manifest = JSON.parse(
-    readFileSync(join(pkgDir, 'package.json'), 'utf8')
-  ) as Manifest;
-  const srcDir = join(pkgDir, 'src');
+export function packageBoundaryViolations(
+  pkgDir: string,
+  modules: readonly { readonly path: string; readonly text: string }[]
+): readonly string[] {
+  const dir = slashPath(pkgDir).split('/').slice(-2).join('/');
+  const tier = dir.split('/')[0] ?? '';
   const manifests = workspaceManifests(pkgDir);
   const workspace = manifests.byName;
-  const sources = sourceFiles(srcDir).filter(
-    (f) => !/\.test\.[cm]?[jt]sx?$/.test(f)
-  );
+  const manifest = workspace.get(`@${dir}`);
+  if (!manifest) return [`missing workspace package for ${dir}`];
+  const src = modules.filter((file) => file.path.startsWith('src/'));
+  const legacyPath = join(pkgDir, 'legacy-private-imports.txt');
+  const legacy = existsSync(legacyPath)
+    ? readFileSync(legacyPath, 'utf8').split(/\r?\n/).filter(Boolean)
+    : [];
   return [
+    ...privatePackageImports({ dir, files: modules, workspace, legacy }),
     ...categoryViolations(manifest, {
-      tier: slashPath(pkgDir).split('/').at(-2) ?? '',
+      tier,
       neutral: new Set(
         [...workspace]
           .filter(([, other]) => other.language === 'neutral')
           .map(([name]) => name)
       ),
-      sources: sources.map((path) => ({
-        path: path.slice(pkgDir.length + 1),
-        text: readFileSync(path, 'utf8'),
-      })),
+      sources: src.filter((file) => !/\.test\.[cm]?[jt]sx?$/.test(file.path)),
     }),
     ...languageAndNativeViolations(pkgDir, manifest, manifests),
     ...gameViolations(manifest, workspace),
     ...gameApiViolations(manifest, {
       workspace,
       modules: new Set(
-        sourceFiles(srcDir).map((path) =>
-          path.slice(srcDir.length + 1).replace(/\.[cm]?[jt]sx?$/, '')
-        )
+        src.map(({ path }) => path.slice(4).replace(/\.[cm]?[jt]sx?$/, ''))
       ),
-      sources: ['src', 'tests', 'scripts']
-        .flatMap((dir) => sourceFiles(join(pkgDir, dir)))
-        .map((path) => ({
-          path: path.slice(pkgDir.length + 1),
-          text: readFileSync(path, 'utf8'),
-        })),
+      sources: modules.filter(({ path }) =>
+        /^(src|tests|scripts)\//.test(path)
+      ),
     }),
-    ...(slashPath(pkgDir).split('/').at(-2) === 'libs'
+    ...(tier === 'libs'
       ? gameIdentityViolations(manifest, {
           gameIds: new Set(
             [...workspace.values()].flatMap((other) =>
               other.game === undefined ? [] : [other.game]
             )
           ),
-          sources: [
-            ...sourceFiles(srcDir),
-            ...sourceFiles(join(pkgDir, 'tests')),
-          ].map((path) => ({
-            path: path.slice(pkgDir.length + 1),
-            text: readFileSync(path, 'utf8'),
-          })),
+          sources: modules.filter(({ path }) => /^(src|tests)\//.test(path)),
         })
       : []),
   ];

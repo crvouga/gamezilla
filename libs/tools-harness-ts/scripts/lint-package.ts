@@ -339,7 +339,10 @@ async function lintPackage(pkg: string): Promise<boolean> {
     path,
     text: readFileSync(join(REPO_ROOT, pkg, path), 'utf8'),
   });
-  const sources = pkgFiles.filter((path) => /\.tsx?$/.test(path)).map(read);
+  const modules = pkgFiles
+    .filter((path) => /\.[cm]?[jt]sx?$/.test(path))
+    .map(read);
+  const sources = modules.filter(({ path }) => /\.tsx?$/.test(path));
   const stylesheets = pkgFiles.filter((path) => /\.css$/.test(path)).map(read);
   const manifest = readJson<{
     scripts?: Record<string, string>;
@@ -394,7 +397,7 @@ async function lintPackage(pkg: string): Promise<boolean> {
     clean(
       pkg,
       'package boundaries violated — turbo builds its graph from package.json, so this is a cache invalidation everywhere downstream',
-      packageBoundaryViolations(join(REPO_ROOT, pkg))
+      packageBoundaryViolations(join(REPO_ROOT, pkg), modules)
     ),
   ];
   return (await Promise.all(tools)).every(Boolean) && results.every(Boolean);

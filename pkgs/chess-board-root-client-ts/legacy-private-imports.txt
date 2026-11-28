@@ -1,0 +1,2 @@
+src/chess-board/space-chess-fixture.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/space-example-chess
+src/chess-board/space-chess.example.tsx -> pkgs/ui-root-client-ts/storybook/fixtures/space-example-frame
