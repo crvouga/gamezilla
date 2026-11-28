@@ -21,8 +21,8 @@ const playBot = scenarioAction({
   name: 'playBotFromGameSessionSetup',
   act: async (s) => {
     const ui = await actorUi(s, 'alice');
-    await goBackInGame.act(s, 'alice');
-    await openGameChoice.act(s, 'alice', 'vs-bot');
+    await Promise.resolve(goBackInGame.act(s, 'alice'));
+    await Promise.resolve(openGameChoice.act(s, 'alice', 'vs-bot'));
     await ui.get('game-session-create').tap();
     await ui.get('game-session-ready').tap();
     await ui.get('game-session-start').tap();

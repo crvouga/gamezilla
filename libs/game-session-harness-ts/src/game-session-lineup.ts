@@ -2,6 +2,7 @@ import { hostedSpaceId } from '@libs/game-matchmaking-harness-ts/multiplayer-spa
 import {
   type GameSessionSide,
   GameSessionsAttr,
+  type PlayMode,
 } from '@libs/game-session-shared-ts/game-session-state';
 import {
   partition,
@@ -332,6 +333,25 @@ async function playHistory(
     );
 }
 
+async function seatLineup(
+  s: ProductHarness,
+  host: string,
+  lineup: {
+    mode: PlayMode;
+    seats: Record<GameSide, GameSessionSeat>;
+    sides: readonly GameSide[];
+  }
+): Promise<void> {
+  const { mode, seats, sides } = lineup;
+  if (mode === 'vs-human') {
+    await configureGameSession(s, host, { operation: 'open', side: 'white' });
+    for (const side of sides) await seat(s, host, side, seats[side]);
+  } else if (seats.white === 'bot') {
+    await configureGameSession(s, host, { operation: 'swap' });
+    if (seats.black === 'bot') await seat(s, host, 'black', 'bot');
+  }
+}
+
 /** Preconditions use ordinary space and game choices, never inject a board or a winner. */
 export const establishGameSession = scenarioAction({
   name: 'establishGameSession',
@@ -373,13 +393,7 @@ export const establishGameSession = scenarioAction({
       mode,
       game: game.shared.id,
     });
-    if (mode === 'vs-human') {
-      await configureGameSession(s, host, { operation: 'open', side: 'white' });
-      for (const side of sides) await seat(s, host, side, seats[side]);
-    } else if (seats.white === 'bot') {
-      await configureGameSession(s, host, { operation: 'swap' });
-      if (seats.black === 'bot') await seat(s, host, 'black', 'bot');
-    }
+    await seatLineup(s, host, { mode, seats, sides });
     if (lineup.clock !== undefined)
       await configureGameSession(s, host, {
         operation: 'clock',
