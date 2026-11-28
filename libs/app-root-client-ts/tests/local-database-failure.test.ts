@@ -1,27 +1,16 @@
-/**
- * The local database is a cache: whatever goes wrong with it, the engine the
- * app boots on opens and keeps working. Every test here makes the database
- * fail the way a browser's does and expects a working engine, never an error.
- */
-
 import { afterEach, describe, expect, test } from 'bun:test';
 import type { CreateAppLocalSyncEngineArgs } from '@libs/app-env-client-ts/create-local-sync-engine';
 import { createAppLocalSyncEngine } from '@libs/app-env-client-ts/create-local-sync-engine';
-import { openMainSqlClient } from '@libs/app-env-client-ts/open-main-sql-client';
 import { shippedModerationRules } from '@libs/moderation-shared-ts/moderation-rules';
 import { composeSubs } from '@libs/sub-shared-ts/compose';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { defineTable } from '@pkgs/db-schema-root-shared-ts/define-table';
-import { createNoopLogger } from '@pkgs/logger-shared-ts/logger';
-import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { createFaultInjectingSqlClient } from '@pkgs/sql-client-root-shared-ts/fault-injecting-sql-client';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { STORAGE_FAULTS } from '@pkgs/sql-client-root-shared-ts/storage-faults';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
-import { createSyncEnginePool } from '@pkgs/sync-engine-client-ts/sync-engine-pool';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
-import fc from 'fast-check';
 
 const PROBE_TABLE = defineTable({
   domain: 'probe',
@@ -171,106 +160,61 @@ test('an injected database keeps the production query refresh cadence', async ()
   expect(requests).toBe(initial + 1);
 });
 
-// regression: local-sqlite-failure-stops-boot
-describe('a database that cannot be opened', () => {
-  test('boots on a disposable database', async () => {
-    const w = world(() => Promise.reject(new Error('no worker could start')));
-    await expectUsable(await boot(w));
+// regression: sqlite-boot-discards-durable-storage
+describe('an unavailable durable database', () => {
+  test('reports an open failure without starting on empty storage', async () => {
+    await expect(
+      boot(world(() => Promise.reject(new Error('no worker could start'))))
+    ).rejects.toThrow('no worker could start');
   });
 
   test.each(Object.keys(STORAGE_FAULTS) as (keyof typeof STORAGE_FAULTS)[])(
-    'boots when the database is dead from the first call (%s)',
+    'reports a failed database call without discarding the saved rows (%s)',
     async (name) => {
-      const w = world(async () => {
-        const faulty = createFaultInjectingSqlClient(await openMockingbird());
-        faulty.breakWith(STORAGE_FAULTS[name]);
-        return faulty.client;
-      });
-      await expectUsable(await boot(w));
-    }
-  );
-
-  test('boots when the database hangs on its first call', async () => {
-    const w = world(
-      async () => {
-        const faulty = createFaultInjectingSqlClient(await openMockingbird());
-        faulty.hang();
-        return faulty.client;
-      },
-      { localCallDeadlineMs: 5_000 }
-    );
-    const booting = boot(w);
-    for (let turn = 0; turn < 50; turn += 1) await Bun.sleep(0);
-    w.clock.clock.advance(5_000);
-    await expectUsable(await booting);
-  });
-});
-
-// regression: local-sqlite-failure-stops-boot
-describe('a database that fails after the app is up', () => {
-  test.each(Object.keys(STORAGE_FAULTS) as (keyof typeof STORAGE_FAULTS)[])(
-    'keeps answering when it fails with %s',
-    async (name) => {
-      const faulty = createFaultInjectingSqlClient(await openMockingbird());
+      const db = await openMockingbird();
+      const faulty = createFaultInjectingSqlClient(db);
       const engine = await boot(world(() => Promise.resolve(faulty.client)));
       await seedItem(engine.db);
-      expect(await engine.db.query(READ_ITEMS)).toHaveLength(1);
-
       faulty.breakWith(STORAGE_FAULTS[name]);
-
-      // Whatever was cached is gone with the storage; the app carries on.
-      expect(await engine.db.query(READ_ITEMS)).toEqual([]);
-      await expectUsable(engine);
-      expect(faulty.disconnects()).toBe(1);
+      await expect(engine.db.query(READ_ITEMS)).rejects.toThrow();
+      expect(await db.query(READ_ITEMS)).toEqual([
+        { id: 'old', label: 'cached' },
+      ]);
     }
   );
+});
 
-  test('a write in flight when storage dies is not lost', async () => {
-    const faulty = createFaultInjectingSqlClient(await openMockingbird());
-    const engine = await boot(world(() => Promise.resolve(faulty.client)));
-    faulty.breakWith(STORAGE_FAULTS.io);
-    await engine.db.transaction(async (tx) => {
-      await tx.run(
-        sql`INSERT INTO probe_items (id, label, deleted_at) VALUES (${'w'}, ${'written'}, NULL)`
-      );
-    });
-    expect(await engine.db.query(READ_ITEMS)).toEqual([
-      { id: 'w', label: 'written' },
-    ]);
+// regression: sqlite-boot-waits-for-app-before-opening
+test('starts opening saved data while application code is still loading', async () => {
+  const loading = Promise.withResolvers<typeof app>();
+  const opening = Promise.withResolvers<void>();
+  const w = world(
+    async () => {
+      opening.resolve();
+      return openMockingbird();
+    },
+    { loadApp: () => loading.promise }
+  );
+  const booting = boot(w);
+  await opening.promise;
+  loading.resolve(app);
+  await expectUsable(await booting);
+});
+
+// regression: sqlite-boot-discards-durable-storage
+test('a new engine exposes saved rows before any network response', async () => {
+  const db = await openMockingbird();
+  const first = await boot(world(() => Promise.resolve(db)));
+  await seedItem(first.db);
+  await first.disconnect();
+  const w = world(() => Promise.resolve(db), {
+    fetchFn: () => Promise.reject(new Error('offline')),
   });
-
-  test('a watch on the cache shows the fresh database after the failover', async () => {
-    const faulty = createFaultInjectingSqlClient(await openMockingbird());
-    const engine = await boot(world(() => Promise.resolve(faulty.client)));
-    await seedItem(engine.db);
-    const watch = engine.watch(READ_ITEMS);
-    const stop = watch.subscribe(() => undefined);
-    await settles(() => watch.getSnapshot().length === 1);
-
-    faulty.breakWith(STORAGE_FAULTS.corrupt);
-    await engine.db.query(READ_ITEMS);
-    await settles(() => watch.getSnapshot().length === 0);
-
-    expect(watch.getSnapshot()).toEqual([]);
-    stop();
-  });
-
-  test('clearing local data on the fresh database works', async () => {
-    const faulty = createFaultInjectingSqlClient(await openMockingbird());
-    const engine = await boot(world(() => Promise.resolve(faulty.client)));
-    faulty.breakWith(STORAGE_FAULTS.full);
-    await engine.db.query(READ_ITEMS);
-    await engine.clearLocalData({ reason: 'cache' });
-    await expectUsable(engine);
-  });
-
-  test('the engine can be shut down while the storage is dead', async () => {
-    const faulty = createFaultInjectingSqlClient(await openMockingbird());
-    const engine = await boot(world(() => Promise.resolve(faulty.client)));
-    faulty.breakWith(STORAGE_FAULTS.corrupt);
-    await engine.disconnect();
-    engines.length = 0;
-  });
+  const next = await createAppLocalSyncEngine(w.args);
+  engines.push(next);
+  expect(await next.db.query(READ_ITEMS)).toEqual([
+    { id: 'old', label: 'cached' },
+  ]);
 });
 
 describe('a database that works', () => {
@@ -298,77 +242,11 @@ describe('a database that works', () => {
   });
 });
 
-describe('any fault at any point', () => {
-  test('never stops the engine from booting or answering', async () => {
-    const faultNames = Object.keys(
-      STORAGE_FAULTS
-    ) as (keyof typeof STORAGE_FAULTS)[];
-    await assertProperty(
-      'a failing cache is replaced, never surfaced',
-      fc.asyncProperty(
-        fc.constantFrom(...faultNames),
-        fc.constantFrom('before-open', 'at-open', 'after-boot'),
-        async (name, when) => {
-          const faulty = createFaultInjectingSqlClient(await openMockingbird());
-          if (when === 'at-open') faulty.breakWith(STORAGE_FAULTS[name]);
-          const engine = await boot(
-            world(async () => {
-              if (when === 'before-open') {
-                throw STORAGE_FAULTS[name]();
-              }
-              return faulty.client;
-            })
-          );
-          if (when === 'after-boot') faulty.breakWith(STORAGE_FAULTS[name]);
-          await expectUsable(engine);
-          await engine.disconnect();
-          engines.length = 0;
-        }
-      )
-    );
-  }, 120_000);
+test('releases the database when application loading fails', async () => {
+  const faulty = createFaultInjectingSqlClient(await openMockingbird());
+  const w = world(() => Promise.resolve(faulty.client), {
+    loadApp: () => Promise.reject(new Error('application unavailable')),
+  });
+  await expect(boot(w)).rejects.toThrow('application unavailable');
+  expect(faulty.disconnects()).toBe(1);
 });
-
-// regression: replaced-cache-restarts-stopped-sync
-test.each(['open timeout', 'owner disconnected'] as const)(
-  'switching accounts after %s leaves only the new account database usable',
-  async (trigger) => {
-    const pool = createSyncEnginePool();
-    const faulty = createFaultInjectingSqlClient(await openMockingbird());
-    const attemptingOpen = Promise.withResolvers<void>();
-    const alice = world(() =>
-      openMainSqlClient('alice', alice.clock.timers, createNoopLogger(), () => {
-        attemptingOpen.resolve();
-        return faulty.client;
-      })
-    );
-    if (trigger === 'open timeout') faulty.hang();
-    const opening = pool.getOrCreate('user_alice', () => boot(alice));
-    await attemptingOpen.promise;
-    if (trigger === 'open timeout') alice.clock.clock.advance(8_000);
-    const previous = await opening;
-    if (trigger === 'owner disconnected') {
-      faulty.breakWith(() => new Error('Database owner disconnected'));
-      expect(await previous.db.query(READ_ITEMS)).toEqual([]);
-    }
-    expect(faulty.disconnects()).toBe(1);
-    await seedItem(previous.db);
-
-    const bob = world(openMockingbird, {
-      userId: 'bob',
-      databaseName: 'user_bob',
-      auth: { ...alice.args.auth, getAccountId: () => 'bob' },
-    });
-    try {
-      const next = await pool.getOrCreate('user_bob', () => boot(bob));
-      expect(pool.peekReady('user_alice')).toBeNull();
-      await expect(previous.db.query(READ_ITEMS)).rejects.toThrow(
-        /database is closed/i
-      );
-      await expectUsable(next);
-      expect(previous.status.getSnapshot().connection).toBe('disconnected');
-    } finally {
-      await pool.releaseAll();
-    }
-  }
-);
