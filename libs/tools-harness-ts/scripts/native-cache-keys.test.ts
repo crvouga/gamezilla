@@ -35,8 +35,21 @@ function fixture(): string {
       name: 'fixture',
       private: true,
       packageManager: `bun@${Bun.version}`,
-      workspaces: ['apps/*', 'pkgs/*'],
+      workspaces: ['apps/*', 'libs/*', 'pkgs/*'],
+      scripts: { 'task:tokens:generate': 'bun tokens.ts' },
     })
+  );
+  write(
+    'libs/tools-harness-ts/package.json',
+    JSON.stringify({
+      name: '@libs/tools-harness-ts',
+      private: true,
+      scripts: { 'generate:identity': 'bun identity.ts' },
+    })
+  );
+  write(
+    'libs/tools-harness-ts/turbo.json',
+    readFileSync(join(ROOT, 'libs/tools-harness-ts/turbo.json'), 'utf8')
   );
   write('turbo.json', readFileSync(join(ROOT, 'turbo.json'), 'utf8'));
   write('mise.toml', readFileSync(join(ROOT, 'mise.toml'), 'utf8'));

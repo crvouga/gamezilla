@@ -1,5 +1,5 @@
-import { afterEach, describe } from 'bun:test';
-import { mkdtemp } from 'node:fs/promises';
+import { afterEach, describe, expect, test } from 'bun:test';
+import { mkdtemp, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { removeTree } from '@pkgs/fs-server-ts/remove-tree';
@@ -23,4 +23,24 @@ describe('ObjectStore — ObjectStoreImplNodeFs sidecar (port suite)', () => {
       layout: 'sidecar',
     });
   });
+});
+
+// regression: journey-fluent-svg-content-type
+test('tree storage identifies Fluent SVG artwork in a release bundle', async () => {
+  const rootDir = await mkdtemp(join(tmpdir(), 'release-artwork-'));
+  try {
+    await writeFile(
+      join(rootDir, 'video-game.svg'),
+      '<svg xmlns="http://www.w3.org/2000/svg"/>'
+    );
+    const store = createNodeFsObjectStore({
+      rootDir,
+      fs: wallNodeFs(),
+      layout: 'tree',
+    });
+    const file = await store.get('video-game.svg');
+    expect(file?.contentType).toBe('image/svg+xml');
+  } finally {
+    removeTree(rootDir, { whenLocked: 'leave' });
+  }
 });
