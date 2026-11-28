@@ -79,26 +79,53 @@ export async function checkSetupWorkspace(root: HTMLElement): Promise<void> {
     feedback.getBoundingClientRect().top -
       heading.getBoundingClientRect().bottom
   ).toBeLessThanOrEqual(8);
-  const headers = Array.from(
-    root.querySelectorAll<HTMLElement>(
-      '[data-testid="game-session-setup-grid"] > span[aria-hidden="true"]'
-    )
-  ).slice(1, 11);
-  await expect(headers.length).toBe(10);
-  for (const header of headers) {
-    await expect(header.getBoundingClientRect().width).toBeGreaterThanOrEqual(
-      16
-    );
-    await expect(
-      Number.parseFloat(getComputedStyle(header).fontSize)
-    ).toBeGreaterThanOrEqual(12);
-  }
+  await checkOverviewCoordinates(root);
   if (window.innerWidth >= 640) {
     await expect(overview.left).toBeGreaterThan(working.right);
     await expect(overview.bottom).toBe(working.bottom);
   } else {
     await expect(overview.bottom).toBeLessThanOrEqual(working.top);
     await expect(overview.width).toBeGreaterThanOrEqual(224);
+  }
+}
+
+/** The overview's regions cover the same cells a player sees on the map. */
+async function checkOverviewCoordinates(root: HTMLElement): Promise<void> {
+  // regression: battleship-overview-detached-coordinates
+  const canvas = within(root);
+  const board = canvas.getByTestId('game-session-setup-grid');
+  const columns = board.querySelectorAll<HTMLElement>('[data-corner="column"]');
+  const rows = board.querySelectorAll<HTMLElement>('[data-corner="row"]');
+  await expect(Array.from(columns, (label) => label.textContent).join('')).toBe(
+    'ABCDEFGHIJ'
+  );
+  await expect(Array.from(rows, (label) => label.textContent).join(',')).toBe(
+    '1,2,3,4,5,6,7,8,9,10'
+  );
+  for (const label of [...rows, ...columns]) {
+    await expect(label.getBoundingClientRect().width).toBeGreaterThanOrEqual(
+      16
+    );
+    await expect(
+      Number.parseFloat(getComputedStyle(label).fontSize)
+    ).toBeGreaterThanOrEqual(12);
+  }
+  const region = canvas
+    .getByTestId('game-session-setup-area-0')
+    .getBoundingClientRect();
+  const first = canvas
+    .getByTestId('game-session-setup-cell-a1')
+    .getBoundingClientRect();
+  const last = canvas
+    .getByTestId('game-session-setup-cell-e5')
+    .getBoundingClientRect();
+  for (const difference of [
+    region.left - first.left,
+    region.top - first.top,
+    region.right - last.right,
+    region.bottom - last.bottom,
+  ]) {
+    await expect(Math.abs(difference)).toBeLessThanOrEqual(1);
   }
 }
 

@@ -533,6 +533,7 @@ test('screens-games-word-tiles-puzzle--enlarged-blank regression word-tiles-blan
 });
 
 // regression: battleship-phone-placement-default
+// regression: battleship-overview-detached-coordinates
 test('screens-games-battleship-setup--empty regression battleship-phone-placement-default', async ({
   page,
 }) => {

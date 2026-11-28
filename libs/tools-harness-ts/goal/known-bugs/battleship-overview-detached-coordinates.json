@@ -1,0 +1,4 @@
+{
+  "summary": "At 390x844 Battleship's fleet overview reserved a removed header row and column, wrapping the hundred cells away from their four region controls and shrinking the edge coordinates below the readable label size.",
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/stories.checks.ts"
+}
