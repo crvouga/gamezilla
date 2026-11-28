@@ -328,7 +328,9 @@ test('the real required-check registry expression evaluates under OpenTofu', () 
 test('abandoned-lock recovery shares the policy lock and requires an explicit rehearsal input', () => {
   const preview = workflow('deploy.yml')['deploy-rehearsal'];
   expect(preview?.if).toContain('inputs.rehearsal');
-  expect(preview?.concurrency?.group).toBe('repository-policy');
+  expect(preview?.concurrency?.group).toBe(
+    "${{ (inputs.abandoned-bootstrap-lock != '' || inputs.abandoned-foundation-lock != '') && 'repository-policy' || format('rehearsal-plan-{0}', github.run_id) }}"
+  );
   const text = readFileSync(
     join(TOFU, '../../../.github/workflows/deploy.yml'),
     'utf8'
