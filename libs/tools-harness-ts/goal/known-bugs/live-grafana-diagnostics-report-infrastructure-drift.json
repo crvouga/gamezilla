@@ -1,0 +1,4 @@
+{
+  "summary": "The foundation plan in Release rehearsal 46124174673 had no resource changes but changed saved diagnostic outputs from 998 used rules to 838. Persisting live observations made a successful reconciliation appear to be infrastructure drift.",
+  "regressionTest": "libs/infra-server-ts/tests/foundation-outputs.test.ts"
+}

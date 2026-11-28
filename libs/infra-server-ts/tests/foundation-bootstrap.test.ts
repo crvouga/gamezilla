@@ -141,7 +141,6 @@ describe('foundation bootstrap', () => {
       'resource "grafana_cloud_stack_service_account" "views"',
       'resource "grafana_cloud_stack_service_account_token" "views"',
       'module "observability_views"',
-      'data "http" "alert_rule_quotas"',
     ]) {
       const block = wiring.split(`${declaration} {`)[1]?.split('\n}')[0];
       expect(block).toMatch(
