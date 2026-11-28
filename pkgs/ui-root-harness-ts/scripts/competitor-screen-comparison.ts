@@ -265,7 +265,7 @@ async function main(): Promise<void> {
       '',
     ];
     for (const screen of competitorScreens) {
-      const stem = screen.screenshot.replace(/\.png$/, '');
+      const stem = screen.screenshot.replace(/\.png$/i, '');
       const file = `${stem}.png`;
       process.stdout.write(`${screen.label}\n`);
       const [ours, theirs] = await Promise.all([
