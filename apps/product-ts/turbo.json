@@ -233,7 +233,6 @@
         "@pkgs/postgres-mockingbird-server-ts#src",
         "@pkgs/property-shared-ts#src",
         "@pkgs/s3-server-ts#src",
-        "@pkgs/secret-store-shared-ts#src",
         "@pkgs/sql-client-postgres-server-ts#src",
         "@pkgs/sql-client-root-shared-ts#src",
         "@pkgs/sql-client-sqlite-web-server-ts#src",

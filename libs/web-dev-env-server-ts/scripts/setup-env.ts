@@ -1,8 +1,8 @@
+#!/usr/bin/env bun
 // @io-wall-ok — composition-root wall FS via ObjectStore migration pending
 import { execFileSync } from 'node:child_process';
 import { writeFileSync } from 'node:fs';
-import { dirname, join } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { join } from 'node:path';
 import { DEFAULT_LOCAL_PREVIEW_API_ORIGIN } from '@libs/app-config-shared-ts/local-preview-api-origin';
 import {
   assertTigerPolicyForResolvedApiOrigin,
@@ -18,12 +18,11 @@ import {
 import { createScriptSecretStore } from '@pkgs/secret-store-shared-ts/create-script-secret-store';
 import type { SecretStore } from '@pkgs/secret-store-shared-ts/interface';
 
-const clientRoot = join(dirname(fileURLToPath(import.meta.url)), '..');
-const outPath = join(clientRoot, '.env.local');
+const appRoot = process.cwd();
+const outPath = join(appRoot, '.env.local');
 const tmpPath = `${outPath}.${process.pid}.tmp`;
 
-// `setup-env.ts` runs from the `setup` script (npm's `predev` lifecycle and the
-// `setup` turbo task).
+// The consuming app's Turborepo setup task runs from its own directory.
 // Production builds do not invoke this script — they read `VITE_*` at bundle time.
 
 function isProductionHostname(rawUrl: string): boolean {
@@ -154,7 +153,7 @@ function resolveViteCommitHash(): string {
   let stdout = '';
   assert.notThrows(() => {
     stdout = execFileSync('git', ['rev-parse', 'HEAD'], {
-      cwd: clientRoot,
+      cwd: appRoot,
       encoding: 'utf8',
     });
   }, 'VITE_COMMIT_HASH is required and git rev-parse HEAD failed');
@@ -178,7 +177,7 @@ function resolveViteCommitDate(): string {
   let stdout = '';
   assert.notThrows(() => {
     stdout = execFileSync('git', ['log', '-1', '--format=%cI', 'HEAD'], {
-      cwd: clientRoot,
+      cwd: appRoot,
       encoding: 'utf8',
     });
   }, 'VITE_COMMIT_DATE is required and git log -1 --format=%cI HEAD failed');

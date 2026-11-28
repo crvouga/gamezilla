@@ -1,0 +1,12 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test": {
+      "inputs": [
+        "$TURBO_EXTENDS$",
+        "$TURBO_ROOT$/apps/{product,product-client}-ts/package.json"
+      ]
+    },
+    "src": { "dependsOn": [] }
+  }
+}

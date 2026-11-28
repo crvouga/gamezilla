@@ -281,7 +281,6 @@
       "version": "1.0.0",
       "dependencies": {
         "@libs/app-root-client-ts": "workspace:*",
-        "@libs/app-root-shared-ts": "workspace:*",
         "@libs/product-brand-shared-ts": "workspace:*",
         "@libs/product-identity-shared-ts": "workspace:*",
         "@libs/runtime-client-ts": "workspace:*",
@@ -299,6 +298,7 @@
         "@libs/app-config-shared-ts": "workspace:*",
         "@libs/auth-shared-ts": "workspace:*",
         "@libs/game-menu-client-ts": "workspace:*",
+        "@libs/web-dev-env-server-ts": "workspace:*",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/assert-root-shared-ts": "workspace:*",
@@ -306,13 +306,10 @@
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/dev-owner-server-ts": "workspace:*",
         "@pkgs/feedback-server-ts": "workspace:*",
-        "@pkgs/fs-server-ts": "workspace:*",
-        "@pkgs/git-shared-ts": "workspace:*",
         "@pkgs/logger-shared-ts": "workspace:*",
         "@pkgs/object-store-node-fs-server-ts": "workspace:*",
         "@pkgs/os-server-ts": "workspace:*",
         "@pkgs/os-shared-ts": "workspace:*",
-        "@pkgs/secret-store-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-web-server-ts": "workspace:*",
         "@pkgs/turn-game-shared-ts": "workspace:*",
         "@pkgs/ui-root-shared-ts": "workspace:*",
@@ -396,6 +393,7 @@
         "@libs/synthetic-population-server-ts": "workspace:*",
         "@libs/synthetic-population-shared-ts": "workspace:*",
         "@libs/test-ids-shared-ts": "workspace:*",
+        "@libs/web-dev-env-server-ts": "workspace:*",
         "@lingui/babel-plugin-lingui-macro": "catalog:",
         "@lingui/conf": "catalog:",
         "@pkgs/auth-inhouse-client-ts": "workspace:*",
@@ -428,7 +426,6 @@
         "@pkgs/permissions-shared-ts": "workspace:*",
         "@pkgs/postgres-mockingbird-server-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
-        "@pkgs/secret-store-shared-ts": "workspace:*",
         "@pkgs/sql-client-postgres-server-ts": "workspace:*",
         "@pkgs/sql-client-root-shared-ts": "workspace:*",
         "@pkgs/sql-client-sqlite-root-shared-ts": "workspace:*",
@@ -4364,6 +4361,26 @@
       "name": "@libs/user-search-shared-ts",
       "version": "0.0.0",
       "devDependencies": {
+        "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/web-dev-env-server-ts": {
+      "name": "@libs/web-dev-env-server-ts",
+      "version": "0.0.0",
+      "bin": {
+        "web-dev-env-server-ts": "./scripts/setup-env.ts",
+      },
+      "dependencies": {
+        "@libs/app-config-shared-ts": "workspace:*",
+        "@libs/app-root-shared-ts": "workspace:*",
+        "@pkgs/assert-root-shared-ts": "workspace:*",
+        "@pkgs/fs-server-ts": "workspace:*",
+        "@pkgs/git-shared-ts": "workspace:*",
+        "@pkgs/secret-store-shared-ts": "workspace:*",
+      },
+      "devDependencies": {
+        "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
         "typescript": "catalog:",
       },
@@ -9171,6 +9188,8 @@
     "@libs/user-search-client-ts": ["@libs/user-search-client-ts@workspace:libs/user-search-client-ts"],
 
     "@libs/user-search-shared-ts": ["@libs/user-search-shared-ts@workspace:libs/user-search-shared-ts"],
+
+    "@libs/web-dev-env-server-ts": ["@libs/web-dev-env-server-ts@workspace:libs/web-dev-env-server-ts"],
 
     "@libs/word-tiles-client-ts": ["@libs/word-tiles-client-ts@workspace:libs/word-tiles-client-ts"],
 
