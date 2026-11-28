@@ -6,7 +6,8 @@ import type {
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
-import { UserIcon } from '@pkgs/ui-root-client-ts/icons';
+import { ProfileArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import { Skeleton } from '@pkgs/ui-root-client-ts/skeleton';
 import { StackVertical } from '@pkgs/ui-root-client-ts/stack';
 import { TextLink } from '@pkgs/ui-root-client-ts/text-link';
@@ -63,7 +64,7 @@ export function FriendUserIdentity(props: {
       >
         <EmptyState
           variant="compact"
-          icon={UserIcon}
+          icon={ProfileArt}
           title={
             props.presence === 'deleted' ? (
               <Trans>Account deleted</Trans>

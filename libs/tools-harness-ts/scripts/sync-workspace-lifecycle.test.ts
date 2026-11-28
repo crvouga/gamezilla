@@ -33,9 +33,7 @@ describe('renderConfigs', () => {
     expect(config.defaultThreadEnvMode).toBe('worktree');
     expect(
       config.scripts.map((script) => [script.name, script.command])
-    ).toEqual([
-      ['Localhost', hookCommand('run')],
-    ]);
+    ).toEqual([['Localhost', hookCommand('run')]]);
     expect(
       config.scripts.some(
         (script) =>

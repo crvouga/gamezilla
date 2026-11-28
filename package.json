@@ -280,7 +280,6 @@
     "hono": "^4.13.13",
     "jiti": "^2.7.0",
     "jose": "^6.2.13",
-    "lucide": "^1.78.0",
     "make-plural": "^8.1.0",
     "modern-screenshot": "^4.7.0",
     "mqtt": "^5.16.1",

@@ -8,14 +8,13 @@ import {
   BugIcon,
   CreditCardIcon,
   InfoIcon,
-  PaintbrushIcon,
   SmartphoneIcon,
-  UserIcon,
   Volume2Icon,
   VolumeXIcon,
   WifiIcon,
   WifiOffIcon,
 } from '@pkgs/ui-root-client-ts/icons';
+import { ProfileArt, ThemeArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import { MenuSection } from '@pkgs/ui-root-client-ts/menu-section';
@@ -24,8 +23,6 @@ import type { ThemePreference } from '@pkgs/ui-root-client-ts/theme-preference';
 import type { Href } from '@pkgs/ui-root-shared-ts/href';
 import { dynamic, type JSX } from '@solidjs/web';
 import { type Accessor, For, Show } from 'solid-js';
-
-const ROW_ICON_SIZE = 20;
 
 type SettingsRow = {
   readonly title: string;
@@ -110,7 +107,7 @@ function useAccountGroup(
       {
         title: t`Account`,
         caption: t`Sign-in methods, devices, sign out`,
-        icon: UserIcon,
+        icon: ProfileArt,
         href: '/more/account',
         testid: 'settings-account',
       },
@@ -158,7 +155,7 @@ function usePreferencesGroup(
       {
         title: t`Appearance`,
         value: themeValue(),
-        icon: PaintbrushIcon,
+        icon: ThemeArt,
         href: '/more/theme',
         testid: Handles.settingsTheme,
       },
@@ -345,7 +342,7 @@ function SettingsRowItem(props: {
           ? props.row.value
           : undefined
       }
-      leading={<RowIcon size={ROW_ICON_SIZE} color="icon" />}
+      leading={<RowIcon color="icon" />}
       trailing={
         props.row.toggle === undefined ? undefined : (
           <Switch

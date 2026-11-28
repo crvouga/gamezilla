@@ -4,6 +4,7 @@ import { HostBadge } from '@pkgs/ui-root-client-ts/badge';
 import { Button } from '@pkgs/ui-root-client-ts/button';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { H3 } from '@pkgs/ui-root-client-ts/heading';
+import { FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
 import { List } from '@pkgs/ui-root-client-ts/list';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { StackHorizontal, StackVertical } from '@pkgs/ui-root-client-ts/stack';
@@ -203,6 +204,7 @@ function SpaceSharePeopleList(props: SpaceSharingPanelProps): JSX.Element {
         }
       >
         <EmptyState
+          icon={FriendsArt}
           variant="compact"
           title={<Trans>No one added yet</Trans>}
           body={

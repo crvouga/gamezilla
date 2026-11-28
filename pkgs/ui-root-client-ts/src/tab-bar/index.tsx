@@ -14,7 +14,7 @@ export type TabBarItem = {
   readonly id: string;
   /** Visible caption and accessible name. */
   readonly label: string;
-  /** 24px outline icon. */
+  /** Decorative destination illustration or control icon. */
   readonly icon: IconComponent;
   /** The destination on screen now (`aria-current="page"`). */
   readonly current: boolean;
@@ -36,7 +36,6 @@ export type TabBarProps = {
   readonly dataSet?: ComponentDataSet | undefined;
 };
 
-const ICON_SIZE = 24;
 const STROKE_CURRENT = 2.5;
 const STROKE_DEFAULT = 2;
 
@@ -60,7 +59,6 @@ function TabBarItemFace(props: { item: TabBarItem }): JSX.Element {
     <>
       <span class="box relative items-center justify-center">
         <Icon
-          size={ICON_SIZE}
           strokeWidth={props.item.current ? STROKE_CURRENT : STROKE_DEFAULT}
           color={props.item.current ? 'tint' : 'textSecondary'}
         />
@@ -139,10 +137,8 @@ function TabBarButton(props: { item: TabBarItem }): JSX.Element {
  * over label, pinned under the content on phones.
  *
  * - **Look.** A 52px row on the canvas with one hairline above it and the
- *   bottom safe-area inset below. Icons are 24px outlines with a 12px label
- *   under them. The current item is drawn in the accent with a heavier
- *   stroke and a semibold label; the rest are secondary, so where you are
- *   reads at a glance. No indicator pill. Each label box
+ *   bottom safe-area inset below. Each destination has a picture with a 12px label
+ *   underneath. The current label uses the accent and semibold weight. Each label box
  *   is held at its semibold width (`reserveBold`), so selection never
  *   reflows the labels.
  * - **Meaning.** A `navigation` landmark of links or buttons, never an ARIA

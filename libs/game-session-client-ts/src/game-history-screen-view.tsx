@@ -7,7 +7,8 @@ import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameScreen } from '@pkgs/ui-root-client-ts/game-screen';
 import { GameStat } from '@pkgs/ui-root-client-ts/game-stat';
 import { Grid } from '@pkgs/ui-root-client-ts/grid';
-import { ChevronRightIcon, HistoryIcon } from '@pkgs/ui-root-client-ts/icons';
+import { ChevronRightIcon } from '@pkgs/ui-root-client-ts/icons';
+import { HistoryArt } from '@pkgs/ui-root-client-ts/illustration';
 import { MainMenuItemRow } from '@pkgs/ui-root-client-ts/main-menu-item-row';
 import { MenuList } from '@pkgs/ui-root-client-ts/menu-list';
 import { useRelativeTimeLabel } from '@pkgs/ui-root-client-ts/relative-time';
@@ -328,7 +329,7 @@ function HistoryRecords(
       <Match when={props.records.length === 0}>
         <EmptyState
           variant="compact"
-          icon={HistoryIcon}
+          icon={HistoryArt}
           title={<Trans>No finished games yet</Trans>}
           body={
             <Trans>
@@ -346,6 +347,7 @@ function HistoryRecords(
       <Match when={shown().length === 0}>
         <EmptyState
           variant="compact"
+          icon={HistoryArt}
           title={<Trans>No games with this result</Trans>}
           body={<Trans>Choose All to see every finished game.</Trans>}
           dataSet={{ testid: 'game-history-filter-empty' }}

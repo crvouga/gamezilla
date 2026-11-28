@@ -2,6 +2,7 @@ import type { PuzzleOutcomeKind } from '@libs/game-puzzle-shared-ts/interaction-
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { GameReviewScreen } from '@pkgs/ui-root-client-ts/game-review-screen';
+import { PuzzleArt } from '@pkgs/ui-root-client-ts/illustration';
 import type { JSX } from '@solidjs/web';
 import { Match, Show, Switch } from 'solid-js';
 
@@ -68,6 +69,7 @@ export function PuzzleReviewScreenView(
       when={props.status !== 'unselected'}
       fallback={
         <EmptyState
+          icon={PuzzleArt}
           title={<Trans>No puzzle selected</Trans>}
           body={<Trans>Pick one from the game log.</Trans>}
           action={{
@@ -92,6 +94,7 @@ export function PuzzleReviewScreenView(
           when={props.status === 'ready'}
           fallback={
             <EmptyState
+              icon={PuzzleArt}
               title={<Trans>Puzzle unavailable</Trans>}
               body={
                 <Trans>

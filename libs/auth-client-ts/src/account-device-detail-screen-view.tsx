@@ -1,7 +1,8 @@
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import type { ClipboardCopy } from '@pkgs/ui-root-client-ts/copy-to-clipboard-field';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
-import { SmartphoneIcon } from '@pkgs/ui-root-client-ts/icons';
+import { DeviceArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { MenuScreen } from '@pkgs/ui-root-client-ts/menu-screen';
 import type { JSX } from '@solidjs/web';
@@ -46,7 +47,7 @@ export function AccountDeviceDetailScreenView(
       <Switch>
         <Match when={props.status === 'missingId'}>
           <EmptyState
-            icon={SmartphoneIcon}
+            icon={DeviceArt}
             title={<Trans>Device not found</Trans>}
             body={<Trans>This link is missing a device id.</Trans>}
           />
@@ -64,7 +65,7 @@ export function AccountDeviceDetailScreenView(
         </Match>
         <Match when={true}>
           <EmptyState
-            icon={SmartphoneIcon}
+            icon={DeviceArt}
             title={<Trans>Device not found</Trans>}
             body={
               <Trans>

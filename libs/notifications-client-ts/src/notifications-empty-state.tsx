@@ -4,10 +4,10 @@ import type { NotificationFilter } from '@libs/notifications-shared-ts/notificat
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import {
-  BellIcon,
-  ListChecksIcon,
-  SquareStackIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+  ArchiveArt,
+  NotificationsArt,
+} from '@pkgs/ui-root-client-ts/illustration';
+
 import type { JSX } from '@solidjs/web';
 import { Match, Switch } from 'solid-js';
 
@@ -18,14 +18,14 @@ export function NotificationsEmptyState(props: {
     <Switch>
       <Match when={props.filter === 'archived'}>
         <EmptyState
-          icon={SquareStackIcon}
+          icon={ArchiveArt}
           title={<Trans>Nothing archived</Trans>}
           body={<Trans>Notifications you archive are kept here.</Trans>}
         />
       </Match>
       <Match when={props.filter === 'action_required'}>
         <EmptyState
-          icon={ListChecksIcon}
+          icon={NotificationsArt}
           title={<Trans>Nothing needs your attention</Trans>}
           body={
             <Trans>Requests and invites that need a reply land here.</Trans>
@@ -34,7 +34,7 @@ export function NotificationsEmptyState(props: {
       </Match>
       <Match when={true}>
         <EmptyState
-          icon={BellIcon}
+          icon={NotificationsArt}
           title={<Trans>You're all caught up</Trans>}
           body={
             <Trans>

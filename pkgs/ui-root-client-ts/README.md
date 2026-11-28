@@ -50,6 +50,19 @@ rings, icons and seat colors) and keeps the seat colors apart in lightness.
 | Motion | 150 / 200 / 250ms, one ease-out curve, only in answer to a tap; off under reduced motion |
 | Breakpoints | sm 640, md 768, lg 1024, xl 1280 |
 
+### Illustrations and controls
+
+Choose a shared [Fluent Emoji Flat illustration](src/illustration/index.tsx) for
+a game, destination, achievement or meaningful empty state. Pair illustrated
+choices with visible text. The default artwork is 32 px and decorative. Use
+People Hugging for human opponents, Robot for bots and Sports Medal for
+tournaments. Board positions, player clocks and move records keep the space
+they need for play.
+
+Functional controls use the [Fluent UI System Icons Regular collection](src/icons.ts).
+Its default glyph is 20 px. Give an icon-only button an accessible name and
+preserve its interactive target when changing the size of its glyph.
+
 ## Rules
 
 1. **Calm chrome, one accent.** Neutrals are slate and never carry a hue of

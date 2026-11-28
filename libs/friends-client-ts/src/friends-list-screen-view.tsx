@@ -8,7 +8,8 @@ import { ContentScreen } from '@pkgs/ui-root-client-ts/content-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import { UserPlusIcon } from '@pkgs/ui-root-client-ts/icons';
+import { FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import type { ScreenBaseAction } from '@pkgs/ui-root-client-ts/screen-base-types';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
@@ -70,7 +71,7 @@ function FriendsEmptyState(props: { onFindFriends: () => void }): JSX.Element {
   const { t } = useLingui();
   return (
     <EmptyState
-      icon={UserPlusIcon}
+      icon={FriendsArt}
       title={<Trans>No friends yet</Trans>}
       body={
         <Trans>Search for people by username to send a friend request.</Trans>

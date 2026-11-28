@@ -8,11 +8,8 @@ import { CollectionScreen } from '@pkgs/ui-root-client-ts/collection-screen';
 import { EmptyState } from '@pkgs/ui-root-client-ts/empty-state';
 import { ErrorState } from '@pkgs/ui-root-client-ts/error-state';
 import { H2 } from '@pkgs/ui-root-client-ts/heading';
-import {
-  SearchIcon,
-  UsersIcon,
-  WifiOffIcon,
-} from '@pkgs/ui-root-client-ts/icons';
+import { SearchIcon, WifiOffIcon } from '@pkgs/ui-root-client-ts/icons';
+import { SearchArt } from '@pkgs/ui-root-client-ts/illustration';
 import { LoadingState } from '@pkgs/ui-root-client-ts/loading-state';
 import { Notice } from '@pkgs/ui-root-client-ts/notice';
 import { ScreenBodyVirtualList } from '@pkgs/ui-root-client-ts/screen-body-virtual-list';
@@ -132,7 +129,7 @@ function SearchResults(props: {
           <Match when={phase() === 'needs-connection'}>
             <EmptyState
               variant="compact"
-              icon={SearchIcon}
+              icon={SearchArt}
               title={<Trans>Search needs a connection</Trans>}
               body={
                 <Trans>
@@ -152,7 +149,7 @@ function SearchResults(props: {
           <Match when={phase() === 'empty'}>
             <EmptyState
               variant="compact"
-              icon={SearchIcon}
+              icon={SearchArt}
               title={<Trans>No people found</Trans>}
               body={
                 <Trans>Check the spelling or try a different username.</Trans>
@@ -236,7 +233,7 @@ function SearchAside(props: {
 function SearchIdleState(): JSX.Element {
   return (
     <EmptyState
-      icon={UsersIcon}
+      icon={SearchArt}
       title={<Trans>Search by username</Trans>}
       body={<Trans>Add friends and invite them to spaces.</Trans>}
     />

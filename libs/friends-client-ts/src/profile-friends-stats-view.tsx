@@ -1,7 +1,8 @@
 import { Handles } from '@libs/test-ids-shared-ts/handles';
 import { Trans } from '@pkgs/lingui-solid-client-ts/macro';
 import { AvatarGroup } from '@pkgs/ui-root-client-ts/avatar-group';
-import { UsersIcon } from '@pkgs/ui-root-client-ts/icons';
+import { FriendsArt } from '@pkgs/ui-root-client-ts/illustration';
+
 import { MenuRow } from '@pkgs/ui-root-client-ts/menu-row';
 import { Text } from '@pkgs/ui-root-client-ts/text';
 import type { JSX } from '@solidjs/web';
@@ -42,7 +43,7 @@ export function ProfileFriendsStats(): JSX.Element {
   // A bare row: the profile groups it with Find friends in one panel.
   return (
     <MenuRow
-      leading={<UsersIcon size={20} color="icon" />}
+      leading={<FriendsArt />}
       title={<Trans>All friends</Trans>}
       value={
         <Show when={friendsState.friends().length > 0}>

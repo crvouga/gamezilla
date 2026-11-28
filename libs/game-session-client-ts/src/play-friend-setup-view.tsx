@@ -290,7 +290,7 @@ function AgreedRows(
         <Show when={rules()}>
           {(shown) => (
             <MenuRow
-              leading={<SlidersHorizontalIcon size={24} />}
+              leading={<SlidersHorizontalIcon size={20} />}
               title={<Trans>Options</Trans>}
               value={optionsSummary(shown())}
               onClick={() => props.onOpen({ screen: 'options' })}
@@ -301,7 +301,7 @@ function AgreedRows(
         <Show when={options()?.clock}>
           {(clock) => (
             <MenuRow
-              leading={<ClockIcon size={24} />}
+              leading={<ClockIcon size={20} />}
               title={<Trans>Clock and sides</Trans>}
               value={
                 <FrameClockWords
@@ -317,7 +317,7 @@ function AgreedRows(
         <Show when={props.setup.privateSetup}>
           {(own) => (
             <MenuRow
-              leading={<LockIcon size={24} />}
+              leading={<LockIcon size={20} />}
               title={<Trans>Your private setup</Trans>}
               caption={<Trans>Only you see it</Trans>}
               // The row shows one word; a listener hears the whole sentence.

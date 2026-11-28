@@ -40,7 +40,9 @@ test('active worktrees, divergent remotes and missing PR evidence retain the bra
 });
 
 test('a head already on main or an idle archived head is deleted without pull metadata', () => {
-  expect(retentionReason({ ...merged, pulls: [], integrated: true })).toBeNull();
+  expect(
+    retentionReason({ ...merged, pulls: [], integrated: true })
+  ).toBeNull();
   expect(
     retentionReason({ ...merged, pulls: [], archived: true, idle: true })
   ).toBeNull();
