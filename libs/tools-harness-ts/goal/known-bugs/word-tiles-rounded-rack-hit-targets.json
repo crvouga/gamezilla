@@ -1,4 +1,4 @@
 {
   "summary": "The opening seven-letter rack at 390×844 and 1280×800 exposes its parent through the tray's rounded corners. Check the whole tray fits and each letter's actual hit target stays clear.",
-  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/rack.checks.ts"
+  "regressionTest": "pkgs/ui-root-harness-ts/tests/storybook/word-tiles/rack/integration.checks.ts"
 }
