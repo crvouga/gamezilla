@@ -1,0 +1,4 @@
+{
+  "summary": "Grafana used 998 of its 1000 alert-rule slots, and reconciliation could not install the remaining objectives and alerts. Separate physical rules for every sync target exhausted capacity despite identical routing and timing.",
+  "regressionTest": "libs/observability-server-ts/tests/grafana-alert-rule-capacity.test.ts"
+}
