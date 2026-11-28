@@ -1,0 +1,11 @@
+.icon:not(:has(> [data-icon-family="artwork"])) {
+  border-radius: var(--ui-radius-full);
+  border: var(--ui-space-hairline) solid var(--ui-color-border);
+  background: var(--ui-finish-piece) var(--ui-color-surface);
+  box-shadow: var(--ui-depth-piece);
+}
+
+.icon > [data-icon-family="artwork"] {
+  width: 100%;
+  height: 100%;
+}

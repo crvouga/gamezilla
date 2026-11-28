@@ -5,6 +5,7 @@ import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { iconSize } from '@pkgs/ui-root-shared-ts/sizes';
 import { dynamic, type JSX } from '@solidjs/web';
 import type { IconComponent } from '../create-icon/index';
+import styles from './state-block.module.css';
 
 export type StateBlockVariant = 'fill' | 'compact';
 
@@ -106,7 +107,8 @@ export function StateBlockIcon(props: StateBlockIconProps): JSX.Element {
   return (
     <div
       class={[
-        'stateBlockIcon box shrink-0 items-center justify-center',
+        styles['icon'],
+        'box shrink-0 items-center justify-center',
         { 'size-24 mb-2': isFill(), 'size-16 mb-1': !isFill() },
       ]}
       data-component="StateBlockIcon"

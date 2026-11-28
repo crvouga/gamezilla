@@ -3,6 +3,7 @@ export const tabletopBoards: Readonly<Record<string, string>> = {
   'screens-games-chess-board--early-game': 'ChessBoard',
   'screens-games-chess-puzzle--solving': 'ChessBoard',
   'screens-games-connect-four-board--your-turn': 'DiscDropBoard',
+  'screens-games-battleship-setup--empty': 'CellGridBoard',
   'screens-games-battleship-setup--partial': 'CellGridBoard',
   'screens-games-battleship-board--your-turn': 'CellGridBoard',
   'screens-games-quoridor-classic--your-turn': 'CellGridBoard',

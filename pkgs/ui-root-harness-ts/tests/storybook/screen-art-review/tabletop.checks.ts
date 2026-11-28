@@ -126,6 +126,9 @@ for (const width of [390, 768, 1280]) {
       } finally {
         await page.screenshot({
           path: info.outputPath(`${story}--${width}-dark.png`),
+          fullPage:
+            story === 'components-illustration--catalog' ||
+            story === 'games-shared-game-tile--motifs',
           animations: 'disabled',
         });
       }

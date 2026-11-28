@@ -5,8 +5,8 @@ import type { ComponentDataSet } from '@pkgs/ui-root-shared-ts/component-id';
 import { dataAttrs } from '@pkgs/ui-root-shared-ts/component-id';
 import { cssPx } from '@pkgs/ui-root-shared-ts/css-px';
 import type { JSX } from '@solidjs/web';
-import { Button as SdkButton } from '@ui-sdk/solid/button';
 import { Show } from 'solid-js';
+import { IconButton } from '../icon-button/index';
 
 export type AvatarHeroAction = {
   onClick: () => void;
@@ -29,13 +29,7 @@ export type AvatarHeroProps = {
 const ACTION_INSET = 4;
 const STAGE_PADDING = 16;
 
-/**
- * `AvatarHero` -- centered large avatar stage with optional corner action.
- *
- * The corner action is a round 44px button (the canvas inside a hairline
- * ring, like a panel) anchored to the bottom-right of the preview slot, with
- * the hover / press tint, the focus ring and the disabled opacity.
- */
+/** Centered avatar preview in a recessed seat with an optional corner action. */
 export function AvatarHero(props: AvatarHeroProps): JSX.Element {
   const slotSize = () => props.size + ACTION_INSET * 2;
 
@@ -46,7 +40,7 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
       style={{ 'min-height': cssPx(slotSize() + STAGE_PADDING) }}
     >
       <div
-        class="box"
+        class="artMount box items-center justify-center rounded-full bg-surface"
         style={{ width: cssPx(slotSize()), height: cssPx(slotSize()) }}
       >
         <div
@@ -57,18 +51,18 @@ export function AvatarHero(props: AvatarHeroProps): JSX.Element {
         </div>
         <Show when={props.action}>
           {(action) => (
-            <SdkButton
-              class={[
-                'clickable clickableTint absolute right-0 bottom-0 size-11 min-w-11 min-h-11 rounded-full border border-border bg-background items-center justify-center',
-                { 'opacity-disabled': action().disabled === true },
-              ]}
-              type="button"
-              aria-label={action().label}
-              disabled={action().disabled === true}
-              onClick={() => action().onClick()}
-            >
-              {action().icon}
-            </SdkButton>
+            <div class="absolute right-0 bottom-0">
+              <IconButton
+                size={44}
+                background="surfaceElevated"
+                label={action().label}
+                disabled={action().disabled}
+                tooltip="none"
+                onClick={() => action().onClick()}
+              >
+                {action().icon}
+              </IconButton>
+            </div>
           )}
         </Show>
       </div>
