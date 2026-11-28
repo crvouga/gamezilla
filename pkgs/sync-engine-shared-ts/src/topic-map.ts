@@ -1,6 +1,6 @@
 import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 
-import type { MutationDb, MutationEnv } from './mutations-types';
+import type { MutationDb } from './mutations-types';
 import type { QueryRow } from './v2';
 import type { WriteCaptureSnapshot } from './write-capture';
 
@@ -74,7 +74,7 @@ export function subscribeTables(topicMap: TopicMap): ReadonlySet<string> {
   return out;
 }
 
-export function topicMapCtxFromEnv(env: MutationEnv): TopicMapCtx {
+export function topicMapCtxFromEnv(env: TopicMapCtx): TopicMapCtx {
   return {
     actorId: env.actorId,
     deviceId: env.deviceId,

@@ -3,28 +3,15 @@ import type { Topic } from '@pkgs/pubsub-root-shared-ts/topic';
 import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import type { MutationUploadResult } from '@pkgs/sync-engine-client-ts/mutation-upload-queue';
 import type { QueryRequest } from '@pkgs/sync-engine-client-ts/subscription-runtime';
-import { allocateTopicPushSeqs } from '@pkgs/sync-engine-server-ts/allocate-topic-push-seq';
 import { publishPushMessages } from '@pkgs/sync-engine-server-ts/notify-channels';
+import { prepareMutationPush } from '@pkgs/sync-engine-server-ts/prepare-mutation-push';
 import { processMutationsBatch } from '@pkgs/sync-engine-server-ts/process-mutations-batch';
 import type { MutationRow } from '@pkgs/sync-engine-server-ts/replay-mutation';
 import { runQuery } from '@pkgs/sync-engine-server-ts/run-query';
-import type {
-  MutationEnv,
-  MutationRegistry,
-} from '@pkgs/sync-engine-shared-ts/mutations-types';
-import { partitionFanoutRowsByTopic } from '@pkgs/sync-engine-shared-ts/partition-fanout-rows';
+import type { MutationRegistry } from '@pkgs/sync-engine-shared-ts/mutations-types';
 import type { QueryRegistry } from '@pkgs/sync-engine-shared-ts/queries-types';
-import { filterPublishableImages } from '@pkgs/sync-engine-shared-ts/row-image-guard';
-import {
-  fanoutRowsForCapture,
-  mergeAffectedRows,
-} from '@pkgs/sync-engine-shared-ts/select-fanout-rows';
 import type { TopicMap } from '@pkgs/sync-engine-shared-ts/topic-map';
-import {
-  topicMapCtxFromEnv,
-  topicsFromWriteCapture,
-} from '@pkgs/sync-engine-shared-ts/topic-map';
-import type { QueryResponse, QueryRow } from '@pkgs/sync-engine-shared-ts/v2';
+import type { QueryResponse } from '@pkgs/sync-engine-shared-ts/v2';
 import type { WriteCaptureSnapshot } from '@pkgs/sync-engine-shared-ts/write-capture';
 import type { CreateId } from '@pkgs/uuid-shared-ts/create-id';
 import type { HarnessHandleMutationsOpts } from './http-bridge-types';
@@ -35,36 +22,6 @@ export type HarnessServerAuth = {
   readonly accountId: string | null;
   readonly isAnon: boolean;
 };
-
-function mergeCaptures(
-  captures: readonly WriteCaptureSnapshot[]
-): WriteCaptureSnapshot {
-  const tableSet = new Set<string>();
-  const idParts: Array<Readonly<Record<string, readonly string[]>>> = [];
-  const imageParts: Record<string, QueryRow[]> = {};
-  for (const c of captures) {
-    for (const t of c.tables) tableSet.add(t);
-    idParts.push(c.ids);
-    for (const [table, rows] of Object.entries(c.images)) {
-      const byId = new Map(
-        (imageParts[table] ?? []).map(
-          (r) => [String(r['id'] ?? ''), r] as const
-        )
-      );
-      for (const row of rows) {
-        const id = String(row['id'] ?? '');
-        if (id.length === 0) continue;
-        byId.set(id, { ...row });
-      }
-      imageParts[table] = [...byId.values()];
-    }
-  }
-  return {
-    tables: [...tableSet].sort(),
-    ids: mergeAffectedRows(idParts),
-    images: imageParts,
-  };
-}
 
 export type HarnessServerHandlerCtx = {
   readonly db: SqlClient;
@@ -83,29 +40,6 @@ export type HarnessServerHandlerCtx = {
   readonly shouldFailPublish?: () => boolean;
 };
 
-type MutationUploadRow = {
-  readonly id: string;
-  readonly name: string;
-  readonly args: string;
-  readonly clientId: string;
-  readonly seq: number;
-  readonly createdAt: string;
-  readonly originTraceparent: string | null;
-  readonly correlation?: {
-    readonly sessionId: string;
-    readonly buildSha: string;
-  };
-};
-
-async function buildFanoutRows(
-  db: SqlClient,
-  capture: WriteCaptureSnapshot,
-  rowImageFanout: boolean
-): Promise<Record<string, QueryRow[]> | undefined> {
-  if (!rowImageFanout) return undefined;
-  return fanoutRowsForCapture(db, capture);
-}
-
 async function notifyApplied(args: {
   readonly ctx: HarnessServerHandlerCtx;
   readonly auth: HarnessServerAuth;
@@ -113,72 +47,30 @@ async function notifyApplied(args: {
   readonly label: string;
 }): Promise<ReadonlyMap<Topic, string>> {
   if (args.captures.length === 0) return new Map();
-  const env: MutationEnv = {
-    ...args.auth,
-    now: () => new Date(args.ctx.now()),
-    createId: args.ctx.createId,
-  };
-  const merged = mergeCaptures(args.captures);
-  const mapCtx = topicMapCtxFromEnv(env);
-  const topics =
-    args.ctx.topicMap === undefined
-      ? []
-      : await topicsFromWriteCapture({
-          topicMap: args.ctx.topicMap,
-          capture: merged,
-          ctx: mapCtx,
-          db: args.ctx.db,
-        });
-  const built = await buildFanoutRows(
-    args.ctx.db,
-    merged,
-    args.ctx.rowImageFanout
-  );
-  // As production: a batch with rows that may not travel as images sends none.
-  const rows =
-    built === undefined ||
-    filterPublishableImages(built, args.ctx.topicMap, mapCtx) !== built
-      ? undefined
-      : built;
-  const rowsByTopic =
-    rows !== undefined && args.ctx.topicMap !== undefined
-      ? await partitionFanoutRowsByTopic({
-          topicMap: args.ctx.topicMap,
-          ctx: mapCtx,
-          rows,
-          db: args.ctx.db,
-        })
-      : undefined;
-  const checkpoints = await allocateTopicPushSeqs(
-    args.ctx.db,
-    topics,
-    args.ctx.now
-  );
-  if (args.ctx.shouldFailPublish?.() === true) {
-    return checkpoints;
-  }
-  await publishPushMessages({
-    pubsub: args.ctx.pubsub,
-    pushSeqs: checkpoints,
-    // After the replay commit — orders this push above any snapshot that was
-    // read before it (see `PushMessage.checkpoint`).
-    checkpoint: args.ctx.nextCheckpoint(),
-    tables: merged.tables,
-    ...(rowsByTopic !== undefined
-      ? { rowsByTopic }
-      : rows !== undefined
-        ? { rows }
-        : {}),
-    label: args.label,
+  const push = await prepareMutationPush({
+    db: args.ctx.db,
+    auth: args.auth,
+    captures: args.captures,
+    topicMap: args.ctx.topicMap,
+    rowImageFanout: args.ctx.rowImageFanout,
+    now: args.ctx.now,
   });
-  return checkpoints;
+  if (args.ctx.shouldFailPublish?.() !== true) {
+    await publishPushMessages({
+      ...push,
+      pubsub: args.ctx.pubsub,
+      checkpoint: args.ctx.nextCheckpoint(),
+      label: args.label,
+    });
+  }
+  return push.pushSeqs;
 }
 
 /** Build mutations HTTP handler for the harness server. */
 export function createHandleMutations(
   ctx: HarnessServerHandlerCtx
 ): (
-  rows: readonly MutationUploadRow[],
+  rows: readonly MutationRow[],
   opts?: HarnessHandleMutationsOpts
 ) => Promise<MutationUploadResult> {
   return async (rows, opts) => {
@@ -186,23 +78,13 @@ export function createHandleMutations(
       ctx.setAuth(ctx.resolveAuth(rows[0].clientId));
     }
     const stickyAuth = ctx.getAuth();
-    const mutationRows: MutationRow[] = rows.map((m) => ({
-      id: m.id,
-      name: m.name,
-      args: m.args,
-      clientId: m.clientId,
-      seq: m.seq,
-      createdAt: m.createdAt,
-      originTraceparent: m.originTraceparent,
-      ...(m.correlation === undefined ? {} : { correlation: m.correlation }),
-    }));
     const failAfter = opts?.failInsideTxnAfter;
     const result = await ctx.db.transaction(async (tx) =>
       processMutationsBatch({
         transaction: tx,
         registry: ctx.mutations,
         auth: stickyAuth,
-        mutations: mutationRows,
+        mutations: rows,
         now: ctx.now,
         createId: ctx.createId,
         ...(failAfter !== undefined
