@@ -25,6 +25,7 @@
     "@libs/pong-client-ts": "workspace:*",
     "@libs/pong-shared-ts": "workspace:*",
     "@libs/spaces-harness-ts": "workspace:*",
+    "@libs/game-simulation-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",
     "@pkgs/room-root-harness-ts": "workspace:*",
     "@pkgs/room-root-shared-ts": "workspace:*",

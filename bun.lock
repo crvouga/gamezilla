@@ -1814,6 +1814,7 @@
         "@lingui/core": "catalog:",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/device-client-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/keyword-shared-ts": "workspace:*",
         "@pkgs/kv-root-client-ts": "workspace:*",
         "@pkgs/kv-root-shared-ts": "workspace:*",
@@ -2118,6 +2119,7 @@
         "@lingui/core": "catalog:",
         "@pkgs/clock-client-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/lingui-solid-client-ts": "workspace:*",
         "@pkgs/logger-client-ts": "workspace:*",
         "@pkgs/room-root-client-ts": "workspace:*",
@@ -2177,6 +2179,7 @@
         "@pkgs/a11y-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
         "@pkgs/device-shared-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/glicko2-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
@@ -2242,6 +2245,7 @@
         "@libs/spaces-shared-ts": "workspace:*",
         "@pkgs/attribute-shared-ts": "workspace:*",
         "@pkgs/clock-shared-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/message-shared-ts": "workspace:*",
         "@pkgs/observability-root-shared-ts": "workspace:*",
         "@pkgs/os-shared-ts": "workspace:*",
@@ -2379,6 +2383,7 @@
         "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
         "@pkgs/dmn-shared-ts": "workspace:*",
         "@pkgs/fs-server-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/gherkin-server-ts": "workspace:*",
         "@pkgs/gherkin-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
@@ -2698,6 +2703,7 @@
         "@libs/light-cycles-client-ts": "workspace:*",
         "@libs/light-cycles-shared-ts": "workspace:*",
         "@libs/spaces-harness-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
         "@pkgs/room-root-harness-ts": "workspace:*",
         "@pkgs/room-root-shared-ts": "workspace:*",
@@ -2728,6 +2734,7 @@
       },
       "devDependencies": {
         "@pkgs/clock-shared-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/message-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
@@ -3247,6 +3254,7 @@
         "@libs/pong-client-ts": "workspace:*",
         "@libs/pong-shared-ts": "workspace:*",
         "@libs/spaces-harness-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/harness-root-shared-ts": "workspace:*",
         "@pkgs/room-root-harness-ts": "workspace:*",
         "@pkgs/room-root-shared-ts": "workspace:*",
@@ -3276,6 +3284,7 @@
       },
       "devDependencies": {
         "@pkgs/clock-shared-ts": "workspace:*",
+        "@libs/game-simulation-shared-ts": "workspace:*",
         "@pkgs/message-shared-ts": "workspace:*",
         "@pkgs/property-shared-ts": "workspace:*",
         "@types/bun": "catalog:",
@@ -5596,6 +5605,26 @@
       "devDependencies": {
         "@types/bun": "catalog:",
         "@typescript/native": "catalog:",
+        "typescript": "catalog:",
+      },
+    },
+    "libs/game-simulation-shared-ts": {
+      "name": "@libs/game-simulation-shared-ts",
+      "version": "0.0.0",
+      "dependencies": {
+        "@pkgs/clock-shared-ts": "workspace:*",
+        "@pkgs/message-shared-ts": "workspace:*",
+        "@pkgs/observability-root-shared-ts": "workspace:*",
+        "@pkgs/turn-game-shared-ts": "workspace:*",
+        "@pkgs/uuid-shared-ts": "workspace:*",
+        "zod": "catalog:",
+      },
+      "devDependencies": {
+        "@pkgs/property-shared-ts": "workspace:*",
+        "@types/bun": "catalog:",
+        "@types/pg": "catalog:",
+        "@typescript/native": "catalog:",
+        "fast-check": "catalog:",
         "typescript": "catalog:",
       },
     },
@@ -9536,6 +9565,8 @@
     "@pkgs/feedback-shared-ts": ["@pkgs/feedback-shared-ts@workspace:pkgs/feedback-shared-ts"],
 
     "@pkgs/fs-server-ts": ["@pkgs/fs-server-ts@workspace:pkgs/fs-server-ts"],
+
+    "@libs/game-simulation-shared-ts": ["@libs/game-simulation-shared-ts@workspace:libs/game-simulation-shared-ts"],
 
     "@pkgs/gherkin-server-ts": ["@pkgs/gherkin-server-ts@workspace:pkgs/gherkin-server-ts"],
 

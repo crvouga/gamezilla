@@ -1,14 +1,14 @@
 import { DecideMultiplayerGame } from '@libs/game-matchmaking-shared-ts/match-intent';
 import { MATCH_ROOM_MODULE } from '@libs/game-matchmaking-shared-ts/match-room';
-import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
-import type { GameDefinition } from '@libs/spaces-shared-ts/game';
-import type { Message } from '@pkgs/message-shared-ts/message';
-import { ROOM_SERVICE_GRANT } from '@pkgs/room-root-shared-ts/service-identity';
 import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
   SubmitSimulationInput,
-} from './simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
+import { PERMISSION } from '@libs/permissions-shared-ts/permission-catalog';
+import type { GameDefinition } from '@libs/spaces-shared-ts/game';
+import type { Message } from '@pkgs/message-shared-ts/message';
+import { ROOM_SERVICE_GRANT } from '@pkgs/room-root-shared-ts/service-identity';
 import {
   CheckpointLocalSimulation,
   CheckpointSimulation,

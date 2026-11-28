@@ -1,5 +1,5 @@
-import { RequestSimulationSnapshot } from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+import { RequestSimulationSnapshot } from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import type { Clock } from '@pkgs/clock-shared-ts/types';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 

@@ -1,5 +1,5 @@
+import type { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
-import type { FixedStepSimulation } from './simulation-engine';
 import type { SimulationSessionView } from './simulation-session-runtime';
 
 export function simulationCommandKey(

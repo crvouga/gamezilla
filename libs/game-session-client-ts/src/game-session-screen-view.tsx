@@ -1,4 +1,5 @@
 import type { GameSessionInput } from '@libs/game-session-shared-ts/game-session-choice';
+import type { PlayMode } from '@libs/game-session-shared-ts/game-session-state';
 import type { DenialView } from '@libs/permissions-client-ts/denial-surface-view';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 import type { JSX } from '@solidjs/web';
@@ -41,11 +42,6 @@ export type GameFrameScreenData = FrameReviewHandlers & {
   readonly status: FrameStatus | null;
   /** May create a game (before there is one). */
   readonly canCreate: boolean;
-  /**
-   * Who the stored game is with. Each screen template is fixed to one
-   * mode; the template does not switch on this.
-   */
-  readonly mode: 'vs-human' | 'vs-bot';
   readonly sides: readonly GameSide[];
   /** While the game is set up. */
   readonly setup: FrameSetup | null;
@@ -96,6 +92,7 @@ export type GameSessionScreenViewProps = GameFrameScreenData & {
 
 /** What every place is given: the frame's data, and asking for its one confirmation. */
 export type FramePlaceProps = GameSessionScreenViewProps & {
+  readonly mode: PlayMode;
   /** Ask to resign or cancel: confirmed over whichever place is shown. */
   readonly onConfirm: (operation: FrameConfirmOperation) => void;
 };

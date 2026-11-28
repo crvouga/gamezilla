@@ -2,8 +2,8 @@ import { simulationRoomFixture } from '@libs/game-session-harness-ts/simulation-
 import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
-} from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import type { LightCyclesSeat } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import { lightCyclesQuadShared } from '@libs/light-cycles-shared-ts/light-cycles-game';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';

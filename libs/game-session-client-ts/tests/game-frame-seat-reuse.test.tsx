@@ -75,7 +75,6 @@ function props(): GameSessionScreenViewProps {
       increment: 0,
     },
     canCreate: false,
-    mode: 'vs-human',
     sides: ['white', 'black', 'red'],
     setup: null,
     table: {

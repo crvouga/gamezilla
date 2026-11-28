@@ -1,3 +1,6 @@
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
+import { SimulationFailure } from '@libs/game-simulation-shared-ts/simulation-failure';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type {
   RoomRuntime,
@@ -17,10 +20,7 @@ import type {
 import type { RegisteredSimulation } from '@pkgs/turn-game-shared-ts/game-simulation';
 import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
 import { SimulationAuthority } from './simulation-authority';
-import { withSimulationBots } from './simulation-bots';
 import { rebaseSimulationCommand } from './simulation-command-state';
-import { FixedStepSimulation } from './simulation-engine';
-import { SimulationFailure } from './simulation-failure';
 import {
   RecoverSimulation,
   recoverSimulation,

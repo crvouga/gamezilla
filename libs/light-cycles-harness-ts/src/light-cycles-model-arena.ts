@@ -7,8 +7,8 @@ import {
   RequestSimulationSnapshot,
   type SimulationSnapshotPayload,
   SimulationStateChanged,
-} from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import {
   LIGHT_CYCLES_CONFIG,
   type LightCyclesSeat,

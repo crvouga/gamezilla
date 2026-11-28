@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test';
 import { DecideMultiplayerGame } from '@libs/game-matchmaking-shared-ts/match-intent';
 import { MultiplayerGameChanged } from '@libs/game-matchmaking-shared-ts/match-room';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { ROOM_SERVICE_IDENTITY } from '@pkgs/room-root-shared-ts/service-identity';
 import { continuousRaceGame } from './reference-continuous-game';
 import { liveSessionRoom } from './reference-live-session-room';

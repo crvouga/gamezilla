@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
-import { SimulationFailure } from '@libs/game-session-shared-ts/simulation-failure';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
+import { SimulationFailure } from '@libs/game-simulation-shared-ts/simulation-failure';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import type { SimulationSnapshot } from '@pkgs/turn-game-shared-ts/simulation';
 import fc from 'fast-check';

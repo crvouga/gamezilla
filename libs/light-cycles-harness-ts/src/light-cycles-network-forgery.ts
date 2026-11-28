@@ -1,4 +1,4 @@
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { LightCyclesSeat } from '@libs/light-cycles-shared-ts/light-cycles-config';
 import {
   ROOM_SERVER_ENDPOINT,

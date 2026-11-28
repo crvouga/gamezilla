@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { driveSimulation } from '@libs/game-session-shared-ts/simulation-driver';
+import { driveSimulation } from '@libs/game-simulation-shared-ts/simulation-driver';
 import { createHarnessClock } from '@pkgs/clock-shared-ts/harness-clock';
 import { raceSimulation } from './reference-simulation';
 

@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
-import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import { pongBot } from '@libs/pong-shared-ts/pong-bot';
 import { pongCodec } from '@libs/pong-shared-ts/pong-codec';
 import { pongConfig } from '@libs/pong-shared-ts/pong-config';

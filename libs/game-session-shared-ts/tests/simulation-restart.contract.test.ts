@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import {
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import { InMemoryRoomStorage } from '@pkgs/room-adapter-memory-shared-ts/room-storage';
 import { continuousRaceGame } from './reference-continuous-game';
 import { liveSessionRoom } from './reference-live-session-room';

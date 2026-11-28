@@ -2,7 +2,7 @@ import { expect, test } from 'bun:test';
 import {
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import { LightCyclesWireTap } from '@libs/light-cycles-harness-ts/light-cycles-wire-tap';
 import { assertProperty } from '@pkgs/property-shared-ts/assert-property';
 import { ROOM_SERVER_ENDPOINT } from '@pkgs/room-root-harness-ts/network';

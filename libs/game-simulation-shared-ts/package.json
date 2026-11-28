@@ -1,0 +1,44 @@
+{
+  "name": "@libs/game-simulation-shared-ts",
+  "version": "0.0.0",
+  "private": true,
+  "exports": {
+    "./*": [
+      "./src/*.ts",
+      "./src/*.tsx",
+      "./src/*.d.ts"
+    ]
+  },
+  "scripts": {
+    "lint": "bun run ../../libs/tools-harness-ts/scripts/lint-package.ts",
+    "tc": "tsc --noEmit --incremental --tsBuildInfoFile .cache/tc.tsbuildinfo -p ./tsconfig.tc.json",
+    "test": "bun test tests"
+  },
+  "dependencies": {
+    "@pkgs/clock-shared-ts": "workspace:*",
+    "@pkgs/message-shared-ts": "workspace:*",
+    "@pkgs/observability-root-shared-ts": "workspace:*",
+    "@pkgs/turn-game-shared-ts": "workspace:*",
+    "@pkgs/uuid-shared-ts": "workspace:*",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/bun": "catalog:",
+    "@types/pg": "catalog:",
+    "@typescript/native": "catalog:",
+    "typescript": "catalog:",
+    "@pkgs/property-shared-ts": "workspace:*",
+    "fast-check": "catalog:"
+  },
+  "category": "isomorphic",
+  "gameApi": [
+    "simulation-engine",
+    "simulation-driver",
+    "simulation-prediction",
+    "simulation-interpolation",
+    "simulation-bots",
+    "simulation-replica",
+    "simulation-messages"
+  ],
+  "language": "typescript"
+}

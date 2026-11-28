@@ -2,7 +2,7 @@ import { connectRoomSimulation } from '@libs/game-session-client-ts/room-simulat
 import { simulationRoomFixture } from '@libs/game-session-harness-ts/simulation-room-fixture';
 import { virtualFrames } from '@libs/game-session-harness-ts/simulation-room-presentation';
 import { GameSessionsAttr } from '@libs/game-session-shared-ts/game-session-state';
-import { RequestSimulationSnapshot } from '@libs/game-session-shared-ts/simulation-messages';
+import { RequestSimulationSnapshot } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { defineAction } from '@pkgs/harness-root-shared-ts/define-action';
 import { defineSystem } from '@pkgs/harness-root-shared-ts/define-system';
 import type { Session } from '@pkgs/harness-root-shared-ts/runtime-types';

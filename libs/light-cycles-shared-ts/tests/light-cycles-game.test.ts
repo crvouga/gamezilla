@@ -1,11 +1,11 @@
 import { expect, test } from 'bun:test';
-import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import {
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
-import { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
+import { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import {
   lightCyclesDuelShared,
   lightCyclesQuadShared,

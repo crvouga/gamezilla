@@ -1,4 +1,4 @@
-import type { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
+import type { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import type { GameSimulationControls } from '@pkgs/turn-game-shared-ts/game-presentation';
 import type { GameSide } from '@pkgs/turn-game-shared-ts/game-rules';
 

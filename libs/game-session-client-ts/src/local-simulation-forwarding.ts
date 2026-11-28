@@ -2,7 +2,7 @@ import type { LocalSimulationSession } from '@libs/game-session-shared-ts/simula
 import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { SpaceOpenRoomEntry } from '@libs/spaces-client-ts/space-open-rooms-store';
 
 /** Sharing is transient on the room already owned by this screen; offline play keeps running. */

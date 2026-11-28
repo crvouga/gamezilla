@@ -233,6 +233,7 @@
     "@pkgs/db-schema-sqlite-shared-ts": "workspace:*",
     "@pkgs/dmn-shared-ts": "workspace:*",
     "@pkgs/fs-server-ts": "workspace:*",
+    "@libs/game-simulation-shared-ts": "workspace:*",
     "@pkgs/gherkin-server-ts": "workspace:*",
     "@pkgs/gherkin-shared-ts": "workspace:*",
     "@pkgs/harness-root-shared-ts": "workspace:*",

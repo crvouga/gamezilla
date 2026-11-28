@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { arenaCodec, arenaGame } from './reference-arena-game';
 import { liveSessionRoom } from './reference-live-session-room';
 import { requestState } from './reference-simulation-room';

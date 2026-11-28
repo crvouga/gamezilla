@@ -1,6 +1,6 @@
+import { SimulationStateChanged } from '@libs/game-simulation-shared-ts/simulation-messages';
 import type { Message } from '@pkgs/message-shared-ts/message';
 import type { SimulationExecution } from '@pkgs/turn-game-shared-ts/simulation-execution';
-import { SimulationStateChanged } from './simulation-messages';
 import {
   RecoverSimulation,
   type SimulationRecovery,

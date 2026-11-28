@@ -31,6 +31,7 @@
     "@lingui/core": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/device-client-ts": "workspace:*",
+    "@libs/game-simulation-shared-ts": "workspace:*",
     "@pkgs/keyword-shared-ts": "workspace:*",
     "@pkgs/kv-root-client-ts": "workspace:*",
     "@pkgs/kv-root-shared-ts": "workspace:*",

@@ -1,4 +1,4 @@
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import { type PongConfig, pongConfig } from '@libs/pong-shared-ts/pong-config';
 import { initialPongState } from '@libs/pong-shared-ts/pong-state';
 import { createPongStep } from '@libs/pong-shared-ts/pong-step';

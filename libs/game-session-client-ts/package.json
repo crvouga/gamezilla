@@ -31,6 +31,7 @@
     "@lingui/core": "catalog:",
     "@pkgs/clock-client-ts": "workspace:*",
     "@pkgs/clock-shared-ts": "workspace:*",
+    "@libs/game-simulation-shared-ts": "workspace:*",
     "@pkgs/lingui-solid-client-ts": "workspace:*",
     "@pkgs/logger-client-ts": "workspace:*",
     "@pkgs/room-root-client-ts": "workspace:*",

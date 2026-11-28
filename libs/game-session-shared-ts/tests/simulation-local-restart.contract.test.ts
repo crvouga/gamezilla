@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
-import { SubmitSimulationInput } from '@libs/game-session-shared-ts/simulation-messages';
+import { SubmitSimulationInput } from '@libs/game-simulation-shared-ts/simulation-messages';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { continuousRaceGame } from './reference-continuous-game';
 import { liveSessionRoom } from './reference-live-session-room';

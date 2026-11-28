@@ -8,11 +8,11 @@ import {
   connectSimulationPresentation,
   type SimulationPresentation,
 } from '@libs/game-session-client-ts/simulation-presentation-session';
-import type { SimulationReplica } from '@libs/game-session-shared-ts/simulation-replica';
 import {
   simulationFrameMeasures,
   simulationReplicaMeasures,
 } from '@libs/game-session-shared-ts/simulation-telemetry';
+import type { SimulationReplica } from '@libs/game-simulation-shared-ts/simulation-replica';
 import { useClock } from '@pkgs/clock-client-ts/solid';
 import { RoomMetaAttr } from '@pkgs/room-root-client-ts/room-meta';
 import { useTurnGames } from '@pkgs/turn-game-client-ts/turn-games-context';

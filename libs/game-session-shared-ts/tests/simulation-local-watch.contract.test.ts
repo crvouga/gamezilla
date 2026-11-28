@@ -4,7 +4,7 @@ import {
   RequestSimulationSnapshot,
   SimulationStateChanged,
   SubmitSimulationInput,
-} from '@libs/game-session-shared-ts/simulation-messages';
+} from '@libs/game-simulation-shared-ts/simulation-messages';
 import { createTurnGames } from '@pkgs/turn-game-shared-ts/game-rules';
 import { continuousRaceGame } from './reference-continuous-game';
 import { liveSessionRoom } from './reference-live-session-room';

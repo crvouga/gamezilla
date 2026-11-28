@@ -1,12 +1,12 @@
 import { expect, test } from 'bun:test';
 import { defineGame } from '@libs/game-session-shared-ts/game-definition';
-import { withSimulationBots } from '@libs/game-session-shared-ts/simulation-bots';
-import { FixedStepSimulation } from '@libs/game-session-shared-ts/simulation-engine';
+import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
+import { withSimulationBots } from '@libs/game-simulation-shared-ts/simulation-bots';
+import { FixedStepSimulation } from '@libs/game-simulation-shared-ts/simulation-engine';
 import {
   SimulationFailure,
   type SimulationReproduction,
-} from '@libs/game-session-shared-ts/simulation-failure';
-import { LocalSimulationSession } from '@libs/game-session-shared-ts/simulation-local-session';
+} from '@libs/game-simulation-shared-ts/simulation-failure';
 import type {
   BotDifficulty,
   GameSide,

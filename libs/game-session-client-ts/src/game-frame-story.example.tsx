@@ -264,7 +264,6 @@ export function frameArgs(): GameSessionScreenViewProps {
     stopped: false,
     status: null,
     canCreate: true,
-    mode: 'vs-human',
     sides: ['white', 'black'],
     setup: null,
     table: FRAME_NO_TABLE,
