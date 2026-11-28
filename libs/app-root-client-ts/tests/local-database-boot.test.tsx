@@ -268,6 +268,7 @@ describe('booting the app', () => {
     b.unmount();
   });
 
+  // regression: local-sqlite-failure-stops-boot
   test('shows recovery when the durable database cannot be opened', async () => {
     const b = await boot({
       openSqlClient: () => Promise.reject(new Error('no worker could start')),

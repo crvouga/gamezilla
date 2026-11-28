@@ -10,6 +10,7 @@ import type { SqlClient } from '@pkgs/sql-client-root-shared-ts/interface';
 import { STORAGE_FAULTS } from '@pkgs/sql-client-root-shared-ts/storage-faults';
 import { SqlClientImplMockingbirdSqlite } from '@pkgs/sql-client-sqlite-root-shared-ts/impl-mockingbird-sqlite';
 import sql from '@pkgs/sql-root-shared-ts/sql';
+import { createSyncEnginePool } from '@pkgs/sync-engine-client-ts/sync-engine-pool';
 import type { SyncEngine } from '@pkgs/sync-engine-client-ts/sync-engine-port';
 
 const PROBE_TABLE = defineTable({
@@ -249,4 +250,35 @@ test('releases the database when application loading fails', async () => {
   });
   await expect(boot(w)).rejects.toThrow('application unavailable');
   expect(faulty.disconnects()).toBe(1);
+});
+
+// regression: replaced-cache-restarts-stopped-sync
+test('switching accounts after losing the SQLite owner retires the previous engine', async () => {
+  const pool = createSyncEnginePool();
+  const db = await openMockingbird();
+  const owner = createFaultInjectingSqlClient(db);
+  const alice = world(() => Promise.resolve(owner.client));
+  const bob = world(openMockingbird, {
+    userId: 'bob',
+    databaseName: 'user_bob',
+    auth: { ...alice.args.auth, getAccountId: () => 'bob' },
+  });
+  try {
+    const previous = await pool.getOrCreate('user_alice', () => boot(alice));
+    await seedItem(previous.db);
+    owner.breakWith(() => new Error('Database owner disconnected'));
+    await expect(previous.db.query(READ_ITEMS)).rejects.toThrow(
+      'Database owner disconnected'
+    );
+
+    const active = await pool.getOrCreate('user_bob', () => boot(bob));
+    owner.notifyChanged();
+    await expectUsable(active);
+    expect(pool.peekReady('user_alice')).toBeNull();
+    expect(previous.status.getSnapshot().connection).toBe('disconnected');
+    expect(owner.disconnects()).toBe(1);
+    await expect(db.query(READ_ITEMS)).rejects.toThrow(/database is closed/i);
+  } finally {
+    await pool.releaseAll();
+  }
 });
