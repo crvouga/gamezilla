@@ -45,9 +45,7 @@ export async function mountContentExample(
         <IdProvider createId={ports.createId} random={ports.random}>
           <SyncEngineProvider value={engine ?? client.engine}>
             <MutationClientContext value={mutations}>
-              <ThemeProvider
-                fixedLayout={{ width: 390, height: 844 }}
-              >
+              <ThemeProvider fixedLayout={{ width: 390, height: 844 }}>
                 <SurfaceStackProvider>
                   <ContentExampleHost>
                     <ContentExampleClient
